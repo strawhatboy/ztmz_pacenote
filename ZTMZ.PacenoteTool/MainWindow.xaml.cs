@@ -52,6 +52,24 @@ namespace ZTMZ.PacenoteTool
                     this.tb_tracklength.Text = msg.TrackLength.ToString("0.0");
                 });
             };
+
+            this._udpReceiver.onGameStateChanged += state =>
+            {
+                this.Dispatcher.Invoke(() =>
+                {
+                    this.tb_gamestate.Text = state.ToString();
+                });
+                switch (state)
+                {
+                    case GameState.Unknown:
+                        // end recording, unload trace loaded?
+                        break;
+                    case GameState.RaceBegin:
+                        // load trace, use lastmsg tracklength & startZ
+                        // this._udpReceiver.LastMessage.TrackLength
+                        break;
+                }
+            };
         }
     }
 }

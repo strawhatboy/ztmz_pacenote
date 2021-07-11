@@ -49,11 +49,9 @@ namespace ZTMZ.PacenoteTool
         private UdpClient udpClient;
         public event NewUDPMessageDelegate onNewMessage;
         public event GameStateChangedDelegate onGameStateChanged;
-        private UDPMessage lastUDPMessage;
         private bool isRunning;
         private Timer _timer = new Timer();
         private int _timerCount = 0;
-        
         private GameState _gameState = GameState.Unknown;
         public GameState GameState
         {
@@ -70,6 +68,8 @@ namespace ZTMZ.PacenoteTool
         {
             initUDPClient();
         }
+
+        public UDPMessage LastMessage { get; private set; }
 
         private void initUDPClient()
         {
@@ -125,9 +125,9 @@ namespace ZTMZ.PacenoteTool
                 message.StartZ = BitConverter.ToSingle(rawData, 24);
                 // only 264 bytes
                 // message.TrackNumber = BitConverter.ToInt32(rawData, 272);
-                if (!message.Equals(this.lastUDPMessage))
+                if (!message.Equals(this.LastMessage))
                 {
-                    this.lastUDPMessage = message;
+                    this.LastMessage = message;
                     this.onNewMessage?.Invoke(message);
                     if (message.LapTime > 0 && this.GameState != GameState.Racing)
                     {
@@ -135,6 +135,16 @@ namespace ZTMZ.PacenoteTool
                     } else if (message.LapTime == 0 && message.LapDistance <= 0 && this.GameState != GameState.RaceBegin)
                     {
                         this.GameState = GameState.RaceBegin;
+                    } else if (message.LapDistance >= message.TrackLength && this.GameState != GameState.RaceEnd)
+                    {
+                        this.GameState = GameState.RaceEnd;
+                    }
+                }
+                else
+                {
+                    if (this.GameState == GameState.Racing || this.GameState == GameState.RaceBegin)
+                    {
+                        this.GameState = GameState.Paused;
                     }
                 }
 

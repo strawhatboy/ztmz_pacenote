@@ -13,7 +13,7 @@
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="180"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
@@ -24,17 +24,19 @@
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
-            <TextBlock>时间：</TextBlock>
-            <TextBlock Grid.Row="1">圈时间：</TextBlock>
-            <TextBlock Grid.Row="2">行驶距离：</TextBlock>
-            <TextBlock Grid.Row="3">速度：</TextBlock>
-            <TextBlock Grid.Row="4">圈总长：</TextBlock>
+            <TextBlock Grid.Row="0">游戏状态：</TextBlock>
+            <TextBlock Grid.Row="1">时间：</TextBlock>
+            <TextBlock Grid.Row="2">圈时间：</TextBlock>
+            <TextBlock Grid.Row="3">行驶距离：</TextBlock>
+            <TextBlock Grid.Row="4">速度：</TextBlock>
+            <TextBlock Grid.Row="5">圈总长：</TextBlock>
             
-            <TextBlock Grid.Column="1" x:Name="tb_time">WTF</TextBlock>
-            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="tb_laptime">WTF</TextBlock>
-            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="tb_distance"></TextBlock>
-            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_speed"></TextBlock>
-            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="tb_tracklength"></TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="tb_gamestate">WTF</TextBlock>
+            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="tb_time">WTF</TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="tb_laptime">WTF</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_distance"></TextBlock>
+            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="tb_speed"></TextBlock>
+            <TextBlock Grid.Row="5" Grid.Column="1" x:Name="tb_tracklength"></TextBlock>
         </Grid>
     </Grid>
 </Window>
