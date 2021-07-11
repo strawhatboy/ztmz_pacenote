@@ -5,26 +5,43 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool"
         mc:Ignorable="d"
+        ResizeMode="NoResize"
         Title="MainWindow" Height="750" Width="250">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="150"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="4" />
+            <RowDefinition Height="120" />
+            <RowDefinition Height="4" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="130"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <RadioButton Grid.Column="0" Name="ck_record" GroupName="mode" Unchecked="Ck_replay_OnChecked"
+                         Checked="Ck_record_OnChecked">
+                录制模式
+            </RadioButton>
+            <RadioButton Grid.Column="1" Name="ck_replay" GroupName="mode" IsChecked="True">播放模式</RadioButton>
+        </Grid>
+        <Border Grid.Row="1" Margin="1" Background="#8888" />
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="130" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0">游戏状态：</TextBlock>
             <TextBlock Grid.Row="1">时间：</TextBlock>
@@ -34,15 +51,31 @@
             <TextBlock Grid.Row="5">圈总长：</TextBlock>
             <TextBlock Grid.Row="6">进度：</TextBlock>
             <TextBlock Grid.Row="7">PosZ：</TextBlock>
+
+            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="tb_gamestate">N/A</TextBlock>
+            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="tb_time">N/A</TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="tb_laptime">N/A</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_distance" >N/A</TextBlock>
+            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="tb_speed" >N/A</TextBlock>
+            <TextBlock Grid.Row="5" Grid.Column="1" x:Name="tb_tracklength" >N/A</TextBlock>
+            <TextBlock Grid.Row="6" Grid.Column="1" x:Name="tb_progress" >N/A</TextBlock>
+            <TextBlock Grid.Row="7" Grid.Column="1" x:Name="tb_position_z" >N/A</TextBlock>
+        </Grid>
+        <Border Grid.Row="3" Margin="1" Background="#8888" />
+        <Grid Grid.Row="4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0">当前配置：</TextBlock>
+            <TextBlock Grid.Row="1" Grid.Column="0">领航员：</TextBlock>
             
-            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="tb_gamestate">WTF</TextBlock>
-            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="tb_time">WTF</TextBlock>
-            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="tb_laptime">WTF</TextBlock>
-            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_distance"></TextBlock>
-            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="tb_speed"></TextBlock>
-            <TextBlock Grid.Row="5" Grid.Column="1" x:Name="tb_tracklength"></TextBlock>
-            <TextBlock Grid.Row="6" Grid.Column="1" x:Name="tb_progress"></TextBlock>
-            <TextBlock Grid.Row="7" Grid.Column="1" x:Name="tb_position_z"></TextBlock>
+            <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_profile"></ComboBox>
+            <TextBlock Grid.Row="1" Grid.Column="1" Name="tb_codriver">未知</TextBlock>
         </Grid>
     </Grid>
 </Window>

@@ -209,6 +209,7 @@ track_data = [
 # it's unique together with the starting position, which is not accurate to float precision
 track_dict = defaultdict(list)
 for t in track_data:
-    track_dict["{:0.2f}".format(t[0])].append((t[1], t[2]))
+    key = "{:0.2f}".format(t[0])
+    track_dict[key].append({"start_z": t[1], "track_name": t[2]})
     with open("track_dict.json", "w", encoding='utf8') as f:
         json.dump(track_dict, f)

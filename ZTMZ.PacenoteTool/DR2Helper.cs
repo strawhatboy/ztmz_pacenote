@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 
 namespace ZTMZ.PacenoteTool
 {
+    
     public class DR2Helper
     {
         public Dictionary<string, List<Tuple<float, string>>> ItineraryMap { set; get; }
