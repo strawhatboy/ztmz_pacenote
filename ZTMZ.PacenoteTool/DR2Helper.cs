@@ -6,15 +6,20 @@ using Newtonsoft.Json;
 
 namespace ZTMZ.PacenoteTool
 {
-    
+    public class ItineraryProperty
+    {
+        public float start_z { set; get; }
+        public string track_name { set; get; }
+    }
+
     public class DR2Helper
     {
-        public Dictionary<string, List<Tuple<float, string>>> ItineraryMap { set; get; }
+        public Dictionary<string, List<ItineraryProperty>> ItineraryMap { set; get; }
         public DR2Helper()
         {
             // load dict from json
             var jsonContent = File.ReadAllText("track_dict.json");
-            this.ItineraryMap = JsonConvert.DeserializeObject<Dictionary<string, List<Tuple<float, string>>>>(jsonContent);
+            this.ItineraryMap = JsonConvert.DeserializeObject<Dictionary<string, List<ItineraryProperty>>>(jsonContent);
         }
         public string GetItinerary(string trackLength, float startZ)
         {
@@ -24,7 +29,7 @@ namespace ZTMZ.PacenoteTool
             for(int i = 0; i < candidates.Count; i++)
             {
                 var item = candidates[i];
-                var diff = Math.Abs(item.Item1 - startZ); 
+                var diff = Math.Abs(item.start_z - startZ); 
                 if (diff < min)
                 {
                     min = diff;
@@ -32,7 +37,7 @@ namespace ZTMZ.PacenoteTool
                 }
             }
 
-            return candidates[minIndex].Item2.Replace(',', '_');
+            return candidates[minIndex].track_name.Replace(',', '_');
         }
     }
 }

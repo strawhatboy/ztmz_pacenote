@@ -127,6 +127,9 @@ namespace ZTMZ.PacenoteTool
                 // message.TrackNumber = BitConverter.ToInt32(rawData, 272);
                 if (!message.Equals(this.LastMessage))
                 {
+                    var lastMessage = this.LastMessage;
+                    this.LastMessage = message;
+                    this.onNewMessage?.Invoke(message);
                     if (message.LapTime > 0 && this.GameState != GameState.Racing)
                     {
                         this.GameState = GameState.Racing;
@@ -149,8 +152,6 @@ namespace ZTMZ.PacenoteTool
                     {
                         this.GameState = GameState.RaceEnd;
                     }
-                    this.onNewMessage?.Invoke(message);
-                    this.LastMessage = message;
                 }
                 else
                 {

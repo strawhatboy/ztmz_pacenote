@@ -58,6 +58,7 @@ namespace ZTMZ.PacenoteTool
                         this._recordingConfig.RecordingDate = DateTime.Now;
                         this._audioRecorder.Start(this._recordingConfig);
                         this._isRecordingInProgress = true;
+                        this.Dispatcher.Invoke(() => { this.tb_isRecording.Text = "是"; });
                     }
                 }
             });
@@ -68,6 +69,7 @@ namespace ZTMZ.PacenoteTool
                     this.Dispatcher.Invoke(() => { this.tb_time.Text = "stop"; });
                     this._audioRecorder.Stop(false);
                     this._isRecordingInProgress = false;
+                    this.Dispatcher.Invoke(() => { this.tb_isRecording.Text = "否"; });
                 }
             });
             this._udpReceiver = new UDPReceiver();
@@ -118,12 +120,13 @@ namespace ZTMZ.PacenoteTool
 
                         break;
                 }
-
-                foreach (var profile in this._profileManager.GetAllProfiles())
-                {
-                    this.cb_profile.Items.Add(profile);
-                }
             };
+
+            foreach (var profile in this._profileManager.GetAllProfiles())
+            {
+                this.cb_profile.Items.Add(profile);
+            }
+            this.cb_profile.SelectedIndex = 0;
         }
 
         private void Ck_record_OnChecked(object sender, RoutedEventArgs e)
@@ -138,6 +141,7 @@ namespace ZTMZ.PacenoteTool
             else
             {
                 MessageBox.Show(this, "等当前赛事结束后才可以切换模式", "模式切换错误");
+                e.Handled = true;
             }
         }
 
@@ -148,11 +152,13 @@ namespace ZTMZ.PacenoteTool
                 if (this._toolState == ToolState.Recording)
                 {
                     this._toolState = ToolState.Replaying;
+                    this.tb_isRecording.Text = "不可用";
                 }
             }
             else
             {
                 MessageBox.Show(this, "等当前赛事结束后才可以切换模式", "模式切换错误");
+                e.Handled = true;
             }
         }
 
