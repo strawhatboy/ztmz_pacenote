@@ -23,7 +23,7 @@ namespace ZTMZ.PacenoteTool
             {
                 return false;
             }
-            var target = (UDPMessage) obj;
+            var target = (UDPMessage)obj;
             return this.Time == target.Time &&
                    this.LapTime == target.LapTime &&
                    this.LapDistance == target.LapDistance &&
@@ -86,7 +86,7 @@ namespace ZTMZ.PacenoteTool
             this._timer.Interval = 1000;
             this._timer.Elapsed += (sender, args) =>
             {
-                if (this.GameState != GameState.Paused)
+                if (this.GameState != GameState.Paused && this.GameState != GameState.RaceBegin)
                 {
                     if (this._timerCount >= 20)
                     {
@@ -127,22 +127,34 @@ namespace ZTMZ.PacenoteTool
                 // message.TrackNumber = BitConverter.ToInt32(rawData, 272);
                 if (!message.Equals(this.LastMessage))
                 {
-                    this.LastMessage = message;
-                    this.onNewMessage?.Invoke(message);
                     if (message.LapTime > 0 && this.GameState != GameState.Racing)
                     {
                         this.GameState = GameState.Racing;
-                    } else if (message.LapTime == 0 && message.LapDistance <= 0 && this.GameState != GameState.RaceBegin)
+                    }
+                    else if (message.LapTime == 0 && message.LapDistance < 0)
                     {
-                        this.GameState = GameState.RaceBegin;
-                    } else if (message.LapDistance >= message.TrackLength && this.GameState != GameState.RaceEnd)
+                        // CountDown not works in Daily Event, only works for TimeTrial
+                        //if (message.Time != this.LastMessage.Time)
+                        //{
+                        //    if (this.GameState != GameState.CountDown)
+                        //        this.GameState = GameState.CountDown;
+                        //}
+                        //else 
+                        if (this.GameState != GameState.RaceBegin)
+                        {
+                            this.GameState = GameState.RaceBegin;
+                        }
+                    }
+                    else if (message.LapTime == 0 && this.GameState != GameState.RaceEnd)
                     {
                         this.GameState = GameState.RaceEnd;
                     }
+                    this.onNewMessage?.Invoke(message);
+                    this.LastMessage = message;
                 }
                 else
                 {
-                    if (this.GameState == GameState.Racing || this.GameState == GameState.RaceBegin)
+                    if (this.GameState == GameState.Racing || this.GameState == GameState.RaceBegin || this.GameState == GameState.CountDown)
                     {
                         this.GameState = GameState.Paused;
                     }

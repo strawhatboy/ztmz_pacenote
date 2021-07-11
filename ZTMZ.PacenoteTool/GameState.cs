@@ -4,8 +4,9 @@ namespace ZTMZ.PacenoteTool
     {
         Unknown = 0,
         RaceBegin = 1,
-        Racing = 2,
-        Paused = 3,
-        RaceEnd = 4,
+        CountDown = 2,
+        Racing = 3,
+        Paused = 4,
+        RaceEnd = 5,
     }
 }
