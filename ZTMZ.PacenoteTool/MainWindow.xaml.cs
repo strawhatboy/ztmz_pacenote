@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using OnlyR.Core.Recorder;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -23,6 +24,12 @@ namespace ZTMZ.PacenoteTool
         private HotKey _hotKeyStartRecord;
         private HotKey _hotKeyStopRecord;
         private UDPReceiver _udpReceiver;
+        private ToolState _toolState = ToolState.Recording;
+        private ProfileManager _profileManager = new();
+        private AudioRecorder _audioRecorder = new();
+        private DR2Helper _dr2Helper = new();
+        private string _trackName;
+        private string _trackFolder;
         public MainWindow()
         {
             InitializeComponent();
@@ -32,6 +39,9 @@ namespace ZTMZ.PacenoteTool
                 {
                     this.tb_time.Text = "start";
                 });
+                this._audioRecorder.Start(new RecordingConfig()
+                {
+                });
             });
             this._hotKeyStopRecord = new HotKey(Key.F2, KeyModifier.None, key =>
             {
@@ -39,6 +49,7 @@ namespace ZTMZ.PacenoteTool
                 {
                     this.tb_time.Text = "stop";
                 });
+                this._audioRecorder.Stop(false);
             });
             this._udpReceiver = new UDPReceiver();
             this._udpReceiver.onNewMessage += msg =>
@@ -73,6 +84,16 @@ namespace ZTMZ.PacenoteTool
                     case GameState.RaceBegin:
                         // load trace, use lastmsg tracklength & startZ
                         // this._udpReceiver.LastMessage.TrackLength
+                        if (this._toolState == ToolState.Recording)
+                        {
+                            // 1. create folder
+                            this._trackName = this._dr2Helper.GetItinerary(
+                                this._udpReceiver.LastMessage.TrackLength.ToString("f2"),
+                                this._udpReceiver.LastMessage.StartZ
+                            );
+                            this._trackFolder = this._profileManager.StartRecording(this._trackName);
+                            // 2. get audio_recorder ready
+                        }
                         break;
                 }
             };
