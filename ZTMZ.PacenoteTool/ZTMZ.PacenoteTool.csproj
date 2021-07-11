@@ -6,4 +6,8 @@
         <UseWPF>true</UseWPF>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\OnlyR.Core\OnlyR.Core.csproj" />
+    </ItemGroup>
+
 </Project>
