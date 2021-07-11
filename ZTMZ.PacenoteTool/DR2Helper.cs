@@ -23,21 +23,25 @@ namespace ZTMZ.PacenoteTool
         }
         public string GetItinerary(string trackLength, float startZ)
         {
-            var candidates = this.ItineraryMap[trackLength];
-            float min = float.MaxValue;
-            int minIndex = 0;
-            for(int i = 0; i < candidates.Count; i++)
+            if (this.ItineraryMap.ContainsKey(trackLength))
             {
-                var item = candidates[i];
-                var diff = Math.Abs(item.start_z - startZ); 
-                if (diff < min)
+                var candidates = this.ItineraryMap[trackLength];
+                float min = float.MaxValue;
+                int minIndex = 0;
+                for (int i = 0; i < candidates.Count; i++)
                 {
-                    min = diff;
-                    minIndex = i;
+                    var item = candidates[i];
+                    var diff = Math.Abs(item.start_z - startZ);
+                    if (diff < min)
+                    {
+                        min = diff;
+                        minIndex = i;
+                    }
                 }
-            }
 
-            return candidates[minIndex].track_name.Replace(',', '_');
+                return candidates[minIndex].track_name.Replace(',', '_');
+            }
+            return "UnknownTrack";
         }
     }
 }

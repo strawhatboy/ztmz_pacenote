@@ -39,16 +39,16 @@ namespace ZTMZ.PacenoteTool
             this._recordingConfig = new RecordingConfig()
             {
                 ChannelCount = 2,
-                SampleRate = 44100,
-                Mp3BitRate = 96,
+                SampleRate = 22050,
+                Mp3BitRate = 64,
                 UseLoopbackCapture = false,
             };
             this._hotKeyStartRecord = new HotKey(Key.F1, KeyModifier.None, key =>
             {
                 if (this._toolState == ToolState.Recording)
                 {
-                    this.Dispatcher.Invoke(() => { this.tb_time.Text = "start"; });
-                
+                    //this.Dispatcher.Invoke(() => { this.tb_time.Text = "start"; });
+
                     if (this._udpReceiver.GameState == GameState.Paused ||
                         this._udpReceiver.GameState == GameState.Racing)
                     {
@@ -66,7 +66,7 @@ namespace ZTMZ.PacenoteTool
             {
                 if (this._toolState == ToolState.Recording)
                 {
-                    this.Dispatcher.Invoke(() => { this.tb_time.Text = "stop"; });
+                    //this.Dispatcher.Invoke(() => { this.tb_time.Text = "stop"; });
                     this._audioRecorder.Stop(false);
                     this._isRecordingInProgress = false;
                     this.Dispatcher.Invoke(() => { this.tb_isRecording.Text = "否"; });
@@ -115,7 +115,7 @@ namespace ZTMZ.PacenoteTool
                         else
                         {
                             // 1. load sounds
-                            
+
                         }
 
                         break;
