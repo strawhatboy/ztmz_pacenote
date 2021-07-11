@@ -5,18 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="400">
+        Title="MainWindow" Height="750" Width="250">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="200"></RowDefinition>
+            <RowDefinition Height="150"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="180"></ColumnDefinition>
+                <ColumnDefinition Width="130"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
@@ -30,6 +32,8 @@
             <TextBlock Grid.Row="3">行驶距离：</TextBlock>
             <TextBlock Grid.Row="4">速度：</TextBlock>
             <TextBlock Grid.Row="5">圈总长：</TextBlock>
+            <TextBlock Grid.Row="6">进度：</TextBlock>
+            <TextBlock Grid.Row="7">PosZ：</TextBlock>
             
             <TextBlock Grid.Row="0" Grid.Column="1" x:Name="tb_gamestate">WTF</TextBlock>
             <TextBlock Grid.Row="1" Grid.Column="1" x:Name="tb_time">WTF</TextBlock>
@@ -37,6 +41,8 @@
             <TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_distance"></TextBlock>
             <TextBlock Grid.Row="4" Grid.Column="1" x:Name="tb_speed"></TextBlock>
             <TextBlock Grid.Row="5" Grid.Column="1" x:Name="tb_tracklength"></TextBlock>
+            <TextBlock Grid.Row="6" Grid.Column="1" x:Name="tb_progress"></TextBlock>
+            <TextBlock Grid.Row="7" Grid.Column="1" x:Name="tb_position_z"></TextBlock>
         </Grid>
     </Grid>
 </Window>

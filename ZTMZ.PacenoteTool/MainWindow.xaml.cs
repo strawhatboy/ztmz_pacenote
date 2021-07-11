@@ -50,6 +50,9 @@ namespace ZTMZ.PacenoteTool
                     this.tb_speed.Text = msg.Speed.ToString("0.0");
                     this.tb_laptime.Text = msg.LapTime.ToString("0.0");
                     this.tb_tracklength.Text = msg.TrackLength.ToString("0.0");
+                    this.tb_progress.Text = msg.CompletionRate.ToString("0.00");
+
+                    this.tb_position_z.Text = msg.StartZ.ToString("0.0");
                 });
             };
 
@@ -62,6 +65,9 @@ namespace ZTMZ.PacenoteTool
                 switch (state)
                 {
                     case GameState.Unknown:
+                        // end recording, unload trace loaded?
+                        break;
+                    case GameState.RaceEnd:
                         // end recording, unload trace loaded?
                         break;
                     case GameState.RaceBegin:
