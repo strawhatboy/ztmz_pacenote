@@ -35,7 +35,6 @@ namespace ZTMZ.PacenoteTool
 
         public MainWindow()
         {
-            InitializeComponent();
             this._recordingConfig = new RecordingConfig()
             {
                 ChannelCount = 2,
@@ -43,6 +42,7 @@ namespace ZTMZ.PacenoteTool
                 Mp3BitRate = 64,
                 UseLoopbackCapture = false,
             };
+            InitializeComponent();
             this._hotKeyStartRecord = new HotKey(Key.F1, KeyModifier.None, key =>
             {
                 if (this._toolState == ToolState.Recording)
@@ -54,11 +54,15 @@ namespace ZTMZ.PacenoteTool
                     {
                         this._recordingConfig.DestFilePath =
                             string.Format("{0}/{1}.mp3", this._trackFolder,
-                                (int)this._udpReceiver.LastMessage.LapDistance);
+                                (int) this._udpReceiver.LastMessage.LapDistance);
                         this._recordingConfig.RecordingDate = DateTime.Now;
                         this._audioRecorder.Start(this._recordingConfig);
                         this._isRecordingInProgress = true;
-                        this.Dispatcher.Invoke(() => { this.tb_isRecording.Text = "是"; });
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            this.tb_isRecording.Text = "√";
+                            this.tb_isRecording.Foreground = new SolidColorBrush(Colors.Red);
+                        });
                     }
                 }
             });
@@ -69,7 +73,11 @@ namespace ZTMZ.PacenoteTool
                     //this.Dispatcher.Invoke(() => { this.tb_time.Text = "stop"; });
                     this._audioRecorder.Stop(false);
                     this._isRecordingInProgress = false;
-                    this.Dispatcher.Invoke(() => { this.tb_isRecording.Text = "否"; });
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        this.tb_isRecording.Text = "×";
+                        this.tb_isRecording.Foreground = new SolidColorBrush(Colors.Black);
+                    });
                 }
             });
             this._udpReceiver = new UDPReceiver();
@@ -86,6 +94,16 @@ namespace ZTMZ.PacenoteTool
 
                     this.tb_position_z.Text = msg.StartZ.ToString("0.0");
                 });
+
+                if (this._toolState != ToolState.Replaying) return;
+
+                // play sound (maybe state not changed and audio files not loaded.)
+                if (this._profileManager.CurrentAudioFile != null &&
+                    msg.LapDistance >= this._profileManager.CurrentAudioFile.Distance)
+                {
+                    // play it
+                    this._profileManager.Play();
+                }
             };
 
             this._udpReceiver.onGameStateChanged += state =>
@@ -98,6 +116,17 @@ namespace ZTMZ.PacenoteTool
                         break;
                     case GameState.RaceEnd:
                         // end recording, unload trace loaded?
+                        if (this._toolState == ToolState.Recording)
+                        {
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                var codriver = PromptDialog.Dialog.Prompt(
+                                    "录制完成，是哪位小可爱、大佬在录制路书呢？",
+                                    "领航员信息",
+                                    "未知").ToString();
+                                this._profileManager.StopRecording(codriver);
+                            });
+                        }
                         break;
                     case GameState.RaceBegin:
                         // load trace, use lastmsg tracklength & startZ
@@ -110,12 +139,22 @@ namespace ZTMZ.PacenoteTool
                         {
                             // 1. create folder
                             this._trackFolder = this._profileManager.StartRecording(this._trackName);
-                            // 2. get audio_recorder ready
+                            // 2. get audio_recorder ready (audio_recorder already ready...)
                         }
                         else
                         {
                             // 1. load sounds
-
+                            this._profileManager.StartReplaying(this._trackName);
+                            var firstSound = this._profileManager.AudioFiles.FirstOrDefault();
+                            if (firstSound != null && firstSound.Distance < 0)
+                            {
+                                // play the RaceBegin sound, just when counting down from 5 to 0.
+                                this._profileManager.Play();
+                            }
+                            else
+                            {
+                                //TODO: cannot find any sound for this track. try to use 'default profile' ?
+                            }
                         }
 
                         break;
@@ -126,6 +165,7 @@ namespace ZTMZ.PacenoteTool
             {
                 this.cb_profile.Items.Add(profile);
             }
+
             this.cb_profile.SelectedIndex = 0;
         }
 
@@ -162,5 +202,25 @@ namespace ZTMZ.PacenoteTool
             }
         }
 
+        private void Tb_recordQuality_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            switch (this.tb_recordQuality.SelectedIndex)
+            {
+                case 0:
+                    // low
+                    this._recordingConfig.SampleRate = 11025;
+                    this._recordingConfig.Mp3BitRate = 64;
+                    break;
+                case 1:
+                    this._recordingConfig.SampleRate = 22050;
+                    this._recordingConfig.Mp3BitRate = 96;
+                    break;
+                case 2:
+                    // very huge file...
+                    this._recordingConfig.SampleRate = 44100;
+                    this._recordingConfig.Mp3BitRate = 320;
+                    break;
+            }
+        }
     }
 }

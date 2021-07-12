@@ -13,7 +13,7 @@
             <RowDefinition Height="4" />
             <RowDefinition Height="120" />
             <RowDefinition Height="4" />
-            <RowDefinition Height="60" />
+            <RowDefinition Height="80" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
@@ -21,11 +21,11 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <RadioButton Grid.Column="0" Name="ck_record" GroupName="mode" Unchecked="Ck_replay_OnChecked"
-                         Checked="Ck_record_OnChecked">
+            <RadioButton Grid.Column="0" Name="ck_record" GroupName="mode"
+                         Click="Ck_record_OnChecked">
                 录制模式
             </RadioButton>
-            <RadioButton Grid.Column="1" Name="ck_replay" GroupName="mode" IsChecked="True">播放模式</RadioButton>
+            <RadioButton Grid.Column="1" Name="ck_replay" GroupName="mode" Click="Ck_replay_OnChecked" IsChecked="True">播放模式</RadioButton>
         </Grid>
         <Border Grid.Row="1" Margin="1" Background="#8888" />
         <Grid Grid.Row="2">
@@ -43,42 +43,88 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0">游戏状态：</TextBlock>
-            <TextBlock Grid.Row="1">时间：</TextBlock>
-            <TextBlock Grid.Row="2">圈时间：</TextBlock>
-            <TextBlock Grid.Row="3">行驶距离：</TextBlock>
-            <TextBlock Grid.Row="4">速度：</TextBlock>
-            <TextBlock Grid.Row="5">圈总长：</TextBlock>
-            <TextBlock Grid.Row="6">进度：</TextBlock>
-            <TextBlock Grid.Row="7">PosZ：</TextBlock>
+            <TextBlock Grid.Row="0">
+                <TextBlock.ToolTip>
+                    <TextBlock>
+                        当前的游戏状态<LineBreak />
+                        RaceBegin：游戏开始倒计时<LineBreak />
+                        Racing：正在跑<LineBreak />
+                        Paused：暂停<LineBreak />
+                        RaceEnd：游戏结束<LineBreak />
+                        Unknown：未知状态
+                    </TextBlock>
+                </TextBlock.ToolTip>
+                游戏状态：
+            </TextBlock>
+            <TextBlock Grid.Row="1" ToolTip="游戏时间，可能不太准确">时间：</TextBlock>
+            <TextBlock Grid.Row="2" ToolTip="赛道的单圈时间，比赛用时">圈时间：</TextBlock>
+            <TextBlock Grid.Row="3" ToolTip="行驶距离，单位：米">行驶距离：</TextBlock>
+            <TextBlock Grid.Row="4" ToolTip="行驶速度，单位未知">速度：</TextBlock>
+            <TextBlock Grid.Row="5" ToolTip="赛道长度，单位：米">圈总长：</TextBlock>
+            <TextBlock Grid.Row="6" ToolTip="赛道进度，0.5表示完成了一半">进度：</TextBlock>
+            <TextBlock Grid.Row="7" ToolTip="车辆所在高度">PosZ：</TextBlock>
 
             <TextBlock Grid.Row="0" Grid.Column="1" x:Name="tb_gamestate">N/A</TextBlock>
             <TextBlock Grid.Row="1" Grid.Column="1" x:Name="tb_time">N/A</TextBlock>
             <TextBlock Grid.Row="2" Grid.Column="1" x:Name="tb_laptime">N/A</TextBlock>
-            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_distance" >N/A</TextBlock>
-            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="tb_speed" >N/A</TextBlock>
-            <TextBlock Grid.Row="5" Grid.Column="1" x:Name="tb_tracklength" >N/A</TextBlock>
-            <TextBlock Grid.Row="6" Grid.Column="1" x:Name="tb_progress" >N/A</TextBlock>
-            <TextBlock Grid.Row="7" Grid.Column="1" x:Name="tb_position_z" >N/A</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_distance">N/A</TextBlock>
+            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="tb_speed">N/A</TextBlock>
+            <TextBlock Grid.Row="5" Grid.Column="1" x:Name="tb_tracklength">N/A</TextBlock>
+            <TextBlock Grid.Row="6" Grid.Column="1" x:Name="tb_progress">N/A</TextBlock>
+            <TextBlock Grid.Row="7" Grid.Column="1" x:Name="tb_position_z">N/A</TextBlock>
         </Grid>
         <Border Grid.Row="3" Margin="1" Background="#8888" />
         <Grid Grid.Row="4">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Row="0" Grid.Column="0">当前配置：</TextBlock>
-            <TextBlock Grid.Row="1" Grid.Column="0">领航员：</TextBlock>
-            <TextBlock Grid.Row="2" Grid.Column="0">正在录音：</TextBlock>
-            
-            <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_profile"></ComboBox>
+            <TextBlock Grid.Row="0" Grid.Column="0" ToolTip="在程序文件夹的profiles文件夹中，按文件夹分为不同的配置，可以录制多套路书">当前配置：</TextBlock>
+            <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="本赛道的领航员">领航员：</TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="在录制模式下，游戏中，按F1键开始录制路书片段，按F2键停止录制路书片段">是否正在录音：</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="0">录制质量：</TextBlock>
+
+
+            <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_profile" />
             <TextBlock Grid.Row="1" Grid.Column="1" Name="tb_codriver">未知</TextBlock>
             <TextBlock Grid.Row="2" Grid.Column="1" Name="tb_isRecording">不可用</TextBlock>
+            <ComboBox Grid.Row="3" Grid.Column="1" Name="tb_recordQuality" SelectedIndex="0"
+                      SelectionChanged="Tb_recordQuality_OnSelectionChanged">
+                <ComboBoxItem>
+                    <ComboBoxItem.ToolTip>
+                        <TextBlock>
+                            低质量录制，文件较小，便于分享<LineBreak />
+                            低情商：声音可能失真<LineBreak />
+                            高情商：对讲机效果(YES)
+                        </TextBlock>
+                    </ComboBoxItem.ToolTip>
+                    低
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <ComboBoxItem.ToolTip>
+                        <TextBlock>
+                            中等质量录制
+                        </TextBlock>
+                    </ComboBoxItem.ToolTip>
+                    中
+                </ComboBoxItem>
+                <ComboBoxItem>
+                    <ComboBoxItem.ToolTip>
+                        <TextBlock>
+                            高质量录制，文件较大<LineBreak />
+                            保留了很多声音细节，更加真实
+                        </TextBlock>
+                    </ComboBoxItem.ToolTip>
+                    高
+                </ComboBoxItem>
+
+            </ComboBox>
         </Grid>
     </Grid>
 </Window>
