@@ -6,14 +6,14 @@
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="ZTMZ Club 路书工具 v1.0.0" Height="750" Width="250">
+        Title="ZTMZ Club 路书工具 Beta" Height="750" Width="250">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
             <RowDefinition Height="4" />
             <RowDefinition Height="120" />
             <RowDefinition Height="4" />
-            <RowDefinition Height="80" />
+            <RowDefinition Height="120" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
@@ -30,7 +30,7 @@
         <Border Grid.Row="1" Margin="1" Background="#8888" />
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="130" />
+                <ColumnDefinition Width="100" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
@@ -80,15 +80,19 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="100" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" ToolTip="在程序文件夹的profiles文件夹中，按文件夹分为不同的配置，可以录制多套路书">当前配置：</TextBlock>
             <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="本赛道的领航员">领航员：</TextBlock>
             <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="在录制模式下，游戏中，按F1键开始录制路书片段，按F2键停止录制路书片段">是否正在录音：</TextBlock>
             <TextBlock Grid.Row="3" Grid.Column="0">录制质量：</TextBlock>
+            <TextBlock Grid.Row="4" Grid.Column="0">录制设备：</TextBlock>
+            <TextBlock Grid.Row="5" Grid.Column="0">播放设备：</TextBlock>
 
 
             <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_profile" />
@@ -125,6 +129,8 @@
                 </ComboBoxItem>
 
             </ComboBox>
+            <ComboBox Grid.Row="4" Grid.Column="1"  Name="cb_recording_device" SelectionChanged="cb_recording_device_SelectionChanged"></ComboBox>
+            <ComboBox Grid.Row="5" Grid.Column="1"  Name="cb_replay_device" SelectionChanged="cb_replay_device_SelectionChanged"></ComboBox>
         </Grid>
     </Grid>
 </Window>

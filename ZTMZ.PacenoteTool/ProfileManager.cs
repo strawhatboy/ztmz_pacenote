@@ -1,7 +1,11 @@
+using NAudio.Wave;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Media;
+using System.Windows.Media;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -22,16 +26,20 @@ namespace ZTMZ.PacenoteTool
         public string CurrentCoDriverName { set; get; }
 
         public int CurrentPlayIndex { set; get; } = 0;
-        
-        public IEnumerable<AudioFile> AudioFiles { set; get; }
 
-        public IEnumerable<SoundPlayer> Players { set; get; }
+        public IList<AudioFile> AudioFiles { set; get; } = new List<AudioFile>();
 
-        public AudioFile CurrentAudioFile => this.CurrentPlayIndex < this.AudioFiles.Count() ? this.AudioFiles.ElementAt(this.CurrentPlayIndex) : null;
+        //public IEnumerable<Mp3FileReader> Players { set; get; }
+        //public IList<MediaPlayer> Players { set; get; } = new List<MediaPlayer>();
+        public IList<SoundPlayer> Players { set; get; } = new List<SoundPlayer>();
 
-        public SoundPlayer CurrentSoundPlayer => this.CurrentPlayIndex < this.Players.Count()
-            ? this.Players.ElementAt(this.CurrentPlayIndex)
+        public AudioFile CurrentAudioFile => this.AudioFiles != null && this.CurrentPlayIndex < this.AudioFiles.Count() ? this.AudioFiles[this.CurrentPlayIndex] : null;
+
+        public SoundPlayer CurrentSoundPlayer => this.Players != null && this.CurrentPlayIndex < this.Players.Count()
+            ? this.Players[this.CurrentPlayIndex]
             : null;
+
+        private object obj = new();
 
         public ProfileManager()
         {
@@ -74,13 +82,22 @@ namespace ZTMZ.PacenoteTool
         {
             // load codriver name
             this.CurrentItineraryPath = this.GetRecordingsFolder(itinerary);
-            var codriver = File.ReadLines(Path.Join(this.CurrentItineraryPath, CODRIVER_FILENAME)).FirstOrDefault();
-            this.CurrentCoDriverName = codriver;
+            var codirverfilepath = Path.Join(this.CurrentItineraryPath, CODRIVER_FILENAME);
+            if (File.Exists(codirverfilepath))
+            {
+                var codriver = File.ReadLines(codirverfilepath).FirstOrDefault();
+                this.CurrentCoDriverName = codriver;
+            } else
+            {
+                this.CurrentCoDriverName = "???";
+            }
 
-            // load all files
-            var filePaths = Directory.GetFiles(this.CurrentItineraryPath, "*.mp3").AsEnumerable();
-            // also allow wav files
-            filePaths = filePaths.Concat(Directory.GetFiles(this.CurrentItineraryPath, "*.wav"));
+            // clear lists
+            this.AudioFiles.Clear();
+            this.Players.Clear();
+
+            // load all files, only wav file supported.
+            var filePaths = Directory.GetFiles(this.CurrentItineraryPath, "*.wav").AsEnumerable();
 
             // get files
             var audioFiles = from path in filePaths
@@ -88,7 +105,7 @@ namespace ZTMZ.PacenoteTool
                     new AudioFile()
                     {
                         FileName = Path.GetFileName(path),
-                        FilePath = path,
+                        FilePath = Path.GetFullPath(path),
                         Distance = int.Parse(Path.GetFileNameWithoutExtension(path)),
                         Extension = Path.GetExtension(path),
                         Content = File.ReadAllBytes(path)
@@ -98,18 +115,33 @@ namespace ZTMZ.PacenoteTool
                 orderby audioFile.Distance ascending 
                 select audioFile;
 
-            this.AudioFiles = sortedAudioFiles;
+            this.AudioFiles = sortedAudioFiles.ToList();
 
-            this.Players = from audiofile in sortedAudioFiles
-                select new SoundPlayer(new MemoryStream(audiofile.Content));
+            //this.Players = from audiofile in sortedAudioFiles
+            //    select new Mp3FileReader(audiofile.FilePath);
+            foreach (var audiofile in sortedAudioFiles)
+            {
+                var player = new SoundPlayer(new MemoryStream(audiofile.Content));
+                this.Players.Add(player);
+            }
+
+           
 
             this.CurrentPlayIndex = 0;
         }
 
-        public void Play()
+        public void Play(int deviceID)
         {
-            var player = this.Players.ElementAt(this.CurrentPlayIndex++);
-            player.Play();
+            var player = this.Players[this.CurrentPlayIndex++];
+            //var waveout = new WaveOut();
+            //waveout.DeviceNumber = deviceID;
+            //waveout.Init(player);
+            //waveout.Play();
+            lock (obj)
+            {
+                player.Play();
+            }
+            Debug.WriteLine("Playing");
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using NAudio.Lame;
 using NAudio.Wave;
 using OnlyR.Core.Enums;
@@ -21,6 +22,8 @@ namespace OnlyR.Core.Recorder
         private const int VuSpeed = 5;
 
         private LameMP3FileWriter? _mp3Writer;
+        private string _destinationPath;
+        private WaveFileWriter? _waveFileWriter;
         private IWaveIn? _waveSource;
         private WaveOutEvent? _silenceWaveOut;
         private SampleAggregator? _sampleAggregator;
@@ -91,11 +94,14 @@ namespace OnlyR.Core.Recorder
                 _waveSource.DataAvailable += WaveSourceDataAvailableHandler;
                 _waveSource.RecordingStopped += WaveSourceRecordingStoppedHandler;
 
+                _destinationPath = recordingConfig.DestFilePath;
                 _mp3Writer = new LameMP3FileWriter(
                     recordingConfig.DestFilePath,
                     _waveSource.WaveFormat,
                     recordingConfig.Mp3BitRate,
                     CreateTag(recordingConfig));
+
+                //_waveFileWriter = new WaveFileWriter(recordingConfig.DestFilePath, _waveSource.WaveFormat);
 
                 _waveSource.StartRecording();
 
@@ -211,6 +217,7 @@ namespace OnlyR.Core.Recorder
             AddToSampleAggregator(buffer, bytesRecorded, isFloatingPointAudio);
 
             _mp3Writer?.Write(buffer, 0, bytesRecorded);
+            //_waveFileWriter?.Write(buffer, 0, bytesRecorded);
         }
 
         private void AddToSampleAggregator(byte[] buffer, int bytesRecorded, bool isFloatingPointAudio)
@@ -272,6 +279,7 @@ namespace OnlyR.Core.Recorder
         private void Cleanup()
         {
             _mp3Writer?.Flush();
+            //_waveFileWriter?.Flush();
 
             _waveSource?.Dispose();
             _waveSource = null;
@@ -279,8 +287,22 @@ namespace OnlyR.Core.Recorder
             _silenceWaveOut?.Dispose();
             _silenceWaveOut = null;
 
+            // convert mp3 to wav
+            using (var reader = new Mp3FileReader(_destinationPath))
+            {
+                var wavfilename = Path.GetFileNameWithoutExtension(_destinationPath) + ".wav";
+                var wavfilepath = Path.Join(Path.GetDirectoryName(_destinationPath), wavfilename);
+
+                WaveFileWriter.CreateWaveFile(wavfilepath, reader);
+            }
+
             _mp3Writer?.Dispose();
             _mp3Writer = null;
+
+            // delete mp3 file
+            File.Delete(_destinationPath);
+            //_waveFileWriter?.Dispose();
+            //_waveFileWriter = null;
         }
 
         private void InitFader(int sampleRate)

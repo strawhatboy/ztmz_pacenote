@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using NAudio.Wave;
+using OnlyR.Core.Models;
 using OnlyR.Core.Recorder;
 
 namespace ZTMZ.PacenoteTool
@@ -32,6 +35,9 @@ namespace ZTMZ.PacenoteTool
         private string _trackFolder;
         private bool _isRecordingInProgress = false;
         private RecordingConfig _recordingConfig;
+        private IEnumerable<RecordingDeviceInfo> _recordingDevices;
+        private int _selectReplayDeviceID = 0;
+        private bool _firstSoundPlayed = false;
 
         public MainWindow()
         {
@@ -54,7 +60,7 @@ namespace ZTMZ.PacenoteTool
                     {
                         this._recordingConfig.DestFilePath =
                             string.Format("{0}/{1}.mp3", this._trackFolder,
-                                (int) this._udpReceiver.LastMessage.LapDistance);
+                                (int)this._udpReceiver.LastMessage.LapDistance);
                         this._recordingConfig.RecordingDate = DateTime.Now;
                         this._audioRecorder.Start(this._recordingConfig);
                         this._isRecordingInProgress = true;
@@ -97,13 +103,19 @@ namespace ZTMZ.PacenoteTool
 
                 if (this._toolState != ToolState.Replaying) return;
 
-                // play sound (maybe state not changed and audio files not loaded.)
-                if (this._profileManager.CurrentAudioFile != null &&
-                    msg.LapDistance >= this._profileManager.CurrentAudioFile.Distance)
+                var worker = new BackgroundWorker();
+                worker.DoWork += (sender, e) =>
                 {
-                    // play it
-                    this._profileManager.Play();
-                }
+                    // play in threads.
+                    // play sound (maybe state not changed and audio files not loaded.)
+                    if (this._profileManager.CurrentAudioFile != null &&
+                    msg.LapDistance >= this._profileManager.CurrentAudioFile.Distance)
+                    {
+                        // play it
+                        this._profileManager.Play(this._selectReplayDeviceID);
+                    }
+                };
+                worker.RunWorkerAsync();
             };
 
             this._udpReceiver.onGameStateChanged += state =>
@@ -121,7 +133,7 @@ namespace ZTMZ.PacenoteTool
                             this.Dispatcher.Invoke(() =>
                             {
                                 var codriver = PromptDialog.Dialog.Prompt(
-                                    "录制完成，是哪位小可爱、大佬在录制路书呢？",
+                                    "录制完成，是哪位小可爱/大佬在录制路书呢？",
                                     "领航员信息",
                                     "未知").ToString();
                                 this._profileManager.StopRecording(codriver);
@@ -143,18 +155,25 @@ namespace ZTMZ.PacenoteTool
                         }
                         else
                         {
-                            // 1. load sounds
-                            this._profileManager.StartReplaying(this._trackName);
-                            var firstSound = this._profileManager.AudioFiles.FirstOrDefault();
-                            if (firstSound != null && firstSound.Distance < 0)
+                            var worker = new BackgroundWorker();
+                            worker.DoWork += (sender, e) =>
                             {
-                                // play the RaceBegin sound, just when counting down from 5 to 0.
-                                this._profileManager.Play();
-                            }
-                            else
-                            {
-                                //TODO: cannot find any sound for this track. try to use 'default profile' ?
-                            }
+                                // 1. load sounds
+                                this._profileManager.StartReplaying(this._trackName);
+                                var firstSound = this._profileManager.AudioFiles.FirstOrDefault();
+                                if (firstSound != null && firstSound.Distance < 0 && this._firstSoundPlayed == false)
+                                {
+                                    this._firstSoundPlayed = true;
+                                    // play the RaceBegin sound, just when counting down from 5 to 0.
+                                    // play in threads.
+                                    this._profileManager.Play(this._selectReplayDeviceID);
+                                }
+                                else
+                                {
+                                    //TODO: cannot find any sound for this track. try to use 'default profile' ?
+                                }
+                            };
+                            worker.RunWorkerAsync();
                         }
 
                         break;
@@ -167,6 +186,21 @@ namespace ZTMZ.PacenoteTool
             }
 
             this.cb_profile.SelectedIndex = 0;
+
+            this._recordingDevices = AudioRecorder.GetRecordingDeviceList();
+            foreach (var rDevice in this._recordingDevices)
+            {
+                this.cb_recording_device.Items.Add(rDevice.Name);
+            }
+
+            this.cb_recording_device.SelectedIndex = 0;
+
+            for (int i = 0; i < WaveOut.DeviceCount; i++)
+            {
+                WaveOutCapabilities WOC = WaveOut.GetCapabilities(i);
+                this.cb_replay_device.Items.Add(WOC.ProductName);
+            }
+            this.cb_replay_device.SelectedIndex = 0;
         }
 
         private void Ck_record_OnChecked(object sender, RoutedEventArgs e)
@@ -182,6 +216,7 @@ namespace ZTMZ.PacenoteTool
             {
                 MessageBox.Show(this, "等当前赛事结束后才可以切换模式", "模式切换错误");
                 e.Handled = true;
+                this.ck_replay.IsChecked = true;
             }
         }
 
@@ -199,6 +234,7 @@ namespace ZTMZ.PacenoteTool
             {
                 MessageBox.Show(this, "等当前赛事结束后才可以切换模式", "模式切换错误");
                 e.Handled = true;
+                this.ck_record.IsChecked = true;
             }
         }
 
@@ -221,6 +257,16 @@ namespace ZTMZ.PacenoteTool
                     this._recordingConfig.Mp3BitRate = 320;
                     break;
             }
+        }
+
+        private void cb_recording_device_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this._recordingConfig.RecordingDevice = (from x in this._recordingDevices where x.Name == this.cb_recording_device.SelectedItem.ToString() select x.Id).First();
+        }
+
+        private void cb_replay_device_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this._selectReplayDeviceID = this.cb_replay_device.SelectedIndex;
         }
     }
 }
