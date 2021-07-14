@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="ZTMZ Club 路书工具 Beta" Height="750" Width="250">
+        Title="ZTMZ Club 路书工具 Beta" Height="350" Width="250">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
@@ -22,10 +22,18 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <RadioButton Grid.Column="0" Name="ck_record" GroupName="mode"
-                         Click="Ck_record_OnChecked">
+                         Click="Ck_record_OnChecked" >
+                <RadioButton.ToolTip>
+                    <TextBlock>
+                        模式切换必须在游戏状态处于Unknow时可以（不在游戏中），在录制模式下的游戏开始后可以按F1录制路书片段，按F2结束路书片段录制
+                        <LineBreak />
+                        在游戏开始倒计时时也可以暂停游戏录制游戏开始语音，开始语音只能录制一段，并且在播放时会在倒计时开始时播放。在地图文件夹中会录制成“-2.wav”文件
+                    </TextBlock>
+                </RadioButton.ToolTip>
                 录制模式
             </RadioButton>
-            <RadioButton Grid.Column="1" Name="ck_replay" GroupName="mode" Click="Ck_replay_OnChecked" IsChecked="True">播放模式</RadioButton>
+            <RadioButton Grid.Column="1" Name="ck_replay" GroupName="mode" Click="Ck_replay_OnChecked" IsChecked="True"
+                         ToolTip="模式切换必须在游戏状态处于Unknow时可以（不在游戏中），在播放模式下的游戏开始后如果存在对应地图的路书，就会在到达指定地点后自动播放已经录制的路书片段">播放模式</RadioButton>
         </Grid>
         <Border Grid.Row="1" Margin="1" Background="#8888" />
         <Grid Grid.Row="2">
@@ -86,19 +94,22 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="20" />
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" ToolTip="在程序文件夹的profiles文件夹中，按文件夹分为不同的配置，可以录制多套路书">当前配置：</TextBlock>
             <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="本赛道的领航员">领航员：</TextBlock>
-            <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="在录制模式下，游戏中，按F1键开始录制路书片段，按F2键停止录制路书片段">是否正在录音：</TextBlock>
-            <TextBlock Grid.Row="3" Grid.Column="0">录制质量：</TextBlock>
-            <TextBlock Grid.Row="4" Grid.Column="0">录制设备：</TextBlock>
-            <TextBlock Grid.Row="5" Grid.Column="0">播放设备：</TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="0">当前地图：</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="0" ToolTip="在录制模式下，游戏中(RaceBegin, Racing, Paused)，按F1键开始录制路书片段，按F2键停止录制路书片段">是否正在录音：</TextBlock>
+            <TextBlock Grid.Row="4" Grid.Column="0">录制质量：</TextBlock>
+            <TextBlock Grid.Row="5" Grid.Column="0">录制设备：</TextBlock>
 
 
-            <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_profile" />
-            <TextBlock Grid.Row="1" Grid.Column="1" Name="tb_codriver">未知</TextBlock>
-            <TextBlock Grid.Row="2" Grid.Column="1" Name="tb_isRecording">不可用</TextBlock>
-            <ComboBox Grid.Row="3" Grid.Column="1" Name="tb_recordQuality" SelectedIndex="0"
+            <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_profile" Grid.ColumnSpan="2"/>
+            <TextBlock Grid.Row="1" Grid.Column="1" Name="tb_codriver" Grid.ColumnSpan="2">未知</TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="1" Name="tb_currentTrack">未知</TextBlock>
+            <Button Grid.Row="2" Grid.Column="2" Name="tb_currentTrack_view" ToolTip="打开当前地图录制文件夹" Click="tb_currentTrack_view_Click">...</Button>
+            <TextBlock Grid.Row="3" Grid.Column="1" Name="tb_isRecording" Grid.ColumnSpan="2">不可用</TextBlock>
+            <ComboBox Grid.Row="4" Grid.Column="1" Name="tb_recordQuality" SelectedIndex="0" Grid.ColumnSpan="2"
                       SelectionChanged="Tb_recordQuality_OnSelectionChanged">
                 <ComboBoxItem>
                     <ComboBoxItem.ToolTip>
@@ -129,8 +140,7 @@
                 </ComboBoxItem>
 
             </ComboBox>
-            <ComboBox Grid.Row="4" Grid.Column="1"  Name="cb_recording_device" SelectionChanged="cb_recording_device_SelectionChanged"></ComboBox>
-            <ComboBox Grid.Row="5" Grid.Column="1"  Name="cb_replay_device" SelectionChanged="cb_replay_device_SelectionChanged"></ComboBox>
+            <ComboBox Grid.Row="5" Grid.Column="1"  Name="cb_recording_device" SelectionChanged="cb_recording_device_SelectionChanged" Grid.ColumnSpan="2"></ComboBox>
         </Grid>
     </Grid>
 </Window>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,14 +45,14 @@ namespace ZTMZ.PacenoteTool
             this._recordingConfig = new RecordingConfig()
             {
                 ChannelCount = 2,
-                SampleRate = 22050,
-                Mp3BitRate = 64,
+                SampleRate = 8000,
+                Mp3BitRate = 48,
                 UseLoopbackCapture = false,
             };
             InitializeComponent();
             this._hotKeyStartRecord = new HotKey(Key.F1, KeyModifier.None, key =>
             {
-                if (this._toolState == ToolState.Recording)
+                if (this._toolState == ToolState.Recording && !this._isRecordingInProgress)
                 {
                     //this.Dispatcher.Invoke(() => { this.tb_time.Text = "start"; });
 
@@ -74,7 +75,7 @@ namespace ZTMZ.PacenoteTool
             });
             this._hotKeyStopRecord = new HotKey(Key.F2, KeyModifier.None, key =>
             {
-                if (this._toolState == ToolState.Recording)
+                if (this._toolState == ToolState.Recording && this._isRecordingInProgress)
                 {
                     //this.Dispatcher.Invoke(() => { this.tb_time.Text = "stop"; });
                     this._audioRecorder.Stop(false);
@@ -147,6 +148,10 @@ namespace ZTMZ.PacenoteTool
                             this._udpReceiver.LastMessage.TrackLength.ToString("f2"),
                             this._udpReceiver.LastMessage.StartZ
                         );
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            this.tb_currentTrack.Text = this._trackName;
+                        });
                         if (this._toolState == ToolState.Recording)
                         {
                             // 1. create folder
@@ -160,10 +165,14 @@ namespace ZTMZ.PacenoteTool
                             {
                                 // 1. load sounds
                                 this._profileManager.StartReplaying(this._trackName);
-                                var firstSound = this._profileManager.AudioFiles.FirstOrDefault();
-                                if (firstSound != null && firstSound.Distance < 0 && this._firstSoundPlayed == false)
+                                this.Dispatcher.Invoke(() =>
                                 {
-                                    this._firstSoundPlayed = true;
+                                    this.tb_codriver.Text = this._profileManager.CurrentCoDriverName;
+                                });
+                                var firstSound = this._profileManager.AudioFiles.FirstOrDefault();
+                                if (firstSound != null && firstSound.Distance < 0) // && this._firstSoundPlayed == false)
+                                {
+                                    // this._firstSoundPlayed = true;
                                     // play the RaceBegin sound, just when counting down from 5 to 0.
                                     // play in threads.
                                     this._profileManager.Play(this._selectReplayDeviceID);
@@ -195,12 +204,6 @@ namespace ZTMZ.PacenoteTool
 
             this.cb_recording_device.SelectedIndex = 0;
 
-            for (int i = 0; i < WaveOut.DeviceCount; i++)
-            {
-                WaveOutCapabilities WOC = WaveOut.GetCapabilities(i);
-                this.cb_replay_device.Items.Add(WOC.ProductName);
-            }
-            this.cb_replay_device.SelectedIndex = 0;
         }
 
         private void Ck_record_OnChecked(object sender, RoutedEventArgs e)
@@ -244,8 +247,8 @@ namespace ZTMZ.PacenoteTool
             {
                 case 0:
                     // low
-                    this._recordingConfig.SampleRate = 11025;
-                    this._recordingConfig.Mp3BitRate = 64;
+                    this._recordingConfig.SampleRate = 8000;
+                    this._recordingConfig.Mp3BitRate = 48;
                     break;
                 case 1:
                     this._recordingConfig.SampleRate = 22050;
@@ -264,9 +267,13 @@ namespace ZTMZ.PacenoteTool
             this._recordingConfig.RecordingDevice = (from x in this._recordingDevices where x.Name == this.cb_recording_device.SelectedItem.ToString() select x.Id).First();
         }
 
-        private void cb_replay_device_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+        private void tb_currentTrack_view_Click(object sender, RoutedEventArgs e)
         {
-            this._selectReplayDeviceID = this.cb_replay_device.SelectedIndex;
+            if (this._profileManager.CurrentItineraryPath != null)
+            {
+                Process.Start(new ProcessStartInfo("explorer.exe", System.IO.Path.GetFullPath(this._profileManager.CurrentItineraryPath)));
+            }
         }
     }
 }

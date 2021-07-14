@@ -88,7 +88,7 @@ namespace ZTMZ.PacenoteTool
             {
                 if (this.GameState != GameState.Paused && this.GameState != GameState.RaceBegin)
                 {
-                    if (this._timerCount >= 20)
+                    if (this._timerCount >= 10)
                     {
                         // no gamestate change for 20s and the game is not paused.
                         this.GameState = GameState.Unknown;
@@ -120,7 +120,7 @@ namespace ZTMZ.PacenoteTool
                 message.LapTime = BitConverter.ToSingle(rawData, 4);
                 message.LapDistance = BitConverter.ToSingle(rawData, 8);
                 message.CompletionRate = BitConverter.ToSingle(rawData, 12);
-                message.Speed = BitConverter.ToSingle(rawData, 28);
+                message.Speed = BitConverter.ToSingle(rawData, 28) * 3.6f;   // m/s -> km/h
                 message.TrackLength = BitConverter.ToSingle(rawData, 244);
                 message.StartZ = BitConverter.ToSingle(rawData, 24);
                 // only 264 bytes
