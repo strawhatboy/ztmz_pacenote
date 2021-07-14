@@ -125,7 +125,8 @@ namespace ZTMZ.PacenoteTool
                 switch (state)
                 {
                     case GameState.Unknown:
-                        // end recording, unload trace loaded?
+                        // enable profile switch
+                        this.Dispatcher.Invoke(() => { this.cb_profile.IsEnabled = true; });
                         break;
                     case GameState.RaceEnd:
                         // end recording, unload trace loaded?
@@ -150,7 +151,9 @@ namespace ZTMZ.PacenoteTool
                         );
                         this.Dispatcher.Invoke(() =>
                         {
-                            this.tb_currentTrack.Text = this._trackName;
+                            this.tb_currentTrack.Text = this._trackName; 
+                            // disable profile switch
+                            this.cb_profile.IsEnabled = false;
                         });
                         if (this._toolState == ToolState.Recording)
                         {
@@ -202,8 +205,25 @@ namespace ZTMZ.PacenoteTool
                 this.cb_recording_device.Items.Add(rDevice.Name);
             }
 
-            this.cb_recording_device.SelectedIndex = 0;
+            // if there's no recording device, would throw exception...
+            if (this._recordingDevices.Count() > 0)
+                this.cb_recording_device.SelectedIndex = 0;
 
+            // check the file
+            var preCheck = new PrerequisitesCheck();
+            if (!preCheck.Check())
+            {
+                // not pass
+                var result = MessageBox.Show("你的Dirt Rally 2.0 的配置文件中的UDP端口未正确打开，如果没有打开，工具将无法正常工作，点击“是”自动修改配置文件，点击“否”退出程序自行修改", "配置错误", MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.Yes)
+                {
+                    preCheck.Write();
+                } else
+                {
+                    // Goodbye.
+                    System.Windows.Application.Current.Shutdown();
+                }
+            }
         }
 
         private void Ck_record_OnChecked(object sender, RoutedEventArgs e)
@@ -274,6 +294,11 @@ namespace ZTMZ.PacenoteTool
             {
                 Process.Start(new ProcessStartInfo("explorer.exe", System.IO.Path.GetFullPath(this._profileManager.CurrentItineraryPath)));
             }
+        }
+
+        private void cb_profile_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this._profileManager.CurrentProfile = this.cb_profile.SelectedItem.ToString().Split('/')[1];
         }
     }
 }

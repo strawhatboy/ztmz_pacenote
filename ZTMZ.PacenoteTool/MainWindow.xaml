@@ -104,7 +104,7 @@
             <TextBlock Grid.Row="5" Grid.Column="0">录制设备：</TextBlock>
 
 
-            <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_profile" Grid.ColumnSpan="2"/>
+            <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_profile" Grid.ColumnSpan="2" SelectionChanged="cb_profile_SelectionChanged"/>
             <TextBlock Grid.Row="1" Grid.Column="1" Name="tb_codriver" Grid.ColumnSpan="2">未知</TextBlock>
             <TextBlock Grid.Row="2" Grid.Column="1" Name="tb_currentTrack">未知</TextBlock>
             <Button Grid.Row="2" Grid.Column="2" Name="tb_currentTrack_view" ToolTip="打开当前地图录制文件夹" Click="tb_currentTrack_view_Click">...</Button>
