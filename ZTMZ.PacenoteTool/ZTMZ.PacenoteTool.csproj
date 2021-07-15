@@ -18,6 +18,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <None Update="example.mp3">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
       <None Update="track_dict.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>

@@ -113,7 +113,7 @@ namespace ZTMZ.PacenoteTool
                     msg.LapDistance >= this._profileManager.CurrentAudioFile.Distance)
                     {
                         // play it
-                        this._profileManager.Play(this._selectReplayDeviceID);
+                        this._profileManager.Play();
                     }
                 };
                 worker.RunWorkerAsync();
@@ -178,7 +178,7 @@ namespace ZTMZ.PacenoteTool
                                     // this._firstSoundPlayed = true;
                                     // play the RaceBegin sound, just when counting down from 5 to 0.
                                     // play in threads.
-                                    this._profileManager.Play(this._selectReplayDeviceID);
+                                    this._profileManager.Play();
                                 }
                                 else
                                 {
@@ -204,6 +204,13 @@ namespace ZTMZ.PacenoteTool
             {
                 this.cb_recording_device.Items.Add(rDevice.Name);
             }
+
+            for (int i = 0; i < WaveOut.DeviceCount; i++)
+            {
+                WaveOutCapabilities WOC = WaveOut.GetCapabilities(i);
+                this.cb_replay_device.Items.Add(WOC.ProductName);
+            }
+            this.cb_replay_device.SelectedIndex = 0;
 
             // if there's no recording device, would throw exception...
             if (this._recordingDevices.Count() > 0)
@@ -299,6 +306,18 @@ namespace ZTMZ.PacenoteTool
         private void cb_profile_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this._profileManager.CurrentProfile = this.cb_profile.SelectedItem.ToString().Split('/')[1];
+        }
+
+        private void cb_replay_device_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this._profileManager.CurrentPlayDeviceId = this.cb_replay_device.SelectedIndex;
+        }
+
+        private void btn_play_example_Click(object sender, RoutedEventArgs e)
+        {
+            var bgw = new BackgroundWorker();
+            bgw.DoWork += (arg, e)=> { this._profileManager.PlayExample(); };
+            bgw.RunWorkerAsync();
         }
     }
 }

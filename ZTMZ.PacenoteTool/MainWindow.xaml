@@ -13,7 +13,7 @@
             <RowDefinition Height="4" />
             <RowDefinition Height="120" />
             <RowDefinition Height="4" />
-            <RowDefinition Height="120" />
+            <RowDefinition Height="140" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
@@ -90,6 +90,7 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100" />
@@ -102,6 +103,7 @@
             <TextBlock Grid.Row="3" Grid.Column="0" ToolTip="在录制模式下，游戏中(RaceBegin, Racing, Paused)，按F1键开始录制路书片段，按F2键停止录制路书片段">是否正在录音：</TextBlock>
             <TextBlock Grid.Row="4" Grid.Column="0">录制质量：</TextBlock>
             <TextBlock Grid.Row="5" Grid.Column="0">录制设备：</TextBlock>
+            <TextBlock Grid.Row="6" Grid.Column="0">播放设备：</TextBlock>
 
 
             <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_profile" Grid.ColumnSpan="2" SelectionChanged="cb_profile_SelectionChanged"/>
@@ -141,6 +143,8 @@
 
             </ComboBox>
             <ComboBox Grid.Row="5" Grid.Column="1"  Name="cb_recording_device" SelectionChanged="cb_recording_device_SelectionChanged" Grid.ColumnSpan="2"></ComboBox>
+            <ComboBox Grid.Row="6" Grid.Column="1"  Name="cb_replay_device" SelectionChanged="cb_replay_device_SelectionChanged" ></ComboBox>
+            <Button Grid.Row="6" Grid.Column="2" Name="btn_play_example" Click="btn_play_example_Click" ToolTip="播放示例声音">▶</Button>
         </Grid>
     </Grid>
 </Window>

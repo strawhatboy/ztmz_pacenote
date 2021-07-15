@@ -288,19 +288,19 @@ namespace OnlyR.Core.Recorder
             _silenceWaveOut = null;
 
             // convert mp3 to wav
-            using (var reader = new Mp3FileReader(_destinationPath))
-            {
-                var wavfilename = Path.GetFileNameWithoutExtension(_destinationPath) + ".wav";
-                var wavfilepath = Path.Join(Path.GetDirectoryName(_destinationPath), wavfilename);
+            //using (var reader = new Mp3FileReader(_destinationPath))
+            //{
+            //    var wavfilename = Path.GetFileNameWithoutExtension(_destinationPath) + ".wav";
+            //    var wavfilepath = Path.Join(Path.GetDirectoryName(_destinationPath), wavfilename);
 
-                WaveFileWriter.CreateWaveFile(wavfilepath, reader);
-            }
+            //    WaveFileWriter.CreateWaveFile(wavfilepath, reader);
+            //}
 
             _mp3Writer?.Dispose();
             _mp3Writer = null;
 
             // delete mp3 file
-            File.Delete(_destinationPath);
+            //File.Delete(_destinationPath);
             //_waveFileWriter?.Dispose();
             //_waveFileWriter = null;
         }
