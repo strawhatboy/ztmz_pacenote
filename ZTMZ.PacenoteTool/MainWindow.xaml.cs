@@ -67,13 +67,13 @@ namespace ZTMZ.PacenoteTool
                         this._isRecordingInProgress = true;
                         this.Dispatcher.Invoke(() =>
                         {
-                            this.tb_isRecording.Text = "√";
+                            this.tb_isRecording.Text = "√ √ √";
                             this.tb_isRecording.Foreground = new SolidColorBrush(Colors.Red);
                         });
                     }
                 }
             });
-            this._hotKeyStopRecord = new HotKey(Key.F2, KeyModifier.None, key =>
+            this._hotKeyStopRecord = new HotKey(Key.F4, KeyModifier.None, key =>
             {
                 if (this._toolState == ToolState.Recording && this._isRecordingInProgress)
                 {
@@ -126,7 +126,7 @@ namespace ZTMZ.PacenoteTool
                 {
                     case GameState.Unknown:
                         // enable profile switch
-                        this.Dispatcher.Invoke(() => { this.cb_profile.IsEnabled = true; });
+                        this.Dispatcher.Invoke(() => { this.cb_profile.IsEnabled = true; this.cb_replay_device.IsEnabled = true; });
                         break;
                     case GameState.RaceEnd:
                         // end recording, unload trace loaded?
@@ -152,8 +152,9 @@ namespace ZTMZ.PacenoteTool
                         this.Dispatcher.Invoke(() =>
                         {
                             this.tb_currentTrack.Text = this._trackName; 
-                            // disable profile switch
+                            // disable profile switch, replay device selection
                             this.cb_profile.IsEnabled = false;
+                            this.cb_replay_device.IsEnabled = false;
                         });
                         if (this._toolState == ToolState.Recording)
                         {
@@ -318,6 +319,23 @@ namespace ZTMZ.PacenoteTool
             var bgw = new BackgroundWorker();
             bgw.DoWork += (arg, e)=> { this._profileManager.PlayExample(); };
             bgw.RunWorkerAsync();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show(@"本工具由ZTMZ Club制作，仅供学习交流，请勿用作商业用途。
+如果在使用过程中遇到问题，可以在QQ群 (207790761) 中询问。
+本工具已在gitee开源 (https://gitee.com/ztmz/ztmz_pacenote)，欢迎前往交流。
+本工具借鉴（抄袭√）和参考了部分开源软件，在此表示感谢：
+CrewChiefV4 (https://gitlab.com/mr_belowski/CrewChiefV4)
+dr2_logger (https://github.com/ErlerPhilipp/dr2_logger)
+以及使用的第三方Nuget包：
+Newtonsoft.Json (https://www.newtonsoft.com/json)
+NAudio (https://github.com/naudio/NAudio)
+PromptDialog (https://github.com/manuelcanepa/wpf-prompt-dialog)
+
+最后再次感谢ZTMZ Club组委会和群里大佬们的帮助与支持。
+", "关于本工具 v1.0.0");
         }
     }
 }
