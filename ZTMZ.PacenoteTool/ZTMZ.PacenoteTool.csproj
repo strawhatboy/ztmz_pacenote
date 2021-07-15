@@ -18,7 +18,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="example.mp3">
+      <None Update="Alarm01.wav">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="supported_audio_types.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
       <None Update="track_dict.json">

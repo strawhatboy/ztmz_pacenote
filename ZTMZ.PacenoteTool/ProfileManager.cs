@@ -1,4 +1,5 @@
 using NAudio.Wave;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -54,6 +55,8 @@ namespace ZTMZ.PacenoteTool
 
         private object obj = new();
 
+        public IList<string> SupportedAudioTypes { set; get; } = new List<string>();
+
         public ProfileManager()
         {
             Directory.CreateDirectory(string.Format("profiles"));
@@ -61,11 +64,17 @@ namespace ZTMZ.PacenoteTool
 
             //load example audio file?
             this.initExampleAudio();
+
+            //load supported audio types
+
+            var jsonContent = File.ReadAllText("supported_audio_types.json");
+            this.SupportedAudioTypes = JsonConvert.DeserializeObject<string[]>(jsonContent).ToList();
         }
 
         private void initExampleAudio()
         {
-            this._exampleAudio = new AudioFileReader("example.mp3");
+            this._exampleAudio = new AudioFileReader("Alarm01.wav");
+            //this._exampleAudio = new AudioFileReader("20210715_152916.m4a");
             this._exampleWaveOut = new WaveOutEvent();
         }
 
@@ -127,8 +136,11 @@ namespace ZTMZ.PacenoteTool
             this.Players.Clear();
 
             // load all files
-            var filePaths = Directory.GetFiles(this.CurrentItineraryPath, "*.mp3").AsEnumerable();
-            filePaths = filePaths.Concat(Directory.GetFiles(this.CurrentItineraryPath, "*.wav").AsEnumerable());
+            IEnumerable<string> filePaths = new List<string>();
+            foreach (var supportedFilter in this.SupportedAudioTypes)
+            {
+                filePaths = filePaths.Concat(Directory.GetFiles(this.CurrentItineraryPath, supportedFilter).AsEnumerable());
+            }
 
             // get files
             var audioFiles = from path in filePaths
