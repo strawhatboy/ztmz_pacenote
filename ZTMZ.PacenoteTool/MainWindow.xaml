@@ -6,12 +6,12 @@
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="ZTMZ Club 路书工具 v1.0.0" Height="350" Width="250">
+        Title="ZTMZ Club 路书工具 v1.0.1" Height="390" Width="250">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
             <RowDefinition Height="4" />
-            <RowDefinition Height="120" />
+            <RowDefinition Height="160" />
             <RowDefinition Height="4" />
             <RowDefinition Height="140" />
             <RowDefinition Height="4" />
@@ -52,7 +52,7 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" FontWeight="Bold">
+            <TextBlock Grid.Row="0" FontWeight="Bold" FontSize="14">
                 <TextBlock.ToolTip>
                     <TextBlock>
                         当前的游戏状态<LineBreak />
@@ -67,16 +67,16 @@
             </TextBlock>
             <TextBlock Grid.Row="1" ToolTip="游戏时间，可能不太准确">时间：</TextBlock>
             <TextBlock Grid.Row="2" ToolTip="赛道的单圈时间，比赛用时">圈时间：</TextBlock>
-            <TextBlock Grid.Row="3" ToolTip="行驶距离，单位：米" FontWeight="Bold">行驶距离：</TextBlock>
+            <TextBlock Grid.Row="3" ToolTip="行驶距离，单位：米" FontWeight="Bold" FontSize="14">行驶距离：</TextBlock>
             <TextBlock Grid.Row="4" ToolTip="行驶速度，单位：公里每小时">速度：</TextBlock>
             <TextBlock Grid.Row="5" ToolTip="赛道长度，单位：米">圈总长：</TextBlock>
             <TextBlock Grid.Row="6" ToolTip="赛道进度，0.5表示完成了一半">进度：</TextBlock>
             <TextBlock Grid.Row="7" ToolTip="车辆所在高度">PosZ：</TextBlock>
 
-            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="tb_gamestate" FontWeight="Bold">N/A</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="tb_gamestate" FontWeight="Bold" FontSize="14">N/A</TextBlock>
             <TextBlock Grid.Row="1" Grid.Column="1" x:Name="tb_time">N/A</TextBlock>
             <TextBlock Grid.Row="2" Grid.Column="1" x:Name="tb_laptime">N/A</TextBlock>
-            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_distance" FontWeight="Bold">N/A</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_distance" FontWeight="Bold" FontSize="14">N/A</TextBlock>
             <TextBlock Grid.Row="4" Grid.Column="1" x:Name="tb_speed">N/A</TextBlock>
             <TextBlock Grid.Row="5" Grid.Column="1" x:Name="tb_tracklength">N/A</TextBlock>
             <TextBlock Grid.Row="6" Grid.Column="1" x:Name="tb_progress">N/A</TextBlock>
@@ -101,7 +101,7 @@
             <TextBlock Grid.Row="0" Grid.Column="0" ToolTip="在程序文件夹的profiles文件夹中，按文件夹分为不同的配置，可以录制多套路书，在游戏进行时不可切换配置">当前配置：</TextBlock>
             <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="本赛道的领航员">领航员：</TextBlock>
             <TextBlock Grid.Row="2" Grid.Column="0">当前地图：</TextBlock>
-            <TextBlock Grid.Row="3" Grid.Column="0" ToolTip="在录制模式下，游戏中(RaceBegin, Racing, Paused)，按F1键开始录制路书片段，按F4键停止录制路书片段" FontWeight="Bold">是否正在录音：</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="0" ToolTip="在录制模式下，游戏中(RaceBegin, Racing, Paused)，按F1键开始录制路书片段，按F4键停止录制路书片段" FontWeight="Bold" FontSize="14">是否正在录音：</TextBlock>
             <TextBlock Grid.Row="4" Grid.Column="0">录制质量：</TextBlock>
             <TextBlock Grid.Row="5" Grid.Column="0">录制设备：</TextBlock>
             <TextBlock Grid.Row="6" Grid.Column="0" ToolTip="在游戏进行时不可切换播放设备">播放设备：</TextBlock>
@@ -111,7 +111,7 @@
             <TextBlock Grid.Row="1" Grid.Column="1" Name="tb_codriver" Grid.ColumnSpan="2">未知</TextBlock>
             <TextBlock Grid.Row="2" Grid.Column="1" Name="tb_currentTrack">未知</TextBlock>
             <Button Grid.Row="2" Grid.Column="2" Name="tb_currentTrack_view" ToolTip="打开当前地图录制文件夹" Click="tb_currentTrack_view_Click">...</Button>
-            <TextBlock Grid.Row="3" Grid.Column="1" Name="tb_isRecording" Grid.ColumnSpan="2" FontWeight="Bold">不可用</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="1" Name="tb_isRecording" Grid.ColumnSpan="2" FontWeight="Bold" FontSize="14">不可用</TextBlock>
             <ComboBox Grid.Row="4" Grid.Column="1" Name="tb_recordQuality" SelectedIndex="0" Grid.ColumnSpan="2"
                       SelectionChanged="Tb_recordQuality_OnSelectionChanged">
                 <ComboBoxItem>

@@ -13,6 +13,7 @@
 
     <ItemGroup>
       <PackageReference Include="NAudio" Version="2.0.1" />
+      <PackageReference Include="NAudio.Extras" Version="1.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
       <PackageReference Include="PromptDialog" Version="1.0.0" />
     </ItemGroup>
@@ -25,6 +26,9 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
       <None Update="track_dict.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="更新记录.txt">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
