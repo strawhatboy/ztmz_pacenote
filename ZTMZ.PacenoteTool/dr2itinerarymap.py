@@ -208,8 +208,13 @@ track_data = [
 # track length is not a unique key as some tracks are just reversed
 # it's unique together with the starting position, which is not accurate to float precision
 track_dict = defaultdict(list)
+with open("list.txt", "w", encoding='utf8') as f:
+    f.writelines([t[2]+"\n" for t in track_data])
+    f.close()
+
 for t in track_data:
     key = "{:0.2f}".format(t[0])
     track_dict[key].append({"start_z": t[1], "track_name": t[2]})
-    with open("track_dict.json", "w", encoding='utf8') as f:
+
+with open("track_dict.json", "w", encoding='utf8') as f:
         json.dump(track_dict, f)
