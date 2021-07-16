@@ -17,8 +17,9 @@ namespace ZTMZ.PacenoteTool
         public string FileName { set; get; }
         public string FilePath { set; get; }
         public int Distance { set; get; }
-        public AudioFileReader AudioFileReader { set; get; }
+        //public AudioFileReader AudioFileReader { set; get; }
         //public byte[] Content { set; get; }
+        public AutoResampledCachedSound Sound { set; get; }
     }
 
     public class ProfileManager
@@ -41,7 +42,9 @@ namespace ZTMZ.PacenoteTool
         //public IEnumerable<Mp3FileReader> Players { set; get; }
         //public IList<MediaPlayer> Players { set; get; } = new List<MediaPlayer>();
         //public IList<SoundPlayer> Players { set; get; } = new List<SoundPlayer>();
-        public IList<WaveOutEvent> Players { set; get; } = new List<WaveOutEvent>();
+        //public IList<WaveOutEvent> Players { set; get; } = new List<WaveOutEvent>();
+
+        public ZTMZAudioPlaybackEngine Player { set; get; }
 
 
         public AudioFile CurrentAudioFile => this.AudioFiles != null && this.CurrentPlayIndex < this.AudioFiles.Count() ? this.AudioFiles[this.CurrentPlayIndex] : null;
@@ -49,9 +52,9 @@ namespace ZTMZ.PacenoteTool
         //public SoundPlayer CurrentSoundPlayer => this.Players != null && this.CurrentPlayIndex < this.Players.Count()
         //    ? this.Players[this.CurrentPlayIndex]
         //    : null;        
-        public WaveOutEvent CurrentSoundPlayer => this.Players != null && this.CurrentPlayIndex < this.Players.Count()
-            ? this.Players[this.CurrentPlayIndex]
-            : null;
+        //public WaveOutEvent CurrentSoundPlayer => this.Players != null && this.CurrentPlayIndex < this.Players.Count()
+        //    ? this.Players[this.CurrentPlayIndex]
+        //    : null;
 
         private object obj = new();
 
@@ -124,16 +127,14 @@ namespace ZTMZ.PacenoteTool
             }
 
             // clear lists
-            foreach (var p in this.Players)
-            {
-                p.Dispose();
-            }
-            foreach (var f in this.AudioFiles)
-            {
-                f.AudioFileReader.Dispose();
-            }
+            
+            this.Player?.Dispose();
+            //foreach (var f in this.AudioFiles)
+            //{
+                //f.AudioFileReader.Dispose();
+            //}
             this.AudioFiles.Clear();
-            this.Players.Clear();
+            //this.Players.Clear();
 
             // load all files
             IEnumerable<string> filePaths = new List<string>();
@@ -152,7 +153,8 @@ namespace ZTMZ.PacenoteTool
                         Distance = int.Parse(Path.GetFileNameWithoutExtension(path)),
                         Extension = Path.GetExtension(path),
                         //Content = File.ReadAllBytes(path)
-                        AudioFileReader = new AudioFileReader(path)
+                        //AudioFileReader = new AudioFileReader(path)
+                        Sound = new AutoResampledCachedSound(path)
                     };
 
             var sortedAudioFiles = from audioFile in audioFiles 
@@ -163,14 +165,15 @@ namespace ZTMZ.PacenoteTool
 
             //this.Players = from audiofile in sortedAudioFiles
             //    select new Mp3FileReader(audiofile.FilePath);
-            foreach (var audiofile in sortedAudioFiles)
-            {
-                //var player = new SoundPlayer(new MemoryStream(audiofile.Content));
-                var player = new WaveOutEvent();
-                player.DeviceNumber = this.CurrentPlayDeviceId;
-                player.Init(audiofile.AudioFileReader);
-                this.Players.Add(player);
-            }
+            //foreach (var audiofile in sortedAudioFiles)
+            //{
+            //    //var player = new SoundPlayer(new MemoryStream(audiofile.Content));
+            //    var player = new WaveOutEvent();
+            //    player.DeviceNumber = this.CurrentPlayDeviceId;
+            //    player.Init(audiofile.AudioFileReader);
+            //    this.Players.Add(player);
+            //}
+            this.Player = new ZTMZAudioPlaybackEngine(this.CurrentPlayDeviceId);
 
            
 
@@ -180,16 +183,17 @@ namespace ZTMZ.PacenoteTool
         // need to be run in a non-UI thread
         public void Play()
         {
-            var player = this.Players[this.CurrentPlayIndex++];
+            //var player = this.Players[this.CurrentPlayIndex++];
             //var waveout = new WaveOut();
             //waveout.DeviceNumber = deviceID;
             //waveout.Init(player);
             //waveout.Play();
-            player.Play();
-            while (player.PlaybackState == PlaybackState.Playing)
-            {
-                Thread.Sleep(1000);
-            }
+            //player.Play();
+            //while (player.PlaybackState == PlaybackState.Playing)
+            //{
+            //    Thread.Sleep(1000);
+            //}
+            this.Player.PlaySound(this.AudioFiles[this.CurrentPlayIndex++].Sound);
             Debug.WriteLine("Playing");
         }
 

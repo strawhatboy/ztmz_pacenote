@@ -335,7 +335,7 @@ NAudio (https://github.com/naudio/NAudio)
 PromptDialog (https://github.com/manuelcanepa/wpf-prompt-dialog)
 
 最后再次感谢ZTMZ Club组委会和群里大佬们的帮助与支持。
-", "关于本工具 v1.0.0");
+", "关于本工具 v1.0.1");
         }
     }
 }
