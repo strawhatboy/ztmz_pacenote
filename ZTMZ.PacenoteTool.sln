@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool", "ZTMZ.P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlyR.Core", "OnlyR.Core\OnlyR.Core.csproj", "{BFDC4911-AC8A-49A7-B2B4-6437233AAB3D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.ScriptEditor", "ZTMZ.PacenoteTool.ScriptEditor\ZTMZ.PacenoteTool.ScriptEditor.csproj", "{C402CC6D-A26F-4C13-8580-A8FB1902DF1E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{BFDC4911-AC8A-49A7-B2B4-6437233AAB3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFDC4911-AC8A-49A7-B2B4-6437233AAB3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFDC4911-AC8A-49A7-B2B4-6437233AAB3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C402CC6D-A26F-4C13-8580-A8FB1902DF1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C402CC6D-A26F-4C13-8580-A8FB1902DF1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C402CC6D-A26F-4C13-8580-A8FB1902DF1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C402CC6D-A26F-4C13-8580-A8FB1902DF1E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

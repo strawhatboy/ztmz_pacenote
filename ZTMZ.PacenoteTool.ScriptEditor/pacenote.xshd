@@ -1,0 +1,100 @@
+<SyntaxDefinition name="C#"
+                  xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+    <Color name="Comment" foreground="Green" />
+
+    <!-- This is the main ruleset. -->
+    <RuleSet>
+        <Span color="Comment" begin="#" />
+
+        <Keywords fontWeight="bold" foreground="Blue">
+            <Word>corner_1_left</Word>
+            <Word>corner_2_left</Word>
+            <Word>corner_3_left</Word>
+            <Word>corner_4_left</Word>
+            <Word>corner_5_left</Word>
+            <Word>corner_6_left</Word>
+            <Word>corner_1_right</Word>
+            <Word>corner_2_right</Word>
+            <Word>corner_3_right</Word>
+            <Word>corner_4_right</Word>
+            <Word>corner_5_right</Word>
+            <Word>corner_6_right</Word>
+            <Word>detail_tightens_to_acute</Word>
+            <Word>detail_tightens_to_1</Word>
+            <Word>detail_tightens_to_2</Word>
+            <Word>detail_tightens_to_3</Word>
+            <Word>detail_tightens_to_4</Word>
+            <Word>detail_tightens_to_5</Word>
+            <Word>detail_tightens_to_6</Word>
+            <Word>corner_left_acute</Word>
+            <Word>corner_right_acute</Word>
+            <Word>corner_open_hairpin_left</Word>
+            <Word>corner_open_hairpin_right</Word>
+            <Word>corner_square_left</Word>
+            <Word>corner_square_right</Word>
+            <Word>detail_widens</Word>
+            <Word>detail_narrows</Word>
+            <Word>detail_opens</Word>
+            <Word>detail_tightens</Word>
+            <Word>detail_through_gate</Word>
+            <Word>detail_bridge</Word>
+            <Word>detail_over_bridge</Word>
+            <Word>detail_ford</Word>
+            <Word>detail_bad_camber</Word>
+            <Word>detail_crest</Word>
+            <Word>detail_over_crest</Word>
+            <Word>detail_jump</Word>
+            <Word>detail_over_jump</Word>
+            <Word>detail_big_jump</Word>
+            <Word>detail_junction</Word>
+            <Word>detail_caution</Word>
+            <Word>detail_gravel</Word>
+            <Word>detail_tarmac</Word>
+            <Word>detail_triple_caution</Word>
+            <Word>detail_snow</Word>
+            <Word>detail_concrete</Word>
+            <Word>detail_tunnel</Word>
+            <Word>detail_left_entry_chicane</Word>
+            <Word>detail_right_entry_chicane</Word>
+            <Word>detail_care</Word>
+            <Word>detail_keep_middle</Word>
+            <Word>detail_keep_left</Word>
+            <Word>detail_keep_right</Word>
+            <Word>detail_keep_in</Word>
+            <Word>detail_keep_out</Word>
+            <Word>detail_bumps</Word>
+            <Word>detail_downhill</Word>
+            <Word>detail_uphill</Word>
+            <Word>detail_brake</Word>
+            <Word>detail_go_straight</Word>
+            <Word>detail_dip</Word>
+            <Word>detail_logs_inside</Word>
+            <Word>detail_logs_outside</Word>
+            <Word>detail_rocks_inside</Word>
+            <Word>detail_rocks_outside</Word>
+            <Word>detail_tree_inside</Word>
+            <Word>detail_tree_outside</Word>
+            <Word>detail_loose_gravel</Word>
+            <Word>detail_into</Word>
+            <Word>detail_then</Word>
+            <Word>detail_and</Word>
+            <!-- ... -->
+        </Keywords>
+        <Keywords foreground="Purple">
+            <Word>detail_cut</Word>
+            <Word>detail_dont_cut</Word>
+            <Word>detail_tightens</Word>
+            <Word>detail_long</Word>
+            <Word>detail_longlong</Word>
+            <Word>detail_maybe</Word>
+        </Keywords>
+
+        <!-- Digits -->
+        <Rule foreground="Red">    
+            \b
+            (    \d+(\.[0-9]+)?   #number with optional floating point
+            |    \.[0-9]+         #or just starting with floating point
+            )
+        </Rule>
+    </RuleSet>
+</SyntaxDefinition>
