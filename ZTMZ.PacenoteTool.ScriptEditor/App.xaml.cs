@@ -22,5 +22,13 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(reader,
                     ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance));
         }
+
+        private void Application_Startup(object sender, StartupEventArgs e)
+        {
+            MainWindow wnd = new MainWindow();
+            if (e.Args.Length == 1)
+                wnd.HandleFileOpen(e.Args[0]);
+            wnd.Show();
+        }
     }
 }

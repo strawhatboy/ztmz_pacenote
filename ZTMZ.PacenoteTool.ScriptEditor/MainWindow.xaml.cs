@@ -199,11 +199,11 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
                 // Assuming you have one file that you care about, pass it off to whatever
                 // handling code you have defined.
-                handleFileOpen(files[0]);
+                HandleFileOpen(files[0]);
             }
         }
 
-        private void handleFileOpen(string file)
+        public void HandleFileOpen(string file)
         {
             this.checkFileSaved();
 

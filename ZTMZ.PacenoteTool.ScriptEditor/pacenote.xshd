@@ -78,24 +78,25 @@
             <Word>,detail_into</Word>
             <Word>,detail_then</Word>
             <Word>,detail_and</Word>
-            <Word>number_30</Word>
-            <Word>number_40</Word>
-            <Word>number_50</Word>
-            <Word>number_60</Word>
-            <Word>number_70</Word>
-            <Word>number_80</Word>
-            <Word>number_100</Word>
-            <Word>number_120</Word>
-            <Word>number_140</Word>
-            <Word>number_150</Word>
-            <Word>number_160</Word>
-            <Word>number_180</Word>
-            <Word>number_200</Word>
-            <Word>number_250</Word>
-            <Word>number_300</Word>
-            <Word>number_350</Word>
-            <Word>number_400</Word>
-            <Word>number_450</Word>
+            <Word>,number_30</Word>
+            <Word>,number_40</Word>
+            <Word>,number_50</Word>
+            <Word>,number_60</Word>
+            <Word>,number_70</Word>
+            <Word>,number_80</Word>
+            <Word>,number_100</Word>
+            <Word>,number_120</Word>
+            <Word>,number_140</Word>
+            <Word>,number_150</Word>
+            <Word>,number_160</Word>
+            <Word>,number_180</Word>
+            <Word>,number_200</Word>
+            <Word>,number_250</Word>
+            <Word>,number_300</Word>
+            <Word>,number_350</Word>
+            <Word>,number_400</Word>
+            <Word>,number_450</Word>
+          <Word>,detail_deepruts</Word>
             <!-- ... -->
         </Keywords>
         <Keywords foreground="Purple">
@@ -105,6 +106,24 @@
             <Word>/detail_long</Word>
             <Word>/detail_longlong</Word>
             <Word>/detail_maybe</Word>
+          <Word>/number_30</Word>
+          <Word>/number_40</Word>
+          <Word>/number_50</Word>
+          <Word>/number_60</Word>
+          <Word>/number_70</Word>
+          <Word>/number_80</Word>
+          <Word>/number_100</Word>
+          <Word>/number_120</Word>
+          <Word>/number_140</Word>
+          <Word>/number_150</Word>
+          <Word>/number_160</Word>
+          <Word>/number_180</Word>
+          <Word>/number_200</Word>
+          <Word>/number_250</Word>
+          <Word>/number_300</Word>
+          <Word>/number_350</Word>
+          <Word>/number_400</Word>
+          <Word>/number_450</Word>
         </Keywords>
 
         <!-- Digits -->

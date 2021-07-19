@@ -6,14 +6,16 @@
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="ZTMZ Club 路书工具 v1.0.1" Height="390" Width="250">
+        Title="ZTMZ Club 路书工具 v1.0.1" Height="450" Width="250">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
             <RowDefinition Height="4" />
             <RowDefinition Height="160" />
             <RowDefinition Height="4" />
-            <RowDefinition Height="140" />
+            <RowDefinition Height="130" />
+            <RowDefinition Height="4" />
+            <RowDefinition Height="60" />
             <RowDefinition Height="4" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
@@ -83,71 +85,119 @@
             <TextBlock Grid.Row="7" Grid.Column="1" x:Name="tb_position_z">N/A</TextBlock>
         </Grid>
         <Border Grid.Row="3" Margin="1" Background="#8888" />
-        <Grid Grid.Row="4">
+        <TabControl Grid.Row="4">
+            <TabItem Header="纯语音模式">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="20" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" ToolTip="在程序文件夹的profiles文件夹中，按文件夹分为不同的配置，可以录制多套路书，在游戏进行时不可切换配置">当前配置：</TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="本赛道的领航员">领航员：</TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="在录制模式下，游戏中(RaceBegin, Racing, Paused)，按F1键开始录制路书片段，按F4键停止录制路书片段" FontWeight="Bold" FontSize="14">是否正在录音：</TextBlock>
+                    <TextBlock Grid.Row="3" Grid.Column="0">录制质量：</TextBlock>
+                    <TextBlock Grid.Row="4" Grid.Column="0">录制设备：</TextBlock>
+
+
+                    <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_profile" Grid.ColumnSpan="2" SelectionChanged="cb_profile_SelectionChanged"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Name="tb_codriver" Grid.ColumnSpan="2">未知</TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Name="tb_isRecording" Grid.ColumnSpan="2" FontWeight="Bold" FontSize="14">不可用</TextBlock>
+                    <ComboBox Grid.Row="3" Grid.Column="1" Name="tb_recordQuality" SelectedIndex="0" Grid.ColumnSpan="2"
+                      SelectionChanged="Tb_recordQuality_OnSelectionChanged">
+                        <ComboBoxItem>
+                            <ComboBoxItem.ToolTip>
+                                <TextBlock>
+                            低质量录制，文件较小，便于分享<LineBreak />
+                            低情商：声音可能失真<LineBreak />
+                            高情商：对讲机效果(YES)
+                                </TextBlock>
+                            </ComboBoxItem.ToolTip>
+                            低
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.ToolTip>
+                                <TextBlock>
+                            中等质量录制
+                                </TextBlock>
+                            </ComboBoxItem.ToolTip>
+                            中
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.ToolTip>
+                                <TextBlock>
+                            高质量录制，文件较大<LineBreak />
+                            保留了很多声音细节，更加真实
+                                </TextBlock>
+                            </ComboBoxItem.ToolTip>
+                            高
+                        </ComboBoxItem>
+
+                    </ComboBox>
+                    <ComboBox Grid.Row="4" Grid.Column="1"  Name="cb_recording_device" SelectionChanged="cb_recording_device_SelectionChanged" Grid.ColumnSpan="2"></ComboBox>
+
+                </Grid>
+            </TabItem>
+            <TabItem Header="脚本模式">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="20" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0">领航员语音包：</TextBlock>
+                    <ComboBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Name="cb_codrivers" SelectionChanged="cb_codrivers_SelectionChanged"></ComboBox>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0"></TextBlock>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Border Grid.Row="5" Margin="1" Background="#8888" />
+        <Grid Grid.Row="6">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
+
                 <ColumnDefinition Width="100" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="20" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Row="0" Grid.Column="0" ToolTip="在程序文件夹的profiles文件夹中，按文件夹分为不同的配置，可以录制多套路书，在游戏进行时不可切换配置">当前配置：</TextBlock>
-            <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="本赛道的领航员">领航员：</TextBlock>
-            <TextBlock Grid.Row="2" Grid.Column="0">当前地图：</TextBlock>
-            <TextBlock Grid.Row="3" Grid.Column="0" ToolTip="在录制模式下，游戏中(RaceBegin, Racing, Paused)，按F1键开始录制路书片段，按F4键停止录制路书片段" FontWeight="Bold" FontSize="14">是否正在录音：</TextBlock>
-            <TextBlock Grid.Row="4" Grid.Column="0">录制质量：</TextBlock>
-            <TextBlock Grid.Row="5" Grid.Column="0">录制设备：</TextBlock>
-            <TextBlock Grid.Row="6" Grid.Column="0" ToolTip="在游戏进行时不可切换播放设备">播放设备：</TextBlock>
 
-
-            <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_profile" Grid.ColumnSpan="2" SelectionChanged="cb_profile_SelectionChanged"/>
-            <TextBlock Grid.Row="1" Grid.Column="1" Name="tb_codriver" Grid.ColumnSpan="2">未知</TextBlock>
-            <TextBlock Grid.Row="2" Grid.Column="1" Name="tb_currentTrack">未知</TextBlock>
-            <Button Grid.Row="2" Grid.Column="2" Name="tb_currentTrack_view" ToolTip="打开当前地图录制文件夹" Click="tb_currentTrack_view_Click">...</Button>
-            <TextBlock Grid.Row="3" Grid.Column="1" Name="tb_isRecording" Grid.ColumnSpan="2" FontWeight="Bold" FontSize="14">不可用</TextBlock>
-            <ComboBox Grid.Row="4" Grid.Column="1" Name="tb_recordQuality" SelectedIndex="0" Grid.ColumnSpan="2"
-                      SelectionChanged="Tb_recordQuality_OnSelectionChanged">
-                <ComboBoxItem>
-                    <ComboBoxItem.ToolTip>
-                        <TextBlock>
-                            低质量录制，文件较小，便于分享<LineBreak />
-                            低情商：声音可能失真<LineBreak />
-                            高情商：对讲机效果(YES)
-                        </TextBlock>
-                    </ComboBoxItem.ToolTip>
-                    低
-                </ComboBoxItem>
-                <ComboBoxItem>
-                    <ComboBoxItem.ToolTip>
-                        <TextBlock>
-                            中等质量录制
-                        </TextBlock>
-                    </ComboBoxItem.ToolTip>
-                    中
-                </ComboBoxItem>
-                <ComboBoxItem>
-                    <ComboBoxItem.ToolTip>
-                        <TextBlock>
-                            高质量录制，文件较大<LineBreak />
-                            保留了很多声音细节，更加真实
-                        </TextBlock>
-                    </ComboBoxItem.ToolTip>
-                    高
-                </ComboBoxItem>
-
+            <TextBlock Grid.Row="0" Grid.Column="0">当前地图：</TextBlock>
+            <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="在游戏进行时不可切换播放设备">播放设备：</TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="在游戏进行时不可切换播放设备" FontSize="16" FontWeight="Bold">播放模式：</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="1" Name="tb_currentTrack">未知</TextBlock>
+            <Button Grid.Row="0" Grid.Column="2" Name="tb_currentTrack_view" ToolTip="打开当前地图录制文件夹" Click="tb_currentTrack_view_Click">...</Button>
+            <Button Grid.Row="0" Grid.Column="3" Name="btn_currentTrack_script" ToolTip="打开当前地图的脚本" Click="btn_currentTrack_script_Click">θ</Button>
+            <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Name="cb_replay_device" SelectionChanged="cb_replay_device_SelectionChanged" ></ComboBox>
+            <Button Grid.Row="1" Grid.Column="3" Name="btn_play_example" Click="btn_play_example_Click" ToolTip="播放示例声音">▶</Button>
+            <ComboBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3"  Name="cb_replay_mode" SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="0">
+                <ComboBoxItem ToolTip="纯语音录制和播放">纯语音模式</ComboBoxItem>
+                <ComboBoxItem ToolTip="使用脚本模式播放，需要配置领航员语音包">脚本模式</ComboBoxItem>
+                <ComboBoxItem ToolTip="群魔乱舞">混合模式</ComboBoxItem>
             </ComboBox>
-            <ComboBox Grid.Row="5" Grid.Column="1"  Name="cb_recording_device" SelectionChanged="cb_recording_device_SelectionChanged" Grid.ColumnSpan="2"></ComboBox>
-            <ComboBox Grid.Row="6" Grid.Column="1"  Name="cb_replay_device" SelectionChanged="cb_replay_device_SelectionChanged" ></ComboBox>
-            <Button Grid.Row="6" Grid.Column="2" Name="btn_play_example" Click="btn_play_example_Click" ToolTip="播放示例声音">▶</Button>
         </Grid>
-        <Border Grid.Row="5" Margin="1" Background="#8888" />
-        <Button HorizontalAlignment="Right" VerticalAlignment="Top" BorderThickness="0" Background="Transparent" Grid.Row="6" Foreground="Blue" Cursor="Hand" FontStyle="Oblique" Click="Button_Click" >关于本工具</Button>
+        <Border Grid.Row="7" Margin="1" Background="#8888" />
+        <Button HorizontalAlignment="Right" VerticalAlignment="Top" BorderThickness="0" Background="Transparent" Grid.Row="8" Foreground="Blue" Cursor="Hand" FontStyle="Oblique" Click="Button_Click" >关于本工具</Button>
     </Grid>
 </Window>

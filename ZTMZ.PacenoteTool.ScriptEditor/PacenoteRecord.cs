@@ -141,7 +141,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             };
             if (record.Modifier != "none")
             {
-                pn.Modifiers = pn.Modifiers.Concat(record.Modifier.Split(',')).ToList();
+                pn.Modifiers = pn.Modifiers.Concat(from p in record.Modifier.Split(',') select p.Trim()).ToList();
             }
             ret.Pacenotes.Add(pn);
             

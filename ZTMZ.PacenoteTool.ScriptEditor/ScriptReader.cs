@@ -33,7 +33,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
         public static ScriptReader ReadFromString(string str)
         {
-            var lines = str.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+            var lines = str.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             return ReadFromLines(lines);
         }
 
@@ -70,13 +70,24 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             for (var i = 0; i < records.Count; i++)
             {
                 var r = records[i];
+                r.Pacenote = r.Pacenote.Trim();
+                r.Modifier = r.Modifier.Trim();
                 if (r.Pacenote == "detail_distance_call" && i != records.Count - 1)
                 {
-                    var distance_to_call = (int) (records[i + 1].Distance - r.Distance) / 10 * 10;
-                    record.Distance = r.Distance;
-                    record.Pacenotes.Add(new Pacenote() {Note = string.Format("number_{0}", distance_to_call)});
-                    reader.PacenoteRecords.Add(record);
-                    lastRecord = record;
+                    var distance_to_call = (int)(records[i + 1].Distance - r.Distance) / 10 * 10;
+                    var distance_label = string.Format("number_{0}", distance_to_call);
+                    if (ScriptResource.PACENOTES.ContainsKey(distance_label))
+                    {
+                        record.Distance = r.Distance;
+                        record.Pacenotes.Add(new Pacenote() { Note = distance_label });
+                        reader.PacenoteRecords.Add(record);
+                        lastRecord = record;
+                    } // else ignore this call
+                    continue;
+                }
+                if (r.Pacenote == "detail_distance_call" && i == records.Count - 1)
+                {
+                    // ignore this
                     continue;
                 }
 
@@ -88,7 +99,10 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                     continue;
                 }
 
-                reader.PacenoteRecords.Add(PacenoteRecord.FromCrewChiefPacenoteRecord(r));
+                record = PacenoteRecord.FromCrewChiefPacenoteRecord(r);
+                reader.PacenoteRecords.Add(record);
+                lastRecord = record;
+                record = new PacenoteRecord();
             }
 
             return reader;

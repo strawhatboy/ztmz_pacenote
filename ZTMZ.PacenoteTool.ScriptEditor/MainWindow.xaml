@@ -36,7 +36,8 @@
                                    MouseHoverStopped="AvalonEditor_OnMouseHoverStopped"
                                    AllowDrop="True"
                                    TextChanged="AvalonEditor_OnTextChanged"
-                                   Drop="AvalonEditor_OnDrop" />
+                                   Drop="AvalonEditor_OnDrop" 
+                                   LineNumbersForeground="#DDDDDD"/>
         </DockPanel>
     </Grid>
 </Window>

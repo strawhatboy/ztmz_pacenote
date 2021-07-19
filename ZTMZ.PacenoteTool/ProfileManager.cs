@@ -8,14 +8,15 @@ using System.Linq;
 using System.Media;
 using System.Threading;
 using System.Windows.Media;
+using ZTMZ.PacenoteTool.ScriptEditor;
 
 namespace ZTMZ.PacenoteTool
 {
     public class AudioFile
     {
-        public string Extension { set; get; }
-        public string FileName { set; get; }
-        public string FilePath { set; get; }
+        //public string Extension { set; get; }
+        //public string FileName { set; get; }
+        //public string FilePath { set; get; }
         public int Distance { set; get; }
         //public AudioFileReader AudioFileReader { set; get; }
         //public byte[] Content { set; get; }
@@ -29,12 +30,17 @@ namespace ZTMZ.PacenoteTool
         public string CurrentItineraryPath { set; get; }
         public string CurrentCoDriverName { set; get; }
 
+        public string CurrentScriptPath { set; get; }
+
+        public string CurrentCoDriverSoundPackagePath { set; get; }
+
         public int CurrentPlayIndex { set; get; } = 0;
 
         public int CurrentPlayDeviceId { set; get; } = 0;
 
         private AudioFileReader _exampleAudio;
         private WaveOutEvent _exampleWaveOut;
+        private Random _random = new Random();
 
 
         public IList<AudioFile> AudioFiles { set; get; } = new List<AudioFile>();
@@ -63,6 +69,7 @@ namespace ZTMZ.PacenoteTool
         public ProfileManager()
         {
             Directory.CreateDirectory(string.Format("profiles"));
+            Directory.CreateDirectory(string.Format("codrivers"));
             this.CreateNewProfile("default");
 
             //load example audio file?
@@ -86,6 +93,11 @@ namespace ZTMZ.PacenoteTool
             return Directory.GetDirectories("profiles/").ToList();
         }
 
+        public List<string> GetAllCodrivers()
+        {
+            return Directory.GetDirectories("codrivers/").ToList();
+        }
+
         public void CreateNewProfile(string profileName)
         {
             Directory.CreateDirectory(string.Format("profiles/{0}", profileName));
@@ -106,60 +118,97 @@ namespace ZTMZ.PacenoteTool
             return filesPath;
         }
 
+        public string GetScriptFile(string itinerary)
+        {
+            string filePath = string.Format("profiles/{0}/{1}.pacenote", this.CurrentProfile, itinerary);
+            File.WriteAllText(filePath, "");
+            this.CurrentScriptPath = filePath;
+            return filePath;
+        }
+
         public void StopRecording(string codriver)
         {
             // save the codriver name to config
             File.WriteAllText(Path.Join(this.CurrentItineraryPath, CODRIVER_FILENAME), codriver);
         }
 
-        public void StartReplaying(string itinerary)
+        public void StartReplaying(string itinerary, int playMode=0)
         {
-            // load codriver name
             this.CurrentItineraryPath = this.GetRecordingsFolder(itinerary);
-            var codirverfilepath = Path.Join(this.CurrentItineraryPath, CODRIVER_FILENAME);
-            if (File.Exists(codirverfilepath))
-            {
-                var codriver = File.ReadLines(codirverfilepath).FirstOrDefault();
-                this.CurrentCoDriverName = codriver;
-            } else
-            {
-                this.CurrentCoDriverName = "???";
-            }
+            this.CurrentScriptPath = this.GetScriptFile(itinerary);
+            List<AudioFile> audioFiles = new List<AudioFile>();
 
             // clear lists
-            
             this.Player?.Dispose();
             //foreach (var f in this.AudioFiles)
             //{
-                //f.AudioFileReader.Dispose();
+            //f.AudioFileReader.Dispose();
             //}
             this.AudioFiles.Clear();
-            //this.Players.Clear();
 
-            // load all files
-            IEnumerable<string> filePaths = new List<string>();
-            foreach (var supportedFilter in this.SupportedAudioTypes)
+            if (playMode == 0 || playMode == 2)
             {
-                filePaths = filePaths.Concat(Directory.GetFiles(this.CurrentItineraryPath, supportedFilter).AsEnumerable());
+                // load codriver name
+                var codirverfilepath = Path.Join(this.CurrentItineraryPath, CODRIVER_FILENAME);
+                if (File.Exists(codirverfilepath))
+                {
+                    var codriver = File.ReadLines(codirverfilepath).FirstOrDefault();
+                    this.CurrentCoDriverName = codriver;
+                }
+                else
+                {
+                    this.CurrentCoDriverName = "???";
+                }
+
+                //this.Players.Clear();
+
+                // load all files
+                IEnumerable<string> filePaths = new List<string>();
+                foreach (var supportedFilter in this.SupportedAudioTypes)
+                {
+                    filePaths = filePaths.Concat(Directory.GetFiles(this.CurrentItineraryPath, supportedFilter).AsEnumerable());
+                }
+
+                // get files
+                audioFiles = (from path in filePaths
+                             select
+                                 new AudioFile()
+                                 {
+                                     //FileName = Path.GetFileName(path),
+                                     //FilePath = Path.GetFullPath(path),
+                                     //Extension = Path.GetExtension(path),
+                                     Distance = int.Parse(Path.GetFileNameWithoutExtension(path)),
+                                     //Content = File.ReadAllBytes(path)
+                                     //AudioFileReader = new AudioFileReader(path)
+                                     Sound = new AutoResampledCachedSound(path)
+                                 }).ToList();
+            } 
+            if (playMode == 1 || playMode == 2)
+            {
+                // script mode now!
+                var reader = ScriptReader.ReadFromFile(this.CurrentScriptPath);
+
+                foreach (var record in reader.PacenoteRecords)
+                {
+                    var f = new AudioFile() { Distance = (int)record.Distance };
+                    var sound = new AutoResampledCachedSound();
+                    foreach (var note in record.Pacenotes)
+                    {
+                        sound.Append(this.getSoundByKeyword(note.Note));
+                        foreach (var mod in note.Modifiers)
+                        {
+                            sound.Append(this.getSoundByKeyword(mod));
+                        }
+                    }
+                    f.Sound = sound;
+                    audioFiles.Add(f);
+                }
             }
 
-            // get files
-            var audioFiles = from path in filePaths
-                select
-                    new AudioFile()
-                    {
-                        FileName = Path.GetFileName(path),
-                        FilePath = Path.GetFullPath(path),
-                        Distance = int.Parse(Path.GetFileNameWithoutExtension(path)),
-                        Extension = Path.GetExtension(path),
-                        //Content = File.ReadAllBytes(path)
-                        //AudioFileReader = new AudioFileReader(path)
-                        Sound = new AutoResampledCachedSound(path)
-                    };
 
-            var sortedAudioFiles = from audioFile in audioFiles 
-                orderby audioFile.Distance ascending 
-                select audioFile;
+            var sortedAudioFiles = from audioFile in audioFiles
+                                   orderby audioFile.Distance ascending
+                                   select audioFile;
 
             this.AudioFiles = sortedAudioFiles.ToList();
 
@@ -175,9 +224,24 @@ namespace ZTMZ.PacenoteTool
             //}
             this.Player = new ZTMZAudioPlaybackEngine(this.CurrentPlayDeviceId);
 
-           
+
 
             this.CurrentPlayIndex = 0;
+        }
+
+        private AutoResampledCachedSound getSoundByKeyword(string keyword)
+        {
+            var soundFilePath = string.Format("{0}/{1}", this.CurrentCoDriverSoundPackagePath, keyword);
+            // load all files
+            List<string> filePaths = new List<string>();
+            foreach (var supportedFilter in this.SupportedAudioTypes)
+            {
+                filePaths.AddRange(Directory.GetFiles(this.CurrentItineraryPath, supportedFilter));
+            }
+
+            // random
+            var randIndex = this._random.Next(0, filePaths.Count() - 1);
+            return new AutoResampledCachedSound(filePaths[randIndex]);
         }
 
         // need to be run in a non-UI thread

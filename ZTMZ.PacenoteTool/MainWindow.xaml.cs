@@ -38,6 +38,7 @@ namespace ZTMZ.PacenoteTool
         private RecordingConfig _recordingConfig;
         private IEnumerable<RecordingDeviceInfo> _recordingDevices;
         private int _selectReplayDeviceID = 0;
+        private int _selectReplayMode = 0;
         private bool _firstSoundPlayed = false;
 
         public MainWindow()
@@ -168,7 +169,7 @@ namespace ZTMZ.PacenoteTool
                             worker.DoWork += (sender, e) =>
                             {
                                 // 1. load sounds
-                                this._profileManager.StartReplaying(this._trackName);
+                                this._profileManager.StartReplaying(this._trackName, this._selectReplayMode);
                                 this.Dispatcher.Invoke(() =>
                                 {
                                     this.tb_codriver.Text = this._profileManager.CurrentCoDriverName;
@@ -198,7 +199,13 @@ namespace ZTMZ.PacenoteTool
                 this.cb_profile.Items.Add(profile);
             }
 
+            foreach (var codriver in this._profileManager.GetAllCodrivers())
+            {
+                this.cb_codrivers.Items.Add(codriver);
+            }
+
             this.cb_profile.SelectedIndex = 0;
+            this.cb_codrivers.SelectedIndex = 0;
 
             this._recordingDevices = AudioRecorder.GetRecordingDeviceList();
             foreach (var rDevice in this._recordingDevices)
@@ -216,6 +223,7 @@ namespace ZTMZ.PacenoteTool
             // if there's no recording device, would throw exception...
             if (this._recordingDevices.Count() > 0)
                 this.cb_recording_device.SelectedIndex = 0;
+
 
             // check the file
             var preCheck = new PrerequisitesCheck();
@@ -336,6 +344,24 @@ PromptDialog (https://github.com/manuelcanepa/wpf-prompt-dialog)
 
 最后再次感谢ZTMZ Club组委会和群里大佬们的帮助与支持。
 ", "关于本工具 v1.0.1");
+        }
+
+        private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)
+        {
+            if (this._profileManager.CurrentItineraryPath != null)
+            {
+                Process.Start(new ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor", System.IO.Path.GetFullPath(this._profileManager.CurrentItineraryPath)));
+            }
+        }
+
+        private void cb_replay_mode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this._selectReplayMode = this.cb_replay_mode.SelectedIndex;
+        }
+
+        private void cb_codrivers_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this._profileManager.CurrentCoDriverSoundPackagePath = this.cb_codrivers.SelectedItem.ToString();
         }
     }
 }

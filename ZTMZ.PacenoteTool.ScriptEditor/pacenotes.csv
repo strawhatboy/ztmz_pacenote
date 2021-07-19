@@ -57,7 +57,7 @@ Description,Id
 下坡,detail_downhill
 上坡,detail_uphill
 刹车,detail_brake
-直走,detail_go_straight	
+直走,detail_go_straight
 低洼,detail_dip
 内侧原木,detail_logs_inside
 外侧原木,detail_logs_outside
@@ -87,3 +87,4 @@ Description,Id
 350米,number_350
 400米,number_400
 450米,number_450
+到达终点,detail_deepruts

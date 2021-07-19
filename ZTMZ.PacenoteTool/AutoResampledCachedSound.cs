@@ -11,8 +11,11 @@ namespace ZTMZ.PacenoteTool
 {
     public class AutoResampledCachedSound
     {
-        public float[] AudioData { get; }
+        public float[] AudioData { get; private set; } = new float[] { };
         public WaveFormat WaveFormat { get; }
+        public AutoResampledCachedSound()
+        {
+        }
 
         public AutoResampledCachedSound(string audioFileName)
         {
@@ -33,6 +36,11 @@ namespace ZTMZ.PacenoteTool
                 this.AudioData = wholeFile.ToArray();
             }
 
+        }
+
+        public void Append(AutoResampledCachedSound sound)
+        {
+            this.AudioData = this.AudioData.Concat(sound.AudioData).ToArray();
         }
     }
 }
