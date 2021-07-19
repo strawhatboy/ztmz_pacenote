@@ -4,15 +4,32 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.ScriptEditor"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="ZTMZ Club 路书脚本编辑工具v1.0.0" Height="450" Width="800">
     <Grid>
-        <avalonEdit:TextEditor
-            Name="avalonEditor"
-            SyntaxHighlighting="pacenote"
-            FontFamily="Consolas"
-            FontSize="10pt"
-            ShowLineNumbers="True"/>
+        <DockPanel Margin="0" VerticalAlignment="Stretch">
+
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5">
+                <Button Name="btn_save" Click="Btn_save_OnClick">保存</Button>
+                <Button Name="btn_open" Click="Btn_open_OnClick">打开路书脚本</Button>
+                <Button>导入CrewChief路书脚本</Button>
+                <TextBlock>批量调整路书播放点：</TextBlock>
+                <xctk:IntegerUpDown Width="50"/>
+                <Button>调整！</Button>
+                <TextBlock>修改字体大小：</TextBlock>
+                <xctk:IntegerUpDown Width="50" />
+                <Button>修改！</Button>
+            </StackPanel>
+            <avalonEdit:TextEditor DockPanel.Dock="Bottom"
+                Margin="0 0 0 0"
+                Name="avalonEditor"
+                SyntaxHighlighting="pacenote"
+                FontFamily="Consolas"
+                Foreground="Red"
+                FontSize="12pt"
+                ShowLineNumbers="True" />
+        </DockPanel>
     </Grid>
 </Window>

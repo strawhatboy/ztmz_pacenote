@@ -1,0 +1,7 @@
+Description,Id
+切弯,detail_cut
+不要切弯,detail_dont_cut
+变急,detail_tightens
+长,detail_long
+很长,detail_longlong
+可能,detail_maybe

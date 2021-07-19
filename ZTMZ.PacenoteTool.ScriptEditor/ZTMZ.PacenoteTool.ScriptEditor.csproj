@@ -16,11 +16,19 @@
 
     <ItemGroup>
       <PackageReference Include="AvalonEdit" Version="6.1.2.30" />
+      <PackageReference Include="CsvHelper" Version="27.1.1" />
+      <PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
     </ItemGroup>
 
     <ItemGroup>
       <None Update="pacenote.xshd">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="modifiers.csv">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="pacenotes.csv">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
 
