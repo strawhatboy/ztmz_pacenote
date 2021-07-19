@@ -6,5 +6,6 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         public string Pacenote { set; get; }
         public string Modifier { set; get; }
         public string RawVoiceCommand { set; get; }
+        public string UnprocessedVoiceCommandText { set; get; }
     }
 }
