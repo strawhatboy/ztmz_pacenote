@@ -1,6 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace ZTMZ.PacenoteTool.ScriptEditor
 {
@@ -11,16 +16,17 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             this.Line = line;
             this.UnexpectedToken = token;
         }
+
         public int Line { set; get; }
         public string UnexpectedToken { set; get; }
     }
+
     public class ScriptReader
     {
         public IList<PacenoteRecord> PacenoteRecords { set; get; } = new List<PacenoteRecord>();
 
         public static ScriptReader ReadFromFile(string filePath)
         {
-            
             var lines = File.ReadAllLines(filePath);
             return ReadFromLines(lines);
         }
@@ -52,6 +58,51 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             }
 
             return reader;
+        }
+
+        public static ScriptReader ReadFromJson(string jsonFile)
+        {
+            var content = File.ReadAllText(jsonFile);
+            var records = JsonConvert.DeserializeObject<List<CrewChiefPacenoteRecord>>(content);
+            PacenoteRecord record = new PacenoteRecord();
+            PacenoteRecord lastRecord = null;
+            ScriptReader reader = new ScriptReader();
+            for (var i = 0; i < records.Count; i++)
+            {
+                var r = records[i];
+                if (r.Pacenote == "detail_distance_call" && i != records.Count - 1)
+                {
+                    var distance_to_call = (int) (records[i + 1].Distance - r.Distance) / 10 * 10;
+                    record.Distance = r.Distance;
+                    record.Pacenotes.Add(new Pacenote() {Note = string.Format("number_{0}", distance_to_call)});
+                    reader.PacenoteRecords.Add(record);
+                    lastRecord = record;
+                    continue;
+                }
+
+                if (reader.PacenoteRecords.Count > 0 && r.Distance == lastRecord.Distance)
+                {
+                    //merge them
+                    lastRecord.Pacenotes
+                        .AddRange(PacenoteRecord.FromCrewChiefPacenoteRecord(r).Pacenotes);
+                    continue;
+                }
+
+                reader.PacenoteRecords.Add(PacenoteRecord.FromCrewChiefPacenoteRecord(r));
+            }
+
+            return reader;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new();
+            foreach (var pacenoteRecord in PacenoteRecords)
+            {
+                sb.AppendLine(pacenoteRecord.ToString());
+            }
+
+            return sb.ToString();
         }
     }
 }
