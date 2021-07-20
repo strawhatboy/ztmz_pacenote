@@ -107,6 +107,7 @@ namespace ZTMZ.PacenoteTool
         public string StartRecording(string itinerary)
         {
             string filesPath = this.GetRecordingsFolder(itinerary);
+            this.CurrentScriptPath = this.GetScriptFile(itinerary);
             this.CurrentItineraryPath = filesPath;
             return filesPath;
         }
@@ -121,7 +122,10 @@ namespace ZTMZ.PacenoteTool
         public string GetScriptFile(string itinerary)
         {
             string filePath = string.Format("profiles/{0}/{1}.pacenote", this.CurrentProfile, itinerary);
-            File.WriteAllText(filePath, "");
+            if (!File.Exists(filePath))
+            {
+                File.WriteAllText(filePath, "");
+            }
             this.CurrentScriptPath = filePath;
             return filePath;
         }
@@ -236,7 +240,7 @@ namespace ZTMZ.PacenoteTool
             List<string> filePaths = new List<string>();
             foreach (var supportedFilter in this.SupportedAudioTypes)
             {
-                filePaths.AddRange(Directory.GetFiles(this.CurrentItineraryPath, supportedFilter));
+                filePaths.AddRange(Directory.GetFiles(soundFilePath, supportedFilter));
             }
 
             // random

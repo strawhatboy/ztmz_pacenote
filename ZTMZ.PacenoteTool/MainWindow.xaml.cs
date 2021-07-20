@@ -341,16 +341,17 @@ dr2_logger (https://github.com/ErlerPhilipp/dr2_logger)
 Newtonsoft.Json (https://www.newtonsoft.com/json)
 NAudio (https://github.com/naudio/NAudio)
 PromptDialog (https://github.com/manuelcanepa/wpf-prompt-dialog)
+AvalonEdit (http://avalonedit.net/)
 
 最后再次感谢ZTMZ Club组委会和群里大佬们的帮助与支持。
-", "关于本工具 v1.0.1");
+", "关于本工具 v2.0 Beta");
         }
 
         private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)
         {
             if (this._profileManager.CurrentItineraryPath != null)
             {
-                Process.Start(new ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor", System.IO.Path.GetFullPath(this._profileManager.CurrentItineraryPath)));
+                Process.Start(new ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe", string.Format("\"{0}\"", System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath))));
             }
         }
 

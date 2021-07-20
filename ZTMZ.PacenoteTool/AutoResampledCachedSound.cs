@@ -12,7 +12,7 @@ namespace ZTMZ.PacenoteTool
     public class AutoResampledCachedSound
     {
         public float[] AudioData { get; private set; } = new float[] { };
-        public WaveFormat WaveFormat { get; }
+        public WaveFormat WaveFormat { get; } = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
         public AutoResampledCachedSound()
         {
         }
