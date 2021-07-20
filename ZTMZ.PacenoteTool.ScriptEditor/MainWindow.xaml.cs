@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -270,6 +271,104 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         {
             if (this.txt_adjustFontSize.Value.HasValue)
                 this.avalonEditor.FontSize = this.txt_adjustFontSize.Value.Value;
+        }
+
+        private void Btn_saveAs_OnClick(object sender, RoutedEventArgs e)
+        {
+            this.tryParsePacenote();
+
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Filter = PACENOTE_FILTER;
+            if (dialog.ShowDialog() == true)
+            {
+                this._relatedFile = dialog.FileName;
+            }
+            else
+            {
+                return;
+            }
+
+            File.WriteAllText(this._relatedFile, avalonEditor.Text);
+            this._isSaved = true;
+            this.updateTitle();
+        }
+
+        private ICommand _saveCommand;
+
+        public ICommand SaveCommand
+        {
+            get
+            {
+                if (this._saveCommand == null)
+                {
+                    this._saveCommand = new ActionCommand(() =>
+                    {
+                        Btn_save_OnClick(null, null);
+                    });
+                }
+
+                return this._saveCommand;
+            } 
+        }
+        private ICommand _saveAsCommand;
+
+        public ICommand SaveAsCommand
+        {
+            get
+            {
+                if (this._saveAsCommand == null)
+                {
+                    this._saveAsCommand = new ActionCommand(() =>
+                    {
+                        Btn_saveAs_OnClick(null, null);
+                    });
+                }
+
+                return this._saveAsCommand;
+            } 
+        }
+        
+        private ICommand _openCommand;
+
+        public ICommand OpenCommand
+        {
+            get
+            {
+                if (this._openCommand == null)
+                {
+                    this._openCommand = new ActionCommand(() =>
+                    {
+                        Btn_open_OnClick(null, null);
+                    });
+                }
+
+                return this._openCommand;
+            } 
+        }
+        private ICommand _importCommand;
+
+        public ICommand ImportCommand
+        {
+            get
+            {
+                if (this._importCommand == null)
+                {
+                    this._importCommand = new ActionCommand(() =>
+                    {
+                        Btn_importFromCrewChief_OnClick(null, null);
+                    });
+                }
+
+                return this._importCommand;
+            } 
+        }
+
+        private void Txt_adjustDistance_OnKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                Btn_adjustDistance_OnClick(null, null);
+            }
         }
     }
 }
