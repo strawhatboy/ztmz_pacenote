@@ -2,7 +2,7 @@
   "profiles": {
     "ZTMZ.PacenoteTool.ScriptEditor": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\Users\\Andy\\lab\\ztmz_pacenote\\ZTMZ.PacenoteTool\\bin\\Debug\\net5.0-windows\\profiles\\default\\ES_ Ribadelles_ Centenera.pacenote\""
+      // "commandLineArgs": "\"C:\\Users\\Andy\\lab\\ztmz_pacenote\\ZTMZ.PacenoteTool\\bin\\Debug\\net5.0-windows\\profiles\\default\\ES_ Ribadelles_ Centenera.pacenote\""
     }
   }
 }

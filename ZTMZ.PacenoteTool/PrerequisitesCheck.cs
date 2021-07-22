@@ -18,7 +18,11 @@ namespace ZTMZ.PacenoteTool
         private XElement _udpNode;
         public bool Check()
         {
-            var b1 = this.Check(this._dr2settingsFile);
+            bool b1 = true;
+            if (File.Exists(this._dr2settingsFile))
+            {
+                b1 = this.Check(this._dr2settingsFile);   
+            }
             if (File.Exists(this._dr2settingsVRFile))
             {
                 return b1 && this.Check(this._dr2settingsVRFile);

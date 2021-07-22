@@ -18,6 +18,7 @@ namespace ZTMZ.PacenoteTool
         //public string FileName { set; get; }
         //public string FilePath { set; get; }
         public int Distance { set; get; }
+
         //public AudioFileReader AudioFileReader { set; get; }
         //public byte[] Content { set; get; }
         public AutoResampledCachedSound Sound { set; get; }
@@ -31,6 +32,7 @@ namespace ZTMZ.PacenoteTool
         public string CurrentCoDriverName { set; get; }
 
         public string CurrentScriptPath { set; get; }
+        public ScriptReader CurrentScriptReader { get; private set; }
 
         public string CurrentCoDriverSoundPackagePath { set; get; }
 
@@ -53,7 +55,9 @@ namespace ZTMZ.PacenoteTool
         public ZTMZAudioPlaybackEngine Player { set; get; }
 
 
-        public AudioFile CurrentAudioFile => this.AudioFiles != null && this.CurrentPlayIndex < this.AudioFiles.Count() ? this.AudioFiles[this.CurrentPlayIndex] : null;
+        public AudioFile CurrentAudioFile => this.AudioFiles != null && this.CurrentPlayIndex < this.AudioFiles.Count()
+            ? this.AudioFiles[this.CurrentPlayIndex]
+            : null;
 
         //public SoundPlayer CurrentSoundPlayer => this.Players != null && this.CurrentPlayIndex < this.Players.Count()
         //    ? this.Players[this.CurrentPlayIndex]
@@ -77,8 +81,9 @@ namespace ZTMZ.PacenoteTool
 
             //load supported audio types
 
-            var jsonContent = File.ReadAllText("supported_audio_types.json");
-            this.SupportedAudioTypes = JsonConvert.DeserializeObject<string[]>(jsonContent).ToList();
+            // var jsonContent = File.ReadAllText("supported_audio_types.json");
+            // this.SupportedAudioTypes = JsonConvert.DeserializeObject<string[]>(jsonContent).ToList();
+            this.SupportedAudioTypes = Config.Instance.SupportedAudioTypes;
         }
 
         private void initExampleAudio()
@@ -126,6 +131,7 @@ namespace ZTMZ.PacenoteTool
             {
                 File.WriteAllText(filePath, "");
             }
+
             this.CurrentScriptPath = filePath;
             return filePath;
         }
@@ -136,7 +142,7 @@ namespace ZTMZ.PacenoteTool
             File.WriteAllText(Path.Join(this.CurrentItineraryPath, CODRIVER_FILENAME), codriver);
         }
 
-        public void StartReplaying(string itinerary, int playMode=0)
+        public void StartReplaying(string itinerary, int playMode = 0)
         {
             this.CurrentItineraryPath = this.GetRecordingsFolder(itinerary);
             this.CurrentScriptPath = this.GetScriptFile(itinerary);
@@ -170,31 +176,46 @@ namespace ZTMZ.PacenoteTool
                 IEnumerable<string> filePaths = new List<string>();
                 foreach (var supportedFilter in this.SupportedAudioTypes)
                 {
-                    filePaths = filePaths.Concat(Directory.GetFiles(this.CurrentItineraryPath, supportedFilter).AsEnumerable());
+                    filePaths = filePaths.Concat(Directory.GetFiles(this.CurrentItineraryPath, supportedFilter)
+                        .AsEnumerable());
                 }
 
                 // get files
                 audioFiles = (from path in filePaths
-                             select
-                                 new AudioFile()
-                                 {
-                                     //FileName = Path.GetFileName(path),
-                                     //FilePath = Path.GetFullPath(path),
-                                     //Extension = Path.GetExtension(path),
-                                     Distance = int.Parse(Path.GetFileNameWithoutExtension(path)),
-                                     //Content = File.ReadAllBytes(path)
-                                     //AudioFileReader = new AudioFileReader(path)
-                                     Sound = new AutoResampledCachedSound(path)
-                                 }).ToList();
-            } 
+                    select
+                        new AudioFile()
+                        {
+                            //FileName = Path.GetFileName(path),
+                            //FilePath = Path.GetFullPath(path),
+                            //Extension = Path.GetExtension(path),
+                            Distance = int.Parse(Path.GetFileNameWithoutExtension(path)),
+                            //Content = File.ReadAllBytes(path)
+                            //AudioFileReader = new AudioFileReader(path)
+                            Sound = new AutoResampledCachedSound(path)
+                        }).ToList();
+            }
+
             if (playMode == 1 || playMode == 2)
             {
                 // script mode now!
                 var reader = ScriptReader.ReadFromFile(this.CurrentScriptPath);
+                this.CurrentScriptReader = reader;
 
-                foreach (var record in reader.PacenoteRecords)
+                AudioFile f = null;
+                for (int i = 0; i < reader.PacenoteRecords.Count; i++)
                 {
-                    var f = new AudioFile() { Distance = (int)record.Distance };
+                    var record = reader.PacenoteRecords[i];
+                    if (i > 0 &&
+                        record.Distance - reader.PacenoteRecords[i - 1].Distance >=
+                        Config.Instance.ScriptMode_MinDistanceForMerge)
+                    {
+                        // merge the two. means keep the f;
+                    }
+                    else
+                    {
+                        f = new AudioFile() {Distance = (int) record.Distance};
+                    }
+
                     var sound = new AutoResampledCachedSound();
                     foreach (var note in record.Pacenotes)
                     {
@@ -204,15 +225,24 @@ namespace ZTMZ.PacenoteTool
                             sound.Append(this.getSoundByKeyword(mod));
                         }
                     }
-                    f.Sound = sound;
+
+                    if (f.Sound == null)
+                    {
+                        f.Sound = sound;   
+                    }
+                    else
+                    {
+                        // merge
+                        f.Sound.Append(sound);
+                    }
                     audioFiles.Add(f);
                 }
             }
 
 
             var sortedAudioFiles = from audioFile in audioFiles
-                                   orderby audioFile.Distance ascending
-                                   select audioFile;
+                orderby audioFile.Distance ascending
+                select audioFile;
 
             this.AudioFiles = sortedAudioFiles.ToList();
 
@@ -227,7 +257,6 @@ namespace ZTMZ.PacenoteTool
             //    this.Players.Add(player);
             //}
             this.Player = new ZTMZAudioPlaybackEngine(this.CurrentPlayDeviceId);
-
 
 
             this.CurrentPlayIndex = 0;
@@ -277,6 +306,7 @@ namespace ZTMZ.PacenoteTool
                 {
                     Thread.Sleep(1000);
                 }
+
                 this._exampleWaveOut.Dispose();
                 this._exampleAudio.Dispose();
                 this.initExampleAudio();

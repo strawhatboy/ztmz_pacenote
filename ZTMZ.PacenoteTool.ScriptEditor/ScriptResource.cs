@@ -13,6 +13,8 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         public static Dictionary<string, string> PACENOTES { private set; get; } = loadCsv("./pacenotes.csv");
         public static Dictionary<string, string> MODIFIERS { private set; get; } = loadCsv("./modifiers.csv");
 
+        public static Dictionary<string, string> FLAGS { private set; get; } = loadCsv("./flags.csv");
+
         private static Dictionary<string, string> loadCsv(string path)
         {
             using (var reader = new StreamReader(path))

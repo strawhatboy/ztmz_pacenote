@@ -73,7 +73,7 @@ namespace ZTMZ.PacenoteTool
 
         private void initUDPClient()
         {
-            var any = new IPEndPoint(IPAddress.Loopback, 20777);
+            var any = new IPEndPoint(IPAddress.Loopback, Config.Instance.UDPListenPort);
             var client = new UdpClient();
             client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             client.ExclusiveAddressUse = false;

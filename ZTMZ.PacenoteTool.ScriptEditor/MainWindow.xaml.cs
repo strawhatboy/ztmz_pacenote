@@ -77,6 +77,19 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                     _completionWindow.Show();
                     _completionWindow.Closed += delegate { _completionWindow = null; };
                 }
+                else if (args.Text == "@")
+                {
+                    // Open code completion after the user has pressed dot:
+                    _completionWindow = new CompletionWindow(avalonEditor.TextArea);
+                    IList<ICompletionData> data = _completionWindow.CompletionList.CompletionData;
+                    foreach (var r in ScriptResource.FLAGS)
+                    {
+                        data.Add(new ScriptCompletionData(r.Key, r.Value));
+                    }
+
+                    _completionWindow.Show();
+                    _completionWindow.Closed += delegate { _completionWindow = null; };
+                }
             };
             this.txt_adjustFontSize.ValueChanged += this.Txt_adjustFontSize_OnValueChanged;
         }
@@ -148,7 +161,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                     // find token near the mouse
                     // search forward
                     var end = offset;
-                    var keySeparator = new char[] {'\n', '\r', ',', '/', '#', ' ', '\t'};
+                    var keySeparator = new char[] {'\n', '\r', ',', '/', '#', ' ', '\t', '@'};
                     while (end < this.avalonEditor.Text.Length &&
                            !keySeparator.Contains(this.avalonEditor.Text[end]))
                     {
@@ -168,11 +181,15 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                     content = content.Trim();
                     if (ScriptResource.PACENOTES.ContainsKey(content))
                     {
-                        content = "路书" + content + ": " + ScriptResource.PACENOTES[content];
+                        content = "[路书] " + content + ": " + ScriptResource.PACENOTES[content];
                     }
                     else if (ScriptResource.MODIFIERS.ContainsKey(content))
                     {
-                        content = "路书修饰：" + content + ": " + ScriptResource.MODIFIERS[content];
+                        content = "[路书修饰] " + content + ": " + ScriptResource.MODIFIERS[content];
+                    }
+                    else if (ScriptResource.FLAGS.ContainsKey(content))
+                    {
+                        content = "[标志] " + content + ": " + ScriptResource.FLAGS[content];
                     }
 
                     this._toolTip.Content = content;
@@ -236,7 +253,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         private void Btn_importFromCrewChief_OnClick(object sender, RoutedEventArgs e)
         {
             // 覆盖当前文件
-            
+
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Filter = "CrewChief路书文件 (*.json) | *.json";
             if (dialog.ShowDialog() == true)
@@ -301,15 +318,13 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             {
                 if (this._saveCommand == null)
                 {
-                    this._saveCommand = new ActionCommand(() =>
-                    {
-                        Btn_save_OnClick(null, null);
-                    });
+                    this._saveCommand = new ActionCommand(() => { Btn_save_OnClick(null, null); });
                 }
 
                 return this._saveCommand;
-            } 
+            }
         }
+
         private ICommand _saveAsCommand;
 
         public ICommand SaveAsCommand
@@ -318,16 +333,13 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             {
                 if (this._saveAsCommand == null)
                 {
-                    this._saveAsCommand = new ActionCommand(() =>
-                    {
-                        Btn_saveAs_OnClick(null, null);
-                    });
+                    this._saveAsCommand = new ActionCommand(() => { Btn_saveAs_OnClick(null, null); });
                 }
 
                 return this._saveAsCommand;
-            } 
+            }
         }
-        
+
         private ICommand _openCommand;
 
         public ICommand OpenCommand
@@ -336,15 +348,13 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             {
                 if (this._openCommand == null)
                 {
-                    this._openCommand = new ActionCommand(() =>
-                    {
-                        Btn_open_OnClick(null, null);
-                    });
+                    this._openCommand = new ActionCommand(() => { Btn_open_OnClick(null, null); });
                 }
 
                 return this._openCommand;
-            } 
+            }
         }
+
         private ICommand _importCommand;
 
         public ICommand ImportCommand
@@ -353,14 +363,11 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             {
                 if (this._importCommand == null)
                 {
-                    this._importCommand = new ActionCommand(() =>
-                    {
-                        Btn_importFromCrewChief_OnClick(null, null);
-                    });
+                    this._importCommand = new ActionCommand(() => { Btn_importFromCrewChief_OnClick(null, null); });
                 }
 
                 return this._importCommand;
-            } 
+            }
         }
 
         private void Txt_adjustDistance_OnKeyUp(object sender, KeyEventArgs e)

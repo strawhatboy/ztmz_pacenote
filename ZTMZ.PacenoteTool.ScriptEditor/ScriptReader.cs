@@ -9,6 +9,23 @@ using Newtonsoft.Json;
 
 namespace ZTMZ.PacenoteTool.ScriptEditor
 {
+    public class ScriptFlags
+    {
+        public static readonly string DYNAMIC = "dynamic";
+    }
+    public class ScriptFlagParser
+    {
+        public static string ParseFlag(string line)
+        {
+            line = line.Trim();
+            if (line.StartsWith("@"))
+            {
+                return line.Substring(1).Trim();
+            }
+
+            return null;
+        }
+    }
     public class ScriptParseException : Exception
     {
         public ScriptParseException(int line, string token)
@@ -23,6 +40,8 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
     public class ScriptReader
     {
+
+        public IList<string> Flags { set; get; } = new List<string>();
         public IList<PacenoteRecord> PacenoteRecords { set; get; } = new List<PacenoteRecord>();
 
         public static ScriptReader ReadFromFile(string filePath)
@@ -31,6 +50,12 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             return ReadFromLines(lines);
         }
 
+        public bool IsDynamic => this.HasFlag(ScriptFlags.DYNAMIC);
+
+        public bool HasFlag(string flag)
+        {
+            return this.Flags.Contains(flag);
+        }
         public static ScriptReader ReadFromString(string str)
         {
             var lines = str.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -43,6 +68,14 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             for (int lineNo = 0; lineNo < lines.Length; lineNo++)
             {
                 var line = lines[lineNo];
+                // try flags first
+                var flag = ScriptFlagParser.ParseFlag(line);
+                if (!string.IsNullOrEmpty(flag))
+                {
+                    reader.Flags.Add(flag);
+                    continue;
+                }
+                
                 try
                 {
                     var record = PacenoteRecord.GetFromLine(line);

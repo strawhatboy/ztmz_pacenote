@@ -5,6 +5,10 @@
     <!-- This is the main ruleset. -->
     <RuleSet>
         <Span color="Comment" begin="#" />
+        
+        <Keywords foreground="DarkBlue">
+            <Word>@dynamic</Word>
+        </Keywords>
 
         <Keywords foreground="Blue">
             <Word>,corner_1_left</Word>

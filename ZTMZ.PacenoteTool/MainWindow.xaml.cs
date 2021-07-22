@@ -62,7 +62,7 @@ namespace ZTMZ.PacenoteTool
                     {
                         this._recordingConfig.DestFilePath =
                             string.Format("{0}/{1}.mp3", this._trackFolder,
-                                (int)this._udpReceiver.LastMessage.LapDistance);
+                                (int) this._udpReceiver.LastMessage.LapDistance);
                         this._recordingConfig.RecordingDate = DateTime.Now;
                         this._audioRecorder.Start(this._recordingConfig);
                         this._isRecordingInProgress = true;
@@ -110,11 +110,37 @@ namespace ZTMZ.PacenoteTool
                 {
                     // play in threads.
                     // play sound (maybe state not changed and audio files not loaded.)
-                    if (this._profileManager.CurrentAudioFile != null &&
-                    msg.LapDistance >= this._profileManager.CurrentAudioFile.Distance)
+                    if (this._profileManager.CurrentAudioFile != null)
                     {
-                        // play it
-                        this._profileManager.Play();
+                        if (this._selectReplayMode == 0)
+                        {
+                            if (msg.LapDistance >= this._profileManager.CurrentAudioFile.Distance)
+                            {
+                                // play it
+                                this._profileManager.Play();
+                            }
+                        }
+                        else
+                        {
+                            // script mode
+                            if (this._profileManager.CurrentScriptReader != null)
+                            {
+                                if (this._profileManager.CurrentScriptReader.IsDynamic && msg.LapDistance +
+                                    msg.Speed / 3.6f * Config.Instance.ScriptMode_PlaySecondsAdvanced >=
+                                    this._profileManager.CurrentAudioFile.Distance)
+                                {
+                                    // play before in <PlaySecondsAdvanced> seconds.
+                                    this._profileManager.Play();
+                                }
+
+                                if (!this._profileManager.CurrentScriptReader.IsDynamic &&
+                                    msg.LapDistance >= this._profileManager.CurrentAudioFile.Distance)
+                                {
+                                    // not dynamic, play it
+                                    this._profileManager.Play();
+                                }
+                            }
+                        }
                     }
                 };
                 worker.RunWorkerAsync();
@@ -127,7 +153,11 @@ namespace ZTMZ.PacenoteTool
                 {
                     case GameState.Unknown:
                         // enable profile switch
-                        this.Dispatcher.Invoke(() => { this.cb_profile.IsEnabled = true; this.cb_replay_device.IsEnabled = true; });
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            this.cb_profile.IsEnabled = true;
+                            this.cb_replay_device.IsEnabled = true;
+                        });
                         break;
                     case GameState.RaceEnd:
                         // end recording, unload trace loaded?
@@ -142,6 +172,7 @@ namespace ZTMZ.PacenoteTool
                                 this._profileManager.StopRecording(codriver);
                             });
                         }
+
                         break;
                     case GameState.RaceBegin:
                         // load trace, use lastmsg tracklength & startZ
@@ -152,7 +183,7 @@ namespace ZTMZ.PacenoteTool
                         );
                         this.Dispatcher.Invoke(() =>
                         {
-                            this.tb_currentTrack.Text = this._trackName; 
+                            this.tb_currentTrack.Text = this._trackName;
                             // disable profile switch, replay device selection
                             this.cb_profile.IsEnabled = false;
                             this.cb_replay_device.IsEnabled = false;
@@ -173,9 +204,15 @@ namespace ZTMZ.PacenoteTool
                                 this.Dispatcher.Invoke(() =>
                                 {
                                     this.tb_codriver.Text = this._profileManager.CurrentCoDriverName;
+                                    if (this._selectReplayMode != 0 &&
+                                        this._profileManager.CurrentScriptReader != null)
+                                    {
+                                        this.chb_isDynamicPlay.IsChecked = true;
+                                    }
                                 });
                                 var firstSound = this._profileManager.AudioFiles.FirstOrDefault();
-                                if (firstSound != null && firstSound.Distance < 0) // && this._firstSoundPlayed == false)
+                                if (firstSound != null &&
+                                    firstSound.Distance < 0) // && this._firstSoundPlayed == false)
                                 {
                                     // this._firstSoundPlayed = true;
                                     // play the RaceBegin sound, just when counting down from 5 to 0.
@@ -218,6 +255,7 @@ namespace ZTMZ.PacenoteTool
                 WaveOutCapabilities WOC = WaveOut.GetCapabilities(i);
                 this.cb_replay_device.Items.Add(WOC.ProductName);
             }
+
             this.cb_replay_device.SelectedIndex = 0;
 
             // if there's no recording device, would throw exception...
@@ -230,11 +268,14 @@ namespace ZTMZ.PacenoteTool
             if (!preCheck.Check())
             {
                 // not pass
-                var result = MessageBox.Show("你的Dirt Rally 2.0 的配置文件中的UDP端口未正确打开，如果没有打开，工具将无法正常工作，点击“是”自动修改配置文件，点击“否”退出程序自行修改", "配置错误", MessageBoxButton.YesNo);
+                var result =
+                    MessageBox.Show("你的Dirt Rally 2.0 的配置文件中的UDP端口未正确打开，如果没有打开，工具将无法正常工作，点击“是”自动修改配置文件，点击“否”退出程序自行修改",
+                        "配置错误", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
                     preCheck.Write();
-                } else
+                }
+                else
                 {
                     // Goodbye.
                     System.Windows.Application.Current.Shutdown();
@@ -300,7 +341,9 @@ namespace ZTMZ.PacenoteTool
 
         private void cb_recording_device_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            this._recordingConfig.RecordingDevice = (from x in this._recordingDevices where x.Name == this.cb_recording_device.SelectedItem.ToString() select x.Id).First();
+            this._recordingConfig.RecordingDevice = (from x in this._recordingDevices
+                where x.Name == this.cb_recording_device.SelectedItem.ToString()
+                select x.Id).First();
         }
 
 
@@ -308,7 +351,8 @@ namespace ZTMZ.PacenoteTool
         {
             if (this._profileManager.CurrentItineraryPath != null)
             {
-                Process.Start(new ProcessStartInfo("explorer.exe", System.IO.Path.GetFullPath(this._profileManager.CurrentItineraryPath)));
+                Process.Start(new ProcessStartInfo("explorer.exe",
+                    System.IO.Path.GetFullPath(this._profileManager.CurrentItineraryPath)));
             }
         }
 
@@ -325,7 +369,7 @@ namespace ZTMZ.PacenoteTool
         private void btn_play_example_Click(object sender, RoutedEventArgs e)
         {
             var bgw = new BackgroundWorker();
-            bgw.DoWork += (arg, e)=> { this._profileManager.PlayExample(); };
+            bgw.DoWork += (arg, e) => { this._profileManager.PlayExample(); };
             bgw.RunWorkerAsync();
         }
 
@@ -344,14 +388,15 @@ PromptDialog (https://github.com/manuelcanepa/wpf-prompt-dialog)
 AvalonEdit (http://avalonedit.net/)
 
 最后再次感谢ZTMZ Club组委会和群里大佬们的帮助与支持。
-", "关于本工具 v2.0 Beta");
+", "关于本工具 v2.0 Beta Patch 1");
         }
 
         private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)
         {
             if (this._profileManager.CurrentItineraryPath != null)
             {
-                Process.Start(new ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe", string.Format("\"{0}\"", System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath))));
+                Process.Start(new ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe",
+                    string.Format("\"{0}\"", System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath))));
             }
         }
 
