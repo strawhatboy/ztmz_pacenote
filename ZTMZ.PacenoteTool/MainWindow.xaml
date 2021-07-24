@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="ZTMZ Club 路书工具 v2.0 Beta Patch 1" Height="450" Width="250">
+        Title="ZTMZ Club 路书工具 v2.0 Beta Patch 2" Height="450" Width="250">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
@@ -195,7 +195,7 @@
             <ComboBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3"  Name="cb_replay_mode" SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="0">
                 <ComboBoxItem ToolTip="纯语音录制和播放">纯语音模式</ComboBoxItem>
                 <ComboBoxItem ToolTip="使用脚本模式播放，需要配置领航员语音包">脚本模式</ComboBoxItem>
-                <ComboBoxItem ToolTip="群魔乱舞">混合模式</ComboBoxItem>
+                <ComboBoxItem ToolTip="群魔乱舞！动态脚本和纯语音模式混合后会产生意想不到的效果。。。慎用！">混合模式</ComboBoxItem>
             </ComboBox>
         </Grid>
         <Border Grid.Row="7" Margin="1" Background="#8888" />

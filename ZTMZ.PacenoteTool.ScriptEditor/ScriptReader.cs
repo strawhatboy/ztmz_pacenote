@@ -25,6 +25,11 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
             return null;
         }
+
+        public static string ToString(string flag)
+        {
+            return string.Format("@{0}", flag);
+        }
     }
     public class ScriptParseException : Exception
     {
@@ -144,6 +149,10 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         public override string ToString()
         {
             StringBuilder sb = new();
+            foreach (var flag in Flags)
+            {
+                sb.AppendLine(ScriptFlagParser.ToString(flag));
+            }
             foreach (var pacenoteRecord in PacenoteRecords)
             {
                 sb.AppendLine(pacenoteRecord.ToString());

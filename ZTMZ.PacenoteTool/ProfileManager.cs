@@ -21,7 +21,7 @@ namespace ZTMZ.PacenoteTool
 
         //public AudioFileReader AudioFileReader { set; get; }
         //public byte[] Content { set; get; }
-        public AutoResampledCachedSound Sound { set; get; }
+        public AutoResampledCachedSound Sound { set; get; } = null;
     }
 
     public class ProfileManager
@@ -206,14 +206,17 @@ namespace ZTMZ.PacenoteTool
                 {
                     var record = reader.PacenoteRecords[i];
                     if (i > 0 &&
-                        record.Distance - reader.PacenoteRecords[i - 1].Distance >=
-                        Config.Instance.ScriptMode_MinDistanceForMerge)
+                        record.Distance - reader.PacenoteRecords[i - 1].Distance <=
+                        Config.Instance.ScriptMode_MinDistanceForMerge &&
+                        reader.IsDynamic)
                     {
-                        // merge the two. means keep the f;
+                        // only when dynamic flag is present, we merge. or we keep creating new.
+                        // do nothing to merge the two. means keep the f;
                     }
                     else
                     {
                         f = new AudioFile() {Distance = (int) record.Distance};
+                        audioFiles.Add(f);
                     }
 
                     var sound = new AutoResampledCachedSound();
@@ -228,14 +231,13 @@ namespace ZTMZ.PacenoteTool
 
                     if (f.Sound == null)
                     {
-                        f.Sound = sound;   
+                        f.Sound = sound;
                     }
                     else
                     {
-                        // merge
+                        // merge, it's merging, so wont append to audiofiles again.
                         f.Sound.Append(sound);
                     }
-                    audioFiles.Add(f);
                 }
             }
 

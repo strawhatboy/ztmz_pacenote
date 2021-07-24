@@ -157,6 +157,12 @@ namespace ZTMZ.PacenoteTool
                         {
                             this.cb_profile.IsEnabled = true;
                             this.cb_replay_device.IsEnabled = true;
+                            this.cb_codrivers.IsEnabled = true;
+                            
+                            // enable mode change.
+                            this.ck_record.IsEnabled = true;
+                            this.ck_replay.IsEnabled = true;
+                            this.cb_replay_mode.IsEnabled = true;
                         });
                         break;
                     case GameState.RaceEnd:
@@ -187,6 +193,11 @@ namespace ZTMZ.PacenoteTool
                             // disable profile switch, replay device selection
                             this.cb_profile.IsEnabled = false;
                             this.cb_replay_device.IsEnabled = false;
+
+                            this.ck_record.IsEnabled = false;
+                            this.ck_replay.IsEnabled = false;
+                            this.cb_codrivers.IsEnabled = false;
+                            this.cb_replay_mode.IsEnabled = false;
                         });
                         if (this._toolState == ToolState.Recording)
                         {
@@ -207,7 +218,7 @@ namespace ZTMZ.PacenoteTool
                                     if (this._selectReplayMode != 0 &&
                                         this._profileManager.CurrentScriptReader != null)
                                     {
-                                        this.chb_isDynamicPlay.IsChecked = true;
+                                        this.chb_isDynamicPlay.IsChecked = this._profileManager.CurrentScriptReader.IsDynamic;
                                     }
                                 });
                                 var firstSound = this._profileManager.AudioFiles.FirstOrDefault();
@@ -388,7 +399,7 @@ PromptDialog (https://github.com/manuelcanepa/wpf-prompt-dialog)
 AvalonEdit (http://avalonedit.net/)
 
 最后再次感谢ZTMZ Club组委会和群里大佬们的帮助与支持。
-", "关于本工具 v2.0 Beta Patch 1");
+", "关于本工具 v2.0 Beta Patch 2");
         }
 
         private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)
