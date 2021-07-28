@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 
-namespace ZTMZ.PacenoteTool
+namespace ZTMZ.PacenoteTool.Base
 {
     public class Config
     {

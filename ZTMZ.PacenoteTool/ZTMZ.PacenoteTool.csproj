@@ -5,10 +5,13 @@
         <TargetFramework>net5.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>QQ图片20210714233523.ico</ApplicationIcon>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\OnlyR.Core\OnlyR.Core.csproj" />
+      <ProjectReference Include="..\ZTMZ.PacenoteTool.AudioCompressor\ZTMZ.PacenoteTool.AudioCompressor.csproj" />
+      <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.ScriptEditor\ZTMZ.PacenoteTool.ScriptEditor.csproj" />
     </ItemGroup>
 
@@ -24,7 +27,7 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
       <None Update="supported_audio_types.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       </None>
       <None Update="track_dict.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

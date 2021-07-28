@@ -11,7 +11,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <OutputPath>..\ZTMZ.PacenoteTool\bin\Release\</OutputPath>
+      <OutputPath></OutputPath>
     </PropertyGroup>
 
     <ItemGroup>

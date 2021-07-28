@@ -35,7 +35,7 @@ Description,Id
 有坡,detail_crest
 过坡,detail_over_crest
 飞跳,detail_jump
-大飞跳,detail_over_jump
+过飞跳,detail_over_jump
 超大飞跳,detail_big_jump
 路口,detail_junction
 注意,detail_caution

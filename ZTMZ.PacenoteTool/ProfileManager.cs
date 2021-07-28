@@ -8,6 +8,7 @@ using System.Linq;
 using System.Media;
 using System.Threading;
 using System.Windows.Media;
+using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.ScriptEditor;
 
 namespace ZTMZ.PacenoteTool
