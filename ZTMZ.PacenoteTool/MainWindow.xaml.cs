@@ -47,7 +47,7 @@ namespace ZTMZ.PacenoteTool
             this._recordingConfig = new RecordingConfig()
             {
                 ChannelCount = 2,
-                SampleRate = 8000,
+                SampleRate = 11025,
                 Mp3BitRate = 48,
                 UseLoopbackCapture = false,
             };
