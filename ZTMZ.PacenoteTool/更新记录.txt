@@ -4,7 +4,8 @@
 * 允许config.json配置脚本模式的动态播放，配置程序监听端口，配置声音文件允许格式
 * 调整“低录制质量”的采样率：8000->11025，防止过低采样率导致声音缺失
 * 增加了脚本文件编辑工具ZTMZ.PacenoteTool.ScriptEditor.exe，用于编辑脚本模式下的脚本
-* 增加了批量语音压缩工具ZTMZ.PacenoteTool.AudioCompressor.exe，可用于批量压缩语音包或者是语音路书
+* 增加了批量语音压缩工具ZTMZ.PacenoteTool.AudioCompressor.exe，可用于批量压缩语音包或语音路书
+* 脚本模式的语音包支持单一文件形式和文件夹内多文件形式。优先以单文件为主，当找不到单文件时，会尝试从对应文件夹中随机选取一个文件。
 
 
 v1.0.1

@@ -404,7 +404,7 @@ AvalonEdit (http://avalonedit.net/)
 WindowsAPICodePack-Shell (https://github.com/aybe/Windows-API-Code-Pack-1.1)
 
 最后再次感谢ZTMZ Club组委会和群里大佬们的帮助与支持。
-", "关于本工具 v2.0 Prerelease");
+", "关于本工具 v2.0 Prerelease 2");
         }
 
         private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)

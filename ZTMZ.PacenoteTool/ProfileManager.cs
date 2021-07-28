@@ -267,17 +267,37 @@ namespace ZTMZ.PacenoteTool
 
         private AutoResampledCachedSound getSoundByKeyword(string keyword)
         {
-            var soundFilePath = string.Format("{0}/{1}", this.CurrentCoDriverSoundPackagePath, keyword);
-            // load all files
             List<string> filePaths = new List<string>();
+            // try file directly
+
             foreach (var supportedFilter in this.SupportedAudioTypes)
             {
-                filePaths.AddRange(Directory.GetFiles(soundFilePath, supportedFilter));
+                filePaths.AddRange(Directory.GetFiles(this.CurrentCoDriverSoundPackagePath, supportedFilter));
+            }
+            foreach (var f in filePaths)
+            {
+                if (Path.GetFileNameWithoutExtension(f) == keyword)
+                {
+                    return new AutoResampledCachedSound(f);
+                }
             }
 
-            // random
-            var randIndex = this._random.Next(0, filePaths.Count() - 1);
-            return new AutoResampledCachedSound(filePaths[randIndex]);
+            // not found, try folders
+            var soundFilePath = string.Format("{0}/{1}", this.CurrentCoDriverSoundPackagePath, keyword);
+            if (Directory.Exists(soundFilePath))
+            {
+                // load all files
+                foreach (var supportedFilter in this.SupportedAudioTypes)
+                {
+                    filePaths.AddRange(Directory.GetFiles(soundFilePath, supportedFilter));
+                }
+
+                // random
+                var randIndex = this._random.Next(0, filePaths.Count() - 1);
+                return new AutoResampledCachedSound(filePaths[randIndex]);
+            }
+
+            return new AutoResampledCachedSound();
         }
 
         // need to be run in a non-UI thread

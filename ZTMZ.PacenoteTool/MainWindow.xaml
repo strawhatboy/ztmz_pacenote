@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="ZTMZ Club 路书工具 v2.0 Prerelease" Height="450" Width="250">
+        Title="ZTMZ Club 路书工具 v2.0 Prerelease 2" Height="450" Width="250">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
