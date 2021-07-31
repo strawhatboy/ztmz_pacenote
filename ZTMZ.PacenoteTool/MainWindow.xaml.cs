@@ -47,8 +47,8 @@ namespace ZTMZ.PacenoteTool
             this._recordingConfig = new RecordingConfig()
             {
                 ChannelCount = 2,
-                SampleRate = 11025,
-                Mp3BitRate = 48,
+                SampleRate = 22050,
+                Mp3BitRate = 128,
                 UseLoopbackCapture = false,
             };
             InitializeComponent();
@@ -344,7 +344,7 @@ namespace ZTMZ.PacenoteTool
                     break;
                 case 1:
                     this._recordingConfig.SampleRate = 22050;
-                    this._recordingConfig.Mp3BitRate = 96;
+                    this._recordingConfig.Mp3BitRate = 128;
                     break;
                 case 2:
                     // very huge file...
@@ -404,7 +404,7 @@ AvalonEdit (http://avalonedit.net/)
 WindowsAPICodePack-Shell (https://github.com/aybe/Windows-API-Code-Pack-1.1)
 
 最后再次感谢ZTMZ Club组委会和群里大佬们的帮助与支持。
-", "关于本工具 v2.0 Prerelease Patch 2");
+", "关于本工具 v2.0");
         }
 
         private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)
@@ -437,6 +437,16 @@ WindowsAPICodePack-Shell (https://github.com/aybe/Windows-API-Code-Pack-1.1)
                     this.tb_volume.Text = value > 0 ? $"+{value}" : $"{value}";   
                 }
             }
+        }
+
+        private void Btn_startScriptEditor_OnClick(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe"));
+        }
+
+        private void Btn_startAudioCompressor_OnClick(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo("ZTMZ.PacenoteTool.AudioCompressor.exe"));
         }
     }
 }

@@ -197,7 +197,7 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
                 case 0:
                     return 48;
                 case 1:
-                    return 96;
+                    return 128;
                 case 2:
                     return 320;
                 default:

@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -375,6 +376,26 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             if (e.Key == Key.Enter)
             {
                 Btn_adjustDistance_OnClick(null, null);
+            }
+        }
+
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            if (!this._isSaved)
+            {
+                var dialogResult = MessageBox.Show("当前文档未保存，点击“是”保存后退出，点击“否”直接退出，点击“取消”继续工作", "未保存的文档！", MessageBoxButton.YesNoCancel);
+                switch (dialogResult)
+                {
+                    case MessageBoxResult.Yes:
+                        Btn_save_OnClick(null, null);
+                        break;
+                    case MessageBoxResult.No:
+                        // do nothing
+                        break;
+                    case MessageBoxResult.Cancel:
+                        e.Cancel = true;
+                        break;
+                }
             }
         }
     }

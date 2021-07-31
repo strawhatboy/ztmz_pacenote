@@ -112,6 +112,26 @@
             <Word>/detail_longlong</Word>
             <Word>/detail_maybe</Word>
             <Word>/detail_opens</Word>
+            <Word>/detail_tightens_to_acute</Word>
+            <Word>/detail_tightens_to_1</Word>
+            <Word>/detail_tightens_to_2</Word>
+            <Word>/detail_tightens_to_3</Word>
+            <Word>/detail_tightens_to_4</Word>
+            <Word>/detail_tightens_to_5</Word>
+            <Word>/detail_widens</Word>
+            <Word>/detail_narrows</Word>
+            <Word>/detail_bad_camber</Word>
+            <Word>/detail_over_bridge</Word>
+            <Word>/detail_ford</Word>
+            <Word>/detail_over_crest</Word>
+            <Word>/detail_over_jump</Word>
+            <Word>/detail_onto_tarmac</Word>
+            <Word>/detail_logs_inside</Word>
+            <Word>/detail_logs_outside</Word>
+            <Word>/detail_rocks_inside</Word>
+            <Word>/detail_rocks_outside</Word>
+            <Word>/detail_tree_inside</Word>
+            <Word>/detail_tree_outside</Word>
           <Word>/number_30</Word>
           <Word>/number_40</Word>
           <Word>/number_50</Word>

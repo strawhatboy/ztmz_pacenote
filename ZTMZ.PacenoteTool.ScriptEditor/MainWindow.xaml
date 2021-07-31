@@ -6,7 +6,7 @@
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.ScriptEditor"
-        mc:Ignorable="d"
+        mc:Ignorable="d" Closing="MainWindow_OnClosing"
         Title="ZTMZ Club 路书脚本编辑工具v1.0.0" Height="450" Width="800" DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.InputBindings>
         <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}"></KeyBinding>
