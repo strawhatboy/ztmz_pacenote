@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="ZTMZ Club 路书工具 v2.0 Prerelease Patch 2" Height="500" Width="280">
+        Title="ZTMZ Club 路书工具 v2.0 Prerelease Patch 2" Height="500" Width="320">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
@@ -181,8 +181,8 @@
 
                 <ColumnDefinition Width="100" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="25" />
-                <ColumnDefinition Width="25" />
+                <ColumnDefinition Width="30" />
+                <ColumnDefinition Width="30" />
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0">当前地图：</TextBlock>
@@ -193,9 +193,9 @@
             <Button Grid.Row="0" Grid.Column="3" Name="btn_currentTrack_script" ToolTip="打开当前地图的脚本" Click="btn_currentTrack_script_Click">θ</Button>
             <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Name="cb_replay_device" SelectionChanged="cb_replay_device_SelectionChanged" ></ComboBox>
             <Button Grid.Row="1" Grid.Column="3" Name="btn_play_example" Click="btn_play_example_Click" ToolTip="播放示例声音">▶</Button>
-            <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="调整播放音量，注意超出100%时可能会出现爆音情况">播放音量：</TextBlock>
-            <Slider Name="s_volume" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Maximum="200" Minimum="0" Value="100" ValueChanged="S_volume_OnValueChanged"></Slider>
-            <TextBlock Grid.Row="2" Grid.Column="3" Name="tb_volume">100</TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="调整播放音量，增大音量时可能会出现音频波形丢失而引起的爆音情况" >播放音量：</TextBlock>
+            <Slider Name="s_volume" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Maximum="1000" Minimum="-1000" Value="0" ValueChanged="S_volume_OnValueChanged"></Slider>
+            <TextBlock Grid.Row="2" Grid.Column="3" Name="tb_volume">0</TextBlock>
             <ComboBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3"  Name="cb_replay_mode" SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="0">
                 <ComboBoxItem ToolTip="纯语音录制和播放">纯语音模式</ComboBoxItem>
                 <ComboBoxItem ToolTip="使用脚本模式播放，需要配置领航员语音包">脚本模式</ComboBoxItem>

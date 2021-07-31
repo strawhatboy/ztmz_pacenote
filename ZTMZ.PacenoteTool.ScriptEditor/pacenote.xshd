@@ -54,6 +54,7 @@
             <Word>,detail_caution</Word>
             <Word>,detail_gravel</Word>
             <Word>,detail_tarmac</Word>
+            <Word>,detail_onto_tarmac</Word>
             <Word>,detail_triple_caution</Word>
             <Word>,detail_snow</Word>
             <Word>,detail_concrete</Word>
@@ -110,6 +111,7 @@
             <Word>/detail_long</Word>
             <Word>/detail_longlong</Word>
             <Word>/detail_maybe</Word>
+            <Word>/detail_opens</Word>
           <Word>/number_30</Word>
           <Word>/number_40</Word>
           <Word>/number_50</Word>

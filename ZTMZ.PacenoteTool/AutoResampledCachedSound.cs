@@ -12,16 +12,34 @@ namespace ZTMZ.PacenoteTool
     public class AutoResampledCachedSound
     {
         private float[] _audioData = new float[] { };
+        private float[] _amplifiedAudioData = new float[] { };
 
-        public int Amplification { get; set; } = 100;
+        private int _amplification = 0;
+        public int Amplification
+        {
+            get => this._amplification; set
+            {
+                this._amplification = value;
+                if (value > 0)
+                {
+                    this._amplifiedAudioData = (from x in this._audioData select (x * (1000 + value * 10) / 1000)).ToArray();
+                } else if (value < 0)
+                {
+                    this._amplifiedAudioData = (from x in this._audioData select (x * (1000 + value) / 1000)).ToArray();
+                } else
+                {
+                    this._amplifiedAudioData = this._audioData;
+                }
+            }
+        }
 
         public float[] AudioData
         {
             get
             {
-                if (this.Amplification != 100)
+                if (this.Amplification != 0)
                 {
-                    return (from x in this._audioData select (x * this.Amplification / 100)).ToArray();
+                    return this._amplifiedAudioData;
                 }
 
                 return this._audioData;
@@ -47,7 +65,7 @@ namespace ZTMZ.PacenoteTool
                     WaveFormat.CreateIeeeFloatWaveFormat(44100, 2)));
                 this.WaveFormat = resampledAudio.WaveFormat;
 
-                var wholeFile = new List<float>((int) (audioFileReader.Length / 4));
+                var wholeFile = new List<float>((int)(audioFileReader.Length / 4));
                 var buffer = new float[resampledAudio.WaveFormat.SampleRate * resampledAudio.WaveFormat.Channels];
                 int samplesRead;
                 while ((samplesRead = resampledAudio.Read(buffer, 0, buffer.Length)) > 0)

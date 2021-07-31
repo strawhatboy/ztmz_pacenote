@@ -325,6 +325,7 @@ namespace ZTMZ.PacenoteTool
         // need to be run in a non-UI thread
         public void PlayExample()
         {
+            this._exampleAudio.Amplification = this.CurrentPlayAmplification;
             this.Player.PlaySound(this._exampleAudio);
         }
     }

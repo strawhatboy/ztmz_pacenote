@@ -5,6 +5,7 @@ Description,Id
 长,detail_long
 很长,detail_longlong
 可能,detail_maybe
+变宽,detail_opens
 30米,number_30
 40米,number_40
 50米,number_50

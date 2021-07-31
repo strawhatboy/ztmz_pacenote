@@ -434,7 +434,7 @@ WindowsAPICodePack-Shell (https://github.com/aybe/Windows-API-Code-Pack-1.1)
                 this._profileManager.CurrentPlayAmplification = value;
                 if (this.tb_volume != null)
                 {
-                    this.tb_volume.Text = $"{value}";   
+                    this.tb_volume.Text = value > 0 ? $"+{value}" : $"{value}";   
                 }
             }
         }
