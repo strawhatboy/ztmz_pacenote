@@ -404,7 +404,7 @@ AvalonEdit (http://avalonedit.net/)
 WindowsAPICodePack-Shell (https://github.com/aybe/Windows-API-Code-Pack-1.1)
 
 最后再次感谢ZTMZ Club组委会和群里大佬们的帮助与支持。
-", "关于本工具 v2.0 Prerelease Patch 1");
+", "关于本工具 v2.0 Prerelease Patch 2");
         }
 
         private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)
@@ -424,6 +424,19 @@ WindowsAPICodePack-Shell (https://github.com/aybe/Windows-API-Code-Pack-1.1)
         private void cb_codrivers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this._profileManager.CurrentCoDriverSoundPackagePath = this.cb_codrivers.SelectedItem.ToString();
+        }
+
+        private void S_volume_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (this._profileManager != null)
+            {
+                var value = (int) e.NewValue;
+                this._profileManager.CurrentPlayAmplification = value;
+                if (this.tb_volume != null)
+                {
+                    this.tb_volume.Text = $"{value}";   
+                }
+            }
         }
     }
 }

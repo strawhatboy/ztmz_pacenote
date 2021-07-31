@@ -28,7 +28,7 @@
                 <ColumnDefinition></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <ComboBox ToolTip="选择压缩输出音频质量" SelectedIndex="0" x:Name="cb_audioQuality">
+            <ComboBox ToolTip="选择压缩输出音频质量" SelectedIndex="1" x:Name="cb_audioQuality">
                 <ComboBoxItem>
                     <ComboBoxItem.ToolTip>
                         <TextBlock>

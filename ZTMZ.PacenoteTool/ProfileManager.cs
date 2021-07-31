@@ -39,10 +39,22 @@ namespace ZTMZ.PacenoteTool
 
         public int CurrentPlayIndex { set; get; } = 0;
 
-        public int CurrentPlayDeviceId { set; get; } = 0;
+        private int _currentPlayDeviceId = 0;
 
-        private AudioFileReader _exampleAudio;
-        private WaveOutEvent _exampleWaveOut;
+        public int CurrentPlayDeviceId
+        {
+            set
+            {
+                this.Player?.Dispose();
+                this.Player = new ZTMZAudioPlaybackEngine(this.CurrentPlayDeviceId);
+            }
+            get => this._currentPlayDeviceId;
+        }
+
+        public int CurrentPlayAmplification { set; get; } = 100;
+
+        private AutoResampledCachedSound _exampleAudio;
+        // private WaveOutEvent _exampleWaveOut;
         private Random _random = new Random();
 
 
@@ -89,9 +101,9 @@ namespace ZTMZ.PacenoteTool
 
         private void initExampleAudio()
         {
-            this._exampleAudio = new AudioFileReader("Alarm01.wav");
+            this._exampleAudio = new AutoResampledCachedSound("Alarm01.wav");
             //this._exampleAudio = new AudioFileReader("20210715_152916.m4a");
-            this._exampleWaveOut = new WaveOutEvent();
+            // this._exampleWaveOut = new WaveOutEvent();
         }
 
         public List<string> GetAllProfiles()
@@ -150,7 +162,7 @@ namespace ZTMZ.PacenoteTool
             List<AudioFile> audioFiles = new List<AudioFile>();
 
             // clear lists
-            this.Player?.Dispose();
+            // this.Player?.Dispose();
             //foreach (var f in this.AudioFiles)
             //{
             //f.AudioFileReader.Dispose();
@@ -259,7 +271,6 @@ namespace ZTMZ.PacenoteTool
             //    player.Init(audiofile.AudioFileReader);
             //    this.Players.Add(player);
             //}
-            this.Player = new ZTMZAudioPlaybackEngine(this.CurrentPlayDeviceId);
 
 
             this.CurrentPlayIndex = 0;
@@ -274,6 +285,7 @@ namespace ZTMZ.PacenoteTool
             {
                 filePaths.AddRange(Directory.GetFiles(this.CurrentCoDriverSoundPackagePath, supportedFilter));
             }
+
             foreach (var f in filePaths)
             {
                 if (Path.GetFileNameWithoutExtension(f) == keyword)
@@ -303,37 +315,17 @@ namespace ZTMZ.PacenoteTool
         // need to be run in a non-UI thread
         public void Play()
         {
-            //var player = this.Players[this.CurrentPlayIndex++];
-            //var waveout = new WaveOut();
-            //waveout.DeviceNumber = deviceID;
-            //waveout.Init(player);
-            //waveout.Play();
-            //player.Play();
-            //while (player.PlaybackState == PlaybackState.Playing)
-            //{
-            //    Thread.Sleep(1000);
-            //}
-            this.Player.PlaySound(this.AudioFiles[this.CurrentPlayIndex++].Sound);
+            // try to amplify the sound.
+            var sound = this.AudioFiles[this.CurrentPlayIndex++].Sound;
+            sound.Amplification = this.CurrentPlayAmplification;
+            this.Player.PlaySound(sound);
             Debug.WriteLine("Playing");
         }
 
         // need to be run in a non-UI thread
         public void PlayExample()
         {
-            lock (obj)
-            {
-                this._exampleWaveOut.DeviceNumber = this.CurrentPlayDeviceId;
-                this._exampleWaveOut.Init(this._exampleAudio);
-                this._exampleWaveOut.Play();
-                while (this._exampleWaveOut.PlaybackState == PlaybackState.Playing)
-                {
-                    Thread.Sleep(1000);
-                }
-
-                this._exampleWaveOut.Dispose();
-                this._exampleAudio.Dispose();
-                this.initExampleAudio();
-            }
+            this.Player.PlaySound(this._exampleAudio);
         }
     }
 }

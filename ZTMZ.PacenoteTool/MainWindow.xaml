@@ -6,16 +6,16 @@
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="ZTMZ Club 路书工具 v2.0 Prerelease Patch 1" Height="450" Width="250">
+        Title="ZTMZ Club 路书工具 v2.0 Prerelease Patch 2" Height="500" Width="280">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
             <RowDefinition Height="4" />
             <RowDefinition Height="160" />
             <RowDefinition Height="4" />
-            <RowDefinition Height="130" />
+            <RowDefinition Height="140" />
             <RowDefinition Height="4" />
-            <RowDefinition Height="60" />
+            <RowDefinition Height="90" />
             <RowDefinition Height="4" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
@@ -111,7 +111,7 @@
                     <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_profile" Grid.ColumnSpan="2" SelectionChanged="cb_profile_SelectionChanged"/>
                     <TextBlock Grid.Row="1" Grid.Column="1" Name="tb_codriver" Grid.ColumnSpan="2">未知</TextBlock>
                     <TextBlock Grid.Row="2" Grid.Column="1" Name="tb_isRecording" Grid.ColumnSpan="2" FontWeight="Bold" FontSize="14">不可用</TextBlock>
-                    <ComboBox Grid.Row="3" Grid.Column="1" Name="tb_recordQuality" SelectedIndex="0" Grid.ColumnSpan="2"
+                    <ComboBox Grid.Row="3" Grid.Column="1" Name="tb_recordQuality" SelectedIndex="1" Grid.ColumnSpan="2"
                       SelectionChanged="Tb_recordQuality_OnSelectionChanged">
                         <ComboBoxItem>
                             <ComboBoxItem.ToolTip>
@@ -175,24 +175,28 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
 
                 <ColumnDefinition Width="100" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="20" />
-                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="25" />
+                <ColumnDefinition Width="25" />
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0">当前地图：</TextBlock>
             <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="在游戏进行时不可切换播放设备">播放设备：</TextBlock>
-            <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="在游戏进行时不可切换播放设备" FontSize="16" FontWeight="Bold">播放模式：</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="0" ToolTip="在游戏进行时不可切换播放模式" FontSize="16" FontWeight="Bold">播放模式：</TextBlock>
             <TextBlock Grid.Row="0" Grid.Column="1" Name="tb_currentTrack">未知</TextBlock>
             <Button Grid.Row="0" Grid.Column="2" Name="tb_currentTrack_view" ToolTip="打开当前地图录制文件夹" Click="tb_currentTrack_view_Click">...</Button>
             <Button Grid.Row="0" Grid.Column="3" Name="btn_currentTrack_script" ToolTip="打开当前地图的脚本" Click="btn_currentTrack_script_Click">θ</Button>
             <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Name="cb_replay_device" SelectionChanged="cb_replay_device_SelectionChanged" ></ComboBox>
             <Button Grid.Row="1" Grid.Column="3" Name="btn_play_example" Click="btn_play_example_Click" ToolTip="播放示例声音">▶</Button>
-            <ComboBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3"  Name="cb_replay_mode" SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="0">
+            <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="调整播放音量，注意超出100%时可能会出现爆音情况">播放音量：</TextBlock>
+            <Slider Name="s_volume" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Maximum="200" Minimum="0" Value="100" ValueChanged="S_volume_OnValueChanged"></Slider>
+            <TextBlock Grid.Row="2" Grid.Column="3" Name="tb_volume">100</TextBlock>
+            <ComboBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3"  Name="cb_replay_mode" SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="0">
                 <ComboBoxItem ToolTip="纯语音录制和播放">纯语音模式</ComboBoxItem>
                 <ComboBoxItem ToolTip="使用脚本模式播放，需要配置领航员语音包">脚本模式</ComboBoxItem>
                 <ComboBoxItem ToolTip="群魔乱舞！动态脚本和纯语音模式混合后会产生意想不到的效果。。。慎用！">混合模式</ComboBoxItem>
