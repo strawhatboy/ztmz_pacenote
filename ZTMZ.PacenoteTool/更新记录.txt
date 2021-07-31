@@ -8,8 +8,8 @@
     - 默认录制质量调整为“中”
     - 调整“中录制质量”的比特率：96->128 (kbps)
 * 增加了两个工具，在主界面左下角增加了工具入口
-    - 增加了脚本文件编辑工具ZTMZ.PacenoteTool.ScriptEditor.exe，用于编辑脚本模式下的脚本
-    - 增加了批量语音压缩工具ZTMZ.PacenoteTool.AudioCompressor.exe，可用于批量压缩语音包或语音路书
+    - 增加了路书脚本编辑工具ZTMZ.PacenoteTool.ScriptEditor.exe，用于编辑脚本模式下的脚本
+    - 增加了音频批量压缩工具ZTMZ.PacenoteTool.AudioCompressor.exe，可用于批量压缩语音包或语音路书
 * 允许调整播放音量，增大音量时可能会出现音频波形丢失而引起的失真情况
 
 
