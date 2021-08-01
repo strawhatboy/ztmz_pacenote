@@ -137,6 +137,11 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                     continue;
                 }
 
+                if (r.Pacenote.Contains("onto_"))
+                {
+                    r.Pacenote = r.Pacenote.Replace("onto_", "");
+                }
+
                 record = PacenoteRecord.FromCrewChiefPacenoteRecord(r);
                 reader.PacenoteRecords.Add(record);
                 lastRecord = record;

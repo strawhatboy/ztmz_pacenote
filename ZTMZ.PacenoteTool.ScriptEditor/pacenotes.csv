@@ -41,7 +41,6 @@ Description,Id
 注意,detail_caution
 砂石路,detail_gravel
 柏油路,detail_tarmac
-接柏油路,detail_onto_tarmac
 结冰路面,detail_triple_caution
 积雪路面,detail_snow
 水泥路,detail_concrete

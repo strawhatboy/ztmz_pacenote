@@ -19,7 +19,6 @@ Description,Id
 过水,detail_ford
 过坡,detail_over_crest
 过飞跳,detail_over_jump
-接柏油路,detail_onto_tarmac
 内侧原木,detail_logs_inside
 外侧原木,detail_logs_outside
 内侧岩石,detail_rocks_inside

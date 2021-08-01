@@ -197,10 +197,10 @@
             <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="调整播放音量，增大音量时可能会出现音频波形丢失而引起的失真情况" >播放音量：</TextBlock>
             <Slider Name="s_volume" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Maximum="1000" Minimum="-1000" Value="0" ValueChanged="S_volume_OnValueChanged"></Slider>
             <TextBlock Grid.Row="2" Grid.Column="3" Name="tb_volume">0</TextBlock>
-            <ComboBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3"  Name="cb_replay_mode" SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="0">
+            <ComboBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3"  Name="cb_replay_mode" SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="2">
                 <ComboBoxItem ToolTip="纯语音录制和播放">纯语音模式</ComboBoxItem>
                 <ComboBoxItem ToolTip="使用脚本模式播放，需要配置领航员语音包">脚本模式</ComboBoxItem>
-                <ComboBoxItem ToolTip="群魔乱舞！动态脚本和纯语音模式混合后会产生意想不到的效果。。。慎用！">混合模式</ComboBoxItem>
+                <ComboBoxItem ToolTip="群魔乱舞！如果地图同时存在动态脚本和纯语音路书，混合后会产生意想不到的效果。。。慎用！">混合模式</ComboBoxItem>
             </ComboBox>
         </Grid>
         <Border Grid.Row="7" Margin="1" Background="#8888" />

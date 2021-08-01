@@ -54,7 +54,6 @@
             <Word>,detail_caution</Word>
             <Word>,detail_gravel</Word>
             <Word>,detail_tarmac</Word>
-            <Word>,detail_onto_tarmac</Word>
             <Word>,detail_triple_caution</Word>
             <Word>,detail_snow</Word>
             <Word>,detail_concrete</Word>
@@ -125,7 +124,6 @@
             <Word>/detail_ford</Word>
             <Word>/detail_over_crest</Word>
             <Word>/detail_over_jump</Word>
-            <Word>/detail_onto_tarmac</Word>
             <Word>/detail_logs_inside</Word>
             <Word>/detail_logs_outside</Word>
             <Word>/detail_rocks_inside</Word>

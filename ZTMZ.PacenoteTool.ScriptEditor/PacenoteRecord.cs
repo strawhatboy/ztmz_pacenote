@@ -125,8 +125,11 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 sb.Append(pacenote.ToString());
             }
 
-            sb.Append("\t");
-            sb.Append(this.Comment);
+            if (!string.IsNullOrEmpty(this.Comment))
+            {
+                sb.Append("\t");
+                sb.Append(this.Comment);
+            }
 
             return sb.ToString();
         }
