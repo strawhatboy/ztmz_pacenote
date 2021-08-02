@@ -12,25 +12,32 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
     public class ScriptFlags
     {
         public static readonly string DYNAMIC = "dynamic";
+        public static readonly string AUTHOR = "author";
     }
+
+
     public class ScriptFlagParser
     {
-        public static string ParseFlag(string line)
+        public static IList<string> ParseFlag(string line, out string comment)
         {
             line = line.Trim();
-            if (line.StartsWith("@"))
+            var commentParseResult = PacenoteRecord.ParseComment(line);
+            var realContent = commentParseResult[0];
+            comment = commentParseResult[1];
+            if (realContent.StartsWith("@"))
             {
-                return line.Substring(1).Trim();
+                return realContent.Substring(1).Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
             }
 
             return null;
         }
 
-        public static string ToString(string flag)
+        public static string ToString(string flag, IList<string> parameters, string comment)
         {
-            return string.Format("@{0}", flag);
+            return string.Format("@{0} {1}\t{2}", flag, string.Join(' ', parameters), comment);
         }
     }
+
     public class ScriptParseException : Exception
     {
         public ScriptParseException(int line, string token)
@@ -45,8 +52,9 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
     public class ScriptReader
     {
-
         public IList<string> Flags { set; get; } = new List<string>();
+        public IDictionary<string, List<string>> FlagParameters { set; get; } = new Dictionary<string, List<string>>();
+        public IDictionary<string, string> FlagComments { set; get; } = new Dictionary<string, string>();
         public IList<PacenoteRecord> PacenoteRecords { set; get; } = new List<PacenoteRecord>();
 
         public static ScriptReader ReadFromFile(string filePath)
@@ -61,9 +69,13 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         {
             return this.Flags.Contains(flag);
         }
+
+        public string Author =>
+            this.HasFlag(ScriptFlags.AUTHOR) ? string.Join(' ', this.FlagParameters[ScriptFlags.AUTHOR]) : "???";
+
         public static ScriptReader ReadFromString(string str)
         {
-            var lines = str.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = str.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
             return ReadFromLines(lines);
         }
 
@@ -74,13 +86,26 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             {
                 var line = lines[lineNo];
                 // try flags first
-                var flag = ScriptFlagParser.ParseFlag(line);
-                if (!string.IsNullOrEmpty(flag))
+                var comment = string.Empty;
+                var flag = ScriptFlagParser.ParseFlag(line, out comment);
+                if (flag != null && flag.Count > 0)
                 {
-                    reader.Flags.Add(flag);
+                    if (reader.Flags.Contains(flag[0]))
+                    {
+                        reader.FlagParameters[flag[0]].AddRange(flag.Skip(1).ToList());
+                        reader.FlagComments[flag[0]] += comment;
+                    }
+                    else
+                    {
+                        reader.Flags.Add(flag[0]);
+                        reader.FlagParameters.Add(flag[0], flag.Skip(1).ToList());
+                        reader.FlagComments.Add(flag[0], comment);
+                    }
+
+
                     continue;
                 }
-                
+
                 try
                 {
                     var record = PacenoteRecord.GetFromLine(line);
@@ -112,17 +137,19 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 r.Modifier = r.Modifier.Trim();
                 if (r.Pacenote == "detail_distance_call" && i != records.Count - 1)
                 {
-                    var distance_to_call = (int)(records[i + 1].Distance - r.Distance) / 10 * 10;
+                    var distance_to_call = (int) (records[i + 1].Distance - r.Distance) / 10 * 10;
                     var distance_label = string.Format("number_{0}", distance_to_call);
                     if (ScriptResource.PACENOTES.ContainsKey(distance_label))
                     {
                         record.Distance = r.Distance;
-                        record.Pacenotes.Add(new Pacenote() { Note = distance_label });
+                        record.Pacenotes.Add(new Pacenote() {Note = distance_label});
                         reader.PacenoteRecords.Add(record);
                         lastRecord = record;
                     } // else ignore this call
+
                     continue;
                 }
+
                 if (r.Pacenote == "detail_distance_call" && i == records.Count - 1)
                 {
                     // ignore this
@@ -156,8 +183,9 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             StringBuilder sb = new();
             foreach (var flag in Flags)
             {
-                sb.AppendLine(ScriptFlagParser.ToString(flag));
+                sb.AppendLine(ScriptFlagParser.ToString(flag, FlagParameters[flag], FlagComments[flag]));
             }
+
             foreach (var pacenoteRecord in PacenoteRecords)
             {
                 sb.AppendLine(pacenoteRecord.ToString());

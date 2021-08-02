@@ -30,7 +30,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
     {
         private CompletionWindow _completionWindow;
         private string _relatedFile;
-        private bool _isSaved;
+        private bool _isSaved = true;
         private readonly string PACENOTE_FILTER = "路书文件(*.pacenote) | *.pacenote";
         private readonly string TITLE = "ZTMZ Club 路书脚本编辑工具v1.0.0";
         private ToolTip _toolTip = new ToolTip();
@@ -277,7 +277,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             var reader = this.tryParsePacenote();
             foreach (var record in reader.PacenoteRecords)
             {
-                if (this.txt_adjustDistance.Value.HasValue)
+                if (this.txt_adjustDistance.Value.HasValue && record.Distance.HasValue)
                     record.Distance += this.txt_adjustDistance.Value.Value;
             }
 

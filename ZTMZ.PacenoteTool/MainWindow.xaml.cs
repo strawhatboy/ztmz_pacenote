@@ -220,9 +220,11 @@ namespace ZTMZ.PacenoteTool
                                         this._profileManager.CurrentScriptReader != null)
                                     {
                                         this.chb_isDynamicPlay.IsChecked = this._profileManager.CurrentScriptReader.IsDynamic;
+                                        this.tb_scriptAuthor.Text = this._profileManager.CurrentScriptReader.Author;
                                     } else
                                     {
                                         this.chb_isDynamicPlay.IsChecked = false;
+                                        this.tb_scriptAuthor.Text = "???";
                                     }
                                 });
                                 var firstSound = this._profileManager.AudioFiles.FirstOrDefault();
@@ -404,7 +406,7 @@ AvalonEdit (http://avalonedit.net/)
 WindowsAPICodePack-Shell (https://github.com/aybe/Windows-API-Code-Pack-1.1)
 
 最后再次感谢ZTMZ Club组委会和群里大佬们的帮助与支持。
-", "关于本工具 v2.0");
+", "关于本工具 v2.1");
         }
 
         private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)

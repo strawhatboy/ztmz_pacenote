@@ -8,6 +8,7 @@
         
         <Keywords foreground="DarkBlue">
             <Word>@dynamic</Word>
+            <Word>@author</Word>
         </Keywords>
 
         <Keywords foreground="Blue">
@@ -150,6 +151,11 @@
           <Word>/number_450</Word>
         </Keywords>
 
+        <!-- Flag parameters -->
+        <Rule foreground="#eb34d8">
+            (?&lt;=@\w+\s)[\w|\s]+
+        </Rule>
+        
         <!-- Digits -->
         <Rule foreground="DarkGreen" >    
             \b

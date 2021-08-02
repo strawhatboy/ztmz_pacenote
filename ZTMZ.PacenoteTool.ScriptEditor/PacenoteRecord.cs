@@ -66,7 +66,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
     public class PacenoteRecord
     {
-        public float Distance { set; get; }
+        public float? Distance { set; get; }
         public List<Pacenote> Pacenotes { set; get; } = new List<Pacenote>();
         
         public string Comment { set; get; }
@@ -74,20 +74,9 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         public static PacenoteRecord GetFromLine(string line)
         {
             line = line.Trim();
-            var commentIndex = line.IndexOf('#');
-            string realContent;
-            string comment;
-            if (commentIndex != -1)
-            {
-                realContent = line.Substring(0, commentIndex);
-                comment = line.Substring(commentIndex);
-            }
-            else
-            {
-                realContent = line;
-                comment = string.Empty;
-            }
-
+            var commentParseResult = PacenoteRecord.ParseComment(line);
+            var realContent = commentParseResult[0];
+            var comment = commentParseResult[1];
             var parts = realContent.Split(',');
             if (parts.Length == 0)
             {
@@ -118,7 +107,11 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append(((int) this.Distance).ToString());
+            if (this.Distance.HasValue)
+            {
+                sb.Append(((int) this.Distance).ToString());
+            }
+
             foreach (var pacenote in Pacenotes)
             {
                 sb.Append(",");
@@ -127,7 +120,11 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
             if (!string.IsNullOrEmpty(this.Comment))
             {
-                sb.Append("\t");
+                if (this.Distance.HasValue)
+                {
+                    sb.Append("\t");
+                }
+
                 sb.Append(this.Comment);
             }
 
@@ -149,6 +146,28 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             ret.Pacenotes.Add(pn);
             
             return ret;
+        }
+
+        public static string[] ParseComment(string line)
+        {
+            var commentIndex = line.IndexOf('#');
+            string realContent;
+            string comment;
+            if (commentIndex != -1)
+            {
+                realContent = line.Substring(0, commentIndex);
+                comment = line.Substring(commentIndex);
+            }
+            else
+            {
+                realContent = line;
+                comment = string.Empty;
+            }
+
+            return new string[]
+            {
+                realContent, comment
+            };
         }
     }
 }
