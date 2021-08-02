@@ -46,7 +46,8 @@ namespace ZTMZ.PacenoteTool
             set
             {
                 this.Player?.Dispose();
-                this.Player = new ZTMZAudioPlaybackEngine(this.CurrentPlayDeviceId, Config.Instance.UseSequentialMixerToHandleAudioConflict);
+                this.Player = new ZTMZAudioPlaybackEngine(this.CurrentPlayDeviceId,
+                    Config.Instance.UseSequentialMixerToHandleAudioConflict);
             }
             get => this._currentPlayDeviceId;
         }
@@ -54,6 +55,7 @@ namespace ZTMZ.PacenoteTool
         public int CurrentPlayAmplification { set; get; } = 100;
 
         private AutoResampledCachedSound _exampleAudio;
+
         // private WaveOutEvent _exampleWaveOut;
         private Random _random = new Random();
 
@@ -213,13 +215,16 @@ namespace ZTMZ.PacenoteTool
                 // script mode now!
                 var reader = ScriptReader.ReadFromFile(this.CurrentScriptPath);
                 this.CurrentScriptReader = reader;
+                // filter out all empty pacenote records
+                var records = (from p in reader.PacenoteRecords 
+                    where p.Distance.HasValue select p).ToList();
 
                 AudioFile f = null;
-                for (int i = 0; i < reader.PacenoteRecords.Count; i++)
+                for (int i = 0; i < records.Count; i++)
                 {
-                    var record = reader.PacenoteRecords[i];
+                    var record = records[i];
                     if (i > 0 &&
-                        record.Distance - reader.PacenoteRecords[i - 1].Distance <=
+                        record.Distance - records[i - 1].Distance <=
                         Config.Instance.ScriptMode_MinDistanceForMerge &&
                         reader.IsDynamic)
                     {
