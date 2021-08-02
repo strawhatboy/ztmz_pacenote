@@ -211,7 +211,7 @@
             <xctk:DropDownButton.DropDownContent>
                 <StackPanel>
                     <Button Name="btn_startScriptEditor" Click="Btn_startScriptEditor_OnClick">路书脚本编辑工具</Button>
-                    <Button Name="btn_startAudioCompressor" Click="Btn_startAudioCompressor_OnClick">音频批量压缩工具</Button>
+                    <Button Name="btn_startAudioCompressor" Click="Btn_startAudioCompressor_OnClick">音频批量操作工具</Button>
                 </StackPanel>
             </xctk:DropDownButton.DropDownContent>
         </xctk:DropDownButton>

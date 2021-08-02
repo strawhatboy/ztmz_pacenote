@@ -7,7 +7,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.ScriptEditor"
         mc:Ignorable="d" Closing="MainWindow_OnClosing"
-        Title="ZTMZ Club 路书脚本编辑工具v1.0.0" Height="450" Width="800" DataContext="{Binding RelativeSource={RelativeSource Self}}">
+        Title="ZTMZ Club 路书脚本编辑工具v1.1.0" Height="450" Width="800" DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.InputBindings>
         <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}"></KeyBinding>
         <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveAsCommand}"></KeyBinding>
@@ -29,7 +29,7 @@
                 <xctk:IntegerUpDown Name="txt_adjustDistance" Width="50" Value="0" KeyUp="Txt_adjustDistance_OnKeyUp" />
                 <Button Name="btn_adjustDistance" Click="Btn_adjustDistance_OnClick">调整！</Button>
                 <TextBlock>修改字体大小：</TextBlock>
-                <xctk:IntegerUpDown Name="txt_adjustFontSize" Width="50" Value="16" />
+                <xctk:UIntegerUpDown Name="txt_adjustFontSize" Width="50" Value="16" Minimum="1" />
             </StackPanel>
             <avalonEdit:TextEditor DockPanel.Dock="Bottom"
                                    Margin="0 0 0 0"

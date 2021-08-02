@@ -4,31 +4,39 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.AudioCompressor"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="ZTMZ Club 音频批量压缩工具 v1.0.0" Height="150" Width="360" ResizeMode="NoResize">
+        Title="ZTMZ Club 音频批量操作工具 v1.0.0" Height="220" Width="360" ResizeMode="NoResize">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
-            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition Height="80"/>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition Height="5" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition Width="25"></ColumnDefinition>
+            <ColumnDefinition />
+            <ColumnDefinition Width="25" />
         </Grid.ColumnDefinitions>
-        <TextBox Grid.Row="0" Grid.Column="0" ToolTip="音频文件所在文件夹" Name="tbx_input"></TextBox>
-        <Button Grid.Row="0" Grid.Column="1" ToolTip="选择音频文件所在文件夹" Name="btn_input" Click="btn_input_Click">...</Button>
-        <TextBox Grid.Row="1" Grid.Column="0" ToolTip="目标文件夹" Name="tbx_output"></TextBox>
-        <Button Grid.Row="1" Grid.Column="1" ToolTip="选择目标文件夹" Name="btn_output" Click="btn_output_Click">...</Button>
-        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" >
+        <TextBox Grid.Row="0" Grid.Column="0" ToolTip="音频文件所在文件夹（压缩，调整）" Name="tbx_input" />
+        <Button Grid.Row="0" Grid.Column="1" ToolTip="选择音频文件所在文件夹（压缩，调整）" Name="btn_input" Click="btn_input_Click">...</Button>
+        <TextBox Grid.Row="1" Grid.Column="0" ToolTip="目标文件夹（压缩）" Name="tbx_output" />
+        <Button Grid.Row="1" Grid.Column="1" ToolTip="选择目标文件夹（压缩）" Name="btn_output" Click="btn_output_Click">...</Button>
+        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <ComboBox ToolTip="选择压缩输出音频质量" SelectedIndex="1" x:Name="cb_audioQuality">
+            <TextBlock Foreground="Blue" Grid.ColumnSpan="2">压缩配置：</TextBlock>
+            <ComboBox Grid.Row="1" ToolTip="选择压缩输出音频质量" SelectedIndex="1" x:Name="cb_audioQuality">
                 <ComboBoxItem>
                     <ComboBoxItem.ToolTip>
                         <TextBlock>
@@ -58,11 +66,23 @@
                 </ComboBoxItem>
 
             </ComboBox>
-            <CheckBox Grid.Column="1" ToolTip="勾选此选项在压缩音频文件到目标文件夹的同时，复制原音频文件夹中的非音频文件到目标文件夹" IsChecked="True" Name="cb_IsCopyNonAudioFiles" Click="CheckBox_Click">同时复制非音频文件</CheckBox>
+            <CheckBox Grid.Row="1" Grid.Column="1" ToolTip="勾选此选项在压缩音频文件到目标文件夹的同时，复制原音频文件夹中的非音频文件到目标文件夹" IsChecked="True"
+                      Name="cb_IsCopyNonAudioFiles" Click="CheckBox_Click">
+                同时复制非音频文件
+            </CheckBox>
+            <TextBlock Grid.Row="2" Foreground="Blue" Grid.ColumnSpan="2">纯语音路书调整配置：</TextBlock>
+            <xctk:IntegerUpDown Name="txb_adjust" Grid.Row="3" Grid.Column="0" ToolTip="比如可以输入-20将所有路书播放点提前20米，输入50将所有路书播放点滞后50米" Value="0" />
         </Grid>
-        
-        <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Name="btn_GO" IsDefault="True" Click="btn_GO_Click">点击开始</Button>
-        <ProgressBar Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Name="pb_progress"></ProgressBar>
+
+        <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Row="0" Grid.Column="0" Name="btn_GO" IsDefault="True" Click="btn_GO_Click" ToolTip="将音频文件夹中的所有音频压缩到目标文件夹中去">压缩！</Button>
+            <Button Grid.Row="0" Grid.Column="1" Name="btn_Adjust" Click="Btn_Adjust_OnClick" ToolTip="将音频文件夹（纯语音路书！）中的所有音频根据上述设置进行播放点调整">调整！</Button>
+        </Grid>
+        <ProgressBar Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Name="pb_progress" />
         <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="tb_status">准备就绪</TextBlock>
     </Grid>
 </Window>

@@ -448,7 +448,7 @@ WindowsAPICodePack-Shell (https://github.com/aybe/Windows-API-Code-Pack-1.1)
 
         private void Btn_startAudioCompressor_OnClick(object sender, RoutedEventArgs e)
         {
-            Process.Start(new ProcessStartInfo("ZTMZ.PacenoteTool.AudioCompressor.exe"));
+            Process.Start(new ProcessStartInfo("ZTMZ.PacenoteTool.AudioBatchProcessor.exe"));
         }
     }
 }

@@ -29,6 +29,7 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
     public partial class MainWindow : Window
     {
         private bool _isCopyNonAudioFiles = true;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -59,11 +60,11 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
                     {
                         Directory.CreateDirectory(outputPath);
                     }
+
                     var filesCount = 0;
 
                     foreach (string file in Directory.EnumerateFiles(inputPath, "*.*", SearchOption.AllDirectories))
                     {
-
                         if (audioTypes.Contains(System.IO.Path.GetExtension(file)))
                         {
                             filesCount++;
@@ -139,17 +140,15 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
                         }
                     }
                 };
-                bgw.RunWorkerAsync();
                 bgw.RunWorkerCompleted += (o, e) =>
                 {
                     this.enableControls(true);
-                    this.tb_status.Text = "完成";
+                    this.tb_status.Text = "完成压缩";
                 };
-
+                bgw.RunWorkerAsync();
             }
             catch (Exception ex)
             {
-
             }
         }
 
@@ -208,12 +207,69 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
         private void enableControls(bool enable)
         {
             this.btn_GO.IsEnabled = enable;
+            this.btn_Adjust.IsEnabled = enable;
             this.cb_audioQuality.IsEnabled = enable;
             this.cb_IsCopyNonAudioFiles.IsEnabled = enable;
             this.tbx_input.IsEnabled = enable;
             this.tbx_output.IsEnabled = enable;
             this.btn_input.IsEnabled = enable;
             this.btn_output.IsEnabled = enable;
+        }
+
+        private void Btn_Adjust_OnClick(object sender, RoutedEventArgs e)
+        {
+            var inputPath = this.tbx_input.Text;
+            var audioTypes = from p in Config.Instance.SupportedAudioTypes select p.Replace("*", "");
+            var bgw = new BackgroundWorker();
+            bgw.DoWork += (o, e) =>
+            {
+
+                var filesCount = 0;
+                foreach (string file in Directory.EnumerateFiles(inputPath, "*.*", SearchOption.AllDirectories))
+                {
+                    var ext = System.IO.Path.GetExtension(file);
+                    if (audioTypes.Contains(ext))
+                    {
+                        filesCount++;
+                    }
+                }
+                this.Dispatcher.Invoke(() =>
+                {
+                    this.enableControls(false);
+                    this.pb_progress.Minimum = 0;
+                    this.pb_progress.Maximum = filesCount;
+                    this.pb_progress.Value = 0;
+                });
+
+                var current = 0;
+                foreach (string file in Directory.EnumerateFiles(inputPath, "*.*", SearchOption.AllDirectories))
+                {
+                    var ext = System.IO.Path.GetExtension(file);
+                    if (audioTypes.Contains(ext))
+                    {
+                        var strDistance = System.IO.Path.GetFileName(file);
+                        int distance = 0;
+                        if (int.TryParse(strDistance, out distance))
+                        {
+                            File.Move(file,
+                                System.IO.Path.Join(System.IO.Path.GetDirectoryName(file),
+                                    string.Format("{0}.{1}", distance + this.txb_adjust.Value, ext)));
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                this.tb_status.Text = $"正在调整文件：{distance}.{ext}";
+                                this.pb_progress.Value = ++current;
+                            });
+                        }
+                    }
+                }
+            };
+
+            bgw.RunWorkerCompleted += (o, e) =>
+            {
+                this.enableControls(true);
+                this.tb_status.Text = "完成调整";
+            };
+            bgw.RunWorkerAsync();
         }
     }
 }

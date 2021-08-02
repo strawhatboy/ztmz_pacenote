@@ -32,7 +32,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         private string _relatedFile;
         private bool _isSaved = true;
         private readonly string PACENOTE_FILTER = "路书文件(*.pacenote) | *.pacenote";
-        private readonly string TITLE = "ZTMZ Club 路书脚本编辑工具v1.0.0";
+        private readonly string TITLE = "ZTMZ Club 路书脚本编辑工具v1.1.0";
         private ToolTip _toolTip = new ToolTip();
 
         public MainWindow()
