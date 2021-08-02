@@ -300,6 +300,7 @@ namespace ZTMZ.PacenoteTool
             }
 
             // not found, try folders
+            filePaths.Clear();
             var soundFilePath = string.Format("{0}/{1}", this.CurrentCoDriverSoundPackagePath, keyword);
             if (Directory.Exists(soundFilePath))
             {
