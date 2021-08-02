@@ -71,7 +71,7 @@
                 同时复制非音频文件
             </CheckBox>
             <TextBlock Grid.Row="2" Foreground="Blue" Grid.ColumnSpan="2">纯语音路书调整配置：</TextBlock>
-            <xctk:IntegerUpDown Name="txb_adjust" Grid.Row="3" Grid.Column="0" ToolTip="比如可以输入-20将所有路书播放点提前20米，输入50将所有路书播放点滞后50米" Value="0" />
+            <xctk:IntegerUpDown Name="txb_adjust" Grid.Row="3" Grid.Column="0" ToolTip="比如可以输入-20将所有路书播放点提前20米，输入50将所有路书播放点滞后50米" Value="0" ValueChanged="txb_adjust_ValueChanged" />
         </Grid>
 
         <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2">

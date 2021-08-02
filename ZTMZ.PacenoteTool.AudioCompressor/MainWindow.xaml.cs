@@ -29,6 +29,7 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
     public partial class MainWindow : Window
     {
         private bool _isCopyNonAudioFiles = true;
+        private int _adjustValue = 0;
 
         public MainWindow()
         {
@@ -225,12 +226,19 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
             {
 
                 var filesCount = 0;
+                List<Tuple<int, string>> files = new List<Tuple<int, string>>();
                 foreach (string file in Directory.EnumerateFiles(inputPath, "*.*", SearchOption.AllDirectories))
                 {
                     var ext = System.IO.Path.GetExtension(file);
                     if (audioTypes.Contains(ext))
                     {
-                        filesCount++;
+                        var strDistance = System.IO.Path.GetFileNameWithoutExtension(file);
+                        int distance = 0;
+                        if (int.TryParse(strDistance, out distance))
+                        {
+                            filesCount++;
+                            files.Add(new Tuple<int, string>(distance, file));
+                        }
                     }
                 }
                 this.Dispatcher.Invoke(() =>
@@ -242,25 +250,19 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
                 });
 
                 var current = 0;
-                foreach (string file in Directory.EnumerateFiles(inputPath, "*.*", SearchOption.AllDirectories))
+                foreach (var fileTuple in files)
                 {
+                    var distance = fileTuple.Item1;
+                    var file = fileTuple.Item2;
                     var ext = System.IO.Path.GetExtension(file);
-                    if (audioTypes.Contains(ext))
+                    File.Move(file,
+                        System.IO.Path.Join(System.IO.Path.GetDirectoryName(file),
+                            string.Format("{0}{1}", distance + this._adjustValue, ext)));
+                    this.Dispatcher.Invoke(() =>
                     {
-                        var strDistance = System.IO.Path.GetFileName(file);
-                        int distance = 0;
-                        if (int.TryParse(strDistance, out distance))
-                        {
-                            File.Move(file,
-                                System.IO.Path.Join(System.IO.Path.GetDirectoryName(file),
-                                    string.Format("{0}.{1}", distance + this.txb_adjust.Value, ext)));
-                            this.Dispatcher.Invoke(() =>
-                            {
-                                this.tb_status.Text = $"正在调整文件：{distance}.{ext}";
-                                this.pb_progress.Value = ++current;
-                            });
-                        }
-                    }
+                        this.tb_status.Text = $"正在调整文件：{distance}.{ext}";
+                        this.pb_progress.Value = ++current;
+                    });
                 }
             };
 
@@ -270,6 +272,11 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
                 this.tb_status.Text = "完成调整";
             };
             bgw.RunWorkerAsync();
+        }
+
+        private void txb_adjust_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            this._adjustValue = this.txb_adjust.Value.HasValue ? this.txb_adjust.Value.Value : 0;
         }
     }
 }
