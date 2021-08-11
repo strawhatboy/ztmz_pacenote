@@ -41,40 +41,44 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         {
             var _completionWindow = new CompletionWindow(textEditor.TextArea);
             IList<ICompletionData> data = _completionWindow.CompletionList.CompletionData;
-
-            if (mode == 0 || mode == 1)
+            
+            if (type == ScriptResource.TYPE_FLAG)
             {
-                foreach (var alias in ScriptResource.ALIAS_CONSTRUCTED)
+                foreach (var obj in ScriptResource.FLAGS)
                 {
-                    data.Add(new ScriptCompletionData(ScriptResource.TYPE_ALIAS, alias.Key,
-                        ScriptResource.GetTokenDescription(alias.Key)));
+                    data.Add(new ScriptCompletionData(ScriptResource.TYPE_FLAG, obj.Key,
+                        ScriptResource.GetTokenDescription(obj.Key)));
                 }
             }
-
-            if (mode == 1 || mode == 2)
+            else
             {
-                if (type == ScriptResource.TYPE_PACENOTE)
+
+                if (mode == 0 || mode == 1)
                 {
-                    foreach (var obj in ScriptResource.PACENOTES)
+                    foreach (var alias in ScriptResource.ALIAS_CONSTRUCTED)
                     {
-                        data.Add(new ScriptCompletionData(ScriptResource.TYPE_PACENOTE, obj.Key,
-                            ScriptResource.GetTokenDescription(obj.Key)));
+                        data.Add(new ScriptCompletionData(ScriptResource.TYPE_ALIAS, alias.Key,
+                            ScriptResource.GetTokenDescription(alias.Key)));
                     }
                 }
-                else if (type == ScriptResource.TYPE_MODIFIER)
+
+                if (mode == 1 || mode == 2)
                 {
-                    foreach (var obj in ScriptResource.MODIFIERS)
+                    if (type == ScriptResource.TYPE_PACENOTE)
                     {
-                        data.Add(new ScriptCompletionData(ScriptResource.TYPE_MODIFIER, obj.Key,
-                            ScriptResource.GetTokenDescription(obj.Key)));
+                        foreach (var obj in ScriptResource.PACENOTES)
+                        {
+                            data.Add(new ScriptCompletionData(ScriptResource.TYPE_PACENOTE, obj.Key,
+                                ScriptResource.GetTokenDescription(obj.Key)));
+                        }
                     }
-                }
-                else if (type == ScriptResource.TYPE_FLAG)
-                {
-                    foreach (var obj in ScriptResource.FLAGS)
+                    else if (type == ScriptResource.TYPE_MODIFIER)
                     {
-                        data.Add(new ScriptCompletionData(ScriptResource.TYPE_FLAG, obj.Key,
-                            ScriptResource.GetTokenDescription(obj.Key)));
+                        foreach (var obj in ScriptResource.MODIFIERS)
+                        {
+                            data.Add(new ScriptCompletionData(ScriptResource.TYPE_MODIFIER, obj.Key,
+                                ScriptResource.GetTokenDescription(obj.Key)));
+                        }
                     }
                 }
             }
