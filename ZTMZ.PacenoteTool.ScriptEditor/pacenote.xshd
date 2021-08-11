@@ -55,6 +55,7 @@
       <Word>,dont_cut</Word>
       <Word>,downhill</Word>
       <Word>,early</Word>
+      <Word>,end_stage</Word>
       <Word>,extra_long</Word>
       <Word>,ford</Word>
       <Word>,flat</Word>
@@ -93,6 +94,7 @@
       <Word>,slow</Word>
       <Word>,small_crest</Word>
       <Word>,snow</Word>
+      <Word>,start_stage</Word>
       <Word>,sudden</Word>
       <Word>,tarmac</Word>
       <Word>,then</Word>
@@ -178,6 +180,7 @@
       <Word>/dont_cut</Word>
       <Word>/downhill</Word>
       <Word>/early</Word>
+      <Word>/end_stage</Word>
       <Word>/extra_long</Word>
       <Word>/ford</Word>
       <Word>/flat</Word>
@@ -216,6 +219,7 @@
       <Word>/slow</Word>
       <Word>/small_crest</Word>
       <Word>/snow</Word>
+      <Word>/start_stage</Word>
       <Word>/sudden</Word>
       <Word>/tarmac</Word>
       <Word>/then</Word>
@@ -298,6 +302,7 @@
       <Word>,detail_dont_cut</Word>
       <Word>,detail_downhill</Word>
       <Word>,detail_early</Word>
+      <Word>,detail_end_stage</Word>
       <Word>,detail_extra_long</Word>
       <Word>,detail_ford</Word>
       <Word>,detail_flat</Word>
@@ -336,6 +341,7 @@
       <Word>,detail_slow</Word>
       <Word>,detail_small_crest</Word>
       <Word>,detail_snow</Word>
+      <Word>,detail_start_stage</Word>
       <Word>,detail_sudden</Word>
       <Word>,detail_tarmac</Word>
       <Word>,detail_then</Word>
@@ -399,6 +405,7 @@
       <Word>/detail_dont_cut</Word>
       <Word>/detail_downhill</Word>
       <Word>/detail_early</Word>
+      <Word>/detail_end_stage</Word>
       <Word>/detail_extra_long</Word>
       <Word>/detail_ford</Word>
       <Word>/detail_flat</Word>
@@ -437,6 +444,7 @@
       <Word>/detail_slow</Word>
       <Word>/detail_small_crest</Word>
       <Word>/detail_snow</Word>
+      <Word>/detail_start_stage</Word>
       <Word>/detail_sudden</Word>
       <Word>/detail_tarmac</Word>
       <Word>/detail_then</Word>

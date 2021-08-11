@@ -39,6 +39,7 @@ detail_dip,低洼
 detail_dont_cut,不要切弯
 detail_downhill,下坡
 detail_early,提早入弯
+detail_end_stage,结束赛道
 detail_extra_long,特别长
 detail_ford,过水
 detail_flat,全油
@@ -77,6 +78,7 @@ detail_slippery,路面湿滑
 detail_slow,减速
 detail_small_crest,小坡
 detail_snow,积雪路面
+detail_start_stage,开始赛道
 detail_sudden,马上
 detail_tarmac,柏油路
 detail_then,然后

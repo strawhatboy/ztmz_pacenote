@@ -41,6 +41,7 @@ dip,detail_dip
 dont_cut,detail_dont_cut
 downhill,detail_downhill
 early,detail_early
+end_stage,detail_end_stage
 extra_long,detail_extra_long
 ford,detail_ford
 flat,detail_flat
@@ -79,6 +80,7 @@ slippery,detail_slippery
 slow,detail_slow
 small_crest,detail_small_crest
 snow,detail_snow
+start_stage,detail_start_stage
 sudden,detail_sudden
 tarmac,detail_tarmac
 then,detail_then
