@@ -11,8 +11,8 @@
 5_right,corner_5_right
 6_left,corner_6_left
 6_right,corner_6_right
-hairpin_left,corner_hairpin_left
-hairpin_right,corner_hairpin_right
+hairpin_left,corner_left_acute
+hairpin_right,corner_right_acute
 left_acute,corner_left_acute
 open_hairpin_left,corner_open_hairpin_left
 open_hairpin_right,corner_open_hairpin_right
