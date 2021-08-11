@@ -41,4 +41,15 @@
       </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="alias.png" />
+      <Resource Include="alias.png" />
+      <None Remove="flag.png" />
+      <Resource Include="flag.png" />
+      <None Remove="modifier.png" />
+      <Resource Include="modifier.png" />
+      <None Remove="pacenote.png" />
+      <Resource Include="pacenote.png" />
+    </ItemGroup>
+
 </Project>

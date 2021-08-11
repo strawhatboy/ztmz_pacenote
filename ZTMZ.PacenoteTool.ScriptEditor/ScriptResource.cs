@@ -4,22 +4,29 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using CsvHelper;
 
 namespace ZTMZ.PacenoteTool.ScriptEditor
 {
     public class ScriptResource
     {
-        public static string TYPE_PACENOTE = "[路书]";
-        public static string TYPE_MODIFIER = "[路书修饰]";
-        public static string TYPE_FLAG = "[标志]";
-        public static string TYPE_ALIAS = "[代称]";
+        public static string TYPE_PACENOTE = "[璺功]";
+        public static string TYPE_MODIFIER = "[璺功淇グ]";
+        public static string TYPE_FLAG = "[鏍囧織]";
+        public static string TYPE_ALIAS = "[浠ｇО]";
         public static Dictionary<string, string> ALIAS { private set; get; } = loadAlias("./aliases.csv");
         public static Dictionary<string, Tuple<string, string, string>> ALIAS_CONSTRUCTED { private set; get; } = new Dictionary<string, Tuple<string, string, string>>();
         public static Dictionary<string, string> PACENOTES { private set; get; } = loadCsv("./pacenotes.csv");
         public static Dictionary<string, string> MODIFIERS { private set; get; } = loadCsv("./modifiers.csv");
 
         public static Dictionary<string, string> FLAGS { private set; get; } = loadCsv("./flags.csv");
+
+        // public static System.Windows.Media.ImageSource IMG_FLAG = new BitmapImage(new Uri("./flag.png", UriKind.Relative));
+        // public static System.Windows.Media.ImageSource IMG_PACENOTE = new BitmapImage(new Uri("./pacenote.png", UriKind.Relative));
+        // public static System.Windows.Media.ImageSource IMG_MODIFIER = new BitmapImage(new Uri("./modifier.png", UriKind.Relative));
+        // public static System.Windows.Media.ImageSource IMG_ALIAS = new BitmapImage(new Uri("./alias.png", UriKind.Relative));
 
         static ScriptResource()
         {
@@ -112,6 +119,25 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 token = $"{ScriptResource.TYPE_FLAG} {token}: {ScriptResource.FLAGS[token]}";
             }
             return token;
+        }
+
+        public static ImageSource GetImageByType(string type)
+        {
+            if (type == TYPE_FLAG)
+            {
+                return new BitmapImage(new Uri("pack://application:,,,/flag.png"));
+            } else if (type == TYPE_ALIAS)
+            {
+                return new BitmapImage(new Uri("pack://application:,,,/alias.png")); 
+            } else if (type == TYPE_MODIFIER)
+            {
+                return new BitmapImage(new Uri("pack://application:,,,/modifier.png"));
+            } else if (type == TYPE_PACENOTE)
+            {
+                return new BitmapImage(new Uri("pack://application:,,,/pacenote.png"));
+            }
+
+            return null;
         }
     }
 }

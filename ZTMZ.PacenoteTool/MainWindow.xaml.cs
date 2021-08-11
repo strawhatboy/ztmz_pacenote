@@ -287,7 +287,7 @@ namespace ZTMZ.PacenoteTool
                 // not pass
                 var result =
                     MessageBox.Show("你的Dirt Rally 2.0 的配置文件中的UDP端口未正确打开，如果没有打开，工具将无法正常工作，点击“是”自动修改配置文件，点击“否”退出程序自行修改",
-                        "配置错误", MessageBoxButton.YesNo);
+                        "配置错误", MessageBoxButton.YesNo, MessageBoxImage.Information);
                 if (result == MessageBoxResult.Yes)
                 {
                     preCheck.Write();
@@ -406,7 +406,7 @@ AvalonEdit (http://avalonedit.net/)
 WindowsAPICodePack-Shell (https://github.com/aybe/Windows-API-Code-Pack-1.1)
 
 最后再次感谢ZTMZ Club组委会和群里大佬们的帮助与支持。
-", "关于本工具 v2.1");
+", "关于本工具 v2.1", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)

@@ -130,7 +130,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             catch (ScriptParseException ex)
             {
                 avalonEditor.ScrollToLine(ex.Line);
-                MessageBox.Show(string.Format("语法检查失败：在第{0}行发现未知的短语：{1}", ex.Line + 1, ex.UnexpectedToken));
+                MessageBox.Show(string.Format("语法检查失败：在第{0}行发现未知的短语：{1}", ex.Line + 1, ex.UnexpectedToken), "语法错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
             }
         }
@@ -217,7 +217,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         {
             if (!this._isSaved && !string.IsNullOrEmpty(this._relatedFile))
             {
-                var result = MessageBox.Show("当前文件尚未保存，是否先保存当前文件？", "保存文件", MessageBoxButton.YesNo);
+                var result = MessageBox.Show("当前文件尚未保存，是否先保存当前文件？", "保存文件", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
                 {
                     Btn_save_OnClick(null, null);
@@ -358,7 +358,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         {
             if (!this._isSaved)
             {
-                var dialogResult = MessageBox.Show("当前文档未保存，点击“是”保存后退出，点击“否”直接退出，点击“取消”继续工作", "未保存的文档！", MessageBoxButton.YesNoCancel);
+                var dialogResult = MessageBox.Show("当前文档未保存，点击“是”保存后退出，点击“否”直接退出，点击“取消”继续工作", "未保存的文档！", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
                 switch (dialogResult)
                 {
                     case MessageBoxResult.Yes:
