@@ -129,7 +129,7 @@ namespace ZTMZ.PacenoteTool
                             if (this._profileManager.CurrentScriptReader != null)
                             {
                                 if (this._profileManager.CurrentScriptReader.IsDynamic && msg.LapDistance +
-                                    msg.Speed / 3.6f * (Config.Instance.ScriptMode_PlaySecondsAdvanced + this._scriptTiming) >=
+                                    msg.Speed / 3.6f * (Config.Instance.ScriptMode_PlaySecondsAdvanced - this._scriptTiming) >=
                                     this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust)
                                 {
                                     // play before in <PlaySecondsAdvanced> seconds.
@@ -137,7 +137,7 @@ namespace ZTMZ.PacenoteTool
                                 }
 
                                 if (!this._profileManager.CurrentScriptReader.IsDynamic &&
-                                    msg.LapDistance >= this._profileManager.CurrentAudioFile.Distance)
+                                    msg.LapDistance >= this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust)
                                 {
                                     // not dynamic, play it
                                     this._profileManager.Play();

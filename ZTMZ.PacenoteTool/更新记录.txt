@@ -6,6 +6,10 @@
     - 仅显示完整命令
 * 脚本路书编辑工具中添加了对提示命令的图标显示
 * 新增了一部分游戏中可能出现的脚本路书命令：比如 around_bales 表示绕过草垛
+* 新增了3个地图的脚本路书
+    - 德国 Kreuzungsring
+    - 德国 Oberstein
+    - 德国 Waldaufstieg
 
 
 v2.1
