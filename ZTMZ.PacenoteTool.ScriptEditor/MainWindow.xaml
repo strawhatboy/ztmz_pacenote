@@ -7,7 +7,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.ScriptEditor"
         mc:Ignorable="d" Closing="MainWindow_OnClosing"
-        Title="ZTMZ Club 路书脚本编辑工具v1.1.0" Height="450" Width="800" DataContext="{Binding RelativeSource={RelativeSource Self}}">
+        Title="ZTMZ Club 路书脚本编辑工具v1.1.0" Height="450" Width="1024" DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.InputBindings>
         <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}"></KeyBinding>
         <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveAsCommand}"></KeyBinding>
@@ -30,6 +30,12 @@
                 <Button Name="btn_adjustDistance" Click="Btn_adjustDistance_OnClick">调整！</Button>
                 <TextBlock>修改字体大小：</TextBlock>
                 <xctk:UIntegerUpDown Name="txt_adjustFontSize" Width="50" Value="16" Minimum="1" />
+                <TextBlock>智能提示策略：</TextBlock>
+                <ComboBox SelectedIndex="0" x:Name="cb_intellisenseMode" SelectionChanged="cb_intellisenseMode_SelectionChanged">
+                    <ComboBoxItem ToolTip="让脚本看起来更加简洁">仅显示代称</ComboBoxItem>
+                    <ComboBoxItem ToolTip="兼容完整版脚本">显示所有</ComboBoxItem>
+                    <ComboBoxItem ToolTip="使用完整版脚本，可能会造成脚本过长难以辨识">仅显示完整命令</ComboBoxItem>
+                </ComboBox>
             </StackPanel>
             <avalonEdit:TextEditor DockPanel.Dock="Bottom"
                                    Margin="0 0 0 0"

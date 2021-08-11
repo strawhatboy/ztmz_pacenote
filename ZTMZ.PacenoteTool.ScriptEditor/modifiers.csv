@@ -4,6 +4,7 @@ Description,Id
 变急,detail_tightens
 长,detail_long
 很长,detail_longlong
+特别长,detail_extralong
 可能,detail_maybe
 变缓,detail_opens
 急回头弯,detail_tightens_to_acute
@@ -19,12 +20,17 @@ Description,Id
 过水,detail_ford
 过坡,detail_over_crest
 过飞跳,detail_over_jump
+过坑,detail_over_dip
 内侧原木,detail_logs_inside
 外侧原木,detail_logs_outside
 内侧岩石,detail_rocks_inside
 外侧岩石,detail_rocks_outside
 内侧树木,detail_tree_inside
 外侧树木,detail_tree_outside
+上坡,detail_uphill
+下坡,detail_downhill
+过草垛,detail_around_bales
+视野外的,detail_unseen
 30米,number_30
 40米,number_40
 50米,number_50
@@ -33,6 +39,7 @@ Description,Id
 80米,number_80
 100米,number_100
 120米,number_120
+130米,number_130
 140米,number_140
 150米,number_150
 160米,number_160

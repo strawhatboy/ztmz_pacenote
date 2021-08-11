@@ -18,7 +18,9 @@ Description,Id
 变急到4,detail_tightens_to_4
 变急到5,detail_tightens_to_5
 左回头弯/左发卡,corner_left_acute
+左回头弯/左发卡,corner_hairpin_left
 右回头弯/右发卡,corner_right_acute
+右回头弯/右发卡,corner_hairpin_right
 宽左回头弯/宽左发卡,corner_open_hairpin_left
 宽右回头弯/宽右发卡,corner_open_hairpin_right
 左直角弯,corner_square_left
@@ -45,6 +47,7 @@ Description,Id
 积雪路面,detail_snow
 水泥路,detail_concrete
 隧道,detail_tunnel
+草垛,detail_bales
 左进弯/路障靠左,detail_left_entry_chicane
 右进弯/路障靠右,detail_right_entry_chicane
 小心,detail_care
@@ -57,8 +60,11 @@ Description,Id
 下坡,detail_downhill
 上坡,detail_uphill
 刹车,detail_brake
+减速,detail_slow
 直走,detail_go_straight
 低洼,detail_dip
+过坑,detail_over_dip
+平坦,detail_flat
 内侧原木,detail_logs_inside
 外侧原木,detail_logs_outside
 内侧岩石,detail_rocks_inside
@@ -69,6 +75,9 @@ Description,Id
 接,detail_into
 然后,detail_then
 紧接,detail_and
+转,detail_turn
+可疑的,detail_deceptive
+视野外的,detail_unseen
 30米,number_30
 40米,number_40
 50米,number_50
@@ -77,6 +86,7 @@ Description,Id
 80米,number_80
 100米,number_100
 120米,number_120
+130米,number_130
 140米,number_140
 150米,number_150
 160米,number_160

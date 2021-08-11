@@ -283,6 +283,10 @@ namespace ZTMZ.PacenoteTool
 
         private AutoResampledCachedSound getSoundByKeyword(string keyword)
         {
+            if (ScriptResource.ALIAS_CONSTRUCTED.ContainsKey(keyword))
+            {
+                keyword = ScriptResource.ALIAS_CONSTRUCTED[keyword].Item2;
+            }
             List<string> filePaths = new List<string>();
             // try file directly
 

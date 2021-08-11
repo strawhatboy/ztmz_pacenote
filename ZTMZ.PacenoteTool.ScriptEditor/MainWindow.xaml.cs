@@ -34,6 +34,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         private readonly string PACENOTE_FILTER = "路书文件(*.pacenote) | *.pacenote";
         private readonly string TITLE = "ZTMZ Club 路书脚本编辑工具v1.1.0";
         private ToolTip _toolTip = new ToolTip();
+        private int _intellisenseMode = 0;
 
         public MainWindow()
         {
@@ -55,25 +56,14 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 if (args.Text == ",")
                 {
                     // Open code completion after the user has pressed dot:
-                    _completionWindow = new CompletionWindow(avalonEditor.TextArea);
-                    IList<ICompletionData> data = _completionWindow.CompletionList.CompletionData;
-                    foreach (var r in ScriptResource.PACENOTES)
-                    {
-                        data.Add(new ScriptCompletionData(r.Key, r.Value));
-                    }
-
+                    _completionWindow = ScriptCompletionData.GetCompletionWindow(avalonEditor, ScriptResource.TYPE_PACENOTE, this._intellisenseMode);
                     _completionWindow.Show();
                     _completionWindow.Closed += delegate { _completionWindow = null; };
                 }
                 else if (args.Text == "/")
                 {
                     // Open code completion after the user has pressed dot:
-                    _completionWindow = new CompletionWindow(avalonEditor.TextArea);
-                    IList<ICompletionData> data = _completionWindow.CompletionList.CompletionData;
-                    foreach (var r in ScriptResource.MODIFIERS)
-                    {
-                        data.Add(new ScriptCompletionData(r.Key, r.Value));
-                    }
+                    _completionWindow = ScriptCompletionData.GetCompletionWindow(avalonEditor, ScriptResource.TYPE_MODIFIER, this._intellisenseMode);
 
                     _completionWindow.Show();
                     _completionWindow.Closed += delegate { _completionWindow = null; };
@@ -81,12 +71,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 else if (args.Text == "@")
                 {
                     // Open code completion after the user has pressed dot:
-                    _completionWindow = new CompletionWindow(avalonEditor.TextArea);
-                    IList<ICompletionData> data = _completionWindow.CompletionList.CompletionData;
-                    foreach (var r in ScriptResource.FLAGS)
-                    {
-                        data.Add(new ScriptCompletionData(r.Key, r.Value));
-                    }
+                    _completionWindow = ScriptCompletionData.GetCompletionWindow(avalonEditor, ScriptResource.TYPE_FLAG, this._intellisenseMode);
 
                     _completionWindow.Show();
                     _completionWindow.Closed += delegate { _completionWindow = null; };
@@ -180,18 +165,8 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
                     var content = this.avalonEditor.Document.GetText(start, end - start);
                     content = content.Trim();
-                    if (ScriptResource.PACENOTES.ContainsKey(content))
-                    {
-                        content = "[路书] " + content + ": " + ScriptResource.PACENOTES[content];
-                    }
-                    else if (ScriptResource.MODIFIERS.ContainsKey(content))
-                    {
-                        content = "[路书修饰] " + content + ": " + ScriptResource.MODIFIERS[content];
-                    }
-                    else if (ScriptResource.FLAGS.ContainsKey(content))
-                    {
-                        content = "[标志] " + content + ": " + ScriptResource.FLAGS[content];
-                    }
+
+                    content = ScriptResource.GetTokenDescription(content);
 
                     this._toolTip.Content = content;
                     this._toolTip.IsOpen = true;
@@ -398,5 +373,11 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 }
             }
         }
+
+        private void cb_intellisenseMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this._intellisenseMode = this.cb_intellisenseMode.SelectedIndex;
+        }
+
     }
 }

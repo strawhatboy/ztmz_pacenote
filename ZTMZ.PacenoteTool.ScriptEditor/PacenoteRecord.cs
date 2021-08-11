@@ -27,7 +27,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
             Pacenote result = new Pacenote();
             var note = parts[0].Trim();
-            if (!ScriptResource.PACENOTES.ContainsKey(note))
+            if (!ScriptResource.PACENOTES.ContainsKey(note) || !ScriptResource.ALIAS.ContainsKey(note))
             {
                 throw new Exception(note);
             }
@@ -38,7 +38,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 if (!string.IsNullOrWhiteSpace(parts[i]))
                 {
                     var mod = parts[i].Trim();
-                    if (!ScriptResource.MODIFIERS.ContainsKey(mod))
+                    if (!ScriptResource.MODIFIERS.ContainsKey(mod) || !ScriptResource.ALIAS.ContainsKey(mod))
                     {
                         throw new Exception(mod);
                     }
