@@ -41,6 +41,8 @@ namespace ZTMZ.PacenoteTool
         private int _selectReplayDeviceID = 0;
         private int _selectReplayMode = 0;
         private bool _firstSoundPlayed = false;
+        private int _scriptTiming = 0;
+        private int _playpointAdjust = 0;
 
         public MainWindow()
         {
@@ -115,7 +117,7 @@ namespace ZTMZ.PacenoteTool
                     {
                         if (this._selectReplayMode == 0)
                         {
-                            if (msg.LapDistance >= this._profileManager.CurrentAudioFile.Distance)
+                            if (msg.LapDistance >= this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust)
                             {
                                 // play it
                                 this._profileManager.Play();
@@ -127,8 +129,8 @@ namespace ZTMZ.PacenoteTool
                             if (this._profileManager.CurrentScriptReader != null)
                             {
                                 if (this._profileManager.CurrentScriptReader.IsDynamic && msg.LapDistance +
-                                    msg.Speed / 3.6f * Config.Instance.ScriptMode_PlaySecondsAdvanced >=
-                                    this._profileManager.CurrentAudioFile.Distance)
+                                    msg.Speed / 3.6f * (Config.Instance.ScriptMode_PlaySecondsAdvanced + this._scriptTiming) >=
+                                    this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust)
                                 {
                                     // play before in <PlaySecondsAdvanced> seconds.
                                     this._profileManager.Play();
@@ -220,10 +222,13 @@ namespace ZTMZ.PacenoteTool
                                         this._profileManager.CurrentScriptReader != null)
                                     {
                                         this.chb_isDynamicPlay.IsChecked = this._profileManager.CurrentScriptReader.IsDynamic;
+                                        this.sl_scriptTiming.IsEnabled =
+                                            this._profileManager.CurrentScriptReader.IsDynamic;
                                         this.tb_scriptAuthor.Text = this._profileManager.CurrentScriptReader.Author;
                                     } else
                                     {
                                         this.chb_isDynamicPlay.IsChecked = false;
+                                        this.sl_scriptTiming.IsEnabled = false;
                                         this.tb_scriptAuthor.Text = "???";
                                     }
                                 });
@@ -449,6 +454,20 @@ WindowsAPICodePack-Shell (https://github.com/aybe/Windows-API-Code-Pack-1.1)
         private void Btn_startAudioCompressor_OnClick(object sender, RoutedEventArgs e)
         {
             Process.Start(new ProcessStartInfo("ZTMZ.PacenoteTool.AudioBatchProcessor.exe"));
+        }
+
+        private void Sl_scriptTiming_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            var value = (int) this.sl_scriptTiming.Value;
+            this._scriptTiming = value;
+            this.tb_scriptTiming.Text = (value > 0 ? $"+{value}" : $"{value}") + "秒";
+        }
+
+        private void S_playpointAdjust_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            var value = (int) this.s_playpointAdjust.Value;
+            this._playpointAdjust = value;
+            this.tb_playpointAdjust.Text = (value > 0 ? $"+{value}" : $"{value}") + "米";
         }
     }
 }
