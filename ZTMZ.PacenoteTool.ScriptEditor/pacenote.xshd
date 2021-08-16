@@ -38,6 +38,7 @@
       <Word>,bad_camber</Word>
       <Word>,bales</Word>
       <Word>,big_crest</Word>
+      <Word>,big_cut</Word>
       <Word>,big_jump</Word>
       <Word>,brake</Word>
       <Word>,bridge</Word>
@@ -93,6 +94,7 @@
       <Word>,slippery</Word>
       <Word>,slow</Word>
       <Word>,small_crest</Word>
+      <Word>,small_cut</Word>
       <Word>,snow</Word>
       <Word>,start_stage</Word>
       <Word>,sudden</Word>
@@ -115,21 +117,34 @@
       <Word>,uphill</Word>
       <Word>,water_splash</Word>
       <Word>,widens</Word>
+      <Word>,20</Word>
       <Word>,30</Word>
       <Word>,40</Word>
       <Word>,50</Word>
       <Word>,60</Word>
       <Word>,70</Word>
       <Word>,80</Word>
+      <Word>,90</Word>
       <Word>,100</Word>
+      <Word>,110</Word>
       <Word>,120</Word>
       <Word>,130</Word>
       <Word>,140</Word>
       <Word>,150</Word>
       <Word>,160</Word>
+      <Word>,170</Word>
       <Word>,180</Word>
+      <Word>,190</Word>
       <Word>,200</Word>
+      <Word>,210</Word>
+      <Word>,220</Word>
+      <Word>,230</Word>
+      <Word>,240</Word>
       <Word>,250</Word>
+      <Word>,260</Word>
+      <Word>,270</Word>
+      <Word>,280</Word>
+      <Word>,290</Word>
       <Word>,300</Word>
       <Word>,350</Word>
       <Word>,400</Word>
@@ -163,6 +178,7 @@
       <Word>/bad_camber</Word>
       <Word>/bales</Word>
       <Word>/big_crest</Word>
+      <Word>/big_cut</Word>
       <Word>/big_jump</Word>
       <Word>/brake</Word>
       <Word>/bridge</Word>
@@ -218,6 +234,7 @@
       <Word>/slippery</Word>
       <Word>/slow</Word>
       <Word>/small_crest</Word>
+      <Word>/small_cut</Word>
       <Word>/snow</Word>
       <Word>/start_stage</Word>
       <Word>/sudden</Word>
@@ -240,21 +257,34 @@
       <Word>/uphill</Word>
       <Word>/water_splash</Word>
       <Word>/widens</Word>
+      <Word>/20</Word>
       <Word>/30</Word>
       <Word>/40</Word>
       <Word>/50</Word>
       <Word>/60</Word>
       <Word>/70</Word>
       <Word>/80</Word>
+      <Word>/90</Word>
       <Word>/100</Word>
+      <Word>/110</Word>
       <Word>/120</Word>
       <Word>/130</Word>
       <Word>/140</Word>
       <Word>/150</Word>
       <Word>/160</Word>
+      <Word>/170</Word>
       <Word>/180</Word>
+      <Word>/190</Word>
       <Word>/200</Word>
+      <Word>/210</Word>
+      <Word>/220</Word>
+      <Word>/230</Word>
+      <Word>/240</Word>
       <Word>/250</Word>
+      <Word>/260</Word>
+      <Word>/270</Word>
+      <Word>/280</Word>
+      <Word>/290</Word>
       <Word>/300</Word>
       <Word>/350</Word>
       <Word>/400</Word>
@@ -285,6 +315,7 @@
       <Word>,detail_bad_camber</Word>
       <Word>,detail_bales</Word>
       <Word>,detail_big_crest</Word>
+      <Word>,detail_big_cut</Word>
       <Word>,detail_big_jump</Word>
       <Word>,detail_brake</Word>
       <Word>,detail_bridge</Word>
@@ -340,6 +371,7 @@
       <Word>,detail_slippery</Word>
       <Word>,detail_slow</Word>
       <Word>,detail_small_crest</Word>
+      <Word>,detail_small_cut</Word>
       <Word>,detail_snow</Word>
       <Word>,detail_start_stage</Word>
       <Word>,detail_sudden</Word>
@@ -362,21 +394,34 @@
       <Word>,detail_uphill</Word>
       <Word>,detail_water_splash</Word>
       <Word>,detail_widens</Word>
+      <Word>,number_20</Word>
       <Word>,number_30</Word>
       <Word>,number_40</Word>
       <Word>,number_50</Word>
       <Word>,number_60</Word>
       <Word>,number_70</Word>
       <Word>,number_80</Word>
+      <Word>,number_90</Word>
       <Word>,number_100</Word>
+      <Word>,number_110</Word>
       <Word>,number_120</Word>
       <Word>,number_130</Word>
       <Word>,number_140</Word>
       <Word>,number_150</Word>
       <Word>,number_160</Word>
+      <Word>,number_170</Word>
       <Word>,number_180</Word>
+      <Word>,number_190</Word>
       <Word>,number_200</Word>
+      <Word>,number_210</Word>
+      <Word>,number_220</Word>
+      <Word>,number_230</Word>
+      <Word>,number_240</Word>
       <Word>,number_250</Word>
+      <Word>,number_260</Word>
+      <Word>,number_270</Word>
+      <Word>,number_280</Word>
+      <Word>,number_290</Word>
       <Word>,number_300</Word>
       <Word>,number_350</Word>
       <Word>,number_400</Word>
@@ -388,6 +433,7 @@
       <Word>/detail_bad_camber</Word>
       <Word>/detail_bales</Word>
       <Word>/detail_big_crest</Word>
+      <Word>/detail_big_cut</Word>
       <Word>/detail_big_jump</Word>
       <Word>/detail_brake</Word>
       <Word>/detail_bridge</Word>
@@ -443,6 +489,7 @@
       <Word>/detail_slippery</Word>
       <Word>/detail_slow</Word>
       <Word>/detail_small_crest</Word>
+      <Word>/detail_small_cut</Word>
       <Word>/detail_snow</Word>
       <Word>/detail_start_stage</Word>
       <Word>/detail_sudden</Word>
@@ -465,21 +512,34 @@
       <Word>/detail_uphill</Word>
       <Word>/detail_water_splash</Word>
       <Word>/detail_widens</Word>
+      <Word>/number_20</Word>
       <Word>/number_30</Word>
       <Word>/number_40</Word>
       <Word>/number_50</Word>
       <Word>/number_60</Word>
       <Word>/number_70</Word>
       <Word>/number_80</Word>
+      <Word>/number_90</Word>
       <Word>/number_100</Word>
+      <Word>/number_110</Word>
       <Word>/number_120</Word>
       <Word>/number_130</Word>
       <Word>/number_140</Word>
       <Word>/number_150</Word>
       <Word>/number_160</Word>
+      <Word>/number_170</Word>
       <Word>/number_180</Word>
+      <Word>/number_190</Word>
       <Word>/number_200</Word>
+      <Word>/number_210</Word>
+      <Word>/number_220</Word>
+      <Word>/number_230</Word>
+      <Word>/number_240</Word>
       <Word>/number_250</Word>
+      <Word>/number_260</Word>
+      <Word>/number_270</Word>
+      <Word>/number_280</Word>
+      <Word>/number_290</Word>
       <Word>/number_300</Word>
       <Word>/number_350</Word>
       <Word>/number_400</Word>

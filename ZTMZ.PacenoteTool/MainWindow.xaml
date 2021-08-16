@@ -7,7 +7,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="ZTMZ Club 路书工具 v2.2" Height="530" Width="320">
+        Title="ZTMZ Club 路书工具 v2.2" Height="560" Width="320">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
@@ -17,7 +17,7 @@
             <RowDefinition Height="20" />
             <RowDefinition Height="120" />
             <RowDefinition Height="4" />
-            <RowDefinition Height="120" />
+            <RowDefinition Height="150" />
             <RowDefinition Height="4" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
@@ -191,17 +191,15 @@
 
                     <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="根据脚本文件中的@dynamic开关决定是否动态播放">是否动态播放：</TextBlock>
                     <CheckBox IsEnabled="False" Grid.Row="1" Grid.Column="1" Name="chb_isDynamicPlay" IsChecked="False" />
-                    <TextBlock Grid.Row="3" Grid.Column="0" ToolTip="当前地图脚本路书的作者">脚本路书作者：</TextBlock>
-                    <TextBlock Grid.Row="3" Grid.Column="1" Name="tb_scriptAuthor" FontSize="16" Foreground="Crimson">???</TextBlock>
-                    <TextBlock Grid.Row="2" ToolTip="仅仅对动态路书有效，比如+1秒表示路书会更晚播放1秒钟，-2秒表示路书会更早的播放2秒钟">预播放时间调整：</TextBlock>
-                    <Slider Grid.Row="2" Grid.Column="1" x:Name="sl_scriptTiming" Maximum="5" Minimum="-5" Interval="1" Value="0" ValueChanged="Sl_scriptTiming_OnValueChanged" IsEnabled="True"></Slider>
-                    <TextBlock Grid.Row="2" Grid.Column="2" x:Name="tb_scriptTiming">0秒</TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="当前地图脚本路书的作者">脚本路书作者：</TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Name="tb_scriptAuthor" FontSize="16" Foreground="Crimson">???</TextBlock>
                 </Grid>
             </TabItem>
         </TabControl>
         <Border Grid.Row="6" Margin="1" Background="#8888" />
         <Grid Grid.Row="7">
             <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
@@ -218,7 +216,6 @@
 
             <TextBlock Grid.Row="0" Grid.Column="0">当前地图：</TextBlock>
             <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="在游戏进行时不可切换播放设备">播放设备：</TextBlock>
-            <TextBlock Grid.Row="4" Grid.Column="0" ToolTip="在游戏进行时不可切换播放模式" FontSize="16" FontWeight="Bold">播放模式：</TextBlock>
             <TextBlock Grid.Row="0" Grid.Column="1" Name="tb_currentTrack">未知</TextBlock>
             <Button Grid.Row="0" Grid.Column="2" Name="tb_currentTrack_view" ToolTip="打开当前地图录制文件夹"
                     Click="tb_currentTrack_view_Click">
@@ -242,8 +239,14 @@
             <Slider Name="s_playpointAdjust" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Maximum="100" Minimum="-100" Interval="1"
                     Value="0" ValueChanged="S_playpointAdjust_OnValueChanged" />
             <TextBlock Grid.Row="3" Grid.Column="3" Name="tb_playpointAdjust">0米</TextBlock>
-            
-            <ComboBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_replay_mode"
+
+
+            <TextBlock Grid.Row="4" ToolTip="比如+1秒表示路书会更晚播放1秒钟，-2秒表示路书会更早的播放2秒钟">预播放时间调整：</TextBlock>
+            <Slider Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" x:Name="sl_scriptTiming" Maximum="5" Minimum="-5" Value="0" ValueChanged="Sl_scriptTiming_OnValueChanged" IsEnabled="True"></Slider>
+            <TextBlock Grid.Row="4" Grid.Column="3" x:Name="tb_scriptTiming">0秒</TextBlock>
+
+            <TextBlock Grid.Row="5" Grid.Column="0" ToolTip="在游戏进行时不可切换播放模式" FontSize="16" FontWeight="Bold">播放模式：</TextBlock>
+            <ComboBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_replay_mode"
                       SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="2">
                 <ComboBoxItem ToolTip="纯语音录制和播放">纯语音模式</ComboBoxItem>
                 <ComboBoxItem ToolTip="使用脚本模式播放，需要配置领航员语音包">脚本模式</ComboBoxItem>

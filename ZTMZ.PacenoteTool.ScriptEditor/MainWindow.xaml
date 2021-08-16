@@ -7,7 +7,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.ScriptEditor"
         mc:Ignorable="d" Closing="MainWindow_OnClosing"
-        Title="ZTMZ Club 路书脚本编辑工具v1.2.0" Height="450" Width="1024" DataContext="{Binding RelativeSource={RelativeSource Self}}">
+        Title="ZTMZ Club 路书脚本编辑工具v1.2.1" Height="450" Width="1024" DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.InputBindings>
         <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}"></KeyBinding>
         <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveAsCommand}"></KeyBinding>

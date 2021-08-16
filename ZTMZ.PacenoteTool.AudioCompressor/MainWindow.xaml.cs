@@ -30,6 +30,8 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
     {
         private bool _isCopyNonAudioFiles = true;
         private int _adjustValue = 0;
+        private bool _isCutHeadAndTail = true;
+        private double _cutRatio = 0.2;
 
         public MainWindow()
         {
@@ -100,31 +102,42 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
                             // is audio file
                             outputFile = System.IO.Path.GetFileNameWithoutExtension(outputFile) + ".mp3";
                             outputFile = System.IO.Path.Join(outputFilePath, outputFile);
-                            using (var wavFile = new AudioFileReader(file))
+                            var wavFile = new AutoResampledCachedSound(file);
+
+                            // cut head & tail
+                            if (this._isCutHeadAndTail)
                             {
-                                var resampler = new MediaFoundationResampler(
-                                    new SampleToWaveProvider(wavFile),
-                                    WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 2));
-                                //var tmp = System.IO.Path.GetTempFileName();
-                                //WaveFileWriter.CreateWaveFile(tmp, resampler);
-                                //using (var waveReader = new WaveFileReader(tmp))
-                                //{
-                                MediaFoundationEncoder.EncodeToMp3(resampler, outputFile, bitRate);
-                                this.Dispatcher.Invoke(() =>
-                                {
-                                    this.tb_status.Text = "正在压缩音频：" + outputFileName;
-                                    this.pb_progress.Value = ++currentCount;
-                                });
-                                //}
-                                //File.Delete(tmp);
-                                //var wholeFile = new List<float>((int)(wavFile.Length / 4));
-                                //var buffer = new byte[sampleRate * 2];
-                                //int samplesRead;
-                                //while ((samplesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
-                                //{
-                                //    mp3Writer.Write(buffer, 0, samplesRead);
-                                //}
+                                wavFile.CutHeadAndTail(this._cutRatio);
                             }
+
+
+                            var resampler = new MediaFoundationResampler(
+                                new SampleToWaveProvider(new AutoResampledCachedSoundSampleProvider(wavFile)),
+                                WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 2));
+                            //var tmp = System.IO.Path.GetTempFileName();
+                            //WaveFileWriter.CreateWaveFile(tmp, resampler);
+                            //using (var waveReader = new WaveFileReader(tmp))
+                            //{
+                            MediaFoundationEncoder.EncodeToMp3(resampler, outputFile, bitRate);
+
+
+
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                this.tb_status.Text = "正在压缩音频：" + outputFileName;
+                                this.pb_progress.Value = ++currentCount;
+                            });
+                            //}
+                            //File.Delete(tmp);
+                            //var wholeFile = new List<float>((int)(wavFile.Length / 4));
+                            //var buffer = new byte[sampleRate * 2];
+                            //int samplesRead;
+                            //while ((samplesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
+                            //{
+                            //    mp3Writer.Write(buffer, 0, samplesRead);
+                            //}
+                            
+                            
                         }
                         else if (this._isCopyNonAudioFiles)
                         {
@@ -277,6 +290,18 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
         private void txb_adjust_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             this._adjustValue = this.txb_adjust.Value.HasValue ? this.txb_adjust.Value.Value : 0;
+        }
+
+        private void chk_headAndTail_Click(object sender, RoutedEventArgs e)
+        {
+            this._isCutHeadAndTail = this.chk_headAndTail.IsChecked.HasValue ? this.chk_headAndTail.IsChecked.Value : true;
+        }
+
+        private void sl_headAndTail_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            this._cutRatio = this.sl_headAndTail.Value;
+            if (this.chk_headAndTail != null) 
+                this.chk_headAndTail.Content = $"{(this._cutRatio * 100).ToString("0")}%";
         }
     }
 }
