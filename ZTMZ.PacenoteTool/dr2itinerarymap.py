@@ -209,8 +209,10 @@ track_data = [
 # it's unique together with the starting position, which is not accurate to float precision
 track_dict = defaultdict(list)
 with open("list.txt", "w", encoding='utf8') as f:
-    f.writelines([t[2]+"\n" for t in track_data])
+    f.writelines(["{}\t{:0.0f}\n".format(t[2], t[0]) for t in track_data])
     f.close()
+
+
 
 for t in track_data:
     key = "{:0.2f}".format(t[0])

@@ -1,170 +1,170 @@
-DE, Baumholder, Waldaufstieg
-DE, Baumholder, Waldabstieg
-DE, Baumholder, Kreuzungsring
-DE, Baumholder, Kreuzungsring reverse
-DE, Baumholder, Ruschberg
-DE, Baumholder, Verbundsring
-DE, Baumholder, Verbundsring reverse
-DE, Baumholder, Innerer Feld-Sprint
-DE, Baumholder, Innerer Feld-Sprint reverse
-DE, Baumholder, Oberstein
-DE, Baumholder, Hammerstein
-DE, Baumholder, Frauenberg
-MC, Monte Carlo, Route de Turini
-MC, Monte Carlo, Vallee descendante
-MC, Monte Carlo, Col de Turini – Sprint en descente
-MC, Monte Carlo, Col de Turini sprint en Montee
-MC, Monte Carlo, Col de Turini – Descente
-MC, Monte Carlo, Gordolon – Courte montee
-MC, Monte Carlo, Route de Turini (Descente)
-MC, Monte Carlo, Approche du Col de Turini – Montee
-MC, Monte Carlo, Pra d´Alart
-MC, Monte Carlo, Col de Turini Depart
-MC, Monte Carlo, Route de Turini (Montee)
-MC, Monte Carlo, Col de Turini – Depart en descente
-UK, Powys, Pant Mawr Reverse
-UK, Powys, Bidno Moorland
-UK, Powys, Bidno Moorland Reverse
-UK, Powys, River Severn Valley
-UK, Powys, Bronfelen
-UK, Powys, Fferm Wynt
-UK, Powys, Fferm Wynt Reverse
-UK, Powys, Dyffryn Afon
-UK, Powys, Dyffryn Afon Reverse
-UK, Powys, Sweet Lamb
-UK, Powys, Geufron Forest
-UK, Powys, Pant Mawr
-SE, Värmland, Älgsjön
-SE, Värmland, Östra Hinnsjön
-SE, Värmland, Stor-jangen Sprint
-SE, Värmland, Stor-jangen Sprint Reverse
-SE, Värmland, Björklangen
-SE, Värmland, Ransbysäter
-SE, Värmland, Hamra
-SE, Värmland, Lysvik
-SE, Värmland, Norraskoga
-SE, Värmland, Älgsjön Sprint
-SE, Värmland, Elgsjön
-SE, Värmland, Skogsrallyt
-US, New England, Tolt Valley Sprint Forward
-US, New England, Hancock Creek Burst
-US, New England, Hancock Hill Sprint Reverse
-US, New England, North Fork Pass
-US, New England, North Fork Pass Reverse
-US, New England, Fuller Mountain Descent
-US, New England, Fuller Mountain Ascent
-US, New England, Fury Lake Depart
-US, New England, Beaver Creek Trail Forward
-US, New England, Beaver Creek Trail Reverse
-US, New England, Hancock Hill Sprint Forward
-US, New England, Tolt Valley Sprint Reverse
-AR, Catamarca, Valle de los puentes
-AR, Catamarca, Huillaprima
-AR, Catamarca, Camino a la Puerta
-AR, Catamarca, Las Juntas
-AR, Catamarca, Camino de acantilados y rocas
-AR, Catamarca, San Isidro
-AR, Catamarca, Miraflores
-AR, Catamarca, El Rodeo
-AR, Catamarca, Valle de los puentes a la inversa
-AR, Catamarca, Camino de acantilados y rocas inverso
-AR, Catamarca, Camino a Coneta
-AR, Catamarca, La Merced
-NZ, Hawkes Bay, Te Awanga Sprint Forward
-NZ, Hawkes Bay, Ocean Beach
-NZ, Hawkes Bay, Ocean Beach Sprint
-NZ, Hawkes Bay, Te Awanga Sprint Reverse
-NZ, Hawkes Bay, Waimarama Sprint Forward
-NZ, Hawkes Bay, Ocean Beach Sprint Reverse
-NZ, Hawkes Bay, Elsthorpe Sprint Forward
-NZ, Hawkes Bay, Waimarama Point Reverse
-NZ, Hawkes Bay, Waimarama Point Forward
-NZ, Hawkes Bay, Te Awanga Forward
-NZ, Hawkes Bay, Waimarama Sprint Reverse
-NZ, Hawkes Bay, Elsthorpe Sprint Reverse
-PL, Leczna, Czarny Las
-PL, Leczna, Marynka
-PL, Leczna, Lejno
-PL, Leczna, Józefin
-PL, Leczna, Kopina
-PL, Leczna, Jagodno
-PL, Leczna, Zienki
-PL, Leczna, Zaróbka
-PL, Leczna, Zagorze
-PL, Leczna, Jezioro Rotcze
-PL, Leczna, Borysik
-PL, Leczna, Jezioro Lukie
-AU, Monaro, Mount Kaye Pass
-AU, Monaro, Mount Kaye Pass Reverse
-AU, Monaro, Rockton Plains
-AU, Monaro, Rockton Plains Reverse
-AU, Monaro, Yambulla Mountain Ascent
-AU, Monaro, Yambulla Mountain Descent
-AU, Monaro, Chandlers Creek
-AU, Monaro, Chandlers Creek Reverse
-AU, Monaro, Bondi Forest
-AU, Monaro, Taylor Farm Sprint
-AU, Monaro, Noorinbee Ridge Ascent
-AU, Monaro, Noorinbee Ridge Descent
-ES, Ribadelles, Comienzo en Bellriu
-ES, Ribadelles, Centenera
-ES, Ribadelles, Ascenso bosque Montverd
-ES, Ribadelles, Vinedos Dardenya inversa
-ES, Ribadelles, Vinedos Dardenya
-ES, Ribadelles, Vinedos dentro del valle Parra
-ES, Ribadelles, Camina a Centenera
-ES, Ribadelles, Subida por carretera
-ES, Ribadelles, Salida desde Montverd
-ES, Ribadelles, Ascenso por valle el Gualet
-ES, Ribadelles, Descenso por carretera
-ES, Ribadelles, Final de Bellriu
-GR, Argolis, Ampelonas Ormi
-GR, Argolis, Anodou Farmakas
-GR, Argolis, Kathodo Leontiou
-GR, Argolis, Pomono Ékrixi
-GR, Argolis, Koryfi Dafni
-GR, Argolis, Fourketa Kourva
-GR, Argolis, Perasma Platani
-GR, Argolis, Tsiristra Théa
-GR, Argolis, Ourea Spevsi
-GR, Argolis, Ypsona tou Dasos
-GR, Argolis, Abies Koiláda
-GR, Argolis, Pedines Epidaxi
-FI, Jämsä, Kailajärvi
-FI, Jämsä, Paskuri
-FI, Jämsä, Naarajärvi
-FI, Jämsä, Jyrkysjärvi
-FI, Jämsä, Kakaristo
-FI, Jämsä, Pitkäjärvi
-FI, Jämsä, Iso Oksjärvi
-FI, Jämsä, Oksala
-FI, Jämsä, Kotajärvi
-FI, Jämsä, Järvenkylä
-FI, Jämsä, Kontinjärvi
-FI, Jämsä, Hämelahti
-UK, Scotland, Rosebank Farm
-UK, Scotland, Rosebank Farm Reverse
-UK, Scotland, Newhouse Bridge
-UK, Scotland, Newhouse Bridge Reverse
-UK, Scotland, Old Butterstone Muir
-UK, Scotland, Old Butterstone Muir Reverse
-UK, Scotland, Annbank Station
-UK, Scotland, Annbank Station Reverse
-UK, Scotland, Glencastle Farm
-UK, Scotland, Glencastle Farm Reverse
-UK, Scotland, South Morningside
-UK, Scotland, South Morningside Reverse
-RX, BE, Mettet
-RX, CA, Trois-Rivieres
-RX, UK, Lydden Hill
-RX, UK, Silverstone
-RX, FR, Loheac
-RX, DE, Estering
-RX, LV, Bikernieki
-RX, NO, Hell
-RX, PT, Montalegre
-RX, ZA, Killarney
-RX, ES, Barcalona-Catalunya
-RX, SE, Holjes
-RX, AE, Yas Marina
-DirtFish
+DE, Baumholder, Waldaufstieg	5362
+DE, Baumholder, Waldabstieg	5882
+DE, Baumholder, Kreuzungsring	6122
+DE, Baumholder, Kreuzungsring reverse	5666
+DE, Baumholder, Ruschberg	10700
+DE, Baumholder, Verbundsring	5856
+DE, Baumholder, Verbundsring reverse	5551
+DE, Baumholder, Innerer Feld-Sprint	5129
+DE, Baumholder, Innerer Feld-Sprint reverse	4938
+DE, Baumholder, Oberstein	11487
+DE, Baumholder, Hammerstein	10805
+DE, Baumholder, Frauenberg	11551
+MC, Monte Carlo, Route de Turini	10805
+MC, Monte Carlo, Vallee descendante	10867
+MC, Monte Carlo, Col de Turini – Sprint en descente	4730
+MC, Monte Carlo, Col de Turini sprint en Montee	4730
+MC, Monte Carlo, Col de Turini – Descente	5176
+MC, Monte Carlo, Gordolon – Courte montee	5176
+MC, Monte Carlo, Route de Turini (Descente)	4015
+MC, Monte Carlo, Approche du Col de Turini – Montee	3952
+MC, Monte Carlo, Pra d´Alart	9831
+MC, Monte Carlo, Col de Turini Depart	9832
+MC, Monte Carlo, Route de Turini (Montee)	6843
+MC, Monte Carlo, Col de Turini – Depart en descente	6847
+UK, Powys, Pant Mawr Reverse	4822
+UK, Powys, Bidno Moorland	4960
+UK, Powys, Bidno Moorland Reverse	5166
+UK, Powys, River Severn Valley	11436
+UK, Powys, Bronfelen	11436
+UK, Powys, Fferm Wynt	5717
+UK, Powys, Fferm Wynt Reverse	5717
+UK, Powys, Dyffryn Afon	5718
+UK, Powys, Dyffryn Afon Reverse	5718
+UK, Powys, Sweet Lamb	9912
+UK, Powys, Geufron Forest	10064
+UK, Powys, Pant Mawr	4789
+SE, Värmland, Älgsjön	7056
+SE, Värmland, Östra Hinnsjön	4912
+SE, Värmland, Stor-jangen Sprint	6667
+SE, Värmland, Stor-jangen Sprint Reverse	6693
+SE, Värmland, Björklangen	4932
+SE, Värmland, Ransbysäter	11923
+SE, Värmland, Hamra	12124
+SE, Värmland, Lysvik	12124
+SE, Värmland, Norraskoga	11503
+SE, Värmland, Älgsjön Sprint	5248
+SE, Värmland, Elgsjön	7058
+SE, Värmland, Skogsrallyt	4804
+US, New England, Tolt Valley Sprint Forward	6576
+US, New England, Hancock Creek Burst	6702
+US, New England, Hancock Hill Sprint Reverse	6110
+US, New England, North Fork Pass	12229
+US, New England, North Fork Pass Reverse	12276
+US, New England, Fuller Mountain Descent	6488
+US, New England, Fuller Mountain Ascent	6468
+US, New England, Fury Lake Depart	6682
+US, New England, Beaver Creek Trail Forward	12857
+US, New England, Beaver Creek Trail Reverse	12766
+US, New England, Hancock Hill Sprint Forward	6229
+US, New England, Tolt Valley Sprint Reverse	6604
+AR, Catamarca, Valle de los puentes	7667
+AR, Catamarca, Huillaprima	3494
+AR, Catamarca, Camino a la Puerta	8266
+AR, Catamarca, Las Juntas	8257
+AR, Catamarca, Camino de acantilados y rocas	5304
+AR, Catamarca, San Isidro	4172
+AR, Catamarca, Miraflores	3353
+AR, Catamarca, El Rodeo	2846
+AR, Catamarca, Valle de los puentes a la inversa	7929
+AR, Catamarca, Camino de acantilados y rocas inverso	5295
+AR, Catamarca, Camino a Coneta	4082
+AR, Catamarca, La Merced	2779
+NZ, Hawkes Bay, Te Awanga Sprint Forward	4800
+NZ, Hawkes Bay, Ocean Beach	11437
+NZ, Hawkes Bay, Ocean Beach Sprint	6624
+NZ, Hawkes Bay, Te Awanga Sprint Reverse	4689
+NZ, Hawkes Bay, Waimarama Sprint Forward	8807
+NZ, Hawkes Bay, Ocean Beach Sprint Reverse	6584
+NZ, Hawkes Bay, Elsthorpe Sprint Forward	7138
+NZ, Hawkes Bay, Waimarama Point Reverse	15845
+NZ, Hawkes Bay, Waimarama Point Forward	16058
+NZ, Hawkes Bay, Te Awanga Forward	11507
+NZ, Hawkes Bay, Waimarama Sprint Reverse	8734
+NZ, Hawkes Bay, Elsthorpe Sprint Reverse	6643
+PL, Leczna, Czarny Las	6622
+PL, Leczna, Marynka	9255
+PL, Leczna, Lejno	6699
+PL, Leczna, Józefin	8160
+PL, Leczna, Kopina	7840
+PL, Leczna, Jagodno	6656
+PL, Leczna, Zienki	13180
+PL, Leczna, Zaróbka	16475
+PL, Leczna, Zagorze	16615
+PL, Leczna, Jezioro Rotcze	13296
+PL, Leczna, Borysik	9194
+PL, Leczna, Jezioro Lukie	6438
+AU, Monaro, Mount Kaye Pass	13304
+AU, Monaro, Mount Kaye Pass Reverse	13301
+AU, Monaro, Rockton Plains	6951
+AU, Monaro, Rockton Plains Reverse	7116
+AU, Monaro, Yambulla Mountain Ascent	6399
+AU, Monaro, Yambulla Mountain Descent	6221
+AU, Monaro, Chandlers Creek	12341
+AU, Monaro, Chandlers Creek Reverse	12305
+AU, Monaro, Bondi Forest	7052
+AU, Monaro, Taylor Farm Sprint	7007
+AU, Monaro, Noorinbee Ridge Ascent	5277
+AU, Monaro, Noorinbee Ridge Descent	5237
+ES, Ribadelles, Comienzo en Bellriu	14348
+ES, Ribadelles, Centenera	10568
+ES, Ribadelles, Ascenso bosque Montverd	7297
+ES, Ribadelles, Vinedos Dardenya inversa	6195
+ES, Ribadelles, Vinedos Dardenya	6547
+ES, Ribadelles, Vinedos dentro del valle Parra	6815
+ES, Ribadelles, Camina a Centenera	10585
+ES, Ribadelles, Subida por carretera	4381
+ES, Ribadelles, Salida desde Montverd	6144
+ES, Ribadelles, Ascenso por valle el Gualet	7006
+ES, Ribadelles, Descenso por carretera	4563
+ES, Ribadelles, Final de Bellriu	13164
+GR, Argolis, Ampelonas Ormi	4860
+GR, Argolis, Anodou Farmakas	9666
+GR, Argolis, Kathodo Leontiou	9666
+GR, Argolis, Pomono Ékrixi	5087
+GR, Argolis, Koryfi Dafni	4582
+GR, Argolis, Fourketa Kourva	4515
+GR, Argolis, Perasma Platani	10487
+GR, Argolis, Tsiristra Théa	10358
+GR, Argolis, Ourea Spevsi	5739
+GR, Argolis, Ypsona tou Dasos	5383
+GR, Argolis, Abies Koiláda	6888
+GR, Argolis, Pedines Epidaxi	6595
+FI, Jämsä, Kailajärvi	7515
+FI, Jämsä, Paskuri	7462
+FI, Jämsä, Naarajärvi	7311
+FI, Jämsä, Jyrkysjärvi	7340
+FI, Jämsä, Kakaristo	16205
+FI, Jämsä, Pitkäjärvi	16205
+FI, Jämsä, Iso Oksjärvi	8043
+FI, Jämsä, Oksala	8058
+FI, Jämsä, Kotajärvi	8148
+FI, Jämsä, Järvenkylä	8147
+FI, Jämsä, Kontinjärvi	14930
+FI, Jämsä, Hämelahti	14866
+UK, Scotland, Rosebank Farm	7145
+UK, Scotland, Rosebank Farm Reverse	6968
+UK, Scotland, Newhouse Bridge	12857
+UK, Scotland, Newhouse Bridge Reverse	12969
+UK, Scotland, Old Butterstone Muir	5823
+UK, Scotland, Old Butterstone Muir Reverse	5660
+UK, Scotland, Annbank Station	7704
+UK, Scotland, Annbank Station Reverse	7588
+UK, Scotland, Glencastle Farm	5245
+UK, Scotland, Glencastle Farm Reverse	5238
+UK, Scotland, South Morningside	12583
+UK, Scotland, South Morningside Reverse	12671
+RX, BE, Mettet	1075
+RX, CA, Trois-Rivieres	1400
+RX, UK, Lydden Hill	1349
+RX, UK, Silverstone	991
+RX, FR, Loheac	1065
+RX, DE, Estering	952
+RX, LV, Bikernieki	1287
+RX, NO, Hell	1036
+RX, PT, Montalegre	1027
+RX, ZA, Killarney	1065
+RX, ES, Barcalona-Catalunya	1119
+RX, SE, Holjes	1207
+RX, AE, Yas Marina	1194
+DirtFish	3601

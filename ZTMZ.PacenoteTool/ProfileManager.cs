@@ -216,26 +216,16 @@ namespace ZTMZ.PacenoteTool
                 var reader = ScriptReader.ReadFromFile(this.CurrentScriptPath);
                 this.CurrentScriptReader = reader;
                 // filter out all empty pacenote records
-                var records = (from p in reader.PacenoteRecords 
-                    where p.Distance.HasValue select p).ToList();
+                var records = (from p in reader.PacenoteRecords
+                    where p.Distance.HasValue
+                    select p).ToList();
 
-                AudioFile f = null;
                 for (int i = 0; i < records.Count; i++)
                 {
                     var record = records[i];
-                    if (i > 0 &&
-                        record.Distance - records[i - 1].Distance <=
-                        Config.Instance.ScriptMode_MinDistanceForMerge &&
-                        reader.IsDynamic)
-                    {
-                        // only when dynamic flag is present, we merge. or we keep creating new.
-                        // do nothing to merge the two. means keep the f;
-                    }
-                    else
-                    {
-                        f = new AudioFile() {Distance = (int) record.Distance};
-                        audioFiles.Add(f);
-                    }
+                    
+                    // always create new since there's no overlapping issue.
+                    var f = new AudioFile() {Distance = (int) record.Distance};
 
                     var sound = new AutoResampledCachedSound();
                     foreach (var note in record.Pacenotes)
@@ -247,15 +237,8 @@ namespace ZTMZ.PacenoteTool
                         }
                     }
 
-                    if (f.Sound == null)
-                    {
-                        f.Sound = sound;
-                    }
-                    else
-                    {
-                        // merge, it's merging, so wont append to audiofiles again.
-                        f.Sound.Append(sound);
-                    }
+                    f.Sound = sound;
+                    audioFiles.Add(f);
                 }
             }
 
@@ -287,6 +270,7 @@ namespace ZTMZ.PacenoteTool
             {
                 keyword = ScriptResource.ALIAS_CONSTRUCTED[keyword].Item2;
             }
+
             List<string> filePaths = new List<string>();
             // try file directly
 
