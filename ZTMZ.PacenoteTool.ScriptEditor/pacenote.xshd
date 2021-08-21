@@ -25,6 +25,8 @@
       <Word>,5_right</Word>
       <Word>,6_left</Word>
       <Word>,6_right</Word>
+      <Word>,flat_left</Word>
+      <Word>,flat_right</Word>
       <Word>,hairpin_left</Word>
       <Word>,hairpin_right</Word>
       <Word>,left_acute</Word>
@@ -58,6 +60,7 @@
       <Word>,early</Word>
       <Word>,end_stage</Word>
       <Word>,extra_long</Word>
+      <Word>,extraextra_long</Word>
       <Word>,ford</Word>
       <Word>,flat</Word>
       <Word>,go_straight</Word>
@@ -84,6 +87,7 @@
       <Word>,opens</Word>
       <Word>,outtrack</Word>
       <Word>,over_bridge</Word>
+      <Word>,over_bumps</Word>
       <Word>,over_crest</Word>
       <Word>,over_dip</Word>
       <Word>,over_jump</Word>
@@ -165,6 +169,8 @@
       <Word>/5_right</Word>
       <Word>/6_left</Word>
       <Word>/6_right</Word>
+      <Word>/flat_left</Word>
+      <Word>/flat_right</Word>
       <Word>/hairpin_left</Word>
       <Word>/hairpin_right</Word>
       <Word>/left_acute</Word>
@@ -197,6 +203,7 @@
       <Word>/downhill</Word>
       <Word>/early</Word>
       <Word>/end_stage</Word>
+      <Word>/extraextra_long</Word>
       <Word>/extra_long</Word>
       <Word>/ford</Word>
       <Word>/flat</Word>
@@ -224,6 +231,7 @@
       <Word>/opens</Word>
       <Word>/outtrack</Word>
       <Word>/over_bridge</Word>
+      <Word>/over_bumps</Word>
       <Word>/over_crest</Word>
       <Word>/over_dip</Word>
       <Word>/over_jump</Word>
@@ -304,6 +312,8 @@
       <Word>,corner_5_right</Word>
       <Word>,corner_6_left</Word>
       <Word>,corner_6_right</Word>
+      <Word>,corner_flat_left</Word>
+      <Word>,corner_flat_right</Word>
       <Word>,corner_left_acute</Word>
       <Word>,corner_open_hairpin_left</Word>
       <Word>,corner_open_hairpin_right</Word>
@@ -334,6 +344,7 @@
       <Word>,detail_downhill</Word>
       <Word>,detail_early</Word>
       <Word>,detail_end_stage</Word>
+      <Word>,detail_extraextra_long</Word>
       <Word>,detail_extra_long</Word>
       <Word>,detail_ford</Word>
       <Word>,detail_flat</Word>
@@ -361,6 +372,7 @@
       <Word>,detail_opens</Word>
       <Word>,detail_outtrack</Word>
       <Word>,detail_over_bridge</Word>
+      <Word>,detail_over_bumps</Word>
       <Word>,detail_over_crest</Word>
       <Word>,detail_over_dip</Word>
       <Word>,detail_over_jump</Word>
@@ -452,6 +464,7 @@
       <Word>/detail_downhill</Word>
       <Word>/detail_early</Word>
       <Word>/detail_end_stage</Word>
+      <Word>/detail_extraextra_long</Word>
       <Word>/detail_extra_long</Word>
       <Word>/detail_ford</Word>
       <Word>/detail_flat</Word>
@@ -479,6 +492,7 @@
       <Word>/detail_opens</Word>
       <Word>/detail_outtrack</Word>
       <Word>/detail_over_bridge</Word>
+      <Word>/detail_over_bumps</Word>
       <Word>/detail_over_crest</Word>
       <Word>/detail_over_dip</Word>
       <Word>/detail_over_jump</Word>

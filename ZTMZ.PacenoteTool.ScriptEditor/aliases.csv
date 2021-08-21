@@ -11,6 +11,8 @@
 5_right,corner_5_right
 6_left,corner_6_left
 6_right,corner_6_right
+flat_left,corner_flat_left,左七
+flat_right,corner_flat_left,右七
 hairpin_left,corner_left_acute
 hairpin_right,corner_right_acute
 left_acute,corner_left_acute
@@ -43,6 +45,7 @@ dont_cut,detail_dont_cut
 downhill,detail_downhill
 early,detail_early
 end_stage,detail_end_stage
+extraextra_long,detail_extraextra_long
 extra_long,detail_extra_long
 ford,detail_ford
 flat,detail_flat
@@ -70,6 +73,7 @@ narrows,detail_narrows
 opens,detail_opens
 outtrack,detail_outtrack
 over_bridge,detail_over_bridge
+over_bumps,detail_over_bumps
 over_crest,detail_over_crest
 over_dip,detail_over_dip
 over_jump,detail_over_jump
