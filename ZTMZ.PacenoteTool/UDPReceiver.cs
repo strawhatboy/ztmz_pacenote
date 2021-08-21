@@ -135,7 +135,7 @@ namespace ZTMZ.PacenoteTool
                     {
                         this.GameState = GameState.Racing;
                     }
-                    else if (message.LapTime == 0 && message.LapDistance < 0)
+                    else if (message.LapTime == 0 && message.LapDistance <= 0)
                     {
                         // CountDown not works in Daily Event, only works for TimeTrial
                         //if (message.Time != this.LastMessage.Time)
@@ -144,15 +144,19 @@ namespace ZTMZ.PacenoteTool
                         //        this.GameState = GameState.CountDown;
                         //}
                         //else 
-                        if (this.GameState != GameState.RaceBegin)
+                        if (message.Time == 0 && this.GameState != GameState.RaceEnd)
+                        {
+                            this.GameState = GameState.RaceEnd;
+                        }
+                        else if (this.GameState != GameState.RaceBegin)
                         {
                             this.GameState = GameState.RaceBegin;
                         }
                     }
-                    else if (message.LapTime == 0 && this.GameState != GameState.RaceEnd)
-                    {
-                        this.GameState = GameState.RaceEnd;
-                    }
+                    //else if (message.LapTime == 0 && this.GameState != GameState.RaceEnd)
+                    //{
+                    //    this.GameState = GameState.RaceEnd;
+                    //}
                 }
                 else
                 {
