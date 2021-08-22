@@ -75,6 +75,7 @@ detail_over_bumps,颠簸弯
 detail_over_crest,过坡
 detail_over_dip,过坑
 detail_over_jump,过坡跳
+detail_pass_junction,通过路口
 detail_right_entry_chicane,右进弯/路障靠右
 detail_rocks_inside,内侧岩石
 detail_rocks_outside,外侧岩石

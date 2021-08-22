@@ -58,6 +58,9 @@ namespace ZTMZ.PacenoteTool
 
         // private WaveOutEvent _exampleWaveOut;
         private Random _random = new Random();
+        
+        public int AudioPacenoteCount { private set; get; }
+        public int ScriptPacenoteCount { private set; get; }
 
 
         public IList<AudioFile> AudioFiles { set; get; } = new List<AudioFile>();
@@ -169,6 +172,8 @@ namespace ZTMZ.PacenoteTool
             //{
             //f.AudioFileReader.Dispose();
             //}
+            this.AudioPacenoteCount = 0;
+            this.ScriptPacenoteCount = 0;
             this.AudioFiles.Clear();
 
             if (playMode == 0 || playMode == 2)
@@ -208,6 +213,7 @@ namespace ZTMZ.PacenoteTool
                             //AudioFileReader = new AudioFileReader(path)
                             Sound = new AutoResampledCachedSound(path)
                         }).ToList();
+                this.AudioPacenoteCount = audioFiles.Count;
             }
 
             if (playMode == 1 || playMode == 2)
@@ -239,6 +245,7 @@ namespace ZTMZ.PacenoteTool
 
                     f.Sound = sound;
                     audioFiles.Add(f);
+                    this.ScriptPacenoteCount++;
                 }
             }
 
