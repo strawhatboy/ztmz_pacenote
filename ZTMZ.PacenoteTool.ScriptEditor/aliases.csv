@@ -77,6 +77,7 @@ over_bumps,detail_over_bumps
 over_crest,detail_over_crest
 over_dip,detail_over_dip
 over_jump,detail_over_jump
+pass_junction,detail_pass_junction
 right_entry_chicane,detail_right_entry_chicane
 rocks_inside,detail_rocks_inside
 rocks_outside,detail_rocks_outside

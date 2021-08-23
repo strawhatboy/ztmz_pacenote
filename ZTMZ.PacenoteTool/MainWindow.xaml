@@ -100,7 +100,7 @@
                       SelectionChanged="cb_profile_SelectionChanged" />
         </Grid>
 
-        <TabControl Grid.Row="5">
+        <TabControl Grid.Row="5" Name="tab_playMode">
             <TabItem Header="纯语音模式">
 
                 <Grid>

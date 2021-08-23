@@ -65,7 +65,7 @@ namespace ZTMZ.PacenoteTool
                     {
                         this._recordingConfig.DestFilePath =
                             string.Format("{0}/{1}.mp3", this._trackFolder,
-                                (int)this._udpReceiver.LastMessage.LapDistance);
+                                (int) this._udpReceiver.LastMessage.LapDistance);
                         this._recordingConfig.RecordingDate = DateTime.Now;
                         this._audioRecorder.Start(this._recordingConfig);
                         this._isRecordingInProgress = true;
@@ -118,8 +118,8 @@ namespace ZTMZ.PacenoteTool
                         if (this._selectReplayMode == 0)
                         {
                             if (msg.LapDistance +
-                                    msg.Speed / 3.6f * (0 - this._scriptTiming) >=
-                                    this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust)
+                                msg.Speed / 3.6f * (0 - this._scriptTiming) >=
+                                this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust)
                             {
                                 // play it
                                 this._profileManager.Play();
@@ -131,7 +131,8 @@ namespace ZTMZ.PacenoteTool
                             if (this._profileManager.CurrentScriptReader != null)
                             {
                                 if (this._profileManager.CurrentScriptReader.IsDynamic && msg.LapDistance +
-                                    msg.Speed / 3.6f * (Config.Instance.ScriptMode_PlaySecondsAdvanced - this._scriptTiming) >=
+                                    msg.Speed / 3.6f * (Config.Instance.ScriptMode_PlaySecondsAdvanced -
+                                                        this._scriptTiming) >=
                                     this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust)
                                 {
                                     // play before in <PlaySecondsAdvanced> seconds.
@@ -140,7 +141,8 @@ namespace ZTMZ.PacenoteTool
 
                                 if (!this._profileManager.CurrentScriptReader.IsDynamic &&
                                     msg.LapDistance +
-                                    msg.Speed / 3.6f * (0 - this._scriptTiming) >= this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust)
+                                    msg.Speed / 3.6f * (0 - this._scriptTiming) >=
+                                    this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust)
                                 {
                                     // not dynamic, play it
                                     this._profileManager.Play();
@@ -224,7 +226,8 @@ namespace ZTMZ.PacenoteTool
                                     if (this._selectReplayMode != 0 &&
                                         this._profileManager.CurrentScriptReader != null)
                                     {
-                                        this.chb_isDynamicPlay.IsChecked = this._profileManager.CurrentScriptReader.IsDynamic;
+                                        this.chb_isDynamicPlay.IsChecked =
+                                            this._profileManager.CurrentScriptReader.IsDynamic;
                                         //this.sl_scriptTiming.IsEnabled =
                                         //    this._profileManager.CurrentScriptReader.IsDynamic;
                                         this.tb_scriptAuthor.Text = this._profileManager.CurrentScriptReader.Author;
@@ -234,6 +237,26 @@ namespace ZTMZ.PacenoteTool
                                         this.chb_isDynamicPlay.IsChecked = false;
                                         //this.sl_scriptTiming.IsEnabled = false;
                                         this.tb_scriptAuthor.Text = "???";
+                                    }
+
+                                    // switch replay mode tab
+                                    switch (this._selectReplayMode)
+                                    {
+                                        case 0:
+                                            this.tab_playMode.SelectedIndex = 0;
+                                            break;
+                                        case 1:
+                                            this.tab_playMode.SelectedIndex = 1;
+                                            break;
+                                        case 2:
+                                            this.tab_playMode.SelectedIndex = this._profileManager.AudioPacenoteCount >
+                                                                this._profileManager.ScriptPacenoteCount
+                                                ? 0
+                                                : 1;
+                                            break;
+                                        default:
+                                            this.tab_playMode.SelectedIndex = 0;
+                                            break;
                                     }
                                 });
                                 var firstSound = this._profileManager.AudioFiles.FirstOrDefault();
@@ -368,8 +391,8 @@ namespace ZTMZ.PacenoteTool
         private void cb_recording_device_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this._recordingConfig.RecordingDevice = (from x in this._recordingDevices
-                                                     where x.Name == this.cb_recording_device.SelectedItem.ToString()
-                                                     select x.Id).First();
+                where x.Name == this.cb_recording_device.SelectedItem.ToString()
+                select x.Id).First();
         }
 
 
@@ -441,7 +464,7 @@ WindowsAPICodePack-Shell (https://github.com/aybe/Windows-API-Code-Pack-1.1)
         {
             if (this._profileManager != null)
             {
-                var value = (int)e.NewValue;
+                var value = (int) e.NewValue;
                 this._profileManager.CurrentPlayAmplification = value;
                 if (this.tb_volume != null)
                 {
@@ -469,7 +492,7 @@ WindowsAPICodePack-Shell (https://github.com/aybe/Windows-API-Code-Pack-1.1)
 
         private void S_playpointAdjust_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            var value = (int)this.s_playpointAdjust.Value;
+            var value = (int) this.s_playpointAdjust.Value;
             this._playpointAdjust = value;
             this.tb_playpointAdjust.Text = (value > 0 ? $"+{value}" : $"{value}") + "米";
         }

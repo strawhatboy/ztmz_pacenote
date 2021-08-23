@@ -91,6 +91,7 @@
       <Word>,over_crest</Word>
       <Word>,over_dip</Word>
       <Word>,over_jump</Word>
+      <Word>,pass_junction</Word>
       <Word>,right_entry_chicane</Word>
       <Word>,rocks_inside</Word>
       <Word>,rocks_outside</Word>
@@ -235,6 +236,7 @@
       <Word>/over_crest</Word>
       <Word>/over_dip</Word>
       <Word>/over_jump</Word>
+      <Word>/pass_junction</Word>
       <Word>/right_entry_chicane</Word>
       <Word>/rocks_inside</Word>
       <Word>/rocks_outside</Word>
@@ -376,6 +378,7 @@
       <Word>,detail_over_crest</Word>
       <Word>,detail_over_dip</Word>
       <Word>,detail_over_jump</Word>
+      <Word>,detail_pass_junction</Word>
       <Word>,detail_right_entry_chicane</Word>
       <Word>,detail_rocks_inside</Word>
       <Word>,detail_rocks_outside</Word>
@@ -496,6 +499,7 @@
       <Word>/detail_over_crest</Word>
       <Word>/detail_over_dip</Word>
       <Word>/detail_over_jump</Word>
+      <Word>/detail_pass_junction</Word>
       <Word>/detail_right_entry_chicane</Word>
       <Word>/detail_rocks_inside</Word>
       <Word>/detail_rocks_outside</Word>
