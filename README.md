@@ -1,9 +1,9 @@
 # ztmz_pacenote
 
 ## WE WANT YOU!
-录制过程较为耗时，尘埃拉力赛2.0一张长赛道可以拆分成两张短赛道，只需录制一张长赛道，之后再通过__脚本路书编辑器__或者__批量音频文件处理工具__即可把__长赛道__拆分成__两张短赛道__，目前录制进度缓慢，希望更多大佬加入一起用爱发电。😂
+录制过程较为耗时，尘埃拉力赛2.0一张长赛道可以拆分成两张短赛道，只需录制一张长赛道，之后再通过 __脚本路书编辑器__ 或者 __批量音频文件处理工具__ 即可把 __长赛道__ 拆分成 __两张短赛道__，目前录制进度缓慢，希望更多大佬加入一起用爱发电。😂
 
-#### Description
+#### 简介
 ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，交流QQ群：207790761
 
 #### 各种链接
@@ -19,7 +19,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 
 #### 白嫖指南
 1. 安装[.net 5.0运行时](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-desktop-5.0.9-windows-x64-installer)
-2. 通过[下载地址](https://gitee.com/ztmz/ztmz_pacenote/releases)下载名为 __"ZTMZ Club路书工具x.y.zip"___ 的压缩包并解压
+2. 通过[下载地址](https://gitee.com/ztmz/ztmz_pacenote/releases)下载最新版的名为 __"ZTMZ Club路书工具x.y.zip"__ 的压缩包并解压
 3. 执行其中的ZTMZ.PacenoteTool.exe
 4. 打开游戏
 5. 在游戏设置的语音选项(Audio)中关掉原版的路书声音(Speech选项拖到最左边)
@@ -27,6 +27,8 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 7. 开始体验
 
 #### 各模块简介
+* OnlyR.Core
+从github上直接“借鉴”的声音录制代码[AntonyCorbett/OnlyR](https://github.com/AntonyCorbett/OnlyRhttps://github.com/AntonyCorbett/OnlyR)
 * ZTMZ.PacenoteTool
 主程序，包含界面显示和录制播放的主要逻辑
 * ZTMZ.PacenoteTool.Base
