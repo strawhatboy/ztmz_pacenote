@@ -13,6 +13,9 @@
     - 波兰 Czarny Las
     - 波兰 Kopina
     - 波兰 Zaróbka
+* 新增了2个地图的纯语音路书
+    - 新西兰 Waimarama Sprint Reverse
+    - 新西兰 Elsthorpe Sprint Forward
 * 在界面上允许直接实时调整播放点，可以以时间为单位，也可以以距离为单位
 * 在“音频批量操作工具”中加入了允许“掐头去尾”的选项
 
