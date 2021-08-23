@@ -23,12 +23,12 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 3. 执行其中的ZTMZ.PacenoteTool.exe
 4. 打开游戏
 5. 在游戏设置的语音选项(Audio)中关掉原版的路书声音(Speech选项拖到最左边)
-6. 进入计时赛选择目前支持的地图(参见【腾讯文档】尘埃拉力赛2.0地图路书录制进程](https://docs.qq.com/sheet/DVVljT3dMWkpYSWdH)
+6. 进入计时赛选择目前支持的地图(参见[【腾讯文档】尘埃拉力赛2.0地图路书录制进程](https://docs.qq.com/sheet/DVVljT3dMWkpYSWdH))
 7. 开始体验
 
 #### 各模块简介
 * OnlyR.Core
-从github上直接“借鉴”的声音录制代码[AntonyCorbett/OnlyR](https://github.com/AntonyCorbett/OnlyRhttps://github.com/AntonyCorbett/OnlyR)
+从github上直接“借鉴”的声音录制代码[AntonyCorbett/OnlyR](https://github.com/AntonyCorbett/OnlyR)
 * ZTMZ.PacenoteTool
 主程序，包含界面显示和录制播放的主要逻辑
 * ZTMZ.PacenoteTool.Base
