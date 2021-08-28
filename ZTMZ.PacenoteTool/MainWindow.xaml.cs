@@ -198,6 +198,7 @@ namespace ZTMZ.PacenoteTool
                         this.Dispatcher.Invoke(() =>
                         {
                             this.tb_currentTrack.Text = this._trackName;
+                            this.tb_currentTrack.ToolTip = this._trackName;
                             // disable profile switch, replay device selection
                             this.cb_profile.IsEnabled = false;
                             this.cb_replay_device.IsEnabled = false;

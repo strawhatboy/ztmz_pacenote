@@ -13,8 +13,10 @@
 6_right,corner_6_right
 flat_left,corner_flat_left,左七
 flat_right,corner_flat_left,右七
+frozen,detail_triple_caution
 hairpin_left,corner_left_acute
 hairpin_right,corner_right_acute
+ice,detail_triple_caution
 left_acute,corner_left_acute
 open_hairpin_left,corner_open_hairpin_left
 open_hairpin_right,corner_open_hairpin_right

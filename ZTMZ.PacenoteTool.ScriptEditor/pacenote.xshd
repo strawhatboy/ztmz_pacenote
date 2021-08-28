@@ -27,8 +27,10 @@
       <Word>,6_right</Word>
       <Word>,flat_left</Word>
       <Word>,flat_right</Word>
+      <Word>,frozen</Word>
       <Word>,hairpin_left</Word>
       <Word>,hairpin_right</Word>
+      <Word>,ice</Word>
       <Word>,left_acute</Word>
       <Word>,open_hairpin_left</Word>
       <Word>,open_hairpin_right</Word>
@@ -172,8 +174,10 @@
       <Word>/6_right</Word>
       <Word>/flat_left</Word>
       <Word>/flat_right</Word>
+      <Word>/frozen</Word>
       <Word>/hairpin_left</Word>
       <Word>/hairpin_right</Word>
+      <Word>/ice</Word>
       <Word>/left_acute</Word>
       <Word>/open_hairpin_left</Word>
       <Word>/open_hairpin_right</Word>
