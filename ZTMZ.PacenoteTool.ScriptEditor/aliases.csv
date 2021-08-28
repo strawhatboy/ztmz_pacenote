@@ -108,6 +108,7 @@ tunnel,detail_tunnel
 turn,detail_turn
 unseen,detail_unseen
 uphill,detail_uphill
+very_long,detail_longlong
 water_splash,detail_water_splash
 widens,detail_widens
 20,number_20

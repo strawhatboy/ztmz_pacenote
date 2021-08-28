@@ -235,7 +235,7 @@
             <Slider Name="s_volume" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Maximum="1000" Minimum="-1000" Interval="1"
                     Value="0" ValueChanged="S_volume_OnValueChanged" />
             <TextBlock Grid.Row="2" Grid.Column="3" Name="tb_volume">0</TextBlock>
-            <TextBlock Grid.Row="3" Grid.Column="0" ToolTip="调整路书播放点，对纯语音路书和脚本路书都有效，比如+10米表示所有路书片段会在推迟10米处播放，-10米表示所有路书片段会在提前10米处播放">播放点调整：</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="0" ToolTip="[慎用]调整路书播放点，对纯语音路书和脚本路书都有效，比如+10米表示所有路书片段会在推迟10米处播放，-10米表示所有路书片段会在提前10米处播放">播放点调整：</TextBlock>
             <Slider Name="s_playpointAdjust" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Maximum="100" Minimum="-100" Interval="1"
                     Value="0" ValueChanged="S_playpointAdjust_OnValueChanged" />
             <TextBlock Grid.Row="3" Grid.Column="3" Name="tb_playpointAdjust">0米</TextBlock>
@@ -250,7 +250,7 @@
                       SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="2">
                 <ComboBoxItem ToolTip="纯语音录制和播放">纯语音模式</ComboBoxItem>
                 <ComboBoxItem ToolTip="使用脚本模式播放，需要配置领航员语音包">脚本模式</ComboBoxItem>
-                <ComboBoxItem ToolTip="群魔乱舞！如果地图同时存在动态脚本和纯语音路书，混合后会产生意想不到的效果。。。慎用！">混合模式</ComboBoxItem>
+                <ComboBoxItem ToolTip="群魔乱舞！不可在同时存在动态脚本和纯语音路书的赛道使用">混合模式</ComboBoxItem>
             </ComboBox>
         </Grid>
         <Border Grid.Row="8" Margin="1" Background="#8888" />
