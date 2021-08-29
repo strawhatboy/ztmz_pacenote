@@ -5,7 +5,6 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using AutoUpdaterDotNET;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -18,9 +17,6 @@ namespace ZTMZ.PacenoteTool
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
-            AutoUpdater.OpenDownloadPage = true;
-            AutoUpdater.Start("https://gitee.com/ztmz/ztmz_pacenote/blob/master/autoupdate.xml");
 
             SetupExceptionHandling();
         }

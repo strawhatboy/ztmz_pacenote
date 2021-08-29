@@ -18,6 +18,7 @@ using NAudio.Wave;
 using OnlyR.Core.Models;
 using OnlyR.Core.Recorder;
 using ZTMZ.PacenoteTool.Base;
+using AutoUpdaterDotNET;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -54,6 +55,7 @@ namespace ZTMZ.PacenoteTool
                 UseLoopbackCapture = false,
             };
             InitializeComponent();
+
             this._hotKeyStartRecord = new HotKey(Key.F1, KeyModifier.None, key =>
             {
                 if (this._toolState == ToolState.Recording && !this._isRecordingInProgress)
@@ -497,6 +499,13 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
             var value = (int) this.s_playpointAdjust.Value;
             this._playpointAdjust = value;
             this.tb_playpointAdjust.Text = (value > 0 ? $"+{value}" : $"{value}") + "米";
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            // show page for new version
+            AutoUpdater.OpenDownloadPage = true;
+            AutoUpdater.Start("https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate.xml");
         }
     }
 }

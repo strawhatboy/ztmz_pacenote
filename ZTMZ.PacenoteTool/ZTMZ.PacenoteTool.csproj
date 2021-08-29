@@ -5,9 +5,10 @@
         <TargetFramework>net5.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>QQ图片20210714233523.ico</ApplicationIcon>
-        <AssemblyVersion>2.3.0.0</AssemblyVersion>
+        <AssemblyVersion>2.2.0.0</AssemblyVersion>
         <PackageVersion>2.1.0</PackageVersion>
         <Version>2.3.0</Version>
+        <FileVersion>2.2.0.0</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
