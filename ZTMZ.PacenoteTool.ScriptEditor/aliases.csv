@@ -49,6 +49,7 @@ early,detail_early
 end_stage,detail_end_stage
 extraextra_long,detail_extraextra_long
 extra_long,detail_extra_long
+finish,detail_deepruts
 ford,detail_ford
 flat,detail_flat
 go_straight,detail_go_straight

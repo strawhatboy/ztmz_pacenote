@@ -437,9 +437,10 @@ NAudio (https://github.com/naudio/NAudio)
 PromptDialog (https://github.com/manuelcanepa/wpf-prompt-dialog)
 AvalonEdit (http://avalonedit.net/)
 WindowsAPICodePack-Shell (https://github.com/aybe/Windows-API-Code-Pack-1.1)
+AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
 最后再次感谢ZTMZ Club组委会和群里大佬们的帮助与支持。
-", "关于本工具 v2.2", MessageBoxButton.OK, MessageBoxImage.Information);
+", "关于本工具 v2.3", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)

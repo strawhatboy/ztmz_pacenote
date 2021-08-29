@@ -63,6 +63,7 @@
       <Word>,end_stage</Word>
       <Word>,extra_long</Word>
       <Word>,extraextra_long</Word>
+      <Word>,finish</Word>
       <Word>,ford</Word>
       <Word>,flat</Word>
       <Word>,go_straight</Word>
@@ -211,6 +212,7 @@
       <Word>/end_stage</Word>
       <Word>/extraextra_long</Word>
       <Word>/extra_long</Word>
+      <Word>/finish</Word>
       <Word>/ford</Word>
       <Word>/flat</Word>
       <Word>/go_straight</Word>
