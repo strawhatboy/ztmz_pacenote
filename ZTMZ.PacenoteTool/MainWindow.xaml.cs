@@ -504,7 +504,8 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             // show page for new version
-            AutoUpdater.OpenDownloadPage = true;
+            AutoUpdater.OpenDownloadPage = true; 
+            AutoUpdater.ShowSkipButton = false;
             AutoUpdater.Start("https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate.xml");
         }
     }
