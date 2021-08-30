@@ -9,9 +9,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlyR.Core", "OnlyR.Core\On
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZTMZ.PacenoteTool.ScriptEditor", "ZTMZ.PacenoteTool.ScriptEditor\ZTMZ.PacenoteTool.ScriptEditor.csproj", "{C402CC6D-A26F-4C13-8580-A8FB1902DF1E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.AudioCompressor", "ZTMZ.PacenoteTool.AudioCompressor\ZTMZ.PacenoteTool.AudioCompressor.csproj", "{5DBCFBA5-44FE-4E6D-849A-59F85DC16F2F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZTMZ.PacenoteTool.AudioCompressor", "ZTMZ.PacenoteTool.AudioCompressor\ZTMZ.PacenoteTool.AudioCompressor.csproj", "{5DBCFBA5-44FE-4E6D-849A-59F85DC16F2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.Base", "ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj", "{14EA86EC-32DE-4549-B034-07344FBAA68F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZTMZ.PacenoteTool.Base", "ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj", "{14EA86EC-32DE-4549-B034-07344FBAA68F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewFolder1", "NewFolder1", "{D0F9EC5B-600E-4D01-8CD4-C860E4E7FE72}"
+	ProjectSection(SolutionItems) = preProject
+		autoupdate.xml = autoupdate.xml
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
