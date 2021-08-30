@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <item>
     <version>2.3.0.0</version>
-    <url>https://gitee.com/ztmz/ztmz_pacenote/attach_files/815186/download/ZTMZ%20Club%E8%B7%AF%E4%B9%A6%E5%B7%A5%E5%85%B72.2.zip</url>
-    <changelog>https://gitee.com/ztmz/ztmz_pacenote/releases</changelog>
+    <url>http://strawhat.asia:8000/api/pacenotetool/latest</url>
+    <changelog>https://gitee.com/ztmz/ztmz_pacenote/raw/master/ZTMZ.PacenoteTool/更新记录.txt</changelog>
     <mandatory>false</mandatory>
 </item>
