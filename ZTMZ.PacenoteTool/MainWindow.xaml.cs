@@ -506,7 +506,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
             // show page for new version
             // AutoUpdater.OpenDownloadPage = true; 
             AutoUpdater.ShowSkipButton = false; 
-            AutoUpdater.ReportErrors = true;
+            //AutoUpdater.ReportErrors = true;
             AutoUpdater.Start("https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate.xml");
         }
     }
