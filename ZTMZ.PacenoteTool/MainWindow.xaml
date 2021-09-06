@@ -7,7 +7,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="ZTMZ Club 路书工具 v2.3" Height="560" Width="320" Loaded="Window_Loaded">
+        Title="ZTMZ Club 路书工具 v2.3" Height="580" Width="320" Loaded="Window_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
@@ -19,7 +19,8 @@
             <RowDefinition Height="4" />
             <RowDefinition Height="150" />
             <RowDefinition Height="4" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
@@ -266,5 +267,11 @@
                 Grid.Row="9" Foreground="Blue" Cursor="Hand" FontStyle="Oblique" Click="Button_Click">
             关于本工具
         </Button>
+
+        <TextBlock Grid.Row="10" HorizontalAlignment="Right">
+            <Hyperlink NavigateUri="https://docs.qq.com/sheet/DVVljT3dMWkpYSWdH" RequestNavigate="Hyperlink_RequestNavigate">
+                点我查看路书录制进度
+            </Hyperlink>
+        </TextBlock>
     </Grid>
 </Window>

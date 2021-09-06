@@ -9,7 +9,7 @@ namespace OnlyR.Core.Recorder
     public class NoDevicesException : Exception
     {
         public NoDevicesException()
-            : base(Properties.Resources.NO_RECORDING_DEVICE)
+            : base()
         {
         }
     }
