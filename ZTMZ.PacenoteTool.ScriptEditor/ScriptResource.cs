@@ -20,7 +20,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         public static Dictionary<string, Tuple<string, string, string>> ALIAS_CONSTRUCTED { private set; get; } = new Dictionary<string, Tuple<string, string, string>>();
         public static Dictionary<string, string> PACENOTES { private set; get; } = loadCsv("./pacenotes.csv");
         public static Dictionary<string, string> MODIFIERS { private set; get; } = loadCsv("./modifiers.csv");
-
+        public static Dictionary<string, string> FALLBACK { private set; get; } = loadFallback("./fallback.csv");
         public static Dictionary<string, string> FLAGS { private set; get; } = loadCsv("./flags.csv");
 
         // public static System.Windows.Media.ImageSource IMG_FLAG = new BitmapImage(new Uri("./flag.png", UriKind.Relative));
@@ -66,6 +66,20 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 };
                 var records = csv.GetRecords(def);
                 return records.ToDictionary(r => r.Alias, r => r.Token);
+            }
+        }
+        private static Dictionary<string, string> loadFallback(string path)
+        {
+            using (var reader = new StreamReader(path))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                var def = new
+                {
+                    Token = string.Empty,
+                    Fallback_Token = string.Empty,
+                };
+                var records = csv.GetRecords(def);
+                return records.ToDictionary(r => r.Token, r => r.Fallback_Token);
             }
         }
 

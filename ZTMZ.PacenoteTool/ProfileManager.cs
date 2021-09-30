@@ -309,6 +309,12 @@ namespace ZTMZ.PacenoteTool
                 var randIndex = this._random.Next(0, filePaths.Count() - 1);
                 return new AutoResampledCachedSound(filePaths[randIndex]);
             }
+            
+            // not found, try fallback keyword
+            if (ScriptResource.FALLBACK.ContainsKey(keyword))
+            {
+                return getSoundByKeyword(ScriptResource.FALLBACK[keyword]);
+            }
 
             return new AutoResampledCachedSound();
         }
