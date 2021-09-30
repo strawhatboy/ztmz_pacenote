@@ -14,6 +14,7 @@ detail_over_jump,detail_jump
 detail_pass_junction,detail_junction
 detail_small_crest,detail_crest
 detail_small_cut,detail_cut
+detail_water_splash,detail_ford
 number_20,number_30
 number_90,number_100
 number_110,number_100
