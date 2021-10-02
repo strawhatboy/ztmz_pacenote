@@ -27,6 +27,9 @@
       <None Update="aliases.csv">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="fallback.csv">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Update="pacenote.xshd">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
