@@ -35,6 +35,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 * 路书录制进度：[【腾讯文档】尘埃拉力赛2.0地图路书录制进程](https://docs.qq.com/sheet/DVVljT3dMWkpYSWdH)
 * 路书标记对照表：[【腾讯文档】路书对照表](https://docs.qq.com/sheet/DVVlVZFdCWldkdXBi)
 * 视频
+    - [\[2021-08-29 直播录像\]\[尘埃拉力赛2.0\] 录制路书阿根廷第一个图Las Juntas并拆分](https://www.bilibili.com/video/BV1yQ4y1178R/) (置顶评论有进度条)
     - [2.x版本演示视频 by bigboxx](https://www.bilibili.com/video/BV1jv411J7aL)
     - [2.x版本录制和播放使用教学（脚本路书） by 草帽不是猫](https://www.bilibili.com/video/BV1a64y1i7vs)
     - [1.x版本演示视频 by bigboxx](https://www.bilibili.com/video/BV1Kh411r7PX)
@@ -100,7 +101,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 #### 项目计划
 版本号 | 时间段 | 更新内容
 ------|-------|---------
-2.3.2 | 2021-11-01之后 | 丰富紫藤语音包的替代方案<br />增加部分新录制好的路书
+2.3.2 | 2021-12-01之后 | 丰富紫藤语音包的替代方案<br />增加部分新录制好的路书
 2.4   | 2022-01-14之后 | 使用`gameoverlay.net`库实现在游戏内右上角显示相关信息<br />1. 当前地图路书加载状态<br />2. 路书类型<br />3. 路书作者<br />4. 所使用的语音包(在脚本路书类型时)
 2.5   | 2022-01-14之后 | 增加路书工具和脚本工具通信协作<br />对游戏内语音进行语音识别成文字<br />再自动生成脚本路书到脚本工具中
 
