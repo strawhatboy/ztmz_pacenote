@@ -17,6 +17,9 @@ detail_small_cut,detail_cut
 detail_water_splash,detail_ford
 corner_flat_left,corner_6_left
 corner_flat_right,corner_6_right
+detail_slow,detail_brake
+detail_early,detail_care
+detail_unseen,detail_caution
 number_20,number_30
 number_90,number_100
 number_110,number_100
