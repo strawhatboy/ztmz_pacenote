@@ -317,21 +317,28 @@ namespace ZTMZ.PacenoteTool
 
             // check the file
             var preCheck = new PrerequisitesCheck();
-            if (!preCheck.Check())
+            var checkResult = preCheck.Check();
+            switch (checkResult) 
             {
-                // not pass
-                var result =
-                    MessageBox.Show("你的Dirt Rally 2.0 的配置文件中的UDP端口未正确打开，如果没有打开，工具将无法正常工作，点击“是”自动修改配置文件，点击“否”退出程序自行修改",
-                        "配置错误", MessageBoxButton.YesNo, MessageBoxImage.Information);
-                if (result == MessageBoxResult.Yes)
-                {
-                    preCheck.Write();
-                }
-                else
-                {
-                    // Goodbye.
-                    System.Windows.Application.Current.Shutdown();
-                }
+                case PrerequisitesCheckResultCode.PORT_NOT_OPEN:
+                    // not pass
+                    var result =
+                        MessageBox.Show("你的Dirt Rally 2.0 的配置文件中的UDP端口未正确打开，如果没有打开，工具将无法正常工作，点击“是”自动修改配置文件，点击“否”退出程序自行修改",
+                            "配置错误", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        preCheck.Write();
+                    }
+                    else
+                    {
+                        // Goodbye.
+                        System.Windows.Application.Current.Shutdown();
+                    }
+                    break;
+                case PrerequisitesCheckResultCode.PORT_NOT_MATCH:
+                    MessageBox.Show("你的Dirt Rally 2.0 的配置文件中的UDP端口和本工具中的UDP端口配置不同，可能会导致地图读取失败（也可能是使用了simhub转发）",
+                            "配置警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    break;
             }
         }
 
@@ -442,7 +449,7 @@ WindowsAPICodePack-Shell (https://github.com/aybe/Windows-API-Code-Pack-1.1)
 AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
 最后再次感谢ZTMZ Club组委会和群里大佬们的帮助与支持。
-", "关于本工具 v2.3.1", MessageBoxButton.OK, MessageBoxImage.Information);
+", "关于本工具 v2.3.2", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)

@@ -20,6 +20,10 @@ namespace ZTMZ.PacenoteTool.Base
 
         public int UDPListenPort { set; get; } = 20777;
 
+        public bool WarnIfPortMismatch { set; get; } = true;
+
+        public int PlaybackDeviceDesiredLatency = 175;
+
         public void Save()
         {
             File.WriteAllText("config.json", JsonConvert.SerializeObject(this, Formatting.Indented));
