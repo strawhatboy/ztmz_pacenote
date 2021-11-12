@@ -33,11 +33,20 @@ namespace ZTMZ.PacenoteTool
         private ToolState _toolState = ToolState.Replaying;
         private ProfileManager _profileManager = new();
         private AudioRecorder _audioRecorder = new();
+        private GameOverlayManager _gameOverlayManager = new();
         private DR2Helper _dr2Helper = new();
         private string _trackName;
         private string _trackFolder;
         private bool _isRecordingInProgress = false;
-        private RecordingConfig _recordingConfig;
+
+        private RecordingConfig _recordingConfig = new RecordingConfig()
+        {
+            ChannelCount = 2,
+            SampleRate = 22050,
+            Mp3BitRate = 128,
+            UseLoopbackCapture = false,
+        };
+
         private IEnumerable<RecordingDeviceInfo> _recordingDevices;
         private int _selectReplayDeviceID = 0;
         private int _selectReplayMode = 0;
@@ -47,15 +56,17 @@ namespace ZTMZ.PacenoteTool
 
         public MainWindow()
         {
-            this._recordingConfig = new RecordingConfig()
-            {
-                ChannelCount = 2,
-                SampleRate = 22050,
-                Mp3BitRate = 128,
-                UseLoopbackCapture = false,
-            };
             InitializeComponent();
+            this.registerHotKeys();
+            this.initializeUDPReceiver();
+            this._udpReceiver.onGameStateChanged += this.gamestateChangedHandler;
+            this.initializeComboBoxes();
+            this.checkPrerequisite();
+            this.initializeGameOverlay();
+        }
 
+        private void registerHotKeys()
+        {
             this._hotKeyStartRecord = new HotKey(Key.F1, KeyModifier.None, key =>
             {
                 if (this._toolState == ToolState.Recording && !this._isRecordingInProgress)
@@ -93,6 +104,10 @@ namespace ZTMZ.PacenoteTool
                     });
                 }
             });
+        }
+
+        private void initializeUDPReceiver()
+        {
             this._udpReceiver = new UDPReceiver();
             this._udpReceiver.onNewMessage += msg =>
             {
@@ -155,134 +170,137 @@ namespace ZTMZ.PacenoteTool
                 };
                 worker.RunWorkerAsync();
             };
+        }
 
-            this._udpReceiver.onGameStateChanged += state =>
+        private void gamestateChangedHandler(GameState state)
+        {
+            this.Dispatcher.Invoke(() => { this.tb_gamestate.Text = state.ToString(); });
+            switch (state)
             {
-                this.Dispatcher.Invoke(() => { this.tb_gamestate.Text = state.ToString(); });
-                switch (state)
-                {
-                    case GameState.Unknown:
-                        // enable profile switch
+                case GameState.Unknown:
+                    // enable profile switch
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        this.cb_profile.IsEnabled = true;
+                        this.cb_replay_device.IsEnabled = true;
+                        this.cb_codrivers.IsEnabled = true;
+
+                        // enable mode change.
+                        this.ck_record.IsEnabled = true;
+                        this.ck_replay.IsEnabled = true;
+                        this.cb_replay_mode.IsEnabled = true;
+                    });
+                    break;
+                case GameState.RaceEnd:
+                    // end recording, unload trace loaded?
+                    if (this._toolState == ToolState.Recording)
+                    {
                         this.Dispatcher.Invoke(() =>
                         {
-                            this.cb_profile.IsEnabled = true;
-                            this.cb_replay_device.IsEnabled = true;
-                            this.cb_codrivers.IsEnabled = true;
-
-                            // enable mode change.
-                            this.ck_record.IsEnabled = true;
-                            this.ck_replay.IsEnabled = true;
-                            this.cb_replay_mode.IsEnabled = true;
+                            var codriver = PromptDialog.Dialog.Prompt(
+                                "录制完成，是哪位小可爱/大佬在录制路书呢？",
+                                "领航员信息",
+                                "未知").ToString();
+                            this._profileManager.StopRecording(codriver);
                         });
-                        break;
-                    case GameState.RaceEnd:
-                        // end recording, unload trace loaded?
-                        if (this._toolState == ToolState.Recording)
+                    }
+
+                    break;
+                case GameState.RaceBegin:
+                    // load trace, use lastmsg tracklength & startZ
+                    // this._udpReceiver.LastMessage.TrackLength
+                    this._trackName = this._dr2Helper.GetItinerary(
+                        this._udpReceiver.LastMessage.TrackLength.ToString("f2"),
+                        this._udpReceiver.LastMessage.StartZ
+                    );
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        this.tb_currentTrack.Text = this._trackName;
+                        this.tb_currentTrack.ToolTip = this._trackName;
+                        // disable profile switch, replay device selection
+                        this.cb_profile.IsEnabled = false;
+                        this.cb_replay_device.IsEnabled = false;
+
+                        this.ck_record.IsEnabled = false;
+                        this.ck_replay.IsEnabled = false;
+                        this.cb_codrivers.IsEnabled = false;
+                        this.cb_replay_mode.IsEnabled = false;
+                    });
+                    if (this._toolState == ToolState.Recording)
+                    {
+                        // 1. create folder
+                        this._trackFolder = this._profileManager.StartRecording(this._trackName);
+                        // 2. get audio_recorder ready (audio_recorder already ready...)
+                    }
+                    else
+                    {
+                        var worker = new BackgroundWorker();
+                        worker.DoWork += (sender, e) =>
                         {
+                            // 1. load sounds
+                            this._profileManager.StartReplaying(this._trackName, this._selectReplayMode);
                             this.Dispatcher.Invoke(() =>
                             {
-                                var codriver = PromptDialog.Dialog.Prompt(
-                                    "录制完成，是哪位小可爱/大佬在录制路书呢？",
-                                    "领航员信息",
-                                    "未知").ToString();
-                                this._profileManager.StopRecording(codriver);
-                            });
-                        }
-
-                        break;
-                    case GameState.RaceBegin:
-                        // load trace, use lastmsg tracklength & startZ
-                        // this._udpReceiver.LastMessage.TrackLength
-                        this._trackName = this._dr2Helper.GetItinerary(
-                            this._udpReceiver.LastMessage.TrackLength.ToString("f2"),
-                            this._udpReceiver.LastMessage.StartZ
-                        );
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            this.tb_currentTrack.Text = this._trackName;
-                            this.tb_currentTrack.ToolTip = this._trackName;
-                            // disable profile switch, replay device selection
-                            this.cb_profile.IsEnabled = false;
-                            this.cb_replay_device.IsEnabled = false;
-
-                            this.ck_record.IsEnabled = false;
-                            this.ck_replay.IsEnabled = false;
-                            this.cb_codrivers.IsEnabled = false;
-                            this.cb_replay_mode.IsEnabled = false;
-                        });
-                        if (this._toolState == ToolState.Recording)
-                        {
-                            // 1. create folder
-                            this._trackFolder = this._profileManager.StartRecording(this._trackName);
-                            // 2. get audio_recorder ready (audio_recorder already ready...)
-                        }
-                        else
-                        {
-                            var worker = new BackgroundWorker();
-                            worker.DoWork += (sender, e) =>
-                            {
-                                // 1. load sounds
-                                this._profileManager.StartReplaying(this._trackName, this._selectReplayMode);
-                                this.Dispatcher.Invoke(() =>
+                                this.tb_codriver.Text = this._profileManager.CurrentCoDriverName;
+                                if (this._selectReplayMode != 0 &&
+                                    this._profileManager.CurrentScriptReader != null)
                                 {
-                                    this.tb_codriver.Text = this._profileManager.CurrentCoDriverName;
-                                    if (this._selectReplayMode != 0 &&
-                                        this._profileManager.CurrentScriptReader != null)
-                                    {
-                                        this.chb_isDynamicPlay.IsChecked =
-                                            this._profileManager.CurrentScriptReader.IsDynamic;
-                                        //this.sl_scriptTiming.IsEnabled =
-                                        //    this._profileManager.CurrentScriptReader.IsDynamic;
-                                        this.tb_scriptAuthor.Text = this._profileManager.CurrentScriptReader.Author;
-                                    }
-                                    else
-                                    {
-                                        this.chb_isDynamicPlay.IsChecked = false;
-                                        //this.sl_scriptTiming.IsEnabled = false;
-                                        this.tb_scriptAuthor.Text = "???";
-                                    }
-
-                                    // switch replay mode tab
-                                    switch (this._selectReplayMode)
-                                    {
-                                        case 0:
-                                            this.tab_playMode.SelectedIndex = 0;
-                                            break;
-                                        case 1:
-                                            this.tab_playMode.SelectedIndex = 1;
-                                            break;
-                                        case 2:
-                                            this.tab_playMode.SelectedIndex = this._profileManager.AudioPacenoteCount >
-                                                                this._profileManager.ScriptPacenoteCount
-                                                ? 0
-                                                : 1;
-                                            break;
-                                        default:
-                                            this.tab_playMode.SelectedIndex = 0;
-                                            break;
-                                    }
-                                });
-                                var firstSound = this._profileManager.AudioFiles.FirstOrDefault();
-                                if (firstSound != null &&
-                                    firstSound.Distance < 0) // && this._firstSoundPlayed == false)
-                                {
-                                    // this._firstSoundPlayed = true;
-                                    // play the RaceBegin sound, just when counting down from 5 to 0.
-                                    // play in threads.
-                                    this._profileManager.Play();
+                                    this.chb_isDynamicPlay.IsChecked =
+                                        this._profileManager.CurrentScriptReader.IsDynamic;
+                                    //this.sl_scriptTiming.IsEnabled =
+                                    //    this._profileManager.CurrentScriptReader.IsDynamic;
+                                    this.tb_scriptAuthor.Text = this._profileManager.CurrentScriptReader.Author;
                                 }
                                 else
                                 {
-                                    //TODO: cannot find any sound for this track. try to use 'default profile' ?
+                                    this.chb_isDynamicPlay.IsChecked = false;
+                                    //this.sl_scriptTiming.IsEnabled = false;
+                                    this.tb_scriptAuthor.Text = "???";
                                 }
-                            };
-                            worker.RunWorkerAsync();
-                        }
 
-                        break;
-                }
-            };
+                                // switch replay mode tab
+                                switch (this._selectReplayMode)
+                                {
+                                    case 0:
+                                        this.tab_playMode.SelectedIndex = 0;
+                                        break;
+                                    case 1:
+                                        this.tab_playMode.SelectedIndex = 1;
+                                        break;
+                                    case 2:
+                                        this.tab_playMode.SelectedIndex = this._profileManager.AudioPacenoteCount >
+                                                                          this._profileManager.ScriptPacenoteCount
+                                            ? 0
+                                            : 1;
+                                        break;
+                                    default:
+                                        this.tab_playMode.SelectedIndex = 0;
+                                        break;
+                                }
+                            });
+                            var firstSound = this._profileManager.AudioFiles.FirstOrDefault();
+                            if (firstSound != null &&
+                                firstSound.Distance < 0) // && this._firstSoundPlayed == false)
+                            {
+                                // this._firstSoundPlayed = true;
+                                // play the RaceBegin sound, just when counting down from 5 to 0.
+                                // play in threads.
+                                this._profileManager.Play();
+                            }
+                            else
+                            {
+                                //TODO: cannot find any sound for this track. try to use 'default profile' ?
+                            }
+                        };
+                        worker.RunWorkerAsync();
+                    }
 
+                    break;
+            }
+        }
+
+        private void initializeComboBoxes()
+        {
             foreach (var profile in this._profileManager.GetAllProfiles())
             {
                 this.cb_profile.Items.Add(profile);
@@ -313,17 +331,20 @@ namespace ZTMZ.PacenoteTool
             // if there's no recording device, would throw exception...
             if (this._recordingDevices.Count() > 0)
                 this.cb_recording_device.SelectedIndex = 0;
+        }
 
-
+        private void checkPrerequisite()
+        {
             // check the file
             var preCheck = new PrerequisitesCheck();
             var checkResult = preCheck.Check();
-            switch (checkResult) 
+            switch (checkResult)
             {
                 case PrerequisitesCheckResultCode.PORT_NOT_OPEN:
                     // not pass
                     var result =
-                        MessageBox.Show("你的Dirt Rally 2.0 的配置文件中的UDP端口未正确打开，如果没有打开，工具将无法正常工作，点击“是”自动修改配置文件，点击“否”退出程序自行修改",
+                        MessageBox.Show(
+                            "你的Dirt Rally 2.0 的配置文件中的UDP端口未正确打开，如果没有打开，工具将无法正常工作，点击“是”自动修改配置文件，点击“否”退出程序自行修改",
                             "配置错误", MessageBoxButton.YesNo, MessageBoxImage.Information);
                     if (result == MessageBoxResult.Yes)
                     {
@@ -334,13 +355,20 @@ namespace ZTMZ.PacenoteTool
                         // Goodbye.
                         System.Windows.Application.Current.Shutdown();
                     }
+
                     break;
                 case PrerequisitesCheckResultCode.PORT_NOT_MATCH:
                     MessageBox.Show("你的Dirt Rally 2.0 的配置文件中的UDP端口和本工具中的UDP端口配置不同，可能会导致地图读取失败（也可能是使用了simhub转发）",
-                            "配置警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        "配置警告", MessageBoxButton.OK, MessageBoxImage.Warning);
                     break;
             }
         }
+
+        private void initializeGameOverlay()
+        {
+            this._gameOverlayManager.StartLoop();
+        }
+
 
         private void Ck_record_OnChecked(object sender, RoutedEventArgs e)
         {
@@ -410,7 +438,7 @@ namespace ZTMZ.PacenoteTool
         {
             if (this._profileManager.CurrentItineraryPath != null)
             {
-                Process.Start(new ProcessStartInfo("explorer.exe",
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
                     System.IO.Path.GetFullPath(this._profileManager.CurrentItineraryPath)));
             }
         }
@@ -456,7 +484,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         {
             if (this._profileManager.CurrentItineraryPath != null)
             {
-                Process.Start(new ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe",
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe",
                     string.Format("\"{0}\"", System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath))));
             }
         }
@@ -486,12 +514,12 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void Btn_startScriptEditor_OnClick(object sender, RoutedEventArgs e)
         {
-            Process.Start(new ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe"));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe"));
         }
 
         private void Btn_startAudioCompressor_OnClick(object sender, RoutedEventArgs e)
         {
-            Process.Start(new ProcessStartInfo("ZTMZ.PacenoteTool.AudioBatchProcessor.exe"));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.AudioBatchSystem.Diagnostics.Processor.exe"));
         }
 
         private void Sl_scriptTiming_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -512,14 +540,14 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         {
             // show page for new version
             // AutoUpdater.OpenDownloadPage = true; 
-            AutoUpdater.ShowSkipButton = false; 
+            AutoUpdater.ShowSkipButton = false;
             //AutoUpdater.ReportErrors = true;
             AutoUpdater.Start("https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate.xml");
         }
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
-            Process.Start(new ProcessStartInfo { FileName = e.Uri.AbsoluteUri, UseShellExecute = true });
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo {FileName = e.Uri.AbsoluteUri, UseShellExecute = true});
             e.Handled = true;
         }
     }
