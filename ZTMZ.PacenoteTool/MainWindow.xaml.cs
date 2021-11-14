@@ -385,6 +385,13 @@ namespace ZTMZ.PacenoteTool
                             MessageBox.Show("Initialized");
                         });
                     };
+                    this._autoRecorder.PieceRecognized += t =>
+                    {
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            MessageBox.Show("Recognized: " + t.Item2);
+                        });
+                    };
                     BackgroundWorker bgw = new BackgroundWorker();
                     bgw.DoWork += (o, args) => this._autoRecorder.Initialize();
                     bgw.RunWorkerAsync();

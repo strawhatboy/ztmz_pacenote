@@ -4,6 +4,7 @@ using NAudio.Wave.Compression;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -26,7 +27,7 @@ namespace ZTMZ.PacenoteTool
         public event Action<Tuple<int, string>> PieceRecognized;
         public event Action Initialized;
 
-        private WasapiLoopbackCapture _capture = new WasapiLoopbackCapture();
+        private HackedWasapiLoopbackCapture _capture = new HackedWasapiLoopbackCapture();
         public bool IsRecognizing { set; get; }
 
         public int Patience { set; get; } = 5;
@@ -38,10 +39,12 @@ namespace ZTMZ.PacenoteTool
                 throw new Exception("语音识别模型不存在，请使用开发版本或下载并解压模型到speech_model目录下");
             }
 
-            this.Model = new Model(MODEL_PATH);
 
             // 2. listen to loopback sound
             this.PieceRecored += AutoRecorder_PieceRecored;
+            this.Model = new Model(MODEL_PATH);
+
+            Directory.CreateDirectory("tmp");
             //BackgroundWorker bgw = new BackgroundWorker();
             //bgw.DoWork += (e, args) => 
             //bgw.RunWorkerAsync();
@@ -58,24 +61,27 @@ namespace ZTMZ.PacenoteTool
             bgw.DoWork += (e, args) =>
             {
                 var newFile = ConvertToPCM(obj.Item2);
-                File.Delete(obj.Item2);
-                this.PreprocessPieces.Enqueue(new Tuple<int, string>(obj.Item1, newFile));
+                var fileName = "tmp/" + Path.GetFileName(newFile) + ".wav";
+                StereoToMono(newFile, fileName);
+                File.Delete(newFile);
+                this.PreprocessPieces.Enqueue(new Tuple<int, string>(obj.Item1, fileName));
             };
             bgw.RunWorkerAsync();
         }
 
         private void InitSoundCapture()
         {
-            _capture = new WasapiLoopbackCapture(WasapiLoopbackCapture.GetDefaultLoopbackCaptureDevice());
+            //_capture = new WasapiLoopbackCapture(WasapiLoopbackCapture.GetDefaultLoopbackCaptureDevice());
+            _capture = new HackedWasapiLoopbackCapture();
+            _capture.WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(48000, 2);
             var outputFilePath = Path.GetTempFileName();
-            WaveFileWriter writer = new WaveFileWriter(outputFilePath, _capture.WaveFormat);
+            // WaveFileWriter writer = new WaveFileWriter(outputFilePath, _capture.WaveFormat);
+            WaveFileWriter writer = null;
             int patience = Patience;
             bool isTalking = false;
             _capture.DataAvailable += (s, a) =>
             {
                 //var pcmBytes = ToPCM16(a.Buffer, a.BytesRecorded, capture.WaveFormat);
-                if (writer != null) 
-                    writer.Write(a.Buffer, 0, a.BytesRecorded);
                 //if (Math.Abs(a.Buffer[0]- pre) > 10)
                 //{
                 //    pre = a.Buffer[0];
@@ -83,10 +89,12 @@ namespace ZTMZ.PacenoteTool
                 //}
                 if (a.Buffer[0] != 0 && a.Buffer[0] != 255 && a.Buffer[0] != 254 && a.Buffer[0] != 63)
                 {
-                    //Console.Write(string.Format(".{0}", a.Buffer[0].ToString()));
+                    Debug.Write(string.Format(".{0}", a.Buffer[0].ToString()));
                     if (!isTalking)
                     {
                         isTalking = true;
+                        outputFilePath = Path.GetTempFileName();
+                        writer = new WaveFileWriter(outputFilePath, _capture.WaveFormat);
                         Pieces.Enqueue(new Tuple<int, string>(Distance, outputFilePath));
                     }
                     patience = Patience;
@@ -101,8 +109,6 @@ namespace ZTMZ.PacenoteTool
                             writer.Flush();
                             writer.Dispose();
                             writer = null;
-                            outputFilePath = Path.GetTempFileName();
-                            writer = new WaveFileWriter(outputFilePath, _capture.WaveFormat);
                             patience--;
                             this.PieceRecored?.Invoke(Pieces.Dequeue());
                         }
@@ -112,6 +118,8 @@ namespace ZTMZ.PacenoteTool
                         }
                     }
                 }
+                if (writer != null)
+                    writer.Write(a.Buffer, 0, a.BytesRecorded);
             };
             _capture.RecordingStopped += (s, a) =>
             {
@@ -119,6 +127,7 @@ namespace ZTMZ.PacenoteTool
                 writer = null;
                 _capture.Dispose();
             };
+            //_capture.WaveFormat.
             _capture.StartRecording();
             //while (_capture.CaptureState != NAudio.CoreAudioApi.CaptureState.Stopped)
             //{
@@ -131,15 +140,15 @@ namespace ZTMZ.PacenoteTool
             BackgroundWorker bgw = new BackgroundWorker();
             bgw.DoWork += (o, args) =>
             {
-                while(this.IsRecognizing)
+                while (this.IsRecognizing)
                 {
                     Thread.Sleep(1000);
-                    if (this.Pieces.Count > 0)
+                    if (this.PreprocessPieces.Count > 0)
                     {
-                        var piece = this.Pieces.Dequeue();
+                        var piece = this.PreprocessPieces.Dequeue();
                         VoskRecognizer rec = new VoskRecognizer(Model, 16000.0f);
-                        rec.SetMaxAlternatives(0);
-                        rec.SetWords(true);
+                        //rec.SetMaxAlternatives(0);
+                        //rec.SetWords(true);
                         using (Stream source = File.OpenRead(piece.Item2))
                         {
                             byte[] buffer = new byte[4096];
@@ -148,16 +157,19 @@ namespace ZTMZ.PacenoteTool
                             {
                                 if (rec.AcceptWaveform(buffer, bytesRead))
                                 {
-                                    Console.WriteLine(rec.Result());
+                                    Debug.WriteLine(rec.Result());
                                 }
                                 else
                                 {
-                                    Console.WriteLine(rec.PartialResult());
+                                    Debug.WriteLine(rec.PartialResult());
                                 }
                             }
                         }
-                        Console.WriteLine(rec.FinalResult());
+                        Debug.WriteLine(rec.FinalResult());
                         this.PieceRecognized?.Invoke(new Tuple<int, string>(piece.Item1, rec.FinalResult()));
+
+                        // clean the file.
+                        // File.Delete(piece.Item2);
                     }
                 }
             };
@@ -189,6 +201,17 @@ namespace ZTMZ.PacenoteTool
             }
             WaveFormat pcmFormat = AcmStream.SuggestPcmFormat(sourceStream.WaveFormat);
             return new WaveFormatConversionStream(pcmFormat, sourceStream);
+        }
+        public static void StereoToMono(string sourceFile, string outputFile)
+        {
+            using (var waveFileReader = new WaveFileReader(sourceFile))
+            {
+                var outFormat = new WaveFormat(waveFileReader.WaveFormat.SampleRate, 1);
+                using (var resampler = new MediaFoundationResampler(waveFileReader, outFormat))
+                {
+                    WaveFileWriter.CreateWaveFile(outputFile, resampler);
+                }
+            }
         }
     }
 }

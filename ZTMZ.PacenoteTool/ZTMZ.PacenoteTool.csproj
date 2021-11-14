@@ -33,6 +33,9 @@
       <None Update="Alarm01.wav">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="speech_recognizer.py">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Update="supported_audio_types.json">
         <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       </None>
