@@ -37,6 +37,7 @@ namespace ZTMZ.PacenoteTool
         private DR2Helper _dr2Helper = new();
         private string _trackName;
         private string _trackFolder;
+        private AutoRecorder _autoRecorder = new AutoRecorder();
         private bool _isRecordingInProgress = false;
 
         private RecordingConfig _recordingConfig = new RecordingConfig()
@@ -221,8 +222,8 @@ namespace ZTMZ.PacenoteTool
                         this.cb_profile.IsEnabled = false;
                         this.cb_replay_device.IsEnabled = false;
 
-                        this.ck_record.IsEnabled = false;
-                        this.ck_replay.IsEnabled = false;
+                        //this.ck_record.IsEnabled = false;
+                        //this.ck_replay.IsEnabled = false;
                         this.cb_codrivers.IsEnabled = false;
                         this.cb_replay_mode.IsEnabled = false;
                     });
@@ -377,6 +378,16 @@ namespace ZTMZ.PacenoteTool
                 if (this._toolState == ToolState.Replaying)
                 {
                     this._toolState = ToolState.Recording;
+                    this._autoRecorder.Initialized += () =>
+                    {
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            MessageBox.Show("Initialized");
+                        });
+                    };
+                    BackgroundWorker bgw = new BackgroundWorker();
+                    bgw.DoWork += (o, args) => this._autoRecorder.Initialize();
+                    bgw.RunWorkerAsync();
                 }
             }
             else
@@ -395,6 +406,7 @@ namespace ZTMZ.PacenoteTool
                 {
                     this._toolState = ToolState.Replaying;
                     this.tb_isRecording.Text = "不可用";
+                    this._autoRecorder.StopSoundCapture();
                 }
             }
             else
