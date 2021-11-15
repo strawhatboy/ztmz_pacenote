@@ -39,6 +39,8 @@ namespace ZTMZ.PacenoteTool
         private string _trackFolder;
         private AutoRecorder _autoRecorder = new AutoRecorder();
         private bool _isRecordingInProgress = false;
+        private bool _isPureAudioRecording = true;
+        private ScriptEditor.MainWindow _scriptWindow;
 
         private RecordingConfig _recordingConfig = new RecordingConfig()
         {
@@ -194,7 +196,7 @@ namespace ZTMZ.PacenoteTool
                     break;
                 case GameState.RaceEnd:
                     // end recording, unload trace loaded?
-                    if (this._toolState == ToolState.Recording)
+                    if (this._toolState == ToolState.Recording && this._isPureAudioRecording)
                     {
                         this.Dispatcher.Invoke(() =>
                         {
@@ -204,6 +206,12 @@ namespace ZTMZ.PacenoteTool
                                 "未知").ToString();
                             this._profileManager.StopRecording(codriver);
                         });
+                    }
+
+                    // end recording of autoscript
+                    if (this._toolState == ToolState.Recording && !this._isPureAudioRecording)
+                    {
+
                     }
 
                     break;
@@ -378,23 +386,27 @@ namespace ZTMZ.PacenoteTool
                 if (this._toolState == ToolState.Replaying)
                 {
                     this._toolState = ToolState.Recording;
-                    this._autoRecorder.Initialized += () =>
+                    if (!this._isPureAudioRecording)
                     {
-                        this.Dispatcher.Invoke(() =>
+                        this._autoRecorder.Initialized += () =>
                         {
-                            MessageBox.Show("Initialized");
-                        });
-                    };
-                    this._autoRecorder.PieceRecognized += t =>
-                    {
-                        this.Dispatcher.Invoke(() =>
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                MessageBox.Show("自动脚本录制模式已启动！");
+                            });
+                        };
+                        this._autoRecorder.PieceRecognized += t =>
                         {
-                            MessageBox.Show("Recognized: " + t.Item2);
-                        });
-                    };
-                    BackgroundWorker bgw = new BackgroundWorker();
-                    bgw.DoWork += (o, args) => this._autoRecorder.Initialize();
-                    bgw.RunWorkerAsync();
+                            this.Dispatcher.Invoke(() =>
+                            {
+                                // MessageBox.Show("Recognized: " + t.Item2);
+                                this._scriptWindow?.AppendLine(t.Item2);
+                            });
+                        };
+                        BackgroundWorker bgw = new BackgroundWorker();
+                        bgw.DoWork += (o, args) => this._autoRecorder.Initialize();
+                        bgw.RunWorkerAsync();
+                    }
                 }
             }
             else
@@ -503,8 +515,12 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         {
             if (this._profileManager.CurrentItineraryPath != null)
             {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe",
-                    string.Format("\"{0}\"", System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath))));
+                // System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe",
+                //    string.Format("\"{0}\"", System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath))));
+
+                _scriptWindow = new ScriptEditor.MainWindow();
+                _scriptWindow.Show();
+                _scriptWindow.HandleFileOpen(this._profileManager.CurrentItineraryPath);
             }
         }
 
@@ -568,6 +584,11 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         {
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo {FileName = e.Uri.AbsoluteUri, UseShellExecute = true});
             e.Handled = true;
+        }
+
+        private void cb_record_mode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this._isPureAudioRecording = this.cb_record_mode.SelectedIndex == 0;
         }
     }
 }

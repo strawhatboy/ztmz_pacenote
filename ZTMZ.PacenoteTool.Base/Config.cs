@@ -22,7 +22,10 @@ namespace ZTMZ.PacenoteTool.Base
 
         public bool WarnIfPortMismatch { set; get; } = true;
 
-        public int PlaybackDeviceDesiredLatency = 175;
+        public int LoopbackCaptureSampleRate { set; get; } = 48000;
+        public int LoopbackCaptureChannels { set; get; } = 2;
+
+        public int PlaybackDeviceDesiredLatency { set; get; } = 175;
 
         public void Save()
         {

@@ -256,7 +256,7 @@
             </ComboBox>
             <TextBlock Grid.Row="6" Grid.Column="0" ToolTip="在游戏进行时不可切换播放模式" FontSize="16" FontWeight="Bold">录制模式：</TextBlock>
             <ComboBox Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_record_mode"
-                      SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="0">
+                      SelectionChanged="cb_record_mode_SelectionChanged" SelectedIndex="0">
                 <ComboBoxItem ToolTip="纯语音录制">纯语音模式</ComboBoxItem>
                 <ComboBoxItem ToolTip="通过语音识别自动录制脚本">自动脚本模式</ComboBoxItem>
             </ComboBox>

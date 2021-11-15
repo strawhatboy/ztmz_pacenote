@@ -381,5 +381,10 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             this._intellisenseMode = this.cb_intellisenseMode.SelectedIndex;
         }
 
+        public void AppendLine(string line)
+        {
+            this.avalonEditor.Text += line + System.Environment.NewLine;
+        }
+
     }
 }
