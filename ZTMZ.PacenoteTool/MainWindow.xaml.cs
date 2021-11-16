@@ -126,7 +126,11 @@ namespace ZTMZ.PacenoteTool
                     this.tb_position_z.Text = msg.StartZ.ToString("0.0");
                 });
 
-                if (this._toolState != ToolState.Replaying) return;
+                if (this._toolState == ToolState.Recording && !this._isPureAudioRecording)
+                {
+                    this._autoRecorder.Distance = (int)msg.LapDistance;
+                    return;
+                }
 
                 var worker = new BackgroundWorker();
                 worker.DoWork += (sender, e) =>
@@ -517,10 +521,10 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
             {
                 // System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe",
                 //    string.Format("\"{0}\"", System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath))));
-
+                ScriptEditor.App.InitHighlightComponent();
                 _scriptWindow = new ScriptEditor.MainWindow();
                 _scriptWindow.Show();
-                _scriptWindow.HandleFileOpen(this._profileManager.CurrentItineraryPath);
+                _scriptWindow.HandleFileOpen(System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath));
             }
         }
 

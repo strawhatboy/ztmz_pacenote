@@ -384,7 +384,12 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         public void AppendLine(string line)
         {
             this.avalonEditor.Text += line + System.Environment.NewLine;
+            this.avalonEditor.ScrollToEnd();
         }
 
+        public void AutoConvertTextToAliases()
+        {
+            //this.avalonEditor.Text;
+        }
     }
 }

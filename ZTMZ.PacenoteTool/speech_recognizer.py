@@ -19,10 +19,20 @@ parser.add_argument('--framerate', type=int, default=48000)
 # parser.add_argument('--distance', type=int, default=0)
 args = parser.parse_args()
 
+# load all speeches
+speeches = []
+with open('aliases.csv') as f:
+    # skip first line
+    lines = f.readlines()
+    lines = lines[1:]
+    for line in lines:
+        speech = line.split(',')[-1].strip()
+        speech = speech.split('|')
+        speeches.extend(speech)
 
 model = Model("speech_model")
-rec = KaldiRecognizer(model, args.framerate, '["thirty", "six left", "long", "left five", "into", "right two", "tightens", "don\'t cut", "dont cut", "and", "one thirty", "[unk]"]')
-
+# rec = KaldiRecognizer(model, args.framerate, '["thirty", "six left", "long", "left five", "into", "right two", "tightens", "don\'t cut", "dont cut", "and", "one thirty", "[unk]"]')
+rec = KaldiRecognizer(model, args.framerate, json.dumps(speeches))
 
 while True:
     command = input().split(':')
@@ -52,5 +62,6 @@ while True:
         else:
             # print(rec.PartialResult())
             pass
-
-    print('{}>{}'.format(distance, json.loads(rec.FinalResult())["text"]))
+    output = '{}>{}'.format(distance, json.loads(rec.FinalResult())["text"])
+    print(output)
+    # sys.stdout.write(output + os.linesep)

@@ -16,12 +16,25 @@ namespace ZTMZ.PacenoteTool
 
         public void Start(int framerate=48000)
         {
-            this.PythonProcess = Process.Start(new ProcessStartInfo("python3.8/python.exe", string.Format("speech_recognizer.py --framerate={0}", framerate)));
+            this.PythonProcess = new Process();
+            var startInfo = new ProcessStartInfo(
+                "Python38/python.exe",
+                string.Format("-i speech_recognizer.py --framerate={0}", framerate)
+            );
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardInput = true;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.RedirectStandardError = true;
+            startInfo.CreateNoWindow = true;
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            this.PythonProcess.StartInfo = startInfo;
             //BackgroundWorker bgw = new BackgroundWorker();
             this.PythonProcess.OutputDataReceived += (sender, args) =>
             {
                 this.Recognized?.Invoke(args.Data);
             };
+            this.PythonProcess.Start();
+            this.PythonProcess.BeginOutputReadLine();
         }
 
         public void Stop()

@@ -14,13 +14,17 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
     /// </summary>
     public partial class App : Application
     {
-        public App()
+        public static void InitHighlightComponent()
         {
             using var reader = new System.Xml.XmlTextReader("pacenote.xshd");
             ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance.RegisterHighlighting("pacenote",
                 new string[0],
                 ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(reader,
                     ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance));
+        }
+        public App()
+        {
+            InitHighlightComponent();
         }
 
         private void Application_Startup(object sender, StartupEventArgs e)

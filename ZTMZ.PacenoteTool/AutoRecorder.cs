@@ -1,12 +1,15 @@
 ﻿using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NAudio.Wave.Compression;
+using OnlyR.Core.EventArgs;
+using OnlyR.Core.Samples;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,6 +39,17 @@ namespace ZTMZ.PacenoteTool
         public bool IsRecognizing { set; get; }
 
         public int Patience { set; get; } = 5;
+
+        private int _dampedLevel;
+        private const int RequiredReportingIntervalMs = 40;
+        private const int VuSpeed = 5;
+        private SampleAggregator? _sampleAggregator;
+        private WaveFileWriter _writer = null;
+
+
+        int patience = 5;
+        bool isTalking = false;
+        string outputFilePath = Path.GetTempFileName();
         public void Initialize()
         {
             // 1. check if model exists
@@ -55,7 +69,7 @@ namespace ZTMZ.PacenoteTool
             //bgw.RunWorkerAsync();
             this.InitSoundCapture();
             // 3. recognize
-            //IsRecognizing = true;
+            IsRecognizing = true;
             this.InitRecognizer();
             this.Initialized?.Invoke();
         }
@@ -85,76 +99,58 @@ namespace ZTMZ.PacenoteTool
 
         private void InitSoundCapture()
         {
-            //_capture = new WasapiLoopbackCapture(WasapiLoopbackCapture.GetDefaultLoopbackCaptureDevice());
             _capture = new HackedWasapiLoopbackCapture();
-            _capture.WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(Config.Instance.LoopbackCaptureSampleRate, Config.Instance.LoopbackCaptureChannels);
-            var outputFilePath = Path.GetTempFileName();
-            // WaveFileWriter writer = new WaveFileWriter(outputFilePath, _capture.WaveFormat);
-            WaveFileWriter writer = null;
-            int patience = Patience;
-            bool isTalking = false;
-            _capture.DataAvailable += (s, a) =>
+
+            InitAggregator(_capture.WaveFormat.SampleRate);
+            _capture.DataAvailable += this.CaptureDataAvailable;
+            _capture.RecordingStopped += this.CaptureRecordingStopped;
+            try
             {
-                //var pcmBytes = ToPCM16(a.Buffer, a.BytesRecorded, capture.WaveFormat);
-                //if (Math.Abs(a.Buffer[0]- pre) > 10)
-                //{
-                //    pre = a.Buffer[0];
-                //    Console.Write(string.Format(".{0}", pre.ToString()));
-                //}
-                if (a.Buffer[0] != 0 && a.Buffer[0] != 255 && a.Buffer[0] != 254 && a.Buffer[0] != 63)
-                {
-                    Debug.Write(string.Format(".{0}", a.Buffer[0].ToString()));
-                    if (!isTalking)
-                    {
-                        isTalking = true;
-                        outputFilePath = Path.GetTempFileName();
-                        writer = new WaveFileWriter(outputFilePath, _capture.WaveFormat);
-                        Pieces.Enqueue(new Tuple<int, string>(Distance, outputFilePath));
-                    }
-                    patience = Patience;
-                } else
-                {
-                    if (isTalking)
-                    {
-                        if (patience == 0)
-                        {
-                            isTalking = false;
-                            // output file
-                            writer.Flush();
-                            writer.Dispose();
-                            writer = null;
-                            patience--;
-                            this.PieceRecored?.Invoke(Pieces.Dequeue());
-                        }
-                        else if (patience > 0)
-                        {
-                            patience--;
-                        }
-                    }
-                }
-                if (writer != null)
-                    writer.Write(a.Buffer, 0, a.BytesRecorded);
-            };
-            _capture.RecordingStopped += (s, a) =>
+                _capture.StartRecording();
+            } catch (COMException e)
             {
-                writer.Dispose();
-                writer = null;
                 _capture.Dispose();
-            };
-            //_capture.WaveFormat.
-            _capture.StartRecording();
+                _capture = new HackedWasapiLoopbackCapture();
+                _capture.WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(Config.Instance.LoopbackCaptureSampleRate, Config.Instance.LoopbackCaptureChannels); 
+                InitAggregator(_capture.WaveFormat.SampleRate);
+                _capture.DataAvailable += this.CaptureDataAvailable;
+                _capture.RecordingStopped += this.CaptureRecordingStopped;
+                _capture.StartRecording();
+            }
             //while (_capture.CaptureState != NAudio.CoreAudioApi.CaptureState.Stopped)
             //{
             //    Thread.Sleep(500);
             //}
         }
 
+        private void CaptureDataAvailable(object? s, WaveInEventArgs a)
+        {
+            var isFloatingPointAudio = _capture?.WaveFormat.BitsPerSample == 32;
+
+            AddToSampleAggregator(a.Buffer, a.BytesRecorded, isFloatingPointAudio);
+
+            if (_writer != null)
+                _writer.Write(a.Buffer, 0, a.BytesRecorded);
+        }
+
+        private void CaptureRecordingStopped(object? sender, StoppedEventArgs e)
+        {
+            _writer.Dispose();
+            _writer = null;
+            _capture.Dispose();
+        }
+
         public void InitRecognizer()
         {
+            recognizer.Start();
             recognizer.Recognized += s =>
             {
-                var dis = int.Parse(s.Split('>').First());
-                this.PieceRecognized?.Invoke(new Tuple<int, string>(dis, s));
+                var parts = s.Split('>');
+                if (parts.Length == 2)
+                {
+                    var dis = int.Parse(parts.First());
+                    this.PieceRecognized?.Invoke(new Tuple<int, string>(dis, s));
+                }
             };
             BackgroundWorker bgw = new BackgroundWorker();
             bgw.DoWork += (o, args) =>
@@ -236,6 +232,100 @@ namespace ZTMZ.PacenoteTool
                     WaveFileWriter.CreateWaveFile(outputFile, resampler);
                 }
             }
+        }
+
+        private void InitAggregator(int sampleRate)
+        {
+            // the aggregator collects audio sample metrics 
+            // and publishes the results at suitable intervals.
+            // Used by the OnlyR volume meter
+            if (_sampleAggregator != null)
+            {
+                _sampleAggregator.ReportEvent -= AggregatorReportHandler;
+            }
+
+            _sampleAggregator = new SampleAggregator(sampleRate, RequiredReportingIntervalMs);
+            _sampleAggregator.ReportEvent += AggregatorReportHandler;
+        }
+
+        private int GetDampedVolumeLevel(float volLevel)
+        {
+            // provide some "damping" of the volume meter.
+            if (volLevel > _dampedLevel)
+            {
+                _dampedLevel = (int)(volLevel + VuSpeed);
+            }
+
+            _dampedLevel -= VuSpeed;
+            if (_dampedLevel < 0)
+            {
+                _dampedLevel = 0;
+            }
+
+            return _dampedLevel;
+        }
+
+        private void AddToSampleAggregator(byte[] buffer, int bytesRecorded, bool isFloatingPointAudio)
+        {
+            var buff = new WaveBuffer(buffer);
+
+            if (isFloatingPointAudio)
+            {
+                for (var index = 0; index < bytesRecorded / 4; ++index)
+                {
+                    var sample = buff.FloatBuffer[index];
+                    _sampleAggregator?.Add(sample);
+                }
+            }
+            else
+            {
+                for (var index = 0; index < bytesRecorded / 2; ++index)
+                {
+                    var sample = buff.ShortBuffer[index];
+                    _sampleAggregator?.Add(sample / 32768F);
+                }
+            }
+        }
+        private void AggregatorReportHandler(object? sender, SamplesReportEventArgs e)
+        {
+            var value = Math.Max(e.MaxSample, Math.Abs(e.MinSample)) * 100;
+
+            var damped = GetDampedVolumeLevel(value);
+            if (damped != 0)
+            {
+                Debug.Write(string.Format(".{0}", damped));
+            }
+            if (damped > 50)
+            {
+                if (!isTalking)
+                {
+                    isTalking = true;
+                    outputFilePath = Path.GetTempFileName();
+                    _writer = new WaveFileWriter(outputFilePath, _capture.WaveFormat);
+                    Pieces.Enqueue(new Tuple<int, string>(Distance, outputFilePath));
+                }
+                patience = Patience;
+            } else
+            {
+                if (isTalking)
+                {
+                    if (patience == 0)
+                    {
+                        isTalking = false;
+                        // output file
+                        _writer.Flush();
+                        _writer.Dispose();
+                        _writer = null;
+                        patience--;
+                        this.PieceRecored?.Invoke(Pieces.Dequeue());
+                    }
+                    else if (patience > 0)
+                    {
+                        patience--;
+                    }
+                }
+            }
+            //OnProgressEvent(new RecordingProgressEventArgs { VolumeLevelAsPercentage = damped });
         }
     }
 }
