@@ -13,7 +13,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Vosk;
 using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool
@@ -21,7 +20,6 @@ namespace ZTMZ.PacenoteTool
     public class AutoRecorder
     {
         public static string MODEL_PATH = "speech_model";
-        public Model Model { get; private set; }
 
         public int Distance { set; get; }
         public Queue<Tuple<int, string>> Pieces { get; } = new Queue<Tuple<int, string>>();
@@ -61,7 +59,6 @@ namespace ZTMZ.PacenoteTool
 
             // 2. listen to loopback sound
             this.PieceRecored += AutoRecorder_PieceRecored;
-            this.Model = new Model(MODEL_PATH);
 
             Directory.CreateDirectory("tmp");
             //BackgroundWorker bgw = new BackgroundWorker();
