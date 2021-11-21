@@ -5,6 +5,7 @@
   <!-- This is the main ruleset. -->
   <RuleSet>
     <Span color="Comment" begin="#" />
+    <Span foreground="#888888" begin="&gt;" />
 
     <Keywords foreground="DarkBlue">
       <Word>@dynamic</Word>
@@ -56,6 +57,8 @@
       <Word>,cut</Word>
       <Word>,deceptive</Word>
       <Word>,deepruts</Word>
+      <Word>,ditches_inside</Word>
+      <Word>,ditches_outside</Word>
       <Word>,dip</Word>
       <Word>,dont_cut</Word>
       <Word>,downhill</Word>
@@ -94,6 +97,7 @@
       <Word>,over_crest</Word>
       <Word>,over_dip</Word>
       <Word>,over_jump</Word>
+      <Word>,over_small_crest</Word>
       <Word>,pass_junction</Word>
       <Word>,right_entry_chicane</Word>
       <Word>,rocks_inside</Word>
@@ -205,6 +209,8 @@
       <Word>/cut</Word>
       <Word>/deceptive</Word>
       <Word>/deepruts</Word>
+      <Word>/ditches_inside</Word>
+      <Word>/ditches_outside</Word>
       <Word>/dip</Word>
       <Word>/dont_cut</Word>
       <Word>/downhill</Word>
@@ -243,6 +249,7 @@
       <Word>/over_crest</Word>
       <Word>/over_dip</Word>
       <Word>/over_jump</Word>
+      <Word>/over_small_crest</Word>
       <Word>/pass_junction</Word>
       <Word>/right_entry_chicane</Word>
       <Word>/rocks_inside</Word>
@@ -350,6 +357,8 @@
       <Word>,detail_deceptive</Word>
       <Word>,detail_deepruts</Word>
       <Word>,detail_dip</Word>
+      <Word>,detail_ditches_inside</Word>
+      <Word>,detail_ditches_outside</Word>
       <Word>,detail_dont_cut</Word>
       <Word>,detail_downhill</Word>
       <Word>,detail_early</Word>
@@ -386,6 +395,7 @@
       <Word>,detail_over_crest</Word>
       <Word>,detail_over_dip</Word>
       <Word>,detail_over_jump</Word>
+      <Word>,detail_over_small_crest</Word>
       <Word>,detail_pass_junction</Word>
       <Word>,detail_right_entry_chicane</Word>
       <Word>,detail_rocks_inside</Word>
@@ -471,6 +481,8 @@
       <Word>/detail_deceptive</Word>
       <Word>/detail_deepruts</Word>
       <Word>/detail_dip</Word>
+      <Word>/detail_ditches_inside</Word>
+      <Word>/detail_ditches_outside</Word>
       <Word>/detail_dont_cut</Word>
       <Word>/detail_downhill</Word>
       <Word>/detail_early</Word>
@@ -507,6 +519,7 @@
       <Word>/detail_over_crest</Word>
       <Word>/detail_over_dip</Word>
       <Word>/detail_over_jump</Word>
+      <Word>/detail_over_small_crest</Word>
       <Word>/detail_pass_junction</Word>
       <Word>/detail_right_entry_chicane</Word>
       <Word>/detail_rocks_inside</Word>

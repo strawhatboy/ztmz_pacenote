@@ -1,12 +1,12 @@
 ﻿Alias,Token,Speech
 1_left,corner_1_left,one left
 1_right,corner_1_right,one right
-2_left,corner_2_left,two left
-2_right,corner_2_right,two right
+2_left,corner_2_left,two left|to left
+2_right,corner_2_right,two right|to right
 3_left,corner_3_left,three left
 3_right,corner_3_right,three right
-4_left,corner_4_left,four left
-4_right,corner_4_right,four right
+4_left,corner_4_left,four left|for left
+4_right,corner_4_right,four right|for right
 5_left,corner_5_left,five left
 5_right,corner_5_right,five right
 6_left,corner_6_left,six left
@@ -42,29 +42,31 @@ crest,detail_crest,crest|crests
 cut,detail_cut,cut
 deceptive,detail_deceptive,deceptive
 deepruts,detail_deepruts,deepruts
+ditches_inside,detail_ditches_inside,ditches inside
+ditches_outside,detail_ditches_outside,ditches outside
 dip,detail_dip,dip|dips
 dont_cut,detail_dont_cut,don't cut|dont cut|do not cut
 downhill,detail_downhill,down hill|downhill
 early,detail_early,early
 end_stage,detail_end_stage,end stage
 extraextra_long,detail_extraextra_long,extra extra long
-extra_long,detail_extra_long,very long,extra long
-finish,detail_deepruts,finish
+extra_long,detail_extra_long,very long|extra long
+finish,detail_deepruts,finish|over finish
 ford,detail_ford,ford
 flat,detail_flat,flat
 go_straight,detail_go_straight,go straight
 gravel,detail_gravel,gravel
-into,detail_into,into
+into,detail_into,into|to
 jump,detail_jump,jump|jumps
 jump_maybe,detail_jump_maybe,jump maybe|jumps maybe
-junction,detail_junction,junction
+junction,detail_junction,junctioni
 keep_in,detail_keep_in,keep in|keep'in
 keep_left,detail_keep_left,keep left
 keep_middle,detail_keep_middle,keep middle
 keep_out,detail_keep_out,keep out|keep'out
 keep_right,detail_keep_right,keep right
 late,detail_late,late
-left_entry_chicane,detail_left_entry_chicane,??????????????????
+left_entry_chicane,detail_left_entry_chicane,chicane left entry
 logs_inside,detail_logs_inside,logs inside
 logs_outside,detail_logs_outside,logs outside
 long,detail_long,long
@@ -80,8 +82,9 @@ over_bumps,detail_over_bumps,over bumps|over bump
 over_crest,detail_over_crest,over crest|over crests
 over_dip,detail_over_dip,over dip|over dips
 over_jump,detail_over_jump,over jump|over jumps
+over_small_crest,detail_over_small_crest,over small crest
 pass_junction,detail_pass_junction,pass junction|through junction
-right_entry_chicane,detail_right_entry_chicane,??????????????
+right_entry_chicane,detail_right_entry_chicane,chicane right entry
 rocks_inside,detail_rocks_inside,rocks inside|rock inside
 rocks_outside,detail_rocks_outside,rocks outside|rock outside
 rough,detail_rough,rough
@@ -122,25 +125,25 @@ widens,detail_widens,widens
 90,number_90,ninety
 100,number_100,one hundred
 110,number_110,one hundred and ten
-120,number_120,one hundred and twenty
-130,number_130,one hundred and thirty
-140,number_140,one hundred and fourty
-150,number_150,one hundred and fifty
-160,number_160,one hundred and sixty
-170,number_170,one hundred and seventy
-180,number_180,one hundred and eighty
-190,number_190,one hundred and ninety
+120,number_120,one hundred and twenty|one twenty
+130,number_130,one hundred and thirty|one thirty
+140,number_140,one hundred and fourty|one fourty
+150,number_150,one hundred and fifty|one fifty
+160,number_160,one hundred and sixty|one sixty
+170,number_170,one hundred and seventy|one seventy
+180,number_180,one hundred and eighty|one eighty
+190,number_190,one hundred and ninety|one ninety
 200,number_200,two hundred
 210,number_210,two hundred and ten
-220,number_220,two hundred and twenty
-230,number_230,two hundred and thirty
-240,number_240,two hundred and fourty
-250,number_250,two hundred and fifty
-260,number_260,two hundred and sixty
-270,number_270,two hundred and seventy
-280,number_280,two hundred and eighty
-290,number_290,two hundred and ninety
+220,number_220,two hundred and twenty|two twenty
+230,number_230,two hundred and thirty|two thrity
+240,number_240,two hundred and fourty|two fourty
+250,number_250,two hundred and fifty|two fifty
+260,number_260,two hundred and sixty|two sixty
+270,number_270,two hundred and seventy|two seventy
+280,number_280,two hundred and eighty|two eighty
+290,number_290,two hundred and ninety|two ninety
 300,number_300,three hundred
-350,number_350,three hundred and fifty
+350,number_350,three hundred and fifty|three fifty
 400,number_400,four hundred
-450,number_450,four hundred and fifty
+450,number_450,four hundred and fifty|four fifty

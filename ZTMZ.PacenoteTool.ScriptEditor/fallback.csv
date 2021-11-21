@@ -3,6 +3,8 @@ detail_around_bales,detail_bales
 detail_big_crest,detail_crest
 detail_big_cut,detail_cut
 detail_big_jump,detail_jump
+detail_ditches_inside,detail_dont_cut
+detail_ditches_outside,detail_keep_in
 detail_jump_maybe,detail_jump
 detail_long_crest,detail_crest
 detail_loose_gravel,detail_gravel
@@ -11,6 +13,7 @@ detail_over_bumps,detail_bumps
 detail_over_crest,detail_crest
 detail_over_dip,detail_dip
 detail_over_jump,detail_jump
+detail_over_small_crest,detaul_over_crest
 detail_pass_junction,detail_junction
 detail_small_crest,detail_crest
 detail_small_cut,detail_cut

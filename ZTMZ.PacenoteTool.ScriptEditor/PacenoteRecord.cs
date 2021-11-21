@@ -68,7 +68,9 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
     {
         public float? Distance { set; get; }
         public List<Pacenote> Pacenotes { set; get; } = new List<Pacenote>();
-        
+
+        public string RawText { set; get; }
+
         public string Comment { set; get; }
 
         public static PacenoteRecord GetFromLine(string line)
@@ -77,6 +79,9 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             var commentParseResult = PacenoteRecord.ParseComment(line);
             var realContent = commentParseResult[0];
             var comment = commentParseResult[1];
+            var rawTextParseResult = PacenoteRecord.ParseRawText(realContent);
+            realContent = rawTextParseResult[0];
+            var rawText = rawTextParseResult[1];
             var parts = realContent.Split(',');
             if (parts.Length == 0)
             {
@@ -100,6 +105,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             }
 
             result.Comment = comment;
+            result.RawText = rawText;
 
             return result;
         }
@@ -109,7 +115,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             StringBuilder sb = new StringBuilder();
             if (this.Distance.HasValue)
             {
-                sb.Append(((int) this.Distance).ToString());
+                sb.Append(((int)this.Distance).ToString());
             }
 
             foreach (var pacenote in Pacenotes)
@@ -144,7 +150,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 pn.Modifiers = pn.Modifiers.Concat(from p in record.Modifier.Split(',') select p.Trim()).ToList();
             }
             ret.Pacenotes.Add(pn);
-            
+
             return ret;
         }
 
@@ -168,6 +174,90 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             {
                 realContent, comment
             };
+        }
+
+        public static string[] ParseRawText(string line)
+        {
+            var commentIndex = line.IndexOf('>');
+            string realContent;
+            string rawText;
+            if (commentIndex != -1)
+            {
+                realContent = line.Substring(0, commentIndex);
+                rawText = line.Substring(commentIndex+1);
+            }
+            else
+            {
+                realContent = line;
+                rawText = string.Empty;
+            }
+
+            return new string[]
+            {
+                realContent, rawText
+            };
+        }
+
+        public static string[] RawTextToAliases(string rawText)
+        {
+            var parts = rawText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            rawText = string.Join(' ', parts);
+            var len = parts.Length;
+            var cur = 0;
+            List<string> result = new();
+            while (cur < len)
+            {
+                int wordLen = Math.Min(len - cur, 4);
+                while (wordLen > 0)
+                {
+                    var key = string.Join(' ', parts.Skip(cur).SkipLast(len - cur - wordLen));
+                    if (ScriptResource.ALIAS_SPEECH_DICT[wordLen - 1].ContainsKey(key))
+                    {
+                        // jackpot
+                        result.Add(ScriptResource.ALIAS_SPEECH_DICT[wordLen - 1][key]);
+                        break;
+                    }
+                    wordLen--;
+                }
+                if (wordLen == 0)
+                {
+                    result.Add(parts[cur]); // not recognized.
+                    cur += 1;
+                } else
+                {
+                    cur += wordLen;
+                }
+            }
+            return result.ToArray();
+        }
+
+        public static string AliasesToPacenotes(string[] aliaes)
+        {
+            StringBuilder sb = new();
+            for (var i = 0; i < aliaes.Length; i++)
+            {
+                var a = aliaes[i];
+                if (ScriptResource.ALIAS_CONSTRUCTED.ContainsKey(a))
+                {
+                    var alias = ScriptResource.ALIAS_CONSTRUCTED[a];
+                    if (alias.Item1 == ScriptResource.TYPE_PACENOTE || i == 0)
+                    {
+                        sb.Append(",");
+                        sb.Append(a);
+                    }
+                    else if (alias.Item1 == ScriptResource.TYPE_MODIFIER)
+                    {
+                        sb.Append("/");
+                        sb.Append(a);
+                    }
+                } else
+                {
+                    // not recognized
+                    sb.Append("!");
+                    sb.Append(a);
+                }
+            }
+            return sb.ToString();
         }
     }
 }

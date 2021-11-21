@@ -16,8 +16,16 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         public static string TYPE_MODIFIER = "[路书修饰]";
         public static string TYPE_FLAG = "[标志]";
         public static string TYPE_ALIAS = "[代称]";
-        public static Dictionary<string, string> ALIAS { private set; get; } = loadAlias("./aliases.csv");
-        public static Dictionary<string, Tuple<string, string, string>> ALIAS_CONSTRUCTED { private set; get; } = new Dictionary<string, Tuple<string, string, string>>();
+        public static Dictionary<string, Tuple<string, string>> ALIAS { private set; get; } = loadAlias("./aliases.csv");
+        public static Dictionary<string, Tuple<string, string, string, string>> ALIAS_CONSTRUCTED { private set; get; } = new Dictionary<string, Tuple<string, string, string, string>>();
+
+        public static List<Dictionary<string, string>> ALIAS_SPEECH_DICT { private set; get; } = new List<Dictionary<string, string>>(4)
+        {
+            new Dictionary<string, string>(),
+            new Dictionary<string, string>(),
+            new Dictionary<string, string>(),
+            new Dictionary<string, string>(),
+        };
         public static Dictionary<string, string> PACENOTES { private set; get; } = loadCsv("./pacenotes.csv");
         public static Dictionary<string, string> MODIFIERS { private set; get; } = loadCsv("./modifiers.csv");
         public static Dictionary<string, string> FALLBACK { private set; get; } = loadFallback("./fallback.csv");
@@ -35,7 +43,16 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 var res = CheckAlias(alias.Key);
                 if (res.Item1)
                 {
-                    ALIAS_CONSTRUCTED[alias.Key] = new Tuple<string, string, string>(res.Item2, res.Item3, res.Item4);
+                    //legal alias
+                    ALIAS_CONSTRUCTED[alias.Key] = new Tuple<string, string, string, string>(res.Item2, res.Item3, res.Item4, alias.Value.Item2);
+
+                    var speeches = alias.Value.Item2.Split('|', StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var s in speeches)
+                    {
+                        var speech = s.Trim();
+                        var len = speech.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+                        ALIAS_SPEECH_DICT[len - 1][speech] = alias.Key;
+                    }
                 }
             }
         }
@@ -54,7 +71,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 return records.ToDictionary(r => r.Id, r => r.Description);
             }
         }
-        private static Dictionary<string, string> loadAlias(string path)
+        private static Dictionary<string, Tuple<string, string>> loadAlias(string path)
         {
             using (var reader = new StreamReader(path))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
@@ -63,9 +80,10 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 {
                     Alias = string.Empty,
                     Token = string.Empty,
+                    Speech = string.Empty,
                 };
                 var records = csv.GetRecords(def);
-                return records.ToDictionary(r => r.Alias, r => r.Token);
+                return records.ToDictionary(r => r.Alias, r => new Tuple<string, string>(r.Token, r.Speech));
             }
         }
         private static Dictionary<string, string> loadFallback(string path)
@@ -97,7 +115,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 return new Tuple<bool, string, string, string>(false, null, null, null);
             }
 
-            var token = ALIAS[alias];
+            var token = ALIAS[alias].Item1;
             if (PACENOTES.ContainsKey(token))
             {
                 return new Tuple<bool, string, string, string>(true, TYPE_PACENOTE, token, PACENOTES[token]);

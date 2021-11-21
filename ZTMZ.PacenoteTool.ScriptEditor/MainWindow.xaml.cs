@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,7 +34,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         private string _relatedFile;
         private bool _isSaved = true;
         private readonly string PACENOTE_FILTER = "路书文件(*.pacenote) | *.pacenote";
-        private readonly string TITLE = "ZTMZ Club 路书脚本编辑工具v1.2.0";
+        private readonly string TITLE = "ZTMZ Club 路书脚本编辑工具v1.2.2";
         private ToolTip _toolTip = new ToolTip();
         private int _intellisenseMode = 0;
 
@@ -77,6 +78,10 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
                     _completionWindow.Show();
                     _completionWindow.Closed += delegate { _completionWindow = null; };
+                }
+                else if (args.Text == "\n")
+                {
+                    this.AutoConvertTextToAliases();
                 }
             };
             this.txt_adjustFontSize.ValueChanged += this.Txt_adjustFontSize_OnValueChanged;
@@ -149,7 +154,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                     // find token near the mouse
                     // search forward
                     var end = offset;
-                    var keySeparator = new char[] {'\n', '\r', ',', '/', '#', ' ', '\t', '@'};
+                    var keySeparator = new char[] { '\n', '\r', ',', '/', '#', ' ', '\t', '@' };
                     while (end < this.avalonEditor.Text.Length &&
                            !keySeparator.Contains(this.avalonEditor.Text[end]))
                     {
@@ -191,7 +196,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 // Note that you can have more than one file.
-                string[] files = (string[]) e.Data.GetData(DataFormats.FileDrop);
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
                 // Assuming you have one file that you care about, pass it off to whatever
                 // handling code you have defined.
@@ -384,12 +389,97 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         public void AppendLine(string line)
         {
             this.avalonEditor.Text += line + System.Environment.NewLine;
+            this.AutoConvertTextToAliases();
             this.avalonEditor.ScrollToEnd();
         }
 
-        public void AutoConvertTextToAliases()
+        public void AutoConvertTextToAliases(bool allLines = false)
         {
-            //this.avalonEditor.Text;
+            //get last line
+            BackgroundWorker bgw = new BackgroundWorker();
+            var text = this.avalonEditor.Text;
+            bgw.DoWork += (o, a) =>
+             {
+                 var parts = text.Split(System.Environment.NewLine);
+                 for (var i = parts.Length - 2; i >= 0; i--)
+                 {
+                     if (parts[i].Contains('>'))
+                     {
+                         // convert
+                         var rawParts = PacenoteRecord.ParseRawText(parts[i]);
+                         var pacenotes = PacenoteRecord.AliasesToPacenotes(PacenoteRecord.RawTextToAliases(rawParts[1]));
+                         this.Dispatcher.Invoke(() =>
+                         {
+                             var newParts = this.avalonEditor.Text.Split(System.Environment.NewLine);
+                             newParts[i] = rawParts[0] + string.Join("", pacenotes);
+                             this.avalonEditor.Text = string.Join(System.Environment.NewLine, newParts);
+                             this.avalonEditor.CaretOffset = this.avalonEditor.Text.Length;
+                         });
+                         if (!allLines)
+                         {
+                             break;
+                         }
+                     }
+                 }
+             };
+            bgw.RunWorkerAsync();
+        }
+
+        private void btn_share_Click(object sender, RoutedEventArgs e)
+        {
+            // save 
+            var parseRes = this.tryParsePacenote();
+            this.Btn_save_OnClick(null, null);
+
+            if (parseRes == null)
+            {
+                MessageBox.Show("路书中存在语法错误，无法上传", "语法错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(parseRes.Author))
+            {
+                MessageBox.Show("路书中没有指定路书作者，请使用标记 @author 添加作者信息之后再上传", "作者未指定", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            BackgroundWorker bgw = new();
+            bgw.DoWork += (e, a) =>
+            {
+                HttpClient httpClient = new HttpClient();
+                MultipartFormDataContent form = new MultipartFormDataContent();
+
+                var file_bytes = new FileStream(this._relatedFile, FileMode.Open);
+
+                //form.Add(new StringContent(username), "username");
+                form.Add(new StreamContent(file_bytes), "file", System.Web.HttpUtility.UrlEncode(string.Format("{0}-----{1}", parseRes.Author, Path.GetFileName(this._relatedFile))));
+                var request = new HttpRequestMessage(HttpMethod.Post, "http://strawhat.asia:8000/api/pacenotetool/uploadPacenote");
+                request.Content = form;
+                HttpResponseMessage response = httpClient.Send(request);
+
+                response.EnsureSuccessStatusCode();
+                httpClient.Dispose();
+                string sd = response.Content.ReadAsStringAsync().Result;
+                this.Dispatcher.Invoke(() =>
+                {
+                    this.tb_status.Text = string.Format("脚本上传结果： {0}", sd);
+                });
+            };
+            bgw.RunWorkerAsync();
+        }
+
+        private void btn_convert_Click(object sender, RoutedEventArgs e)
+        {
+            this.AutoConvertTextToAliases(true);
+        }
+
+        private void btn_openFolder_Click(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(this._relatedFile))
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
+                    string.Format("/select,\"{0}\"", System.IO.Path.GetFullPath(this._relatedFile))));
+            }
         }
     }
 }

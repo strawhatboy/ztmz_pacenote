@@ -18,6 +18,8 @@ detail_crest,有坡
 detail_cut,切弯
 detail_deceptive,欺骗性的
 detail_deepruts,到达终点
+detail_ditches_inside,内有深沟
+detail_ditches_outside,外侧深沟
 detail_dip,低洼
 detail_dont_cut,不要切弯
 detail_downhill,下坡
@@ -55,6 +57,7 @@ detail_over_bumps,颠簸弯
 detail_over_crest,过坡
 detail_over_dip,过坑
 detail_over_jump,过坡跳
+detail_over_small_crest,过小坡
 detail_pass_junction,通过路口
 detail_right_entry_chicane,右进弯/路障靠右
 detail_rocks_inside,内侧岩石

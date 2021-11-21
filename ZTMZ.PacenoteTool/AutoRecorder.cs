@@ -135,9 +135,15 @@ namespace ZTMZ.PacenoteTool
 
         private void CaptureRecordingStopped(object? sender, StoppedEventArgs e)
         {
-            _writer.Dispose();
-            _writer = null;
-            _capture.Dispose();
+            if (_writer != null)
+            {
+                _writer.Dispose();
+                _writer = null;
+            }
+            if (_capture != null)
+            {
+                _capture.Dispose();
+            }
         }
 
         public void InitRecognizer()
@@ -145,7 +151,7 @@ namespace ZTMZ.PacenoteTool
             recognizer.Start();
             recognizer.Recognized += s =>
             {
-                var parts = s.Split('>');
+                var parts = s.Split('>', StringSplitOptions.RemoveEmptyEntries);
                 if (parts.Length == 2)
                 {
                     var dis = int.Parse(parts.First());
@@ -195,7 +201,7 @@ namespace ZTMZ.PacenoteTool
                     }
                 }
                 this.IsRecognizing = false;
-                Thread.Sleep(10000);
+                //Thread.Sleep(10000);
                 recognizer.Stop();
             };
             bgw.RunWorkerAsync();
