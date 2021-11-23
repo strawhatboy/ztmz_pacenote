@@ -23,13 +23,16 @@ namespace ZTMZ.PacenoteTool
 
         public int Distance { set; get; }
         public Queue<Tuple<int, string>> Pieces { get; } = new Queue<Tuple<int, string>>();
+
+        public Queue<Tuple<byte[], int>> MissedBytes { get; } = new Queue<Tuple<byte[], int>>(Config.Instance.AutoScript_SamplesCountBeforeClip);
         public Queue<Tuple<int, string>> PreprocessPieces { get; } = new Queue<Tuple<int, string>>();
 
         public event Action<Tuple<int, string>> PieceRecored;
         public event Action<Tuple<int, string>> PieceRecognized;
         public event Action Initialized;
 
-        private object preprocessed_lock = new object();
+        private object lock_preprocessed = new object();
+        private object lock_missedBytes = new object();
 
         private HackedWasapiLoopbackCapture _capture = new HackedWasapiLoopbackCapture();
 
@@ -86,7 +89,7 @@ namespace ZTMZ.PacenoteTool
                 var fileName = "tmp/" + Path.GetFileName(newFile) + ".wav";
                 StereoToMono(newFile, fileName);
                 File.Delete(newFile);
-                lock(preprocessed_lock)
+                lock(lock_preprocessed)
                 {
                     this.PreprocessPieces.Enqueue(new Tuple<int, string>(obj.Item1, fileName));
                 }
@@ -128,6 +131,17 @@ namespace ZTMZ.PacenoteTool
 
             if (_writer != null)
                 _writer.Write(a.Buffer, 0, a.BytesRecorded);
+            else
+            {
+                lock (lock_missedBytes)
+                {
+                    if (MissedBytes.Count >= Config.Instance.AutoScript_SamplesCountBeforeClip)
+                    {
+                        MissedBytes.Dequeue();
+                        MissedBytes.Enqueue(new Tuple<byte[], int>(a.Buffer, a.BytesRecorded));
+                    }
+                }
+            }
         }
 
         private void CaptureRecordingStopped(object? sender, StoppedEventArgs e)
@@ -145,14 +159,17 @@ namespace ZTMZ.PacenoteTool
 
         public void InitRecognizer()
         {
-            recognizer.Start();
+            recognizer.Start(_capture.WaveFormat.SampleRate, Config.Instance.AutoCleanTempFiles);
             recognizer.Recognized += s =>
             {
-                var parts = s.Split('>', StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length == 2)
+                if (!string.IsNullOrEmpty(s))
                 {
-                    var dis = int.Parse(parts.First());
-                    this.PieceRecognized?.Invoke(new Tuple<int, string>(dis, s));
+                    var parts = s.Split('>', StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length == 2)
+                    {
+                        var dis = int.Parse(parts.First());
+                        this.PieceRecognized?.Invoke(new Tuple<int, string>(dis, s));
+                    }
                 }
             };
             BackgroundWorker bgw = new BackgroundWorker();
@@ -161,7 +178,7 @@ namespace ZTMZ.PacenoteTool
                 while (this.IsRecognizing)
                 {
                     Thread.Sleep(1000);
-                    lock (preprocessed_lock)
+                    lock (lock_preprocessed)
                     {
                         if (this.PreprocessPieces.Count > 0)
                         {
@@ -189,7 +206,7 @@ namespace ZTMZ.PacenoteTool
                 while (this.IsRecognizing)
                 {
                     Thread.Sleep(1000);
-                    lock (preprocessed_lock)
+                    lock (lock_preprocessed)
                     {
                         if (this.PreprocessPieces.Count == 0)
                         {
@@ -306,6 +323,15 @@ namespace ZTMZ.PacenoteTool
                     outputFilePath = Path.GetTempFileName();
                     _writer = new WaveFileWriter(outputFilePath, _capture.WaveFormat);
                     Pieces.Enqueue(new Tuple<int, string>(Distance, outputFilePath));
+                    lock (lock_missedBytes)
+                    {
+                        // write sound before the capture, to avoid mis recognition.
+                        while (MissedBytes.Count > 0)
+                        {
+                            var missedBytes = MissedBytes.Dequeue();
+                            _writer.Write(missedBytes.Item1, 0, missedBytes.Item2);
+                        }
+                    }
                 }
                 patience = Patience;
             } else

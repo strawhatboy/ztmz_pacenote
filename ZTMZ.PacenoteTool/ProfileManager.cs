@@ -64,7 +64,7 @@ namespace ZTMZ.PacenoteTool
         public int ScriptPacenoteCount { private set; get; }
 
 
-        public IList<AudioFile> AudioFiles { set; get; } = new List<AudioFile>();
+        public List<AudioFile> AudioFiles { set; get; } = new List<AudioFile>();
 
         //public IEnumerable<Mp3FileReader> Players { set; get; }
         //public IList<MediaPlayer> Players { set; get; } = new List<MediaPlayer>();
@@ -335,6 +335,13 @@ namespace ZTMZ.PacenoteTool
         {
             this._exampleAudio.Amplification = this.CurrentPlayAmplification;
             this.Player.PlaySound(this._exampleAudio);
+        }
+
+        public void ReIndex(float distance)
+        {
+            var res = this.AudioFiles.BinarySearch(new AudioFile() { Distance = (int)distance }, Comparer<AudioFile>.Create((a, b) => a.Distance.CompareTo(b.Distance)));
+            res = res > 0 ? res - 1 : ~res;
+            this.CurrentPlayIndex = res;
         }
     }
 }

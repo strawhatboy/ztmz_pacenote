@@ -16,6 +16,7 @@ if not os.path.exists("speech_model"):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--framerate', type=int, default=48000)
+parser.add_argument('--autoclean', action='store_true')
 # parser.add_argument('--distance', type=int, default=0)
 args = parser.parse_args()
 
@@ -64,4 +65,7 @@ while True:
             pass
     output = '{}>{}'.format(distance, json.loads(rec.FinalResult())["text"])
     print(output)
+    wf.close()
+    if args.autoclean:
+        os.remove(filepath)
     # sys.stdout.write(output + os.linesep)

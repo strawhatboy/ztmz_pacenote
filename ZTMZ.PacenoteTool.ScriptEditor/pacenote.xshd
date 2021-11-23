@@ -40,6 +40,7 @@
       <Word>,square_right</Word>
       <Word>,and</Word>
       <Word>,around_bales</Word>
+      <Word>,around_bridge</Word>
       <Word>,bad_camber</Word>
       <Word>,bales</Word>
       <Word>,big_crest</Word>
@@ -66,6 +67,7 @@
       <Word>,end_stage</Word>
       <Word>,extra_long</Word>
       <Word>,extraextra_long</Word>
+      <Word>,fence_outside</Word>
       <Word>,finish</Word>
       <Word>,ford</Word>
       <Word>,flat</Word>
@@ -80,6 +82,7 @@
       <Word>,keep_middle</Word>
       <Word>,keep_out</Word>
       <Word>,keep_right</Word>
+      <Word>,kinks</Word>
       <Word>,late</Word>
       <Word>,left_entry_chicane</Word>
       <Word>,logs_inside</Word>
@@ -178,6 +181,7 @@
       <Word>/5_right</Word>
       <Word>/6_left</Word>
       <Word>/6_right</Word>
+      <Word>/fence_outside</Word>
       <Word>/flat_left</Word>
       <Word>/flat_right</Word>
       <Word>/frozen</Word>
@@ -192,6 +196,7 @@
       <Word>/square_right</Word>
       <Word>/and</Word>
       <Word>/around_bales</Word>
+      <Word>/around_bridge</Word>
       <Word>/bad_camber</Word>
       <Word>/bales</Word>
       <Word>/big_crest</Word>
@@ -232,6 +237,7 @@
       <Word>/keep_middle</Word>
       <Word>/keep_out</Word>
       <Word>/keep_right</Word>
+      <Word>/kinks</Word>
       <Word>/late</Word>
       <Word>/left_entry_chicane</Word>
       <Word>/logs_inside</Word>
@@ -339,6 +345,7 @@
       <Word>,corner_square_right</Word>
       <Word>,detail_and</Word>
       <Word>,detail_around_bales</Word>
+      <Word>,detail_around_bridge</Word>
       <Word>,detail_bad_camber</Word>
       <Word>,detail_bales</Word>
       <Word>,detail_big_crest</Word>
@@ -365,6 +372,7 @@
       <Word>,detail_end_stage</Word>
       <Word>,detail_extraextra_long</Word>
       <Word>,detail_extra_long</Word>
+      <Word>,detail_fence_outside</Word>
       <Word>,detail_ford</Word>
       <Word>,detail_flat</Word>
       <Word>,detail_go_straight</Word>
@@ -378,6 +386,7 @@
       <Word>,detail_keep_middle</Word>
       <Word>,detail_keep_out</Word>
       <Word>,detail_keep_right</Word>
+      <Word>,detail_kinks</Word>
       <Word>,detail_late</Word>
       <Word>,detail_left_entry_chicane</Word>
       <Word>,detail_logs_inside</Word>
@@ -463,6 +472,7 @@
     <Keywords foreground="Purple">
       <Word>/detail_and</Word>
       <Word>/detail_around_bales</Word>
+      <Word>/detail_around_bridge</Word>
       <Word>/detail_bad_camber</Word>
       <Word>/detail_bales</Word>
       <Word>/detail_big_crest</Word>
@@ -489,6 +499,7 @@
       <Word>/detail_end_stage</Word>
       <Word>/detail_extraextra_long</Word>
       <Word>/detail_extra_long</Word>
+      <Word>/detail_fence_outside</Word>
       <Word>/detail_ford</Word>
       <Word>/detail_flat</Word>
       <Word>/detail_go_straight</Word>
@@ -502,6 +513,7 @@
       <Word>/detail_keep_middle</Word>
       <Word>/detail_keep_out</Word>
       <Word>/detail_keep_right</Word>
+      <Word>/detail_kinks</Word>
       <Word>/detail_late</Word>
       <Word>/detail_left_entry_chicane</Word>
       <Word>/detail_logs_inside</Word>

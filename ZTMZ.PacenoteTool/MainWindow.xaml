@@ -31,9 +31,17 @@
                          Click="Ck_record_OnChecked">
                 <RadioButton.ToolTip>
                     <TextBlock>
-                        模式切换必须在游戏状态处于Unknown时可以（不在游戏中），在录制模式下的游戏开始后可以按F1录制路书片段，按F4结束路书片段录制
+                        模式切换必须在游戏状态处于Unknown时可以（不在游戏中）
+                        <LineBreak />
+                        <Span Foreground="Red">纯语音模式:</Span>
+                        <LineBreak />
+                        在录制模式下的游戏开始后可以按F1录制路书片段，按F4结束路书片段录制
                         <LineBreak />
                         在游戏开始倒计时时也可以暂停游戏录制游戏开始语音，开始语音只能录制一段，并且在播放时会在倒计时开始时播放。在地图文件夹中会录制成“-2.wav”文件
+                        <LineBreak />
+                        <Span Foreground="Blue">自动脚本模式:</Span>
+                        <LineBreak />
+                        在该模式下请保持电脑的安静，没有QQ、迅雷、浏览器视频等可能发出声音对语音识别产生影响的软件正在运行
                     </TextBlock>
                 </RadioButton.ToolTip>
                 录制模式

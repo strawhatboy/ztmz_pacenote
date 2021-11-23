@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -14,12 +15,12 @@ namespace ZTMZ.PacenoteTool
 
         public event Action<string> Recognized;
 
-        public void Start(int framerate=48000)
+        public void Start(int framerate = 48000, bool autoclean = false)
         {
             this.PythonProcess = new Process();
             var startInfo = new ProcessStartInfo(
-                "Python38/python.exe",
-                string.Format("-i speech_recognizer.py --framerate={0}", framerate)
+                string.Format("{0}/python.exe", Config.Instance.PythonPath),
+                string.Format("-i speech_recognizer.py --framerate={0} {1}", framerate, autoclean ? "--autoclean" : "")
             );
             startInfo.UseShellExecute = false;
             startInfo.RedirectStandardInput = true;

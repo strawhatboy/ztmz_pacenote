@@ -25,6 +25,7 @@ square_left,corner_square_left,square left
 square_right,corner_square_right,square right
 and,detail_and,and
 around_bales,detail_around_bales,around bales
+around_bridge,detail_around_bridge,around bridge
 bad_camber,detail_bad_camber,bad camber
 bales,detail_bales,bales
 big_crest,detail_big_crest,big crest|big crests
@@ -41,7 +42,7 @@ continues,detail_continues,continues
 crest,detail_crest,crest|crests
 cut,detail_cut,cut
 deceptive,detail_deceptive,deceptive
-deepruts,detail_deepruts,deepruts
+deepruts,detail_deepruts,deep ruts
 ditches_inside,detail_ditches_inside,ditches inside
 ditches_outside,detail_ditches_outside,ditches outside
 dip,detail_dip,dip|dips
@@ -51,20 +52,22 @@ early,detail_early,early
 end_stage,detail_end_stage,end stage
 extraextra_long,detail_extraextra_long,extra extra long
 extra_long,detail_extra_long,very long|extra long
+fence_outside,detail_fence_outside,fence outside|fences outside
 finish,detail_deepruts,finish|over finish
 ford,detail_ford,ford
-flat,detail_flat,flat
+flat,detail_flat,flat|flat middle
 go_straight,detail_go_straight,go straight
 gravel,detail_gravel,gravel
 into,detail_into,into|to
 jump,detail_jump,jump|jumps
 jump_maybe,detail_jump_maybe,jump maybe|jumps maybe
-junction,detail_junction,junctioni
-keep_in,detail_keep_in,keep in|keep'in
+junction,detail_junction,junction
+keep_in,detail_keep_in,keep in
 keep_left,detail_keep_left,keep left
 keep_middle,detail_keep_middle,keep middle
-keep_out,detail_keep_out,keep out|keep'out
+keep_out,detail_keep_out,keep out
 keep_right,detail_keep_right,keep right
+kinks,detail_kinks,kinks
 late,detail_late,late
 left_entry_chicane,detail_left_entry_chicane,chicane left entry
 logs_inside,detail_logs_inside,logs inside
@@ -101,7 +104,7 @@ through_gate,detail_through_gate,through gate|pass gate
 tightens,detail_tightens,tightens
 tightens_to_1,detail_tightens_to_1,tightens one|tightens to one
 tightens_to_2,detail_tightens_to_2,tightens two|tightens to two
-tightens_to_3,detail_tightens_to_3,tightens three|thightens to three
+tightens_to_3,detail_tightens_to_3,tightens three|tightens to three
 tightens_to_4,detail_tightens_to_4,tightens four|tightens to four
 tightens_to_5,detail_tightens_to_5,tightens five|tightens to five
 tightens_to_acute,detail_tightens_to_acute,tightens acute|tightens hairpin
@@ -117,7 +120,7 @@ water_splash,detail_water_splash,water splash
 widens,detail_widens,widens
 20,number_20,twenty
 30,number_30,thirty
-40,number_40,fourty
+40,number_40,forty
 50,number_50,fifty
 60,number_60,sixty
 70,number_70,seventy
@@ -127,7 +130,7 @@ widens,detail_widens,widens
 110,number_110,one hundred and ten
 120,number_120,one hundred and twenty|one twenty
 130,number_130,one hundred and thirty|one thirty
-140,number_140,one hundred and fourty|one fourty
+140,number_140,one hundred and forty|one forty
 150,number_150,one hundred and fifty|one fifty
 160,number_160,one hundred and sixty|one sixty
 170,number_170,one hundred and seventy|one seventy
@@ -136,8 +139,8 @@ widens,detail_widens,widens
 200,number_200,two hundred
 210,number_210,two hundred and ten
 220,number_220,two hundred and twenty|two twenty
-230,number_230,two hundred and thirty|two thrity
-240,number_240,two hundred and fourty|two fourty
+230,number_230,two hundred and thirty|two thirty
+240,number_240,two hundred and forty|two forty
 250,number_250,two hundred and fifty|two fifty
 260,number_260,two hundred and sixty|two sixty
 270,number_270,two hundred and seventy|two seventy

@@ -1,6 +1,7 @@
 Id,Description
 detail_and,紧接
 detail_around_bales,绕过草垛
+detail_around_bridge,绕过桥
 detail_bad_camber,路面外倾
 detail_bales,草垛
 detail_big_crest,高坡
@@ -27,6 +28,7 @@ detail_early,提早入弯
 detail_end_stage,结束赛道
 detail_extraextra_long,超级长
 detail_extra_long,特别长
+detail_fence_outside,外侧篱笆
 detail_ford,过水
 detail_flat,全油
 detail_go_straight,直走
@@ -40,6 +42,7 @@ detail_keep_left,保持左行/靠左
 detail_keep_middle,保持中线
 detail_keep_out,保持外线
 detail_keep_right,保持右行/靠右
+detail_kinks,弯曲直道
 detail_late,延迟入弯
 detail_left_entry_chicane,左进弯/路障靠左
 detail_logs_inside,内侧原木

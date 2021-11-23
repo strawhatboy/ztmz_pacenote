@@ -30,8 +30,9 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
     {
         private bool _isCopyNonAudioFiles = true;
         private int _adjustValue = 0;
-        private bool _isCutHeadAndTail = true;
+        private bool _isCutHeadAndTail = false;
         private double _cutRatio = 0.2;
+        private int _currentPlayAmplification = 0;
 
         public MainWindow()
         {
@@ -108,6 +109,10 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
                             if (this._isCutHeadAndTail)
                             {
                                 wavFile.CutHeadAndTail(this._cutRatio);
+                            }
+                            if (this._currentPlayAmplification != 0)
+                            {
+                                wavFile.Amplification = this._currentPlayAmplification;
                             }
 
 
@@ -302,6 +307,16 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
             this._cutRatio = this.sl_headAndTail.Value;
             if (this.chk_headAndTail != null) 
                 this.chk_headAndTail.Content = $"{(this._cutRatio * 100).ToString("0")}%";
+        }
+
+        private void sl_volume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            var value = (int)e.NewValue;
+            this._currentPlayAmplification = value;
+            if (this.tb_volume != null)
+            {
+                this.tb_volume.Text = value > 0 ? $"+{value}" : $"{value}";
+            }
         }
     }
 }

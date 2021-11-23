@@ -481,5 +481,11 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                     string.Format("/select,\"{0}\"", System.IO.Path.GetFullPath(this._relatedFile))));
             }
         }
+
+        private void btn_viewShares_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
+                "ftp://anonymous@strawhat.asia"));
+        }
     }
 }

@@ -27,6 +27,14 @@ namespace ZTMZ.PacenoteTool.Base
 
         public int PlaybackDeviceDesiredLatency { set; get; } = 175;
 
+        public bool AutoCleanTempFiles { set; get; } = true;
+
+        public int AutoScript_SamplesCountBeforeClip { set; get; } = 10;
+
+        public string PythonPath { set; get; } = "Python38";
+
+        public string SpeechRecogizerModelPath { set; get; } = "speech_model";
+
         public void Save()
         {
             File.WriteAllText("config.json", JsonConvert.SerializeObject(this, Formatting.Indented));

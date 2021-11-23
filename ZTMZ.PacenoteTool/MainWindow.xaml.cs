@@ -41,6 +41,9 @@ namespace ZTMZ.PacenoteTool
         private bool _isRecordingInProgress = false;
         private bool _isPureAudioRecording = true;
         private ScriptEditor.MainWindow _scriptWindow;
+        private string _title = "ZTMZ Club 路书工具 v2.4";
+        private string _devTitle = "ZTMZ Club 路书工具开发版 v2.4";
+
 
         private RecordingConfig _recordingConfig = new RecordingConfig()
         {
@@ -65,6 +68,7 @@ namespace ZTMZ.PacenoteTool
             this._udpReceiver.onGameStateChanged += this.gamestateChangedHandler;
             this.initializeComboBoxes();
             this.checkPrerequisite();
+            this.checkIfDevVersion();
             this.initializeGameOverlay();
         }
 
@@ -135,6 +139,7 @@ namespace ZTMZ.PacenoteTool
                 var worker = new BackgroundWorker();
                 worker.DoWork += (sender, e) =>
                 {
+                    
                     // play in threads.
                     // play sound (maybe state not changed and audio files not loaded.)
                     if (this._profileManager.CurrentAudioFile != null)
@@ -377,6 +382,20 @@ namespace ZTMZ.PacenoteTool
             }
         }
 
+        private void checkIfDevVersion()
+        {
+            if (System.IO.Directory.Exists(Config.Instance.PythonPath) &&
+                System.IO.Directory.Exists(Config.Instance.SpeechRecogizerModelPath))
+            {
+                // dev mode
+                this.Title = _devTitle;
+                this.cb_record_mode.SelectedIndex = 1;  // auto script mode
+            } else
+            {
+                this.Title = _title;
+            }
+        }
+
         private void initializeGameOverlay()
         {
             this._gameOverlayManager.StartLoop();
@@ -559,7 +578,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void Btn_startAudioCompressor_OnClick(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.AudioBatchSystem.Diagnostics.Processor.exe"));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.AudioBatchProcessor.exe"));
         }
 
         private void Sl_scriptTiming_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
