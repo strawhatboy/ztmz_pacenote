@@ -48,7 +48,7 @@ namespace ZTMZ.PacenoteTool
         private WaveFileWriter _writer = null;
 
 
-        int patience = 5;
+        int patience = Config.Instance.AutoScript_RecognizePatience;
         bool isTalking = false;
         string outputFilePath = Path.GetTempFileName();
         public void Initialize()
@@ -89,7 +89,7 @@ namespace ZTMZ.PacenoteTool
                 var fileName = "tmp/" + Path.GetFileName(newFile) + ".wav";
                 StereoToMono(newFile, fileName);
                 File.Delete(newFile);
-                lock(lock_preprocessed)
+                lock (lock_preprocessed)
                 {
                     this.PreprocessPieces.Enqueue(new Tuple<int, string>(obj.Item1, fileName));
                 }
@@ -107,11 +107,12 @@ namespace ZTMZ.PacenoteTool
             try
             {
                 _capture.StartRecording();
-            } catch (COMException e)
+            }
+            catch (COMException e)
             {
                 _capture.Dispose();
                 _capture = new HackedWasapiLoopbackCapture();
-                _capture.WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(Config.Instance.LoopbackCaptureSampleRate, Config.Instance.LoopbackCaptureChannels); 
+                _capture.WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(Config.Instance.LoopbackCaptureSampleRate, Config.Instance.LoopbackCaptureChannels);
                 InitAggregator(_capture.WaveFormat.SampleRate);
                 _capture.DataAvailable += this.CaptureDataAvailable;
                 _capture.RecordingStopped += this.CaptureRecordingStopped;
@@ -129,11 +130,11 @@ namespace ZTMZ.PacenoteTool
 
             AddToSampleAggregator(a.Buffer, a.BytesRecorded, isFloatingPointAudio);
 
-            if (_writer != null)
-                _writer.Write(a.Buffer, 0, a.BytesRecorded);
-            else
+            lock (lock_missedBytes)
             {
-                lock (lock_missedBytes)
+                if (_writer != null)
+                    _writer.Write(a.Buffer, 0, a.BytesRecorded);
+                else
                 {
                     if (MissedBytes.Count >= Config.Instance.AutoScript_SamplesCountBeforeClip)
                     {
@@ -159,7 +160,7 @@ namespace ZTMZ.PacenoteTool
 
         public void InitRecognizer()
         {
-            recognizer.Start(_capture.WaveFormat.SampleRate, Config.Instance.AutoCleanTempFiles);
+            recognizer.Start(_capture.WaveFormat.SampleRate, Config.Instance.AutoCleanTempFiles, Config.Instance.SpeechRecogizerModelPath);
             recognizer.Recognized += s =>
             {
                 if (!string.IsNullOrEmpty(s))
@@ -315,16 +316,16 @@ namespace ZTMZ.PacenoteTool
             {
                 Debug.Write(string.Format(".{0}", damped));
             }
-            if (damped > 50)
+            if (damped > Config.Instance.AutoScript_RecognizeThreshold)
             {
                 if (!isTalking)
                 {
-                    isTalking = true;
-                    outputFilePath = Path.GetTempFileName();
-                    _writer = new WaveFileWriter(outputFilePath, _capture.WaveFormat);
-                    Pieces.Enqueue(new Tuple<int, string>(Distance, outputFilePath));
                     lock (lock_missedBytes)
                     {
+                        isTalking = true;
+                        outputFilePath = Path.GetTempFileName();
+                        _writer = new WaveFileWriter(outputFilePath, _capture.WaveFormat);
+                        Pieces.Enqueue(new Tuple<int, string>(Distance, outputFilePath));
                         // write sound before the capture, to avoid mis recognition.
                         while (MissedBytes.Count > 0)
                         {
@@ -334,7 +335,8 @@ namespace ZTMZ.PacenoteTool
                     }
                 }
                 patience = Patience;
-            } else
+            }
+            else
             {
                 if (isTalking)
                 {

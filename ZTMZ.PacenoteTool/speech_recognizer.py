@@ -10,16 +10,17 @@ from pathlib import Path
 
 SetLogLevel(-1)
 
-if not os.path.exists("speech_model"):
-    print ("Please download the model from https://alphacephei.com/vosk/models and unpack as 'model' in the current folder.")
-    exit (1)
-
 parser = argparse.ArgumentParser()
 parser.add_argument('--framerate', type=int, default=48000)
+parser.add_argument('--modelpath', type=str, default='speech_model')
 parser.add_argument('--autoclean', action='store_true')
 # parser.add_argument('--distance', type=int, default=0)
 args = parser.parse_args()
 
+
+if not os.path.exists(args.modelpath):
+    print ("Please download the model from https://alphacephei.com/vosk/models and unpack as {} in the current folder.".format(args.modelpath))
+    exit (1)
 # load all speeches
 speeches = []
 with open('aliases.csv') as f:
@@ -31,7 +32,7 @@ with open('aliases.csv') as f:
         speech = speech.split('|')
         speeches.extend(speech)
 
-model = Model("speech_model")
+model = Model(args.modelpath)
 # rec = KaldiRecognizer(model, args.framerate, '["thirty", "six left", "long", "left five", "into", "right two", "tightens", "don\'t cut", "dont cut", "and", "one thirty", "[unk]"]')
 rec = KaldiRecognizer(model, args.framerate, json.dumps(speeches))
 

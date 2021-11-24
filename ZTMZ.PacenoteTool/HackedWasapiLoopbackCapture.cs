@@ -34,7 +34,8 @@ namespace ZTMZ.PacenoteTool
         public static MMDevice GetDefaultLoopbackCaptureDevice()
         {
             MMDeviceEnumerator devices = new MMDeviceEnumerator();
-            return devices.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+            // use default communications device, which is hacked by CoDriver-Splitter
+            return devices.GetDefaultAudioEndpoint(DataFlow.Render, Role.Communications);
         }
 
         /// <summary>

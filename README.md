@@ -13,7 +13,7 @@
 #### 简介
 ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，车队QQ群：207790761，路书录制交流群：697673264
 
-#### 白嫖指南
+#### 白嫖指南 (可参见视频 [版本通用使用教程](https://www.bilibili.com/video/BV1oq4y1u7ua/))
 1. 安装[.net 5.0运行时](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-desktop-5.0.9-windows-x64-installer)
 2. 通过[下载地址](https://gitee.com/ztmz/ztmz_pacenote/releases)下载最新版的名为 __"ZTMZ Club路书工具x.y.zip"__ 的压缩包并解压
 3. 执行其中的`ZTMZ.PacenoteTool.exe`或“双击运行.bat”
@@ -22,7 +22,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 6. 进入计时赛选择目前支持的地图(参见[【腾讯文档】尘埃拉力赛2.0地图路书录制进程](https://docs.qq.com/sheet/DVVljT3dMWkpYSWdH))
 7. 开始体验
 
-#### 如何和simhub一起使用
+#### 如何和simhub一起使用 (可参见视频 [版本通用使用教程](https://www.bilibili.com/video/BV1oq4y1u7ua/))
 1. 在本工具的文件夹里找到`config.json`文件，把其中的`UDPListenPort`项的值从20777修改为20778，然后关闭本工具
 2. 打开`simhub`，选择DR2游戏并点击右侧的`游戏设置`
 3. 在`UDP Forwarding`(端口转发)那里前面的勾勾选上，并添加一条转发到`127.0.0.1`的`20778`端口的设置（如果已经存在，就只需要勾选上前面的勾即可）
@@ -34,6 +34,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 * 路书录制进度：[【腾讯文档】尘埃拉力赛2.0地图路书录制进程](https://docs.qq.com/sheet/DVVljT3dMWkpYSWdH)
 * 路书标记对照表：[【腾讯文档】路书对照表](https://docs.qq.com/sheet/DVVlVZFdCWldkdXBi)
 * 视频
+    - [版本通用使用教程](https://www.bilibili.com/video/BV1oq4y1u7ua/) (置顶评论有进度条)
     - [\[2021-08-29 直播录像\]\[尘埃拉力赛2.0\] 录制路书阿根廷第一个图Las Juntas并拆分](https://www.bilibili.com/video/BV1yQ4y1178R/) (置顶评论有进度条)
     - [2.x版本演示视频 by bigboxx](https://www.bilibili.com/video/BV1jv411J7aL)
     - [2.x版本录制和播放使用教学（脚本路书） by 草帽不是猫](https://www.bilibili.com/video/BV1a64y1i7vs)
@@ -60,6 +61,8 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 * [PromptDialog](https://github.com/manuelcanepa/wpf-prompt-dialog)
 * [AvalonEdit](http://avalonedit.net/)
 * [WindowsAPICodePack-Shell](https://github.com/aybe/Windows-API-Code-Pack-1.1)
+* [Vosk](https://alphacephei.com/vosk/)
+* [GameOverlay.Net](https://github.com/michel-pi/GameOverlay.Net)
 #### 本项目参考的项目
 * [CrewChiefV4](https://gitlab.com/mr_belowski/CrewChiefV4)
 * [dr2_logger](https://github.com/ErlerPhilipp/dr2_logger)
@@ -84,7 +87,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 #### 如何贡献脚本路书（方法1）
 1. 加入路书录制群
 2. 选定要录制的路书，并在[【腾讯文档】尘埃拉力赛2.0地图路书录制进程](https://docs.qq.com/sheet/DVVljT3dMWkpYSWdH)文档中对应的赛道标记好自己的名字，标记好录制状态（进行中）
-3. 录制完成后上传到群文件，并修改上述文档中对应的赛道录制状态为已完成
+3. 录制完成后上传到群文件，或在脚本路书工具中点击分享至ftp，并修改上述文档中对应的赛道录制状态为已完成
 
 #### 如何贡献脚本路书（方法2）
 1. Fork脚本路书项目：[dr2_pacenote_scripts](https://gitee.com/ztmz/dr2_pacenote_scripts)
@@ -101,9 +104,9 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 版本号 | 时间段 | 更新内容
 ------|-------|---------
 2.3.2 | 已发布 | 丰富紫藤语音包的替代方案<br />修复过低的播放设备缓冲延迟导致的部分设备播放卡顿的问题
-2.3.3 | 2021-12-01之后 | 增加部分新录制好的路书
-2.4   | 2022-01-14之后 | 使用`gameoverlay.net`库实现在游戏内右上角显示相关信息<br />1. 当前地图路书加载状态<br />2. 路书类型<br />3. 路书作者<br />4. 所使用的语音包(在脚本路书类型时)
-2.5   | 2022-01-14之后 | 增加路书工具和脚本工具通信协作<br />对游戏内语音进行语音识别成文字<br />再自动生成脚本路书到脚本工具中
+~~2.3.3~~2.4 | 2021-12-01之后 | 增加部分新录制好的路书<br />增加路书工具和脚本工具通信协作<br />对游戏内语音进行语音识别成文字<br />再自动生成脚本路书到脚本工具中
+~~2.4~~2.5   | 2022-01-14之后 | 使用`gameoverlay.net`库实现在游戏内右上角显示相关信息<br />1. 当前地图路书加载状态<br />2. 路书类型<br />3. 路书作者<br />4. 所使用的语音包(在脚本路书类型时)
+~~2.5~~   | ~~2022-01-14之后~~ | ~~增加路书工具和脚本工具通信协作<br />对游戏内语音进行语音识别成文字<br />再自动生成脚本路书到脚本工具中~~
 2.6   | 2022-01-14之后 | 增加语音包制作工具
 
 #### 特别鸣谢

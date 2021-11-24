@@ -393,6 +393,8 @@ namespace ZTMZ.PacenoteTool
             } else
             {
                 this.Title = _title;
+                // disable auto script mode
+                this.cb_record_mode.Items.RemoveAt(this.cb_record_mode.Items.Count - 1);
             }
         }
 

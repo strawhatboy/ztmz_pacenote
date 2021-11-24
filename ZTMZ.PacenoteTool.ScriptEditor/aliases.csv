@@ -97,16 +97,16 @@ small_crest,detail_small_crest,small crest|small crests
 small_cut,detail_small_cut,small cut
 snow,detail_snow,snow
 start_stage,detail_start_stage,start stage
-sudden,detail_sudden,sudden
+sudden,detail_sudden,sudden|immediate
 tarmac,detail_tarmac,tarmac
 then,detail_then,then
 through_gate,detail_through_gate,through gate|pass gate
 tightens,detail_tightens,tightens
-tightens_to_1,detail_tightens_to_1,tightens one|tightens to one
-tightens_to_2,detail_tightens_to_2,tightens two|tightens to two
-tightens_to_3,detail_tightens_to_3,tightens three|tightens to three
-tightens_to_4,detail_tightens_to_4,tightens four|tightens to four
-tightens_to_5,detail_tightens_to_5,tightens five|tightens to five
+tightens_to_1,detail_tightens_to_1,tightens one
+tightens_to_2,detail_tightens_to_2,tightens two
+tightens_to_3,detail_tightens_to_3,tightens three
+tightens_to_4,detail_tightens_to_4,tightens four
+tightens_to_5,detail_tightens_to_5,tightens five
 tightens_to_acute,detail_tightens_to_acute,tightens acute|tightens hairpin
 tree_inside,detail_tree_inside,tree inside|trees inside
 tree_outside,detail_tree_outside,tree outside|trees outside

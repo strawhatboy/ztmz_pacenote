@@ -5,9 +5,9 @@
         <TargetFramework>net5.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
         <PackageVersion>1.2.0</PackageVersion>
-        <AssemblyVersion>1.2.2.0</AssemblyVersion>
-        <FileVersion>1.2.2.0</FileVersion>
-        <Version>1.2.2</Version>
+        <AssemblyVersion>1.3.0.0</AssemblyVersion>
+        <FileVersion>1.3.2.0</FileVersion>
+        <Version>1.3</Version>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

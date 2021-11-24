@@ -6,6 +6,7 @@
 * 脚本路书编辑工具现在可以直接上传分享路书脚本，也可以查看所有人分享的路书脚本
 * 增加了一些新的标记：around_bridge, kinks, fence_outside, over_small_crest, ditches_inside, ditches_outside
 * 配置文件中增加了一些可配置项
+* 批量语音处理工具增加了调整音量的选项
 
 v2.3.2
 ======

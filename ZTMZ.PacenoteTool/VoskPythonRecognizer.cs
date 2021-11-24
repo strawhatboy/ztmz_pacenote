@@ -15,12 +15,12 @@ namespace ZTMZ.PacenoteTool
 
         public event Action<string> Recognized;
 
-        public void Start(int framerate = 48000, bool autoclean = false)
+        public void Start(int framerate = 48000, bool autoclean = false, string modelpath = "speech_model")
         {
             this.PythonProcess = new Process();
             var startInfo = new ProcessStartInfo(
                 string.Format("{0}/python.exe", Config.Instance.PythonPath),
-                string.Format("-i speech_recognizer.py --framerate={0} {1}", framerate, autoclean ? "--autoclean" : "")
+                string.Format("-i speech_recognizer.py --framerate={0} --modelpath={1} {2}", framerate, modelpath, autoclean ? "--autoclean" : "")
             );
             startInfo.UseShellExecute = false;
             startInfo.RedirectStandardInput = true;
