@@ -41,6 +41,15 @@
       <None Update="track_dict.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="XAudio2_7.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="XAudio2_8.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="XAudio2_9.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Update="双击启动.bat">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

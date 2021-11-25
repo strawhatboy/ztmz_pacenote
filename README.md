@@ -63,6 +63,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 * [WindowsAPICodePack-Shell](https://github.com/aybe/Windows-API-Code-Pack-1.1)
 * [Vosk](https://alphacephei.com/vosk/)
 * [GameOverlay.Net](https://github.com/michel-pi/GameOverlay.Net)
+* [CoDriver-Splitter](https://github.com/CookiePLMonster/CoDriver-Splitter)
 #### 本项目参考的项目
 * [CrewChiefV4](https://gitlab.com/mr_belowski/CrewChiefV4)
 * [dr2_logger](https://github.com/ErlerPhilipp/dr2_logger)

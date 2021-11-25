@@ -17,6 +17,8 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         public static string TYPE_FLAG = "[标志]";
         public static string TYPE_ALIAS = "[代称]";
         public static Dictionary<string, Tuple<string, string>> ALIAS { private set; get; } = loadAlias("./aliases.csv");
+
+        // type, token, description, speech
         public static Dictionary<string, Tuple<string, string, string, string>> ALIAS_CONSTRUCTED { private set; get; } = new Dictionary<string, Tuple<string, string, string, string>>();
 
         public static List<Dictionary<string, string>> ALIAS_SPEECH_DICT { private set; get; } = new List<Dictionary<string, string>>(4)

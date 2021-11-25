@@ -240,12 +240,12 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 if (ScriptResource.ALIAS_CONSTRUCTED.ContainsKey(a))
                 {
                     var alias = ScriptResource.ALIAS_CONSTRUCTED[a];
-                    if (alias.Item1 == ScriptResource.TYPE_PACENOTE || i == 0)
+                    if (alias.Item1 == ScriptResource.TYPE_PACENOTE && !ScriptResource.MODIFIERS.ContainsKey(alias.Item2) || i == 0)
                     {
                         sb.Append(",");
                         sb.Append(a);
                     }
-                    else if (alias.Item1 == ScriptResource.TYPE_MODIFIER)
+                    else
                     {
                         sb.Append("/");
                         sb.Append(a);

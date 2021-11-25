@@ -31,6 +31,25 @@ namespace ZTMZ.PacenoteTool
         public static long ADDR_SOUND_VOICE_CHAT_1 = 0x022ABE2A7D38;
         public static long ADDR_SOUND_VOICE_CHAT_2 = 0x022ABE370B60;
 
+        public static string DLL_X_AUDIO_2_7 = "XAudio2_7.dll";
+        public static string DLL_X_AUDIO_2_8 = "XAudio2_8.dll";
+        public static string DLL_X_AUDIO_2_9 = "XAudio2_9.dll";
+
+        public static void HackDLLs(string gamePath)
+        {
+            if (!File.Exists(Path.Join(gamePath, DLL_X_AUDIO_2_7)))
+                File.Copy(DLL_X_AUDIO_2_7, Path.Join(gamePath, DLL_X_AUDIO_2_7));
+            if (!File.Exists(Path.Join(gamePath, DLL_X_AUDIO_2_8)))
+                File.Copy(DLL_X_AUDIO_2_8, Path.Join(gamePath, DLL_X_AUDIO_2_8));
+            if (!File.Exists(Path.Join(gamePath, DLL_X_AUDIO_2_9)))
+                File.Copy(DLL_X_AUDIO_2_9, Path.Join(gamePath, DLL_X_AUDIO_2_9));
+        }
+        public static void UnhackDLLs(string gamePath)
+        {
+            File.Delete(Path.Join(gamePath, DLL_X_AUDIO_2_7));
+            File.Delete(Path.Join(gamePath, DLL_X_AUDIO_2_8));
+            File.Delete(Path.Join(gamePath, DLL_X_AUDIO_2_9));
+        }
     }
     public class ItineraryProperty
     {

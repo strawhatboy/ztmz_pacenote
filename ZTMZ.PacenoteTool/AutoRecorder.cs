@@ -29,7 +29,8 @@ namespace ZTMZ.PacenoteTool
 
         public event Action<Tuple<int, string>> PieceRecored;
         public event Action<Tuple<int, string>> PieceRecognized;
-        public event Action Initialized;
+        public event Action<string> Initialized;
+        public event Action Uninitialized;
 
         private object lock_preprocessed = new object();
         private object lock_missedBytes = new object();
@@ -71,7 +72,7 @@ namespace ZTMZ.PacenoteTool
             // 3. recognize
             IsRecognizing = true;
             this.InitRecognizer();
-            this.Initialized?.Invoke();
+            this.Initialized?.Invoke(HackedWasapiLoopbackCapture.GetDefaultLoopbackCaptureDevice().DeviceFriendlyName);
         }
 
         public void Uninitialize()
@@ -86,7 +87,7 @@ namespace ZTMZ.PacenoteTool
             bgw.DoWork += (e, args) =>
             {
                 var newFile = ConvertToPCM(obj.Item2);
-                var fileName = "tmp/" + Path.GetFileName(newFile) + ".wav";
+                var fileName = "tmp/" + obj.Item1.ToString() + Path.GetFileName(newFile) + ".wav";
                 StereoToMono(newFile, fileName);
                 File.Delete(newFile);
                 lock (lock_preprocessed)
@@ -217,7 +218,8 @@ namespace ZTMZ.PacenoteTool
                 }
                 this.IsRecognizing = false;
                 //Thread.Sleep(10000);
-                recognizer.Stop();
+                recognizer?.Stop();
+                this.Uninitialized?.Invoke();
             };
             bgw.RunWorkerAsync();
         }

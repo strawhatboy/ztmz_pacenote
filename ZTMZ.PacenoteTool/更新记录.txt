@@ -7,6 +7,7 @@
 * 增加了一些新的标记：around_bridge, kinks, fence_outside, over_small_crest, ditches_inside, ditches_outside
 * 配置文件中增加了一些可配置项
 * 批量语音处理工具增加了调整音量的选项
+* 修复了播放设备选择无效的bug
 
 v2.3.2
 ======

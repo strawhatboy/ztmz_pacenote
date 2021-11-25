@@ -17,9 +17,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewFolder1", "NewFolder1", 
 	ProjectSection(SolutionItems) = preProject
 		autoupdate.xml = autoupdate.xml
 		README.md = README.md
-		CoDriverSplitter\XAudio2_7.dll = CoDriverSplitter\XAudio2_7.dll
-		CoDriverSplitter\XAudio2_8.dll = CoDriverSplitter\XAudio2_8.dll
-		CoDriverSplitter\XAudio2_9.dll = CoDriverSplitter\XAudio2_9.dll
 	EndProjectSection
 EndProject
 Global

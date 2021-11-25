@@ -32,7 +32,10 @@ namespace ZTMZ.PacenoteTool.Base
         public int AutoScript_SamplesCountBeforeClip { set; get; } = 25;
 
         public int AutoScript_RecognizeThreshold { set; get; } = 5;
-        public int AutoScript_RecognizePatience { set; get; } = 15;
+        public int AutoScript_RecognizePatience { set; get; } = 10;
+        public bool AutoScript_HackGameWhenStart { set; get; } = false;
+
+        public string DirtGamePath { set; get; } = "";
 
         public string PythonPath { set; get; } = "Python38";
 

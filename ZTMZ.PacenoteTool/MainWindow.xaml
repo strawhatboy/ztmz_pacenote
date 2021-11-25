@@ -202,6 +202,20 @@
                     <CheckBox IsEnabled="False" Grid.Row="1" Grid.Column="1" Name="chb_isDynamicPlay" IsChecked="False" />
                     <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="当前地图脚本路书的作者">脚本路书作者：</TextBlock>
                     <TextBlock Grid.Row="2" Grid.Column="1" Name="tb_scriptAuthor" FontSize="16" Foreground="Crimson">???</TextBlock>
+                    <TextBlock Grid.Row="3" Grid.Column="0" ToolTip="自动脚本录制模式当前监听的设备">自动脚本录制监听：</TextBlock>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Name="tb_autoScriptListeningDevice" ToolTip=""></TextBlock>
+                    <Grid Grid.Row="3" Grid.Column="1" Name="g_autoScriptListeningDevice">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Row="0" >
+                            <Hyperlink Name="tb_soundSettings" RequestNavigate="tb_soundSettings_RequestNavigate" NavigateUri="http://shit.com" >
+                                声音设置
+                            </Hyperlink>
+                        </TextBlock>
+                    </Grid>
                 </Grid>
             </TabItem>
         </TabControl>

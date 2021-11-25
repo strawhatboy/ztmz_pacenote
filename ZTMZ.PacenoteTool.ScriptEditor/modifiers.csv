@@ -1,5 +1,4 @@
 Id,Description
-detail_and,紧接
 detail_around_bales,绕过草垛
 detail_around_bridge,绕过桥
 detail_bad_camber,路面外倾
@@ -10,8 +9,6 @@ detail_big_jump,超大飞跳
 detail_brake,刹车
 detail_bridge,桥
 detail_bumps,颠簸
-detail_care,小心
-detail_caution,注意
 detail_cobble,鹅卵石路面
 detail_concrete,水泥路
 detail_continues,持续
@@ -33,7 +30,6 @@ detail_ford,过水
 detail_flat,全油
 detail_go_straight,直走
 detail_gravel,砂石路
-detail_into,接
 detail_jump,飞跳
 detail_jump_maybe,可能弹跳(会影响操控）
 detail_junction,路口
@@ -72,9 +68,7 @@ detail_start_stage,开始赛道
 detail_small_crest,小坡
 detail_small_cut,小切弯
 detail_snow,积雪路面
-detail_sudden,马上
 detail_tarmac,柏油路
-detail_then,然后
 detail_through_gate,通过大门
 detail_tightens,变急
 detail_tightens_to_1,变急到1
@@ -87,7 +81,6 @@ detail_tree_inside,内侧树木
 detail_tree_outside,外侧树木
 detail_triple_caution,结冰路面
 detail_tunnel,隧道
-detail_turn,转
 detail_unseen,视野外的
 detail_uphill,上坡
 detail_water_splash,水洼

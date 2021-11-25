@@ -70,6 +70,7 @@ namespace ZTMZ.PacenoteTool
             this.checkPrerequisite();
             this.checkIfDevVersion();
             this.initializeGameOverlay();
+            this.initializeAutoRecorder();
         }
 
         private void registerHotKeys()
@@ -85,7 +86,7 @@ namespace ZTMZ.PacenoteTool
                     {
                         this._recordingConfig.DestFilePath =
                             string.Format("{0}/{1}.mp3", this._trackFolder,
-                                (int) this._udpReceiver.LastMessage.LapDistance);
+                                (int)this._udpReceiver.LastMessage.LapDistance);
                         this._recordingConfig.RecordingDate = DateTime.Now;
                         this._audioRecorder.Start(this._recordingConfig);
                         this._isRecordingInProgress = true;
@@ -139,7 +140,7 @@ namespace ZTMZ.PacenoteTool
                 var worker = new BackgroundWorker();
                 worker.DoWork += (sender, e) =>
                 {
-                    
+
                     // play in threads.
                     // play sound (maybe state not changed and audio files not loaded.)
                     if (this._profileManager.CurrentAudioFile != null)
@@ -390,7 +391,24 @@ namespace ZTMZ.PacenoteTool
                 // dev mode
                 this.Title = _devTitle;
                 this.cb_record_mode.SelectedIndex = 1;  // auto script mode
-            } else
+                if (Config.Instance.AutoScript_HackGameWhenStart)
+                {
+                    while (!System.IO.File.Exists(System.IO.Path.Join(Config.Instance.DirtGamePath, "dirtrally2.exe")))
+                    {
+                        var res = PromptDialog.Dialog.Prompt(
+                                    "当前为开发版本，需要定位游戏所在位置便于分离路书声音",
+                                    "尘埃拉力赛2.0游戏目录",
+                                    "");
+                        if (res != null)
+                        {
+                            Config.Instance.DirtGamePath = res.ToString();
+                        }
+                    }
+                    Config.Instance.Save();
+                    GameHacker.HackDLLs(Config.Instance.DirtGamePath);
+                }
+            }
+            else
             {
                 this.Title = _title;
                 // disable auto script mode
@@ -403,6 +421,42 @@ namespace ZTMZ.PacenoteTool
             this._gameOverlayManager.StartLoop();
         }
 
+        private void initializeAutoRecorder()
+        {
+
+            this._autoRecorder.Initialized += (deviceName) =>
+            {
+                this.Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show("自动脚本录制模式已启动！");
+                    this.g_autoScriptListeningDevice.Visibility = Visibility.Hidden;
+                    this.tb_autoScriptListeningDevice.Text = deviceName;
+                    this.tb_autoScriptListeningDevice.ToolTip = deviceName;
+                    this.tab_playMode.SelectedIndex = 1;
+                });
+            };
+            this._autoRecorder.PieceRecognized += t =>
+            {
+                this.Dispatcher.Invoke(() =>
+                {
+                    // MessageBox.Show("Recognized: " + t.Item2);
+                    this._scriptWindow?.AppendLine(t.Item2);
+                });
+            };
+            this._autoRecorder.Uninitialized += () =>
+            {
+                // enable
+                this.Dispatcher.Invoke(() =>
+                {
+                    this.g_autoScriptListeningDevice.Visibility = Visibility.Visible;
+                    this.ck_record.IsEnabled = true;
+                    this.ck_replay.IsEnabled = true;
+                    this.tb_autoScriptListeningDevice.Text = "";
+                    this.tb_autoScriptListeningDevice.ToolTip = null;
+                });
+            };
+        }
+
 
         private void Ck_record_OnChecked(object sender, RoutedEventArgs e)
         {
@@ -413,24 +467,27 @@ namespace ZTMZ.PacenoteTool
                     this._toolState = ToolState.Recording;
                     if (!this._isPureAudioRecording)
                     {
-                        this._autoRecorder.Initialized += () =>
-                        {
-                            this.Dispatcher.Invoke(() =>
-                            {
-                                MessageBox.Show("自动脚本录制模式已启动！");
-                            });
-                        };
-                        this._autoRecorder.PieceRecognized += t =>
-                        {
-                            this.Dispatcher.Invoke(() =>
-                            {
-                                // MessageBox.Show("Recognized: " + t.Item2);
-                                this._scriptWindow?.AppendLine(t.Item2);
-                            });
-                        };
                         BackgroundWorker bgw = new BackgroundWorker();
-                        bgw.DoWork += (o, args) => this._autoRecorder.Initialize();
+                        bgw.DoWork += (o, args) =>
+                        {
+                            try
+                            {
+                                this._autoRecorder.Initialize();
+                            }
+                            catch (Exception e)
+                            {
+                                this._autoRecorder.Uninitialize();
+                                this.Dispatcher.Invoke(() =>
+                                MessageBox.Show(string.Format("自动脚本录制模式启动 大失败！{0}{1}", System.Environment.NewLine, e.ToString()),
+                                    "大失败",
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Error));
+                            }
+                        };
                         bgw.RunWorkerAsync();
+                    } else
+                    {
+                        this.tab_playMode.SelectedIndex = 0;
                     }
                 }
             }
@@ -451,7 +508,13 @@ namespace ZTMZ.PacenoteTool
                     this._toolState = ToolState.Replaying;
                     this.tb_isRecording.Text = "不可用";
                     //this._autoRecorder.StopSoundCapture();
-                    this._autoRecorder.Uninitialize();
+                    if (!this._isPureAudioRecording)
+                    {
+                        //disable controls
+                        this.ck_record.IsEnabled = false;
+                        this.ck_replay.IsEnabled = false;
+                        this._autoRecorder.Uninitialize();
+                    }
                 }
             }
             else
@@ -486,8 +549,8 @@ namespace ZTMZ.PacenoteTool
         private void cb_recording_device_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this._recordingConfig.RecordingDevice = (from x in this._recordingDevices
-                where x.Name == this.cb_recording_device.SelectedItem.ToString()
-                select x.Id).First();
+                                                     where x.Name == this.cb_recording_device.SelectedItem.ToString()
+                                                     select x.Id).First();
         }
 
 
@@ -564,7 +627,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         {
             if (this._profileManager != null)
             {
-                var value = (int) e.NewValue;
+                var value = (int)e.NewValue;
                 this._profileManager.CurrentPlayAmplification = value;
                 if (this.tb_volume != null)
                 {
@@ -592,7 +655,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void S_playpointAdjust_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            var value = (int) this.s_playpointAdjust.Value;
+            var value = (int)this.s_playpointAdjust.Value;
             this._playpointAdjust = value;
             this.tb_playpointAdjust.Text = (value > 0 ? $"+{value}" : $"{value}") + "米";
         }
@@ -608,13 +671,18 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo {FileName = e.Uri.AbsoluteUri, UseShellExecute = true});
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = e.Uri.AbsoluteUri, UseShellExecute = true });
             e.Handled = true;
         }
 
         private void cb_record_mode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this._isPureAudioRecording = this.cb_record_mode.SelectedIndex == 0;
+        }
+
+        private void tb_soundSettings_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("rundll32.exe", "Shell32.dll, Control_RunDLL \"C:\\Windows\\System32\\mmsys.cpl"));
         }
     }
 }

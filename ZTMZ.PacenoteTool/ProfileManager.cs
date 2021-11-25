@@ -46,7 +46,8 @@ namespace ZTMZ.PacenoteTool
             set
             {
                 this.Player?.Dispose();
-                this.Player = new ZTMZAudioPlaybackEngine(this.CurrentPlayDeviceId,
+                this._currentPlayDeviceId = value;
+                this.Player = new ZTMZAudioPlaybackEngine(this._currentPlayDeviceId,
                     Config.Instance.UseSequentialMixerToHandleAudioConflict,
                     Config.Instance.PlaybackDeviceDesiredLatency);
             }
