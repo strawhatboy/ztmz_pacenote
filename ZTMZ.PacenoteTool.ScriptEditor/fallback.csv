@@ -11,6 +11,7 @@ detail_fence_outside,detail_keep_in
 corner_flat_left,corner_6_left
 corner_flat_right,corner_6_right
 detail_jump_maybe,detail_jump
+detail_grid,detail_gate
 detail_kinks,detail_flat
 detail_long_crest,detail_crest
 detail_loose_gravel,detail_gravel
@@ -19,11 +20,12 @@ detail_over_bumps,detail_bumps
 detail_over_crest,detail_crest
 detail_over_dip,detail_dip
 detail_over_jump,detail_jump
-detail_over_small_crest,detaul_over_crest
+detail_over_small_crest,detail_over_crest
 detail_pass_junction,detail_junction
 detail_slow,detail_brake
 detail_small_crest,detail_crest
 detail_small_cut,detail_cut
+detail_through_grid,detail_through_gate
 detail_unseen,detail_caution
 detail_water_splash,detail_ford
 number_20,number_30

@@ -58,6 +58,7 @@ ford,detail_ford,ford
 flat,detail_flat,flat|flat middle
 go_straight,detail_go_straight,go straight
 gravel,detail_gravel,gravel
+grid,detail_grid,grid
 into,detail_into,into|to
 jump,detail_jump,jump|jumps
 jump_maybe,detail_jump_maybe,jump maybe|jumps maybe
@@ -86,7 +87,7 @@ over_crest,detail_over_crest,over crest|over crests
 over_dip,detail_over_dip,over dip|over dips
 over_jump,detail_over_jump,over jump|over jumps
 over_small_crest,detail_over_small_crest,over small crest
-pass_junction,detail_pass_junction,pass junction|through junction
+pass_junction,detail_pass_junction,pass junction|through junction|over junction
 right_entry_chicane,detail_right_entry_chicane,chicane right entry
 rocks_inside,detail_rocks_inside,rocks inside|rock inside
 rocks_outside,detail_rocks_outside,rocks outside|rock outside
@@ -101,12 +102,18 @@ sudden,detail_sudden,sudden|immediate
 tarmac,detail_tarmac,tarmac
 then,detail_then,then
 through_gate,detail_through_gate,through gate|pass gate
+through_grid,detail_through_grid,through grid|pass grid
 tightens,detail_tightens,tightens
 tightens_to_1,detail_tightens_to_1,tightens one
 tightens_to_2,detail_tightens_to_2,tightens two
 tightens_to_3,detail_tightens_to_3,tightens three
 tightens_to_4,detail_tightens_to_4,tightens four
 tightens_to_5,detail_tightens_to_5,tightens five
+opens_to_2,detail_opens_to_2,fabulous
+opens_to_3,detail_opens_to_3,fabulous
+opens_to_4,detail_opens_to_4,fabulous
+opens_to_5,detail_opens_to_5,fabulous
+opens_to_6,detail_opens_to_6,fabulous
 tightens_to_acute,detail_tightens_to_acute,tightens acute|tightens hairpin
 tree_inside,detail_tree_inside,tree inside|trees inside
 tree_outside,detail_tree_outside,tree outside|trees outside
@@ -118,14 +125,14 @@ uphill,detail_uphill,up hill|uphill
 very_long,detail_longlong,very long
 water_splash,detail_water_splash,water splash
 widens,detail_widens,widens
-20,number_20,twenty
-30,number_30,thirty
-40,number_40,forty
-50,number_50,fifty
-60,number_60,sixty
-70,number_70,seventy
-80,number_80,eighty
-90,number_90,ninety
+20,number_20,twenty|over twenty
+30,number_30,thirty|over thirty
+40,number_40,forty|over forty
+50,number_50,fifty|over fifty
+60,number_60,sixty|over sixty
+70,number_70,seventy|over seventy
+80,number_80,eighty|over eighty
+90,number_90,ninety|over ninety
 100,number_100,one hundred
 110,number_110,one hundred and ten
 120,number_120,one hundred and twenty|one twenty

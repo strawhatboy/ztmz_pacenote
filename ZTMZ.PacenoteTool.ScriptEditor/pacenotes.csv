@@ -53,6 +53,7 @@ detail_ford,过水
 detail_flat,全油
 detail_go_straight,直走
 detail_gravel,砂石路
+detail_grid,网格板
 detail_into,接
 detail_jump,飞跳
 detail_jump_maybe,可能弹跳(会影响操控）
@@ -74,6 +75,11 @@ detail_loose_gravel,松散路面
 detail_maybe,可能
 detail_narrows,变窄
 detail_opens,变缓
+detail_opens_to_2,变缓到2
+detail_opens_to_3,变缓到3
+detail_opens_to_4,变缓到4
+detail_opens_to_5,变缓到5
+detail_opens_to_6,变缓到6
 detail_outtrack,切出赛道
 detail_over_bridge,过桥
 detail_over_bumps,颠簸弯
@@ -96,6 +102,7 @@ detail_sudden,马上
 detail_tarmac,柏油路
 detail_then,然后
 detail_through_gate,通过大门
+detail_through_grid,通过网格板
 detail_tightens,变急
 detail_tightens_to_1,变急到1
 detail_tightens_to_2,变急到2
