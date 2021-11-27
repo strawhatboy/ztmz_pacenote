@@ -5,11 +5,18 @@
         <TargetFramework>net5.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>QQ图片20210714233523.ico</ApplicationIcon>
-        <AssemblyVersion>2.4.1.0</AssemblyVersion>
+        <AssemblyVersion>2.4.2.0</AssemblyVersion>
         <PackageVersion>2.1.0</PackageVersion>
-        <Version>2.4.1</Version>
-        <FileVersion>2.4.1.0</FileVersion>
+        <Version>2.4.2</Version>
+        <FileVersion>2.4.2.0</FileVersion>
     </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="alias.png" />
+      <None Remove="flag.png" />
+      <None Remove="modifier.png" />
+      <None Remove="pacenote.png" />
+    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\OnlyR.Core\OnlyR.Core.csproj" />
@@ -26,6 +33,21 @@
       <PackageReference Include="NAudio.Extras" Version="1.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
       <PackageReference Include="PromptDialog" Version="1.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Resource Include="alias.png">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="flag.png">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="modifier.png">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="pacenote.png">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Resource>
     </ItemGroup>
 
     <ItemGroup>

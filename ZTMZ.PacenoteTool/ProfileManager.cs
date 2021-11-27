@@ -60,7 +60,7 @@ namespace ZTMZ.PacenoteTool
 
         // private WaveOutEvent _exampleWaveOut;
         private Random _random = new Random();
-        
+
         public int AudioPacenoteCount { private set; get; }
         public int ScriptPacenoteCount { private set; get; }
 
@@ -204,9 +204,9 @@ namespace ZTMZ.PacenoteTool
 
                 // get files
                 audioFiles = (from path in filePaths
-                    select
-                        new AudioFile()
-                        {
+                              select
+                                  new AudioFile()
+                                  {
                             //FileName = Path.GetFileName(path),
                             //FilePath = Path.GetFullPath(path),
                             //Extension = Path.GetExtension(path),
@@ -214,7 +214,7 @@ namespace ZTMZ.PacenoteTool
                             //Content = File.ReadAllBytes(path)
                             //AudioFileReader = new AudioFileReader(path)
                             Sound = new AutoResampledCachedSound(path)
-                        }).ToList();
+                                  }).ToList();
                 this.AudioPacenoteCount = audioFiles.Count;
             }
 
@@ -225,15 +225,15 @@ namespace ZTMZ.PacenoteTool
                 this.CurrentScriptReader = reader;
                 // filter out all empty pacenote records
                 var records = (from p in reader.PacenoteRecords
-                    where p.Distance.HasValue
-                    select p).ToList();
+                               where p.Distance.HasValue
+                               select p).ToList();
 
                 for (int i = 0; i < records.Count; i++)
                 {
                     var record = records[i];
-                    
+
                     // always create new since there's no overlapping issue.
-                    var f = new AudioFile() {Distance = (int) record.Distance};
+                    var f = new AudioFile() { Distance = (int)record.Distance };
 
                     var sound = new AutoResampledCachedSound();
                     foreach (var note in record.Pacenotes)
@@ -253,8 +253,8 @@ namespace ZTMZ.PacenoteTool
 
 
             var sortedAudioFiles = from audioFile in audioFiles
-                orderby audioFile.Distance ascending
-                select audioFile;
+                                   orderby audioFile.Distance ascending
+                                   select audioFile;
 
             this.AudioFiles = sortedAudioFiles.ToList();
 
@@ -272,8 +272,16 @@ namespace ZTMZ.PacenoteTool
 
             this.CurrentPlayIndex = 0;
         }
+        //private AutoResampledCachedSound getSoundByKeywordTryTmp(string keyword)
+        //{
+        //    var sound = this.getSoundByKeyword(keyword);
+        //    if (sound.IsEmpty)
+        //    {
+        //        return this.getSoundByKeyword("tmp_" + keyword);
+        //    }
+        //}
 
-        private AutoResampledCachedSound getSoundByKeyword(string keyword)
+        private AutoResampledCachedSound getSoundByKeyword(string keyword, bool isFinal = false)
         {
             if (ScriptResource.ALIAS_CONSTRUCTED.ContainsKey(keyword))
             {
@@ -311,11 +319,17 @@ namespace ZTMZ.PacenoteTool
                 var randIndex = this._random.Next(0, filePaths.Count() - 1);
                 return new AutoResampledCachedSound(filePaths[randIndex]);
             }
-            
+
             // not found, try fallback keyword
             if (ScriptResource.FALLBACK.ContainsKey(keyword))
             {
                 return getSoundByKeyword(ScriptResource.FALLBACK[keyword]);
+            }
+
+            if (!isFinal) 
+            {
+                // not found, try tmp alternative
+                return getSoundByKeyword("tmp_" + keyword, true);
             }
 
             return new AutoResampledCachedSound();

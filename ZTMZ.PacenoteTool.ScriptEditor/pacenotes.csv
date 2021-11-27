@@ -80,7 +80,10 @@ detail_opens_to_3,变缓到3
 detail_opens_to_4,变缓到4
 detail_opens_to_5,变缓到5
 detail_opens_to_6,变缓到6
+detail_opens_to_flat,变缓到全油
 detail_outtrack,切出赛道
+detail_over_big_crest,过大坡
+detail_over_big_jump,过大跳坡
 detail_over_bridge,过桥
 detail_over_bumps,颠簸弯
 detail_over_crest,过坡
@@ -92,6 +95,7 @@ detail_right_entry_chicane,右进弯/路障靠右
 detail_rocks_inside,内侧岩石
 detail_rocks_outside,外侧岩石
 detail_rough,路面粗糙
+detail_short,短
 detail_slippery,路面湿滑
 detail_slow,减速
 detail_start_stage,开始赛道
@@ -103,6 +107,8 @@ detail_tarmac,柏油路
 detail_then,然后
 detail_through_gate,通过大门
 detail_through_grid,通过网格板
+detail_through_narrow_gate,通过窄门
+detail_through_narrow_grid,通过窄网格板
 detail_tightens,变急
 detail_tightens_to_1,变急到1
 detail_tightens_to_2,变急到2

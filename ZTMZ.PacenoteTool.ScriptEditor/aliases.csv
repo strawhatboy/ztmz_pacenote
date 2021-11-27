@@ -81,6 +81,8 @@ maybe,detail_maybe,maybe
 narrows,detail_narrows,narrows|narrow
 opens,detail_opens,opens
 outtrack,detail_outtrack,out track
+over_big_crest,detail_over_big_crest,over big crest
+over_big_jump,detail_over_big_jump,over big jump
 over_bridge,detail_over_bridge,over bridge|pass bridge|across bridge|through bridge
 over_bumps,detail_over_bumps,over bumps|over bump
 over_crest,detail_over_crest,over crest|over crests
@@ -92,6 +94,7 @@ right_entry_chicane,detail_right_entry_chicane,chicane right entry
 rocks_inside,detail_rocks_inside,rocks inside|rock inside
 rocks_outside,detail_rocks_outside,rocks outside|rock outside
 rough,detail_rough,rough
+short,detail_short,short
 slippery,detail_slippery,slippery
 slow,detail_slow,slow
 small_crest,detail_small_crest,small crest|small crests
@@ -103,17 +106,20 @@ tarmac,detail_tarmac,tarmac
 then,detail_then,then
 through_gate,detail_through_gate,through gate|pass gate
 through_grid,detail_through_grid,through grid|pass grid
+through_narrow_gate,detail_through_narrow_gate,through narrow gate|pass narrow gate
+through_narrow_grid,detail_through_narrow_grid,through narrow grid|pass narrow grid
 tightens,detail_tightens,tightens
 tightens_to_1,detail_tightens_to_1,tightens one
 tightens_to_2,detail_tightens_to_2,tightens two
 tightens_to_3,detail_tightens_to_3,tightens three
 tightens_to_4,detail_tightens_to_4,tightens four
 tightens_to_5,detail_tightens_to_5,tightens five
-opens_to_2,detail_opens_to_2,fabulous
-opens_to_3,detail_opens_to_3,fabulous
-opens_to_4,detail_opens_to_4,fabulous
-opens_to_5,detail_opens_to_5,fabulous
-opens_to_6,detail_opens_to_6,fabulous
+opens_to_2,detail_opens_to_2,opens two
+opens_to_3,detail_opens_to_3,opens three
+opens_to_4,detail_opens_to_4,opens four
+opens_to_5,detail_opens_to_5,opens five
+opens_to_6,detail_opens_to_6,opens six
+opens_to_flat,detail_opens_to_flat,opens flat
 tightens_to_acute,detail_tightens_to_acute,tightens acute|tightens hairpin
 tree_inside,detail_tree_inside,tree inside|trees inside
 tree_outside,detail_tree_outside,tree outside|trees outside

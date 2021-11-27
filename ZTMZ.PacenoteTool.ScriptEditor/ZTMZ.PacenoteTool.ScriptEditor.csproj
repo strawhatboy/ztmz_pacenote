@@ -19,10 +19,32 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="alias.png" />
+      <None Remove="flag.png" />
+      <None Remove="modifier.png" />
+      <None Remove="pacenote.png" />
+    </ItemGroup>
+
+    <ItemGroup>
       <PackageReference Include="AvalonEdit" Version="6.1.2.30" />
       <PackageReference Include="CsvHelper" Version="27.1.1" />
       <PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Resource Include="alias.png">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="flag.png">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="modifier.png">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Resource>
+      <Resource Include="pacenote.png">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Resource>
     </ItemGroup>
 
     <ItemGroup>
@@ -44,17 +66,6 @@
       <None Update="flags.csv">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="alias.png" />
-      <Resource Include="alias.png" />
-      <None Remove="flag.png" />
-      <Resource Include="flag.png" />
-      <None Remove="modifier.png" />
-      <Resource Include="modifier.png" />
-      <None Remove="pacenote.png" />
-      <Resource Include="pacenote.png" />
     </ItemGroup>
 
 </Project>

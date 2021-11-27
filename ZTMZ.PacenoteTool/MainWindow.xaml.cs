@@ -41,8 +41,8 @@ namespace ZTMZ.PacenoteTool
         private bool _isRecordingInProgress = false;
         private bool _isPureAudioRecording = true;
         private ScriptEditor.MainWindow _scriptWindow;
-        private string _title = "ZTMZ Club 路书工具 v2.4.1";
-        private string _devTitle = "ZTMZ Club 路书工具开发版 v2.4.1";
+        private string _title = "ZTMZ Club 路书工具 v2.4.2";
+        private string _devTitle = "ZTMZ Club 路书工具开发版 v2.4.2";
 
 
         private RecordingConfig _recordingConfig = new RecordingConfig()

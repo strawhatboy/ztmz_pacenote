@@ -94,7 +94,16 @@
       <Word>,maybe</Word>
       <Word>,narrows</Word>
       <Word>,opens</Word>
+      <Word>,opens_to_1</Word>
+      <Word>,opens_to_2</Word>
+      <Word>,opens_to_3</Word>
+      <Word>,opens_to_4</Word>
+      <Word>,opens_to_5</Word>
+      <Word>,opens_to_6</Word>
+      <Word>,opens_to_flat</Word>
       <Word>,outtrack</Word>
+      <Word>,over_big_crest</Word>
+      <Word>,over_big_jump</Word>
       <Word>,over_bridge</Word>
       <Word>,over_bumps</Word>
       <Word>,over_crest</Word>
@@ -106,6 +115,7 @@
       <Word>,rocks_inside</Word>
       <Word>,rocks_outside</Word>
       <Word>,rough</Word>
+      <Word>,short</Word>
       <Word>,slippery</Word>
       <Word>,slow</Word>
       <Word>,small_crest</Word>
@@ -116,6 +126,9 @@
       <Word>,tarmac</Word>
       <Word>,then</Word>
       <Word>,through_gate</Word>
+      <Word>,through_grid</Word>
+      <Word>,through_narrow_gate</Word>
+      <Word>,through_narrow_grid</Word>
       <Word>,tightens</Word>
       <Word>,tightens_to_1</Word>
       <Word>,tightens_to_2</Word>
@@ -249,7 +262,16 @@
       <Word>/maybe</Word>
       <Word>/narrows</Word>
       <Word>/opens</Word>
+      <Word>/opens_to_1</Word>
+      <Word>/opens_to_2</Word>
+      <Word>/opens_to_3</Word>
+      <Word>/opens_to_4</Word>
+      <Word>/opens_to_5</Word>
+      <Word>/opens_to_6</Word>
+      <Word>/opens_to_flat</Word>
       <Word>/outtrack</Word>
+      <Word>/over_big_crest</Word>
+      <Word>/over_big_jump</Word>
       <Word>/over_bridge</Word>
       <Word>/over_bumps</Word>
       <Word>/over_crest</Word>
@@ -261,6 +283,7 @@
       <Word>/rocks_inside</Word>
       <Word>/rocks_outside</Word>
       <Word>/rough</Word>
+      <Word>/short</Word>
       <Word>/slippery</Word>
       <Word>/slow</Word>
       <Word>/small_crest</Word>
@@ -271,6 +294,9 @@
       <Word>/tarmac</Word>
       <Word>/then</Word>
       <Word>/through_gate</Word>
+      <Word>/through_grid</Word>
+      <Word>/through_narrow_gate</Word>
+      <Word>/through_narrow_grid</Word>
       <Word>/tightens</Word>
       <Word>/tightens_to_1</Word>
       <Word>/tightens_to_2</Word>
@@ -398,7 +424,16 @@
       <Word>,detail_maybe</Word>
       <Word>,detail_narrows</Word>
       <Word>,detail_opens</Word>
+      <Word>,detail_opens_to_1</Word>
+      <Word>,detail_opens_to_2</Word>
+      <Word>,detail_opens_to_3</Word>
+      <Word>,detail_opens_to_4</Word>
+      <Word>,detail_opens_to_5</Word>
+      <Word>,detail_opens_to_6</Word>
+      <Word>,detail_opens_to_flat</Word>
       <Word>,detail_outtrack</Word>
+      <Word>,detail_over_big_crest</Word>
+      <Word>,detail_over_big_jump</Word>
       <Word>,detail_over_bridge</Word>
       <Word>,detail_over_bumps</Word>
       <Word>,detail_over_crest</Word>
@@ -410,6 +445,7 @@
       <Word>,detail_rocks_inside</Word>
       <Word>,detail_rocks_outside</Word>
       <Word>,detail_rough</Word>
+      <Word>,detail_short</Word>
       <Word>,detail_slippery</Word>
       <Word>,detail_slow</Word>
       <Word>,detail_small_crest</Word>
@@ -420,6 +456,9 @@
       <Word>,detail_tarmac</Word>
       <Word>,detail_then</Word>
       <Word>,detail_through_gate</Word>
+      <Word>,detail_through_grid</Word>
+      <Word>,detail_through_narrow_gate</Word>
+      <Word>,detail_through_narrow_grid</Word>
       <Word>,detail_tightens</Word>
       <Word>,detail_tightens_to_1</Word>
       <Word>,detail_tightens_to_2</Word>
@@ -525,7 +564,16 @@
       <Word>/detail_maybe</Word>
       <Word>/detail_narrows</Word>
       <Word>/detail_opens</Word>
+      <Word>/detail_opens_to_1</Word>
+      <Word>/detail_opens_to_2</Word>
+      <Word>/detail_opens_to_3</Word>
+      <Word>/detail_opens_to_4</Word>
+      <Word>/detail_opens_to_5</Word>
+      <Word>/detail_opens_to_6</Word>
+      <Word>/detail_opens_to_flat</Word>
       <Word>/detail_outtrack</Word>
+      <Word>/detail_over_big_crest</Word>
+      <Word>/detail_over_big_jump</Word>
       <Word>/detail_over_bridge</Word>
       <Word>/detail_over_bumps</Word>
       <Word>/detail_over_crest</Word>
@@ -537,6 +585,7 @@
       <Word>/detail_rocks_inside</Word>
       <Word>/detail_rocks_outside</Word>
       <Word>/detail_rough</Word>
+      <Word>/detail_short</Word>
       <Word>/detail_slippery</Word>
       <Word>/detail_slow</Word>
       <Word>/detail_small_crest</Word>
@@ -547,6 +596,9 @@
       <Word>/detail_tarmac</Word>
       <Word>/detail_then</Word>
       <Word>/detail_through_gate</Word>
+      <Word>/detail_through_grid</Word>
+      <Word>/detail_through_narrow_gate</Word>
+      <Word>/detail_through_narrow_grid</Word>
       <Word>/detail_tightens</Word>
       <Word>/detail_tightens_to_1</Word>
       <Word>/detail_tightens_to_2</Word>

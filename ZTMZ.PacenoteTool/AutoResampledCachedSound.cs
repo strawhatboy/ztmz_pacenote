@@ -50,6 +50,8 @@ namespace ZTMZ.PacenoteTool
             }
         }
 
+        public bool IsEmpty { get => this.AudioData.Length == 0; }
+
         public WaveFormat WaveFormat { get; } = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
 
         public AutoResampledCachedSound()

@@ -15,6 +15,8 @@ detail_grid,detail_gate
 detail_kinks,detail_flat
 detail_long_crest,detail_crest
 detail_loose_gravel,detail_gravel
+detail_over_big_crest,detail_over_crest
+detail_over_big_jump,detail_over_jump
 detail_over_bridge,detail_bridge
 detail_over_bumps,detail_bumps
 detail_over_crest,detail_crest
