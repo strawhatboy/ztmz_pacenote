@@ -35,7 +35,7 @@ namespace ZTMZ.PacenoteTool
         private object lock_preprocessed = new object();
         private object lock_missedBytes = new object();
 
-        private HackedWasapiLoopbackCapture _capture = new HackedWasapiLoopbackCapture();
+        private HackedWasapiLoopbackCapture _capture;
 
         private VoskPythonRecognizer recognizer = new VoskPythonRecognizer();
         public bool IsRecognizing { set; get; }
@@ -100,13 +100,13 @@ namespace ZTMZ.PacenoteTool
 
         private void InitSoundCapture()
         {
-            _capture = new HackedWasapiLoopbackCapture();
-
-            InitAggregator(_capture.WaveFormat.SampleRate);
-            _capture.DataAvailable += this.CaptureDataAvailable;
-            _capture.RecordingStopped += this.CaptureRecordingStopped;
             try
             {
+                _capture = new HackedWasapiLoopbackCapture();
+
+                InitAggregator(_capture.WaveFormat.SampleRate);
+                _capture.DataAvailable += this.CaptureDataAvailable;
+                _capture.RecordingStopped += this.CaptureRecordingStopped;
                 _capture.StartRecording();
             }
             catch (COMException e)
