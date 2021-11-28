@@ -109,6 +109,7 @@
       <Word>,over_crest</Word>
       <Word>,over_dip</Word>
       <Word>,over_jump</Word>
+      <Word>,over_narrow_bridge</Word>
       <Word>,over_small_crest</Word>
       <Word>,pass_junction</Word>
       <Word>,right_entry_chicane</Word>
@@ -277,6 +278,7 @@
       <Word>/over_crest</Word>
       <Word>/over_dip</Word>
       <Word>/over_jump</Word>
+      <Word>/over_narrow_bridge</Word>
       <Word>/over_small_crest</Word>
       <Word>/pass_junction</Word>
       <Word>/right_entry_chicane</Word>
@@ -439,6 +441,7 @@
       <Word>,detail_over_crest</Word>
       <Word>,detail_over_dip</Word>
       <Word>,detail_over_jump</Word>
+      <Word>,detail_over_narrow_bridge</Word>
       <Word>,detail_over_small_crest</Word>
       <Word>,detail_pass_junction</Word>
       <Word>,detail_right_entry_chicane</Word>
@@ -579,6 +582,7 @@
       <Word>/detail_over_crest</Word>
       <Word>/detail_over_dip</Word>
       <Word>/detail_over_jump</Word>
+      <Word>/detail_over_narrow_bridge</Word>
       <Word>/detail_over_small_crest</Word>
       <Word>/detail_pass_junction</Word>
       <Word>/detail_right_entry_chicane</Word>

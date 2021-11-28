@@ -55,8 +55,8 @@ extra_long,detail_extra_long,very long|extra long
 fence_outside,detail_fence_outside,fence outside|fences outside
 finish,detail_deepruts,finish|over finish
 ford,detail_ford,ford
-flat,detail_flat,flat|flat middle
-go_straight,detail_go_straight,go straight
+flat,detail_flat,flat
+go_straight,detail_go_straight,go straight|keep straight
 gravel,detail_gravel,gravel
 grid,detail_grid,grid
 into,detail_into,into|to
@@ -65,7 +65,7 @@ jump_maybe,detail_jump_maybe,jump maybe|jumps maybe
 junction,detail_junction,junction
 keep_in,detail_keep_in,keep in
 keep_left,detail_keep_left,keep left
-keep_middle,detail_keep_middle,keep middle
+keep_middle,detail_keep_middle,keep middle|middle
 keep_out,detail_keep_out,keep out
 keep_right,detail_keep_right,keep right
 kinks,detail_kinks,kinks
@@ -88,6 +88,7 @@ over_bumps,detail_over_bumps,over bumps|over bump
 over_crest,detail_over_crest,over crest|over crests
 over_dip,detail_over_dip,over dip|over dips
 over_jump,detail_over_jump,over jump|over jumps
+over_narrow_bridge,detail_over_narrow_bridge,over narrow bridge
 over_small_crest,detail_over_small_crest,over small crest
 pass_junction,detail_pass_junction,pass junction|through junction|over junction
 right_entry_chicane,detail_right_entry_chicane,chicane right entry

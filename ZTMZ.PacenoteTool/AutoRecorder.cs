@@ -52,6 +52,24 @@ namespace ZTMZ.PacenoteTool
         int patience = Config.Instance.AutoScript_RecognizePatience;
         bool isTalking = false;
         string outputFilePath = Path.GetTempFileName();
+
+        public AutoRecorder()
+        {
+            this.PieceRecored += AutoRecorder_PieceRecored;
+            this.recognizer.Recognized += s =>
+            {
+                if (!string.IsNullOrEmpty(s))
+                {
+                    var parts = s.Split('>', StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length == 2)
+                    {
+                        var dis = int.Parse(parts.First());
+                        this.PieceRecognized?.Invoke(new Tuple<int, string>(dis, s));
+                    }
+                }
+            };
+        }
+
         public void Initialize()
         {
             // 1. check if model exists
@@ -59,10 +77,6 @@ namespace ZTMZ.PacenoteTool
             {
                 throw new Exception("语音识别模型不存在，请使用开发版本或下载并解压模型到speech_model目录下");
             }
-
-
-            // 2. listen to loopback sound
-            this.PieceRecored += AutoRecorder_PieceRecored;
 
             Directory.CreateDirectory("tmp");
             //BackgroundWorker bgw = new BackgroundWorker();
@@ -162,18 +176,6 @@ namespace ZTMZ.PacenoteTool
         public void InitRecognizer()
         {
             recognizer.Start(_capture.WaveFormat.SampleRate, Config.Instance.AutoCleanTempFiles, Config.Instance.SpeechRecogizerModelPath);
-            recognizer.Recognized += s =>
-            {
-                if (!string.IsNullOrEmpty(s))
-                {
-                    var parts = s.Split('>', StringSplitOptions.RemoveEmptyEntries);
-                    if (parts.Length == 2)
-                    {
-                        var dis = int.Parse(parts.First());
-                        this.PieceRecognized?.Invoke(new Tuple<int, string>(dis, s));
-                    }
-                }
-            };
             BackgroundWorker bgw = new BackgroundWorker();
             bgw.DoWork += (o, args) =>
             {
@@ -198,6 +200,8 @@ namespace ZTMZ.PacenoteTool
         public void StopSoundCapture()
         {
             _capture?.StopRecording();
+            _capture?.Dispose();
+            _capture = null;
         }
 
         public void StopRecognizer()
