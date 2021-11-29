@@ -1,6 +1,7 @@
 Token,Fallback_Token
 detail_around_bales,detail_bales
 detail_around_bridge,detail_bridge
+detail_between_bales,detail_bales
 detail_big_crest,detail_crest
 detail_big_cut,detail_cut
 detail_big_jump,detail_jump
@@ -22,12 +23,14 @@ detail_over_bumps,detail_bumps
 detail_over_crest,detail_crest
 detail_over_dip,detail_dip
 detail_over_jump,detail_jump
+detail_over_logs,detail_logs
 detail_over_small_crest,detail_over_crest
 detail_pass_junction,detail_junction
 detail_slow,detail_brake
 detail_small_crest,detail_crest
 detail_small_cut,detail_cut
 detail_through_grid,detail_through_gate
+detail_through_logs,detail_logs
 detail_unseen,detail_caution
 detail_water_splash,detail_ford
 number_20,number_30

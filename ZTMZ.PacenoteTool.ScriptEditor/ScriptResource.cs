@@ -28,10 +28,17 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             new Dictionary<string, string>(),
             new Dictionary<string, string>(),
         };
-        public static Dictionary<string, string> PACENOTES { private set; get; } = loadCsv("./pacenotes.csv");
-        public static Dictionary<string, string> MODIFIERS { private set; get; } = loadCsv("./modifiers.csv");
+        public static Dictionary<string, Tuple<string, bool>> RAW_PACENOTES = loadPacenotes("./pacenotes.csv");
+        public static Dictionary<string, string> PACENOTES { private set; get; } = new Dictionary<string, string>();   // = loadCsv("./pacenotes.csv");
+        public static Dictionary<string, string> MODIFIERS { private set; get; } = new Dictionary<string, string>();    // = loadCsv("./modifiers.csv");
         public static Dictionary<string, string> FALLBACK { private set; get; } = loadFallback("./fallback.csv");
         public static Dictionary<string, string> FLAGS { private set; get; } = loadCsv("./flags.csv");
+
+        private static BitmapImage _imgFlag = new BitmapImage(new Uri("pack://application:,,,/flag.png"));
+        private static BitmapImage _imgAlias = new BitmapImage(new Uri("pack://application:,,,/alias.png"));
+        private static BitmapImage _imgModifier = new BitmapImage(new Uri("pack://application:,,,/modifier.png"));
+        private static BitmapImage _imgPacenote = new BitmapImage(new Uri("pack://application:,,,/pacenote.png"));
+
 
         // public static System.Windows.Media.ImageSource IMG_FLAG = new BitmapImage(new Uri("./flag.png", UriKind.Relative));
         // public static System.Windows.Media.ImageSource IMG_PACENOTE = new BitmapImage(new Uri("./pacenote.png", UriKind.Relative));
@@ -40,6 +47,16 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
         static ScriptResource()
         {
+            // load PACENOTES & MODIFIERS
+            foreach (var p in RAW_PACENOTES)
+            {
+                if (p.Value.Item2)
+                {
+                    MODIFIERS[p.Key] = p.Value.Item1;
+                }
+                PACENOTES[p.Key] = p.Value.Item1;
+            }
+
             foreach (var alias in ALIAS)
             {
                 var res = CheckAlias(alias.Key);
@@ -71,6 +88,21 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 };
                 var records = csv.GetRecords(def);
                 return records.ToDictionary(r => r.Id, r => r.Description);
+            }
+        }
+        private static Dictionary<string, Tuple<string, bool>> loadPacenotes(string path)
+        {
+            using (var reader = new StreamReader(path))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                var def = new
+                {
+                    Description = string.Empty,
+                    Id = string.Empty,
+                    CanBeModifier = 0,
+                };
+                var records = csv.GetRecords(def);
+                return records.ToDictionary(r => r.Id, r=> new Tuple<string, bool>(r.Description, Convert.ToBoolean(r.CanBeModifier)));
             }
         }
         private static Dictionary<string, Tuple<string, string>> loadAlias(string path)
@@ -159,16 +191,16 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         {
             if (type == TYPE_FLAG)
             {
-                return new BitmapImage(new Uri("pack://application:,,,/flag.png"));
+                return _imgFlag;
             } else if (type == TYPE_ALIAS)
             {
-                return new BitmapImage(new Uri("pack://application:,,,/alias.png")); 
+                return _imgAlias;
             } else if (type == TYPE_MODIFIER)
             {
-                return new BitmapImage(new Uri("pack://application:,,,/modifier.png"));
+                return _imgModifier;
             } else if (type == TYPE_PACENOTE)
             {
-                return new BitmapImage(new Uri("pack://application:,,,/pacenote.png"));
+                return _imgPacenote;
             }
 
             return null;

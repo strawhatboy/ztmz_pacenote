@@ -28,6 +28,7 @@ around_bales,detail_around_bales,around bales
 around_bridge,detail_around_bridge,around bridge
 bad_camber,detail_bad_camber,bad camber
 bales,detail_bales,bales
+between_bales,detail_between_bales,between bales|through bales
 big_crest,detail_big_crest,big crest|big crests
 big_cut,detail_big_cut,big cut
 big_jump,detail_big_jump,big jump|big jumps
@@ -71,6 +72,7 @@ keep_right,detail_keep_right,keep right
 kinks,detail_kinks,kinks
 late,detail_late,late
 left_entry_chicane,detail_left_entry_chicane,chicane left entry
+logs,detail_logs,logs
 logs_inside,detail_logs_inside,logs inside
 logs_outside,detail_logs_outside,logs outside
 long,detail_long,long
@@ -88,6 +90,7 @@ over_bumps,detail_over_bumps,over bumps|over bump
 over_crest,detail_over_crest,over crest|over crests
 over_dip,detail_over_dip,over dip|over dips
 over_jump,detail_over_jump,over jump|over jumps
+over_logs,detail_over_logs,over logs|over log
 over_narrow_bridge,detail_over_narrow_bridge,over narrow bridge
 over_small_crest,detail_over_small_crest,over small crest
 pass_junction,detail_pass_junction,pass junction|through junction|over junction
@@ -107,6 +110,7 @@ tarmac,detail_tarmac,tarmac
 then,detail_then,then
 through_gate,detail_through_gate,through gate|pass gate
 through_grid,detail_through_grid,through grid|pass grid
+through_logs,detail_through_logs,through logs|through log
 through_narrow_gate,detail_through_narrow_gate,through narrow gate|pass narrow gate
 through_narrow_grid,detail_through_narrow_grid,through narrow grid|pass narrow grid
 tightens,detail_tightens,tightens

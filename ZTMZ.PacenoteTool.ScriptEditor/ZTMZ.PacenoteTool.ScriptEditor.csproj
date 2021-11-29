@@ -60,10 +60,10 @@
       <None Update="modifiers.csv">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="pacenotes.csv">
+      <None Update="flags.csv">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="flags.csv">
+      <None Update="pacenotes.csv">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

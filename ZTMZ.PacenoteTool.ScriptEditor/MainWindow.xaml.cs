@@ -437,7 +437,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 return;
             }
 
-            if (string.IsNullOrEmpty(parseRes.Author))
+            if (string.IsNullOrEmpty(parseRes.Author) || parseRes.Author.Equals(ScriptReader.DEFAULT_AUTHOR))
             {
                 MessageBox.Show("路书中没有指定路书作者，请使用标记 @author 添加作者信息之后再上传", "作者未指定", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;

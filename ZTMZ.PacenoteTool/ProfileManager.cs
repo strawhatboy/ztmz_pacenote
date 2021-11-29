@@ -25,8 +25,14 @@ namespace ZTMZ.PacenoteTool
         public AutoResampledCachedSound Sound { set; get; } = null;
     }
 
+    public class CoDriverPackage
+    {
+        public Dictionary<string, List<AutoResampledCachedSound>> tokens { set; get; } = new Dictionary<string, List<AutoResampledCachedSound>>();
+    }
+
     public class ProfileManager
     {
+        public static string DEFAULT_PROFILE = "default";
         public static string CODRIVER_FILENAME = "codriver.txt";
         public string CurrentProfile { set; get; }
         public string CurrentItineraryPath { set; get; }
@@ -67,6 +73,9 @@ namespace ZTMZ.PacenoteTool
 
         public List<AudioFile> AudioFiles { set; get; } = new List<AudioFile>();
 
+        public Dictionary<string, CoDriverPackage> CoDriverPackages { set; get; } = new Dictionary<string, CoDriverPackage>();
+
+
         //public IEnumerable<Mp3FileReader> Players { set; get; }
         //public IList<MediaPlayer> Players { set; get; } = new List<MediaPlayer>();
         //public IList<SoundPlayer> Players { set; get; } = new List<SoundPlayer>();
@@ -94,7 +103,7 @@ namespace ZTMZ.PacenoteTool
         {
             Directory.CreateDirectory(string.Format("profiles"));
             Directory.CreateDirectory(string.Format("codrivers"));
-            this.CreateNewProfile("default");
+            this.CreateNewProfile(DEFAULT_PROFILE);
 
             //load example audio file?
             this.initExampleAudio();
@@ -104,6 +113,9 @@ namespace ZTMZ.PacenoteTool
             // var jsonContent = File.ReadAllText("supported_audio_types.json");
             // this.SupportedAudioTypes = JsonConvert.DeserializeObject<string[]>(jsonContent).ToList();
             this.SupportedAudioTypes = Config.Instance.SupportedAudioTypes;
+
+            // load all codriver sounds
+            this.initCodriverSounds();
         }
 
         private void initExampleAudio()
@@ -111,6 +123,49 @@ namespace ZTMZ.PacenoteTool
             this._exampleAudio = new AutoResampledCachedSound("Alarm01.wav");
             //this._exampleAudio = new AudioFileReader("20210715_152916.m4a");
             // this._exampleWaveOut = new WaveOutEvent();
+        }
+
+        private void initCodriverSounds()
+        {
+            foreach (var codriverPath in this.GetAllCodrivers())
+            {
+                this.CoDriverPackages[codriverPath] = new CoDriverPackage();
+                List<string> filePaths = new List<string>();
+                // try file directly
+
+                foreach (var supportedFilter in this.SupportedAudioTypes)
+                {
+                    filePaths.AddRange(Directory.GetFiles(codriverPath, supportedFilter));
+                }
+
+                foreach (var f in filePaths)
+                {
+                    this.CoDriverPackages[codriverPath].tokens[Path.GetFileNameWithoutExtension(f)] = 
+                        new List<AutoResampledCachedSound>() { new AutoResampledCachedSound(f) };
+                }
+
+                // not found, try folders
+                var soundFilePaths = Directory.GetDirectories(codriverPath);
+                foreach (var soundFilePath in soundFilePaths)
+                {
+                    filePaths.Clear();
+                    //var soundFilePath = string.Format("{0}/{1}", codriverPath, keyword);
+                    if (Directory.Exists(soundFilePath))
+                    {
+                        this.CoDriverPackages[codriverPath].tokens[Path.GetFileName(soundFilePath)] = new List<AutoResampledCachedSound>();
+                        // load all files
+                        foreach (var supportedFilter in this.SupportedAudioTypes)
+                        {
+                            filePaths.AddRange(Directory.GetFiles(soundFilePath, supportedFilter));
+                        }
+
+                        foreach (var filePath in filePaths)
+                        {
+                            this.CoDriverPackages[codriverPath].tokens[Path.GetFileName(soundFilePath)].Add(new AutoResampledCachedSound(filePath));
+                        }
+                    }
+                }
+            }
         }
 
         public List<string> GetAllProfiles()
@@ -143,10 +198,14 @@ namespace ZTMZ.PacenoteTool
             Directory.CreateDirectory(filesPath);
             return filesPath;
         }
-
         public string GetScriptFile(string itinerary)
         {
-            string filePath = string.Format("profiles/{0}/{1}.pacenote", this.CurrentProfile, itinerary);
+            return this.GetScriptFile(itinerary, this.CurrentProfile);
+        }
+
+        public string GetScriptFile(string itinerary, string profile)
+        {
+            string filePath = string.Format("profiles/{0}/{1}.pacenote", profile, itinerary);
             if (!File.Exists(filePath))
             {
                 File.WriteAllText(filePath, "");
@@ -166,6 +225,12 @@ namespace ZTMZ.PacenoteTool
         {
             this.CurrentItineraryPath = this.GetRecordingsFolder(itinerary);
             this.CurrentScriptPath = this.GetScriptFile(itinerary);
+            // also need to check flag from config file.
+            if (string.IsNullOrEmpty(File.ReadAllText(this.CurrentScriptPath).Trim()))
+            {
+                // fallback to default profile
+                this.CurrentScriptPath = this.GetScriptFile(itinerary, DEFAULT_PROFILE);
+            }
             List<AudioFile> audioFiles = new List<AudioFile>();
 
             // clear lists
@@ -288,42 +353,23 @@ namespace ZTMZ.PacenoteTool
                 keyword = ScriptResource.ALIAS_CONSTRUCTED[keyword].Item2;
             }
 
-            List<string> filePaths = new List<string>();
-            // try file directly
-
-            foreach (var supportedFilter in this.SupportedAudioTypes)
+            var package = this.CoDriverPackages[this.CurrentCoDriverSoundPackagePath];
+            if (package.tokens.ContainsKey(keyword))
             {
-                filePaths.AddRange(Directory.GetFiles(this.CurrentCoDriverSoundPackagePath, supportedFilter));
-            }
-
-            foreach (var f in filePaths)
-            {
-                if (Path.GetFileNameWithoutExtension(f) == keyword)
-                {
-                    return new AutoResampledCachedSound(f);
-                }
-            }
-
-            // not found, try folders
-            filePaths.Clear();
-            var soundFilePath = string.Format("{0}/{1}", this.CurrentCoDriverSoundPackagePath, keyword);
-            if (Directory.Exists(soundFilePath))
-            {
-                // load all files
-                foreach (var supportedFilter in this.SupportedAudioTypes)
-                {
-                    filePaths.AddRange(Directory.GetFiles(soundFilePath, supportedFilter));
-                }
-
-                // random
-                var randIndex = this._random.Next(0, filePaths.Count() - 1);
-                return new AutoResampledCachedSound(filePaths[randIndex]);
+                var tokens = package.tokens[keyword];
+                return tokens[this._random.Next(0, tokens.Count)];
             }
 
             // not found, try fallback keyword
             if (ScriptResource.FALLBACK.ContainsKey(keyword))
             {
-                return getSoundByKeyword(ScriptResource.FALLBACK[keyword]);
+                var fallbacks = ScriptResource.FALLBACK[keyword].Split('>', StringSplitOptions.RemoveEmptyEntries);
+                AutoResampledCachedSound sound = new AutoResampledCachedSound();
+                foreach (var fallback in fallbacks)
+                {
+                    sound.Append(getSoundByKeyword(fallback));
+                }
+                return sound;
             }
 
             if (!isFinal) 

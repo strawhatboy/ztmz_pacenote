@@ -52,6 +52,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
     public class ScriptReader
     {
+        public static string DEFAULT_AUTHOR = "???";
         public IList<string> Flags { set; get; } = new List<string>();
         public IDictionary<string, List<string>> FlagParameters { set; get; } = new Dictionary<string, List<string>>();
         public IDictionary<string, string> FlagComments { set; get; } = new Dictionary<string, string>();
@@ -71,7 +72,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         }
 
         public string Author =>
-            this.HasFlag(ScriptFlags.AUTHOR) ? string.Join(' ', this.FlagParameters[ScriptFlags.AUTHOR]) : "???";
+            this.HasFlag(ScriptFlags.AUTHOR) ? string.Join(' ', this.FlagParameters[ScriptFlags.AUTHOR]) : DEFAULT_AUTHOR;
 
         public static ScriptReader ReadFromString(string str)
         {
