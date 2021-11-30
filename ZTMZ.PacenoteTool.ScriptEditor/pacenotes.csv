@@ -55,6 +55,7 @@ detail_flat,全油,1
 detail_go_straight,直走,1
 detail_gravel,砂石路,1
 detail_grid,网格板,1
+detail_house,房区,1
 detail_into,接,0
 detail_jump,飞跳,1
 detail_jump_maybe,可能弹跳(会影响操控）,1

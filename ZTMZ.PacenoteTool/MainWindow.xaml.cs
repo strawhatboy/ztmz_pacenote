@@ -31,13 +31,13 @@ namespace ZTMZ.PacenoteTool
         private HotKey _hotKeyStopRecord;
         private UDPReceiver _udpReceiver;
         private ToolState _toolState = ToolState.Replaying;
-        private ProfileManager _profileManager = new();
-        private AudioRecorder _audioRecorder = new();
-        private GameOverlayManager _gameOverlayManager = new();
-        private DR2Helper _dr2Helper = new();
+        private ProfileManager _profileManager;
+        private AudioRecorder _audioRecorder;
+        private GameOverlayManager _gameOverlayManager;
+        private DR2Helper _dr2Helper;
         private string _trackName;
         private string _trackFolder;
-        private AutoRecorder _autoRecorder = new AutoRecorder();
+        private AutoRecorder _autoRecorder;
         private bool _isRecordingInProgress = false;
         private bool _isPureAudioRecording = true;
         private ScriptEditor.MainWindow _scriptWindow;
@@ -63,9 +63,26 @@ namespace ZTMZ.PacenoteTool
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            // show page for new version
+            // AutoUpdater.OpenDownloadPage = true; 
+            AutoUpdater.ShowSkipButton = false;
+            //AutoUpdater.ReportErrors = true;
+            AutoUpdater.Start("https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate.xml");
+
+
+            // put initialization to window_loaded to accelerate window loading.
+            this._profileManager = new();
+            this._audioRecorder = new();
+            this._gameOverlayManager = new();
+            this._dr2Helper = new();
+            this._autoRecorder = new();
+
             this.registerHotKeys();
             this.initializeUDPReceiver();
-            this._udpReceiver.onGameStateChanged += this.gamestateChangedHandler;
             this.initializeComboBoxes();
             this.checkPrerequisite();
             this.checkIfDevVersion();
@@ -183,6 +200,8 @@ namespace ZTMZ.PacenoteTool
                 };
                 worker.RunWorkerAsync();
             };
+
+            this._udpReceiver.onGameStateChanged += this.gamestateChangedHandler;
         }
 
         private void gamestateChangedHandler(GameState state)
@@ -331,7 +350,14 @@ namespace ZTMZ.PacenoteTool
             }
 
             this.cb_profile.SelectedIndex = 0;
-            this.cb_codrivers.SelectedIndex = 0;
+            if (this.cb_codrivers.Items.Count > 1)
+            {
+                // dont select the default codriver
+                this.cb_codrivers.SelectedIndex = 1;
+            } else
+            {
+                this.cb_codrivers.SelectedIndex = 0;
+            }
 
             this._recordingDevices = AudioRecorder.GetRecordingDeviceList();
             foreach (var rDevice in this._recordingDevices)
@@ -658,15 +684,6 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
             var value = (int)this.s_playpointAdjust.Value;
             this._playpointAdjust = value;
             this.tb_playpointAdjust.Text = (value > 0 ? $"+{value}" : $"{value}") + "米";
-        }
-
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            // show page for new version
-            // AutoUpdater.OpenDownloadPage = true; 
-            AutoUpdater.ShowSkipButton = false;
-            //AutoUpdater.ReportErrors = true;
-            AutoUpdater.Start("https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate.xml");
         }
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)

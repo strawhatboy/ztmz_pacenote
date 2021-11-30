@@ -35,6 +35,8 @@ namespace ZTMZ.PacenoteTool.Base
         public int AutoScript_RecognizePatience { set; get; } = 10;
         public bool AutoScript_HackGameWhenStart { set; get; } = false;
 
+        public bool PreloadSounds { set; get; } = false;
+
         public string DirtGamePath { set; get; } = "";
 
         public string PythonPath { set; get; } = "Python38";

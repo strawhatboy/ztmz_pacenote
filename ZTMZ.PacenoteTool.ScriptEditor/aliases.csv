@@ -60,6 +60,7 @@ flat,detail_flat,flat
 go_straight,detail_go_straight,go straight|keep straight
 gravel,detail_gravel,gravel
 grid,detail_grid,grid
+house,detail_house,house|houses|pass houses
 into,detail_into,into|to
 jump,detail_jump,jump|jumps
 jump_maybe,detail_jump_maybe,jump maybe|jumps maybe
