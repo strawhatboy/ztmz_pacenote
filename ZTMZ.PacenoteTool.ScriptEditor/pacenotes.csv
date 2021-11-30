@@ -19,7 +19,7 @@ corner_open_hairpin_right,宽右回头弯/宽右发卡,0
 corner_right_acute,右回头弯/右发卡,0
 corner_square_left,左直角弯,0
 corner_square_right,右直角弯,0
-detail_and,紧接,0
+detail_and,接,0
 detail_around_bales,绕过草垛,1
 detail_around_bridge,绕过桥,1
 detail_bad_camber,路面外倾,1
@@ -56,7 +56,7 @@ detail_go_straight,直走,1
 detail_gravel,砂石路,1
 detail_grid,网格板,1
 detail_house,房区,1
-detail_into,接,0
+detail_into,紧接,0
 detail_jump,飞跳,1
 detail_jump_maybe,可能弹跳(会影响操控）,1
 detail_junction,路口,1
