@@ -23,12 +23,17 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             var highlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(reader,
                     ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance);
 
+            Func<IEnumerable<string>, string, IEnumerable<string>> getKeywords = (IEnumerable<string> keys, string prefix) =>
+            {
+                return from f in keys orderby f.Length descending select string.Format("{0}{1}", prefix, f);
+            };
+
             // insert highlighting rules
-            SyntaxAppendRule(highlighting, (from f in ScriptResource.FLAGS select string.Format("@{0}", f.Key)), Colors.DarkBlue);
-            SyntaxAppendRule(highlighting, (from f in ScriptResource.ALIAS select string.Format(",{0}", f.Key)), Color.FromRgb(23, 110, 191));
-            SyntaxAppendRule(highlighting, (from f in ScriptResource.ALIAS select string.Format("/{0}", f.Key)), Color.FromRgb(143, 88, 232));
-            SyntaxAppendRule(highlighting, (from f in ScriptResource.PACENOTES select string.Format(",{0}", f.Key)), Colors.Blue);
-            SyntaxAppendRule(highlighting, (from f in ScriptResource.MODIFIERS select string.Format("/{0}", f.Key)), Colors.Purple);
+            SyntaxAppendRule(highlighting, getKeywords(ScriptResource.FLAGS.Keys.ToArray(), "@"), Colors.DarkBlue);
+            SyntaxAppendRule(highlighting, getKeywords(ScriptResource.ALIAS.Keys.ToArray(), ","), Color.FromRgb(23, 110, 191));
+            SyntaxAppendRule(highlighting, getKeywords(ScriptResource.ALIAS.Keys.ToArray(), "/"), Color.FromRgb(143, 88, 232));
+            SyntaxAppendRule(highlighting, getKeywords(ScriptResource.PACENOTES.Keys.ToArray(), ","), Colors.Blue);
+            SyntaxAppendRule(highlighting, getKeywords(ScriptResource.MODIFIERS.Keys.ToArray(), "/"), Colors.Purple);
 
 
             ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance.RegisterHighlighting("pacenote",

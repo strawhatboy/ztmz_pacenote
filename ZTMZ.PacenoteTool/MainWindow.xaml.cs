@@ -41,8 +41,8 @@ namespace ZTMZ.PacenoteTool
         private bool _isRecordingInProgress = false;
         private bool _isPureAudioRecording = true;
         private ScriptEditor.MainWindow _scriptWindow;
-        private string _title = "ZTMZ Club 路书工具 v2.4.3";
-        private string _devTitle = "ZTMZ Club 路书工具开发版 v2.4.3";
+        private string _title = "ZTMZ Club 路书工具 v2.4.4";
+        private string _devTitle = "ZTMZ Club 路书工具开发版 v2.4.4";
 
 
         private RecordingConfig _recordingConfig = new RecordingConfig()
@@ -344,20 +344,24 @@ namespace ZTMZ.PacenoteTool
                 this.cb_profile.Items.Add(profile);
             }
 
+            bool isCodriverSelected = false;
             foreach (var codriver in this._profileManager.GetAllCodrivers())
             {
                 this.cb_codrivers.Items.Add(codriver);
+                if (!isCodriverSelected && codriver != ProfileManager.DEFAULT_CODRIVER)
+                {
+                    // dont select 'default' codriver
+                    this.cb_codrivers.SelectedIndex = this.cb_codrivers.Items.Count - 1;
+                    isCodriverSelected = true;
+                }
+            }
+            if (this.cb_codrivers.Items.Count == 1)
+            {
+                // only 'default' presents
+                this.cb_codrivers.SelectedIndex = 0;
             }
 
             this.cb_profile.SelectedIndex = 0;
-            if (this.cb_codrivers.Items.Count > 1)
-            {
-                // dont select the default codriver
-                this.cb_codrivers.SelectedIndex = 1;
-            } else
-            {
-                this.cb_codrivers.SelectedIndex = 0;
-            }
 
             this._recordingDevices = AudioRecorder.GetRecordingDeviceList();
             foreach (var rDevice in this._recordingDevices)
@@ -679,12 +683,12 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
             this.tb_scriptTiming.Text = (this.sl_scriptTiming.Value > 0 ? $"+{value}" : $"{value}") + "秒";
         }
 
-        private void S_playpointAdjust_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            var value = (int)this.s_playpointAdjust.Value;
-            this._playpointAdjust = value;
-            this.tb_playpointAdjust.Text = (value > 0 ? $"+{value}" : $"{value}") + "米";
-        }
+        //private void S_playpointAdjust_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        //{
+        //    var value = (int)this.s_playpointAdjust.Value;
+        //    this._playpointAdjust = value;
+        //    this.tb_playpointAdjust.Text = (value > 0 ? $"+{value}" : $"{value}") + "米";
+        //}
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {

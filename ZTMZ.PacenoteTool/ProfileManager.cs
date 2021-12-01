@@ -48,6 +48,8 @@ namespace ZTMZ.PacenoteTool
 
         public int CurrentPlayIndex { set; get; } = 0;
 
+        private Dictionary<string, AutoResampledCachedSound> soundCache = new();
+
         private int _currentPlayDeviceId = 0;
 
         public int CurrentPlayDeviceId
@@ -193,6 +195,20 @@ namespace ZTMZ.PacenoteTool
             }
         }
 
+        private AutoResampledCachedSound getSoundFromCache(string path)
+        {
+            if (!this.soundCache.ContainsKey(path))
+            {
+                this.soundCache[path] = new AutoResampledCachedSound(path);
+            }
+            return this.soundCache[path];
+        }
+
+        private void clearSoundCache()
+        {
+            this.soundCache.Clear();
+        }
+
         public List<string> GetAllProfiles()
         {
             return Directory.GetDirectories("profiles/").ToList();
@@ -267,6 +283,7 @@ namespace ZTMZ.PacenoteTool
             this.AudioPacenoteCount = 0;
             this.ScriptPacenoteCount = 0;
             this.AudioFiles.Clear();
+            this.soundCache.Clear();
 
             if (playMode == 0 || playMode == 2)
             {
@@ -387,7 +404,7 @@ namespace ZTMZ.PacenoteTool
             if (!Config.Instance.PreloadSounds && package.tokensPath.ContainsKey(keyword))
             {
                 var tokens = package.tokensPath[keyword];
-                return new AutoResampledCachedSound(tokens[this._random.Next(0, tokens.Count)]);
+                return this.getSoundFromCache(tokens[this._random.Next(0, tokens.Count)]);
             }
 
             // not found, try fallback keyword
