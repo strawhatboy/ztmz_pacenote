@@ -92,7 +92,8 @@
             <TextBlock Grid.Row="0" Grid.Column="1" x:Name="tb_gamestate" FontWeight="Bold" FontSize="16">N/A</TextBlock>
             <TextBlock Grid.Row="1" Grid.Column="1" x:Name="tb_time">N/A</TextBlock>
             <TextBlock Grid.Row="2" Grid.Column="1" x:Name="tb_laptime">N/A</TextBlock>
-            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_distance" FontWeight="Bold" FontSize="16">N/A</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_distance" FontWeight="Bold" FontSize="16">N/A
+            </TextBlock>
             <TextBlock Grid.Row="4" Grid.Column="1" x:Name="tb_speed">N/A</TextBlock>
             <TextBlock Grid.Row="5" Grid.Column="1" x:Name="tb_tracklength">N/A</TextBlock>
             <TextBlock Grid.Row="6" Grid.Column="1" x:Name="tb_progress">N/A</TextBlock>
@@ -202,7 +203,11 @@
                     <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="根据脚本文件中的@dynamic开关决定是否动态播放">是否动态播放：</TextBlock>
                     <CheckBox IsEnabled="False" Grid.Row="1" Grid.Column="1" Name="chb_isDynamicPlay" IsChecked="False" />
                     <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="当前地图脚本路书的作者">脚本路书作者：</TextBlock>
-                    <TextBlock Grid.Row="2" Grid.Column="1" Name="tb_scriptAuthor" FontSize="16" Foreground="Crimson">???</TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Name="tb_scriptAuthor" FontSize="16" Foreground="Crimson">???
+                        <TextBlock.Effect>
+                            <DropShadowEffect ShadowDepth="2" BlurRadius="0"  />
+                        </TextBlock.Effect>
+                    </TextBlock>
                     <TextBlock Grid.Row="3" Grid.Column="0" ToolTip="自动脚本录制模式当前监听的设备">自动脚本录制监听：</TextBlock>
                     <TextBlock Grid.Row="3" Grid.Column="1" Name="tb_autoScriptListeningDevice" ToolTip=""></TextBlock>
                     <Grid Grid.Row="3" Grid.Column="1" Name="g_autoScriptListeningDevice">
@@ -309,8 +314,11 @@
                 点我查看路书录制进度
             </Hyperlink>
         </TextBlock>
-        <TextBlock Grid.Row="11" HorizontalAlignment="Right">
+        <TextBlock Grid.Row="11" HorizontalAlignment="Right" Foreground="#FFF" Margin="0 0 5 0">
             authored by 草帽不是猫
+            <TextBlock.Effect>
+                <DropShadowEffect ShadowDepth="2" BlurRadius="0"  />
+            </TextBlock.Effect>
         </TextBlock>
     </Grid>
 </Window>

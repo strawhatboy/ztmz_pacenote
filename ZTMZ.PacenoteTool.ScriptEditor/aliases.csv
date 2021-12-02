@@ -67,7 +67,7 @@ jump_maybe,detail_jump_maybe,jump maybe|jumps maybe
 junction,detail_junction,junction
 keep_in,detail_keep_in,keep in
 keep_left,detail_keep_left,keep left
-keep_middle,detail_keep_middle,keep middle|middle
+keep_middle,detail_keep_middle,keep middle|middle|stay middle
 keep_out,detail_keep_out,keep out
 keep_right,detail_keep_right,keep right
 kinks,detail_kinks,kinks
@@ -84,16 +84,22 @@ maybe,detail_maybe,maybe
 narrows,detail_narrows,narrows|narrow
 opens,detail_opens,opens
 outtrack,detail_outtrack,out track
+over_big_bumps,detail_over_big_bumps,over big bumps|over big bump
 over_big_crest,detail_over_big_crest,over big crest
 over_big_jump,detail_over_big_jump,over big jump
 over_bridge,detail_over_bridge,over bridge|pass bridge|across bridge|through bridge
 over_bumps,detail_over_bumps,over bumps|over bump
 over_crest,detail_over_crest,over crest|over crests
 over_dip,detail_over_dip,over dip|over dips
+over_double_crest,detail_over_double_crest,over double crest
+over_grid,detail_over_grid,over grid
 over_jump,detail_over_jump,over jump|over jumps
 over_logs,detail_over_logs,over logs|over log
+over_long_crest,detail_over_long_crest,over long crest
 over_narrow_bridge,detail_over_narrow_bridge,over narrow bridge
 over_small_crest,detail_over_small_crest,over small crest
+over_small_bumps,detail_over_small_bumps,over small bump|over small bumps
+over_very_long_crest,detail_over_very_long_crest,over very long crest
 pass_junction,detail_pass_junction,pass junction|through junction|over junction
 right_entry_chicane,detail_right_entry_chicane,chicane right entry
 rocks_inside,detail_rocks_inside,rocks inside|rock inside
@@ -109,11 +115,14 @@ start_stage,detail_start_stage,start stage
 sudden,detail_sudden,sudden|immediate
 tarmac,detail_tarmac,tarmac
 then,detail_then,then
+through_dip,detail_through_dip,through_dip
 through_gate,detail_through_gate,through gate|pass gate
 through_grid,detail_through_grid,through grid|pass grid
+through_houses,detail_through_houses,through houses|through house
 through_logs,detail_through_logs,through logs|through log
 through_narrow_gate,detail_through_narrow_gate,through narrow gate|pass narrow gate
 through_narrow_grid,detail_through_narrow_grid,through narrow grid|pass narrow grid
+through_tunnel,detail_through_tunnel,through tunnel
 tightens,detail_tightens,tightens
 tightens_to_1,detail_tightens_to_1,tightens one
 tightens_to_2,detail_tightens_to_2,tightens two
@@ -130,7 +139,7 @@ tightens_to_acute,detail_tightens_to_acute,tightens acute|tightens hairpin
 tree_inside,detail_tree_inside,tree inside|trees inside
 tree_outside,detail_tree_outside,tree outside|trees outside
 triple_caution,detail_triple_caution,triple caution
-tunnel,detail_tunnel,tunnel|through tunnel|pass tunnel
+tunnel,detail_tunnel,tunnel|pass tunnel
 turn,detail_turn,turn
 unseen,detail_unseen,unseen
 uphill,detail_uphill,up hill|uphill
