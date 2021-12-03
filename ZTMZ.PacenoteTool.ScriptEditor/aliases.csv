@@ -16,7 +16,7 @@ flat_right,corner_flat_right,flat right
 frozen,detail_triple_caution,frozen
 hairpin_left,corner_left_acute,hairpin left
 hairpin_right,corner_right_acute,hairpin right
-ice,detail_triple_caution,ice
+ice,detail_ice,ice
 left_acute,corner_left_acute,left acute
 open_hairpin_left,corner_open_hairpin_left,open hairpin left
 open_hairpin_right,corner_open_hairpin_right,open hairpin right
@@ -43,7 +43,6 @@ continues,detail_continues,continues
 crest,detail_crest,crest|crests
 cut,detail_cut,cut
 deceptive,detail_deceptive,deceptive
-deepruts,detail_deepruts,deep ruts
 ditches_inside,detail_ditches_inside,ditches inside
 ditches_outside,detail_ditches_outside,ditches outside
 dip,detail_dip,dip|dips
@@ -54,7 +53,7 @@ end_stage,detail_end_stage,end stage
 extraextra_long,detail_extraextra_long,extra extra long
 extra_long,detail_extra_long,very long|extra long
 fence_outside,detail_fence_outside,fence outside|fences outside
-finish,detail_deepruts,finish|over finish
+finish,detail_finish,finish|over finish
 ford,detail_ford,ford
 flat,detail_flat,flat
 go_straight,detail_go_straight,go straight|keep straight
@@ -119,7 +118,7 @@ through_dip,detail_through_dip,through_dip
 through_gate,detail_through_gate,through gate|pass gate
 through_grid,detail_through_grid,through grid|pass grid
 through_houses,detail_through_houses,through houses|through house
-through_logs,detail_through_logs,through logs|through log
+through_logs,detail_through_logs,through logs|through log|pass logs
 through_narrow_gate,detail_through_narrow_gate,through narrow gate|pass narrow gate
 through_narrow_grid,detail_through_narrow_grid,through narrow grid|pass narrow grid
 through_tunnel,detail_through_tunnel,through tunnel
@@ -138,7 +137,6 @@ opens_to_flat,detail_opens_to_flat,opens flat
 tightens_to_acute,detail_tightens_to_acute,tightens acute|tightens hairpin
 tree_inside,detail_tree_inside,tree inside|trees inside
 tree_outside,detail_tree_outside,tree outside|trees outside
-triple_caution,detail_triple_caution,triple caution
 tunnel,detail_tunnel,tunnel|pass tunnel
 turn,detail_turn,turn
 unseen,detail_unseen,unseen

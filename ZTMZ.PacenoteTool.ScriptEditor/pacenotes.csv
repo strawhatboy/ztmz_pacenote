@@ -39,7 +39,7 @@ detail_continues,持续,1
 detail_crest,有坡,1
 detail_cut,切弯,1
 detail_deceptive,欺骗性的,1
-detail_deepruts,到达终点,1
+detail_finish,到达终点,1
 detail_ditches_inside,内有深沟,1
 detail_ditches_outside,外侧深沟,1
 detail_dip,低洼,1
@@ -133,7 +133,7 @@ detail_tightens_to_5,变急到5,1
 detail_tightens_to_acute,急回头弯,1
 detail_tree_inside,内侧树木,1
 detail_tree_outside,外侧树木,1
-detail_triple_caution,结冰路面,1
+detail_ice,结冰路面,1
 detail_tunnel,隧道,1
 detail_turn,转,0
 detail_unseen,视野外的,1
