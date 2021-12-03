@@ -14,7 +14,7 @@
 ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，车队QQ群：207790761，路书录制交流群：697673264
 
 #### 白嫖指南 (可参见视频 [版本通用使用教程](https://www.bilibili.com/video/BV1oq4y1u7ua/))
-1. 安装[.net 5.0运行时](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-desktop-5.0.9-windows-x64-installer)
+1. 安装[.net 5.0运行时](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-desktop-5.0.12-windows-arm64-installer)
 2. 通过[下载地址](https://gitee.com/ztmz/ztmz_pacenote/releases)下载最新版的名为 __"ZTMZ Club路书工具x.y.zip"__ 的压缩包并解压
 3. 执行其中的`ZTMZ.PacenoteTool.exe`或“双击运行.bat”
 4. 打开游戏
