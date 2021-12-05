@@ -411,12 +411,18 @@ namespace ZTMZ.PacenoteTool
             if (ScriptResource.FALLBACK.ContainsKey(keyword))
             {
                 var fallbacks = ScriptResource.FALLBACK[keyword].Split('>', StringSplitOptions.RemoveEmptyEntries);
-                AutoResampledCachedSound sound = new AutoResampledCachedSound();
-                foreach (var fallback in fallbacks)
+                if (fallbacks.Length > 1)
                 {
-                    sound.Append(getSoundByKeyword(fallback, codriverPackage));
+                    AutoResampledCachedSound sound = new AutoResampledCachedSound();
+                    foreach (var fallback in fallbacks)
+                    {
+                        sound.Append(getSoundByKeyword(fallback, codriverPackage));
+                    }
+                    return sound;
+                } else if (fallbacks.Length == 1)
+                {
+                    return getSoundByKeyword(fallbacks[0], codriverPackage);
                 }
-                return sound;
             }
 
             if (!isFinal)

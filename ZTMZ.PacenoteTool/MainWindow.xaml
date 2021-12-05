@@ -315,7 +315,7 @@
             </Hyperlink>
         </TextBlock>
         <TextBlock Grid.Row="11" HorizontalAlignment="Right" Foreground="#FFF" Margin="0 0 5 0">
-            authored by 草帽不是猫
+            by 草帽不是猫
             <TextBlock.Effect>
                 <DropShadowEffect ShadowDepth="2" BlurRadius="0"  />
             </TextBlock.Effect>

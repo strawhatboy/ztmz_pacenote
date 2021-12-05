@@ -70,7 +70,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 
 #### 如何贡献代码
 1. Fork本项目并使用git下载源码
-2. 安装[.net 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/thank-you/sdk-5.0.303-windows-x64-installer)
+2. 安装[.net 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-desktop-5.0.12-windows-x64-installer)
 3. 使用visual studio 2019或JetBrains Rider通过根目录的ZTMZ.PacenoteTool.sln文件打开本项目
 4. 做出修改调试运行无误后推送至gitee，再创建PR到本项目
 
