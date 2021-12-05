@@ -348,6 +348,12 @@ namespace ZTMZ.PacenoteTool
             foreach (var codriver in this._profileManager.GetAllCodrivers())
             {
                 this.cb_codrivers.Items.Add(codriver);
+
+                if (!isCodriverSelected && Config.Instance.UseDefaultSoundPackageByDefault)
+                {
+                    this.cb_codrivers.SelectedIndex = 0;
+                    isCodriverSelected = true;
+                }
                 if (!isCodriverSelected && codriver != ProfileManager.DEFAULT_CODRIVER)
                 {
                     // dont select 'default' codriver

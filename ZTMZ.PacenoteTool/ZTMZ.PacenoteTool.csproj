@@ -29,6 +29,7 @@
       <PackageReference Include="Autoupdater.NET.Official" Version="1.7.0" />
       <PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
       <PackageReference Include="GameOverlay.Net" Version="4.3.1" />
+      <PackageReference Include="MaterialDesignThemes" Version="4.3.0" />
       <PackageReference Include="NAudio" Version="2.0.1" />
       <PackageReference Include="NAudio.Extras" Version="1.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
