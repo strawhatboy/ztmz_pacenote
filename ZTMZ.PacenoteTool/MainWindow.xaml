@@ -17,7 +17,7 @@
             <RowDefinition Height="20" />
             <RowDefinition Height="120" />
             <RowDefinition Height="4" />
-            <RowDefinition Height="150" />
+            <RowDefinition Height="175" />
             <RowDefinition Height="4" />
             <RowDefinition Height="25" />
             <RowDefinition Height="25" />
@@ -234,6 +234,7 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
 
@@ -288,6 +289,8 @@
                 <ComboBoxItem ToolTip="纯语音录制">纯语音模式</ComboBoxItem>
                 <ComboBoxItem ToolTip="通过语音识别自动录制脚本">自动脚本模式</ComboBoxItem>
             </ComboBox>
+            <TextBlock Grid.Row="6" Grid.Column="0" ToolTip="是否在游戏中显示悬浮窗" FontWeight="Bold">悬浮窗显示：</TextBlock>
+            <CheckBox x:Name="chk_Hud" Grid.Row="6" Grid.Column="1" Click="chk_Hud_Click" />
         </Grid>
         <Border Grid.Row="8" Margin="1" Background="#8888" />
         <xctk:DropDownButton Grid.Row="9" HorizontalAlignment="Left" VerticalAlignment="Top" Content="相关工具">

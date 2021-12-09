@@ -41,8 +41,8 @@ namespace ZTMZ.PacenoteTool
         private bool _isRecordingInProgress = false;
         private bool _isPureAudioRecording = true;
         private ScriptEditor.MainWindow _scriptWindow;
-        private string _title = "ZTMZ Club 路书工具 v2.4.4";
-        private string _devTitle = "ZTMZ Club 路书工具开发版 v2.4.4";
+        private string _title = "ZTMZ Club 路书工具 v2.5";
+        private string _devTitle = "ZTMZ Club 路书工具开发版 v2.5";
 
 
         private RecordingConfig _recordingConfig = new RecordingConfig()
@@ -88,6 +88,7 @@ namespace ZTMZ.PacenoteTool
             this.checkIfDevVersion();
             this.initializeGameOverlay();
             this.initializeAutoRecorder();
+            this.applyUserConfig();
         }
 
         private void registerHotKeys()
@@ -351,23 +352,23 @@ namespace ZTMZ.PacenoteTool
 
                 if (!isCodriverSelected && Config.Instance.UseDefaultSoundPackageByDefault)
                 {
-                    this.cb_codrivers.SelectedIndex = 0;
+                    //this.cb_codrivers.SelectedIndex = 0;
                     isCodriverSelected = true;
                 }
                 if (!isCodriverSelected && codriver != ProfileManager.DEFAULT_CODRIVER)
                 {
                     // dont select 'default' codriver
-                    this.cb_codrivers.SelectedIndex = this.cb_codrivers.Items.Count - 1;
+                    //this.cb_codrivers.SelectedIndex = this.cb_codrivers.Items.Count - 1;
                     isCodriverSelected = true;
                 }
             }
             if (this.cb_codrivers.Items.Count == 1)
             {
                 // only 'default' presents
-                this.cb_codrivers.SelectedIndex = 0;
+                //this.cb_codrivers.SelectedIndex = 0;
             }
 
-            this.cb_profile.SelectedIndex = 0;
+            //this.cb_profile.SelectedIndex = 0;
 
             this._recordingDevices = AudioRecorder.GetRecordingDeviceList();
             foreach (var rDevice in this._recordingDevices)
@@ -381,7 +382,8 @@ namespace ZTMZ.PacenoteTool
                 this.cb_replay_device.Items.Add(WOC.ProductName);
             }
 
-            this.cb_replay_device.SelectedIndex = 0;
+            //this.cb_replay_device.SelectedIndex = 0;
+
 
             // if there's no recording device, would throw exception...
             if (this._recordingDevices.Count() > 0)
@@ -493,6 +495,28 @@ namespace ZTMZ.PacenoteTool
             };
         }
 
+        private void applyUserConfig()
+        {
+            if (Config.Instance.UI_SelectedProfile < this.cb_profile.Items.Count)
+            {
+                this.cb_profile.SelectedIndex = Config.Instance.UI_SelectedProfile;
+            }
+
+            if (Config.Instance.UI_SelectedAudioPackage < this.cb_codrivers.Items.Count)
+            {
+                this.cb_codrivers.SelectedIndex = Config.Instance.UI_SelectedAudioPackage;
+            }
+
+            if (Config.Instance.UI_SelectedPlaybackDevice < this.cb_replay_device.Items.Count)
+            {
+                this.cb_replay_device.SelectedIndex = Config.Instance.UI_SelectedPlaybackDevice;
+            }
+
+            this.chk_Hud.IsChecked = Config.Instance.UI_ShowHud;
+            this.sl_scriptTiming.Value = Config.Instance.UI_PlaybackAdjustSeconds;
+            this.s_volume.Value = Config.Instance.UI_PlaybackVolume;
+        }
+
 
         private void Ck_record_OnChecked(object sender, RoutedEventArgs e)
         {
@@ -602,11 +626,15 @@ namespace ZTMZ.PacenoteTool
         private void cb_profile_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this._profileManager.CurrentProfile = this.cb_profile.SelectedItem.ToString().Split('/')[1];
+            Config.Instance.UI_SelectedProfile = this.cb_profile.SelectedIndex;
+            Config.Instance.Save();
         }
 
         private void cb_replay_device_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this._profileManager.CurrentPlayDeviceId = this.cb_replay_device.SelectedIndex;
+            Config.Instance.UI_SelectedPlaybackDevice = this.cb_replay_device.SelectedIndex;
+            Config.Instance.Save();
         }
 
         private void btn_play_example_Click(object sender, RoutedEventArgs e)
@@ -638,14 +666,14 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)
         {
-            if (this._profileManager.CurrentItineraryPath != null)
+            //if (this._profileManager.CurrentItineraryPath != null)
             {
                 // System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe",
                 //    string.Format("\"{0}\"", System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath))));
                 ScriptEditor.App.InitHighlightComponent();
                 _scriptWindow = new ScriptEditor.MainWindow();
                 _scriptWindow.Show();
-                _scriptWindow.HandleFileOpen(System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath));
+                //_scriptWindow.HandleFileOpen(System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath));
             }
         }
 
@@ -657,6 +685,8 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         private void cb_codrivers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this._profileManager.CurrentCoDriverSoundPackagePath = this.cb_codrivers.SelectedItem.ToString();
+            Config.Instance.UI_SelectedAudioPackage = this.cb_codrivers.SelectedIndex;
+            Config.Instance.Save();
         }
 
         private void S_volume_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -669,6 +699,8 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 {
                     this.tb_volume.Text = value > 0 ? $"+{value}" : $"{value}";
                 }
+                Config.Instance.UI_PlaybackVolume = e.NewValue;
+                Config.Instance.Save();
             }
         }
 
@@ -687,6 +719,8 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
             var value = this.sl_scriptTiming.Value.ToString("0.0");
             this._scriptTiming = this.sl_scriptTiming.Value;
             this.tb_scriptTiming.Text = (this.sl_scriptTiming.Value > 0 ? $"+{value}" : $"{value}") + "秒";
+            Config.Instance.UI_PlaybackAdjustSeconds = e.NewValue;
+            Config.Instance.Save();
         }
 
         //private void S_playpointAdjust_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -710,6 +744,22 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         private void tb_soundSettings_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("rundll32.exe", "Shell32.dll, Control_RunDLL \"C:\\Windows\\System32\\mmsys.cpl"));
+        }
+
+        private void chk_Hud_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.chk_Hud.IsChecked.HasValue)
+            {
+                if (this.chk_Hud.IsChecked.Value)
+                {
+                    //this.chk_Hud.IsChecked = false;
+                } else
+                {
+                }
+
+                Config.Instance.UI_ShowHud = this.chk_Hud.IsChecked.Value;
+                Config.Instance.Save();
+            }
         }
     }
 }

@@ -1,11 +1,15 @@
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace ZTMZ.PacenoteTool.Base
 {
     public class Config
     {
+        public const string CONFIG_FILE = "config.json";
+        public const string USER_CONFIG_FILE = "userconfig.json";
+
         private Config()
         {
 
@@ -45,25 +49,51 @@ namespace ZTMZ.PacenoteTool.Base
 
         public string SpeechRecogizerModelPath { set; get; } = "speech_model";
 
-        public void Save()
+
+        // user config
+        public int UI_SelectedProfile { set; get; } = 0;
+        public int UI_SelectedPlaybackDevice { set; get; } = 0;
+        public int UI_SelectedAudioPackage { set; get; } = 0;
+        public double UI_PlaybackVolume { set; get; } = 0;
+        public bool UI_ShowHud { set; get; } = true;
+        public double UI_PlaybackAdjustSeconds { set; get; } = 0;
+
+
+        public void Save(string path=USER_CONFIG_FILE)
         {
-            File.WriteAllText("config.json", JsonConvert.SerializeObject(this, Formatting.Indented));
+            File.WriteAllText(path, JsonConvert.SerializeObject(this, Formatting.Indented));
         }
 
         public static Config Load()
         {
-            if (File.Exists("config.json"))
+            Config config = null;
+            Config userconfig = null;
+            // 1. create config if not exist
+            if (!File.Exists(CONFIG_FILE))
             {
-                return JsonConvert.DeserializeObject<Config>(File.ReadAllText("config.json"));
+                config = new Config();
+                config.SupportedAudioTypes = new List<string>()
+                {
+                    "*.wav", "*.mp3", "*.aiff", "*.wma", "*.aac", "*.mp4", "*.m4a"
+                };
+                config.Save(CONFIG_FILE);
+            } else
+            {
+                config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(CONFIG_FILE));
             }
 
-            var config = new Config();
-            config.SupportedAudioTypes = new List<string>()
+            if (!File.Exists(USER_CONFIG_FILE))
             {
-                "*.wav", "*.mp3", "*.aiff", "*.wma", "*.aac", "*.mp4", "*.m4a"
-            };
-            config.Save();
-            return config;
+                File.Copy(CONFIG_FILE, USER_CONFIG_FILE);
+                userconfig = config;
+            } else
+            {
+                userconfig = JsonConvert.DeserializeObject<Config>(File.ReadAllText(USER_CONFIG_FILE));
+            }
+
+            // 2. merge userconfig with config
+
+            return userconfig;
         }
 
         public static Config Instance
@@ -76,6 +106,18 @@ namespace ZTMZ.PacenoteTool.Base
                 }
 
                 return _instance;
+            }
+        }
+
+        public void MergeFrom(Config config)
+        {
+            var properties = typeof(Config).GetProperties();
+            foreach (var p in properties)
+            {
+                if (p.GetValue(this) != config)
+                {
+
+                }
             }
         }
     }
