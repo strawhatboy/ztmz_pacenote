@@ -118,7 +118,7 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
 
                             var resampler = new MediaFoundationResampler(
                                 new SampleToWaveProvider(new AutoResampledCachedSoundSampleProvider(wavFile)),
-                                WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 2));
+                                WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1));
                             //var tmp = System.IO.Path.GetTempFileName();
                             //WaveFileWriter.CreateWaveFile(tmp, resampler);
                             //using (var waveReader = new WaveFileReader(tmp))

@@ -110,7 +110,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._AutoScript_HackGameWhenStart;
         }
 
-        private bool _UseDefaultSoundPackageByDefault = true;
+        private bool _UseDefaultSoundPackageByDefault = false;
         public bool UseDefaultSoundPackageByDefault
         {
             set { this._UseDefaultSoundPackageByDefault = value; this._userconfig["UseDefaultSoundPackageByDefault"] = value; }

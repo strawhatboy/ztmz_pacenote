@@ -448,7 +448,7 @@ namespace ZTMZ.PacenoteTool
         public void PlayExample()
         {
             this._exampleAudio.Amplification = this.CurrentPlayAmplification;
-            this.Player.PlaySound(this._exampleAudio);
+            this.Player.PlaySound(this._exampleAudio, false);
         }
 
         public void ReIndex(float distance)

@@ -7,7 +7,8 @@ namespace ZTMZ.PacenoteTool
 {
     public class ZTMZAudioPlaybackEngine : IDisposable
     {
-        private readonly WaveOutEvent outputDevice;
+        private readonly WaveOutEvent outputDeviceMixer;
+        private readonly WaveOutEvent outputDeviceSequential;
         private readonly MixingSampleProvider mixer;
         private readonly SequentialSampleProvider sequential;
         private readonly bool _isSequential;
@@ -15,29 +16,29 @@ namespace ZTMZ.PacenoteTool
 
         public ZTMZAudioPlaybackEngine(int deviceID = -1, bool isSequential = true, int desiredLatency = 50, int sampleRate = 44100, int channelCount = 2)
         {
-            outputDevice = new WaveOutEvent();
+            outputDeviceMixer = new WaveOutEvent();
+            outputDeviceSequential = new WaveOutEvent();
             var ieeeFloatWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channelCount);
             mixer = new MixingSampleProvider(ieeeFloatWaveFormat);
             mixer.ReadFully = true;
             sequential = new SequentialSampleProvider(ieeeFloatWaveFormat);
             sequential.ReadFully = true;
-            outputDevice.DeviceNumber = deviceID;
-            outputDevice.DesiredLatency = desiredLatency;
+            outputDeviceMixer.DeviceNumber = deviceID;
+            outputDeviceMixer.DesiredLatency = desiredLatency;
+            outputDeviceSequential.DeviceNumber = deviceID;
+            outputDeviceSequential.DesiredLatency = desiredLatency;
             _isSequential = isSequential;
-            if (isSequential)
-            {
-                outputDevice.Init(sequential);
-            } else
-            {
-                outputDevice.Init(mixer);
-            }
-            outputDevice.Play();
+
+            outputDeviceMixer.Init(mixer);
+            outputDeviceSequential.Init(sequential);
+            outputDeviceMixer.Play();
+            outputDeviceSequential.Play();
         }
 
-        public void PlaySound(string fileName)
+        public void PlaySound(string fileName, bool isSequential = true)
         {
             var input = new AudioFileReader(fileName);
-            AddMixerInput(new AutoDisposeFileReader(input));
+            AddMixerInput(new AutoDisposeFileReader(input), isSequential);
         }
 
         private ISampleProvider ConvertToRightChannelCount(ISampleProvider input)
@@ -53,14 +54,14 @@ namespace ZTMZ.PacenoteTool
             throw new NotImplementedException("Not yet implemented this channel count conversion");
         }
 
-        public void PlaySound(AutoResampledCachedSound sound)
+        public void PlaySound(AutoResampledCachedSound sound, bool isSequential = true)
         {
-            AddMixerInput(new AutoResampledCachedSoundSampleProvider(sound));
+            AddMixerInput(new AutoResampledCachedSoundSampleProvider(sound), isSequential);
         }
 
-        private void AddMixerInput(ISampleProvider input)
+        private void AddMixerInput(ISampleProvider input, bool isSequential = true)
         {
-            if (_isSequential)
+            if (isSequential)
             {
                 sequential.AddSequentialInput(ConvertToRightChannelCount(input));
             }
@@ -72,7 +73,8 @@ namespace ZTMZ.PacenoteTool
 
         public void Dispose()
         {
-            outputDevice.Dispose();
+            outputDeviceMixer.Dispose();
+            outputDeviceSequential.Dispose();
         }
     }
 }

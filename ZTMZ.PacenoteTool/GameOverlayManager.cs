@@ -22,7 +22,7 @@ namespace ZTMZ.PacenoteTool
             WINEVENT_INCONTEXT = 0x0004, // Events are SYNC, this causes your dll to be injected into every process
         }
 
-        delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType,
+        public delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType,
             IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
         public enum WinEvents : uint
@@ -306,31 +306,34 @@ namespace ZTMZ.PacenoteTool
         }
 
         [DllImport("user32.dll")]
-        static extern IntPtr SetWinEventHook(WinEvents eventMin, WinEvents eventMax, IntPtr
+        public static extern IntPtr SetWinEventHook(WinEvents eventMin, WinEvents eventMax, IntPtr
                 hmodWinEventProc, WinEventDelegate lpfnWinEventProc, uint idProcess,
             uint idThread, WinEventFlags dwFlags);
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool GetClientRect(IntPtr hWnd, ref Rect rect);
+        public static extern bool GetClientRect(IntPtr hWnd, ref Rect rect);
     }
 
 
     public class GameOverlayManager
     {
-        public static string GAME_PROCESS = "Notepad";
+        public static string GAME_PROCESS = "dirtrally2";
         private StickyWindow _window;
 
         private readonly Dictionary<string, SolidBrush> _brushes = new();
         private readonly Dictionary<string, Font> _fonts = new();
         private readonly Dictionary<string, Image> _images = new();
+        private BackgroundWorker _bgw;
+        private bool _isRunning;
 
-        private Geometry _gridGeometry;
-        private Rectangle _gridBounds;
 
         private Random _random;
-        private long _lastRandomSet;
-        private List<Action<Graphics, float, float>> _randomFigures;
+
+        public string TrackName { set; get; } = "";
+        public string AudioPackage { set; get; } = "";
+        public string ScriptAuthor { set; get; } = "";
+        public string PacenoteType { set; get; } = "";
 
         public void InitializeOverlay(System.Diagnostics.Process process)
         {
@@ -368,6 +371,7 @@ namespace ZTMZ.PacenoteTool
             _brushes["green"] = gfx.CreateSolidBrush(0, 255, 0);
             _brushes["blue"] = gfx.CreateSolidBrush(0, 0, 255);
             _brushes["background"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 100);
+            _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
             _brushes["grid"] = gfx.CreateSolidBrush(255, 255, 255, 0.2f);
             _brushes["random"] = gfx.CreateSolidBrush(0, 0, 0);
 
@@ -375,42 +379,6 @@ namespace ZTMZ.PacenoteTool
 
             _fonts["arial"] = gfx.CreateFont("Arial", 12);
             _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
-
-            _gridBounds = new Rectangle(20, 60, gfx.Width - 20, gfx.Height - 20);
-            _gridGeometry = gfx.CreateGeometry();
-
-            for (float x = _gridBounds.Left; x <= _gridBounds.Right; x += 20)
-            {
-                var line = new Line(x, _gridBounds.Top, x, _gridBounds.Bottom);
-                _gridGeometry.BeginFigure(line);
-                _gridGeometry.EndFigure(false);
-            }
-
-            for (float y = _gridBounds.Top; y <= _gridBounds.Bottom; y += 20)
-            {
-                var line = new Line(_gridBounds.Left, y, _gridBounds.Right, y);
-                _gridGeometry.BeginFigure(line);
-                _gridGeometry.EndFigure(false);
-            }
-
-            _gridGeometry.Close();
-
-            _randomFigures = new List<Action<Graphics, float, float>>()
-            {
-                (g, x, y) => g.DrawRectangle(GetRandomColor(), x + 10, y + 10, x + 110, y + 110, 2.0f),
-                (g, x, y) => g.DrawCircle(GetRandomColor(), x + 60, y + 60, 48, 2.0f),
-                (g, x, y) => g.DrawRoundedRectangle(GetRandomColor(), x + 10, y + 10, x + 110, y + 110, 8.0f, 2.0f),
-                (g, x, y) => g.DrawTriangle(GetRandomColor(), x + 10, y + 110, x + 110, y + 110, x + 60, y + 10, 2.0f),
-                (g, x, y) => g.DashedRectangle(GetRandomColor(), x + 10, y + 10, x + 110, y + 110, 2.0f),
-                (g, x, y) => g.DashedCircle(GetRandomColor(), x + 60, y + 60, 48, 2.0f),
-                (g, x, y) => g.DashedRoundedRectangle(GetRandomColor(), x + 10, y + 10, x + 110, y + 110, 8.0f, 2.0f),
-                (g, x, y) =>
-                    g.DashedTriangle(GetRandomColor(), x + 10, y + 110, x + 110, y + 110, x + 60, y + 10, 2.0f),
-                (g, x, y) => g.FillRectangle(GetRandomColor(), x + 10, y + 10, x + 110, y + 110),
-                (g, x, y) => g.FillCircle(GetRandomColor(), x + 60, y + 60, 48),
-                (g, x, y) => g.FillRoundedRectangle(GetRandomColor(), x + 10, y + 10, x + 110, y + 110, 8.0f),
-                (g, x, y) => g.FillTriangle(GetRandomColor(), x + 10, y + 110, x + 110, y + 110, x + 60, y + 10),
-            };
         }
 
         private void _window_DestroyGraphics(object sender, DestroyGraphicsEventArgs e)
@@ -423,42 +391,19 @@ namespace ZTMZ.PacenoteTool
         private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e)
         {
             var gfx = e.Graphics;
+            //_gridBounds = new Rectangle(20, 60, gfx.Width - 600, gfx.Height - 20);
 
-            var padding = 16;
+            var padding = 200;
             var infoText = new StringBuilder()
-                .Append("FPS: ").Append(gfx.FPS.ToString().PadRight(padding))
-                .Append("FrameTime: ").Append(e.FrameTime.ToString().PadRight(padding))
-                .Append("FrameCount: ").Append(e.FrameCount.ToString().PadRight(padding))
-                .Append("DeltaTime: ").Append(e.DeltaTime.ToString().PadRight(padding))
+                .Append("地图：".PadRight(8)).Append(this.TrackName.PadRight(padding)).AppendLine()
+                .Append("语音包：".PadRight(8)).Append(this.AudioPackage.PadRight(padding)).AppendLine()
+                .Append("路书作者：".PadRight(8)).Append(this.ScriptAuthor.PadRight(padding)).AppendLine()
+                .Append("路书类型：".PadRight(8)).Append(this.PacenoteType.PadRight(padding))
                 .ToString();
 
-            gfx.ClearScene(_brushes["background"]);
+            gfx.ClearScene(_brushes["clear"]);
 
-            gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["black"], 58, 20, infoText);
-
-            gfx.DrawGeometry(_gridGeometry, _brushes["grid"], 1.0f);
-
-            if (_lastRandomSet == 0L || e.FrameTime - _lastRandomSet > 2500)
-            {
-                _lastRandomSet = e.FrameTime;
-            }
-
-            _random = new Random(unchecked((int)_lastRandomSet));
-
-            for (float row = _gridBounds.Top + 12; row < _gridBounds.Bottom - 120; row += 120)
-            {
-                for (float column = _gridBounds.Left + 12; column < _gridBounds.Right - 120; column += 120)
-                {
-                    DrawRandomFigure(gfx, column, row);
-                }
-            }
-        }
-
-        private void DrawRandomFigure(Graphics gfx, float x, float y)
-        {
-            var action = _randomFigures[_random.Next(0, _randomFigures.Count)];
-
-            action(gfx, x, y);
+            gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], gfx.Width - 400, 10, infoText);
         }
 
         private SolidBrush GetRandomColor()
@@ -505,15 +450,20 @@ namespace ZTMZ.PacenoteTool
 
         public void StartLoop()
         {
-            BackgroundWorker bgw = new BackgroundWorker();
-            bgw.DoWork += (sender, args) =>
+            _isRunning = true;
+            _bgw = new BackgroundWorker();
+            _bgw.DoWork += (sender, args) =>
             {
-                while (true)
+                while (_isRunning)
                 {
                     // 1. find process   
                     var processes = System.Diagnostics.Process.GetProcessesByName(GAME_PROCESS);
+
                     if (processes.Length > 0 && _window == null)
                     {
+                        Thread.Sleep(5000);
+                        // dr2 has 2 windows during launching...shit
+                        processes = System.Diagnostics.Process.GetProcessesByName(GAME_PROCESS);
                         var process = processes.First();
                         this.InitializeOverlay(process);
                     }
@@ -524,11 +474,19 @@ namespace ZTMZ.PacenoteTool
                         _window.Dispose();
                         _window = null;
                     }
-
-                    Thread.Sleep(5000);
+                    Thread.Sleep(1000);
                 }
             };
-            bgw.RunWorkerAsync();
+            _bgw.RunWorkerAsync();
+        }
+
+        public void StopLoop()
+        {
+            _window?.Dispose();
+            _window = null;
+            _bgw?.Dispose();
+            _bgw = null;
+            _isRunning = false;
         }
     }
 }

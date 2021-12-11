@@ -7,7 +7,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="ZTMZ Club 路书工具 v2.4.4" Height="605" Width="320" Loaded="Window_Loaded">
+        Title="ZTMZ Club 路书工具 v2.4.4" Height="625" Width="320" Loaded="Window_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
@@ -111,7 +111,7 @@
                       SelectionChanged="cb_profile_SelectionChanged" />
         </Grid>
 
-        <TabControl Grid.Row="5" Name="tab_playMode">
+        <TabControl Grid.Row="5" Name="tab_playMode" SelectedIndex="1">
             <TabItem Header="纯语音模式">
 
                 <Grid>
@@ -196,7 +196,10 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="30" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0">领航员语音包：</TextBlock>
+                    <TextBlock Grid.Row="0" Grid.Column="0" FontSize="16" >领航员语音包：
+                        <TextBlock.Effect>
+                            <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
+                        </TextBlock.Effect></TextBlock>
                     <ComboBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Name="cb_codrivers"
                               SelectionChanged="cb_codrivers_SelectionChanged" />
 
@@ -245,7 +248,10 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0">当前地图：</TextBlock>
-            <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="在游戏进行时不可切换播放设备">播放设备：</TextBlock>
+            <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="在游戏进行时不可切换播放设备" FontSize="16">播放设备：
+                <TextBlock.Effect>
+                    <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
+                </TextBlock.Effect></TextBlock>
             <TextBlock Grid.Row="0" Grid.Column="1" Name="tb_currentTrack">未知</TextBlock>
             <Button Grid.Row="0" Grid.Column="2" Name="tb_currentTrack_view" ToolTip="打开当前地图录制文件夹"
                     Click="tb_currentTrack_view_Click">
@@ -261,7 +267,10 @@
                     ToolTip="播放示例声音">
                 ▶
             </Button>
-            <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="调整播放音量，增大音量时可能会出现音频波形丢失而引起的失真情况">播放音量：</TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="调整播放音量，增大音量时可能会出现音频波形丢失而引起的失真情况" FontSize="16">播放音量：
+                <TextBlock.Effect>
+                    <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
+                </TextBlock.Effect></TextBlock>
             <Slider Name="s_volume" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Maximum="1000" Minimum="-1000" Interval="1"
                     Value="0" ValueChanged="S_volume_OnValueChanged" />
             <TextBlock Grid.Row="2" Grid.Column="3" Name="tb_volume">0</TextBlock>
@@ -276,20 +285,23 @@
             <Slider Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" x:Name="sl_scriptTiming" Maximum="2" Minimum="-2" Value="0" ValueChanged="Sl_scriptTiming_OnValueChanged" IsEnabled="True"></Slider>
             <TextBlock Grid.Row="3" Grid.Column="3" x:Name="tb_scriptTiming">0秒</TextBlock>
 
-            <TextBlock Grid.Row="4" Grid.Column="0" ToolTip="在游戏进行时不可切换播放模式" FontSize="16" FontWeight="Bold">播放模式：</TextBlock>
+            <TextBlock Grid.Row="4" Grid.Column="0" ToolTip="在游戏进行时不可切换播放模式" FontWeight="Bold">播放模式：</TextBlock>
             <ComboBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_replay_mode"
                       SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="2">
                 <ComboBoxItem ToolTip="纯语音录制和播放">纯语音模式</ComboBoxItem>
                 <ComboBoxItem ToolTip="使用脚本模式播放，需要配置领航员语音包">脚本模式</ComboBoxItem>
                 <ComboBoxItem ToolTip="群魔乱舞！不可在同时存在动态脚本和纯语音路书的赛道使用">混合模式</ComboBoxItem>
             </ComboBox>
-            <TextBlock Grid.Row="5" Grid.Column="0" ToolTip="在游戏进行时不可切换播放模式" FontSize="16" FontWeight="Bold">录制模式：</TextBlock>
+            <TextBlock Grid.Row="5" Grid.Column="0" ToolTip="在游戏进行时不可切换播放模式" FontWeight="Bold">录制模式：</TextBlock>
             <ComboBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_record_mode"
                       SelectionChanged="cb_record_mode_SelectionChanged" SelectedIndex="0">
                 <ComboBoxItem ToolTip="纯语音录制">纯语音模式</ComboBoxItem>
                 <ComboBoxItem ToolTip="通过语音识别自动录制脚本">自动脚本模式</ComboBoxItem>
             </ComboBox>
-            <TextBlock Grid.Row="6" Grid.Column="0" ToolTip="是否在游戏中显示悬浮窗" FontWeight="Bold">悬浮窗显示：</TextBlock>
+            <TextBlock Grid.Row="6" Grid.Column="0" ToolTip="是否在游戏中显示悬浮窗，需要游戏处于窗口模式或无边窗口模式" FontSize="16" FontWeight="Bold">悬浮窗显示：
+                <TextBlock.Effect>
+                    <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
+                </TextBlock.Effect></TextBlock>
             <CheckBox x:Name="chk_Hud" Grid.Row="6" Grid.Column="1" Click="chk_Hud_Click" />
         </Grid>
         <Border Grid.Row="8" Margin="1" Background="#8888" />

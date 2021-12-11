@@ -256,6 +256,7 @@ namespace ZTMZ.PacenoteTool
                     {
                         this.tb_currentTrack.Text = this._trackName;
                         this.tb_currentTrack.ToolTip = this._trackName;
+                        this._gameOverlayManager.TrackName = this._trackName;
                         // disable profile switch, replay device selection
                         this.cb_profile.IsEnabled = false;
                         this.cb_replay_device.IsEnabled = false;
@@ -281,6 +282,7 @@ namespace ZTMZ.PacenoteTool
                             this.Dispatcher.Invoke(() =>
                             {
                                 this.tb_codriver.Text = this._profileManager.CurrentCoDriverName;
+                                this._gameOverlayManager.ScriptAuthor = this._profileManager.CurrentCoDriverName;
                                 if (this._selectReplayMode != 0 &&
                                     this._profileManager.CurrentScriptReader != null)
                                 {
@@ -289,12 +291,14 @@ namespace ZTMZ.PacenoteTool
                                     //this.sl_scriptTiming.IsEnabled =
                                     //    this._profileManager.CurrentScriptReader.IsDynamic;
                                     this.tb_scriptAuthor.Text = this._profileManager.CurrentScriptReader.Author;
+                                    this._gameOverlayManager.ScriptAuthor = this._profileManager.CurrentScriptReader.Author;
                                 }
                                 else
                                 {
                                     this.chb_isDynamicPlay.IsChecked = false;
                                     //this.sl_scriptTiming.IsEnabled = false;
                                     this.tb_scriptAuthor.Text = "???";
+                                    this._gameOverlayManager.ScriptAuthor = "???";
                                 }
 
                                 // switch replay mode tab
@@ -315,6 +319,13 @@ namespace ZTMZ.PacenoteTool
                                     default:
                                         this.tab_playMode.SelectedIndex = 0;
                                         break;
+                                }
+                                if (this.tab_playMode.SelectedIndex == 0)
+                                {
+                                    this._gameOverlayManager.PacenoteType = "纯语音";
+                                } else
+                                {
+                                    this._gameOverlayManager.PacenoteType = "脚本";
                                 }
                             });
                             var firstSound = this._profileManager.AudioFiles.FirstOrDefault();
@@ -345,22 +356,13 @@ namespace ZTMZ.PacenoteTool
                 this.cb_profile.Items.Add(profile);
             }
 
-            bool isCodriverSelected = false;
             foreach (var codriver in this._profileManager.GetAllCodrivers())
             {
+                if (!Config.Instance.UseDefaultSoundPackageByDefault && codriver == ProfileManager.DEFAULT_CODRIVER)
+                {
+                    continue;
+                }
                 this.cb_codrivers.Items.Add(codriver);
-
-                if (!isCodriverSelected && Config.Instance.UseDefaultSoundPackageByDefault)
-                {
-                    //this.cb_codrivers.SelectedIndex = 0;
-                    isCodriverSelected = true;
-                }
-                if (!isCodriverSelected && codriver != ProfileManager.DEFAULT_CODRIVER)
-                {
-                    // dont select 'default' codriver
-                    //this.cb_codrivers.SelectedIndex = this.cb_codrivers.Items.Count - 1;
-                    isCodriverSelected = true;
-                }
             }
             if (this.cb_codrivers.Items.Count == 1)
             {
@@ -456,7 +458,9 @@ namespace ZTMZ.PacenoteTool
 
         private void initializeGameOverlay()
         {
-            this._gameOverlayManager.StartLoop();
+            if (Config.Instance.UI_ShowHud) { 
+                this._gameOverlayManager.StartLoop();
+            }
         }
 
         private void initializeAutoRecorder()
@@ -685,6 +689,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         private void cb_codrivers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this._profileManager.CurrentCoDriverSoundPackagePath = this.cb_codrivers.SelectedItem.ToString();
+            this._gameOverlayManager.AudioPackage = this._profileManager.CurrentCoDriverSoundPackagePath.Split('/', StringSplitOptions.RemoveEmptyEntries).Last();
             Config.Instance.UI_SelectedAudioPackage = this.cb_codrivers.SelectedIndex;
             Config.Instance.SaveUserConfig();
         }
@@ -753,8 +758,10 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 if (this.chk_Hud.IsChecked.Value)
                 {
                     //this.chk_Hud.IsChecked = false;
+                    this._gameOverlayManager.StartLoop();
                 } else
                 {
+                    this._gameOverlayManager.StopLoop();
                 }
 
                 Config.Instance.UI_ShowHud = this.chk_Hud.IsChecked.Value;
