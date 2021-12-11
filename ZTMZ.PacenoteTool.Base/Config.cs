@@ -238,7 +238,7 @@ namespace ZTMZ.PacenoteTool.Base
             if (!File.Exists(USER_CONFIG_FILE))
             {
                 //File.Copy(CONFIG_FILE, USER_CONFIG_FILE);
-                File.WriteAllText(USER_CONFIG_FILE, "{}");
+                File.WriteAllText(USER_CONFIG_FILE, "{ }");
             }
             else
             {
