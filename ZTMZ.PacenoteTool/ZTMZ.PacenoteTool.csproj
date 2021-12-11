@@ -5,10 +5,10 @@
         <TargetFramework>net5.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>QQ图片20210714233523.ico</ApplicationIcon>
-        <AssemblyVersion>2.4.4.0</AssemblyVersion>
+        <AssemblyVersion>2.5.0.0</AssemblyVersion>
         <PackageVersion>2.1.0</PackageVersion>
-        <Version>2.4.4</Version>
-        <FileVersion>2.4.4.0</FileVersion>
+        <Version>2.5.0</Version>
+        <FileVersion>2.5.0.0</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -71,6 +71,9 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="XAudio2_9.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="使用说明.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="双击启动.bat">
