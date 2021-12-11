@@ -15,53 +15,204 @@ namespace ZTMZ.PacenoteTool.Base
 
         }
         private static Config _instance;
+
+        private Dictionary<string, dynamic> _userconfig = new();
         public IList<string> SupportedAudioTypes { set; get; }
 
-        public float ScriptMode_MinDistanceForMerge { set; get; } = 29.7f;
-        public float ScriptMode_PlaySecondsAdvanced { set; get; } = 4f;
+        private float _ScriptMode_MinDistanceForMerge = 30f;
+        public float ScriptMode_MinDistanceForMerge
+        {
+            set { this._ScriptMode_MinDistanceForMerge = value; this._userconfig["ScriptMode_MinDistanceForMerge"] = value; }
+            get => this._ScriptMode_MinDistanceForMerge;
+        }
 
-        public bool UseSequentialMixerToHandleAudioConflict { set; get; } = true;
+        private float _ScriptMode_PlaySecondsAdvanced = 4f;
+        public float ScriptMode_PlaySecondsAdvanced
+        {
+            set { this._ScriptMode_PlaySecondsAdvanced = value; this._userconfig["ScriptMode_PlaySecondsAdvanced"] = value; }
+            get => this._ScriptMode_PlaySecondsAdvanced;
+        }
 
-        public int UDPListenPort { set; get; } = 20777;
+        private bool _UseSequentialMixerToHandleAudioConflict = true;
+        public bool UseSequentialMixerToHandleAudioConflict
+        {
+            set { this._UseSequentialMixerToHandleAudioConflict = value; this._userconfig["UseSequentialMixerToHandleAudioConflict"] = value; }
+            get => this._UseSequentialMixerToHandleAudioConflict;
+        }
 
-        public bool WarnIfPortMismatch { set; get; } = true;
+        private int _UDPListenPort = 20777;
+        public int UDPListenPort
+        {
+            set { this._UDPListenPort = value; this._userconfig["UDPListenPort"] = value; }
+            get => this._UDPListenPort;
+        }
 
-        public int LoopbackCaptureSampleRate { set; get; } = 48000;
-        public int LoopbackCaptureChannels { set; get; } = 2;
+        private bool _WarnIfPortMismatch = true;
+        public bool WarnIfPortMismatch
+        {
+            set { this._WarnIfPortMismatch = value; this._userconfig["WarnIfPortMismatch"] = value; }
+            get => this._WarnIfPortMismatch;
+        }
 
-        public int PlaybackDeviceDesiredLatency { set; get; } = 175;
+        private int _LoopbackCaptureSampleRate = 48000;
+        public int LoopbackCaptureSampleRate
+        {
+            set { this._LoopbackCaptureSampleRate = value; this._userconfig["LoopbackCaptureSampleRate"] = value; }
+            get => this._LoopbackCaptureSampleRate;
+        }
 
-        public bool AutoCleanTempFiles { set; get; } = true;
+        private int _LoopbackCaptureChannels = 2;
+        public int LoopbackCaptureChannels
+        {
+            set { this._LoopbackCaptureChannels = value; this._userconfig["LoopbackCaptureChannels"] = value; }
+            get => this._LoopbackCaptureChannels;
+        }
 
-        public int AutoScript_SamplesCountBeforeClip { set; get; } = 25;
+        private int _PlaybackDeviceDesiredLatency = 175;
+        public int PlaybackDeviceDesiredLatency
+        {
+            set { this._PlaybackDeviceDesiredLatency = value; this._userconfig["PlaybackDeviceDesiredLatency"] = value; }
+            get => this._PlaybackDeviceDesiredLatency;
+        }
 
-        public int AutoScript_RecognizeThreshold { set; get; } = 5;
-        public int AutoScript_RecognizePatience { set; get; } = 10;
-        public bool AutoScript_HackGameWhenStart { set; get; } = false;
+        private bool _AutoCleanTempFiles = true;
+        public bool AutoCleanTempFiles
+        {
+            set { this._AutoCleanTempFiles = value; this._userconfig["AutoCleanTempFiles"] = value; }
+            get => this._AutoCleanTempFiles;
+        }
 
-        public bool UseDefaultSoundPackageByDefault { set; get; } = true;
+        private int _AutoScript_SamplesCountBeforeClip = 25;
+        public int AutoScript_SamplesCountBeforeClip
+        {
+            set { this._AutoScript_SamplesCountBeforeClip = value; this._userconfig["AutoScript_SamplesCountBeforeClip"] = value; }
+            get => this._AutoScript_SamplesCountBeforeClip;
+        }
 
-        public bool PreloadSounds { set; get; } = false;
+        private int _AutoScript_RecognizeThreshold = 5;
+        public int AutoScript_RecognizeThreshold
+        {
+            set { this._AutoScript_RecognizeThreshold = value; this._userconfig["AutoScript_RecognizeThreshold"] = value; }
+            get => this._AutoScript_RecognizeThreshold;
+        }
 
-        public string DirtGamePath { set; get; } = "";
+        private int _AutoScript_RecognizePatience = 10;
+        public int AutoScript_RecognizePatience
+        {
+            set { this._AutoScript_RecognizePatience = value; this._userconfig["AutoScript_RecognizePatience"] = value; }
+            get => this._AutoScript_RecognizePatience;
+        }
 
-        public string PythonPath { set; get; } = "Python38";
+        private bool _AutoScript_HackGameWhenStart = false;
+        public bool AutoScript_HackGameWhenStart
+        {
+            set { this._AutoScript_HackGameWhenStart = value; this._userconfig["AutoScript_HackGameWhenStart"] = value; }
+            get => this._AutoScript_HackGameWhenStart;
+        }
 
-        public string SpeechRecogizerModelPath { set; get; } = "speech_model";
+        private bool _UseDefaultSoundPackageByDefault = true;
+        public bool UseDefaultSoundPackageByDefault
+        {
+            set { this._UseDefaultSoundPackageByDefault = value; this._userconfig["UseDefaultSoundPackageByDefault"] = value; }
+            get => this._UseDefaultSoundPackageByDefault;
+        }
+
+        private bool _PreloadSounds = false;
+        public bool PreloadSounds
+        {
+            set { this._PreloadSounds = value; this._userconfig["PreloadSounds"] = value; }
+            get => this._PreloadSounds;
+        }
+
+        private string _DirtGamePath = "";
+        public string DirtGamePath
+        {
+            set { this._DirtGamePath = value; this._userconfig["DirtGamePath"] = value; }
+            get => this._DirtGamePath;
+        }
+
+        private string _PythonPath = "Python38";
+        public string PythonPath
+        {
+            set { this._PythonPath = value; this._userconfig["PythonPath"] = value; }
+            get => this._PythonPath;
+        }
+
+        private string _SpeechRecogizerModelPath = "speech_model";
+        public string SpeechRecogizerModelPath
+        {
+            set { this._SpeechRecogizerModelPath = value; this._userconfig["SpeechRecogizerModelPath"] = value; }
+            get => this._SpeechRecogizerModelPath;
+        }
 
 
         // user config
-        public int UI_SelectedProfile { set; get; } = 0;
-        public int UI_SelectedPlaybackDevice { set; get; } = 0;
-        public int UI_SelectedAudioPackage { set; get; } = 0;
-        public double UI_PlaybackVolume { set; get; } = 0;
-        public bool UI_ShowHud { set; get; } = true;
-        public double UI_PlaybackAdjustSeconds { set; get; } = 0;
+        private int _UI_SelectedProfile = 0;
+        public int UI_SelectedProfile
+        {
+            set { this._UI_SelectedProfile = value; this._userconfig["UI_SelectedProfile"] = value; }
+            get => this._UI_SelectedProfile;
+        }
+
+        private int _UI_SelectedPlaybackDevice = 0;
+        public int UI_SelectedPlaybackDevice
+        {
+            set { this._UI_SelectedPlaybackDevice = value; this._userconfig["UI_SelectedPlaybackDevice"] = value; }
+            get => this._UI_SelectedPlaybackDevice;
+        }
+
+        private int _UI_SelectedAudioPackage = 0;
+        public int UI_SelectedAudioPackage
+        {
+            set { this._UI_SelectedAudioPackage = value; this._userconfig["UI_SelectedAudioPackage"] = value; }
+            get => this._UI_SelectedAudioPackage;
+        }
+
+        private double _UI_PlaybackVolume = 0;
+        public double UI_PlaybackVolume
+        {
+            set { this._UI_PlaybackVolume = value; this._userconfig["UI_PlaybackVolume"] = value; }
+            get => this._UI_PlaybackVolume;
+        }
+
+        private bool _UI_ShowHud = true;
+        public bool UI_ShowHud
+        {
+            set { this._UI_ShowHud = value; this._userconfig["UI_ShowHud"] = value; }
+            get => this._UI_ShowHud;
+        }
+
+        private double _UI_PlaybackAdjustSeconds = 0;
+        public double UI_PlaybackAdjustSeconds
+        {
+            set { this._UI_PlaybackAdjustSeconds = value; this._userconfig["UI_PlaybackAdjustSeconds"] = value; }
+            get => this._UI_PlaybackAdjustSeconds;
+        }
+
+        private bool _PlayStartAndEndSound = true;
+        public bool PlayStartAndEndSound
+        {
+            set { this._PlayStartAndEndSound = value; this._userconfig["PlayStartAndEndSound"] = value; }
+            get => this._PlayStartAndEndSound;
+        }
+
+        private bool _PlayCollisionSound = true;
+        public bool PlayCollisionSound
+        {
+            set { this._PlayCollisionSound = value; this._userconfig["PlayCollisionSound"] = value; }
+            get => this._PlayCollisionSound;
+        }
 
 
-        public void Save(string path=USER_CONFIG_FILE)
+        public void Save(string path = USER_CONFIG_FILE)
         {
             File.WriteAllText(path, JsonConvert.SerializeObject(this, Formatting.Indented));
+        }
+
+        public void SaveUserConfig()
+        {
+            var content = System.Text.Json.JsonSerializer.Serialize(this._userconfig);
+            File.WriteAllText(USER_CONFIG_FILE, content);
         }
 
         public static Config Load()
@@ -77,18 +228,22 @@ namespace ZTMZ.PacenoteTool.Base
                     "*.wav", "*.mp3", "*.aiff", "*.wma", "*.aac", "*.mp4", "*.m4a"
                 };
                 config.Save(CONFIG_FILE);
-            } else
+            }
+            else
             {
                 config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(CONFIG_FILE));
             }
 
+            userconfig = config;
             if (!File.Exists(USER_CONFIG_FILE))
             {
-                File.Copy(CONFIG_FILE, USER_CONFIG_FILE);
-                userconfig = config;
-            } else
+                //File.Copy(CONFIG_FILE, USER_CONFIG_FILE);
+                File.WriteAllText(USER_CONFIG_FILE, "{}");
+            }
+            else
             {
-                userconfig = JsonConvert.DeserializeObject<Config>(File.ReadAllText(USER_CONFIG_FILE));
+                var rawUserConfig = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, dynamic>>(File.ReadAllText(USER_CONFIG_FILE));
+                userconfig.MergeFromUserConfig(rawUserConfig);
             }
 
             // 2. merge userconfig with config
@@ -109,14 +264,19 @@ namespace ZTMZ.PacenoteTool.Base
             }
         }
 
-        public void MergeFrom(Config config)
+        public void MergeFromUserConfig(Dictionary<string, dynamic> userConfig)
         {
+            this._userconfig = userConfig;
             var properties = typeof(Config).GetProperties();
             foreach (var p in properties)
             {
-                if (p.GetValue(this) != config)
-                {
-
+                if (userConfig.ContainsKey(p.Name))
+                { //  && p.GetValue(this) != userConfig[p.Name]
+                    if (userConfig[p.Name].GetType() == typeof(System.Text.Json.JsonElement))
+                    {
+                        var element = (System.Text.Json.JsonElement)userConfig[p.Name];
+                        p.SetValue(this, System.Text.Json.JsonSerializer.Deserialize(element.GetRawText(), p.PropertyType));
+                    }
                 }
             }
         }

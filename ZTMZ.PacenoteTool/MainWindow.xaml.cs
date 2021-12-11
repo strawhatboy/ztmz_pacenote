@@ -442,7 +442,7 @@ namespace ZTMZ.PacenoteTool
                             Config.Instance.DirtGamePath = res.ToString();
                         }
                     }
-                    Config.Instance.Save();
+                    Config.Instance.SaveUserConfig();
                     GameHacker.HackDLLs(Config.Instance.DirtGamePath);
                 }
             }
@@ -627,14 +627,14 @@ namespace ZTMZ.PacenoteTool
         {
             this._profileManager.CurrentProfile = this.cb_profile.SelectedItem.ToString().Split('/')[1];
             Config.Instance.UI_SelectedProfile = this.cb_profile.SelectedIndex;
-            Config.Instance.Save();
+            Config.Instance.SaveUserConfig();
         }
 
         private void cb_replay_device_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this._profileManager.CurrentPlayDeviceId = this.cb_replay_device.SelectedIndex;
             Config.Instance.UI_SelectedPlaybackDevice = this.cb_replay_device.SelectedIndex;
-            Config.Instance.Save();
+            Config.Instance.SaveUserConfig();
         }
 
         private void btn_play_example_Click(object sender, RoutedEventArgs e)
@@ -686,7 +686,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         {
             this._profileManager.CurrentCoDriverSoundPackagePath = this.cb_codrivers.SelectedItem.ToString();
             Config.Instance.UI_SelectedAudioPackage = this.cb_codrivers.SelectedIndex;
-            Config.Instance.Save();
+            Config.Instance.SaveUserConfig();
         }
 
         private void S_volume_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -700,7 +700,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                     this.tb_volume.Text = value > 0 ? $"+{value}" : $"{value}";
                 }
                 Config.Instance.UI_PlaybackVolume = e.NewValue;
-                Config.Instance.Save();
+                Config.Instance.SaveUserConfig();
             }
         }
 
@@ -720,7 +720,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
             this._scriptTiming = this.sl_scriptTiming.Value;
             this.tb_scriptTiming.Text = (this.sl_scriptTiming.Value > 0 ? $"+{value}" : $"{value}") + "秒";
             Config.Instance.UI_PlaybackAdjustSeconds = e.NewValue;
-            Config.Instance.Save();
+            Config.Instance.SaveUserConfig();
         }
 
         //private void S_playpointAdjust_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -758,7 +758,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 }
 
                 Config.Instance.UI_ShowHud = this.chk_Hud.IsChecked.Value;
-                Config.Instance.Save();
+                Config.Instance.SaveUserConfig();
             }
         }
     }
