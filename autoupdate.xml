@@ -3,5 +3,5 @@
     <version>2.5.0.0</version>
     <url>http://strawhat.asia:8000/api/pacenotetool/latest.zip</url>
     <changelog>https://gitee.com/ztmz/ztmz_pacenote/raw/master/ZTMZ.PacenoteTool/更新记录.txt</changelog>
-    <mandatory>false</mandatory>
+    <mandatory minVersion="2.4.4.0">true</mandatory>
 </item>
