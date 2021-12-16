@@ -395,10 +395,10 @@ namespace ZTMZ.PacenoteTool
 
             var padding = 200;
             var infoText = new StringBuilder()
-                .Append("µØÍ¼£º".PadRight(8)).Append(this.TrackName.PadRight(padding)).AppendLine()
-                .Append("ÓïÒô°ü£º".PadRight(8)).Append(this.AudioPackage.PadRight(padding)).AppendLine()
-                .Append("Â·Êé×÷Õß£º".PadRight(8)).Append(this.ScriptAuthor.PadRight(padding)).AppendLine()
-                .Append("Â·ÊéÀàÐÍ£º".PadRight(8)).Append(this.PacenoteType.PadRight(padding))
+                .Append("åœ°å›¾ï¼š".PadRight(8)).Append(this.TrackName.PadRight(padding)).AppendLine()
+                .Append("è¯­éŸ³åŒ…ï¼š".PadRight(8)).Append(this.AudioPackage.PadRight(padding)).AppendLine()
+                .Append("è·¯ä¹¦ä½œè€…ï¼š".PadRight(8)).Append(this.ScriptAuthor.PadRight(padding)).AppendLine()
+                .Append("è·¯ä¹¦ç±»åž‹ï¼š".PadRight(8)).Append(this.PacenoteType.PadRight(padding))
                 .ToString();
 
             gfx.ClearScene(_brushes["clear"]);
