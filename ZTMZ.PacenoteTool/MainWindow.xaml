@@ -15,8 +15,7 @@
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}"
-        Title="ZTMZ Club 路书工具 v2.4.4" Height="800" Width="340" Loaded="Window_Loaded">
+        Title="ZTMZ Club 路书工具" Height="800" Width="340" Loaded="Window_Loaded">
    
     <Grid >
         <Grid.Resources>
@@ -68,7 +67,7 @@
                          ToolTip="模式切换必须在游戏状态处于Unknown时可以（不在游戏中），在播放模式下的游戏开始后如果存在对应地图的路书，就会在到达指定地点后自动播放已经录制的路书片段">
                 播放模式
             </RadioButton>
-            <Button Grid.Column="2" Content="{materialDesign:PackIcon SettingsApplications}" Margin="2" ToolTip="打开设置界面"></Button>
+            <Button Name="btn_Settings" Grid.Column="2" Content="{materialDesign:PackIcon SettingsApplications}" Margin="2" ToolTip="打开设置界面" Click="Btn_Settings_OnClick"></Button>
         </Grid>
         </materialDesign:Card >
         <!-- <Border Grid.Row="1" Margin="1" Background="#8888" /> -->

@@ -768,5 +768,11 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 Config.Instance.SaveUserConfig();
             }
         }
+
+        private void Btn_Settings_OnClick(object sender, RoutedEventArgs e)
+        {
+            SettingsWindow settingsWindow = new SettingsWindow();
+            settingsWindow.Show();
+        }
     }
 }

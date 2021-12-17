@@ -223,7 +223,7 @@ namespace ZTMZ.PacenoteTool.Base
             File.WriteAllText(USER_CONFIG_FILE, content);
         }
 
-        public static Config Load()
+        public static Config Load(bool returnDefault = false)
         {
             Config config = null;
             Config userconfig = null;
@@ -256,7 +256,7 @@ namespace ZTMZ.PacenoteTool.Base
 
             // 2. merge userconfig with config
 
-            return userconfig;
+            return returnDefault ? config : userconfig;
         }
 
         public static Config Instance
@@ -286,6 +286,16 @@ namespace ZTMZ.PacenoteTool.Base
                         p.SetValue(this, System.Text.Json.JsonSerializer.Deserialize(element.GetRawText(), p.PropertyType));
                     }
                 }
+            }
+        }
+
+        public void ResetToDefault()
+        {
+            var defaultConfig = Load(true);
+            var properties = typeof(Config).GetProperties();
+            foreach (var p in properties)
+            {
+                p.SetValue(this, p.GetValue(defaultConfig));
             }
         }
     }
