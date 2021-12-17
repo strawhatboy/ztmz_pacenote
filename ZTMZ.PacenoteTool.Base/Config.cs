@@ -202,6 +202,14 @@ namespace ZTMZ.PacenoteTool.Base
             set { this._PlayCollisionSound = value; this._userconfig["PlayCollisionSound"] = value; }
             get => this._PlayCollisionSound;
         }
+        
+        
+        private int _HudFPS = 30;
+        public int HudFPS
+        {
+            set { this._HudFPS = value; this._userconfig["HudFPS"] = value; }
+            get => this._HudFPS;
+        }
 
 
         public void Save(string path = USER_CONFIG_FILE)

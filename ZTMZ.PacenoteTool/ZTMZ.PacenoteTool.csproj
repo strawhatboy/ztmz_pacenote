@@ -2,13 +2,13 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net5.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>QQ图片20210714233523.ico</ApplicationIcon>
         <AssemblyVersion>2.5.0.0</AssemblyVersion>
         <PackageVersion>2.1.0</PackageVersion>
         <Version>2.5.0</Version>
         <FileVersion>2.5.0.0</FileVersion>
+        <TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>

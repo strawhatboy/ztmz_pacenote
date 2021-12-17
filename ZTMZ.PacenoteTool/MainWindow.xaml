@@ -310,7 +310,7 @@
             <Slider Name="s_volume" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Maximum="1000" Minimum="-1000" Interval="1"
                     Value="0" ValueChanged="S_volume_OnValueChanged" 
                     VerticalAlignment="Center"/>
-            <TextBlock Grid.Row="2" Grid.Column="3" Name="tb_volume">0</TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="3" HorizontalAlignment="Center" Name="tb_volume">0</TextBlock>
             
             <!--<TextBlock Grid.Row="3" Grid.Column="0" ToolTip="[慎用]调整路书播放点，对纯语音路书和脚本路书都有效，比如+10米表示所有路书片段会在推迟10米处播放，-10米表示所有路书片段会在提前10米处播放">播放点调整：</TextBlock>
             <Slider Name="s_playpointAdjust" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Maximum="100" Minimum="-100" Interval="1"
@@ -323,7 +323,7 @@
                     Maximum="2" Minimum="-2" Value="0" ValueChanged="Sl_scriptTiming_OnValueChanged" 
                     IsEnabled="True"
                     VerticalAlignment="Center"></Slider>
-            <TextBlock Grid.Row="3" Grid.Column="3" x:Name="tb_scriptTiming">0秒</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="3" x:Name="tb_scriptTiming" HorizontalAlignment="Center" >0秒</TextBlock>
 
             <TextBlock Grid.Row="4" Grid.Column="0" ToolTip="在游戏进行时不可切换播放模式" FontWeight="Bold">播放模式：</TextBlock>
             <ComboBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_replay_mode"

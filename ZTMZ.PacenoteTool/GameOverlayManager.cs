@@ -9,6 +9,7 @@ using System.Threading;
 using System.Windows;
 using GameOverlay.Windows;
 using GameOverlay.Drawing;
+using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -346,6 +347,7 @@ namespace ZTMZ.PacenoteTool
             _window = new StickyWindow(process.MainWindowHandle, gfx);
             // _window.IsTopmost = true;
             _window.BypassTopmost = true;
+            _window.FPS = Config.Instance.HudFPS;   // 30 fps by default
 
 
             _window.DestroyGraphics += _window_DestroyGraphics;
