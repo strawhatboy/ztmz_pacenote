@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <AssemblyName>ZTMZ.PacenoteTool.AudioBatchProcessor</AssemblyName>
     <PackageId>ZTMZ.PacenoteTool.AudioBatchProcessor</PackageId>
@@ -10,6 +9,7 @@
     <Company>ZTMZ.PacenoteTool.AudioBatchProcessor</Company>
     <Product>ZTMZ.PacenoteTool.AudioBatchProcessor</Product>
     <Version>1.2.0</Version>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
-    <PackageReference Include="MaterialDesignThemes" Version="4.3.0" />
     <PackageReference Include="NAudio" Version="2.0.1" />
     <PackageReference Include="NAudio.Extras" Version="1.0.0" />
     <PackageReference Include="NAudio.Lame" Version="2.0.0" />

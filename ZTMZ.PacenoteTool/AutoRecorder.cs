@@ -60,7 +60,7 @@ namespace ZTMZ.PacenoteTool
             {
                 if (!string.IsNullOrEmpty(s))
                 {
-                    var parts = s.Split('>', StringSplitOptions.RemoveEmptyEntries);
+                    var parts = s.Split(new char[]{'>'}, StringSplitOptions.RemoveEmptyEntries);
                     if (parts.Length == 2)
                     {
                         var dis = int.Parse(parts.First());

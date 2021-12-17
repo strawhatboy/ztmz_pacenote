@@ -58,7 +58,7 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
             try
             {
                 var bgw = new BackgroundWorker();
-                bgw.DoWork += (o, e) =>
+                bgw.DoWork += (o, _) =>
                 {
                     if (!Directory.Exists(outputPath))
                     {
@@ -90,7 +90,7 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
                     foreach (string file in Directory.EnumerateFiles(inputPath, "*.*", SearchOption.AllDirectories))
                     {
                         var relatedFile = file.Replace(inputPath, "");
-                        var outputFile = System.IO.Path.Join(outputPath, relatedFile);
+                        var outputFile = System.IO.Path.Combine(outputPath, relatedFile);
                         var outputFilePath = System.IO.Path.GetDirectoryName(outputFile);
                         var outputFileName = System.IO.Path.GetFileName(outputFile);
                         if (!Directory.Exists(outputFilePath))
@@ -102,7 +102,7 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
                         {
                             // is audio file
                             outputFile = System.IO.Path.GetFileNameWithoutExtension(outputFile) + ".mp3";
-                            outputFile = System.IO.Path.Join(outputFilePath, outputFile);
+                            outputFile = System.IO.Path.Combine(outputFilePath, outputFile);
                             var wavFile = new AutoResampledCachedSound(file);
 
                             // cut head & tail
@@ -159,7 +159,7 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
                         }
                     }
                 };
-                bgw.RunWorkerCompleted += (o, e) =>
+                bgw.RunWorkerCompleted += (o, _) =>
                 {
                     this.enableControls(true);
                     this.tb_status.Text = "完成压缩";
@@ -240,7 +240,7 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
             var inputPath = this.tbx_input.Text;
             var audioTypes = from p in Config.Instance.SupportedAudioTypes select p.Replace("*", "");
             var bgw = new BackgroundWorker();
-            bgw.DoWork += (o, e) =>
+            bgw.DoWork += (o, _) =>
             {
 
                 var filesCount = 0;
@@ -274,7 +274,7 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
                     var file = fileTuple.Item2;
                     var ext = System.IO.Path.GetExtension(file);
                     File.Move(file,
-                        System.IO.Path.Join(System.IO.Path.GetDirectoryName(file),
+                        System.IO.Path.Combine(System.IO.Path.GetDirectoryName(file),
                             string.Format("{0}{1}", distance + this._adjustValue, ext)));
                     this.Dispatcher.Invoke(() =>
                     {
@@ -284,7 +284,7 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
                 }
             };
 
-            bgw.RunWorkerCompleted += (o, e) =>
+            bgw.RunWorkerCompleted += (o,_) =>
             {
                 this.enableControls(true);
                 this.tb_status.Text = "完成调整";

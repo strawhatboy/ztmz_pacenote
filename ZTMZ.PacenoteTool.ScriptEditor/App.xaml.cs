@@ -45,12 +45,13 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         {
             var highlightingRule = new HighlightingRule();
             highlightingRule.Color = new HighlightingColor() { Foreground = new CustomizedBrush(color) };
-            var flagsRegexString = string.Join('|', words);
+            var flagsRegexString = string.Join("|", words);
             highlightingRule.Regex = new System.Text.RegularExpressions.Regex(flagsRegexString);
             def.MainRuleSet.Rules.Add(highlightingRule);
         }
         public App()
         {
+            SetupExceptionHandling();
             InitHighlightComponent();
         }
 
@@ -90,6 +91,42 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 SolidColorBrush brush = new SolidColorBrush(color);
                 brush.Freeze();
                 return brush;
+            }
+        }
+        
+        private void SetupExceptionHandling()
+        {
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+                LogUnhandledException((Exception)e.ExceptionObject, "AppDomain.CurrentDomain.UnhandledException");
+
+            DispatcherUnhandledException += (s, e) =>
+            {
+                LogUnhandledException(e.Exception, "Application.Current.DispatcherUnhandledException");
+                e.Handled = true;
+            };
+
+            TaskScheduler.UnobservedTaskException += (s, e) =>
+            {
+                LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
+                e.SetObserved();
+            };
+        }
+
+        private void LogUnhandledException(Exception exception, string source)
+        {
+            string message = $"Unhandled exception ({source})";
+            try
+            {
+                System.Reflection.AssemblyName assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName();
+                message = string.Format("Unhandled exception in {0} v{1}", assemblyName.Name, assemblyName.Version);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString(), "Exception in LogUnhandledException");
+            }
+            finally
+            {
+                MessageBox.Show(exception.ToString(), message);
             }
         }
     }

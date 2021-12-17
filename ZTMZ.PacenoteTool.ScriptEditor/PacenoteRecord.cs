@@ -200,8 +200,8 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
         public static string[] RawTextToAliases(string rawText)
         {
-            var parts = rawText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            rawText = string.Join(' ', parts);
+            var parts = rawText.Split(new char[]{' '}, StringSplitOptions.RemoveEmptyEntries);
+            rawText = string.Join(" ", parts);
             var len = parts.Length;
             var cur = 0;
             List<string> result = new();
@@ -210,7 +210,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 int wordLen = Math.Min(len - cur, 4);
                 while (wordLen > 0)
                 {
-                    var key = string.Join(' ', parts.Skip(cur).SkipLast(len - cur - wordLen));
+                    var key = string.Join(" ", parts.Skip(cur).Take(wordLen));
                     if (ScriptResource.ALIAS_SPEECH_DICT[wordLen - 1].ContainsKey(key))
                     {
                         // jackpot

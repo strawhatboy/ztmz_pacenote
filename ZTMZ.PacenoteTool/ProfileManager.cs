@@ -259,7 +259,7 @@ namespace ZTMZ.PacenoteTool
         public void StopRecording(string codriver)
         {
             // save the codriver name to config
-            File.WriteAllText(Path.Join(this.CurrentItineraryPath, CODRIVER_FILENAME), codriver);
+            File.WriteAllText(Path.Combine(this.CurrentItineraryPath, CODRIVER_FILENAME), codriver);
         }
 
         public void StartReplaying(string itinerary, int playMode = 0)
@@ -288,7 +288,7 @@ namespace ZTMZ.PacenoteTool
             if (playMode == 0 || playMode == 2)
             {
                 // load codriver name
-                var codirverfilepath = Path.Join(this.CurrentItineraryPath, CODRIVER_FILENAME);
+                var codirverfilepath = Path.Combine(this.CurrentItineraryPath, CODRIVER_FILENAME);
                 if (File.Exists(codirverfilepath))
                 {
                     var codriver = File.ReadLines(codirverfilepath).FirstOrDefault();
@@ -410,7 +410,7 @@ namespace ZTMZ.PacenoteTool
             // not found, try fallback keyword
             if (ScriptResource.FALLBACK.ContainsKey(keyword))
             {
-                var fallbacks = ScriptResource.FALLBACK[keyword].Split('>', StringSplitOptions.RemoveEmptyEntries);
+                var fallbacks = ScriptResource.FALLBACK[keyword].Split(new char[]{'>'}, StringSplitOptions.RemoveEmptyEntries);
                 if (fallbacks.Length > 1)
                 {
                     AutoResampledCachedSound sound = new AutoResampledCachedSound();

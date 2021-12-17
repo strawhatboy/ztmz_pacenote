@@ -5,20 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        TextElement.FontWeight="Regular"
-        TextElement.FontSize="13"
-        TextOptions.TextFormattingMode="Ideal" 
-        TextOptions.TextRenderingMode="Auto"        
-        Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}"
-        Title="ZTMZ Club 路书工具 v2.4.4" Height="800" Width="340" Loaded="Window_Loaded">
+        Title="ZTMZ Club 路书工具 v2.4.4" Height="960" Width="380" Loaded="Window_Loaded"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        ui:WindowHelper.UseModernWindowStyle="True">
    
-    <Grid >
+    <Grid Margin="5 0 5 0">
         <Grid.Resources>
             
             <Style TargetType="TextBlock">
@@ -30,15 +23,15 @@
             <RowDefinition Height="5" />
             <RowDefinition Height="200" />
             <RowDefinition Height="5" />
-            <RowDefinition Height="25" />
+            <RowDefinition Height="40" />
             <RowDefinition Height="5" />
-            <RowDefinition Height="150" />
+            <RowDefinition Height="200" />
             <RowDefinition Height="5" />
-            <RowDefinition Height="240" />
+            <RowDefinition Height="300" />
             <RowDefinition Height="5" />
             <RowDefinition Height="75" />
         </Grid.RowDefinitions>
-        <materialDesign:Card Margin="5 0 5 0">
+        <!-- <materialDesign:Card Margin="5 0 5 0"> -->
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -68,12 +61,14 @@
                          ToolTip="模式切换必须在游戏状态处于Unknown时可以（不在游戏中），在播放模式下的游戏开始后如果存在对应地图的路书，就会在到达指定地点后自动播放已经录制的路书片段">
                 播放模式
             </RadioButton>
-            <Button Grid.Column="2" Content="{materialDesign:PackIcon SettingsApplications}" Margin="2" ToolTip="打开设置界面"></Button>
+            <Button Grid.Column="2" Margin="2" ToolTip="打开设置界面">
+                <ui:FontIcon Glyph="&#xE72D;"></ui:FontIcon>
+            </Button>
         </Grid>
-        </materialDesign:Card >
+        <!-- </materialDesign:Card > -->
         <!-- <Border Grid.Row="1" Margin="1" Background="#8888" /> -->
-        <materialDesign:Card Grid.Row="2" Margin="5 0 5 0">
-        <Grid >
+        <!-- <materialDesign:Card Grid.Row="2" Margin="5 0 5 0"> -->
+        <Grid Grid.Row="2" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="105" />
                 <ColumnDefinition Width="*" />
@@ -119,10 +114,10 @@
             <TextBlock Grid.Row="6" Grid.Column="1" x:Name="tb_progress">N/A</TextBlock>
             <TextBlock Grid.Row="7" Grid.Column="1" x:Name="tb_position_z">N/A</TextBlock>
         </Grid>
-        </materialDesign:Card>
+        <!-- </materialDesign:Card> -->
         <!-- <Border Grid.Row="3" Margin="1" Background="#8888" /> -->
-        <materialDesign:Card Grid.Row="4" Margin="5 0 5 0">
-        <Grid>
+        <!-- <materialDesign:Card Grid.Row="4" Margin="5 0 5 0"> -->
+        <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
                 
                 <ColumnDefinition Width="105" />
@@ -133,14 +128,11 @@
                       VerticalAlignment="Center"
                       SelectionChanged="cb_profile_SelectionChanged" />
         </Grid>
-        </materialDesign:Card>
+        <!-- </materialDesign:Card> -->
 
-        <materialDesign:Card Grid.Row="6" Margin="5 0 5 0">
-        <TabControl Grid.Row="5" Name="tab_playMode" SelectedIndex="1" 
-                    materialDesign:ColorZoneAssist.Mode="PrimaryMid"
-                    TabStripPlacement="Top"
-                    materialDesign:NavigationRailAssist.SelectionCornerRadius="50 10 10 10"
-                    materialDesign:NavigationRailAssist.ShowSelectionBackground="True">
+        <!-- <materialDesign:Card Grid.Row="6" Margin="5 0 5 0"> -->
+        <TabControl Grid.Row="6" Name="tab_playMode" SelectedIndex="1" 
+                    Style="{StaticResource TabControlPivotStyle}">
             <TabItem Header="纯语音模式">
 
                 <Grid>
@@ -152,7 +144,7 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="105" />
+                        <ColumnDefinition Width="120" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="20" />
                     </Grid.ColumnDefinitions>
@@ -223,7 +215,7 @@
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
 
-                        <ColumnDefinition Width="105" />
+                        <ColumnDefinition Width="120" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="30" />
                     </Grid.ColumnDefinitions>
@@ -261,10 +253,10 @@
             </TabItem>
         </TabControl>
             
-        </materialDesign:Card>
+        <!-- </materialDesign:Card> -->
         <!-- <Border Grid.Row="6" Margin="1" Background="#8888" /> -->
-        <materialDesign:Card Grid.Row="8" Margin="5 0 5 0">
-        <Grid >
+        <!-- <materialDesign:Card Grid.Row="8" Margin="5 0 5 0"> -->
+        <Grid Grid.Row="8">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40" />
                 <RowDefinition Height="40" />
@@ -276,10 +268,12 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
 
-                <ColumnDefinition Width="105" />
+                <ColumnDefinition Width="110" />
+                <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="50" />
-                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="35" />
+                <ColumnDefinition Width="35" />
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0">当前地图：</TextBlock>
@@ -287,30 +281,30 @@
                 <TextBlock.Effect>
                     <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
                 </TextBlock.Effect></TextBlock>
-            <TextBlock Grid.Row="0" Grid.Column="1" Name="tb_currentTrack">未知</TextBlock>
-            <Button Grid.Row="0" Grid.Column="2" Name="tb_currentTrack_view" ToolTip="打开当前地图录制文件夹"
-                    Content="{materialDesign:PackIcon Folder}"  Margin="2"
+            <TextBlock Grid.Row="0" Grid.Column="2" Name="tb_currentTrack">未知</TextBlock>
+            <Button Grid.Row="0" Grid.Column="4" Name="tb_currentTrack_view" ToolTip="打开当前地图录制文件夹"
+                    Content="..."  Margin="2" Style="{StaticResource AccentButtonStyle}"
                     Click="tb_currentTrack_view_Click">
             </Button>
-            <Button Grid.Row="0" Grid.Column="3" Name="btn_currentTrack_script" ToolTip="打开当前地图的脚本"
-                    Click="btn_currentTrack_script_Click"  Margin="2"
-                    Content="{materialDesign:PackIcon Script}">
+            <Button Grid.Row="0" Grid.Column="5" Name="btn_currentTrack_script" ToolTip="打开当前地图的脚本"
+                    Click="btn_currentTrack_script_Click"  Margin="2" Style="{StaticResource AccentButtonStyle}"
+                    Content="θ">
                 
             </Button>
-            <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Name="cb_replay_device" VerticalAlignment="Center"
+            <ComboBox Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Name="cb_replay_device" VerticalAlignment="Center"
                       SelectionChanged="cb_replay_device_SelectionChanged" />
-            <Button Grid.Row="1" Grid.Column="3" Name="btn_play_example" Click="btn_play_example_Click"
-                    ToolTip="播放示例声音"  Margin="2"
-                    Content="{materialDesign:PackIcon PlayArrow}">
+            <Button Grid.Row="1" Grid.Column="4" Name="btn_play_example" Click="btn_play_example_Click"
+                    ToolTip="播放示例声音"  Margin="2" Style="{StaticResource AccentButtonStyle}"
+                    Content="▶" >
             </Button>
             <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="调整播放音量，增大音量时可能会出现音频波形丢失而引起的失真情况" FontSize="16">播放音量：
                 <TextBlock.Effect>
                     <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
                 </TextBlock.Effect></TextBlock>
-            <Slider Name="s_volume" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Maximum="1000" Minimum="-1000" Interval="1"
+            <Slider Name="s_volume" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Maximum="1000" Minimum="-1000" Interval="1"
                     Value="0" ValueChanged="S_volume_OnValueChanged" 
                     VerticalAlignment="Center"/>
-            <TextBlock Grid.Row="2" Grid.Column="3" Name="tb_volume">0</TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="4" Grid.ColumnSpan="2" HorizontalAlignment="Center" Name="tb_volume">0</TextBlock>
             
             <!--<TextBlock Grid.Row="3" Grid.Column="0" ToolTip="[慎用]调整路书播放点，对纯语音路书和脚本路书都有效，比如+10米表示所有路书片段会在推迟10米处播放，-10米表示所有路书片段会在提前10米处播放">播放点调整：</TextBlock>
             <Slider Name="s_playpointAdjust" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Maximum="100" Minimum="-100" Interval="1"
@@ -319,14 +313,14 @@
 
 
             <TextBlock Grid.Row="3" ToolTip="比如+1秒表示路书会更晚播放1秒钟，-2秒表示路书会更早的播放2秒钟">预播放时间调整：</TextBlock>
-            <Slider Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" x:Name="sl_scriptTiming" 
+            <Slider Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" x:Name="sl_scriptTiming" 
                     Maximum="2" Minimum="-2" Value="0" ValueChanged="Sl_scriptTiming_OnValueChanged" 
                     IsEnabled="True"
                     VerticalAlignment="Center"></Slider>
-            <TextBlock Grid.Row="3" Grid.Column="3" x:Name="tb_scriptTiming">0秒</TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="4" Grid.ColumnSpan="2" HorizontalAlignment="Center" x:Name="tb_scriptTiming">0秒</TextBlock>
 
             <TextBlock Grid.Row="4" Grid.Column="0" ToolTip="在游戏进行时不可切换播放模式" FontWeight="Bold">播放模式：</TextBlock>
-            <ComboBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_replay_mode"
+            <ComboBox Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="3" Name="cb_replay_mode"
                       VerticalAlignment="Center"
                       SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="2">
                 <ComboBoxItem ToolTip="纯语音录制和播放">纯语音模式</ComboBoxItem>
@@ -334,7 +328,7 @@
                 <ComboBoxItem ToolTip="群魔乱舞！不可在同时存在动态脚本和纯语音路书的赛道使用">混合模式</ComboBoxItem>
             </ComboBox>
             <TextBlock Grid.Row="5" Grid.Column="0" ToolTip="在游戏进行时不可切换播放模式" FontWeight="Bold">录制模式：</TextBlock>
-            <ComboBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_record_mode"
+            <ComboBox Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="3" Name="cb_record_mode"
                       VerticalAlignment="Center"
                       SelectionChanged="cb_record_mode_SelectionChanged" SelectedIndex="0">
                 <ComboBoxItem ToolTip="纯语音录制">纯语音模式</ComboBoxItem>
@@ -344,11 +338,11 @@
                 <TextBlock.Effect>
                     <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
                 </TextBlock.Effect></TextBlock>
-            <CheckBox x:Name="chk_Hud" Grid.Row="6" Grid.Column="1" Click="chk_Hud_Click" />
+            <CheckBox x:Name="chk_Hud" Grid.Row="6" Grid.Column="2" Click="chk_Hud_Click" />
         </Grid>
-        </materialDesign:Card>
-        <materialDesign:Card Grid.Row="10" Margin="5 0 5 0">
-            <Grid>
+        <!-- </materialDesign:Card> -->
+        <!-- <materialDesign:Card Grid.Row="10" Margin="5 0 5 0"> -->
+            <Grid Grid.Row="10">
                 <Grid.RowDefinitions>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
@@ -385,7 +379,7 @@
                     </TextBlock.Effect>
                 </TextBlock>
             </Grid>
-        </materialDesign:Card>
+        <!-- </materialDesign:Card> -->
         <!-- <Border Grid.Row="8" Margin="1" Background="#8888" /> -->
         
     </Grid>

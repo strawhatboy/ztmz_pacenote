@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
 namespace ZTMZ.PacenoteTool.ScriptEditor
@@ -26,7 +25,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             comment = commentParseResult[1];
             if (realContent.StartsWith("@"))
             {
-                return realContent.Substring(1).Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                return realContent.Substring(1).Trim().Split(new char[]{' '}, StringSplitOptions.RemoveEmptyEntries);
             }
 
             return null;
@@ -34,7 +33,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
         public static string ToString(string flag, IList<string> parameters, string comment)
         {
-            return string.Format("@{0} {1}\t{2}", flag, string.Join(' ', parameters), comment);
+            return string.Format("@{0} {1}\t{2}", flag, string.Join(" ", parameters), comment);
         }
     }
 
@@ -72,7 +71,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         }
 
         public string Author =>
-            this.HasFlag(ScriptFlags.AUTHOR) ? string.Join(' ', this.FlagParameters[ScriptFlags.AUTHOR]) : DEFAULT_AUTHOR;
+            this.HasFlag(ScriptFlags.AUTHOR) ? string.Join(" ", this.FlagParameters[ScriptFlags.AUTHOR]) : DEFAULT_AUTHOR;
 
         public static ScriptReader ReadFromString(string str)
         {

@@ -37,18 +37,18 @@ namespace ZTMZ.PacenoteTool
 
         public static void HackDLLs(string gamePath)
         {
-            if (!File.Exists(Path.Join(gamePath, DLL_X_AUDIO_2_7)))
-                File.Copy(DLL_X_AUDIO_2_7, Path.Join(gamePath, DLL_X_AUDIO_2_7));
-            if (!File.Exists(Path.Join(gamePath, DLL_X_AUDIO_2_8)))
-                File.Copy(DLL_X_AUDIO_2_8, Path.Join(gamePath, DLL_X_AUDIO_2_8));
-            if (!File.Exists(Path.Join(gamePath, DLL_X_AUDIO_2_9)))
-                File.Copy(DLL_X_AUDIO_2_9, Path.Join(gamePath, DLL_X_AUDIO_2_9));
+            if (!File.Exists(Path.Combine(gamePath, DLL_X_AUDIO_2_7)))
+                File.Copy(DLL_X_AUDIO_2_7, Path.Combine(gamePath, DLL_X_AUDIO_2_7));
+            if (!File.Exists(Path.Combine(gamePath, DLL_X_AUDIO_2_8)))
+                File.Copy(DLL_X_AUDIO_2_8, Path.Combine(gamePath, DLL_X_AUDIO_2_8));
+            if (!File.Exists(Path.Combine(gamePath, DLL_X_AUDIO_2_9)))
+                File.Copy(DLL_X_AUDIO_2_9, Path.Combine(gamePath, DLL_X_AUDIO_2_9));
         }
         public static void UnhackDLLs(string gamePath)
         {
-            File.Delete(Path.Join(gamePath, DLL_X_AUDIO_2_7));
-            File.Delete(Path.Join(gamePath, DLL_X_AUDIO_2_8));
-            File.Delete(Path.Join(gamePath, DLL_X_AUDIO_2_9));
+            File.Delete(Path.Combine(gamePath, DLL_X_AUDIO_2_7));
+            File.Delete(Path.Combine(gamePath, DLL_X_AUDIO_2_8));
+            File.Delete(Path.Combine(gamePath, DLL_X_AUDIO_2_9));
         }
     }
     public class ItineraryProperty

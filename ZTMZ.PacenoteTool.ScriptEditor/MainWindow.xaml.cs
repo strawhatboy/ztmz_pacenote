@@ -400,7 +400,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             var text = this.avalonEditor.Text;
             bgw.DoWork += (o, a) =>
              {
-                 var parts = text.Split(System.Environment.NewLine);
+                 var parts = text.Split(new string[]{System.Environment.NewLine}, StringSplitOptions.None);
                  for (var i = parts.Length - 2; i >= 0; i--)
                  {
                      if (parts[i].Contains('>'))
@@ -410,7 +410,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                          var pacenotes = PacenoteRecord.AliasesToPacenotes(PacenoteRecord.RawTextToAliases(rawParts[1]));
                          this.Dispatcher.Invoke(() =>
                          {
-                             var newParts = this.avalonEditor.Text.Split(System.Environment.NewLine);
+                             var newParts = this.avalonEditor.Text.Split(new string[]{System.Environment.NewLine}, StringSplitOptions.None);
                              newParts[i] = rawParts[0] + string.Join("", pacenotes);
                              this.avalonEditor.Text = string.Join(System.Environment.NewLine, newParts);
                              this.avalonEditor.CaretOffset = this.avalonEditor.Text.Length;
@@ -455,8 +455,9 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 form.Add(new StreamContent(file_bytes), "file", System.Web.HttpUtility.UrlEncode(string.Format("{0}-----{1}", parseRes.Author, Path.GetFileName(this._relatedFile))));
                 var request = new HttpRequestMessage(HttpMethod.Post, "http://strawhat.asia:8000/api/pacenotetool/uploadPacenote");
                 request.Content = form;
-                HttpResponseMessage response = httpClient.Send(request);
-
+                var sent = httpClient.SendAsync(request);
+                sent.Wait();
+                var response = sent.Result;
                 response.EnsureSuccessStatusCode();
                 httpClient.Dispose();
                 string sd = response.Content.ReadAsStringAsync().Result;

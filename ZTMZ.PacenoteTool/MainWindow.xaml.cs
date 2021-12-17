@@ -433,7 +433,7 @@ namespace ZTMZ.PacenoteTool
                 this.cb_record_mode.SelectedIndex = 1;  // auto script mode
                 if (Config.Instance.AutoScript_HackGameWhenStart)
                 {
-                    while (!System.IO.File.Exists(System.IO.Path.Join(Config.Instance.DirtGamePath, "dirtrally2.exe")))
+                    while (!System.IO.File.Exists(System.IO.Path.Combine(Config.Instance.DirtGamePath, "dirtrally2.exe")))
                     {
                         var res = PromptDialog.Dialog.Prompt(
                                     "当前为开发版本，需要定位游戏所在位置便于分离路书声音",
@@ -689,7 +689,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         private void cb_codrivers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this._profileManager.CurrentCoDriverSoundPackagePath = this.cb_codrivers.SelectedItem.ToString();
-            this._gameOverlayManager.AudioPackage = this._profileManager.CurrentCoDriverSoundPackagePath.Split('/', StringSplitOptions.RemoveEmptyEntries).Last();
+            this._gameOverlayManager.AudioPackage = this._profileManager.CurrentCoDriverSoundPackagePath.Split(new char[]{'/'}, StringSplitOptions.RemoveEmptyEntries).Last();
             Config.Instance.UI_SelectedAudioPackage = this.cb_codrivers.SelectedIndex;
             Config.Instance.SaveUserConfig();
         }

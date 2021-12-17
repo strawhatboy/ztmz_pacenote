@@ -25,7 +25,6 @@
         </Grid.ColumnDefinitions>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <materialDesign:Card>
                 <Expander
                     HorizontalAlignment="Stretch"
                     IsExpanded="True"
@@ -40,7 +39,6 @@
                             Style="{StaticResource HorizontalExpanderContentTextBlock}" />
                     </StackPanel>
                 </Expander>
-            </materialDesign:Card>
         </ScrollViewer>
     </Grid>
 </Window>

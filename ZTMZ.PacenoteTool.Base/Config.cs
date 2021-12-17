@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using System.Reflection;
+using System.Text.Json;
 
 namespace ZTMZ.PacenoteTool.Base
 {
@@ -272,7 +273,7 @@ namespace ZTMZ.PacenoteTool.Base
             {
                 if (userConfig.ContainsKey(p.Name))
                 { //  && p.GetValue(this) != userConfig[p.Name]
-                    if (userConfig[p.Name].GetType() == typeof(System.Text.Json.JsonElement))
+                    if (userConfig[p.Name] is JsonElement)
                     {
                         var element = (System.Text.Json.JsonElement)userConfig[p.Name];
                         p.SetValue(this, System.Text.Json.JsonSerializer.Deserialize(element.GetRawText(), p.PropertyType));

@@ -6,10 +6,35 @@ using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using CsvHelper;
+using ChoETL;
 
 namespace ZTMZ.PacenoteTool.ScriptEditor
 {
+
+    class CSV_ID_DESC
+    {
+        public string Id;
+        public string Description;
+    }
+
+    class CSV_PACENOTE : CSV_ID_DESC
+    {
+        public int CanBeModifier;
+    }
+
+    class CSV_ALIAS
+    {
+        public string Alias;
+        public string Token;
+        public string Speech;
+    }
+
+    class CSV_FALLBACK
+    {
+        public string Token;
+        public string Fallback_Token;
+    }
+    
     public class ScriptResource
     {
         public static string TYPE_PACENOTE = "[路书]";
@@ -65,11 +90,11 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                     //legal alias
                     ALIAS_CONSTRUCTED[alias.Key] = new Tuple<string, string, string, string>(res.Item2, res.Item3, res.Item4, alias.Value.Item2);
 
-                    var speeches = alias.Value.Item2.Split('|', StringSplitOptions.RemoveEmptyEntries);
+                    var speeches = alias.Value.Item2.Split(new char[]{'|'}, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var s in speeches)
                     {
                         var speech = s.Trim();
-                        var len = speech.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+                        var len = speech.Split(new char[]{' '}, StringSplitOptions.RemoveEmptyEntries).Length;
                         ALIAS_SPEECH_DICT[len - 1][speech] = alias.Key;
                     }
                 }
@@ -78,62 +103,60 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
         private static Dictionary<string, string> loadCsv(string path)
         {
-            using (var reader = new StreamReader(path))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            using (var csv = new ChoCSVReader(path).WithFirstLineHeader())
             {
-                var def = new
-                {
-                    Description = string.Empty,
-                    Id = string.Empty
-                };
-                var records = csv.GetRecords(def);
+                var records = from p in csv 
+                    select new CSV_ID_DESC
+                    {
+                        Id = p.ID.ToString(), 
+                        Description = p.Description.ToString()
+                    };
                 return records.ToDictionary(r => r.Id, r => r.Description);
             }
         }
         private static Dictionary<string, Tuple<string, bool>> loadPacenotes(string path)
         {
-            using (var reader = new StreamReader(path))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            using (var csv = new ChoCSVReader(path).WithFirstLineHeader())
             {
-                var def = new
-                {
-                    Description = string.Empty,
-                    Id = string.Empty,
-                    CanBeModifier = 0,
-                };
-                var records = csv.GetRecords(def);
+                var records = from p in csv 
+                    select new CSV_PACENOTE
+                    {
+                        Id = p.ID.ToString(), 
+                        Description = p.Description.ToString(), 
+                        CanBeModifier = Convert.ToInt32(p.CanBeModifier)
+                    };
                 return records.ToDictionary(r => r.Id, r=> new Tuple<string, bool>(r.Description, Convert.ToBoolean(r.CanBeModifier)));
             }
         }
         private static Dictionary<string, Tuple<string, string>> loadAlias(string path)
         {
-            using (var reader = new StreamReader(path))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            using (var csv = new ChoCSVReader(path).WithFirstLineHeader())
             {
-                var def = new
-                {
-                    Alias = string.Empty,
-                    Token = string.Empty,
-                    Speech = string.Empty,
-                };
-                var records = csv.GetRecords(def);
+                var records = from p in csv 
+                    select new CSV_ALIAS
+                    {
+                        Alias = p.Alias.ToString(), 
+                        Token = p.Token.ToString(),
+                        Speech = p.Speech.ToString()
+                    };
                 return records.ToDictionary(r => r.Alias, r => new Tuple<string, string>(r.Token, r.Speech));
             }
         }
         private static Dictionary<string, string> loadFallback(string path)
         {
-            using (var reader = new StreamReader(path))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+
+            using (var csv = new ChoCSVReader(path).WithFirstLineHeader())
             {
-                var def = new
-                {
-                    Token = string.Empty,
-                    Fallback_Token = string.Empty,
-                };
-                var records = csv.GetRecords(def);
+                var records = from p in csv
+                    select new CSV_FALLBACK
+                    {
+                        Token = p.Token.ToString(),
+                        Fallback_Token = p.Fallback_Token.ToString()
+                    };
                 return records.ToDictionary(r => r.Token, r => r.Fallback_Token);
             }
         }
+
 
         /// <summary>
         /// 
