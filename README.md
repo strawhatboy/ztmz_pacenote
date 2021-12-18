@@ -10,7 +10,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 
 #### 白嫖指南 (可参见视频 [版本通用使用教程](https://www.bilibili.com/video/BV1oq4y1u7ua/))
 1. 安装[.net 5.0运行时](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-5.0.13-windows-x64-installer)
-或者是据说执行速度更快的[.net 6.0运行时](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.1-windows-x64-installer)
+~~或者是据说执行速度更快的[.net 6.0运行时](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.1-windows-x64-installer)~~ (.net6暂不支持)
 2. 通过[下载地址](https://gitee.com/ztmz/ztmz_pacenote/releases)下载最新版的名为 __"ZTMZ Club路书工具x.y.zip"__ 的压缩包并解压
 3. 执行其中的`ZTMZ.PacenoteTool.exe`或“双击运行.bat”
 4. 打开游戏
@@ -19,11 +19,13 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 7. 开始体验
 
 #### 如何和simhub一起使用 (可参见视频 [版本通用使用教程](https://www.bilibili.com/video/BV1oq4y1u7ua/))
-1. 在本工具的文件夹里找到`userconfig.json`文件，把其中的`UDPListenPort`项的值从20777修改为20778，然后关闭本工具
-2. 打开`simhub`，选择DR2游戏并点击右侧的`游戏设置`
-3. 在`UDP Forwarding`(端口转发)那里前面的勾勾选上，并添加一条转发到`127.0.0.1`的`20778`端口的设置（如果已经存在，就只需要勾选上前面的勾即可）
-4. 保持simhub处于开启状态，启动本工具即可
-5. 本步骤对于想要同时使用其他的工具也适用，比如`Dirt Rally Telemetry`工具，它默认监听`10001`端口，只需在`simhub`里再添加一条转发到`127.0.0.1`的`10001`端口的记录就行
+1. （如果是第一次下载解压）先启动一次本工具，再关闭。
+2. 在本工具的文件夹里找到`userconfig.json`文件，把其中的`UDPListenPort`项的值从20777修改为20778，然后关闭本工具
+3. 打开`simhub`，选择DR2游戏并点击右侧的`游戏设置`
+4. 在`UDP Forwarding`(端口转发)那里前面的勾勾选上，并添加一条转发到`127.0.0.1`的`20778`端口的设置（如果已经存在，就只需要勾选上前面的勾即可）
+5. 保持simhub处于开启状态，启动本工具即可
+6. 本步骤对于想要同时使用其他的工具也适用，比如`Dirt Rally Telemetry`工具，它默认监听`10001`端口，只需在`simhub`里再添加一条转发到`127.0.0.1`的`10001`端口的记录就行
+
 
 #### 各种链接
 * 下载地址：[releases](https://gitee.com/ztmz/ztmz_pacenote/releases)
