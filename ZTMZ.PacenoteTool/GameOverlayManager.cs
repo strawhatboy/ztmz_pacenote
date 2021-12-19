@@ -340,14 +340,18 @@ namespace ZTMZ.PacenoteTool
         {
             var gfx = new Graphics()
             {
-                MeasureFPS = true,
+                MeasureFPS = false,
                 PerPrimitiveAntiAliasing = true,
                 TextAntiAliasing = true
             };
+
+
             _window = new StickyWindow(process.MainWindowHandle, gfx);
-            // _window.IsTopmost = true;
             _window.BypassTopmost = true;
             _window.FPS = Config.Instance.HudFPS;   // 30 fps by default
+            _window.AttachToClientArea = true;
+            //_window.IsTopmost = true;
+            _window.IsVisible = true;
 
 
             _window.DestroyGraphics += _window_DestroyGraphics;
@@ -420,6 +424,7 @@ namespace ZTMZ.PacenoteTool
         public void Run()
         {
             _window.Create();
+            _window.Show();
             // _window.Join();
         }
 
@@ -476,6 +481,28 @@ namespace ZTMZ.PacenoteTool
                         _window.Dispose();
                         _window = null;
                     }
+
+                    //if (processes.Length > 0 && _window != null)
+                    //{
+                    //    // running
+                    //    // check full screen ?
+                    //    if (WindowHelper.GetForegroundWindow() != _window.Handle)
+                    //    {
+                    //        try
+                    //        {
+                    //            Thread.Sleep(3000);
+                    //            processes = System.Diagnostics.Process.GetProcessesByName(GAME_PROCESS);
+                    //            var process = processes.First();
+                    //            WindowHelper.EnableBlurBehind(process.MainWindowHandle);
+                    //            _window.IsTopmost = true;
+                    //            _window.Recreate();
+                    //        }
+                    //        catch (Exception e)
+                    //        {
+                    //            MessageBox.Show("BOOOOOOM");
+                    //        }
+                    //    }
+                    //}
                     Thread.Sleep(1000);
                 }
             };
