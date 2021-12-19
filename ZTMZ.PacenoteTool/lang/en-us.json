@@ -1,0 +1,5 @@
+﻿{
+  "settings": {
+    "udplistenport":  "Telemetry UDP Port"
+  }
+}

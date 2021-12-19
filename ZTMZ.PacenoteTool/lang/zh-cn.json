@@ -1,0 +1,5 @@
+﻿{
+  "settings": {
+    "udplistenport": "监听的UDP端口"
+  }
+}

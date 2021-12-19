@@ -9,6 +9,7 @@
         <Version>2.5.0</Version>
         <FileVersion>2.5.0.0</FileVersion>
         <TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
+	    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     </PropertyGroup>
 
     <ItemGroup>
@@ -54,6 +55,12 @@
     <ItemGroup>
       <None Update="Alarm01.wav">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="lang\en-us.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="lang\zh-cn.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="speech_recognizer.py">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>

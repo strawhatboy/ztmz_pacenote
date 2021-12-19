@@ -89,6 +89,7 @@ namespace ZTMZ.PacenoteTool
             this.initializeGameOverlay();
             this.initializeAutoRecorder();
             this.applyUserConfig();
+            this.initializeI18N();
         }
 
         private void registerHotKeys()
@@ -521,6 +522,20 @@ namespace ZTMZ.PacenoteTool
             this.s_volume.Value = Config.Instance.UI_PlaybackVolume;
         }
 
+        private void initializeI18N()
+        {
+            List<ResourceDictionary> resources = new List<ResourceDictionary>();
+            I18NLoader.Instance.Initialize();
+            I18NLoader.Instance.SetCulture("zh-CN");
+            var newDict = new ResourceDictionary();
+            //newDict.Source = new Uri("https://gitee.com/ztmz/ztmz_pacenote/" + I18NLoader.Instance.CurrentCultureName);
+            foreach (var key in I18NLoader.Instance.CurrentCulture.Keys)
+            {
+                newDict.Add(key, I18NLoader.Instance.CurrentCulture[key]);
+            }
+            Application.Current.Resources.MergedDictionaries.Add(newDict);
+        }
+
 
         private void Ck_record_OnChecked(object sender, RoutedEventArgs e)
         {
@@ -677,7 +692,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 ScriptEditor.App.InitHighlightComponent();
                 _scriptWindow = new ScriptEditor.MainWindow();
                 _scriptWindow.Show();
-                //_scriptWindow.HandleFileOpen(System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath));
+                _scriptWindow.HandleFileOpen(System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath));
             }
         }
 

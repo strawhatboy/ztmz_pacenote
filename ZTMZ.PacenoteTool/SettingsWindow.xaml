@@ -53,7 +53,7 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" VerticalAlignment="Center"
-                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}">
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.udplistenport}">
                                 <TextBlock.ToolTip>
                                     <TextBlock>
                                         播放设备的 <Bold>缓冲区延迟</Bold> 表示指令到达播放设备后开始播放的延迟<LineBreak />
@@ -61,7 +61,6 @@
                                         延迟过高可能会导致路书播放滞后
                                     </TextBlock>
                                 </TextBlock.ToolTip>
-                                UDP <Bold>监听端口号</Bold>
                             </TextBlock>
                             <xctk:UIntegerUpDown Name="tb_UDPListenPort" Grid.Column="1" Value="20777" Maximum="65535"
                                                  VerticalAlignment="Center" />
