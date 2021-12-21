@@ -524,16 +524,8 @@ namespace ZTMZ.PacenoteTool
 
         private void initializeI18N()
         {
-            List<ResourceDictionary> resources = new List<ResourceDictionary>();
             I18NLoader.Instance.Initialize();
             I18NLoader.Instance.SetCulture("zh-CN");
-            var newDict = new ResourceDictionary();
-            //newDict.Source = new Uri("https://gitee.com/ztmz/ztmz_pacenote/" + I18NLoader.Instance.CurrentCultureName);
-            foreach (var key in I18NLoader.Instance.CurrentCulture.Keys)
-            {
-                newDict.Add(key, I18NLoader.Instance.CurrentCulture[key]);
-            }
-            Application.Current.Resources.MergedDictionaries.Add(newDict);
         }
 
 

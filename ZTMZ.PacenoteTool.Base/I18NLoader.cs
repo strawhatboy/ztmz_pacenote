@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.IO;
 using Newtonsoft.Json;
+using System.Windows;
 
 namespace ZTMZ.PacenoteTool.Base
 {
@@ -73,6 +74,17 @@ namespace ZTMZ.PacenoteTool.Base
             {
                 CurrentCulture = Resources[culture];
             }
+
+            List<ResourceDictionary> resources = new List<ResourceDictionary>();
+            //I18NLoader.Instance.Initialize();
+            //I18NLoader.Instance.SetCulture("zh-CN");
+            var newDict = new ResourceDictionary();
+            //newDict.Source = new Uri("https://gitee.com/ztmz/ztmz_pacenote/" + I18NLoader.Instance.CurrentCultureName);
+            foreach (var key in I18NLoader.Instance.CurrentCulture.Keys)
+            {
+                newDict.Add(key, I18NLoader.Instance.CurrentCulture[key]);
+            }
+            Application.Current.Resources.MergedDictionaries.Add(newDict);
         }
 
         private void readJson(string culture, JsonTextReader reader, List<string> properties)

@@ -204,7 +204,7 @@ namespace ZTMZ.PacenoteTool.Base
         }
         
         
-        private int _HudFPS = 30;
+        private int _HudFPS = 1;
         public int HudFPS
         {
             set { this._HudFPS = value; this._userconfig["HudFPS"] = value; }
