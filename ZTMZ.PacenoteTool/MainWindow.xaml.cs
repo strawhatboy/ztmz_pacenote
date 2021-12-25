@@ -525,7 +525,7 @@ namespace ZTMZ.PacenoteTool
         private void initializeI18N()
         {
             I18NLoader.Instance.Initialize();
-            I18NLoader.Instance.SetCulture("zh-CN");
+            I18NLoader.Instance.SetCulture(Config.Instance.Language);
         }
 
 

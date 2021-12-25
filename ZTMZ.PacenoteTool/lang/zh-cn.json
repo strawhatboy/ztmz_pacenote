@@ -1,5 +1,37 @@
 ﻿{
   "settings": {
-    "udplistenport": "监听的UDP端口"
+
+    "title": "设置",
+
+    "btn_reset": "恢复默认设置",
+
+    "section": {
+      "general": "常规",
+      "voicePackage": "语音包",
+      "misc": "杂项"
+    },
+
+    "tooltip": {
+      "udpListenPort": "游戏默认的数据端口是20777，如果想和simhub同时使用，可以修改为20778",
+      "playbackDeviceDesiredLatency": "播放设备的 缓冲区延迟 表示指令到达播放设备后开始播放的延迟，如果延迟过低，对于某些设备可能会出现声音卡顿的现象，延迟过高可能会导致路书播放滞后",
+      "hudFPS": "锁定悬浮窗的帧率，不至于因为悬浮窗的内容更新频繁影响了系统性能",
+      "playStartAndEndSound": "播放开始/结束语音",
+      "playCollisionSound": "播放撞车语音",
+      "useDefaultSoundPackageByDefault": "忽略默认（微软慧慧）语音包",
+      "preloadSounds": "预加载语音包会带来较大的内存开销（约占用2GB），但会在倒计时刚开始时即可加载完毕并播放开始语音",
+      "useSequentialMixerToHandleAudioConflict": "队列播放模式可以避免同一时刻播放多个语音片段造成的语音重叠现象"
+    },
+
+    "language": "界面语言",
+    "udpListenPort": "监听的UDP端口",
+    "playbackDeviceDesiredLatency": "播放设备缓冲区延迟",
+    "hudFPS": "悬浮窗锁定帧率",
+    "playStartAndEndSound": "播放开始/结束语音",
+    "playCollisionSound": "播放撞车语音",
+    "useDefaultSoundPackageByDefault": "忽略默认（微软慧慧）语音包",
+    "preloadSounds": "预加载语音包",
+    "useSequentialMixerToHandleAudioConflict": "使用队列播放模式"
+
+
   }
 }

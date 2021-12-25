@@ -204,11 +204,18 @@ namespace ZTMZ.PacenoteTool.Base
         }
         
         
-        private int _HudFPS = 1;
+        private int _HudFPS = 10;
         public int HudFPS
         {
             set { this._HudFPS = value; this._userconfig["HudFPS"] = value; }
             get => this._HudFPS;
+        }
+
+        private string _Language = "zh-cn";
+        public string Language
+        {
+            set { this._Language = value; this._userconfig["Language"] = value; }
+            get => this._Language;
         }
 
 

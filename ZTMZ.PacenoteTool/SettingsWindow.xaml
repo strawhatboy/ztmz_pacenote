@@ -14,7 +14,7 @@
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
 
-        Title="设置" Height="800" Width="600" ResizeMode="NoResize">
+        Title="{DynamicResource ResourceKey=settings.title}" Height="800" Width="1024" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>
@@ -26,12 +26,12 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       materialDesign:ScrollViewerAssist.IsAutoHideEnabled="True">
             <StackPanel Margin="20">
-                <Button HorizontalAlignment="Right" Margin="10">恢复默认设置</Button>
+                <Button HorizontalAlignment="Right" Margin="10" Content="{DynamicResource ResourceKey=settings.btn_reset}"></Button>
                 <Expander
                     HorizontalAlignment="Stretch"
                     IsExpanded="True">
                     <Expander.Header>
-                        <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}">常规</TextBlock>
+                        <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" Text="{DynamicResource ResourceKey=settings.section.general}" />
                     </Expander.Header>
 
                     <materialDesign:Card Margin="10">
@@ -39,11 +39,12 @@
                             TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
                             Margin="24,8,24,16">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="360" />
-                                <ColumnDefinition />
+                                <ColumnDefinition  />
+                                <ColumnDefinition Width="100"/>
                             </Grid.ColumnDefinitions>
 
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="50" />
                                 <RowDefinition Height="50" />
                                 <RowDefinition Height="50" />
                                 <RowDefinition Height="50" />
@@ -53,68 +54,37 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" VerticalAlignment="Center"
-                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.udplistenport}">
-                                <TextBlock.ToolTip>
-                                    <TextBlock>
-                                        播放设备的 <Bold>缓冲区延迟</Bold> 表示指令到达播放设备后开始播放的延迟<LineBreak />
-                                        如果延迟过低，对于某些设备可能会出现声音卡顿的现象<LineBreak />
-                                        延迟过高可能会导致路书播放滞后
-                                    </TextBlock>
-                                </TextBlock.ToolTip>
-                            </TextBlock>
-                            <xctk:UIntegerUpDown Name="tb_UDPListenPort" Grid.Column="1" Value="20777" Maximum="65535"
-                                                 VerticalAlignment="Center" />
-
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.language}" />
+                            <ComboBox Grid.Row="0" Grid.Column="1" x:Name="cb_language" VerticalAlignment="Center"/>
 
                             <TextBlock Grid.Row="1" VerticalAlignment="Center"
-                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}">
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.udpListenPort}">
                                 <TextBlock.ToolTip>
-                                    <TextBlock>
-                                        播放设备的 <Bold>缓冲区延迟</Bold> 表示指令到达播放设备后开始播放的延迟<LineBreak />
-                                        如果延迟过低，对于某些设备可能会出现声音卡顿的现象<LineBreak />
-                                        延迟过高可能会导致路书播放滞后
-                                    </TextBlock>
+                                    <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.udpListenPort}" />
                                 </TextBlock.ToolTip>
-                                播放设备 <Bold>缓冲区延迟</Bold>
                             </TextBlock>
-                            <xctk:UIntegerUpDown Name="tb_PlaybackDeviceDesiredLatency" Grid.Row="1" Grid.Column="1"
-                                                 Value="175" VerticalAlignment="Center" />
-
-                            <TextBlock Grid.Row="2" VerticalAlignment="Center"
-                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}">
-                                <TextBlock.ToolTip>
-                                    <TextBlock>
-                                        锁定悬浮窗的帧率，不至于因为悬浮窗的内容更新频繁影响了系统性能
-                                    </TextBlock>
-                                </TextBlock.ToolTip>
-                                悬浮窗 <Bold>锁定帧率</Bold>
-                            </TextBlock>
-                            <xctk:UIntegerUpDown Name="tb_HudFPS" Grid.Row="2" Grid.Column="1" Value="30" Maximum="144"
+                            <xctk:UIntegerUpDown Grid.Row="1" Name="tb_UDPListenPort" Grid.Column="1" Value="20777" Maximum="65535" Minimum="10000"
                                                  VerticalAlignment="Center" />
 
 
-                            <!-- <TextBlock Grid.Row="3" VerticalAlignment="Center" -->
-                            <!--            Style="{StaticResource MaterialDesignHeadline6TextBlock}"> -->
-                            <!--     <TextBlock.ToolTip> -->
-                            <!--         <TextBlock> -->
-                            <!--             队列播放模式可以避免同一时刻播放多个语音片段造成的语音重叠现象 -->
-                            <!--         </TextBlock> -->
-                            <!--     </TextBlock.ToolTip> -->
-                            <!--     是否在监听端口号与游戏 <Bold>不匹配</Bold> 时警告 -->
-                            <!-- </TextBlock> -->
-                            <!-- <ToggleButton Name="btn_WarnIfPortMismatch" Grid.Row="3" -->
-                            <!--               Grid.Column="1" /> -->
-                            <!-- <TextBlock Grid.Row="3" VerticalAlignment="Center" -->
-                            <!--            Style="{StaticResource MaterialDesignHeadline6TextBlock}"> -->
-                            <!--     <TextBlock.ToolTip> -->
-                            <!--         <TextBlock> -->
-                            <!--             Windows Media Player支持的声音文件格式一般都可以支持 -->
-                            <!--         </TextBlock> -->
-                            <!--     </TextBlock.ToolTip> -->
-                            <!--     支持的 <Bold>声音文件格式</Bold>： -->
-                            <!-- </TextBlock> -->
-                            <!-- <RichTextBox Name="rtb_SupportedAudioTypes" Grid.Row="4" Grid.ColumnSpan="2" Margin="30 0 0 0"> -->
-                            <!-- </RichTextBox> -->
+                            <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.playbackDeviceDesiredLatency}"
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}">
+                                <TextBlock.ToolTip>
+                                    <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.playbackDeviceDesiredLatency}" />
+                                </TextBlock.ToolTip>
+                            </TextBlock>
+                            <xctk:UIntegerUpDown Name="tb_PlaybackDeviceDesiredLatency" Grid.Row="2" Grid.Column="1" Minimum="50" Maximum="1000"
+                                                 Value="175" VerticalAlignment="Center" />
+
+                            <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.hudFPS}" 
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}">
+                                <TextBlock.ToolTip>
+                                    <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.hudFPS}" />
+                                </TextBlock.ToolTip>
+                            </TextBlock>
+                            <xctk:UIntegerUpDown Name="tb_HudFPS" Grid.Row="3" Grid.Column="1" Value="10" Maximum="144" Minimum="1"
+                                                 VerticalAlignment="Center" />
+
                         </Grid>
                     </materialDesign:Card>
                 </Expander>
@@ -123,7 +93,7 @@
                     HorizontalAlignment="Stretch"
                     IsExpanded="True">
                     <Expander.Header>
-                        <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}">语音包</TextBlock>
+                        <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" Text="{DynamicResource ResourceKey=settings.section.voicePackage}"  />
                     </Expander.Header>
 
                     <materialDesign:Card Margin="10">
@@ -131,8 +101,8 @@
                             TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
                             Margin="24,8,24,16">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="360" />
-                                <ColumnDefinition />
+                                <ColumnDefinition  />
+                                <ColumnDefinition Width="100"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="50" />
@@ -141,31 +111,25 @@
                                 <RowDefinition Height="50" />
                             </Grid.RowDefinitions>
                             <TextBlock VerticalAlignment="Center"
-                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}">
-                                是否允许播放 <Bold>开始/结束</Bold> 语音
-                            </TextBlock>
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.playStartAndEndSound}" />
                             <ToggleButton Grid.Column="1" x:Name="btn_PlayStartAndEndSound" />
 
                             <TextBlock Grid.Row="1" VerticalAlignment="Center"
-                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}">
-                                是否允许播放 <Bold>撞车</Bold> 语音
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.playCollisionSound}" >
                             </TextBlock>
                             <ToggleButton Grid.Row="1" Grid.Column="1" x:Name="btn_PlayCollisionSound" />
 
-                            <TextBlock Grid.Row="2" VerticalAlignment="Center"
+                            <TextBlock Grid.Row="2" VerticalAlignment="Center"  Text="{DynamicResource ResourceKey=settings.useDefaultSoundPackageByDefault}" 
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}">
-                                是否忽略 <Bold>默认（微软慧慧）</Bold> 语音包
                             </TextBlock>
                             <ToggleButton Grid.Row="2" Grid.Column="1" x:Name="btn_UseDefaultSoundPackageByDefault" />
 
-                            <TextBlock Grid.Row="3" VerticalAlignment="Center"
+                            <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.preloadSounds}"
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}">
                                 <TextBlock.ToolTip>
-                                    <TextBlock>
-                                        <Bold>预加载</Bold>语音包会带来较大的内存开销（约占用2GB），但会在倒计时刚开始时即可加载完毕并播放开始语音
+                                    <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.preloadSounds}">
                                     </TextBlock>
                                 </TextBlock.ToolTip>
-                                是否 <Bold>预加载</Bold> 语音包
                             </TextBlock>
                             <ToggleButton Grid.Row="3" Grid.Column="1" x:Name="btn_PreloadSounds" />
                         </Grid>
@@ -177,7 +141,7 @@
                     HorizontalAlignment="Stretch"
                     IsExpanded="True">
                     <Expander.Header>
-                        <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}">杂项</TextBlock>
+                        <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" Text="{DynamicResource ResourceKey=settings.section.misc}"></TextBlock>
                     </Expander.Header>
 
                     <materialDesign:Card Margin="10">
@@ -185,8 +149,8 @@
                             TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
                             Margin="24,8,24,16">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="360" />
-                                <ColumnDefinition />
+                                <ColumnDefinition  />
+                                <ColumnDefinition Width="100"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="50" />
@@ -194,14 +158,12 @@
                                 <!-- <RowDefinition Height="50" /> -->
                                 <!-- <RowDefinition Height="50" /> -->
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" VerticalAlignment="Center"
+                            <TextBlock Grid.Row="0" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.useSequentialMixerToHandleAudioConflict}"
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}">
                                 <TextBlock.ToolTip>
-                                    <TextBlock>
-                                        队列播放模式可以避免同一时刻播放多个语音片段造成的语音重叠现象
+                                    <TextBlock  Text="{DynamicResource ResourceKey=settings.tooltip.useSequentialMixerToHandleAudioConflict}">
                                     </TextBlock>
                                 </TextBlock.ToolTip>
-                                是否使用 <Bold>队列播放模式</Bold>
                             </TextBlock>
                             <ToggleButton Name="tb_UseSequentialMixerToHandleAudioConflict" Grid.Row="0"
                                           Grid.Column="1" />

@@ -47,7 +47,8 @@ namespace ZTMZ.PacenoteTool
     }
     public class UDPReceiver
     {
-        private UdpClient udpClient;
+        private UdpClient client;
+        private IPEndPoint any;
         public event NewUDPMessageDelegate onNewMessage;
         public event GameStateChangedDelegate onGameStateChanged;
         private bool isRunning;
@@ -74,16 +75,11 @@ namespace ZTMZ.PacenoteTool
 
         private void initUDPClient()
         {
-            var any = new IPEndPoint(IPAddress.Loopback, Config.Instance.UDPListenPort);
-            var client = new UdpClient();
+            any = new IPEndPoint(IPAddress.Loopback, Config.Instance.UDPListenPort);
+            client = new UdpClient();
             client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             client.ExclusiveAddressUse = false;
             client.Client.Bind(any);
-            UdpState s;
-            s.e = any;
-            s.u = client;
-            this.isRunning = true;
-            client.BeginReceive(this.receiveMessage, s);
             this._timer.Interval = 1000;
             this._timer.Elapsed += (sender, args) =>
             {
@@ -102,6 +98,21 @@ namespace ZTMZ.PacenoteTool
                 }
             };
             this._timer.Start();
+            this.StartListening();
+        }
+
+        public void StartListening()
+        {
+            UdpState s;
+            s.e = any;
+            s.u = client;
+            this.isRunning = true;
+            client?.BeginReceive(this.receiveMessage, s);
+        }
+
+        public void StopListening()
+        {
+            this.isRunning = false;
         }
 
         private void receiveMessage(IAsyncResult result)

@@ -1,5 +1,35 @@
 ﻿{
   "settings": {
-    "udplistenport":  "Telemetry UDP Port"
+
+    "title": "Settings",
+
+    "btn_reset": "Restore to default",
+
+    "section": {
+      "general": "General",
+      "voicePackage": "Voice Package",
+      "misc": "Misc"
+    },
+
+    "tooltip": {
+      "udpListenPort": "If you want to use this tool along with SIMHUB, changing the default 20777 to 20778 would help",
+      "playbackDeviceDesiredLatency": "The delay for playing after the instructions arrive at the device, if this value is very small, the sound may be weird. Meanwhile a big delay may affect the experience",
+      "hudFPS": "Lock FPS of the in-game hud, high FPS may bring negative influence to the performance of some screen recording softwares like OBS",
+      "playStartAndEndSound": "Play special start/end stage voice",
+      "playCollisionSound": "Play special collision voice",
+      "useDefaultSoundPackageByDefault": "Ignore default AI-generated voice package",
+      "preloadSounds": "Preload the voice packages may take more memory (around 2GB), but will load the voice package as soon as possible",
+      "useSequentialMixerToHandleAudioConflict": "A sequential mix can avoid voices overlap"
+    },
+
+    "language": "UI language",
+    "udpListenPort": "Telemetry UDP port",
+    "playbackDeviceDesiredLatency": "Playback device desired latency",
+    "hudFPS": "In-game Hud FPS",
+    "playStartAndEndSound": "Play special start/end stage voice",
+    "playCollisionSound": "Play special collision voice",
+    "useDefaultSoundPackageByDefault": "Ignore default AI-generated voice package",
+    "preloadSounds": "Preload voice packages",
+    "useSequentialMixerToHandleAudioConflict": "Use sequential mixer"
   }
 }
