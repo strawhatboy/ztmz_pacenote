@@ -19,6 +19,7 @@ using OnlyR.Core.Models;
 using OnlyR.Core.Recorder;
 using ZTMZ.PacenoteTool.Base;
 using AutoUpdaterDotNET;
+using System.Globalization;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -206,7 +207,7 @@ namespace ZTMZ.PacenoteTool
             this._udpReceiver.onGameStateChanged += this.gamestateChangedHandler;
         }
 
-        private void gamestateChangedHandler(GameState state)
+        private void gamestateChangedHandler(GameState lastState, GameState state)
         {
             this.Dispatcher.Invoke(() => { this.tb_gamestate.Text = state.ToString(); });
             switch (state)
@@ -247,10 +248,14 @@ namespace ZTMZ.PacenoteTool
 
                     break;
                 case GameState.RaceBegin:
+                    if (lastState == GameState.Paused)
+                    {
+                        break;
+                    }
                     // load trace, use lastmsg tracklength & startZ
                     // this._udpReceiver.LastMessage.TrackLength
                     this._trackName = this._dr2Helper.GetItinerary(
-                        this._udpReceiver.LastMessage.TrackLength.ToString("f2"),
+                        this._udpReceiver.LastMessage.TrackLength.ToString("f2", CultureInfo.InvariantCulture),
                         this._udpReceiver.LastMessage.StartZ
                     );
                     this.Dispatcher.Invoke(() =>

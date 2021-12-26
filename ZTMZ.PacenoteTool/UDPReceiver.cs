@@ -38,7 +38,7 @@ namespace ZTMZ.PacenoteTool
 
     public delegate void NewUDPMessageDelegate(UDPMessage msg);
 
-    public delegate void GameStateChangedDelegate(GameState newGameState);
+    public delegate void GameStateChangedDelegate(GameState lastGameState, GameState newGameState);
 
     public struct UdpState
     {
@@ -59,8 +59,9 @@ namespace ZTMZ.PacenoteTool
         {
             set
             {
+                var lastGameState = this._gameState;
                 this._gameState = value;
-                this.onGameStateChanged?.Invoke(this._gameState);
+                this.onGameStateChanged?.Invoke(lastGameState, this._gameState);
                 this._timerCount = 0;
             }
             get => this._gameState;
