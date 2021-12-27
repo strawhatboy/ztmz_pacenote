@@ -29,7 +29,13 @@ namespace ZTMZ.PacenoteTool
             {
                 this.cb_language.SelectedIndex = cindex;
             }
-            this.cb_language.SelectionChanged += Cb_language_SelectionChanged;
+            this.cb_language.SelectionChanged += (s, e) =>
+            {
+                var c = I18NLoader.Instance.cultures[this.cb_language.SelectedIndex];
+                Config.Instance.Language = c;
+                Config.Instance.SaveUserConfig();
+                I18NLoader.Instance.SetCulture(c);
+            };
 
             // port
             this.tb_UDPListenPort.Value = (uint)Config.Instance.UDPListenPort;
@@ -41,26 +47,51 @@ namespace ZTMZ.PacenoteTool
             this.tb_HudFPS.Value = (uint)Config.Instance.HudFPS;
         }
 
-        private void Cb_language_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            var c = I18NLoader.Instance.cultures[this.cb_language.SelectedIndex];
-            Config.Instance.Language = c;
-            I18NLoader.Instance.SetCulture(c);
-        }
-
         private void initVoicePackage()
         {
             // start/end
             this.btn_PlayStartAndEndSound.IsChecked = Config.Instance.PlayStartAndEndSound;
+            this.btn_PlayStartAndEndSound.Click += (s, e) =>
+            {
+                if (this.btn_PlayStartAndEndSound.IsChecked.HasValue)
+                {
+                    Config.Instance.PlayStartAndEndSound = this.btn_PlayStartAndEndSound.IsChecked.Value;
+                    Config.Instance.SaveUserConfig();
+                }
+            };
 
             // collision
             this.btn_PlayCollisionSound.IsChecked = Config.Instance.PlayCollisionSound;
+            this.btn_PlayCollisionSound.Click += (s, e) =>
+            {
+                if (this.btn_PlayCollisionSound.IsChecked.HasValue)
+                {
+                    Config.Instance.PlayCollisionSound = this.btn_PlayCollisionSound.IsChecked.Value;
+                    Config.Instance.SaveUserConfig();
+                }
+            };
 
             // default voice
             this.btn_UseDefaultSoundPackageByDefault.IsChecked = !Config.Instance.UseDefaultSoundPackageByDefault;
+            this.btn_UseDefaultSoundPackageByDefault.Click += (s, e) =>
+            {
+                if (this.btn_UseDefaultSoundPackageByDefault.IsChecked.HasValue)
+                {
+                    Config.Instance.UseDefaultSoundPackageByDefault = !this.btn_UseDefaultSoundPackageByDefault.IsChecked.Value;
+                    Config.Instance.SaveUserConfig();
+                }
+            };
 
             // preload
             this.btn_PreloadSounds.IsChecked = Config.Instance.PreloadSounds;
+            this.btn_PreloadSounds.Click += (s, e) =>
+            {
+                if (this.btn_PreloadSounds.IsChecked.HasValue)
+                {
+                    Config.Instance.PreloadSounds = this.btn_PreloadSounds.IsChecked.Value;
+                    Config.Instance.SaveUserConfig();
+                }
+            };
         }
 
         private void initMisc()

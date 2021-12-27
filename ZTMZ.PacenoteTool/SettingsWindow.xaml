@@ -14,7 +14,7 @@
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
 
-        Title="{DynamicResource ResourceKey=settings.title}" Height="800" Width="1024" >
+        Title="" Height="800" Width="1024" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>
@@ -26,7 +26,11 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       materialDesign:ScrollViewerAssist.IsAutoHideEnabled="True">
             <StackPanel Margin="20">
-                <Button HorizontalAlignment="Right" Margin="10" Content="{DynamicResource ResourceKey=settings.btn_reset}"></Button>
+                <Grid>
+                    <Button HorizontalAlignment="Right" Margin="10" Content="{DynamicResource ResourceKey=settings.btn_reset}"></Button>
+                    <TextBlock Style="{StaticResource MaterialDesignHeadline4TextBlock}"  HorizontalAlignment="Left" Margin="10" Text="{DynamicResource ResourceKey=settings.title}"></TextBlock>
+                </Grid>
+                <Separator Height="0.5" />
                 <Expander
                     HorizontalAlignment="Stretch"
                     IsExpanded="True">

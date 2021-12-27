@@ -46,7 +46,6 @@ detail_dip,低洼,1
 detail_dont_cut,不要切弯,1
 detail_downhill,下坡,1
 detail_early,提早入弯,1
-detail_end_stage,结束赛道,1
 detail_extraextra_long,超级长,1
 detail_extra_long,特别长,1
 detail_fence_outside,外侧篱笆,1
@@ -109,7 +108,6 @@ detail_rough,路面粗糙,1
 detail_short,短,1
 detail_slippery,路面湿滑,1
 detail_slow,减速,1
-detail_start_stage,开始赛道,1
 detail_small_crest,小坡,1
 detail_small_cut,小切弯,1
 detail_snow,积雪路面,1

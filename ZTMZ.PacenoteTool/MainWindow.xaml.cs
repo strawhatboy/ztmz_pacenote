@@ -245,13 +245,14 @@ namespace ZTMZ.PacenoteTool
                     {
 
                     }
+                    if (this._toolState == ToolState.Replaying && lastState == GameState.Racing && Config.Instance.PlayStartAndEndSound)
+                    {
+                        // play end sound
+                        this._profileManager.PlaySystem(ProfileManager.SYSTEM_END_STAGE);
+                    }
 
                     break;
                 case GameState.RaceBegin:
-                    if (lastState == GameState.Paused)
-                    {
-                        break;
-                    }
                     // load trace, use lastmsg tracklength & startZ
                     // this._udpReceiver.LastMessage.TrackLength
                     this._trackName = this._dr2Helper.GetItinerary(
@@ -334,18 +335,11 @@ namespace ZTMZ.PacenoteTool
                                     this._gameOverlayManager.PacenoteType = "脚本";
                                 }
                             });
-                            var firstSound = this._profileManager.AudioFiles.FirstOrDefault();
-                            if (firstSound != null &&
-                                firstSound.Distance < 0) // && this._firstSoundPlayed == false)
+
+                            if (lastState != GameState.Paused && Config.Instance.PlayStartAndEndSound)
                             {
-                                // this._firstSoundPlayed = true;
-                                // play the RaceBegin sound, just when counting down from 5 to 0.
-                                // play in threads.
-                                this._profileManager.Play();
-                            }
-                            else
-                            {
-                                //TODO: cannot find any sound for this track. try to use 'default profile' ?
+                                // play start sound
+                                this._profileManager.PlaySystem(ProfileManager.SYSTEM_START_STAGE);
                             }
                         };
                         worker.RunWorkerAsync();

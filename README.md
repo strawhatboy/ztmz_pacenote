@@ -40,6 +40,19 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
     - [1.x版本录制和播放使用教学（纯语音路书） by 草帽不是猫](https://www.bilibili.com/video/BV1Ev411n7v9)
     - [1.x版本录制和播放使用说明文档 by bigboxx](https://www.bilibili.com/read/cv12176546)
 
+#### 文件目录说明
+* codrivers 
+用来存放语音包，可以根据[【腾讯文档】路书对照表](https://docs.qq.com/sheet/DVVlVZFdCWldkdXBi)并对照其他语音包的格式，在该文件夹下新建文件夹来创建新的语音包
+* lang
+多语言文件，可以在此处对照其他文件，新建新的语言支持
+* profiles
+用来存放路书，里面默认有个`default`文件夹，可以新建其他文件夹用来存放另一个版本的路书，`default`文件夹中的`pacenote`文件为路书脚本，以地图名命名的一些文件夹中存放的是纯语音路书
+* Python38 (仅开发版)
+Python38的运行环境
+* speech_model  (仅开发版)
+Vosk语音识别模型
+* ref
+我也不知道这是啥
 
 #### 各模块简介
 * OnlyR.Core
@@ -118,6 +131,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 * __Bigboxx__ 对路书工具的建议和语音包的制作
 * __圣沙蒙VK__ 的语音包和语音路书的录制
 * __紫藤林沫__ 的语音包录制
+* __拉稀车手老王__ 的语音包录制
 * 以及各位大佬的路书录制：（按字母顺序）
     * HanXu
     * 回家的誘いをかける

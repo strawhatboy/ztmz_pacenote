@@ -37,6 +37,17 @@ namespace ZTMZ.PacenoteTool
         public static string DEFAULT_PROFILE = "default";
         public static string DEFAULT_CODRIVER = "codrivers/default";
         public static string CODRIVER_FILENAME = "codriver.txt";
+
+        // system sound
+        public const string SYSTEM_START_STAGE = "system_start_stage";
+        public const string SYSTEM_END_STAGE = "system_end_stage";
+        public const string SYSTEM_COLLISION = "system_collision";
+        public const string SYSTEM_GO = "system_go";
+        public const string SYSTEM_PUNCTURE_FRONT_LEFT = "system_puncture_front_left";
+        public const string SYSTEM_PUNCTURE_FRONT_RIGHT = "system_puncture_front_right";
+        public const string SYSTEM_PUNCTURE_REAR_LEFT = "system_puncture_rear_left";
+        public const string SYSTEM_PUNCTURE_REAR_RIGHT = "system_puncture_rear_right";
+
         public string CurrentProfile { set; get; }
         public string CurrentItineraryPath { set; get; }
         public string CurrentCoDriverName { set; get; }
@@ -449,6 +460,11 @@ namespace ZTMZ.PacenoteTool
         {
             this._exampleAudio.Amplification = this.CurrentPlayAmplification;
             this.Player.PlaySound(this._exampleAudio, false);
+        }
+
+        public void PlaySystem(string sound)
+        {
+            this.Player.PlaySound(this.getSoundByKeyword(sound, this.CurrentCoDriverSoundPackagePath), false);
         }
 
         public void ReIndex(float distance)

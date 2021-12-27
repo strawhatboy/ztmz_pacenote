@@ -49,7 +49,6 @@ dip,detail_dip,dip|dips
 dont_cut,detail_dont_cut,don't cut|dont cut|do not cut
 downhill,detail_downhill,down hill|downhill
 early,detail_early,early
-end_stage,detail_end_stage,end stage
 extraextra_long,detail_extraextra_long,extra extra long
 extra_long,detail_extra_long,very long|extra long
 fence_outside,detail_fence_outside,fence outside|fences outside
@@ -110,7 +109,6 @@ slow,detail_slow,slow
 small_crest,detail_small_crest,small crest|small crests
 small_cut,detail_small_cut,small cut
 snow,detail_snow,snow
-start_stage,detail_start_stage,start stage
 sudden,detail_sudden,sudden|immediate
 tarmac,detail_tarmac,tarmac
 then,detail_then,then
