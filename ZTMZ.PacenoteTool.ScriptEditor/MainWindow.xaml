@@ -7,7 +7,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.ScriptEditor"
         mc:Ignorable="d" Closing="MainWindow_OnClosing"
-        Title="ZTMZ Club 路书脚本编辑工具v1.3" Height="450" Width="1280" DataContext="{Binding RelativeSource={RelativeSource Self}}">
+        Title="ZTMZ Club 路书脚本编辑工具v1.4" Height="450" Width="1280" DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.InputBindings>
         <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}"></KeyBinding>
         <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveAsCommand}"></KeyBinding>
@@ -15,7 +15,7 @@
         <KeyBinding Key="I" Modifiers="Control" Command="{Binding ImportCommand}"></KeyBinding>
     </Window.InputBindings>
     <Grid>
-        <DockPanel Margin="0" VerticalAlignment="Stretch">
+        <DockPanel Margin="0" VerticalAlignment="Stretch" LastChildFill="True">
 
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5">
                 <Button Name="btn_save" Click="Btn_save_OnClick" ToolTip="Ctrl+S">保存</Button>
@@ -26,6 +26,11 @@
                         ToolTip="Ctrl+I 注意：将会覆盖当前文本编辑器中的内容">
                     导入CrewChief路书脚本
                 </Button>
+                
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5 0 0 5">
+                <Button x:Name="btn_Print" Background="Coral" Click="btn_Print_Click">打印</Button>
                 <TextBlock VerticalAlignment="Center" ToolTip="比如可以输入-20将所有路书播放点提前20米，输入50将所有路书播放点滞后50米">批量调整路书播放点：</TextBlock>
                 <xctk:IntegerUpDown VerticalAlignment="Center" Name="txt_adjustDistance" Width="50" Value="0" KeyUp="Txt_adjustDistance_OnKeyUp" />
                 <Button Name="btn_adjustDistance" Click="Btn_adjustDistance_OnClick">调整！</Button>
@@ -37,6 +42,7 @@
                     <ComboBoxItem ToolTip="兼容完整版脚本">显示所有</ComboBoxItem>
                     <ComboBoxItem ToolTip="使用完整版脚本，可能会造成脚本过长难以辨识">仅显示完整命令</ComboBoxItem>
                 </ComboBox>
+                <ToggleButton x:Name="btn_Wordwrap" IsChecked="True" Click="btn_Wordwrap_Click" >自动换行</ToggleButton>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5 0 0 5" >
@@ -46,7 +52,17 @@
                 <TextBlock HorizontalAlignment="Right" Margin="15 0 5 0" VerticalAlignment="Center">当前状态：</TextBlock>
                 <TextBlock x:Name="tb_status" HorizontalAlignment="Right" Margin="15 0 5 0" Padding="5 0 5 0" Background="AliceBlue" VerticalAlignment="Center">OK</TextBlock>
             </StackPanel>
-            <avalonEdit:TextEditor DockPanel.Dock="Bottom"
+            <ListBox x:Name="lb_viewMode" DockPanel.Dock="Bottom" SelectedIndex="0" SelectionChanged="lb_viewMode_SelectionChanged">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBoxItem>代码</ListBoxItem>
+                <ListBoxItem>图形</ListBoxItem>
+            </ListBox>
+            <Grid>
+                <avalonEdit:TextEditor
                                    Margin="0 0 0 0"
                                    Name="avalonEditor"
                                    SyntaxHighlighting="pacenote"
@@ -59,7 +75,14 @@
                                    AllowDrop="True"
                                    TextChanged="AvalonEditor_OnTextChanged"
                                    Drop="AvalonEditor_OnDrop" 
+                                   WordWrap="True"
                                    LineNumbersForeground="#DDDDDD"/>
+                <ScrollViewer x:Name="sv_graphical" Visibility="Hidden">
+                    <WrapPanel Name="wp_graphical" >
+                    
+                    </WrapPanel>
+                </ScrollViewer>
+            </Grid>
         </DockPanel>
     </Grid>
 </Window>

@@ -8,9 +8,11 @@
         <PackageVersion>2.1.0</PackageVersion>
         <Version>2.5.1</Version>
         <FileVersion>2.5.1.0</FileVersion>
-        <TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
 	    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	    <SignAssembly>False</SignAssembly>
+	    <TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
+	    <TargetFramework>net6.0-windows</TargetFramework>
+	    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     </PropertyGroup>
 
     <ItemGroup>

@@ -20,7 +20,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Search;
+using ICSharpCode.AvalonEdit.Utils;
 using Microsoft.Win32;
+using ZTMZ.PacenoteTool.Base;
 using Path = System.IO.Path;
 
 namespace ZTMZ.PacenoteTool.ScriptEditor
@@ -34,7 +36,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         private string _relatedFile;
         private bool _isSaved = true;
         private readonly string PACENOTE_FILTER = "路书文件(*.pacenote) | *.pacenote";
-        private readonly string TITLE = "ZTMZ Club 路书脚本编辑工具v1.3";
+        private readonly string TITLE = "ZTMZ Club 路书脚本编辑工具v1.4";
         private ToolTip _toolTip = new ToolTip();
         private int _intellisenseMode = 0;
 
@@ -486,6 +488,58 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         {
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
                 "ftp://anonymous@strawhat.asia"));
+        }
+
+        private void btn_Wordwrap_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.btn_Wordwrap.IsChecked.HasValue)
+            {
+                this.avalonEditor.WordWrap = this.btn_Wordwrap.IsChecked.Value;
+            }
+        }
+
+        private void btn_Print_Click(object sender, RoutedEventArgs e)
+        {
+            PrintDialog pd = new PrintDialog();
+            if (this.lb_viewMode.SelectedIndex == 0)
+            {
+                var fd = DocumentPrinter.CreateFlowDocumentForEditor(avalonEditor);
+                var dRes = pd.ShowDialog();
+                if (dRes.HasValue && dRes.Value)
+                {
+                    fd.PageHeight = pd.PrintableAreaHeight;
+                    fd.PageWidth = pd.PrintableAreaWidth;
+                    IDocumentPaginatorSource idocument = fd as IDocumentPaginatorSource;
+
+                    pd.PrintDocument(idocument.DocumentPaginator, Path.GetFileNameWithoutExtension(this._relatedFile));
+                }
+            } else
+            {
+                // print graphical pacenote
+                var fd = PrintHelper.GetFixedDocument(this.wp_graphical, pd);
+                var dRes = pd.ShowDialog();
+                if (dRes.HasValue && dRes.Value)
+                {
+                    PrintHelper.PrintNoPreview(pd, fd);
+                }
+            }
+        }
+
+        private void lb_viewMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.avalonEditor != null && this.wp_graphical != null)
+            {
+                if (lb_viewMode.SelectedIndex == 0)
+                {
+                    this.avalonEditor.Visibility = Visibility.Visible;
+                    this.sv_graphical.Visibility = Visibility.Hidden;
+                }
+                else
+                {
+                    this.avalonEditor.Visibility = Visibility.Hidden;
+                    this.sv_graphical.Visibility = Visibility.Visible;
+                }
+            }
         }
     }
 }

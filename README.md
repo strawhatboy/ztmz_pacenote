@@ -51,8 +51,6 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 Python38的运行环境
 * speech_model  (仅开发版)
 Vosk语音识别模型
-* ref
-我也不知道这是啥
 
 #### 各模块简介
 * OnlyR.Core

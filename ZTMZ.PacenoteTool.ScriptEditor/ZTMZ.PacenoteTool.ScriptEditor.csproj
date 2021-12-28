@@ -34,6 +34,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
       <Resource Include="alias.png">
         <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       </Resource>
