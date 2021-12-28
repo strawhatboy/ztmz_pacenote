@@ -15,8 +15,15 @@ namespace ZTMZ.PacenoteTool
         public float Speed { set; get; }
         public float TrackLength { set; get; }
         public float StartZ { set; get; }
+
+        // Wheel Pressure
+        public float SpeedRearLeft { set; get; }
+        public float SpeedRearRight { set; get; }
+        public float SpeedFrontLeft { set; get; }
+        public float SpeedFrontRight { set; get; }
         // public int TrackNumber { set; get; }
         public DateTime TimeStamp { set; get; }
+
 
         public override bool Equals(object? obj)
         {
@@ -51,6 +58,11 @@ namespace ZTMZ.PacenoteTool
         private IPEndPoint any;
         public event NewUDPMessageDelegate onNewMessage;
         public event GameStateChangedDelegate onGameStateChanged;
+        public event Action onCollisionDetected;
+        public event Action<int> onWheelAbnormalDetected;
+        public bool[] WheelAbnormalDetectedReported = new bool[] { false, false, false, false };
+        public int[] WheelAbnormalDetectedCounter = new int[] { 0, 0, 0, 0 };
+
         private bool isRunning;
         private Timer _timer = new Timer();
         private int _timerCount = 0;
@@ -65,6 +77,12 @@ namespace ZTMZ.PacenoteTool
                 this._timerCount = 0;
             }
             get => this._gameState;
+        }
+
+        public void ResetWheelStatus()
+        {
+            WheelAbnormalDetectedReported = new bool[] { false, false, false, false }; 
+            WheelAbnormalDetectedCounter = new int[] { 0, 0, 0, 0 };
         }
 
         public UDPReceiver()
@@ -136,12 +154,54 @@ namespace ZTMZ.PacenoteTool
                 message.Speed = BitConverter.ToSingle(rawData, 28) * 3.6f;   // m/s -> km/h
                 message.TrackLength = BitConverter.ToSingle(rawData, 244);
                 message.StartZ = BitConverter.ToSingle(rawData, 24);
+                message.SpeedFrontLeft = BitConverter.ToSingle(rawData, 27<<2) * 3.6f;
+                message.SpeedFrontRight = BitConverter.ToSingle(rawData, 28<<2) * 3.6f;
+                message.SpeedRearLeft = BitConverter.ToSingle(rawData, 25<<2) * 3.6f;
+                message.SpeedRearRight = BitConverter.ToSingle(rawData, 26<<2) * 3.6f;
                 // only 264 bytes
                 // message.TrackNumber = BitConverter.ToInt32(rawData, 272);
                 if (!message.Equals(this.LastMessage))
                 {
                     var lastMessage = this.LastMessage;
                     this.LastMessage = message;
+                    if (lastMessage.Speed - message.Speed >= Config.Instance.CollisionSpeedChangeThreshold && message.Speed != 0)
+                    {
+                        // collision happens. speed == 0 means reset or end stage
+                        this.onCollisionDetected?.Invoke();
+                    }
+
+                    // try to report wheel event
+                    var wheelData = new float[] {message.SpeedFrontLeft, message.SpeedFrontRight, message.SpeedRearLeft, message.SpeedRearRight};
+                    var minWheelSpd = float.MaxValue;
+                    var minWheelSpdIndex = 0;
+                    var sum = 0f;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        sum += wheelData[i];
+                        if (wheelData[i] < minWheelSpd)
+                        {
+                            minWheelSpd = wheelData[i];
+                            minWheelSpdIndex = i;
+                        }
+                    }
+                    sum -= minWheelSpd;
+                    var mean = sum / 3f;
+
+                    if (minWheelSpd < mean / (1 + Config.Instance.WheelAbnormalPercentageReportThreshold))
+                    {
+                        // need to report
+                        WheelAbnormalDetectedCounter[minWheelSpdIndex]++;
+                        if (WheelAbnormalDetectedCounter[minWheelSpdIndex] >= Config.Instance.WheelAbnormalFramesReportThreshold && !this.WheelAbnormalDetectedReported[minWheelSpdIndex])
+                        {
+                            this.onWheelAbnormalDetected?.Invoke(minWheelSpdIndex);
+                            this.WheelAbnormalDetectedReported[minWheelSpdIndex] = true;
+                        }
+                    } else
+                    {
+                        // reset to normal
+                        //WheelAbnormalDetectedCounter[minWheelSpdIndex] = 0;
+                    }
+
                     this.onNewMessage?.Invoke(message);
                     if (message.LapTime > 0 && this.GameState != GameState.Racing)
                     {

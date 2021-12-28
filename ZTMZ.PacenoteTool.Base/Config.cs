@@ -196,14 +196,50 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._PlayStartAndEndSound;
         }
 
+        private bool _PlayGoSound = true;
+        public bool PlayGoSound
+        {
+            set { this._PlayGoSound = value; this._userconfig["PlayGoSound"] = value; }
+            get => this._PlayGoSound;
+        }
+
         private bool _PlayCollisionSound = true;
         public bool PlayCollisionSound
         {
             set { this._PlayCollisionSound = value; this._userconfig["PlayCollisionSound"] = value; }
             get => this._PlayCollisionSound;
         }
-        
-        
+
+        private bool _PlayWheelAbnormalSound = false;
+        public bool PlayWheelAbnormalSound
+        {
+            set { this._PlayWheelAbnormalSound = value; this._userconfig["PlayWheelAbnormalSound"] = value; }
+            get => this._PlayWheelAbnormalSound;
+        }
+
+        private float _CollisionSpeedChangeThreshold = 10f;
+        public float CollisionSpeedChangeThreshold
+        {
+            set { this._CollisionSpeedChangeThreshold = value; this._userconfig["CollisionSpeedChangeThreshold"] = value; }
+            get => this._CollisionSpeedChangeThreshold;
+        }
+
+
+        private int _WheelAbnormalFramesReportThreshold = 120;
+        public int WheelAbnormalFramesReportThreshold
+        {
+            set { this._WheelAbnormalFramesReportThreshold = value; this._userconfig["WheelAbnormalFramesReportThreshold"] = value; }
+            get => this._WheelAbnormalFramesReportThreshold;
+        }
+
+        private int _WheelAbnormalPercentageReportThreshold = 40;
+        public int WheelAbnormalPercentageReportThreshold
+        {
+            set { this._WheelAbnormalPercentageReportThreshold = value; this._userconfig["WheelAbnormalPercentageReportThreshold"] = value; }
+            get => this._WheelAbnormalPercentageReportThreshold;
+        }
+
+
         private int _HudFPS = 10;
         public int HudFPS
         {
@@ -216,6 +252,14 @@ namespace ZTMZ.PacenoteTool.Base
         {
             set { this._Language = value; this._userconfig["Language"] = value; }
             get => this._Language;
+        }
+
+
+        private bool _UseDefaultSoundPackageForFallback = true;
+        public bool UseDefaultSoundPackageForFallback
+        {
+            set { this._UseDefaultSoundPackageForFallback = value; this._userconfig["UseDefaultSoundPackageForFallback"] = value; }
+            get => this._UseDefaultSoundPackageForFallback;
         }
 
 

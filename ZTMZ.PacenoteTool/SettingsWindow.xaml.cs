@@ -60,6 +60,17 @@ namespace ZTMZ.PacenoteTool
                 }
             };
 
+            // Go !
+            this.btn_PlayGoSound.IsChecked = Config.Instance.PlayGoSound;
+            this.btn_PlayGoSound.Click += (s, e) =>
+            {
+                if (this.btn_PlayGoSound.IsChecked.HasValue)
+                {
+                    Config.Instance.PlayGoSound = this.btn_PlayGoSound.IsChecked.Value;
+                    Config.Instance.SaveUserConfig();
+                }
+            };
+
             // collision
             this.btn_PlayCollisionSound.IsChecked = Config.Instance.PlayCollisionSound;
             this.btn_PlayCollisionSound.Click += (s, e) =>
@@ -71,6 +82,17 @@ namespace ZTMZ.PacenoteTool
                 }
             };
 
+            // puncture
+            this.btn_PlayWheelAbnormalSound.IsChecked = Config.Instance.PlayWheelAbnormalSound;
+            this.btn_PlayWheelAbnormalSound.Click += (s, e) =>
+            {
+                if (this.btn_PlayWheelAbnormalSound.IsChecked.HasValue)
+                {
+                    Config.Instance.PlayWheelAbnormalSound = this.btn_PlayWheelAbnormalSound.IsChecked.Value;
+                    Config.Instance.SaveUserConfig();
+                }
+            };
+
             // default voice
             this.btn_UseDefaultSoundPackageByDefault.IsChecked = !Config.Instance.UseDefaultSoundPackageByDefault;
             this.btn_UseDefaultSoundPackageByDefault.Click += (s, e) =>
@@ -78,6 +100,17 @@ namespace ZTMZ.PacenoteTool
                 if (this.btn_UseDefaultSoundPackageByDefault.IsChecked.HasValue)
                 {
                     Config.Instance.UseDefaultSoundPackageByDefault = !this.btn_UseDefaultSoundPackageByDefault.IsChecked.Value;
+                    Config.Instance.SaveUserConfig();
+                }
+            };
+
+            // fallback default voice
+            this.btn_UseDefaultSoundPackageForFallback.IsChecked = Config.Instance.UseDefaultSoundPackageForFallback;
+            this.btn_UseDefaultSoundPackageForFallback.Click += (s, e) =>
+            {
+                if (this.btn_UseDefaultSoundPackageForFallback.IsChecked.HasValue)
+                {
+                    Config.Instance.UseDefaultSoundPackageForFallback = this.btn_UseDefaultSoundPackageForFallback.IsChecked.Value;
                     Config.Instance.SaveUserConfig();
                 }
             };

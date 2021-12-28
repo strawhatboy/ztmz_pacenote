@@ -137,6 +137,34 @@ namespace ZTMZ.PacenoteTool
         private void initializeUDPReceiver()
         {
             this._udpReceiver = new UDPReceiver();
+            this._udpReceiver.onCollisionDetected += () =>
+            {
+                var worker = new BackgroundWorker();
+                worker.DoWork += (sender, e) =>
+                {
+                    this._profileManager.PlaySystem(ProfileManager.SYSTEM_COLLISION);
+                };
+                worker.RunWorkerAsync();
+            };
+            this._udpReceiver.onWheelAbnormalDetected += wheelIndex =>
+            {
+                var worker = new BackgroundWorker();
+                worker.DoWork += (sender, e) =>
+                {
+                    switch (wheelIndex)
+                    {
+                        case 0:
+                            this._profileManager.PlaySystem(ProfileManager.SYSTEM_PUNCTURE_FRONT_LEFT); break;
+                        case 1:
+                            this._profileManager.PlaySystem(ProfileManager.SYSTEM_PUNCTURE_FRONT_RIGHT); break;
+                        case 2:
+                            this._profileManager.PlaySystem(ProfileManager.SYSTEM_PUNCTURE_REAR_LEFT); break;
+                        case 3:
+                            this._profileManager.PlaySystem(ProfileManager.SYSTEM_PUNCTURE_REAR_RIGHT); break;
+                    }
+                };
+                worker.RunWorkerAsync();
+            };
             this._udpReceiver.onNewMessage += msg =>
             {
                 this.Dispatcher.Invoke(() =>
@@ -149,6 +177,11 @@ namespace ZTMZ.PacenoteTool
                     this.tb_progress.Text = msg.CompletionRate.ToString("0.00");
 
                     this.tb_position_z.Text = msg.StartZ.ToString("0.0");
+
+                    this.tb_wp_fl.Text = msg.SpeedFrontLeft.ToString("0.0");
+                    this.tb_wp_fr.Text = msg.SpeedFrontRight.ToString("0.0");
+                    this.tb_wp_rl.Text = msg.SpeedRearLeft.ToString("0.0");
+                    this.tb_wp_rr.Text = msg.SpeedRearRight.ToString("0.0");
                 });
 
                 if (this._toolState == ToolState.Recording && !this._isPureAudioRecording)
@@ -255,6 +288,7 @@ namespace ZTMZ.PacenoteTool
                 case GameState.RaceBegin:
                     // load trace, use lastmsg tracklength & startZ
                     // this._udpReceiver.LastMessage.TrackLength
+                    this._udpReceiver.ResetWheelStatus();
                     this._trackName = this._dr2Helper.GetItinerary(
                         this._udpReceiver.LastMessage.TrackLength.ToString("f2", CultureInfo.InvariantCulture),
                         this._udpReceiver.LastMessage.StartZ
@@ -345,6 +379,13 @@ namespace ZTMZ.PacenoteTool
                         worker.RunWorkerAsync();
                     }
 
+                    break;
+                case GameState.Racing:
+                    if (lastState == GameState.RaceBegin && Config.Instance.PlayGoSound)
+                    {
+                        // just go !
+                        this._profileManager.PlaySystem(ProfileManager.SYSTEM_GO);
+                    }
                     break;
             }
         }

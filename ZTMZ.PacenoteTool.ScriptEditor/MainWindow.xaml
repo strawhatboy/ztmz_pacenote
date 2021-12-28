@@ -26,13 +26,13 @@
                         ToolTip="Ctrl+I 注意：将会覆盖当前文本编辑器中的内容">
                     导入CrewChief路书脚本
                 </Button>
-                <TextBlock ToolTip="比如可以输入-20将所有路书播放点提前20米，输入50将所有路书播放点滞后50米">批量调整路书播放点：</TextBlock>
-                <xctk:IntegerUpDown Name="txt_adjustDistance" Width="50" Value="0" KeyUp="Txt_adjustDistance_OnKeyUp" />
+                <TextBlock VerticalAlignment="Center" ToolTip="比如可以输入-20将所有路书播放点提前20米，输入50将所有路书播放点滞后50米">批量调整路书播放点：</TextBlock>
+                <xctk:IntegerUpDown VerticalAlignment="Center" Name="txt_adjustDistance" Width="50" Value="0" KeyUp="Txt_adjustDistance_OnKeyUp" />
                 <Button Name="btn_adjustDistance" Click="Btn_adjustDistance_OnClick">调整！</Button>
-                <TextBlock>修改字体大小：</TextBlock>
-                <xctk:UIntegerUpDown Name="txt_adjustFontSize" Width="50" Value="16" Minimum="1" />
-                <TextBlock>智能提示策略：</TextBlock>
-                <ComboBox SelectedIndex="0" x:Name="cb_intellisenseMode" SelectionChanged="cb_intellisenseMode_SelectionChanged">
+                <TextBlock VerticalAlignment="Center">修改字体大小：</TextBlock>
+                <xctk:UIntegerUpDown VerticalAlignment="Center" Name="txt_adjustFontSize" Width="50" Value="16" Minimum="1" />
+                <TextBlock VerticalAlignment="Center">智能提示策略：</TextBlock>
+                <ComboBox SelectedIndex="0" x:Name="cb_intellisenseMode" SelectionChanged="cb_intellisenseMode_SelectionChanged" VerticalAlignment="Center">
                     <ComboBoxItem ToolTip="让脚本看起来更加简洁">仅显示代称</ComboBoxItem>
                     <ComboBoxItem ToolTip="兼容完整版脚本">显示所有</ComboBoxItem>
                     <ComboBoxItem ToolTip="使用完整版脚本，可能会造成脚本过长难以辨识">仅显示完整命令</ComboBoxItem>
@@ -43,8 +43,8 @@
                 <Button Name="btn_share" Click="btn_share_Click" ToolTip="分享上传至服务器，便于整合进以后版本的路书工具" HorizontalAlignment="Left" Background="Aquamarine">分享！！！</Button>
                 <Button Name="btn_viewShares" Click="btn_viewShares_Click" ToolTip="查看所有人的分享" HorizontalAlignment="Left">查看所有分享</Button>
                 <Button Name="btn_convert" Click="btn_convert_Click" ToolTip="将所有纯文本转换为路书标记">标记转化</Button>
-                <TextBlock HorizontalAlignment="Right" Margin="15 0 5 0">当前状态：</TextBlock>
-                <TextBlock x:Name="tb_status" HorizontalAlignment="Right" Margin="15 0 5 0" Padding="5 0 5 0" Background="AliceBlue">OK</TextBlock>
+                <TextBlock HorizontalAlignment="Right" Margin="15 0 5 0" VerticalAlignment="Center">当前状态：</TextBlock>
+                <TextBlock x:Name="tb_status" HorizontalAlignment="Right" Margin="15 0 5 0" Padding="5 0 5 0" Background="AliceBlue" VerticalAlignment="Center">OK</TextBlock>
             </StackPanel>
             <avalonEdit:TextEditor DockPanel.Dock="Bottom"
                                    Margin="0 0 0 0"

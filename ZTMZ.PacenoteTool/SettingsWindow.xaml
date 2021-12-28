@@ -22,159 +22,187 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
-
-        <ScrollViewer VerticalScrollBarVisibility="Auto"
+        <DockPanel LastChildFill="True">
+            <Grid DockPanel.Dock="Top">
+                <Button HorizontalAlignment="Right" Margin="10" Content="{DynamicResource ResourceKey=settings.btn_reset}" VerticalAlignment="Center"></Button>
+                <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" Margin="10" >
+                    <materialDesign:PackIcon Kind="Cog" Height="30" Width="30" VerticalAlignment="Center" Margin="0 0 10 0" />
+                    <TextBlock Style="{StaticResource MaterialDesignHeadline4TextBlock}"  Text="{DynamicResource ResourceKey=settings.title}"></TextBlock>
+                </StackPanel>
+            </Grid>
+            <Separator Height="0.5" DockPanel.Dock="Top"/>
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
                       materialDesign:ScrollViewerAssist.IsAutoHideEnabled="True">
-            <StackPanel Margin="20">
-                <Grid>
-                    <Button HorizontalAlignment="Right" Margin="10" Content="{DynamicResource ResourceKey=settings.btn_reset}"></Button>
-                    <TextBlock Style="{StaticResource MaterialDesignHeadline4TextBlock}"  HorizontalAlignment="Left" Margin="10" Text="{DynamicResource ResourceKey=settings.title}"></TextBlock>
-                </Grid>
-                <Separator Height="0.5" />
-                <Expander
+                <StackPanel Margin="20">
+
+                    <Expander
                     HorizontalAlignment="Stretch"
                     IsExpanded="True">
-                    <Expander.Header>
-                        <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" Text="{DynamicResource ResourceKey=settings.section.general}" />
-                    </Expander.Header>
+                        <Expander.Header>
+                            <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" Text="{DynamicResource ResourceKey=settings.section.general}" />
+                        </Expander.Header>
 
-                    <materialDesign:Card Margin="10">
-                        <Grid
+                        <materialDesign:Card Margin="10">
+                            <Grid
                             TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
                             Margin="24,8,24,16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition  />
-                                <ColumnDefinition Width="100"/>
-                            </Grid.ColumnDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition  />
+                                    <ColumnDefinition Width="100"/>
+                                </Grid.ColumnDefinitions>
 
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="50" />
-                                <RowDefinition Height="50" />
-                                <RowDefinition Height="50" />
-                                <RowDefinition Height="50" />
-                                <!-- <RowDefinition Height="50" /> -->
-                                <!-- <RowDefinition Height="250" /> -->
-                                <!-- <RowDefinition Height="50" /> -->
-                            </Grid.RowDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <!-- <RowDefinition Height="50" /> -->
+                                    <!-- <RowDefinition Height="250" /> -->
+                                    <!-- <RowDefinition Height="50" /> -->
+                                </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" VerticalAlignment="Center"
+                                <TextBlock Grid.Row="0" VerticalAlignment="Center"
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.language}" />
-                            <ComboBox Grid.Row="0" Grid.Column="1" x:Name="cb_language" VerticalAlignment="Center"/>
+                                <ComboBox Grid.Row="0" Grid.Column="1" x:Name="cb_language" VerticalAlignment="Center"/>
 
-                            <TextBlock Grid.Row="1" VerticalAlignment="Center"
+                                <TextBlock Grid.Row="1" VerticalAlignment="Center"
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.udpListenPort}">
-                                <TextBlock.ToolTip>
-                                    <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.udpListenPort}" />
-                                </TextBlock.ToolTip>
+                                    <TextBlock.ToolTip>
+                                        <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.udpListenPort}" />
+                                    </TextBlock.ToolTip>
                             </TextBlock>
-                            <xctk:UIntegerUpDown Grid.Row="1" Name="tb_UDPListenPort" Grid.Column="1" Value="20777" Maximum="65535" Minimum="10000"
+                                <xctk:UIntegerUpDown Grid.Row="1" Name="tb_UDPListenPort" Grid.Column="1" Value="20777" Maximum="65535" Minimum="10000"
                                                  VerticalAlignment="Center" />
 
 
-                            <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.playbackDeviceDesiredLatency}"
+                                <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.playbackDeviceDesiredLatency}"
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}">
-                                <TextBlock.ToolTip>
-                                    <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.playbackDeviceDesiredLatency}" />
-                                </TextBlock.ToolTip>
+                                    <TextBlock.ToolTip>
+                                        <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.playbackDeviceDesiredLatency}" />
+                                    </TextBlock.ToolTip>
                             </TextBlock>
-                            <xctk:UIntegerUpDown Name="tb_PlaybackDeviceDesiredLatency" Grid.Row="2" Grid.Column="1" Minimum="50" Maximum="1000"
+                                <xctk:UIntegerUpDown Name="tb_PlaybackDeviceDesiredLatency" Grid.Row="2" Grid.Column="1" Minimum="50" Maximum="1000"
                                                  Value="175" VerticalAlignment="Center" />
 
-                            <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.hudFPS}" 
+                                <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.hudFPS}" 
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}">
-                                <TextBlock.ToolTip>
-                                    <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.hudFPS}" />
-                                </TextBlock.ToolTip>
+                                    <TextBlock.ToolTip>
+                                        <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.hudFPS}" />
+                                    </TextBlock.ToolTip>
                             </TextBlock>
-                            <xctk:UIntegerUpDown Name="tb_HudFPS" Grid.Row="3" Grid.Column="1" Value="10" Maximum="144" Minimum="1"
+                                <xctk:UIntegerUpDown Name="tb_HudFPS" Grid.Row="3" Grid.Column="1" Value="10" Maximum="144" Minimum="1"
                                                  VerticalAlignment="Center" />
 
-                        </Grid>
-                    </materialDesign:Card>
-                </Expander>
-                <Separator Height="0.5" />
-                <Expander
+                            </Grid>
+                        </materialDesign:Card>
+                    </Expander>
+                    <Separator Height="0.5" />
+                    <Expander
                     HorizontalAlignment="Stretch"
                     IsExpanded="True">
-                    <Expander.Header>
-                        <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" Text="{DynamicResource ResourceKey=settings.section.voicePackage}"  />
-                    </Expander.Header>
+                        <Expander.Header>
+                            <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" Text="{DynamicResource ResourceKey=settings.section.voicePackage}"  />
+                        </Expander.Header>
 
-                    <materialDesign:Card Margin="10">
-                        <Grid
+                        <materialDesign:Card Margin="10">
+                            <Grid
                             TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
                             Margin="24,8,24,16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition  />
-                                <ColumnDefinition Width="100"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="50" />
-                                <RowDefinition Height="50" />
-                                <RowDefinition Height="50" />
-                                <RowDefinition Height="50" />
-                            </Grid.RowDefinitions>
-                            <TextBlock VerticalAlignment="Center"
-                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.playStartAndEndSound}" />
-                            <ToggleButton Grid.Column="1" x:Name="btn_PlayStartAndEndSound" />
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition  />
+                                    <ColumnDefinition Width="100"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                </Grid.RowDefinitions>
+                                <TextBlock VerticalAlignment="Center"
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.playStartAndEndSound}"
+                                       ToolTip="{DynamicResource ResourceKey=settings.tooltip.playStartAndEndSound}"/>
+                                <ToggleButton Grid.Column="1" x:Name="btn_PlayStartAndEndSound" />
 
-                            <TextBlock Grid.Row="1" VerticalAlignment="Center"
-                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.playCollisionSound}" >
-                            </TextBlock>
-                            <ToggleButton Grid.Row="1" Grid.Column="1" x:Name="btn_PlayCollisionSound" />
+                                <TextBlock Grid.Row="1" VerticalAlignment="Center"
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.playGoSound}"
+                                       ToolTip="{DynamicResource ResourceKey=settings.tooltip.playGoSound}"/>
+                                <ToggleButton Grid.Row="1" Grid.Column="1" x:Name="btn_PlayGoSound" />
 
-                            <TextBlock Grid.Row="2" VerticalAlignment="Center"  Text="{DynamicResource ResourceKey=settings.useDefaultSoundPackageByDefault}" 
+                                <TextBlock Grid.Row="2" VerticalAlignment="Center"
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.playCollisionSound}"
+                                       ToolTip="{DynamicResource ResourceKey=settings.tooltip.playCollisionSound}" >
+                                </TextBlock>
+                                <ToggleButton Grid.Row="2" Grid.Column="1" x:Name="btn_PlayCollisionSound" />
+
+                                <TextBlock Grid.Row="3" VerticalAlignment="Center"
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.playWheelAbnormalSound}"
+                                       ToolTip="{DynamicResource ResourceKey=settings.tooltip.playWheelAbnormalSound}" >
+                                </TextBlock>
+                                <ToggleButton Grid.Row="3" Grid.Column="1" x:Name="btn_PlayWheelAbnormalSound" />
+
+                                <TextBlock Grid.Row="4" VerticalAlignment="Center"  Text="{DynamicResource ResourceKey=settings.useDefaultSoundPackageByDefault}" 
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                       ToolTip="{DynamicResource ResourceKey=settings.tooltip.useDefaultSoundPackageByDefault}">
+                                </TextBlock>
+                                <ToggleButton Grid.Row="4" Grid.Column="1" x:Name="btn_UseDefaultSoundPackageByDefault" />
+                                
+                                <TextBlock Grid.Row="5" VerticalAlignment="Center"  Text="{DynamicResource ResourceKey=settings.useDefaultSoundPackageForFallback}" 
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.useDefaultSoundPackageForFallback}">
+                                </TextBlock>
+                                <ToggleButton Grid.Row="5" Grid.Column="1" x:Name="btn_UseDefaultSoundPackageForFallback" />
+
+                                <TextBlock Grid.Row="6" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.preloadSounds}"
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}">
-                            </TextBlock>
-                            <ToggleButton Grid.Row="2" Grid.Column="1" x:Name="btn_UseDefaultSoundPackageByDefault" />
+                                    <TextBlock.ToolTip>
+                                        <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.preloadSounds}">
+                                        </TextBlock>
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
+                                <ToggleButton Grid.Row="6" Grid.Column="1" x:Name="btn_PreloadSounds" />
+                            </Grid>
+                        </materialDesign:Card>
+                    </Expander>
 
-                            <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.preloadSounds}"
-                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}">
-                                <TextBlock.ToolTip>
-                                    <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.preloadSounds}">
-                                    </TextBlock>
-                                </TextBlock.ToolTip>
-                            </TextBlock>
-                            <ToggleButton Grid.Row="3" Grid.Column="1" x:Name="btn_PreloadSounds" />
-                        </Grid>
-                    </materialDesign:Card>
-                </Expander>
-
-                <Separator Height="0.5" />
-                <Expander
+                    <Separator Height="0.5" />
+                    <Expander
                     HorizontalAlignment="Stretch"
                     IsExpanded="True">
-                    <Expander.Header>
-                        <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" Text="{DynamicResource ResourceKey=settings.section.misc}"></TextBlock>
-                    </Expander.Header>
+                        <Expander.Header>
+                            <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" Text="{DynamicResource ResourceKey=settings.section.misc}"></TextBlock>
+                        </Expander.Header>
 
-                    <materialDesign:Card Margin="10">
-                        <Grid
+                        <materialDesign:Card Margin="10">
+                            <Grid
                             TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
                             Margin="24,8,24,16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition  />
-                                <ColumnDefinition Width="100"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="50" />
-                                <!-- <RowDefinition Height="50" /> -->
-                                <!-- <RowDefinition Height="50" /> -->
-                                <!-- <RowDefinition Height="50" /> -->
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.useSequentialMixerToHandleAudioConflict}"
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition  />
+                                    <ColumnDefinition Width="100"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="50" />
+                                    <!-- <RowDefinition Height="50" /> -->
+                                    <!-- <RowDefinition Height="50" /> -->
+                                    <!-- <RowDefinition Height="50" /> -->
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.useSequentialMixerToHandleAudioConflict}"
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}">
-                                <TextBlock.ToolTip>
-                                    <TextBlock  Text="{DynamicResource ResourceKey=settings.tooltip.useSequentialMixerToHandleAudioConflict}">
-                                    </TextBlock>
-                                </TextBlock.ToolTip>
+                                    <TextBlock.ToolTip>
+                                        <TextBlock  Text="{DynamicResource ResourceKey=settings.tooltip.useSequentialMixerToHandleAudioConflict}">
+                                        </TextBlock>
+                                    </TextBlock.ToolTip>
                             </TextBlock>
-                            <ToggleButton Name="tb_UseSequentialMixerToHandleAudioConflict" Grid.Row="0"
+                                <ToggleButton Name="tb_UseSequentialMixerToHandleAudioConflict" Grid.Row="0"
                                           Grid.Column="1" />
-                        </Grid>
-                    </materialDesign:Card>
-                </Expander>
-            </StackPanel>
-        </ScrollViewer>
+                            </Grid>
+                        </materialDesign:Card>
+                    </Expander>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+        
     </Grid>
 </Window>

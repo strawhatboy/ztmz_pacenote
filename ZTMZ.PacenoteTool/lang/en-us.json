@@ -16,8 +16,11 @@
       "playbackDeviceDesiredLatency": "The delay for playing after the instructions arrive at the device, if this value is very small, the sound may be weird. Meanwhile a big delay may affect the experience",
       "hudFPS": "Lock FPS of the in-game hud, high FPS may bring negative influence to the performance of some screen recording softwares like OBS",
       "playStartAndEndSound": "Play special start/end stage voice",
+      "playGoSound": "Just after the count down, there will be something like 'Go' played if this option was checked",
       "playCollisionSound": "Play special collision voice",
+      "playWheelAbnormalSound": "Play special voice for wheel puncture, maybe not accurate for different wheels",
       "useDefaultSoundPackageByDefault": "Ignore default AI-generated voice package",
+      "useDefaultSoundPackageForFallback": "If current voice package is not complete, use default AI-generated voice package for fallback",
       "preloadSounds": "Preload the voice packages may take more memory (around 2GB), but will load the voice package as soon as possible",
       "useSequentialMixerToHandleAudioConflict": "A sequential mix can avoid voices overlap"
     },
@@ -27,8 +30,11 @@
     "playbackDeviceDesiredLatency": "Playback device desired latency",
     "hudFPS": "In-game Hud FPS",
     "playStartAndEndSound": "Play special start/end stage voice",
+    "playGoSound": "Play special voice when the race started",
     "playCollisionSound": "Play special collision voice",
+    "playWheelAbnormalSound": "[Experimental] Play special voice for wheel puncture",
     "useDefaultSoundPackageByDefault": "Ignore default AI-generated voice package",
+    "useDefaultSoundPackageForFallback": "Fallback to default voice package",
     "preloadSounds": "Preload voice packages",
     "useSequentialMixerToHandleAudioConflict": "Use sequential mixer"
   }
