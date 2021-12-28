@@ -82,7 +82,7 @@ namespace ZTMZ.PacenoteTool
             this._dr2Helper = new();
             this._autoRecorder = new();
 
-            this.registerHotKeys();
+            this.initHotKeys();
             this.initializeUDPReceiver();
             this.initializeComboBoxes();
             this.checkPrerequisite();
@@ -93,7 +93,7 @@ namespace ZTMZ.PacenoteTool
             this.initializeI18N();
         }
 
-        private void registerHotKeys()
+        private void initHotKeys()
         {
             this._hotKeyStartRecord = new HotKey(Key.F1, KeyModifier.None, key =>
             {
@@ -117,7 +117,7 @@ namespace ZTMZ.PacenoteTool
                         });
                     }
                 }
-            });
+            }, false);
             this._hotKeyStopRecord = new HotKey(Key.F4, KeyModifier.None, key =>
             {
                 if (this._toolState == ToolState.Recording && this._isRecordingInProgress)
@@ -131,7 +131,19 @@ namespace ZTMZ.PacenoteTool
                         this.tb_isRecording.Foreground = new SolidColorBrush(Colors.Black);
                     });
                 }
-            });
+            }, false);
+        }
+
+        private void registerHotKeys()
+        {
+            this._hotKeyStartRecord?.Register();
+            this._hotKeyStopRecord?.Register();
+        }
+
+        private void unregisterHotKeys()
+        {
+            this._hotKeyStartRecord?.Unregister();
+            this._hotKeyStopRecord?.Unregister();
         }
 
         private void initializeUDPReceiver()
@@ -599,6 +611,7 @@ namespace ZTMZ.PacenoteTool
                     } else
                     {
                         this.tab_playMode.SelectedIndex = 0;
+                        this.registerHotKeys();
                     }
                 }
             }
@@ -625,6 +638,9 @@ namespace ZTMZ.PacenoteTool
                         this.ck_record.IsEnabled = false;
                         this.ck_replay.IsEnabled = false;
                         this._autoRecorder.Uninitialize();
+                    } else
+                    {
+                        this.unregisterHotKeys();
                     }
                 }
             }
