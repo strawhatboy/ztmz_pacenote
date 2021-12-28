@@ -39,12 +39,36 @@ namespace ZTMZ.PacenoteTool
 
             // port
             this.tb_UDPListenPort.Value = (uint)Config.Instance.UDPListenPort;
+            this.tb_UDPListenPort.ValueChanged += (s, e) =>
+            {
+                if (this.tb_UDPListenPort.Value.HasValue)
+                {
+                    Config.Instance.UDPListenPort = (int)this.tb_UDPListenPort.Value.Value;
+                    Config.Instance.SaveUserConfig();
+                }
+            };
 
             // playbackDelay
             this.tb_PlaybackDeviceDesiredLatency.Value = (uint)Config.Instance.PlaybackDeviceDesiredLatency;
+            this.tb_PlaybackDeviceDesiredLatency.ValueChanged += (s, e) =>
+            {
+                if (this.tb_PlaybackDeviceDesiredLatency.Value.HasValue)
+                {
+                    Config.Instance.PlaybackDeviceDesiredLatency = (int)this.tb_PlaybackDeviceDesiredLatency.Value.Value;
+                    Config.Instance.SaveUserConfig();
+                }
+            };
 
             // fps
             this.tb_HudFPS.Value = (uint)Config.Instance.HudFPS;
+            this.tb_HudFPS.ValueChanged += (s, e) =>
+            {
+                if (this.tb_HudFPS.Value.HasValue)
+                {
+                    Config.Instance.HudFPS = (int)this.tb_HudFPS.Value.Value;
+                    Config.Instance.SaveUserConfig();
+                }
+            };
         }
 
         private void initVoicePackage()

@@ -45,6 +45,8 @@ namespace ZTMZ.PacenoteTool
         private string _title = "ZTMZ Club 路书工具 v2.5.1";
         private string _devTitle = "ZTMZ Club 路书工具开发版 v2.5.1";
 
+        private SettingsWindow _settingsWindow;
+
 
         private RecordingConfig _recordingConfig = new RecordingConfig()
         {
@@ -834,8 +836,11 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void Btn_Settings_OnClick(object sender, RoutedEventArgs e)
         {
-            SettingsWindow settingsWindow = new SettingsWindow();
-            settingsWindow.Show();
+            if (_settingsWindow == null)
+            {
+                _settingsWindow = new SettingsWindow();
+            }
+            _settingsWindow.Show();
         }
     }
 }
