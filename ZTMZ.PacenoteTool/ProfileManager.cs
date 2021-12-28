@@ -436,7 +436,7 @@ namespace ZTMZ.PacenoteTool
                 }
             }
 
-            if (!isFinal)
+            if (!isFinal && Config.Instance.UseDefaultSoundPackageForFallback)
             {
                 // not found, try default 
                 return getSoundByKeyword(keyword, DEFAULT_CODRIVER, true);
