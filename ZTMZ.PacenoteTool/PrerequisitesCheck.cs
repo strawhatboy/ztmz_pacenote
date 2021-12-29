@@ -22,6 +22,7 @@ namespace ZTMZ.PacenoteTool
         public PrerequisitesCheckResultCode Code { set; get; }
         public bool IsOK { set; get; } = true;
         public string Msg { set; get; } = "";
+        public List<object> Params { set; get; }
     }
     public class PrerequisitesCheck
     {
@@ -30,7 +31,8 @@ namespace ZTMZ.PacenoteTool
         public bool IsPassed { set; get; } = false;
         private XDocument _xmlFile;
         private XElement _udpNode;
-        public PrerequisitesCheckResultCode Check()
+
+        public PrerequisitesCheckResult Check()
         {
             PrerequisitesCheckResult b1 = new PrerequisitesCheckResult();
             PrerequisitesCheckResult b2 = new PrerequisitesCheckResult();
@@ -44,17 +46,17 @@ namespace ZTMZ.PacenoteTool
             }
             if (b1.IsOK && b2.IsOK)
             {
-                return PrerequisitesCheckResultCode.OK;
+                return b1;
             }
             if (!b1.IsOK)
             {
-                return b1.Code;
+                return b1;
             }
             if (!b2.IsOK)
             {
-                return b2.Code;
+                return b2;
             }
-            return PrerequisitesCheckResultCode.UNKNOWN;
+            return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.UNKNOWN };
         }
 
         public void Write()
@@ -86,6 +88,7 @@ namespace ZTMZ.PacenoteTool
                     IsOK = false,
                     Msg = "",
                     Code = PrerequisitesCheckResultCode.PORT_NOT_MATCH,
+                    Params = new List<object> { this._udpNode.Attribute("port").Value, Config.Instance.UDPListenPort.ToString() }
                 };
             }
 

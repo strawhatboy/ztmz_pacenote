@@ -1,3 +1,5 @@
+using MaterialDesignThemes.Wpf;
+using System;
 using System.Windows;
 using ZTMZ.PacenoteTool.Base;
 
@@ -5,6 +7,9 @@ namespace ZTMZ.PacenoteTool
 {
     public partial class SettingsWindow : Window
     {
+        public event Action PortChanged;
+        public event Action HudFPSChanged;
+        public bool CanClose { set; get; } = false;
         public SettingsWindow()
         {
             InitializeComponent();
@@ -16,6 +21,22 @@ namespace ZTMZ.PacenoteTool
 
         private void initGeneral()
         {
+            // theme
+            this.btn_IsDarkTheme.IsChecked = Config.Instance.IsDarkTheme;
+            this.btn_IsDarkTheme.Click += (s, e) =>
+            {
+                if (this.btn_IsDarkTheme.IsChecked.HasValue)
+                {
+                    Config.Instance.IsDarkTheme = this.btn_IsDarkTheme.IsChecked.Value;
+                    Config.Instance.SaveUserConfig();
+                    var paletteHelper = new PaletteHelper();
+                    var theme = paletteHelper.GetTheme();
+
+                    theme.SetBaseTheme(Config.Instance.IsDarkTheme ? Theme.Dark : Theme.Light);
+                    paletteHelper.SetTheme(theme);
+                }
+            };
+
             // language
             foreach (var c in I18NLoader.Instance.culturesFullname)
             {
@@ -45,6 +66,7 @@ namespace ZTMZ.PacenoteTool
                 {
                     Config.Instance.UDPListenPort = (int)this.tb_UDPListenPort.Value.Value;
                     Config.Instance.SaveUserConfig();
+                    this.PortChanged?.Invoke();
                 }
             };
 
@@ -67,6 +89,7 @@ namespace ZTMZ.PacenoteTool
                 {
                     Config.Instance.HudFPS = (int)this.tb_HudFPS.Value.Value;
                     Config.Instance.SaveUserConfig();
+                    this.HudFPSChanged?.Invoke();
                 }
             };
         }
@@ -154,6 +177,21 @@ namespace ZTMZ.PacenoteTool
         private void initMisc()
         {
             this.tb_UseSequentialMixerToHandleAudioConflict.IsChecked = Config.Instance.UseSequentialMixerToHandleAudioConflict;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!CanClose)
+            {
+                this.Hide();
+                e.Cancel = true;
+            }
+        }
+
+        private void btn_reset_Click(object sender, RoutedEventArgs e)
+        {
+            Config.Instance.ResetToDefault();
+            Config.Instance.SaveUserConfig();
         }
     }
 }

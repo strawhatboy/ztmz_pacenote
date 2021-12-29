@@ -12,6 +12,7 @@
     },
 
     "tooltip": {
+      "btn_reset": "需要重启本工具来生效",
       "udpListenPort": "游戏默认的数据端口是20777，如果想和simhub同时使用，可以修改为20778",
       "playbackDeviceDesiredLatency": "播放设备的 缓冲区延迟 表示指令到达播放设备后开始播放的延迟，如果延迟过低，对于某些设备可能会出现声音卡顿的现象，延迟过高可能会导致路书播放滞后",
       "hudFPS": "锁定悬浮窗的帧率，不至于因为悬浮窗的内容更新频繁影响了系统性能",
@@ -26,9 +27,10 @@
     },
 
     "language": "界面语言",
+    "isDarkTheme": "关灯",
     "udpListenPort": "监听的UDP端口",
     "playbackDeviceDesiredLatency": "播放设备缓冲区延迟",
-    "hudFPS": "悬浮窗锁定帧率",
+    "hudFPS": "悬浮窗锁定帧率，修改需要重启工具后生效",
     "playStartAndEndSound": "播放开始/结束语音",
     "playGoSound": "播放出发语音",
     "playCollisionSound": "播放撞车语音",

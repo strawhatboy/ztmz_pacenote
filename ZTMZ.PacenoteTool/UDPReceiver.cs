@@ -64,9 +64,10 @@ namespace ZTMZ.PacenoteTool
         public int[] WheelAbnormalDetectedCounter = new int[] { 0, 0, 0, 0 };
 
         private bool isRunning;
-        private Timer _timer = new Timer();
+        private Timer _timer;
         private int _timerCount = 0;
         private GameState _gameState = GameState.Unknown;
+        public event Action ListenStarted;
         public GameState GameState
         {
             set
@@ -99,6 +100,7 @@ namespace ZTMZ.PacenoteTool
             client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             client.ExclusiveAddressUse = false;
             client.Client.Bind(any);
+            this._timer = new Timer();
             this._timer.Interval = 1000;
             this._timer.Elapsed += (sender, args) =>
             {
@@ -116,22 +118,29 @@ namespace ZTMZ.PacenoteTool
                     }
                 }
             };
-            this._timer.Start();
-            this.StartListening();
-        }
-
-        public void StartListening()
-        {
+            this._timer.Start(); 
             UdpState s;
             s.e = any;
             s.u = client;
             this.isRunning = true;
             client?.BeginReceive(this.receiveMessage, s);
+            this.ListenStarted?.Invoke();
+        }
+
+        public void StartListening()
+        {
+            initUDPClient();
         }
 
         public void StopListening()
         {
             this.isRunning = false;
+            //client?.Close();
+            client?.Dispose();
+            client = null;
+            this._timer?.Stop();
+            this._timer?.Dispose();
+            this._timer = null;
         }
 
         private void receiveMessage(IAsyncResult result)
@@ -142,7 +151,18 @@ namespace ZTMZ.PacenoteTool
             }
             UdpClient u = ((UdpState)(result.AsyncState)).u;
             IPEndPoint e = ((UdpState)(result.AsyncState)).e;
-            byte[] rawData = u.EndReceive(result, ref e);
+            byte[] rawData;
+            if (u == null || u.Client == null || e == null)
+            {
+                return;
+            }
+            try
+            {
+                rawData = u.EndReceive(result, ref e);
+            } catch (ObjectDisposedException x)
+            {
+                return;
+            }
             if (rawData.Length > 0)
             {
                 UDPMessage message = new UDPMessage();
@@ -170,36 +190,40 @@ namespace ZTMZ.PacenoteTool
                         this.onCollisionDetected?.Invoke();
                     }
 
-                    // try to report wheel event
-                    var wheelData = new float[] {message.SpeedFrontLeft, message.SpeedFrontRight, message.SpeedRearLeft, message.SpeedRearRight};
-                    var minWheelSpd = float.MaxValue;
-                    var minWheelSpdIndex = 0;
-                    var sum = 0f;
-                    for (int i = 0; i < 4; i++)
+                    if (Config.Instance.PlayWheelAbnormalSound)
                     {
-                        sum += wheelData[i];
-                        if (wheelData[i] < minWheelSpd)
+                        // try to report wheel event
+                        var wheelData = new float[] { message.SpeedFrontLeft, message.SpeedFrontRight, message.SpeedRearLeft, message.SpeedRearRight };
+                        var minWheelSpd = float.MaxValue;
+                        var minWheelSpdIndex = 0;
+                        var sum = 0f;
+                        for (int i = 0; i < 4; i++)
                         {
-                            minWheelSpd = wheelData[i];
-                            minWheelSpdIndex = i;
+                            sum += wheelData[i];
+                            if (wheelData[i] < minWheelSpd)
+                            {
+                                minWheelSpd = wheelData[i];
+                                minWheelSpdIndex = i;
+                            }
                         }
-                    }
-                    sum -= minWheelSpd;
-                    var mean = sum / 3f;
+                        sum -= minWheelSpd;
+                        var mean = sum / 3f;
 
-                    if (minWheelSpd < mean / (1 + Config.Instance.WheelAbnormalPercentageReportThreshold))
-                    {
-                        // need to report
-                        WheelAbnormalDetectedCounter[minWheelSpdIndex]++;
-                        if (WheelAbnormalDetectedCounter[minWheelSpdIndex] >= Config.Instance.WheelAbnormalFramesReportThreshold && !this.WheelAbnormalDetectedReported[minWheelSpdIndex])
+                        if (minWheelSpd < mean / (1 + Config.Instance.WheelAbnormalPercentageReportThreshold))
                         {
-                            this.onWheelAbnormalDetected?.Invoke(minWheelSpdIndex);
-                            this.WheelAbnormalDetectedReported[minWheelSpdIndex] = true;
+                            // need to report
+                            WheelAbnormalDetectedCounter[minWheelSpdIndex]++;
+                            if (WheelAbnormalDetectedCounter[minWheelSpdIndex] >= Config.Instance.WheelAbnormalFramesReportThreshold && !this.WheelAbnormalDetectedReported[minWheelSpdIndex])
+                            {
+                                this.onWheelAbnormalDetected?.Invoke(minWheelSpdIndex);
+                                this.WheelAbnormalDetectedReported[minWheelSpdIndex] = true;
+                            }
                         }
-                    } else
-                    {
-                        // reset to normal
-                        //WheelAbnormalDetectedCounter[minWheelSpdIndex] = 0;
+                        else
+                        {
+                            // reset to normal
+                            //WheelAbnormalDetectedCounter[minWheelSpdIndex] = 0;
+                        }
                     }
 
                     this.onNewMessage?.Invoke(message);

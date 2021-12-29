@@ -511,10 +511,10 @@ namespace ZTMZ.PacenoteTool
 
         public void StopLoop()
         {
-            _window?.Dispose();
-            _window = null;
             _bgw?.Dispose();
             _bgw = null;
+            _window?.Dispose();
+            _window = null;
             _isRunning = false;
         }
     }

@@ -48,6 +48,11 @@ namespace ZTMZ.PacenoteTool
         public const string SYSTEM_PUNCTURE_REAR_LEFT = "system_puncture_rear_left";
         public const string SYSTEM_PUNCTURE_REAR_RIGHT = "system_puncture_rear_right";
 
+        public static List<string> SYSTEM_PUNCTURE = new List<string>{ 
+            SYSTEM_PUNCTURE_FRONT_LEFT, SYSTEM_PUNCTURE_FRONT_RIGHT,
+            SYSTEM_PUNCTURE_REAR_LEFT, SYSTEM_PUNCTURE_REAR_RIGHT
+        };
+
         public string CurrentProfile { set; get; }
         public string CurrentItineraryPath { set; get; }
         public string CurrentCoDriverName { set; get; }

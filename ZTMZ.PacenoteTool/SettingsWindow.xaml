@@ -13,7 +13,7 @@
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
-
+        Closing="Window_Closing"
         Title="" Height="800" Width="1024" >
     <Grid>
         <Grid.RowDefinitions>
@@ -24,7 +24,9 @@
         </Grid.ColumnDefinitions>
         <DockPanel LastChildFill="True">
             <Grid DockPanel.Dock="Top">
-                <Button HorizontalAlignment="Right" Margin="10" Content="{DynamicResource ResourceKey=settings.btn_reset}" VerticalAlignment="Center"></Button>
+                <Button x:Name="btn_reset" HorizontalAlignment="Right" Margin="10" 
+                        Content="{DynamicResource ResourceKey=settings.btn_reset}" VerticalAlignment="Center" Click="btn_reset_Click"
+                        ToolTip="{DynamicResource ResourceKey=settings.tooltip.btn_reset}"></Button>
                 <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" Margin="10" >
                     <materialDesign:PackIcon Kind="Cog" Height="30" Width="30" VerticalAlignment="Center" Margin="0 0 10 0" />
                     <TextBlock Style="{StaticResource MaterialDesignHeadline4TextBlock}"  Text="{DynamicResource ResourceKey=settings.title}"></TextBlock>
@@ -56,41 +58,46 @@
                                     <RowDefinition Height="50" />
                                     <RowDefinition Height="50" />
                                     <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
                                     <!-- <RowDefinition Height="50" /> -->
                                     <!-- <RowDefinition Height="250" /> -->
                                     <!-- <RowDefinition Height="50" /> -->
                                 </Grid.RowDefinitions>
 
                                 <TextBlock Grid.Row="0" VerticalAlignment="Center"
-                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.language}" />
-                                <ComboBox Grid.Row="0" Grid.Column="1" x:Name="cb_language" VerticalAlignment="Center"/>
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.isDarkTheme}" />
+                                <ToggleButton x:Name="btn_IsDarkTheme" Grid.Column="1" />
 
                                 <TextBlock Grid.Row="1" VerticalAlignment="Center"
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.language}" />
+                                <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cb_language" VerticalAlignment="Center"/>
+
+                                <TextBlock Grid.Row="2" VerticalAlignment="Center"
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.udpListenPort}">
                                     <TextBlock.ToolTip>
                                         <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.udpListenPort}" />
                                     </TextBlock.ToolTip>
                             </TextBlock>
-                                <xctk:UIntegerUpDown Grid.Row="1" Name="tb_UDPListenPort" Grid.Column="1" Value="20777" Maximum="65535" Minimum="10000"
+                                <xctk:UIntegerUpDown Grid.Row="2" Name="tb_UDPListenPort" Grid.Column="1" Value="20777" Maximum="65535" Minimum="10000"
                                                  VerticalAlignment="Center" />
 
 
-                                <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.playbackDeviceDesiredLatency}"
+                                <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.playbackDeviceDesiredLatency}"
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}">
                                     <TextBlock.ToolTip>
                                         <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.playbackDeviceDesiredLatency}" />
                                     </TextBlock.ToolTip>
                             </TextBlock>
-                                <xctk:UIntegerUpDown Name="tb_PlaybackDeviceDesiredLatency" Grid.Row="2" Grid.Column="1" Minimum="50" Maximum="1000"
+                                <xctk:UIntegerUpDown Name="tb_PlaybackDeviceDesiredLatency" Grid.Row="3" Grid.Column="1" Minimum="50" Maximum="1000"
                                                  Value="175" VerticalAlignment="Center" />
 
-                                <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.hudFPS}" 
+                                <TextBlock Grid.Row="4" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.hudFPS}" 
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}">
                                     <TextBlock.ToolTip>
                                         <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.hudFPS}" />
                                     </TextBlock.ToolTip>
                             </TextBlock>
-                                <xctk:UIntegerUpDown Name="tb_HudFPS" Grid.Row="3" Grid.Column="1" Value="10" Maximum="144" Minimum="1"
+                                <xctk:UIntegerUpDown Name="tb_HudFPS" Grid.Row="4" Grid.Column="1" Value="10" Maximum="144" Minimum="1"
                                                  VerticalAlignment="Center" />
 
                             </Grid>

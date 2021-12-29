@@ -254,6 +254,14 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._Language;
         }
 
+        private bool _IsDarkTheme = false;
+
+        public bool IsDarkTheme
+        {
+            set { this._IsDarkTheme = value; this._userconfig["IsDarkTheme"] = value; }
+            get => this._IsDarkTheme;
+        }
+
 
         private bool _UseDefaultSoundPackageForFallback = true;
         public bool UseDefaultSoundPackageForFallback
@@ -293,7 +301,7 @@ namespace ZTMZ.PacenoteTool.Base
                 config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(CONFIG_FILE));
             }
 
-            userconfig = config;
+            userconfig = JsonConvert.DeserializeObject<Config>(File.ReadAllText(CONFIG_FILE));
             if (!File.Exists(USER_CONFIG_FILE))
             {
                 //File.Copy(CONFIG_FILE, USER_CONFIG_FILE);
@@ -346,7 +354,10 @@ namespace ZTMZ.PacenoteTool.Base
             var properties = typeof(Config).GetProperties();
             foreach (var p in properties)
             {
-                p.SetValue(this, p.GetValue(defaultConfig));
+                if (p.CanWrite) 
+                { 
+                    p.SetValue(this, p.GetValue(defaultConfig));
+                }
             }
         }
     }

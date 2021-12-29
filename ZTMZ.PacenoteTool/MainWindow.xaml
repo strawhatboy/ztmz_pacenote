@@ -15,6 +15,7 @@
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
+        Closing="Window_Closing"
         Title="ZTMZ Club 路书工具" Height="800" Width="340" Loaded="Window_Loaded">
    
     <Grid >

@@ -20,6 +20,8 @@ using OnlyR.Core.Recorder;
 using ZTMZ.PacenoteTool.Base;
 using AutoUpdaterDotNET;
 using System.Globalization;
+using MaterialDesignThemes.Wpf;
+using System.Threading;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -93,6 +95,7 @@ namespace ZTMZ.PacenoteTool
             this.initializeAutoRecorder();
             this.applyUserConfig();
             this.initializeI18N();
+            this.initializeTheme();
         }
 
         private void initHotKeys()
@@ -165,17 +168,7 @@ namespace ZTMZ.PacenoteTool
                 var worker = new BackgroundWorker();
                 worker.DoWork += (sender, e) =>
                 {
-                    switch (wheelIndex)
-                    {
-                        case 0:
-                            this._profileManager.PlaySystem(ProfileManager.SYSTEM_PUNCTURE_FRONT_LEFT); break;
-                        case 1:
-                            this._profileManager.PlaySystem(ProfileManager.SYSTEM_PUNCTURE_FRONT_RIGHT); break;
-                        case 2:
-                            this._profileManager.PlaySystem(ProfileManager.SYSTEM_PUNCTURE_REAR_LEFT); break;
-                        case 3:
-                            this._profileManager.PlaySystem(ProfileManager.SYSTEM_PUNCTURE_REAR_RIGHT); break;
-                    }
+                    this._profileManager.PlaySystem(ProfileManager.SYSTEM_PUNCTURE[wheelIndex]);
                 };
                 worker.RunWorkerAsync();
             };
@@ -452,7 +445,7 @@ namespace ZTMZ.PacenoteTool
             // check the file
             var preCheck = new PrerequisitesCheck();
             var checkResult = preCheck.Check();
-            switch (checkResult)
+            switch (checkResult.Code)
             {
                 case PrerequisitesCheckResultCode.PORT_NOT_OPEN:
                     // not pass
@@ -472,7 +465,8 @@ namespace ZTMZ.PacenoteTool
 
                     break;
                 case PrerequisitesCheckResultCode.PORT_NOT_MATCH:
-                    MessageBox.Show("你的Dirt Rally 2.0 的配置文件中的UDP端口和本工具中的UDP端口配置不同，可能会导致地图读取失败（也可能是使用了simhub转发）",
+                    MessageBox.Show(String.Format("你的Dirt Rally 2.0 的配置文件中的UDP端口 {0} 和本工具中的UDP端口 {1} 配置不同，可能会导致地图读取失败（也可能是使用了simhub转发）",
+                        checkResult.Params[0], checkResult.Params[1]),
                         "配置警告", MessageBoxButton.OK, MessageBoxImage.Warning);
                     break;
             }
@@ -580,6 +574,14 @@ namespace ZTMZ.PacenoteTool
         {
             I18NLoader.Instance.Initialize();
             I18NLoader.Instance.SetCulture(Config.Instance.Language);
+        }
+        private void initializeTheme()
+        {
+            var paletteHelper = new PaletteHelper();
+            var theme = paletteHelper.GetTheme();
+
+            theme.SetBaseTheme(Config.Instance.IsDarkTheme ? Theme.Dark : Theme.Light);
+            paletteHelper.SetTheme(theme);
         }
 
 
@@ -839,8 +841,35 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
             if (_settingsWindow == null)
             {
                 _settingsWindow = new SettingsWindow();
+                _settingsWindow.PortChanged += () =>
+                {
+                    this._udpReceiver.StopListening();
+                    this._udpReceiver.StartListening();
+                };
+                //_settingsWindow.HudFPSChanged += () =>
+                //{
+                //    this._gameOverlayManager.StopLoop();
+                //    this._gameOverlayManager.StartLoop();
+                //};
             }
             _settingsWindow.Show();
+            _settingsWindow.Focus();
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            if (_settingsWindow != null)
+            {
+                _settingsWindow.CanClose = true;
+            }
+            // close all windows
+            foreach (Window win in Application.Current.Windows)
+            {
+                if (win != this)
+                {
+                    win.Close();
+                }
+            }
         }
     }
 }
