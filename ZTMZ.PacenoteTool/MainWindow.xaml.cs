@@ -22,6 +22,7 @@ using AutoUpdaterDotNET;
 using System.Globalization;
 using MaterialDesignThemes.Wpf;
 using System.Threading;
+using ZTMZ.PacenoteTool.Dialog;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -87,6 +88,7 @@ namespace ZTMZ.PacenoteTool
             this._autoRecorder = new();
 
             this.initHotKeys();
+            this.initializeI18N();
             this.initializeUDPReceiver();
             this.initializeComboBoxes();
             this.checkPrerequisite();
@@ -94,7 +96,6 @@ namespace ZTMZ.PacenoteTool
             this.initializeGameOverlay();
             this.initializeAutoRecorder();
             this.applyUserConfig();
-            this.initializeI18N();
             this.initializeTheme();
         }
 
@@ -449,11 +450,13 @@ namespace ZTMZ.PacenoteTool
             {
                 case PrerequisitesCheckResultCode.PORT_NOT_OPEN:
                     // not pass
-                    var result =
-                        MessageBox.Show(
-                            "你的Dirt Rally 2.0 的配置文件中的UDP端口未正确打开，如果没有打开，工具将无法正常工作，点击“是”自动修改配置文件，点击“否”退出程序自行修改",
-                            "配置错误", MessageBoxButton.YesNo, MessageBoxImage.Information);
-                    if (result == MessageBoxResult.Yes)
+                    //var result =
+                    //MessageBox.Show(
+                    //    "你的Dirt Rally 2.0 的配置文件中的UDP端口未正确打开，如果没有打开，工具将无法正常工作，点击“是”自动修改配置文件，点击“否”退出程序自行修改",
+                    //    "配置错误", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                    var pnoDialog = new PortNotOpenDialog();
+                    var resPNO = pnoDialog.ShowDialog();
+                    if (resPNO.HasValue && resPNO.Value)
                     {
                         preCheck.Write();
                     }
@@ -465,9 +468,18 @@ namespace ZTMZ.PacenoteTool
 
                     break;
                 case PrerequisitesCheckResultCode.PORT_NOT_MATCH:
-                    MessageBox.Show(String.Format("你的Dirt Rally 2.0 的配置文件中的UDP端口 {0} 和本工具中的UDP端口 {1} 配置不同，可能会导致地图读取失败（也可能是使用了simhub转发）",
-                        checkResult.Params[0], checkResult.Params[1]),
-                        "配置警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    var pmDialog = new PortMismatchDialog(checkResult.Params[0].ToString(), checkResult.Params[1].ToString());
+                    var resPM = pmDialog.ShowDialog();
+                    if (resPM.HasValue && !resPM.Value)
+                    {
+                        // force fix
+                        preCheck.Write();
+                        Config.Instance.UDPListenPort = 20777;
+                        Config.Instance.SaveUserConfig();
+                    }
+                    //MessageBox.Show(String.Format("你的Dirt Rally 2.0 的配置文件中的UDP端口 {0} 和本工具中的UDP端口 {1} 配置不同，可能会导致地图读取失败（也可能是使用了simhub转发）",
+                    //    checkResult.Params[0], checkResult.Params[1]),
+                    //    "配置警告", MessageBoxButton.OK, MessageBoxImage.Warning);
                     break;
             }
         }

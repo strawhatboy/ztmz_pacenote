@@ -23,6 +23,8 @@ namespace ZTMZ.PacenoteTool.Base
         public string CurrentCultureName { set; get; }
         public IDictionary<string, string> CurrentCulture { set; get; }
 
+        public ResourceDictionary CurrentDict { get; private set; }
+
 
         private static I18NLoader _instance;
         public static I18NLoader Instance
@@ -78,13 +80,13 @@ namespace ZTMZ.PacenoteTool.Base
             List<ResourceDictionary> resources = new List<ResourceDictionary>();
             //I18NLoader.Instance.Initialize();
             //I18NLoader.Instance.SetCulture("zh-CN");
-            var newDict = new ResourceDictionary();
+            CurrentDict = new ResourceDictionary();
             //newDict.Source = new Uri("https://gitee.com/ztmz/ztmz_pacenote/" + I18NLoader.Instance.CurrentCultureName);
             foreach (var key in I18NLoader.Instance.CurrentCulture.Keys)
             {
-                newDict.Add(key, I18NLoader.Instance.CurrentCulture[key]);
+                CurrentDict.Add(key, I18NLoader.Instance.CurrentCulture[key]);
             }
-            Application.Current.Resources.MergedDictionaries.Add(newDict);
+            Application.Current.Resources.MergedDictionaries.Add(CurrentDict);
         }
 
         private void readJson(string culture, JsonTextReader reader, List<string> properties)

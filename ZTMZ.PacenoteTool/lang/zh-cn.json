@@ -41,5 +41,21 @@
     "useSequentialMixerToHandleAudioConflict": "使用队列播放模式"
 
 
+  },
+
+  "dialog": {
+    "portNotOpen": {
+      "title": "端口未打开",
+      "btn_ok": "帮我打开",
+      "btn_cancel": "再见",
+      "content": "我们发现你的尘埃拉力赛2.0的位于 %userprofile%\\Documents\\My Games\\DiRT Rally 2.0\\hardwaresettings 的配置文件中的端口未正常打开！如果没有打开，工具将无法正常工作，点击“帮我打开”自动修改配置文件，点击“再见”退出程序自行修改。"
+    },
+    "portMismatch": {
+      "title": "端口不匹配",
+      "btn_ok": "好的",
+      "btn_FORCE": "帮我强行修复",
+
+      "content": "你的尘埃拉力赛2.0的位于 %userprofile%\\Documents\\My Games\\DiRT Rally 2.0\\hardwaresettings 的配置文件有问题, 其中的端口号 {0} 和本工具所监听的端口号 {1} 不一致，有可能导致本工具无法识别地图\n\n\t(1) 可能你正在使用可以支持端口转发的SIMHUB. 如果是的话而且你觉得一切尽在掌握中, 请点击下面的“好的”按钮忽略本条警告.\n\n\t(2) 或者说你现在被水淹没不知所措，完全搞不懂这个弹窗的意义，那说明你的尘埃拉力赛2.0的配置已经是其他某些工具的形状了，此时请务必点击下方的“帮我强行修复”按钮，我们会自动帮你把尘埃拉力赛2.0的配置修改为原始的形状。"
+    }
   }
 }

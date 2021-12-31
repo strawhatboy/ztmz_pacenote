@@ -59,7 +59,7 @@ namespace ZTMZ.PacenoteTool
             return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.UNKNOWN };
         }
 
-        public void Write()
+        public void Write(int port=20777)
         {
             this.Write(this._dr2settingsFile);
             if (File.Exists(this._dr2settingsVRFile))
@@ -101,12 +101,13 @@ namespace ZTMZ.PacenoteTool
             };
         }
 
-        public void Write(string file)
+        public void Write(string file, int port=20777)
         {
             this._xmlFile = XDocument.Load(file);
             this._udpNode = this._xmlFile.Root.XPathSelectElement("./motion_platform/udp");
             this._udpNode.SetAttributeValue("enabled", "true");
             this._udpNode.SetAttributeValue("extradata", "3");
+            this._udpNode.SetAttributeValue("port", port.ToString());
             this._xmlFile.Save(file);
         }
 

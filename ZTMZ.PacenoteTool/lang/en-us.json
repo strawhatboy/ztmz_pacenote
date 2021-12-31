@@ -39,5 +39,21 @@
     "useDefaultSoundPackageForFallback": "Fallback to default voice package",
     "preloadSounds": "Preload voice packages",
     "useSequentialMixerToHandleAudioConflict": "Use sequential mixer"
+  },
+
+  "dialog": {
+    "portNotOpen": {
+      "title": "Port Not Open",
+      "btn_ok": "OPEN IT",
+      "btn_cancel": "Cancel",
+      "content": "We detected the UDP port in your Dirt Rally 2.0 settings located in %userprofile%\\Documents\\My Games\\DiRT Rally 2.0\\hardwaresettings is not enabled, which is necessary for the tool to work correctly, please click 'OPEN IT' button below, we'll enable it for you. Or click 'Cancel' to exit the tool."
+    },
+    "portMismatch": {
+      "title": "Port Mismatch",
+      "btn_ok": "OK",
+      "btn_FORCE": "FORCE REPARATION",
+
+      "content": "Your Dirt Rally 2.0 settings located in %userprofile%\\Documents\\My Games\\DiRT Rally 2.0\\hardwaresettings is not correct, the port definition {0} is mismatched with the settings {1} in our tool, which would lead to unsuccessful track recognition. \n\n\t(1) Maybe you're using SIMHUB, which allows udp port forwarding. If so, please select 'OK' below to keep the settings untouched.\n\n\t(2) Or you dont know what is going on and you're confused with this dialog, then just click 'FORCE REPARATION', we'll handle it automatically."
+    }
   }
 }
