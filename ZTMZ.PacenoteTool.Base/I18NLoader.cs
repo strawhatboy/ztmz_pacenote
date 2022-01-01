@@ -45,8 +45,9 @@ namespace ZTMZ.PacenoteTool.Base
 
         public void Initialize()
         {
-            CultureInfo[] cinfo = CultureInfo.GetCultures(CultureTypes.AllCultures & ~CultureTypes.NeutralCultures);
+            CultureInfo[] cinfo = CultureInfo.GetCultures(CultureTypes.AllCultures);
             var cultureDict = cinfo.ToDictionary(a => a.Name.ToLower(), a => a.DisplayName);
+            // shit, dotnet6 has no zh-cn
             CurrentCultureName = CultureInfo.CurrentCulture.Name.ToLower();
 
             // load from I18NPath
@@ -75,6 +76,10 @@ namespace ZTMZ.PacenoteTool.Base
             if (Resources.ContainsKey(culture))
             {
                 CurrentCulture = Resources[culture];
+            } else
+            {
+                SetCulture("en-us");
+                return;
             }
 
             List<ResourceDictionary> resources = new List<ResourceDictionary>();

@@ -62,7 +62,7 @@
       <None Update="lang\en-us.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="lang\zh-cn.json">
+      <None Update="lang\zh-hans-cn.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="speech_recognizer.py">

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using System.Reflection;
+using System.Globalization;
 
 namespace ZTMZ.PacenoteTool.Base
 {
@@ -247,7 +248,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._HudFPS;
         }
 
-        private string _Language = "zh-cn";
+        private string _Language = CultureInfo.CurrentCulture.Name;
         public string Language
         {
             set { this._Language = value; this._userconfig["Language"] = value; }
