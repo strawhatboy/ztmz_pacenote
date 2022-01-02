@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -17,8 +19,14 @@ namespace ZTMZ.PacenoteTool
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
             SetupExceptionHandling();
+            initializeI18N();
+        }
+
+        private void initializeI18N()
+        {
+            I18NLoader.Instance.Initialize(AppLevelVariables.Instance.GetPath("lang"));
+            I18NLoader.Instance.SetCulture(Config.Instance.Language);
         }
 
         private void SetupExceptionHandling()

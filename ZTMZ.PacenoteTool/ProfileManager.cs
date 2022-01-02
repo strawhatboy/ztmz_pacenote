@@ -122,8 +122,8 @@ namespace ZTMZ.PacenoteTool
 
         public ProfileManager()
         {
-            Directory.CreateDirectory(string.Format("profiles"));
-            Directory.CreateDirectory(string.Format("codrivers"));
+            Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("profiles")));
+            Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("codrivers")));
             this.CreateNewProfile(DEFAULT_PROFILE);
 
             //load example audio file?
@@ -227,17 +227,17 @@ namespace ZTMZ.PacenoteTool
 
         public List<string> GetAllProfiles()
         {
-            return Directory.GetDirectories("profiles/").ToList();
+            return Directory.GetDirectories(AppLevelVariables.Instance.GetPath("profiles/")).ToList();
         }
 
         public List<string> GetAllCodrivers()
         {
-            return Directory.GetDirectories("codrivers/").ToList();
+            return Directory.GetDirectories(AppLevelVariables.Instance.GetPath("codrivers/")).ToList();
         }
 
         public void CreateNewProfile(string profileName)
         {
-            Directory.CreateDirectory(string.Format("profiles/{0}", profileName));
+            Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("profiles/{0}", profileName)));
             this.CurrentProfile = profileName;
         }
 
@@ -251,7 +251,7 @@ namespace ZTMZ.PacenoteTool
 
         public string GetRecordingsFolder(string itinerary)
         {
-            string filesPath = string.Format("profiles/{0}/{1}", this.CurrentProfile, itinerary);
+            string filesPath = AppLevelVariables.Instance.GetPath(string.Format("profiles/{0}/{1}", this.CurrentProfile, itinerary));
             Directory.CreateDirectory(filesPath);
             return filesPath;
         }
@@ -262,7 +262,7 @@ namespace ZTMZ.PacenoteTool
 
         public string GetScriptFile(string itinerary, string profile)
         {
-            string filePath = string.Format("profiles/{0}/{1}.pacenote", profile, itinerary);
+            string filePath = AppLevelVariables.Instance.GetPath(string.Format("profiles/{0}/{1}.pacenote", profile, itinerary));
             if (!File.Exists(filePath))
             {
                 File.WriteAllText(filePath, "");

@@ -10,12 +10,18 @@
     <Compile Update="Dialog\PortNotOpenDialog.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Dialog\ResetConfigDialog.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Dialog\PortMismatchDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Dialog\PortNotOpenDialog.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Dialog\ResetConfigDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

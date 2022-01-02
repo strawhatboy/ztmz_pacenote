@@ -130,11 +130,11 @@ DefaultDirName={autopf}\ztmz_pacenotetool
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
-OutputBaseFilename=mysetup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 VersionInfoVersion=2.5.1.0
+;PrivilegesRequired=lowest
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -144,7 +144,12 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\Andy\lab\ztmz_pacenote\ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*"; Excludes: "*.csv"; DestDir: "{app}"; Flags: ignoreversion
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*.json"; DestDir: "{commondocs}\ZTMZClub"; Flags: ignoreversion uninsneveruninstall
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*.csv"; DestDir: "{commondocs}\ZTMZClub"; Flags: ignoreversion uninsneveruninstall
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\codrivers\*"; DestDir: "{commondocs}\ZTMZClub\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\profiles\*"; DestDir: "{commondocs}\ZTMZClub\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\lang\*"; DestDir: "{commondocs}\ZTMZClub\lang"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

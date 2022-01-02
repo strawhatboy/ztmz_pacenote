@@ -30,6 +30,9 @@
                 <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" Margin="10" >
                     <materialDesign:PackIcon Kind="Cog" Height="30" Width="30" VerticalAlignment="Center" Margin="0 0 10 0" />
                     <TextBlock Style="{StaticResource MaterialDesignHeadline4TextBlock}"  Text="{DynamicResource ResourceKey=settings.title}"></TextBlock>
+                    <TextBlock x:Name="tb_restartNeeded" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="20 0 0 0"
+                               VerticalAlignment="Center" Foreground="OrangeRed"
+                               Text="{DynamicResource ResourceKey=settings.restartNeeded}" Visibility="Hidden"></TextBlock>
                 </StackPanel>
             </Grid>
             <Separator Height="0.5" DockPanel.Dock="Top"/>
@@ -47,10 +50,12 @@
                         <materialDesign:Card Margin="10">
                             <Grid
                             TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
-                            Margin="24,8,24,16">
+                            Margin="24,8,0,16">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition  />
                                     <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="40"/>
                                 </Grid.ColumnDefinitions>
 
                                 <Grid.RowDefinitions>
@@ -81,6 +86,19 @@
                                 <xctk:UIntegerUpDown Grid.Row="2" Name="tb_UDPListenPort" Grid.Column="1" Value="20777" Maximum="65535" Minimum="10000"
                                                  VerticalAlignment="Center" />
 
+                                <ProgressBar x:Name="pb_udpPort"
+                                      Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                                         Grid.Row="2" Grid.Column="3" Width="20" Height="20"
+                                    Visibility="Hidden"
+                                             VerticalAlignment="Center"
+                                      Value="0"
+                                      IsIndeterminate="True" />
+                                <materialDesign:PackIcon x:Name="pi_udpPort"
+                                    Kind="Warning" Foreground="OrangeRed" 
+                                                         Grid.Row="2" Grid.Column="2" 
+                                                         Height="30" Width="30" Margin="10 0 0 0" VerticalAlignment="Center"
+                                                         Visibility="Hidden"/>
+
 
                                 <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.playbackDeviceDesiredLatency}"
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}">
@@ -96,9 +114,14 @@
                                     <TextBlock.ToolTip>
                                         <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.hudFPS}" />
                                     </TextBlock.ToolTip>
-                            </TextBlock>
+                                </TextBlock>
                                 <xctk:UIntegerUpDown Name="tb_HudFPS" Grid.Row="4" Grid.Column="1" Value="10" Maximum="144" Minimum="1"
                                                  VerticalAlignment="Center" />
+                                <materialDesign:PackIcon x:Name="pi_hudFPS"
+                                    Kind="Warning" Foreground="OrangeRed" 
+                                                         Grid.Row="4" Grid.Column="2" 
+                                                         Height="30" Width="30" Margin="10 0 0 0" VerticalAlignment="Center"
+                                                         ToolTip="{DynamicResource ResourceKey=settings.restartNeeded}" Visibility="Hidden"/>
 
                             </Grid>
                         </materialDesign:Card>

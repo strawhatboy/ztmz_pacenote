@@ -11,9 +11,12 @@
       "misc": "Misc"
     },
 
+    "restartNeeded": "Need to restart the tool to take effect",
+
     "tooltip": {
       "btn_reset": "Need to restart the tool to take effect",
       "udpListenPort": "If you want to use this tool along with SIMHUB, changing the default 20777 to 20778 would help",
+      "udpListenPort_Warning": "The port is not consistent with the Dirt Rally 2.0 settings {0}, maybe you're using SIMHUB",
       "playbackDeviceDesiredLatency": "The delay for playing after the instructions arrive at the device, if this value is very small, the sound may be weird. Meanwhile a big delay may affect the experience",
       "hudFPS": "Lock FPS of the in-game hud, high FPS may bring negative influence to the performance of some screen recording softwares like OBS",
       "playStartAndEndSound": "Play special start/end stage voice",
@@ -46,14 +49,21 @@
       "title": "Port Not Open",
       "btn_ok": "OPEN IT",
       "btn_cancel": "Cancel",
-      "content": "We detected the UDP port in your Dirt Rally 2.0 settings located in %userprofile%\\Documents\\My Games\\DiRT Rally 2.0\\hardwaresettings is not enabled, which is necessary for the tool to work correctly, please click 'OPEN IT' button below, we'll enable it for you. Or click 'Cancel' to exit the tool."
+      "content": "We detected the UDP port in your Dirt Rally 2.0 settings located in %userprofile%\\Documents\\My Games\\DiRT Rally 2.0\\hardwaresettings is not enabled, which is necessary for the tool to work correctly, please click 'OPEN IT' button below, we'll enable it for you, and then restart your game. Or click 'Cancel' to exit the tool."
     },
     "portMismatch": {
       "title": "Port Mismatch",
       "btn_ok": "OK",
       "btn_FORCE": "FORCE REPARATION",
 
-      "content": "Your Dirt Rally 2.0 settings located in %userprofile%\\Documents\\My Games\\DiRT Rally 2.0\\hardwaresettings is not correct, the port definition {0} is mismatched with the settings {1} in our tool, which would lead to unsuccessful track recognition. \n\n\t(1) Maybe you're using SIMHUB, which allows udp port forwarding. If so, please select 'OK' below to keep the settings untouched.\n\n\t(2) Or you dont know what is going on and you're confused with this dialog, then just click 'FORCE REPARATION', we'll handle it automatically."
+      "content": "Your Dirt Rally 2.0 settings located in %userprofile%\\Documents\\My Games\\DiRT Rally 2.0\\hardwaresettings is not correct, the port definition {0} is mismatched with the settings {1} in our tool, which would lead to unsuccessful track recognition. \n\n\t(1) Maybe you're using SIMHUB, which allows udp port forwarding. If so, please select 'OK' below to keep the settings untouched.\n\n\t(2) Or you dont know what is going on and you're confused with this dialog, then just click 'FORCE REPARATION', we'll handle it automatically. Then don't forget to restart the game."
+    },
+    "resetConfig": {
+      "title": "Reset All Configuration",
+      "btn_ok": "OK",
+      "btn_cancel": "Cancel",
+
+      "content": "You're going to reset all the configuration to default, are you sure? After selecting 'OK', the changes need restarting the tool to take effect."
     }
   }
 }

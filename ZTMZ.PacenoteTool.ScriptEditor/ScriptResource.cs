@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using CsvHelper;
+using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.ScriptEditor
 {
@@ -16,7 +17,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         public static string TYPE_MODIFIER = "[路书修饰]";
         public static string TYPE_FLAG = "[标志]";
         public static string TYPE_ALIAS = "[代称]";
-        public static Dictionary<string, Tuple<string, string>> ALIAS { private set; get; } = loadAlias("./aliases.csv");
+        public static Dictionary<string, Tuple<string, string>> ALIAS { private set; get; } = loadAlias(AppLevelVariables.Instance.GetPath("./aliases.csv"));
 
         // type, token, description, speech
         public static Dictionary<string, Tuple<string, string, string, string>> ALIAS_CONSTRUCTED { private set; get; } = new Dictionary<string, Tuple<string, string, string, string>>();
@@ -28,11 +29,11 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             new Dictionary<string, string>(),
             new Dictionary<string, string>(),
         };
-        public static Dictionary<string, Tuple<string, bool>> RAW_PACENOTES = loadPacenotes("./pacenotes.csv");
+        public static Dictionary<string, Tuple<string, bool>> RAW_PACENOTES = loadPacenotes(AppLevelVariables.Instance.GetPath("./pacenotes.csv"));
         public static Dictionary<string, string> PACENOTES { private set; get; } = new Dictionary<string, string>();   // = loadCsv("./pacenotes.csv");
         public static Dictionary<string, string> MODIFIERS { private set; get; } = new Dictionary<string, string>();    // = loadCsv("./modifiers.csv");
-        public static Dictionary<string, string> FALLBACK { private set; get; } = loadFallback("./fallback.csv");
-        public static Dictionary<string, string> FLAGS { private set; get; } = loadCsv("./flags.csv");
+        public static Dictionary<string, string> FALLBACK { private set; get; } = loadFallback(AppLevelVariables.Instance.GetPath("./fallback.csv"));
+        public static Dictionary<string, string> FLAGS { private set; get; } = loadCsv(AppLevelVariables.Instance.GetPath("./flags.csv"));
 
         private static BitmapImage _imgFlag = new BitmapImage(new Uri("pack://application:,,,/flag.png"));
         private static BitmapImage _imgAlias = new BitmapImage(new Uri("pack://application:,,,/alias.png"));

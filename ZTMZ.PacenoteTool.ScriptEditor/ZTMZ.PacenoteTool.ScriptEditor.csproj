@@ -8,6 +8,7 @@
         <FileVersion>1.3.2.0</FileVersion>
         <Version>1.3</Version>
         <TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
+        <Configurations>Debug;Release;Release_Green</Configurations>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -16,6 +17,10 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
       <OutputPath></OutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)'=='Release_Green'">
+      <OutputPath />
     </PropertyGroup>
 
     <ItemGroup>

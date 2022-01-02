@@ -79,7 +79,7 @@
                                    LineNumbersForeground="#DDDDDD"/>
                 <ScrollViewer x:Name="sv_graphical" Visibility="Hidden">
                     <WrapPanel Name="wp_graphical" >
-                    
+                        <TextBlock Text="敬请期待" />
                     </WrapPanel>
                 </ScrollViewer>
             </Grid>

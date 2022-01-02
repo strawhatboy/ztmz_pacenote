@@ -135,7 +135,7 @@ namespace ZTMZ.PacenoteTool
         public void StopListening()
         {
             this.isRunning = false;
-            //client?.Close();
+            client?.Close();
             client?.Dispose();
             client = null;
             this._timer?.Stop();
@@ -145,7 +145,7 @@ namespace ZTMZ.PacenoteTool
 
         private void receiveMessage(IAsyncResult result)
         {
-            if (result.AsyncState == null)
+            if (result.AsyncState == null && !this.isRunning)
             {
                 return;
             }

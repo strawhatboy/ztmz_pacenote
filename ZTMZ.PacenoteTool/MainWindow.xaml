@@ -65,7 +65,7 @@
                 录制模式
             </RadioButton>
             <RadioButton Grid.Column="1" Name="ck_replay" GroupName="mode" Click="Ck_replay_OnChecked" IsChecked="True"
-                         ToolTip="模式切换必须在游戏状态处于Unknown时可以（不在游戏中），在播放模式下的游戏开始后如果存在对应地图的路书，就会在到达指定地点后自动播放已经录制的路书片段">
+                         ToolTip="模式切换必须在游戏状态处于Unknown时可以（不在游戏中），在播放模式下的游戏开始后如果存在对应地图的路书，就会在到达指定地点后自动播放已经录制的路书片段" >
                 播放模式
             </RadioButton>
             <Button Name="btn_Settings" Grid.Column="2" Content="{materialDesign:PackIcon Cog}" Margin="2" ToolTip="打开设置界面" Click="Btn_Settings_OnClick"></Button>
@@ -365,8 +365,17 @@
                 <TextBlock.Effect>
                     <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
                 </TextBlock.Effect></TextBlock>
-            <CheckBox x:Name="chk_Hud" Grid.Row="6" Grid.Column="1" Click="chk_Hud_Click" />
-        </Grid>
+                <CheckBox x:Name="chk_Hud" Grid.Row="6" Grid.Column="1" Click="chk_Hud_Click"
+                                        VerticalAlignment="Center">
+                    <ProgressBar x:Name="pb_Hud"
+                                Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                                    Width="18" Height="18"
+                            Visibility="Hidden"
+                                        VerticalAlignment="Center"
+                                Value="0"
+                                IsIndeterminate="True" />
+                </CheckBox>
+            </Grid>
         </materialDesign:Card>
         <materialDesign:Card Grid.Row="10" Margin="5 0 5 0">
             <Grid>

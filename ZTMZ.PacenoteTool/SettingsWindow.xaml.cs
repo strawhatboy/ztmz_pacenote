@@ -1,7 +1,10 @@
 using MaterialDesignThemes.Wpf;
 using System;
+using System.ComponentModel;
+using System.Threading;
 using System.Windows;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Dialog;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -17,6 +20,19 @@ namespace ZTMZ.PacenoteTool
             initGeneral();
             initVoicePackage();
             initMisc();
+        }
+
+        private void checkUDP()
+        {
+            var check = new PrerequisitesCheck().Check();
+            if (check.Code == PrerequisitesCheckResultCode.PORT_NOT_MATCH)
+            {
+                this.pi_udpPort.Visibility = Visibility.Visible;
+                this.pi_udpPort.ToolTip = string.Format(I18NLoader.Instance.CurrentDict["settings.tooltip.udpListenPort_Warning"].ToString(), check.Params[0]);
+            } else if (check.Code == PrerequisitesCheckResultCode.OK)
+            {
+                this.pi_udpPort.Visibility = Visibility.Hidden;
+            }
         }
 
         private void initGeneral()
@@ -60,13 +76,28 @@ namespace ZTMZ.PacenoteTool
 
             // port
             this.tb_UDPListenPort.Value = (uint)Config.Instance.UDPListenPort;
-            this.tb_UDPListenPort.ValueChanged += (s, e) =>
+            checkUDP();
+            this.tb_UDPListenPort.LostFocus += (s, e) =>
             {
                 if (this.tb_UDPListenPort.Value.HasValue)
                 {
+                    this.pb_udpPort.Visibility = Visibility.Visible;
                     Config.Instance.UDPListenPort = (int)this.tb_UDPListenPort.Value.Value;
                     Config.Instance.SaveUserConfig();
+                    checkUDP();
                     this.PortChanged?.Invoke();
+                    this.tb_UDPListenPort.IsEnabled = false;
+                    var bgw = new BackgroundWorker();
+                    bgw.DoWork += (s, e) =>
+                    {
+                        Thread.Sleep(6000);
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            this.tb_UDPListenPort.IsEnabled = true;
+                            this.pb_udpPort.Visibility = Visibility.Collapsed;
+                        });
+                    };
+                    bgw.RunWorkerAsync();
                 }
             };
 
@@ -83,13 +114,15 @@ namespace ZTMZ.PacenoteTool
 
             // fps
             this.tb_HudFPS.Value = (uint)Config.Instance.HudFPS;
-            this.tb_HudFPS.ValueChanged += (s, e) =>
+            this.tb_HudFPS.LostFocus += (s, e) =>
             {
                 if (this.tb_HudFPS.Value.HasValue)
                 {
                     Config.Instance.HudFPS = (int)this.tb_HudFPS.Value.Value;
                     Config.Instance.SaveUserConfig();
                     this.HudFPSChanged?.Invoke();
+                    this.pi_hudFPS.Visibility = Visibility.Visible;
+                    this.tb_restartNeeded.Visibility = Visibility.Visible;
                 }
             };
         }
@@ -190,8 +223,12 @@ namespace ZTMZ.PacenoteTool
 
         private void btn_reset_Click(object sender, RoutedEventArgs e)
         {
-            Config.Instance.ResetToDefault();
-            Config.Instance.SaveUserConfig();
+            var res = new ResetConfigDialog().ShowDialog();
+            if (res.HasValue && res.Value)
+            {
+                Config.Instance.ResetToDefault();
+                Config.Instance.SaveUserConfig();
+            }
         }
     }
 }

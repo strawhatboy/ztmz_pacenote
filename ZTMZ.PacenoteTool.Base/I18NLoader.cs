@@ -13,7 +13,7 @@ namespace ZTMZ.PacenoteTool.Base
     // Singleton
     public class I18NLoader
     {
-        public static string I18NPath = "lang";
+        //public static string I18NPath = "lang";
 
         public List<string> cultures = new List<string>();
         public List<string> culturesFullname = new List<string>();
@@ -43,15 +43,20 @@ namespace ZTMZ.PacenoteTool.Base
         {
         }
 
-        public void Initialize()
+        public void Initialize(string i18nPath = "lang")
         {
             CultureInfo[] cinfo = CultureInfo.GetCultures(CultureTypes.AllCultures);
             var cultureDict = cinfo.ToDictionary(a => a.Name.ToLower(), a => a.DisplayName);
+
+            if (cultureDict.ContainsKey("zh-hans-cn"))
+            {
+                cultureDict["zh-cn"] = cultureDict["zh-hans-cn"];
+            }
             // shit, dotnet6 has no zh-cn
             CurrentCultureName = CultureInfo.CurrentCulture.Name.ToLower();
 
             // load from I18NPath
-            var jsonFiles = Directory.GetFiles(I18NPath, "*.json");
+            var jsonFiles = Directory.GetFiles(i18nPath, "*.json");
             foreach (var jsonFile in jsonFiles)
             {
                 var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(jsonFile).ToLower();
@@ -67,7 +72,7 @@ namespace ZTMZ.PacenoteTool.Base
                 readJson(fileNameWithoutExtension, reader, properties);
             }
 
-            CurrentCulture = Resources[CurrentCultureName];
+            SetCulture(CurrentCultureName);
         }
 
         public void SetCulture(string culture)

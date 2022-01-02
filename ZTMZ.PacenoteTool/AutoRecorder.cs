@@ -78,7 +78,7 @@ namespace ZTMZ.PacenoteTool
                 throw new Exception("语音识别模型不存在，请使用开发版本或下载并解压模型到speech_model目录下");
             }
 
-            Directory.CreateDirectory("tmp");
+            Directory.CreateDirectory(AppLevelVariables.Instance.GetPath("tmp"));
             //BackgroundWorker bgw = new BackgroundWorker();
             //bgw.DoWork += (e, args) => 
             //bgw.RunWorkerAsync();
@@ -101,7 +101,7 @@ namespace ZTMZ.PacenoteTool
             bgw.DoWork += (e, args) =>
             {
                 var newFile = ConvertToPCM(obj.Item2);
-                var fileName = "tmp/" + obj.Item1.ToString() + Path.GetFileName(newFile) + ".wav";
+                var fileName = AppLevelVariables.Instance.GetPath("tmp/" + obj.Item1.ToString() + Path.GetFileName(newFile) + ".wav");
                 StereoToMono(newFile, fileName);
                 File.Delete(newFile);
                 lock (lock_preprocessed)

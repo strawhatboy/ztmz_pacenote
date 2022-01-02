@@ -8,8 +8,8 @@ namespace ZTMZ.PacenoteTool.Base
 {
     public class Config
     {
-        public const string CONFIG_FILE = "config.json";
-        public const string USER_CONFIG_FILE = "userconfig.json";
+        public static string CONFIG_FILE = AppLevelVariables.Instance.GetPath("config.json");
+        public static string USER_CONFIG_FILE = AppLevelVariables.Instance.GetPath("userconfig.json");
 
         private Config()
         {
@@ -204,7 +204,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._PlayGoSound;
         }
 
-        private bool _PlayCollisionSound = true;
+        private bool _PlayCollisionSound = false;
         public bool PlayCollisionSound
         {
             set { this._PlayCollisionSound = value; this._userconfig["PlayCollisionSound"] = value; }
@@ -248,7 +248,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._HudFPS;
         }
 
-        private string _Language = CultureInfo.CurrentCulture.Name;
+        private string _Language = CultureInfo.CurrentCulture.Name.ToLower();
         public string Language
         {
             set { this._Language = value; this._userconfig["Language"] = value; }
@@ -272,7 +272,7 @@ namespace ZTMZ.PacenoteTool.Base
         }
 
 
-        public void Save(string path = USER_CONFIG_FILE)
+        public void Save(string path)
         {
             File.WriteAllText(path, JsonConvert.SerializeObject(this, Formatting.Indented));
         }

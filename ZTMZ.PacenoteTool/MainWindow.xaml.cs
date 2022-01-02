@@ -88,7 +88,7 @@ namespace ZTMZ.PacenoteTool
             this._autoRecorder = new();
 
             this.initHotKeys();
-            this.initializeI18N();
+            //this.initializeI18N();
             this.initializeUDPReceiver();
             this.initializeComboBoxes();
             this.checkPrerequisite();
@@ -582,11 +582,6 @@ namespace ZTMZ.PacenoteTool
             this.s_volume.Value = Config.Instance.UI_PlaybackVolume;
         }
 
-        private void initializeI18N()
-        {
-            I18NLoader.Instance.Initialize();
-            I18NLoader.Instance.SetCulture(Config.Instance.Language);
-        }
         private void initializeTheme()
         {
             var paletteHelper = new PaletteHelper();
@@ -845,6 +840,19 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
                 Config.Instance.UI_ShowHud = this.chk_Hud.IsChecked.Value;
                 Config.Instance.SaveUserConfig();
+                this.chk_Hud.IsEnabled = false;
+                this.pb_Hud.Visibility = Visibility.Visible;
+                var bgw = new BackgroundWorker();
+                bgw.DoWork += (s, e) =>
+                {
+                    Thread.Sleep(3000);
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        this.chk_Hud.IsEnabled = true;
+                        this.pb_Hud.Visibility = Visibility.Collapsed;
+                    });
+                };
+                bgw.RunWorkerAsync();
             }
         }
 
@@ -855,8 +863,14 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 _settingsWindow = new SettingsWindow();
                 _settingsWindow.PortChanged += () =>
                 {
-                    this._udpReceiver.StopListening();
-                    this._udpReceiver.StartListening();
+                    BackgroundWorker bgw = new BackgroundWorker();
+                    bgw.DoWork += (s, e) =>
+                    {
+                        this._udpReceiver.StopListening();
+                        Thread.Sleep(2800);
+                        this._udpReceiver.StartListening();
+                    };
+                    bgw.RunWorkerAsync();
                 };
                 //_settingsWindow.HudFPSChanged += () =>
                 //{

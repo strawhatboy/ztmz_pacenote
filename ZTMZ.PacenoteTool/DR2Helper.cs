@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -63,7 +64,7 @@ namespace ZTMZ.PacenoteTool
         public DR2Helper()
         {
             // load dict from json
-            var jsonContent = File.ReadAllText("track_dict.json");
+            var jsonContent = File.ReadAllText(AppLevelVariables.Instance.GetPath("track_dict.json"));
             this.ItineraryMap = JsonConvert.DeserializeObject<Dictionary<string, List<ItineraryProperty>>>(jsonContent);
         }
         public string GetItinerary(string trackLength, float startZ)
