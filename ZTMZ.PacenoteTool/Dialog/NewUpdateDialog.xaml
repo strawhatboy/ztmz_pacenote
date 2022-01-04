@@ -14,7 +14,7 @@
             <materialDesign:PackIcon Kind="Update" Height="60" Width="60" Margin="20" Foreground="LightSeaGreen" DockPanel.Dock="Left" VerticalAlignment="Center"  />
             <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" DockPanel.Dock="Top" Margin="20" Text="{DynamicResource ResourceKey=dialog.newUpdate.title}" VerticalAlignment="Center"/>
         </StackPanel>
-        <TextBlock x:Name="tb_content" Style="{StaticResource MaterialDesignHeadline5TextBlock}" DockPanel.Dock="Top" Margin="20 0 20 0"/>
+        <TextBlock x:Name="tb_content" DockPanel.Dock="Top" Margin="20 0 20 0"/>
         <StackPanel DockPanel.Dock="Bottom" Margin="20 10 20 20" Orientation="Horizontal" HorizontalAlignment="Right" >
             <Button IsDefault="True" x:Name="btn_ok" Content="{DynamicResource ResourceKey=dialog.newUpdate.btn_ok}" Margin="0 0 10 0" Click="btn_ok_Click"></Button>
             <Button x:Name="btn_cancel" Background="Crimson" Content="{DynamicResource ResourceKey=dialog.newUpdate.btn_cancel}" Click="btn_cancel_Click" ></Button>

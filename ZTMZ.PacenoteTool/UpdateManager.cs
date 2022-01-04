@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace ZTMZ.PacenoteTool
     }
     public class UpdateManager
     {
-        const string updateURL = "https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate.json";
+        const string updateURL = "http://1.116.3.39:8000/api/pacenotetool/version";
 
 
         public string CurrentVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -32,7 +33,7 @@ namespace ZTMZ.PacenoteTool
 
         }
 
-        public UpdateFile CheckUpdate()
+        public async Task<UpdateFile> CheckUpdate()
         {
             using (WebClient w = new WebClient())
             {
