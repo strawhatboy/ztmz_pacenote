@@ -1,4 +1,8 @@
 ﻿{
+  "application": {
+    "title": "ZTMZ Club 路书工具",
+    "title_dev": "ZTMZ Club 路书工具开发版"
+  },
   "settings": {
 
     "title": "设置",
@@ -66,6 +70,102 @@
       "btn_cancel": "算了",
 
       "content": "你准备好了重置所有的设置到默认吗？如果是的请选择“好的”，然后重启工具来让设置生效。"
+    }
+  },
+
+  "ui": {
+    "rb_record": "录制模式",
+    "rb_replay": "播放模式",
+    "tb_gameState": "游戏状态：",
+    "tb_time": "时间：",
+    "tb_lapTime": "行驶时间：",
+    "tb_distance": "行驶距离：",
+    "tb_speed": "速度：",
+    "tb_length": "圈总长：",
+    "tb_progress": "进度：",
+    "tb_posZ": "PosZ：",
+    "tb_wheelSpdFL": "左前：",
+    "tb_wheelSpdFR": "右前：",
+    "tb_wheelSpdRL": "左后：",
+    "tb_wheelSpdRR": "右后：",
+    "tb_currentProfile": "当前配置：",
+
+    "tab_pureAudio": "纯语音模式",
+    "tab_pa_codriver": "领航员：",
+    "tab_pa_isRecording": "是否正在录音：",
+    "tab_pa_recordingQuality": "录制质量：",
+    "tab_pa_recordingDevice": "录制设备：",
+
+    "cb_rq_low": "低",
+    "cb_rq_medium": "中",
+    "cb_rq_high": "高",
+
+    "tab_script": "脚本模式",
+    "tab_s_audioPackage": "领航员语音包：",
+    "tab_s_isDynamic": "是否动态播放：",
+    "tab_s_author": "脚本路书作者：",
+    "tab_s_listenDevice": "自动脚本录制监听：",
+    "tab_s_audioSettings": "声音设置",
+
+    "tb_currentTrack": "当前地图：",
+    "tb_replayDevice": "播放设备：",
+    "tb_playVolume": "播放音量：",
+
+    "tb_prePlay": "预播放时间调整：",
+    "tb_replayMode": "播放模式：",
+
+    "cb_pureAudioMode": "纯语音模式",
+    "cb_scriptMode": "脚本模式",
+    "cb_mixMode": "混合模式",
+
+    "tb_recordMode": "录制模式：",
+    "tb_autoScriptRecordMode": "自动脚本模式",
+
+    "tb_showHud": "悬浮窗显示：",
+
+    "db_tools": "相关工具",
+    "btn_scriptTool": "路书脚本编辑工具",
+    "btn_audioTool": "音频批量操作工具",
+
+    "tb_about": "关于本工具",
+    "tb_pacenotes": "点我查看路书录制进度",
+
+    "tooltip": {
+      "rb_record": "模式切换必须在游戏状态处于Unknown时可以（不在游戏中）\n\n纯语音模式:\n在录制模式下的游戏开始后可以按F1录制路书片段，按F4结束路书片段录制\n在游戏开始倒计时时也可以暂停游戏录制游戏开始语音，开始语音只能录制一段，并且在播放时会在倒计时开始时播放。在地图文件夹中会录制成“-2.wav”文件\n\n自动脚本模式:\n在该模式下请保持电脑的安静，没有QQ、迅雷、浏览器视频等可能发出声音对语音识别产生影响的软件正在运行",
+      "rb_replay": "模式切换必须在游戏状态处于Unknown时可以（不在游戏中），在播放模式下的游戏开始后如果存在对应地图的路书，就会在到达指定地点后自动播放已经录制的路书片段",
+      "btn_settings": "打开设置界面",
+      "tb_gameState": "当前的游戏状态\nRaceBegin：游戏开始倒计时\nRacing：正在跑\nPaused：暂停\nRaceEnd：游戏结束\nUnknown：未知状态",
+      "tb_time": "游戏时间，可能不太准确",
+      "tb_lapTime": "单圈时间，比赛用时",
+      "tb_distance": "行驶距离，单位：米",
+      "tb_speed": "行驶速度，单位：公里每小时",
+      "tb_length": "赛道长度，单位：米",
+      "tb_progress": "赛道进度，0.5表示完成了一半",
+      "tb_posZ": "车辆所在高度",
+      "tb_wheelSpd": "轮速",
+      "tb_currentProfile": "在程序文件夹的profiles文件夹中，按文件夹分为不同的配置，可以录制多套路书，在游戏进行时不可切换配置",
+      "tab_pa_codriver": "本赛道的领航员",
+      "tab_pa_isRecording": "在录制模式下，游戏中(RaceBegin, Racing, Paused)，按F1键开始录制路书片段，按F4键停止录制路书片段",
+      "cb_rq_low": "低质量录制，文件较小，便于分享\n低情商：声音可能失真\n高情商：对讲机效果(YES)",
+      "cb_rq_medium": "中等质量录制",
+      "cb_rq_high": "高质量录制，文件较大\n保留了很多声音细节，更加真实",
+      "tab_s_isDynamic": "根据脚本文件中的@dynamic开关决定是否动态播放",
+      "tab_s_author": "当前地图脚本路书的作者",
+      "tab_s_listenDevice": "自动脚本录制模式当前监听的设备",
+      "tb_replayDevice": "在游戏进行时不可切换播放设备",
+      "btn_currentTrack": "打开当前地图录制文件夹",
+      "btn_currentScript": "打开当前地图的脚本",
+      "btn_playExample": "播放示例声音",
+      "tb_playVolume": "调整播放音量，增大音量时可能会出现音频波形丢失而引起的失真情况",
+      "tb_prePlay": "比如+1s表示路书会更晚播放1秒钟，-2s表示路书会更早的播放2秒钟",
+      "tb_replayMode": "在游戏进行时不可切换播放模式",
+      "cb_pureAudioMode": "纯语音路书的播放",
+      "cb_scriptMode": "脚本模式",
+      "cb_mixMode": "混合模式",
+      "tb_recordMode": "在游戏进行时不可切换播放模式",
+      "cb_pureAudioRecordMode": "纯语音录制",
+      "tb_autoScriptRecordMode": "通过语音识别自动录制脚本",
+      "tb_showHud": "是否在游戏中显示悬浮窗，需要游戏处于窗口模式或无边窗口模式"
     }
   }
 }

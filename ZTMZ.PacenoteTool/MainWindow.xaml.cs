@@ -45,8 +45,7 @@ namespace ZTMZ.PacenoteTool
         private bool _isRecordingInProgress = false;
         private bool _isPureAudioRecording = true;
         private ScriptEditor.MainWindow _scriptWindow;
-        private string _title = "ZTMZ Club 路书工具 v2.5.1";
-        private string _devTitle = "ZTMZ Club 路书工具开发版 v2.5.1";
+        private string _version = "v2.5.1";
 
         private SettingsWindow _settingsWindow;
 
@@ -490,7 +489,9 @@ namespace ZTMZ.PacenoteTool
                 System.IO.Directory.Exists(Config.Instance.SpeechRecogizerModelPath))
             {
                 // dev mode
-                this.Title = _devTitle;
+                this.Title = string.Format("{0}{1}",
+                    I18NLoader.Instance.CurrentDict["application.title_dev"].ToString(),
+                    _version);
                 this.cb_record_mode.SelectedIndex = 1;  // auto script mode
                 if (Config.Instance.AutoScript_HackGameWhenStart)
                 {
@@ -511,7 +512,9 @@ namespace ZTMZ.PacenoteTool
             }
             else
             {
-                this.Title = _title;
+                this.Title = string.Format("{0}{1}",
+                    I18NLoader.Instance.CurrentDict["application.title"].ToString(),
+                    _version);
                 // disable auto script mode
                 this.cb_record_mode.Items.RemoveAt(this.cb_record_mode.Items.Count - 1);
             }
@@ -797,7 +800,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         {
             var value = this.sl_scriptTiming.Value.ToString("0.0");
             this._scriptTiming = this.sl_scriptTiming.Value;
-            this.tb_scriptTiming.Text = (this.sl_scriptTiming.Value > 0 ? $"+{value}" : $"{value}") + "秒";
+            this.tb_scriptTiming.Text = (this.sl_scriptTiming.Value > 0 ? $"+{value}" : $"{value}") + "s";
             Config.Instance.UI_PlaybackAdjustSeconds = e.NewValue;
             Config.Instance.SaveUserConfig();
         }

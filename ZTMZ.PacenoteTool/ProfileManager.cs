@@ -469,7 +469,9 @@ namespace ZTMZ.PacenoteTool
 
         public void PlaySystem(string sound)
         {
-            this.Player.PlaySound(this.getSoundByKeyword(sound, this.CurrentCoDriverSoundPackagePath), false);
+            var audio = this.getSoundByKeyword(sound, this.CurrentCoDriverSoundPackagePath);
+            audio.Amplification = this.CurrentPlayAmplification;
+            this.Player.PlaySound(audio, false);
         }
 
         public void ReIndex(float distance)

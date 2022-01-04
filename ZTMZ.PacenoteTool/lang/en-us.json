@@ -1,4 +1,8 @@
 ﻿{
+  "application": {
+    "title": "ZTMZ Club Pacenote Tool",
+    "title_dev": "ZTMZ Club Pacenote Tool (Dev)"
+  },
   "settings": {
 
     "title": "Settings",
@@ -64,6 +68,102 @@
       "btn_cancel": "Cancel",
 
       "content": "You're going to reset all the configuration to default, are you sure? After selecting 'OK', the changes need restarting the tool to take effect."
+    }
+  },
+
+  "ui": {
+    "rb_record": "Record Mode",
+    "rb_replay": "Replay mode",
+    "tb_gameState": "Game state：",
+    "tb_time": "Time：",
+    "tb_lapTime": "LapTime：",
+    "tb_distance": "LapDistance：",
+    "tb_speed": "Speed：",
+    "tb_length": "Track Length：",
+    "tb_progress": "Progress：",
+    "tb_posZ": "PosZ：",
+    "tb_wheelSpdFL": "FL：",
+    "tb_wheelSpdFR": "FR：",
+    "tb_wheelSpdRL": "RL：",
+    "tb_wheelSpdRR": "RR：",
+    "tb_currentProfile": "Current Profile：",
+
+    "tab_pureAudio": "Pure Audio Mode",
+    "tab_pa_codriver": "Codriver：",
+    "tab_pa_isRecording": "Is Recording：",
+    "tab_pa_recordingQuality": "Record Quality：",
+    "tab_pa_recordingDevice": "Record Device：",
+
+    "cb_rq_low": "Low",
+    "cb_rq_medium": "Medium",
+    "cb_rq_high": "High",
+
+    "tab_script": "Script Mode",
+    "tab_s_audioPackage": "Audio Package：",
+    "tab_s_isDynamic": "Is Dynamic：",
+    "tab_s_author": "Script Author：",
+    "tab_s_listenDevice": "Auto Script Recording：",
+    "tab_s_audioSettings": "Audio Settings",
+
+    "tb_currentTrack": "Current Track：",
+    "tb_replayDevice": "Playback Device：",
+    "tb_playVolume": "Playback Volume：",
+
+    "tb_prePlay": "Preplay Time：",
+    "tb_replayMode": "Playback Mode：",
+
+    "cb_pureAudioMode": "Pure Audio Mode",
+    "cb_scriptMode": "Script Mode",
+    "cb_mixMode": "Mixed Mode",
+
+    "tb_recordMode": "Record Mode：",
+    "tb_autoScriptRecordMode": "Audo Script Mode",
+
+    "tb_showHud": "Show Hud in-game：",
+
+    "db_tools": "Related Tools",
+    "btn_scriptTool": "Script Editor",
+    "btn_audioTool": "Batch Audio Processor",
+
+    "tb_about": "About this tool",
+    "tb_pacenotes": "Pacenotes",
+
+    "tooltip": {
+      "rb_record": "The mode switch must be possible when the game state is Unknown (not in the game)\n\nPure voice mode:\nAfter the game in the recording mode starts, you can press F1 to record the road book fragment, and press F4 to end the road book fragment recording\nin the game When the countdown starts, you can also pause the game and record the game start voice. The start voice can only record one segment, and it will be played at the beginning of the countdown during playback. It will be recorded as \"-2.wav\" file in the map folder\n\nAutomatic script mode:\nPlease keep the computer quiet in this mode, no QQ, Thunder, browser video, etc. may emit sounds for voice recognition The software that has an impact is running",
+      "rb_replay": "Mode switching must be possible when the game state is Unknown (not in the game). After the game in play mode starts, if there is a road book corresponding to the map, it will automatically play the recorded road book fragment after arriving at the specified location",
+      "btn_settings": "Open the settings interface",
+      "tb_gameState": "Current game state\nRaceBegin: The game starts counting down\nRacing: Running\nPaused: Paused\nRaceEnd: Game over\nUnknown: Unknown state",
+      "tb_time": "Game time, may not be accurate ",
+      "tb_lapTime": "Lap time",
+      "tb_distance": "Driving distance, unit: meter",
+      "tb_speed": "Driving speed, unit: kilometers per hour",
+      "tb_length": "Track length, unit: meter",
+      "tb_progress": "Track progress, 0.5 means half completed",
+      "tb_posZ": "The position Z of the vehicle",
+      "tb_wheelSpd": "Wheel speed",
+      "tb_currentProfile": "In the profiles folder of the program folder, it is divided into different configurations according to the folder. Multiple sets of books can be recorded, and the configuration cannot be switched during the game.",
+      "tab_pa_codriver": "The codriver of this track",
+      "tab_pa_isRecording": "In the recording mode, in the game (RaceBegin, Racing, Paused), press the F1 key to start recording the road book fragment, and press the F4 key to stop recording the road book fragment",
+      "cb_rq_low": "Low-quality recording, small files, easy to share\nLow EQ: the sound may be distorted\nHigh EQ: walkie-talkie effect (YES)",
+      "cb_rq_medium": "Medium quality recording",
+      "cb_rq_high": "High-quality recording with larger files\nretains a lot of sound details and is more realistic",
+      "tab_s_isDynamic": "Determine whether to play dynamically according to the @dynamic switch in the script file",
+      "tab_s_author": "Author of the current track script pacenote",
+      "tab_s_listenDevice": "The currently monitored device in automatic script recording mode",
+      "tb_replayDevice": "Do not switch the playback device while the game is in progress",
+      "btn_currentTrack": "Open the current track folder",
+      "btn_currentScript": "Open the script of the current track",
+      "btn_playExample": "Play sample sound",
+      "tb_playVolume": "Adjust the playback volume. When the volume is increased, distortion caused by loss of audio waveform may occur",
+      "tb_prePlay": "For example, +1s means Lushu will play 1 second later, -2s means Lushu will play 2 seconds earlier",
+      "tb_replayMode": "The play mode cannot be switched while the game is in progress",
+      "cb_pureAudioMode": "Pure audio pacenote playback",
+      "cb_scriptMode": "Script mode",
+      "cb_mixMode": "Mixed mode",
+      "tb_recordMode": "The play mode cannot be switched while the game is in progress",
+      "cb_pureAudioRecordMode": "Pure voice recording",
+      "tb_autoScriptRecordMode": "Automatically record scripts through voice recognition",
+      "tb_showHud": "Whether to display the floating window in the game, the game needs to be in window mode or borderless window mode"
     }
   }
 }
