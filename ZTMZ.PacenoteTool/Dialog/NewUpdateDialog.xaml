@@ -1,0 +1,24 @@
+﻿<Window x:Class="ZTMZ.PacenoteTool.Dialog.NewUpdateDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Dialog"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        WindowStyle="None"
+        mc:Ignorable="d"
+        Title="NewUpdateDialog" Height="800" Width="600">
+
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <materialDesign:PackIcon Kind="Update" Height="60" Width="60" Margin="20" Foreground="LightSeaGreen" DockPanel.Dock="Left" VerticalAlignment="Center"  />
+            <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" DockPanel.Dock="Top" Margin="20" Text="{DynamicResource ResourceKey=dialog.newUpdate.title}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <TextBlock x:Name="tb_content" Style="{StaticResource MaterialDesignHeadline5TextBlock}" DockPanel.Dock="Top" Margin="20 0 20 0"/>
+        <StackPanel DockPanel.Dock="Bottom" Margin="20 10 20 20" Orientation="Horizontal" HorizontalAlignment="Right" >
+            <Button IsDefault="True" x:Name="btn_ok" Content="{DynamicResource ResourceKey=dialog.newUpdate.btn_ok}" Margin="0 0 10 0" Click="btn_ok_Click"></Button>
+            <Button x:Name="btn_cancel" Background="Crimson" Content="{DynamicResource ResourceKey=dialog.newUpdate.btn_cancel}" Click="btn_cancel_Click" ></Button>
+        </StackPanel>
+        <WebBrowser x:Name="wb_Changelog" Margin="20 20 20 0" ></WebBrowser>
+    </DockPanel>
+</Window>

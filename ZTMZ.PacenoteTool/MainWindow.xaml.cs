@@ -18,7 +18,6 @@ using NAudio.Wave;
 using OnlyR.Core.Models;
 using OnlyR.Core.Recorder;
 using ZTMZ.PacenoteTool.Base;
-using AutoUpdaterDotNET;
 using System.Globalization;
 using MaterialDesignThemes.Wpf;
 using System.Threading;
@@ -72,12 +71,9 @@ namespace ZTMZ.PacenoteTool
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // show page for new version
-            // AutoUpdater.OpenDownloadPage = true; 
-            AutoUpdater.ShowSkipButton = false;
-            //AutoUpdater.ReportErrors = true;
-            AutoUpdater.Start("https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate.xml");
-
+            // use new self-written update mechanism.
+            UpdateManager um = new UpdateManager();
+            um.CheckUpdate();
 
             // put initialization to window_loaded to accelerate window loading.
             this._profileManager = new();

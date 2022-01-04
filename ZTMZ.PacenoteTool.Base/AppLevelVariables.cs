@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
+
 
 namespace ZTMZ.PacenoteTool.Base
 {
@@ -19,6 +21,15 @@ namespace ZTMZ.PacenoteTool.Base
             return path;
 #else
             return Path.Join(AppLevelVariables.Instance.AppConfigFolder, path);
+#endif
+        }
+
+        public bool IsGreenVersion()
+        {
+#if RELEASE_GREEN
+            return true;
+#else
+            return false;
 #endif
         }
     }

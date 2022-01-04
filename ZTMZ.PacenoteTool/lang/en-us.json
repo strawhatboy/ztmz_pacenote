@@ -68,6 +68,17 @@
       "btn_cancel": "Cancel",
 
       "content": "You're going to reset all the configuration to default, are you sure? After selecting 'OK', the changes need restarting the tool to take effect."
+    },
+    "downloadFile": {
+      "title": "Downloading {0}",
+      "file": "File: {0}",
+      "btn_cancel": "Cancel"
+    },
+    "newUpdate": {
+      "title": "New Update",
+      "content": "We got a brand new version {0} available comparing to your current version {1}, do you want to update?",
+      "btn_cancel": "Cancel",
+      "btn_ok": "OK"
     }
   },
 

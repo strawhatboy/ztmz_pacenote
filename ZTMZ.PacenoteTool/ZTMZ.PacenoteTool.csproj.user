@@ -4,6 +4,12 @@
     <ActiveDebugFramework>net6.0-windows</ActiveDebugFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Update="Dialog\DownloadFileDialog.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Dialog\NewUpdateDialog.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Dialog\PortMismatchDialog.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -15,6 +21,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Update="Dialog\DownloadFileDialog.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Dialog\NewUpdateDialog.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Dialog\PortMismatchDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
