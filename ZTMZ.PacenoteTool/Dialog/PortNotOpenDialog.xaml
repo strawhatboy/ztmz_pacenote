@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Dialog"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d" WindowStyle="None"
+        ResizeMode="NoResize"
          Height="450" Width="600">
 
     <DockPanel>

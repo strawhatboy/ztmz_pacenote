@@ -74,6 +74,8 @@ Vosk语音识别模型
 * [GameOverlay.Net](https://github.com/michel-pi/GameOverlay.Net)
 * [CoDriver-Splitter](https://github.com/CookiePLMonster/CoDriver-Splitter)
 * [Material Design Xaml Toolkit](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit)
+* [Inno Setup](https://jrsoftware.org/isinfo.php)
+* [Inno Setup Chinese Simplified Translation](https://github.com/kira-96/Inno-Setup-Chinese-Simplified-Translation)
 #### 本项目参考的项目
 * [CrewChiefV4](https://gitlab.com/mr_belowski/CrewChiefV4)
 * [dr2_logger](https://github.com/ErlerPhilipp/dr2_logger)

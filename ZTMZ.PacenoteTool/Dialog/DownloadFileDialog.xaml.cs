@@ -33,7 +33,8 @@ namespace ZTMZ.PacenoteTool.Dialog
         public event Action<IDictionary<string, string>> DownloadComplete;
         public DownloadFileDialog()
         {
-            InitializeComponent();
+            InitializeComponent(); 
+            this.MouseDown += delegate { DragMove(); };
         }
 
         public void DownloadFiles(IEnumerable<string> urls)
@@ -71,6 +72,7 @@ namespace ZTMZ.PacenoteTool.Dialog
                 try
                 {
                     var tmpExeFile = string.Format("{0}.exe", Path.GetTempFileName());
+                    this.DownloadedFiles[url] = tmpExeFile;
                     // Start downloading the file
                     webClient.DownloadFileAsync(URL, tmpExeFile);
                 }
@@ -98,10 +100,10 @@ namespace ZTMZ.PacenoteTool.Dialog
             // Reset the stopwatch.
             sw.Reset();
 
-            if (downloadingIndex++ < downloadLength)
+            if (downloadingIndex < downloadLength)
             {
                 // download next file.
-                DownloadFile(files.ElementAt(downloadingIndex));
+                DownloadFile(files.ElementAt(downloadingIndex++));
             } else
             {
                 this.DownloadComplete?.Invoke(this.DownloadedFiles);

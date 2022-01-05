@@ -24,6 +24,7 @@ namespace ZTMZ.PacenoteTool.Dialog
         {
             InitializeComponent();
             this.tb_Content.Text = string.Format(I18NLoader.Instance.CurrentDict["dialog.portMismatch.content"].ToString(), port1, port2);
+            this.MouseDown += delegate { DragMove(); };
         }
 
         private void btn_ok_Click(object sender, RoutedEventArgs e)

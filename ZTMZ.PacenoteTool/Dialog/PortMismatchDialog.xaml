@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Dialog"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d" WindowStyle="None"
+        ResizeMode="NoResize"
         Height="450" Width="600" Title="{DynamicResource ResourceKey=dialog.portMismatch.title}">
     <DockPanel>
         <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" DockPanel.Dock="Top" Margin="20 20 20 0" Text="{DynamicResource ResourceKey=dialog.portMismatch.title}" />

@@ -126,10 +126,10 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={autopf}\ztmz_pacenotetool
+DefaultDirName={autopf}\ztmzclub_pacenotetool
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
-;PrivilegesRequired=lowest
+PrivilegesRequired=lowest
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -144,12 +144,11 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*"; Excludes: "*.csv"; DestDir: "{app}"; Flags: ignoreversion
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*.json"; DestDir: "{commondocs}\ZTMZClub"; Flags: ignoreversion uninsneveruninstall
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*.csv"; DestDir: "{commondocs}\ZTMZClub"; Flags: ignoreversion uninsneveruninstall
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\codrivers\*"; DestDir: "{commondocs}\ZTMZClub\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\profiles\*"; DestDir: "{commondocs}\ZTMZClub\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\lang\*"; DestDir: "{commondocs}\ZTMZClub\lang"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*.json"; DestDir: "{userdocs}\My Games\ZTMZClub"; Flags: ignoreversion uninsneveruninstall
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*.csv"; DestDir: "{userdocs}\My Games\ZTMZClub"; Flags: ignoreversion uninsneveruninstall
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\codrivers\*"; DestDir: "{userdocs}\My Games\ZTMZClub\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\profiles\*"; DestDir: "{userdocs}\My Games\ZTMZClub\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\lang\*"; DestDir: "{userdocs}\My Games\ZTMZClub\lang"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

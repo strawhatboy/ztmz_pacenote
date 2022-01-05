@@ -22,7 +22,7 @@ namespace ZTMZ.PacenoteTool
     }
     public class UpdateManager
     {
-        const string updateURL = "http://1.116.3.39:8000/api/pacenotetool/version";
+        const string updateURL = "https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate.json";
 
 
         public string CurrentVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -76,17 +76,17 @@ namespace ZTMZ.PacenoteTool
         public void Update(UpdateFile f)
         {
             DownloadFileDialog dfd = new DownloadFileDialog();
-            dfd.ShowDialog();
-            dfd.DownloadFile(f.url);
             dfd.DownloadComplete += Dfd_DownloadComplete;
+            dfd.DownloadFiles(new List<string> { f.url });
+            dfd.ShowDialog();
         }
 
         private void Dfd_DownloadComplete(IDictionary<string, string> obj)
         {
             // try to close application and update
-            if (obj.Count > 0)
+            if (obj != null && obj.Count > 0)
             {
-                Process.Start(new ProcessStartInfo(obj.First().Value));
+                Process.Start(new ProcessStartInfo(String.Format("{0}", obj.First().Value)));
                 System.Windows.Application.Current.Shutdown();
             }
         }

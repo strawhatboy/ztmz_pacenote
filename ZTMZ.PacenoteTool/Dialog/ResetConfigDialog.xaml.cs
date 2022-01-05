@@ -23,6 +23,7 @@ namespace ZTMZ.PacenoteTool.Dialog
         public ResetConfigDialog()
         {
             InitializeComponent();
+            this.MouseDown += delegate { DragMove(); };
         }
         private void btn_ok_Click(object sender, RoutedEventArgs e)
         {

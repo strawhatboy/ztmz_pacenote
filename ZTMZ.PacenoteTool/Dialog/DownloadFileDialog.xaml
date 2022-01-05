@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Dialog"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        ResizeMode="NoResize"
         mc:Ignorable="d" WindowStyle="None"
         Title="DownloadFileDialog" Height="150" Width="600">
     <DockPanel>

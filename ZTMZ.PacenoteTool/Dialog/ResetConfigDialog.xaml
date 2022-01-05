@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Dialog"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" Width="600" Height="450" WindowStyle="None"
+             ResizeMode="NoResize"
              d:DesignHeight="450" d:DesignWidth="600">
     <DockPanel>
         <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" DockPanel.Dock="Top" Margin="20 20 20 0" Text="{DynamicResource ResourceKey=dialog.resetConfig.title}" />
