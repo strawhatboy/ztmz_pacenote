@@ -13,7 +13,7 @@
 	    <TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
 	    <TargetFramework>net6.0-windows</TargetFramework>
 	    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-	    <Configurations>Debug;Release;Release_Green</Configurations>
+	    <Configurations>Debug;Release;Release_Portable</Configurations>
     </PropertyGroup>
 
     <ItemGroup>

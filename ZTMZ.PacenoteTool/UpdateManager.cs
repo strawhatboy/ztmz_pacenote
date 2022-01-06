@@ -33,7 +33,7 @@ namespace ZTMZ.PacenoteTool
 
         }
 
-        public async Task<UpdateFile> CheckUpdate()
+        public UpdateFile CheckUpdate()
         {
             using (WebClient w = new WebClient())
             {

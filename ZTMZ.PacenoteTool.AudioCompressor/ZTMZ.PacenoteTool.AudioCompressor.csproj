@@ -10,7 +10,7 @@
     <Product>ZTMZ.PacenoteTool.AudioBatchProcessor</Product>
     <Version>1.2.0</Version>
     <TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
-    <Configurations>Debug;Release;Release_Green</Configurations>
+    <Configurations>Debug;Release;Release_Portable</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -21,7 +21,7 @@
     <OutputPath></OutputPath>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Green|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Portable|AnyCPU'">
     <OutputPath />
   </PropertyGroup>
 

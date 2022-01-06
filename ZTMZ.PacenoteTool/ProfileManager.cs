@@ -464,7 +464,7 @@ namespace ZTMZ.PacenoteTool
         public void PlayExample()
         {
             this._exampleAudio.Amplification = this.CurrentPlayAmplification;
-            this.Player.PlaySound(this._exampleAudio, false);
+            this.Player.PlaySound(this._exampleAudio, Config.Instance.UseSequentialMixerToHandleAudioConflict);
         }
 
         public void PlaySystem(string sound)

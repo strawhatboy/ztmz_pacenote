@@ -6,7 +6,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
-    <Configurations>Debug;Release;Release_Green</Configurations>
+    <Configurations>Debug;Release;Release_Portable</Configurations>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 

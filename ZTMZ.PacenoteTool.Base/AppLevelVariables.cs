@@ -17,7 +17,7 @@ namespace ZTMZ.PacenoteTool.Base
 
         public string GetPath(string path)
         {
-#if RELEASE_GREEN
+#if RELEASE_PORTABLE
             return path;
 #else
             return Path.Join(AppLevelVariables.Instance.AppConfigFolder, path);
@@ -26,7 +26,7 @@ namespace ZTMZ.PacenoteTool.Base
 
         public bool IsGreenVersion()
         {
-#if RELEASE_GREEN
+#if RELEASE_PORTABLE
             return true;
 #else
             return false;

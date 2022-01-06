@@ -743,7 +743,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)
         {
-            //if (this._profileManager.CurrentItineraryPath != null)
+            if (this._profileManager.CurrentItineraryPath != null)
             {
                 // System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe",
                 //    string.Format("\"{0}\"", System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath))));

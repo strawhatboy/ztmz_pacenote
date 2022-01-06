@@ -15,10 +15,10 @@ namespace ZTMZ.PacenoteTool.Base
     {
         //public static string I18NPath = "lang";
 
-        public List<string> cultures = new List<string>();
-        public List<string> culturesFullname = new List<string>();
+        public List<string> cultures;
+        public List<string> culturesFullname;
 
-        public Dictionary<string, Dictionary<string, string>> Resources = new Dictionary<string,Dictionary<string, string>>();
+        public Dictionary<string, Dictionary<string, string>> Resources;
 
         public string CurrentCultureName { set; get; }
         public IDictionary<string, string> CurrentCulture { set; get; }
@@ -45,6 +45,9 @@ namespace ZTMZ.PacenoteTool.Base
 
         public void Initialize(string i18nPath = "lang")
         {
+            Resources = new Dictionary<string, Dictionary<string, string>>();
+            cultures = new List<string>(); 
+            culturesFullname = new List<string>();
             CultureInfo[] cinfo = CultureInfo.GetCultures(CultureTypes.AllCultures);
             var cultureDict = cinfo.ToDictionary(a => a.Name.ToLower(), a => a.DisplayName);
 
