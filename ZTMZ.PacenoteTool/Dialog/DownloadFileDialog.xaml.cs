@@ -29,11 +29,13 @@ namespace ZTMZ.PacenoteTool.Dialog
         private int downloadingIndex = 0;
         private int downloadLength = 0;
         public bool isDownloading { set; get; }
+        private bool _urlRedirected;
 
         public event Action<IDictionary<string, string>> DownloadComplete;
-        public DownloadFileDialog()
+        public DownloadFileDialog(UpdateFile f)
         {
-            InitializeComponent(); 
+            InitializeComponent();
+            _urlRedirected = f.urlRedirected;
             this.MouseDown += delegate { DragMove(); };
         }
 
@@ -53,10 +55,9 @@ namespace ZTMZ.PacenoteTool.Dialog
 
         public void DownloadFile(string url)
         {
-            this.tb_title.Text = string.Format("{0}({1}/{2})",
-                I18NLoader.Instance.CurrentDict["dialog.downloadFile.title"].ToString(), downloadingIndex, downloadLength);
-            this.tb_file.Text = string.Format("{0}{1}",
-                I18NLoader.Instance.CurrentDict["dialog.downloadFile.file"].ToString(),
+            this.tb_title.Text = string.Format(I18NLoader.Instance.CurrentDict["dialog.downloadFile.title"].ToString(),
+                String.Format("({0}/{1})", downloadingIndex, downloadLength));
+            this.tb_file.Text = string.Format(I18NLoader.Instance.CurrentDict["dialog.downloadFile.file"].ToString(),
                 url);
             using (var webClient = new WebClient())
             {
@@ -65,6 +66,16 @@ namespace ZTMZ.PacenoteTool.Dialog
 
                 // The variable that will be holding the url address (making sure it starts with http://)
                 Uri URL = url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ? new Uri(url) : new Uri("http://" + url);
+                if (_urlRedirected)
+                {
+                    // gitee's shit.
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
+                    request.AllowAutoRedirect = false;
+                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                    string redirUrl = response.Headers["Location"];
+                    response.Close();
+                    URL = new Uri(redirUrl);
+                }
 
                 // Start the stopwatch which we will be using to calculate the download speed
                 sw.Start();

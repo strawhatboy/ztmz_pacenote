@@ -17,6 +17,7 @@ namespace ZTMZ.PacenoteTool
     {
         public string version { set; get; }
         public string url { set; get; }
+        public bool urlRedirected { set; get; }
         public string changelog { set; get; }
         public string minVersionSupported { set; get; }
     }
@@ -75,7 +76,7 @@ namespace ZTMZ.PacenoteTool
 
         public void Update(UpdateFile f)
         {
-            DownloadFileDialog dfd = new DownloadFileDialog();
+            DownloadFileDialog dfd = new DownloadFileDialog(f);
             dfd.DownloadComplete += Dfd_DownloadComplete;
             dfd.DownloadFiles(new List<string> { f.url });
             dfd.ShowDialog();
