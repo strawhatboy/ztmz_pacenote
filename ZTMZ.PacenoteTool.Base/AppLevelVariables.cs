@@ -10,7 +10,7 @@ namespace ZTMZ.PacenoteTool.Base
     public class AppLevelVariables
     {
         private string _appConfigFolder;
-        public string AppConfigFolder => _appConfigFolder ?? (_appConfigFolder = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games/ZTMZClub"));
+        public string AppConfigFolder => _appConfigFolder ?? (_appConfigFolder = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games\\ZTMZClub"));
 
         private static AppLevelVariables _instance;
         public static AppLevelVariables Instance => _instance ?? (_instance = new AppLevelVariables());

@@ -35,7 +35,7 @@ namespace ZTMZ.PacenoteTool
     public class ProfileManager
     {
         public static string DEFAULT_PROFILE = "default";
-        public static string DEFAULT_CODRIVER = "codrivers/default";
+        public static string DEFAULT_CODRIVER = "codrivers\\default";
         public static string CODRIVER_FILENAME = "codriver.txt";
 
         // system sound
@@ -227,17 +227,17 @@ namespace ZTMZ.PacenoteTool
 
         public List<string> GetAllProfiles()
         {
-            return Directory.GetDirectories(AppLevelVariables.Instance.GetPath("profiles/")).ToList();
+            return Directory.GetDirectories(AppLevelVariables.Instance.GetPath("profiles\\")).ToList();
         }
 
         public List<string> GetAllCodrivers()
         {
-            return Directory.GetDirectories(AppLevelVariables.Instance.GetPath("codrivers/")).ToList();
+            return Directory.GetDirectories(AppLevelVariables.Instance.GetPath("codrivers\\")).ToList();
         }
 
         public void CreateNewProfile(string profileName)
         {
-            Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("profiles/{0}", profileName)));
+            Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("profiles\\{0}", profileName)));
             this.CurrentProfile = profileName;
         }
 
@@ -251,7 +251,7 @@ namespace ZTMZ.PacenoteTool
 
         public string GetRecordingsFolder(string itinerary)
         {
-            string filesPath = AppLevelVariables.Instance.GetPath(string.Format("profiles/{0}/{1}", this.CurrentProfile, itinerary));
+            string filesPath = AppLevelVariables.Instance.GetPath(string.Format("profiles\\{0}\\{1}", this.CurrentProfile, itinerary));
             Directory.CreateDirectory(filesPath);
             return filesPath;
         }
@@ -262,7 +262,7 @@ namespace ZTMZ.PacenoteTool
 
         public string GetScriptFile(string itinerary, string profile)
         {
-            string filePath = AppLevelVariables.Instance.GetPath(string.Format("profiles/{0}/{1}.pacenote", profile, itinerary));
+            string filePath = AppLevelVariables.Instance.GetPath(string.Format("profiles\\{0}\\{1}.pacenote", profile, itinerary));
             if (!File.Exists(filePath))
             {
                 File.WriteAllText(filePath, "");
@@ -444,7 +444,7 @@ namespace ZTMZ.PacenoteTool
             if (!isFinal && Config.Instance.UseDefaultSoundPackageForFallback)
             {
                 // not found, try default 
-                return getSoundByKeyword(keyword, DEFAULT_CODRIVER, true);
+                return getSoundByKeyword(keyword, AppLevelVariables.Instance.GetPath(DEFAULT_CODRIVER), true);
             }
 
             return new AutoResampledCachedSound();
@@ -456,7 +456,7 @@ namespace ZTMZ.PacenoteTool
             // try to amplify the sound.
             var sound = this.AudioFiles[this.CurrentPlayIndex++].Sound;
             sound.Amplification = this.CurrentPlayAmplification;
-            this.Player.PlaySound(sound);
+            this.Player.PlaySound(sound, Config.Instance.UseSequentialMixerToHandleAudioConflict);
             Debug.WriteLine("Playing");
         }
 

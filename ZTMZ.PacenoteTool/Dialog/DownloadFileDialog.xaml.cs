@@ -65,7 +65,8 @@ namespace ZTMZ.PacenoteTool.Dialog
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
 
                 // The variable that will be holding the url address (making sure it starts with http://)
-                Uri URL = url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ? new Uri(url) : new Uri("http://" + url);
+                // Uri URL = url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ? new Uri(url) : new Uri("http://" + url);
+                Uri URL = new Uri(url);
                 if (_urlRedirected)
                 {
                     // gitee's shit.
@@ -111,10 +112,10 @@ namespace ZTMZ.PacenoteTool.Dialog
             // Reset the stopwatch.
             sw.Reset();
 
-            if (downloadingIndex < downloadLength)
+            if (++downloadingIndex < downloadLength)
             {
                 // download next file.
-                DownloadFile(files.ElementAt(downloadingIndex++));
+                DownloadFile(files.ElementAt(downloadingIndex));
             } else
             {
                 this.DownloadComplete?.Invoke(this.DownloadedFiles);

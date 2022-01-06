@@ -184,7 +184,7 @@ namespace ZTMZ.PacenoteTool
                 {
                     var lastMessage = this.LastMessage;
                     this.LastMessage = message;
-                    if (lastMessage.Speed - message.Speed >= Config.Instance.CollisionSpeedChangeThreshold && message.Speed != 0)
+                    if (Config.Instance.PlayCollisionSound && lastMessage.Speed - message.Speed >= Config.Instance.CollisionSpeedChangeThreshold && message.Speed != 0)
                     {
                         // collision happens. speed == 0 means reset or end stage
                         this.onCollisionDetected?.Invoke();

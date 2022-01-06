@@ -71,9 +71,7 @@ namespace ZTMZ.PacenoteTool
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // use new self-written update mechanism.
-            UpdateManager um = new UpdateManager();
-            um.CheckUpdate();
+            this.checkUpdate();
 
             // put initialization to window_loaded to accelerate window loading.
             this._profileManager = new();
@@ -92,6 +90,20 @@ namespace ZTMZ.PacenoteTool
             this.initializeAutoRecorder();
             this.applyUserConfig();
             this.initializeTheme();
+        }
+
+        private void checkUpdate()
+        {
+            // use new self-written update mechanism.
+            try
+            {
+                UpdateManager um = new UpdateManager();
+                um.CheckUpdate();
+            }
+            catch (Exception ex)
+            {
+                // something is wrong, just ignore?!
+            }
         }
 
         private void initHotKeys()
@@ -402,7 +414,7 @@ namespace ZTMZ.PacenoteTool
 
             foreach (var codriver in this._profileManager.GetAllCodrivers())
             {
-                if (!Config.Instance.UseDefaultSoundPackageByDefault && codriver == ProfileManager.DEFAULT_CODRIVER)
+                if (!Config.Instance.UseDefaultSoundPackageByDefault && codriver.EndsWith(ProfileManager.DEFAULT_CODRIVER))
                 {
                     continue;
                 }
@@ -702,7 +714,7 @@ namespace ZTMZ.PacenoteTool
 
         private void cb_profile_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            this._profileManager.CurrentProfile = this.cb_profile.SelectedItem.ToString().Split('/')[1];
+            this._profileManager.CurrentProfile = this.cb_profile.SelectedItem.ToString().Split('\\').Last();
             Config.Instance.UI_SelectedProfile = this.cb_profile.SelectedIndex;
             Config.Instance.SaveUserConfig();
         }
@@ -762,7 +774,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         private void cb_codrivers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this._profileManager.CurrentCoDriverSoundPackagePath = this.cb_codrivers.SelectedItem.ToString();
-            this._gameOverlayManager.AudioPackage = this._profileManager.CurrentCoDriverSoundPackagePath.Split('/', StringSplitOptions.RemoveEmptyEntries).Last();
+            this._gameOverlayManager.AudioPackage = this._profileManager.CurrentCoDriverSoundPackagePath.Split('\\', StringSplitOptions.RemoveEmptyEntries).Last();
             Config.Instance.UI_SelectedAudioPackage = this.cb_codrivers.SelectedIndex;
             Config.Instance.SaveUserConfig();
         }

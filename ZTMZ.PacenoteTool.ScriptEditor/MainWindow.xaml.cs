@@ -455,7 +455,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
                 //form.Add(new StringContent(username), "username");
                 form.Add(new StreamContent(file_bytes), "file", System.Web.HttpUtility.UrlEncode(string.Format("{0}-----{1}", parseRes.Author, Path.GetFileName(this._relatedFile))));
-                var request = new HttpRequestMessage(HttpMethod.Post, "http://strawhat.asia:8000/api/pacenotetool/uploadPacenote");
+                var request = new HttpRequestMessage(HttpMethod.Post, "http://1.116.3.39:8000/api/pacenotetool/uploadPacenote");
                 request.Content = form;
                 HttpResponseMessage response = httpClient.Send(request);
 
@@ -487,7 +487,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         private void btn_viewShares_Click(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
-                "ftp://anonymous@strawhat.asia"));
+                "ftp://anonymous@1.116.3.39"));
         }
 
         private void btn_Wordwrap_Click(object sender, RoutedEventArgs e)

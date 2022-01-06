@@ -17,7 +17,7 @@ namespace ZTMZ.PacenoteTool
     {
         public string version { set; get; }
         public string url { set; get; }
-        public bool urlRedirected { set; get; }
+        public bool urlRedirected { set; get; } = false;
         public string changelog { set; get; }
         public string minVersionSupported { set; get; }
     }
