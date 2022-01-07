@@ -908,5 +908,11 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 }
             }
         }
+
+        private void btn_BAILAN_Click(object sender, RoutedEventArgs e)
+        {
+            this._gameOverlayManager.IsBaiLan = true;
+            this._profileManager.PlaySystem("bailan");
+        }
     }
 }

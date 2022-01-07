@@ -10,6 +10,7 @@ using System.Windows;
 using GameOverlay.Windows;
 using GameOverlay.Drawing;
 using ZTMZ.PacenoteTool.Base;
+using System.IO;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -336,6 +337,15 @@ namespace ZTMZ.PacenoteTool
         public string ScriptAuthor { set; get; } = "";
         public string PacenoteType { set; get; } = "";
 
+        private List<Image> _bailanList;
+        public bool IsBaiLan { set; get; } = false;
+        private int _bailanIndex;
+        private int _bailanCount;
+
+        public GameOverlayManager()
+        {
+        }
+
         public void InitializeOverlay(System.Diagnostics.Process process)
         {
             var gfx = new Graphics()
@@ -353,6 +363,7 @@ namespace ZTMZ.PacenoteTool
             //_window.IsTopmost = true;
             _window.IsVisible = true;
 
+            
 
             _window.DestroyGraphics += _window_DestroyGraphics;
             _window.DrawGraphics += _window_DrawGraphics;
@@ -385,6 +396,12 @@ namespace ZTMZ.PacenoteTool
 
             _fonts["arial"] = gfx.CreateFont("Arial", 12);
             _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
+
+
+            var files = Directory.GetFiles("bailan2022", "*.png");
+            _bailanList = (from f in files orderby int.Parse(Path.GetFileNameWithoutExtension(f)) ascending select new Image(gfx, f)).ToList();
+            _bailanIndex = 0;
+            _bailanCount = _bailanList.Count;
         }
 
         private void _window_DestroyGraphics(object sender, DestroyGraphicsEventArgs e)
@@ -409,7 +426,22 @@ namespace ZTMZ.PacenoteTool
 
             gfx.ClearScene(_brushes["clear"]);
 
-            gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], gfx.Width - 400, 10, infoText);
+            if (IsBaiLan)
+            {
+                if (_bailanIndex < _bailanCount)
+                {
+                    gfx.DrawImage(_bailanList[_bailanIndex], 0, 0, gfx.Width, gfx.Height);
+                    _bailanIndex++;
+                } else
+                {
+                    IsBaiLan = false;
+                    _bailanIndex = 0;
+                }
+            } else
+            {
+                gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], gfx.Width - 400, 10, infoText);
+            }
+            
         }
 
         private SolidBrush GetRandomColor()

@@ -360,13 +360,16 @@
                     </TextBlock.Effect></TextBlock>
                 <CheckBox x:Name="chk_Hud" Grid.Row="6" Grid.Column="1" Click="chk_Hud_Click"
                                         VerticalAlignment="Center">
-                    <ProgressBar x:Name="pb_Hud"
-                                Style="{StaticResource MaterialDesignCircularProgressBar}"
-                                                    Width="18" Height="18"
-                            Visibility="Hidden"
-                                        VerticalAlignment="Center"
-                                Value="0"
-                                IsIndeterminate="True" />
+                    <StackPanel Orientation="Horizontal">
+                        <ProgressBar x:Name="pb_Hud"
+                                    Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                                        Width="18" Height="18"
+                                Visibility="Hidden"
+                                            VerticalAlignment="Center"
+                                    Value="0"
+                                    IsIndeterminate="True" />
+                        <Button Content="开始摆烂" x:Name="btn_BAILAN" Click="btn_BAILAN_Click"/>
+                    </StackPanel>
                 </CheckBox>
             </Grid>
         </materialDesign:Card>
