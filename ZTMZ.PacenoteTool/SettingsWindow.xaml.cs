@@ -210,6 +210,14 @@ namespace ZTMZ.PacenoteTool
         private void initMisc()
         {
             this.tb_UseSequentialMixerToHandleAudioConflict.IsChecked = Config.Instance.UseSequentialMixerToHandleAudioConflict;
+            this.tb_UseSequentialMixerToHandleAudioConflict.Click += (s, e) =>
+            {
+                if (this.tb_UseSequentialMixerToHandleAudioConflict.IsChecked.HasValue)
+                {
+                    Config.Instance.UseSequentialMixerToHandleAudioConflict = this.tb_UseSequentialMixerToHandleAudioConflict.IsChecked.Value;
+                    Config.Instance.SaveUserConfig();
+                }
+            };
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

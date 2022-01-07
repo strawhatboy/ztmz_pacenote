@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <item>
-    <version>2.5.0.0</version>
+    <version>2.5.1.0</version>
     <url>http://strawhat.asia:8000/api/pacenotetool/latest.zip</url>
-    <changelog>https://gitee.com/ztmz/ztmz_pacenote/raw/master/ZTMZ.PacenoteTool/更新记录.txt</changelog>
+    <changelog>https://gitee.com/ztmz/ztmz_pacenote/raw/master/v2.5EOFS.txt</changelog>
     <mandatory minVersion="2.4.4.0">true</mandatory>
 </item>

@@ -7,6 +7,12 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         ResizeMode="NoResize"
         mc:Ignorable="d" WindowStyle="None"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"        
+        Background="{DynamicResource MaterialDesignPaper}"
         Title="DownloadFileDialog" Height="150" Width="600">
     <DockPanel>
         <TextBlock x:Name="tb_title" DockPanel.Dock="Top" Style="{StaticResource MaterialDesignHeadline5TextBlock}" Margin="20 20 20 0" 
