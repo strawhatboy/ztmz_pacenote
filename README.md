@@ -8,23 +8,20 @@
 #### 简介
 ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，车队QQ群：207790761，路书录制交流群：697673264
 
-#### 白嫖指南 (可参见视频 [版本通用使用教程](https://www.bilibili.com/video/BV1oq4y1u7ua/))
-1. 安装[.net 5.0运行时](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-5.0.13-windows-x64-installer)
-~~或者是据说执行速度更快的[.net 6.0运行时](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.1-windows-x64-installer)~~ (.net6暂不支持)
-2. 通过[下载地址](https://gitee.com/ztmz/ztmz_pacenote/releases)下载最新版的名为 __"ZTMZ Club路书工具x.y.zip"__ 的压缩包并解压
-3. 执行其中的`ZTMZ.PacenoteTool.exe`或“双击运行.bat”
-4. 打开游戏
-5. 在游戏设置的语音选项(Audio)中关掉原版的路书声音(Speech选项拖到最左边)
-6. 进入计时赛选择目前支持的地图(参见[【腾讯文档】尘埃拉力赛2.0地图路书录制进程](https://docs.qq.com/sheet/DVVljT3dMWkpYSWdH))
-7. 开始体验
+#### 白嫖指南 (安装过程请保持网络处于连接状态)
+1. 通过[下载地址](https://gitee.com/ztmz/ztmz_pacenote/releases)下载最新版的名为 __"ZTMZClub_PacenoteTool_Installer_x.y.z.exe"__ 的安装文件双击安装
+2. 安装期间如果检测到系统中未安装`dotnet6`运行时，安装程序会自动下载并安装，可能会弹出UAC提示框，点击“是”即可
+3. 打开游戏
+4. 在游戏设置的语音选项(Audio)中关掉原版的路书声音(Speech选项拖到最左边)
+5. 进入计时赛选择目前支持的地图(参见[【腾讯文档】尘埃拉力赛2.0地图路书录制进程](https://docs.qq.com/sheet/DVVljT3dMWkpYSWdH))
+6. 开始体验
 
-#### 如何和simhub一起使用 (可参见视频 [版本通用使用教程](https://www.bilibili.com/video/BV1oq4y1u7ua/))
-1. （如果是第一次下载解压）先启动一次本工具，再关闭。
-2. 在本工具的文件夹里找到`userconfig.json`文件，把其中的`UDPListenPort`项的值从20777修改为20778，然后关闭本工具
-3. 打开`simhub`，选择DR2游戏并点击右侧的`游戏设置`
-4. 在`UDP Forwarding`(端口转发)那里前面的勾勾选上，并添加一条转发到`127.0.0.1`的`20778`端口的设置（如果已经存在，就只需要勾选上前面的勾即可）
-5. 保持simhub处于开启状态，启动本工具即可
-6. 本步骤对于想要同时使用其他的工具也适用，比如`Dirt Rally Telemetry`工具，它默认监听`10001`端口，只需在`simhub`里再添加一条转发到`127.0.0.1`的`10001`端口的记录就行
+#### 如何和simhub一起使用 
+1. 在本工具右上角的设置界面里把UDP端口修改为20778
+2. 打开`simhub`，选择DR2游戏并点击右侧的`游戏设置`
+3. 在`UDP Forwarding`(端口转发)那里前面的勾勾选上，并添加一条转发到`127.0.0.1`的`20778`端口的设置（如果已经存在，就只需要勾选上前面的勾即可）
+4. 保持simhub处于开启状态，启动本工具即可
+5. 本步骤对于想要同时使用其他的工具也适用，比如`Dirt Rally Telemetry`工具，它默认监听`10001`端口，只需在`simhub`里再添加一条转发到`127.0.0.1`的`10001`端口的记录就行
 
 
 #### 各种链接
@@ -40,7 +37,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
     - [1.x版本录制和播放使用教学（纯语音路书） by 草帽不是猫](https://www.bilibili.com/video/BV1Ev411n7v9)
     - [1.x版本录制和播放使用说明文档 by bigboxx](https://www.bilibili.com/read/cv12176546)
 
-#### 文件目录说明
+#### 文件目录说明 (位于`%userprofile%/Documents/My Games/ZTMZClub`)
 * codrivers 
 用来存放语音包，可以根据[【腾讯文档】路书对照表](https://docs.qq.com/sheet/DVVlVZFdCWldkdXBi)并对照其他语音包的格式，在该文件夹下新建文件夹来创建新的语音包
 * lang
@@ -82,8 +79,8 @@ Vosk语音识别模型
 
 #### 如何贡献代码
 1. Fork本项目并使用git下载源码
-2. 安装[.net 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/thank-you/sdk-5.0.303-windows-x64-installer)
-3. 使用visual studio 2019或JetBrains Rider通过根目录的ZTMZ.PacenoteTool.sln文件打开本项目
+2. 安装[.net 6.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.101-windows-x64-installer)
+3. 使用visual studio 2022或JetBrains Rider通过根目录的ZTMZ.PacenoteTool.sln文件打开本项目
 4. 做出修改调试运行无误后推送至gitee，再创建PR到本项目
 
 #### 脚本路书编写小技巧
@@ -121,6 +118,7 @@ Vosk语音识别模型
 2.3.2 | 已发布 | 丰富紫藤语音包的替代方案<br />修复过低的播放设备缓冲延迟导致的部分设备播放卡顿的问题
 ~~2.3.3~~ <br />2.4 | 已发布 | 收录全部路书<br />增加路书工具和脚本工具通信协作<br />对游戏内语音进行语音识别成文字<br />再自动生成脚本路书到脚本工具中
 ~~2.4~~ <br />2.5   | 已发布 | 使用`gameoverlay.net`库实现在游戏内右上角显示相关信息<br />1. 当前地图路书加载状态<br />2. 路书类型<br />3. 路书作者<br />4. 所使用的语音包(在脚本路书类型时)<br />船深的用户界面<br />可以自动保存的用户设置
+2.5.1 | 已发布 | 特别多，见[更新记录](https://gitee.com/ztmz/ztmz_pacenote/raw/master/ZTMZ.PacenoteTool/更新记录.txt)
 ~~2.5~~   | ~~2022-01-14之后~~ | ~~增加路书工具和脚本工具通信协作<br />对游戏内语音进行语音识别成文字<br />再自动生成脚本路书到脚本工具中~~
 2.6   | 2022-01-14之后 | 增加语音包制作工具
 
