@@ -2,8 +2,9 @@
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
+using ZTMZ.PacenoteTool.Base;
 
-namespace ZTMZ.PacenoteTool
+namespace ZTMZ.PacenoteTool.Base
 {
     public class ZTMZAudioPlaybackEngine : IDisposable
     {

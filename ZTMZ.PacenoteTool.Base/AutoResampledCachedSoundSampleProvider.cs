@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZTMZ.PacenoteTool
+namespace ZTMZ.PacenoteTool.Base
 {
     public class AutoResampledCachedSoundSampleProvider : ISampleProvider
     {
@@ -25,7 +25,7 @@ namespace ZTMZ.PacenoteTool
             {
                 buffer[offset + i] = cachedSound.AudioData[position + i];
             }
-            //Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
+            // Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
             position += samplesToCopy;
             return (int)samplesToCopy;
         }

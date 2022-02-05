@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZTMZ.PacenoteTool
+namespace ZTMZ.PacenoteTool.Base
 {
     public class SequentialSampleProvider : ISampleProvider
     {

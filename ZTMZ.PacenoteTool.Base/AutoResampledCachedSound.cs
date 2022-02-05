@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZTMZ.PacenoteTool
+namespace ZTMZ.PacenoteTool.Base
 {
     public class AutoResampledCachedSound
     {
@@ -53,6 +53,67 @@ namespace ZTMZ.PacenoteTool
         public bool IsEmpty { get => this.AudioData.Length == 0; }
 
         public WaveFormat WaveFormat { get; } = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
+        
+        private float? _mean;
+        public float Mean
+        {
+            get
+            {
+                if (!_mean.HasValue)
+                {
+                    _mean = (from p in this.AudioData select Math.Abs(p)).Average();
+                }
+                return _mean.Value;
+            }
+        }
+
+        private float? _max;
+        public float Max
+        {
+            get
+            {
+                if (!_max.HasValue)
+                {
+                    _max = (from p in this.AudioData select Math.Abs(p)).Max();
+                }
+                return _max.Value;
+            }
+        }
+
+        public void CutHeadAndTail(double cutRatio)
+        {
+            var max = this.Max;
+            List<float> newData = new List<float>(this._audioData);
+            // head
+            var headIndex = 0;
+            for (int i = 0; i < this._audioData.Length; i++)
+            {
+                if (Math.Abs(this._audioData[i]) >= max * cutRatio)
+                {
+                    headIndex = i;
+                    break;
+                }
+            }
+
+            var tailIndex = this._audioData.Length - 1;
+            for (int i = tailIndex; i >= 0; i--)
+            {
+                if (Math.Abs(this._audioData[i]) >= max * cutRatio)
+                {
+                    tailIndex = i;
+                    break;
+                }
+            }
+
+            if (headIndex < tailIndex)
+            {
+                newData = newData.GetRange(headIndex, tailIndex - headIndex + 1);
+                this._audioData = newData.ToArray();
+                return;
+            }
+
+            this._audioData = new float[] { };
+        }
 
         public AutoResampledCachedSound()
         {

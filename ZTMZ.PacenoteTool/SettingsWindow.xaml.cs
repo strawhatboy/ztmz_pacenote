@@ -183,6 +183,8 @@ namespace ZTMZ.PacenoteTool
                 {
                     Config.Instance.UseDefaultSoundPackageByDefault = !this.btn_UseDefaultSoundPackageByDefault.IsChecked.Value;
                     Config.Instance.SaveUserConfig();
+                    this.pi_defaultSoundPackage.Visibility = Visibility.Visible;
+                    this.tb_restartNeeded.Visibility = Visibility.Visible;
                 }
             };
 

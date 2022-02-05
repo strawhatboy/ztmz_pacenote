@@ -931,6 +931,8 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                     };
                     bgw.RunWorkerAsync();
                 };
+                
+                
                 //_settingsWindow.HudFPSChanged += () =>
                 //{
                 //    this._gameOverlayManager.StopLoop();

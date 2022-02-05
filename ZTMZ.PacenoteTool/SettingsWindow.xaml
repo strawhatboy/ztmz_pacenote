@@ -137,10 +137,12 @@
                         <materialDesign:Card Margin="10">
                             <Grid
                             TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
-                            Margin="24,8,24,16">
+                            Margin="24,8,0,16">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition  />
                                     <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="40"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="50" />
@@ -178,6 +180,12 @@
                                        ToolTip="{DynamicResource ResourceKey=settings.tooltip.useDefaultSoundPackageByDefault}">
                                 </TextBlock>
                                 <ToggleButton Grid.Row="4" Grid.Column="1" x:Name="btn_UseDefaultSoundPackageByDefault" />
+                                <materialDesign:PackIcon x:Name="pi_defaultSoundPackage"
+                                                         Kind="Warning" Foreground="OrangeRed" 
+                                                         Grid.Row="4" Grid.Column="2" 
+                                                         Height="30" Width="30" Margin="10 0 0 0" VerticalAlignment="Center"
+                                                         ToolTip="{DynamicResource ResourceKey=settings.restartNeeded}" Visibility="Hidden"/>
+
                                 
                                 <TextBlock Grid.Row="5" VerticalAlignment="Center"  Text="{DynamicResource ResourceKey=settings.useDefaultSoundPackageForFallback}" 
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.useDefaultSoundPackageForFallback}">
@@ -207,10 +215,12 @@
                         <materialDesign:Card Margin="10">
                             <Grid
                             TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
-                            Margin="24,8,24,16">
+                            Margin="24,8,0,16">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition  />
                                     <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="40"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="50" />
