@@ -83,6 +83,8 @@ namespace ZTMZ.PacenoteTool
                 {
                     this.pb_udpPort.Visibility = Visibility.Visible;
                     Config.Instance.UDPListenPort = (int)this.tb_UDPListenPort.Value.Value;
+                    // open the port mismatch dialog next time.
+                    Config.Instance.WarnIfPortMismatch = true;
                     Config.Instance.SaveUserConfig();
                     checkUDP();
                     this.PortChanged?.Invoke();

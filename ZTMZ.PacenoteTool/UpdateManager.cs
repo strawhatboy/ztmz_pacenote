@@ -26,7 +26,7 @@ namespace ZTMZ.PacenoteTool
         const string updateURL = "https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate.json";
 
 
-        public string CurrentVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        public static string CurrentVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public UpdateFile UpdateFile { private set; get; }
         public UpdateManager()

@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewFolder1", "NewFolder1", 
 		autoupdate.json = autoupdate.json
 		autoupdate.xml = autoupdate.xml
 		README.md = README.md
+		README.en.md = README.en.md
+		README.zh.md = README.zh.md
 	EndProjectSection
 EndProject
 Global

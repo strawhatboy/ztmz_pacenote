@@ -38,5 +38,17 @@ namespace ZTMZ.PacenoteTool.Dialog
             this.DialogResult = false;
             this.Close();
         }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (this.chkbox_show != null)
+            {
+                if (this.chkbox_show.IsChecked.HasValue && this.chkbox_show.IsChecked.Value)
+                {
+                    Config.Instance.WarnIfPortMismatch = false;
+                    Config.Instance.SaveUserConfig();
+                }
+            }
+        }
     }
 }

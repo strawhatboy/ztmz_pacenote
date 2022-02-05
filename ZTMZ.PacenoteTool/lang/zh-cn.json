@@ -1,7 +1,8 @@
 ﻿{
   "application": {
     "title": "ZTMZ Club 路书工具",
-    "title_dev": "ZTMZ Club 路书工具开发版"
+    "title_dev": "ZTMZ Club 路书工具开发版",
+    "title_test": "ZTMZ Club 路书工具测试版"
   },
   "settings": {
 
@@ -61,7 +62,7 @@
       "title": "端口不匹配",
       "btn_ok": "好的",
       "btn_FORCE": "帮我强行修复",
-
+      "ckbox_show": "下次不再显示该对话框",
       "content": "你的尘埃拉力赛2.0的位于 %userprofile%\\Documents\\My Games\\DiRT Rally 2.0\\hardwaresettings 的配置文件有问题, 其中的端口号 {0} 和本工具所监听的端口号 {1} 不一致，有可能导致本工具无法识别地图\n\n\t(1) 可能你正在使用可以支持端口转发的SIMHUB. 如果是的话而且你觉得一切尽在掌握中, 请点击下面的“好的”按钮忽略本条警告.\n\n\t(2) 或者说你现在被水淹没不知所措，完全搞不懂这个弹窗的意义，那说明你的尘埃拉力赛2.0的配置已经是其他某些工具的形状了，此时请务必点击下方的“帮我强行修复”按钮，我们会自动帮你把尘埃拉力赛2.0的配置修改为原始的形状。然后别忘了重新启动游戏。"
     },
     "resetConfig": {
@@ -166,6 +167,7 @@
       "tb_replayDevice": "在游戏进行时不可切换播放设备",
       "btn_currentTrack": "打开当前地图录制文件夹",
       "btn_currentScript": "打开当前地图的脚本",
+      "btn_currentCodriver": "打开当前语音包所在目录",
       "btn_playExample": "播放示例声音",
       "tb_playVolume": "调整播放音量，增大音量时可能会出现音频波形丢失而引起的失真情况",
       "tb_prePlay": "比如+1s表示路书会更晚播放1秒钟，-2s表示路书会更早的播放2秒钟",
@@ -178,5 +180,10 @@
       "tb_autoScriptRecordMode": "通过语音识别自动录制脚本",
       "tb_showHud": "是否在游戏中显示悬浮窗，需要游戏处于窗口模式或无边窗口模式"
     }
+  },
+  "misc": {
+    "gender_male": "男",
+    "gender_female": "女",
+    "gender_unknown": "未知"
   }
 }

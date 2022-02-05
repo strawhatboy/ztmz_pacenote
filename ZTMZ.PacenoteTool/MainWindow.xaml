@@ -7,7 +7,8 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        ResizeMode="NoResize"
+        MinHeight="800"
+        MinWidth="500"
         
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
@@ -147,15 +148,21 @@
         </materialDesign:Card>
 
         <materialDesign:Card Grid.Row="6" Margin="5 0 5 0" Padding="5 0 5 0">
-            <TabControl Grid.Row="5" Name="tab_playMode" SelectedIndex="1" 
-                    materialDesign:ColorZoneAssist.Mode="PrimaryMid"
-                    TabStripPlacement="Top"
-                    materialDesign:NavigationRailAssist.SelectionCornerRadius="50 10 10 10"
-                    materialDesign:NavigationRailAssist.ShowSelectionBackground="True"
-                        >
-                <TabItem Header="{DynamicResource ResourceKey=ui.tab_pureAudio}">
-
-                    <Grid>
+            <DockPanel>
+                <ListBox SelectedIndex="1" Name="tab_playMode" DockPanel.Dock="Top" 
+                         SelectionChanged="Tab_playMode_OnSelectionChanged"
+                         
+                         >
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel IsItemsHost="True" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBoxItem Content="{DynamicResource ResourceKey=ui.tab_pureAudio}"></ListBoxItem>
+                    <ListBoxItem Content="{DynamicResource ResourceKey=ui.tab_script}"></ListBoxItem>
+                </ListBox>
+                <Grid>
+                    <Grid x:Name="g_tab_pureAudio" Visibility="Collapsed">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="0" />
                             <RowDefinition Height="*" />
@@ -204,11 +211,9 @@
                               SelectionChanged="cb_recording_device_SelectionChanged" Grid.ColumnSpan="2" />
 
                     </Grid>
-                </TabItem>
-                <TabItem Header="{DynamicResource ResourceKey=ui.tab_script}">
-                    <Grid>
+                    <Grid x:Name="g_tab_script" Visibility="Visible">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
+                            <RowDefinition Height="40" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="*" />
@@ -217,16 +222,33 @@
 
                             <ColumnDefinition Width="200" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="30" />
+                            <ColumnDefinition Width="50" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Row="0" Grid.Column="0" FontSize="16" 
                                    Text="{DynamicResource ResourceKey=ui.tab_s_audioPackage}">
                             <TextBlock.Effect>
                                 <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
                             </TextBlock.Effect></TextBlock>
-                        <ComboBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Name="cb_codrivers"
-                              VerticalAlignment="Center"
-                              SelectionChanged="cb_codrivers_SelectionChanged" />
+                        <ComboBox Grid.Row="0" Grid.Column="1"  Name="cb_codrivers"
+                              VerticalAlignment="Center" DisplayMemberPath="DisplayText"
+                              SelectionChanged="cb_codrivers_SelectionChanged">
+                            
+                            <!-- <ComboBox.ItemContainerStyle> -->
+                            <!--     <Style TargetType="ComboBoxItem"> -->
+                            <!--         <Setter Property="ToolTip"> -->
+                            <!--             <Setter.Value> -->
+                            <!--                 <TextBlock Text="{Binding description}" /> -->
+                            <!--             </Setter.Value> -->
+                            <!--         </Setter> -->
+                            <!--     </Style> -->
+                            <!-- </ComboBox.ItemContainerStyle> -->
+                        </ComboBox>
+                        
+                        
+                        <Button Grid.Row="0" Grid.Column="2" Name="btn_currentCodriver" 
+                                ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentCodriver}"
+                                Click="Btn_currentCodriver_OnClick"  Margin="2"
+                                Content="{materialDesign:PackIcon FolderMusic}" />
 
                         <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tab_s_isDynamic}"
                                    Text="{DynamicResource ResourceKey=ui.tab_s_isDynamic}"/>
@@ -254,8 +276,22 @@
                             </TextBlock>
                         </Grid>
                     </Grid>
-                </TabItem>
-            </TabControl>
+                </Grid>
+            </DockPanel>
+            <!-- <TabControl Grid.Row="5" Name="tab_playMode" SelectedIndex="1"  -->
+            <!--             materialDesign:ColorZoneAssist.Mode="PrimaryMid" -->
+            <!--             TabStripPlacement="Top" -->
+            <!--             materialDesign:NavigationRailAssist.SelectionCornerRadius="50 10 10 10" -->
+            <!--             materialDesign:NavigationRailAssist.ShowSelectionBackground="True" -->
+            <!-- > -->
+            <!--     <TabItem Header="{DynamicResource ResourceKey=ui.tab_pureAudio}"> -->
+            <!-- -->
+            <!--          -->
+            <!--     </TabItem> -->
+            <!--     <TabItem Header="{DynamicResource ResourceKey=ui.tab_script}"> -->
+            <!--          -->
+            <!--     </TabItem> -->
+            <!-- </TabControl> -->
 
         </materialDesign:Card>
         <!-- <Border Grid.Row="6" Margin="1" Background="#8888" /> -->
@@ -287,7 +323,7 @@
                 <TextBlock Grid.Row="0" Grid.Column="1" Name="tb_currentTrack">N/A</TextBlock>
                 <Button Grid.Row="0" Grid.Column="2" Name="tb_currentTrack_view" 
                         ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentTrack}"
-                    Content="{materialDesign:PackIcon Folder}"  Margin="2"
+                    Content="{materialDesign:PackIcon FolderFile}"  Margin="2"
                     Click="tb_currentTrack_view_Click">
                 </Button>
                 <Button Grid.Row="0" Grid.Column="3" Name="btn_currentTrack_script" 
@@ -332,7 +368,7 @@
                            Text="{DynamicResource ResourceKey=ui.tb_replayMode}"/>
                 <ComboBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_replay_mode"
                       VerticalAlignment="Center"
-                      SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="2">
+                      SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="1">
                     <ComboBoxItem ToolTip="{DynamicResource ResourceKey=ui.tooltip.cb_pureAudioMode}"
                                   Content="{DynamicResource ResourceKey=ui.cb_pureAudioMode}"/>
                     <ComboBoxItem ToolTip="{DynamicResource ResourceKey=ui.tooltip.cb_scriptMode}"

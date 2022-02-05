@@ -19,6 +19,7 @@ using OnlyR.Core.Models;
 using OnlyR.Core.Recorder;
 using ZTMZ.PacenoteTool.Base;
 using System.Globalization;
+using System.IO;
 using MaterialDesignThemes.Wpf;
 using System.Threading;
 using ZTMZ.PacenoteTool.Dialog;
@@ -44,7 +45,7 @@ namespace ZTMZ.PacenoteTool
         private bool _isRecordingInProgress = false;
         private bool _isPureAudioRecording = true;
         private ScriptEditor.MainWindow _scriptWindow;
-        private string _version = "v2.5.1";
+        private string _version = UpdateManager.CurrentVersion;
 
         private SettingsWindow _settingsWindow;
 
@@ -103,6 +104,20 @@ namespace ZTMZ.PacenoteTool
             catch (Exception ex)
             {
                 // something is wrong, just ignore?!
+            }
+        }
+
+        private void checkFirstRun()
+        {
+            var versionFile = AppLevelVariables.Instance.GetPath(_version);
+            if (!File.Exists(versionFile))
+            {
+                File.WriteAllText(versionFile, "");
+
+                if (_version.Equals("2.5.2.0"))
+                {
+                    // first run of 2.5.2
+                }
             }
         }
 
@@ -418,7 +433,16 @@ namespace ZTMZ.PacenoteTool
                 {
                     continue;
                 }
-                this.cb_codrivers.Items.Add(codriver);
+
+                var pkg = this._profileManager.CoDriverPackages[codriver];
+                if (pkg.Info != null)
+                {
+                    this.cb_codrivers.Items.Add(pkg.Info);
+                }
+                else
+                {
+                    this.cb_codrivers.Items.Add(codriver);
+                }
             }
             if (this.cb_codrivers.Items.Count == 1)
             {
@@ -475,18 +499,23 @@ namespace ZTMZ.PacenoteTool
 
                     break;
                 case PrerequisitesCheckResultCode.PORT_NOT_MATCH:
-                    var pmDialog = new PortMismatchDialog(checkResult.Params[0].ToString(), checkResult.Params[1].ToString());
-                    var resPM = pmDialog.ShowDialog();
-                    if (resPM.HasValue && !resPM.Value)
+                    if (Config.Instance.WarnIfPortMismatch)
                     {
-                        // force fix
-                        preCheck.Write();
-                        Config.Instance.UDPListenPort = 20777;
-                        Config.Instance.SaveUserConfig();
+                        var pmDialog = new PortMismatchDialog(checkResult.Params[0].ToString(),
+                            checkResult.Params[1].ToString());
+                        var resPM = pmDialog.ShowDialog();
+                        if (resPM.HasValue && !resPM.Value)
+                        {
+                            // force fix
+                            preCheck.Write();
+                            Config.Instance.UDPListenPort = 20777;
+                            Config.Instance.SaveUserConfig();
+                        }
+                        //MessageBox.Show(String.Format("你的Dirt Rally 2.0 的配置文件中的UDP端口 {0} 和本工具中的UDP端口 {1} 配置不同，可能会导致地图读取失败（也可能是使用了simhub转发）",
+                        //    checkResult.Params[0], checkResult.Params[1]),
+                        //    "配置警告", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
-                    //MessageBox.Show(String.Format("你的Dirt Rally 2.0 的配置文件中的UDP端口 {0} 和本工具中的UDP端口 {1} 配置不同，可能会导致地图读取失败（也可能是使用了simhub转发）",
-                    //    checkResult.Params[0], checkResult.Params[1]),
-                    //    "配置警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+
                     break;
             }
         }
@@ -494,10 +523,10 @@ namespace ZTMZ.PacenoteTool
         private void checkIfDevVersion()
         {
             if (System.IO.Directory.Exists(Config.Instance.PythonPath) &&
-                System.IO.Directory.Exists(Config.Instance.SpeechRecogizerModelPath))
+                     System.IO.Directory.Exists(Config.Instance.SpeechRecogizerModelPath))
             {
                 // dev mode
-                this.Title = string.Format("{0}{1}",
+                this.Title = string.Format("{0} {1}",
                     I18NLoader.Instance.CurrentDict["application.title_dev"].ToString(),
                     _version);
                 this.cb_record_mode.SelectedIndex = 1;  // auto script mode
@@ -518,13 +547,23 @@ namespace ZTMZ.PacenoteTool
                     GameHacker.HackDLLs(Config.Instance.DirtGamePath);
                 }
             }
-            else
+            else 
             {
-                this.Title = string.Format("{0}{1}",
+                this.Title = string.Format("{0} {1}",
                     I18NLoader.Instance.CurrentDict["application.title"].ToString(),
                     _version);
                 // disable auto script mode
                 this.cb_record_mode.Items.RemoveAt(this.cb_record_mode.Items.Count - 1);
+            }
+            
+            // For test only
+            if (!UpdateManager.CurrentVersion.EndsWith("0"))
+            {
+                this.Title = string.Format("{0} {1}",
+                    I18NLoader.Instance.CurrentDict["application.title_test"].ToString(),
+                    _version);
+                    // disable auto script mode
+                    this.cb_record_mode.Items.RemoveAt(this.cb_record_mode.Items.Count - 1);
             }
         }
 
@@ -764,6 +803,14 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 _scriptWindow.Show();
                 _scriptWindow.HandleFileOpen(System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath));
             }
+            else
+            {
+                ScriptEditor.App.InitHighlightComponent();
+                _scriptWindow = new ScriptEditor.MainWindow();
+                _scriptWindow.Show();
+                // _scriptWindow.HandleFileOpen(System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath));
+
+            }
         }
 
         private void cb_replay_mode_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -773,8 +820,9 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void cb_codrivers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            this._profileManager.CurrentCoDriverSoundPackagePath = this.cb_codrivers.SelectedItem.ToString();
-            this._gameOverlayManager.AudioPackage = this._profileManager.CurrentCoDriverSoundPackagePath.Split('\\', StringSplitOptions.RemoveEmptyEntries).Last();
+            this._profileManager.CurrentCoDriverSoundPackagePath =
+                ((CoDriverPackageInfo)this.cb_codrivers.SelectedItem).Path;
+            this._gameOverlayManager.AudioPackage = this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText;
             Config.Instance.UI_SelectedAudioPackage = this.cb_codrivers.SelectedIndex;
             Config.Instance.SaveUserConfig();
         }
@@ -906,6 +954,31 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 {
                     win.Close();
                 }
+            }
+        }
+
+        private void Tab_playMode_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.tab_playMode != null && this.g_tab_script != null && this.g_tab_pureAudio != null)
+            {
+                if (this.tab_playMode.SelectedIndex == 0)
+                {
+                    this.g_tab_pureAudio.Visibility = Visibility.Visible;
+                    this.g_tab_script.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    this.g_tab_pureAudio.Visibility = Visibility.Collapsed;
+                    this.g_tab_script.Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+        private void Btn_currentCodriver_OnClick(object sender, RoutedEventArgs e)
+        {if (this._profileManager.CurrentCoDriverSoundPackagePath != null)
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
+                    System.IO.Path.GetFullPath(this._profileManager.CurrentCoDriverSoundPackagePath)));
             }
         }
     }

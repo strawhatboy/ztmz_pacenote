@@ -1,7 +1,8 @@
 ﻿{
   "application": {
     "title": "ZTMZ Club Pacenote Tool",
-    "title_dev": "ZTMZ Club Pacenote Tool (Dev)"
+    "title_dev": "ZTMZ Club Pacenote Tool (Dev)",
+    "title_test": "ZTMZ Club Pacenote Tool (For Testing)"
   },
   "settings": {
 
@@ -59,7 +60,7 @@
       "title": "Port Mismatch",
       "btn_ok": "OK",
       "btn_FORCE": "FORCE REPARATION",
-
+      "ckbox_show": "Do not show this dialog next time",
       "content": "Your Dirt Rally 2.0 settings located in %userprofile%\\Documents\\My Games\\DiRT Rally 2.0\\hardwaresettings is not correct, the port definition {0} is mismatched with the settings {1} in our tool, which would lead to unsuccessful track recognition. \n\n\t(1) Maybe you're using SIMHUB, which allows udp port forwarding. If so, please select 'OK' below to keep the settings untouched.\n\n\t(2) Or you dont know what is going on and you're confused with this dialog, then just click 'FORCE REPARATION', we'll handle it automatically. Then don't forget to restart the game."
     },
     "resetConfig": {
@@ -164,6 +165,7 @@
       "tb_replayDevice": "Do not switch the playback device while the game is in progress",
       "btn_currentTrack": "Open the current track folder",
       "btn_currentScript": "Open the script of the current track",
+      "btn_currentCodriver": "Open the folder of the current codriver package",
       "btn_playExample": "Play sample sound",
       "tb_playVolume": "Adjust the playback volume. When the volume is increased, distortion caused by loss of audio waveform may occur",
       "tb_prePlay": "For example, +1s means Lushu will play 1 second later, -2s means Lushu will play 2 seconds earlier",
@@ -176,5 +178,10 @@
       "tb_autoScriptRecordMode": "Automatically record scripts through voice recognition",
       "tb_showHud": "Whether to display the floating window in the game, the game needs to be in window mode or borderless window mode"
     }
+  },
+  "misc": {
+    "gender_male": "Male",
+    "gender_female": "Female",
+    "gender_unknown": "Unknown"
   }
 }

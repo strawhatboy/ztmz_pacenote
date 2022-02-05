@@ -209,7 +209,7 @@ namespace ZTMZ.PacenoteTool
                         sum -= minWheelSpd;
                         var mean = sum / 3f;
 
-                        if (minWheelSpd < mean / (1 + Config.Instance.WheelAbnormalPercentageReportThreshold))
+                        if (mean > 50 && minWheelSpd < mean / (1 + Config.Instance.WheelAbnormalPercentageReportThreshold))
                         {
                             // need to report
                             WheelAbnormalDetectedCounter[minWheelSpdIndex]++;

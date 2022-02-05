@@ -25,11 +25,43 @@ namespace ZTMZ.PacenoteTool
         public AutoResampledCachedSound Sound { set; get; } = null;
     }
 
+    public class CoDriverPackageInfo
+    {
+        public string name { set; get; }
+        public string description { set; get; }
+        public string gender { set; get; }
+        public string language { set; get; }
+        public string homepage { set; get; }
+        public string version { set; get; }
+
+        [JsonIgnore] public string Path { set; get; }
+        [JsonIgnore] public string DisplayText => 
+            string.Format("[{0}][{1}] {2}", language, getGenderStr(gender), name);
+
+        private string getGenderStr(string gender)
+        {
+            switch (gender)
+            {
+                case "M":
+                {
+                    return I18NLoader.Instance.CurrentDict["misc.gender_male"].ToString();
+                }
+                case "F":
+                {
+                    return I18NLoader.Instance.CurrentDict["misc.gender_female"].ToString();
+                }
+            }
+
+            return I18NLoader.Instance.CurrentDict["misc.gender_unknown"].ToString();
+        }
+    }
+
     public class CoDriverPackage
     {
-        public Dictionary<string, List<string>> tokensPath { set; get; } = new Dictionary<string, List<string>>();
+        public CoDriverPackageInfo Info { set; get; }
+        public Dictionary<string, List<string>> tokensPath { private set; get; } = new();
 
-        public Dictionary<string, List<AutoResampledCachedSound>> tokens { set; get; } = new Dictionary<string, List<AutoResampledCachedSound>>();
+        public Dictionary<string, List<AutoResampledCachedSound>> tokens { private set; get; } = new();
     }
 
     public class ProfileManager
@@ -37,6 +69,7 @@ namespace ZTMZ.PacenoteTool
         public static string DEFAULT_PROFILE = "default";
         public static string DEFAULT_CODRIVER = "codrivers\\default";
         public static string CODRIVER_FILENAME = "codriver.txt";
+        public static string CODRIVER_PACKAGE_INFO_FILENAME = "info.json";
 
         // system sound
         public const string SYSTEM_START_STAGE = "system_start_stage";
@@ -61,6 +94,19 @@ namespace ZTMZ.PacenoteTool
         public ScriptReader CurrentScriptReader { get; private set; }
 
         public string CurrentCoDriverSoundPackagePath { set; get; }
+
+        public CoDriverPackageInfo CurrentCoDriverSoundPackageInfo
+        {
+            get
+            {
+                if (this.CoDriverPackages.ContainsKey(this.CurrentCoDriverSoundPackagePath))
+                {
+                    return this.CoDriverPackages[this.CurrentCoDriverSoundPackagePath].Info;
+                }
+
+                return null;
+            }
+        }
 
         public int CurrentPlayIndex { set; get; } = 0;
 
@@ -151,6 +197,23 @@ namespace ZTMZ.PacenoteTool
             foreach (var codriverPath in this.GetAllCodrivers())
             {
                 this.CoDriverPackages[codriverPath] = new CoDriverPackage();
+                
+                // try load info
+                var infoFilePath = Path.Join(codriverPath, CODRIVER_PACKAGE_INFO_FILENAME);
+                if (File.Exists(infoFilePath))
+                {
+                    try
+                    {
+                        this.CoDriverPackages[codriverPath].Info = 
+                            JsonConvert.DeserializeObject<CoDriverPackageInfo>(File.ReadAllText(infoFilePath));
+                        this.CoDriverPackages[codriverPath].Info.Path = codriverPath;
+                    }
+                    catch
+                    {
+                        // boom
+                    }
+                }
+                
                 List<string> filePaths = new List<string>();
                 // try file directly
 
