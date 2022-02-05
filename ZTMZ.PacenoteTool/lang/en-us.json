@@ -136,6 +136,7 @@
     "db_tools": "Related Tools",
     "btn_scriptTool": "Script Editor",
     "btn_audioTool": "Batch Audio Processor",
+    "btn_audioPkgMgr": "Audio Package Manager",
 
     "tb_about": "About this tool",
     "tb_pacenotes": "Pacenotes",

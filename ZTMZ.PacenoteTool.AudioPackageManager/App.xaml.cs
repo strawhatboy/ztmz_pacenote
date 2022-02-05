@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.AudioPackageManager
 {
@@ -13,5 +14,15 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
     /// </summary>
     public partial class App : Application
     {
+        private void App_OnStartup(object sender, StartupEventArgs e)
+        {
+            initializeI18N();
+        }
+
+        private void initializeI18N()
+        {
+            I18NLoader.Instance.Initialize(AppLevelVariables.Instance.GetPath("lang"));
+            I18NLoader.Instance.SetCulture(Config.Instance.Language);
+        }
     }
 }

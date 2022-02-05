@@ -1,4 +1,4 @@
-namespace ZTMZ.PacenoteTool.ScriptEditor
+namespace ZTMZ.PacenoteTool.Base
 {
     public class CrewChiefPacenoteRecord
     {

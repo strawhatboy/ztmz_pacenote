@@ -4,10 +4,10 @@
         <OutputType>WinExe</OutputType>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>QQ图片20210714233523.ico</ApplicationIcon>
-        <AssemblyVersion>2.5.1.1</AssemblyVersion>
+        <AssemblyVersion>2.5.1.2</AssemblyVersion>
         <PackageVersion>2.1.0</PackageVersion>
         <Version>2.5.1</Version>
-        <FileVersion>2.5.1.1</FileVersion>
+        <FileVersion>2.5.1.2</FileVersion>
 	    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	    <SignAssembly>False</SignAssembly>
 	    <TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
@@ -26,6 +26,7 @@
     <ItemGroup>
       <ProjectReference Include="..\OnlyR.Core\OnlyR.Core.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.AudioCompressor\ZTMZ.PacenoteTool.AudioCompressor.csproj" />
+      <ProjectReference Include="..\ZTMZ.PacenoteTool.AudioPackageManager\ZTMZ.PacenoteTool.AudioPackageManager.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.ScriptEditor\ZTMZ.PacenoteTool.ScriptEditor.csproj" />
     </ItemGroup>

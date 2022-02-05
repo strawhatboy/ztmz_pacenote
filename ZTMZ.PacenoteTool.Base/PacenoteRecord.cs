@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace ZTMZ.PacenoteTool.ScriptEditor
+namespace ZTMZ.PacenoteTool.Base
 {
     public class Pacenote
     {

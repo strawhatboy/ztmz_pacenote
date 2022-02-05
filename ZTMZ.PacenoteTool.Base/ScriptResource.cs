@@ -9,7 +9,7 @@ using System.Windows.Media.Imaging;
 using CsvHelper;
 using ZTMZ.PacenoteTool.Base;
 
-namespace ZTMZ.PacenoteTool.ScriptEditor
+namespace ZTMZ.PacenoteTool.Base
 {
     public class ScriptResource
     {
@@ -35,11 +35,10 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         public static Dictionary<string, string> FALLBACK { private set; get; } = loadFallback(AppLevelVariables.Instance.GetPath("./fallback.csv"));
         public static Dictionary<string, string> FLAGS { private set; get; } = loadCsv(AppLevelVariables.Instance.GetPath("./flags.csv"));
 
-        private static BitmapImage _imgFlag = new BitmapImage(new Uri("pack://application:,,,/flag.png"));
-        private static BitmapImage _imgAlias = new BitmapImage(new Uri("pack://application:,,,/alias.png"));
-        private static BitmapImage _imgModifier = new BitmapImage(new Uri("pack://application:,,,/modifier.png"));
-        private static BitmapImage _imgPacenote = new BitmapImage(new Uri("pack://application:,,,/pacenote.png"));
-
+        private static BitmapImage _imgFlag;
+        private static BitmapImage _imgAlias;
+        private static BitmapImage _imgModifier;
+        private static BitmapImage _imgPacenote;
 
         // public static System.Windows.Media.ImageSource IMG_FLAG = new BitmapImage(new Uri("./flag.png", UriKind.Relative));
         // public static System.Windows.Media.ImageSource IMG_PACENOTE = new BitmapImage(new Uri("./pacenote.png", UriKind.Relative));
@@ -74,6 +73,19 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                         ALIAS_SPEECH_DICT[len - 1][speech] = alias.Key;
                     }
                 }
+            }
+            
+            // images
+            try
+            {
+                _imgFlag = new BitmapImage(new Uri("pack://application:,,,/flag.png"));
+                _imgAlias = new BitmapImage(new Uri("pack://application:,,,/alias.png"));
+                _imgModifier = new BitmapImage(new Uri("pack://application:,,,/modifier.png"));
+                _imgPacenote = new BitmapImage(new Uri("pack://application:,,,/pacenote.png"));
+            }
+            catch
+            {
+                
             }
         }
 

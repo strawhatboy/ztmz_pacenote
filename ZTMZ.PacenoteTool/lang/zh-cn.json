@@ -138,6 +138,7 @@
     "db_tools": "相关工具",
     "btn_scriptTool": "路书脚本编辑工具",
     "btn_audioTool": "音频批量操作工具",
+    "btn_audioPkgMgr": "语音包管理工具",
 
     "tb_about": "关于本工具",
     "tb_pacenotes": "点我查看路书录制进度",

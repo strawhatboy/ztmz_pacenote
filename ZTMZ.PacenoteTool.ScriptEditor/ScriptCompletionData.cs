@@ -4,6 +4,7 @@ using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
+using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.ScriptEditor
 {

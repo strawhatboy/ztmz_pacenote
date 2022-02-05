@@ -983,5 +983,10 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                     System.IO.Path.GetFullPath(this._profileManager.CurrentCoDriverSoundPackagePath)));
             }
         }
+
+        private void Btn_startAudioPkgMgr_OnClick(object sender, RoutedEventArgs e)
+        {System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.AudioPackageManager.exe"));
+
+        }
     }
 }

@@ -5,8 +5,95 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.AudioPackageManager"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+        Title="语音包管理工具" Height="900" Width="800" >
+    <DockPanel Margin="20">
+        <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}" DockPanel.Dock="Top">语音包：</TextBlock>
+        <ListView Grid.Row="1" x:Name="lv_AudioPackages" Height="200" 
+                  DockPanel.Dock="Top" SelectionMode="Single" 
+                  SelectionChanged="Lv_AudioPackages_OnSelectionChanged">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn
+                        DisplayMemberBinding="{Binding name}"
+                        Header="名称" />
+                    <GridViewColumn
+                        DisplayMemberBinding="{Binding GenderStr}"
+                        Header="男/女" />
+                    <GridViewColumn
+                        DisplayMemberBinding="{Binding language}"
+                        Header="语言" />
+                    <GridViewColumn
+                        DisplayMemberBinding="{Binding version}"
+                        Header="版本" />
+                    <GridViewColumn
+                        Header="主页">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <Hyperlink NavigateUri="{Binding homepage}" RequestNavigate="Hyperlink_OnRequestNavigate">
+                                        <TextBlock Text="{Binding homepage}" />
+                                    </Hyperlink>
+                                </TextBlock>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn
+                        DisplayMemberBinding="{Binding description}"
+                        Header="描述" />
+                </GridView>
+            </ListView.View>
+            <!-- <ListView.ItemContainerStyle> -->
+            <!--     <Style TargetType="{x:Type ListViewItem}"> -->
+            <!--         <Setter Property="ToolTip"> -->
+            <!--             <Setter.Value> -->
+            <!--                 <TextBlock Text="{Binding description}"></TextBlock> -->
+            <!--             </Setter.Value> -->
+            <!--         </Setter> -->
+            <!--     </Style> -->
+            <!-- </ListView.ItemContainerStyle> -->
+        </ListView>
+        <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="0 10 0 0" DockPanel.Dock="Top">语音包内语音片段：</TextBlock>
+        <DataGrid Grid.Row="2" x:Name="lv_Content" IsReadOnly="True"
+                  ItemsSource="{Binding DataContent}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False">
+            <DataGrid.Columns>
+            <DataGridTextColumn
+                Binding="{Binding Token}"
+                Header="标记" />
+            <DataGridTextColumn
+                Binding="{Binding TokenDescription}"
+                Header="标记描述" />
+            <DataGridTextColumn
+                Binding="{Binding IsAvailable}"
+                Header="是否可用" />
+            <DataGridTextColumn
+                Binding="{Binding FilesCount}"
+                Header="文件个数" />
+            <DataGridTemplateColumn
+                Header="试听">
+                <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                        <ListBox ItemsSource="{Binding Files}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <Hyperlink x:Name="hl_listen" NavigateUri="{Binding Uri}" RequestNavigate="hl_listen_OnRequestNavigate">
+                                            <TextBlock Text="{Binding Index}" />
+                                        </Hyperlink>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel IsItemsHost="True" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                    </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
 </Window>
