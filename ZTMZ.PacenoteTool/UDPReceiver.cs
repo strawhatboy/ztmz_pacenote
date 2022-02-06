@@ -58,7 +58,7 @@ namespace ZTMZ.PacenoteTool
         private IPEndPoint any;
         public event NewUDPMessageDelegate onNewMessage;
         public event GameStateChangedDelegate onGameStateChanged;
-        public event Action onCollisionDetected;
+        public event Action<int> onCollisionDetected;
         public event Action<int> onWheelAbnormalDetected;
         public bool[] WheelAbnormalDetectedReported = new bool[] { false, false, false, false };
         public int[] WheelAbnormalDetectedCounter = new int[] { 0, 0, 0, 0 };
@@ -184,10 +184,16 @@ namespace ZTMZ.PacenoteTool
                 {
                     var lastMessage = this.LastMessage;
                     this.LastMessage = message;
-                    if (Config.Instance.PlayCollisionSound && lastMessage.Speed - message.Speed >= Config.Instance.CollisionSpeedChangeThreshold && message.Speed != 0)
+                    var spdDiff = lastMessage.Speed - message.Speed;
+                    if (Config.Instance.PlayCollisionSound && message.Speed != 0)
                     {
                         // collision happens. speed == 0 means reset or end stage
-                        this.onCollisionDetected?.Invoke();
+                        if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Severe)
+                            this.onCollisionDetected?.Invoke(2);
+                        if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Medium)
+                            this.onCollisionDetected?.Invoke(1);
+                        if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Slight)
+                            this.onCollisionDetected?.Invoke(0);
                     }
 
                     if (Config.Instance.PlayWheelAbnormalSound)

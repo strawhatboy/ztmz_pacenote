@@ -25,13 +25,21 @@ namespace ZTMZ.PacenoteTool
         // system sound
         public const string SYSTEM_START_STAGE = "system_start_stage";
         public const string SYSTEM_END_STAGE = "system_end_stage";
-        public const string SYSTEM_COLLISION = "system_collision";
         public const string SYSTEM_GO = "system_go";
         public const string SYSTEM_PUNCTURE_FRONT_LEFT = "system_puncture_front_left";
         public const string SYSTEM_PUNCTURE_FRONT_RIGHT = "system_puncture_front_right";
         public const string SYSTEM_PUNCTURE_REAR_LEFT = "system_puncture_rear_left";
         public const string SYSTEM_PUNCTURE_REAR_RIGHT = "system_puncture_rear_right";
 
+        public const string SYSTEM_COLLISION_SLIGHT = "system_collision_slight";
+        public const string SYSTEM_COLLISION_MEDIUM = "system_collision_medium";
+        public const string SYSTEM_COLLISION_SEVERE = "system_collision_severe";
+
+
+        public static List<string> SYSTEM_COLLISION = new List<string>()
+        {
+            SYSTEM_COLLISION_SLIGHT, SYSTEM_COLLISION_MEDIUM, SYSTEM_COLLISION_SEVERE
+        };
         public static List<string> SYSTEM_PUNCTURE = new List<string>{ 
             SYSTEM_PUNCTURE_FRONT_LEFT, SYSTEM_PUNCTURE_FRONT_RIGHT,
             SYSTEM_PUNCTURE_REAR_LEFT, SYSTEM_PUNCTURE_REAR_RIGHT

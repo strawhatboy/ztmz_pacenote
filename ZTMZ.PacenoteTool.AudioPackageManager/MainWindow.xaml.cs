@@ -88,16 +88,16 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
 
                 foreach (var f in filePaths)
                 {
-                    if (Config.Instance.PreloadSounds)
-                    {
-                        this.CoDriverPackages[codriverPath].tokens[Path.GetFileNameWithoutExtension(f)] =
-                            new List<AutoResampledCachedSound>() { new AutoResampledCachedSound(f) };
-                    }
-                    else
-                    {
+                    // if (Config.Instance.PreloadSounds)
+                    // {
+                    //     this.CoDriverPackages[codriverPath].tokens[Path.GetFileNameWithoutExtension(f)] =
+                    //         new List<AutoResampledCachedSound>() { new AutoResampledCachedSound(f) };
+                    // }
+                    // else
+                    // {
                         this.CoDriverPackages[codriverPath].tokensPath[Path.GetFileNameWithoutExtension(f)] =
                             new List<string>() { f };
-                    }
+                    // }
                 }
 
                 // not found, try folders
@@ -108,14 +108,14 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
                     //var soundFilePath = string.Format("{0}/{1}", codriverPath, keyword);
                     if (Directory.Exists(soundFilePath))
                     {
-                        if (Config.Instance.PreloadSounds)
-                        {
-                            this.CoDriverPackages[codriverPath].tokens[Path.GetFileName(soundFilePath)] = new List<AutoResampledCachedSound>();
-                        }
-                        else
-                        {
+                        // if (Config.Instance.PreloadSounds)
+                        // {
+                        //     this.CoDriverPackages[codriverPath].tokens[Path.GetFileName(soundFilePath)] = new List<AutoResampledCachedSound>();
+                        // }
+                        // else
+                        // {
                             this.CoDriverPackages[codriverPath].tokensPath[Path.GetFileName(soundFilePath)] = new List<string>();
-                        }
+                        // }
                         // load all files
                         foreach (var supportedFilter in this.SupportedAudioTypes)
                         {
@@ -124,14 +124,14 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
 
                         foreach (var filePath in filePaths)
                         {
-                            if (Config.Instance.PreloadSounds)
-                            {
-                                this.CoDriverPackages[codriverPath].tokens[Path.GetFileName(soundFilePath)].Add(new AutoResampledCachedSound(filePath));
-                            }
-                            else
-                            {
+                            // if (Config.Instance.PreloadSounds)
+                            // {
+                            //     this.CoDriverPackages[codriverPath].tokens[Path.GetFileName(soundFilePath)].Add(new AutoResampledCachedSound(filePath));
+                            // }
+                            // else
+                            // {
                                 this.CoDriverPackages[codriverPath].tokensPath[Path.GetFileName(soundFilePath)].Add(filePath);
-                            }
+                            // }
                         }
                     }
                 }

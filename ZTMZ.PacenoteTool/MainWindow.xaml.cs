@@ -177,12 +177,12 @@ namespace ZTMZ.PacenoteTool
         private void initializeUDPReceiver()
         {
             this._udpReceiver = new UDPReceiver();
-            this._udpReceiver.onCollisionDetected += () =>
+            this._udpReceiver.onCollisionDetected += (lvl) =>
             {
                 var worker = new BackgroundWorker();
                 worker.DoWork += (sender, e) =>
                 {
-                    this._profileManager.PlaySystem(ProfileManager.SYSTEM_COLLISION);
+                    this._profileManager.PlaySystem(ProfileManager.SYSTEM_COLLISION[lvl]);
                 };
                 worker.RunWorkerAsync();
             };

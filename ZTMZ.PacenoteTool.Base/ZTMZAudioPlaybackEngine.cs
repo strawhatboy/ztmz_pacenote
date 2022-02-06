@@ -15,7 +15,8 @@ namespace ZTMZ.PacenoteTool.Base
         private readonly bool _isSequential;
 
 
-        public ZTMZAudioPlaybackEngine(int deviceID = -1, bool isSequential = true, int desiredLatency = 50, int sampleRate = 44100, int channelCount = 2)
+        public ZTMZAudioPlaybackEngine(int deviceID = -1, bool isSequential = true, int desiredLatency = 50,
+            int sampleRate = 44100, int channelCount = 2)
         {
             outputDeviceMixer = new WaveOutEvent();
             outputDeviceSequential = new WaveOutEvent();
@@ -38,8 +39,9 @@ namespace ZTMZ.PacenoteTool.Base
 
         public void PlaySound(string fileName, bool isSequential = true)
         {
-            var input = new AudioFileReader(fileName);
-            AddMixerInput(new AutoDisposeFileReader(input), isSequential);
+            // var input = new AudioFileReader(fileName);
+            // AddMixerInput(new AutoDisposeFileReader(input), isSequential);
+            this.PlaySound(new AutoResampledCachedSound(fileName), isSequential);
         }
 
         private ISampleProvider ConvertToRightChannelCount(ISampleProvider input)
@@ -48,16 +50,26 @@ namespace ZTMZ.PacenoteTool.Base
             {
                 return input;
             }
+
             if (input.WaveFormat.Channels == 1 && mixer.WaveFormat.Channels == 2)
             {
                 return new MonoToStereoSampleProvider(input);
             }
+
             throw new NotImplementedException("Not yet implemented this channel count conversion");
         }
 
         public void PlaySound(AutoResampledCachedSound sound, bool isSequential = true)
         {
-            AddMixerInput(new AutoResampledCachedSoundSampleProvider(sound), isSequential);
+            AddMixerInput(
+                new VariSpeedSampleProvider(
+                    new AutoResampledCachedSoundSampleProvider(sound), 
+                    500, 
+                    this.PlaybackRate), 
+                isSequential);            
+            // AddMixerInput(
+            //         new AutoResampledCachedSoundSampleProvider(sound), 
+            //     isSequential);
         }
 
         private void AddMixerInput(ISampleProvider input, bool isSequential = true)
@@ -77,5 +89,7 @@ namespace ZTMZ.PacenoteTool.Base
             outputDeviceMixer.Dispose();
             outputDeviceSequential.Dispose();
         }
+
+        public float PlaybackRate { set; get; } = 2.0f;
     }
 }

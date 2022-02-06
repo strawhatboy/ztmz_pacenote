@@ -84,7 +84,8 @@ batch audio processor
 * __圣沙蒙VK__ : recording audio packages and pure audio pacenote recording
 * __紫藤林沫__ : recording audio packages
 * __拉稀车手老王__ : recording and making of the audio packages
-* __权威Authority__ recording and making of the audio packages
+* __权威Authority__: recording and making of the audio packages
+* __wha1ing__: recording and making of the audio packages
 * __\[Pacenotes recording\]__:
     * HanXu
     * 回家的誘いをかける

@@ -218,11 +218,25 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._PlayWheelAbnormalSound;
         }
 
-        private float _CollisionSpeedChangeThreshold = 10f;
-        public float CollisionSpeedChangeThreshold
+        private float _CollisionSpeedChangeThreshold_Slight = 10f;
+        public float CollisionSpeedChangeThreshold_Slight
         {
-            set { this._CollisionSpeedChangeThreshold = value; this._userconfig["CollisionSpeedChangeThreshold"] = value; }
-            get => this._CollisionSpeedChangeThreshold;
+            set { this._CollisionSpeedChangeThreshold_Slight = value; this._userconfig["CollisionSpeedChangeThreshold_Slight"] = value; }
+            get => this._CollisionSpeedChangeThreshold_Slight;
+        }
+
+        private float _CollisionSpeedChangeThreshold_Medium = 20f;
+        public float CollisionSpeedChangeThreshold_Medium
+        {
+            set { this._CollisionSpeedChangeThreshold_Medium = value; this._userconfig["CollisionSpeedChangeThreshold_Medium"] = value; }
+            get => this._CollisionSpeedChangeThreshold_Medium;
+        }
+
+        private float _CollisionSpeedChangeThreshold_Severe = 30f;
+        public float CollisionSpeedChangeThreshold_Severe
+        {
+            set { this._CollisionSpeedChangeThreshold_Severe = value; this._userconfig["CollisionSpeedChangeThreshold_Severe"] = value; }
+            get => this._CollisionSpeedChangeThreshold_Severe;
         }
 
 
