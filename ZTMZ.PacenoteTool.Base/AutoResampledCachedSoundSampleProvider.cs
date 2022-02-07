@@ -41,7 +41,7 @@ namespace ZTMZ.PacenoteTool.Base
 
             for (int i = 0; i < samplesToCopy; i++)
             {
-                buffer[offset + i] = cachedSound.AudioData[samplesRead + i];
+                buffer[offset + i] = cachedSound[samplesRead + i];
             }
             // Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
             samplesRead += samplesToCopy;

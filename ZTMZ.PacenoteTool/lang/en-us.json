@@ -27,11 +27,18 @@
       "playStartAndEndSound": "Play special start/end stage voice",
       "playGoSound": "Just after the count down, there will be something like 'Go' played if this option was checked",
       "playCollisionSound": "Play special collision voice",
+      "collision_slight": "When speed drops suddenly so much, play the collision voice (slight)",
+      "collision_medium": "When speed drops suddenly so much, play the collision voice (medium)",
+      "collision_severe": "When speed drops suddenly so much, play the collision voice (severe)",
       "playWheelAbnormalSound": "Play special voice for wheel puncture, maybe not accurate for different wheels",
       "useDefaultSoundPackageByDefault": "Ignore default AI-generated voice package",
       "useDefaultSoundPackageForFallback": "If current voice package is not complete, use default AI-generated voice package for fallback",
       "preloadSounds": "Preload the voice packages may take more memory (around 2GB), but will load the voice package as soon as possible",
-      "useSequentialMixerToHandleAudioConflict": "A sequential mix can avoid voices overlap"
+      "useSequentialMixerToHandleAudioConflict": "A sequential mix can avoid voices overlap",
+      "useDynamicPlaybackSpeed": "In some maps with dense pacenotes (such as Scotland), by dynamically adjusting the speech rate of the current pacenote segment according to the speed of the vehicle and the position of the next pacenote,\n to avoid the situation that the pacenote cannot keep up with the car",
+      "useTempoInsteadOfRate": "Using the Tempo method can ensure that only the voice is accelerated or slowed down, while keeping the pitch unchanged, using the Rate method will cause the pitch to change (weird) ",
+      "useDynamicVolume": "It will judge the degree of tension according to the current speed and perform sine wave disturbance on the voice",
+      "dynamicVolumePerturbationFrequency": "The frequency of the sine wave, the higher the frequency, the faster the jitter"
     },
 
     "language": "UI language",
@@ -42,11 +49,18 @@
     "playStartAndEndSound": "Play special start/end stage voice",
     "playGoSound": "Play special voice when the race started",
     "playCollisionSound": "Play special collision voice",
+    "collision_slight": "Collision voice (slight) threshold (km/h)",
+    "collision_medium": "Collision voice (medium) threshold (km/h)",
+    "collision_severe": "Collision voice (severe) threshold (km/h)",
     "playWheelAbnormalSound": "[Experimental] Play special voice for wheel puncture",
     "useDefaultSoundPackageByDefault": "Ignore default AI-generated voice package",
     "useDefaultSoundPackageForFallback": "Fallback to default voice package",
     "preloadSounds": "Preload voice packages",
-    "useSequentialMixerToHandleAudioConflict": "Use sequential mixer"
+    "useSequentialMixerToHandleAudioConflict": "Use sequential mixer",
+    "useDynamicPlaybackSpeed": "Use dynamic playback speech rate",
+    "useTempoInsteadOfRate": "Use tempo instead of rate for playback rate adjustment",
+    "useDynamicVolume": "Use dynamic voice tension enhancement",
+    "dynamicVolumePerturbationFrequency": "Voice tension enhancement waveform frequency (Hz)"
   },
 
   "dialog": {
@@ -123,6 +137,7 @@
 
     "tb_prePlay": "Preplay Time：",
     "tb_replayMode": "Playback Mode：",
+    "tb_playbackSpd": "Speech Rate",
 
     "cb_pureAudioMode": "Pure Audio Mode",
     "cb_scriptMode": "Script Mode",
@@ -171,6 +186,7 @@
       "tb_playVolume": "Adjust the playback volume. When the volume is increased, distortion caused by loss of audio waveform may occur",
       "tb_prePlay": "For example, +1s means Lushu will play 1 second later, -2s means Lushu will play 2 seconds earlier",
       "tb_replayMode": "The play mode cannot be switched while the game is in progress",
+      "tb_playbackSpd": "Fixed speech rate adjustment, which can be superimposed with dynamic adjustment speech rate",
       "cb_pureAudioMode": "Pure audio pacenote playback",
       "cb_scriptMode": "Script mode",
       "cb_mixMode": "Mixed mode",

@@ -87,6 +87,8 @@ namespace ZTMZ.PacenoteTool
         }
 
         public int CurrentPlayAmplification { set; get; } = 100;
+        public float CurrentPlaySpeed { set; get; } = 1.0f;
+        public float CurrentTension { set; get; } = 0f;
 
         private AutoResampledCachedSound _exampleAudio;
 
@@ -112,6 +114,9 @@ namespace ZTMZ.PacenoteTool
 
         public AudioFile CurrentAudioFile => this.AudioFiles != null && this.CurrentPlayIndex < this.AudioFiles.Count()
             ? this.AudioFiles[this.CurrentPlayIndex]
+            : null;
+        public AudioFile NextAudioFile => this.AudioFiles != null && this.CurrentPlayIndex+1 < this.AudioFiles.Count()
+            ? this.AudioFiles[this.CurrentPlayIndex+1]
             : null;
 
         //public SoundPlayer CurrentSoundPlayer => this.Players != null && this.CurrentPlayIndex < this.Players.Count()
@@ -478,6 +483,8 @@ namespace ZTMZ.PacenoteTool
             // try to amplify the sound.
             var sound = this.AudioFiles[this.CurrentPlayIndex++].Sound;
             sound.Amplification = this.CurrentPlayAmplification;
+            sound.Tension = this.CurrentTension;
+            this.Player.PlaybackRate = this.CurrentPlaySpeed;
             this.Player.PlaySound(sound, Config.Instance.UseSequentialMixerToHandleAudioConflict);
             Debug.WriteLine("Playing");
         }
@@ -486,6 +493,7 @@ namespace ZTMZ.PacenoteTool
         public void PlayExample()
         {
             this._exampleAudio.Amplification = this.CurrentPlayAmplification;
+            this.Player.PlaybackRate = this.CurrentPlaySpeed;
             this.Player.PlaySound(this._exampleAudio, Config.Instance.UseSequentialMixerToHandleAudioConflict);
         }
 
@@ -493,6 +501,8 @@ namespace ZTMZ.PacenoteTool
         {
             var audio = this.getSoundByKeyword(sound, this.CurrentCoDriverSoundPackagePath);
             audio.Amplification = this.CurrentPlayAmplification;
+            audio.Tension = this.CurrentTension;
+            this.Player.PlaybackRate = this.CurrentPlaySpeed;
             this.Player.PlaySound(audio, false);
         }
 

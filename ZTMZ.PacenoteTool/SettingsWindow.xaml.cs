@@ -41,16 +41,13 @@ namespace ZTMZ.PacenoteTool
             this.btn_IsDarkTheme.IsChecked = Config.Instance.IsDarkTheme;
             this.btn_IsDarkTheme.Click += (s, e) =>
             {
-                if (this.btn_IsDarkTheme.IsChecked.HasValue)
-                {
-                    Config.Instance.IsDarkTheme = this.btn_IsDarkTheme.IsChecked.Value;
-                    Config.Instance.SaveUserConfig();
-                    var paletteHelper = new PaletteHelper();
-                    var theme = paletteHelper.GetTheme();
+                Config.Instance.IsDarkTheme = this.btn_IsDarkTheme.IsChecked.Value;
+                Config.Instance.SaveUserConfig();
+                var paletteHelper = new PaletteHelper();
+                var theme = paletteHelper.GetTheme();
 
-                    theme.SetBaseTheme(Config.Instance.IsDarkTheme ? Theme.Dark : Theme.Light);
-                    paletteHelper.SetTheme(theme);
-                }
+                theme.SetBaseTheme(Config.Instance.IsDarkTheme ? Theme.Dark : Theme.Light);
+                paletteHelper.SetTheme(theme);
             };
 
             // language
@@ -79,53 +76,44 @@ namespace ZTMZ.PacenoteTool
             checkUDP();
             this.tb_UDPListenPort.LostFocus += (s, e) =>
             {
-                if (this.tb_UDPListenPort.Value.HasValue)
+                this.pb_udpPort.Visibility = Visibility.Visible;
+                Config.Instance.UDPListenPort = (int)this.tb_UDPListenPort.Value.Value;
+                // open the port mismatch dialog next time.
+                Config.Instance.WarnIfPortMismatch = true;
+                Config.Instance.SaveUserConfig();
+                checkUDP();
+                this.PortChanged?.Invoke();
+                this.tb_UDPListenPort.IsEnabled = false;
+                var bgw = new BackgroundWorker();
+                bgw.DoWork += (s, e) =>
                 {
-                    this.pb_udpPort.Visibility = Visibility.Visible;
-                    Config.Instance.UDPListenPort = (int)this.tb_UDPListenPort.Value.Value;
-                    // open the port mismatch dialog next time.
-                    Config.Instance.WarnIfPortMismatch = true;
-                    Config.Instance.SaveUserConfig();
-                    checkUDP();
-                    this.PortChanged?.Invoke();
-                    this.tb_UDPListenPort.IsEnabled = false;
-                    var bgw = new BackgroundWorker();
-                    bgw.DoWork += (s, e) =>
+                    Thread.Sleep(6000);
+                    this.Dispatcher.Invoke(() =>
                     {
-                        Thread.Sleep(6000);
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            this.tb_UDPListenPort.IsEnabled = true;
-                            this.pb_udpPort.Visibility = Visibility.Collapsed;
-                        });
-                    };
-                    bgw.RunWorkerAsync();
-                }
+                        this.tb_UDPListenPort.IsEnabled = true;
+                        this.pb_udpPort.Visibility = Visibility.Collapsed;
+                    });
+                };
+                bgw.RunWorkerAsync();
             };
 
             // playbackDelay
             this.tb_PlaybackDeviceDesiredLatency.Value = (uint)Config.Instance.PlaybackDeviceDesiredLatency;
             this.tb_PlaybackDeviceDesiredLatency.ValueChanged += (s, e) =>
             {
-                if (this.tb_PlaybackDeviceDesiredLatency.Value.HasValue)
-                {
-                    Config.Instance.PlaybackDeviceDesiredLatency = (int)this.tb_PlaybackDeviceDesiredLatency.Value.Value;
-                    Config.Instance.SaveUserConfig();
-                }
+                Config.Instance.PlaybackDeviceDesiredLatency = (int)this.tb_PlaybackDeviceDesiredLatency.Value.Value;
+                Config.Instance.SaveUserConfig();
             };
 
             // fps
             this.tb_HudFPS.Value = (uint)Config.Instance.HudFPS;
             this.tb_HudFPS.LostFocus += (s, e) =>
             {
-                if (this.tb_HudFPS.Value.HasValue)
-                {
-                    Config.Instance.HudFPS = (int)this.tb_HudFPS.Value.Value;
-                    Config.Instance.SaveUserConfig();
-                    this.HudFPSChanged?.Invoke();
-                    this.pi_hudFPS.Visibility = Visibility.Visible;
-                    this.tb_restartNeeded.Visibility = Visibility.Visible;
-                }
+                Config.Instance.HudFPS = (int)this.tb_HudFPS.Value.Value;
+                Config.Instance.SaveUserConfig();
+                this.HudFPSChanged?.Invoke();
+                this.pi_hudFPS.Visibility = Visibility.Visible;
+                this.tb_restartNeeded.Visibility = Visibility.Visible;
             };
         }
 
@@ -135,79 +123,109 @@ namespace ZTMZ.PacenoteTool
             this.btn_PlayStartAndEndSound.IsChecked = Config.Instance.PlayStartAndEndSound;
             this.btn_PlayStartAndEndSound.Click += (s, e) =>
             {
-                if (this.btn_PlayStartAndEndSound.IsChecked.HasValue)
-                {
-                    Config.Instance.PlayStartAndEndSound = this.btn_PlayStartAndEndSound.IsChecked.Value;
-                    Config.Instance.SaveUserConfig();
-                }
+                Config.Instance.PlayStartAndEndSound = this.btn_PlayStartAndEndSound.IsChecked.Value;
+                Config.Instance.SaveUserConfig();
             };
 
             // Go !
             this.btn_PlayGoSound.IsChecked = Config.Instance.PlayGoSound;
             this.btn_PlayGoSound.Click += (s, e) =>
             {
-                if (this.btn_PlayGoSound.IsChecked.HasValue)
-                {
-                    Config.Instance.PlayGoSound = this.btn_PlayGoSound.IsChecked.Value;
-                    Config.Instance.SaveUserConfig();
-                }
+                Config.Instance.PlayGoSound = this.btn_PlayGoSound.IsChecked.Value;
+                Config.Instance.SaveUserConfig();
             };
 
             // collision
             this.btn_PlayCollisionSound.IsChecked = Config.Instance.PlayCollisionSound;
             this.btn_PlayCollisionSound.Click += (s, e) =>
             {
-                if (this.btn_PlayCollisionSound.IsChecked.HasValue)
-                {
-                    Config.Instance.PlayCollisionSound = this.btn_PlayCollisionSound.IsChecked.Value;
-                    Config.Instance.SaveUserConfig();
-                }
+                Config.Instance.PlayCollisionSound = this.btn_PlayCollisionSound.IsChecked.Value;
+                Config.Instance.SaveUserConfig();
+            };
+            
+            // collision thresholds
+            this.tb_Collision_Slight.Value = (uint)Config.Instance.CollisionSpeedChangeThreshold_Slight;
+            this.tb_Collision_Slight.ValueChanged += (s, e) =>
+            {
+                Config.Instance.CollisionSpeedChangeThreshold_Slight = (int)this.tb_Collision_Slight.Value.Value;
+                Config.Instance.SaveUserConfig();
+            };
+            this.tb_Collision_Medium.Value = (uint)Config.Instance.CollisionSpeedChangeThreshold_Medium;
+            this.tb_Collision_Medium.ValueChanged += (s, e) =>
+            {
+                Config.Instance.CollisionSpeedChangeThreshold_Medium = (int)this.tb_Collision_Medium.Value.Value;
+                Config.Instance.SaveUserConfig();
+            };
+            this.tb_Collision_Severe.Value = (uint)Config.Instance.CollisionSpeedChangeThreshold_Severe;
+            this.tb_Collision_Severe.ValueChanged += (s, e) =>
+            {
+                Config.Instance.CollisionSpeedChangeThreshold_Severe = (int)this.tb_Collision_Severe.Value.Value;
+                Config.Instance.SaveUserConfig();
             };
 
             // puncture
             this.btn_PlayWheelAbnormalSound.IsChecked = Config.Instance.PlayWheelAbnormalSound;
             this.btn_PlayWheelAbnormalSound.Click += (s, e) =>
             {
-                if (this.btn_PlayWheelAbnormalSound.IsChecked.HasValue)
-                {
-                    Config.Instance.PlayWheelAbnormalSound = this.btn_PlayWheelAbnormalSound.IsChecked.Value;
-                    Config.Instance.SaveUserConfig();
-                }
+                Config.Instance.PlayWheelAbnormalSound = this.btn_PlayWheelAbnormalSound.IsChecked.Value;
+                Config.Instance.SaveUserConfig();
             };
 
             // default voice
             this.btn_UseDefaultSoundPackageByDefault.IsChecked = !Config.Instance.UseDefaultSoundPackageByDefault;
             this.btn_UseDefaultSoundPackageByDefault.Click += (s, e) =>
             {
-                if (this.btn_UseDefaultSoundPackageByDefault.IsChecked.HasValue)
-                {
-                    Config.Instance.UseDefaultSoundPackageByDefault = !this.btn_UseDefaultSoundPackageByDefault.IsChecked.Value;
-                    Config.Instance.SaveUserConfig();
-                    this.pi_defaultSoundPackage.Visibility = Visibility.Visible;
-                    this.tb_restartNeeded.Visibility = Visibility.Visible;
-                }
+                Config.Instance.UseDefaultSoundPackageByDefault = !this.btn_UseDefaultSoundPackageByDefault.IsChecked.Value;
+                Config.Instance.SaveUserConfig();
+                this.pi_defaultSoundPackage.Visibility = Visibility.Visible;
+                this.tb_restartNeeded.Visibility = Visibility.Visible;
             };
 
             // fallback default voice
             this.btn_UseDefaultSoundPackageForFallback.IsChecked = Config.Instance.UseDefaultSoundPackageForFallback;
             this.btn_UseDefaultSoundPackageForFallback.Click += (s, e) =>
             {
-                if (this.btn_UseDefaultSoundPackageForFallback.IsChecked.HasValue)
-                {
-                    Config.Instance.UseDefaultSoundPackageForFallback = this.btn_UseDefaultSoundPackageForFallback.IsChecked.Value;
-                    Config.Instance.SaveUserConfig();
-                }
+                Config.Instance.UseDefaultSoundPackageForFallback = this.btn_UseDefaultSoundPackageForFallback.IsChecked.Value;
+                Config.Instance.SaveUserConfig();
             };
 
             // preload
             this.btn_PreloadSounds.IsChecked = Config.Instance.PreloadSounds;
             this.btn_PreloadSounds.Click += (s, e) =>
             {
-                if (this.btn_PreloadSounds.IsChecked.HasValue)
-                {
-                    Config.Instance.PreloadSounds = this.btn_PreloadSounds.IsChecked.Value;
-                    Config.Instance.SaveUserConfig();
-                }
+                Config.Instance.PreloadSounds = this.btn_PreloadSounds.IsChecked.Value;
+                Config.Instance.SaveUserConfig();
+            };
+            
+            // dynamic playback spd
+            this.btn_UseDynamicPlaybackSpeed.IsChecked = Config.Instance.UseDynamicPlaybackSpeed;
+            this.btn_UseDynamicPlaybackSpeed.Click += (s, e) =>
+            {
+                Config.Instance.UseDynamicPlaybackSpeed = this.btn_UseDynamicPlaybackSpeed.IsChecked.Value;
+                Config.Instance.SaveUserConfig();
+            };
+            
+            // use tempo
+            this.btn_UseTempoInsteadOfRate.IsChecked = Config.Instance.UseTempoInsteadOfRate;
+            this.btn_UseTempoInsteadOfRate.Click += (s, e) =>
+            {
+                Config.Instance.UseTempoInsteadOfRate = this.btn_UseTempoInsteadOfRate.IsChecked.Value;
+                Config.Instance.SaveUserConfig();
+            };
+            
+            // dynamic volume
+            this.btn_useDynamicVolume.IsChecked = Config.Instance.UseDynamicVolume;
+            this.btn_useDynamicVolume.Click += (s, e) =>
+            {
+                Config.Instance.UseDynamicVolume = this.btn_useDynamicVolume.IsChecked.Value;
+                Config.Instance.SaveUserConfig();
+            };
+
+            this.tb_dynamicVolumePerturbationFrequency.Value = (uint)Config.Instance.DynamicVolumePerturbationFrequency;
+            this.tb_dynamicVolumePerturbationFrequency.ValueChanged += (s, e) =>
+            {
+                Config.Instance.DynamicVolumePerturbationFrequency = (int)this.tb_dynamicVolumePerturbationFrequency.Value.Value;
+                Config.Instance.SaveUserConfig();
             };
         }
 
@@ -216,11 +234,8 @@ namespace ZTMZ.PacenoteTool
             this.tb_UseSequentialMixerToHandleAudioConflict.IsChecked = Config.Instance.UseSequentialMixerToHandleAudioConflict;
             this.tb_UseSequentialMixerToHandleAudioConflict.Click += (s, e) =>
             {
-                if (this.tb_UseSequentialMixerToHandleAudioConflict.IsChecked.HasValue)
-                {
-                    Config.Instance.UseSequentialMixerToHandleAudioConflict = this.tb_UseSequentialMixerToHandleAudioConflict.IsChecked.Value;
-                    Config.Instance.SaveUserConfig();
-                }
+                Config.Instance.UseSequentialMixerToHandleAudioConflict = this.tb_UseSequentialMixerToHandleAudioConflict.IsChecked.Value;
+                Config.Instance.SaveUserConfig();
             };
         }
 

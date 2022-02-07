@@ -64,6 +64,7 @@ namespace ZTMZ.PacenoteTool
         private bool _firstSoundPlayed = false;
         private double _scriptTiming = 0;
         private int _playpointAdjust = 0;
+        private float _playbackSpd = 1.0f;
 
         public MainWindow()
         {
@@ -228,39 +229,45 @@ namespace ZTMZ.PacenoteTool
                     // play sound (maybe state not changed and audio files not loaded.)
                     if (this._profileManager.CurrentAudioFile != null)
                     {
-                        if (this._selectReplayMode == 0)
-                        {
-                            if (msg.LapDistance +
-                                msg.Speed / 3.6f * (0 - this._scriptTiming) >=
-                                this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust)
-                            {
-                                // play it
-                                this._profileManager.Play();
-                            }
-                        }
-                        else
-                        {
-                            // script mode
-                            if (this._profileManager.CurrentScriptReader != null)
-                            {
-                                if (this._profileManager.CurrentScriptReader.IsDynamic && msg.LapDistance +
-                                    msg.Speed / 3.6f * (Config.Instance.ScriptMode_PlaySecondsAdvanced -
-                                                        this._scriptTiming) >=
-                                    this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust)
-                                {
-                                    // play before in <PlaySecondsAdvanced> seconds.
-                                    this._profileManager.Play();
-                                }
+                        var spdMperS = msg.Speed / 3.6f;
+                        var playPoint = this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust;
+                        var currentPoint = msg.LapDistance +
+                                           spdMperS * (0 - this._scriptTiming);
 
-                                if (!this._profileManager.CurrentScriptReader.IsDynamic &&
-                                    msg.LapDistance +
-                                    msg.Speed / 3.6f * (0 - this._scriptTiming) >=
-                                    this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust)
+                        if (this._selectReplayMode != 0 &&
+                            this._profileManager.CurrentScriptReader != null &&
+                            this._profileManager.CurrentScriptReader.IsDynamic)
+                        {
+                            currentPoint += spdMperS * Config.Instance.ScriptMode_PlaySecondsAdvanced;
+                        }
+
+                        if (currentPoint >= playPoint)
+                        {
+                            // set spd to 1.0
+                            this._profileManager.CurrentPlaySpeed = 1.0f;
+                            // can play
+                            if (Config.Instance.UseDynamicPlaybackSpeed && this._profileManager.NextAudioFile != null)
+                            {
+                                var nextPlayPoint = this._profileManager.NextAudioFile.Distance + this._playpointAdjust;
+                                var diff = currentPoint +
+                                           spdMperS * this._profileManager.CurrentAudioFile.Sound.Duration /
+                                           this._playbackSpd
+                                           - nextPlayPoint;
+                                if (diff >= 0)
                                 {
-                                    // not dynamic, play it
-                                    this._profileManager.Play();
+                                    this._profileManager.CurrentPlaySpeed =
+                                        (this._profileManager.CurrentAudioFile.Sound.Duration / this._playbackSpd)
+                                        / ((float)(nextPlayPoint - currentPoint) / spdMperS);
                                 }
                             }
+
+                            this._profileManager.CurrentPlaySpeed *= this._playbackSpd;
+
+                            if (Config.Instance.UseDynamicVolume)
+                            {// more speed, more tension
+                                this._profileManager.CurrentTension = msg.Speed / 200f;
+                            }
+                            this._profileManager.Play();
                         }
                     }
                 };
@@ -630,6 +637,7 @@ namespace ZTMZ.PacenoteTool
             this.chk_Hud.IsChecked = Config.Instance.UI_ShowHud;
             this.sl_scriptTiming.Value = Config.Instance.UI_PlaybackAdjustSeconds;
             this.s_volume.Value = Config.Instance.UI_PlaybackVolume;
+            this.sl_playbackSpd.Value = Config.Instance.UI_PlaybackSpeed;
         }
 
         private void initializeTheme()
@@ -768,7 +776,11 @@ namespace ZTMZ.PacenoteTool
         private void btn_play_example_Click(object sender, RoutedEventArgs e)
         {
             var bgw = new BackgroundWorker();
-            bgw.DoWork += (arg, e) => { this._profileManager.PlayExample(); };
+            bgw.DoWork += (arg, e) =>
+            {
+                this._profileManager.CurrentPlaySpeed = this._playbackSpd;
+                this._profileManager.PlayExample();
+            };
             bgw.RunWorkerAsync();
         }
 
@@ -985,8 +997,20 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         }
 
         private void Btn_startAudioPkgMgr_OnClick(object sender, RoutedEventArgs e)
-        {System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.AudioPackageManager.exe"));
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.AudioPackageManager.exe"));
+        }
 
+        private void Sl_playbackSpd_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (this.sl_playbackSpd != null && this.tb_playbackSpd != null)
+            {
+                var value = this.sl_playbackSpd.Value.ToString("0.00");
+                this._playbackSpd = (float)this.sl_playbackSpd.Value;
+                this.tb_playbackSpd.Text = $"x {value}";
+                Config.Instance.UI_PlaybackSpeed = this._playbackSpd;
+                Config.Instance.SaveUserConfig();
+            }
         }
     }
 }

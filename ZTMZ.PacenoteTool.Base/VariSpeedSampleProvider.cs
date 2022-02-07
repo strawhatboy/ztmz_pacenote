@@ -16,7 +16,7 @@ namespace ZTMZ.PacenoteTool.Base
         private bool repositionRequested;
 
         public VariSpeedSampleProvider(ISampleProvider sourceProvider, int readDurationMilliseconds,
-            float playbackRate = 1.0f)
+            float playbackRate = 1.0f, bool useTempo = true)
         {
             currentSoundTouchProcessor = new SoundTouchProcessor();
             // explore what the default values are before we change them:
@@ -31,6 +31,7 @@ namespace ZTMZ.PacenoteTool.Base
             sourceReadBuffer =
                 new float[(WaveFormat.SampleRate * channelCount * (long)readDurationMilliseconds) / 1000];
             soundTouchReadBuffer = new float[sourceReadBuffer.Length * 10]; // support down to 0.1 speed
+            this.UseTempo = useTempo;
             this.PlaybackRate = playbackRate;
         }
 
@@ -68,7 +69,7 @@ namespace ZTMZ.PacenoteTool.Base
                         reachedEndOfSource = true;
                         // we've reached the end, tell SoundTouch we're done
                         currentSoundTouchProcessor.Flush();
-                        return 0;
+                        break; // samplesRead instead of 0 to keep the integrity
                     }
                 }
 
@@ -127,5 +128,6 @@ namespace ZTMZ.PacenoteTool.Base
         {
             repositionRequested = true;
         }
+
     }
 }

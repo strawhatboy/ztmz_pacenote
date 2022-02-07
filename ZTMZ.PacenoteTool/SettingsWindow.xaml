@@ -152,6 +152,13 @@
                                     <RowDefinition Height="50" />
                                     <RowDefinition Height="50" />
                                     <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
                                 </Grid.RowDefinitions>
                                 <TextBlock VerticalAlignment="Center"
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.playStartAndEndSound}"
@@ -170,36 +177,88 @@
                                 <ToggleButton Grid.Row="2" Grid.Column="1" x:Name="btn_PlayCollisionSound" />
 
                                 <TextBlock Grid.Row="3" VerticalAlignment="Center"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.collision_slight}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.collision_slight}" >
+                                </TextBlock>
+                                <xctk:UIntegerUpDown Name="tb_Collision_Slight" Grid.Row="3" Grid.Column="1" Value="10" Maximum="100" Minimum="1"
+                                                     VerticalAlignment="Center" />
+
+                                <TextBlock Grid.Row="4" VerticalAlignment="Center"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.collision_medium}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.collision_medium}" >
+                                </TextBlock>
+                                <xctk:UIntegerUpDown Name="tb_Collision_Medium" Grid.Row="4" Grid.Column="1" Value="20" Maximum="100" Minimum="1"
+                                                     VerticalAlignment="Center" />
+
+                                <TextBlock Grid.Row="5" VerticalAlignment="Center"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.collision_severe}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.collision_severe}" >
+                                </TextBlock>
+                                <xctk:UIntegerUpDown Name="tb_Collision_Severe" Grid.Row="5" Grid.Column="1" Value="30" Maximum="100" Minimum="1"
+                                                     VerticalAlignment="Center" />
+
+                                <TextBlock Grid.Row="6" VerticalAlignment="Center"
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.playWheelAbnormalSound}"
                                        ToolTip="{DynamicResource ResourceKey=settings.tooltip.playWheelAbnormalSound}" >
                                 </TextBlock>
-                                <ToggleButton Grid.Row="3" Grid.Column="1" x:Name="btn_PlayWheelAbnormalSound" />
-
-                                <TextBlock Grid.Row="4" VerticalAlignment="Center"  Text="{DynamicResource ResourceKey=settings.useDefaultSoundPackageByDefault}" 
+                                <ToggleButton Grid.Row="6" Grid.Column="1" x:Name="btn_PlayWheelAbnormalSound" />
+                                
+                                <TextBlock Grid.Row="7" VerticalAlignment="Center"  Text="{DynamicResource ResourceKey=settings.useDefaultSoundPackageByDefault}" 
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}"
                                        ToolTip="{DynamicResource ResourceKey=settings.tooltip.useDefaultSoundPackageByDefault}">
                                 </TextBlock>
-                                <ToggleButton Grid.Row="4" Grid.Column="1" x:Name="btn_UseDefaultSoundPackageByDefault" />
+                                <ToggleButton Grid.Row="7" Grid.Column="1" x:Name="btn_UseDefaultSoundPackageByDefault" />
                                 <materialDesign:PackIcon x:Name="pi_defaultSoundPackage"
                                                          Kind="Warning" Foreground="OrangeRed" 
-                                                         Grid.Row="4" Grid.Column="2" 
+                                                         Grid.Row="7" Grid.Column="2" 
                                                          Height="30" Width="30" Margin="10 0 0 0" VerticalAlignment="Center"
                                                          ToolTip="{DynamicResource ResourceKey=settings.restartNeeded}" Visibility="Hidden"/>
 
                                 
-                                <TextBlock Grid.Row="5" VerticalAlignment="Center"  Text="{DynamicResource ResourceKey=settings.useDefaultSoundPackageForFallback}" 
+                                <TextBlock Grid.Row="8" VerticalAlignment="Center"  Text="{DynamicResource ResourceKey=settings.useDefaultSoundPackageForFallback}" 
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.useDefaultSoundPackageForFallback}">
                                 </TextBlock>
-                                <ToggleButton Grid.Row="5" Grid.Column="1" x:Name="btn_UseDefaultSoundPackageForFallback" />
+                                <ToggleButton Grid.Row="8" Grid.Column="1" x:Name="btn_UseDefaultSoundPackageForFallback" />
 
-                                <TextBlock Grid.Row="6" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.preloadSounds}"
+                                <TextBlock Grid.Row="9" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.preloadSounds}"
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}">
                                     <TextBlock.ToolTip>
                                         <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.preloadSounds}">
                                         </TextBlock>
                                     </TextBlock.ToolTip>
                                 </TextBlock>
-                                <ToggleButton Grid.Row="6" Grid.Column="1" x:Name="btn_PreloadSounds" />
+                                <ToggleButton Grid.Row="9" Grid.Column="1" x:Name="btn_PreloadSounds" />
+                                
+                                <TextBlock Grid.Row="10" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.useDynamicPlaybackSpeed}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}">
+                                    <TextBlock.ToolTip>
+                                        <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.useDynamicPlaybackSpeed}">
+                                        </TextBlock>
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
+                                <ToggleButton Grid.Row="10" Grid.Column="1" x:Name="btn_UseDynamicPlaybackSpeed" />
+                                
+                                <TextBlock Grid.Row="11" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.useTempoInsteadOfRate}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}">
+                                    <TextBlock.ToolTip>
+                                        <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.useTempoInsteadOfRate}">
+                                        </TextBlock>
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
+                                <ToggleButton Grid.Row="11" Grid.Column="1" x:Name="btn_UseTempoInsteadOfRate" />
+                                
+                                <TextBlock Grid.Row="12" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.useDynamicVolume}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.useDynamicVolume}">
+                                </TextBlock>
+                                <ToggleButton Grid.Row="12" Grid.Column="1" x:Name="btn_useDynamicVolume" />
+                                
+                                <TextBlock Grid.Row="13" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.dynamicVolumePerturbationFrequency}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.dynamicVolumePerturbationFrequency}">
+                                </TextBlock>
+                                <xctk:UIntegerUpDown Name="tb_dynamicVolumePerturbationFrequency" Grid.Row="13" Grid.Column="1" Value="30" Maximum="100" Minimum="1"
+                                                     VerticalAlignment="Center" />
                             </Grid>
                         </materialDesign:Card>
                     </Expander>

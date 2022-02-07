@@ -65,7 +65,7 @@ namespace ZTMZ.PacenoteTool.Base
                 new VariSpeedSampleProvider(
                     new AutoResampledCachedSoundSampleProvider(sound), 
                     500, 
-                    this.PlaybackRate), 
+                    this.PlaybackRate, Config.Instance.UseTempoInsteadOfRate), 
                 isSequential);            
             // AddMixerInput(
             //         new AutoResampledCachedSoundSampleProvider(sound), 
@@ -90,6 +90,6 @@ namespace ZTMZ.PacenoteTool.Base
             outputDeviceSequential.Dispose();
         }
 
-        public float PlaybackRate { set; get; } = 2.0f;
+        public float PlaybackRate { set; get; } = Config.Instance.UI_PlaybackSpeed;
     }
 }

@@ -190,6 +190,28 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._UI_PlaybackAdjustSeconds;
         }
 
+        private float _UI_PlaybackSpeed = 1.0f;
+        public float UI_PlaybackSpeed
+        {
+            set { this._UI_PlaybackSpeed = value; this._userconfig["UI_PlaybackSpeed"] = value; }
+            get => this._UI_PlaybackSpeed;
+        }
+
+        private bool _UseDynamicPlaybackSpeed = true;
+        public bool UseDynamicPlaybackSpeed
+        {
+            set { this._UseDynamicPlaybackSpeed = value; this._userconfig["UseDynamicPlaybackSpeed"] = value; }
+            get => this._UseDynamicPlaybackSpeed;
+        }
+
+        private bool _UseTempoInsteadOfRate = true;
+        public bool UseTempoInsteadOfRate
+        {
+            set { this._UseTempoInsteadOfRate = value; this._userconfig["UseTempoInsteadOfRate"] = value; }
+            get => this._UseTempoInsteadOfRate;
+        }
+        
+
         private bool _PlayStartAndEndSound = true;
         public bool PlayStartAndEndSound
         {
@@ -204,7 +226,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._PlayGoSound;
         }
 
-        private bool _PlayCollisionSound = false;
+        private bool _PlayCollisionSound = true;
         public bool PlayCollisionSound
         {
             set { this._PlayCollisionSound = value; this._userconfig["PlayCollisionSound"] = value; }
@@ -216,6 +238,21 @@ namespace ZTMZ.PacenoteTool.Base
         {
             set { this._PlayWheelAbnormalSound = value; this._userconfig["PlayWheelAbnormalSound"] = value; }
             get => this._PlayWheelAbnormalSound;
+        }
+
+        private bool _UseDynamicVolume = true;
+
+        public bool UseDynamicVolume
+        {
+            set { this._UseDynamicVolume = value; this._userconfig["UseDynamicVolume"] = value; }
+            get => this._UseDynamicVolume;
+        }
+
+        private int _DynamicVolumePerturbationFrequency = 16;
+        public int DynamicVolumePerturbationFrequency
+        {
+            set { this._DynamicVolumePerturbationFrequency = value; this._userconfig["DynamicVolumePerturbationFrequency"] = value; }
+            get => this._DynamicVolumePerturbationFrequency;
         }
 
         private float _CollisionSpeedChangeThreshold_Slight = 10f;

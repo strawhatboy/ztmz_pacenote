@@ -20,16 +20,16 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._amplification; set
             {
                 this._amplification = value;
-                if (value > 0)
-                {
-                    this._amplifiedAudioData = (from x in this._audioData select (x * (1000 + value * 10) / 1000)).ToArray();
-                } else if (value < 0)
-                {
-                    this._amplifiedAudioData = (from x in this._audioData select (x * (1000 + value) / 1000)).ToArray();
-                } else
-                {
-                    this._amplifiedAudioData = this._audioData;
-                }
+                // if (value > 0)
+                // {
+                //     this._amplifiedAudioData = (from x in this._audioData select (x * (1000 + value * 10) / 1000)).ToArray();
+                // } else if (value < 0)
+                // {
+                //     this._amplifiedAudioData = (from x in this._audioData select (x * (1000 + value) / 1000)).ToArray();
+                // } else
+                // {
+                //     this._amplifiedAudioData = this._audioData;
+                // }
             }
         }
 
@@ -37,11 +37,6 @@ namespace ZTMZ.PacenoteTool.Base
         {
             get
             {
-                if (this.Amplification != 0)
-                {
-                    return this._amplifiedAudioData;
-                }
-
                 return this._audioData;
             }
             private set
@@ -79,6 +74,16 @@ namespace ZTMZ.PacenoteTool.Base
                 return _max.Value;
             }
         }
+
+        /// <summary>
+        /// Tension: 0f-1f, 1f: high tense
+        /// </summary>
+        public float Tension { set; get; } = 0f;
+        
+        /// <summary>
+        /// Duration: In seconds
+        /// </summary>
+        public float Duration => this.AudioData.Length / this.WaveFormat.Channels / this.WaveFormat.SampleRate; 
 
         public void CutHeadAndTail(double cutRatio)
         {
@@ -143,6 +148,36 @@ namespace ZTMZ.PacenoteTool.Base
         public void Append(AutoResampledCachedSound sound)
         {
             this.AudioData = this.AudioData.Concat(sound.AudioData).ToArray();
+        }
+        
+        public float this[int index]
+        {
+            get
+            {
+                float res;
+                if (this._amplification > 0)
+                {
+                    res = this.AudioData[index] * (1000 + this._amplification * 10) / 1000;
+                } else if (this._amplification < 0)
+                {
+                    res = this.AudioData[index] * (1000 + this._amplification) / 1000;
+                }
+                else
+                {
+                    res = this.AudioData[index];
+                }
+
+                res *= (1 + 
+                        Tension * MathF.Sin(
+                            (float)index / 
+                            this.WaveFormat.SampleRate / 
+                            this.WaveFormat.Channels * 
+                            Config.Instance.DynamicVolumePerturbationFrequency * 2 * MathF.PI
+                            )
+                        );
+                
+                return res;
+            }
         }
     }
 }

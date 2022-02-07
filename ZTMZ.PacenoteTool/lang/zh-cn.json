@@ -27,11 +27,18 @@
       "playStartAndEndSound": "在赛道开始和赛道结束时，播放对应的语音（通常是骚话），可以通过此选项关闭",
       "playGoSound": "当倒计时刚好结束时，播放出发语音",
       "playCollisionSound": "当车辆发生碰撞时，播放撞车语音",
+      "collision_slight": "当速度骤降这么多时，播放撞车语音（轻微）",
+      "collision_medium": "当速度骤降这么多时，播放撞车语音（中等）",
+      "collision_severe": "当速度骤降这么多时，播放撞车语音（严重）",
       "playWheelAbnormalSound": "发生爆胎时，播放相关语音",
       "useDefaultSoundPackageByDefault": "忽略默认（微软慧慧）语音包",
       "useDefaultSoundPackageForFallback": "如果当前选择的语音包不完整，缺失的语音使用默认（微软慧慧）语音包中对应的语音",
       "preloadSounds": "预加载语音包会带来较大的内存开销（约占用2GB），但会在倒计时刚开始时即可加载完毕并播放开始语音",
-      "useSequentialMixerToHandleAudioConflict": "队列播放模式可以避免同一时刻播放多个语音片段造成的语音重叠现象"
+      "useSequentialMixerToHandleAudioConflict": "队列播放模式可以避免同一时刻播放多个语音片段造成的语音重叠现象",
+      "useDynamicPlaybackSpeed": "在某些路书较为密集的地图（如苏格兰）中，通过动态地根据车速与下个路书位置来调整当前路书片段的语速，来避免路书跟不上车的情况",
+      "useTempoInsteadOfRate": "使用节拍方式，可以保证仅仅加速或减速语音，而保持音调不变，使用频率方式会导致音调发生变化（怪起来了）",
+      "useDynamicVolume": "会根据当前车速判断紧张程度，对语音进行正弦波扰动，车速越快越紧张",
+      "dynamicVolumePerturbationFrequency": "正弦波的频率，频率越高，抖动越快"
     },
 
     "language": "界面语言",
@@ -42,13 +49,18 @@
     "playStartAndEndSound": "播放开始/结束语音",
     "playGoSound": "播放出发语音",
     "playCollisionSound": "播放撞车语音",
+    "collision_slight": "撞车语音（轻微）阈值（千米/时）",
+    "collision_medium": "撞车语音（中等）阈值（千米/时）",
+    "collision_severe": "撞车语音（严重）阈值（千米/时）",
     "playWheelAbnormalSound": "[实验性] 播放爆胎语音",
     "useDefaultSoundPackageByDefault": "忽略默认（微软慧慧）语音包",
     "useDefaultSoundPackageForFallback": "使用默认（微软慧慧）语音包作为后备",
     "preloadSounds": "预加载语音包",
-    "useSequentialMixerToHandleAudioConflict": "使用队列播放模式"
-
-
+    "useSequentialMixerToHandleAudioConflict": "使用队列播放模式",
+    "useDynamicPlaybackSpeed": "使用动态语速调整",
+    "useTempoInsteadOfRate": "使用修改节拍而不是频率的方式来调整播放语速",
+    "useDynamicVolume": "使用动态语音紧张感增强",
+    "dynamicVolumePerturbationFrequency": "语音紧张感增强波形频率（赫兹）"
   },
 
   "dialog": {
@@ -125,6 +137,7 @@
 
     "tb_prePlay": "预播放时间调整：",
     "tb_replayMode": "播放模式：",
+    "tb_playbackSpd": "播放语速",
 
     "cb_pureAudioMode": "纯语音模式",
     "cb_scriptMode": "脚本模式",
@@ -173,6 +186,7 @@
       "tb_playVolume": "调整播放音量，增大音量时可能会出现音频波形丢失而引起的失真情况",
       "tb_prePlay": "比如+1s表示路书会更晚播放1秒钟，-2s表示路书会更早的播放2秒钟",
       "tb_replayMode": "在游戏进行时不可切换播放模式",
+      "tb_playbackSpd": "固定调整语速，可与动态调整语速叠加",
       "cb_pureAudioMode": "纯语音路书的播放",
       "cb_scriptMode": "脚本模式",
       "cb_mixMode": "混合模式",

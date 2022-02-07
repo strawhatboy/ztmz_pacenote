@@ -7,7 +7,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        MinHeight="800"
+        MinHeight="840"
         MinWidth="500"
         
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -17,7 +17,7 @@
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
         Closing="Window_Closing"
-        Title="ZTMZ Club 路书工具" Height="800" Width="500" Loaded="Window_Loaded">
+        Title="ZTMZ Club 路书工具" Height="840" Width="500" Loaded="Window_Loaded">
 
     <Grid>
         <Grid.Resources>
@@ -35,7 +35,7 @@
             <RowDefinition Height="5" />
             <RowDefinition Height="150" />
             <RowDefinition Height="5" />
-            <RowDefinition Height="240" />
+            <RowDefinition Height="280" />
             <RowDefinition Height="5" />
             <RowDefinition Height="75" />
         </Grid.RowDefinitions>
@@ -302,6 +302,7 @@
                     <RowDefinition Height="40" />
                     <RowDefinition Height="40" />
                     <RowDefinition Height="40" />
+                    <RowDefinition Height="40" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
@@ -362,11 +363,20 @@
                     IsEnabled="True"
                     VerticalAlignment="Center"></Slider>
                 <TextBlock Grid.Row="3" Grid.Column="3" x:Name="tb_scriptTiming" HorizontalAlignment="Center" >0s</TextBlock>
+                <TextBlock Grid.Row="4" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_playbackSpd}"
+                           Text="{DynamicResource ResourceKey=ui.tb_playbackSpd}"/>
+                <Slider Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" x:Name="sl_playbackSpd" 
+                        Maximum="2" Minimum="0.25" Value="1" ValueChanged="Sl_playbackSpd_OnValueChanged" 
+                        IsEnabled="True" TickFrequency="0.25"
+                        Style="{StaticResource MaterialDesignDiscreteSlider}"
+                        TickPlacement="Both" 
+                        VerticalAlignment="Center"></Slider>
+                <TextBlock Grid.Row="4" Grid.Column="3" x:Name="tb_playbackSpd" HorizontalAlignment="Center" >x 1.00</TextBlock>
 
-                <TextBlock Grid.Row="4" Grid.Column="0" FontWeight="Bold"
+                <TextBlock Grid.Row="5" Grid.Column="0" FontWeight="Bold"
                            ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_replayMode}" 
                            Text="{DynamicResource ResourceKey=ui.tb_replayMode}"/>
-                <ComboBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_replay_mode"
+                <ComboBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_replay_mode"
                       VerticalAlignment="Center"
                       SelectionChanged="cb_replay_mode_SelectionChanged" SelectedIndex="1">
                     <ComboBoxItem ToolTip="{DynamicResource ResourceKey=ui.tooltip.cb_pureAudioMode}"
@@ -376,10 +386,10 @@
                     <ComboBoxItem ToolTip="{DynamicResource ResourceKey=ui.tooltip.cb_mixMode}"
                                   Content="{DynamicResource ResourceKey=ui.cb_mixMode}"/>
                 </ComboBox>
-                <TextBlock Grid.Row="5" Grid.Column="0" FontWeight="Bold"
+                <TextBlock Grid.Row="6" Grid.Column="0" FontWeight="Bold"
                            ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_recordMode}" 
                            Text="{DynamicResource ResourceKey=ui.tb_recordMode}"/>
-                <ComboBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_record_mode"
+                <ComboBox Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_record_mode"
                       VerticalAlignment="Center"
                       SelectionChanged="cb_record_mode_SelectionChanged" SelectedIndex="0">
                     <ComboBoxItem ToolTip="{DynamicResource ResourceKey=ui.tooltip.cb_pureAudioRecordMode}"
@@ -387,14 +397,14 @@
                     <ComboBoxItem ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_autoScriptRecordMode}"
                                   Content="{DynamicResource ResourceKey=ui.tb_autoScriptRecordMode}" />
                 </ComboBox>
-                <TextBlock Grid.Row="6" Grid.Column="0" 
+                <TextBlock Grid.Row="7" Grid.Column="0" 
                            ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_showHud}" 
                            Text="{DynamicResource ResourceKey=ui.tb_showHud}"
                            FontSize="16" >
                     <TextBlock.Effect>
                         <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
                     </TextBlock.Effect></TextBlock>
-                <CheckBox x:Name="chk_Hud" Grid.Row="6" Grid.Column="1" Click="chk_Hud_Click"
+                <CheckBox x:Name="chk_Hud" Grid.Row="7" Grid.Column="1" Click="chk_Hud_Click"
                                         VerticalAlignment="Center">
                     <ProgressBar x:Name="pb_Hud"
                                 Style="{StaticResource MaterialDesignCircularProgressBar}"
