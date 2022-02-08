@@ -37,8 +37,10 @@
       "useSequentialMixerToHandleAudioConflict": "队列播放模式可以避免同一时刻播放多个语音片段造成的语音重叠现象",
       "useDynamicPlaybackSpeed": "在某些路书较为密集的地图（如苏格兰）中，通过动态地根据车速与下个路书位置来调整当前路书片段的语速，来避免路书跟不上车的情况",
       "useTempoInsteadOfRate": "使用节拍方式，可以保证仅仅加速或减速语音，而保持音调不变，使用频率方式会导致音调发生变化（怪起来了）",
+      "dynamicPlaybackMaxSpeed": "动态地调整语速时，不超过这个倍数，比如设置为2.0，那么最多语速 x2.0",
       "useDynamicVolume": "会根据当前车速判断紧张程度，对语音进行正弦波扰动，车速越快越紧张",
-      "dynamicVolumePerturbationFrequency": "正弦波的频率，频率越高，抖动越快"
+      "dynamicVolumePerturbationFrequency": "正弦波的频率，频率越高，抖动越快",
+      "dynamicVolumePerturbationAmplitude": "振幅越大，抖动越强烈"
     },
 
     "language": "界面语言",
@@ -59,8 +61,10 @@
     "useSequentialMixerToHandleAudioConflict": "使用队列播放模式",
     "useDynamicPlaybackSpeed": "使用动态语速调整",
     "useTempoInsteadOfRate": "使用修改节拍而不是频率的方式来调整播放语速",
+    "dynamicPlaybackMaxSpeed": "动态语速调整上限",
     "useDynamicVolume": "使用动态语音紧张感增强",
-    "dynamicVolumePerturbationFrequency": "语音紧张感增强波形频率（赫兹）"
+    "dynamicVolumePerturbationFrequency": "语音紧张感增强波形频率（赫兹）",
+    "dynamicVolumePerturbationAmplitude": "语音紧张感增强波形振幅（0~1）"
   },
 
   "dialog": {

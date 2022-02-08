@@ -87,7 +87,31 @@ namespace ZTMZ.PacenoteTool
         }
 
         public int CurrentPlayAmplification { set; get; } = 100;
-        public float CurrentPlaySpeed { set; get; } = 1.0f;
+
+        public float _currentPlaySpeed = 1.0f;
+
+        public float CurrentPlaySpeed
+        {
+            set
+            {
+                if (value < 0)
+                {
+                    _currentPlaySpeed = 1.0f;
+                } 
+                else if (value > Config.Instance.DynamicPlaybackMaxSpeed)
+                {
+                    _currentPlaySpeed = Config.Instance.DynamicPlaybackMaxSpeed;
+                }
+                else
+                {
+                    _currentPlaySpeed = value;
+                }
+            }
+            get
+            {
+                return _currentPlaySpeed;
+            }
+        }
         public float CurrentTension { set; get; } = 0f;
 
         private AutoResampledCachedSound _exampleAudio;
@@ -482,6 +506,7 @@ namespace ZTMZ.PacenoteTool
         {
             // try to amplify the sound.
             var sound = this.AudioFiles[this.CurrentPlayIndex++].Sound;
+            sound.PlaySpeed = this.CurrentPlaySpeed;
             sound.Amplification = this.CurrentPlayAmplification;
             sound.Tension = this.CurrentTension;
             this.Player.PlaybackRate = this.CurrentPlaySpeed;
@@ -493,6 +518,7 @@ namespace ZTMZ.PacenoteTool
         public void PlayExample()
         {
             this._exampleAudio.Amplification = this.CurrentPlayAmplification;
+            this._exampleAudio.PlaySpeed = this.CurrentPlaySpeed;
             this.Player.PlaybackRate = this.CurrentPlaySpeed;
             this.Player.PlaySound(this._exampleAudio, Config.Instance.UseSequentialMixerToHandleAudioConflict);
         }
@@ -500,6 +526,7 @@ namespace ZTMZ.PacenoteTool
         public void PlaySystem(string sound)
         {
             var audio = this.getSoundByKeyword(sound, this.CurrentCoDriverSoundPackagePath);
+            audio.PlaySpeed = this.CurrentPlaySpeed;
             audio.Amplification = this.CurrentPlayAmplification;
             audio.Tension = this.CurrentTension;
             this.Player.PlaybackRate = this.CurrentPlaySpeed;

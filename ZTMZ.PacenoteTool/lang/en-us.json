@@ -37,8 +37,10 @@
       "useSequentialMixerToHandleAudioConflict": "A sequential mix can avoid voices overlap",
       "useDynamicPlaybackSpeed": "In some maps with dense pacenotes (such as Scotland), by dynamically adjusting the speech rate of the current pacenote segment according to the speed of the vehicle and the position of the next pacenote,\n to avoid the situation that the pacenote cannot keep up with the car",
       "useTempoInsteadOfRate": "Using the Tempo method can ensure that only the voice is accelerated or slowed down, while keeping the pitch unchanged, using the Rate method will cause the pitch to change (weird) ",
+      "dynamicPlaybackMaxSpeed": "When dynamically adjusting the speech rate, it does not exceed this multiple. For example, if it is set to 2.0, then the maximum speech rate is x2.0",
       "useDynamicVolume": "It will judge the degree of tension according to the current speed and perform sine wave disturbance on the voice",
-      "dynamicVolumePerturbationFrequency": "The frequency of the sine wave, the higher the frequency, the faster the jitter"
+      "dynamicVolumePerturbationFrequency": "The frequency of the sine wave, the higher the frequency, the faster the jitter",
+      "dynamicVolumePerturbationAmplitude": "The larger the amplitude, the stronger the jitter"
     },
 
     "language": "UI language",
@@ -59,8 +61,10 @@
     "useSequentialMixerToHandleAudioConflict": "Use sequential mixer",
     "useDynamicPlaybackSpeed": "Use dynamic playback speech rate",
     "useTempoInsteadOfRate": "Use tempo instead of rate for playback rate adjustment",
+    "dynamicPlaybackMaxSpeed": "Max dynamic playback speech rate",
     "useDynamicVolume": "Use dynamic voice tension enhancement",
-    "dynamicVolumePerturbationFrequency": "Voice tension enhancement waveform frequency (Hz)"
+    "dynamicVolumePerturbationFrequency": "Voice tension enhancement waveform frequency (Hz)",
+    "dynamicVolumePerturbationAmplitude": "Voice tension enhancement waveform amplitude (0~1)"
   },
 
   "dialog": {

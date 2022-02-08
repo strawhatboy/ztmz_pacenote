@@ -212,6 +212,14 @@ namespace ZTMZ.PacenoteTool
                 Config.Instance.UseTempoInsteadOfRate = this.btn_UseTempoInsteadOfRate.IsChecked.Value;
                 Config.Instance.SaveUserConfig();
             };
+
+            // max dynamic playback spd
+            this.sl_dynamicPlaybackMaxSpeed.Value = Config.Instance.DynamicPlaybackMaxSpeed;
+            this.sl_dynamicPlaybackMaxSpeed.ValueChanged += (s, e) =>
+            {
+                Config.Instance.DynamicPlaybackMaxSpeed = (float)this.sl_dynamicPlaybackMaxSpeed.Value;
+                Config.Instance.SaveUserConfig();
+            };
             
             // dynamic volume
             this.btn_useDynamicVolume.IsChecked = Config.Instance.UseDynamicVolume;
@@ -225,6 +233,13 @@ namespace ZTMZ.PacenoteTool
             this.tb_dynamicVolumePerturbationFrequency.ValueChanged += (s, e) =>
             {
                 Config.Instance.DynamicVolumePerturbationFrequency = (int)this.tb_dynamicVolumePerturbationFrequency.Value.Value;
+                Config.Instance.SaveUserConfig();
+            };
+
+            this.sl_dynamicVolumePerturbationAmplitude.Value = Config.Instance.DynamicVolumePerturbationAmplitude;
+            this.sl_dynamicVolumePerturbationAmplitude.ValueChanged += (s, e) =>
+            {
+                Config.Instance.DynamicVolumePerturbationAmplitude = (float)this.sl_dynamicVolumePerturbationAmplitude.Value;
                 Config.Instance.SaveUserConfig();
             };
         }

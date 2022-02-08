@@ -253,7 +253,7 @@ namespace ZTMZ.PacenoteTool
                                            spdMperS * this._profileManager.CurrentAudioFile.Sound.Duration /
                                            this._playbackSpd
                                            - nextPlayPoint;
-                                if (diff >= 0)
+                                if (diff >= 0 && (nextPlayPoint - currentPoint) > 0)
                                 {
                                     this._profileManager.CurrentPlaySpeed =
                                         (this._profileManager.CurrentAudioFile.Sound.Duration / this._playbackSpd)

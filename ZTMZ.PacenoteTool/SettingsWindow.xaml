@@ -159,6 +159,8 @@
                                     <RowDefinition Height="50" />
                                     <RowDefinition Height="50" />
                                     <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
                                 </Grid.RowDefinitions>
                                 <TextBlock VerticalAlignment="Center"
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}" Text="{DynamicResource ResourceKey=settings.playStartAndEndSound}"
@@ -247,18 +249,38 @@
                                 </TextBlock>
                                 <ToggleButton Grid.Row="11" Grid.Column="1" x:Name="btn_UseTempoInsteadOfRate" />
                                 
-                                <TextBlock Grid.Row="12" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.useDynamicVolume}"
+                                <TextBlock Grid.Row="12" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.dynamicPlaybackMaxSpeed}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.dynamicPlaybackMaxSpeed}">
+                                </TextBlock>
+                                <Slider Name="sl_dynamicPlaybackMaxSpeed" Grid.Row="12" Grid.Column="1" Value="2" Maximum="3.0" Minimum="1.0" 
+                                        TickFrequency="0.25"
+                                        Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                        TickPlacement="Both" 
+                                        VerticalAlignment="Center" />
+                                
+                                <TextBlock Grid.Row="13" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.useDynamicVolume}"
                                            Style="{StaticResource MaterialDesignHeadline6TextBlock}"
                                            ToolTip="{DynamicResource ResourceKey=settings.tooltip.useDynamicVolume}">
                                 </TextBlock>
-                                <ToggleButton Grid.Row="12" Grid.Column="1" x:Name="btn_useDynamicVolume" />
+                                <ToggleButton Grid.Row="13" Grid.Column="1" x:Name="btn_useDynamicVolume" />
                                 
-                                <TextBlock Grid.Row="13" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.dynamicVolumePerturbationFrequency}"
+                                <TextBlock Grid.Row="14" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.dynamicVolumePerturbationFrequency}"
                                            Style="{StaticResource MaterialDesignHeadline6TextBlock}"
                                            ToolTip="{DynamicResource ResourceKey=settings.tooltip.dynamicVolumePerturbationFrequency}">
                                 </TextBlock>
-                                <xctk:UIntegerUpDown Name="tb_dynamicVolumePerturbationFrequency" Grid.Row="13" Grid.Column="1" Value="30" Maximum="100" Minimum="1"
+                                <xctk:UIntegerUpDown Name="tb_dynamicVolumePerturbationFrequency" Grid.Row="14" Grid.Column="1" Value="30" Maximum="100" Minimum="1"
                                                      VerticalAlignment="Center" />
+                                
+                                <TextBlock Grid.Row="15" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.dynamicVolumePerturbationAmplitude}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.dynamicVolumePerturbationAmplitude}">
+                                </TextBlock>
+                                <Slider Name="sl_dynamicVolumePerturbationAmplitude" Grid.Row="15" Grid.Column="1" Value="0.8" Maximum="1" Minimum="0" 
+                                        TickFrequency="0.125"
+                                        Style="{StaticResource MaterialDesignDiscreteSlider}"
+                                        TickPlacement="Both" 
+                                        VerticalAlignment="Center" />
                             </Grid>
                         </materialDesign:Card>
                     </Expander>

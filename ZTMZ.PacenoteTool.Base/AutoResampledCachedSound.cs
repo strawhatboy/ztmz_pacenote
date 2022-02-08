@@ -33,6 +33,8 @@ namespace ZTMZ.PacenoteTool.Base
             }
         }
 
+        public float PlaySpeed { set; get; } = 1.0f;
+
         public float[] AudioData
         {
             get
@@ -167,12 +169,13 @@ namespace ZTMZ.PacenoteTool.Base
                     res = this.AudioData[index];
                 }
 
-                res *= (1 + 
+                res *= (1 + Config.Instance.DynamicVolumePerturbationAmplitude * 
                         Tension * MathF.Sin(
                             (float)index / 
                             this.WaveFormat.SampleRate / 
                             this.WaveFormat.Channels * 
                             Config.Instance.DynamicVolumePerturbationFrequency * 2 * MathF.PI
+                            / this.PlaySpeed
                             )
                         );
                 
