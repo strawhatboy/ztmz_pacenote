@@ -190,9 +190,9 @@ namespace ZTMZ.PacenoteTool
                         // collision happens. speed == 0 means reset or end stage
                         if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Severe)
                             this.onCollisionDetected?.Invoke(2);
-                        if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Medium)
+                        else if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Medium)
                             this.onCollisionDetected?.Invoke(1);
-                        if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Slight)
+                        else if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Slight)
                             this.onCollisionDetected?.Invoke(0);
                     }
 

@@ -201,7 +201,16 @@ namespace ZTMZ.PacenoteTool
                         // boom
                     }
                 }
-                
+                else
+                {
+                    this.CoDriverPackages[codriverPath].Info = new CoDriverPackageInfo()
+                    {
+                        name = codriverPath,
+                        Path = codriverPath,
+                        version = "0.0.0",
+                    };
+                }
+
                 List<string> filePaths = new List<string>();
                 // try file directly
 

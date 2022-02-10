@@ -569,8 +569,6 @@ namespace ZTMZ.PacenoteTool
                 this.Title = string.Format("{0} {1}",
                     I18NLoader.Instance.CurrentDict["application.title_test"].ToString(),
                     _version);
-                    // disable auto script mode
-                    this.cb_record_mode.Items.RemoveAt(this.cb_record_mode.Items.Count - 1);
             }
         }
 

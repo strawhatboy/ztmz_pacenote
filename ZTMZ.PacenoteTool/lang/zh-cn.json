@@ -13,7 +13,8 @@
     "section": {
       "general": "常规",
       "voicePackage": "语音包",
-      "misc": "杂项"
+      "misc": "杂项",
+      "playback": "播放"
     },
 
     "restartNeeded": "需要重启工具来生效",

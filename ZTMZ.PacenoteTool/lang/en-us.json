@@ -13,7 +13,8 @@
     "section": {
       "general": "General",
       "voicePackage": "Voice Package",
-      "misc": "Misc"
+      "misc": "Misc",
+      "playback": "Playback"
     },
 
     "restartNeeded": "Need to restart the tool to take effect",
