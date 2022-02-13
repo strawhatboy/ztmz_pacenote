@@ -169,16 +169,19 @@ namespace ZTMZ.PacenoteTool.Base
                     res = this.AudioData[index];
                 }
 
-                res *= (1 + Config.Instance.DynamicVolumePerturbationAmplitude * 
-                        Tension * MathF.Sin(
-                            (float)index / 
-                            this.WaveFormat.SampleRate / 
-                            this.WaveFormat.Channels * 
-                            Config.Instance.DynamicVolumePerturbationFrequency * 2 * MathF.PI
-                            / this.PlaySpeed
+                if (Config.Instance.UseDynamicVolume)
+                {
+                    res *= (1 + Config.Instance.DynamicVolumePerturbationAmplitude *
+                            Tension * MathF.Sin(
+                                (float)index /
+                                this.WaveFormat.SampleRate /
+                                this.WaveFormat.Channels *
+                                Config.Instance.DynamicVolumePerturbationFrequency * 2 * MathF.PI
+                                / this.PlaySpeed
                             )
                         );
-                
+                }
+
                 return res;
             }
         }
