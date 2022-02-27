@@ -45,7 +45,7 @@ namespace ZTMZ.PacenoteTool
 
         public void Recognize(int distance, string filepath)
         {
-            this.PythonProcess.StandardInput.WriteLine(string.Format("{0}:{1}", distance, filepath));
+            this.PythonProcess.StandardInput.WriteLine(string.Format("{0}@{1}", distance, filepath));
         }
     }
 }

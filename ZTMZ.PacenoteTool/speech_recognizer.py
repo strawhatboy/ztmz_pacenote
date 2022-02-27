@@ -37,7 +37,7 @@ model = Model(args.modelpath)
 rec = KaldiRecognizer(model, args.framerate, json.dumps(speeches))
 
 while True:
-    command = input().split(':')
+    command = input().split('@')
     if len(command) < 2:
         continue
     distance = command[0]
