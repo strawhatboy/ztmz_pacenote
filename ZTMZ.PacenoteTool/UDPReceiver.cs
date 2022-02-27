@@ -11,7 +11,7 @@ namespace ZTMZ.PacenoteTool
         public float Time { set; get; }
         public float LapTime { set; get; }
         public float LapDistance { set; get; }
-        public float CompletionRate { set; get; }   // 0-1, 0.5 means finished 50%
+        public float CompletionRate { set; get; } // 0-1, 0.5 means finished 50%
         public float Speed { set; get; }
         public float TrackLength { set; get; }
         public float StartZ { set; get; }
@@ -20,7 +20,9 @@ namespace ZTMZ.PacenoteTool
         public float SpeedRearLeft { set; get; }
         public float SpeedRearRight { set; get; }
         public float SpeedFrontLeft { set; get; }
+
         public float SpeedFrontRight { set; get; }
+
         // public int TrackNumber { set; get; }
         public DateTime TimeStamp { set; get; }
 
@@ -31,6 +33,7 @@ namespace ZTMZ.PacenoteTool
             {
                 return false;
             }
+
             var target = (UDPMessage)obj;
             return this.Time == target.Time &&
                    this.LapTime == target.LapTime &&
@@ -39,7 +42,7 @@ namespace ZTMZ.PacenoteTool
                    this.Speed == target.Speed &&
                    // this.TrackNumber == target.TrackNumber &&
                    this.TrackLength == target.TrackLength &&
-                    this.StartZ == target.StartZ;
+                   this.StartZ == target.StartZ;
         }
     }
 
@@ -52,6 +55,7 @@ namespace ZTMZ.PacenoteTool
         public UdpClient u;
         public IPEndPoint e;
     }
+
     public class UDPReceiver
     {
         private UdpClient client;
@@ -68,6 +72,7 @@ namespace ZTMZ.PacenoteTool
         private int _timerCount = 0;
         private GameState _gameState = GameState.Unknown;
         public event Action ListenStarted;
+
         public GameState GameState
         {
             set
@@ -82,7 +87,7 @@ namespace ZTMZ.PacenoteTool
 
         public void ResetWheelStatus()
         {
-            WheelAbnormalDetectedReported = new bool[] { false, false, false, false }; 
+            WheelAbnormalDetectedReported = new bool[] { false, false, false, false };
             WheelAbnormalDetectedCounter = new int[] { 0, 0, 0, 0 };
         }
 
@@ -118,7 +123,7 @@ namespace ZTMZ.PacenoteTool
                     }
                 }
             };
-            this._timer.Start(); 
+            this._timer.Start();
             UdpState s;
             s.e = any;
             s.u = client;
@@ -149,6 +154,7 @@ namespace ZTMZ.PacenoteTool
             {
                 return;
             }
+
             UdpClient u = ((UdpState)(result.AsyncState)).u;
             IPEndPoint e = ((UdpState)(result.AsyncState)).e;
             byte[] rawData;
@@ -156,122 +162,132 @@ namespace ZTMZ.PacenoteTool
             {
                 return;
             }
+
             try
             {
                 rawData = u.EndReceive(result, ref e);
-            } catch (ObjectDisposedException x)
-            {
-                return;
-            }
-            if (rawData.Length > 0)
-            {
-                UDPMessage message = new UDPMessage();
-                message.TimeStamp = DateTime.Now;
-                message.Time = BitConverter.ToSingle(rawData, 0);
-                message.LapTime = BitConverter.ToSingle(rawData, 4);
-                message.LapDistance = BitConverter.ToSingle(rawData, 8);
-                message.CompletionRate = BitConverter.ToSingle(rawData, 12);
-                message.Speed = BitConverter.ToSingle(rawData, 28) * 3.6f;   // m/s -> km/h
-                message.TrackLength = BitConverter.ToSingle(rawData, 244);
-                message.StartZ = BitConverter.ToSingle(rawData, 24);
-                message.SpeedFrontLeft = BitConverter.ToSingle(rawData, 27<<2) * 3.6f;
-                message.SpeedFrontRight = BitConverter.ToSingle(rawData, 28<<2) * 3.6f;
-                message.SpeedRearLeft = BitConverter.ToSingle(rawData, 25<<2) * 3.6f;
-                message.SpeedRearRight = BitConverter.ToSingle(rawData, 26<<2) * 3.6f;
-                // only 264 bytes
-                // message.TrackNumber = BitConverter.ToInt32(rawData, 272);
-                if (!message.Equals(this.LastMessage))
+                if (rawData.Length > 0)
                 {
-                    var lastMessage = this.LastMessage;
-                    this.LastMessage = message;
-                    var spdDiff = lastMessage.Speed - message.Speed;
-                    if (Config.Instance.PlayCollisionSound && message.Speed != 0)
+                    UDPMessage message = new UDPMessage();
+                    message.TimeStamp = DateTime.Now;
+                    message.Time = BitConverter.ToSingle(rawData, 0);
+                    message.LapTime = BitConverter.ToSingle(rawData, 4);
+                    message.LapDistance = BitConverter.ToSingle(rawData, 8);
+                    message.CompletionRate = BitConverter.ToSingle(rawData, 12);
+                    message.Speed = BitConverter.ToSingle(rawData, 28) * 3.6f; // m/s -> km/h
+                    message.TrackLength = BitConverter.ToSingle(rawData, 244);
+                    message.StartZ = BitConverter.ToSingle(rawData, 24);
+                    message.SpeedFrontLeft = BitConverter.ToSingle(rawData, 27 << 2) * 3.6f;
+                    message.SpeedFrontRight = BitConverter.ToSingle(rawData, 28 << 2) * 3.6f;
+                    message.SpeedRearLeft = BitConverter.ToSingle(rawData, 25 << 2) * 3.6f;
+                    message.SpeedRearRight = BitConverter.ToSingle(rawData, 26 << 2) * 3.6f;
+                    // only 264 bytes
+                    // message.TrackNumber = BitConverter.ToInt32(rawData, 272);
+                    if (!message.Equals(this.LastMessage))
                     {
-                        // collision happens. speed == 0 means reset or end stage
-                        if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Severe)
-                            this.onCollisionDetected?.Invoke(2);
-                        else if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Medium)
-                            this.onCollisionDetected?.Invoke(1);
-                        else if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Slight)
-                            this.onCollisionDetected?.Invoke(0);
-                    }
-
-                    if (Config.Instance.PlayWheelAbnormalSound)
-                    {
-                        // try to report wheel event
-                        var wheelData = new float[] { message.SpeedFrontLeft, message.SpeedFrontRight, message.SpeedRearLeft, message.SpeedRearRight };
-                        var minWheelSpd = float.MaxValue;
-                        var minWheelSpdIndex = 0;
-                        var sum = 0f;
-                        for (int i = 0; i < 4; i++)
+                        var lastMessage = this.LastMessage;
+                        this.LastMessage = message;
+                        var spdDiff = lastMessage.Speed - message.Speed;
+                        if (Config.Instance.PlayCollisionSound && message.Speed != 0)
                         {
-                            sum += wheelData[i];
-                            if (wheelData[i] < minWheelSpd)
+                            // collision happens. speed == 0 means reset or end stage
+                            if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Severe)
+                                this.onCollisionDetected?.Invoke(2);
+                            else if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Medium)
+                                this.onCollisionDetected?.Invoke(1);
+                            else if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Slight)
+                                this.onCollisionDetected?.Invoke(0);
+                        }
+
+                        if (Config.Instance.PlayWheelAbnormalSound)
+                        {
+                            // try to report wheel event
+                            var wheelData = new float[]
                             {
-                                minWheelSpd = wheelData[i];
-                                minWheelSpdIndex = i;
+                                message.SpeedFrontLeft, message.SpeedFrontRight, message.SpeedRearLeft,
+                                message.SpeedRearRight
+                            };
+                            var minWheelSpd = float.MaxValue;
+                            var minWheelSpdIndex = 0;
+                            var sum = 0f;
+                            for (int i = 0; i < 4; i++)
+                            {
+                                sum += wheelData[i];
+                                if (wheelData[i] < minWheelSpd)
+                                {
+                                    minWheelSpd = wheelData[i];
+                                    minWheelSpdIndex = i;
+                                }
+                            }
+
+                            sum -= minWheelSpd;
+                            var mean = sum / 3f;
+
+                            if (mean > 50 && minWheelSpd <
+                                mean / (1 + Config.Instance.WheelAbnormalPercentageReportThreshold))
+                            {
+                                // need to report
+                                WheelAbnormalDetectedCounter[minWheelSpdIndex]++;
+                                if (WheelAbnormalDetectedCounter[minWheelSpdIndex] >=
+                                    Config.Instance.WheelAbnormalFramesReportThreshold &&
+                                    !this.WheelAbnormalDetectedReported[minWheelSpdIndex])
+                                {
+                                    this.onWheelAbnormalDetected?.Invoke(minWheelSpdIndex);
+                                    this.WheelAbnormalDetectedReported[minWheelSpdIndex] = true;
+                                }
+                            }
+                            else
+                            {
+                                // reset to normal
+                                //WheelAbnormalDetectedCounter[minWheelSpdIndex] = 0;
                             }
                         }
-                        sum -= minWheelSpd;
-                        var mean = sum / 3f;
 
-                        if (mean > 50 && minWheelSpd < mean / (1 + Config.Instance.WheelAbnormalPercentageReportThreshold))
+                        this.onNewMessage?.Invoke(message);
+                        if (message.LapTime > 0 && this.GameState != GameState.Racing)
                         {
-                            // need to report
-                            WheelAbnormalDetectedCounter[minWheelSpdIndex]++;
-                            if (WheelAbnormalDetectedCounter[minWheelSpdIndex] >= Config.Instance.WheelAbnormalFramesReportThreshold && !this.WheelAbnormalDetectedReported[minWheelSpdIndex])
+                            this.GameState = GameState.Racing;
+                        }
+                        else if (message.LapTime == 0 && message.LapDistance <= 0)
+                        {
+                            // CountDown not works in Daily Event, only works for TimeTrial
+                            //if (message.Time != this.LastMessage.Time)
+                            //{
+                            //    if (this.GameState != GameState.CountDown)
+                            //        this.GameState = GameState.CountDown;
+                            //}
+                            //else 
+                            if (message.Time == 0 && this.GameState != GameState.RaceEnd)
                             {
-                                this.onWheelAbnormalDetected?.Invoke(minWheelSpdIndex);
-                                this.WheelAbnormalDetectedReported[minWheelSpdIndex] = true;
+                                this.GameState = GameState.RaceEnd;
+                            }
+                            else if (this.GameState != GameState.RaceBegin)
+                            {
+                                this.GameState = GameState.RaceBegin;
                             }
                         }
-                        else
-                        {
-                            // reset to normal
-                            //WheelAbnormalDetectedCounter[minWheelSpdIndex] = 0;
-                        }
-                    }
-
-                    this.onNewMessage?.Invoke(message);
-                    if (message.LapTime > 0 && this.GameState != GameState.Racing)
-                    {
-                        this.GameState = GameState.Racing;
-                    }
-                    else if (message.LapTime == 0 && message.LapDistance <= 0)
-                    {
-                        // CountDown not works in Daily Event, only works for TimeTrial
-                        //if (message.Time != this.LastMessage.Time)
+                        //else if (message.LapTime == 0 && this.GameState != GameState.RaceEnd)
                         //{
-                        //    if (this.GameState != GameState.CountDown)
-                        //        this.GameState = GameState.CountDown;
+                        //    this.GameState = GameState.RaceEnd;
                         //}
-                        //else 
-                        if (message.Time == 0 && this.GameState != GameState.RaceEnd)
-                        {
-                            this.GameState = GameState.RaceEnd;
-                        }
-                        else if (this.GameState != GameState.RaceBegin)
-                        {
-                            this.GameState = GameState.RaceBegin;
-                        }
                     }
-                    //else if (message.LapTime == 0 && this.GameState != GameState.RaceEnd)
-                    //{
-                    //    this.GameState = GameState.RaceEnd;
-                    //}
-                }
-                else
-                {
-                    if (this.GameState == GameState.Racing || this.GameState == GameState.RaceBegin || this.GameState == GameState.CountDown)
+                    else
                     {
-                        this.GameState = GameState.Paused;
+                        if (this.GameState == GameState.Racing || this.GameState == GameState.RaceBegin ||
+                            this.GameState == GameState.CountDown)
+                        {
+                            this.GameState = GameState.Paused;
+                        }
                     }
                 }
+            }
+            catch
+            {
+            }
 
-                if (this.isRunning)
-                {
-                    u.BeginReceive(this.receiveMessage, result.AsyncState);
-                }
+            if (this.isRunning)
+            {
+                u.BeginReceive(this.receiveMessage, result.AsyncState);
             }
         }
     }
