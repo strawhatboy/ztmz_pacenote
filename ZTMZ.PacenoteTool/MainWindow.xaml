@@ -366,8 +366,8 @@
                 <TextBlock Grid.Row="4" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_playbackSpd}"
                            Text="{DynamicResource ResourceKey=ui.tb_playbackSpd}"/>
                 <Slider Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" x:Name="sl_playbackSpd" 
-                        Maximum="2" Minimum="0.25" Value="1" ValueChanged="Sl_playbackSpd_OnValueChanged" 
-                        IsEnabled="True" TickFrequency="0.25"
+                        Maximum="1.5" Minimum="0.5" Value="1" ValueChanged="Sl_playbackSpd_OnValueChanged" 
+                        IsEnabled="True" TickFrequency="0.125"
                         Style="{StaticResource MaterialDesignDiscreteSlider}"
                         TickPlacement="Both" 
                         VerticalAlignment="Center"></Slider>

@@ -338,9 +338,9 @@
                                            Style="{StaticResource MaterialDesignHeadline6TextBlock}"
                                            ToolTip="{DynamicResource ResourceKey=settings.tooltip.dynamicPlaybackMaxSpeed}">
                                 </TextBlock>
-                                <Slider Name="sl_dynamicPlaybackMaxSpeed" Grid.Row="3" Grid.Column="1" Value="2"
-                                        Maximum="3.0" Minimum="1.0"
-                                        TickFrequency="0.25"
+                                <Slider Name="sl_dynamicPlaybackMaxSpeed" Grid.Row="3" Grid.Column="1" Value="1.5"
+                                        Maximum="2.0" Minimum="1.0"
+                                        TickFrequency="0.125"
                                         Style="{StaticResource MaterialDesignDiscreteSlider}"
                                         TickPlacement="Both"
                                         VerticalAlignment="Center" />

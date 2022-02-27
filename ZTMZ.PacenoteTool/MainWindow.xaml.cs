@@ -82,6 +82,7 @@ namespace ZTMZ.PacenoteTool
             this._dr2Helper = new();
             this._autoRecorder = new();
 
+            this.checkFirstRun();
             this.initHotKeys();
             //this.initializeI18N();
             this.initializeUDPReceiver();
@@ -118,6 +119,14 @@ namespace ZTMZ.PacenoteTool
                 if (_version.Equals("2.5.2.0"))
                 {
                     // first run of 2.5.2
+                }
+
+                if (_version.Equals("2.6.1.0"))
+                {
+                    // adjust from 2.0 to 1.5 by default
+                    Config.Instance.DynamicPlaybackMaxSpeed = 1.5f;
+                    // reset to 1.0 by default
+                    Config.Instance.UI_PlaybackSpeed = 1.0f;
                 }
             }
         }
