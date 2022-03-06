@@ -86,6 +86,8 @@ batch audio processor
 * __拉稀车手老王__ : recording and making of the audio packages
 * __权威Authority__: recording and making of the audio packages
 * __wha1ing__: recording and making of the audio packages
+* __hippopo__: recording and making of the audio packages, proofreading of pacenote scripts
+* __大李子小妖__: recording and making of the audio packages
 * __\[Pacenotes recording\]__:
     * HanXu
     * 回家的誘いをかける
@@ -94,4 +96,5 @@ batch audio processor
     * O.Z. (Gliese-436b)
     * Silenig
     * smoke (DR2略略略)
+    * Hippopo
     * Zexx

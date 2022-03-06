@@ -1,5 +1,5 @@
 #define MyAppName "ZTMZ Pacenote Tool"
-#define MyAppVersion "2.6.0.1"
+#define MyAppVersion "2.6.1"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.exe"
@@ -133,7 +133,7 @@ PrivilegesRequired=lowest
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-VersionInfoVersion=2.5.1.0
+VersionInfoVersion=2.6.1.0
 ;PrivilegesRequired=lowest
 
 [Languages]
