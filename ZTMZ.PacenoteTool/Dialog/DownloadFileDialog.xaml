@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Dialog"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        ResizeMode="NoResize"
+        ResizeMode="CanResize"
         mc:Ignorable="d" WindowStyle="None"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
@@ -14,6 +14,9 @@
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
         Title="DownloadFileDialog" Height="150" Width="600">
+    <WindowChrome.WindowChrome>
+        <WindowChrome ResizeBorderThickness="0" CaptionHeight="0"></WindowChrome>
+    </WindowChrome.WindowChrome>
     <DockPanel>
         <TextBlock x:Name="tb_title" DockPanel.Dock="Top" Style="{StaticResource MaterialDesignHeadline5TextBlock}" Margin="20 20 20 0" 
                    Text="{DynamicResource ResourceKey=dialog.downloadFile.title}" />

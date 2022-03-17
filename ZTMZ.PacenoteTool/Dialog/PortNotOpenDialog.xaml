@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Dialog"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d" WindowStyle="None"
-        ResizeMode="NoResize"
+        
+        ResizeMode="CanResize"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
@@ -15,6 +16,9 @@
         Background="{DynamicResource MaterialDesignPaper}"
          Height="450" Width="600">
 
+    <WindowChrome.WindowChrome>
+        <WindowChrome ResizeBorderThickness="0" CaptionHeight="0"></WindowChrome>
+    </WindowChrome.WindowChrome>
     <DockPanel>
         <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" DockPanel.Dock="Top" Margin="20 20 20 0" Text="{DynamicResource ResourceKey=dialog.portNotOpen.title}" />
         <materialDesign:PackIcon Kind="Warning" Height="60" Width="60" Margin="20" Foreground="OrangeRed" DockPanel.Dock="Left"  />

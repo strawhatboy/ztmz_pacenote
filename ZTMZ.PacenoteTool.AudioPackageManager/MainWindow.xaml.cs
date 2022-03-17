@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -16,8 +17,10 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using MaterialDesignThemes.Wpf;
 using Newtonsoft.Json;
 using ZTMZ.PacenoteTool.Base;
+using Constants = ZTMZ.PacenoteTool.Base.Constants;
 
 namespace ZTMZ.PacenoteTool.AudioPackageManager
 {
@@ -46,14 +49,35 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
                 OnPropertyChanged("DataContent");
             }
         }
+        
+        public Dictionary<string, string> Pacenotes { get; private set; }
 
         public MainWindow()
         {
             InitializeComponent();
+            this.loadPacenotes();
             this.SupportedAudioTypes = Config.Instance.SupportedAudioTypes;
             loadAudioPackages();
             this.lv_AudioPackages.ItemsSource = from p in this.CoDriverPackages.Values select p.Info;
             this.lv_Content.DataContext = this;
+        }
+
+        private void loadPacenotes()
+        {
+            
+            // get pacenotes merged from system sound
+            var pacenotes = new Dictionary<string, string>();
+            foreach (var p in ScriptResource.RAW_PACENOTES)
+            {
+                pacenotes[p.Key] = p.Value.Item1;
+            }
+
+            foreach (var p in Constants.SYSTEM_SOUND)
+            {
+                pacenotes[p.Key] = p.Value;
+            }
+
+            this.Pacenotes = pacenotes;
         }
 
         private void loadAudioPackages()
@@ -158,7 +182,9 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
             }
 
             var pkg = this.CoDriverPackages[pkgInfo.Path];
-            foreach (var p in ScriptResource.RAW_PACENOTES)
+            
+            
+            foreach (var p in this.Pacenotes)
             {
                 if (pkg.tokensPath.ContainsKey(p.Key))
                 {
@@ -166,7 +192,7 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
                     this.DataContent.Add(new
                     {
                         Token = p.Key,
-                        TokenDescription = p.Value.Item1,
+                        TokenDescription = p.Value,
                         IsAvailable = "✅",
                         FilesCount = token.Count,
                         Files = token.Select((s, index) => 
@@ -178,7 +204,7 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
                     this.DataContent.Add(new
                     {
                         Token = p.Key,
-                        TokenDescription = p.Value.Item1,
+                        TokenDescription = p.Value,
                         IsAvailable = "❌",
                         FilesCount = 0,
                         Files = new List<string>()
@@ -201,5 +227,31 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        private void Hyperlink_Name_OnRequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            Hyperlink el = (Hyperlink)sender;
+            var path = el.Tag.ToString();
+            if (!string.IsNullOrEmpty(path))
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
+                    System.IO.Path.GetFullPath(path)));
+            }
+
+            e.Handled = true;
+        }
+
+        private void Btn_Refresh_OnClick(object sender, RoutedEventArgs e)
+        {
+            loadAudioPackages();
+            this.lv_AudioPackages.ItemsSource = from p in this.CoDriverPackages.Values select p.Info;
+        }
+
+        private void Btn_New_OnClick(object sender, RoutedEventArgs e)
+        {
+            // throw new NotImplementedException();
+        }
+        private void Sample2_DialogHost_OnDialogClosing(object sender, DialogClosingEventArgs eventArgs)
+            => Debug.WriteLine($"SAMPLE 2: Closing dialog with parameter: {eventArgs.Parameter ?? string.Empty}");
     }
 }

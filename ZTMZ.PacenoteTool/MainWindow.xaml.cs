@@ -23,6 +23,7 @@ using System.IO;
 using MaterialDesignThemes.Wpf;
 using System.Threading;
 using ZTMZ.PacenoteTool.Dialog;
+using Constants = ZTMZ.PacenoteTool.Base.Constants;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -192,7 +193,7 @@ namespace ZTMZ.PacenoteTool
                 var worker = new BackgroundWorker();
                 worker.DoWork += (sender, e) =>
                 {
-                    this._profileManager.PlaySystem(ProfileManager.SYSTEM_COLLISION[lvl]);
+                    this._profileManager.PlaySystem(Constants.SYSTEM_COLLISION[lvl]);
                 };
                 worker.RunWorkerAsync();
             };
@@ -201,7 +202,7 @@ namespace ZTMZ.PacenoteTool
                 var worker = new BackgroundWorker();
                 worker.DoWork += (sender, e) =>
                 {
-                    this._profileManager.PlaySystem(ProfileManager.SYSTEM_PUNCTURE[wheelIndex]);
+                    this._profileManager.PlaySystem(Constants.SYSTEM_PUNCTURE[wheelIndex]);
                 };
                 worker.RunWorkerAsync();
             };
@@ -327,7 +328,7 @@ namespace ZTMZ.PacenoteTool
                     if (this._toolState == ToolState.Replaying && lastState == GameState.Racing && Config.Instance.PlayStartAndEndSound)
                     {
                         // play end sound
-                        this._profileManager.PlaySystem(ProfileManager.SYSTEM_END_STAGE);
+                        this._profileManager.PlaySystem(Constants.SYSTEM_END_STAGE);
                     }
 
                     break;
@@ -419,7 +420,7 @@ namespace ZTMZ.PacenoteTool
                             if (lastState != GameState.Paused && Config.Instance.PlayStartAndEndSound)
                             {
                                 // play start sound
-                                this._profileManager.PlaySystem(ProfileManager.SYSTEM_START_STAGE);
+                                this._profileManager.PlaySystem(Constants.SYSTEM_START_STAGE);
                             }
                         };
                         worker.RunWorkerAsync();
@@ -430,7 +431,7 @@ namespace ZTMZ.PacenoteTool
                     if (lastState == GameState.RaceBegin && Config.Instance.PlayGoSound)
                     {
                         // just go !
-                        this._profileManager.PlaySystem(ProfileManager.SYSTEM_GO);
+                        this._profileManager.PlaySystem(Constants.SYSTEM_GO);
                     }
                     break;
             }
@@ -445,7 +446,7 @@ namespace ZTMZ.PacenoteTool
 
             foreach (var codriver in this._profileManager.GetAllCodrivers())
             {
-                if (!Config.Instance.UseDefaultSoundPackageByDefault && codriver.EndsWith(ProfileManager.DEFAULT_CODRIVER))
+                if (!Config.Instance.UseDefaultSoundPackageByDefault && codriver.EndsWith(Constants.DEFAULT_CODRIVER))
                 {
                     continue;
                 }

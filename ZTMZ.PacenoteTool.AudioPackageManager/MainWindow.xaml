@@ -4,18 +4,69 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.AudioPackageManager"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="语音包管理工具" Height="900" Width="800" >
+        Title="语音包管理工具" Height="900" Width="800">
+
+    <!-- <Window.Resources> -->
+    <!--     <ResourceDictionary> -->
+    <!--         <ResourceDictionary.MergedDictionaries> -->
+    <!--             ~1~ <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" /> @1@ -->
+    <!--             <ResourceDictionary -->
+    <!--                 Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DialogHost.xaml" /> -->
+    <!--         </ResourceDictionary.MergedDictionaries> -->
+    <!--     </ResourceDictionary> -->
+    <!-- </Window.Resources> -->
     <DockPanel Margin="20">
-        <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}" DockPanel.Dock="Top">语音包：</TextBlock>
-        <ListView Grid.Row="1" x:Name="lv_AudioPackages" Height="200" 
-                  DockPanel.Dock="Top" SelectionMode="Single" 
+        <DockPanel DockPanel.Dock="Top">
+            <Button x:Name="btn_Refresh" DockPanel.Dock="Right" Content="{materialDesign:PackIcon Refresh}"
+                    ToolTip="刷新" Click="Btn_Refresh_OnClick" />
+            <materialDesign:DialogHost DockPanel.Dock="Right" >
+                <Button x:Name="btn_New" Content="{materialDesign:PackIcon Plus}"
+                        ToolTip="新建语音包" Click="Btn_New_OnClick"
+                        Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
+                        materialDesign:DialogHost.DialogClosingAttached="Sample2_DialogHost_OnDialogClosing">
+                    <Button.CommandParameter>
+                        <StackPanel
+                            Margin="16">
+                            <ProgressBar
+                                Style="{DynamicResource MaterialDesignCircularProgressBar}"
+                                HorizontalAlignment="Center"
+                                Margin="16"
+                                IsIndeterminate="True"
+                                Value="0" />
+                            <Button
+                                Style="{StaticResource MaterialDesignFlatButton}"
+                                IsCancel="True"
+                                Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                CommandParameter="Sample2Cancel"
+                                HorizontalAlignment="Center"
+                                Content="CANCEL" />
+                        </StackPanel>
+                    </Button.CommandParameter>
+                </Button>
+            </materialDesign:DialogHost>
+            <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}">语音包：</TextBlock>
+        </DockPanel>
+
+        <ListView Grid.Row="1" x:Name="lv_AudioPackages" Height="200"
+                  DockPanel.Dock="Top" SelectionMode="Single"
                   SelectionChanged="Lv_AudioPackages_OnSelectionChanged">
             <ListView.View>
                 <GridView>
                     <GridViewColumn
-                        DisplayMemberBinding="{Binding name}"
-                        Header="名称" />
+                        Header="名称">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <Hyperlink NavigateUri="https://shit.com"
+                                               RequestNavigate="Hyperlink_Name_OnRequestNavigate" Tag="{Binding Path}">
+                                        <TextBlock Text="{Binding name}" />
+                                    </Hyperlink>
+                                </TextBlock>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                     <GridViewColumn
                         DisplayMemberBinding="{Binding GenderStr}"
                         Header="男/女" />
@@ -30,7 +81,8 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock>
-                                    <Hyperlink NavigateUri="{Binding homepage}" RequestNavigate="Hyperlink_OnRequestNavigate">
+                                    <Hyperlink NavigateUri="{Binding homepage}"
+                                               RequestNavigate="Hyperlink_OnRequestNavigate">
                                         <TextBlock Text="{Binding homepage}" />
                                     </Hyperlink>
                                 </TextBlock>
@@ -58,41 +110,42 @@
                   AutoGenerateColumns="False"
                   CanUserAddRows="False">
             <DataGrid.Columns>
-            <DataGridTextColumn
-                Binding="{Binding Token}"
-                Header="标记" />
-            <DataGridTextColumn
-                Binding="{Binding TokenDescription}"
-                Header="标记描述" />
-            <DataGridTextColumn
-                Binding="{Binding IsAvailable}"
-                Header="是否可用" />
-            <DataGridTextColumn
-                Binding="{Binding FilesCount}"
-                Header="文件个数" />
-            <DataGridTemplateColumn
-                Header="试听">
-                <DataGridTemplateColumn.CellTemplate>
-                    <DataTemplate>
-                        <ListBox ItemsSource="{Binding Files}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock>
-                                        <Hyperlink x:Name="hl_listen" NavigateUri="{Binding Uri}" RequestNavigate="hl_listen_OnRequestNavigate">
-                                            <TextBlock Text="{Binding Index}" />
-                                        </Hyperlink>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel IsItemsHost="True" />
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                        </ListBox>
-                    </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>
+                <DataGridTextColumn
+                    Binding="{Binding Token}"
+                    Header="标记" />
+                <DataGridTextColumn
+                    Binding="{Binding TokenDescription}"
+                    Header="标记描述" />
+                <DataGridTextColumn
+                    Binding="{Binding IsAvailable}"
+                    Header="是否可用" />
+                <DataGridTextColumn
+                    Binding="{Binding FilesCount}"
+                    Header="文件个数" />
+                <DataGridTemplateColumn
+                    Header="试听">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ListBox ItemsSource="{Binding Files}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock>
+                                            <Hyperlink x:Name="hl_listen" NavigateUri="{Binding Uri}"
+                                                       RequestNavigate="hl_listen_OnRequestNavigate">
+                                                <TextBlock Text="{Binding Index}" />
+                                            </Hyperlink>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel IsItemsHost="True" />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                            </ListBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

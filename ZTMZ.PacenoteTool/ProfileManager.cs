@@ -17,33 +17,6 @@ namespace ZTMZ.PacenoteTool
 
     public class ProfileManager
     {
-        public static string DEFAULT_PROFILE = "default";
-        public static string DEFAULT_CODRIVER = "codrivers\\default";
-        public static string CODRIVER_FILENAME = "codriver.txt";
-        public static string CODRIVER_PACKAGE_INFO_FILENAME = "info.json";
-
-        // system sound
-        public const string SYSTEM_START_STAGE = "system_start_stage";
-        public const string SYSTEM_END_STAGE = "system_end_stage";
-        public const string SYSTEM_GO = "system_go";
-        public const string SYSTEM_PUNCTURE_FRONT_LEFT = "system_puncture_front_left";
-        public const string SYSTEM_PUNCTURE_FRONT_RIGHT = "system_puncture_front_right";
-        public const string SYSTEM_PUNCTURE_REAR_LEFT = "system_puncture_rear_left";
-        public const string SYSTEM_PUNCTURE_REAR_RIGHT = "system_puncture_rear_right";
-
-        public const string SYSTEM_COLLISION_SLIGHT = "system_collision_slight";
-        public const string SYSTEM_COLLISION_MEDIUM = "system_collision_medium";
-        public const string SYSTEM_COLLISION_SEVERE = "system_collision_severe";
-
-
-        public static List<string> SYSTEM_COLLISION = new List<string>()
-        {
-            SYSTEM_COLLISION_SLIGHT, SYSTEM_COLLISION_MEDIUM, SYSTEM_COLLISION_SEVERE
-        };
-        public static List<string> SYSTEM_PUNCTURE = new List<string>{ 
-            SYSTEM_PUNCTURE_FRONT_LEFT, SYSTEM_PUNCTURE_FRONT_RIGHT,
-            SYSTEM_PUNCTURE_REAR_LEFT, SYSTEM_PUNCTURE_REAR_RIGHT
-        };
 
         public string CurrentProfile { set; get; }
         public string CurrentItineraryPath { set; get; }
@@ -158,7 +131,7 @@ namespace ZTMZ.PacenoteTool
         {
             Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("profiles")));
             Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("codrivers")));
-            this.CreateNewProfile(DEFAULT_PROFILE);
+            this.CreateNewProfile(Constants.DEFAULT_PROFILE);
 
             //load example audio file?
             this.initExampleAudio();
@@ -187,7 +160,7 @@ namespace ZTMZ.PacenoteTool
                 this.CoDriverPackages[codriverPath] = new CoDriverPackage();
                 
                 // try load info
-                var infoFilePath = Path.Join(codriverPath, CODRIVER_PACKAGE_INFO_FILENAME);
+                var infoFilePath = Path.Join(codriverPath, Constants.CODRIVER_PACKAGE_INFO_FILENAME);
                 if (File.Exists(infoFilePath))
                 {
                     try
@@ -335,7 +308,7 @@ namespace ZTMZ.PacenoteTool
         public void StopRecording(string codriver)
         {
             // save the codriver name to config
-            File.WriteAllText(Path.Join(this.CurrentItineraryPath, CODRIVER_FILENAME), codriver);
+            File.WriteAllText(Path.Join(this.CurrentItineraryPath, Constants.CODRIVER_FILENAME), codriver);
         }
 
         public void StartReplaying(string itinerary, int playMode = 0)
@@ -346,7 +319,7 @@ namespace ZTMZ.PacenoteTool
             if (string.IsNullOrEmpty(File.ReadAllText(this.CurrentScriptPath).Trim()))
             {
                 // fallback to default profile
-                this.CurrentScriptPath = this.GetScriptFile(itinerary, DEFAULT_PROFILE);
+                this.CurrentScriptPath = this.GetScriptFile(itinerary, Constants.DEFAULT_PROFILE);
             }
             List<AudioFile> audioFiles = new List<AudioFile>();
 
@@ -364,7 +337,7 @@ namespace ZTMZ.PacenoteTool
             if (playMode == 0 || playMode == 2)
             {
                 // load codriver name
-                var codirverfilepath = Path.Join(this.CurrentItineraryPath, CODRIVER_FILENAME);
+                var codirverfilepath = Path.Join(this.CurrentItineraryPath, Constants.CODRIVER_FILENAME);
                 if (File.Exists(codirverfilepath))
                 {
                     var codriver = File.ReadLines(codirverfilepath).FirstOrDefault();
@@ -504,7 +477,7 @@ namespace ZTMZ.PacenoteTool
             if (!isFinal && Config.Instance.UseDefaultSoundPackageForFallback)
             {
                 // not found, try default 
-                return getSoundByKeyword(keyword, AppLevelVariables.Instance.GetPath(DEFAULT_CODRIVER), true);
+                return getSoundByKeyword(keyword, AppLevelVariables.Instance.GetPath(Constants.DEFAULT_CODRIVER), true);
             }
 
             return new AutoResampledCachedSound();
