@@ -55,9 +55,9 @@ namespace ZTMZ.PacenoteTool.Dialog
 
         public void DownloadFile(string url)
         {
-            this.tb_title.Text = string.Format(I18NLoader.Instance.CurrentDict["dialog.downloadFile.title"].ToString(),
+            this.tb_title.Text = string.Format(I18NLoader.Instance["dialog.downloadFile.title"],
                 String.Format("({0}/{1})", downloadingIndex, downloadLength));
-            this.tb_file.Text = string.Format(I18NLoader.Instance.CurrentDict["dialog.downloadFile.file"].ToString(),
+            this.tb_file.Text = string.Format(I18NLoader.Instance["dialog.downloadFile.file"],
                 url);
             using (var webClient = new WebClient())
             {

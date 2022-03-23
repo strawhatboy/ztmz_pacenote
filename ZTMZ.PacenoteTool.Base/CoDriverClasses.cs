@@ -40,15 +40,15 @@ namespace ZTMZ.PacenoteTool.Base
                 {
                     case "M":
                     {
-                        return I18NLoader.Instance.CurrentDict["misc.gender_male"].ToString();
+                        return I18NLoader.Instance["misc.gender_male"];
                     }
                     case "F":
                     {
-                        return I18NLoader.Instance.CurrentDict["misc.gender_female"].ToString();
+                        return I18NLoader.Instance["misc.gender_female"];
                     }
                 }
 
-                return I18NLoader.Instance.CurrentDict["misc.gender_unknown"].ToString();
+                return I18NLoader.Instance["misc.gender_unknown"];
             }
         }
     }

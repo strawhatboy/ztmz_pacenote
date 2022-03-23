@@ -134,5 +134,18 @@ namespace ZTMZ.PacenoteTool.Base
         {
             return string.Join(".", queue);
         }
+
+        public string this[string idx]
+        {
+            get
+            {
+                if (this.CurrentDict.Contains(idx))
+                {
+                    return this.CurrentDict[idx].ToString();
+                }
+
+                return idx;
+            }
+        }
     }
 }

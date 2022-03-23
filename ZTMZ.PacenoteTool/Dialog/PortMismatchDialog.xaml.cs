@@ -23,7 +23,7 @@ namespace ZTMZ.PacenoteTool.Dialog
         public PortMismatchDialog(string port1, string port2)
         {
             InitializeComponent();
-            this.tb_Content.Text = string.Format(I18NLoader.Instance.CurrentDict["dialog.portMismatch.content"].ToString(), port1, port2);
+            this.tb_Content.Text = string.Format(I18NLoader.Instance["dialog.portMismatch.content"], port1, port2);
             this.MouseDown += delegate { DragMove(); };
         }
 

@@ -544,7 +544,7 @@ namespace ZTMZ.PacenoteTool
             {
                 // dev mode
                 this.Title = string.Format("{0} {1}",
-                    I18NLoader.Instance.CurrentDict["application.title_dev"].ToString(),
+                    I18NLoader.Instance["application.title_dev"],
                     _version);
                 this.cb_record_mode.SelectedIndex = 1;  // auto script mode
                 if (Config.Instance.AutoScript_HackGameWhenStart)
@@ -567,7 +567,7 @@ namespace ZTMZ.PacenoteTool
             else 
             {
                 this.Title = string.Format("{0} {1}",
-                    I18NLoader.Instance.CurrentDict["application.title"].ToString(),
+                    I18NLoader.Instance["application.title"],
                     _version);
                 // disable auto script mode
                 this.cb_record_mode.Items.RemoveAt(this.cb_record_mode.Items.Count - 1);
@@ -577,7 +577,7 @@ namespace ZTMZ.PacenoteTool
             if (!UpdateManager.CurrentVersion.EndsWith("0"))
             {
                 this.Title = string.Format("{0} {1}",
-                    I18NLoader.Instance.CurrentDict["application.title_test"].ToString(),
+                    I18NLoader.Instance["application.title_test"],
                     _version);
             }
         }

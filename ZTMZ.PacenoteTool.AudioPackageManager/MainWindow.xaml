@@ -27,7 +27,7 @@
                         ToolTip="新建语音包" Click="Btn_New_OnClick" DockPanel.Dock="Right"
                         Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
                         CommandTarget="{Binding ElementName=dialogHost}"
-                        materialDesign:DialogHost.DialogClosingAttached="Sample2_DialogHost_OnDialogClosing">
+                        >
                     <Button.CommandParameter>
                         <Grid Width="300"
                             Margin="16">
@@ -47,30 +47,30 @@
                                 <RowDefinition />
                                 <RowDefinition />
                             </Grid.RowDefinitions>
-                            <TextBox Grid.Row="0"
+                            <TextBox Grid.Row="0" x:Name="tb_name"
                                      materialDesign:HintAssist.Hint="语音包名称"
                                      Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                                      VerticalAlignment="Center" />
-                            <ComboBox Grid.Row="1"
+                            <ComboBox Grid.Row="1" x:Name="cb_gender"
                                      materialDesign:HintAssist.Hint="性别"
                                      Style="{StaticResource MaterialDesignFloatingHintComboBox}"
                                      VerticalAlignment="Center" >
                                 <ComboBoxItem>男</ComboBoxItem>
                                 <ComboBoxItem>女</ComboBoxItem>
                             </ComboBox>
-                            <TextBox Grid.Row="2"
+                            <TextBox Grid.Row="2" x:Name="tb_language"
                                      materialDesign:HintAssist.Hint="语言"
                                      Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                                      VerticalAlignment="Center" />
-                            <TextBox Grid.Row="3"
+                            <TextBox Grid.Row="3" x:Name="tb_version"
                                      materialDesign:HintAssist.Hint="版本"
                                      Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                                      VerticalAlignment="Center" />
-                            <TextBox Grid.Row="4"
+                            <TextBox Grid.Row="4" x:Name="tb_homepage"
                                      materialDesign:HintAssist.Hint="主页"
                                      Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                                      VerticalAlignment="Center" />
-                            <TextBox Grid.Row="5"
+                            <TextBox Grid.Row="5" x:Name="tb_description"
                                      materialDesign:HintAssist.Hint="描述"
                                      AcceptsReturn="True"
                                      VerticalScrollBarVisibility="Auto"
@@ -209,7 +209,8 @@
             </DataGrid>
         </DockPanel>
         
-        <materialDesign:DialogHost x:Name="dialogHost" >
+        <materialDesign:DialogHost x:Name="dialogHost" DialogClosing="New_dialog_closing"
+                                   >
         </materialDesign:DialogHost>
     </Grid>
 </Window>

@@ -13,6 +13,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms.Design;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -29,7 +30,8 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        public Dictionary<string, CoDriverPackage> CoDriverPackages { set; get; } = new Dictionary<string, CoDriverPackage>();
+        public Dictionary<string, CoDriverPackage> CoDriverPackages { set; get; } =
+            new Dictionary<string, CoDriverPackage>();
 
         public static string CODRIVER_PACKAGE_INFO_FILENAME = "info.json";
 
@@ -37,19 +39,17 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
         public ZTMZAudioPlaybackEngine engine = new ZTMZAudioPlaybackEngine();
 
         private ObservableCollection<object> _DataContent = new();
+
         public ObservableCollection<object> DataContent
         {
-            get
-            {
-                return _DataContent;
-            }
+            get { return _DataContent; }
             set
             {
                 _DataContent = value;
                 OnPropertyChanged("DataContent");
             }
         }
-        
+
         public Dictionary<string, string> Pacenotes { get; private set; }
 
         public MainWindow()
@@ -64,7 +64,6 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
 
         private void loadPacenotes()
         {
-            
             // get pacenotes merged from system sound
             var pacenotes = new Dictionary<string, string>();
             foreach (var p in ScriptResource.RAW_PACENOTES)
@@ -85,14 +84,14 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
             foreach (var codriverPath in this.GetAllCodrivers())
             {
                 this.CoDriverPackages[codriverPath] = new CoDriverPackage();
-                
+
                 // try load info
                 var infoFilePath = Path.Join(codriverPath, CODRIVER_PACKAGE_INFO_FILENAME);
                 if (File.Exists(infoFilePath))
                 {
                     try
                     {
-                        this.CoDriverPackages[codriverPath].Info = 
+                        this.CoDriverPackages[codriverPath].Info =
                             JsonConvert.DeserializeObject<CoDriverPackageInfo>(File.ReadAllText(infoFilePath));
                         this.CoDriverPackages[codriverPath].Info.Path = codriverPath;
                     }
@@ -101,7 +100,7 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
                         // boom
                     }
                 }
-                
+
                 List<string> filePaths = new List<string>();
                 // try file directly
 
@@ -119,8 +118,8 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
                     // }
                     // else
                     // {
-                        this.CoDriverPackages[codriverPath].tokensPath[Path.GetFileNameWithoutExtension(f)] =
-                            new List<string>() { f };
+                    this.CoDriverPackages[codriverPath].tokensPath[Path.GetFileNameWithoutExtension(f)] =
+                        new List<string>() { f };
                     // }
                 }
 
@@ -138,7 +137,8 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
                         // }
                         // else
                         // {
-                            this.CoDriverPackages[codriverPath].tokensPath[Path.GetFileName(soundFilePath)] = new List<string>();
+                        this.CoDriverPackages[codriverPath].tokensPath[Path.GetFileName(soundFilePath)] =
+                            new List<string>();
                         // }
                         // load all files
                         foreach (var supportedFilter in this.SupportedAudioTypes)
@@ -154,13 +154,15 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
                             // }
                             // else
                             // {
-                                this.CoDriverPackages[codriverPath].tokensPath[Path.GetFileName(soundFilePath)].Add(filePath);
+                            this.CoDriverPackages[codriverPath].tokensPath[Path.GetFileName(soundFilePath)]
+                                .Add(filePath);
                             // }
                         }
                     }
                 }
             }
         }
+
         public List<string> GetAllCodrivers()
         {
             return Directory.GetDirectories(AppLevelVariables.Instance.GetPath("codrivers\\")).ToList();
@@ -168,13 +170,19 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
 
         private void Hyperlink_OnRequestNavigate(object sender, RequestNavigateEventArgs e)
         {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = e.Uri.AbsoluteUri, UseShellExecute = true });
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                { FileName = e.Uri.AbsoluteUri, UseShellExecute = true });
             e.Handled = true;
         }
 
         private void Lv_AudioPackages_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this.DataContent.Clear();
+            if (this.lv_AudioPackages.SelectedItem == null)
+            {
+                return;
+            }
+
             CoDriverPackageInfo pkgInfo = (CoDriverPackageInfo)this.lv_AudioPackages.SelectedItem;
             if (!this.CoDriverPackages.ContainsKey(pkgInfo.Path))
             {
@@ -182,11 +190,11 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
             }
 
             var pkg = this.CoDriverPackages[pkgInfo.Path];
-            
-            
+
+
             foreach (var p in this.Pacenotes)
             {
-                if (pkg.tokensPath.ContainsKey(p.Key))
+                if (pkg.tokensPath.ContainsKey(p.Key) && pkg.tokensPath[p.Key].Count > 0)
                 {
                     var token = pkg.tokensPath[p.Key];
                     this.DataContent.Add(new
@@ -195,8 +203,8 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
                         TokenDescription = p.Value,
                         IsAvailable = "✅",
                         FilesCount = token.Count,
-                        Files = token.Select((s, index) => 
-                            new {Index = index+1, Uri = new System.Uri(s).AbsoluteUri.ToString()})
+                        Files = token.Select((s, index) =>
+                            new { Index = index + 1, Uri = new System.Uri(s).AbsoluteUri.ToString() })
                     });
                 }
                 else
@@ -209,7 +217,6 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
                         FilesCount = 0,
                         Files = new List<string>()
                         {
-                            
                         }
                     });
                 }
@@ -251,7 +258,47 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
         {
             // throw new NotImplementedException();
         }
-        private void Sample2_DialogHost_OnDialogClosing(object sender, DialogClosingEventArgs eventArgs)
-            => Debug.WriteLine($"SAMPLE 2: Closing dialog with parameter: {eventArgs.Parameter ?? string.Empty}");
+
+        private void New_dialog_closing(object sender, DialogClosingEventArgs eventArgs)
+        {
+            if (eventArgs.Parameter != null && eventArgs.Parameter is Boolean)
+            {
+                if ((bool)eventArgs.Parameter == false)
+                {
+                    return;
+                }
+                // create audio pkg
+                CoDriverPackageInfo info = new CoDriverPackageInfo()
+                {
+                    name = this.tb_name.Text,
+                    description = this.tb_description.Text,
+                    gender = this.cb_gender.SelectedIndex == 0 ? "M" : "F",
+                    homepage = this.tb_homepage.Text,
+                    language = this.tb_language.Text,
+                    version = this.tb_version.Text
+                };
+
+                // convert name to a valid folder name
+                var folderName = this.tb_name.Text.Trim();
+                foreach (var invalidChar in Path.GetInvalidPathChars())
+                {
+                    folderName = folderName.Replace(invalidChar, '_');
+                }
+
+                // create the folder for audio pkg
+                var audioPkgPath = Path.Combine(AppLevelVariables.Instance.GetPath("codrivers\\"), folderName);
+                Directory.CreateDirectory(audioPkgPath);
+
+                // create subfolders for pacenotes
+                foreach (var p in this.Pacenotes.Keys)
+                {
+                    Directory.CreateDirectory(Path.Combine(audioPkgPath, p));
+                }
+
+                // put info json inside
+                var infoFilePath = Path.Join(audioPkgPath, CODRIVER_PACKAGE_INFO_FILENAME);
+                File.WriteAllText(infoFilePath, JsonConvert.SerializeObject(info));
+            }
+        }
     }
 }

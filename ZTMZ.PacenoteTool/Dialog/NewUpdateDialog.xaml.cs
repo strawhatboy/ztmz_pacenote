@@ -23,7 +23,7 @@ namespace ZTMZ.PacenoteTool.Dialog
         public NewUpdateDialog(string newVersion, string currentVersion, string changelogUrl)
         {
             InitializeComponent();
-            this.tb_content.Text = string.Format(I18NLoader.Instance.CurrentDict["dialog.newUpdate.content"].ToString(),
+            this.tb_content.Text = string.Format(I18NLoader.Instance["dialog.newUpdate.content"],
                 newVersion, currentVersion);
             this.wb_Changelog.Navigate(new Uri(changelogUrl)); 
             this.MouseDown += delegate { DragMove(); };

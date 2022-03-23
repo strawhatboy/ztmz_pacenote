@@ -28,7 +28,7 @@ namespace ZTMZ.PacenoteTool
             if (check.Code == PrerequisitesCheckResultCode.PORT_NOT_MATCH)
             {
                 this.pi_udpPort.Visibility = Visibility.Visible;
-                this.pi_udpPort.ToolTip = string.Format(I18NLoader.Instance.CurrentDict["settings.tooltip.udpListenPort_Warning"].ToString(), check.Params[0]);
+                this.pi_udpPort.ToolTip = string.Format(I18NLoader.Instance["settings.tooltip.udpListenPort_Warning"], check.Params[0]);
             } else if (check.Code == PrerequisitesCheckResultCode.OK)
             {
                 this.pi_udpPort.Visibility = Visibility.Hidden;

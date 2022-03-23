@@ -23,7 +23,7 @@ namespace ZTMZ.PacenoteTool.Dialog
         public PortNotOpenDialog()
         {
             InitializeComponent();
-            this.tb_Content.Text = string.Format(I18NLoader.Instance.CurrentDict["dialog.portNotOpen.content"].ToString());
+            this.tb_Content.Text = string.Format(I18NLoader.Instance["dialog.portNotOpen.content"]);
             this.MouseDown += delegate { DragMove(); };
         }
 
