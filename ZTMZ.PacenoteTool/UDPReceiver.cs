@@ -31,6 +31,7 @@ namespace ZTMZ.PacenoteTool
         
         public float Steering { set; get; }
         public float Gear { set; get; }
+        public float MaxGears { set; get; }
         public float RPM { set; get; }
         public float MaxRPM { set; get; }
         public float G_long { set; get; }
@@ -47,6 +48,11 @@ namespace ZTMZ.PacenoteTool
         public float SuspensionRearRight { set; get; }
         public float SuspensionFrontLeft { set; get; }
         public float SuspensionFrontRight { set; get; }
+        
+        public float SuspensionSpeedRearLeft { set; get; }
+        public float SuspensionSpeedRearRight { set; get; }
+        public float SuspensionSpeedFrontLeft { set; get; }
+        public float SuspensionSpeedFrontRight { set; get; }
 
         // public int TrackNumber { set; get; }
         public DateTime TimeStamp { set; get; }
@@ -213,6 +219,7 @@ namespace ZTMZ.PacenoteTool
 
                     message.Steering = BitConverter.ToSingle(rawData, 30 << 2);
                     message.Gear = BitConverter.ToSingle(rawData, 33 << 2);
+                    message.MaxGears = BitConverter.ToSingle(rawData, 65 << 2);
                     message.RPM = BitConverter.ToSingle(rawData, 37 << 2) * 0.1f;
                     message.MaxRPM = BitConverter.ToSingle(rawData, 63 << 2) * 0.1f;
                     message.G_lat = BitConverter.ToSingle(rawData, 34 << 2);
@@ -227,6 +234,11 @@ namespace ZTMZ.PacenoteTool
                     message.SuspensionRearRight = BitConverter.ToSingle(rawData, 18 << 2);
                     message.SuspensionFrontLeft = BitConverter.ToSingle(rawData, 19 << 2);
                     message.SuspensionFrontRight = BitConverter.ToSingle(rawData, 20 << 2);
+                    
+                    message.SuspensionSpeedRearLeft = BitConverter.ToSingle(rawData, 21 << 2);
+                    message.SuspensionSpeedRearRight = BitConverter.ToSingle(rawData, 22 << 2);
+                    message.SuspensionSpeedFrontLeft = BitConverter.ToSingle(rawData, 23 << 2);
+                    message.SuspensionSpeedFrontRight = BitConverter.ToSingle(rawData, 24 << 2);
                     // only 264 bytes
                     // message.TrackNumber = BitConverter.ToInt32(rawData, 272);
                     if (!message.Equals(this.LastMessage))

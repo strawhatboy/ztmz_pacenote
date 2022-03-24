@@ -349,6 +349,7 @@ namespace ZTMZ.PacenoteTool
             MaxRPM = 9000f,
             Speed = 130f,
             Gear = 3f,
+            MaxGears = 4,
             G_lat = 0.5f,
             G_long = 0.2f,
             SpeedFrontLeft = 190f,
@@ -362,7 +363,13 @@ namespace ZTMZ.PacenoteTool
             SuspensionFrontLeft = 0.8f,
             SuspensionFrontRight = 0.7f,
             SuspensionRearLeft = 0.75f,
-            SuspensionRearRight = 0.71f
+            SuspensionRearRight = 0.71f,
+            CompletionRate = 0.35f,
+            Steering = 0.3f,
+            SuspensionSpeedFrontLeft = 20,
+            SuspensionSpeedFrontRight = 23,
+            SuspensionSpeedRearLeft = 35,
+            SuspensionSpeedRearRight = 46,
         };
 
         public static float MAX_SPEED = 250f;
@@ -457,10 +464,10 @@ namespace ZTMZ.PacenoteTool
             List<Action<Graphics, float, float, float, float>> drawFuncs = new();
             if (Config.Instance.HudTelemetryShowGBall) drawFuncs.Add(drawGBall);
             if (Config.Instance.HudTelemetryShowSpdSector) drawFuncs.Add(drawSpdSector);
+            if (Config.Instance.HudTelemetryShowRPMSector) drawFuncs.Add(drawRPMSector);
             if (Config.Instance.HudTelemetryShowPedals) drawFuncs.Add(drawPedals);
             if (Config.Instance.HudTelemetryShowGear) drawFuncs.Add(drawGear);
             if (Config.Instance.HudTelemetryShowSteering) drawFuncs.Add(drawSteering);
-            if (Config.Instance.HudTelemetryShowRPMSector) drawFuncs.Add(drawRPMSector);
             if (Config.Instance.HudTelemetryShowSuspensionBars) drawFuncs.Add(drawSuspensionBars);
             
             // calculate the margin, padding, pos of each element
@@ -497,6 +504,13 @@ namespace ZTMZ.PacenoteTool
                 t(gfx, elementStartX, elementStartY, elementWidth, elementHeight);
                 elementStartX += elementWidth + telemetrySpacing;
             }
+            
+            // draw the finish rate
+            gfx.FillRectangle(_brushes["green"], 
+                telemetryStartPosX, 
+                telemetryStartPosY + telemetryHeight - 5, 
+                telemetryStartPosX + UdpMessage.CompletionRate * telemetryWidth,
+                telemetryStartPosY + telemetryHeight);
         }
 
         private void drawGBall(Graphics gfx, float x, float y, float width, float height)
@@ -511,7 +525,7 @@ namespace ZTMZ.PacenoteTool
             // the ball
             var ballX = centerX + UdpMessage.G_long * radius;
             var ballY = centerY + UdpMessage.G_lat * radius;
-            gfx.FillCircle(_brushes["red"], ballX, ballY, radius * Config.Instance.HudSectorThicknessRatio);
+            gfx.FillCircle(_brushes["red"], ballX, ballY, radius * Config.Instance.HudSectorThicknessRatio * 0.5f);
         }
         private void drawSpdSector(Graphics gfx, float x, float y, float width, float height)
         {
@@ -537,8 +551,49 @@ namespace ZTMZ.PacenoteTool
         private void drawGear(Graphics gfx, float x, float y, float width, float height)
         {
             // var font = gfx.CreateFont("consolas", width);
-            var actualSize = MathF.Min(width, height);
-            gfx.DrawText(_fonts["consolas"], actualSize, _brushes["white"], x, y, getGearText(Convert.ToInt32(UdpMessage.Gear)));
+            // var actualSize = MathF.Min(width, height);
+            // gfx.DrawText(_fonts["consolas"], actualSize, _brushes["white"], x, y, getGearText(Convert.ToInt32(UdpMessage.Gear)));
+            var columns = Convert.ToInt32(MathF.Ceiling(UdpMessage.MaxGears * 0.5f)) + 1;
+
+            var barWidth = width / (columns + (columns-1) * Config.Instance.HudSectorThicknessRatio);
+            var spacingH = Config.Instance.HudSectorThicknessRatio * barWidth;
+            var barHeight = height / (2 + Config.Instance.HudSectorThicknessRatio);
+            var spacingV = barHeight * Config.Instance.HudSectorThicknessRatio;
+
+            List<Rectangle> rectangles = new()
+            {
+                // R
+                new Rectangle(x, y, x + barWidth, y + barHeight),
+            };
+
+            for (var i = 1; i <= UdpMessage.MaxGears; i++)
+            {
+                var row = (i + 1) % 2;
+                var column = (i + 1) / 2;
+                rectangles.Add(new Rectangle(
+                    x + column * (spacingH + barWidth),
+                    y + row * (spacingV + barHeight),
+                    x + barWidth + column * (spacingH + barWidth),
+                    y + barHeight + row * (spacingV + barHeight)
+                    ));
+            }
+
+            foreach (var r in rectangles)
+            {
+                gfx.FillRectangle(_brushes["white"], r);
+            }
+
+            int gear = Convert.ToInt32(UdpMessage.Gear);
+            switch (gear) 
+            {
+                case -1:
+                case 10:
+                    gfx.FillRectangle(_brushes["red"], rectangles[0]);
+                    break;
+                default:
+                    gfx.FillRectangle(_brushes["red"], rectangles[gear]);
+                    break;
+            }
         }
 
         private void drawSteering(Graphics gfx, float x, float y, float width, float height)
@@ -551,6 +606,7 @@ namespace ZTMZ.PacenoteTool
             return g switch
             {
                 -1 => "R",
+                10 => "R",
                 0 => "N",
                 _ => g.ToString()
             };
@@ -567,7 +623,7 @@ namespace ZTMZ.PacenoteTool
             var bgHeight = 0.45f * height;
             var spacingH = 0.4f * width;
             var spacingV = 0.1f * height;
-            var barWidth = bgWidth / 3f;
+            var barWidth = bgWidth / 4f;
 
             // background
             gfx.FillRectangle(_brushes["black"], x, y, x + bgWidth, y + bgHeight);
@@ -592,6 +648,13 @@ namespace ZTMZ.PacenoteTool
             gfx.FillRectangle(_brushes["white"], x + width - 3 * barWidth, y + (1-UdpMessage.SuspensionFrontRight / 1.0f) * bgHeight, x + width - 2 * barWidth, y + bgHeight);
             gfx.FillRectangle(_brushes["white"], x + 2 * barWidth, y + bgHeight + spacingV + (1-UdpMessage.SuspensionRearLeft / 1.0f) * bgHeight, x + 3 * barWidth, y + height);
             gfx.FillRectangle(_brushes["white"], x + width - 3 * barWidth, y + bgHeight + spacingV + (1-UdpMessage.SuspensionRearRight / 1.0f) * bgHeight, x + width - 2 * barWidth, y + height);
+            
+            // suspension_speed
+            gfx.FillRectangle(_brushes["blue"], x + 3 * barWidth, y + (1-UdpMessage.SuspensionSpeedFrontLeft / MAX_SPEED) * bgHeight, x + 4 * barWidth, y + bgHeight);
+            gfx.FillRectangle(_brushes["blue"], x + width - 4 * barWidth, y + (1-UdpMessage.SuspensionSpeedFrontRight / MAX_SPEED) * bgHeight, x + width - 3 * barWidth, y + bgHeight);
+            gfx.FillRectangle(_brushes["blue"], x + 3 * barWidth, y + bgHeight + spacingV + (1-UdpMessage.SuspensionSpeedRearLeft / MAX_SPEED) * bgHeight, x + 4 * barWidth, y + height);
+            gfx.FillRectangle(_brushes["blue"], x + width - 4 * barWidth, y + bgHeight + spacingV + (1-UdpMessage.SuspensionSpeedRearRight / MAX_SPEED) * bgHeight, x + width - 3 * barWidth, y + height);
+
         }
 
         private Tuple<Point, float> drawSector(Graphics gfx, float x, float y, float width, float height, float value, float maxValue, float thicknessRatio=0.2f)

@@ -307,7 +307,7 @@ namespace ZTMZ.PacenoteTool.Base
 
         #region HUD
 
-        private int _HudFPS = 10;
+        private int _HudFPS = 50;
         public int HudFPS
         {
             set { this._HudFPS = value; this._userconfig["HudFPS"] = value; }
@@ -406,8 +406,8 @@ namespace ZTMZ.PacenoteTool.Base
             set { this._HudTelemetryShowSteering = value; this._userconfig["HudTelemetryShowSteering"] = value; }
             get => this._HudTelemetryShowSteering;
         }
-        private bool _HudTelemetrySteeringDegree = 540;
-        public bool HudTelemetrySteeringDegree
+        private float _HudTelemetrySteeringDegree = 540;
+        public float HudTelemetrySteeringDegree
         {
             set { this._HudTelemetrySteeringDegree = value; this._userconfig["HudTelemetrySteeringDegree"] = value; }
             get => this._HudTelemetrySteeringDegree;
