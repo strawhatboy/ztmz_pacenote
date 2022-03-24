@@ -305,6 +305,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._WheelAbnormalPercentageReportThreshold;
         }
 
+        #region HUD
 
         private int _HudFPS = 10;
         public int HudFPS
@@ -312,6 +313,119 @@ namespace ZTMZ.PacenoteTool.Base
             set { this._HudFPS = value; this._userconfig["HudFPS"] = value; }
             get => this._HudFPS;
         }
+        
+        private bool _HudShowTelemetry = true;
+        public bool HudShowTelemetry
+        {
+            set { this._HudShowTelemetry = value; this._userconfig["HudShowTelemetry"] = value; }
+            get => this._HudShowTelemetry;
+        }
+        
+        // height percentage of the game window
+        private float _HudSizePercentage = 0.2f;
+        public float HudSizePercentage
+        {
+            set { this._HudSizePercentage = value; this._userconfig["HudSizePercentage"] = value; }
+            get => this._HudSizePercentage;   
+        }
+        
+        // Horizontal Padding (according to the height) (0~0.5)
+        private float _HudPaddingH = 0.2f;
+        public float HudPaddingH
+        {
+            set { this._HudPaddingH = value; this._userconfig["HudPaddingH"] = value; }
+            get => this._HudPaddingH;   
+        }
+        
+        // Vertical Padding (according to the height) (0~0.3)
+        private float _HudPaddingV = 0.1f;
+        public float HudPaddingV
+        {
+            set { this._HudPaddingV = value; this._userconfig["HudPaddingV"] = value; }
+            get => this._HudPaddingV;   
+        }
+        
+        // Spacing between elements (according to the height) (0~0.3)
+        private float _HudElementSpacing = 0.2f;
+        public float HudElementSpacing
+        {
+            set { this._HudElementSpacing = value; this._userconfig["HudElementSpacing"] = value; }
+            get => this._HudElementSpacing;   
+        }
+        
+        private float _HudSectorThicknessRatio = 0.2f;
+        public float HudSectorThicknessRatio
+        {
+            set { this._HudSectorThicknessRatio = value; this._userconfig["HudSectorThicknessRatio"] = value; }
+            get => this._HudSectorThicknessRatio;   
+        }
+
+        private float _HudBackgroundOpacity = 0.5f;
+        public float HudBackgroundOpacity
+        {
+            set { this._HudBackgroundOpacity = value; this._userconfig["HudBackgroundOpacity"] = value; }
+            get => this._HudBackgroundOpacity;   
+        }
+
+        private float _HudWHRatio = 6f;
+        public float HudWHRatio
+        {
+            set { this._HudWHRatio = value; this._userconfig["HudWHRatio"] = value; }
+            get => this._HudWHRatio;   
+        }
+        
+        
+        
+        private bool _HudTelemetryShowGBall = true;
+        public bool HudTelemetryShowGBall
+        {
+            set { this._HudTelemetryShowGBall = value; this._userconfig["HudTelemetryShowGBall"] = value; }
+            get => this._HudTelemetryShowGBall;
+        }
+        private bool _HudTelemetryShowSpdSector = true;
+        public bool HudTelemetryShowSpdSector
+        {
+            set { this._HudTelemetryShowSpdSector = value; this._userconfig["HudTelemetryShowSpdSector"] = value; }
+            get => this._HudTelemetryShowSpdSector;
+        }
+        private bool _HudTelemetryShowPedals = true;
+        public bool HudTelemetryShowPedals
+        {
+            set { this._HudTelemetryShowPedals = value; this._userconfig["HudTelemetryShowPedals"] = value; }
+            get => this._HudTelemetryShowPedals;
+        }
+        private bool _HudTelemetryShowGear = true;
+        public bool HudTelemetryShowGear
+        {
+            set { this._HudTelemetryShowGear = value; this._userconfig["HudTelemetryShowGear"] = value; }
+            get => this._HudTelemetryShowGear;
+        }
+        private bool _HudTelemetryShowSteering = true;
+        public bool HudTelemetryShowSteering
+        {
+            set { this._HudTelemetryShowSteering = value; this._userconfig["HudTelemetryShowSteering"] = value; }
+            get => this._HudTelemetryShowSteering;
+        }
+        private bool _HudTelemetrySteeringDegree = 540;
+        public bool HudTelemetrySteeringDegree
+        {
+            set { this._HudTelemetrySteeringDegree = value; this._userconfig["HudTelemetrySteeringDegree"] = value; }
+            get => this._HudTelemetrySteeringDegree;
+        }
+        private bool _HudTelemetryShowRPMSector = true;
+        public bool HudTelemetryShowRPMSector
+        {
+            set { this._HudTelemetryShowRPMSector = value; this._userconfig["HudTelemetryShowRPMSector"] = value; }
+            get => this._HudTelemetryShowRPMSector;
+        }
+        private bool _HudTelemetryShowSuspensionBars = true;
+        public bool HudTelemetryShowSuspensionBars
+        {
+            set { this._HudTelemetryShowSuspensionBars = value; this._userconfig["HudTelemetryShowSuspensionBars"] = value; }
+            get => this._HudTelemetryShowSuspensionBars;
+        }
+        
+        #endregion
 
         private string _Language = CultureInfo.CurrentCulture.Name.ToLower();
         public string Language

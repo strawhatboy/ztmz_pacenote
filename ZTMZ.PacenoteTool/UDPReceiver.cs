@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Timers;
+using MaterialDesignThemes.Wpf;
 using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool
@@ -22,6 +23,30 @@ namespace ZTMZ.PacenoteTool
         public float SpeedFrontLeft { set; get; }
 
         public float SpeedFrontRight { set; get; }
+        
+        // pedals (0-1)
+        public float Clutch { set; get; } = 1f;
+        public float Brake { set; get; }
+        public float Throttle { set; get; }
+        
+        public float Steering { set; get; }
+        public float Gear { set; get; }
+        public float RPM { set; get; }
+        public float MaxRPM { set; get; }
+        public float G_long { set; get; }
+        public float G_lat { set; get; }
+        
+        // brake tmp
+        public float BrakeTempRearLeft { set; get; }
+        public float BrakeTempRearRight { set; get; }
+        public float BrakeTempFrontLeft { set; get; }
+        public float BrakeTempFrontRight { set; get; }
+        
+        // suspension
+        public float SuspensionRearLeft { set; get; }
+        public float SuspensionRearRight { set; get; }
+        public float SuspensionFrontLeft { set; get; }
+        public float SuspensionFrontRight { set; get; }
 
         // public int TrackNumber { set; get; }
         public DateTime TimeStamp { set; get; }
@@ -181,6 +206,27 @@ namespace ZTMZ.PacenoteTool
                     message.SpeedFrontRight = BitConverter.ToSingle(rawData, 28 << 2) * 3.6f;
                     message.SpeedRearLeft = BitConverter.ToSingle(rawData, 25 << 2) * 3.6f;
                     message.SpeedRearRight = BitConverter.ToSingle(rawData, 26 << 2) * 3.6f;
+
+                    message.Clutch = BitConverter.ToSingle(rawData, 32 << 2);
+                    message.Brake = BitConverter.ToSingle(rawData, 31 << 2);
+                    message.Throttle = BitConverter.ToSingle(rawData, 29 << 2);
+
+                    message.Steering = BitConverter.ToSingle(rawData, 30 << 2);
+                    message.Gear = BitConverter.ToSingle(rawData, 33 << 2);
+                    message.RPM = BitConverter.ToSingle(rawData, 37 << 2) * 0.1f;
+                    message.MaxRPM = BitConverter.ToSingle(rawData, 63 << 2) * 0.1f;
+                    message.G_lat = BitConverter.ToSingle(rawData, 34 << 2);
+                    message.G_long = BitConverter.ToSingle(rawData, 35 << 2);
+                    
+                    message.BrakeTempRearLeft = BitConverter.ToSingle(rawData, 51 << 2);
+                    message.BrakeTempRearRight = BitConverter.ToSingle(rawData, 52 << 2);
+                    message.BrakeTempFrontLeft = BitConverter.ToSingle(rawData, 53 << 2);
+                    message.BrakeTempFrontRight = BitConverter.ToSingle(rawData, 54 << 2);
+                    
+                    message.SuspensionRearLeft = BitConverter.ToSingle(rawData, 17 << 2);
+                    message.SuspensionRearRight = BitConverter.ToSingle(rawData, 18 << 2);
+                    message.SuspensionFrontLeft = BitConverter.ToSingle(rawData, 19 << 2);
+                    message.SuspensionFrontRight = BitConverter.ToSingle(rawData, 20 << 2);
                     // only 264 bytes
                     // message.TrackNumber = BitConverter.ToInt32(rawData, 272);
                     if (!message.Equals(this.LastMessage))
