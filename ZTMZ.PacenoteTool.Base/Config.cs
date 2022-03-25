@@ -321,14 +321,14 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._HudShowTelemetry;
         }
         
-        private bool _HudShowDebugTelemetry = true;
+        private bool _HudShowDebugTelemetry = false;
         public bool HudShowDebugTelemetry
         {
             set { this._HudShowDebugTelemetry = value; this._userconfig["HudShowDebugTelemetry"] = value; }
             get => this._HudShowDebugTelemetry;
         }
         
-        // height percentage of the game window
+        // height percentage of the game window (0~0.3)
         private float _HudSizePercentage = 0.16f;
         public float HudSizePercentage
         {

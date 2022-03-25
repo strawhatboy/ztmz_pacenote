@@ -3,6 +3,9 @@ using System;
 using System.ComponentModel;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using Xceed.Wpf.Toolkit;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Dialog;
 
@@ -19,7 +22,8 @@ namespace ZTMZ.PacenoteTool
 
             initGeneral();
             initVoicePackage();
-            initMisc();
+            initPlayback();
+            initHud();
         }
 
         private void checkUDP()
@@ -38,17 +42,15 @@ namespace ZTMZ.PacenoteTool
         private void initGeneral()
         {
             // theme
-            this.btn_IsDarkTheme.IsChecked = Config.Instance.IsDarkTheme;
-            this.btn_IsDarkTheme.Click += (s, e) =>
+
+            initBoolSetting(this.btn_IsDarkTheme, "IsDarkTheme", false, () =>
             {
-                Config.Instance.IsDarkTheme = this.btn_IsDarkTheme.IsChecked.Value;
-                Config.Instance.SaveUserConfig();
                 var paletteHelper = new PaletteHelper();
                 var theme = paletteHelper.GetTheme();
-
+            
                 theme.SetBaseTheme(Config.Instance.IsDarkTheme ? Theme.Dark : Theme.Light);
                 paletteHelper.SetTheme(theme);
-            };
+            });
 
             // language
             foreach (var c in I18NLoader.Instance.culturesFullname)
@@ -98,13 +100,12 @@ namespace ZTMZ.PacenoteTool
             };
 
             // playbackDelay
-            this.tb_PlaybackDeviceDesiredLatency.Value = (uint)Config.Instance.PlaybackDeviceDesiredLatency;
-            this.tb_PlaybackDeviceDesiredLatency.ValueChanged += (s, e) =>
-            {
-                Config.Instance.PlaybackDeviceDesiredLatency = (int)this.tb_PlaybackDeviceDesiredLatency.Value.Value;
-                Config.Instance.SaveUserConfig();
-            };
+            initUIntSetting(tb_PlaybackDeviceDesiredLatency, "PlaybackDeviceDesiredLatency");
 
+        }
+
+        private void initHud()
+        {
             // fps
             this.tb_HudFPS.Value = (uint)Config.Instance.HudFPS;
             this.tb_HudFPS.LostFocus += (s, e) =>
@@ -115,143 +116,84 @@ namespace ZTMZ.PacenoteTool
                 this.pi_hudFPS.Visibility = Visibility.Visible;
                 this.tb_restartNeeded.Visibility = Visibility.Visible;
             };
+            
+            // telemetry
+            initBoolSetting(btn_hudShowTelemetry, "HudShowTelemetry");
+            initSliderSetting(sl_hudSizePercentage, "HudSizePercentage");
+            initSliderSetting(sl_hudPaddingH, "HudPaddingH");
+            initSliderSetting(sl_hudPaddingV, "HudPaddingV");
+            initSliderSetting(sl_hudElementSpacing, "HudElementSpacing");
+            initSliderSetting(sl_hudSectorThicknessRatio, "HudSectorThicknessRatio");
+            initSliderSetting(sl_hudBackgroundOpacity, "HudBackgroundOpacity");
+            initBoolSetting(btn_hudShowDebugTelemetry, "HudShowDebugTelemetry");
+            
+            // telemetry elements
+            initBoolSetting(btn_hudTelemetryShowGBall, "HudTelemetryShowGBall");
+            initBoolSetting(btn_hudTelemetryShowSpdSector, "HudTelemetryShowSpdSector");
+            initBoolSetting(btn_hudTelemetryShowRPMSector, "HudTelemetryShowRPMSector");
+            initBoolSetting(btn_hudTelemetryShowPedals, "HudTelemetryShowPedals");
+            initBoolSetting(btn_hudTelemetryShowGear, "HudTelemetryShowGear");
+            initBoolSetting(btn_hudTelemetryShowSteering, "HudTelemetryShowSteering");
+            initUIntSetting(tb_hudTelemetrySteeringDegree, "HudTelemetrySteeringDegree");
+            initBoolSetting(btn_hudTelemetryShowSuspensionBars, "HudTelemetryShowSuspensionBars");
+            
         }
 
         private void initVoicePackage()
         {
             // start/end
-            this.btn_PlayStartAndEndSound.IsChecked = Config.Instance.PlayStartAndEndSound;
-            this.btn_PlayStartAndEndSound.Click += (s, e) =>
-            {
-                Config.Instance.PlayStartAndEndSound = this.btn_PlayStartAndEndSound.IsChecked.Value;
-                Config.Instance.SaveUserConfig();
-            };
+            initBoolSetting(btn_PlayStartAndEndSound, "PlayStartAndEndSound");
 
             // Go !
-            this.btn_PlayGoSound.IsChecked = Config.Instance.PlayGoSound;
-            this.btn_PlayGoSound.Click += (s, e) =>
-            {
-                Config.Instance.PlayGoSound = this.btn_PlayGoSound.IsChecked.Value;
-                Config.Instance.SaveUserConfig();
-            };
+            initBoolSetting(btn_PlayGoSound, "PlayGoSound");
 
             // collision
-            this.btn_PlayCollisionSound.IsChecked = Config.Instance.PlayCollisionSound;
-            this.btn_PlayCollisionSound.Click += (s, e) =>
-            {
-                Config.Instance.PlayCollisionSound = this.btn_PlayCollisionSound.IsChecked.Value;
-                Config.Instance.SaveUserConfig();
-            };
+            initBoolSetting(btn_PlayCollisionSound, "PlayCollisionSound");
             
             // collision thresholds
-            this.tb_Collision_Slight.Value = (uint)Config.Instance.CollisionSpeedChangeThreshold_Slight;
-            this.tb_Collision_Slight.ValueChanged += (s, e) =>
-            {
-                Config.Instance.CollisionSpeedChangeThreshold_Slight = (int)this.tb_Collision_Slight.Value.Value;
-                Config.Instance.SaveUserConfig();
-            };
-            this.tb_Collision_Medium.Value = (uint)Config.Instance.CollisionSpeedChangeThreshold_Medium;
-            this.tb_Collision_Medium.ValueChanged += (s, e) =>
-            {
-                Config.Instance.CollisionSpeedChangeThreshold_Medium = (int)this.tb_Collision_Medium.Value.Value;
-                Config.Instance.SaveUserConfig();
-            };
-            this.tb_Collision_Severe.Value = (uint)Config.Instance.CollisionSpeedChangeThreshold_Severe;
-            this.tb_Collision_Severe.ValueChanged += (s, e) =>
-            {
-                Config.Instance.CollisionSpeedChangeThreshold_Severe = (int)this.tb_Collision_Severe.Value.Value;
-                Config.Instance.SaveUserConfig();
-            };
+            initUIntSetting(tb_Collision_Slight, "CollisionSpeedChangeThreshold_Slight");
+            initUIntSetting(tb_Collision_Medium, "CollisionSpeedChangeThreshold_Medium");
+            initUIntSetting(tb_Collision_Severe, "CollisionSpeedChangeThreshold_Severe");
 
             // puncture
-            this.btn_PlayWheelAbnormalSound.IsChecked = Config.Instance.PlayWheelAbnormalSound;
-            this.btn_PlayWheelAbnormalSound.Click += (s, e) =>
-            {
-                Config.Instance.PlayWheelAbnormalSound = this.btn_PlayWheelAbnormalSound.IsChecked.Value;
-                Config.Instance.SaveUserConfig();
-            };
+            initBoolSetting(btn_PlayWheelAbnormalSound, "PlayWheelAbnormalSound");
 
             // default voice
-            this.btn_UseDefaultSoundPackageByDefault.IsChecked = !Config.Instance.UseDefaultSoundPackageByDefault;
-            this.btn_UseDefaultSoundPackageByDefault.Click += (s, e) =>
+            initBoolSetting(btn_UseDefaultSoundPackageByDefault, "UseDefaultSoundPackageByDefault", true, () =>
             {
-                Config.Instance.UseDefaultSoundPackageByDefault = !this.btn_UseDefaultSoundPackageByDefault.IsChecked.Value;
-                Config.Instance.SaveUserConfig();
-                this.pi_defaultSoundPackage.Visibility = Visibility.Visible;
-                this.tb_restartNeeded.Visibility = Visibility.Visible;
-            };
+                pi_defaultSoundPackage.Visibility = Visibility.Visible;
+                tb_restartNeeded.Visibility = Visibility.Visible;
+            });
 
             // fallback default voice
-            this.btn_UseDefaultSoundPackageForFallback.IsChecked = Config.Instance.UseDefaultSoundPackageForFallback;
-            this.btn_UseDefaultSoundPackageForFallback.Click += (s, e) =>
-            {
-                Config.Instance.UseDefaultSoundPackageForFallback = this.btn_UseDefaultSoundPackageForFallback.IsChecked.Value;
-                Config.Instance.SaveUserConfig();
-            };
+            initBoolSetting(btn_UseDefaultSoundPackageForFallback, "UseDefaultSoundPackageForFallback");
 
             // preload
-            this.btn_PreloadSounds.IsChecked = Config.Instance.PreloadSounds;
-            this.btn_PreloadSounds.Click += (s, e) =>
-            {
-                Config.Instance.PreloadSounds = this.btn_PreloadSounds.IsChecked.Value;
-                Config.Instance.SaveUserConfig();
-            };
+            initBoolSetting(btn_PreloadSounds, "PreloadSounds");
             
+        }
+
+        private void initPlayback()
+        {
+            initBoolSetting(tb_UseSequentialMixerToHandleAudioConflict, "UseSequentialMixerToHandleAudioConflict");
+
             // dynamic playback spd
-            this.btn_UseDynamicPlaybackSpeed.IsChecked = Config.Instance.UseDynamicPlaybackSpeed;
-            this.btn_UseDynamicPlaybackSpeed.Click += (s, e) =>
-            {
-                Config.Instance.UseDynamicPlaybackSpeed = this.btn_UseDynamicPlaybackSpeed.IsChecked.Value;
-                Config.Instance.SaveUserConfig();
-            };
+            initBoolSetting(btn_UseDynamicPlaybackSpeed, "UseDynamicPlaybackSpeed");
             
             // use tempo
-            this.btn_UseTempoInsteadOfRate.IsChecked = Config.Instance.UseTempoInsteadOfRate;
-            this.btn_UseTempoInsteadOfRate.Click += (s, e) =>
-            {
-                Config.Instance.UseTempoInsteadOfRate = this.btn_UseTempoInsteadOfRate.IsChecked.Value;
-                Config.Instance.SaveUserConfig();
-            };
+            initBoolSetting(btn_UseTempoInsteadOfRate, "UseTempoInsteadOfRate");
 
             // max dynamic playback spd
-            this.sl_dynamicPlaybackMaxSpeed.Value = Config.Instance.DynamicPlaybackMaxSpeed;
-            this.sl_dynamicPlaybackMaxSpeed.ValueChanged += (s, e) =>
-            {
-                Config.Instance.DynamicPlaybackMaxSpeed = (float)this.sl_dynamicPlaybackMaxSpeed.Value;
-                Config.Instance.SaveUserConfig();
-            };
-            
+            initSliderSetting(sl_dynamicPlaybackMaxSpeed, "DynamicPlaybackMaxSpeed");
+
             // dynamic volume
-            this.btn_useDynamicVolume.IsChecked = Config.Instance.UseDynamicVolume;
-            this.btn_useDynamicVolume.Click += (s, e) =>
-            {
-                Config.Instance.UseDynamicVolume = this.btn_useDynamicVolume.IsChecked.Value;
-                Config.Instance.SaveUserConfig();
-            };
-
-            this.tb_dynamicVolumePerturbationFrequency.Value = (uint)Config.Instance.DynamicVolumePerturbationFrequency;
-            this.tb_dynamicVolumePerturbationFrequency.ValueChanged += (s, e) =>
-            {
-                Config.Instance.DynamicVolumePerturbationFrequency = (int)this.tb_dynamicVolumePerturbationFrequency.Value.Value;
-                Config.Instance.SaveUserConfig();
-            };
-
-            this.sl_dynamicVolumePerturbationAmplitude.Value = Config.Instance.DynamicVolumePerturbationAmplitude;
-            this.sl_dynamicVolumePerturbationAmplitude.ValueChanged += (s, e) =>
-            {
-                Config.Instance.DynamicVolumePerturbationAmplitude = (float)this.sl_dynamicVolumePerturbationAmplitude.Value;
-                Config.Instance.SaveUserConfig();
-            };
+            initBoolSetting(btn_useDynamicVolume, "UseDynamicVolume");
+            initUIntSetting(tb_dynamicVolumePerturbationFrequency, "DynamicVolumePerturbationFrequency");
+            initSliderSetting(sl_dynamicVolumePerturbationAmplitude, "DynamicVolumePerturbationAmplitude");
         }
 
         private void initMisc()
         {
-            this.tb_UseSequentialMixerToHandleAudioConflict.IsChecked = Config.Instance.UseSequentialMixerToHandleAudioConflict;
-            this.tb_UseSequentialMixerToHandleAudioConflict.Click += (s, e) =>
-            {
-                Config.Instance.UseSequentialMixerToHandleAudioConflict = this.tb_UseSequentialMixerToHandleAudioConflict.IsChecked.Value;
-                Config.Instance.SaveUserConfig();
-            };
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -271,6 +213,52 @@ namespace ZTMZ.PacenoteTool
                 Config.Instance.ResetToDefault();
                 Config.Instance.SaveUserConfig();
             }
+        }
+
+        private void initBoolSetting(ToggleButton btn, string configName, bool isReverse = false, Action clicked = null)
+        {
+            var configProperty = typeof(Config).GetProperty(configName);
+            if (configProperty.PropertyType != typeof(bool))
+            {
+                return;
+            }
+            btn.IsChecked = (bool)configProperty.GetValue(Config.Instance);
+            btn.Click += (s, e) =>
+            {
+                configProperty.SetValue(Config.Instance, isReverse ? !btn.IsChecked.Value : btn.IsChecked.Value);
+                Config.Instance.SaveUserConfig();
+                clicked?.Invoke();
+            };
+        }
+
+        private void initUIntSetting(UIntegerUpDown tb, string configName)
+        {
+            var configProperty = typeof(Config).GetProperty(configName);
+            if (configProperty.PropertyType != typeof(int))
+            {
+                return;
+            }
+            tb.Value = Convert.ToUInt32(configProperty.GetValue(Config.Instance));
+            tb.ValueChanged += (s, e) =>
+            {
+                configProperty.SetValue(Config.Instance, (int)tb.Value.Value);
+                Config.Instance.SaveUserConfig();
+            };
+        }
+
+        private void initSliderSetting(Slider sl, string configName)
+        {
+            var configProperty = typeof(Config).GetProperty(configName);
+            if (configProperty.PropertyType != typeof(float))
+            {
+                return;
+            }
+            sl.Value = Convert.ToSingle(configProperty.GetValue(Config.Instance));
+            sl.ValueChanged += (s, e) =>
+            {
+                configProperty.SetValue(Config.Instance, (float)sl.Value);
+                Config.Instance.SaveUserConfig();
+            };
         }
     }
 }

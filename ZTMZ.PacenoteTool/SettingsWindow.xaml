@@ -71,7 +71,7 @@
                                     <RowDefinition Height="50" />
                                     <RowDefinition Height="50" />
                                     <RowDefinition Height="50" />
-                                    <RowDefinition Height="50" />
+                                    <!-- <RowDefinition Height="50" /> -->
                                     <!-- <RowDefinition Height="50" /> -->
                                     <!-- <RowDefinition Height="250" /> -->
                                     <!-- <RowDefinition Height="50" /> -->
@@ -125,23 +125,6 @@
                                                      Grid.Column="1" Minimum="50" Maximum="1000"
                                                      Value="175" VerticalAlignment="Center" />
 
-                                <TextBlock Grid.Row="4" VerticalAlignment="Center"
-                                           Text="{DynamicResource ResourceKey=settings.hudFPS}"
-                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}">
-                                    <TextBlock.ToolTip>
-                                        <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.hudFPS}" />
-                                    </TextBlock.ToolTip>
-                                </TextBlock>
-                                <xctk:UIntegerUpDown Name="tb_HudFPS" Grid.Row="4" Grid.Column="1" Value="10"
-                                                     Maximum="144" Minimum="1"
-                                                     VerticalAlignment="Center" />
-                                <materialDesign:PackIcon x:Name="pi_hudFPS"
-                                                         Kind="Warning" Foreground="OrangeRed"
-                                                         Grid.Row="4" Grid.Column="2"
-                                                         Height="30" Width="30" Margin="10 0 0 0"
-                                                         VerticalAlignment="Center"
-                                                         ToolTip="{DynamicResource ResourceKey=settings.restartNeeded}"
-                                                         Visibility="Hidden" />
 
                             </Grid>
                         </materialDesign:Card>
@@ -372,6 +355,184 @@
                                         Style="{StaticResource MaterialDesignDiscreteSlider}"
                                         TickPlacement="Both"
                                         VerticalAlignment="Center" />
+                            </Grid>
+                        </materialDesign:Card>
+                    </Expander>
+                    <Separator Height="0.5" />
+                    <Expander
+                        HorizontalAlignment="Stretch"
+                        IsExpanded="True">
+                        <Expander.Header>
+                            <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                                       Text="{DynamicResource ResourceKey=settings.section.hud}" />
+                        </Expander.Header>
+
+                        <materialDesign:Card Margin="10">
+                            <Grid
+                                TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
+                                Margin="24,8,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="100" />
+                                    <ColumnDefinition Width="40" />
+                                    <ColumnDefinition Width="40" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
+                                    <!-- <RowDefinition Height="50" /> -->
+                                    <!-- <RowDefinition Height="250" /> -->
+                                    <!-- <RowDefinition Height="50" /> -->
+                                </Grid.RowDefinitions>
+                                
+                                <TextBlock Grid.Row="0" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudFPS}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudFPS}" />
+                                <xctk:UIntegerUpDown Name="tb_HudFPS" Grid.Row="0" Grid.Column="1" Value="10"
+                                                     Maximum="144" Minimum="1"
+                                                     VerticalAlignment="Center" />
+                                <materialDesign:PackIcon x:Name="pi_hudFPS"
+                                                         Kind="Warning" Foreground="OrangeRed"
+                                                         Grid.Row="4" Grid.Column="2"
+                                                         Height="30" Width="30" Margin="10 0 0 0"
+                                                         VerticalAlignment="Center"
+                                                         ToolTip="{DynamicResource ResourceKey=settings.restartNeeded}"
+                                                         Visibility="Hidden" />
+                                
+                                
+                                <TextBlock Grid.Row="1" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudShowTelemetry}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudShowTelemetry}" />
+                                <ToggleButton x:Name="btn_hudShowTelemetry" Grid.Row="1" Grid.Column="1" />
+                                
+                                <TextBlock Grid.Row="2" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudSizePercentage}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudSizePercentage}" />
+                                <Slider Name="sl_hudSizePercentage" Grid.Row="2" Grid.Column="1" Value="0.16"
+                                        Maximum="0.3" Minimum="0"
+                                        Style="{StaticResource MaterialDesignSlider}"
+                                        VerticalAlignment="Center" />
+                                
+                                <TextBlock Grid.Row="3" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudPaddingH}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudPaddingH}" />
+                                <Slider Name="sl_hudPaddingH" Grid.Row="3" Grid.Column="1" Value="0.2"
+                                        Maximum="0.5" Minimum="0"
+                                        Style="{StaticResource MaterialDesignSlider}"
+                                        VerticalAlignment="Center" />
+                                
+                                <TextBlock Grid.Row="4" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudPaddingV}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudPaddingV}" />
+                                <Slider Name="sl_hudPaddingV" Grid.Row="4" Grid.Column="1" Value="0.1"
+                                        Maximum="0.3" Minimum="0"
+                                        Style="{StaticResource MaterialDesignSlider}"
+                                        VerticalAlignment="Center" />
+                                
+                                <TextBlock Grid.Row="5" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudElementSpacing}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudElementSpacing}" />
+                                <Slider Name="sl_hudElementSpacing" Grid.Row="5" Grid.Column="1" Value="0.2"
+                                        Maximum="0.3" Minimum="0"
+                                        Style="{StaticResource MaterialDesignSlider}"
+                                        VerticalAlignment="Center" />
+                                
+                                <TextBlock Grid.Row="6" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudSectorThicknessRatio}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudSectorThicknessRatio}" />
+                                <Slider Name="sl_hudSectorThicknessRatio" Grid.Row="6" Grid.Column="1" Value="0.2"
+                                        Maximum="1" Minimum="0"
+                                        Style="{StaticResource MaterialDesignSlider}"
+                                        VerticalAlignment="Center" />
+                                
+                                <TextBlock Grid.Row="7" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudBackgroundOpacity}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudBackgroundOpacity}" />
+                                <Slider Name="sl_hudBackgroundOpacity" Grid.Row="7" Grid.Column="1" Value="0.2"
+                                        Maximum="1" Minimum="0"
+                                        Style="{StaticResource MaterialDesignSlider}"
+                                        VerticalAlignment="Center" />
+                                
+                                <TextBlock Grid.Row="8" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudTelemetryShowGBall}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudTelemetryShowGBall}" />
+                                <ToggleButton x:Name="btn_hudTelemetryShowGBall" Grid.Row="8" Grid.Column="1" />
+                                
+                                <TextBlock Grid.Row="9" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudTelemetryShowSpdSector}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudTelemetryShowSpdSector}" />
+                                <ToggleButton x:Name="btn_hudTelemetryShowSpdSector" Grid.Row="9" Grid.Column="1" />
+                                
+                                <TextBlock Grid.Row="10" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudTelemetryShowRPMSector}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudTelemetryShowRPMSector}" />
+                                <ToggleButton x:Name="btn_hudTelemetryShowRPMSector" Grid.Row="10" Grid.Column="1" />
+                                
+                                <TextBlock Grid.Row="11" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudTelemetryShowPedals}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudTelemetryShowPedals}" />
+                                <ToggleButton x:Name="btn_hudTelemetryShowPedals" Grid.Row="11" Grid.Column="1" />
+                                
+                                <TextBlock Grid.Row="12" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudTelemetryShowGear}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudTelemetryShowGear}" />
+                                <ToggleButton x:Name="btn_hudTelemetryShowGear" Grid.Row="12" Grid.Column="1" />
+                                
+                                <TextBlock Grid.Row="13" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudTelemetryShowSteering}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudTelemetryShowSteering}" />
+                                <ToggleButton x:Name="btn_hudTelemetryShowSteering" Grid.Row="13" Grid.Column="1" />
+                                
+                                <TextBlock Grid.Row="14" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudTelemetrySteeringDegree}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudTelemetrySteeringDegree}" />
+                                
+                                <xctk:UIntegerUpDown Name="tb_hudTelemetrySteeringDegree" Grid.Row="14" Grid.Column="1" Value="540"
+                                                     Maximum="1080" Minimum="90"
+                                                     VerticalAlignment="Center" />
+                                
+                                <TextBlock Grid.Row="15" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudTelemetryShowSuspensionBars}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudTelemetryShowSuspensionBars}" />
+                                <ToggleButton x:Name="btn_hudTelemetryShowSuspensionBars" Grid.Row="15" Grid.Column="1" />
+                                
+                                <TextBlock Grid.Row="16" VerticalAlignment="Center"
+                                           Text="{DynamicResource ResourceKey=settings.hudShowDebugTelemetry}"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudShowDebugTelemetry}" />
+                                <ToggleButton x:Name="btn_hudShowDebugTelemetry" Grid.Row="16" Grid.Column="1" />
                             </Grid>
                         </materialDesign:Card>
                     </Expander>

@@ -772,7 +772,7 @@ namespace ZTMZ.PacenoteTool
         {
             var centerX = x + 0.5f * width;
             var centerY = y + 0.5f * height;
-            var radiusOuter = MathF.Max(width, height) * 0.5f;
+            var radiusOuter = MathF.Min(width, height) * 0.5f;
             var radiusInner = radiusOuter * (1 - thicknessRatio);
             // draw backgroud geometry
             var geo_bg = gfx.CreateGeometry();

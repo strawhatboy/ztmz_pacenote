@@ -14,7 +14,8 @@
       "general": "常规",
       "voicePackage": "语音包",
       "misc": "杂项",
-      "playback": "播放"
+      "playback": "播放",
+      "hud": "悬浮窗"
     },
 
     "restartNeeded": "需要重启工具来生效",
@@ -41,7 +42,24 @@
       "dynamicPlaybackMaxSpeed": "动态地调整语速时，不超过这个倍数，比如设置为2.0，那么最多语速 x2.0",
       "useDynamicVolume": "会根据当前车速判断紧张程度，对语音进行正弦波扰动，车速越快越紧张",
       "dynamicVolumePerturbationFrequency": "正弦波的频率，频率越高，抖动越快",
-      "dynamicVolumePerturbationAmplitude": "振幅越大，抖动越强烈"
+      "dynamicVolumePerturbationAmplitude": "振幅越大，抖动越强烈",
+
+      "hudShowTelemetry": "类似于Dirt Telemetry Tool 的仪表盘",
+      "hudSizePercentage": "仪表盘占据游戏画面高度的比例",
+      "hudPaddingH": "仪表盘内元素距离仪表盘两侧边界的距离，按照游戏画面高度的比例",
+      "hudPaddingV": "仪表盘内元素距离仪表盘上下边界的距离，按照游戏画面高度的比例",
+      "hudElementSpacing": "仪表盘内元素之间的间隔",
+      "hudSectorThicknessRatio": "仪表盘内扇形元素的宽度，如速度表、转速表等",
+      "hudBackgroundOpacity": "仪表盘背景透明度，越低越透明",
+      "hudTelemetryShowGBall": "G力球可以帮助了解车辆目前的惯性动态",
+      "hudTelemetryShowSpdSector": "速度表表示了车辆当前的实时速度，非轮速",
+      "hudTelemetryShowRPMSector": "转速表表示了引擎当前的转速",
+      "hudTelemetryShowPedals": "离合器（蓝色）、刹车（红色）、油门（绿色）的状态",
+      "hudTelemetryShowGear": "H挡的形式展示，左上角为R挡",
+      "hudTelemetryShowSteering": "方向盘的转向状态",
+      "hudTelemetrySteeringDegree": "方向盘从一侧限位转向另一侧限位所经过的角度",
+      "hudTelemetryShowSuspensionBars": "轮速（绿色）、刹车温度（红色），悬挂位置（白色）和悬挂速度（蓝色）",
+      "hudShowDebugTelemetry": "在游戏画面左侧显示出所有遥测数据以供调试和问题诊断"
     },
 
     "language": "界面语言",
@@ -65,7 +83,24 @@
     "dynamicPlaybackMaxSpeed": "动态语速调整上限",
     "useDynamicVolume": "使用动态语音紧张感增强",
     "dynamicVolumePerturbationFrequency": "语音紧张感增强波形频率（赫兹）",
-    "dynamicVolumePerturbationAmplitude": "语音紧张感增强波形振幅（0~1）"
+    "dynamicVolumePerturbationAmplitude": "语音紧张感增强波形振幅（0~1）",
+    
+    "hudShowTelemetry": "是否显示遥测仪表盘",
+    "hudSizePercentage": "仪表盘 - 大小",
+    "hudPaddingH": "仪表盘 - 两侧留白",
+    "hudPaddingV": "仪表盘 - 上下留白",
+    "hudElementSpacing": "仪表盘 - 元素间隔",
+    "hudSectorThicknessRatio": "仪表盘 - 扇形元素宽度",
+    "hudBackgroundOpacity": "仪表盘 - 背景透明度",
+    "hudTelemetryShowGBall": "仪表盘 - 是否显示G力球",
+    "hudTelemetryShowSpdSector": "仪表盘 - 是否显示速度表",
+    "hudTelemetryShowRPMSector": "仪表盘 - 是否显示转速表",
+    "hudTelemetryShowPedals": "仪表盘 - 是否显示踏板状态（离合器、刹车、油门）",
+    "hudTelemetryShowGear": "仪表盘 - 是否显示挡位",
+    "hudTelemetryShowSteering": "仪表盘 - 是否显示方向盘状态",
+    "hudTelemetrySteeringDegree": "仪表盘 - 方向盘角度",
+    "hudTelemetryShowSuspensionBars": "仪表盘 - 是否显示轮胎和悬挂状态",
+    "hudShowDebugTelemetry": "是否显示调试遥测数据"
   },
 
   "dialog": {
