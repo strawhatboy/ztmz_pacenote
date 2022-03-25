@@ -15,7 +15,21 @@ namespace ZTMZ.PacenoteTool
         public float CompletionRate { set; get; } // 0-1, 0.5 means finished 50%
         public float Speed { set; get; }
         public float TrackLength { set; get; }
-        public float StartZ { set; get; }
+        public float PosX { set; get; }
+        public float PosY { set; get; }
+        public float PosZ { set; get; }
+        
+        public float SpeedX { set; get; }
+        public float SpeedY { set; get; }
+        public float SpeedZ { set; get; }
+        
+        public float RollX { set; get; }
+        public float RollY { set; get; }
+        public float RollZ { set; get; }
+        
+        public float PitchX { set; get; }
+        public float PitchY { set; get; }
+        public float PitchZ { set; get; }
 
         // Wheel Pressure
         public float SpeedRearLeft { set; get; }
@@ -34,6 +48,7 @@ namespace ZTMZ.PacenoteTool
         public float MaxGears { set; get; }
         public float RPM { set; get; }
         public float MaxRPM { set; get; }
+        public float IdleRPM { set; get; }
         public float G_long { set; get; }
         public float G_lat { set; get; }
         
@@ -53,6 +68,16 @@ namespace ZTMZ.PacenoteTool
         public float SuspensionSpeedRearRight { set; get; }
         public float SuspensionSpeedFrontLeft { set; get; }
         public float SuspensionSpeedFrontRight { set; get; }
+        
+        public float CurrentLap { set; get; }
+        public float CarPos { set; get; }
+        public float Sector { set; get; }
+        public float Sector1Time { set; get; }
+        public float Sector2Time { set; get; }
+        public float LapsComplete { set; get; }
+        public float TotalLaps { set; get; }
+        public float LastLapTime { set; get; }
+        
 
         // public int TrackNumber { set; get; }
         public DateTime TimeStamp { set; get; }
@@ -73,7 +98,7 @@ namespace ZTMZ.PacenoteTool
                    this.Speed == target.Speed &&
                    // this.TrackNumber == target.TrackNumber &&
                    this.TrackLength == target.TrackLength &&
-                   this.StartZ == target.StartZ;
+                   this.PosZ == target.PosZ;
         }
     }
 
@@ -207,7 +232,19 @@ namespace ZTMZ.PacenoteTool
                     message.CompletionRate = BitConverter.ToSingle(rawData, 12);
                     message.Speed = BitConverter.ToSingle(rawData, 28) * 3.6f; // m/s -> km/h
                     message.TrackLength = BitConverter.ToSingle(rawData, 244);
-                    message.StartZ = BitConverter.ToSingle(rawData, 24);
+                    message.PosX = BitConverter.ToSingle(rawData, 16);
+                    message.PosY = BitConverter.ToSingle(rawData, 20);
+                    message.PosZ = BitConverter.ToSingle(rawData, 24);
+                    message.SpeedX = BitConverter.ToSingle(rawData, 32);
+                    message.SpeedY = BitConverter.ToSingle(rawData, 36);
+                    message.SpeedZ = BitConverter.ToSingle(rawData, 40);
+                    message.RollX = BitConverter.ToSingle(rawData, 44);
+                    message.RollY = BitConverter.ToSingle(rawData, 48);
+                    message.RollZ = BitConverter.ToSingle(rawData, 52);
+                    message.PitchX = BitConverter.ToSingle(rawData, 56);
+                    message.PitchY = BitConverter.ToSingle(rawData, 60);
+                    message.PitchZ = BitConverter.ToSingle(rawData, 64);
+                    message.CarPos = BitConverter.ToSingle(rawData, 39 << 2);
                     message.SpeedFrontLeft = BitConverter.ToSingle(rawData, 27 << 2) * 3.6f;
                     message.SpeedFrontRight = BitConverter.ToSingle(rawData, 28 << 2) * 3.6f;
                     message.SpeedRearLeft = BitConverter.ToSingle(rawData, 25 << 2) * 3.6f;
@@ -222,6 +259,7 @@ namespace ZTMZ.PacenoteTool
                     message.MaxGears = BitConverter.ToSingle(rawData, 65 << 2);
                     message.RPM = BitConverter.ToSingle(rawData, 37 << 2) * 0.1f;
                     message.MaxRPM = BitConverter.ToSingle(rawData, 63 << 2) * 0.1f;
+                    message.IdleRPM = BitConverter.ToSingle(rawData, 64 << 2) * 0.1f;
                     message.G_lat = BitConverter.ToSingle(rawData, 34 << 2);
                     message.G_long = BitConverter.ToSingle(rawData, 35 << 2);
                     
@@ -239,6 +277,15 @@ namespace ZTMZ.PacenoteTool
                     message.SuspensionSpeedRearRight = BitConverter.ToSingle(rawData, 22 << 2);
                     message.SuspensionSpeedFrontLeft = BitConverter.ToSingle(rawData, 23 << 2);
                     message.SuspensionSpeedFrontRight = BitConverter.ToSingle(rawData, 24 << 2);
+                    
+                    message.CurrentLap = BitConverter.ToSingle(rawData, 36 << 2);
+                    message.LapsComplete = BitConverter.ToSingle(rawData, 59 << 2);
+                    message.LastLapTime = BitConverter.ToSingle(rawData, 62 << 2);
+                    message.TotalLaps = BitConverter.ToSingle(rawData, 60 << 2);
+                    
+                    message.Sector = BitConverter.ToSingle(rawData, 48 << 2);
+                    message.Sector1Time = BitConverter.ToSingle(rawData, 49 << 2);
+                    message.Sector2Time = BitConverter.ToSingle(rawData, 50 << 2);
                     // only 264 bytes
                     // message.TrackNumber = BitConverter.ToInt32(rawData, 272);
                     if (!message.Equals(this.LastMessage))

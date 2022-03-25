@@ -217,12 +217,13 @@ namespace ZTMZ.PacenoteTool
                     this.tb_tracklength.Text = msg.TrackLength.ToString("0.0");
                     this.tb_progress.Text = msg.CompletionRate.ToString("0.00");
 
-                    this.tb_position_z.Text = msg.StartZ.ToString("0.0");
+                    this.tb_position_z.Text = msg.PosZ.ToString("0.0");
 
                     this.tb_wp_fl.Text = msg.SpeedFrontLeft.ToString("0.0");
                     this.tb_wp_fr.Text = msg.SpeedFrontRight.ToString("0.0");
                     this.tb_wp_rl.Text = msg.SpeedRearLeft.ToString("0.0");
                     this.tb_wp_rr.Text = msg.SpeedRearRight.ToString("0.0");
+                    this._gameOverlayManager.UdpMessage = msg;
                 });
 
                 if (this._toolState == ToolState.Recording && !this._isPureAudioRecording)
@@ -330,6 +331,10 @@ namespace ZTMZ.PacenoteTool
                         // play end sound
                         this._profileManager.PlaySystem(Constants.SYSTEM_END_STAGE);
                     }
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        this._gameOverlayManager.TimeToShowTelemetry = false;
+                    });
 
                     break;
                 case GameState.RaceBegin:
@@ -338,13 +343,14 @@ namespace ZTMZ.PacenoteTool
                     this._udpReceiver.ResetWheelStatus();
                     this._trackName = this._dr2Helper.GetItinerary(
                         this._udpReceiver.LastMessage.TrackLength.ToString("f2", CultureInfo.InvariantCulture),
-                        this._udpReceiver.LastMessage.StartZ
+                        this._udpReceiver.LastMessage.PosZ
                     );
                     this.Dispatcher.Invoke(() =>
                     {
                         this.tb_currentTrack.Text = this._trackName;
                         this.tb_currentTrack.ToolTip = this._trackName;
                         this._gameOverlayManager.TrackName = this._trackName;
+                        this._gameOverlayManager.TimeToShowTelemetry = true;
                         // disable profile switch, replay device selection
                         this.cb_profile.IsEnabled = false;
                         this.cb_replay_device.IsEnabled = false;

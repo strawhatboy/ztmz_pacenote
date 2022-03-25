@@ -323,6 +323,7 @@ namespace ZTMZ.PacenoteTool
 
     public class GameOverlayManager
     {
+        // public static string GAME_PROCESS = "dirtrally2";
         public static string GAME_PROCESS = "notepad";
         private StickyWindow _window;
 
@@ -340,6 +341,8 @@ namespace ZTMZ.PacenoteTool
         public string ScriptAuthor { set; get; } = "";
         public string PacenoteType { set; get; } = "";
 
+        public bool TimeToShowTelemetry { set; get; } = true;
+
         public UDPMessage UdpMessage { set; get; } = new UDPMessage()
         {
             Brake = 0.5f,
@@ -347,6 +350,7 @@ namespace ZTMZ.PacenoteTool
             Clutch = 0.9f,
             RPM = 6300f,
             MaxRPM = 9000f,
+            IdleRPM = 1000f,
             Speed = 130f,
             Gear = 3f,
             MaxGears = 4,
@@ -370,9 +374,35 @@ namespace ZTMZ.PacenoteTool
             SuspensionSpeedFrontRight = 23,
             SuspensionSpeedRearLeft = 35,
             SuspensionSpeedRearRight = 46,
+            Sector = 1,
+            Time = 20,
+            CarPos = 30,
+            CurrentLap = 1,
+            LapDistance = 200,
+            LapsComplete = 1,
+            LapTime = 20,
+            PitchX = 234,
+            PitchY = 324,
+            PitchZ = 232,
+            PosX = 245,
+            PosY = 425,
+            PosZ = 5356,
+            RollX = 24,
+            RollY = 90,
+            RollZ = 425,
+            Sector1Time = 835,
+            Sector2Time = 835,
+            SpeedX = 5753,
+            SpeedY = 53,
+            SpeedZ = 3536,
+            TimeStamp = DateTime.Now,
+            TotalLaps = 4,
+            TrackLength = 35667,
+            LastLapTime = 36,
         };
 
         public static float MAX_SPEED = 250f;
+        public static float MAX_WHEEL_TEMP = 1200f;
 
         public void InitializeOverlay(System.Diagnostics.Process process)
         {
@@ -386,7 +416,7 @@ namespace ZTMZ.PacenoteTool
 
             _window = new StickyWindow(process.MainWindowHandle, gfx);
             _window.BypassTopmost = true;
-            _window.FPS = Config.Instance.HudFPS;   // 30 fps by default
+            _window.FPS = Config.Instance.HudFPS;   // 50 fps by default
             _window.AttachToClientArea = true;
             //_window.IsTopmost = true;
             _window.IsVisible = true;
@@ -453,10 +483,41 @@ namespace ZTMZ.PacenoteTool
 
             gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], gfx.Width - 400, 10, infoText);
 
-            if (Config.Instance.HudShowTelemetry)
+            if (Config.Instance.HudShowTelemetry && TimeToShowTelemetry)
             {
                 drawTelemetry(gfx);
             }
+
+            if (Config.Instance.HudShowDebugTelemetry && TimeToShowTelemetry)
+            {
+                drawDebugTelemetry(gfx);
+            }
+        }
+
+        private void drawDebugTelemetry(Graphics gfx)
+        {
+            var sb = new StringBuilder();
+            var properties = typeof(UDPMessage).GetProperties();
+            for (var i = 0; i < properties.Length; i++)
+            {
+                var pInfo = properties[i];
+                var name = pInfo.Name;
+                if (pInfo.PropertyType == typeof(float))
+                {
+                    var value = (float)pInfo.GetValue(UdpMessage);
+                    sb.Append((name + ":").PadRight(30)).Append(value.ToString("0.0"));
+                }
+                else
+                {
+                    var value = pInfo.GetValue(UdpMessage);
+                    sb.Append((name + ":").PadRight(30)).Append(value.ToString());
+                }
+                if (i != properties.Length - 1)
+                {
+                    sb.AppendLine();
+                }
+            }
+            gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], 0, 0, sb.ToString());
         }
 
         private void drawTelemetry(Graphics gfx)
@@ -598,7 +659,57 @@ namespace ZTMZ.PacenoteTool
 
         private void drawSteering(Graphics gfx, float x, float y, float width, float height)
         {
+            var centerX = x + 0.5f * width;
+            var centerY = y + 0.5f * height;
+            var radiusOuter = MathF.Max(width, height) * 0.5f;
+            var radiusInner = radiusOuter * (1 - Config.Instance.HudSectorThicknessRatio);
+            var radiusWidth = radiusOuter - radiusInner;
+
+            var steeringAngle = 90 - UdpMessage.Steering * Config.Instance.HudTelemetrySteeringDegree * 0.5f;
+            steeringAngle = steeringAngle / 180 * MathF.PI; // to radian
+            var middle = 0.5f * (radiusInner + radiusOuter);
             
+            
+            // bg
+            // var geo_bg = gfx.CreateGeometry();
+            // geo_bg.BeginFigure(new Point(centerX, y + radiusOuter), true);
+            // geo_bg.addCurve(new Point(centerX, y + radiusOuter), radiusOuter, ArcSize.Large, SweepDirection.Clockwise);
+            // geo_bg.AddPoint(new Point(centerX, y + radiusInner));
+            // geo_bg.addCurve(new Point(centerX, y + radiusInner), radiusInner, ArcSize.Large,
+            //     SweepDirection.CounterClockwise);
+            // geo_bg.EndFigure();
+            // geo_bg.Close();
+            //
+            // gfx.FillGeometry(geo_bg, _brushes["white"]);
+            gfx.FillCircle(_brushes["white"], centerX, centerY, radiusOuter);
+            gfx.FillCircle(_brushes["black"], centerX, centerY, radiusInner);
+
+            var anchorLeft = new Point(centerX + middle * MathF.Cos(steeringAngle + MathF.PI * 0.5f),
+                centerY - middle * MathF.Sin(steeringAngle + MathF.PI * 0.5f));
+            var anchorRight = new Point(centerX + middle * MathF.Cos(steeringAngle - MathF.PI * 0.5f),
+                centerY - middle * MathF.Sin(steeringAngle - MathF.PI * 0.5f));
+            var anchorBottom = new Point(centerX + middle * MathF.Cos(steeringAngle + MathF.PI),
+                centerY - middle * MathF.Sin(steeringAngle + MathF.PI));
+            
+            // cross
+            gfx.DrawLine(_brushes["grid"], anchorLeft, anchorRight, radiusWidth);
+            gfx.DrawLine(_brushes["grid"], centerX, centerY, anchorBottom.X, anchorBottom.Y, radiusWidth);
+
+            // cursor
+            var alpha = MathF.PI / 20f;
+            var geo_cur = gfx.CreateGeometry();
+            geo_cur.BeginFigure(new Point(centerX + radiusOuter * MathF.Cos(steeringAngle + alpha),
+                centerY - radiusOuter * MathF.Sin(steeringAngle + alpha)), true);
+            geo_cur.addCurve(new Point(centerX + radiusOuter * MathF.Cos(steeringAngle - alpha),
+                centerY - radiusOuter * MathF.Sin(steeringAngle - alpha)), radiusOuter, ArcSize.Small, SweepDirection.Clockwise);
+            geo_cur.AddPoint(new Point(centerX + radiusInner * MathF.Cos(steeringAngle - alpha),
+                centerY - radiusInner * MathF.Sin(steeringAngle - alpha)));
+            geo_cur.addCurve(new Point(centerX + radiusInner * MathF.Cos(steeringAngle + alpha),
+                centerY - radiusInner * MathF.Sin(steeringAngle + alpha)), radiusOuter, ArcSize.Small, SweepDirection.CounterClockwise);
+            geo_cur.EndFigure();
+            geo_cur.Close();
+            
+            gfx.FillGeometry(geo_cur, _brushes["red"]);
         }
         
         private string getGearText(int g)
@@ -638,10 +749,10 @@ namespace ZTMZ.PacenoteTool
             gfx.FillRectangle(_brushes["green"], x + width - barWidth, y + bgHeight + spacingV + (1-UdpMessage.SpeedRearRight / MAX_SPEED) * bgHeight, x + width, y + height);
             
             // brake temp
-            gfx.FillRectangle(_brushes["red"], x + barWidth, y + (1-UdpMessage.BrakeTempFrontLeft / MAX_SPEED) * bgHeight, x + 2 * barWidth, y + bgHeight);
-            gfx.FillRectangle(_brushes["red"], x + width - 2 * barWidth, y + (1-UdpMessage.BrakeTempFrontRight / MAX_SPEED) * bgHeight, x + width - barWidth, y + bgHeight);
-            gfx.FillRectangle(_brushes["red"], x + barWidth, y + bgHeight + spacingV + (1-UdpMessage.BrakeTempRearLeft / MAX_SPEED) * bgHeight, x + 2 * barWidth, y + height);
-            gfx.FillRectangle(_brushes["red"], x + width - 2 * barWidth, y + bgHeight + spacingV + (1-UdpMessage.BrakeTempRearRight / MAX_SPEED) * bgHeight, x + width - barWidth, y + height);
+            gfx.FillRectangle(_brushes["red"], x + barWidth, y + (1-UdpMessage.BrakeTempFrontLeft / MAX_WHEEL_TEMP) * bgHeight, x + 2 * barWidth, y + bgHeight);
+            gfx.FillRectangle(_brushes["red"], x + width - 2 * barWidth, y + (1-UdpMessage.BrakeTempFrontRight / MAX_WHEEL_TEMP) * bgHeight, x + width - barWidth, y + bgHeight);
+            gfx.FillRectangle(_brushes["red"], x + barWidth, y + bgHeight + spacingV + (1-UdpMessage.BrakeTempRearLeft / MAX_WHEEL_TEMP) * bgHeight, x + 2 * barWidth, y + height);
+            gfx.FillRectangle(_brushes["red"], x + width - 2 * barWidth, y + bgHeight + spacingV + (1-UdpMessage.BrakeTempRearRight / MAX_WHEEL_TEMP) * bgHeight, x + width - barWidth, y + height);
 
             // suspension
             gfx.FillRectangle(_brushes["white"], x + 2 * barWidth, y + (1-UdpMessage.SuspensionFrontLeft / 1.0f) * bgHeight, x + 3 * barWidth, y + bgHeight);
