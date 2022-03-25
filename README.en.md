@@ -69,6 +69,7 @@ batch audio processor
 #### References
 * [CrewChiefV4](https://gitlab.com/mr_belowski/CrewChiefV4)
 * [dr2_logger](https://github.com/ErlerPhilipp/dr2_logger)
+* [Dirt Telemetry Tool](https://forums.codemasters.com/topic/9721-dirt-telemetry-tool-cortextuals-version/)
 
 #### How to contribute
 1. Fork the project

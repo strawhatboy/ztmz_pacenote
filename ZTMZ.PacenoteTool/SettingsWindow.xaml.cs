@@ -241,8 +241,11 @@ namespace ZTMZ.PacenoteTool
             tb.Value = Convert.ToUInt32(configProperty.GetValue(Config.Instance));
             tb.ValueChanged += (s, e) =>
             {
-                configProperty.SetValue(Config.Instance, (int)tb.Value.Value);
-                Config.Instance.SaveUserConfig();
+                if (tb.Value.HasValue)
+                {
+                    configProperty.SetValue(Config.Instance, (int)tb.Value.Value);
+                    Config.Instance.SaveUserConfig();
+                }
             };
         }
 

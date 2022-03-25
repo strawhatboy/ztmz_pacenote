@@ -1,3 +1,5 @@
+
+#define DEV
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -323,8 +325,11 @@ namespace ZTMZ.PacenoteTool
 
     public class GameOverlayManager
     {
-        // public static string GAME_PROCESS = "dirtrally2";
+#if DEV
         public static string GAME_PROCESS = "notepad";
+#else
+        public static string GAME_PROCESS = "dirtrally2";
+#endif
         private StickyWindow _window;
 
         private readonly Dictionary<string, SolidBrush> _brushes = new();
@@ -341,71 +346,75 @@ namespace ZTMZ.PacenoteTool
         public string ScriptAuthor { set; get; } = "";
         public string PacenoteType { set; get; } = "";
 
-        public bool TimeToShowTelemetry { set; get; } = true;
+        public bool TimeToShowTelemetry { set; get; }
 
-        public UDPMessage UdpMessage { set; get; } = new UDPMessage()
-        {
-            Brake = 0.5f,
-            Throttle = 0.3f,
-            Clutch = 0.9f,
-            RPM = 6300f,
-            MaxRPM = 9000f,
-            IdleRPM = 1000f,
-            Speed = 130f,
-            Gear = 3f,
-            MaxGears = 4,
-            G_lat = 0.5f,
-            G_long = 0.2f,
-            SpeedFrontLeft = 190f,
-            SpeedRearLeft = 28f,
-            SpeedFrontRight = 181f,
-            SpeedRearRight = 59f,
-            BrakeTempFrontLeft = 99,
-            BrakeTempFrontRight = 98,
-            BrakeTempRearLeft = 90,
-            BrakeTempRearRight = 91,
-            SuspensionFrontLeft = 0.8f,
-            SuspensionFrontRight = 0.7f,
-            SuspensionRearLeft = 0.75f,
-            SuspensionRearRight = 0.71f,
-            CompletionRate = 0.35f,
-            Steering = 0.3f,
-            SuspensionSpeedFrontLeft = 20,
-            SuspensionSpeedFrontRight = 23,
-            SuspensionSpeedRearLeft = 35,
-            SuspensionSpeedRearRight = 46,
-            Sector = 1,
-            Time = 20,
-            CarPos = 30,
-            CurrentLap = 1,
-            LapDistance = 200,
-            LapsComplete = 1,
-            LapTime = 20,
-            PitchX = 234,
-            PitchY = 324,
-            PitchZ = 232,
-            PosX = 245,
-            PosY = 425,
-            PosZ = 5356,
-            RollX = 24,
-            RollY = 90,
-            RollZ = 425,
-            Sector1Time = 835,
-            Sector2Time = 835,
-            SpeedX = 5753,
-            SpeedY = 53,
-            SpeedZ = 3536,
-            TimeStamp = DateTime.Now,
-            TotalLaps = 4,
-            TrackLength = 35667,
-            LastLapTime = 36,
-        };
+        public UDPMessage UdpMessage { set; get; }
 
         public static float MAX_SPEED = 250f;
         public static float MAX_WHEEL_TEMP = 1200f;
 
         public void InitializeOverlay(System.Diagnostics.Process process)
         {
+#if DEV
+            UdpMessage = new UDPMessage()
+            {
+                Brake = 0.5f,
+                Throttle = 0.3f,
+                Clutch = 0.9f,
+                RPM = 6300f,
+                MaxRPM = 9000f,
+                IdleRPM = 1000f,
+                Speed = 130f,
+                Gear = 3f,
+                MaxGears = 4,
+                G_lat = 0.5f,
+                G_long = 0.2f,
+                SpeedFrontLeft = 190f,
+                SpeedRearLeft = 28f,
+                SpeedFrontRight = 181f,
+                SpeedRearRight = 59f,
+                BrakeTempFrontLeft = 99,
+                BrakeTempFrontRight = 98,
+                BrakeTempRearLeft = 90,
+                BrakeTempRearRight = 91,
+                SuspensionFrontLeft = 0.8f,
+                SuspensionFrontRight = 0.7f,
+                SuspensionRearLeft = 0.75f,
+                SuspensionRearRight = 0.71f,
+                CompletionRate = 0.35f,
+                Steering = 0.3f,
+                SuspensionSpeedFrontLeft = 20,
+                SuspensionSpeedFrontRight = 23,
+                SuspensionSpeedRearLeft = 35,
+                SuspensionSpeedRearRight = 46,
+                Sector = 1,
+                Time = 20,
+                CarPos = 30,
+                CurrentLap = 1,
+                LapDistance = 200,
+                LapsComplete = 1,
+                LapTime = 20,
+                PitchX = 234,
+                PitchY = 324,
+                PitchZ = 232,
+                PosX = 245,
+                PosY = 425,
+                PosZ = 5356,
+                RollX = 24,
+                RollY = 90,
+                RollZ = 425,
+                Sector1Time = 835,
+                Sector2Time = 835,
+                SpeedX = 5753,
+                SpeedY = 53,
+                SpeedZ = 3536,
+                TimeStamp = DateTime.Now,
+                TotalLaps = 4,
+                TrackLength = 35667,
+                LastLapTime = 36,
+            };
+            TimeToShowTelemetry = true;
+#endif
             var gfx = new Graphics()
             {
                 MeasureFPS = false,
@@ -415,6 +424,7 @@ namespace ZTMZ.PacenoteTool
 
 
             _window = new StickyWindow(process.MainWindowHandle, gfx);
+            _window.Title = "ZTMZ Club Hud";
             _window.BypassTopmost = true;
             _window.FPS = Config.Instance.HudFPS;   // 50 fps by default
             _window.AttachToClientArea = true;
@@ -578,7 +588,7 @@ namespace ZTMZ.PacenoteTool
         {
             var centerX = x + 0.5f * width;
             var centerY = y + 0.5f * height;
-            var radius = MathF.Max(width, height) * 0.5f;
+            var radius = MathF.Min(width, height) * 0.5f;
             gfx.FillCircle(_brushes["black"], centerX, centerY, radius);
             gfx.DrawLine(_brushes["grid"], centerX - radius, centerY, centerX + radius, centerY, 1);
             gfx.DrawLine(_brushes["grid"], centerX, centerY - radius, centerX, centerY + radius, 1);
@@ -586,14 +596,14 @@ namespace ZTMZ.PacenoteTool
             // the ball
             var ballX = centerX + UdpMessage.G_long * radius;
             var ballY = centerY + UdpMessage.G_lat * radius;
-            gfx.FillCircle(_brushes["red"], ballX, ballY, radius * Config.Instance.HudSectorThicknessRatio * 0.5f);
+            gfx.FillCircle(_brushes["red"], ballX, ballY, radius * 0.1f);
         }
         private void drawSpdSector(Graphics gfx, float x, float y, float width, float height)
         {
             var endPointAndFontSize = drawSector(gfx, x, y, width, height, UdpMessage.Speed, MAX_SPEED, Config.Instance.HudSectorThicknessRatio);
             // text
             // var fontSize = MathF.Min(width, height) * Config.Instance.HudSectorThicknessRatio;
-            gfx.DrawText(_fonts["consolas"], endPointAndFontSize.Item2, _brushes["white"], endPointAndFontSize.Item1.X, endPointAndFontSize.Item1.Y, $"{UdpMessage.Speed.ToString("0")} KM/h");
+            gfx.DrawTextWithBackground(_fonts["consolas"], endPointAndFontSize.Item2, _brushes["white"], _brushes["black"], endPointAndFontSize.Item1.X, endPointAndFontSize.Item1.Y, $"{UdpMessage.Speed.ToString("0")} KM/h");
         }
         private void drawPedals(Graphics gfx, float x, float y, float width, float height)
         {
@@ -661,7 +671,7 @@ namespace ZTMZ.PacenoteTool
         {
             var centerX = x + 0.5f * width;
             var centerY = y + 0.5f * height;
-            var radiusOuter = MathF.Max(width, height) * 0.5f;
+            var radiusOuter = MathF.Min(width, height) * 0.5f;
             var radiusInner = radiusOuter * (1 - Config.Instance.HudSectorThicknessRatio);
             var radiusWidth = radiusOuter - radiusInner;
 
@@ -725,7 +735,7 @@ namespace ZTMZ.PacenoteTool
         private void drawRPMSector(Graphics gfx, float x, float y, float width, float height)
         {
             var t = drawSector(gfx, x, y, width, height, UdpMessage.RPM, UdpMessage.MaxRPM, Config.Instance.HudSectorThicknessRatio);
-            gfx.DrawText(_fonts["consolas"], t.Item2, _brushes["white"], t.Item1.X, t.Item1.Y, $"{UdpMessage.RPM.ToString("0")} rpm");
+            gfx.DrawTextWithBackground(_fonts["consolas"], t.Item2, _brushes["white"], _brushes["black"], t.Item1.X, t.Item1.Y, $"{UdpMessage.RPM.ToString("0")} rpm");
         }
         private void drawSuspensionBars(Graphics gfx, float x, float y, float width, float height)
         {

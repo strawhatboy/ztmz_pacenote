@@ -413,8 +413,8 @@ namespace ZTMZ.PacenoteTool.Base
             set { this._HudTelemetryShowSteering = value; this._userconfig["HudTelemetryShowSteering"] = value; }
             get => this._HudTelemetryShowSteering;
         }
-        private float _HudTelemetrySteeringDegree = 540;
-        public float HudTelemetrySteeringDegree
+        private int _HudTelemetrySteeringDegree = 540;
+        public int HudTelemetrySteeringDegree
         {
             set { this._HudTelemetrySteeringDegree = value; this._userconfig["HudTelemetrySteeringDegree"] = value; }
             get => this._HudTelemetrySteeringDegree;

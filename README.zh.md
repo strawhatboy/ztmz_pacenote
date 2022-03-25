@@ -78,6 +78,7 @@ Vosk语音识别模型
 #### 本项目参考的项目
 * [CrewChiefV4](https://gitlab.com/mr_belowski/CrewChiefV4)
 * [dr2_logger](https://github.com/ErlerPhilipp/dr2_logger)
+* [Dirt Telemetry Tool](https://forums.codemasters.com/topic/9721-dirt-telemetry-tool-cortextuals-version/)
 
 #### 如何贡献代码
 1. Fork本项目并使用git下载源码

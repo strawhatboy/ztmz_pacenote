@@ -129,6 +129,14 @@ namespace ZTMZ.PacenoteTool
                     // reset to 1.0 by default
                     Config.Instance.UI_PlaybackSpeed = 1.0f;
                 }
+
+                if (_version.Equals("2.6.3.0"))
+                {
+                    // adjust from 1.5 to 1.25 by default
+                    Config.Instance.DynamicPlaybackMaxSpeed = 1.25f;
+                    // reset to 1.0 by default
+                    Config.Instance.UI_PlaybackSpeed = 1.0f;
+                }
             }
         }
 
