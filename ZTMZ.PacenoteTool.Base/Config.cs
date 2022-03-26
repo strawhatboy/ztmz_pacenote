@@ -314,6 +314,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._HudFPS;
         }
         
+        private bool _HudChromaKeyMode = false;
+        public bool HudChromaKeyMode
+        {
+            set { this._HudChromaKeyMode = value; this._userconfig["HudChromaKeyMode"] = value; }
+            get => this._HudChromaKeyMode;
+        }
+        
         private bool _HudShowTelemetry = true;
         public bool HudShowTelemetry
         {
@@ -455,6 +462,13 @@ namespace ZTMZ.PacenoteTool.Base
         {
             set { this._UseDefaultSoundPackageForFallback = value; this._userconfig["UseDefaultSoundPackageForFallback"] = value; }
             get => this._UseDefaultSoundPackageForFallback;
+        }
+
+        private string _AdditionalCoDriverPackagesSearchPath = "";
+        public string AdditionalCoDriverPackagesSearchPath
+        {
+            set { this._AdditionalCoDriverPackagesSearchPath = value; this._userconfig["AdditionalCoDriverPackagesSearchPath"] = value; }
+            get => this._AdditionalCoDriverPackagesSearchPath;
         }
 
 

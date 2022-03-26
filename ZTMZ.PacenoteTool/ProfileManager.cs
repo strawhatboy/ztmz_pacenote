@@ -265,7 +265,13 @@ namespace ZTMZ.PacenoteTool
 
         public List<string> GetAllCodrivers()
         {
-            return Directory.GetDirectories(AppLevelVariables.Instance.GetPath("codrivers\\")).ToList();
+            var dirs = Directory.GetDirectories(AppLevelVariables.Instance.GetPath("codrivers\\")).ToList();
+            if (Directory.Exists(Config.Instance.AdditionalCoDriverPackagesSearchPath))
+            {
+                dirs.AddRange(Directory.GetDirectories(Config.Instance.AdditionalCoDriverPackagesSearchPath));
+            }
+
+            return dirs;
         }
 
         public void CreateNewProfile(string profileName)

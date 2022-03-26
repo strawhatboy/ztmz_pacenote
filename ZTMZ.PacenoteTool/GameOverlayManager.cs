@@ -1,5 +1,5 @@
 
-#define DEV
+// #define DEV
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -452,10 +452,22 @@ namespace ZTMZ.PacenoteTool
             _brushes["black"] = gfx.CreateSolidBrush(0, 0, 0);
             _brushes["white"] = gfx.CreateSolidBrush(255, 255, 255);
             _brushes["red"] = gfx.CreateSolidBrush(255, 0, 0);
-            _brushes["green"] = gfx.CreateSolidBrush(0, 255, 0);
-            _brushes["blue"] = gfx.CreateSolidBrush(0, 0, 255);
+            if (Config.Instance.HudChromaKeyMode)
+            {
+                // change green to blue, blue to purple, clear to green
+                _brushes["green"] = gfx.CreateSolidBrush(0, 0, 255);
+                _brushes["blue"] = gfx.CreateSolidBrush(255, 0, 255);
+                _brushes["clear"] = gfx.CreateSolidBrush(0, 255, 0);
+            }
+            else
+            {
+                _brushes["green"] = gfx.CreateSolidBrush(0, 255, 0);
+                _brushes["blue"] = gfx.CreateSolidBrush(0, 0, 255);
+                _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
+            }
             _brushes["background"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 100);
-            _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
+            
+
             _brushes["grid"] = gfx.CreateSolidBrush(255, 255, 255, 0.2f);
             _brushes["random"] = gfx.CreateSolidBrush(0, 0, 0);
             

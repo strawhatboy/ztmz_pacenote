@@ -36,6 +36,8 @@
       "useDefaultSoundPackageByDefault": "Ignore default AI-generated voice package",
       "useDefaultSoundPackageForFallback": "If current voice package is not complete, use default AI-generated voice package for fallback",
       "preloadSounds": "Preload the voice packages may take more memory (around 2GB), but will load the voice package as soon as possible",
+      "additionalCoDriverPackagesSearchPath": "When searching for voice packs, additionally search this folder",
+      
       "useSequentialMixerToHandleAudioConflict": "A sequential mix can avoid voices overlap",
       "useDynamicPlaybackSpeed": "In some maps with dense pacenotes (such as Scotland), by dynamically adjusting the speech rate of the current pacenote segment according to the speed of the vehicle and the position of the next pacenote,\n to avoid the situation that the pacenote cannot keep up with the car",
       "useTempoInsteadOfRate": "Using the Tempo method can ensure that only the voice is accelerated or slowed down, while keeping the pitch unchanged, using the Rate method will cause the pitch to change (weird) ",
@@ -44,6 +46,7 @@
       "dynamicVolumePerturbationFrequency": "The frequency of the sine wave, the higher the frequency, the faster the jitter",
       "dynamicVolumePerturbationAmplitude": "The larger the amplitude, the stronger the jitter",
 
+      "hudChromaKeyMode": "Need to restart the tool.\nAfter the full-screen game mode is turned on, you can add \"ZTMZ Club Hud\" window capture in OBSStudio, plus a chroma keying filter, which can be used as a transparent mask layer for live broadcast or video recording\nNote, do not turn this option on if it is a windowed game, in addition, the color scheme after opening will be slightly different from that when windowed",
       "hudShowTelemetry": "Dashboard similar to Dirt Telemetry Tool",
       "hudSizePercentage": "The ratio of the dashboard to the height of the game screen",
       "hudPaddingH": "The distance between the elements in the dashboard and the borders on both sides of the dashboard",
@@ -77,6 +80,8 @@
     "useDefaultSoundPackageByDefault": "Ignore default AI-generated voice package",
     "useDefaultSoundPackageForFallback": "Fallback to default voice package",
     "preloadSounds": "Preload voice packages",
+    "additionalCoDriverPackagesSearchPath": "Additional Voice Pack Search Folder",
+    
     "useSequentialMixerToHandleAudioConflict": "Use sequential mixer",
     "useDynamicPlaybackSpeed": "Use dynamic playback speech rate",
     "useTempoInsteadOfRate": "Use tempo instead of rate for playback rate adjustment",
@@ -85,6 +90,7 @@
     "dynamicVolumePerturbationFrequency": "Voice tension enhancement waveform frequency (Hz)",
     "dynamicVolumePerturbationAmplitude": "Voice tension enhancement waveform amplitude (0~1)",
 
+    "hudChromaKeyMode": "Whether to use chroma keying mode (for full-screen game recording or live streaming) ",
     "hudShowTelemetry": "Whether to show the telemetry dashboard",
     "hudSizePercentage": "Dashboard - Size",
     "hudPaddingH": "Dashboard - padding on both sides",

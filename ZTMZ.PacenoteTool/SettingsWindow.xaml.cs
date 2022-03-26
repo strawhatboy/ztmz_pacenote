@@ -1,10 +1,12 @@
 using MaterialDesignThemes.Wpf;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using Xceed.Wpf.Toolkit;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Dialog;
@@ -116,7 +118,13 @@ namespace ZTMZ.PacenoteTool
                 this.pi_hudFPS.Visibility = Visibility.Visible;
                 this.tb_restartNeeded.Visibility = Visibility.Visible;
             };
-            
+
+            initBoolSetting(btn_hudChromaKeyMode, "HudChromaKeyMode", false, () =>
+            {
+                // need restart
+                this.tb_restartNeeded.Visibility = Visibility.Visible;
+            });
+
             // telemetry
             initBoolSetting(btn_hudShowTelemetry, "HudShowTelemetry");
             initSliderSetting(sl_hudSizePercentage, "HudSizePercentage");
@@ -141,6 +149,29 @@ namespace ZTMZ.PacenoteTool
 
         private void initVoicePackage()
         {
+            // additional voice package
+            txtBox_additionalCoDriverPackagesSearchPath.Text = Config.Instance.AdditionalCoDriverPackagesSearchPath;
+            txtBox_additionalCoDriverPackagesSearchPath.TextChanged += (o, e) =>
+            {
+                if (Directory.Exists(txtBox_additionalCoDriverPackagesSearchPath.Text))
+                {
+                    Config.Instance.AdditionalCoDriverPackagesSearchPath =
+                        txtBox_additionalCoDriverPackagesSearchPath.Text;
+                    Config.Instance.SaveUserConfig();
+                }
+            };
+            btn_additionalCoDriverPackagesSearchPath.Click += (o, e) =>
+            {
+                // show directory selection dialog
+                var dialog = new CommonOpenFileDialog();
+                dialog.IsFolderPicker = true;
+                CommonFileDialogResult result = dialog.ShowDialog();
+                if (result == CommonFileDialogResult.Ok)
+                {
+                    this.txtBox_additionalCoDriverPackagesSearchPath.Text = dialog.FileName;
+                }
+            };
+            
             // start/end
             initBoolSetting(btn_PlayStartAndEndSound, "PlayStartAndEndSound");
 
