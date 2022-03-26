@@ -367,7 +367,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._HudElementSpacing;   
         }
         
-        private float _HudSectorThicknessRatio = 0.2f;
+        private float _HudSectorThicknessRatio = 0.25f;
         public float HudSectorThicknessRatio
         {
             set { this._HudSectorThicknessRatio = value; this._userconfig["HudSectorThicknessRatio"] = value; }

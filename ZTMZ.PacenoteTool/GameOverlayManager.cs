@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Windows.Xps.Serialization;
 using GameOverlay.Windows;
 using GameOverlay.Drawing;
 using SharpDX;
@@ -346,12 +347,47 @@ namespace ZTMZ.PacenoteTool
         public string ScriptAuthor { set; get; } = "";
         public string PacenoteType { set; get; } = "";
 
-        public bool TimeToShowTelemetry { set; get; }
+        private bool _TimeToShowTelemetry = false;
+
+        public bool TimeToShowTelemetry
+        {
+            set
+            {
+                _TimeToShowTelemetry = value;
+                maxSpeed = MAX_SPEED;
+                maxWheelSpeed = MAX_WHEEL_SPEED;
+                maxWheelTemp = MAX_WHEEL_TEMP;
+                maxGForce = MAX_G_FORCE;
+                maxSuspension = MAX_SUSPENSION;
+                minSuspension = MIN_SUSPENSION;
+                maxSuspensionSpd = MAX_SUSPENSION_SPD;
+                minSuspensionSpd = MIN_SUSPENSION_SPD;
+            }
+            get
+            {
+                return _TimeToShowTelemetry;
+            }
+        }
 
         public UDPMessage UdpMessage { set; get; }
 
-        public static float MAX_SPEED = 250f;
-        public static float MAX_WHEEL_TEMP = 1200f;
+        public static float MAX_SPEED = 200f;
+        public static float MAX_WHEEL_SPEED = 220f;
+        public static float MAX_WHEEL_TEMP = 800f;
+        public static float MAX_G_FORCE = 2.2f;
+        public static float MAX_SUSPENSION_SPD = 1000f; // m/s
+        public static float MIN_SUSPENSION_SPD = -1000f;
+        public static float MAX_SUSPENSION = 200;
+        public static float MIN_SUSPENSION = -200;
+        
+        private float maxSpeed { set; get; }
+        private float maxWheelSpeed { set; get; }
+        private float maxWheelTemp { set; get; }
+        private float maxGForce { set; get; }
+        private float maxSuspensionSpd { set; get; }
+        private float minSuspensionSpd { set; get; }
+        private float maxSuspension { set; get; }
+        private float minSuspension { set; get; }
 
         public void InitializeOverlay(System.Diagnostics.Process process)
         {
@@ -452,7 +488,8 @@ namespace ZTMZ.PacenoteTool
             _brushes["black"] = gfx.CreateSolidBrush(0, 0, 0);
             _brushes["white"] = gfx.CreateSolidBrush(255, 255, 255);
             _brushes["red"] = gfx.CreateSolidBrush(255, 0, 0);
-            if (Config.Instance.HudChromaKeyMode)
+            _brushes["grey"] = gfx.CreateSolidBrush(64, 64, 64);
+        if (Config.Instance.HudChromaKeyMode)
             {
                 // change green to blue, blue to purple, clear to green
                 _brushes["green"] = gfx.CreateSolidBrush(0, 0, 255);
@@ -601,34 +638,39 @@ namespace ZTMZ.PacenoteTool
             var centerX = x + 0.5f * width;
             var centerY = y + 0.5f * height;
             var radius = MathF.Min(width, height) * 0.5f;
-            gfx.FillCircle(_brushes["black"], centerX, centerY, radius);
+            gfx.FillCircle(_brushes["grey"], centerX, centerY, radius);
             gfx.DrawLine(_brushes["grid"], centerX - radius, centerY, centerX + radius, centerY, 1);
             gfx.DrawLine(_brushes["grid"], centerX, centerY - radius, centerX, centerY + radius, 1);
-            gfx.DrawCircle(_brushes["white"], centerX, centerY, radius, 1);
+            gfx.DrawCircle(_brushes["white"], centerX, centerY, radius -1 , 1);
+            gfx.DrawCircle(_brushes["black"], centerX, centerY, radius , 1);
             // the ball
-            var ballX = centerX + UdpMessage.G_long * radius;
-            var ballY = centerY + UdpMessage.G_lat * radius;
+            var ballX = centerX + UdpMessage.G_lat * radius / MAX_G_FORCE;
+            var ballY = centerY + UdpMessage.G_long * radius / MAX_G_FORCE;
             gfx.FillCircle(_brushes["red"], ballX, ballY, radius * 0.1f);
         }
         private void drawSpdSector(Graphics gfx, float x, float y, float width, float height)
         {
-            var endPointAndFontSize = drawSector(gfx, x, y, width, height, UdpMessage.Speed, MAX_SPEED, Config.Instance.HudSectorThicknessRatio);
-            // text
-            // var fontSize = MathF.Min(width, height) * Config.Instance.HudSectorThicknessRatio;
-            gfx.DrawTextWithBackground(_fonts["consolas"], endPointAndFontSize.Item2, _brushes["white"], _brushes["black"], endPointAndFontSize.Item1.X, endPointAndFontSize.Item1.Y, $"{UdpMessage.Speed.ToString("0")} KM/h");
+            maxSpeed = MathF.Max(maxSpeed, UdpMessage.Speed); 
+            drawSector(gfx, "SPD (KM/h)", x, y, width, height, UdpMessage.Speed, maxSpeed, Config.Instance.HudSectorThicknessRatio);
         }
         private void drawPedals(Graphics gfx, float x, float y, float width, float height)
         {
             // 3 pedals
             var pedalWidth = 1f / 3.6f * width;
             var spacing = 0.3f / 3.6f * width;
-            gfx.FillRectangle(_brushes["black"], x, y, x + pedalWidth, y + height);
-            gfx.FillRectangle(_brushes["black"], x + pedalWidth + spacing, y, x + 2 * pedalWidth + spacing, y + height);
-            gfx.FillRectangle(_brushes["black"], x + 2 * pedalWidth + 2 * spacing, y, x + width, y + height);
+            gfx.FillRectangle(_brushes["grey"], x, y, x + pedalWidth, y + height);
+            gfx.FillRectangle(_brushes["grey"], x + pedalWidth + spacing, y, x + 2 * pedalWidth + spacing, y + height);
+            gfx.FillRectangle(_brushes["grey"], x + 2 * pedalWidth + 2 * spacing, y, x + width, y + height);
+            gfx.DrawRectangle(_brushes["white"], x, y, x + pedalWidth, y + height, 1);
+            gfx.DrawRectangle(_brushes["white"], x + pedalWidth + spacing, y, x + 2 * pedalWidth + spacing, y + height, 1);
+            gfx.DrawRectangle(_brushes["white"], x + 2 * pedalWidth + 2 * spacing, y, x + width, y + height, 1);
+            gfx.DrawRectangle(_brushes["black"], x-1, y-1, x + pedalWidth+1, y + height+1, 1);
+            gfx.DrawRectangle(_brushes["black"], x + pedalWidth + spacing-1, y-1, x + 2 * pedalWidth + spacing+1, y + height+1, 1);
+            gfx.DrawRectangle(_brushes["black"], x + 2 * pedalWidth + 2 * spacing-1, y-1, x + width+1, y + height+1, 1);
 
-            gfx.FillRectangle(_brushes["blue"], x, y + height * (1-UdpMessage.Clutch), x + pedalWidth, y + height);
-            gfx.FillRectangle(_brushes["red"], x + pedalWidth + spacing, y + height * (1-UdpMessage.Brake), x + 2 * pedalWidth + spacing, y + height);
-            gfx.FillRectangle(_brushes["green"], x + 2 * pedalWidth + 2 * spacing, y + height * (1-UdpMessage.Throttle), x + width, y + height);
+            gfx.FillRectangle(_brushes["blue"], 1 + x, 1 + y + height * (1-UdpMessage.Clutch), x + pedalWidth - 1, y + height - 1);
+            gfx.FillRectangle(_brushes["red"], 1 + x + pedalWidth + spacing, 1 + y + height * (1-UdpMessage.Brake), x + 2 * pedalWidth + spacing - 1, y + height - 1);
+            gfx.FillRectangle(_brushes["green"], 1 + x + 2 * pedalWidth + 2 * spacing, 1 + y + height * (1-UdpMessage.Throttle), x + width - 1, y + height - 1);
 
         }
         private void drawGear(Graphics gfx, float x, float y, float width, float height)
@@ -664,19 +706,22 @@ namespace ZTMZ.PacenoteTool
             foreach (var r in rectangles)
             {
                 gfx.FillRectangle(_brushes["white"], r);
+                gfx.DrawRectangle(_brushes["black"], r, 1);
             }
 
             int gear = Convert.ToInt32(UdpMessage.Gear);
+            Rectangle rect;
             switch (gear) 
             {
                 case -1:
                 case 10:
-                    gfx.FillRectangle(_brushes["red"], rectangles[0]);
+                    rect = rectangles[0];
                     break;
                 default:
-                    gfx.FillRectangle(_brushes["red"], rectangles[gear]);
+                    rect = rectangles[gear];
                     break;
             }
+            gfx.FillRectangle(_brushes["red"], rect.Left + 1, rect.Top + 1, rect.Right - 1, rect.Bottom - 1);
         }
 
         private void drawSteering(Graphics gfx, float x, float y, float width, float height)
@@ -704,7 +749,8 @@ namespace ZTMZ.PacenoteTool
             //
             // gfx.FillGeometry(geo_bg, _brushes["white"]);
             gfx.FillCircle(_brushes["white"], centerX, centerY, radiusOuter);
-            gfx.FillCircle(_brushes["black"], centerX, centerY, radiusInner);
+            gfx.FillCircle(_brushes["grey"], centerX, centerY, radiusInner);
+            gfx.DrawCircle(_brushes["black"], centerX, centerY, radiusOuter, 1);
 
             var anchorLeft = new Point(centerX + middle * MathF.Cos(steeringAngle + MathF.PI * 0.5f),
                 centerY - middle * MathF.Sin(steeringAngle + MathF.PI * 0.5f));
@@ -714,11 +760,12 @@ namespace ZTMZ.PacenoteTool
                 centerY - middle * MathF.Sin(steeringAngle + MathF.PI));
             
             // cross
-            gfx.DrawLine(_brushes["grid"], anchorLeft, anchorRight, radiusWidth);
-            gfx.DrawLine(_brushes["grid"], centerX, centerY, anchorBottom.X, anchorBottom.Y, radiusWidth);
+            gfx.DrawLine(_brushes["white"], anchorLeft, anchorRight, radiusWidth);
+            gfx.DrawLine(_brushes["white"], centerX, centerY, anchorBottom.X, anchorBottom.Y, radiusWidth);
 
             // cursor
-            var alpha = MathF.PI / 20f;
+            var alpha = MathF.PI / 30f;
+            radiusOuter -= 1;
             var geo_cur = gfx.CreateGeometry();
             geo_cur.BeginFigure(new Point(centerX + radiusOuter * MathF.Cos(steeringAngle + alpha),
                 centerY - radiusOuter * MathF.Sin(steeringAngle + alpha)), true);
@@ -746,8 +793,8 @@ namespace ZTMZ.PacenoteTool
         }
         private void drawRPMSector(Graphics gfx, float x, float y, float width, float height)
         {
-            var t = drawSector(gfx, x, y, width, height, UdpMessage.RPM, UdpMessage.MaxRPM, Config.Instance.HudSectorThicknessRatio);
-            gfx.DrawTextWithBackground(_fonts["consolas"], t.Item2, _brushes["white"], _brushes["black"], t.Item1.X, t.Item1.Y, $"{UdpMessage.RPM.ToString("0")} rpm");
+            var t = drawSector(gfx, "RPM", x, y, width, height, UdpMessage.RPM, UdpMessage.MaxRPM, Config.Instance.HudSectorThicknessRatio);
+
         }
         private void drawSuspensionBars(Graphics gfx, float x, float y, float width, float height)
         {
@@ -759,38 +806,103 @@ namespace ZTMZ.PacenoteTool
             var barWidth = bgWidth / 4f;
 
             // background
-            gfx.FillRectangle(_brushes["black"], x, y, x + bgWidth, y + bgHeight);
-            gfx.FillRectangle(_brushes["black"], x + bgWidth + spacingH, y, x + width, y + bgHeight);
-            gfx.FillRectangle(_brushes["black"], x, y + bgHeight + spacingV, x + bgWidth, y + height);
-            gfx.FillRectangle(_brushes["black"], x + bgWidth + spacingH, y + bgHeight + spacingV, x + width, y + height);
+            gfx.FillRectangle(_brushes["grey"], x, y, x + bgWidth, y + bgHeight);
+            gfx.FillRectangle(_brushes["grey"], x + bgWidth + spacingH, y, x + width, y + bgHeight);
+            gfx.FillRectangle(_brushes["grey"], x, y + bgHeight + spacingV, x + bgWidth, y + height);
+            gfx.FillRectangle(_brushes["grey"], x + bgWidth + spacingH, y + bgHeight + spacingV, x + width, y + height);
+            // gfx.DrawRectangle(_brushes["white"], x-1, y-1, x + width+1, y + height+1, 1);
+            gfx.DrawRectangle(_brushes["black"], x-1, y-1, x + width+1, y + height+1, 1);
+            // gfx.DrawRectangle(_brushes["black"], x + bgWidth + spacingH, y, x + width, y + bgHeight, 1);
+            // gfx.DrawRectangle(_brushes["black"], x, y + bgHeight + spacingV, x + bgWidth, y + height, 1);
+            // gfx.DrawRectangle(_brushes["black"], x + bgWidth + spacingH, y + bgHeight + spacingV, x + width, y + height, 1);
+            
             
             // wheel spd
-            gfx.FillRectangle(_brushes["green"], x, y + (1-UdpMessage.SpeedFrontLeft / MAX_SPEED) * bgHeight, x + barWidth, y + bgHeight);
-            gfx.FillRectangle(_brushes["green"], x + width - barWidth, y + (1-UdpMessage.SpeedFrontRight / MAX_SPEED) * bgHeight, x + width, y + bgHeight);
-            gfx.FillRectangle(_brushes["green"], x, y + bgHeight + spacingV + (1-UdpMessage.SpeedRearLeft / MAX_SPEED) * bgHeight, x + barWidth, y + height);
-            gfx.FillRectangle(_brushes["green"], x + width - barWidth, y + bgHeight + spacingV + (1-UdpMessage.SpeedRearRight / MAX_SPEED) * bgHeight, x + width, y + height);
+            // gfx.DrawRectangle(_brushes["green"], x, y + bgHeight, x + barWidth, y + bgHeight, 1);
+            // gfx.DrawRectangle(_brushes["green"], x + width - barWidth, y + bgHeight, x + width, y + bgHeight, 1);
+            // gfx.DrawRectangle(_brushes["green"], x, y + bgHeight + spacingV + bgHeight, x + barWidth, y + height, 1);
+            // gfx.DrawRectangle(_brushes["green"], x + width - barWidth, y + bgHeight + spacingV + bgHeight, x + width, y + height, 1);
+            // x += 1;
+            // y += 1;
+            // width -= 2;
+            // height -= 2;
+            maxWheelSpeed = MathF.Max(maxWheelSpeed, UdpMessage.SpeedFrontLeft);
+            gfx.FillRectangle(_brushes["green"], x, y + (1-UdpMessage.SpeedFrontLeft / maxWheelSpeed) * bgHeight, x + barWidth, y + bgHeight);
+            maxWheelSpeed = MathF.Max(maxWheelSpeed, UdpMessage.SpeedFrontRight);
+            gfx.FillRectangle(_brushes["green"], x + width - barWidth, y + (1-UdpMessage.SpeedFrontRight / maxWheelSpeed) * bgHeight, x + width, y + bgHeight);
+            maxWheelSpeed = MathF.Max(maxWheelSpeed, UdpMessage.SpeedRearLeft);
+            gfx.FillRectangle(_brushes["green"], x, y + bgHeight + spacingV + (1-UdpMessage.SpeedRearLeft / maxWheelSpeed) * bgHeight, x + barWidth, y + height);
+            maxWheelSpeed = MathF.Max(maxWheelSpeed, UdpMessage.SpeedRearRight);
+            gfx.FillRectangle(_brushes["green"], x + width - barWidth, y + bgHeight + spacingV + (1-UdpMessage.SpeedRearRight / maxWheelSpeed) * bgHeight, x + width, y + height);
             
             // brake temp
-            gfx.FillRectangle(_brushes["red"], x + barWidth, y + (1-UdpMessage.BrakeTempFrontLeft / MAX_WHEEL_TEMP) * bgHeight, x + 2 * barWidth, y + bgHeight);
-            gfx.FillRectangle(_brushes["red"], x + width - 2 * barWidth, y + (1-UdpMessage.BrakeTempFrontRight / MAX_WHEEL_TEMP) * bgHeight, x + width - barWidth, y + bgHeight);
-            gfx.FillRectangle(_brushes["red"], x + barWidth, y + bgHeight + spacingV + (1-UdpMessage.BrakeTempRearLeft / MAX_WHEEL_TEMP) * bgHeight, x + 2 * barWidth, y + height);
-            gfx.FillRectangle(_brushes["red"], x + width - 2 * barWidth, y + bgHeight + spacingV + (1-UdpMessage.BrakeTempRearRight / MAX_WHEEL_TEMP) * bgHeight, x + width - barWidth, y + height);
+            // gfx.DrawRectangle(_brushes["red"], x + barWidth, y + bgHeight, x + 2 * barWidth, y + bgHeight, 1);
+            // gfx.DrawRectangle(_brushes["red"], x + width - 2 * barWidth, y + bgHeight, x + width - barWidth, y + bgHeight, 1);
+            // gfx.DrawRectangle(_brushes["red"], x + barWidth, y + bgHeight + spacingV + bgHeight, x + 2 * barWidth, y + height, 1);
+            // gfx.DrawRectangle(_brushes["red"], x + width - 2 * barWidth, y + bgHeight + spacingV + bgHeight, x + width - barWidth, y + height, 1);
+            maxWheelTemp = MathF.Max(maxWheelTemp, UdpMessage.BrakeTempFrontLeft);
+            gfx.FillRectangle(_brushes["red"], x + barWidth, y + (1-getMaxMinBarPartition(maxWheelTemp, 0, UdpMessage.BrakeTempFrontLeft)) * bgHeight, x + 2 * barWidth, y + bgHeight);
+            maxWheelTemp = MathF.Max(maxWheelTemp, UdpMessage.BrakeTempFrontRight);
+            gfx.FillRectangle(_brushes["red"], x + width - 2 * barWidth, y + (1-getMaxMinBarPartition(maxWheelTemp, 0, UdpMessage.BrakeTempFrontRight)) * bgHeight, x + width - barWidth, y + bgHeight);
+            maxWheelTemp = MathF.Max(maxWheelTemp, UdpMessage.BrakeTempRearLeft);
+            gfx.FillRectangle(_brushes["red"], x + barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxWheelTemp, 0, UdpMessage.BrakeTempRearLeft)) * bgHeight, x + 2 * barWidth, y + height);
+            maxWheelTemp = MathF.Max(maxWheelTemp, UdpMessage.BrakeTempRearRight);
+            gfx.FillRectangle(_brushes["red"], x + width - 2 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxWheelTemp, 0, UdpMessage.BrakeTempRearRight)) * bgHeight, x + width - barWidth, y + height);
 
             // suspension
-            gfx.FillRectangle(_brushes["white"], x + 2 * barWidth, y + (1-UdpMessage.SuspensionFrontLeft / 1.0f) * bgHeight, x + 3 * barWidth, y + bgHeight);
-            gfx.FillRectangle(_brushes["white"], x + width - 3 * barWidth, y + (1-UdpMessage.SuspensionFrontRight / 1.0f) * bgHeight, x + width - 2 * barWidth, y + bgHeight);
-            gfx.FillRectangle(_brushes["white"], x + 2 * barWidth, y + bgHeight + spacingV + (1-UdpMessage.SuspensionRearLeft / 1.0f) * bgHeight, x + 3 * barWidth, y + height);
-            gfx.FillRectangle(_brushes["white"], x + width - 3 * barWidth, y + bgHeight + spacingV + (1-UdpMessage.SuspensionRearRight / 1.0f) * bgHeight, x + width - 2 * barWidth, y + height);
+            // gfx.DrawRectangle(_brushes["white"], x + 2 * barWidth, y + bgHeight, x + 3 * barWidth, y + bgHeight, 1);
+            // gfx.DrawRectangle(_brushes["white"], x + width - 3 * barWidth, y + bgHeight, x + width - 2 * barWidth, y + bgHeight, 1);
+            // gfx.DrawRectangle(_brushes["white"], x + 2 * barWidth, y + bgHeight + spacingV + bgHeight, x + 3 * barWidth, y + height, 1);
+            // gfx.DrawRectangle(_brushes["white"], x + width - 3 * barWidth, y + bgHeight + spacingV + bgHeight, x + width - 2 * barWidth, y + height, 1);
+            minSuspension = MathF.Min(minSuspension, UdpMessage.SuspensionFrontLeft);
+            maxSuspension = MathF.Max(maxSuspension, UdpMessage.SuspensionFrontLeft);
+            gfx.FillRectangle(_brushes["white"], x + 2 * barWidth, y + (1-getMaxMinBarPartition(maxSuspension, minSuspension, UdpMessage.SuspensionFrontLeft)) * bgHeight, x + 3 * barWidth, y + bgHeight);
+            minSuspension = MathF.Min(minSuspension, UdpMessage.SuspensionFrontRight);
+            maxSuspension = MathF.Max(maxSuspension, UdpMessage.SuspensionFrontRight);
+            gfx.FillRectangle(_brushes["white"], x + width - 3 * barWidth, y + (1-getMaxMinBarPartition(maxSuspension, minSuspension, UdpMessage.SuspensionFrontRight)) * bgHeight, x + width - 2 * barWidth, y + bgHeight);
+            minSuspension = MathF.Min(minSuspension, UdpMessage.SuspensionRearLeft);
+            maxSuspension = MathF.Max(maxSuspension, UdpMessage.SuspensionRearLeft);
+            gfx.FillRectangle(_brushes["white"], x + 2 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxSuspension, minSuspension, UdpMessage.SuspensionRearLeft)) * bgHeight, x + 3 * barWidth, y + height);
+            minSuspension = MathF.Min(minSuspension, UdpMessage.SuspensionRearRight);
+            maxSuspension = MathF.Max(maxSuspension, UdpMessage.SuspensionRearRight);
+            gfx.FillRectangle(_brushes["white"], x + width - 3 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxSuspension, minSuspension, UdpMessage.SuspensionRearRight)) * bgHeight, x + width - 2 * barWidth, y + height);
             
             // suspension_speed
-            gfx.FillRectangle(_brushes["blue"], x + 3 * barWidth, y + (1-UdpMessage.SuspensionSpeedFrontLeft / MAX_SPEED) * bgHeight, x + 4 * barWidth, y + bgHeight);
-            gfx.FillRectangle(_brushes["blue"], x + width - 4 * barWidth, y + (1-UdpMessage.SuspensionSpeedFrontRight / MAX_SPEED) * bgHeight, x + width - 3 * barWidth, y + bgHeight);
-            gfx.FillRectangle(_brushes["blue"], x + 3 * barWidth, y + bgHeight + spacingV + (1-UdpMessage.SuspensionSpeedRearLeft / MAX_SPEED) * bgHeight, x + 4 * barWidth, y + height);
-            gfx.FillRectangle(_brushes["blue"], x + width - 4 * barWidth, y + bgHeight + spacingV + (1-UdpMessage.SuspensionSpeedRearRight / MAX_SPEED) * bgHeight, x + width - 3 * barWidth, y + height);
+            // gfx.DrawRectangle(_brushes["blue"], x + 3 * barWidth, y + bgHeight, x + 4 * barWidth, y + bgHeight, 1);
+            // gfx.DrawRectangle(_brushes["blue"], x + width - 4 * barWidth, y + bgHeight, x + width - 3 * barWidth, y + bgHeight, 1);
+            // gfx.DrawRectangle(_brushes["blue"], x + 3 * barWidth, y + bgHeight + spacingV + bgHeight, x + 4 * barWidth, y + height, 1);
+            // gfx.DrawRectangle(_brushes["blue"], x + width - 4 * barWidth, y + bgHeight + spacingV + bgHeight, x + width - 3 * barWidth, y + height, 1);
+            maxSuspensionSpd = MathF.Max(maxSuspensionSpd, UdpMessage.SuspensionSpeedFrontLeft);
+            minSuspensionSpd = MathF.Min(minSuspensionSpd, UdpMessage.SuspensionSpeedFrontLeft);
+            gfx.FillRectangle(_brushes["blue"], x + 3 * barWidth, y + (1-getMaxMinBarPartition(maxSuspensionSpd, minSuspensionSpd, UdpMessage.SuspensionSpeedFrontLeft)) * bgHeight, x + 4 * barWidth, y + bgHeight);
+            maxSuspensionSpd = MathF.Max(maxSuspensionSpd, UdpMessage.SuspensionSpeedFrontRight);
+            minSuspensionSpd = MathF.Min(minSuspensionSpd, UdpMessage.SuspensionSpeedFrontRight);
+            gfx.FillRectangle(_brushes["blue"], x + width - 4 * barWidth, y + (1-getMaxMinBarPartition(maxSuspensionSpd, minSuspensionSpd, UdpMessage.SuspensionSpeedFrontRight)) * bgHeight, x + width - 3 * barWidth, y + bgHeight);
+            maxSuspensionSpd = MathF.Max(maxSuspensionSpd, UdpMessage.SuspensionSpeedRearLeft);
+            minSuspensionSpd = MathF.Min(minSuspensionSpd, UdpMessage.SuspensionSpeedRearLeft);
+            gfx.FillRectangle(_brushes["blue"], x + 3 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxSuspensionSpd, minSuspensionSpd, UdpMessage.SuspensionSpeedRearLeft)) * bgHeight, x + 4 * barWidth, y + height);
+            maxSuspensionSpd = MathF.Max(maxSuspensionSpd, UdpMessage.SuspensionSpeedRearRight);
+            minSuspensionSpd = MathF.Min(minSuspensionSpd, UdpMessage.SuspensionSpeedRearRight);
+            gfx.FillRectangle(_brushes["blue"], x + width - 4 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxSuspensionSpd, minSuspensionSpd, UdpMessage.SuspensionSpeedRearRight)) * bgHeight, x + width - 3 * barWidth, y + height);
 
         }
 
-        private Tuple<Point, float> drawSector(Graphics gfx, float x, float y, float width, float height, float value, float maxValue, float thicknessRatio=0.2f)
+        private float getMaxMinBarPartition(float max, float min, float value)
+        {
+            value = value < min ? min : value;
+            value = value > max ? max : value;
+            return (value - min) / (max - min);
+        }
+
+        private Point drawSector(Graphics gfx, 
+            string unit,
+            float x, 
+            float y, 
+            float width, 
+            float height, 
+            float value, 
+            float maxValue, 
+            float thicknessRatio=0.2f)
         {
             var centerX = x + 0.5f * width;
             var centerY = y + 0.5f * height;
@@ -827,11 +939,14 @@ namespace ZTMZ.PacenoteTool
             );
             geo_bg.EndFigure();
             geo_bg.Close();
-            gfx.FillGeometry(geo_bg, _brushes["black"]);
+            gfx.FillGeometry(geo_bg, _brushes["grey"]);
+            gfx.DrawGeometry(geo_bg, _brushes["black"], 1);
             
             // draw value
             var angle = MathF.PI * 1.25f - value / maxValue * MathF.PI * 1.5f;
-            var arcSize = value / maxValue * 315f >= 180f ? ArcSize.Large : ArcSize.Small;
+            var arcSize = value / maxValue * 270f >= 180f ? ArcSize.Large : ArcSize.Small;
+            radiusOuter -= 1;
+            radiusInner += 1;
             geo_bg = gfx.CreateGeometry();
             geo_bg.BeginFigure(
                 new Point(
@@ -864,7 +979,29 @@ namespace ZTMZ.PacenoteTool
             geo_bg.EndFigure();
             geo_bg.Close();
             gfx.FillGeometry(geo_bg, _brushes["white"]);
-            return new Tuple<Point, float>(endPoint, radiusOuter * 0.24f);
+
+            try
+            {//TODO: suppress unknown ex for now, I have no env for testing...
+                gfx.drawTextWithBackgroundCentered(_fonts["consolas"],
+                    0.2f * radiusOuter,
+                    _brushes["white"],
+                    _brushes["black"],
+                    centerX,
+                    centerY + radiusInner,
+                    unit);
+                gfx.drawTextWithBackgroundCentered(_fonts["consolas"],
+                    0.5f * radiusOuter,
+                    _brushes["white"],
+                    _brushes["black"],
+                    centerX,
+                    centerY,
+                    Convert.ToInt32(value).ToString());
+            }
+            catch
+            {
+            }
+
+            return endPoint;
         }
 
         private SolidBrush GetRandomColor()
@@ -995,6 +1132,13 @@ namespace ZTMZ.PacenoteTool
                 RotationAngle = rotationAngle
             };
             _sink.AddArc(arcSegment);
+        }
+
+        public static void drawTextWithBackgroundCentered(this Graphics gfx, Font font, float fontSize, IBrush brush, IBrush background, float x, float y,
+            string text)
+        {
+            var textSize = gfx.MeasureString(font, fontSize, text);
+            gfx.DrawTextWithBackground(font, fontSize, brush, background, x - textSize.X * 0.5f, y - textSize.Y * 0.5f, text);
         }
     }
 }

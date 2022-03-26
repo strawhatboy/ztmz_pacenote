@@ -245,10 +245,10 @@ namespace ZTMZ.PacenoteTool
                     message.PitchY = BitConverter.ToSingle(rawData, 60);
                     message.PitchZ = BitConverter.ToSingle(rawData, 64);
                     message.CarPos = BitConverter.ToSingle(rawData, 39 << 2);
-                    message.SpeedFrontLeft = BitConverter.ToSingle(rawData, 27 << 2) * 3.6f;
-                    message.SpeedFrontRight = BitConverter.ToSingle(rawData, 28 << 2) * 3.6f;
-                    message.SpeedRearLeft = BitConverter.ToSingle(rawData, 25 << 2) * 3.6f;
-                    message.SpeedRearRight = BitConverter.ToSingle(rawData, 26 << 2) * 3.6f;
+                    message.SpeedFrontLeft = BitConverter.ToSingle(rawData, 27 << 2) * 3.6f; // m/s -> km/h
+                    message.SpeedFrontRight = BitConverter.ToSingle(rawData, 28 << 2) * 3.6f; // m/s -> km/h
+                    message.SpeedRearLeft = BitConverter.ToSingle(rawData, 25 << 2) * 3.6f; // m/s -> km/h
+                    message.SpeedRearRight = BitConverter.ToSingle(rawData, 26 << 2) * 3.6f; // m/s -> km/h
 
                     message.Clutch = BitConverter.ToSingle(rawData, 32 << 2);
                     message.Brake = BitConverter.ToSingle(rawData, 31 << 2);
@@ -257,9 +257,9 @@ namespace ZTMZ.PacenoteTool
                     message.Steering = BitConverter.ToSingle(rawData, 30 << 2);
                     message.Gear = BitConverter.ToSingle(rawData, 33 << 2);
                     message.MaxGears = BitConverter.ToSingle(rawData, 65 << 2);
-                    message.RPM = BitConverter.ToSingle(rawData, 37 << 2) * 0.1f;
-                    message.MaxRPM = BitConverter.ToSingle(rawData, 63 << 2) * 0.1f;
-                    message.IdleRPM = BitConverter.ToSingle(rawData, 64 << 2) * 0.1f;
+                    message.RPM = BitConverter.ToSingle(rawData, 37 << 2) * 10f;
+                    message.MaxRPM = BitConverter.ToSingle(rawData, 63 << 2) * 10f;
+                    message.IdleRPM = BitConverter.ToSingle(rawData, 64 << 2) * 10f;
                     message.G_lat = BitConverter.ToSingle(rawData, 34 << 2);
                     message.G_long = BitConverter.ToSingle(rawData, 35 << 2);
                     
