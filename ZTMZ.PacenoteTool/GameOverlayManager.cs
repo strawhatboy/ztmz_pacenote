@@ -418,7 +418,7 @@ namespace ZTMZ.PacenoteTool
                 SuspensionRearLeft = 0.75f,
                 SuspensionRearRight = 0.71f,
                 CompletionRate = 0.35f,
-                Steering = 0.3f,
+                Steering = 0.9f,
                 SuspensionSpeedFrontLeft = 20,
                 SuspensionSpeedFrontRight = 23,
                 SuspensionSpeedRearLeft = 35,
@@ -732,24 +732,30 @@ namespace ZTMZ.PacenoteTool
             var radiusInner = radiusOuter * (1 - Config.Instance.HudSectorThicknessRatio);
             var radiusWidth = radiusOuter - radiusInner;
 
-            var steeringAngle = 90 - UdpMessage.Steering * Config.Instance.HudTelemetrySteeringDegree * 0.5f;
+            var rawSteeringAngle = UdpMessage.Steering * Config.Instance.HudTelemetrySteeringDegree * 0.5f;
+            // bg
+            IBrush pathBrush;
+            IBrush bgBrush;
+            if (MathF.Abs(rawSteeringAngle) >= 360)
+            {
+                pathBrush = _brushes["blue"];
+                bgBrush = _brushes["white"];
+            }
+            else
+            {
+                pathBrush = _brushes["white"];
+                bgBrush = _brushes["grey"];
+            }
+            gfx.FillCircle(bgBrush, centerX, centerY, radiusOuter);
+            
+            
+            var steeringAngle = 90 - rawSteeringAngle;
             steeringAngle = steeringAngle / 180 * MathF.PI; // to radian
             var middle = 0.5f * (radiusInner + radiusOuter);
+
             
             
-            // bg
-            // var geo_bg = gfx.CreateGeometry();
-            // geo_bg.BeginFigure(new Point(centerX, y + radiusOuter), true);
-            // geo_bg.addCurve(new Point(centerX, y + radiusOuter), radiusOuter, ArcSize.Large, SweepDirection.Clockwise);
-            // geo_bg.AddPoint(new Point(centerX, y + radiusInner));
-            // geo_bg.addCurve(new Point(centerX, y + radiusInner), radiusInner, ArcSize.Large,
-            //     SweepDirection.CounterClockwise);
-            // geo_bg.EndFigure();
-            // geo_bg.Close();
-            //
-            // gfx.FillGeometry(geo_bg, _brushes["white"]);
-            gfx.FillCircle(_brushes["white"], centerX, centerY, radiusOuter);
-            gfx.FillCircle(_brushes["grey"], centerX, centerY, radiusInner);
+            gfx.FillCircle(_brushes["black"], centerX, centerY, radiusInner);
             gfx.DrawCircle(_brushes["black"], centerX, centerY, radiusOuter, 1);
 
             var anchorLeft = new Point(centerX + middle * MathF.Cos(steeringAngle + MathF.PI * 0.5f),
@@ -760,12 +766,31 @@ namespace ZTMZ.PacenoteTool
                 centerY - middle * MathF.Sin(steeringAngle + MathF.PI));
             
             // cross
-            gfx.DrawLine(_brushes["white"], anchorLeft, anchorRight, radiusWidth);
-            gfx.DrawLine(_brushes["white"], centerX, centerY, anchorBottom.X, anchorBottom.Y, radiusWidth);
+            gfx.DrawLine(bgBrush, anchorLeft, anchorRight, radiusWidth);
+            gfx.DrawLine(bgBrush, centerX, centerY, anchorBottom.X, anchorBottom.Y, radiusWidth);
 
             // cursor
             var alpha = MathF.PI / 30f;
             radiusOuter -= 1;
+            
+            // path
+            var arcSize = MathF.Abs(rawSteeringAngle) % 360 >= 180 ? ArcSize.Large : ArcSize.Small;
+            var sweepDirection = rawSteeringAngle > 0 ? SweepDirection.Clockwise : SweepDirection.CounterClockwise;
+            var backsDirection = rawSteeringAngle < 0 ? SweepDirection.Clockwise : SweepDirection.CounterClockwise;
+            var geo_path = gfx.CreateGeometry();
+            geo_path.BeginFigure(new Point(centerX,
+                centerY - radiusOuter), true);
+            geo_path.addCurve(new Point(centerX + radiusOuter * MathF.Cos(steeringAngle),
+                centerY - radiusOuter * MathF.Sin(steeringAngle)), radiusOuter, arcSize, sweepDirection);
+            geo_path.AddPoint(new Point(centerX + radiusInner * MathF.Cos(steeringAngle),
+                centerY - radiusInner * MathF.Sin(steeringAngle)));
+            geo_path.addCurve(new Point(centerX,
+                centerY - radiusInner), radiusInner, arcSize, backsDirection);
+            geo_path.EndFigure();
+            geo_path.Close();
+
+            gfx.FillGeometry(geo_path, pathBrush);
+            
             var geo_cur = gfx.CreateGeometry();
             geo_cur.BeginFigure(new Point(centerX + radiusOuter * MathF.Cos(steeringAngle + alpha),
                 centerY - radiusOuter * MathF.Sin(steeringAngle + alpha)), true);
@@ -774,7 +799,7 @@ namespace ZTMZ.PacenoteTool
             geo_cur.AddPoint(new Point(centerX + radiusInner * MathF.Cos(steeringAngle - alpha),
                 centerY - radiusInner * MathF.Sin(steeringAngle - alpha)));
             geo_cur.addCurve(new Point(centerX + radiusInner * MathF.Cos(steeringAngle + alpha),
-                centerY - radiusInner * MathF.Sin(steeringAngle + alpha)), radiusOuter, ArcSize.Small, SweepDirection.CounterClockwise);
+                centerY - radiusInner * MathF.Sin(steeringAngle + alpha)), radiusInner, ArcSize.Small, SweepDirection.CounterClockwise);
             geo_cur.EndFigure();
             geo_cur.Close();
             

@@ -89,6 +89,7 @@ batch audio processor
 * __wha1ing__: recording and making of the audio packages
 * __hippopo__: recording and making of the audio packages, proofreading of pacenote scripts
 * __大李子小妖__: recording and making of the audio packages
+* __mesa__ recording and making of the english TTS audio packages
 * __\[Pacenotes recording\]__:
     * HanXu
     * 回家的誘いをかける

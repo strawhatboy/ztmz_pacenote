@@ -307,7 +307,7 @@ namespace ZTMZ.PacenoteTool.Base
 
         #region HUD
 
-        private int _HudFPS = 50;
+        private int _HudFPS = 60;
         public int HudFPS
         {
             set { this._HudFPS = value; this._userconfig["HudFPS"] = value; }
