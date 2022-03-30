@@ -1,5 +1,5 @@
 #define MyAppName "ZTMZ Pacenote Tool"
-#define MyAppVersion "2.6.4.0"
+#define MyAppVersion "2.6.4.1"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.exe"
@@ -137,8 +137,8 @@ VersionInfoVersion={#MyAppVersion}
 ;PrivilegesRequired=lowest
 
 [Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"
-Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile:"license.txt"; InfoBeforeFile:"eula.txt";
+Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"; LicenseFile:"license-cn.txt"; InfoBeforeFile:"eula-cn.txt";
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
