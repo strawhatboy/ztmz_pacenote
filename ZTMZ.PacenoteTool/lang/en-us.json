@@ -15,7 +15,7 @@
       "voicePackage": "Voice Package",
       "misc": "Misc",
       "playback": "Playback",
-      "hud": "悬浮窗"
+      "hud": "In-game Hud (Game in Windowed or Borderless Video Mode)"
     },
 
     "restartNeeded": "Need to restart the tool to take effect",

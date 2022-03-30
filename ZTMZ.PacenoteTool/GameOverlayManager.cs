@@ -528,23 +528,14 @@ namespace ZTMZ.PacenoteTool
         private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e)
         {
             var gfx = e.Graphics;
-            //_gridBounds = new Rectangle(20, 60, gfx.Width - 600, gfx.Height - 20);
-
-            var padding = 200;
-            var infoText = new StringBuilder()
-                .Append("地图：".PadRight(8)).Append(this.TrackName.PadRight(padding)).AppendLine()
-                .Append("语音包：".PadRight(8)).Append(this.AudioPackage.PadRight(padding)).AppendLine()
-                .Append("路书作者：".PadRight(8)).Append(this.ScriptAuthor.PadRight(padding)).AppendLine()
-                .Append("路书类型：".PadRight(8)).Append(this.PacenoteType.PadRight(padding))
-                .ToString();
-
             gfx.ClearScene(_brushes["clear"]);
-
-            gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], gfx.Width - 400, 10, infoText);
+            //_gridBounds = new Rectangle(20, 60, gfx.Width - 600, gfx.Height - 20);
 
             try
             {
                 //TODO: suppress unknown ex for now, I have no env for testing...
+
+                drawBasicInfo(gfx);
                 if (Config.Instance.HudShowTelemetry && TimeToShowTelemetry)
                 {
                     drawTelemetry(gfx);
@@ -561,15 +552,28 @@ namespace ZTMZ.PacenoteTool
             }
         }
 
+        private void drawBasicInfo(Graphics gfx)
+        {
+            var padding = 200;
+            var infoText = new StringBuilder()
+                .Append("地图：".PadRight(8)).Append(this.TrackName.PadRight(padding)).AppendLine()
+                .Append("语音包：".PadRight(8)).Append(this.AudioPackage.PadRight(padding)).AppendLine()
+                .Append("路书作者：".PadRight(8)).Append(this.ScriptAuthor.PadRight(padding)).AppendLine()
+                .Append("路书类型：".PadRight(8)).Append(this.PacenoteType.PadRight(padding))
+                .ToString();
+            var size = gfx.MeasureString(_fonts["consolas"], _fonts["consolas"].FontSize, infoText);
+            gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], gfx.Width - size.X, 0, infoText);
+        }
+
         private void drawDebugTelemetry(Graphics gfx)
         {
             var sb = new StringBuilder();
-            var properties = typeof(UDPMessage).GetProperties();
-            for (var i = 0; i < properties.Length; i++)
+            var fields = typeof(UDPMessage).GetFields();
+            for (var i = 0; i < fields.Length; i++)
             {
-                var pInfo = properties[i];
+                var pInfo = fields[i];
                 var name = pInfo.Name;
-                if (pInfo.PropertyType == typeof(float))
+                if (pInfo.FieldType == typeof(float))
                 {
                     var value = (float)pInfo.GetValue(UdpMessage);
                     sb.Append((name + ":").PadRight(30)).Append(value.ToString("0.0"));
@@ -579,7 +583,7 @@ namespace ZTMZ.PacenoteTool
                     var value = pInfo.GetValue(UdpMessage);
                     sb.Append((name + ":").PadRight(30)).Append(value.ToString());
                 }
-                if (i != properties.Length - 1)
+                if (i != fields.Length - 1)
                 {
                     sb.AppendLine();
                 }

@@ -116,6 +116,7 @@ namespace ZTMZ.PacenoteTool
             if (!File.Exists(versionFile))
             {
                 File.WriteAllText(versionFile, "");
+                GoogleAnalyticsHelper.Instance.TrackEvent("Launch", "FirstRun", _version);
 
                 if (_version.Equals("2.5.2.0"))
                 {
@@ -136,6 +137,8 @@ namespace ZTMZ.PacenoteTool
                     Config.Instance.HudFPS = 60;
                     Config.Instance.SaveUserConfig();
                 }
+            } else {
+                GoogleAnalyticsHelper.Instance.TrackEvent("Launch", "NonFirstRun", _version);
             }
         }
 

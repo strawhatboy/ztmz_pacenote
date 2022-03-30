@@ -456,6 +456,14 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._IsDarkTheme;
         }
 
+        private bool _EnableGoogleAnalytics = false;
+
+        public bool EnableGoogleAnalytics
+        {
+            set { this._EnableGoogleAnalytics = value; this._userconfig["EnableGoogleAnalytics"] = value; }
+            get => this._EnableGoogleAnalytics;
+        } 
+
 
         private bool _UseDefaultSoundPackageForFallback = true;
         public bool UseDefaultSoundPackageForFallback

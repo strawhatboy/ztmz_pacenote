@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
+    <TargetFrameworks>net6.0-windows</TargetFrameworks>
 	  <UseWPF>true</UseWPF>
 	  <Configurations>Debug;Release;Release_Portable</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="27.2.1" />
+    <PackageReference Include="GoogleAnalyticsTracker.Simple" Version="7.0.1" />
     <PackageReference Include="MaterialDesignThemes" Version="4.4.0-ci74" />
     <PackageReference Include="NAudio" Version="2.0.1" />
     <PackageReference Include="NAudio.Extras" Version="1.0.0" />

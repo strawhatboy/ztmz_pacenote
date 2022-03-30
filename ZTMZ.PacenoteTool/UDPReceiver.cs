@@ -9,78 +9,78 @@ namespace ZTMZ.PacenoteTool
 {
     public struct UDPMessage
     {
-        public float Time { set; get; }
-        public float LapTime { set; get; }
-        public float LapDistance { set; get; }
-        public float CompletionRate { set; get; } // 0-1, 0.5 means finished 50%
-        public float Speed { set; get; }
-        public float TrackLength { set; get; }
-        public float PosX { set; get; }
-        public float PosY { set; get; }
-        public float PosZ { set; get; }
+        public float Time;
+        public float LapTime;
+        public float LapDistance;
+        public float CompletionRate; // 0-1, 0.5 means finished 50%
+        public float Speed;
+        public float TrackLength;
+        public float PosX;
+        public float PosY;
+        public float PosZ;
         
-        public float SpeedX { set; get; }
-        public float SpeedY { set; get; }
-        public float SpeedZ { set; get; }
+        public float SpeedX;
+        public float SpeedY;
+        public float SpeedZ;
         
-        public float RollX { set; get; }
-        public float RollY { set; get; }
-        public float RollZ { set; get; }
+        public float RollX;
+        public float RollY;
+        public float RollZ;
         
-        public float PitchX { set; get; }
-        public float PitchY { set; get; }
-        public float PitchZ { set; get; }
+        public float PitchX;
+        public float PitchY;
+        public float PitchZ;
 
         // Wheel Pressure
-        public float SpeedRearLeft { set; get; }
-        public float SpeedRearRight { set; get; }
-        public float SpeedFrontLeft { set; get; }
+        public float SpeedRearLeft;
+        public float SpeedRearRight;
+        public float SpeedFrontLeft;
 
-        public float SpeedFrontRight { set; get; }
+        public float SpeedFrontRight;
         
         // pedals (0-1)
-        public float Clutch { set; get; } = 1f;
-        public float Brake { set; get; }
-        public float Throttle { set; get; }
+        public float Clutch;
+        public float Brake;
+        public float Throttle;
         
-        public float Steering { set; get; }
-        public float Gear { set; get; }
-        public float MaxGears { set; get; }
-        public float RPM { set; get; }
-        public float MaxRPM { set; get; }
-        public float IdleRPM { set; get; }
-        public float G_long { set; get; }
-        public float G_lat { set; get; }
+        public float Steering;
+        public float Gear;
+        public float MaxGears;
+        public float RPM;
+        public float MaxRPM;
+        public float IdleRPM;
+        public float G_long;
+        public float G_lat;
         
         // brake tmp
-        public float BrakeTempRearLeft { set; get; }
-        public float BrakeTempRearRight { set; get; }
-        public float BrakeTempFrontLeft { set; get; }
-        public float BrakeTempFrontRight { set; get; }
+        public float BrakeTempRearLeft;
+        public float BrakeTempRearRight;
+        public float BrakeTempFrontLeft;
+        public float BrakeTempFrontRight;
         
         // suspension
-        public float SuspensionRearLeft { set; get; }
-        public float SuspensionRearRight { set; get; }
-        public float SuspensionFrontLeft { set; get; }
-        public float SuspensionFrontRight { set; get; }
+        public float SuspensionRearLeft;
+        public float SuspensionRearRight;
+        public float SuspensionFrontLeft;
+        public float SuspensionFrontRight;
         
-        public float SuspensionSpeedRearLeft { set; get; }
-        public float SuspensionSpeedRearRight { set; get; }
-        public float SuspensionSpeedFrontLeft { set; get; }
-        public float SuspensionSpeedFrontRight { set; get; }
+        public float SuspensionSpeedRearLeft;
+        public float SuspensionSpeedRearRight;
+        public float SuspensionSpeedFrontLeft;
+        public float SuspensionSpeedFrontRight;
         
-        public float CurrentLap { set; get; }
-        public float CarPos { set; get; }
-        public float Sector { set; get; }
-        public float Sector1Time { set; get; }
-        public float Sector2Time { set; get; }
-        public float LapsComplete { set; get; }
-        public float TotalLaps { set; get; }
-        public float LastLapTime { set; get; }
+        public float CurrentLap;
+        public float CarPos;
+        public float Sector;
+        public float Sector1Time;
+        public float Sector2Time;
+        public float LapsComplete;
+        public float TotalLaps;
+        public float LastLapTime;
         
 
         // public int TrackNumber { set; get; }
-        public DateTime TimeStamp { set; get; }
+        public DateTime TimeStamp;
 
 
         public override bool Equals(object? obj)

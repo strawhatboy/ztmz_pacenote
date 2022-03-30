@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net6.0-windows</TargetFramework>
+        <TargetFrameworks>net6.0-windows</TargetFrameworks>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <AssemblyVersion>1.0.1.0</AssemblyVersion>
