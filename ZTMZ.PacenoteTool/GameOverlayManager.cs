@@ -542,14 +542,22 @@ namespace ZTMZ.PacenoteTool
 
             gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], gfx.Width - 400, 10, infoText);
 
-            if (Config.Instance.HudShowTelemetry && TimeToShowTelemetry)
+            try
             {
-                drawTelemetry(gfx);
-            }
+                //TODO: suppress unknown ex for now, I have no env for testing...
+                if (Config.Instance.HudShowTelemetry && TimeToShowTelemetry)
+                {
+                    drawTelemetry(gfx);
+                }
 
-            if (Config.Instance.HudShowDebugTelemetry && TimeToShowTelemetry)
+                if (Config.Instance.HudShowDebugTelemetry && TimeToShowTelemetry)
+                {
+                    drawDebugTelemetry(gfx);
+                }
+            }
+            catch
             {
-                drawDebugTelemetry(gfx);
+                
             }
         }
 
@@ -621,7 +629,16 @@ namespace ZTMZ.PacenoteTool
 
             foreach (var t in drawFuncs)
             {
-                t(gfx, elementStartX, elementStartY, elementWidth, elementHeight);
+
+                try
+                {
+                    //TODO: suppress unknown ex for now, I have no env for testing...
+                    t(gfx, elementStartX, elementStartY, elementWidth, elementHeight);
+                }
+                catch
+                {
+                }
+
                 elementStartX += elementWidth + telemetrySpacing;
             }
             
@@ -1005,26 +1022,20 @@ namespace ZTMZ.PacenoteTool
             geo_bg.Close();
             gfx.FillGeometry(geo_bg, _brushes["white"]);
 
-            try
-            {//TODO: suppress unknown ex for now, I have no env for testing...
-                gfx.drawTextWithBackgroundCentered(_fonts["consolas"],
-                    0.2f * radiusOuter,
-                    _brushes["white"],
-                    _brushes["black"],
-                    centerX,
-                    centerY + radiusInner,
-                    unit);
-                gfx.drawTextWithBackgroundCentered(_fonts["consolas"],
-                    0.5f * radiusOuter,
-                    _brushes["white"],
-                    _brushes["black"],
-                    centerX,
-                    centerY,
-                    Convert.ToInt32(value).ToString());
-            }
-            catch
-            {
-            }
+            gfx.drawTextWithBackgroundCentered(_fonts["consolas"],
+                0.2f * radiusOuter,
+                _brushes["white"],
+                _brushes["black"],
+                centerX,
+                centerY + radiusInner,
+                unit);
+            gfx.drawTextWithBackgroundCentered(_fonts["consolas"],
+                0.5f * radiusOuter,
+                _brushes["white"],
+                _brushes["black"],
+                centerX,
+                centerY,
+                Convert.ToInt32(value).ToString());
 
             return endPoint;
         }

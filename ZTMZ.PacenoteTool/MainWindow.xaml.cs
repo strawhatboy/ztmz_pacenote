@@ -131,7 +131,7 @@ namespace ZTMZ.PacenoteTool
                     Config.Instance.SaveUserConfig();
                 }
 
-                if (_version.Equals("2.6.3.0"))
+                if (_version.Equals("2.6.3.0") || _version.Equals("2.6.4.0"))
                 {
                     Config.Instance.HudFPS = 60;
                     Config.Instance.SaveUserConfig();
