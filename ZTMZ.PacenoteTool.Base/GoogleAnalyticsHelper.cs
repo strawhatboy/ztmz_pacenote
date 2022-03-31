@@ -62,10 +62,10 @@ public class GoogleAnalyticsHelper
         IDictionary<int, string?>? customDimensions = null,
         IDictionary<int, long?>? customMetrics = null) => 
         TrackEvent(EVENT_LAUNCH, launchMode, version, customDimensions, customMetrics);
-    public void TrackRaceEvent(string raceStatus,
+    public void TrackRaceEvent(string raceStatus, string codriver="",
         IDictionary<int, string?>? customDimensions = null,
         IDictionary<int, long?>? customMetrics = null) => 
-        TrackEvent(EVENT_RACE, raceStatus, "", customDimensions, customMetrics);
+        TrackEvent(EVENT_RACE, raceStatus, codriver, customDimensions, customMetrics);
     public void TrackRecordEvent(string recordType, string recordAction,
         IDictionary<int, string?>? customDimensions = null,
         IDictionary<int, long?>? customMetrics = null) => 

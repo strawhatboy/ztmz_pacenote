@@ -83,6 +83,7 @@ namespace ZTMZ.PacenoteTool
             this._dr2Helper = new();
             this._autoRecorder = new();
 
+            this.initGoogleAnalytics();
             this.checkFirstRun();
             this.initHotKeys();
             //this.initializeI18N();
@@ -94,6 +95,19 @@ namespace ZTMZ.PacenoteTool
             this.initializeAutoRecorder();
             this.applyUserConfig();
             this.initializeTheme();
+        }
+
+        private void initGoogleAnalytics()
+        {
+            if (!Config.Instance.IsGoogleAnalyticsSet) {
+                EnableGoogleAnalyticsDialog dialog = new EnableGoogleAnalyticsDialog();
+                var result = dialog.ShowDialog();
+                if (result.HasValue) {
+                    Config.Instance.EnableGoogleAnalytics = result.Value;
+                    Config.Instance.IsGoogleAnalyticsSet = true;
+                    Config.Instance.SaveUserConfig();
+                }
+            }
         }
 
         private void checkUpdate()
@@ -350,7 +364,7 @@ namespace ZTMZ.PacenoteTool
                 case GameState.RaceBegin:
                     // load trace, use lastmsg tracklength & startZ
                     // this._udpReceiver.LastMessage.TrackLength
-                    GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin");
+                    GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
                     this._udpReceiver.ResetWheelStatus();
                     this._trackName = this._dr2Helper.GetItinerary(
                         this._udpReceiver.LastMessage.TrackLength.ToString("f2", CultureInfo.InvariantCulture),
