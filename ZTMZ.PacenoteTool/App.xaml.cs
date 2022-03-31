@@ -27,6 +27,7 @@ namespace ZTMZ.PacenoteTool
         {
             I18NLoader.Instance.Initialize(AppLevelVariables.Instance.GetPath("lang"));
             I18NLoader.Instance.SetCulture(Config.Instance.Language);
+            GoogleAnalyticsHelper.Instance.TrackLaunchEvent("language", Config.Instance.Language);
         }
 
         private void SetupExceptionHandling()
@@ -61,7 +62,9 @@ namespace ZTMZ.PacenoteTool
             }
             finally
             {
-                MessageBox.Show(exception.ToString(), message);
+                var exceptionStr = exception.ToString();
+                MessageBox.Show(exceptionStr, message);
+                GoogleAnalyticsHelper.Instance.TrackExceptionEvent(message, exceptionStr);
             }
         }
     }

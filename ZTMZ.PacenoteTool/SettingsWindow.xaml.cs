@@ -256,7 +256,9 @@ namespace ZTMZ.PacenoteTool
             btn.IsChecked = (bool)configProperty.GetValue(Config.Instance);
             btn.Click += (s, e) =>
             {
-                configProperty.SetValue(Config.Instance, isReverse ? !btn.IsChecked.Value : btn.IsChecked.Value);
+                var value = isReverse ? !btn.IsChecked.Value : btn.IsChecked.Value;
+                configProperty.SetValue(Config.Instance, value);
+                GoogleAnalyticsHelper.Instance.TrackConfigToggleEvent(configName, value ? "on" : "off");
                 Config.Instance.SaveUserConfig();
                 clicked?.Invoke();
             };

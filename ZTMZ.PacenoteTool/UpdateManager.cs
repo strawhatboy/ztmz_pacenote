@@ -61,12 +61,16 @@ namespace ZTMZ.PacenoteTool
                     // need update
                     // show new update dialog
                     NewUpdateDialog nud = new NewUpdateDialog(versionFile.version, CurrentVersion, versionFile.changelog);
+                    GoogleAnalyticsHelper.Instance.TrackPageView("Dialog - Update", "update");
                     var dres = nud.ShowDialog();
                     if (dres.HasValue && dres.Value)
                     {
                         // update
                         this.Update(versionFile);
+                        GoogleAnalyticsHelper.Instance.TrackDialogEventConfirmed("update");
                         return versionFile;
+                    } else {
+                        GoogleAnalyticsHelper.Instance.TrackDialogEventCancelled("update");
                     }
                 }
 
@@ -77,6 +81,7 @@ namespace ZTMZ.PacenoteTool
         public void Update(UpdateFile f)
         {
             DownloadFileDialog dfd = new DownloadFileDialog(f);
+            GoogleAnalyticsHelper.Instance.TrackPageView("Dialog - Download", "download");
             dfd.DownloadComplete += Dfd_DownloadComplete;
             dfd.DownloadFiles(new List<string> { f.url });
             dfd.ShowDialog();

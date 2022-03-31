@@ -463,6 +463,13 @@ namespace ZTMZ.PacenoteTool.Base
             set { this._EnableGoogleAnalytics = value; this._userconfig["EnableGoogleAnalytics"] = value; }
             get => this._EnableGoogleAnalytics;
         } 
+        private bool _IsGoogleAnalyticsSet = false;
+
+        public bool IsGoogleAnalyticsSet
+        {
+            set { this._IsGoogleAnalyticsSet = value; this._userconfig["IsGoogleAnalyticsSet"] = value; }
+            get => this._IsGoogleAnalyticsSet;
+        } 
 
 
         private bool _UseDefaultSoundPackageForFallback = true;

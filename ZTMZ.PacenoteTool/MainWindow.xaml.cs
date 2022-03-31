@@ -116,7 +116,7 @@ namespace ZTMZ.PacenoteTool
             if (!File.Exists(versionFile))
             {
                 File.WriteAllText(versionFile, "");
-                GoogleAnalyticsHelper.Instance.TrackEvent("Launch", "FirstRun", _version);
+                GoogleAnalyticsHelper.Instance.TrackLaunchEvent("first_run", _version);
 
                 if (_version.Equals("2.5.2.0"))
                 {
@@ -138,7 +138,7 @@ namespace ZTMZ.PacenoteTool
                     Config.Instance.SaveUserConfig();
                 }
             } else {
-                GoogleAnalyticsHelper.Instance.TrackEvent("Launch", "NonFirstRun", _version);
+                GoogleAnalyticsHelper.Instance.TrackLaunchEvent("non_first_run", _version);
             }
         }
 
@@ -315,10 +315,14 @@ namespace ZTMZ.PacenoteTool
                         this.ck_record.IsEnabled = true;
                         this.ck_replay.IsEnabled = true;
                         this.cb_replay_mode.IsEnabled = true;
+
+                        // disable telemetry here instead of RaceEnd
+                        this._gameOverlayManager.TimeToShowTelemetry = false;
                     });
                     break;
                 case GameState.RaceEnd:
                     // end recording, unload trace loaded?
+                    GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_end");
                     if (this._toolState == ToolState.Recording && this._isPureAudioRecording)
                     {
                         this.Dispatcher.Invoke(() =>
@@ -341,15 +345,12 @@ namespace ZTMZ.PacenoteTool
                         // play end sound
                         this._profileManager.PlaySystem(Constants.SYSTEM_END_STAGE);
                     }
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        this._gameOverlayManager.TimeToShowTelemetry = false;
-                    });
 
                     break;
                 case GameState.RaceBegin:
                     // load trace, use lastmsg tracklength & startZ
                     // this._udpReceiver.LastMessage.TrackLength
+                    GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin");
                     this._udpReceiver.ResetWheelStatus();
                     this._trackName = this._dr2Helper.GetItinerary(
                         this._udpReceiver.LastMessage.TrackLength.ToString("f2", CultureInfo.InvariantCulture),
@@ -519,13 +520,16 @@ namespace ZTMZ.PacenoteTool
                     //    "你的Dirt Rally 2.0 的配置文件中的UDP端口未正确打开，如果没有打开，工具将无法正常工作，点击“是”自动修改配置文件，点击“否”退出程序自行修改",
                     //    "配置错误", MessageBoxButton.YesNo, MessageBoxImage.Information);
                     var pnoDialog = new PortNotOpenDialog();
+                    GoogleAnalyticsHelper.Instance.TrackPageView("Dialog - PortNotOpen", "dialog/port_not_open");
                     var resPNO = pnoDialog.ShowDialog();
                     if (resPNO.HasValue && resPNO.Value)
                     {
+                        GoogleAnalyticsHelper.Instance.TrackDialogEventConfirmed("port_not_open");
                         preCheck.Write();
                     }
                     else
                     {
+                        GoogleAnalyticsHelper.Instance.TrackDialogEventCancelled("port_not_open");
                         // Goodbye.
                         System.Windows.Application.Current.Shutdown();
                     }
@@ -536,13 +540,17 @@ namespace ZTMZ.PacenoteTool
                     {
                         var pmDialog = new PortMismatchDialog(checkResult.Params[0].ToString(),
                             checkResult.Params[1].ToString());
+                        GoogleAnalyticsHelper.Instance.TrackPageView("Dialog - PortNotMatch", "dialog/port_not_match");
                         var resPM = pmDialog.ShowDialog();
                         if (resPM.HasValue && !resPM.Value)
                         {
+                            GoogleAnalyticsHelper.Instance.TrackDialogEventConfirmed("port_not_match");
                             // force fix
                             preCheck.Write();
                             Config.Instance.UDPListenPort = 20777;
                             Config.Instance.SaveUserConfig();
+                        } else {
+                            GoogleAnalyticsHelper.Instance.TrackDialogEventCancelled("port_not_match");
                         }
                         //MessageBox.Show(String.Format("你的Dirt Rally 2.0 的配置文件中的UDP端口 {0} 和本工具中的UDP端口 {1} 配置不同，可能会导致地图读取失败（也可能是使用了simhub转发）",
                         //    checkResult.Params[0], checkResult.Params[1]),
@@ -562,6 +570,7 @@ namespace ZTMZ.PacenoteTool
                 this.Title = string.Format("{0} {1}",
                     I18NLoader.Instance["application.title_dev"],
                     _version);
+                GoogleAnalyticsHelper.Instance.TrackPageView("Window - Main:Dev", "window/main_dev");
                 this.cb_record_mode.SelectedIndex = 1;  // auto script mode
                 if (Config.Instance.AutoScript_HackGameWhenStart)
                 {
@@ -582,6 +591,7 @@ namespace ZTMZ.PacenoteTool
             }
             else 
             {
+                GoogleAnalyticsHelper.Instance.TrackPageView("Window - Main:Normal", "window/main_normal");
                 this.Title = string.Format("{0} {1}",
                     I18NLoader.Instance["application.title"],
                     _version);
@@ -592,6 +602,7 @@ namespace ZTMZ.PacenoteTool
             // For test only
             if (!UpdateManager.CurrentVersion.EndsWith("0"))
             {
+                GoogleAnalyticsHelper.Instance.TrackPageView("Window - Main:Test", "window/main_test");
                 this.Title = string.Format("{0} {1}",
                     I18NLoader.Instance["application.title_test"],
                     _version);
@@ -601,6 +612,7 @@ namespace ZTMZ.PacenoteTool
         private void initializeGameOverlay()
         {
             if (Config.Instance.UI_ShowHud) { 
+                GoogleAnalyticsHelper.Instance.TrackPageView("Window - Hud", "hud");
                 this._gameOverlayManager.StartLoop();
             }
         }
@@ -612,6 +624,7 @@ namespace ZTMZ.PacenoteTool
             {
                 this.Dispatcher.Invoke(() =>
                 {
+                    GoogleAnalyticsHelper.Instance.TrackRecordEvent("autoscript", "initialized");
                     MessageBox.Show("自动脚本录制模式已启动！");
                     this.g_autoScriptListeningDevice.Visibility = Visibility.Hidden;
                     this.tb_autoScriptListeningDevice.Text = deviceName;
@@ -632,6 +645,7 @@ namespace ZTMZ.PacenoteTool
                 // enable
                 this.Dispatcher.Invoke(() =>
                 {
+                    GoogleAnalyticsHelper.Instance.TrackRecordEvent("autoscript", "uninitialized");
                     this.g_autoScriptListeningDevice.Visibility = Visibility.Visible;
                     this.ck_record.IsEnabled = true;
                     this.ck_replay.IsEnabled = true;
@@ -688,7 +702,8 @@ namespace ZTMZ.PacenoteTool
                         {
                             try
                             {
-                                this._autoRecorder.Initialize();
+                                this._autoRecorder.Initialize();    
+                                GoogleAnalyticsHelper.Instance.TrackRecordEvent("autoscript", "start");
                             }
                             catch (Exception e)
                             {
@@ -704,6 +719,7 @@ namespace ZTMZ.PacenoteTool
                     } else
                     {
                         this.tab_playMode.SelectedIndex = 0;
+                        GoogleAnalyticsHelper.Instance.TrackRecordEvent("pure_audio", "start");
                         this.registerHotKeys();
                     }
                 }
@@ -727,12 +743,14 @@ namespace ZTMZ.PacenoteTool
                     //this._autoRecorder.StopSoundCapture();
                     if (!this._isPureAudioRecording)
                     {
+                        GoogleAnalyticsHelper.Instance.TrackRecordEvent("autoscript", "exit");
                         //disable controls
                         this.ck_record.IsEnabled = false;
                         this.ck_replay.IsEnabled = false;
                         this._autoRecorder.Uninitialize();
                     } else
                     {
+                        GoogleAnalyticsHelper.Instance.TrackRecordEvent("pure_audio", "exit");
                         this.unregisterHotKeys();
                     }
                 }
@@ -753,15 +771,18 @@ namespace ZTMZ.PacenoteTool
                     // low
                     this._recordingConfig.SampleRate = 11025;
                     this._recordingConfig.Mp3BitRate = 48;
+                    GoogleAnalyticsHelper.Instance.TrackRecordEvent("quality", "low");
                     break;
                 case 1:
                     this._recordingConfig.SampleRate = 22050;
                     this._recordingConfig.Mp3BitRate = 128;
+                    GoogleAnalyticsHelper.Instance.TrackRecordEvent("quality", "medium");
                     break;
                 case 2:
                     // very huge file...
                     this._recordingConfig.SampleRate = 44100;
                     this._recordingConfig.Mp3BitRate = 320;
+                    GoogleAnalyticsHelper.Instance.TrackRecordEvent("quality", "high");
                     break;
             }
         }
@@ -780,6 +801,7 @@ namespace ZTMZ.PacenoteTool
             {
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
                     System.IO.Path.GetFullPath(this._profileManager.CurrentItineraryPath)));
+                GoogleAnalyticsHelper.Instance.TrackPageView("Folder - Track", "folder/track");
             }
         }
 
@@ -788,6 +810,7 @@ namespace ZTMZ.PacenoteTool
             this._profileManager.CurrentProfile = this.cb_profile.SelectedItem.ToString().Split('\\').Last();
             Config.Instance.UI_SelectedProfile = this.cb_profile.SelectedIndex;
             Config.Instance.SaveUserConfig();
+            GoogleAnalyticsHelper.Instance.TrackPageView("Profile", $"profile/{this._profileManager.CurrentProfile}");
         }
 
         private void cb_replay_device_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -806,6 +829,7 @@ namespace ZTMZ.PacenoteTool
                 this._profileManager.PlayExample();
             };
             bgw.RunWorkerAsync();
+            GoogleAnalyticsHelper.Instance.TrackPageView("Button - PlayExample", "button/play_example");
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -830,6 +854,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)
         {
+            GoogleAnalyticsHelper.Instance.TrackPageView("Button - TrackScript", "button/track_script");
             if (this._profileManager.CurrentItineraryPath != null)
             {
                 // System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe",
@@ -861,6 +886,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
             this._gameOverlayManager.AudioPackage = this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText;
             Config.Instance.UI_SelectedAudioPackage = this.cb_codrivers.SelectedIndex;
             Config.Instance.SaveUserConfig();
+            GoogleAnalyticsHelper.Instance.TrackPageView("Codriver", $"codriver/{this._gameOverlayManager.AudioPackage}");
         }
 
         private void S_volume_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -880,11 +906,13 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void Btn_startScriptEditor_OnClick(object sender, RoutedEventArgs e)
         {
+            GoogleAnalyticsHelper.Instance.TrackPageView("Tools - ScriptEditor", "tools/script_editor");
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe"));
         }
 
         private void Btn_startAudioCompressor_OnClick(object sender, RoutedEventArgs e)
         {
+            GoogleAnalyticsHelper.Instance.TrackPageView("Tools - AudioBatchProcessor", "tools/audio_batch_processor");
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.AudioBatchProcessor.exe"));
         }
 
@@ -935,6 +963,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
                 Config.Instance.UI_ShowHud = this.chk_Hud.IsChecked.Value;
                 Config.Instance.SaveUserConfig();
+                GoogleAnalyticsHelper.Instance.TrackConfigToggleEvent("UI_ShowHud", Config.Instance.UI_ShowHud ? "on" : "off");
                 this.chk_Hud.IsEnabled = false;
                 this.pb_Hud.Visibility = Visibility.Visible;
                 var bgw = new BackgroundWorker();
@@ -975,6 +1004,8 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 //    this._gameOverlayManager.StartLoop();
                 //};
             }
+            GoogleAnalyticsHelper.Instance.TrackPageView("Window - Settings", "window/settings");
+            
             _settingsWindow.Show();
             _settingsWindow.Focus();
         }
@@ -993,6 +1024,8 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                     win.Close();
                 }
             }
+            GoogleAnalyticsHelper.Instance.TrackPageView("Window - Main:Close", "window/main_close");
+            
         }
 
         private void Tab_playMode_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1013,8 +1046,10 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         }
 
         private void Btn_currentCodriver_OnClick(object sender, RoutedEventArgs e)
-        {if (this._profileManager.CurrentCoDriverSoundPackagePath != null)
+        {
+            if (this._profileManager.CurrentCoDriverSoundPackagePath != null)
             {
+                GoogleAnalyticsHelper.Instance.TrackPageView("Folder - Codriver", "folder/codriver");
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
                     System.IO.Path.GetFullPath(this._profileManager.CurrentCoDriverSoundPackagePath)));
             }
@@ -1022,6 +1057,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void Btn_startAudioPkgMgr_OnClick(object sender, RoutedEventArgs e)
         {
+            GoogleAnalyticsHelper.Instance.TrackPageView("Tools - AudioPackageManager", "tools/audio_pkg_manager");
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.AudioPackageManager.exe"));
         }
 
