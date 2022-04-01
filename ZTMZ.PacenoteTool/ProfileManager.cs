@@ -497,8 +497,7 @@ namespace ZTMZ.PacenoteTool
             sound.PlaySpeed = this.CurrentPlaySpeed;
             sound.Amplification = this.CurrentPlayAmplification;
             sound.Tension = this.CurrentTension;
-            this.Player.PlaybackRate = this.CurrentPlaySpeed;
-            this.Player.PlaySound(sound, Config.Instance.UseSequentialMixerToHandleAudioConflict);
+            this.PlaySound(sound, Config.Instance.UseSequentialMixerToHandleAudioConflict);
             Debug.WriteLine("Playing");
         }
 
@@ -507,8 +506,7 @@ namespace ZTMZ.PacenoteTool
         {
             this._exampleAudio.Amplification = this.CurrentPlayAmplification;
             this._exampleAudio.PlaySpeed = this.CurrentPlaySpeed;
-            this.Player.PlaybackRate = this.CurrentPlaySpeed;
-            this.Player.PlaySound(this._exampleAudio, Config.Instance.UseSequentialMixerToHandleAudioConflict);
+            this.PlaySound(this._exampleAudio, Config.Instance.UseSequentialMixerToHandleAudioConflict);
         }
 
         public void PlaySystem(string sound)
@@ -517,8 +515,14 @@ namespace ZTMZ.PacenoteTool
             audio.PlaySpeed = this.CurrentPlaySpeed;
             audio.Amplification = this.CurrentPlayAmplification;
             audio.Tension = this.CurrentTension;
-            this.Player.PlaybackRate = this.CurrentPlaySpeed;
-            this.Player.PlaySound(audio, false);
+            this.PlaySound(audio, false);
+        }
+
+        private void PlaySound(AutoResampledCachedSound sound, bool isSequential) {
+            if (!Config.Instance.UI_Mute) {
+                this.Player.PlaybackRate = this.CurrentPlaySpeed;
+                this.Player.PlaySound(sound, isSequential);
+            }
         }
 
         public void ReIndex(float distance)

@@ -3,7 +3,7 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <UseWPF>true</UseWPF>
-        <ApplicationIcon>QQ图片20210714233523.ico</ApplicationIcon>
+        <ApplicationIcon>app.ico</ApplicationIcon>
         <AssemblyVersion>2.6.4.1</AssemblyVersion>
         <PackageVersion>2.6.4</PackageVersion>
         <Version>2.6.4</Version>

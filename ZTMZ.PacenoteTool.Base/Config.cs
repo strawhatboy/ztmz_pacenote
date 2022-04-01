@@ -175,6 +175,12 @@ namespace ZTMZ.PacenoteTool.Base
             set { this._UI_PlaybackVolume = value; this._userconfig["UI_PlaybackVolume"] = value; }
             get => this._UI_PlaybackVolume;
         }
+        private bool _UI_Mute = true;
+        public bool UI_Mute
+        {
+            set { this._UI_Mute = value; this._userconfig["UI_Mute"] = value; }
+            get => this._UI_Mute;
+        }
 
         private bool _UI_ShowHud = true;
         public bool UI_ShowHud

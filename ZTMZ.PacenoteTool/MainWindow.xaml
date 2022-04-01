@@ -345,10 +345,11 @@
                     <TextBlock.Effect>
                         <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
                     </TextBlock.Effect></TextBlock>
-                <Slider Name="s_volume" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Maximum="1000" Minimum="-1000" Interval="1"
+                <Slider Name="s_volume" Grid.Row="2" Grid.Column="1" Maximum="1000" Minimum="-1000" Interval="1"
                     Value="0" ValueChanged="S_volume_OnValueChanged" 
                     VerticalAlignment="Center"/>
-                <TextBlock Grid.Row="2" Grid.Column="3" HorizontalAlignment="Center" Name="tb_volume">0</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" Name="tb_volume">0</TextBlock>
+                
 
                 <!--<TextBlock Grid.Row="3" Grid.Column="0" ToolTip="[慎用]调整路书播放点，对纯语音路书和脚本路书都有效，比如+10米表示所有路书片段会在推迟10米处播放，-10米表示所有路书片段会在提前10米处播放">播放点调整：</TextBlock>
             <Slider Name="s_playpointAdjust" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Maximum="100" Minimum="-100" Interval="1"
