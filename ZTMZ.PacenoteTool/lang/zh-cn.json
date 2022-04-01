@@ -62,7 +62,8 @@
       "hudTelemetryShowSteering": "方向盘的转向状态",
       "hudTelemetrySteeringDegree": "方向盘从一侧限位转向另一侧限位所经过的角度",
       "hudTelemetryShowSuspensionBars": "轮速（绿色）、刹车温度（红色），悬挂位置（白色）和悬挂速度（蓝色）",
-      "hudShowDebugTelemetry": "在游戏画面左侧显示出所有遥测数据以供调试和问题诊断"
+      "hudShowDebugTelemetry": "在游戏画面左侧显示出所有遥测数据以供调试和问题诊断",
+      "enableGoogleAnalytics": "使用Google Analytics收集你的一些“使用信息”来帮助我们改善程序，这些信息全部是以匿名形式发送到谷歌服务器用作统计使用，你可以随时在设置中允许或禁止我们对这些信息的收集。这些信息包括且仅限于：\n\t- 操作系统版本\n\t- 打开本程序事件\n\t- 打开本程序内的各个窗口事件\n\t- 各个配置项的修改事件\n\t- 主界面配置项的修改事件\n\t- 使用具体语音包进行比赛的事件(用以统计语音包偏好)"
     },
 
     "language": "界面语言",
@@ -106,7 +107,8 @@
     "hudTelemetryShowSteering": "仪表盘 - 是否显示方向盘状态",
     "hudTelemetrySteeringDegree": "仪表盘 - 方向盘角度",
     "hudTelemetryShowSuspensionBars": "仪表盘 - 是否显示轮胎和悬挂状态",
-    "hudShowDebugTelemetry": "是否显示调试遥测数据"
+    "hudShowDebugTelemetry": "是否显示调试遥测数据",
+    "enableGoogleAnalytics": "是否启用谷歌分析"
   },
 
   "dialog": {

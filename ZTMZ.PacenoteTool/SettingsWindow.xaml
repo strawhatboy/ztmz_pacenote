@@ -71,6 +71,7 @@
                                     <RowDefinition Height="50" />
                                     <RowDefinition Height="50" />
                                     <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
                                     <!-- <RowDefinition Height="50" /> -->
                                     <!-- <RowDefinition Height="50" /> -->
                                     <!-- <RowDefinition Height="250" /> -->
@@ -125,6 +126,11 @@
                                                      Grid.Column="1" Minimum="50" Maximum="1000"
                                                      Value="175" VerticalAlignment="Center" />
 
+                                <TextBlock Grid.Row="4" VerticalAlignment="Center"
+                                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                           Text="{DynamicResource ResourceKey=settings.enableGoogleAnalytics}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.enableGoogleAnalytics}" />
+                                <ToggleButton Grid.Row="4" Grid.Column="1" x:Name="btn_enableGoogleAnalytics" />
 
                             </Grid>
                         </materialDesign:Card>

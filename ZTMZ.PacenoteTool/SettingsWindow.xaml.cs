@@ -101,9 +101,7 @@ namespace ZTMZ.PacenoteTool
                 bgw.RunWorkerAsync();
             };
 
-            // playbackDelay
-            initUIntSetting(tb_PlaybackDeviceDesiredLatency, "PlaybackDeviceDesiredLatency");
-
+            initBoolSetting(btn_enableGoogleAnalytics, "EnableGoogleAnalytics");
         }
 
         private void initHud()
@@ -221,6 +219,8 @@ namespace ZTMZ.PacenoteTool
             initBoolSetting(btn_useDynamicVolume, "UseDynamicVolume");
             initUIntSetting(tb_dynamicVolumePerturbationFrequency, "DynamicVolumePerturbationFrequency");
             initSliderSetting(sl_dynamicVolumePerturbationAmplitude, "DynamicVolumePerturbationAmplitude");
+            // playbackDelay
+            initUIntSetting(tb_PlaybackDeviceDesiredLatency, "PlaybackDeviceDesiredLatency");
         }
 
         private void initMisc()

@@ -35,15 +35,15 @@ namespace ZTMZ.PacenoteTool.Dialog
 
         private void btn_ok_Click(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = true;
             buttonClicked = true;
+            this.DialogResult = true;
             this.Close();
         }
 
         private void btn_cancel_Click(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = false;
             buttonClicked = true;
+            this.DialogResult = false;
             this.Close();
         }
     }
