@@ -349,7 +349,11 @@
                     Value="0" ValueChanged="S_volume_OnValueChanged" 
                     VerticalAlignment="Center"/>
                 <TextBlock Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" Name="tb_volume">0</TextBlock>
-                
+                <ToggleButton x:Name="tb_mute" Grid.Row="2" Grid.Column="3" Click="tb_mute_Click"
+                    Style="{StaticResource MaterialDesignActionToggleButton}"
+                    ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_mute}"
+                    Content="{materialDesign:PackIcon Kind=VolumeHigh}"
+                    materialDesign:ToggleButtonAssist.OnContent="{materialDesign:PackIcon Kind=VolumeOff}" />
 
                 <!--<TextBlock Grid.Row="3" Grid.Column="0" ToolTip="[慎用]调整路书播放点，对纯语音路书和脚本路书都有效，比如+10米表示所有路书片段会在推迟10米处播放，-10米表示所有路书片段会在提前10米处播放">播放点调整：</TextBlock>
             <Slider Name="s_playpointAdjust" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Maximum="100" Minimum="-100" Interval="1"

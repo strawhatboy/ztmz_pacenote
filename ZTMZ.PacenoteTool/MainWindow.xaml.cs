@@ -1086,5 +1086,16 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 Config.Instance.SaveUserConfig();
             }
         }
+
+        private void tb_mute_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.tb_mute.IsChecked.HasValue)
+            {
+                var _isMute = this.tb_mute.IsChecked.Value;
+                Config.Instance.UI_Mute = _isMute;
+                Config.Instance.SaveUserConfig();
+                GoogleAnalyticsHelper.Instance.TrackConfigToggleEvent("UI_Mute", Config.Instance.UI_Mute ? "on" : "off");
+            }
+        }
     }
 }

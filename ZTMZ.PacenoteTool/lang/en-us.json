@@ -210,6 +210,7 @@
     "tb_about": "About this tool",
     "tb_pacenotes": "Pacenotes",
 
+
     "tooltip": {
       "rb_record": "The mode switch must be possible when the game state is Unknown (not in the game)\n\nPure voice mode:\nAfter the game in the recording mode starts, you can press F1 to record the road book fragment, and press F4 to end the road book fragment recording\nin the game When the countdown starts, you can also pause the game and record the game start voice. The start voice can only record one segment, and it will be played at the beginning of the countdown during playback. It will be recorded as \"-2.wav\" file in the map folder\n\nAutomatic script mode:\nPlease keep the computer quiet in this mode, no QQ, Thunder, browser video, etc. may emit sounds for voice recognition The software that has an impact is running",
       "rb_replay": "Mode switching must be possible when the game state is Unknown (not in the game). After the game in play mode starts, if there is a road book corresponding to the map, it will automatically play the recorded road book fragment after arriving at the specified location",
@@ -247,7 +248,8 @@
       "tb_recordMode": "The play mode cannot be switched while the game is in progress",
       "cb_pureAudioRecordMode": "Pure voice recording",
       "tb_autoScriptRecordMode": "Automatically record scripts through voice recognition",
-      "tb_showHud": "Whether to display the floating window in the game, the game needs to be in window mode or borderless window mode"
+      "tb_showHud": "Whether to display the floating window in the game, the game needs to be in window mode or borderless window mode",
+      "tb_mute": "Mute/Unmute"
     }
   },
   "misc": {

@@ -11,7 +11,7 @@
             "request": "launch",
             "preLaunchTask": "buildDebug",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/ZTMZ.PacenoteTool/bin/Debug/net6.0-windows/ZTMZ.PacenoteTool.dll",
+            "program": "${workspaceFolder}/ZTMZ.PacenoteTool/bin/Debug/net6.0-windows/ZTMZ.PacenoteTool.exe",
             "args": [],
             "cwd": "${workspaceFolder}/ZTMZ.PacenoteTool/bin/Debug/net6.0-windows/",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
