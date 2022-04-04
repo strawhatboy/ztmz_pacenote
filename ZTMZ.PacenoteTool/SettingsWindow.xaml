@@ -445,6 +445,13 @@
                                            Style="{StaticResource MaterialDesignHeadline6TextBlock}"
                                            ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudChromaKeyMode}" />
                                 <ToggleButton x:Name="btn_hudChromaKeyMode" Grid.Row="1" Grid.Column="1" />
+                                <materialDesign:PackIcon x:Name="pi_hudChromaKeyMode"
+                                                         Kind="Warning" Foreground="OrangeRed"
+                                                         Grid.Row="1" Grid.Column="2"
+                                                         Height="30" Width="30" Margin="10 0 0 0"
+                                                         VerticalAlignment="Center"
+                                                         ToolTip="{DynamicResource ResourceKey=settings.restartNeeded}"
+                                                         Visibility="Hidden" />
                                 
                                 <TextBlock Grid.Row="2" VerticalAlignment="Center"
                                            Text="{DynamicResource ResourceKey=settings.hudShowTelemetry}"

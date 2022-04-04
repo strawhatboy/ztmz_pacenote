@@ -143,7 +143,7 @@
                            />
                 <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_profile" Grid.ColumnSpan="2"
                       VerticalAlignment="Center"
-                      SelectionChanged="cb_profile_SelectionChanged" />
+                          />
             </Grid>
         </materialDesign:Card>
 
@@ -231,7 +231,7 @@
                             </TextBlock.Effect></TextBlock>
                         <ComboBox Grid.Row="0" Grid.Column="1"  Name="cb_codrivers"
                               VerticalAlignment="Center" DisplayMemberPath="DisplayText"
-                              SelectionChanged="cb_codrivers_SelectionChanged">
+                              >
                             
                             <!-- <ComboBox.ItemContainerStyle> -->
                             <!--     <Style TargetType="ComboBoxItem"> -->
@@ -334,7 +334,7 @@
 
                 </Button>
                 <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Name="cb_replay_device" VerticalAlignment="Center"
-                      SelectionChanged="cb_replay_device_SelectionChanged" />
+                       />
                 <Button Grid.Row="1" Grid.Column="3" Name="btn_play_example" Click="btn_play_example_Click"
                     ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_playExample}"  Margin="2"
                     Content="{materialDesign:PackIcon PlayArrow}">
@@ -346,10 +346,10 @@
                         <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
                     </TextBlock.Effect></TextBlock>
                 <Slider Name="s_volume" Grid.Row="2" Grid.Column="1" Maximum="1000" Minimum="-1000" Interval="1"
-                    Value="0" ValueChanged="S_volume_OnValueChanged" 
+                    Value="0" 
                     VerticalAlignment="Center"/>
                 <TextBlock Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" Name="tb_volume">0</TextBlock>
-                <ToggleButton x:Name="tb_mute" Grid.Row="2" Grid.Column="3" Click="tb_mute_Click"
+                <ToggleButton x:Name="tb_mute" Grid.Row="2" Grid.Column="3" 
                     Style="{StaticResource MaterialDesignActionToggleButton}"
                     ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_mute}"
                     Content="{materialDesign:PackIcon Kind=VolumeHigh}"
@@ -364,14 +364,14 @@
                 <TextBlock Grid.Row="3" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_prePlay}"
                            Text="{DynamicResource ResourceKey=ui.tb_prePlay}"/>
                 <Slider Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" x:Name="sl_scriptTiming" 
-                    Maximum="2" Minimum="-2" Value="0" ValueChanged="Sl_scriptTiming_OnValueChanged" 
+                    Maximum="2" Minimum="-2" Value="0" 
                     IsEnabled="True"
                     VerticalAlignment="Center"></Slider>
                 <TextBlock Grid.Row="3" Grid.Column="3" x:Name="tb_scriptTiming" HorizontalAlignment="Center" >0s</TextBlock>
                 <TextBlock Grid.Row="4" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_playbackSpd}"
                            Text="{DynamicResource ResourceKey=ui.tb_playbackSpd}"/>
                 <Slider Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" x:Name="sl_playbackSpd" 
-                        Maximum="1.5" Minimum="0.5" Value="1" ValueChanged="Sl_playbackSpd_OnValueChanged" 
+                        Maximum="1.5" Minimum="0.5" Value="1" 
                         IsEnabled="True" TickFrequency="0.125"
                         Style="{StaticResource MaterialDesignDiscreteSlider}"
                         TickPlacement="Both" 
@@ -409,7 +409,7 @@
                     <TextBlock.Effect>
                         <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
                     </TextBlock.Effect></TextBlock>
-                <CheckBox x:Name="chk_Hud" Grid.Row="7" Grid.Column="1" Click="chk_Hud_Click"
+                <CheckBox x:Name="chk_Hud" Grid.Row="7" Grid.Column="1" 
                                         VerticalAlignment="Center">
                     <ProgressBar x:Name="pb_Hud"
                                 Style="{StaticResource MaterialDesignCircularProgressBar}"

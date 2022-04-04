@@ -470,11 +470,14 @@ namespace ZTMZ.PacenoteTool
 
         private void initializeComboBoxes()
         {
+            // profile
             foreach (var profile in this._profileManager.GetAllProfiles())
             {
                 this.cb_profile.Items.Add(profile);
             }
 
+
+            // codriver
             foreach (var codriver in this._profileManager.GetAllCodrivers())
             {
                 if (!Config.Instance.UseDefaultSoundPackageByDefault && codriver.EndsWith(Constants.DEFAULT_CODRIVER))
@@ -498,8 +501,8 @@ namespace ZTMZ.PacenoteTool
                 //this.cb_codrivers.SelectedIndex = 0;
             }
 
-            //this.cb_profile.SelectedIndex = 0;
 
+            // recordingDevices
             this._recordingDevices = AudioRecorder.GetRecordingDeviceList();
             foreach (var rDevice in this._recordingDevices)
             {
@@ -511,8 +514,6 @@ namespace ZTMZ.PacenoteTool
                 WaveOutCapabilities WOC = WaveOut.GetCapabilities(i);
                 this.cb_replay_device.Items.Add(WOC.ProductName);
             }
-
-            //this.cb_replay_device.SelectedIndex = 0;
 
 
             // if there's no recording device, would throw exception...
@@ -671,6 +672,10 @@ namespace ZTMZ.PacenoteTool
 
         private void applyUserConfig()
         {
+            this.cb_profile.SelectionChanged += this.cb_profile_SelectionChanged;
+            this.cb_codrivers.SelectionChanged += this.cb_codrivers_SelectionChanged;
+            this.cb_replay_device.SelectionChanged += this.cb_replay_device_SelectionChanged;
+
             if (Config.Instance.UI_SelectedProfile < this.cb_profile.Items.Count)
             {
                 this.cb_profile.SelectedIndex = Config.Instance.UI_SelectedProfile;
@@ -687,9 +692,17 @@ namespace ZTMZ.PacenoteTool
             }
 
             this.chk_Hud.IsChecked = Config.Instance.UI_ShowHud;
+            this.tb_mute.IsChecked = Config.Instance.UI_Mute;
+
+            this.chk_Hud.Click += this.chk_Hud_Click;
+            this.sl_scriptTiming.ValueChanged += this.Sl_scriptTiming_OnValueChanged;
+            this.s_volume.ValueChanged += this.S_volume_OnValueChanged;
+            this.sl_playbackSpd.ValueChanged += this.Sl_playbackSpd_OnValueChanged;
+            this.tb_mute.Click += this.tb_mute_Click;
+
+            this.sl_playbackSpd.Value = Config.Instance.UI_PlaybackSpeed;
             this.sl_scriptTiming.Value = Config.Instance.UI_PlaybackAdjustSeconds;
             this.s_volume.Value = Config.Instance.UI_PlaybackVolume;
-            this.sl_playbackSpd.Value = Config.Instance.UI_PlaybackSpeed;
         }
 
         private void initializeTheme()
@@ -1089,7 +1102,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void tb_mute_Click(object sender, RoutedEventArgs e)
         {
-            if (this.tb_mute.IsChecked.HasValue)
+            if (this.tb_mute != null && this.tb_mute.IsChecked.HasValue)
             {
                 var _isMute = this.tb_mute.IsChecked.Value;
                 Config.Instance.UI_Mute = _isMute;

@@ -121,6 +121,7 @@ namespace ZTMZ.PacenoteTool
             {
                 // need restart
                 this.tb_restartNeeded.Visibility = Visibility.Visible;
+                pi_hudChromaKeyMode.Visibility = Visibility.Visible;
             });
 
             // telemetry
@@ -254,6 +255,9 @@ namespace ZTMZ.PacenoteTool
                 return;
             }
             btn.IsChecked = (bool)configProperty.GetValue(Config.Instance);
+            if (isReverse) {
+                btn.IsChecked = !btn.IsChecked;
+            }
             btn.Click += (s, e) =>
             {
                 var value = isReverse ? !btn.IsChecked.Value : btn.IsChecked.Value;
