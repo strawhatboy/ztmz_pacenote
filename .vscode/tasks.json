@@ -19,6 +19,19 @@
             }
         },
         {
+            "label": "cleanRelease",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "clean",
+                "${workspaceFolder}/ZTMZ.PacenoteTool/ZTMZ.PacenoteTool.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "/property:Configuration=Release"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "buildDebug",
             "command": "dotnet",
             "type": "process",
@@ -67,6 +80,30 @@
                 "${workspaceFolder}/ZTMZ.PacenoteTool/ZTMZ.PacenoteTool.csproj"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "package_normal",
+            "command": "ISCC",
+            "type": "process",
+            "args": [
+                "${workspaceFolder}/setup_normal.iss"
+            ],
+            "problemMatcher": "$msCompile",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "package_dev",
+            "command": "ISCC.exe",
+            "type": "process",
+            "args": [
+                "${workspaceFolder}/setup_dev.iss"
+            ],
+            "problemMatcher": "$msCompile",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
         }
     ]
 }
