@@ -210,7 +210,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._UseDynamicPlaybackSpeed;
         }
 
-        private float _DynamicPlaybackMaxSpeed = 2.0f;
+        private float _DynamicPlaybackMaxSpeed = 1.5f;
         public float DynamicPlaybackMaxSpeed
         {
             set { this._DynamicPlaybackMaxSpeed = value; this._userconfig["DynamicPlaybackMaxSpeed"] = value; }
@@ -261,7 +261,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._UseDynamicVolume;
         }
 
-        private int _DynamicVolumePerturbationFrequency = 16;
+        private int _DynamicVolumePerturbationFrequency = 3;
         public int DynamicVolumePerturbationFrequency
         {
             set { this._DynamicVolumePerturbationFrequency = value; this._userconfig["DynamicVolumePerturbationFrequency"] = value; }

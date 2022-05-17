@@ -459,7 +459,13 @@ namespace ZTMZ.PacenoteTool
             if (!Config.Instance.PreloadSounds && package.tokensPath.ContainsKey(keyword))
             {
                 var tokens = package.tokensPath[keyword];
-                return this.getSoundFromCache(tokens[this._random.Next(0, tokens.Count)]);
+                if (tokens.Count > 0) 
+                {
+                    return this.getSoundFromCache(tokens[this._random.Next(0, tokens.Count)]);
+                } else {
+                    // No sound file in the folder
+                    return new AutoResampledCachedSound();
+                }
             }
 
             // not found, try fallback keyword

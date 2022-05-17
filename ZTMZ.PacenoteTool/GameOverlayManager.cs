@@ -369,6 +369,8 @@ namespace ZTMZ.PacenoteTool
             }
         }
 
+        public bool TimeToShowStatistics { set; get; }
+
         public UDPMessage UdpMessage { set; get; }
 
         public static float MAX_SPEED = 200f;
@@ -546,9 +548,10 @@ namespace ZTMZ.PacenoteTool
                     drawDebugTelemetry(gfx);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                
+                Debug.WriteLine("We got exception when drawing hud: {0}", ex.ToString());
+                GoogleAnalyticsHelper.Instance.TrackExceptionEvent("We got exception when drawing hud", ex.ToString());
             }
         }
 
@@ -639,8 +642,10 @@ namespace ZTMZ.PacenoteTool
                     //TODO: suppress unknown ex for now, I have no env for testing...
                     t(gfx, elementStartX, elementStartY, elementWidth, elementHeight);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Debug.WriteLine("We got exception when drawing elements: {0}", ex.ToString());
+                    GoogleAnalyticsHelper.Instance.TrackExceptionEvent($"We got exception when drawing elements with func: {t.ToString()}", ex.Message + UdpMessage.ToString());
                 }
 
                 elementStartX += elementWidth + telemetrySpacing;

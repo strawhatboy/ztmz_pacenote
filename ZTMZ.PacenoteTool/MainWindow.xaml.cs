@@ -137,7 +137,7 @@ namespace ZTMZ.PacenoteTool
                     // first run of 2.5.2
                 }
 
-                if (_version.Equals("2.6.1.0"))
+                if (_version.Equals("2.6.1.0") || _version.Equals("2.6.6.0"))
                 {
                     // adjust from 2.0 to 1.5 by default
                     Config.Instance.DynamicPlaybackMaxSpeed = 1.5f;
@@ -329,10 +329,8 @@ namespace ZTMZ.PacenoteTool
                         this.ck_record.IsEnabled = true;
                         this.ck_replay.IsEnabled = true;
                         this.cb_replay_mode.IsEnabled = true;
-
-                        // disable telemetry here instead of RaceEnd
-                        this._gameOverlayManager.TimeToShowTelemetry = false;
                     });
+                    this._gameOverlayManager.TimeToShowStatistics = false;
                     break;
                 case GameState.RaceEnd:
                     // end recording, unload trace loaded?
@@ -359,6 +357,10 @@ namespace ZTMZ.PacenoteTool
                         // play end sound
                         this._profileManager.PlaySystem(Constants.SYSTEM_END_STAGE);
                     }
+
+                    // disable telemetry hud, show statistics?
+                    this._gameOverlayManager.TimeToShowTelemetry = false;
+                    this._gameOverlayManager.TimeToShowStatistics = true;
 
                     break;
                 case GameState.RaceBegin:
