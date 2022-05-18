@@ -366,7 +366,10 @@ namespace ZTMZ.PacenoteTool
                 case GameState.RaceBegin:
                     // load trace, use lastmsg tracklength & startZ
                     // this._udpReceiver.LastMessage.TrackLength
-                    GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
+                    if (lastState != GameState.Paused)
+                    {
+                        GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
+                    }
                     this._udpReceiver.ResetWheelStatus();
                     this._trackName = this._dr2Helper.GetItinerary(
                         this._udpReceiver.LastMessage.TrackLength.ToString("f2", CultureInfo.InvariantCulture),

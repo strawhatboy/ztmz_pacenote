@@ -1,5 +1,5 @@
 #define MyAppName "ZTMZ Pacenote Tool"
-#define MyAppVersion "2.6.5.1"
+#define MyAppVersion "2.6.5.2"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.exe"
@@ -62,7 +62,8 @@ begin
     { find dotnet6 desktop }
     for i:= 0 to Lines.Count-1 do
     begin
-      if StartsText('Microsoft.WindowsDesktop.App 6', Lines[i]) then
+{ Force version 6.0.5 }
+      if StartsText('Microsoft.WindowsDesktop.App 6.0.5', Lines[i]) then
       begin
         { found }
         Result:= True;
