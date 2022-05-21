@@ -35,29 +35,31 @@ The pacenote tool from ZTMZ Club, can be used to customize the pacenotes in the 
 
 #### File Structure (located in `%userprofile%/Documents/My Games/ZTMZClub`)
 
-* codrivers
+* __codrivers__
   stores codriver audio packages, you can create your own (Any language) with [【腾讯文档】路书对照表](https://docs.qq.com/sheet/DVVlVZFdCWldkdXBi) and according to the format of other audio packages. Audio files in a named folder will be played randomly.
-* lang
+* __lang__
   Multi-language support.
-* profiles
+* __profiles__
   stores the pacenotes (both scripts and pure audio pacenotes). You can create other folder besides the `default` folder for your own pacenotes group.
-* Python38 (only for dev version)
+* __Python38__ (only for dev version)
   Python38 environment
-* speech_model (only for dev version)
+* __speech_model__ (only for dev version)
   Vosk speech recognition model, for automatically recording the pacenote from the game.
 
 #### Modules
 
-* OnlyR.Core
+* __OnlyR.Core__
   code for audio recording, from [AntonyCorbett/OnlyR](https://github.com/AntonyCorbett/OnlyR)
-* ZTMZ.PacenoteTool
+* __ZTMZ.PacenoteTool__
   main project
-* ZTMZ.PacenoteTool.Base
+* __ZTMZ.PacenoteTool.Base__
   configuration, i18n, etc.
-* ZTMZ.PacenoteTool.ScriptEditor
+* __ZTMZ.PacenoteTool.ScriptEditor__
   pacenote editor
-* ZTMZ.PacenoteTool.AudioBatchProcessor
+* __ZTMZ.PacenoteTool.AudioBatchProcessor__
   batch audio processor
+* __ZTMZ.PacenoteTool.AudioPackageManager__
+  Codriver voice package manager
 
 #### Dependencies
 
@@ -82,25 +84,25 @@ The pacenote tool from ZTMZ Club, can be used to customize the pacenotes in the 
 #### How to contribute
 
 1. Fork the project
-2. Install [.net 6.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.101-windows-x64-installer)
-3. Use visual studio 2022 or JetBrains Rider to open `ZTMZ.PacenoteTool.sln` in the root directory of the project.
+2. Install [.net 6.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.300-windows-x64-installer)
+3. Use visual studio 2022 or JetBrains Rider to open `ZTMZ.PacenoteTool.sln` in the root directory of the project. Or even open the project's folder directly with VSCode.
 4. Make modifications and tests, create PR.
 
 #### Thanks
 
-* __小贤少少__ : contribution to the club
-* __Meeke777__ : the idea of the tool
-* __Greened U幻想最初__ : collection of the pacenote tokens
-* __Bigboxx__ : advices to the tool and making audio packages
-* __圣沙蒙VK__ : recording audio packages and pure audio pacenote recording
-* __紫藤林沫__ : recording audio packages
-* __拉稀车手老王__ : recording and making of the audio packages
-* __权威Authority__: recording and making of the audio packages
-* __wha1ing__: recording and making of the audio packages
-* __Hippopo__: recording and making of the audio packages, proofreading of pacenote scripts
-* __大李子小妖__: recording and making of the audio packages
-* __mesa__ recording and making of the english TTS audio packages
-* **左衛門** proofreading of pacenote scripts的路书校
+* [__小贤少少__](https://space.bilibili.com/253480317) : contribution to the club
+* [__Meeke777__](https://space.bilibili.com/55088592) : the idea of the tool
+* [__Greened U幻想最初__](https://space.bilibili.com/254447657) : collection of the pacenote tokens
+* [__Bigboxx__](https://space.bilibili.com/13133308) : advices to the tool and making audio packages
+* [__圣沙蒙VK__](https://space.bilibili.com/6174297) : recording audio packages and pure audio pacenote recording
+* [__紫藤林沫__](https://space.bilibili.com/3712553) : recording audio packages
+* [__拉稀车手老王__](https://space.bilibili.com/495490435) : recording and making of the audio packages
+* [__权威Authority__](https://space.bilibili.com/24297171) : recording and making of the audio packages
+* [__wha1ing__](https://space.bilibili.com/49581921) : recording and making of the audio packages
+* [__Hippopo__](https://space.bilibili.com/626685) : recording and making of the audio packages, proofreading of pacenote scripts
+* __大李子小妖__ : recording and making of the audio packages
+* [__mesa__](https://www.racedepartment.com/members/mesa.7580) : recording and making of the english TTS audio packages
+* **左衛門** : proofreading of pacenote scripts的路书校
 * __\[Pacenotes recording\]__:
   * HanXu
   * Hippopo

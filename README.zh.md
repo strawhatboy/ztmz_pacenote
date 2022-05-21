@@ -9,7 +9,7 @@
 
 #### 简介
 
-ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，车队QQ群：207790761，路书录制交流群：697673264
+ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，车队QQ群：207790761，路书交流群：697673264
 
 #### 白嫖指南 (安装过程请保持网络处于连接状态)
 
@@ -44,29 +44,31 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 
 #### 文件目录说明 (位于 `%userprofile%/Documents/My Games/ZTMZClub`)
 
-* codrivers
+* __codrivers__
   用来存放语音包，可以根据[【腾讯文档】路书对照表](https://docs.qq.com/sheet/DVVlVZFdCWldkdXBi)并对照其他语音包的格式，在该文件夹下新建文件夹来创建新的语音包
-* lang
+* __lang__
   多语言文件，可以在此处对照其他文件，新建新的语言支持
-* profiles
+* __profiles__
   用来存放路书，里面默认有个 `default`文件夹，可以新建其他文件夹用来存放另一个版本的路书，`default`文件夹中的 `pacenote`文件为路书脚本，以地图名命名的一些文件夹中存放的是纯语音路书
-* Python38 (仅开发版)
+* __Python38__ (仅开发版)
   Python38的运行环境
-* speech_model  (仅开发版)
+* __speech_model__  (仅开发版)
   Vosk语音识别模型
 
 #### 各模块简介
 
-* OnlyR.Core
+* __OnlyR.Core__
   从github上直接“借鉴”的声音录制代码[AntonyCorbett/OnlyR](https://github.com/AntonyCorbett/OnlyR)
-* ZTMZ.PacenoteTool
+* __ZTMZ.PacenoteTool__
   主程序，包含界面显示和录制播放的主要逻辑
-* ZTMZ.PacenoteTool.Base
+* __ZTMZ.PacenoteTool.Base__
   基础模块，目前只放了配置文件的加载与保存的逻辑
-* ZTMZ.PacenoteTool.ScriptEditor
+* __ZTMZ.PacenoteTool.ScriptEditor__
   脚本路书编辑器，用来编辑脚本路书
-* ZTMZ.PacenoteTool.AudioBatchProcessor
+* __ZTMZ.PacenoteTool.AudioBatchProcessor__
   批量音频文件处理工具，可以用来批量压缩音频文件，批量调整纯语音路书的播放点，批量对音频文件进行掐头去尾的操作。
+* __ZTMZ.PacenoteTool.AudioPackageManager__
+  语音包管理工具，可以用来创建新的语音包、检查语音包内容完整性、试听语音包内容
 
 #### 项目依赖
 
@@ -91,8 +93,8 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 #### 如何贡献代码
 
 1. Fork本项目并使用git下载源码
-2. 安装[.net 6.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.101-windows-x64-installer)
-3. 使用visual studio 2022或JetBrains Rider通过根目录的ZTMZ.PacenoteTool.sln文件打开本项目
+2. 安装[.net 6.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.300-windows-x64-installer)
+3. 使用visual studio 2022或JetBrains Rider通过根目录的ZTMZ.PacenoteTool.sln文件打开本项目，或者直接用VSCode打开本项目文件夹
 4. 做出修改调试运行无误后推送至gitee，再创建PR到本项目
 
 #### 脚本路书编写小技巧
@@ -122,7 +124,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 #### 如何贡献脚本路书语音包
 
 1. 在[【腾讯文档】路书对照表](https://docs.qq.com/sheet/DVVlVZFdCWldkdXBi)中，对corner, detail, number 三张表中的每个标记都录制一段语音，以标记名称作为文件名，录制内容可以自由发挥
-2. 参考工具中现有的语音包的格式
+2. 参考工具中现有的语音包的格式，使用工具主界面左下角的语音包管理工具对语音包完整性进行检查
 3. 如果对有个标记希望有多个语音随机播放，可以在以标记为名的文件夹中放置多个语音文件，参考 __圣沙蒙VK__ 语音包中的detail_start_stage的形式即可
 4. 录制好语音后联系群内的 __bigboxx__ 大佬
 
@@ -138,22 +140,22 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 | 2.5.1                | 已发布              | 特别多，见[更新记录](https://gitee.com/ztmz/ztmz_pacenote/raw/master/ZTMZ.PacenoteTool/更新记录.txt)                                                                                                                |
 | ~~2.5~~             | ~~2022-01-14之后~~ | ~~增加路书工具和脚本工具通信协作<br />对游戏内语音进行语音识别成文字<br />再自动生成脚本路书到脚本工具中~~                                                                                                      |
 | 2.6                  | 已发布              | 增加语音包制作工具<br />增加了动态语速和动态紧张感特效                                                                                                                                                           |
-| 2.6.1                | 2022-03             | 修复部分bug，增加部分语音包                                                                                                                                                                                      |
+| 2.6.1-2.6.6          | 2022-05             | 修复部分bug，增加部分语音包<br />增加了悬浮窗的仪表盘功能<br />增加了用于分析和改进工具使用的Google Analytics<br />增加了mesa的英文语音包<br />修复了很多赛道路书的错误                                          |
 
 #### 特别鸣谢
 
-* __小贤少少__ 为车队的付出
-* __Meeke777__ 的路书实现思路
-* __Greened U幻想最初__ 的初始路书标记整理
-* __Bigboxx__ 对路书工具的建议和语音包的制作
-* __圣沙蒙VK__ 的语音包和语音路书的录制
-* __紫藤林沫__ 的语音包录制
-* __拉稀车手老王__ 的语音包录制
-* __权威Authority__ 的语音包录制
-* __wha1ing__ 的语音包录制
-* __Hippopo__ 的语音包录制和路书校对
+* [__小贤少少__](https://space.bilibili.com/253480317) 为车队的付出
+* [__Meeke777__](https://space.bilibili.com/55088592) 的路书实现思路
+* [__Greened U幻想最初__](https://space.bilibili.com/254447657) 的初始路书标记整理
+* [__Bigboxx__](https://space.bilibili.com/13133308) 对路书工具的建议和语音包的制作
+* [__圣沙蒙VK__](https://space.bilibili.com/6174297) 的语音包和语音路书的录制
+* [__紫藤林沫__](https://space.bilibili.com/3712553) 的语音包录制
+* [__拉稀车手老王__](https://space.bilibili.com/495490435) 的语音包录制
+* [__权威Authority__](https://space.bilibili.com/24297171) 的语音包录制
+* [__wha1ing__](https://space.bilibili.com/49581921) 的语音包录制
+* [__Hippopo__](https://space.bilibili.com/626685) 的语音包录制和路书校对
 * __大李子小妖__ 的语音包录制
-* __mesa__ 的英文tts语音包录制
+* [__mesa__](https://www.racedepartment.com/members/mesa.7580) 的英文tts语音包录制
 * **左衛門** 的路书校对
 * 以及各位大佬的路书录制：（按字母顺序）
   * HanXu
