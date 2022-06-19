@@ -16,4 +16,19 @@
     <PackageReference Include="SoundTouch.Net" Version="2.3.2" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <Resource Include="alias.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="flag.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="modifier.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="pacenote.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
 </Project>

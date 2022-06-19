@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Timers;
 using MaterialDesignThemes.Wpf;
 using ZTMZ.PacenoteTool.Base;
@@ -82,6 +83,32 @@ namespace ZTMZ.PacenoteTool
         // public int TrackNumber { set; get; }
         public DateTime TimeStamp;
 
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            var fields = typeof(UDPMessage).GetFields();
+            for (var i = 0; i < fields.Length; i++)
+            {
+                var pInfo = fields[i];
+                var name = pInfo.Name;
+                if (pInfo.FieldType == typeof(float))
+                {
+                    var value = (float)pInfo.GetValue(this);
+                    sb.Append((name + ":").PadRight(30)).Append(value.ToString("0.0"));
+                }
+                else
+                {
+                    var value = pInfo.GetValue(this);
+                    sb.Append((name + ":").PadRight(30)).Append(value.ToString());
+                }
+                if (i != fields.Length - 1)
+                {
+                    sb.AppendLine();
+                }
+            }
+            return sb.ToString();
+        }
+
 
         public override bool Equals(object? obj)
         {
@@ -120,12 +147,14 @@ namespace ZTMZ.PacenoteTool
         public event GameStateChangedDelegate onGameStateChanged;
         public event Action<int> onCollisionDetected;
         public event Action<int> onWheelAbnormalDetected;
+        public event Action<bool> onMessageAvailable;
         public bool[] WheelAbnormalDetectedReported = new bool[] { false, false, false, false };
         public int[] WheelAbnormalDetectedCounter = new int[] { 0, 0, 0, 0 };
 
         private bool isRunning;
         private Timer _timer;
         private int _timerCount = 0;
+        private int _timerMessageAvailableCount = 0;
         private GameState _gameState = GameState.Unknown;
         public event Action ListenStarted;
 
@@ -177,6 +206,14 @@ namespace ZTMZ.PacenoteTool
                     {
                         this._timerCount++;
                     }
+                }
+
+                this._timerMessageAvailableCount++;
+                if (this._timerMessageAvailableCount >= 10) 
+                {
+                    this.onMessageAvailable?.Invoke(false);
+                } else {
+                    this.onMessageAvailable?.Invoke(true);
                 }
             };
             this._timer.Start();
@@ -286,6 +323,9 @@ namespace ZTMZ.PacenoteTool
                     message.Sector = BitConverter.ToSingle(rawData, 48 << 2);
                     message.Sector1Time = BitConverter.ToSingle(rawData, 49 << 2);
                     message.Sector2Time = BitConverter.ToSingle(rawData, 50 << 2);
+
+                    // msg got, reset the counter.
+                    this._timerMessageAvailableCount = 0;
                     // only 264 bytes
                     // message.TrackNumber = BitConverter.ToInt32(rawData, 272);
                     if (!message.Equals(this.LastMessage))

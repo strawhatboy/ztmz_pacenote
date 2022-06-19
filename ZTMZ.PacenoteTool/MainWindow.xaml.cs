@@ -95,6 +95,25 @@ namespace ZTMZ.PacenoteTool
             this.initializeAutoRecorder();
             this.applyUserConfig();
             this.initializeTheme();
+
+            // this.initializeNewUI();
+        }
+
+        private void initializeNewUI() {
+            this.Hide();
+            var newWindow = new MainWindow_New();
+            newWindow.Show();
+
+            newWindow.Closed += (obj, args) => this.Close();
+            newWindow.Title = this.Title;
+
+            foreach (var item in this.cb_codrivers.Items) {
+                newWindow.CB_Codrivers.Items.Add(item);
+            }
+
+            this.cb_codrivers.SelectionChanged -= this.cb_codrivers_SelectionChanged;
+            newWindow.CB_Codrivers.SelectionChanged += this.cb_codrivers_SelectionChanged;
+            newWindow.CB_Codrivers.SelectedIndex = this.cb_codrivers.SelectedIndex;
         }
 
         private void initGoogleAnalytics()

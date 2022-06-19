@@ -4,17 +4,17 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.Codemaster
 {
-    public class DirtRally : IGame
+    public class DirtRally2 : IGame
     {
         /// <summary>
         /// Game window title name, can be used for retrieving the window handle
         /// </summary>
-        public string WindowTitle => "Dirt Rally";
+        public string WindowTitle => "Dirt Rally 2.0";
 
         /// <summary>
         /// Name of the game
         /// </summary>
-        public string Name => "Dirt Rally 1.0";
+        public string Name => "Dirt Rally 2.0";
 
         /// <summary>
         /// Description of the game
@@ -24,17 +24,18 @@ namespace ZTMZ.PacenoteTool.Codemaster
         /// <summary>
         /// Executable file name for checking the path legality
         /// </summary>
-        public string Executable => "dirtrally";
+        public string Executable => "dirtrally2";
 
         /// <summary>
         /// Pacenote Reader to load pacenote by track name or track No.
         /// </summary>
         public IGamePacenoteReader GamePacenoteReader => new BasePacenoteReader();
+
         /// <summary>
         /// UDPAnalyzer to analyze the UDP package and returns essential information
         /// </summary>
         public IGameUDPAnalyazer GameUdpAnalyazer { set; get; }
-        public BitmapImage Image => new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemaster;component/dirtrally.jpg"));
+        public BitmapImage Image => new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemaster;component/dirtrally2.jpg"));
 
         public DirtRally()
         {

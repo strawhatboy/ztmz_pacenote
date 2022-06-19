@@ -152,6 +152,7 @@
   },
 
   "ui": {
+
     "rb_record": "Record Mode",
     "rb_replay": "Replay mode",
     "tb_gameState": "Game state：",

@@ -1,3 +1,6 @@
+
+
+using System.Windows.Media.Imaging;
 namespace ZTMZ.PacenoteTool.Base.Game
 {
     public interface IGame
@@ -5,31 +8,34 @@ namespace ZTMZ.PacenoteTool.Base.Game
         /// <summary>
         /// Game window title name, can be used for retrieving the window handle
         /// </summary>
-        string WindowTitle { set; get; }
+        string WindowTitle { get; }
 
         /// <summary>
         /// Name of the game
         /// </summary>
-        string Name { set; get; }
+        string Name { get; }
 
         /// <summary>
         /// Description of the game
         /// </summary>
-        string Description { set; get; }
+        string Description { get; }
+
+        BitmapImage Image { set; }
 
         /// <summary>
         /// Executable file name for checking the path legality
         /// </summary>
-        string Executable { set; get; }
+        string Executable { get; }
 
         /// <summary>
         /// Pacenote Reader to load pacenote by track name or track No.
         /// </summary>
-        IGamePacenoteReader GamePacenoteReader { set; get; }
+        IGamePacenoteReader GamePacenoteReader { get; }
 
         /// <summary>
         /// UDPAnalyzer to analyze the UDP package and returns essential information
         /// </summary>
-        IGameUDPAnalyazer GameUdpAnalyazer { set; get; }
+        IGameUDPAnalyazer GameUdpAnalyazer { get; }
+
     }
 }

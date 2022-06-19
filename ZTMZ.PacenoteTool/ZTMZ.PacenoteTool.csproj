@@ -15,12 +15,6 @@
 	    <Configurations>Debug;Release;Release_Portable</Configurations>
     </PropertyGroup>
 
-    <ItemGroup>
-      <None Remove="alias.png" />
-      <None Remove="flag.png" />
-      <None Remove="modifier.png" />
-      <None Remove="pacenote.png" />
-    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\OnlyR.Core\OnlyR.Core.csproj" />
@@ -40,16 +34,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Resource Include="alias.png">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      </Resource>
-      <Resource Include="flag.png">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      </Resource>
-      <Resource Include="modifier.png">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      </Resource>
-      <Resource Include="pacenote.png">
+      <Resource Include="app.ico">
         <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       </Resource>
     </ItemGroup>

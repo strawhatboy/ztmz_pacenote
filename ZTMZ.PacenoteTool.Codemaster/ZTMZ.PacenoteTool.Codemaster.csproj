@@ -1,13 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net6.0-windows</TargetFramework>
-        <Nullable>enable</Nullable>
-        <UseWPF>true</UseWPF>
-    </PropertyGroup>
+  <PropertyGroup>
+      <TargetFramework>net6.0-windows</TargetFramework>
+      <Nullable>enable</Nullable>
+      <UseWPF>true</UseWPF>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
+  </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="dirtrally.jpg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="dirtrally2.jpg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
 </Project>

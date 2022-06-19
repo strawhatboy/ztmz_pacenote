@@ -78,10 +78,10 @@ namespace ZTMZ.PacenoteTool.Base
             // images
             try
             {
-                _imgFlag = new BitmapImage(new Uri("pack://application:,,,/flag.png"));
-                _imgAlias = new BitmapImage(new Uri("pack://application:,,,/alias.png"));
-                _imgModifier = new BitmapImage(new Uri("pack://application:,,,/modifier.png"));
-                _imgPacenote = new BitmapImage(new Uri("pack://application:,,,/pacenote.png"));
+                _imgFlag = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Base;component/flag.png"));
+                _imgAlias = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Base;component/alias.png"));
+                _imgModifier = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Base;component/modifier.png"));
+                _imgPacenote = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Base;component/pacenote.png"));
             }
             catch
             {

@@ -1,0 +1,63 @@
+<Window x:Class="ZTMZ.PacenoteTool.MainWindow_New"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Dialog"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"
+        ResizeMode="CanMinimize"        
+        Background="{DynamicResource MaterialDesignPaper}"
+        Title="memememe" Height="400" Width="600">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Image>
+                <Image.Source>
+                    <BitmapImage UriSource="pack://application:,,,/ZTMZ.PacenoteTool;component/app.ico" />
+                </Image.Source>
+            </Image>
+        </Grid>
+
+        <!-- Canvas for back and setting buttons-->
+        <Canvas Grid.Row="0">
+            <Button Name="btn_Back" Canvas.Left="20" Canvas.Top="20" Width="42" Height="42" Margin="2" ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_settings}" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" >
+                <materialDesign:PackIcon Kind="ArrowLeft" Height="25" Width="25" />
+            </Button>
+            <Button Name="btn_Settings" Canvas.Right="20" Canvas.Top="20" Width="42" Height="42" Margin="2" ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_settings}" Style="{StaticResource MaterialDesignFloatingActionMiniButton}">
+                <materialDesign:PackIcon Kind="Cog" Height="25" Width="25" />
+            </Button>
+        </Canvas>
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                    Text="{DynamicResource ResourceKey=ui.tab_s_audioPackage}">
+            </TextBlock>
+            <ComboBox Grid.Row="0" Grid.Column="1"  Name="cb_codrivers"
+                    VerticalAlignment="Center" DisplayMemberPath="DisplayText">
+            </ComboBox>
+        </Grid>
+    </Grid>
+</Window>

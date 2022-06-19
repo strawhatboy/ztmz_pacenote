@@ -570,28 +570,7 @@ namespace ZTMZ.PacenoteTool
 
         private void drawDebugTelemetry(Graphics gfx)
         {
-            var sb = new StringBuilder();
-            var fields = typeof(UDPMessage).GetFields();
-            for (var i = 0; i < fields.Length; i++)
-            {
-                var pInfo = fields[i];
-                var name = pInfo.Name;
-                if (pInfo.FieldType == typeof(float))
-                {
-                    var value = (float)pInfo.GetValue(UdpMessage);
-                    sb.Append((name + ":").PadRight(30)).Append(value.ToString("0.0"));
-                }
-                else
-                {
-                    var value = pInfo.GetValue(UdpMessage);
-                    sb.Append((name + ":").PadRight(30)).Append(value.ToString());
-                }
-                if (i != fields.Length - 1)
-                {
-                    sb.AppendLine();
-                }
-            }
-            gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], 0, 0, sb.ToString());
+            gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], 0, 0, UdpMessage.ToString());
         }
 
         private void drawTelemetry(Graphics gfx)
@@ -644,8 +623,8 @@ namespace ZTMZ.PacenoteTool
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("We got exception when drawing elements: {0}", ex.ToString());
-                    GoogleAnalyticsHelper.Instance.TrackExceptionEvent($"We got exception when drawing elements with func: {t.ToString()}", ex.Message + UdpMessage.ToString());
+                    Debug.WriteLine("We got exception when drawing elements: {0}, {1}", ex.ToString(), UdpMessage.ToString());
+                    // GoogleAnalyticsHelper.Instance.TrackExceptionEvent($"We got exception when drawing elements with func: {t.ToString()}", ex.Message + UdpMessage.ToString());
                 }
 
                 elementStartX += elementWidth + telemetrySpacing;
