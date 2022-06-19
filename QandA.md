@@ -1,7 +1,7 @@
  **注意：** 一般情况下 **只有遇到问题时才参考本疑难解答** ，没有遇到问题不要随意尝试本文的各种解决方案，可能会适得其反。
 
 **Q:** 工具在安装的时候卡在下载所需组件那里不动了怎么回事？
-**A:** 可能网络环境和微软的服务器不通畅，先 **手动下载安装运行库** （https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer），再运行工具的安装程序即可。如果手动也无法下载，那么可以到路书群里从群文件里下载
+**A:** 可能网络环境和微软的服务器不通畅，先 **手动下载安装运行库** （[https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer)），再运行工具的安装程序即可。如果手动也无法下载，那么可以到路书群里从群文件里下载
 
 **Q:** 工具在下载时浏览器提示文件不安全怎么办？
 **A:** 浏览器中在下载的地方看看文件右键点击或者其他有没有菜单可以选择 **“保留”** 的，保留该文件即可
@@ -10,16 +10,16 @@
 **A:** 哪家的杀毒软件 **竟敢报毒** ？？？（工具源代码公布在gitee上，100%无毒）
 
 **Q:** 下载的压缩包解压之后，双击了“双击运行.bat”怎么没反应？
-**A:** 可能下载错了，下载的是 **源代码的压缩包** ，需要在https://gitee.com/ztmz/ztmz_pacenote/releases **下载标准版的exe文件**双击运行才能安装
+**A:** 可能下载错了，下载的是 **源代码的压缩包** ，需要在[https://gitee.com/ztmz/ztmz_pacenote/releases](https://gitee.com/ztmz/ztmz_pacenote/releases) **下载标准版的exe文件**双击运行才能安装
 
 **Q:** 工具下载下来运行的时候为什么出来了一个提示框，只有一个 “关闭” 按钮，关了之后就没反应了？
 **A:** 在提示框上找找看可有 **“更多信息” “详细信息”** 之类的蓝色小字，点击之后会多出一个 “仍要运行” 的按钮，点击即可
 
-Q: 工具安装时提示"安装程序不能创建目录xxxxxxxxx，错误2：系统找不到指定的文件"怎么回事？
-A: 离了大谱，可能系统的文件夹权限出了问题。尝试在 windows 自带的安全中心 (Windows Security)->病毒与防护设置 (Virus & threat protection settings)->文件夹限制访问 (Controlled folder access)，查看是否开启了文件夹限制访问，如果开启尝试关闭后再重新安装
+**Q:** 工具安装时提示"安装程序不能创建目录xxxxxxxxx，错误2：系统找不到指定的文件"怎么回事？
+**A:** 离了大谱，可能系统的文件夹权限出了问题。尝试在 windows 自带的安全中心 (Windows Security)->病毒与防护设置 (Virus & threat protection settings)->文件夹限制访问 (Controlled folder access)，查看是否开启了文件夹限制访问，如果开启尝试关闭后再重新安装
 
 **Q:** 工具安装完成后，在运行的时候提示 "To run this application, you must install .NET Desktop Runtime 6.0.5 (x64), Would you like to download it now? 是(Y) | 否(N)"是怎么回事？
-**A:** 离了大谱，不可能发生的事发生了。简单快捷的方法是**重新安装**。原因可能是在安装了工具之后又安装了其他低版本的dotnet6 运行时，导致当前工具失效。重新安装也不行？？？手动下载安装运行库（https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer）。还不行？？？是不是下载错文件了？
+**A:** 离了大谱，不可能发生的事发生了。简单快捷的方法是**重新安装**。原因可能是在安装了工具之后又安装了其他低版本的dotnet6 运行时，导致当前工具失效。重新安装也不行？？？手动下载安装运行库（[https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer)）。还不行？？？是不是下载错文件了？
 
 **Q:** 为什么工具没反应？
 **A:** 工具只有在**游戏中拉了手刹倒计时开始时**才会开始有反应
