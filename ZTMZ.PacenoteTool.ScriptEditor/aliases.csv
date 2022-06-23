@@ -50,7 +50,7 @@ dont_cut,detail_dont_cut,don't cut|dont cut|do not cut
 downhill,detail_downhill,down hill|downhill
 early,detail_early,early
 extraextra_long,detail_extraextra_long,extra extra long
-extra_long,detail_extra_long,very long|extra long
+extra_long,detail_extra_long,extra long
 fence_outside,detail_fence_outside,fence outside|fences outside
 finish,detail_finish,finish|over finish
 ford,detail_ford,ford
@@ -79,6 +79,7 @@ long_crest,detail_long_crest,long crest
 longlong,detail_longlong,very long
 loose_gravel,detail_loose_gravel,loose gravel
 maybe,detail_maybe,maybe
+minus,detail_minus,minus
 narrows,detail_narrows,narrows|narrow
 opens,detail_opens,opens
 outtrack,detail_outtrack,out track
@@ -99,6 +100,7 @@ over_small_crest,detail_over_small_crest,over small crest
 over_small_bumps,detail_over_small_bumps,over small bump|over small bumps
 over_very_long_crest,detail_over_very_long_crest,over very long crest
 pass_junction,detail_pass_junction,pass junction|through junction|over junction
+plus,detail_plus,plus
 right_entry_chicane,detail_right_entry_chicane,chicane right entry
 rocks_inside,detail_rocks_inside,rocks inside|rock inside
 rocks_outside,detail_rocks_outside,rocks outside|rock outside
