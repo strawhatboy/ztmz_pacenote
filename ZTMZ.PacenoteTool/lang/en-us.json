@@ -168,6 +168,7 @@
     "tb_wheelSpdRL": "RL：",
     "tb_wheelSpdRR": "RR：",
     "tb_currentProfile": "Current Profile：",
+    "tb_currentGame": "Game：",
 
     "tab_pureAudio": "Pure Audio Mode",
     "tab_pa_codriver": "Codriver：",

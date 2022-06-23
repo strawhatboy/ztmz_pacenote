@@ -202,6 +202,12 @@ namespace ZTMZ.PacenoteTool.Base
             set { this._UI_PlaybackSpeed = value; this._userconfig["UI_PlaybackSpeed"] = value; }
             get => this._UI_PlaybackSpeed;
         }
+        private int _UI_SelectedGame = 0;
+        public int UI_SelectedGame
+        {
+            set { this._UI_SelectedGame = value; this._userconfig["UI_SelectedGame"] = value; }
+            get => this._UI_SelectedGame;
+        }
 
         private bool _UseDynamicPlaybackSpeed = true;
         public bool UseDynamicPlaybackSpeed

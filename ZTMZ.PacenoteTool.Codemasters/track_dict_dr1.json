@@ -1,0 +1,1464 @@
+{
+    "5361.91": [
+        {
+            "start_z": -2668.4755859375,
+            "track_name": "DE, Baumholder, Waldaufstieg"
+        }
+    ],
+    "5882.18": [
+        {
+            "start_z": -948.372314453125,
+            "track_name": "DE, Baumholder, Waldabstieg"
+        }
+    ],
+    "6121.87": [
+        {
+            "start_z": -718.9346923828125,
+            "track_name": "DE, Baumholder, Kreuzungsring"
+        }
+    ],
+    "5666.25": [
+        {
+            "start_z": 539.2579345703125,
+            "track_name": "DE, Baumholder, Kreuzungsring reverse"
+        }
+    ],
+    "10699.96": [
+        {
+            "start_z": 814.2764892578125,
+            "track_name": "DE, Baumholder, Ruschberg"
+        },
+        {
+            "start_z": 0.0,
+            "track_name": "DE, Baumholder, Ruschberg"
+        }
+    ],
+    "5855.68": [
+        {
+            "start_z": 513.0728759765625,
+            "track_name": "DE, Baumholder, Verbundsring"
+        },
+        {
+            "start_z": 0.0,
+            "track_name": "DE, Baumholder, Verbundsring"
+        }
+    ],
+    "5550.85": [
+        {
+            "start_z": 657.1261596679688,
+            "track_name": "DE, Baumholder, Verbundsring reverse"
+        }
+    ],
+    "5129.04": [
+        {
+            "start_z": 814.3093872070312,
+            "track_name": "DE, Baumholder, Innerer Feld-Sprint"
+        },
+        {
+            "start_z": 0.0,
+            "track_name": "DE, Baumholder, Flugzeugring Reverse"
+        }
+    ],
+    "4937.85": [
+        {
+            "start_z": 656.46044921875,
+            "track_name": "DE, Baumholder, Innerer Feld-Sprint reverse"
+        },
+        {
+            "start_z": 0.0,
+            "track_name": "DE, Baumholder, Flugzeugring"
+        }
+    ],
+    "11487.19": [
+        {
+            "start_z": -2668.59033203125,
+            "track_name": "DE, Baumholder, Oberstein"
+        }
+    ],
+    "10805.23": [
+        {
+            "start_z": 513.07177734375,
+            "track_name": "DE, Baumholder, Hammerstein"
+        }
+    ],
+    "11551.16": [
+        {
+            "start_z": 539.3564453125,
+            "track_name": "DE, Baumholder, Frauenberg"
+        }
+    ],
+    "10805.22": [
+        {
+            "start_z": 1276.76611328125,
+            "track_name": "MC, Monte Carlo, Route de Turini"
+        },
+        {
+            "start_z": 1289.7208,
+            "track_name": "MC, Monte Carlo, Route de Turini"
+        }
+    ],
+    "10866.86": [
+        {
+            "start_z": -2344.705810546875,
+            "track_name": "MC, Monte Carlo, Vallee descendante"
+        },
+        {
+            "start_z": -2358.05,
+            "track_name": "MC, Monte Carlo, Vallee descendante"
+        }
+    ],
+    "4730.02": [
+        {
+            "start_z": 283.7648620605469,
+            "track_name": "MC, Monte Carlo, Col de Turini \u2013 Sprint en descente"
+        },
+        {
+            "start_z": 298.587,
+            "track_name": "MC, Monte Carlo, Col de Turini \u2013 Sprint en descente"
+        }
+    ],
+    "4729.54": [
+        {
+            "start_z": -197.3816375732422,
+            "track_name": "MC, Monte Carlo, Col de Turini sprint en Montee"
+        },
+        {
+            "start_z": -209.405,
+            "track_name": "MC, Monte Carlo, Col de Turini sprint en Montee"
+        }
+    ],
+    "5175.91": [
+        {
+            "start_z": -131.84573364257812,
+            "track_name": "MC, Monte Carlo, Col de Turini \u2013 Descente"
+        },
+        {
+            "start_z": -467.3677062988281,
+            "track_name": "MC, Monte Carlo, Gordolon \u2013 Courte montee"
+        },
+        {
+            "start_z": -120.206,
+            "track_name": "MC, Monte Carlo, Col de Turini \u2013 Descente"
+        },
+        {
+            "start_z": -461.134,
+            "track_name": "MC, Monte Carlo, Gordolon \u2013 Courte montee"
+        }
+    ],
+    "4015.36": [
+        {
+            "start_z": -991.9784545898438,
+            "track_name": "MC, Monte Carlo, Route de Turini (Descente)"
+        },
+        {
+            "start_z": -1005.69,
+            "track_name": "MC, Monte Carlo, Route de Turini (Descente)"
+        }
+    ],
+    "3952.15": [
+        {
+            "start_z": 1276.780517578125,
+            "track_name": "MC, Monte Carlo, Approche du Col de Turini \u2013 Montee"
+        },
+        {
+            "start_z": 1289.7462,
+            "track_name": "MC, Monte Carlo, Approche du Col de Turini \u2013 Montee"
+        }
+    ],
+    "9831.45": [
+        {
+            "start_z": -467.483154296875,
+            "track_name": "MC, Monte Carlo, Pra d\u00b4Alart"
+        },
+        {
+            "start_z": -461.6663,
+            "track_name": "MC, Monte Carlo, Pra d\u00b4Alart"
+        }
+    ],
+    "9832.02": [
+        {
+            "start_z": 283.4727478027344,
+            "track_name": "MC, Monte Carlo, Col de Turini Depart"
+        }
+    ],
+    "6843.32": [
+        {
+            "start_z": -991.945068359375,
+            "track_name": "MC, Monte Carlo, Route de Turini (Montee)"
+        },
+        {
+            "start_z": -977.825,
+            "track_name": "MC, Monte Carlo, Route de Turini (Montee)"
+        }
+    ],
+    "6846.83": [
+        {
+            "start_z": -2344.592529296875,
+            "track_name": "MC, Monte Carlo, Col de Turini \u2013 Depart en descente"
+        },
+        {
+            "start_z": -2357.89,
+            "track_name": "MC, Monte Carlo, Col de Turini \u2013 Depart en descente"
+        }
+    ],
+    "4821.65": [
+        {
+            "start_z": 2047.56201171875,
+            "track_name": "UK, Powys, Pant Mawr Reverse"
+        },
+        {
+            "start_z": 2034.562,
+            "track_name": "UK, Powys, Pant Mawr Reverse"
+        }
+    ],
+    "4960.06": [
+        {
+            "start_z": 1924.06884765625,
+            "track_name": "UK, Powys, Bidno Moorland"
+        }
+    ],
+    "5165.96": [
+        {
+            "start_z": 2481.105224609375,
+            "track_name": "UK, Powys, Bidno Moorland Reverse"
+        }
+    ],
+    "11435.51": [
+        {
+            "start_z": -557.0780029296875,
+            "track_name": "UK, Powys, River Severn Valley"
+        },
+        {
+            "start_z": -553.109,
+            "track_name": "UK, Powys, River Severn Valley"
+        }
+    ],
+    "11435.54": [
+        {
+            "start_z": 169.15403747558594,
+            "track_name": "UK, Powys, Bronfelen"
+        }
+    ],
+    "5717.40": [
+        {
+            "start_z": -557.11328125,
+            "track_name": "UK, Powys, Fferm Wynt"
+        },
+        {
+            "start_z": -553.112,
+            "track_name": "UK, Powys, Fferm Wynt"
+        }
+    ],
+    "5717.39": [
+        {
+            "start_z": -22.597640991210938,
+            "track_name": "UK, Powys, Fferm Wynt Reverse"
+        },
+        {
+            "start_z": -21.5283,
+            "track_name": "UK, Powys, Fferm Wynt Reverse"
+        }
+    ],
+    "5718.10": [
+        {
+            "start_z": -23.46375274658203,
+            "track_name": "UK, Powys, Dyffryn Afon"
+        },
+        {
+            "start_z": 169.0966033935547,
+            "track_name": "UK, Powys, Dyffryn Afon Reverse"
+        },
+        {
+            "start_z": -26.0434,
+            "track_name": "UK, Powys, Dyffryn Afon"
+        },
+        {
+            "start_z": 156.4742,
+            "track_name": "UK, Powys, Dyffryn Afon Reverse"
+        }
+    ],
+    "9911.66": [
+        {
+            "start_z": 2220.982177734375,
+            "track_name": "UK, Powys, Sweet Lamb"
+        }
+    ],
+    "10063.60": [
+        {
+            "start_z": 2481.169677734375,
+            "track_name": "UK, Powys, Geufron Forest"
+        }
+    ],
+    "4788.67": [
+        {
+            "start_z": 2221.004150390625,
+            "track_name": "UK, Powys, Pant Mawr"
+        },
+        {
+            "start_z": 2216.2036,
+            "track_name": "UK, Powys, Pant Mawr"
+        }
+    ],
+    "7055.95": [
+        {
+            "start_z": -1618.4476318359375,
+            "track_name": "SE, V\u00e4rmland, \u00c4lgsj\u00f6n"
+        }
+    ],
+    "4911.68": [
+        {
+            "start_z": -1742.0498046875,
+            "track_name": "SE, V\u00e4rmland, \u00d6stra Hinnsj\u00f6n"
+        }
+    ],
+    "6666.89": [
+        {
+            "start_z": -2143.403076171875,
+            "track_name": "SE, V\u00e4rmland, Stor-jangen Sprint"
+        }
+    ],
+    "6693.44": [
+        {
+            "start_z": 563.3468017578125,
+            "track_name": "SE, V\u00e4rmland, Stor-jangen Sprint Reverse"
+        }
+    ],
+    "4931.99": [
+        {
+            "start_z": -5101.59619140625,
+            "track_name": "SE, V\u00e4rmland, Bj\u00f6rklangen"
+        }
+    ],
+    "11922.62": [
+        {
+            "start_z": -4328.87158203125,
+            "track_name": "SE, V\u00e4rmland, Ransbys\u00e4ter"
+        }
+    ],
+    "12123.74": [
+        {
+            "start_z": 2697.36279296875,
+            "track_name": "SE, V\u00e4rmland, Hamra"
+        }
+    ],
+    "12123.59": [
+        {
+            "start_z": -5101.78369140625,
+            "track_name": "SE, V\u00e4rmland, Lysvik"
+        }
+    ],
+    "11503.49": [
+        {
+            "start_z": 562.8009033203125,
+            "track_name": "SE, V\u00e4rmland, Norraskoga"
+        }
+    ],
+    "5248.36": [
+        {
+            "start_z": -4328.87158203125,
+            "track_name": "SE, V\u00e4rmland, \u00c4lgsj\u00f6n Sprint"
+        }
+    ],
+    "7058.48": [
+        {
+            "start_z": 2696.98291015625,
+            "track_name": "SE, V\u00e4rmland, Elgsj\u00f6n"
+        }
+    ],
+    "4804.03": [
+        {
+            "start_z": -2143.44384765625,
+            "track_name": "SE, V\u00e4rmland, Skogsrallyt"
+        }
+    ],
+    "6575.87": [
+        {
+            "start_z": -408.4866027832031,
+            "track_name": "US, New England, Tolt Valley Sprint Forward"
+        }
+    ],
+    "6701.62": [
+        {
+            "start_z": 1521.6917724609375,
+            "track_name": "US, New England, Hancock Creek Burst"
+        }
+    ],
+    "6109.54": [
+        {
+            "start_z": -353.0966796875,
+            "track_name": "US, New England, Hancock Hill Sprint Reverse"
+        }
+    ],
+    "12228.83": [
+        {
+            "start_z": 1521.5872802734375,
+            "track_name": "US, New England, North Fork Pass"
+        }
+    ],
+    "12276.12": [
+        {
+            "start_z": 27.728849411010742,
+            "track_name": "US, New England, North Fork Pass Reverse"
+        }
+    ],
+    "6488.33": [
+        {
+            "start_z": 27.087112426757812,
+            "track_name": "US, New England, Fuller Mountain Descent"
+        }
+    ],
+    "6468.30": [
+        {
+            "start_z": 2768.10107421875,
+            "track_name": "US, New England, Fuller Mountain Ascent"
+        }
+    ],
+    "6681.61": [
+        {
+            "start_z": 2950.6044921875,
+            "track_name": "US, New England, Fury Lake Depart"
+        }
+    ],
+    "12856.66": [
+        {
+            "start_z": 518.76123046875,
+            "track_name": "US, New England, Beaver Creek Trail Forward"
+        }
+    ],
+    "12765.92": [
+        {
+            "start_z": -4617.37744140625,
+            "track_name": "US, New England, Beaver Creek Trail Reverse"
+        }
+    ],
+    "6229.11": [
+        {
+            "start_z": 518.7451171875,
+            "track_name": "US, New England, Hancock Hill Sprint Forward"
+        }
+    ],
+    "6604.03": [
+        {
+            "start_z": -4617.388671875,
+            "track_name": "US, New England, Tolt Valley Sprint Reverse"
+        }
+    ],
+    "7667.32": [
+        {
+            "start_z": 131.03880310058594,
+            "track_name": "AR, Catamarca, Valle de los puentes"
+        }
+    ],
+    "3494.01": [
+        {
+            "start_z": -1876.9149169921875,
+            "track_name": "AR, Catamarca, Huillaprima"
+        }
+    ],
+    "8265.95": [
+        {
+            "start_z": 205.80775451660156,
+            "track_name": "AR, Catamarca, Camino a la Puerta"
+        }
+    ],
+    "8256.86": [
+        {
+            "start_z": 2581.345947265625,
+            "track_name": "AR, Catamarca, Las Juntas"
+        }
+    ],
+    "5303.79": [
+        {
+            "start_z": 2581.339599609375,
+            "track_name": "AR, Catamarca, Camino de acantilados y rocas"
+        }
+    ],
+    "4171.50": [
+        {
+            "start_z": -3227.17626953125,
+            "track_name": "AR, Catamarca, San Isidro"
+        }
+    ],
+    "3353.04": [
+        {
+            "start_z": 130.6753692626953,
+            "track_name": "AR, Catamarca, Miraflores"
+        }
+    ],
+    "2845.63": [
+        {
+            "start_z": 206.18272399902344,
+            "track_name": "AR, Catamarca, El Rodeo"
+        }
+    ],
+    "7929.19": [
+        {
+            "start_z": -3227.17724609375,
+            "track_name": "AR, Catamarca, Valle de los puentes a la inversa"
+        }
+    ],
+    "5294.82": [
+        {
+            "start_z": 1379.72607421875,
+            "track_name": "AR, Catamarca, Camino de acantilados y rocas inverso"
+        }
+    ],
+    "4082.30": [
+        {
+            "start_z": -1864.662109375,
+            "track_name": "AR, Catamarca, Camino a Coneta"
+        }
+    ],
+    "2779.49": [
+        {
+            "start_z": 1344.307373046875,
+            "track_name": "AR, Catamarca, La Merced"
+        }
+    ],
+    "4799.84": [
+        {
+            "start_z": -4415.70703125,
+            "track_name": "NZ, Hawkes Bay, Te Awanga Sprint Forward"
+        }
+    ],
+    "11437.07": [
+        {
+            "start_z": 1789.1517333984375,
+            "track_name": "NZ, Hawkes Bay, Ocean Beach"
+        }
+    ],
+    "6624.03": [
+        {
+            "start_z": 1789.0382080078125,
+            "track_name": "NZ, Hawkes Bay, Ocean Beach Sprint"
+        }
+    ],
+    "4688.53": [
+        {
+            "start_z": -2004.0015869140625,
+            "track_name": "NZ, Hawkes Bay, Te Awanga Sprint Reverse"
+        }
+    ],
+    "8807.49": [
+        {
+            "start_z": 2074.951171875,
+            "track_name": "NZ, Hawkes Bay, Waimarama Sprint Forward"
+        }
+    ],
+    "6584.10": [
+        {
+            "start_z": -1950.1710205078125,
+            "track_name": "NZ, Hawkes Bay, Ocean Beach Sprint Reverse"
+        }
+    ],
+    "7137.81": [
+        {
+            "start_z": 2892.6181640625,
+            "track_name": "NZ, Hawkes Bay, Elsthorpe Sprint Forward"
+        }
+    ],
+    "15844.53": [
+        {
+            "start_z": 2074.938720703125,
+            "track_name": "NZ, Hawkes Bay, Waimarama Point Reverse"
+        }
+    ],
+    "16057.85": [
+        {
+            "start_z": 2892.97216796875,
+            "track_name": "NZ, Hawkes Bay, Waimarama Point Forward"
+        }
+    ],
+    "11507.44": [
+        {
+            "start_z": -4415.119140625,
+            "track_name": "NZ, Hawkes Bay, Te Awanga Forward"
+        }
+    ],
+    "8733.98": [
+        {
+            "start_z": 5268.0849609375,
+            "track_name": "NZ, Hawkes Bay, Waimarama Sprint Reverse"
+        }
+    ],
+    "6643.49": [
+        {
+            "start_z": 5161.06396484375,
+            "track_name": "NZ, Hawkes Bay, Elsthorpe Sprint Reverse"
+        }
+    ],
+    "6622.08": [
+        {
+            "start_z": 4644.4375,
+            "track_name": "PL, Leczna, Czarny Las"
+        }
+    ],
+    "9254.90": [
+        {
+            "start_z": 1972.7869873046875,
+            "track_name": "PL, Leczna, Marynka"
+        }
+    ],
+    "6698.81": [
+        {
+            "start_z": -3314.843505859375,
+            "track_name": "PL, Leczna, Lejno"
+        }
+    ],
+    "8159.82": [
+        {
+            "start_z": 7583.216796875,
+            "track_name": "PL, Leczna, J\u00f3zefin"
+        }
+    ],
+    "7840.18": [
+        {
+            "start_z": 4674.87548828125,
+            "track_name": "PL, Leczna, Kopina"
+        }
+    ],
+    "6655.54": [
+        {
+            "start_z": -402.56207275390625,
+            "track_name": "PL, Leczna, Jagodno"
+        }
+    ],
+    "13180.38": [
+        {
+            "start_z": -3314.898193359375,
+            "track_name": "PL, Leczna, Zienki"
+        }
+    ],
+    "16475.01": [
+        {
+            "start_z": 4674.9150390625,
+            "track_name": "PL, Leczna, Zar\u00f3bka"
+        }
+    ],
+    "16615.00": [
+        {
+            "start_z": 1973.2518310546875,
+            "track_name": "PL, Leczna, Zagorze"
+        }
+    ],
+    "13295.68": [
+        {
+            "start_z": 4644.3798828125,
+            "track_name": "PL, Leczna, Jezioro Rotcze"
+        }
+    ],
+    "9194.32": [
+        {
+            "start_z": 7393.35107421875,
+            "track_name": "PL, Leczna, Borysik"
+        }
+    ],
+    "6437.80": [
+        {
+            "start_z": -396.1388854980469,
+            "track_name": "PL, Leczna, Jezioro Lukie"
+        }
+    ],
+    "13304.12": [
+        {
+            "start_z": 2242.524169921875,
+            "track_name": "AU, Monaro, Mount Kaye Pass"
+        }
+    ],
+    "13301.11": [
+        {
+            "start_z": -2352.5615234375,
+            "track_name": "AU, Monaro, Mount Kaye Pass Reverse"
+        }
+    ],
+    "6951.16": [
+        {
+            "start_z": 2242.5224609375,
+            "track_name": "AU, Monaro, Rockton Plains"
+        }
+    ],
+    "7116.15": [
+        {
+            "start_z": 2457.100341796875,
+            "track_name": "AU, Monaro, Rockton Plains Reverse"
+        }
+    ],
+    "6398.91": [
+        {
+            "start_z": 2519.408447265625,
+            "track_name": "AU, Monaro, Yambulla Mountain Ascent"
+        }
+    ],
+    "6221.49": [
+        {
+            "start_z": -2352.546630859375,
+            "track_name": "AU, Monaro, Yambulla Mountain Descent"
+        }
+    ],
+    "12341.25": [
+        {
+            "start_z": 2049.85888671875,
+            "track_name": "AU, Monaro, Chandlers Creek"
+        }
+    ],
+    "12305.04": [
+        {
+            "start_z": -1280.10595703125,
+            "track_name": "AU, Monaro, Chandlers Creek Reverse"
+        }
+    ],
+    "7052.30": [
+        {
+            "start_z": -603.9149169921875,
+            "track_name": "AU, Monaro, Bondi Forest"
+        }
+    ],
+    "7007.02": [
+        {
+            "start_z": -1280.1004638671875,
+            "track_name": "AU, Monaro, Taylor Farm Sprint"
+        }
+    ],
+    "5277.03": [
+        {
+            "start_z": 2049.85791015625,
+            "track_name": "AU, Monaro, Noorinbee Ridge Ascent"
+        }
+    ],
+    "5236.91": [
+        {
+            "start_z": -565.1859130859375,
+            "track_name": "AU, Monaro, Noorinbee Ridge Descent"
+        }
+    ],
+    "14348.36": [
+        {
+            "start_z": 190.28546142578125,
+            "track_name": "ES, Ribadelles, Comienzo en Bellriu"
+        }
+    ],
+    "10568.43": [
+        {
+            "start_z": -2326.21142578125,
+            "track_name": "ES, Ribadelles, Centenera"
+        }
+    ],
+    "7297.27": [
+        {
+            "start_z": 2593.36376953125,
+            "track_name": "ES, Ribadelles, Ascenso bosque Montverd"
+        }
+    ],
+    "6194.71": [
+        {
+            "start_z": -2979.6650390625,
+            "track_name": "ES, Ribadelles, Vinedos Dardenya inversa"
+        }
+    ],
+    "6547.40": [
+        {
+            "start_z": -2002.0657958984375,
+            "track_name": "ES, Ribadelles, Vinedos Dardenya"
+        }
+    ],
+    "6815.45": [
+        {
+            "start_z": -2404.635009765625,
+            "track_name": "ES, Ribadelles, Vinedos dentro del valle Parra"
+        }
+    ],
+    "10584.68": [
+        {
+            "start_z": -2001.96337890625,
+            "track_name": "ES, Ribadelles, Camina a Centenera"
+        }
+    ],
+    "4380.74": [
+        {
+            "start_z": -3003.546630859375,
+            "track_name": "ES, Ribadelles, Subida por carretera"
+        }
+    ],
+    "6143.57": [
+        {
+            "start_z": 2607.470947265625,
+            "track_name": "ES, Ribadelles, Salida desde Montverd"
+        }
+    ],
+    "7005.69": [
+        {
+            "start_z": 190.13796997070312,
+            "track_name": "ES, Ribadelles, Ascenso por valle el Gualet"
+        }
+    ],
+    "4562.80": [
+        {
+            "start_z": -2326.251708984375,
+            "track_name": "ES, Ribadelles, Descenso por carretera"
+        }
+    ],
+    "13164.33": [
+        {
+            "start_z": -2404.1171875,
+            "track_name": "ES, Ribadelles, Final de Bellriu"
+        }
+    ],
+    "4860.19": [
+        {
+            "start_z": 91.54808044433594,
+            "track_name": "GR, Argolis, Ampelonas Ormi"
+        },
+        {
+            "start_z": 0.0,
+            "track_name": "GR, Argolis, Ampelonas Ormi"
+        }
+    ],
+    "9666.50": [
+        {
+            "start_z": -2033.0767822265625,
+            "track_name": "GR, Argolis, Anodou Farmakas"
+        },
+        {
+            "start_z": 0.0,
+            "track_name": "GR, Argolis, Anodou Farmakas"
+        }
+    ],
+    "9665.99": [
+        {
+            "start_z": 457.1891784667969,
+            "track_name": "GR, Argolis, Kathodo Leontiou"
+        },
+        {
+            "start_z": 0.0,
+            "track_name": "GR, Argolis, Kathodo Leontiou"
+        }
+    ],
+    "5086.83": [
+        {
+            "start_z": -2033.0767822265625,
+            "track_name": "GR, Argolis, Pomono \u00c9krixi"
+        },
+        {
+            "start_z": 0.0,
+            "track_name": "GR, Argolis, Pomono Ekrixi"
+        }
+    ],
+    "4582.01": [
+        {
+            "start_z": 164.40521240234375,
+            "track_name": "GR, Argolis, Koryfi Dafni"
+        },
+        {
+            "start_z": 0.0,
+            "track_name": "GR, Argolis, Koryfi Dafni"
+        }
+    ],
+    "4515.40": [
+        {
+            "start_z": 457.18927001953125,
+            "track_name": "GR, Argolis, Fourketa Kourva"
+        },
+        {
+            "start_z": 0.0,
+            "track_name": "GR, Argolis, Fourketa Kourva"
+        }
+    ],
+    "10487.06": [
+        {
+            "start_z": 504.3974609375,
+            "track_name": "GR, Argolis, Perasma Platani"
+        }
+    ],
+    "10357.88": [
+        {
+            "start_z": -3672.5810546875,
+            "track_name": "GR, Argolis, Tsiristra Th\u00e9a"
+        },
+        {
+            "start_z": 0.0,
+            "track_name": "GR, Argolis, Tsiristra Theo"
+        }
+    ],
+    "5739.10": [
+        {
+            "start_z": 504.3973693847656,
+            "track_name": "GR, Argolis, Ourea Spevsi"
+        },
+        {
+            "start_z": 0.0,
+            "track_name": "GR, Argolis, Ourea Spevsi"
+        }
+    ],
+    "5383.01": [
+        {
+            "start_z": -2277.10986328125,
+            "track_name": "GR, Argolis, Ypsona tou Dasos"
+        },
+        {
+            "start_z": 0.0,
+            "track_name": "GR, Argolis, Ypsna tou Dasos"
+        }
+    ],
+    "6888.40": [
+        {
+            "start_z": -1584.236083984375,
+            "track_name": "GR, Argolis, Abies Koil\u00e1da"
+        }
+    ],
+    "6595.31": [
+        {
+            "start_z": -3672.58154296875,
+            "track_name": "GR, Argolis, Pedines Epidaxi"
+        },
+        {
+            "start_z": 0.0,
+            "track_name": "GR, Argolis, Pedines Epidaxi"
+        }
+    ],
+    "7515.41": [
+        {
+            "start_z": 39.52613830566406,
+            "track_name": "FI, J\u00e4ms\u00e4, Kailaj\u00e4rvi"
+        }
+    ],
+    "7461.66": [
+        {
+            "start_z": 881.0377197265625,
+            "track_name": "FI, J\u00e4ms\u00e4, Paskuri"
+        }
+    ],
+    "7310.54": [
+        {
+            "start_z": 846.68701171875,
+            "track_name": "FI, J\u00e4ms\u00e4, Naaraj\u00e4rvi"
+        }
+    ],
+    "7340.38": [
+        {
+            "start_z": -192.40794372558594,
+            "track_name": "FI, J\u00e4ms\u00e4, Jyrkysj\u00e4rvi"
+        }
+    ],
+    "16205.19": [
+        {
+            "start_z": 3751.42236328125,
+            "track_name": "FI, J\u00e4ms\u00e4, Kakaristo"
+        },
+        {
+            "start_z": 3767.812744140625,
+            "track_name": "FI, J\u00e4ms\u00e4, Kakaristo"
+        }
+    ],
+    "16205.26": [
+        {
+            "start_z": 833.2575073242188,
+            "track_name": "FI, J\u00e4ms\u00e4, Pitk\u00e4j\u00e4rvi"
+        },
+        {
+            "start_z": 819.3272705078125,
+            "track_name": "FI, J\u00e4ms\u00e4, Pitk\u00e4j\u00e4rvi"
+        }
+    ],
+    "8042.52": [
+        {
+            "start_z": 3751.42236328125,
+            "track_name": "FI, J\u00e4ms\u00e4, Iso Oksj\u00e4rvi"
+        },
+        {
+            "start_z": 3767.791015625,
+            "track_name": "FI, J\u00e4ms\u00e4, Iso Oksj\u00e4rvi"
+        }
+    ],
+    "8057.53": [
+        {
+            "start_z": -3270.775390625,
+            "track_name": "FI, J\u00e4ms\u00e4, Oksala"
+        },
+        {
+            "start_z": -3283.9921875,
+            "track_name": "FI, J\u00e4ms\u00e4, Oksala"
+        }
+    ],
+    "8147.56": [
+        {
+            "start_z": -3263.315185546875,
+            "track_name": "FI, J\u00e4ms\u00e4, Kotaj\u00e4rvi"
+        },
+        {
+            "start_z": -3250.078125,
+            "track_name": "FI, J\u00e4ms\u00e4, Kotaj\u00e4rvi"
+        }
+    ],
+    "8147.42": [
+        {
+            "start_z": 833.2575073242188,
+            "track_name": "FI, J\u00e4ms\u00e4, J\u00e4rvenkyl\u00e4"
+        },
+        {
+            "start_z": 819.4571533203125,
+            "track_name": "FI, J\u00e4ms\u00e4, J\u00e4rvenkyl\u00e4"
+        }
+    ],
+    "14929.80": [
+        {
+            "start_z": 39.52613067626953,
+            "track_name": "FI, J\u00e4ms\u00e4, Kontinj\u00e4rvi"
+        }
+    ],
+    "14866.09": [
+        {
+            "start_z": -192.407958984375,
+            "track_name": "FI, J\u00e4ms\u00e4, H\u00e4melahti"
+        }
+    ],
+    "7144.70": [
+        {
+            "start_z": -1657.4295654296875,
+            "track_name": "UK, Scotland, Rosebank Farm"
+        }
+    ],
+    "6967.90": [
+        {
+            "start_z": 3383.216796875,
+            "track_name": "UK, Scotland, Rosebank Farm Reverse"
+        }
+    ],
+    "12857.07": [
+        {
+            "start_z": 1386.7626953125,
+            "track_name": "UK, Scotland, Newhouse Bridge"
+        }
+    ],
+    "12969.21": [
+        {
+            "start_z": -403.3143310546875,
+            "track_name": "UK, Scotland, Newhouse Bridge Reverse"
+        }
+    ],
+    "5822.77": [
+        {
+            "start_z": -1157.0889892578125,
+            "track_name": "UK, Scotland, Old Butterstone Muir"
+        }
+    ],
+    "5659.82": [
+        {
+            "start_z": 3339.01513671875,
+            "track_name": "UK, Scotland, Old Butterstone Muir Reverse"
+        }
+    ],
+    "7703.72": [
+        {
+            "start_z": -403.3154602050781,
+            "track_name": "UK, Scotland, Annbank Station"
+        }
+    ],
+    "7587.64": [
+        {
+            "start_z": -1839.5506591796875,
+            "track_name": "UK, Scotland, Annbank Station Reverse"
+        }
+    ],
+    "5245.45": [
+        {
+            "start_z": 1387.3612060546875,
+            "track_name": "UK, Scotland, Glencastle Farm"
+        }
+    ],
+    "5238.44": [
+        {
+            "start_z": -1860.2203369140625,
+            "track_name": "UK, Scotland, Glencastle Farm Reverse"
+        }
+    ],
+    "12583.41": [
+        {
+            "start_z": -1157.111083984375,
+            "track_name": "UK, Scotland, South Morningside"
+        }
+    ],
+    "12670.59": [
+        {
+            "start_z": -1656.8243408203125,
+            "track_name": "UK, Scotland, South Morningside Reverse"
+        }
+    ],
+    "1075.10": [
+        {
+            "start_z": 149.30722045898438,
+            "track_name": "RX, BE, Mettet"
+        }
+    ],
+    "1400.08": [
+        {
+            "start_z": -230.09457397460938,
+            "track_name": "RX, CA, Trois-Rivieres"
+        }
+    ],
+    "1348.85": [
+        {
+            "start_z": 101.5931396484375,
+            "track_name": "RX, UK, Lydden Hill"
+        },
+        {
+            "start_z": 96.47221374511719,
+            "track_name": "RX, England Full"
+        }
+    ],
+    "991.12": [
+        {
+            "start_z": -185.40646362304688,
+            "track_name": "RX, UK, Silverstone"
+        }
+    ],
+    "1064.98": [
+        {
+            "start_z": 195.76113891601562,
+            "track_name": "RX, FR, Loheac"
+        }
+    ],
+    "951.51": [
+        {
+            "start_z": -17.769332885742188,
+            "track_name": "RX, DE, Estering"
+        }
+    ],
+    "1287.43": [
+        {
+            "start_z": 134.0433807373047,
+            "track_name": "RX, LV, Bikernieki"
+        }
+    ],
+    "1036.10": [
+        {
+            "start_z": 122.2354736328125,
+            "track_name": "RX, NO, Hell"
+        },
+        {
+            "start_z": 125.0980453491211,
+            "track_name": "RX, Norway Full"
+        }
+    ],
+    "1026.76": [
+        {
+            "start_z": -541.3275756835938,
+            "track_name": "RX, PT, Montalegre"
+        }
+    ],
+    "1064.62": [
+        {
+            "start_z": -100.92737579345703,
+            "track_name": "RX, ZA, Killarney"
+        }
+    ],
+    "1119.36": [
+        {
+            "start_z": -341.3289794921875,
+            "track_name": "RX, ES, Barcalona-Catalunya"
+        }
+    ],
+    "1207.19": [
+        {
+            "start_z": 180.26181030273438,
+            "track_name": "RX, SE, Holjes"
+        },
+        {
+            "start_z": 173.65447998046875,
+            "track_name": "RX, Sweden Full"
+        }
+    ],
+    "1194.23": [
+        {
+            "start_z": -133.4615936279297,
+            "track_name": "RX, AE, Yas Marina"
+        }
+    ],
+    "3601.23": [
+        {
+            "start_z": 121.67539978027344,
+            "track_name": "DirtFish"
+        }
+    ],
+    "575.17": [
+        {
+            "start_z": 96.56448364257812,
+            "track_name": "RX, England Junior"
+        }
+    ],
+    "985.95": [
+        {
+            "start_z": 125.1002197265625,
+            "track_name": "RX, Norway Clubman"
+        }
+    ],
+    "682.93": [
+        {
+            "start_z": -66.44092559814453,
+            "track_name": "RX, Sweden Junior"
+        }
+    ],
+    "989.76": [
+        {
+            "start_z": 96.58692169189453,
+            "track_name": "RX, England Clubman"
+        }
+    ],
+    "936.91": [
+        {
+            "start_z": 173.6415557861328,
+            "track_name": "RX, Sweden Clubman"
+        }
+    ],
+    "10688.09": [
+        {
+            "start_z": 0.0,
+            "track_name": "GR, Argolis, Perasma Platani"
+        }
+    ],
+    "7089.41": [
+        {
+            "start_z": 0.0,
+            "track_name": "GR, Argolis, Abies Koilada"
+        }
+    ],
+    "5393.22": [
+        {
+            "start_z": 0.0,
+            "track_name": "DE, Baumholder, Waldaufstieg"
+        }
+    ],
+    "6015.08": [
+        {
+            "start_z": 0.0,
+            "track_name": "DE, Baumholder, Waldabstieg"
+        }
+    ],
+    "6318.71": [
+        {
+            "start_z": 0.0,
+            "track_name": "DE, Baumholder, Kreuzungsring"
+        }
+    ],
+    "5685.28": [
+        {
+            "start_z": 0.0,
+            "track_name": "DE, Baumholder, Kreuzungsring reverse"
+        }
+    ],
+    "5550.86": [
+        {
+            "start_z": 0.0,
+            "track_name": "DE, Baumholder, Verbundsring reverse"
+        }
+    ],
+    "11684.17": [
+        {
+            "start_z": 0.0,
+            "track_name": "DE, Baumholder, Oberstein"
+        }
+    ],
+    "10805.24": [
+        {
+            "start_z": 0.0,
+            "track_name": "DE, Baumholder, Hammerstein"
+        }
+    ],
+    "11684.22": [
+        {
+            "start_z": 0.0,
+            "track_name": "DE, Baumholder, Frauenberg"
+        }
+    ],
+    "9831.97": [
+        {
+            "start_z": 297.6757,
+            "track_name": "MC, Monte Carlo, Col de Turini Depart"
+        }
+    ],
+    "4993.26": [
+        {
+            "start_z": 1928.69,
+            "track_name": "UK, Powys, Bidno Moorland"
+        }
+    ],
+    "5165.95": [
+        {
+            "start_z": 2470.99,
+            "track_name": "UK, Powys, Bidno Moorland Reverse"
+        }
+    ],
+    "11435.55": [
+        {
+            "start_z": 11435.6,
+            "track_name": "UK, Powys, Bronfelen"
+        }
+    ],
+    "9944.87": [
+        {
+            "start_z": 2216.373,
+            "track_name": "UK, Powys, Sweet Lamb"
+        }
+    ],
+    "10063.59": [
+        {
+            "start_z": 2470.7358,
+            "track_name": "UK, Powys, Geufron Forest"
+        }
+    ],
+    "7509.38": [
+        {
+            "start_z": 30.892242431640625,
+            "track_name": "FI, J\u00e4ms\u00e4, Kailaj\u00e4rvi"
+        }
+    ],
+    "7553.46": [
+        {
+            "start_z": 895.6185913085938,
+            "track_name": "FI, J\u00e4ms\u00e4, Paskuri"
+        }
+    ],
+    "7427.69": [
+        {
+            "start_z": 831.8955078125,
+            "track_name": "FI, J\u00e4ms\u00e4, Naaraj\u00e4rvi"
+        }
+    ],
+    "7337.36": [
+        {
+            "start_z": -208.6328125,
+            "track_name": "FI, J\u00e4ms\u00e4, Jyrkysj\u00e4rvi"
+        }
+    ],
+    "15041.48": [
+        {
+            "start_z": 30.879966735839844,
+            "track_name": "FI, J\u00e4ms\u00e4, Kontinj\u00e4rvi"
+        }
+    ],
+    "14954.68": [
+        {
+            "start_z": -208.6311798095703,
+            "track_name": "FI, J\u00e4ms\u00e4, H\u00e4melahti"
+        }
+    ],
+    "7054.83": [
+        {
+            "start_z": -1633.27197265625,
+            "track_name": "SE, V\u00e4rmland, \u00c4lgsj\u00f6n"
+        }
+    ],
+    "4911.23": [
+        {
+            "start_z": -1730.606689453125,
+            "track_name": "SE, V\u00e4rmland, \u00d6stra Hinnsj\u00f6n"
+        }
+    ],
+    "6666.28": [
+        {
+            "start_z": -2144.06689453125,
+            "track_name": "SE, V\u00e4rmland, Stor-jangen Sprint"
+        }
+    ],
+    "6692.24": [
+        {
+            "start_z": 552.0279541015625,
+            "track_name": "SE, V\u00e4rmland, Stor-jangen Sprint Reverse"
+        }
+    ],
+    "4932.34": [
+        {
+            "start_z": -5107.74365234375,
+            "track_name": "SE, V\u00e4rmland, Bj\u00f6rklangen"
+        }
+    ],
+    "11920.28": [
+        {
+            "start_z": -4330.77490234375,
+            "track_name": "SE, V\u00e4rmland, Ransbys\u00e4ter"
+        }
+    ],
+    "12122.20": [
+        {
+            "start_z": 2713.06494140625,
+            "track_name": "SE, V\u00e4rmland, Hamra"
+        }
+    ],
+    "12122.01": [
+        {
+            "start_z": -5107.564453125,
+            "track_name": "SE, V\u00e4rmland, Lysvik"
+        }
+    ],
+    "11500.72": [
+        {
+            "start_z": 552.0166625976562,
+            "track_name": "SE, V\u00e4rmland, Norraskoga"
+        }
+    ],
+    "5247.46": [
+        {
+            "start_z": -4330.759765625,
+            "track_name": "SE, V\u00e4rmland, \u00c4lgsj\u00f6n Sprint"
+        }
+    ],
+    "7057.25": [
+        {
+            "start_z": 2713.06494140625,
+            "track_name": "SE, V\u00e4rmland, Elgsj\u00f6n"
+        }
+    ],
+    "4802.46": [
+        {
+            "start_z": -2143.044677734375,
+            "track_name": "SE, V\u00e4rmland, Skogsrallyt"
+        }
+    ],
+    "19476.47": [
+        {
+            "start_z": -4701.25,
+            "track_name": "US, Pikes Peak - Full Course"
+        }
+    ],
+    "6327.69": [
+        {
+            "start_z": -4700.96,
+            "track_name": "US, Pikes Peak - Sector 1"
+        }
+    ],
+    "6456.36": [
+        {
+            "start_z": -1122.07,
+            "track_name": "US, Pikes Peak - Sector 2"
+        }
+    ],
+    "7077.20": [
+        {
+            "start_z": 1397.84,
+            "track_name": "US, Pikes Peak - Sector 3"
+        }
+    ],
+    "19476.50": [
+        {
+            "start_z": -4701.11,
+            "track_name": "US, Pikes Peak (Alt Surface) - Full Course"
+        }
+    ],
+    "6327.70": [
+        {
+            "start_z": -4700.94,
+            "track_name": "US, Pikes Peak (Alt Surface) - Sector 1"
+        }
+    ],
+    "6456.37": [
+        {
+            "start_z": -1122.23,
+            "track_name": "US, Pikes Peak (Alt Surface) - Sector 2"
+        }
+    ],
+    "7077.21": [
+        {
+            "start_z": 1397.82,
+            "track_name": "US, Pikes Peak (Alt Surface) - Sector 3"
+        }
+    ]
+}

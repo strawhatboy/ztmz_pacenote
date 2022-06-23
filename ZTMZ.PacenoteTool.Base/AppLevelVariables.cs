@@ -24,7 +24,7 @@ namespace ZTMZ.PacenoteTool.Base
 #endif
         }
 
-        public bool IsGreenVersion()
+        public bool IsPortableVersion()
         {
 #if RELEASE_PORTABLE
             return true;

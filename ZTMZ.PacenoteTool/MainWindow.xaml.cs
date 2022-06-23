@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,6 +19,7 @@ using NAudio.Wave;
 using OnlyR.Core.Models;
 using OnlyR.Core.Recorder;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Base.Game;
 using System.Globalization;
 using System.IO;
 using MaterialDesignThemes.Wpf;
@@ -49,6 +51,9 @@ namespace ZTMZ.PacenoteTool
         private string _version = UpdateManager.CurrentVersion;
 
         private SettingsWindow _settingsWindow;
+
+        private IGame _currentGame;
+        private List<IGame> _games = new();
 
 
         private RecordingConfig _recordingConfig = new RecordingConfig()
@@ -83,13 +88,14 @@ namespace ZTMZ.PacenoteTool
             this._dr2Helper = new();
             this._autoRecorder = new();
 
+            this.loadGames();
             this.initGoogleAnalytics();
             this.checkFirstRun();
             this.initHotKeys();
             //this.initializeI18N();
             this.initializeUDPReceiver();
             this.initializeComboBoxes();
-            this.checkPrerequisite();
+            this.checkPrerequisite();   // should be put into every game
             this.checkIfDevVersion();
             this.initializeGameOverlay();
             this.initializeAutoRecorder();
@@ -97,6 +103,30 @@ namespace ZTMZ.PacenoteTool
             this.initializeTheme();
 
             // this.initializeNewUI();
+        }
+
+        private void loadGames()
+        {
+            this._games.Clear();
+            foreach (var file in Directory.EnumerateFiles("./games", "*.dll")) 
+            {
+                var assembly = Assembly.LoadFile(file);
+                var games = assembly.GetTypes().Where(t => typeof(IGame).IsAssignableFrom(t)).Select(i => (IGame)i);
+                this._games.AddRange(games);
+            }
+
+            if (this._games.Count == 0) 
+            {
+                // no game ????
+                return;
+            } 
+            
+            if (Config.Instance.UI_SelectedGame < this._games.Count) 
+            {
+                // select last selected game.
+            } else {
+                // select 0 index.
+            }
         }
 
         private void initializeNewUI() {
@@ -231,6 +261,7 @@ namespace ZTMZ.PacenoteTool
         private void initializeUDPReceiver()
         {
             this._udpReceiver = new UDPReceiver();
+            this._udpReceiver.StartListening();
             this._udpReceiver.onCollisionDetected += (lvl) =>
             {
                 var worker = new BackgroundWorker();
@@ -260,13 +291,13 @@ namespace ZTMZ.PacenoteTool
                     this.tb_tracklength.Text = msg.TrackLength.ToString("0.0");
                     this.tb_progress.Text = msg.CompletionRate.ToString("0.00");
 
-                    this.tb_position_z.Text = msg.PosZ.ToString("0.0");
+                    // this.tb_position_z.Text = msg.PosZ.ToString("0.0");
 
                     this.tb_wp_fl.Text = msg.SpeedFrontLeft.ToString("0.0");
                     this.tb_wp_fr.Text = msg.SpeedFrontRight.ToString("0.0");
                     this.tb_wp_rl.Text = msg.SpeedRearLeft.ToString("0.0");
                     this.tb_wp_rr.Text = msg.SpeedRearRight.ToString("0.0");
-                    this._gameOverlayManager.UdpMessage = msg;
+                    this._gameOverlayManager.GameData = msg;
                 });
 
                 if (this._toolState == ToolState.Recording && !this._isPureAudioRecording)

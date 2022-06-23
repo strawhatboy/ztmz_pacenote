@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using Newtonsoft.Json;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -58,20 +60,34 @@ namespace ZTMZ.PacenoteTool
         public string track_name { set; get; }
     }
 
-    public class DR2Helper
+    public class DRHelper
     {
-        public Dictionary<string, List<ItineraryProperty>> ItineraryMap { set; get; }
-        public DR2Helper()
+        // not lazy, initialized when loading the assembly
+        private static DRHelper _instance = new DRHelper();
+        public static DRHelper Instance => _instance;
+        public Dictionary<string, List<ItineraryProperty>> ItineraryMap_DR1 { set; get; }
+        
+        public Dictionary<string, List<ItineraryProperty>> ItineraryMap_DR2 { set; get; }
+        public DRHelper()
         {
             // load dict from json
-            var jsonContent = File.ReadAllText(AppLevelVariables.Instance.GetPath("track_dict.json"));
-            this.ItineraryMap = JsonConvert.DeserializeObject<Dictionary<string, List<ItineraryProperty>>>(jsonContent);
+            var jsonContent = StringHelper.ReadContentFromResource("track_dict_dr1.json");
+            this.ItineraryMap_DR1 = JsonConvert.DeserializeObject<Dictionary<string, List<ItineraryProperty>>>(jsonContent);
+            var jsonContent2 = StringHelper.ReadContentFromResource("track_dict_dr2.json");
+            this.ItineraryMap_DR2 = JsonConvert.DeserializeObject<Dictionary<string, List<ItineraryProperty>>>(jsonContent);
         }
-        public string GetItinerary(string trackLength, float startZ)
+        public string GetItinerary(IGame game, string trackLength, float startZ)
         {
-            if (this.ItineraryMap.ContainsKey(trackLength))
+            Dictionary<string, List<ItineraryProperty>> itineraryMap = null;
+            if (game is DirtRally) 
             {
-                var candidates = this.ItineraryMap[trackLength];
+                itineraryMap = this.ItineraryMap_DR1;
+            } else if (game is DirtRally2) {
+                itineraryMap = this.ItineraryMap_DR2;
+            }
+            if (itineraryMap.ContainsKey(trackLength))
+            {
+                var candidates = itineraryMap[trackLength];
                 float min = float.MaxValue;
                 int minIndex = 0;
                 for (int i = 0; i < candidates.Count; i++)

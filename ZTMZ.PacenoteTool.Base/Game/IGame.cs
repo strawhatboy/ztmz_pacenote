@@ -20,7 +20,7 @@ namespace ZTMZ.PacenoteTool.Base.Game
         /// </summary>
         string Description { get; }
 
-        BitmapImage Image { set; }
+        BitmapImage Image { get; }
 
         /// <summary>
         /// Executable file name for checking the path legality
@@ -33,9 +33,9 @@ namespace ZTMZ.PacenoteTool.Base.Game
         IGamePacenoteReader GamePacenoteReader { get; }
 
         /// <summary>
-        /// UDPAnalyzer to analyze the UDP package and returns essential information
+        /// GameDataReader to analyze the UDP package or read memory to return essential information
         /// </summary>
-        IGameUDPAnalyazer GameUdpAnalyazer { get; }
+        IGameDataReader GameDataReader { get; }
 
     }
 }
