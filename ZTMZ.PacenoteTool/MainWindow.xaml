@@ -17,7 +17,7 @@
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
         Closing="Window_Closing"
-        Title="ZTMZ Club 路书工具" Height="840" Width="500" Loaded="Window_Loaded">
+        Title="ZTMZ Club 路书工具" Height="865" Width="500" Loaded="Window_Loaded">
 
     <Grid>
         <Grid.Resources>
@@ -31,7 +31,7 @@
             <RowDefinition Height="5" />
             <RowDefinition Height="200" />
             <RowDefinition Height="5" />
-            <RowDefinition Height="25" />
+            <RowDefinition Height="50" />
             <RowDefinition Height="5" />
             <RowDefinition Height="150" />
             <RowDefinition Height="5" />
@@ -147,7 +147,7 @@
                            Text="{DynamicResource ResourceKey=ui.tb_currentGame}"
                            />
                 <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_game" Grid.ColumnSpan="2"
-                      VerticalAlignment="Center"
+                      VerticalAlignment="Center" DisplayMemberPath="Name"
                           />
                 <TextBlock Grid.Row="1" Grid.Column="0" 
                            ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_currentProfile}" 

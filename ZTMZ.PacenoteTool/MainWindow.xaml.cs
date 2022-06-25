@@ -36,12 +36,10 @@ namespace ZTMZ.PacenoteTool
     {
         private HotKey _hotKeyStartRecord;
         private HotKey _hotKeyStopRecord;
-        private UDPReceiver _udpReceiver;
         private ToolState _toolState = ToolState.Replaying;
         private ProfileManager _profileManager;
         private AudioRecorder _audioRecorder;
         private GameOverlayManager _gameOverlayManager;
-        private DR2Helper _dr2Helper;
         private string _trackName;
         private string _trackFolder;
         private AutoRecorder _autoRecorder;
@@ -85,7 +83,6 @@ namespace ZTMZ.PacenoteTool
             this._profileManager = new();
             this._audioRecorder = new();
             this._gameOverlayManager = new();
-            this._dr2Helper = new();
             this._autoRecorder = new();
 
             this.loadGames();
@@ -93,13 +90,13 @@ namespace ZTMZ.PacenoteTool
             this.checkFirstRun();
             this.initHotKeys();
             //this.initializeI18N();
-            this.initializeUDPReceiver();
             this.initializeComboBoxes();
             this.checkPrerequisite();   // should be put into every game
             this.checkIfDevVersion();
             this.initializeGameOverlay();
             this.initializeAutoRecorder();
             this.applyUserConfig();
+            this.initializeUDPReceiver();
             this.initializeTheme();
 
             // this.initializeNewUI();
@@ -110,22 +107,9 @@ namespace ZTMZ.PacenoteTool
             this._games.Clear();
             foreach (var file in Directory.EnumerateFiles("./games", "*.dll")) 
             {
-                var assembly = Assembly.LoadFile(file);
-                var games = assembly.GetTypes().Where(t => typeof(IGame).IsAssignableFrom(t)).Select(i => (IGame)i);
+                var assembly = Assembly.LoadFile(System.IO.Path.GetFullPath(file));
+                var games = assembly.GetTypes().Where(t => typeof(IGame).IsAssignableFrom(t)).Select(i => (IGame)Activator.CreateInstance(i));
                 this._games.AddRange(games);
-            }
-
-            if (this._games.Count == 0) 
-            {
-                // no game ????
-                return;
-            } 
-            
-            if (Config.Instance.UI_SelectedGame < this._games.Count) 
-            {
-                // select last selected game.
-            } else {
-                // select 0 index.
             }
         }
 
@@ -213,12 +197,12 @@ namespace ZTMZ.PacenoteTool
                 {
                     //this.Dispatcher.Invoke(() => { this.tb_time.Text = "start"; });
 
-                    if (this._udpReceiver.GameState == GameState.Paused ||
-                        this._udpReceiver.GameState == GameState.Racing)
+                    if (this._currentGame.GameDataReader.GameState == GameState.Paused ||
+                        this._currentGame.GameDataReader.GameState == GameState.Racing)
                     {
                         this._recordingConfig.DestFilePath =
                             string.Format("{0}/{1}.mp3", this._trackFolder,
-                                (int)this._udpReceiver.LastMessage.LapDistance);
+                                (int)this._currentGame.GameDataReader.LastGameData.LapDistance);
                         this._recordingConfig.RecordingDate = DateTime.Now;
                         this._audioRecorder.Start(this._recordingConfig);
                         this._isRecordingInProgress = true;
@@ -260,27 +244,33 @@ namespace ZTMZ.PacenoteTool
 
         private void initializeUDPReceiver()
         {
-            this._udpReceiver = new UDPReceiver();
-            this._udpReceiver.StartListening();
-            this._udpReceiver.onCollisionDetected += (lvl) =>
+            this._currentGame.GameDataReader.onCarDamaged += (evt) => 
             {
                 var worker = new BackgroundWorker();
-                worker.DoWork += (sender, e) =>
+                switch (evt.DamageType) 
                 {
-                    this._profileManager.PlaySystem(Constants.SYSTEM_COLLISION[lvl]);
-                };
-                worker.RunWorkerAsync();
+                    case CarDamage.Collision:
+                        var lvl = (int)evt.Parameters[CarDamageConstants.SEVERITY];
+                        worker.DoWork += (sender, e) =>
+                        {
+                            this._profileManager.PlaySystem(Constants.SYSTEM_COLLISION[lvl]);
+                        };
+                        worker.RunWorkerAsync();
+                        break;
+                    case CarDamage.Wheel:
+                        var wheelIndex = (int)evt.Parameters[CarDamageConstants.WHEELINDEX];
+                        worker.DoWork += (sender, e) =>
+                        {
+                            this._profileManager.PlaySystem(Constants.SYSTEM_PUNCTURE[wheelIndex]);
+                        };
+                        worker.RunWorkerAsync();
+                        break;
+                    default:
+                        break;
+                }
             };
-            this._udpReceiver.onWheelAbnormalDetected += wheelIndex =>
-            {
-                var worker = new BackgroundWorker();
-                worker.DoWork += (sender, e) =>
-                {
-                    this._profileManager.PlaySystem(Constants.SYSTEM_PUNCTURE[wheelIndex]);
-                };
-                worker.RunWorkerAsync();
-            };
-            this._udpReceiver.onNewMessage += msg =>
+
+            this._currentGame.GameDataReader.onNewGameData += (oldData, msg) =>
             {
                 this.Dispatcher.Invoke(() =>
                 {
@@ -359,11 +349,13 @@ namespace ZTMZ.PacenoteTool
                 worker.RunWorkerAsync();
             };
 
-            this._udpReceiver.onGameStateChanged += this.gamestateChangedHandler;
+            this._currentGame.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
         }
 
-        private void gamestateChangedHandler(GameState lastState, GameState state)
+        private void gamestateChangedHandler(GameStateChangeEvent evt)
         {
+            var lastState = evt.LastGameState;
+            var state = evt.NewGameState;
             this.Dispatcher.Invoke(() => { this.tb_gamestate.Text = state.ToString(); });
             switch (state)
             {
@@ -420,11 +412,8 @@ namespace ZTMZ.PacenoteTool
                     {
                         GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
                     }
-                    this._udpReceiver.ResetWheelStatus();
-                    this._trackName = this._dr2Helper.GetItinerary(
-                        this._udpReceiver.LastMessage.TrackLength.ToString("f2", CultureInfo.InvariantCulture),
-                        this._udpReceiver.LastMessage.PosZ
-                    );
+                    // this._udpReceiver.ResetWheelStatus();
+                    this._trackName = this._currentGame.GameDataReader.TrackName;
                     this.Dispatcher.Invoke(() =>
                     {
                         this.tb_currentTrack.Text = this._trackName;
@@ -570,6 +559,10 @@ namespace ZTMZ.PacenoteTool
                 this.cb_replay_device.Items.Add(WOC.ProductName);
             }
 
+            for (int i = 0; i < this._games.Count; i++) {
+                this.cb_game.Items.Add(this._games[i]);
+            }
+
 
             // if there's no recording device, would throw exception...
             if (this._recordingDevices.Count() > 0)
@@ -656,7 +649,7 @@ namespace ZTMZ.PacenoteTool
                         }
                     }
                     Config.Instance.SaveUserConfig();
-                    GameHacker.HackDLLs(Config.Instance.DirtGamePath);
+                    // GameHacker.HackDLLs(Config.Instance.DirtGamePath);
                 }
             }
             else 
@@ -730,6 +723,7 @@ namespace ZTMZ.PacenoteTool
             this.cb_profile.SelectionChanged += this.cb_profile_SelectionChanged;
             this.cb_codrivers.SelectionChanged += this.cb_codrivers_SelectionChanged;
             this.cb_replay_device.SelectionChanged += this.cb_replay_device_SelectionChanged;
+            this.cb_game.SelectionChanged += this.cb_game_SelectionChanged;
 
             if (Config.Instance.UI_SelectedProfile < this.cb_profile.Items.Count)
             {
@@ -744,6 +738,12 @@ namespace ZTMZ.PacenoteTool
             if (Config.Instance.UI_SelectedPlaybackDevice < this.cb_replay_device.Items.Count)
             {
                 this.cb_replay_device.SelectedIndex = Config.Instance.UI_SelectedPlaybackDevice;
+            }
+            
+            if (Config.Instance.UI_SelectedGame < this._games.Count) 
+            {
+                // select last selected game.
+                this.cb_game.SelectedIndex = Config.Instance.UI_SelectedGame;
             }
 
             this.chk_Hud.IsChecked = Config.Instance.UI_ShowHud;
@@ -760,6 +760,11 @@ namespace ZTMZ.PacenoteTool
             this.s_volume.Value = Config.Instance.UI_PlaybackVolume;
         }
 
+        private void cb_game_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this._currentGame = this.cb_game.SelectedItem as IGame;
+        }
+
         private void initializeTheme()
         {
             var paletteHelper = new PaletteHelper();
@@ -772,7 +777,7 @@ namespace ZTMZ.PacenoteTool
 
         private void Ck_record_OnChecked(object sender, RoutedEventArgs e)
         {
-            if (this._udpReceiver.GameState == GameState.Unknown)
+            if (this._currentGame.GameDataReader.GameState == GameState.Unknown)
             {
                 if (this._toolState == ToolState.Replaying)
                 {
@@ -816,7 +821,7 @@ namespace ZTMZ.PacenoteTool
 
         private void Ck_replay_OnChecked(object sender, RoutedEventArgs e)
         {
-            if (this._udpReceiver.GameState == GameState.Unknown)
+            if (this._currentGame.GameDataReader.GameState == GameState.Unknown)
             {
                 if (this._toolState == ToolState.Recording)
                 {
@@ -1069,14 +1074,14 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 _settingsWindow = new SettingsWindow();
                 _settingsWindow.PortChanged += () =>
                 {
-                    BackgroundWorker bgw = new BackgroundWorker();
-                    bgw.DoWork += (s, e) =>
-                    {
-                        this._udpReceiver.StopListening();
-                        Thread.Sleep(2800);
-                        this._udpReceiver.StartListening();
-                    };
-                    bgw.RunWorkerAsync();
+                    // BackgroundWorker bgw = new BackgroundWorker();
+                    // bgw.DoWork += (s, e) =>
+                    // {
+                    //     this._udpReceiver.StopListening();
+                    //     Thread.Sleep(2800);
+                    //     this._udpReceiver.StartListening();
+                    // };
+                    // bgw.RunWorkerAsync();
                 };
                 
                 

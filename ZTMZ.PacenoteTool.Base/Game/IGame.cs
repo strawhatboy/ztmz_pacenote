@@ -1,5 +1,7 @@
 
 
+using System;
+using System.Collections.Generic;
 using System.Windows.Media.Imaging;
 namespace ZTMZ.PacenoteTool.Base.Game
 {
@@ -36,6 +38,9 @@ namespace ZTMZ.PacenoteTool.Base.Game
         /// GameDataReader to analyze the UDP package or read memory to return essential information
         /// </summary>
         IGameDataReader GameDataReader { get; }
+
+        Dictionary<string, IGameConfig> GameConfigurations { get; }
+
 
     }
 }

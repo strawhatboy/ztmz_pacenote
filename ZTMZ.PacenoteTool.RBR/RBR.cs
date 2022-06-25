@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows.Media.Imaging;
 using ZTMZ.PacenoteTool.Base.Game;
 
@@ -21,5 +22,7 @@ namespace ZTMZ.PacenoteTool.RBR
         public IGameDataReader GameDataReader => throw new NotImplementedException();
 
         BitmapImage IGame.Image => throw new NotImplementedException();
+
+        Dictionary<string, IGameConfig> IGame.GameConfigurations => new();
     }
 }

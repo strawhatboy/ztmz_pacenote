@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows.Media.Imaging;
 using ZTMZ.PacenoteTool.Base.Game;
 
@@ -16,9 +17,14 @@ namespace ZTMZ.PacenoteTool.Codemasters
 
         public IGamePacenoteReader GamePacenoteReader => new BasePacenoteReader();
 
-        public IGameDataReader GameDataReader { set; get; }
+        public IGameDataReader GameDataReader { set; get; } = new DirtGameDataReader();
         
         public BitmapImage Image => new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/dirtrally.jpg"));
+        
+        public Dictionary<string, IGameConfig> GameConfigurations => new Dictionary<string, IGameConfig>() 
+        {
+            { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback, Port = 20777 } } 
+        };
 
         public DirtRally()
         {
