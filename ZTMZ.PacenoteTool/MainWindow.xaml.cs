@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Original UI, can be used as a "ViewModel" of the new UI
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -53,6 +55,8 @@ namespace ZTMZ.PacenoteTool
         private IGame _currentGame;
         private List<IGame> _games = new();
 
+        private ProcessWatcher _processWatcher;
+
 
         private RecordingConfig _recordingConfig = new RecordingConfig()
         {
@@ -96,10 +100,49 @@ namespace ZTMZ.PacenoteTool
             this.initializeGameOverlay();
             this.initializeAutoRecorder();
             this.applyUserConfig();
-            this.initializeUDPReceiver();
+            this.initializeGames();
             this.initializeTheme();
+            this.initializeProcessWatcher();
 
             // this.initializeNewUI();
+        }
+
+        private void initializeProcessWatcher()
+        {
+            _processWatcher = new ProcessWatcher((pName, pPath) => {
+                // new process
+                var g = _games.FirstOrDefault(g => g.Executable.ToLower().Equals(pName));
+                if (g == null)
+                    return;
+
+                g.IsRunning = true;
+                if (_currentGame.Name.Equals(g.Name))
+                {
+                    //TODO: turn on the light, current game is running.
+                    //TODO: start game data pulling
+                    initializeGame(_currentGame);
+                }
+            }, (pName, pPath) => {
+                var g = _games.FirstOrDefault(g => g.Executable.ToLower().Equals(pName));
+                if (g == null)
+                    return;
+
+                g.IsRunning = false;
+                if (_currentGame.Name.Equals(g.Name))
+                {
+                    //TODO: turn off the light, current game is exiting.
+                    uninitializeGame(_currentGame);
+                }
+            });
+
+            // watch games starting
+            foreach (var game in _games) 
+            {
+                _processWatcher.AddToWatch(game.Executable);
+            }
+
+            // start the watch (threads started)
+            _processWatcher.StartWatching();
         }
 
         private void loadGames()
@@ -107,7 +150,7 @@ namespace ZTMZ.PacenoteTool
             this._games.Clear();
             foreach (var file in Directory.EnumerateFiles("./games", "*.dll")) 
             {
-                var assembly = Assembly.LoadFile(System.IO.Path.GetFullPath(file));
+                var assembly = Assembly.LoadFrom(System.IO.Path.GetFullPath(file));
                 var games = assembly.GetTypes().Where(t => typeof(IGame).IsAssignableFrom(t)).Select(i => (IGame)Activator.CreateInstance(i));
                 this._games.AddRange(games);
             }
@@ -242,114 +285,135 @@ namespace ZTMZ.PacenoteTool
             this._hotKeyStopRecord?.Unregister();
         }
 
-        private void initializeUDPReceiver()
+        private void carDamagedEventHandler(CarDamageEvent evt)
         {
-            this._currentGame.GameDataReader.onCarDamaged += (evt) => 
+            var worker = new BackgroundWorker();
+            switch (evt.DamageType) 
             {
-                var worker = new BackgroundWorker();
-                switch (evt.DamageType) 
-                {
-                    case CarDamage.Collision:
-                        var lvl = (int)evt.Parameters[CarDamageConstants.SEVERITY];
-                        worker.DoWork += (sender, e) =>
-                        {
-                            this._profileManager.PlaySystem(Constants.SYSTEM_COLLISION[lvl]);
-                        };
-                        worker.RunWorkerAsync();
-                        break;
-                    case CarDamage.Wheel:
-                        var wheelIndex = (int)evt.Parameters[CarDamageConstants.WHEELINDEX];
-                        worker.DoWork += (sender, e) =>
-                        {
-                            this._profileManager.PlaySystem(Constants.SYSTEM_PUNCTURE[wheelIndex]);
-                        };
-                        worker.RunWorkerAsync();
-                        break;
-                    default:
-                        break;
-                }
-            };
-
-            this._currentGame.GameDataReader.onNewGameData += (oldData, msg) =>
-            {
-                this.Dispatcher.Invoke(() =>
-                {
-                    this.tb_time.Text = msg.Time.ToString("0.0");
-                    this.tb_distance.Text = msg.LapDistance.ToString("0.0");
-                    this.tb_speed.Text = msg.Speed.ToString("0.0");
-                    this.tb_laptime.Text = msg.LapTime.ToString("0.0");
-                    this.tb_tracklength.Text = msg.TrackLength.ToString("0.0");
-                    this.tb_progress.Text = msg.CompletionRate.ToString("0.00");
-
-                    // this.tb_position_z.Text = msg.PosZ.ToString("0.0");
-
-                    this.tb_wp_fl.Text = msg.SpeedFrontLeft.ToString("0.0");
-                    this.tb_wp_fr.Text = msg.SpeedFrontRight.ToString("0.0");
-                    this.tb_wp_rl.Text = msg.SpeedRearLeft.ToString("0.0");
-                    this.tb_wp_rr.Text = msg.SpeedRearRight.ToString("0.0");
-                    this._gameOverlayManager.GameData = msg;
-                });
-
-                if (this._toolState == ToolState.Recording && !this._isPureAudioRecording)
-                {
-                    this._autoRecorder.Distance = (int)msg.LapDistance;
-                    return;
-                }
-
-                var worker = new BackgroundWorker();
-                worker.DoWork += (sender, e) =>
-                {
-
-                    // play in threads.
-                    // play sound (maybe state not changed and audio files not loaded.)
-                    if (this._profileManager.CurrentAudioFile != null)
+                case CarDamage.Collision:
+                    var lvl = (int)evt.Parameters[CarDamageConstants.SEVERITY];
+                    worker.DoWork += (sender, e) =>
                     {
-                        var spdMperS = msg.Speed / 3.6f;
-                        var playPoint = this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust;
-                        var currentPoint = msg.LapDistance +
-                                           spdMperS * (0 - this._scriptTiming);
+                        this._profileManager.PlaySystem(Constants.SYSTEM_COLLISION[lvl]);
+                    };
+                    worker.RunWorkerAsync();
+                    break;
+                case CarDamage.Wheel:
+                    var wheelIndex = (int)evt.Parameters[CarDamageConstants.WHEELINDEX];
+                    worker.DoWork += (sender, e) =>
+                    {
+                        this._profileManager.PlaySystem(Constants.SYSTEM_PUNCTURE[wheelIndex]);
+                    };
+                    worker.RunWorkerAsync();
+                    break;
+                default:
+                    break;
+            }
+        }
 
-                        if (this._selectReplayMode != 0 &&
-                            this._profileManager.CurrentScriptReader != null &&
-                            this._profileManager.CurrentScriptReader.IsDynamic)
-                        {
-                            currentPoint += spdMperS * Config.Instance.ScriptMode_PlaySecondsAdvanced;
-                        }
+        private void newGameDataEventHander(GameData oldData, GameData msg)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                this.tb_time.Text = msg.Time.ToString("0.0");
+                this.tb_distance.Text = msg.LapDistance.ToString("0.0");
+                this.tb_speed.Text = msg.Speed.ToString("0.0");
+                this.tb_laptime.Text = msg.LapTime.ToString("0.0");
+                this.tb_tracklength.Text = msg.TrackLength.ToString("0.0");
+                this.tb_progress.Text = msg.CompletionRate.ToString("0.00");
 
-                        if (currentPoint >= playPoint)
-                        {
-                            // set spd to 1.0
-                            this._profileManager.CurrentPlaySpeed = 1.0f;
-                            // can play
-                            if (Config.Instance.UseDynamicPlaybackSpeed && this._profileManager.NextAudioFile != null)
-                            {
-                                var nextPlayPoint = this._profileManager.NextAudioFile.Distance + this._playpointAdjust;
-                                var diff = currentPoint +
-                                           spdMperS * this._profileManager.CurrentAudioFile.Sound.Duration /
-                                           this._playbackSpd
-                                           - nextPlayPoint;
-                                if (diff >= 0 && (nextPlayPoint - currentPoint) > 0)
-                                {
-                                    this._profileManager.CurrentPlaySpeed =
-                                        (this._profileManager.CurrentAudioFile.Sound.Duration / this._playbackSpd)
-                                        / ((float)(nextPlayPoint - currentPoint) / spdMperS);
-                                }
-                            }
+                // this.tb_position_z.Text = msg.PosZ.ToString("0.0");
 
-                            this._profileManager.CurrentPlaySpeed *= this._playbackSpd;
+                this.tb_wp_fl.Text = msg.SpeedFrontLeft.ToString("0.0");
+                this.tb_wp_fr.Text = msg.SpeedFrontRight.ToString("0.0");
+                this.tb_wp_rl.Text = msg.SpeedRearLeft.ToString("0.0");
+                this.tb_wp_rr.Text = msg.SpeedRearRight.ToString("0.0");
+                this._gameOverlayManager.GameData = msg;
+            });
 
-                            if (Config.Instance.UseDynamicVolume)
-                            {// more speed, more tension
-                                this._profileManager.CurrentTension = msg.Speed / 200f;
-                            }
-                            this._profileManager.Play();
-                        }
+            if (this._toolState == ToolState.Recording && !this._isPureAudioRecording)
+            {
+                this._autoRecorder.Distance = (int)msg.LapDistance;
+                return;
+            }
+
+            var worker = new BackgroundWorker();
+            worker.DoWork += (sender, e) =>
+            {
+
+                // play in threads.
+                // play sound (maybe state not changed and audio files not loaded.)
+                if (this._profileManager.CurrentAudioFile != null)
+                {
+                    var spdMperS = msg.Speed / 3.6f;
+                    var playPoint = this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust;
+                    var currentPoint = msg.LapDistance +
+                                        spdMperS * (0 - this._scriptTiming);
+
+                    if (this._selectReplayMode != 0 &&
+                        this._profileManager.CurrentScriptReader != null &&
+                        this._profileManager.CurrentScriptReader.IsDynamic)
+                    {
+                        currentPoint += spdMperS * Config.Instance.ScriptMode_PlaySecondsAdvanced;
                     }
-                };
-                worker.RunWorkerAsync();
-            };
 
-            this._currentGame.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
+                    if (currentPoint >= playPoint)
+                    {
+                        // set spd to 1.0
+                        this._profileManager.CurrentPlaySpeed = 1.0f;
+                        // can play
+                        if (Config.Instance.UseDynamicPlaybackSpeed && this._profileManager.NextAudioFile != null)
+                        {
+                            var nextPlayPoint = this._profileManager.NextAudioFile.Distance + this._playpointAdjust;
+                            var diff = currentPoint +
+                                        spdMperS * this._profileManager.CurrentAudioFile.Sound.Duration /
+                                        this._playbackSpd
+                                        - nextPlayPoint;
+                            if (diff >= 0 && (nextPlayPoint - currentPoint) > 0)
+                            {
+                                this._profileManager.CurrentPlaySpeed =
+                                    (this._profileManager.CurrentAudioFile.Sound.Duration / this._playbackSpd)
+                                    / ((float)(nextPlayPoint - currentPoint) / spdMperS);
+                            }
+                        }
+
+                        this._profileManager.CurrentPlaySpeed *= this._playbackSpd;
+
+                        if (Config.Instance.UseDynamicVolume)
+                        {// more speed, more tension
+                            this._profileManager.CurrentTension = msg.Speed / 200f;
+                        }
+                        this._profileManager.Play();
+                    }
+                }
+            };
+            worker.RunWorkerAsync();
+        }
+
+        private void initializeGame(IGame game) 
+        {
+            if (game == null)
+                return;
+
+            game.GameDataReader.onCarDamaged += carDamagedEventHandler;
+            game.GameDataReader.onNewGameData += newGameDataEventHander;
+            game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
+            game.GameDataReader.Initialize(game);
+        }
+
+        private void uninitializeGame(IGame game)
+        {
+            if (game == null)
+                return;
+
+            game.GameDataReader.onCarDamaged -= carDamagedEventHandler;
+            game.GameDataReader.onNewGameData -= newGameDataEventHander;
+            game.GameDataReader.onGameStateChanged -= this.gamestateChangedHandler;
+            game.GameDataReader.Uninitialize(game);
+        }
+        private void initializeGames()
+        {
+            
         }
 
         private void gamestateChangedHandler(GameStateChangeEvent evt)
@@ -762,7 +826,13 @@ namespace ZTMZ.PacenoteTool
 
         private void cb_game_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            uninitializeGame(_currentGame);
             this._currentGame = this.cb_game.SelectedItem as IGame;
+
+            // TODO: wait for seconds?
+            initializeGame(_currentGame);
+            Config.Instance.UI_SelectedGame = this.cb_game.SelectedIndex;
+            Config.Instance.SaveUserConfig();
         }
 
         private void initializeTheme()

@@ -22,7 +22,7 @@ namespace ZTMZ.PacenoteTool
         public IPEndPoint e;
     }
 
-    public class UdpReceiver
+    public class UdpReceiver : IDisposable
     {
         private UdpClient client;
         private IPEndPoint any;
@@ -139,8 +139,6 @@ namespace ZTMZ.PacenoteTool
         {
             try
             {
-
-
                 if (result.AsyncState == null && !this.isRunning)
                 {
                     return;
@@ -175,6 +173,13 @@ namespace ZTMZ.PacenoteTool
                 }
                 throw;
             }
+        }
+
+        public void Dispose()
+        {
+            this.StopListening();
+            if (client != null)
+                client.Dispose();
         }
     }
 }

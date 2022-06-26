@@ -70,8 +70,10 @@ namespace ZTMZ.PacenoteTool.Codemasters
         public DRHelper()
         {
             // load dict from json
+            // File.ReadAllText(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/track_dict_dr1.json").LocalPath);
             var jsonContent = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "track_dict_dr1.json");
             this.ItineraryMap_DR1 = JsonConvert.DeserializeObject<Dictionary<string, List<ItineraryProperty>>>(jsonContent);
+            // File.ReadAllText(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/track_dict_dr2.json").LocalPath);
             var jsonContent2 = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "track_dict_dr2.json");
             this.ItineraryMap_DR2 = JsonConvert.DeserializeObject<Dictionary<string, List<ItineraryProperty>>>(jsonContent);
         }

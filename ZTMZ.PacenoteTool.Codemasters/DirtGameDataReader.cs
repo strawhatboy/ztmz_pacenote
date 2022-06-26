@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 
@@ -16,13 +17,13 @@ public class DirtGameDataReader : UdpGameDataReader
         {
             var lastGameState = this._gameState;
             this._gameState = value;
-            this.onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState });
+            this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState });
         }
         get => this._gameState;
     }
 
     public override GameData LastGameData { get => _lastGameData; set => _lastGameData = value; }
-    public override string TrackName => DRHelper.Instance.GetItinerary(_game, _lastRawData.TrackLength.ToString(".2f"), _lastRawData.PosZ );
+    public override string TrackName => DRHelper.Instance.GetItinerary(_game, _currentRawData.TrackLength.ToString("f2", CultureInfo.InvariantCulture), _currentRawData.PosZ );
 
     public GameState _gameState;
     private GameData _lastGameData;
@@ -32,9 +33,28 @@ public class DirtGameDataReader : UdpGameDataReader
     private GameData _currentGameData;
     private DirtRawData _currentRawData;
 
-    public override event Action<GameData, GameData> onNewGameData;
-    public override event Action<GameStateChangeEvent> onGameStateChanged;
-    public override event Action<CarDamageEvent> onCarDamaged;
+    private event Action<GameData, GameData> _onNewGameData;
+
+    public override event Action<GameData, GameData> onNewGameData
+    {
+        add 
+        {
+            _onNewGameData += value;
+        }
+        remove { _onNewGameData -= value; }
+    }
+    private event Action<GameStateChangeEvent> _onGameStateChanged;
+    public override event Action<GameStateChangeEvent> onGameStateChanged
+    {
+        add { _onGameStateChanged += value; }
+        remove { _onGameStateChanged -= value; }
+    }
+    private event Action<CarDamageEvent> _onCarDamaged;
+    public override event Action<CarDamageEvent> onCarDamaged
+    {
+        add { _onCarDamaged += value; }
+        remove { _onCarDamaged -= value; }
+    }
 
     public override void onNewUdpMessage(byte[] lastMsg, byte[] newMsg)
     {
@@ -105,7 +125,7 @@ public class DirtGameDataReader : UdpGameDataReader
 
         var newGameData = RawData2GameData(message);
 
-        onNewGameData?.Invoke(_lastGameData, newGameData);
+        _onNewGameData?.Invoke(_lastGameData, newGameData);
         _currentGameData = newGameData;
 
         if (!newGameData.Equals(this._lastGameData))
@@ -124,7 +144,7 @@ public class DirtGameDataReader : UdpGameDataReader
                     
                 if (severity != -1) 
                 {
-                    onCarDamaged?.Invoke(new CarDamageEvent
+                    _onCarDamaged?.Invoke(new CarDamageEvent
                     {
                         DamageType = CarDamage.Collision,
                         Parameters = new Dictionary<string, object> { { CarDamageConstants.SEVERITY, severity } }

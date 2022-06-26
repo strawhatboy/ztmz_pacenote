@@ -41,6 +41,6 @@ namespace ZTMZ.PacenoteTool.Base.Game
 
         Dictionary<string, IGameConfig> GameConfigurations { get; }
 
-
+        bool IsRunning { set; get; }
     }
 }

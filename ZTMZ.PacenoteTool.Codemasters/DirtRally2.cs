@@ -14,11 +14,11 @@ namespace ZTMZ.PacenoteTool.Codemasters
 
         public string Description => "";
 
-        public string Executable => "dirtrally2";
+        public string Executable => "dirtrally2.exe";
 
-        public IGamePacenoteReader GamePacenoteReader => new BasePacenoteReader();
+        public IGamePacenoteReader GamePacenoteReader { get; } = new BasePacenoteReader();
 
-        public IGameDataReader GameDataReader => new DirtGameDataReader();
+        public IGameDataReader GameDataReader { get; } = new DirtGameDataReader();
 
         public BitmapImage Image => new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/dirtrally2.jpg"));
         
@@ -26,6 +26,8 @@ namespace ZTMZ.PacenoteTool.Codemasters
         {
             { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback, Port = 20777 } } 
         };
+
+        public bool IsRunning { get; set; }
 
         public DirtRally2()
         {

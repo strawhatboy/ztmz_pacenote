@@ -13,9 +13,8 @@ namespace ZTMZ.PacenoteTool.Codemasters
 
         public string Description => "";
 
-        public string Executable => "dirtrally";
-
-        public IGamePacenoteReader GamePacenoteReader => new BasePacenoteReader();
+        public string Executable => "dirtrally.exe";
+        public IGamePacenoteReader GamePacenoteReader {get;} = new BasePacenoteReader();
 
         public IGameDataReader GameDataReader { set; get; } = new DirtGameDataReader();
         
@@ -25,6 +24,8 @@ namespace ZTMZ.PacenoteTool.Codemasters
         {
             { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback, Port = 20777 } } 
         };
+
+        public bool IsRunning { get; set; }
 
         public DirtRally()
         {

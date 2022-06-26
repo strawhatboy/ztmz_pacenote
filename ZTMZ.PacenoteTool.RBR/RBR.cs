@@ -1,3 +1,6 @@
+
+// HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Rallysimfans RBR\[InstallPath]
+
 using System;
 using System.Collections.Generic;
 using System.Windows.Media.Imaging;
@@ -9,7 +12,7 @@ namespace ZTMZ.PacenoteTool.RBR
     {
         public string WindowTitle => "";
 
-        public string Name => "Richard Burns Rally (NGP6)";
+        public string Name => "Richard Burns Rally - NGP6";
 
         public string Description => "The most classic rally simulation game";
 
@@ -20,6 +23,8 @@ namespace ZTMZ.PacenoteTool.RBR
         public IGamePacenoteReader GamePacenoteReader => throw new NotImplementedException();
 
         public IGameDataReader GameDataReader => throw new NotImplementedException();
+
+        public bool IsRunning { get; set; }
 
         BitmapImage IGame.Image => throw new NotImplementedException();
 

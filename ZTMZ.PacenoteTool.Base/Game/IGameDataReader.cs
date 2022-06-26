@@ -16,5 +16,6 @@ namespace ZTMZ.PacenoteTool.Base.Game
         event Action<CarDamageEvent> onCarDamaged;
 
         void Initialize(IGame game);
+        void Uninitialize(IGame game);
     }
 }

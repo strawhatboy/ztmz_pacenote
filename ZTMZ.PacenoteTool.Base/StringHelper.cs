@@ -34,10 +34,21 @@ public static class StringHelper
 
     public static string ReadContentFromResource(Assembly asm, string resourceName)
     {
-        using (Stream stream = asm.GetManifestResourceStream(resourceName))
-        using (StreamReader reader = new StreamReader(stream))
+        var resName = asm.GetName().Name + ".g.resources";
+        using (var stream = asm.GetManifestResourceStream(resName))
+        using (var reader = new System.Resources.ResourceReader(stream))
         {
-            string result = reader.ReadToEnd();
+            byte[] data;
+            string resType;
+            reader.GetResourceData(resourceName, out resType, out data);
+            var result = System.Text.Encoding.UTF8.GetString(data);
+            var strStopCharIndex = result.LastIndexOf('\0');
+            if (strStopCharIndex < result.Length - 1) 
+            {
+                result = result.Substring(strStopCharIndex + 1);
+                return result;
+            }
+
             return result;
         }
     }

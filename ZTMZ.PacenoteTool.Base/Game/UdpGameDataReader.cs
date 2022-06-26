@@ -3,13 +3,13 @@ using System.Diagnostics;
 
 namespace ZTMZ.PacenoteTool.Base.Game;
 
-public abstract class UdpGameDataReader : IGameDataReader
+public abstract class UdpGameDataReader : IGameDataReader, IDisposable
 {
     protected IGame _game;
-    public abstract event Action<GameData, GameData> onNewGameData;
+    public virtual event Action<GameData, GameData> onNewGameData;
     public event Action<bool> onGameDataAvailabilityChanged;
-    public abstract event Action<GameStateChangeEvent> onGameStateChanged;
-    public abstract event Action<CarDamageEvent> onCarDamaged;
+    public virtual event Action<GameStateChangeEvent> onGameStateChanged;
+    public virtual event Action<CarDamageEvent> onCarDamaged;
 
     private UdpReceiver _udpReceiver;
 
@@ -36,4 +36,20 @@ public abstract class UdpGameDataReader : IGameDataReader
     }
 
     public abstract void onNewUdpMessage(byte[] oldMsg, byte[] newMsg);
+
+    public void Uninitialize(IGame game)
+    {
+        if (_udpReceiver == null)
+            return;
+
+        _udpReceiver.StopListening();
+        _udpReceiver.Dispose();
+        _udpReceiver = null;
+    }
+
+    public void Dispose()
+    {
+        if (_udpReceiver != null)
+            _udpReceiver.Dispose();
+    }
 }
