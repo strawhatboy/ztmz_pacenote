@@ -18,9 +18,9 @@ namespace ZTMZ.PacenoteTool.Codemasters
 
         public IGameDataReader GameDataReader { set; get; } = new DirtGameDataReader();
         
-        public BitmapImage Image => new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/dirtrally.jpg"));
+        public BitmapImage Image { get; } = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/dirtrally.jpg"));
         
-        public Dictionary<string, IGameConfig> GameConfigurations => new Dictionary<string, IGameConfig>() 
+        public Dictionary<string, IGameConfig> GameConfigurations { get; } = new Dictionary<string, IGameConfig>() 
         {
             { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback, Port = 20777 } } 
         };

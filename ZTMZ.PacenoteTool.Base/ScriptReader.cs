@@ -124,6 +124,7 @@ namespace ZTMZ.PacenoteTool.Base
             return reader;
         }
 
+        // CrewChief pacenote is actually the same as RBR pacenote
         public static ScriptReader ReadFromJson(string jsonFile)
         {
             var content = File.ReadAllText(jsonFile);

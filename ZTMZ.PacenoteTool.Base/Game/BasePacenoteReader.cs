@@ -11,12 +11,19 @@ namespace ZTMZ.PacenoteTool.Base.Game
             return script.PacenoteRecords;
         }
 
-        public string GetScriptFile(string profile, IGame game, string track)
+        public string GetScriptFile(string profile, IGame game, string track, bool fallbackToDefault = true)
         {
             string filePath = AppLevelVariables.Instance.GetPath(string.Format("profiles\\{0}\\{1}\\{2}.pacenote", profile, game.Name, track));
             if (!File.Exists(filePath))
             {
-                File.WriteAllText(filePath, "");
+                if (fallbackToDefault) 
+                {
+                    // when replaying, if not exist, create new
+                    return GetScriptFile(Constants.DEFAULT_PROFILE, game, track, false);
+                } else {
+                    // when recording
+                    File.WriteAllText(filePath, "");
+                }
             }
 
             return filePath;
