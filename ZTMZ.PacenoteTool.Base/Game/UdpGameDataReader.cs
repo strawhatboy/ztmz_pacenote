@@ -15,6 +15,8 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
 
     private UdpReceiver _udpReceiver;
 
+    private bool isInitialized = false;
+
     public abstract GameState GameState { get; set; }
     public abstract GameData LastGameData { get; set; }
     public abstract string TrackName { get; }
@@ -24,6 +26,8 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
 
     public void Initialize(IGame game)
     {
+        if (isInitialized) 
+            return;
         _game = game;
         Debug.Assert(game.GameConfigurations.ContainsKey(UdpGameConfig.Name));
 
@@ -73,18 +77,23 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
             }
         };
         this._timer.Start();
+        isInitialized = true;
     }
 
     public abstract void onNewUdpMessage(byte[] oldMsg, byte[] newMsg);
 
     public void Uninitialize(IGame game)
     {
+        if (!isInitialized)
+            return;
+
         if (_udpReceiver == null)
             return;
 
         _udpReceiver.StopListening();
         _udpReceiver.Dispose();
         _udpReceiver = null;
+        isInitialized = false;
     }
 
     public void Dispose()

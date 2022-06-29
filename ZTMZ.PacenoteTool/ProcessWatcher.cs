@@ -42,9 +42,9 @@ class ProcessWatcher : IDisposable
         {
             foreach (var wp in WatchingProcesses) 
             {
-                if (p.ProcessName.ToLower().Contains(wp))
+                if (wp.Contains(p.ProcessName.ToLower()))
                 {
-                    onNewProcess?.Invoke(p.ProcessName.ToLower(), p.StartInfo.FileName);
+                    onNewProcess?.Invoke(wp, null);
                 }
             }
         }

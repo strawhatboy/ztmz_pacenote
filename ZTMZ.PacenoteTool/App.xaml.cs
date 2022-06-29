@@ -19,7 +19,7 @@ namespace ZTMZ.PacenoteTool
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            SetupExceptionHandling();
+            // SetupExceptionHandling();
             initializeI18N();
         }
 

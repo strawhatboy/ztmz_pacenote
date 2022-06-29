@@ -152,7 +152,7 @@ Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\codrivers\*"; DestDir: "{u
 Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\profiles\*"; DestDir: "{userdocs}\My Games\ZTMZClub\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\lang\*"; DestDir: "{userdocs}\My Games\ZTMZClub\lang"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\games\*"; Excludes:"*.json"; DestDir: "{app}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\games\*.json"; DestDir: "{userdocs}\My Games\ZTMZClub\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\games\*.json"; Excludes:"*.deps.json"; DestDir: "{userdocs}\My Games\ZTMZClub\games"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 

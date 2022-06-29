@@ -28,6 +28,7 @@ using MaterialDesignThemes.Wpf;
 using System.Threading;
 using ZTMZ.PacenoteTool.Dialog;
 using Constants = ZTMZ.PacenoteTool.Base.Constants;
+using System.Windows.Media.Effects;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -116,6 +117,14 @@ namespace ZTMZ.PacenoteTool
                     return;
 
                 g.IsRunning = true;
+                Dispatcher.Invoke(() => {
+                    var effect = new DropShadowEffect();
+                    effect.Opacity = 1;
+                    effect.BlurRadius = 40;
+                    effect.Color = Colors.LightGreen;
+                    effect.ShadowDepth = 0;
+                    cb_game.Effect = effect;
+                });
                 if (_currentGame.Name.Equals(g.Name))
                 {
                     //TODO: turn on the light, current game is running.
@@ -128,6 +137,7 @@ namespace ZTMZ.PacenoteTool
                     return;
 
                 g.IsRunning = false;
+                Dispatcher.Invoke(() => cb_game.Effect = null);
                 if (_currentGame.Name.Equals(g.Name))
                 {
                     //TODO: turn off the light, current game is exiting.
