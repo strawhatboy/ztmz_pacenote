@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -27,33 +28,14 @@ namespace ZTMZ.PacenoteTool
         private UdpClient client;
         private IPEndPoint any;
         public event Action<byte[], byte[]> onNewMessage;
-        public event GameStateChangedDelegate onGameStateChanged;
-        public event Action<int> onCollisionDetected;
-        public event Action<int> onWheelAbnormalDetected;
-        public event Action<bool> onMessageAvailable;
         public bool[] WheelAbnormalDetectedReported = new bool[] { false, false, false, false };
         public int[] WheelAbnormalDetectedCounter = new int[] { 0, 0, 0, 0 };
 
         private bool isRunning = false;
         private bool isInitialized = false;
-        private Timer _timer;
-        private int _timerCount = 0;
-        private int _timerMessageAvailableCount = 0;
         private GameState _gameState = GameState.Unknown;
         public event Action ListenStarted;
         private byte[] lastMessage;
-
-        public GameState GameState
-        {
-            set
-            {
-                var lastGameState = this._gameState;
-                this._gameState = value;
-                this.onGameStateChanged?.Invoke(lastGameState, this._gameState);
-                this._timerCount = 0;
-            }
-            get => this._gameState;
-        }
 
         public void ResetWheelStatus()
         {
@@ -70,40 +52,17 @@ namespace ZTMZ.PacenoteTool
 
         private void initUDPClient(IPAddress ipAddress, int port)
         {
+            // check if port in use
+            bool alreadyinuse = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().GetActiveUdpListeners().Any(p => p.Port == port);
+            if (alreadyinuse)
+            {
+                throw new Exception(string.Format("Port {0} already in use when starting to get UDP traffic.", port));
+            }
             any = new IPEndPoint(ipAddress, port);
             client = new UdpClient();
             client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             client.ExclusiveAddressUse = false;
             client.Client.Bind(any);
-            this._timer = new Timer();
-            this._timer.Interval = 1000;
-            this._timer.Elapsed += (sender, args) =>
-            {
-                if (this.GameState != GameState.Paused && this.GameState != GameState.RaceBegin)
-                {
-                    if (this._timerCount >= 10)
-                    {
-                        // no gamestate change for 20s and the game is not paused.
-                        this.GameState = GameState.Unknown;
-                        this._timerCount = 0;
-                    }
-                    else
-                    {
-                        this._timerCount++;
-                    }
-                }
-
-                this._timerMessageAvailableCount++;
-                if (this._timerMessageAvailableCount >= 10)
-                {
-                    this.onMessageAvailable?.Invoke(false);
-                }
-                else
-                {
-                    this.onMessageAvailable?.Invoke(true);
-                }
-            };
-            this._timer.Start();
             UdpState s;
             s.e = any;
             s.u = client;

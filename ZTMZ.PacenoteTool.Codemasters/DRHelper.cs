@@ -67,7 +67,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
         public Dictionary<string, List<ItineraryProperty>> ItineraryMap_DR1 { set; get; } = new();
         
         public Dictionary<string, List<ItineraryProperty>> ItineraryMap_DR2 { set; get; } = new();
-        public DRHelper()
+        private DRHelper()
         {
             // load dict from json
             // File.ReadAllText(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/track_dict_dr1.json").LocalPath);

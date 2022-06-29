@@ -1,5 +1,5 @@
 #define MyAppName "ZTMZ Pacenote Tool"
-#define MyAppVersion "2.6.6"
+#define MyAppVersion "2.6.6.1"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.exe"
@@ -136,6 +136,7 @@ SolidCompression=yes
 WizardStyle=modern
 VersionInfoVersion={#MyAppVersion}
 ;PrivilegesRequired=lowest
+UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile:"license.txt"; InfoBeforeFile:"eula.txt";
@@ -150,7 +151,9 @@ Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*.csv"; DestDir: "{userdoc
 Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\codrivers\*"; DestDir: "{userdocs}\My Games\ZTMZClub\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\profiles\*"; DestDir: "{userdocs}\My Games\ZTMZClub\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\lang\*"; DestDir: "{userdocs}\My Games\ZTMZClub\lang"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\games\*"; DestDir: "{app}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\games\*"; Excludes:"*.json"; DestDir: "{app}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\games\*.json"; DestDir: "{userdocs}\My Games\ZTMZClub\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

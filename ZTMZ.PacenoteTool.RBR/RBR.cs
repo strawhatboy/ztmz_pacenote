@@ -1,6 +1,7 @@
 
 // How to get rbr root dir: HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Rallysimfans RBR\[InstallPath]
-// RBR track name by track id: [rbrRoot]\Maps\Tracks.ini
+// RBR track name by track id: [rbrRoot]\Maps\Tracks.ini (DLS tracks)
+// Analyze BTB tracks from [rbrRoot]\RX_CONTENT\Tracks\[TrackName]\[TrackId]_[TrackName].jpg
 //
 // ==== Pacenotes ====
 //      Use the latest pacenote for BTB track, use corresponding M,N,E,O pacenote for DLS track.
@@ -10,6 +11,7 @@
 // ---- Custom pacenote for track 
 // [rbrRoot]\Plugins\NGPCarMenu.ini\[MyPacenotesPath] <disabled>|[PATH]
 // [MyPacenotesPath]\[TrackName] [DateTime].ini
+//      need to check [MyPacenotesPath]\mypacenote_[PacenoteFileNameWOExtension].txt, can be default|latest|[CustomPacenoteFilename]
 // ---- DLS pacenote for track
 //  [rbrRoot]\Maps\[Track_ID]-[TrackName]\track-[TrackID]_[M|N|E|O].dls
 //  or [rbrRoot]\Maps\track-[TrackID]_[M|N|E|O].dls
@@ -28,10 +30,17 @@
 //          distance:   0x08
 
 // ---- Get Track ID From Memory
-//      1. read Int32 x from 7EA678
+//      1. read Int32 x from 0x7EA678
 //      2. read Int32 y from x + 112
 //      3. read Int32 z from y + 32
 //      4. z is the Track ID.
+
+// ---- Get TrackName by ID From Memory
+//      1. read Int32 x from 0x4A1123
+//      2. if x is 0x731234 or 0x0
+//          read 2 bytes char from address x till got \0 or totally 128 bytes
+//      3. else try to get the TrackName from Tracks.ini or RX_CONTENT files
+//      
 
 using System;
 using System.Collections.Generic;
@@ -61,5 +70,7 @@ namespace ZTMZ.PacenoteTool.RBR
         BitmapImage IGame.Image => throw new NotImplementedException();
 
         Dictionary<string, IGameConfig> IGame.GameConfigurations { get; } = new();
+        
+        public int Order => 3000;
     }
 }

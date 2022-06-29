@@ -5,13 +5,13 @@ namespace ZTMZ.PacenoteTool.Base.Game
 {
     public class BasePacenoteReader : IGamePacenoteReader
     {
-        public IList<PacenoteRecord> ReadPacenoteRecord(string profile, IGame game, string track)
+        public ScriptReader ReadPacenoteRecord(string profile, IGame game, string track)
         {
-            var script = ScriptReader.ReadFromFile(GetScriptFile(profile, game, track));
-            return script.PacenoteRecords;
+            var script = ScriptReader.ReadFromFile(GetScriptFileForReplaying(profile, game, track));
+            return script;
         }
 
-        public string GetScriptFile(string profile, IGame game, string track, bool fallbackToDefault = true)
+        public string GetScriptFileForReplaying(string profile, IGame game, string track, bool fallbackToDefault = true)
         {
             string filePath = AppLevelVariables.Instance.GetPath(string.Format("profiles\\{0}\\{1}\\{2}.pacenote", profile, game.Name, track));
             if (!File.Exists(filePath))
@@ -19,13 +19,18 @@ namespace ZTMZ.PacenoteTool.Base.Game
                 if (fallbackToDefault) 
                 {
                     // when replaying, if not exist, create new
-                    return GetScriptFile(Constants.DEFAULT_PROFILE, game, track, false);
+                    return GetScriptFileForReplaying(Constants.DEFAULT_PROFILE, game, track, false);
                 } else {
-                    // when recording
-                    File.WriteAllText(filePath, "");
+                    return null;    // not found
                 }
             }
 
+            return filePath;
+        }
+
+        public string GetScriptFileForRecording(string profile, IGame game, string track)
+        {
+            string filePath = AppLevelVariables.Instance.GetPath(string.Format("profiles\\{0}\\{1}\\{2}.pacenote", profile, game.Name, track));
             return filePath;
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Media.Imaging;
+using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.Codemasters
@@ -24,13 +25,15 @@ namespace ZTMZ.PacenoteTool.Codemasters
         
         public Dictionary<string, IGameConfig> GameConfigurations { get; } = new Dictionary<string, IGameConfig>() 
         {
-            { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback, Port = 20777 } } 
+            { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback.ToString(), Port = 20777 } } 
         };
 
         public bool IsRunning { get; set; }
+        public int Order => 2000;
 
         public DirtRally2()
         {
+            this.GameConfigurations = Config.Instance.LoadGameConfig(this);
         }
     }
 }

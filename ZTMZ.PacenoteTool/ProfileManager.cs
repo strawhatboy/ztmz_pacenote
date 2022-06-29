@@ -9,6 +9,7 @@ using System.Media;
 using System.Threading;
 using System.Windows.Media;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.ScriptEditor;
 
 namespace ZTMZ.PacenoteTool
@@ -280,17 +281,17 @@ namespace ZTMZ.PacenoteTool
             this.CurrentProfile = profileName;
         }
 
-        public string StartRecording(string itinerary)
+        public string StartRecording(IGame game, string itinerary)
         {
-            string filesPath = this.GetRecordingsFolder(itinerary);
-            this.CurrentScriptPath = this.GetScriptFile(itinerary);
+            string filesPath = this.GetRecordingsFolder(game, itinerary);
+            this.CurrentScriptPath = game.GamePacenoteReader.GetScriptFileForRecording(this.CurrentProfile, game, itinerary);
             this.CurrentItineraryPath = filesPath;
             return filesPath;
         }
 
-        public string GetRecordingsFolder(string itinerary)
+        public string GetRecordingsFolder(IGame game, string itinerary)
         {
-            string filesPath = AppLevelVariables.Instance.GetPath(string.Format("profiles\\{0}\\{1}", this.CurrentProfile, itinerary));
+            string filesPath = AppLevelVariables.Instance.GetPath(string.Format("profiles\\{0}\\{1}\\{2}", this.CurrentProfile, game.Name, itinerary));
             Directory.CreateDirectory(filesPath);
             return filesPath;
         }
@@ -317,16 +318,17 @@ namespace ZTMZ.PacenoteTool
             File.WriteAllText(Path.Join(this.CurrentItineraryPath, Constants.CODRIVER_FILENAME), codriver);
         }
 
-        public void StartReplaying(string itinerary, int playMode = 0)
+        public void StartReplaying(IGame game, string itinerary, int playMode = 0)
         {
-            this.CurrentItineraryPath = this.GetRecordingsFolder(itinerary);
-            this.CurrentScriptPath = this.GetScriptFile(itinerary);
+            this.CurrentItineraryPath = this.GetRecordingsFolder(game, itinerary);
+            // this.CurrentScriptPath = this.GetScriptFile(itinerary);
+            this.CurrentScriptPath = game.GamePacenoteReader.GetScriptFileForReplaying(this.CurrentProfile, game, itinerary);
             // also need to check flag from config file.
-            if (string.IsNullOrEmpty(File.ReadAllText(this.CurrentScriptPath).Trim()))
-            {
-                // fallback to default profile
-                this.CurrentScriptPath = this.GetScriptFile(itinerary, Constants.DEFAULT_PROFILE);
-            }
+            // if (string.IsNullOrEmpty(File.ReadAllText(this.CurrentScriptPath).Trim()))
+            // {
+            //     // fallback to default profile
+            //     this.CurrentScriptPath = this.GetScriptFile(itinerary, Constants.DEFAULT_PROFILE);
+            // }
             List<AudioFile> audioFiles = new List<AudioFile>();
 
             // clear lists
@@ -383,7 +385,8 @@ namespace ZTMZ.PacenoteTool
             if (playMode == 1 || playMode == 2)
             {
                 // script mode now!
-                var reader = ScriptReader.ReadFromFile(this.CurrentScriptPath);
+                // var reader = ScriptReader.ReadFromFile(this.CurrentScriptPath);
+                var reader = game.GamePacenoteReader.ReadPacenoteRecord(this.CurrentProfile, game, itinerary);
                 this.CurrentScriptReader = reader;
                 // filter out all empty pacenote records
                 var records = (from p in reader.PacenoteRecords

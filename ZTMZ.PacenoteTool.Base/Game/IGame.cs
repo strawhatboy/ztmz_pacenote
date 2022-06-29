@@ -39,8 +39,13 @@ namespace ZTMZ.PacenoteTool.Base.Game
         /// </summary>
         IGameDataReader GameDataReader { get; }
 
+        /// <summary>
+        /// GameConfigurations, need to be saved to userconfig.json? or a separated file?
+        /// </summary>
         Dictionary<string, IGameConfig> GameConfigurations { get; }
 
         bool IsRunning { set; get; }
+
+        int Order { get; }
     }
 }

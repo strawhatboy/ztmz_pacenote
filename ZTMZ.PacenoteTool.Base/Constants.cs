@@ -10,6 +10,7 @@ namespace ZTMZ.PacenoteTool.Base
         public static string DEFAULT_CODRIVER = "codrivers\\default";
         public static string CODRIVER_FILENAME = "codriver.txt";
         public static string CODRIVER_PACKAGE_INFO_FILENAME = "info.json";
+        public static string PATH_GAMES = "games";
 
         // system sound
         public const string SYSTEM_START_STAGE = "system_start_stage";

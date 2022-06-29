@@ -1,5 +1,6 @@
 @echo off
 dotnet build -c Debug
 
-rem copy built games to target folder
-
+echo copying built games to target folder
+xcopy ZTMZ.PacenoteTool.Codemasters\bin\Debug\net6.0-windows\ ZTMZ.PacenoteTool\bin\Debug\net6.0-windows\games\ /Y /V /S
+echo done.

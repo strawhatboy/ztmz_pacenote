@@ -3,6 +3,10 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Globalization;
+using ZTMZ.PacenoteTool.Base.Game;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Linq;
 
 namespace ZTMZ.PacenoteTool.Base
 {
@@ -508,6 +512,49 @@ namespace ZTMZ.PacenoteTool.Base
         {
             var content = System.Text.Json.JsonSerializer.Serialize(this._userconfig);
             File.WriteAllText(USER_CONFIG_FILE, content);
+        }
+
+        public void SaveGameConfig(IGame game)
+        {
+            var gameConfigPath = AppLevelVariables.Instance.GetPath(Path.Join(Constants.PATH_GAMES, string.Format("{0}.json", game.Name)));
+            var configContent = JsonConvert.SerializeObject(game.GameConfigurations, Formatting.Indented);
+            File.WriteAllText(gameConfigPath, configContent);
+        }
+
+        public Dictionary<string, IGameConfig> LoadGameConfig(IGame game)
+        {
+            var gameConfigPath = AppLevelVariables.Instance.GetPath(Path.Join(Constants.PATH_GAMES, string.Format("{0}.json", game.Name)));
+            if (!File.Exists(gameConfigPath)) 
+            {
+                SaveGameConfig(game);
+                return game.GameConfigurations;
+            }
+
+            // Get All GameConfig
+            List<Type> gameConfigTypes = new();
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                gameConfigTypes.AddRange(asm.GetTypes().Where(t => typeof(IGameConfig).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract));
+            }
+
+            var content = File.ReadAllText(gameConfigPath);
+            
+            var gameConfig = new Dictionary<string, IGameConfig>();
+            var jObj = JObject.Parse(content);
+            foreach (var kv in jObj) 
+            {
+                var configType = gameConfigTypes.FirstOrDefault(t => kv.Key.Equals(t.GetCustomAttribute<GameConfigAttribute>().name));
+                if (configType != null) 
+                {
+                    // has this config
+                    var config = JsonConvert.DeserializeObject(kv.Value.ToString(), configType);
+                    if (config != null)
+                    {
+                        gameConfig.Add(kv.Key, (IGameConfig)config);
+                    }
+                }
+            }
+            return gameConfig;
         }
 
         public static Config Load(bool returnDefault = false)

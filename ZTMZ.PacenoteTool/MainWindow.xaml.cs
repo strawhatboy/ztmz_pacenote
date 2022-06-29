@@ -148,12 +148,17 @@ namespace ZTMZ.PacenoteTool
         private void loadGames()
         {
             this._games.Clear();
-            foreach (var file in Directory.EnumerateFiles("./games", "*.dll")) 
+            foreach (var file in Directory.EnumerateFiles(Constants.PATH_GAMES, "*.dll")) 
             {
                 var assembly = Assembly.LoadFrom(System.IO.Path.GetFullPath(file));
+                if (assembly.GetName().Name.Equals("ZTMZ.PacenoteTool.Base")) 
+                {
+                    continue;
+                }
                 var games = assembly.GetTypes().Where(t => typeof(IGame).IsAssignableFrom(t)).Select(i => (IGame)Activator.CreateInstance(i));
                 this._games.AddRange(games);
             }
+            this._games.Sort((g1, g2) => g1.Order.CompareTo(g2.Order));
         }
 
         private void initializeNewUI() {
@@ -398,7 +403,17 @@ namespace ZTMZ.PacenoteTool
             game.GameDataReader.onCarDamaged += carDamagedEventHandler;
             game.GameDataReader.onNewGameData += newGameDataEventHander;
             game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
+            game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
             game.GameDataReader.Initialize(game);
+        }
+
+        private void gameDataAvailabilityChangedHandler(bool obj)
+        {
+            if (!obj) 
+            {
+                // no data, data link grey out.
+
+            }
         }
 
         private void uninitializeGame(IGame game)
@@ -496,7 +511,7 @@ namespace ZTMZ.PacenoteTool
                     if (this._toolState == ToolState.Recording)
                     {
                         // 1. create folder
-                        this._trackFolder = this._profileManager.StartRecording(this._trackName);
+                        this._trackFolder = this._profileManager.StartRecording(_currentGame, this._trackName);
                         // 2. get audio_recorder ready (audio_recorder already ready...)
                     }
                     else
@@ -505,7 +520,7 @@ namespace ZTMZ.PacenoteTool
                         worker.DoWork += (sender, e) =>
                         {
                             // 1. load sounds
-                            this._profileManager.StartReplaying(this._trackName, this._selectReplayMode);
+                            this._profileManager.StartReplaying(_currentGame, this._trackName, this._selectReplayMode);
                             this.Dispatcher.Invoke(() =>
                             {
                                 this.tb_codriver.Text = this._profileManager.CurrentCoDriverName;
@@ -831,6 +846,7 @@ namespace ZTMZ.PacenoteTool
 
             // TODO: wait for seconds?
             initializeGame(_currentGame);
+            this.cb_game.ToolTip = _currentGame.Name;
             Config.Instance.UI_SelectedGame = this.cb_game.SelectedIndex;
             Config.Instance.SaveUserConfig();
         }
