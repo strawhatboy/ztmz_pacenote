@@ -21,7 +21,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
         
         public BitmapImage Image { get; } = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/dirtrally.jpg"));
         
-        public Dictionary<string, IGameConfig> GameConfigurations { get; } = new Dictionary<string, IGameConfig>() 
+        public Dictionary<string, IGameConfig> GameConfigurations { set; get; } = new Dictionary<string, IGameConfig>() 
         {
             { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback.ToString(), Port = 20777 } } 
         };
@@ -32,7 +32,6 @@ namespace ZTMZ.PacenoteTool.Codemasters
 
         public DirtRally()
         {
-            this.GameConfigurations = Config.Instance.LoadGameConfig(this);
         }
     }
 }

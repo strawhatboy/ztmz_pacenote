@@ -24,10 +24,10 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
     private int _timerCount = 0;
     private int _timerMessageAvailableCount = 0;
 
-    public void Initialize(IGame game)
+    public bool Initialize(IGame game)
     {
         if (isInitialized) 
-            return;
+            return false;
         _game = game;
         Debug.Assert(game.GameConfigurations.ContainsKey(UdpGameConfig.Name));
 
@@ -78,6 +78,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
         };
         this._timer.Start();
         isInitialized = true;
+        return isInitialized;
     }
 
     public abstract void onNewUdpMessage(byte[] oldMsg, byte[] newMsg);

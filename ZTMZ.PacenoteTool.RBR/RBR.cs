@@ -69,7 +69,7 @@ namespace ZTMZ.PacenoteTool.RBR
 
         BitmapImage IGame.Image => throw new NotImplementedException();
 
-        Dictionary<string, IGameConfig> IGame.GameConfigurations { get; } = new();
+        Dictionary<string, IGameConfig> IGame.GameConfigurations { set; get; } = new();
         
         public int Order => 3000;
     }

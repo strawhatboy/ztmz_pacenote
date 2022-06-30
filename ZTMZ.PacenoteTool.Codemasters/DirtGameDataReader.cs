@@ -58,68 +58,8 @@ public class DirtGameDataReader : UdpGameDataReader
 
     public override void onNewUdpMessage(byte[] lastMsg, byte[] newMsg)
     {
-        DirtRawData message = new DirtRawData();
-        message.TimeStamp = DateTime.Now;
-        message.Time = BitConverter.ToSingle(newMsg, 0);
-        message.LapTime = BitConverter.ToSingle(newMsg, 4);
-        message.LapDistance = BitConverter.ToSingle(newMsg, 8);
-        message.CompletionRate = BitConverter.ToSingle(newMsg, 12);
-        message.Speed = BitConverter.ToSingle(newMsg, 28) * 3.6f; // m/s -> km/h
-        message.TrackLength = BitConverter.ToSingle(newMsg, 244);
-        message.PosX = BitConverter.ToSingle(newMsg, 16);
-        message.PosY = BitConverter.ToSingle(newMsg, 20);
-        message.PosZ = BitConverter.ToSingle(newMsg, 24);
-        message.SpeedX = BitConverter.ToSingle(newMsg, 32);
-        message.SpeedY = BitConverter.ToSingle(newMsg, 36);
-        message.SpeedZ = BitConverter.ToSingle(newMsg, 40);
-        message.RollX = BitConverter.ToSingle(newMsg, 44);
-        message.RollY = BitConverter.ToSingle(newMsg, 48);
-        message.RollZ = BitConverter.ToSingle(newMsg, 52);
-        message.PitchX = BitConverter.ToSingle(newMsg, 56);
-        message.PitchY = BitConverter.ToSingle(newMsg, 60);
-        message.PitchZ = BitConverter.ToSingle(newMsg, 64);
-        message.CarPos = BitConverter.ToSingle(newMsg, 39 << 2);
-        message.SpeedFrontLeft = BitConverter.ToSingle(newMsg, 27 << 2) * 3.6f; // m/s -> km/h
-        message.SpeedFrontRight = BitConverter.ToSingle(newMsg, 28 << 2) * 3.6f; // m/s -> km/h
-        message.SpeedRearLeft = BitConverter.ToSingle(newMsg, 25 << 2) * 3.6f; // m/s -> km/h
-        message.SpeedRearRight = BitConverter.ToSingle(newMsg, 26 << 2) * 3.6f; // m/s -> km/h
-
-        message.Clutch = BitConverter.ToSingle(newMsg, 32 << 2);
-        message.Brake = BitConverter.ToSingle(newMsg, 31 << 2);
-        message.Throttle = BitConverter.ToSingle(newMsg, 29 << 2);
-
-        message.Steering = BitConverter.ToSingle(newMsg, 30 << 2);
-        message.Gear = BitConverter.ToSingle(newMsg, 33 << 2);
-        message.MaxGears = BitConverter.ToSingle(newMsg, 65 << 2);
-        message.RPM = BitConverter.ToSingle(newMsg, 37 << 2) * 10f;
-        message.MaxRPM = BitConverter.ToSingle(newMsg, 63 << 2) * 10f;
-        message.IdleRPM = BitConverter.ToSingle(newMsg, 64 << 2) * 10f;
-        message.G_lat = BitConverter.ToSingle(newMsg, 34 << 2);
-        message.G_long = BitConverter.ToSingle(newMsg, 35 << 2);
-
-        message.BrakeTempRearLeft = BitConverter.ToSingle(newMsg, 51 << 2);
-        message.BrakeTempRearRight = BitConverter.ToSingle(newMsg, 52 << 2);
-        message.BrakeTempFrontLeft = BitConverter.ToSingle(newMsg, 53 << 2);
-        message.BrakeTempFrontRight = BitConverter.ToSingle(newMsg, 54 << 2);
-
-        message.SuspensionRearLeft = BitConverter.ToSingle(newMsg, 17 << 2);
-        message.SuspensionRearRight = BitConverter.ToSingle(newMsg, 18 << 2);
-        message.SuspensionFrontLeft = BitConverter.ToSingle(newMsg, 19 << 2);
-        message.SuspensionFrontRight = BitConverter.ToSingle(newMsg, 20 << 2);
-
-        message.SuspensionSpeedRearLeft = BitConverter.ToSingle(newMsg, 21 << 2);
-        message.SuspensionSpeedRearRight = BitConverter.ToSingle(newMsg, 22 << 2);
-        message.SuspensionSpeedFrontLeft = BitConverter.ToSingle(newMsg, 23 << 2);
-        message.SuspensionSpeedFrontRight = BitConverter.ToSingle(newMsg, 24 << 2);
-
-        message.CurrentLap = BitConverter.ToSingle(newMsg, 36 << 2);
-        message.LapsComplete = BitConverter.ToSingle(newMsg, 59 << 2);
-        message.LastLapTime = BitConverter.ToSingle(newMsg, 62 << 2);
-        message.TotalLaps = BitConverter.ToSingle(newMsg, 60 << 2);
-
-        message.Sector = BitConverter.ToSingle(newMsg, 48 << 2);
-        message.Sector1Time = BitConverter.ToSingle(newMsg, 49 << 2);
-        message.Sector2Time = BitConverter.ToSingle(newMsg, 50 << 2);
+        DirtRawData message = RawBytesData2RawData(newMsg);
+        DirtRawData lastMessage = RawBytesData2RawData(lastMsg);
 
         _currentRawData = message;
 
@@ -128,7 +68,7 @@ public class DirtGameDataReader : UdpGameDataReader
         _onNewGameData?.Invoke(_lastGameData, newGameData);
         _currentGameData = newGameData;
 
-        if (!newGameData.Equals(this._lastGameData))
+        if (!message.Equals(lastMessage))
         {
             var spdDiff = _lastGameData.Speed - newGameData.Speed;
             if (Config.Instance.PlayCollisionSound && newGameData.Speed != 0)
@@ -237,6 +177,77 @@ public class DirtGameDataReader : UdpGameDataReader
         gameData.SuspensionSpeedFrontRight = data.SuspensionSpeedFrontRight;
 
         return gameData;
+    }
+
+    private DirtRawData RawBytesData2RawData(byte[] raw)
+    {
+        DirtRawData message = new DirtRawData();
+        if (raw == null || raw.Length == 0) 
+        {
+            return message;
+        }
+        message.TimeStamp = DateTime.Now;
+        message.Time = BitConverter.ToSingle(raw, 0);
+        message.LapTime = BitConverter.ToSingle(raw, 4);
+        message.LapDistance = BitConverter.ToSingle(raw, 8);
+        message.CompletionRate = BitConverter.ToSingle(raw, 12);
+        message.Speed = BitConverter.ToSingle(raw, 28) * 3.6f; // m/s -> km/h
+        message.TrackLength = BitConverter.ToSingle(raw, 244);
+        message.PosX = BitConverter.ToSingle(raw, 16);
+        message.PosY = BitConverter.ToSingle(raw, 20);
+        message.PosZ = BitConverter.ToSingle(raw, 24);
+        message.SpeedX = BitConverter.ToSingle(raw, 32);
+        message.SpeedY = BitConverter.ToSingle(raw, 36);
+        message.SpeedZ = BitConverter.ToSingle(raw, 40);
+        message.RollX = BitConverter.ToSingle(raw, 44);
+        message.RollY = BitConverter.ToSingle(raw, 48);
+        message.RollZ = BitConverter.ToSingle(raw, 52);
+        message.PitchX = BitConverter.ToSingle(raw, 56);
+        message.PitchY = BitConverter.ToSingle(raw, 60);
+        message.PitchZ = BitConverter.ToSingle(raw, 64);
+        message.CarPos = BitConverter.ToSingle(raw, 39 << 2);
+        message.SpeedFrontLeft = BitConverter.ToSingle(raw, 27 << 2) * 3.6f; // m/s -> km/h
+        message.SpeedFrontRight = BitConverter.ToSingle(raw, 28 << 2) * 3.6f; // m/s -> km/h
+        message.SpeedRearLeft = BitConverter.ToSingle(raw, 25 << 2) * 3.6f; // m/s -> km/h
+        message.SpeedRearRight = BitConverter.ToSingle(raw, 26 << 2) * 3.6f; // m/s -> km/h
+
+        message.Clutch = BitConverter.ToSingle(raw, 32 << 2);
+        message.Brake = BitConverter.ToSingle(raw, 31 << 2);
+        message.Throttle = BitConverter.ToSingle(raw, 29 << 2);
+
+        message.Steering = BitConverter.ToSingle(raw, 30 << 2);
+        message.Gear = BitConverter.ToSingle(raw, 33 << 2);
+        message.MaxGears = BitConverter.ToSingle(raw, 65 << 2);
+        message.RPM = BitConverter.ToSingle(raw, 37 << 2) * 10f;
+        message.MaxRPM = BitConverter.ToSingle(raw, 63 << 2) * 10f;
+        message.IdleRPM = BitConverter.ToSingle(raw, 64 << 2) * 10f;
+        message.G_lat = BitConverter.ToSingle(raw, 34 << 2);
+        message.G_long = BitConverter.ToSingle(raw, 35 << 2);
+
+        message.BrakeTempRearLeft = BitConverter.ToSingle(raw, 51 << 2);
+        message.BrakeTempRearRight = BitConverter.ToSingle(raw, 52 << 2);
+        message.BrakeTempFrontLeft = BitConverter.ToSingle(raw, 53 << 2);
+        message.BrakeTempFrontRight = BitConverter.ToSingle(raw, 54 << 2);
+
+        message.SuspensionRearLeft = BitConverter.ToSingle(raw, 17 << 2);
+        message.SuspensionRearRight = BitConverter.ToSingle(raw, 18 << 2);
+        message.SuspensionFrontLeft = BitConverter.ToSingle(raw, 19 << 2);
+        message.SuspensionFrontRight = BitConverter.ToSingle(raw, 20 << 2);
+
+        message.SuspensionSpeedRearLeft = BitConverter.ToSingle(raw, 21 << 2);
+        message.SuspensionSpeedRearRight = BitConverter.ToSingle(raw, 22 << 2);
+        message.SuspensionSpeedFrontLeft = BitConverter.ToSingle(raw, 23 << 2);
+        message.SuspensionSpeedFrontRight = BitConverter.ToSingle(raw, 24 << 2);
+
+        message.CurrentLap = BitConverter.ToSingle(raw, 36 << 2);
+        message.LapsComplete = BitConverter.ToSingle(raw, 59 << 2);
+        message.LastLapTime = BitConverter.ToSingle(raw, 62 << 2);
+        message.TotalLaps = BitConverter.ToSingle(raw, 60 << 2);
+
+        message.Sector = BitConverter.ToSingle(raw, 48 << 2);
+        message.Sector1Time = BitConverter.ToSingle(raw, 49 << 2);
+        message.Sector2Time = BitConverter.ToSingle(raw, 50 << 2);
+        return message;
     }
 }
 

@@ -1,5 +1,6 @@
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ZTMZ.PacenoteTool.Base.Game;
 
@@ -52,4 +53,14 @@ public struct GameData
     public float CarPos;
     // public int TrackNumber { set; get; }
     public DateTime TimeStamp;
+
+    public override bool Equals([NotNullWhen(true)] object obj)
+    {
+        return base.Equals(obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
+    }
 }

@@ -75,8 +75,15 @@ namespace ZTMZ.PacenoteTool
         private int _playpointAdjust = 0;
         private float _playbackSpd = 1.0f;
 
+        private DropShadowEffect _processRunningEffect;
+
         public MainWindow()
         {
+            _processRunningEffect = new DropShadowEffect();
+            _processRunningEffect.Opacity = 1;
+            _processRunningEffect.BlurRadius = 40;
+            _processRunningEffect.Color = Colors.LightGreen;
+            _processRunningEffect.ShadowDepth = 0;
             InitializeComponent();
         }
 
@@ -118,12 +125,7 @@ namespace ZTMZ.PacenoteTool
 
                 g.IsRunning = true;
                 Dispatcher.Invoke(() => {
-                    var effect = new DropShadowEffect();
-                    effect.Opacity = 1;
-                    effect.BlurRadius = 40;
-                    effect.Color = Colors.LightGreen;
-                    effect.ShadowDepth = 0;
-                    cb_game.Effect = effect;
+                    cb_game.Effect = _processRunningEffect;
                 });
                 if (_currentGame.Name.Equals(g.Name))
                 {
@@ -169,6 +171,7 @@ namespace ZTMZ.PacenoteTool
                 this._games.AddRange(games);
             }
             this._games.Sort((g1, g2) => g1.Order.CompareTo(g2.Order));
+            this._games.ForEach(g => g.GameConfigurations = Config.Instance.LoadGameConfig(g));
         }
 
         private void initializeNewUI() {
@@ -410,11 +413,15 @@ namespace ZTMZ.PacenoteTool
             if (game == null)
                 return;
 
-            game.GameDataReader.onCarDamaged += carDamagedEventHandler;
-            game.GameDataReader.onNewGameData += newGameDataEventHander;
-            game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
-            game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
-            game.GameDataReader.Initialize(game);
+                
+            if (game.GameDataReader.Initialize(game))
+            {
+                GameOverlayManager.GAME_PROCESS = game.Executable.Remove(game.Executable.IndexOf(".exe"));
+                game.GameDataReader.onCarDamaged += carDamagedEventHandler;
+                game.GameDataReader.onNewGameData += newGameDataEventHander;
+                game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
+                game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
+            }
         }
 
         private void gameDataAvailabilityChangedHandler(bool obj)

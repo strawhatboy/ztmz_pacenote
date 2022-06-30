@@ -19,7 +19,7 @@ namespace ZTMZ.PacenoteTool
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            // SetupExceptionHandling();
+            SetupExceptionHandling();
             initializeI18N();
         }
 
@@ -43,6 +43,11 @@ namespace ZTMZ.PacenoteTool
 
             TaskScheduler.UnobservedTaskException += (s, e) =>
             {
+                if (e.Exception.StackTrace == null)
+                {
+                    // ignore it. maybe raised by SocketException in finalizer thread.
+                    return;
+                }
                 LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
                 e.SetObserved();
             };

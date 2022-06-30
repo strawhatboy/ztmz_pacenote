@@ -155,9 +155,6 @@
                       <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel ToolTip="{Binding Path=Name}">
-                                <StackPanel.Effect>
-                                    <DropShadowEffect ShadowDepth="0" Color="LightGreen" Opacity="{Binding Path=IsRunning}" BlurRadius="40"/>
-                                </StackPanel.Effect>
                                 <Image Source="{Binding Path=Image}" Width="115" Height="54" Stretch="UniformToFill" />
                                 <TextBlock Text="{Binding Path=Name}" HorizontalAlignment="Center" />
                             </StackPanel>

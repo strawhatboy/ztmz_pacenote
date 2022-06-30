@@ -633,9 +633,9 @@ namespace ZTMZ.PacenoteTool
             
             // draw the finish rate
             gfx.FillRectangle(_brushes["green"], 
-                telemetryStartPosX, 
+                0, 
                 telemetryStartPosY + telemetryHeight - 5, 
-                telemetryStartPosX + GameData.CompletionRate * telemetryWidth,
+                GameData.CompletionRate * gfx.Width,
                 telemetryStartPosY + telemetryHeight);
         }
 
