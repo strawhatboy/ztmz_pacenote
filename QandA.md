@@ -1,7 +1,11 @@
  **注意：** 一般情况下 **只有遇到问题时才参考本疑难解答** ，没有遇到问题不要随意尝试本文的各种解决方案，可能会适得其反。
 
 **Q:** 工具在安装的时候卡在下载所需组件那里不动了怎么回事？
-**A:** 可能网络环境和微软的服务器不通畅，先 **手动下载安装运行库** （[https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer)），再运行工具的安装程序即可。如果手动也无法下载，那么可以到路书群里从群文件里下载
+**A:** 可能网络环境和微软的服务器不通畅，先 **手动下载安装运行库** （[https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer)），再运行工具的安装程序即可。如果手动也无法下载，那么可以到路书群里从群文件里下载。
+如果你使用的是**Windows 7 SP1 x64操作系统**，那么在安装完上面的东西之后，还需要再安装[https://aka.ms/vs/16/release/vc_redist.x64.exe](https://aka.ms/vs/16/release/vc_redist.x64.exe)和[https://www.microsoft.com/zh-CN/download/details.aspx?id=47442](https://www.microsoft.com/zh-CN/download/details.aspx?id=47442)这两个东西之后，才应该可以正常安装路书工具。
+
+**Q:** 我在使用Windows 7 SP1 x64 操作系统，貌似无法安装怎么办？
+**A:** 参见上一个回答。
 
 **Q:** 工具在下载时浏览器提示文件不安全怎么办？
 **A:** 浏览器中在下载的地方看看文件右键点击或者其他有没有菜单可以选择 **“保留”** 的，保留该文件即可
