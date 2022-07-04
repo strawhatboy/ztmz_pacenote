@@ -124,9 +124,12 @@ namespace ZTMZ.PacenoteTool
                     return;
 
                 g.IsRunning = true;
-                Dispatcher.Invoke(() => {
-                    cb_game.Effect = _processRunningEffect;
-                });
+                if (_currentGame == g) 
+                {
+                    Dispatcher.Invoke(() => {
+                        cb_game.Effect = _processRunningEffect;
+                    });
+                }
                 if (_currentGame.Name.Equals(g.Name))
                 {
                     //TODO: turn on the light, current game is running.
@@ -139,7 +142,10 @@ namespace ZTMZ.PacenoteTool
                     return;
 
                 g.IsRunning = false;
-                Dispatcher.Invoke(() => cb_game.Effect = null);
+                if (_currentGame == g) 
+                {
+                    Dispatcher.Invoke(() => cb_game.Effect = null);
+                }
                 if (_currentGame.Name.Equals(g.Name))
                 {
                     //TODO: turn off the light, current game is exiting.
@@ -864,6 +870,7 @@ namespace ZTMZ.PacenoteTool
             // TODO: wait for seconds?
             initializeGame(_currentGame);
             this.cb_game.ToolTip = _currentGame.Name;
+            this.cb_game.Effect = _currentGame.IsRunning ? _processRunningEffect : null;
             Config.Instance.UI_SelectedGame = this.cb_game.SelectedIndex;
             Config.Instance.SaveUserConfig();
         }

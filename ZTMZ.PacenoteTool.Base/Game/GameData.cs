@@ -51,6 +51,9 @@ public struct GameData
     public float SuspensionSpeedFrontLeft;
     public float SuspensionSpeedFrontRight;
     public float CarPos;
+    public float PosX;
+    public float PosY;
+    public float PosZ;
     // public int TrackNumber { set; get; }
     public DateTime TimeStamp;
 

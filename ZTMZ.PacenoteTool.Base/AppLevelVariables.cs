@@ -22,7 +22,7 @@ namespace ZTMZ.PacenoteTool.Base
         {
             InvalidCharsForWindowsPath = new()
             {
-                '*', '(', ')', '!', '"', '?'
+                '*', '{', '}', '!', '"', '?'
             };
         }
 

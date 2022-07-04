@@ -57,19 +57,19 @@ namespace ZTMZ.PacenoteTool.RBR
 
         public string Description => "The most classic rally simulation game";
 
-        public BitmapImage Image { set => throw new NotImplementedException(); }
+        public BitmapImage Image { get; } = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.RBR;component/rbr.jpg"));
 
-        public string Executable => throw new NotImplementedException();
+        public string Executable => "RichardBurnsRally_SSE.exe";
 
-        public IGamePacenoteReader GamePacenoteReader => throw new NotImplementedException();
+        public IGamePacenoteReader GamePacenoteReader { get; } = new RBRGamePacenoteReader();
 
-        public IGameDataReader GameDataReader => throw new NotImplementedException();
+        public IGameDataReader GameDataReader { get; } = new RBRGameDataReader();
 
         public bool IsRunning { get; set; }
 
-        BitmapImage IGame.Image => throw new NotImplementedException();
-
-        Dictionary<string, IGameConfig> IGame.GameConfigurations { set; get; } = new();
+        public Dictionary<string, IGameConfig> GameConfigurations { set; get; } = new() {
+            { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback.ToString(), Port = 6776 } }
+        };
         
         public int Order => 3000;
     }

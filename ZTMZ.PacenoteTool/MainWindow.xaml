@@ -155,7 +155,7 @@
                       <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel ToolTip="{Binding Path=Name}">
-                                <Image Source="{Binding Path=Image}" Width="115" Height="54" Stretch="UniformToFill" />
+                                <Image Source="{Binding Path=Image}" Width="115" Height="54" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
                                 <TextBlock Text="{Binding Path=Name}" HorizontalAlignment="Center" />
                             </StackPanel>
                         </DataTemplate>

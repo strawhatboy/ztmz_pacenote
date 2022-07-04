@@ -176,6 +176,10 @@ public class DirtGameDataReader : UdpGameDataReader
         gameData.SuspensionSpeedFrontLeft = data.SuspensionSpeedFrontLeft;
         gameData.SuspensionSpeedFrontRight = data.SuspensionSpeedFrontRight;
 
+        gameData.PosX = data.PosX;
+        gameData.PosY = data.PosY;
+        gameData.PosZ = data.PosZ;
+
         return gameData;
     }
 

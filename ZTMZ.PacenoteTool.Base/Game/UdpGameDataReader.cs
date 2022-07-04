@@ -15,7 +15,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
 
     private UdpReceiver _udpReceiver;
 
-    private bool isInitialized = false;
+    protected bool isInitialized = false;
 
     public abstract GameState GameState { get; set; }
     public abstract GameData LastGameData { get; set; }
@@ -24,7 +24,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
     private int _timerCount = 0;
     private int _timerMessageAvailableCount = 0;
 
-    public bool Initialize(IGame game)
+    public virtual bool Initialize(IGame game)
     {
         if (isInitialized) 
             return false;
@@ -83,7 +83,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
 
     public abstract void onNewUdpMessage(byte[] oldMsg, byte[] newMsg);
 
-    public void Uninitialize(IGame game)
+    public virtual void Uninitialize(IGame game)
     {
         if (!isInitialized)
             return;
