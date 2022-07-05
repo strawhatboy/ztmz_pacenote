@@ -6,6 +6,10 @@ public static class CastingHelper
 {
 	public static T CastToStruct<T>(this byte[] data) where T : struct
 	{
+		if (data == null) 
+		{
+			return default(T);
+		}
 		var pData = GCHandle.Alloc(data, GCHandleType.Pinned);
 		var result = (T)Marshal.PtrToStructure(pData.AddrOfPinnedObject(), typeof(T));
 		pData.Free();

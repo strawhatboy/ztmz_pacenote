@@ -27,6 +27,10 @@ public static class BytesReader<T>
         {
             Read = (Func<byte[], T>)(Delegate)((Func<byte[], bool>)(p => BitConverter.ToBoolean(p)));
         }
+        else if (type == typeof(byte))
+        {
+            Read = (Func<byte[], T>)(Delegate)((Func<byte[], byte>)(p => p[0]));
+        }
         else if (type == typeof(char))
         {
             Read = (Func<byte[], T>)(Delegate)((Func<byte[], char>)(p => BitConverter.ToChar(p)));

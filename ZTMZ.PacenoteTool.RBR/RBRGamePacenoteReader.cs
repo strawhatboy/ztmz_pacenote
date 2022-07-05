@@ -102,42 +102,42 @@ public class RBRGamePacenoteReader : IGamePacenoteReader
 
     public ScriptReader ReadPacenoteRecord(string profile, IGame game, string track)
     {
-        // extract trackNo from track name
-        var trackNoEnd = track.IndexOf("]");
-        var trackNoStart = track.IndexOf("[");
-        var trackNo = getIntegerFromString(track.Substring(trackNoStart + 1, trackNoEnd - trackNoStart - 1));
-        if (trackNo < 0)
-        {
-            return null;
-        }
+        // // extract trackNo from track name
+        // var trackNoEnd = track.IndexOf("]");
+        // var trackNoStart = track.IndexOf("[");
+        // var trackNo = getIntegerFromString(track.Substring(trackNoStart + 1, trackNoEnd - trackNoStart - 1));
+        // if (trackNo < 0)
+        // {
+        //     return null;
+        // }
 
-        // extract weather from track name
-        var weather = "";
-        var weatherStart = track.IndexOf("(");
-        var weatherEnd = track.IndexOf(")");
-        if (weatherStart >= 0 && weatherEnd >= 0)
-        {
-            weather = track.Substring(weatherStart + 1, weatherEnd - weatherStart - 1);
-        }
-        if (string.IsNullOrEmpty(weather))
-        {
-            weather = "";
-        }
-        else
-        {
-            weather = weather.ToLower();
-        }
+        // // extract weather from track name
+        // var weather = "";
+        // var weatherStart = track.IndexOf("(");
+        // var weatherEnd = track.IndexOf(")");
+        // if (weatherStart >= 0 && weatherEnd >= 0)
+        // {
+        //     weather = track.Substring(weatherStart + 1, weatherEnd - weatherStart - 1);
+        // }
+        // if (string.IsNullOrEmpty(weather))
+        // {
+        //     weather = "";
+        // }
+        // else
+        // {
+        //     weather = weather.ToLower();
+        // }
 
         return null;
     }
 
     public string GetScriptFileForReplaying(string profile, IGame game, string track, bool fallbackToDefault = true)
     {
-        throw new System.NotImplementedException();
+        return "";
     }
 
     public string GetScriptFileForRecording(string profile, IGame game, string track)
     {
-        throw new System.NotImplementedException();
+        return "";
     }
 }

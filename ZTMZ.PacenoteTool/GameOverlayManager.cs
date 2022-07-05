@@ -1085,7 +1085,7 @@ namespace ZTMZ.PacenoteTool
 
                     if (processes.Length > 0 && _window == null)
                     {
-                        Thread.Sleep(5000);
+                        Thread.Sleep(10000);
                         // dr2 has 2 windows during launching...shit
                         processes = System.Diagnostics.Process.GetProcessesByName(GAME_PROCESS);
                         var process = processes.First();
