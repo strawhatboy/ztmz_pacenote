@@ -30,11 +30,24 @@ public class RBRGameDataReader : UdpGameDataReader
     /// TrackName here is in the format: [TrackNo]TrackName
     ///     Example: [198]Sipirkakim II Snow
     /// </summary>
-    public override string TrackName => "";
+    public override string TrackName 
+    {
+        get 
+        {
+            var trackName = _memDataReader.GetTrackNameFromMemory();
+            if (string.IsNullOrEmpty(trackName)) 
+            {
+                trackName = ((RBRGamePacenoteReader)_game.GamePacenoteReader).GetTrackNameFromConfigById(_currentMemData.TrackId);
+            }
+
+            return string.Format("[{0}]{1}", _currentMemData.TrackId, trackName);
+        }
+    }
     public GameState _gameState;
     private GameData _lastGameData;
 
     private GameData _currentGameData;
+    private RBRMemData _currentMemData;
 
     private RBRMemDataReader _memDataReader = new();
 
@@ -91,6 +104,7 @@ public class RBRGameDataReader : UdpGameDataReader
     {
         var memData = _memDataReader.ReadMemData(_game);
         
+        _currentMemData = memData;
         _lastGameData = _currentGameData;
         _currentGameData = GetGameDataFromMemory(_currentGameData, memData);
         _onNewGameData?.Invoke(_lastGameData, _currentGameData);
@@ -200,6 +214,8 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.PosX = data.X;
         gameData.PosY = data.Y;
         gameData.PosZ = data.Z;
+
+        gameData.RPM = data.EngineRPM;
 
         return gameData;
     }

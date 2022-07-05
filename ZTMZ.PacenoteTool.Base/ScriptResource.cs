@@ -29,7 +29,10 @@ namespace ZTMZ.PacenoteTool.Base
             new Dictionary<string, string>(),
             new Dictionary<string, string>(),
         };
-        public static Dictionary<string, Tuple<string, bool>> RAW_PACENOTES = loadPacenotes(AppLevelVariables.Instance.GetPath("./pacenotes.csv"));
+
+        public static Dictionary<int, string> ID_2_PACENOTE { private set; get; } = new Dictionary<int, string>();
+        public static Dictionary<int, string> ID_2_MODIFIER { private set; get; } = new Dictionary<int, string>();
+        public static Dictionary<string, Tuple<string, bool, string, string, string>> RAW_PACENOTES = loadPacenotes(AppLevelVariables.Instance.GetPath("./pacenotes.csv"));
         public static Dictionary<string, string> PACENOTES { private set; get; } = new Dictionary<string, string>();   // = loadCsv("./pacenotes.csv");
         public static Dictionary<string, string> MODIFIERS { private set; get; } = new Dictionary<string, string>();    // = loadCsv("./modifiers.csv");
         public static Dictionary<string, string> FALLBACK { private set; get; } = loadFallback(AppLevelVariables.Instance.GetPath("./fallback.csv"));
@@ -55,7 +58,18 @@ namespace ZTMZ.PacenoteTool.Base
                     MODIFIERS[p.Key] = p.Value.Item1;
                 }
                 PACENOTES[p.Key] = p.Value.Item1;
+
+                foreach (var s in p.Value.Item3.Split('|'))
+                {
+                    ID_2_PACENOTE[int.Parse(s)] = p.Key;
+                }
+                foreach (var s in p.Value.Item4.Split('|'))
+                {
+                    ID_2_MODIFIER[int.Parse(s)] = p.Key;
+                }
             }
+            ID_2_PACENOTE.Remove(-1);
+            ID_2_MODIFIER.Remove(-1);
 
             foreach (var alias in ALIAS)
             {
@@ -103,7 +117,7 @@ namespace ZTMZ.PacenoteTool.Base
                 return records.ToDictionary(r => r.Id, r => r.Description);
             }
         }
-        private static Dictionary<string, Tuple<string, bool>> loadPacenotes(string path)
+        private static Dictionary<string, Tuple<string, bool, string, string, string>> loadPacenotes(string path)
         {
             using (var reader = new StreamReader(path))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
@@ -113,9 +127,16 @@ namespace ZTMZ.PacenoteTool.Base
                     Description = string.Empty,
                     Id = string.Empty,
                     CanBeModifier = 0,
+                    RBR_Pacenote_Id = string.Empty,
+                    RBR_Modifier_Id = string.Empty,
+                    RBR_Type = string.Empty,
                 };
                 var records = csv.GetRecords(def);
-                return records.ToDictionary(r => r.Id, r=> new Tuple<string, bool>(r.Description, Convert.ToBoolean(r.CanBeModifier)));
+                return records.ToDictionary(r => r.Id, r=> 
+                    new Tuple<string, bool, string, string, string>(
+                        r.Description, Convert.ToBoolean(r.CanBeModifier)
+                        , r.RBR_Pacenote_Id, r.RBR_Modifier_Id, r.RBR_Type
+                    ));
             }
         }
         private static Dictionary<string, Tuple<string, string>> loadAlias(string path)

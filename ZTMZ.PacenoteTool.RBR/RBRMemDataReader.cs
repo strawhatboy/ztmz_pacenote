@@ -106,15 +106,20 @@ public class RBRMemDataReader
             memData.DamageId = MemoryReader.Read<int>(pHandle, 0x1660850);
             memData.TransmissionId = MemoryReader.Read<int>(pHandle, 0x1660814);
             memData.WeatherId = MemoryReader.Read<int>(pHandle, 0x1660848);
-            memData.Track = getTrackNameFromMemory(pHandle);
+            memData.Track = GetTrackNameFromMemory();
             memData.TrackId = MemoryReader.Read<int>(pHandle, 0x7EA678, 0x70, 0x20);
             memData.TrackLength = MemoryReader.Read<float>(pHandle, 0x1659184, 0x75310);
         }
 
         return memData;
     }
-    private string getTrackNameFromMemory(IntPtr pHandle)
+    public string GetTrackNameFromMemory()
     {
+        if (!_isProcessOpened)
+        {
+            return "";
+        }
+        var pHandle = _theProcess.Handle;
         int trackNameAddr = MemoryReader.Read<int>(pHandle, 0x4A1123);
         if (trackNameAddr != 0x731234 && trackNameAddr != 0)
         {

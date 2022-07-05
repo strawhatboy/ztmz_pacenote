@@ -128,7 +128,13 @@ namespace ZTMZ.PacenoteTool.Base
         public static ScriptReader ReadFromJson(string jsonFile)
         {
             var content = File.ReadAllText(jsonFile);
-            var records = JsonConvert.DeserializeObject<List<CrewChiefPacenoteRecord>>(content);
+            var records = JsonConvert.DeserializeObject<List<DynamicPacenoteRecord>>(content);
+            return ReadFromDynamicPacenoteRecords(records);
+        }
+
+        public static ScriptReader ReadFromDynamicPacenoteRecords(List<DynamicPacenoteRecord> records)
+        {
+            records.Sort((a, b) => a.Distance.CompareTo(b.Distance));
             PacenoteRecord record = new PacenoteRecord();
             PacenoteRecord lastRecord = null;
             ScriptReader reader = new ScriptReader();
@@ -176,6 +182,9 @@ namespace ZTMZ.PacenoteTool.Base
                 lastRecord = record;
                 record = new PacenoteRecord();
             }
+
+            // they're all dynamic.
+            reader.Flags.Add(ScriptFlags.DYNAMIC);
 
             return reader;
         }
