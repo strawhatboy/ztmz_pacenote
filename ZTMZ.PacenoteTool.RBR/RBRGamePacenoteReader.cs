@@ -240,7 +240,7 @@ public class RBRGamePacenoteReader : BasePacenoteReader
 
                 if (offsetType == 0 || (offsetFingerPrint[0] != 0x00 && offsetFingerPrint[0x04] == 0x00 && offsetFingerPrint[0x08] == 0x1C))
                 {
-                    numOfPacenoteRecords = offsetFingerPrint[0];
+                    numOfPacenoteRecords = BitConverter.ToInt32(offsetFingerPrint.Take(4).ToArray(), 0);
                     break;
                 }
 

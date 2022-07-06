@@ -1,5 +1,5 @@
 #define MyAppName "ZTMZ Pacenote Tool"
-#define MyAppVersion "2.6.6.3"
+#define MyAppVersion "2.6.6.4"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.exe"

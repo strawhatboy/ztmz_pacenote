@@ -56,8 +56,10 @@ namespace ZTMZ.PacenoteTool.Base
             sb.Append(this.Note);
             foreach (var mod in this.Modifiers)
             {
-                sb.Append("/");
-                sb.Append(mod);
+                if (!string.IsNullOrEmpty(mod))
+                {
+                    sb.AppendFormat("/{0}", mod);
+                }
             }
 
             return sb.ToString();

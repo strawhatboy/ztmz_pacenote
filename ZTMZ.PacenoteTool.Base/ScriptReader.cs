@@ -185,6 +185,8 @@ namespace ZTMZ.PacenoteTool.Base
 
             // they're all dynamic.
             reader.Flags.Add(ScriptFlags.DYNAMIC);
+            reader.FlagParameters.Add(ScriptFlags.DYNAMIC, new List<string>());
+            reader.FlagComments.Add(ScriptFlags.DYNAMIC, "");
 
             return reader;
         }

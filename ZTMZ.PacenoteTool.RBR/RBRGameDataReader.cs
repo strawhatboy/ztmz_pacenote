@@ -45,7 +45,7 @@ public class RBRGameDataReader : UdpGameDataReader
         }
     }
 
-    public static float MEM_REFRESH_INTERVAL = 16.6f; 
+    public static float MEM_REFRESH_INTERVAL = 25f; 
     public GameState _gameState;
     private GameData _lastGameData;
 
@@ -90,7 +90,7 @@ public class RBRGameDataReader : UdpGameDataReader
         // init memory reader?
         _memDataReader.OpenProcess(game);
         _timer.Elapsed += MemDataPullHandler;
-        _timer.Interval = MEM_REFRESH_INTERVAL; // 16.66ms = 60fps
+        _timer.Interval = MEM_REFRESH_INTERVAL; // 25ms = 40Hz
         _timer.Start();
         return true;
     }

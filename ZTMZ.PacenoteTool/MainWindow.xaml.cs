@@ -1066,14 +1066,39 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         private void btn_currentTrack_script_Click(object sender, RoutedEventArgs e)
         {
             GoogleAnalyticsHelper.Instance.TrackPageView("Button - TrackScript", "button/track_script");
-            if (this._profileManager.CurrentItineraryPath != null)
+            if (this._profileManager.CurrentScriptPath != null)
             {
+                var recordScriptFile = _currentGame.GamePacenoteReader.GetScriptFileForRecording(this._profileManager.CurrentProfile, _currentGame, _trackName);
+                
+                if (_toolState == ToolState.Recording) 
+                {
+                    if (this._profileManager.CurrentScriptPath.Equals(recordScriptFile))
+                    {
+                        ScriptEditor.App.InitHighlightComponent();
+                        _scriptWindow = new ScriptEditor.MainWindow();
+                        _scriptWindow.Show();
+                        _scriptWindow.HandleFileOpen(System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath));
+                    } else {
+                        // create one ?
+                        var dResult = MessageBox.Show("并不存在自定义的路书脚本，你想要创建一个吗？注意：在当前版本下创建后，将可能无法使用原本rbr路书，想要恢复原本的rbr路书，删除新创建的脚本文件即可", "路书脚本不存在", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        if (dResult == MessageBoxResult.Yes) 
+                        {
+                            File.WriteAllText(recordScriptFile, "");
+                            ScriptEditor.App.InitHighlightComponent();
+                            _scriptWindow = new ScriptEditor.MainWindow();
+                            _scriptWindow.Show();
+                            _scriptWindow.HandleFileOpen(System.IO.Path.GetFullPath(recordScriptFile));
+                        }
+                    }
+                } else {
+                    // readonly?
+                    ScriptEditor.App.InitHighlightComponent();
+                    _scriptWindow = new ScriptEditor.MainWindow();
+                    _scriptWindow.AppendLine(_profileManager.CurrentScriptReader.ToString());
+                    _scriptWindow.Show();
+                }
                 // System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ZTMZ.PacenoteTool.ScriptEditor.exe",
                 //    string.Format("\"{0}\"", System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath))));
-                ScriptEditor.App.InitHighlightComponent();
-                _scriptWindow = new ScriptEditor.MainWindow();
-                _scriptWindow.Show();
-                _scriptWindow.HandleFileOpen(System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath));
             }
             else
             {
