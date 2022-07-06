@@ -193,10 +193,7 @@ public class RBRGamePacenoteReader : BasePacenoteReader
                 if (section.Keys.ContainsKey("flag"))
                 {
                     var flag = int.Parse(section.Keys["flag"]);
-                    if (ScriptResource.ID_2_MODIFIER.ContainsKey(flag))
-                    {
-                        record.Modifier = ScriptResource.ID_2_MODIFIER[flag];
-                    }
+                    record.Modifier = getModifiersFromFlag(flag);
                 }
 
                 if (!string.IsNullOrEmpty(record.Pacenote))
@@ -287,10 +284,7 @@ public class RBRGamePacenoteReader : BasePacenoteReader
                 }
 
                 var flag = BitConverter.ToInt32(dword, 0x04);
-                if (ScriptResource.ID_2_MODIFIER.ContainsKey(flag))
-                {
-                    record.Modifier = ScriptResource.ID_2_MODIFIER[flag];
-                }
+                record.Modifier = getModifiersFromFlag(flag);
 
                 var distance = BitConverter.ToSingle(dword, 0x08);
                 record.Distance = distance;
