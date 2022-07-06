@@ -17,6 +17,7 @@ using SharpDX.Direct2D1;
 using ZTMZ.PacenoteTool.Base;
 using Geometry = GameOverlay.Drawing.Geometry;
 using Image = GameOverlay.Drawing.Image;
+using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -371,7 +372,7 @@ namespace ZTMZ.PacenoteTool
 
         public bool TimeToShowStatistics { set; get; }
 
-        public UDPMessage UdpMessage { set; get; }
+        public GameData GameData { set; get; }
 
         public static float MAX_SPEED = 200f;
         public static float MAX_WHEEL_SPEED = 220f;
@@ -570,7 +571,7 @@ namespace ZTMZ.PacenoteTool
 
         private void drawDebugTelemetry(Graphics gfx)
         {
-            gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], 0, 0, UdpMessage.ToString());
+            gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], 0, 0, GameData.ToString());
         }
 
         private void drawTelemetry(Graphics gfx)
@@ -623,7 +624,7 @@ namespace ZTMZ.PacenoteTool
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("We got exception when drawing elements: {0}, {1}", ex.ToString(), UdpMessage.ToString());
+                    Debug.WriteLine("We got exception when drawing elements: {0}, {1}", ex.ToString(), GameData.ToString());
                     // GoogleAnalyticsHelper.Instance.TrackExceptionEvent($"We got exception when drawing elements with func: {t.ToString()}", ex.Message + UdpMessage.ToString());
                 }
 
@@ -632,9 +633,9 @@ namespace ZTMZ.PacenoteTool
             
             // draw the finish rate
             gfx.FillRectangle(_brushes["green"], 
-                telemetryStartPosX, 
+                0, 
                 telemetryStartPosY + telemetryHeight - 5, 
-                telemetryStartPosX + UdpMessage.CompletionRate * telemetryWidth,
+                GameData.CompletionRate * gfx.Width,
                 telemetryStartPosY + telemetryHeight);
         }
 
@@ -649,14 +650,14 @@ namespace ZTMZ.PacenoteTool
             gfx.DrawCircle(_brushes["white"], centerX, centerY, radius -1 , 1);
             gfx.DrawCircle(_brushes["black"], centerX, centerY, radius , 1);
             // the ball
-            var ballX = centerX + UdpMessage.G_lat * radius / MAX_G_FORCE;
-            var ballY = centerY + UdpMessage.G_long * radius / MAX_G_FORCE;
+            var ballX = centerX + GameData.G_lat * radius / MAX_G_FORCE;
+            var ballY = centerY + GameData.G_long * radius / MAX_G_FORCE;
             gfx.FillCircle(_brushes["red"], ballX, ballY, radius * 0.1f);
         }
         private void drawSpdSector(Graphics gfx, float x, float y, float width, float height)
         {
-            maxSpeed = MathF.Max(maxSpeed, UdpMessage.Speed); 
-            drawSector(gfx, "SPD (KM/h)", x, y, width, height, UdpMessage.Speed, maxSpeed, Config.Instance.HudSectorThicknessRatio);
+            maxSpeed = MathF.Max(maxSpeed, GameData.Speed); 
+            drawSector(gfx, "SPD (KM/h)", x, y, width, height, GameData.Speed, maxSpeed, Config.Instance.HudSectorThicknessRatio);
         }
         private void drawPedals(Graphics gfx, float x, float y, float width, float height)
         {
@@ -673,9 +674,9 @@ namespace ZTMZ.PacenoteTool
             gfx.DrawRectangle(_brushes["black"], x + pedalWidth + spacing-1, y-1, x + 2 * pedalWidth + spacing+1, y + height+1, 1);
             gfx.DrawRectangle(_brushes["black"], x + 2 * pedalWidth + 2 * spacing-1, y-1, x + width+1, y + height+1, 1);
 
-            gfx.FillRectangle(_brushes["blue"], 1 + x, 1 + y + height * (1-UdpMessage.Clutch), x + pedalWidth - 1, y + height - 1);
-            gfx.FillRectangle(_brushes["red"], 1 + x + pedalWidth + spacing, 1 + y + height * (1-UdpMessage.Brake), x + 2 * pedalWidth + spacing - 1, y + height - 1);
-            gfx.FillRectangle(_brushes["green"], 1 + x + 2 * pedalWidth + 2 * spacing, 1 + y + height * (1-UdpMessage.Throttle), x + width - 1, y + height - 1);
+            gfx.FillRectangle(_brushes["blue"], 1 + x, 1 + y + height * (1-GameData.Clutch), x + pedalWidth - 1, y + height - 1);
+            gfx.FillRectangle(_brushes["red"], 1 + x + pedalWidth + spacing, 1 + y + height * (1-GameData.Brake), x + 2 * pedalWidth + spacing - 1, y + height - 1);
+            gfx.FillRectangle(_brushes["green"], 1 + x + 2 * pedalWidth + 2 * spacing, 1 + y + height * (1-GameData.Throttle), x + width - 1, y + height - 1);
 
         }
         private void drawGear(Graphics gfx, float x, float y, float width, float height)
@@ -683,7 +684,7 @@ namespace ZTMZ.PacenoteTool
             // var font = gfx.CreateFont("consolas", width);
             // var actualSize = MathF.Min(width, height);
             // gfx.DrawText(_fonts["consolas"], actualSize, _brushes["white"], x, y, getGearText(Convert.ToInt32(UdpMessage.Gear)));
-            var columns = Convert.ToInt32(MathF.Ceiling(UdpMessage.MaxGears * 0.5f)) + 1;
+            var columns = Convert.ToInt32(MathF.Ceiling(GameData.MaxGears * 0.5f)) + 1;
 
             var barWidth = width / (columns + (columns-1) * Config.Instance.HudSectorThicknessRatio);
             var spacingH = Config.Instance.HudSectorThicknessRatio * barWidth;
@@ -696,7 +697,7 @@ namespace ZTMZ.PacenoteTool
                 new Rectangle(x, y, x + barWidth, y + barHeight),
             };
 
-            for (var i = 1; i <= UdpMessage.MaxGears; i++)
+            for (var i = 1; i <= GameData.MaxGears; i++)
             {
                 var row = (i + 1) % 2;
                 var column = (i + 1) / 2;
@@ -714,19 +715,38 @@ namespace ZTMZ.PacenoteTool
                 gfx.DrawRectangle(_brushes["black"], r, 1);
             }
 
-            int gear = Convert.ToInt32(UdpMessage.Gear);
+            int gear = Convert.ToInt32(GameData.Gear);
+            string gearText = "";
+            bool isNGear = false;
             Rectangle rect;
             switch (gear) 
             {
                 case -1:
                 case 10:
                     rect = rectangles[0];
+                    gearText = "R";
+                    break;
+                case 0:
+                    rect = rectangles[0];
+                    isNGear = true;
+                    gearText = "N";
                     break;
                 default:
                     rect = rectangles[gear];
+                    gearText = gear.ToString();
                     break;
             }
-            gfx.FillRectangle(_brushes["red"], rect.Left + 1, rect.Top + 1, rect.Right - 1, rect.Bottom - 1);
+            if (!isNGear)
+            {
+                gfx.FillRectangle(_brushes["red"], rect.Left + 1, rect.Top + 1, rect.Right - 1, rect.Bottom - 1);
+            }
+            gfx.drawTextWithBackgroundCentered(_fonts["consolas"],
+                barWidth,
+                _brushes["white"],
+                _brushes["black"],
+                x + 0.5f * barWidth,
+                y + spacingV + 1.5f * barHeight,
+                gearText);
         }
 
         private void drawSteering(Graphics gfx, float x, float y, float width, float height)
@@ -737,7 +757,7 @@ namespace ZTMZ.PacenoteTool
             var radiusInner = radiusOuter * (1 - Config.Instance.HudSectorThicknessRatio);
             var radiusWidth = radiusOuter - radiusInner;
 
-            var rawSteeringAngle = UdpMessage.Steering * Config.Instance.HudTelemetrySteeringDegree * 0.5f;
+            var rawSteeringAngle = GameData.Steering * Config.Instance.HudTelemetrySteeringDegree * 0.5f;
             // bg
             IBrush pathBrush;
             IBrush bgBrush;
@@ -823,7 +843,7 @@ namespace ZTMZ.PacenoteTool
         }
         private void drawRPMSector(Graphics gfx, float x, float y, float width, float height)
         {
-            var t = drawSector(gfx, "RPM", x, y, width, height, UdpMessage.RPM, UdpMessage.MaxRPM, Config.Instance.HudSectorThicknessRatio);
+            var t = drawSector(gfx, "RPM", x, y, width, height, GameData.RPM, GameData.MaxRPM, Config.Instance.HudSectorThicknessRatio);
 
         }
         private void drawSuspensionBars(Graphics gfx, float x, float y, float width, float height)
@@ -856,64 +876,64 @@ namespace ZTMZ.PacenoteTool
             // y += 1;
             // width -= 2;
             // height -= 2;
-            maxWheelSpeed = MathF.Max(maxWheelSpeed, UdpMessage.SpeedFrontLeft);
-            gfx.FillRectangle(_brushes["green"], x, y + (1-UdpMessage.SpeedFrontLeft / maxWheelSpeed) * bgHeight, x + barWidth, y + bgHeight);
-            maxWheelSpeed = MathF.Max(maxWheelSpeed, UdpMessage.SpeedFrontRight);
-            gfx.FillRectangle(_brushes["green"], x + width - barWidth, y + (1-UdpMessage.SpeedFrontRight / maxWheelSpeed) * bgHeight, x + width, y + bgHeight);
-            maxWheelSpeed = MathF.Max(maxWheelSpeed, UdpMessage.SpeedRearLeft);
-            gfx.FillRectangle(_brushes["green"], x, y + bgHeight + spacingV + (1-UdpMessage.SpeedRearLeft / maxWheelSpeed) * bgHeight, x + barWidth, y + height);
-            maxWheelSpeed = MathF.Max(maxWheelSpeed, UdpMessage.SpeedRearRight);
-            gfx.FillRectangle(_brushes["green"], x + width - barWidth, y + bgHeight + spacingV + (1-UdpMessage.SpeedRearRight / maxWheelSpeed) * bgHeight, x + width, y + height);
+            maxWheelSpeed = MathF.Max(maxWheelSpeed, GameData.SpeedFrontLeft);
+            gfx.FillRectangle(_brushes["green"], x, y + (1-GameData.SpeedFrontLeft / maxWheelSpeed) * bgHeight, x + barWidth, y + bgHeight);
+            maxWheelSpeed = MathF.Max(maxWheelSpeed, GameData.SpeedFrontRight);
+            gfx.FillRectangle(_brushes["green"], x + width - barWidth, y + (1-GameData.SpeedFrontRight / maxWheelSpeed) * bgHeight, x + width, y + bgHeight);
+            maxWheelSpeed = MathF.Max(maxWheelSpeed, GameData.SpeedRearLeft);
+            gfx.FillRectangle(_brushes["green"], x, y + bgHeight + spacingV + (1-GameData.SpeedRearLeft / maxWheelSpeed) * bgHeight, x + barWidth, y + height);
+            maxWheelSpeed = MathF.Max(maxWheelSpeed, GameData.SpeedRearRight);
+            gfx.FillRectangle(_brushes["green"], x + width - barWidth, y + bgHeight + spacingV + (1-GameData.SpeedRearRight / maxWheelSpeed) * bgHeight, x + width, y + height);
             
             // brake temp
             // gfx.DrawRectangle(_brushes["red"], x + barWidth, y + bgHeight, x + 2 * barWidth, y + bgHeight, 1);
             // gfx.DrawRectangle(_brushes["red"], x + width - 2 * barWidth, y + bgHeight, x + width - barWidth, y + bgHeight, 1);
             // gfx.DrawRectangle(_brushes["red"], x + barWidth, y + bgHeight + spacingV + bgHeight, x + 2 * barWidth, y + height, 1);
             // gfx.DrawRectangle(_brushes["red"], x + width - 2 * barWidth, y + bgHeight + spacingV + bgHeight, x + width - barWidth, y + height, 1);
-            maxWheelTemp = MathF.Max(maxWheelTemp, UdpMessage.BrakeTempFrontLeft);
-            gfx.FillRectangle(_brushes["red"], x + barWidth, y + (1-getMaxMinBarPartition(maxWheelTemp, 0, UdpMessage.BrakeTempFrontLeft)) * bgHeight, x + 2 * barWidth, y + bgHeight);
-            maxWheelTemp = MathF.Max(maxWheelTemp, UdpMessage.BrakeTempFrontRight);
-            gfx.FillRectangle(_brushes["red"], x + width - 2 * barWidth, y + (1-getMaxMinBarPartition(maxWheelTemp, 0, UdpMessage.BrakeTempFrontRight)) * bgHeight, x + width - barWidth, y + bgHeight);
-            maxWheelTemp = MathF.Max(maxWheelTemp, UdpMessage.BrakeTempRearLeft);
-            gfx.FillRectangle(_brushes["red"], x + barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxWheelTemp, 0, UdpMessage.BrakeTempRearLeft)) * bgHeight, x + 2 * barWidth, y + height);
-            maxWheelTemp = MathF.Max(maxWheelTemp, UdpMessage.BrakeTempRearRight);
-            gfx.FillRectangle(_brushes["red"], x + width - 2 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxWheelTemp, 0, UdpMessage.BrakeTempRearRight)) * bgHeight, x + width - barWidth, y + height);
+            maxWheelTemp = MathF.Max(maxWheelTemp, GameData.BrakeTempFrontLeft);
+            gfx.FillRectangle(_brushes["red"], x + barWidth, y + (1-getMaxMinBarPartition(maxWheelTemp, 0, GameData.BrakeTempFrontLeft)) * bgHeight, x + 2 * barWidth, y + bgHeight);
+            maxWheelTemp = MathF.Max(maxWheelTemp, GameData.BrakeTempFrontRight);
+            gfx.FillRectangle(_brushes["red"], x + width - 2 * barWidth, y + (1-getMaxMinBarPartition(maxWheelTemp, 0, GameData.BrakeTempFrontRight)) * bgHeight, x + width - barWidth, y + bgHeight);
+            maxWheelTemp = MathF.Max(maxWheelTemp, GameData.BrakeTempRearLeft);
+            gfx.FillRectangle(_brushes["red"], x + barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxWheelTemp, 0, GameData.BrakeTempRearLeft)) * bgHeight, x + 2 * barWidth, y + height);
+            maxWheelTemp = MathF.Max(maxWheelTemp, GameData.BrakeTempRearRight);
+            gfx.FillRectangle(_brushes["red"], x + width - 2 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxWheelTemp, 0, GameData.BrakeTempRearRight)) * bgHeight, x + width - barWidth, y + height);
 
             // suspension
             // gfx.DrawRectangle(_brushes["white"], x + 2 * barWidth, y + bgHeight, x + 3 * barWidth, y + bgHeight, 1);
             // gfx.DrawRectangle(_brushes["white"], x + width - 3 * barWidth, y + bgHeight, x + width - 2 * barWidth, y + bgHeight, 1);
             // gfx.DrawRectangle(_brushes["white"], x + 2 * barWidth, y + bgHeight + spacingV + bgHeight, x + 3 * barWidth, y + height, 1);
             // gfx.DrawRectangle(_brushes["white"], x + width - 3 * barWidth, y + bgHeight + spacingV + bgHeight, x + width - 2 * barWidth, y + height, 1);
-            minSuspension = MathF.Min(minSuspension, UdpMessage.SuspensionFrontLeft);
-            maxSuspension = MathF.Max(maxSuspension, UdpMessage.SuspensionFrontLeft);
-            gfx.FillRectangle(_brushes["white"], x + 2 * barWidth, y + (1-getMaxMinBarPartition(maxSuspension, minSuspension, UdpMessage.SuspensionFrontLeft)) * bgHeight, x + 3 * barWidth, y + bgHeight);
-            minSuspension = MathF.Min(minSuspension, UdpMessage.SuspensionFrontRight);
-            maxSuspension = MathF.Max(maxSuspension, UdpMessage.SuspensionFrontRight);
-            gfx.FillRectangle(_brushes["white"], x + width - 3 * barWidth, y + (1-getMaxMinBarPartition(maxSuspension, minSuspension, UdpMessage.SuspensionFrontRight)) * bgHeight, x + width - 2 * barWidth, y + bgHeight);
-            minSuspension = MathF.Min(minSuspension, UdpMessage.SuspensionRearLeft);
-            maxSuspension = MathF.Max(maxSuspension, UdpMessage.SuspensionRearLeft);
-            gfx.FillRectangle(_brushes["white"], x + 2 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxSuspension, minSuspension, UdpMessage.SuspensionRearLeft)) * bgHeight, x + 3 * barWidth, y + height);
-            minSuspension = MathF.Min(minSuspension, UdpMessage.SuspensionRearRight);
-            maxSuspension = MathF.Max(maxSuspension, UdpMessage.SuspensionRearRight);
-            gfx.FillRectangle(_brushes["white"], x + width - 3 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxSuspension, minSuspension, UdpMessage.SuspensionRearRight)) * bgHeight, x + width - 2 * barWidth, y + height);
+            minSuspension = MathF.Min(minSuspension, GameData.SuspensionFrontLeft);
+            maxSuspension = MathF.Max(maxSuspension, GameData.SuspensionFrontLeft);
+            gfx.FillRectangle(_brushes["white"], x + 2 * barWidth, y + (1-getMaxMinBarPartition(maxSuspension, minSuspension, GameData.SuspensionFrontLeft)) * bgHeight, x + 3 * barWidth, y + bgHeight);
+            minSuspension = MathF.Min(minSuspension, GameData.SuspensionFrontRight);
+            maxSuspension = MathF.Max(maxSuspension, GameData.SuspensionFrontRight);
+            gfx.FillRectangle(_brushes["white"], x + width - 3 * barWidth, y + (1-getMaxMinBarPartition(maxSuspension, minSuspension, GameData.SuspensionFrontRight)) * bgHeight, x + width - 2 * barWidth, y + bgHeight);
+            minSuspension = MathF.Min(minSuspension, GameData.SuspensionRearLeft);
+            maxSuspension = MathF.Max(maxSuspension, GameData.SuspensionRearLeft);
+            gfx.FillRectangle(_brushes["white"], x + 2 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxSuspension, minSuspension, GameData.SuspensionRearLeft)) * bgHeight, x + 3 * barWidth, y + height);
+            minSuspension = MathF.Min(minSuspension, GameData.SuspensionRearRight);
+            maxSuspension = MathF.Max(maxSuspension, GameData.SuspensionRearRight);
+            gfx.FillRectangle(_brushes["white"], x + width - 3 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxSuspension, minSuspension, GameData.SuspensionRearRight)) * bgHeight, x + width - 2 * barWidth, y + height);
             
             // suspension_speed
             // gfx.DrawRectangle(_brushes["blue"], x + 3 * barWidth, y + bgHeight, x + 4 * barWidth, y + bgHeight, 1);
             // gfx.DrawRectangle(_brushes["blue"], x + width - 4 * barWidth, y + bgHeight, x + width - 3 * barWidth, y + bgHeight, 1);
             // gfx.DrawRectangle(_brushes["blue"], x + 3 * barWidth, y + bgHeight + spacingV + bgHeight, x + 4 * barWidth, y + height, 1);
             // gfx.DrawRectangle(_brushes["blue"], x + width - 4 * barWidth, y + bgHeight + spacingV + bgHeight, x + width - 3 * barWidth, y + height, 1);
-            maxSuspensionSpd = MathF.Max(maxSuspensionSpd, UdpMessage.SuspensionSpeedFrontLeft);
-            minSuspensionSpd = MathF.Min(minSuspensionSpd, UdpMessage.SuspensionSpeedFrontLeft);
-            gfx.FillRectangle(_brushes["blue"], x + 3 * barWidth, y + (1-getMaxMinBarPartition(maxSuspensionSpd, minSuspensionSpd, UdpMessage.SuspensionSpeedFrontLeft)) * bgHeight, x + 4 * barWidth, y + bgHeight);
-            maxSuspensionSpd = MathF.Max(maxSuspensionSpd, UdpMessage.SuspensionSpeedFrontRight);
-            minSuspensionSpd = MathF.Min(minSuspensionSpd, UdpMessage.SuspensionSpeedFrontRight);
-            gfx.FillRectangle(_brushes["blue"], x + width - 4 * barWidth, y + (1-getMaxMinBarPartition(maxSuspensionSpd, minSuspensionSpd, UdpMessage.SuspensionSpeedFrontRight)) * bgHeight, x + width - 3 * barWidth, y + bgHeight);
-            maxSuspensionSpd = MathF.Max(maxSuspensionSpd, UdpMessage.SuspensionSpeedRearLeft);
-            minSuspensionSpd = MathF.Min(minSuspensionSpd, UdpMessage.SuspensionSpeedRearLeft);
-            gfx.FillRectangle(_brushes["blue"], x + 3 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxSuspensionSpd, minSuspensionSpd, UdpMessage.SuspensionSpeedRearLeft)) * bgHeight, x + 4 * barWidth, y + height);
-            maxSuspensionSpd = MathF.Max(maxSuspensionSpd, UdpMessage.SuspensionSpeedRearRight);
-            minSuspensionSpd = MathF.Min(minSuspensionSpd, UdpMessage.SuspensionSpeedRearRight);
-            gfx.FillRectangle(_brushes["blue"], x + width - 4 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxSuspensionSpd, minSuspensionSpd, UdpMessage.SuspensionSpeedRearRight)) * bgHeight, x + width - 3 * barWidth, y + height);
+            maxSuspensionSpd = MathF.Max(maxSuspensionSpd, GameData.SuspensionSpeedFrontLeft);
+            minSuspensionSpd = MathF.Min(minSuspensionSpd, GameData.SuspensionSpeedFrontLeft);
+            gfx.FillRectangle(_brushes["blue"], x + 3 * barWidth, y + (1-getMaxMinBarPartition(maxSuspensionSpd, minSuspensionSpd, GameData.SuspensionSpeedFrontLeft)) * bgHeight, x + 4 * barWidth, y + bgHeight);
+            maxSuspensionSpd = MathF.Max(maxSuspensionSpd, GameData.SuspensionSpeedFrontRight);
+            minSuspensionSpd = MathF.Min(minSuspensionSpd, GameData.SuspensionSpeedFrontRight);
+            gfx.FillRectangle(_brushes["blue"], x + width - 4 * barWidth, y + (1-getMaxMinBarPartition(maxSuspensionSpd, minSuspensionSpd, GameData.SuspensionSpeedFrontRight)) * bgHeight, x + width - 3 * barWidth, y + bgHeight);
+            maxSuspensionSpd = MathF.Max(maxSuspensionSpd, GameData.SuspensionSpeedRearLeft);
+            minSuspensionSpd = MathF.Min(minSuspensionSpd, GameData.SuspensionSpeedRearLeft);
+            gfx.FillRectangle(_brushes["blue"], x + 3 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxSuspensionSpd, minSuspensionSpd, GameData.SuspensionSpeedRearLeft)) * bgHeight, x + 4 * barWidth, y + height);
+            maxSuspensionSpd = MathF.Max(maxSuspensionSpd, GameData.SuspensionSpeedRearRight);
+            minSuspensionSpd = MathF.Min(minSuspensionSpd, GameData.SuspensionSpeedRearRight);
+            gfx.FillRectangle(_brushes["blue"], x + width - 4 * barWidth, y + bgHeight + spacingV + (1-getMaxMinBarPartition(maxSuspensionSpd, minSuspensionSpd, GameData.SuspensionSpeedRearRight)) * bgHeight, x + width - 3 * barWidth, y + height);
 
         }
 
@@ -934,6 +954,14 @@ namespace ZTMZ.PacenoteTool
             float maxValue, 
             float thicknessRatio=0.2f)
         {
+            if (value > maxValue)
+            {
+                value = maxValue;
+            }
+            if (value < 0)
+            {
+                value = 0;
+            }
             var centerX = x + 0.5f * width;
             var centerY = y + 0.5f * height;
             var radiusOuter = MathF.Min(width, height) * 0.5f;
@@ -1084,7 +1112,7 @@ namespace ZTMZ.PacenoteTool
 
                     if (processes.Length > 0 && _window == null)
                     {
-                        Thread.Sleep(5000);
+                        Thread.Sleep(10000);
                         // dr2 has 2 windows during launching...shit
                         processes = System.Diagnostics.Process.GetProcessesByName(GAME_PROCESS);
                         var process = processes.First();

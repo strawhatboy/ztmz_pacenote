@@ -137,7 +137,7 @@ namespace ZTMZ.PacenoteTool.Base
             return sb.ToString();
         }
 
-        public static PacenoteRecord FromCrewChiefPacenoteRecord(CrewChiefPacenoteRecord record)
+        public static PacenoteRecord FromCrewChiefPacenoteRecord(DynamicPacenoteRecord record)
         {
             PacenoteRecord ret = new PacenoteRecord();
             ret.Distance = record.Distance;

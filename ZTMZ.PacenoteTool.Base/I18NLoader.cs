@@ -70,9 +70,12 @@ namespace ZTMZ.PacenoteTool.Base
                     Resources.Add(fileNameWithoutExtension, new Dictionary<string, string>());
                 }
 
-                JsonTextReader reader = new JsonTextReader(new StringReader(File.ReadAllText(jsonFile)));
-                List<string> properties = new List<string>();
-                readJson(fileNameWithoutExtension, reader, properties);
+                using (var strReader = new StringReader(File.ReadAllText(jsonFile)))
+                using (JsonTextReader reader = new JsonTextReader(strReader)) 
+                {
+                    List<string> properties = new List<string>();
+                    readJson(fileNameWithoutExtension, reader, properties);
+                }
             }
 
             SetCulture(CurrentCultureName);

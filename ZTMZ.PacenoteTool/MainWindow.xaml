@@ -17,7 +17,7 @@
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
         Closing="Window_Closing"
-        Title="ZTMZ Club 路书工具" Height="840" Width="500" Loaded="Window_Loaded">
+        Title="ZTMZ Club 路书工具" Height="925" Width="500" Loaded="Window_Loaded">
 
     <Grid>
         <Grid.Resources>
@@ -31,7 +31,7 @@
             <RowDefinition Height="5" />
             <RowDefinition Height="200" />
             <RowDefinition Height="5" />
-            <RowDefinition Height="25" />
+            <RowDefinition Height="110" />
             <RowDefinition Height="5" />
             <RowDefinition Height="150" />
             <RowDefinition Height="5" />
@@ -132,16 +132,40 @@
         <!-- <Border Grid.Row="3" Margin="1" Background="#8888" /> -->
         <materialDesign:Card Grid.Row="4" Margin="5 0 5 0" Padding="5 0 5 0">
             <Grid>
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="85" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
 
                     <ColumnDefinition Width="200" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" 
+                           ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_currentGame}" 
+                           Text="{DynamicResource ResourceKey=ui.tb_currentGame}" FontSize="16" 
+                           >
+                    <TextBlock.Effect>
+                        <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
+                    </TextBlock.Effect>
+                </TextBlock>
+                <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_game" Grid.ColumnSpan="2"
+                      VerticalAlignment="Center">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel ToolTip="{Binding Path=Name}">
+                                <Image Source="{Binding Path=Image}" Width="115" Height="54" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
+                                <TextBlock Text="{Binding Path=Name}" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Grid.Row="1" Grid.Column="0" 
                            ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_currentProfile}" 
                            Text="{DynamicResource ResourceKey=ui.tb_currentProfile}"
                            />
-                <ComboBox Grid.Row="0" Grid.Column="1" Name="cb_profile" Grid.ColumnSpan="2"
+                <ComboBox Grid.Row="1" Grid.Column="1" Name="cb_profile" Grid.ColumnSpan="2"
                       VerticalAlignment="Center"
                           />
             </Grid>

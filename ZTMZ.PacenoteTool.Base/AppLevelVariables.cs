@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
@@ -15,8 +16,23 @@ namespace ZTMZ.PacenoteTool.Base
         private static AppLevelVariables _instance;
         public static AppLevelVariables Instance => _instance ?? (_instance = new AppLevelVariables());
 
+        public static List<char> InvalidCharsForWindowsPath;
+
+        static AppLevelVariables()
+        {
+            InvalidCharsForWindowsPath = new()
+            {
+                '*', '{', '}', '!', '"', '?'
+            };
+        }
+
         public string GetPath(string path)
         {
+            // remove invalid characters
+            foreach (var c in InvalidCharsForWindowsPath)
+            {
+                path = path.Replace(c, '_');
+            }
 #if RELEASE_PORTABLE
             return path;
 #else
@@ -24,7 +40,7 @@ namespace ZTMZ.PacenoteTool.Base
 #endif
         }
 
-        public bool IsGreenVersion()
+        public bool IsPortableVersion()
         {
 #if RELEASE_PORTABLE
             return true;

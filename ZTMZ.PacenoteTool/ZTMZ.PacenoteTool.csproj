@@ -4,10 +4,10 @@
         <OutputType>WinExe</OutputType>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>app.ico</ApplicationIcon>
-        <AssemblyVersion>2.6.6.0</AssemblyVersion>
-        <PackageVersion>2.6.6</PackageVersion>
-        <Version>2.6.6</Version>
-        <FileVersion>2.6.6.0</FileVersion>
+        <AssemblyVersion>2.6.6.3</AssemblyVersion>
+        <PackageVersion>2.6.6.3</PackageVersion>
+        <Version>2.6.6.3</Version>
+        <FileVersion>2.6.6.3</FileVersion>
 	    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	    <SignAssembly>False</SignAssembly>
 	    <TargetFramework>net6.0-windows</TargetFramework>
@@ -31,6 +31,7 @@
       <PackageReference Include="NAudio.Extras" Version="1.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
       <PackageReference Include="PromptDialog" Version="1.0.0" />
+      <PackageReference Include="System.Management" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>

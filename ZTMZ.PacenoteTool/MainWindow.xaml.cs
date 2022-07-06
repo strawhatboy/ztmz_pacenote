@@ -1,8 +1,11 @@
-﻿using System;
+﻿// Original UI, can be used as a "ViewModel" of the new UI
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,12 +21,14 @@ using NAudio.Wave;
 using OnlyR.Core.Models;
 using OnlyR.Core.Recorder;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Base.Game;
 using System.Globalization;
 using System.IO;
 using MaterialDesignThemes.Wpf;
 using System.Threading;
 using ZTMZ.PacenoteTool.Dialog;
 using Constants = ZTMZ.PacenoteTool.Base.Constants;
+using System.Windows.Media.Effects;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -34,12 +39,10 @@ namespace ZTMZ.PacenoteTool
     {
         private HotKey _hotKeyStartRecord;
         private HotKey _hotKeyStopRecord;
-        private UDPReceiver _udpReceiver;
         private ToolState _toolState = ToolState.Replaying;
         private ProfileManager _profileManager;
         private AudioRecorder _audioRecorder;
         private GameOverlayManager _gameOverlayManager;
-        private DR2Helper _dr2Helper;
         private string _trackName;
         private string _trackFolder;
         private AutoRecorder _autoRecorder;
@@ -49,6 +52,11 @@ namespace ZTMZ.PacenoteTool
         private string _version = UpdateManager.CurrentVersion;
 
         private SettingsWindow _settingsWindow;
+
+        private IGame _currentGame;
+        private List<IGame> _games = new();
+
+        private ProcessWatcher _processWatcher;
 
 
         private RecordingConfig _recordingConfig = new RecordingConfig()
@@ -67,8 +75,15 @@ namespace ZTMZ.PacenoteTool
         private int _playpointAdjust = 0;
         private float _playbackSpd = 1.0f;
 
+        private DropShadowEffect _processRunningEffect;
+
         public MainWindow()
         {
+            _processRunningEffect = new DropShadowEffect();
+            _processRunningEffect.Opacity = 1;
+            _processRunningEffect.BlurRadius = 40;
+            _processRunningEffect.Color = Colors.LightGreen;
+            _processRunningEffect.ShadowDepth = 0;
             InitializeComponent();
         }
 
@@ -80,23 +95,89 @@ namespace ZTMZ.PacenoteTool
             this._profileManager = new();
             this._audioRecorder = new();
             this._gameOverlayManager = new();
-            this._dr2Helper = new();
             this._autoRecorder = new();
 
+            this.loadGames();
             this.initGoogleAnalytics();
             this.checkFirstRun();
             this.initHotKeys();
             //this.initializeI18N();
-            this.initializeUDPReceiver();
             this.initializeComboBoxes();
-            this.checkPrerequisite();
+            // this.checkPrerequisite();   // should be put into every game
             this.checkIfDevVersion();
             this.initializeGameOverlay();
             this.initializeAutoRecorder();
             this.applyUserConfig();
+            this.initializeGames();
             this.initializeTheme();
+            this.initializeProcessWatcher();
 
             // this.initializeNewUI();
+        }
+
+        private void initializeProcessWatcher()
+        {
+            _processWatcher = new ProcessWatcher((pName, pPath) => {
+                // new process
+                var g = _games.FirstOrDefault(g => g.Executable.ToLower().Equals(pName));
+                if (g == null)
+                    return;
+
+                g.IsRunning = true;
+                if (_currentGame == g) 
+                {
+                    Dispatcher.Invoke(() => {
+                        cb_game.Effect = _processRunningEffect;
+                    });
+                }
+                if (_currentGame.Name.Equals(g.Name))
+                {
+                    //TODO: turn on the light, current game is running.
+                    //TODO: start game data pulling
+                    initializeGame(_currentGame);
+                }
+            }, (pName, pPath) => {
+                var g = _games.FirstOrDefault(g => g.Executable.ToLower().Equals(pName));
+                if (g == null)
+                    return;
+
+                g.IsRunning = false;
+                if (_currentGame == g) 
+                {
+                    Dispatcher.Invoke(() => cb_game.Effect = null);
+                }
+                if (_currentGame.Name.Equals(g.Name))
+                {
+                    //TODO: turn off the light, current game is exiting.
+                    uninitializeGame(_currentGame);
+                }
+            });
+
+            // watch games starting
+            foreach (var game in _games) 
+            {
+                _processWatcher.AddToWatch(game.Executable);
+            }
+
+            // start the watch (threads started)
+            _processWatcher.StartWatching();
+        }
+
+        private void loadGames()
+        {
+            this._games.Clear();
+            foreach (var file in Directory.EnumerateFiles(Constants.PATH_GAMES, "*.dll")) 
+            {
+                var assembly = Assembly.LoadFrom(System.IO.Path.GetFullPath(file));
+                if (assembly.GetName().Name.Equals("ZTMZ.PacenoteTool.Base")) 
+                {
+                    continue;
+                }
+                var games = assembly.GetTypes().Where(t => typeof(IGame).IsAssignableFrom(t)).Select(i => (IGame)Activator.CreateInstance(i));
+                this._games.AddRange(games);
+            }
+            this._games.Sort((g1, g2) => g1.Order.CompareTo(g2.Order));
+            this._games.ForEach(g => g.GameConfigurations = Config.Instance.LoadGameConfig(g));
         }
 
         private void initializeNewUI() {
@@ -183,12 +264,12 @@ namespace ZTMZ.PacenoteTool
                 {
                     //this.Dispatcher.Invoke(() => { this.tb_time.Text = "start"; });
 
-                    if (this._udpReceiver.GameState == GameState.Paused ||
-                        this._udpReceiver.GameState == GameState.Racing)
+                    if (this._currentGame.GameDataReader.GameState == GameState.Paused ||
+                        this._currentGame.GameDataReader.GameState == GameState.Racing)
                     {
                         this._recordingConfig.DestFilePath =
                             string.Format("{0}/{1}.mp3", this._trackFolder,
-                                (int)this._udpReceiver.LastMessage.LapDistance);
+                                (int)this._currentGame.GameDataReader.LastGameData.LapDistance);
                         this._recordingConfig.RecordingDate = DateTime.Now;
                         this._audioRecorder.Start(this._recordingConfig);
                         this._isRecordingInProgress = true;
@@ -228,111 +309,155 @@ namespace ZTMZ.PacenoteTool
             this._hotKeyStopRecord?.Unregister();
         }
 
-        private void initializeUDPReceiver()
+        private void carDamagedEventHandler(CarDamageEvent evt)
         {
-            this._udpReceiver = new UDPReceiver();
-            this._udpReceiver.onCollisionDetected += (lvl) =>
+            var worker = new BackgroundWorker();
+            switch (evt.DamageType) 
             {
-                var worker = new BackgroundWorker();
-                worker.DoWork += (sender, e) =>
-                {
-                    this._profileManager.PlaySystem(Constants.SYSTEM_COLLISION[lvl]);
-                };
-                worker.RunWorkerAsync();
-            };
-            this._udpReceiver.onWheelAbnormalDetected += wheelIndex =>
-            {
-                var worker = new BackgroundWorker();
-                worker.DoWork += (sender, e) =>
-                {
-                    this._profileManager.PlaySystem(Constants.SYSTEM_PUNCTURE[wheelIndex]);
-                };
-                worker.RunWorkerAsync();
-            };
-            this._udpReceiver.onNewMessage += msg =>
-            {
-                this.Dispatcher.Invoke(() =>
-                {
-                    this.tb_time.Text = msg.Time.ToString("0.0");
-                    this.tb_distance.Text = msg.LapDistance.ToString("0.0");
-                    this.tb_speed.Text = msg.Speed.ToString("0.0");
-                    this.tb_laptime.Text = msg.LapTime.ToString("0.0");
-                    this.tb_tracklength.Text = msg.TrackLength.ToString("0.0");
-                    this.tb_progress.Text = msg.CompletionRate.ToString("0.00");
-
-                    this.tb_position_z.Text = msg.PosZ.ToString("0.0");
-
-                    this.tb_wp_fl.Text = msg.SpeedFrontLeft.ToString("0.0");
-                    this.tb_wp_fr.Text = msg.SpeedFrontRight.ToString("0.0");
-                    this.tb_wp_rl.Text = msg.SpeedRearLeft.ToString("0.0");
-                    this.tb_wp_rr.Text = msg.SpeedRearRight.ToString("0.0");
-                    this._gameOverlayManager.UdpMessage = msg;
-                });
-
-                if (this._toolState == ToolState.Recording && !this._isPureAudioRecording)
-                {
-                    this._autoRecorder.Distance = (int)msg.LapDistance;
-                    return;
-                }
-
-                var worker = new BackgroundWorker();
-                worker.DoWork += (sender, e) =>
-                {
-
-                    // play in threads.
-                    // play sound (maybe state not changed and audio files not loaded.)
-                    if (this._profileManager.CurrentAudioFile != null)
+                case CarDamage.Collision:
+                    var lvl = (int)evt.Parameters[CarDamageConstants.SEVERITY];
+                    worker.DoWork += (sender, e) =>
                     {
-                        var spdMperS = msg.Speed / 3.6f;
-                        var playPoint = this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust;
-                        var currentPoint = msg.LapDistance +
-                                           spdMperS * (0 - this._scriptTiming);
-
-                        if (this._selectReplayMode != 0 &&
-                            this._profileManager.CurrentScriptReader != null &&
-                            this._profileManager.CurrentScriptReader.IsDynamic)
-                        {
-                            currentPoint += spdMperS * Config.Instance.ScriptMode_PlaySecondsAdvanced;
-                        }
-
-                        if (currentPoint >= playPoint)
-                        {
-                            // set spd to 1.0
-                            this._profileManager.CurrentPlaySpeed = 1.0f;
-                            // can play
-                            if (Config.Instance.UseDynamicPlaybackSpeed && this._profileManager.NextAudioFile != null)
-                            {
-                                var nextPlayPoint = this._profileManager.NextAudioFile.Distance + this._playpointAdjust;
-                                var diff = currentPoint +
-                                           spdMperS * this._profileManager.CurrentAudioFile.Sound.Duration /
-                                           this._playbackSpd
-                                           - nextPlayPoint;
-                                if (diff >= 0 && (nextPlayPoint - currentPoint) > 0)
-                                {
-                                    this._profileManager.CurrentPlaySpeed =
-                                        (this._profileManager.CurrentAudioFile.Sound.Duration / this._playbackSpd)
-                                        / ((float)(nextPlayPoint - currentPoint) / spdMperS);
-                                }
-                            }
-
-                            this._profileManager.CurrentPlaySpeed *= this._playbackSpd;
-
-                            if (Config.Instance.UseDynamicVolume)
-                            {// more speed, more tension
-                                this._profileManager.CurrentTension = msg.Speed / 200f;
-                            }
-                            this._profileManager.Play();
-                        }
-                    }
-                };
-                worker.RunWorkerAsync();
-            };
-
-            this._udpReceiver.onGameStateChanged += this.gamestateChangedHandler;
+                        this._profileManager.PlaySystem(Constants.SYSTEM_COLLISION[lvl]);
+                    };
+                    worker.RunWorkerAsync();
+                    break;
+                case CarDamage.Wheel:
+                    var wheelIndex = (int)evt.Parameters[CarDamageConstants.WHEELINDEX];
+                    worker.DoWork += (sender, e) =>
+                    {
+                        this._profileManager.PlaySystem(Constants.SYSTEM_PUNCTURE[wheelIndex]);
+                    };
+                    worker.RunWorkerAsync();
+                    break;
+                default:
+                    break;
+            }
         }
 
-        private void gamestateChangedHandler(GameState lastState, GameState state)
+        private void newGameDataEventHander(GameData oldData, GameData msg)
         {
+            this.Dispatcher.Invoke(() =>
+            {
+                this.tb_time.Text = msg.Time.ToString("0.0");
+                this.tb_distance.Text = msg.LapDistance.ToString("0.0");
+                this.tb_speed.Text = msg.Speed.ToString("0.0");
+                this.tb_laptime.Text = msg.LapTime.ToString("0.0");
+                this.tb_tracklength.Text = msg.TrackLength.ToString("0.0");
+                this.tb_progress.Text = msg.CompletionRate.ToString("0.00");
+
+                // this.tb_position_z.Text = msg.PosZ.ToString("0.0");
+
+                this.tb_wp_fl.Text = msg.SpeedFrontLeft.ToString("0.0");
+                this.tb_wp_fr.Text = msg.SpeedFrontRight.ToString("0.0");
+                this.tb_wp_rl.Text = msg.SpeedRearLeft.ToString("0.0");
+                this.tb_wp_rr.Text = msg.SpeedRearRight.ToString("0.0");
+                this._gameOverlayManager.GameData = msg;
+            });
+
+            if (this._toolState == ToolState.Recording && !this._isPureAudioRecording)
+            {
+                this._autoRecorder.Distance = (int)msg.LapDistance;
+                return;
+            }
+
+            var worker = new BackgroundWorker();
+            worker.DoWork += (sender, e) =>
+            {
+
+                // play in threads.
+                // play sound (maybe state not changed and audio files not loaded.)
+                if (this._profileManager.CurrentAudioFile != null)
+                {
+                    var spdMperS = msg.Speed / 3.6f;
+                    var playPoint = this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust;
+                    var currentPoint = msg.LapDistance +
+                                        spdMperS * (0 - this._scriptTiming);
+
+                    if (this._selectReplayMode != 0 &&
+                        this._profileManager.CurrentScriptReader != null &&
+                        this._profileManager.CurrentScriptReader.IsDynamic)
+                    {
+                        currentPoint += spdMperS * Config.Instance.ScriptMode_PlaySecondsAdvanced;
+                    }
+
+                    if (currentPoint >= playPoint)
+                    {
+                        // set spd to 1.0
+                        this._profileManager.CurrentPlaySpeed = 1.0f;
+                        // can play
+                        if (Config.Instance.UseDynamicPlaybackSpeed && this._profileManager.NextAudioFile != null)
+                        {
+                            var nextPlayPoint = this._profileManager.NextAudioFile.Distance + this._playpointAdjust;
+                            var diff = currentPoint +
+                                        spdMperS * this._profileManager.CurrentAudioFile.Sound.Duration /
+                                        this._playbackSpd
+                                        - nextPlayPoint;
+                            if (diff >= 0 && (nextPlayPoint - currentPoint) > 0)
+                            {
+                                this._profileManager.CurrentPlaySpeed =
+                                    (this._profileManager.CurrentAudioFile.Sound.Duration / this._playbackSpd)
+                                    / ((float)(nextPlayPoint - currentPoint) / spdMperS);
+                            }
+                        }
+
+                        this._profileManager.CurrentPlaySpeed *= this._playbackSpd;
+
+                        if (Config.Instance.UseDynamicVolume)
+                        {// more speed, more tension
+                            this._profileManager.CurrentTension = msg.Speed / 200f;
+                        }
+                        this._profileManager.Play();
+                    }
+                }
+            };
+            worker.RunWorkerAsync();
+        }
+
+        private void initializeGame(IGame game) 
+        {
+            if (game == null)
+                return;
+
+                
+            if (game.GameDataReader.Initialize(game))
+            {
+                GameOverlayManager.GAME_PROCESS = game.Executable.Remove(game.Executable.IndexOf(".exe"));
+                game.GameDataReader.onCarDamaged += carDamagedEventHandler;
+                game.GameDataReader.onNewGameData += newGameDataEventHander;
+                game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
+                game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
+            }
+        }
+
+        private void gameDataAvailabilityChangedHandler(bool obj)
+        {
+            if (!obj) 
+            {
+                // no data, data link grey out.
+
+            }
+        }
+
+        private void uninitializeGame(IGame game)
+        {
+            if (game == null)
+                return;
+
+            game.GameDataReader.onCarDamaged -= carDamagedEventHandler;
+            game.GameDataReader.onNewGameData -= newGameDataEventHander;
+            game.GameDataReader.onGameStateChanged -= this.gamestateChangedHandler;
+            game.GameDataReader.Uninitialize(game);
+        }
+        private void initializeGames()
+        {
+            
+        }
+
+        private void gamestateChangedHandler(GameStateChangeEvent evt)
+        {
+            var lastState = evt.LastGameState;
+            var state = evt.NewGameState;
             this.Dispatcher.Invoke(() => { this.tb_gamestate.Text = state.ToString(); });
             switch (state)
             {
@@ -387,13 +512,10 @@ namespace ZTMZ.PacenoteTool
                     // this._udpReceiver.LastMessage.TrackLength
                     if (lastState != GameState.Paused)
                     {
-                        GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
+                        GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._currentGame.Name + " - " + this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
                     }
-                    this._udpReceiver.ResetWheelStatus();
-                    this._trackName = this._dr2Helper.GetItinerary(
-                        this._udpReceiver.LastMessage.TrackLength.ToString("f2", CultureInfo.InvariantCulture),
-                        this._udpReceiver.LastMessage.PosZ
-                    );
+                    // this._udpReceiver.ResetWheelStatus();
+                    this._trackName = this._currentGame.GameDataReader.TrackName;
                     this.Dispatcher.Invoke(() =>
                     {
                         this.tb_currentTrack.Text = this._trackName;
@@ -412,7 +534,7 @@ namespace ZTMZ.PacenoteTool
                     if (this._toolState == ToolState.Recording)
                     {
                         // 1. create folder
-                        this._trackFolder = this._profileManager.StartRecording(this._trackName);
+                        this._trackFolder = this._profileManager.StartRecording(_currentGame, this._trackName);
                         // 2. get audio_recorder ready (audio_recorder already ready...)
                     }
                     else
@@ -421,7 +543,7 @@ namespace ZTMZ.PacenoteTool
                         worker.DoWork += (sender, e) =>
                         {
                             // 1. load sounds
-                            this._profileManager.StartReplaying(this._trackName, this._selectReplayMode);
+                            this._profileManager.StartReplaying(_currentGame, this._trackName, this._selectReplayMode);
                             this.Dispatcher.Invoke(() =>
                             {
                                 this.tb_codriver.Text = this._profileManager.CurrentCoDriverName;
@@ -539,6 +661,10 @@ namespace ZTMZ.PacenoteTool
                 this.cb_replay_device.Items.Add(WOC.ProductName);
             }
 
+            for (int i = 0; i < this._games.Count; i++) {
+                this.cb_game.Items.Add(this._games[i]);
+            }
+
 
             // if there's no recording device, would throw exception...
             if (this._recordingDevices.Count() > 0)
@@ -625,7 +751,7 @@ namespace ZTMZ.PacenoteTool
                         }
                     }
                     Config.Instance.SaveUserConfig();
-                    GameHacker.HackDLLs(Config.Instance.DirtGamePath);
+                    // GameHacker.HackDLLs(Config.Instance.DirtGamePath);
                 }
             }
             else 
@@ -699,6 +825,7 @@ namespace ZTMZ.PacenoteTool
             this.cb_profile.SelectionChanged += this.cb_profile_SelectionChanged;
             this.cb_codrivers.SelectionChanged += this.cb_codrivers_SelectionChanged;
             this.cb_replay_device.SelectionChanged += this.cb_replay_device_SelectionChanged;
+            this.cb_game.SelectionChanged += this.cb_game_SelectionChanged;
 
             if (Config.Instance.UI_SelectedProfile < this.cb_profile.Items.Count)
             {
@@ -713,6 +840,12 @@ namespace ZTMZ.PacenoteTool
             if (Config.Instance.UI_SelectedPlaybackDevice < this.cb_replay_device.Items.Count)
             {
                 this.cb_replay_device.SelectedIndex = Config.Instance.UI_SelectedPlaybackDevice;
+            }
+            
+            if (Config.Instance.UI_SelectedGame < this._games.Count) 
+            {
+                // select last selected game.
+                this.cb_game.SelectedIndex = Config.Instance.UI_SelectedGame;
             }
 
             this.chk_Hud.IsChecked = Config.Instance.UI_ShowHud;
@@ -729,6 +862,19 @@ namespace ZTMZ.PacenoteTool
             this.s_volume.Value = Config.Instance.UI_PlaybackVolume;
         }
 
+        private void cb_game_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            uninitializeGame(_currentGame);
+            this._currentGame = this.cb_game.SelectedItem as IGame;
+
+            // TODO: wait for seconds?
+            initializeGame(_currentGame);
+            this.cb_game.ToolTip = _currentGame.Name;
+            this.cb_game.Effect = _currentGame.IsRunning ? _processRunningEffect : null;
+            Config.Instance.UI_SelectedGame = this.cb_game.SelectedIndex;
+            Config.Instance.SaveUserConfig();
+        }
+
         private void initializeTheme()
         {
             var paletteHelper = new PaletteHelper();
@@ -741,7 +887,7 @@ namespace ZTMZ.PacenoteTool
 
         private void Ck_record_OnChecked(object sender, RoutedEventArgs e)
         {
-            if (this._udpReceiver.GameState == GameState.Unknown)
+            if (this._currentGame.GameDataReader.GameState == GameState.Unknown)
             {
                 if (this._toolState == ToolState.Replaying)
                 {
@@ -785,7 +931,7 @@ namespace ZTMZ.PacenoteTool
 
         private void Ck_replay_OnChecked(object sender, RoutedEventArgs e)
         {
-            if (this._udpReceiver.GameState == GameState.Unknown)
+            if (this._currentGame.GameDataReader.GameState == GameState.Unknown)
             {
                 if (this._toolState == ToolState.Recording)
                 {
@@ -850,9 +996,23 @@ namespace ZTMZ.PacenoteTool
         {
             if (this._profileManager.CurrentItineraryPath != null)
             {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
-                    System.IO.Path.GetFullPath(this._profileManager.CurrentItineraryPath)));
-                GoogleAnalyticsHelper.Instance.TrackPageView("Folder - Track", "folder/track");
+                var recordScriptFile = _currentGame.GamePacenoteReader.GetScriptFileForRecording(this._profileManager.CurrentProfile, _currentGame, _trackName);
+                if (this._profileManager.CurrentItineraryPath.Equals(recordScriptFile))
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
+                        System.IO.Path.GetFullPath(this._profileManager.CurrentItineraryPath)));
+                    GoogleAnalyticsHelper.Instance.TrackPageView("Folder - Track", "folder/track");
+                } else {
+                    // create one ?
+                    var dResult = MessageBox.Show("并不存在自定义的路书脚本，你想要创建一个吗？注意：在当前版本下创建后，将可能无法使用原本rbr路书，想要恢复原本的rbr路书，删除新创建的脚本文件即可", "路书脚本不存在", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (dResult == MessageBoxResult.Yes) 
+                    {
+                        File.WriteAllText(recordScriptFile, "");
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
+                            System.IO.Path.GetFullPath(recordScriptFile)));
+                        GoogleAnalyticsHelper.Instance.TrackPageView("Folder - Track", "folder/track");
+                    }
+                }
             }
         }
 
@@ -1038,14 +1198,14 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 _settingsWindow = new SettingsWindow();
                 _settingsWindow.PortChanged += () =>
                 {
-                    BackgroundWorker bgw = new BackgroundWorker();
-                    bgw.DoWork += (s, e) =>
-                    {
-                        this._udpReceiver.StopListening();
-                        Thread.Sleep(2800);
-                        this._udpReceiver.StartListening();
-                    };
-                    bgw.RunWorkerAsync();
+                    // BackgroundWorker bgw = new BackgroundWorker();
+                    // bgw.DoWork += (s, e) =>
+                    // {
+                    //     this._udpReceiver.StopListening();
+                    //     Thread.Sleep(2800);
+                    //     this._udpReceiver.StartListening();
+                    // };
+                    // bgw.RunWorkerAsync();
                 };
                 
                 

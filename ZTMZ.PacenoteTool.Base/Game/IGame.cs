@@ -1,5 +1,7 @@
 
 
+using System;
+using System.Collections.Generic;
 using System.Windows.Media.Imaging;
 namespace ZTMZ.PacenoteTool.Base.Game
 {
@@ -20,7 +22,7 @@ namespace ZTMZ.PacenoteTool.Base.Game
         /// </summary>
         string Description { get; }
 
-        BitmapImage Image { set; }
+        BitmapImage Image { get; }
 
         /// <summary>
         /// Executable file name for checking the path legality
@@ -33,9 +35,17 @@ namespace ZTMZ.PacenoteTool.Base.Game
         IGamePacenoteReader GamePacenoteReader { get; }
 
         /// <summary>
-        /// UDPAnalyzer to analyze the UDP package and returns essential information
+        /// GameDataReader to analyze the UDP package or read memory to return essential information
         /// </summary>
-        IGameUDPAnalyazer GameUdpAnalyazer { get; }
+        IGameDataReader GameDataReader { get; }
 
+        /// <summary>
+        /// GameConfigurations, need to be saved to userconfig.json? or a separated file?
+        /// </summary>
+        Dictionary<string, IGameConfig> GameConfigurations { set; get; }
+
+        bool IsRunning { set; get; }
+
+        int Order { get; }
     }
 }
