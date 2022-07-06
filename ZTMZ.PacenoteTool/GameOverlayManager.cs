@@ -716,18 +716,36 @@ namespace ZTMZ.PacenoteTool
             }
 
             int gear = Convert.ToInt32(GameData.Gear);
+            string gearText = "";
+            bool isNGear = false;
             Rectangle rect;
             switch (gear) 
             {
                 case -1:
                 case 10:
                     rect = rectangles[0];
+                    gearText = "R";
+                    break;
+                case 0:
+                    isNGear = true;
+                    gearText = "N";
                     break;
                 default:
                     rect = rectangles[gear];
+                    gearText = gear.ToString();
                     break;
             }
-            gfx.FillRectangle(_brushes["red"], rect.Left + 1, rect.Top + 1, rect.Right - 1, rect.Bottom - 1);
+            if (!isNGear)
+            {
+                gfx.FillRectangle(_brushes["red"], rect.Left + 1, rect.Top + 1, rect.Right - 1, rect.Bottom - 1);
+            }
+            gfx.drawTextWithBackgroundCentered(_fonts["consolas"],
+                barWidth,
+                _brushes["white"],
+                _brushes["black"],
+                x + 0.5f * barWidth,
+                y + spacingV + 1.5f * barHeight,
+                gearText);
         }
 
         private void drawSteering(Graphics gfx, float x, float y, float width, float height)
@@ -935,6 +953,14 @@ namespace ZTMZ.PacenoteTool
             float maxValue, 
             float thicknessRatio=0.2f)
         {
+            if (value > maxValue)
+            {
+                value = maxValue;
+            }
+            if (value < 0)
+            {
+                value = 0;
+            }
             var centerX = x + 0.5f * width;
             var centerY = y + 0.5f * height;
             var radiusOuter = MathF.Min(width, height) * 0.5f;

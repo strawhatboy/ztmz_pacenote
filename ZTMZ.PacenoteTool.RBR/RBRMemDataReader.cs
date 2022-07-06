@@ -108,7 +108,8 @@ public class RBRMemDataReader
             memData.WeatherId = MemoryReader.Read<int>(pHandle, 0x1660848);
             memData.Track = GetTrackNameFromMemory();
             memData.TrackId = MemoryReader.Read<int>(pHandle, 0x7EA678, 0x70, 0x20);
-            memData.TrackLength = MemoryReader.Read<float>(pHandle, 0x1659184, 0x75310);
+            // memData.TrackLength = MemoryReader.Read<float>(pHandle, 0x1659184, 0x75310);
+            memData.TrackLength = memData.DistanceToFinish + memData.DistanceFromStart;
         }
 
         return memData;

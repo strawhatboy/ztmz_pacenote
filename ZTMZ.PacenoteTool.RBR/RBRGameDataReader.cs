@@ -43,6 +43,8 @@ public class RBRGameDataReader : UdpGameDataReader
             return string.Format("[{0}]{1}", _currentMemData.TrackId, trackName);
         }
     }
+
+    public static float MEM_REFRESH_INTERVAL = 16.6f; 
     public GameState _gameState;
     private GameData _lastGameData;
 
@@ -87,7 +89,7 @@ public class RBRGameDataReader : UdpGameDataReader
         // init memory reader?
         _memDataReader.OpenProcess(game);
         _timer.Elapsed += MemDataPullHandler;
-        _timer.Interval = 16.6; // 16.66ms = 60fps
+        _timer.Interval = MEM_REFRESH_INTERVAL; // 16.66ms = 60fps
         _timer.Start();
         return true;
     }
@@ -104,9 +106,9 @@ public class RBRGameDataReader : UdpGameDataReader
     {
         var memData = _memDataReader.ReadMemData(_game);
         
-        _currentMemData = memData;
         _lastGameData = _currentGameData;
         _currentGameData = GetGameDataFromMemory(_currentGameData, memData);
+        _currentMemData = memData;
         _onNewGameData?.Invoke(_lastGameData, _currentGameData);
 
         this.GameState = getGameStateFromMemory(memData);
@@ -160,7 +162,7 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.LapDistance = data.stage.distanceToEnd / (1 - data.stage.progress) * data.stage.progress;
         gameData.CompletionRate = data.stage.progress;
         gameData.Speed = data.car.speed;
-        gameData.TrackLength = data.stage.distanceToEnd / (1 - data.stage.progress);
+        // gameData.TrackLength = data.stage.distanceToEnd / (1 - data.stage.progress);
         // gameData.SpeedRearLeft = data.contro[0];
         // gameData.SpeedRearRight = data.car.wheelSpeed[1];
         // gameData.SpeedFrontLeft = data.car.wheelSpeed[2];
@@ -210,6 +212,19 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.Speed = data.SpeedKMH;
         gameData.TrackLength = data.TrackLength;
         gameData.LapDistance = data.DistanceFromStart;
+        gameData.CompletionRate = data.DistanceFromStart / data.TrackLength;
+        gameData.MaxRPM = 10000f;
+        gameData.MaxGears = 6;
+        var xInertia = (data.XSpeed - _currentMemData.XSpeed) / MEM_REFRESH_INTERVAL;
+        var yInertia = (data.YSpeed - _currentMemData.YSpeed) / MEM_REFRESH_INTERVAL;
+        var inertia = (float)Math.Sqrt(xInertia * xInertia + yInertia * yInertia);
+        if (inertia != 0)
+        {
+            var intertiaAngle = (float)Math.Asin(yInertia / inertia);
+            var actualInertiaAngle = intertiaAngle + data.ZSpin;
+            gameData.G_lat = inertia * (float)Math.Cos(actualInertiaAngle);
+            gameData.G_long = inertia * (float)Math.Sin(actualInertiaAngle);
+        }
 
         gameData.PosX = data.X;
         gameData.PosY = data.Y;

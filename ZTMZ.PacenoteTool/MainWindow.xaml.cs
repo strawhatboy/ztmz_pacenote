@@ -103,7 +103,7 @@ namespace ZTMZ.PacenoteTool
             this.initHotKeys();
             //this.initializeI18N();
             this.initializeComboBoxes();
-            this.checkPrerequisite();   // should be put into every game
+            // this.checkPrerequisite();   // should be put into every game
             this.checkIfDevVersion();
             this.initializeGameOverlay();
             this.initializeAutoRecorder();
