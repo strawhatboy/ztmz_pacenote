@@ -9,6 +9,7 @@ namespace ZTMZ.PacenoteTool.RBR;
 
 public class RBRGameDataReader : UdpGameDataReader
 {
+    public static float G = 9.8f;
     public override GameState GameState
     {
         set
@@ -197,6 +198,12 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.SuspensionSpeedFrontLeft = data.car.suspensionLF.damper.pistonVelocity;
         gameData.SuspensionSpeedFrontRight = data.car.suspensionRF.damper.pistonVelocity;
 
+        // surge: forward/backward
+        gameData.G_long = data.car.accelerations.surge;
+
+        // sway: left/right
+        gameData.G_lat = -data.car.accelerations.sway;
+
         return gameData;
     }
 
@@ -215,16 +222,16 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.CompletionRate = data.DistanceFromStart / data.TrackLength;
         gameData.MaxRPM = 10000f;
         gameData.MaxGears = 6;
-        var xInertia = (data.XSpeed - _currentMemData.XSpeed) / MEM_REFRESH_INTERVAL;
-        var yInertia = (data.YSpeed - _currentMemData.YSpeed) / MEM_REFRESH_INTERVAL;
-        var inertia = (float)Math.Sqrt(xInertia * xInertia + yInertia * yInertia);
-        if (inertia != 0)
-        {
-            var intertiaAngle = (float)Math.Asin(yInertia / inertia);
-            var actualInertiaAngle = intertiaAngle + data.ZSpin;
-            gameData.G_lat = inertia * (float)Math.Cos(actualInertiaAngle);
-            gameData.G_long = inertia * (float)Math.Sin(actualInertiaAngle);
-        }
+        // var xInertia = (data.XSpeed - _currentMemData.XSpeed) / MEM_REFRESH_INTERVAL;
+        // var yInertia = (data.YSpeed - _currentMemData.YSpeed) / MEM_REFRESH_INTERVAL;
+        // var inertia = (float)Math.Sqrt(xInertia * xInertia + yInertia * yInertia);
+        // if (inertia != 0)
+        // {
+        //     var intertiaAngle = (float)Math.Asin(yInertia / inertia);
+        //     var actualInertiaAngle = intertiaAngle + data.ZSpin;
+        //     gameData.G_lat = inertia * (float)Math.Cos(actualInertiaAngle);
+        //     gameData.G_long = inertia * (float)Math.Sin(actualInertiaAngle);
+        // }
 
         gameData.PosX = data.X;
         gameData.PosY = data.Y;

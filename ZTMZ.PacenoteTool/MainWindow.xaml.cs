@@ -512,7 +512,7 @@ namespace ZTMZ.PacenoteTool
                     // this._udpReceiver.LastMessage.TrackLength
                     if (lastState != GameState.Paused)
                     {
-                        GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
+                        GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._currentGame.Name + " - " + this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
                     }
                     // this._udpReceiver.ResetWheelStatus();
                     this._trackName = this._currentGame.GameDataReader.TrackName;
@@ -996,9 +996,23 @@ namespace ZTMZ.PacenoteTool
         {
             if (this._profileManager.CurrentItineraryPath != null)
             {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
-                    System.IO.Path.GetFullPath(this._profileManager.CurrentItineraryPath)));
-                GoogleAnalyticsHelper.Instance.TrackPageView("Folder - Track", "folder/track");
+                var recordScriptFile = _currentGame.GamePacenoteReader.GetScriptFileForRecording(this._profileManager.CurrentProfile, _currentGame, _trackName);
+                if (this._profileManager.CurrentItineraryPath.Equals(recordScriptFile))
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
+                        System.IO.Path.GetFullPath(this._profileManager.CurrentItineraryPath)));
+                    GoogleAnalyticsHelper.Instance.TrackPageView("Folder - Track", "folder/track");
+                } else {
+                    // create one ?
+                    var dResult = MessageBox.Show("并不存在自定义的路书脚本，你想要创建一个吗？注意：在当前版本下创建后，将可能无法使用原本rbr路书，想要恢复原本的rbr路书，删除新创建的脚本文件即可", "路书脚本不存在", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (dResult == MessageBoxResult.Yes) 
+                    {
+                        File.WriteAllText(recordScriptFile, "");
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
+                            System.IO.Path.GetFullPath(recordScriptFile)));
+                        GoogleAnalyticsHelper.Instance.TrackPageView("Folder - Track", "folder/track");
+                    }
+                }
             }
         }
 

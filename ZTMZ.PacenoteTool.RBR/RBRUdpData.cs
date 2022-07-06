@@ -1,8 +1,10 @@
 
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace ZTMZ.PacenoteTool.RBR;
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct RBRUdpData
 {
 	public uint totalSteps;
@@ -14,6 +16,7 @@ public struct RBRUdpData
 	public Car car;
 }
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct Stage
 {
 	public int index;
@@ -27,6 +30,7 @@ public struct Stage
 	public float distanceToEnd;
 }
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct Control
 {
 	public float steering;
@@ -45,6 +49,7 @@ public struct Control
 
 	public float handbrakePressure;
 }
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct Car
 {
 	public int index;
@@ -82,6 +87,7 @@ public struct Car
 		return new Suspension[4] { suspensionLF, suspensionRF, suspensionLB, suspensionRB };
 	}
 }
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct Motion
 {
 	public float surge;
@@ -97,6 +103,7 @@ public struct Motion
 	public float yaw;
 }
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct Engine
 {
 	public float rpm;
@@ -108,6 +115,7 @@ public struct Engine
 	public float engineTemperature;
 }
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct Suspension
 {
 	public float springDeflection;
@@ -127,6 +135,7 @@ public struct Suspension
 	public Wheel wheel;
 }
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct Damper
 {
 	public float damage;
@@ -134,6 +143,7 @@ public struct Damper
 	public float pistonVelocity;
 }
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct Wheel
 {
 	public BrakeDisk brakeDisk;
@@ -141,6 +151,7 @@ public struct Wheel
 	public Tire tire;
 }
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct BrakeDisk
 {
 	public float layerTemperature;
@@ -151,6 +162,7 @@ public struct BrakeDisk
 }
 
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct Tire
 {
 	public float pressure;
@@ -185,6 +197,7 @@ public struct Tire
 	}
 }
 
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct TireSegment
 {
 	public float temperature;

@@ -24,6 +24,7 @@ public class RBRGamePacenoteReader : BasePacenoteReader
     public static string WEATHER_SUFFIX_NOON = "_N";
     public static string WEATHER_SUFFIX_OVERCAST = "_O";
     public static string FILE_EXTENSION_DRIVELINE = ".dls";
+    public static string FILE_EXTENSION_PACENOTE = ".pacenote";
     private static List<string> DLS_FILE_SUFFIXES = new List<string>() { 
         WEATHER_SUFFIX_EVENING + FILE_EXTENSION_DRIVELINE,
         WEATHER_SUFFIX_MORNING + FILE_EXTENSION_DRIVELINE,
@@ -141,6 +142,9 @@ public class RBRGamePacenoteReader : BasePacenoteReader
         if (fileName.EndsWith(FILE_EXTENSION_DRIVELINE)) 
         {
             return ReadPacenoteRecordFromDLSFile(fileName);
+        } else if (fileName.EndsWith(FILE_EXTENSION_PACENOTE)) {
+            // *.pacenote
+            return base.ReadPacenoteRecord(profile, game, track);
         } else {
             return ReadPacenoteRecordFromIniFile(fileName);
         }
@@ -218,14 +222,14 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             fs.Seek(0x38, SeekOrigin.Begin);
             var offsetType = fs.ReadByte() == 1 ? 0 : 1;
 
-            var offsetFingerPrint = new byte[3];
+            var offsetFingerPrint = new byte[0x0C];
             var numOfPacenoteRecords = 0;
 
             var numOfPacenoteOffset = 0x5C;
             while (numOfPacenoteOffset < 0x200)
             {
                 fs.Seek(numOfPacenoteOffset, SeekOrigin.Begin);
-                var read = fs.Read(offsetFingerPrint, 0, 3);
+                var read = fs.Read(offsetFingerPrint, 0, 0x0C);
                 // seek back
                 fs.Seek(numOfPacenoteOffset, SeekOrigin.Begin);
                 if (read < 3)
@@ -234,7 +238,7 @@ public class RBRGamePacenoteReader : BasePacenoteReader
                     break;
                 }
 
-                if (offsetType == 0 || (offsetFingerPrint[0] != 0x00 && offsetFingerPrint[1] == 0x00 && offsetFingerPrint[2] == 0x1C))
+                if (offsetType == 0 || (offsetFingerPrint[0] != 0x00 && offsetFingerPrint[0x04] == 0x00 && offsetFingerPrint[0x08] == 0x1C))
                 {
                     numOfPacenoteRecords = offsetFingerPrint[0];
                     break;
@@ -299,6 +303,19 @@ public class RBRGamePacenoteReader : BasePacenoteReader
         }
 
         return ScriptReader.ReadFromDynamicPacenoteRecords(dynamicRecords);
+    }
+
+    private string getModifiersFromFlag(int flag)
+    {
+        var modifiers = new List<string>();
+        foreach (var kv in ScriptResource.ID_2_MODIFIER)
+        {
+            if ((flag & kv.Key) == kv.Key)
+            {
+                modifiers.Add(kv.Value);
+            }
+        }
+        return string.Join(",", modifiers);
     }
 
     public override string GetScriptFileForReplaying(string profile, IGame game, string track, bool fallbackToDefault = true)

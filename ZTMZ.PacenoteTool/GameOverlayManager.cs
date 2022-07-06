@@ -727,6 +727,7 @@ namespace ZTMZ.PacenoteTool
                     gearText = "R";
                     break;
                 case 0:
+                    rect = rectangles[0];
                     isNGear = true;
                     gearText = "N";
                     break;
