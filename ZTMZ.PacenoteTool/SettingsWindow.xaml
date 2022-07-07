@@ -166,6 +166,7 @@
                                     <RowDefinition Height="50" />
                                     <RowDefinition Height="50" />
                                     <RowDefinition Height="50" />
+                                    <RowDefinition Height="50" />
                                 </Grid.RowDefinitions>
                                 <TextBlock VerticalAlignment="Center"
                                            Style="{StaticResource MaterialDesignHeadline6TextBlock}"
@@ -267,6 +268,21 @@
                                     
                                 </Grid>
                                 <Button Grid.Row="10" Name="btn_additionalCoDriverPackagesSearchPath" Grid.Column="2" Grid.ColumnSpan="2" Margin="10 0 10 0" Content="{materialDesign:PackIcon DotsHorizontalCircle}" ></Button>
+
+                                <Grid Grid.Row="11" ColumnSpan="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                                               Text="{DynamicResource ResourceKey=settings.additionalPacenotesDefinitionSearchPath}"
+                                               Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                               ToolTip="{DynamicResource ResourceKey=settings.tooltip.additionalPacenotesDefinitionSearchPath}">
+                                    </TextBlock>
+                                    <TextBox Grid.Column="1" x:Name="txtBox_additionalPacenotesDefinitionSearchPath" VerticalAlignment="Center"/>
+                                    
+                                </Grid>
+                                <Button Grid.Row="11" Name="btn_additionalPacenotesDefinitionSearchPath" Grid.Column="2" Grid.ColumnSpan="2" Margin="10 0 10 0" Content="{materialDesign:PackIcon DotsHorizontalCircle}" ></Button>
                             </Grid>
                         </materialDesign:Card>
                     </Expander>

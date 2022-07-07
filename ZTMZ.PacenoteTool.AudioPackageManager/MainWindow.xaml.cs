@@ -50,7 +50,7 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
             }
         }
 
-        public Dictionary<string, string> Pacenotes { get; private set; }
+        public Dictionary<string, Tuple<string, bool>> Pacenotes { get; private set; }
 
         public MainWindow()
         {
@@ -65,15 +65,16 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
         private void loadPacenotes()
         {
             // get pacenotes merged from system sound
-            var pacenotes = new Dictionary<string, string>();
+            var pacenotes = new Dictionary<string, Tuple<string, bool>>();
             foreach (var p in ScriptResource.RAW_PACENOTES)
             {
-                pacenotes[p.Key] = p.Value.Item1;
+                pacenotes[p.Key] = new Tuple<string, bool>(p.Value.Item1, p.Value.Item6);
             }
 
             foreach (var p in Constants.SYSTEM_SOUND)
             {
-                pacenotes[p.Key] = p.Value;
+
+                pacenotes[p.Key] = new Tuple<string, bool>(p.Value, false);
             }
 
             this.Pacenotes = pacenotes;
@@ -206,8 +207,9 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
                     this.DataContent.Add(new
                     {
                         Token = p.Key,
-                        TokenDescription = p.Value,
-                        IsAvailable = "✅",
+                        TokenDescription = p.Value.Item1,
+                        IsAvailable = bool2str(true),
+                        IsOfficial = bool2str(!p.Value.Item2),
                         FilesCount = token.Count,
                         Files = token.Select((s, index) =>
                             new { Index = index + 1, Uri = new System.Uri(s).AbsoluteUri.ToString() })
@@ -218,8 +220,9 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
                     this.DataContent.Add(new
                     {
                         Token = p.Key,
-                        TokenDescription = p.Value,
-                        IsAvailable = "❌",
+                        TokenDescription = p.Value.Item1,
+                        IsAvailable = bool2str(false),
+                        IsOfficial = bool2str(!p.Value.Item2),
                         FilesCount = 0,
                         Files = new List<string>()
                         {
@@ -227,6 +230,11 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
                     });
                 }
             }
+        }
+
+        private string bool2str(bool b)
+        {
+            return b ? "✅" : "❌";
         }
 
         private void hl_listen_OnRequestNavigate(object sender, RequestNavigateEventArgs e)

@@ -81,7 +81,10 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
         return isInitialized;
     }
 
-    public abstract void onNewUdpMessage(byte[] oldMsg, byte[] newMsg);
+    public virtual void onNewUdpMessage(byte[] oldMsg, byte[] newMsg)
+    {
+        this._timerCount = 0;
+    }
 
     public virtual void Uninitialize(IGame game)
     {

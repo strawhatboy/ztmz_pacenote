@@ -37,6 +37,7 @@
       "useDefaultSoundPackageForFallback": "If current voice package is not complete, use default AI-generated voice package for fallback",
       "preloadSounds": "Preload the voice packages may take more memory (around 2GB), but will load the voice package as soon as possible",
       "additionalCoDriverPackagesSearchPath": "When searching for voice packs, additionally search this folder",
+      "additionalPacenotesDefinitionSearchPath": "Put addition *.csv files here according to the format of the Pacenote definition file (pacenotes.csv)",
       
       "useSequentialMixerToHandleAudioConflict": "A sequential mix can avoid voices overlap",
       "useDynamicPlaybackSpeed": "In some maps with dense pacenotes (such as Scotland), by dynamically adjusting the speech rate of the current pacenote segment according to the speed of the vehicle and the position of the next pacenote,\n to avoid the situation that the pacenote cannot keep up with the car",
@@ -82,6 +83,7 @@
     "useDefaultSoundPackageForFallback": "Fallback to default voice package",
     "preloadSounds": "Preload voice packages",
     "additionalCoDriverPackagesSearchPath": "Additional Voice Pack Search Folder",
+    "additionalPacenotesDefinitionSearchPath": "additional Pacenote Definition Search Folder",
     
     "useSequentialMixerToHandleAudioConflict": "Use sequential mixer",
     "useDynamicPlaybackSpeed": "Use dynamic playback speech rate",

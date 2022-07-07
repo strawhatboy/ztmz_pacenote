@@ -25,6 +25,12 @@ namespace ZTMZ.PacenoteTool.Base
         public const string SYSTEM_COLLISION_MEDIUM = "system_collision_medium";
         public const string SYSTEM_COLLISION_SEVERE = "system_collision_severe";
 
+        public const string SYSTEM_COUNTDOWN_5 = "system_countdown_5";
+        public const string SYSTEM_COUNTDOWN_4 = "system_countdown_4";
+        public const string SYSTEM_COUNTDOWN_3 = "system_countdown_3";
+        public const string SYSTEM_COUNTDOWN_2 = "system_countdown_2";
+        public const string SYSTEM_COUNTDOWN_1 = "system_countdown_1";
+
         public static Dictionary<string, string> SYSTEM_SOUND = new Dictionary<string, string>()
         {
             { SYSTEM_START_STAGE, "地图载入" },
@@ -36,7 +42,21 @@ namespace ZTMZ.PacenoteTool.Base
             { SYSTEM_PUNCTURE_REAR_RIGHT, "右后轮爆胎" }, 
             { SYSTEM_COLLISION_SLIGHT, "轻微碰撞" }, 
             { SYSTEM_COLLISION_MEDIUM, "普通碰撞" }, 
-            { SYSTEM_COLLISION_SEVERE, "剧烈碰撞" }
+            { SYSTEM_COLLISION_SEVERE, "剧烈碰撞" },
+            { SYSTEM_COUNTDOWN_5, "倒计时5" },
+            { SYSTEM_COUNTDOWN_4, "倒计时4" },
+            { SYSTEM_COUNTDOWN_3, "倒计时3" },
+            { SYSTEM_COUNTDOWN_2, "倒计时2" },
+            { SYSTEM_COUNTDOWN_1, "倒计时1" },
+        };
+
+        public static List<string> SYSTEM_COUNTDOWNS = new List<string>()
+        {
+            SYSTEM_COUNTDOWN_1,
+            SYSTEM_COUNTDOWN_2,
+            SYSTEM_COUNTDOWN_3,
+            SYSTEM_COUNTDOWN_4,
+            SYSTEM_COUNTDOWN_5,
         };
 
         public static List<string> SYSTEM_COLLISION = new List<string>()

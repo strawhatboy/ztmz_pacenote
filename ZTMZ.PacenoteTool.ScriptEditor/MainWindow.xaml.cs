@@ -18,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Search;
 using ICSharpCode.AvalonEdit.Utils;
@@ -40,9 +41,12 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         private ToolTip _toolTip = new ToolTip();
         private int _intellisenseMode = 0;
 
+        public Dispatcher CurrentDispatcher { set; get; }
+
         public MainWindow()
         {
             InitializeComponent();
+            CurrentDispatcher = Dispatcher;
             SearchPanel.Install(this.avalonEditor);
             this.avalonEditor.TextArea.TextEntering += (sender, args) =>
             {
@@ -58,32 +62,47 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             };
             this.avalonEditor.TextArea.TextEntered += (sender, args) =>
             {
+                bool show = true;
                 if (args.Text == ",")
                 {
                     // Open code completion after the user has pressed dot:
-                    _completionWindow = ScriptCompletionData.GetCompletionWindow(avalonEditor, ScriptResource.TYPE_PACENOTE, this._intellisenseMode);
-                    _completionWindow.Show();
-                    _completionWindow.Closed += delegate { _completionWindow = null; };
+                    CurrentDispatcher.Invoke(() => 
+                    {
+                        _completionWindow = ScriptCompletionData.GetCompletionWindow(avalonEditor, ScriptResource.TYPE_PACENOTE, this._intellisenseMode);
+                    });
                 }
                 else if (args.Text == "/")
                 {
                     // Open code completion after the user has pressed dot:
-                    _completionWindow = ScriptCompletionData.GetCompletionWindow(avalonEditor, ScriptResource.TYPE_MODIFIER, this._intellisenseMode);
-
-                    _completionWindow.Show();
-                    _completionWindow.Closed += delegate { _completionWindow = null; };
+                    CurrentDispatcher.Invoke(() => 
+                    {
+                        _completionWindow = ScriptCompletionData.GetCompletionWindow(avalonEditor, ScriptResource.TYPE_MODIFIER, this._intellisenseMode);
+                    });
                 }
                 else if (args.Text == "@")
                 {
                     // Open code completion after the user has pressed dot:
-                    _completionWindow = ScriptCompletionData.GetCompletionWindow(avalonEditor, ScriptResource.TYPE_FLAG, this._intellisenseMode);
-
-                    _completionWindow.Show();
-                    _completionWindow.Closed += delegate { _completionWindow = null; };
+                    CurrentDispatcher.Invoke(() => 
+                    {
+                        _completionWindow = ScriptCompletionData.GetCompletionWindow(avalonEditor, ScriptResource.TYPE_FLAG, this._intellisenseMode);
+                    });
                 }
                 else if (args.Text == "\n")
                 {
+                    show = false;
                     this.AutoConvertTextToAliases();
+                }
+
+                if (show) 
+                {
+                    CurrentDispatcher.Invoke(() => 
+                    {
+                        if (_completionWindow != null) 
+                        {
+                            _completionWindow.Show();
+                            _completionWindow.Closed += delegate { _completionWindow = null; };
+                        }
+                    });
                 }
             };
             this.txt_adjustFontSize.ValueChanged += this.Txt_adjustFontSize_OnValueChanged;
@@ -210,7 +229,9 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         {
             this.checkFileSaved();
 
-            avalonEditor.Text = File.ReadAllText(file);
+            CurrentDispatcher.Invoke(() => {
+                avalonEditor.Text = File.ReadAllText(file);
+            });
             this._relatedFile = file;
             this._isSaved = true;
             this.updateTitle();
@@ -390,9 +411,11 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
         public void AppendLine(string line)
         {
-            this.avalonEditor.Text += line + System.Environment.NewLine;
-            this.AutoConvertTextToAliases();
-            this.avalonEditor.ScrollToEnd();
+            CurrentDispatcher.Invoke(() => {
+                this.avalonEditor.Text += line + System.Environment.NewLine;
+                this.AutoConvertTextToAliases();
+                this.avalonEditor.ScrollToEnd();
+            });
         }
 
         public void AutoConvertTextToAliases(bool allLines = false)
@@ -410,7 +433,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                          // convert
                          var rawParts = PacenoteRecord.ParseRawText(parts[i]);
                          var pacenotes = PacenoteRecord.AliasesToPacenotes(PacenoteRecord.RawTextToAliases(rawParts[1]));
-                         this.Dispatcher.Invoke(() =>
+                         CurrentDispatcher.Invoke(() =>
                          {
                              var newParts = this.avalonEditor.Text.Split(System.Environment.NewLine);
                              newParts[i] = rawParts[0] + string.Join("", pacenotes);
@@ -462,7 +485,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
                 response.EnsureSuccessStatusCode();
                 httpClient.Dispose();
                 string sd = response.Content.ReadAsStringAsync().Result;
-                this.Dispatcher.Invoke(() =>
+                CurrentDispatcher.Invoke(() =>
                 {
                     this.tb_status.Text = string.Format("脚本上传结果： {0}", sd);
                 });

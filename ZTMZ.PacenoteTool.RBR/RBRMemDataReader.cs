@@ -11,6 +11,7 @@ public class RBRMemDataReader
     private bool _isProcessOpened = false;
     private Process _theProcess = null;
 
+
     public bool OpenProcess(IGame game)
     {
         if (_isProcessOpened)

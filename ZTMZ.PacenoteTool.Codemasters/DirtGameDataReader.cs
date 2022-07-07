@@ -58,6 +58,7 @@ public class DirtGameDataReader : UdpGameDataReader
 
     public override void onNewUdpMessage(byte[] lastMsg, byte[] newMsg)
     {
+        base.onNewUdpMessage(lastMsg, newMsg);
         DirtRawData message = RawBytesData2RawData(newMsg);
         DirtRawData lastMessage = RawBytesData2RawData(lastMsg);
 

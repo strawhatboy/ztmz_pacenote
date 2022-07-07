@@ -1,6 +1,8 @@
 
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Timers;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
@@ -25,6 +27,13 @@ public class RBRGameDataReader : UdpGameDataReader
         }
         get => this._gameState;
     }
+
+    private GameState raiseCountDownEvent(int number)
+    {
+        this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = this._gameState, NewGameState = GameState.CountingDown, Parameters = new Dictionary<string, object> { { "number", number } } });
+        return GameState.CountingDown;
+    }
+
     public override GameData LastGameData { get => _lastGameData; set => _lastGameData = value; }
 
     /// <summary>
@@ -58,6 +67,9 @@ public class RBRGameDataReader : UdpGameDataReader
 
     private event Action<GameData, GameData> _onNewGameData;
 
+    private List<float> _countdownList = new();
+    private int _countdownIndex = 0;
+
     public override event Action<GameData, GameData> onNewGameData
     {
         add 
@@ -86,6 +98,16 @@ public class RBRGameDataReader : UdpGameDataReader
         {
             return udpInitResult;
         }
+
+        
+        Debug.Assert(game.GameConfigurations.ContainsKey(MemoryGameConfig.Name));
+        var memConfig = game.GameConfigurations[MemoryGameConfig.Name] as MemoryGameConfig;
+        if (memConfig == null)
+        {
+            return false;
+        }
+
+        MEM_REFRESH_INTERVAL = 1000f / memConfig.RefreshRate;
 
         // init memory reader?
         _memDataReader.OpenProcess(game);
@@ -119,7 +141,34 @@ public class RBRGameDataReader : UdpGameDataReader
     {
         if (memData.StageStartCountdown > 0)
         {
-            return GameState.RaceBegin;
+            var preState = GameState.RaceBegin;
+            if (_countdownList.Count == 0)
+            {   
+                _countdownList.Add(5);
+                _countdownList.Add(4);
+                _countdownList.Add(3);
+                _countdownList.Add(2);
+                _countdownList.Add(1);
+            }
+
+            if (_countdownIndex >= 0 && _countdownIndex < _countdownList.Count && memData.StageStartCountdown < _countdownList[_countdownIndex])
+            {
+                preState = raiseCountDownEvent((int)_countdownList[_countdownIndex]);
+                _countdownIndex++;
+                return preState;
+            }
+            
+            var res = this._countdownList.BinarySearch(memData.StageStartCountdown, Comparer<float>.Create((a, b) => b.CompareTo(a)));
+            _countdownIndex = res < 0 ? ~res : res;
+
+            if (GameState == GameState.CountingDown)
+            {
+                // already in counting down state, do nothing
+                preState = GameState.CountingDown;
+            } else {
+                Debug.WriteLine("WTF??: {0}, {1}, {2}", memData.StageStartCountdown, _countdownIndex, GameState);
+            }
+            return preState;
         }
 
         var state = (RBRGameState)memData.GameStateId;
@@ -129,6 +178,7 @@ public class RBRGameDataReader : UdpGameDataReader
             state == RBRGameState.Unknown3 ||
             state == RBRGameState.Unknown4)
         {
+            _countdownList.Clear();
             return GameState.Unknown;
         } else if (state == RBRGameState.RaceBegin)
         {
@@ -141,6 +191,7 @@ public class RBRGameDataReader : UdpGameDataReader
             return GameState.Paused;
         } else if (state == RBRGameState.RaceEndOrReplay0 || state == RBRGameState.RaceEnd || state == RBRGameState.RaceEndOrReplay1)
         {
+            _countdownList.Clear();
             return GameState.RaceEnd;
         }
 
@@ -149,6 +200,7 @@ public class RBRGameDataReader : UdpGameDataReader
 
     public override void onNewUdpMessage(byte[] oldMsg, byte[] newMsg)
     {
+        base.onNewUdpMessage(oldMsg, newMsg);
         var lastUdp = oldMsg.CastToStruct<RBRUdpData>();
         var newUdp = newMsg.CastToStruct<RBRUdpData>();
 

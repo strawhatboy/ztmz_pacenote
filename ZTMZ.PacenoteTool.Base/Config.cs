@@ -502,6 +502,12 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._AdditionalCoDriverPackagesSearchPath;
         }
 
+        private string _AdditionalPacenotesDefinitionSearchPath = "";
+        public string AdditionalPacenotesDefinitionSearchPath
+        {
+            set { this._AdditionalPacenotesDefinitionSearchPath = value; this._userconfig["AdditionalPacenotesDefinitionSearchPath"] = value; }
+            get => this._AdditionalPacenotesDefinitionSearchPath;
+        }
 
         public void Save(string path)
         {

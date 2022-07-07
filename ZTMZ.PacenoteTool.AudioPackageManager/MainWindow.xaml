@@ -179,6 +179,9 @@
                         Binding="{Binding IsAvailable}"
                         Header="是否可用" />
                     <DataGridTextColumn
+                        Binding="{Binding IsOfficial}"
+                        Header="是否为官方定义" />
+                    <DataGridTextColumn
                         Binding="{Binding FilesCount}"
                         Header="文件个数" />
                     <DataGridTemplateColumn

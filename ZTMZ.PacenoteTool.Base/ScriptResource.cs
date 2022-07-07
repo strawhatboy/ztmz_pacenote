@@ -32,7 +32,8 @@ namespace ZTMZ.PacenoteTool.Base
 
         public static Dictionary<int, string> ID_2_PACENOTE { private set; get; } = new Dictionary<int, string>();
         public static Dictionary<int, string> ID_2_MODIFIER { private set; get; } = new Dictionary<int, string>();
-        public static Dictionary<string, Tuple<string, bool, string, string, string>> RAW_PACENOTES = loadPacenotes(AppLevelVariables.Instance.GetPath("./pacenotes.csv"));
+        public static Dictionary<string, Tuple<string, bool, string, string, string, bool>> RAW_PACENOTES = 
+            mergePacenotes(loadAdditionalPacenotes(), loadPacenotes(AppLevelVariables.Instance.GetPath("./pacenotes.csv")));
         public static Dictionary<string, string> PACENOTES { private set; get; } = new Dictionary<string, string>();   // = loadCsv("./pacenotes.csv");
         public static Dictionary<string, string> MODIFIERS { private set; get; } = new Dictionary<string, string>();    // = loadCsv("./modifiers.csv");
         public static Dictionary<string, string> FALLBACK { private set; get; } = loadFallback(AppLevelVariables.Instance.GetPath("./fallback.csv"));
@@ -103,6 +104,34 @@ namespace ZTMZ.PacenoteTool.Base
             }
         }
 
+        private static Dictionary<string, Tuple<string, bool, string, string, string, bool>> loadAdditionalPacenotes()
+        {
+            if (!Directory.Exists(Config.Instance.AdditionalPacenotesDefinitionSearchPath)) 
+            {
+                return new Dictionary<string, Tuple<string, bool, string, string, string, bool>>();
+            }
+
+            var files = Directory.GetFiles(Config.Instance.AdditionalPacenotesDefinitionSearchPath, "*.csv");
+            var result = new Dictionary<string, Tuple<string, bool, string, string, string, bool>>();
+            foreach (var file in files)
+            {
+                var pacenotes = loadPacenotes(file, true);
+                mergePacenotes(pacenotes, result);
+            }
+
+            return result;
+        }
+
+        private static Dictionary<string, Tuple<string, bool, string, string, string, bool>> mergePacenotes(
+            Dictionary<string, Tuple<string, bool, string, string, string, bool>> src, Dictionary<string, Tuple<string, bool, string, string, string, bool>> dst)
+        {
+            foreach (var p in src)
+            {
+                dst[p.Key] = p.Value;
+            }
+            return dst;
+        }
+
         private static Dictionary<string, string> loadCsv(string path)
         {
             using (var reader = new StreamReader(path))
@@ -117,7 +146,7 @@ namespace ZTMZ.PacenoteTool.Base
                 return records.ToDictionary(r => r.Id, r => r.Description);
             }
         }
-        private static Dictionary<string, Tuple<string, bool, string, string, string>> loadPacenotes(string path)
+        private static Dictionary<string, Tuple<string, bool, string, string, string, bool>> loadPacenotes(string path, bool isAdditional = false)
         {
             using (var reader = new StreamReader(path))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
@@ -133,9 +162,10 @@ namespace ZTMZ.PacenoteTool.Base
                 };
                 var records = csv.GetRecords(def);
                 return records.ToDictionary(r => r.Id, r=> 
-                    new Tuple<string, bool, string, string, string>(
+                    new Tuple<string, bool, string, string, string, bool>(
                         r.Description, Convert.ToBoolean(r.CanBeModifier)
-                        , r.RBR_Pacenote_Id, r.RBR_Modifier_Id, r.RBR_Type
+                        , r.RBR_Pacenote_Id, r.RBR_Modifier_Id, r.RBR_Type,
+                        isAdditional
                     ));
             }
         }

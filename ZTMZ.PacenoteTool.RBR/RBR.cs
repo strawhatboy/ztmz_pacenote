@@ -68,7 +68,8 @@ namespace ZTMZ.PacenoteTool.RBR
         public bool IsRunning { get; set; }
 
         public Dictionary<string, IGameConfig> GameConfigurations { set; get; } = new() {
-            { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback.ToString(), Port = 6776 } }
+            { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback.ToString(), Port = 6776 } },
+            { MemoryGameConfig.Name, new MemoryGameConfig() { RefreshRate = 24f } },
         };
         
         public int Order => 3000;

@@ -520,6 +520,7 @@ namespace ZTMZ.PacenoteTool
 
         public void PlaySystem(string sound)
         {
+            Debug.WriteLine("Playing system sound : {0}", sound);
             var audio = this.getSoundByKeyword(sound, this.CurrentCoDriverSoundPackagePath);
             audio.PlaySpeed = this.CurrentPlaySpeed;
             audio.Amplification = this.CurrentPlayAmplification;

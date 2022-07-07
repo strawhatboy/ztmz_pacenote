@@ -26,3 +26,11 @@ public class UdpGameConfig : IGameConfig
     public static string Name => "udp";
 }
 
+[GameConfig("memory")]
+public class MemoryGameConfig : IGameConfig
+{
+    public float RefreshRate { set; get; }
+
+    public static string Name => "memory";
+}
+

@@ -2,6 +2,7 @@
 ======
 * 增加了对 Dirt Rally 1.0 的支持
 * 增加了对 Richard Burns Rally (NGP6) mika-n 版的支持 
+* 增加了对额外的路书标记定义文件(*.csv)的支持
 
 v2.6.6
 ======

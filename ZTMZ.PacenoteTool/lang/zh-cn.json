@@ -37,6 +37,7 @@
       "useDefaultSoundPackageForFallback": "如果当前选择的语音包不完整，缺失的语音使用默认（微软慧慧）语音包中对应的语音",
       "preloadSounds": "预加载语音包会带来较大的内存开销（约占用2GB），但会在倒计时刚开始时即可加载完毕并播放开始语音",
       "additionalCoDriverPackagesSearchPath": "在搜索语音包时，额外搜索这个文件夹",
+      "additionalPacenotesDefinitionSearchPath": "在搜索路书标记定义文件(*.csv)时，额外的搜索这个文件夹\n路书标记定义文件需要按照pacenotes.csv的格式保存",
       
       "useSequentialMixerToHandleAudioConflict": "队列播放模式可以避免同一时刻播放多个语音片段造成的语音重叠现象",
       "useDynamicPlaybackSpeed": "在某些路书较为密集的地图（如苏格兰）中，通过动态地根据车速与下个路书位置来调整当前路书片段的语速，来避免路书跟不上车的情况",
@@ -82,6 +83,7 @@
     "useDefaultSoundPackageForFallback": "使用默认（微软慧慧）语音包作为后备",
     "preloadSounds": "预加载语音包",
     "additionalCoDriverPackagesSearchPath": "额外的语音包搜索文件夹",
+    "additionalPacenotesDefinitionSearchPath": "额外的路书定义文件(*.csv)搜索文件夹",
     
     "useSequentialMixerToHandleAudioConflict": "使用队列播放模式",
     "useDynamicPlaybackSpeed": "使用动态语速调整",

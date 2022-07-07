@@ -149,27 +149,10 @@ namespace ZTMZ.PacenoteTool
         private void initVoicePackage()
         {
             // additional voice package
-            txtBox_additionalCoDriverPackagesSearchPath.Text = Config.Instance.AdditionalCoDriverPackagesSearchPath;
-            txtBox_additionalCoDriverPackagesSearchPath.TextChanged += (o, e) =>
-            {
-                if (Directory.Exists(txtBox_additionalCoDriverPackagesSearchPath.Text))
-                {
-                    Config.Instance.AdditionalCoDriverPackagesSearchPath =
-                        txtBox_additionalCoDriverPackagesSearchPath.Text;
-                    Config.Instance.SaveUserConfig();
-                }
-            };
-            btn_additionalCoDriverPackagesSearchPath.Click += (o, e) =>
-            {
-                // show directory selection dialog
-                var dialog = new CommonOpenFileDialog();
-                dialog.IsFolderPicker = true;
-                CommonFileDialogResult result = dialog.ShowDialog();
-                if (result == CommonFileDialogResult.Ok)
-                {
-                    this.txtBox_additionalCoDriverPackagesSearchPath.Text = dialog.FileName;
-                }
-            };
+            initFolderSelectionSetting(txtBox_additionalCoDriverPackagesSearchPath, btn_additionalCoDriverPackagesSearchPath, "AdditionalCoDriverPackagesSearchPath");
+
+            // additional pacenote definition
+            initFolderSelectionSetting(txtBox_additionalPacenotesDefinitionSearchPath, btn_additionalPacenotesDefinitionSearchPath, "AdditionalPacenotesDefinitionSearchPath");
             
             // start/end
             initBoolSetting(btn_PlayStartAndEndSound, "PlayStartAndEndSound");
@@ -201,6 +184,35 @@ namespace ZTMZ.PacenoteTool
             // preload
             initBoolSetting(btn_PreloadSounds, "PreloadSounds");
             
+        }
+
+        private void initFolderSelectionSetting(TextBox txtBox, Button btn, string configKey)
+        {
+            var configProperty = typeof(Config).GetProperty(configKey);
+            if (configProperty.PropertyType != typeof(string))
+            {
+                return;
+            }
+            txtBox.Text = (string)configProperty.GetValue(Config.Instance);
+            txtBox.TextChanged += (o, e) =>
+            {
+                if (Directory.Exists(txtBox.Text))
+                {
+                    configProperty.SetValue(Config.Instance, txtBox.Text);
+                    Config.Instance.SaveUserConfig();
+                }
+            };
+            btn.Click += (o, e) =>
+            {
+                // show directory selection dialog
+                var dialog = new CommonOpenFileDialog();
+                dialog.IsFolderPicker = true;
+                CommonFileDialogResult result = dialog.ShowDialog();
+                if (result == CommonFileDialogResult.Ok)
+                {
+                    this.txtBox_additionalCoDriverPackagesSearchPath.Text = dialog.FileName;
+                }
+            };
         }
 
         private void initPlayback()
