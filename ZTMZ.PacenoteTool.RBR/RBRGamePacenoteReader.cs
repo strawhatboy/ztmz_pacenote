@@ -48,6 +48,10 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             } else {
                 return;
             }
+        } else 
+        {
+            // HU rbr not installed.
+            return;
         }
 
         // 2. load Tracks.ini
