@@ -7,6 +7,7 @@ namespace ZTMZ.PacenoteTool.Base
     {
 
         public static string DEFAULT_PROFILE = "default";
+        public static string PATH_CODRIVERS = "codrivers";
         public static string DEFAULT_CODRIVER = "codrivers\\default";
         public static string CODRIVER_FILENAME = "codriver.txt";
         public static string CODRIVER_PACKAGE_INFO_FILENAME = "info.json";

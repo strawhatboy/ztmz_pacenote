@@ -196,11 +196,11 @@ namespace ZTMZ.PacenoteTool
             txtBox.Text = (string)configProperty.GetValue(Config.Instance);
             txtBox.TextChanged += (o, e) =>
             {
-                if (Directory.Exists(txtBox.Text))
-                {
+                // if (Directory.Exists(txtBox.Text))
+                // {
                     configProperty.SetValue(Config.Instance, txtBox.Text);
                     Config.Instance.SaveUserConfig();
-                }
+                // }
             };
             btn.Click += (o, e) =>
             {
@@ -210,7 +210,7 @@ namespace ZTMZ.PacenoteTool
                 CommonFileDialogResult result = dialog.ShowDialog();
                 if (result == CommonFileDialogResult.Ok)
                 {
-                    this.txtBox_additionalCoDriverPackagesSearchPath.Text = dialog.FileName;
+                    txtBox.Text = dialog.FileName;
                 }
             };
         }
