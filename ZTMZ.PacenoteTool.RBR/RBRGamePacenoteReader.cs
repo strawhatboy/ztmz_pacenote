@@ -1,3 +1,10 @@
+// Another way to read pacenote
+// from the memory
+// (0x7EABA8) + 0x10, seems to be 0x440BBB0
+// then (0x440BBB0) + 0x20 is the pacenotes count
+// (0x440BBB0) + 0x24 is the pointer of pacenotes
+// read pacenotes from (pointer of pacenotes) by pacenote count
+
 
 using Microsoft.Win32;
 using ZTMZ.PacenoteTool.Base;
