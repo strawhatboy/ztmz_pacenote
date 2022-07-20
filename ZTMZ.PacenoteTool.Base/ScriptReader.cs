@@ -129,12 +129,13 @@ namespace ZTMZ.PacenoteTool.Base
         {
             var content = File.ReadAllText(jsonFile);
             var records = JsonConvert.DeserializeObject<List<DynamicPacenoteRecord>>(content);
+            
+            // records.Sort((a, b) => a.Distance.CompareTo(b.Distance));
             return ReadFromDynamicPacenoteRecords(records);
         }
 
         public static ScriptReader ReadFromDynamicPacenoteRecords(List<DynamicPacenoteRecord> records)
         {
-            records.Sort((a, b) => a.Distance.CompareTo(b.Distance));
             PacenoteRecord record = new PacenoteRecord();
             PacenoteRecord lastRecord = null;
             ScriptReader reader = new ScriptReader();

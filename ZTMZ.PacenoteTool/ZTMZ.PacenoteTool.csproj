@@ -4,10 +4,10 @@
         <OutputType>WinExe</OutputType>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>app.ico</ApplicationIcon>
-        <AssemblyVersion>2.6.6.8</AssemblyVersion>
-        <PackageVersion>2.6.6.8</PackageVersion>
-        <Version>2.6.6.8</Version>
-        <FileVersion>2.6.6.8</FileVersion>
+        <AssemblyVersion>2.6.6.10</AssemblyVersion>
+        <PackageVersion>2.6.6.10</PackageVersion>
+        <Version>2.6.6.10</Version>
+        <FileVersion>2.6.6.10</FileVersion>
 	    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	    <SignAssembly>False</SignAssembly>
 	    <TargetFramework>net6.0-windows</TargetFramework>

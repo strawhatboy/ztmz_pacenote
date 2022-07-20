@@ -150,15 +150,27 @@ public class RBRGamePacenoteReader : BasePacenoteReader
         }
 
         var fileName = GetScriptFileForReplaying(profile, game, track);
-        if (fileName.EndsWith(FILE_EXTENSION_DRIVELINE)) 
-        {
-            return ReadPacenoteRecordFromDLSFile(fileName);
-        } else if (fileName.EndsWith(FILE_EXTENSION_PACENOTE)) {
+        if (fileName.EndsWith(FILE_EXTENSION_PACENOTE)) {
             // *.pacenote
             return base.ReadPacenoteRecord(profile, game, track);
         } else {
-            return ReadPacenoteRecordFromIniFile(fileName);
+            // read from Memory first
+            var rbrMemReader = ((RBRGameDataReader)game.GameDataReader).memDataReader;
+
+            var sr = rbrMemReader.ReadPacenotesFromMemory();
+            if (sr.PacenoteRecords.Count > 0) 
+            {
+                return sr;
+            }
+
+            if (fileName.EndsWith(FILE_EXTENSION_DRIVELINE)) 
+            {
+                return ReadPacenoteRecordFromDLSFile(fileName);
+            } else {
+                return ReadPacenoteRecordFromIniFile(fileName);
+            }
         }
+        
     }
 
     private Tuple<int, string> extractTrackNoAndName(string track)
@@ -213,6 +225,8 @@ public class RBRGamePacenoteReader : BasePacenoteReader
                 }
             }
         }
+
+        dynamicRecords.Sort((a, b) => a.Distance.CompareTo(b.Distance));
 
         return ScriptReader.ReadFromDynamicPacenoteRecords(dynamicRecords);
     }
@@ -278,7 +292,6 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             {
                 var offset = dataOffsetValue + i * 0x0C; // 32-bit * 4
                 fs.Seek(offset, SeekOrigin.Begin);
-                var record = new DynamicPacenoteRecord();
                 dword = new byte[0x0C];
                 var pacenoteRecordRead = fs.Read(dword, 0, 0x0C);
                 fs.Seek(offset, SeekOrigin.Begin);
@@ -288,29 +301,24 @@ public class RBRGamePacenoteReader : BasePacenoteReader
                     break;
                 }
 
-                var pacenoteType = BitConverter.ToInt32(dword, 0); 
-                if (ScriptResource.ID_2_PACENOTE.ContainsKey(pacenoteType))
-                {
-                    record.Pacenote = ScriptResource.ID_2_PACENOTE[pacenoteType];
-                }
-
+                var pacenoteType = BitConverter.ToInt32(dword, 0);
                 var flag = BitConverter.ToInt32(dword, 0x04);
-                record.Modifier = getModifiersFromFlag(flag);
-
                 var distance = BitConverter.ToSingle(dword, 0x08);
-                record.Distance = distance;
+                var record = GetDynamicPacenoteRecord(pacenoteType, flag, distance);
 
-                if (!string.IsNullOrEmpty(record.Pacenote))
+                if (record != null)
                 {
                     dynamicRecords.Add(record);
                 }
             }
         }
 
+        dynamicRecords.Sort((a, b) => a.Distance.CompareTo(b.Distance));
+
         return ScriptReader.ReadFromDynamicPacenoteRecords(dynamicRecords);
     }
 
-    private string getModifiersFromFlag(int flag)
+    private static string getModifiersFromFlag(int flag)
     {
         var modifiers = new List<string>();
         foreach (var kv in ScriptResource.ID_2_MODIFIER)
@@ -321,6 +329,24 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             }
         }
         return string.Join(",", modifiers);
+    }
+
+    public static DynamicPacenoteRecord GetDynamicPacenoteRecord(int ptype, int pflag, float pdistance)
+    {
+        DynamicPacenoteRecord record = new DynamicPacenoteRecord();
+        if (ScriptResource.ID_2_PACENOTE.ContainsKey(ptype))
+        {
+            record.Pacenote = ScriptResource.ID_2_PACENOTE[ptype];
+        }
+        record.Modifier = getModifiersFromFlag(pflag);
+        record.Distance = pdistance;
+
+        if (!string.IsNullOrEmpty(record.Pacenote))
+        {
+            return record;
+        }
+
+        return null;
     }
 
     public override string GetScriptFileForReplaying(string profile, IGame game, string track, bool fallbackToDefault = true)

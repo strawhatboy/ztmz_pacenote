@@ -44,7 +44,7 @@ public class RBRGameDataReader : UdpGameDataReader
     {
         get 
         {
-            var trackName = _memDataReader.GetTrackNameFromMemory();
+            var trackName = memDataReader.GetTrackNameFromMemory();
             if (string.IsNullOrEmpty(trackName)) 
             {
                 trackName = ((RBRGamePacenoteReader)_game.GamePacenoteReader).GetTrackNameFromConfigById(_currentMemData.TrackId);
@@ -61,7 +61,7 @@ public class RBRGameDataReader : UdpGameDataReader
     private GameData _currentGameData;
     private RBRMemData _currentMemData;
 
-    private RBRMemDataReader _memDataReader = new();
+    public RBRMemDataReader memDataReader = new();
 
     private Timer _timer = new();
 
@@ -110,7 +110,7 @@ public class RBRGameDataReader : UdpGameDataReader
         MEM_REFRESH_INTERVAL = 1000f / memConfig.RefreshRate;
 
         // init memory reader?
-        _memDataReader.OpenProcess(game);
+        memDataReader.OpenProcess(game);
         _timer.Elapsed += MemDataPullHandler;
         _timer.Interval = MEM_REFRESH_INTERVAL;
         _timer.Start();
@@ -120,14 +120,14 @@ public class RBRGameDataReader : UdpGameDataReader
     public override void Uninitialize(IGame game)
     {
         base.Uninitialize(game);
-        _memDataReader.CloseProgress();
+        memDataReader.CloseProgress();
         _timer.Elapsed -= MemDataPullHandler;
         _timer.Stop();
     }
 
     private void MemDataPullHandler(object? sender, ElapsedEventArgs e) 
     {
-        var memData = _memDataReader.ReadMemData(_game);
+        var memData = memDataReader.ReadMemData(_game);
         
         _lastGameData = _currentGameData;
         _currentGameData = GetGameDataFromMemory(_currentGameData, memData);

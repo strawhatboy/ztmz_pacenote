@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using ZTMZ.PacenoteTool.Base;
@@ -153,5 +154,35 @@ public class RBRMemDataReader
             MemoryReader.CloseHandle(_theProcess.Handle);
             _isProcessOpened = false;
         }
+    }
+
+    public ScriptReader ReadPacenotesFromMemory()
+    {
+        if (!_isProcessOpened)
+        {
+            return null;
+        }
+        var pHandle = _theProcess.Handle;
+        var baseAddr = MemoryReader.Read<int>(pHandle, 0x7EABA8, 0x10);
+        var pacenoteCount = MemoryReader.Read<int>(pHandle, baseAddr + 0x20);
+        var pacenotesAddr = MemoryReader.Read<int>(pHandle, baseAddr + 0x24);
+        var records = new List<DynamicPacenoteRecord>();
+
+        if (pacenotesAddr != 0)
+        {
+            for (int i = 0; i < pacenoteCount; i++)
+            {
+                var pacenoteType = MemoryReader.Read<int>(pHandle, pacenotesAddr + 0x0C * i);
+                var pacenoteModifier = MemoryReader.Read<int>(pHandle, pacenotesAddr + 0x4 + 0x0C * i);
+                var pacenoteDistance = MemoryReader.Read<float>(pHandle, pacenotesAddr + 0x8 + 0x0C * i);
+
+                var record = RBRGamePacenoteReader.GetDynamicPacenoteRecord(pacenoteType, pacenoteModifier, pacenoteDistance);
+                if (record != null) 
+                {
+                    records.Add(record);
+                }
+            }
+        }
+        return ScriptReader.ReadFromDynamicPacenoteRecords(records);
     }
 }
