@@ -1,6 +1,7 @@
 using NAudio.Wave;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -43,7 +44,7 @@ namespace ZTMZ.PacenoteTool
 
         public int CurrentPlayIndex { set; get; } = 0;
 
-        private Dictionary<string, AutoResampledCachedSound> soundCache = new();
+        private ConcurrentDictionary<string, AutoResampledCachedSound> soundCache = new();
 
         private int _currentPlayDeviceId = 0;
 
@@ -247,10 +248,7 @@ namespace ZTMZ.PacenoteTool
 
         private AutoResampledCachedSound getSoundFromCache(string path)
         {
-            if (!this.soundCache.ContainsKey(path))
-            {
-                this.soundCache[path] = new AutoResampledCachedSound(path);
-            }
+            this.soundCache.AddOrUpdate(path, new AutoResampledCachedSound(path), (key, oldValue) => oldValue);
             return this.soundCache[path];
         }
 
