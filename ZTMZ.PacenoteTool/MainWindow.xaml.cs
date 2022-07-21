@@ -419,6 +419,8 @@ namespace ZTMZ.PacenoteTool
             if (game == null)
                 return;
 
+            // check prerequisite
+            checkPrerequisite(game);
                 
             if (game.GameDataReader.Initialize(game))
             {
@@ -677,11 +679,11 @@ namespace ZTMZ.PacenoteTool
                 this.cb_recording_device.SelectedIndex = 0;
         }
 
-        private void checkPrerequisite()
+        private void checkPrerequisite(IGame game)
         {
             // check the file
-            var preCheck = new PrerequisitesCheck();
-            var checkResult = preCheck.Check();
+            var preCheck = game.GamePrerequisiteChecker;
+            var checkResult = preCheck.CheckPrerequisites(game);
             switch (checkResult.Code)
             {
                 case PrerequisitesCheckResultCode.PORT_NOT_OPEN:
@@ -690,13 +692,13 @@ namespace ZTMZ.PacenoteTool
                     //MessageBox.Show(
                     //    "你的Dirt Rally 2.0 的配置文件中的UDP端口未正确打开，如果没有打开，工具将无法正常工作，点击“是”自动修改配置文件，点击“否”退出程序自行修改",
                     //    "配置错误", MessageBoxButton.YesNo, MessageBoxImage.Information);
-                    var pnoDialog = new PortNotOpenDialog();
+                    var pnoDialog = new PortNotOpenDialog(checkResult.Params[0].ToString(), checkResult.Params[1].ToString());
                     GoogleAnalyticsHelper.Instance.TrackPageView("Dialog - PortNotOpen", "dialog/port_not_open");
                     var resPNO = pnoDialog.ShowDialog();
                     if (resPNO.HasValue && resPNO.Value)
                     {
                         GoogleAnalyticsHelper.Instance.TrackDialogEventConfirmed("port_not_open");
-                        preCheck.Write();
+                        preCheck.ForceFix(game);
                     }
                     else
                     {
@@ -710,16 +712,17 @@ namespace ZTMZ.PacenoteTool
                     if (Config.Instance.WarnIfPortMismatch)
                     {
                         var pmDialog = new PortMismatchDialog(checkResult.Params[0].ToString(),
-                            checkResult.Params[1].ToString());
+                            checkResult.Params[1].ToString(), checkResult.Params[2].ToString(), checkResult.Params[3].ToString());
                         GoogleAnalyticsHelper.Instance.TrackPageView("Dialog - PortNotMatch", "dialog/port_not_match");
                         var resPM = pmDialog.ShowDialog();
                         if (resPM.HasValue && !resPM.Value)
                         {
                             GoogleAnalyticsHelper.Instance.TrackDialogEventConfirmed("port_not_match");
                             // force fix
-                            preCheck.Write();
-                            Config.Instance.UDPListenPort = 20777;
-                            Config.Instance.SaveUserConfig();
+                            preCheck.ForceFix(game);
+                            game.GameConfigurations = game.DefaultGameConfigurations;
+                            Config.Instance.SaveGameConfig(game);
+                            // set default configuration for the game
                         } else {
                             GoogleAnalyticsHelper.Instance.TrackDialogEventCancelled("port_not_match");
                         }
@@ -728,6 +731,8 @@ namespace ZTMZ.PacenoteTool
                         //    "配置警告", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
 
+                    break;
+                case PrerequisitesCheckResultCode.GAME_NOT_INSTALLED:
                     break;
             }
         }
@@ -1215,27 +1220,11 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
             if (_settingsWindow == null)
             {
                 _settingsWindow = new SettingsWindow();
-                _settingsWindow.PortChanged += () =>
-                {
-                    // BackgroundWorker bgw = new BackgroundWorker();
-                    // bgw.DoWork += (s, e) =>
-                    // {
-                    //     this._udpReceiver.StopListening();
-                    //     Thread.Sleep(2800);
-                    //     this._udpReceiver.StartListening();
-                    // };
-                    // bgw.RunWorkerAsync();
-                };
                 
-                
-                //_settingsWindow.HudFPSChanged += () =>
-                //{
-                //    this._gameOverlayManager.StopLoop();
-                //    this._gameOverlayManager.StartLoop();
-                //};
             }
             GoogleAnalyticsHelper.Instance.TrackPageView("Window - Settings", "window/settings");
             
+            _settingsWindow.SetGame(_currentGame);
             _settingsWindow.Show();
             _settingsWindow.Focus();
         }

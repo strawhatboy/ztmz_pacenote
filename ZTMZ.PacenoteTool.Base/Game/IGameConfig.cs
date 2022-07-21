@@ -7,7 +7,13 @@ namespace ZTMZ.PacenoteTool.Base.Game;
 
 public interface IGameConfig
 {
-    UserControl UI { get; set; }
+    IGameConfigSettingsPane UI { get; set; }
+}
+
+public abstract class IGameConfigSettingsPane: UserControl
+{
+    public abstract void InitializeWithGame(IGame game);
+    public Action RestartNeeded;
 }
 
 public class GameConfigAttribute : Attribute
@@ -27,7 +33,7 @@ public class UdpGameConfig : IGameConfig
     public int Port { set; get; }
 
     [JsonIgnore]
-    public UserControl UI { set; get; }
+    public IGameConfigSettingsPane UI { set; get; }
 
     public static string Name => "udp";
 
@@ -45,7 +51,7 @@ public class MemoryGameConfig : IGameConfig
     public static string Name => "memory";
 
     [JsonIgnore]
-    public UserControl UI { set; get; }
+    public IGameConfigSettingsPane UI { set; get; }
 
     public MemoryGameConfig()
     {

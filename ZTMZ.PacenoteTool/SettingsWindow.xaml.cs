@@ -10,6 +10,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using Xceed.Wpf.Toolkit;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Dialog;
+using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -28,16 +29,17 @@ namespace ZTMZ.PacenoteTool
             initHud();
         }
 
-        private void checkUDP()
+        public void SetGame(IGame game)
         {
-            var check = new PrerequisitesCheck().Check();
-            if (check.Code == PrerequisitesCheckResultCode.PORT_NOT_MATCH)
+            tb_CurrentGame.Text = game.Name;
+            sp_CurrentGame.Children.Clear();
+            foreach (var kv in game.GameConfigurations)
             {
-                this.pi_udpPort.Visibility = Visibility.Visible;
-                this.pi_udpPort.ToolTip = string.Format(I18NLoader.Instance["settings.tooltip.udpListenPort_Warning"], check.Params[0]);
-            } else if (check.Code == PrerequisitesCheckResultCode.OK)
-            {
-                this.pi_udpPort.Visibility = Visibility.Hidden;
+                IGameConfigSettingsPane pane = kv.Value.UI;
+                sp_CurrentGame.Children.Add(pane);
+                img_CurrentGame.Source = game.Image;
+                pane.InitializeWithGame(game);
+                pane.RestartNeeded = () => this.tb_restartNeeded.Visibility = Visibility.Visible;
             }
         }
 
@@ -75,40 +77,16 @@ namespace ZTMZ.PacenoteTool
                 I18NLoader.Instance.SetCulture(c);
             };
 
-            // port
-            this.tb_UDPListenPort.Value = (uint)Config.Instance.UDPListenPort;
-            checkUDP();
-            this.tb_UDPListenPort.LostFocus += (s, e) =>
-            {
-                this.pb_udpPort.Visibility = Visibility.Visible;
-                Config.Instance.UDPListenPort = (int)this.tb_UDPListenPort.Value.Value;
-                // open the port mismatch dialog next time.
-                Config.Instance.WarnIfPortMismatch = true;
-                Config.Instance.SaveUserConfig();
-                checkUDP();
-                this.PortChanged?.Invoke();
-                this.tb_UDPListenPort.IsEnabled = false;
-                var bgw = new BackgroundWorker();
-                bgw.DoWork += (s, e) =>
-                {
-                    Thread.Sleep(6000);
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        this.tb_UDPListenPort.IsEnabled = true;
-                        this.pb_udpPort.Visibility = Visibility.Collapsed;
-                    });
-                };
-                bgw.RunWorkerAsync();
-            };
 
             initBoolSetting(btn_enableGoogleAnalytics, "EnableGoogleAnalytics");
+            initBoolSetting(btn_warnIfPortMismatch, "WarnIfPortMismatch");
         }
 
         private void initHud()
         {
             // fps
             this.tb_HudFPS.Value = (uint)Config.Instance.HudFPS;
-            this.tb_HudFPS.LostFocus += (s, e) =>
+            this.tb_HudFPS.ValueChanged += (s, e) =>
             {
                 Config.Instance.HudFPS = (int)this.tb_HudFPS.Value.Value;
                 Config.Instance.SaveUserConfig();
@@ -244,6 +222,11 @@ namespace ZTMZ.PacenoteTool
         {
             if (!CanClose)
             {
+                if (tb_restartNeeded.Visibility == Visibility.Visible) 
+                {
+                    System.Windows.MessageBox.Show(I18NLoader.Instance["settings.restartNeeded"], "",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                }
                 this.Hide();
                 e.Cancel = true;
             }

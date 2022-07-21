@@ -12,19 +12,21 @@
 
     "section": {
       "general": "General",
-      "voicePackage": "Voice Package",
+      "voicePackage": "Voices",
       "misc": "Misc",
       "playback": "Playback",
-      "hud": "In-game Hud (Game in Windowed or Borderless Video Mode)"
+      "hud": "Hud",
+      "game": "Game"
     },
 
     "restartNeeded": "Need to restart the tool to take effect",
 
     "tooltip": {
       "btn_reset": "Need to restart the tool to take effect",
-      "udpListenPort": "If you want to use this tool along with SIMHUB, changing the default 20777 to 20778 would help",
-      "udpListenPort_Warning": "The port is not consistent with the Dirt Rally 2.0 settings {0}, maybe you're using SIMHUB",
       "playbackDeviceDesiredLatency": "The delay for playing after the instructions arrive at the device, if this value is very small, the sound may be weird. Meanwhile a big delay may affect the experience",
+
+      "warnIfPortMismatch": "Show warning dialog if the game UDP port mismatch with the tool UDP port",
+
       "hudFPS": "Lock FPS of the in-game hud, high FPS may bring negative influence to the performance of some screen recording softwares like OBS",
       "playStartAndEndSound": "Play special start/end stage voice",
       "playGoSound": "Just after the count down, there will be something like 'Go' played if this option was checked",
@@ -64,13 +66,20 @@
       "hudTelemetrySteeringDegree": "The angle through which the steering wheel passes from one side limit to the other side limit",
       "hudTelemetryShowSuspensionBars": "Wheel speed (green), brake temperature (red), suspension position (white) and suspension speed (blue)",
       "hudShowDebugTelemetry": "Displays all telemetry data on the left side of the game screen for debugging and problem diagnosis",
-      "enableGoogleAnalytics": "Use Google Analytics to collect some of your \"usage information\" to help us improve the program. All of this information is sent to Google servers in an anonymous form for statistical use. You can allow or prohibit this in the settings at any time. This information includes and is limited to:\n\t- Operating system version\n\t- Opening this program event\n\t- Opening each window event in this program\n\t- Each configuration item modification event\n \t- The modification event of the main interface configuration item\n\t- The event of using a specific voice package to play the game (to count the voice package preference)"
+      "enableGoogleAnalytics": "Use Google Analytics to collect some of your \"usage information\" to help us improve the program. All of this information is sent to Google servers in an anonymous form for statistical use. You can allow or prohibit this in the settings at any time. This information includes and is limited to:\n\t- Operating system version\n\t- Opening this program event\n\t- Opening each window event in this program\n\t- Each configuration item modification event\n \t- The modification event of the main interface configuration item\n\t- The event of using a specific voice package to play the game (to count the voice package preference)",
+
+      "udpListenAddress": "127.0.0.1 by default",
+      "udpListenPort": "If you want to use this tool along with SIMHUB, changing the default 20777 to 20778 would help",
+      "udpListenPort_Warning": "The port is not consistent with the Dirt Rally 2.0 settings {0}, maybe you're using SIMHUB",
+      "memoryRefreshRate": "Change this value to adjust the refresh rate of the memory monitor"
     },
 
     "language": "UI language",
     "isDarkTheme": "Dark Theme",
-    "udpListenPort": "Telemetry UDP port",
     "playbackDeviceDesiredLatency": "Playback device desired latency",
+
+    "warnIfPortMismatch": "Show warning dialog if port mismatch",
+
     "hudFPS": "In-game Hud FPS, changes need restarting this tool to take effect",
     "playStartAndEndSound": "Play special start/end stage voice",
     "playGoSound": "Play special voice when the race started",
@@ -110,7 +119,11 @@
     "hudTelemetrySteeringDegree": "Dashboard - Steering Wheel Angle",
     "hudTelemetryShowSuspensionBars": "Dashboard - Whether to show tire and suspension status",
     "hudShowDebugTelemetry": "Whether to show debug telemetry",
-    "enableGoogleAnalytics": "Enable Google Analytics"
+    "enableGoogleAnalytics": "Enable Google Analytics",
+
+    "udpListenAddress": "Telemetry UDP listen address",
+    "udpListenPort": "Telemetry UDP port",
+    "memoryRefreshRate": "Memory Refresh Rate (Hz)"
   },
 
   "dialog": {
@@ -118,14 +131,14 @@
       "title": "Port Not Open",
       "btn_ok": "OPEN IT",
       "btn_cancel": "Cancel",
-      "content": "We detected the UDP port in your Dirt Rally 2.0 settings located in %userprofile%\\Documents\\My Games\\DiRT Rally 2.0\\hardwaresettings is not enabled, which is necessary for the tool to work correctly, please click 'OPEN IT' button below, we'll enable it for you, and then restart your game. Or click 'Cancel' to exit the tool."
+      "content": "We detected the UDP port in your game \"{0}\" settings located in {1} is not enabled, which is necessary for the tool to work correctly, please click 'OPEN IT' button below, we'll enable it for you, and then restart your game. Or click 'Cancel' to exit the tool."
     },
     "portMismatch": {
       "title": "Port Mismatch",
       "btn_ok": "OK",
       "btn_FORCE": "FORCE REPARATION",
       "ckbox_show": "Do not show this dialog next time",
-      "content": "Your Dirt Rally 2.0 settings located in %userprofile%\\Documents\\My Games\\DiRT Rally 2.0\\hardwaresettings is not correct, the port definition {0} is mismatched with the settings {1} in our tool, which would lead to unsuccessful track recognition. \n\n\t(1) Maybe you're using SIMHUB, which allows udp port forwarding. If so, please select 'OK' below to keep the settings untouched.\n\n\t(2) Or you dont know what is going on and you're confused with this dialog, then just click 'FORCE REPARATION', we'll handle it automatically. Then don't forget to restart the game."
+      "content": "Your game \"{0}\" settings located in {1} is not correct, the port definition {2} is mismatched with the settings {3} in our tool, which would lead to unsuccessful track recognition. \n\n\t(1) Maybe you're using SIMHUB, which allows udp port forwarding. If so, please select 'OK' below to keep the settings untouched.\n\n\t(2) Or you dont know what is going on and you're confused with this dialog, then just click 'FORCE REPARATION', we'll handle it automatically. Then don't forget to restart the game."
     },
     "resetConfig": {
       "title": "Reset All Configuration",

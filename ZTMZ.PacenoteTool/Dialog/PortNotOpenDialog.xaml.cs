@@ -20,10 +20,10 @@ namespace ZTMZ.PacenoteTool.Dialog
     /// </summary>
     public partial class PortNotOpenDialog : Window
     {
-        public PortNotOpenDialog()
+        public PortNotOpenDialog(string gameName, string filePath)
         {
             InitializeComponent();
-            this.tb_Content.Text = string.Format(I18NLoader.Instance["dialog.portNotOpen.content"]);
+            this.tb_Content.Text = string.Format(I18NLoader.Instance["dialog.portNotOpen.content"], gameName, filePath);
             this.MouseDown += delegate { DragMove(); };
         }
 

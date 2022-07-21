@@ -21,7 +21,7 @@
         <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" DockPanel.Dock="Top" Margin="20 20 20 0" Text="{DynamicResource ResourceKey=dialog.portMismatch.title}" />
         <materialDesign:PackIcon Kind="Warning" Height="60" Width="60" Margin="20" Foreground="OrangeRed" DockPanel.Dock="Left"  />
         <StackPanel DockPanel.Dock="Bottom" Margin="20 10 20 20" Orientation="Horizontal" HorizontalAlignment="Right" >
-            <CheckBox x:Name="chkbox_show" Content="{DynamicResource ResourceKey=dialog.portMismatch.ckbox_show}" Click="ButtonBase_OnClick" />
+            <CheckBox x:Name="chkbox_show" Content="{DynamicResource ResourceKey=dialog.portMismatch.ckbox_show}" Margin="0 0 10 0" Click="ButtonBase_OnClick" />
             <Button IsDefault="True" x:Name="btn_ok" Content="{DynamicResource ResourceKey=dialog.portMismatch.btn_ok}" Click="btn_ok_Click" Margin="0 0 10 0"></Button>
             <Button x:Name="btn_FORCE" Background="Crimson" Content="{DynamicResource ResourceKey=dialog.portMismatch.btn_FORCE}" Click="btn_FORCE_Click"></Button>
         </StackPanel>

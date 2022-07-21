@@ -10,7 +10,9 @@ namespace ZTMZ.PacenoteTool.Codemasters
     {
         public string WindowTitle => "Dirt Rally";
 
-        public string Name => "Dirt Rally 1.0";
+        public string Name => GameName;
+
+        public static string GameName = "Dirt Rally 1.0";
 
         public string Description => "";
 
@@ -21,17 +23,21 @@ namespace ZTMZ.PacenoteTool.Codemasters
         
         public BitmapImage Image { get; } = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/dirtrally.jpg"));
         
-        public Dictionary<string, IGameConfig> GameConfigurations { set; get; } = new Dictionary<string, IGameConfig>() 
-        {
-            { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback.ToString(), Port = 20777 } } 
-        };
+        public Dictionary<string, IGameConfig> GameConfigurations { set; get; }
 
         public bool IsRunning { get; set; }
 
         public int Order => 1000;
 
+        public IGamePrerequisiteChecker GamePrerequisiteChecker { get; } = new DirtGamePrerequisiteChecker();
+        public Dictionary<string, IGameConfig> DefaultGameConfigurations { get; } = new Dictionary<string, IGameConfig>() 
+        {
+            { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback.ToString(), Port = 20777 } } 
+        };
+
         public DirtRally()
         {
+            this.GameConfigurations = DefaultGameConfigurations;
         }
     }
 }

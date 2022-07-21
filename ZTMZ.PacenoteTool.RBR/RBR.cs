@@ -53,9 +53,11 @@ namespace ZTMZ.PacenoteTool.RBR
     {
         public string WindowTitle => "";
 
-        public string Name => "Richard Burns Rally - NGP6";
+        public string Name => GameName;
+        
+        public static string GameName = "Richard Burns Rally - RSF";
 
-        public string Description => "The most classic rally simulation game";
+        public string Description => "The most classic rally simulation game, Rally Sim Fans version.";
 
         public BitmapImage Image { get; } = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.RBR;component/rbr.jpg"));
 
@@ -67,11 +69,20 @@ namespace ZTMZ.PacenoteTool.RBR
 
         public bool IsRunning { get; set; }
 
-        public Dictionary<string, IGameConfig> GameConfigurations { set; get; } = new() {
+        public Dictionary<string, IGameConfig> GameConfigurations { set; get; }
+        
+        public int Order => 3000;
+
+        public IGamePrerequisiteChecker GamePrerequisiteChecker { get; } = new RBRGamePrerequisiteChecker();
+
+        public Dictionary<string, IGameConfig> DefaultGameConfigurations { get; } = new() {
             { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback.ToString(), Port = 6776 } },
             { MemoryGameConfig.Name, new MemoryGameConfig() { RefreshRate = 24f } },
         };
-        
-        public int Order => 3000;
+
+        public RBR() 
+        {
+            GameConfigurations = DefaultGameConfigurations;
+        }
     }
 }

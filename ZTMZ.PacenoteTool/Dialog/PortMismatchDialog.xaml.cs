@@ -20,10 +20,10 @@ namespace ZTMZ.PacenoteTool.Dialog
     /// </summary>
     public partial class PortMismatchDialog : Window
     {
-        public PortMismatchDialog(string port1, string port2)
+        public PortMismatchDialog(string gameName, string filePath, string port1, string port2)
         {
             InitializeComponent();
-            this.tb_Content.Text = string.Format(I18NLoader.Instance["dialog.portMismatch.content"], port1, port2);
+            this.tb_Content.Text = string.Format(I18NLoader.Instance["dialog.portMismatch.content"], gameName, filePath, port1, port2);
             this.MouseDown += delegate { DragMove(); };
         }
 
