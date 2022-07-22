@@ -12,6 +12,7 @@
 // 3. check if the Port matches that in game configuration
 //
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using IniParser;
@@ -83,12 +84,20 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
     public void ForceFix(IGame game)
     {
         var parser = new FileIniDataParser();
-        IniData data = parser.ReadFile(Path.Join(RBRRootDir, "RichardBurnsRally.ini"));
+        var iniFilePath = Path.Join(RBRRootDir, "RichardBurnsRally.ini");
+        IniData data = parser.ReadFile(iniFilePath);
         var ngp = data["NGP"];
         ngp["udpTelemetry"] = "1";
-        ngp["udpTelemetryPort"] = "6776";
         ngp["udpTelemetryAddress"] = "127.0.0.1";
-        parser.WriteFile(Path.Join(RBRRootDir, "RichardBurnsRally.ini"), data);
+        ngp["udpTelemetryPort"] = "6776";
+        // Shit! why this breaks the game? because it's using UTF8 as defaut, but not system default...
+        // so create bak incase...
+        var bakFilePath = Path.Join(RBRRootDir, "RichardBurnsRally.ini.bak");
+        if (!File.Exists(bakFilePath))
+        {
+            File.Copy(iniFilePath, bakFilePath);
+        }
+        parser.WriteFile(Path.Join(RBRRootDir, "RichardBurnsRally.ini"), data, System.Text.Encoding.Default);
     }
 }
 

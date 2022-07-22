@@ -19,6 +19,8 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
     public bool IsPassed { set; get; } = false;
     private XDocument _xmlFile;
     private XElement _udpNode;
+
+    private string configPort;
     public PrerequisitesCheckResult CheckPrerequisites(IGame game)
     {
         var settingsFile = "";
@@ -99,6 +101,7 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
 
     public PrerequisitesCheckResult Check(IGame game, string file)
     {
+        configPort = ((UdpGameConfig)game.GameConfigurations[UdpGameConfig.Name]).Port.ToString();
         this._xmlFile = XDocument.Load(file);
         this._udpNode = this._xmlFile.Root.XPathSelectElement("./motion_platform/udp");
         if (this._udpNode.Attribute("enabled").Value != "true" || this._udpNode.Attribute("extradata").Value != "3")
@@ -112,14 +115,14 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
             };
         }
 
-        if (this._udpNode.Attribute("port").Value != Config.Instance.UDPListenPort.ToString())
+        if (!this._udpNode.Attribute("port").Value.Equals(configPort))
         {
             return new PrerequisitesCheckResult()
             {
                 IsOK = false,
                 Msg = "",
                 Code = PrerequisitesCheckResultCode.PORT_NOT_MATCH,
-                Params = new List<object> { game.Name, file, this._udpNode.Attribute("port").Value, Config.Instance.UDPListenPort.ToString() }
+                Params = new List<object> { game.Name, file, this._udpNode.Attribute("port").Value, configPort }
             };
         }
 
@@ -138,7 +141,7 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
         this._udpNode = this._xmlFile.Root.XPathSelectElement("./motion_platform/udp");
         this._udpNode.Attribute("enabled").Value = "true";
         this._udpNode.Attribute("extradata").Value = "3";
-        this._udpNode.Attribute("port").Value = Config.Instance.UDPListenPort.ToString();
+        this._udpNode.Attribute("port").Value = configPort;
         this._xmlFile.Save(file);
     }
 }

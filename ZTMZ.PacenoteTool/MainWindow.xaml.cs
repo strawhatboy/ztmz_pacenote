@@ -1274,6 +1274,19 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
             }
         }
 
+        private void Btn_currentCodriverLink_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (this._profileManager.CurrentCoDriverSoundPackagePath != null)
+            {
+                var homepage = ((CoDriverPackageInfo)this.cb_codrivers.SelectedItem).homepage;
+                if (!string.IsNullOrEmpty(homepage))
+                {
+                    GoogleAnalyticsHelper.Instance.TrackPageView("Link - CoDriver", homepage);
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = new Uri(homepage).AbsoluteUri, UseShellExecute = true });
+                }
+            }
+        }
+
         private void Btn_startAudioPkgMgr_OnClick(object sender, RoutedEventArgs e)
         {
             GoogleAnalyticsHelper.Instance.TrackPageView("Tools - AudioPackageManager", "tools/audio_pkg_manager");

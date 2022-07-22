@@ -254,6 +254,7 @@
       "btn_currentTrack": "Open the current track folder",
       "btn_currentScript": "Open the script of the current track",
       "btn_currentCodriver": "Open the folder of the current codriver package",
+      "btn_currentCodriverLink": "Open the homepage of the current codriver package author",
       "btn_playExample": "Play sample sound",
       "tb_playVolume": "Adjust the playback volume. When the volume is increased, distortion caused by loss of audio waveform may occur",
       "tb_prePlay": "For example, +1s means Lushu will play 1 second later, -2s means Lushu will play 2 seconds earlier",
