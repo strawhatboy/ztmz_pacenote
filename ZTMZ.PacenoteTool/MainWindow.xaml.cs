@@ -76,6 +76,7 @@ namespace ZTMZ.PacenoteTool
         private float _playbackSpd = 1.0f;
 
         private DropShadowEffect _processRunningEffect;
+        private DropShadowEffect _gameNotInstalledEffect;
 
         public MainWindow()
         {
@@ -84,6 +85,12 @@ namespace ZTMZ.PacenoteTool
             _processRunningEffect.BlurRadius = 40;
             _processRunningEffect.Color = Colors.LightGreen;
             _processRunningEffect.ShadowDepth = 0;
+            
+            _gameNotInstalledEffect = new DropShadowEffect();
+            _gameNotInstalledEffect.Opacity = 1;
+            _gameNotInstalledEffect.BlurRadius = 40;
+            _gameNotInstalledEffect.Color = Colors.Red;
+            _gameNotInstalledEffect.ShadowDepth = 0;
             InitializeComponent();
         }
 
@@ -420,15 +427,23 @@ namespace ZTMZ.PacenoteTool
                 return;
 
             // check prerequisite
-            checkPrerequisite(game);
-                
-            if (game.GameDataReader.Initialize(game))
+            var res = checkPrerequisite(game);
+            if (res == PrerequisitesCheckResultCode.GAME_NOT_INSTALLED)
             {
-                GameOverlayManager.GAME_PROCESS = game.Executable.Remove(game.Executable.IndexOf(".exe"));
-                game.GameDataReader.onCarDamaged += carDamagedEventHandler;
-                game.GameDataReader.onNewGameData += newGameDataEventHander;
-                game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
-                game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
+                this.cb_game.ToolTip = string.Format(I18NLoader.Instance["ui.tooltip.cb_gameNotInstalled"], game.Name);
+                this.cb_game.Effect = _gameNotInstalledEffect;
+            } else {
+                if (game.GameDataReader.Initialize(game))
+                {
+                    GameOverlayManager.GAME_PROCESS = game.Executable.Remove(game.Executable.IndexOf(".exe"));
+                    game.GameDataReader.onCarDamaged += carDamagedEventHandler;
+                    game.GameDataReader.onNewGameData += newGameDataEventHander;
+                    game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
+                    game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
+                }    
+                
+                this.cb_game.ToolTip = game.Description;
+                this.cb_game.Effect = game.IsRunning ? _processRunningEffect : null;
             }
         }
 
@@ -679,7 +694,7 @@ namespace ZTMZ.PacenoteTool
                 this.cb_recording_device.SelectedIndex = 0;
         }
 
-        private void checkPrerequisite(IGame game)
+        private PrerequisitesCheckResultCode checkPrerequisite(IGame game)
         {
             // check the file
             var preCheck = game.GamePrerequisiteChecker;
@@ -735,6 +750,7 @@ namespace ZTMZ.PacenoteTool
                 case PrerequisitesCheckResultCode.GAME_NOT_INSTALLED:
                     break;
             }
+            return checkResult.Code;
         }
 
         private void checkIfDevVersion()
@@ -880,8 +896,6 @@ namespace ZTMZ.PacenoteTool
 
             // TODO: wait for seconds?
             initializeGame(_currentGame);
-            this.cb_game.ToolTip = _currentGame.Name;
-            this.cb_game.Effect = _currentGame.IsRunning ? _processRunningEffect : null;
             Config.Instance.UI_SelectedGame = this.cb_game.SelectedIndex;
             Config.Instance.SaveUserConfig();
         }

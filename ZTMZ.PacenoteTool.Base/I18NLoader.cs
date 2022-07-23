@@ -60,14 +60,21 @@ namespace ZTMZ.PacenoteTool.Base
 
             // load from I18NPath
             var jsonFiles = Directory.GetFiles(i18nPath, "*.json");
+
+            // should be put in parameters of this method "Initialize", initializeWithPaths?
+            var jsonFilesInGames = Directory.GetFiles(AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)), "*.json");
+            jsonFiles = jsonFiles.Concat(jsonFilesInGames).ToArray();
             foreach (var jsonFile in jsonFiles)
             {
-                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(jsonFile).ToLower();
+                // load all files like "en-us.json" or "en-us.codemasters.json"
+                var fileNameWithoutExtension = Path.GetFileName(jsonFile.Substring(0, jsonFile.IndexOf('.')).ToLower());
                 if (cultureDict.ContainsKey(fileNameWithoutExtension))
                 {
-                    cultures.Add(fileNameWithoutExtension);
-                    culturesFullname.Add(cultureDict[fileNameWithoutExtension]);
-                    Resources.Add(fileNameWithoutExtension, new Dictionary<string, string>());
+                    if (!cultures.Contains(fileNameWithoutExtension)) {
+                        cultures.Add(fileNameWithoutExtension);
+                        culturesFullname.Add(cultureDict[fileNameWithoutExtension]);
+                        Resources.Add(fileNameWithoutExtension, new Dictionary<string, string>());
+                    }
                 }
 
                 using (var strReader = new StringReader(File.ReadAllText(jsonFile)))

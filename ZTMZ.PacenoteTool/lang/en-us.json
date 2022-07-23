@@ -267,7 +267,9 @@
       "cb_pureAudioRecordMode": "Pure voice recording",
       "tb_autoScriptRecordMode": "Automatically record scripts through voice recognition",
       "tb_showHud": "Whether to display the floating window in the game, the game needs to be in window mode or borderless window mode",
-      "tb_mute": "Mute/Unmute"
+      "tb_mute": "Mute/Unmute",
+
+      "cb_gameNotInstalled": "The game is not installed"
     }
   },
   "misc": {

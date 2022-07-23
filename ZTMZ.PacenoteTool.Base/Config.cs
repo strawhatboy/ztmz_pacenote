@@ -46,6 +46,8 @@ namespace ZTMZ.PacenoteTool.Base
         }
 
         private int _UDPListenPort = 20777;
+
+        [Obsolete("Use udp port in each game config respectively", true)]
         public int UDPListenPort
         {
             set { this._UDPListenPort = value; this._userconfig["UDPListenPort"] = value; }

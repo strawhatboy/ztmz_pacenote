@@ -166,7 +166,7 @@ namespace ZTMZ.PacenoteTool.AudioCompressor
                 };
                 bgw.RunWorkerAsync();
             }
-            catch (Exception ex)
+            catch 
             {
             }
         }

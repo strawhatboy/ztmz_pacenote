@@ -14,7 +14,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
         public string Name => GameName;
         public static string GameName = "Dirt Rally 2.0";
 
-        public string Description => "";
+        public string Description { get; private set; } = "";
 
         public string Executable => "dirtrally2.exe";
 
@@ -38,6 +38,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
 
         public DirtRally2()
         {
+            this.Description = I18NLoader.Instance["game.dr2.description"];
             this.GameConfigurations = DefaultGameConfigurations;
         }
     }

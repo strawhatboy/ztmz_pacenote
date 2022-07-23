@@ -72,9 +72,9 @@ namespace ZTMZ.PacenoteTool.Base
             this.ListenStarted?.Invoke();
         }
 
-        public void StartListening() 
+        public void StartListening(int port) 
         {
-            StartListening(IPAddress.Loopback, Config.Instance.UDPListenPort);
+            StartListening(IPAddress.Loopback, port);
         }
         public void StartListening(IPAddress ipAddress, int port)
         {

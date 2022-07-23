@@ -21,7 +21,7 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
 
         private void initializeI18N()
         {
-            I18NLoader.Instance.Initialize(AppLevelVariables.Instance.GetPath("lang"));
+            I18NLoader.Instance.Initialize(AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE));
             I18NLoader.Instance.SetCulture(Config.Instance.Language);
         }
     }

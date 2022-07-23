@@ -45,6 +45,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Media.Imaging;
+using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.RBR
@@ -57,7 +58,7 @@ namespace ZTMZ.PacenoteTool.RBR
         
         public static string GameName = "Richard Burns Rally - RSF";
 
-        public string Description => "The most classic rally simulation game, Rally Sim Fans version.";
+        public string Description { get; private set; } = "";
 
         public BitmapImage Image { get; } = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.RBR;component/rbr.jpg"));
 
@@ -82,6 +83,7 @@ namespace ZTMZ.PacenoteTool.RBR
 
         public RBR() 
         {
+            this.Description = I18NLoader.Instance["game.rbr.description"];
             GameConfigurations = DefaultGameConfigurations;
         }
     }

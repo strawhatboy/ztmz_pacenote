@@ -17,10 +17,10 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
     private string _dr2settingsFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games/DiRT Rally 2.0/hardwaresettings/hardware_settings_config.xml");
     private string _dr2settingsVRFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games/DiRT Rally 2.0/hardwaresettings/hardware_settings_config_vr.xml");
     public bool IsPassed { set; get; } = false;
-    private XDocument _xmlFile;
-    private XElement _udpNode;
+    private XDocument? _xmlFile;
+    private XElement? _udpNode;
 
-    private string configPort;
+    private string configPort = "20777";
     public PrerequisitesCheckResult CheckPrerequisites(IGame game)
     {
         var settingsFile = "";

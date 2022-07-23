@@ -50,7 +50,7 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
             }
         }
 
-        public Dictionary<string, Tuple<string, bool>> Pacenotes { get; private set; }
+        public Dictionary<string, Tuple<string, bool>> Pacenotes { get; private set; } = new();
 
         public MainWindow()
         {

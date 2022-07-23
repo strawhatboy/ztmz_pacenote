@@ -22,7 +22,7 @@ namespace OnlyR.Core.Recorder
         private const int VuSpeed = 5;
 
         private LameMP3FileWriter? _mp3Writer;
-        private string _destinationPath;
+        private string? _destinationPath;
         private WaveFileWriter? _waveFileWriter;
         private IWaveIn? _waveSource;
         private WaveOutEvent? _silenceWaveOut;
