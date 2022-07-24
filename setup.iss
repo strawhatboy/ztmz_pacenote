@@ -146,7 +146,8 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [Files]
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*.json"; Excludes:"config.json,userconfig.json"; DestDir: "{userdocs}\My Games\ZTMZClub"; Flags: ignoreversion uninsneveruninstall
+; No json file!
+; Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*.json"; Excludes:"config.json,userconfig.json,*.deps.json,*.runtimeconfig.json"; DestDir: "{userdocs}\My Games\ZTMZClub"; Flags: ignoreversion uninsneveruninstall
 Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*.csv"; DestDir: "{userdocs}\My Games\ZTMZClub"; Flags: ignoreversion uninsneveruninstall
 Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\codrivers\*"; DestDir: "{userdocs}\My Games\ZTMZClub\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
 Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\profiles\*"; DestDir: "{userdocs}\My Games\ZTMZClub\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall
