@@ -17,7 +17,7 @@
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
         Closing="Window_Closing"
-        Title="ZTMZ Club 路书工具" Height="925" Width="500" Loaded="Window_Loaded">
+        Title="ZTMZ Club 路书工具" Height="900" Width="500" Loaded="Window_Loaded">
 
     <Grid>
         <Grid.Resources>
@@ -37,14 +37,14 @@
             <RowDefinition Height="5" />
             <RowDefinition Height="280" />
             <RowDefinition Height="5" />
-            <RowDefinition Height="75" />
+            <RowDefinition Height="50" />
         </Grid.RowDefinitions>
         <materialDesign:Card Margin="5 0 5 0" Padding="5 0 5 0">
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="56" />
                 </Grid.ColumnDefinitions>
                 <RadioButton Grid.Column="0" Name="ck_record" GroupName="mode"
                          Click="Ck_record_OnChecked" ToolTip="{DynamicResource ResourceKey=ui.tooltip.rb_record}" 
@@ -246,8 +246,8 @@
 
                             <ColumnDefinition Width="200" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="50" />
-                            <ColumnDefinition Width="50" />
+                            <ColumnDefinition Width="56" />
+                            <ColumnDefinition Width="56" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Row="0" Grid.Column="0" FontSize="16" 
                                    Text="{DynamicResource ResourceKey=ui.tab_s_audioPackage}">
@@ -277,8 +277,8 @@
                         
                         <Button Grid.Row="0" Grid.Column="3" Name="btn_currentCodriverLink"
                                 ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentCodriverLink}"
-                                Click="Btn_currentCodriverLink_OnClick"  Margin="2"
-                                Content="{materialDesign:PackIcon Link}" />
+                                Click="Btn_currentCodriverLink_OnClick"  Margin="2" Foreground="Crimson" Background="Cyan"
+                                Content="{materialDesign:PackIcon Heart}" />
 
                         <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tab_s_isDynamic}"
                                    Text="{DynamicResource ResourceKey=ui.tab_s_isDynamic}"/>
@@ -341,8 +341,8 @@
 
                     <ColumnDefinition Width="200" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="50" />
-                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="56" />
+                    <ColumnDefinition Width="56" />
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource ResourceKey=ui.tb_currentTrack}"/>
@@ -456,7 +456,6 @@
                 <Grid.RowDefinitions>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
                 <xctk:DropDownButton Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" 
                                      Content="{DynamicResource ResourceKey=ui.db_tools}">
@@ -482,12 +481,7 @@
                     </Hyperlink>
                 </TextBlock>
 
-                <TextBlock Grid.Row="1" HorizontalAlignment="Right">
-                    <Hyperlink NavigateUri="https://docs.qq.com/sheet/DVVljT3dMWkpYSWdH" RequestNavigate="Hyperlink_RequestNavigate">
-                        <TextBlock Text="{DynamicResource ResourceKey=ui.tb_pacenotes}" />
-                    </Hyperlink>
-                </TextBlock>
-                <TextBlock Grid.Row="2" HorizontalAlignment="Right" Foreground="#FFF" Margin="0 0 5 0">
+                <TextBlock Grid.Row="1" HorizontalAlignment="Right" Foreground="#FFF" Margin="0 0 5 0" Cursor="Hand" PreviewMouseDown="Me_Clicked">
                     by 草帽不是猫
                     <TextBlock.Effect>
                         <DropShadowEffect ShadowDepth="2" BlurRadius="0"  />

@@ -1292,10 +1292,11 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         {
             if (this._profileManager.CurrentCoDriverSoundPackagePath != null)
             {
-                var homepage = ((CoDriverPackageInfo)this.cb_codrivers.SelectedItem).homepage;
+                var selectedCoDriverInfo = ((CoDriverPackageInfo)this.cb_codrivers.SelectedItem);
+                var homepage = selectedCoDriverInfo.homepage;
                 if (!string.IsNullOrEmpty(homepage))
                 {
-                    GoogleAnalyticsHelper.Instance.TrackPageView("Link - CoDriver", homepage);
+                    GoogleAnalyticsHelper.Instance.TrackEvent("evaluate", "codriver", selectedCoDriverInfo.name);
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = new Uri(homepage).AbsoluteUri, UseShellExecute = true });
                 }
             }
@@ -1328,6 +1329,12 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 Config.Instance.SaveUserConfig();
                 GoogleAnalyticsHelper.Instance.TrackConfigToggleEvent("UI_Mute", Config.Instance.UI_Mute ? "on" : "off");
             }
+        }
+
+        private void Me_Clicked(object sender, RoutedEventArgs e) 
+        {
+            GoogleAnalyticsHelper.Instance.TrackEvent("ME", "clicked", "");
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = new Uri("https://space.bilibili.com/4750996").AbsoluteUri, UseShellExecute = true });
         }
     }
 }
