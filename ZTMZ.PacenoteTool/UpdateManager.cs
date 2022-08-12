@@ -25,6 +25,8 @@ namespace ZTMZ.PacenoteTool
     {
         const string updateURL = "https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate.json";
 
+        const string betaUpdateURL = "https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate_beta.json";
+
 
         public static string CurrentVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
@@ -34,11 +36,23 @@ namespace ZTMZ.PacenoteTool
 
         }
 
-        public UpdateFile CheckUpdate()
+        public UpdateFile CheckUpdate() 
+        {
+            var updateFile = CheckUpdate(updateURL);
+            if (updateFile == null && Config.Instance.OptInBetaPlan) 
+            {
+                // only when there's no new stable version and user opt in beta plan, we will check beta update
+                updateFile = CheckUpdate(betaUpdateURL);
+            }
+
+            return updateFile;
+        }
+
+        public UpdateFile CheckUpdate(string url)
         {
             using (WebClient w = new WebClient())
             {
-                var json = w.DownloadString(updateURL);
+                var json = w.DownloadString(url);
                 if (json == null)
                 {
                     return null;

@@ -41,7 +41,7 @@
                                     <RowDefinition Height="40" />
                                     <RowDefinition Height="40" />
                                     <RowDefinition Height="40" />
-                                    <!-- <RowDefinition Height="40" /> -->
+                                    <RowDefinition Height="40" />
                                     <!-- <RowDefinition Height="40" /> -->
                                     <!-- <RowDefinition Height="250" /> -->
                                     <!-- <RowDefinition Height="40" /> -->
@@ -67,6 +67,9 @@
 
                                 <TextBlock Grid.Row="4" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{DynamicResource ResourceKey=settings.warnIfPortMismatch}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.warnIfPortMismatch}" />
                                 <ToggleButton Grid.Row="4" Grid.Column="1" x:Name="btn_warnIfPortMismatch" />
+
+                                <TextBlock Grid.Row="5" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{DynamicResource ResourceKey=settings.optInBetaPlan}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.optInBetaPlan}" />
+                                <ToggleButton Grid.Row="5" Grid.Column="1" x:Name="btn_optInBetaPlan" />
 
 
                             </Grid>

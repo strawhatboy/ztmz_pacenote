@@ -81,6 +81,7 @@ namespace ZTMZ.PacenoteTool
 
             initBoolSetting(btn_enableGoogleAnalytics, "EnableGoogleAnalytics");
             initBoolSetting(btn_warnIfPortMismatch, "WarnIfPortMismatch");
+            initBoolSetting(btn_optInBetaPlan, "OptInBetaPlan");
         }
 
         private void initHud()

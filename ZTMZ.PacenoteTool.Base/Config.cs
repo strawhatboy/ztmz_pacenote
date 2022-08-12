@@ -489,6 +489,15 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._IsGoogleAnalyticsSet;
         } 
 
+        
+        private bool _OptInBetaPlan = false;
+
+        public bool OptInBetaPlan
+        {
+            set { this._OptInBetaPlan = value; this._userconfig["OptInBetaPlan"] = value; }
+            get => this._OptInBetaPlan;
+        } 
+
 
         private bool _UseDefaultSoundPackageForFallback = true;
         public bool UseDefaultSoundPackageForFallback
@@ -562,6 +571,16 @@ namespace ZTMZ.PacenoteTool.Base
                     }
                 }
             }
+
+            // in case of missing configs, use default values.
+            foreach (var kv in game.GameConfigurations)
+            {
+                if (!gameConfig.ContainsKey(kv.Key))
+                {
+                    gameConfig.Add(kv.Key, kv.Value);
+                }
+            }
+
             return gameConfig;
         }
 
