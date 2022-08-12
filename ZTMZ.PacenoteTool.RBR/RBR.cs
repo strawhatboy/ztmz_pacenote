@@ -79,6 +79,15 @@ namespace ZTMZ.PacenoteTool.RBR
         public Dictionary<string, IGameConfig> DefaultGameConfigurations { get; } = new() {
             { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback.ToString(), Port = 6776 } },
             { MemoryGameConfig.Name, new MemoryGameConfig() { RefreshRate = 24f } },
+            { CommonGameConfigs.Name, new CommonGameConfigs() 
+            { 
+                PropertyName = new() {
+                    { "game.rbr.additional_settings.playPacenotesWhenReplaying", "game.rbr.additional_settings.tooltip.playPacenotesWhenReplaying" }
+                },
+                PropertyValue = new() {
+                    true
+                } 
+            }},
         };
 
         public RBR() 

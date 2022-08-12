@@ -139,7 +139,11 @@ public class RBRGameDataReader : UdpGameDataReader
 
     private GameState getGameStateFromMemory(RBRMemData memData)
     {
-        if (memData.StageStartCountdown > 0)
+        bool playWhenReplay = (bool)((CommonGameConfigs)_game.GameConfigurations[CommonGameConfigs.Name]).PropertyValue[0];
+        var state = (RBRGameState)memData.GameStateId;
+
+        if (memData.StageStartCountdown > 0 && state == RBRGameState.Replay && playWhenReplay ||
+            state != RBRGameState.Replay && memData.StageStartCountdown > 0)
         {
             var preState = GameState.RaceBegin;
             if (_countdownList.Count == 0)
@@ -171,7 +175,6 @@ public class RBRGameDataReader : UdpGameDataReader
             return preState;
         }
 
-        var state = (RBRGameState)memData.GameStateId;
         if (state == RBRGameState.Unknown0 || 
             state == RBRGameState.Unknown1 || 
             state == RBRGameState.Unknown2 ||
@@ -180,10 +183,10 @@ public class RBRGameDataReader : UdpGameDataReader
         {
             _countdownList.Clear();
             return GameState.Unknown;
-        } else if (state == RBRGameState.RaceBegin)
+        } else if (state == RBRGameState.RaceBegin || playWhenReplay && state == RBRGameState.ReplayBegin)
         {
             return GameState.RaceBegin;
-        } else if (state == RBRGameState.Racing)
+        } else if (state == RBRGameState.Racing || playWhenReplay && state == RBRGameState.Replay)
         {
             return GameState.Racing;
         } else if (state == RBRGameState.Paused)

@@ -1,7 +1,13 @@
 {
     "game": {
         "rbr": {
-            "description": "The most classic rally simulation game, Rally Sim Fans version."
+            "description": "The most classic rally simulation game, Rally Sim Fans version.",
+            "additional_settings": {
+                "playPacenotesWhenReplaying": "Play the pacenotes during replaying.",
+                "tooltip": {
+                    "playPacenotesWhenReplaying": "Play the pacenotes during replaying finished races."
+                }
+            }
         }
     }
 }

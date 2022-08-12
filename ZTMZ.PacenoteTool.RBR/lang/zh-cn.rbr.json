@@ -1,7 +1,13 @@
 {
     "game": {
         "rbr": {
-            "description": "最经典的拉力赛模拟游戏Richard Burns Rally，这里是RSF（Rallysimfans）版本"
+            "description": "最经典的拉力赛模拟游戏Richard Burns Rally，这里是RSF（Rallysimfans）版本",
+            "additional_settings": {
+                "playPacenotesWhenReplaying": "在播放比赛回放的时候播放路书",
+                "tooltip": {
+                    "playPacenotesWhenReplaying": "当播放比赛回放（录像）的时候，也播放路书"
+                }
+            }
         }
     }
 }

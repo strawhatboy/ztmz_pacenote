@@ -368,6 +368,12 @@ namespace ZTMZ.PacenoteTool
                 return;
             }
 
+            if (_currentGame.GameDataReader.GameState != GameState.Racing) 
+            {
+                // wont play if it's not in racing state
+                return;
+            }
+
             var worker = new BackgroundWorker();
             worker.DoWork += (sender, e) =>
             {

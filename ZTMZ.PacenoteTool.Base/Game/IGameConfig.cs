@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Windows.Controls;
 using Newtonsoft.Json;
@@ -56,6 +57,23 @@ public class MemoryGameConfig : IGameConfig
     public MemoryGameConfig()
     {
         UI = new MemoryGameConfigSettingsPane(this);
+    }
+}
+
+[GameConfig("common_bool")]
+public class CommonGameConfigs: IGameConfig
+{
+    public static string Name => "common_bool";
+
+    public Dictionary<string, string> PropertyName { set; get; }
+    public List<object> PropertyValue { set; get; }
+
+    [JsonIgnore]
+    public IGameConfigSettingsPane UI {set;get;}
+
+    public CommonGameConfigs()
+    {
+        UI = new CommonGameConfigsSettingsPane(this);
     }
 }
 

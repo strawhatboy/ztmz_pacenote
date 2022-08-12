@@ -37,6 +37,7 @@ namespace ZTMZ.PacenoteTool
             {
                 IGameConfigSettingsPane pane = kv.Value.UI;
                 sp_CurrentGame.Children.Add(pane);
+                sp_CurrentGame.Children.Add(new Separator());
                 img_CurrentGame.Source = game.Image;
                 pane.InitializeWithGame(game);
                 pane.RestartNeeded = () => this.tb_restartNeeded.Visibility = Visibility.Visible;
