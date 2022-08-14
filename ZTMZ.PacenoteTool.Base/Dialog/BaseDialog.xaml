@@ -13,17 +13,18 @@
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
-        Height="450" Width="600" Title="{DynamicResource ResourceKey=dialog.portMismatch.title}">
+        Height="450" Width="600" >
     <WindowChrome.WindowChrome>
         <WindowChrome ResizeBorderThickness="0" CaptionHeight="0"></WindowChrome>
     </WindowChrome.WindowChrome>
     <DockPanel>
-        <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" DockPanel.Dock="Top" Margin="20 20 20 0" Text="{DynamicResource ResourceKey=dialog.portMismatch.title}" />
-        <materialDesign:PackIcon Kind="Warning" Height="60" Width="60" Margin="20" Foreground="OrangeRed" DockPanel.Dock="Left"  />
+        <TextBlock x:Name="tb_Title" Style="{StaticResource MaterialDesignHeadline5TextBlock}" DockPanel.Dock="Top" Margin="20 20 20 0" />
+        <materialDesign:PackIcon x:Name="pi_Icon" Kind="Warning" Height="60" Width="60" Margin="20" Foreground="OrangeRed" DockPanel.Dock="Left"  />
         <StackPanel DockPanel.Dock="Bottom" Margin="20 10 20 20" Orientation="Horizontal" HorizontalAlignment="Right" >
-            <CheckBox x:Name="chkbox_show" Content="{DynamicResource ResourceKey=dialog.portMismatch.ckbox_show}" Click="ButtonBase_OnClick" />
-            <Button IsDefault="True" x:Name="btn_ok" Content="{DynamicResource ResourceKey=dialog.portMismatch.btn_ok}" Click="btn_ok_Click" Margin="0 0 10 0"></Button>
-            <Button x:Name="btn_FORCE" Background="Crimson" Content="{DynamicResource ResourceKey=dialog.portMismatch.btn_FORCE}" Click="btn_FORCE_Click"></Button>
+            <Button x:Name="btn_OK" Click="btn_OK_Click" Margin="0 0 10 0" Visibility="Collapsed" Content="{DynamicResource ResourceKey=dialog.common.btn_ok}"></Button>
+            <Button x:Name="btn_Yes" Click="btn_Yes_Click" Margin="0 0 10 0" Visibility="Collapsed" Content="{DynamicResource ResourceKey=dialog.common.btn_yes}"></Button>
+            <Button x:Name="btn_No" Background="Crimson" Click="btn_No_Click" Margin="0 0 10 0" Visibility="Collapsed" Content="{DynamicResource ResourceKey=dialog.common.btn_no}"></Button>
+            <Button x:Name="btn_Cancel" Background="Crimson" Click="btn_Cancel_Click" Visibility="Collapsed" Content="{DynamicResource ResourceKey=dialog.common.btn_cancel}"></Button>
         </StackPanel>
         <TextBox x:Name="tb_Content" Padding="20" TextWrapping="WrapWithOverflow" IsReadOnly="True"></TextBox>
     </DockPanel>

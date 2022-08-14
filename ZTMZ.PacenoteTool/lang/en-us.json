@@ -129,6 +129,12 @@
   },
 
   "dialog": {
+    "common": {
+      "btn_ok": "OK",
+      "btn_cancel": "Cancel",
+      "btn_yes": "Yes",
+      "btn_no": "No"
+    },
     "portNotOpen": {
       "title": "Port Not Open",
       "btn_ok": "OPEN IT",
@@ -278,5 +284,14 @@
     "gender_male": "Male",
     "gender_female": "Female",
     "gender_unknown": "Unknown"
+  },
+  "exception": {
+    "portAlreadyInUse": {
+      "title": "Port Already In Use",
+      "msg": "Port {0} is IN USE，please check if there's any program like SIMHUB，速魔软件，Dirt Telemetry Tool running, if so, try to solve this issue by UDP Port Forwarding function in SIMHUB"
+    },
+    "unknown": {
+      "title": "Unknown Error"
+    }
   }
 }

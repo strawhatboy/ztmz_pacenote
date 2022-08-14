@@ -56,7 +56,7 @@ namespace ZTMZ.PacenoteTool.Base
             bool alreadyinuse = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().GetActiveUdpListeners().Any(p => p.Port == port);
             if (alreadyinuse)
             {
-                throw new Exception(string.Format("Port {0} already in use when starting to get UDP traffic.", port));
+                throw new PortAlreadyInUseException(string.Format("Port {0} already in use when starting to get UDP traffic.", port), port);
             }
             any = new IPEndPoint(ipAddress, port);
             client = new UdpClient();

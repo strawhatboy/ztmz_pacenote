@@ -129,6 +129,12 @@
   },
 
   "dialog": {
+    "common": {
+      "btn_ok": "可以",
+      "btn_cancel": "取消",
+      "btn_yes": "好",
+      "btn_no": "不行"
+    },
     "portNotOpen": {
       "title": "端口未打开",
       "btn_ok": "帮我打开",
@@ -277,5 +283,14 @@
     "gender_male": "男",
     "gender_female": "女",
     "gender_unknown": "未知"
+  },
+  "exception": {
+    "portAlreadyInUse": {
+      "title": "端口被占用！",
+      "msg": "端口 {0} 已经被占用，请检查是否有其他程序如 SIMHUB，速魔软件，Dirt Telemetry Tool 正在运行，并尝试使用 SIMHUB 的端口转发功能解决此问题"
+    },
+    "unknown": {
+      "title": "未知错误"
+    }
   }
 }

@@ -11,6 +11,7 @@ using Xceed.Wpf.Toolkit;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Dialog;
 using ZTMZ.PacenoteTool.Base.Game;
+using ZTMZ.PacenoteTool.Base.Dialog;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -226,7 +227,7 @@ namespace ZTMZ.PacenoteTool
             {
                 if (tb_restartNeeded.Visibility == Visibility.Visible) 
                 {
-                    System.Windows.MessageBox.Show(I18NLoader.Instance["settings.restartNeeded"], "",
+                    BaseDialog.Show("", "settings.restartNeeded", null,
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 this.Hide();

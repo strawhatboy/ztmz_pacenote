@@ -29,6 +29,7 @@ using System.Threading;
 using ZTMZ.PacenoteTool.Dialog;
 using Constants = ZTMZ.PacenoteTool.Base.Constants;
 using System.Windows.Media.Effects;
+using ZTMZ.PacenoteTool.Base.Dialog;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -439,14 +440,25 @@ namespace ZTMZ.PacenoteTool
                 this.cb_game.ToolTip = string.Format(I18NLoader.Instance["ui.tooltip.cb_gameNotInstalled"], game.Name);
                 this.cb_game.Effect = _gameNotInstalledEffect;
             } else {
-                if (game.GameDataReader.Initialize(game))
-                {
-                    GameOverlayManager.GAME_PROCESS = game.Executable.Remove(game.Executable.IndexOf(".exe"));
-                    game.GameDataReader.onCarDamaged += carDamagedEventHandler;
-                    game.GameDataReader.onNewGameData += newGameDataEventHander;
-                    game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
-                    game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
-                }    
+                try {
+                    if (game.GameDataReader.Initialize(game))
+                    {
+                        GameOverlayManager.GAME_PROCESS = game.Executable.Remove(game.Executable.IndexOf(".exe"));
+                        game.GameDataReader.onCarDamaged += carDamagedEventHandler;
+                        game.GameDataReader.onNewGameData += newGameDataEventHander;
+                        game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
+                        game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
+                    }    
+                } catch (Exception e) {
+                    if (e is PortAlreadyInUseException) 
+                    {
+                        BaseDialog.Show("exception.portAlreadyInUse.title", 
+                            "exception.portAlreadyInUse.msg",
+                            new object[]{ ((PortAlreadyInUseException)e).Port }, 
+                            MessageBoxButton.OK, 
+                            MessageBoxImage.Error);
+                    }
+                }
                 
                 this.cb_game.ToolTip = game.Description;
                 this.cb_game.Effect = game.IsRunning ? _processRunningEffect : null;
@@ -1092,7 +1104,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                     filename = System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath);
                 } else {
                     // create one ?
-                    var dResult = MessageBox.Show("并不存在自定义的路书脚本，你想要创建一个吗？注意：在当前版本下创建后，将可能无法使用原本rbr路书，想要恢复原本的rbr路书，删除新创建的脚本文件即可", "路书脚本不存在", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    var dResult = BaseDialog.Show("路书脚本不存在", "并不存在自定义的路书脚本，你想要创建一个吗？注意：在当前版本下创建后，将可能无法使用原本rbr路书，想要恢复原本的rbr路书，删除新创建的脚本文件即可", null, MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (dResult == MessageBoxResult.Yes) 
                     {
                         File.WriteAllText(recordScriptFile, _profileManager.CurrentScriptReader.ToString());

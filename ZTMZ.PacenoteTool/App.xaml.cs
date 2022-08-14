@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Base.Dialog;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -63,12 +64,12 @@ namespace ZTMZ.PacenoteTool
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString(), "Exception in LogUnhandledException");
+                BaseDialog.Show("exception.unknown", ex.ToString(), null, MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 var exceptionStr = exception.ToString();
-                MessageBox.Show(exceptionStr, message);
+                BaseDialog.Show("exception.unknown", message + exceptionStr, null, MessageBoxButton.OK, MessageBoxImage.Error);
                 GoogleAnalyticsHelper.Instance.TrackExceptionEvent(message, exceptionStr);
             }
         }
