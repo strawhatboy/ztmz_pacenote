@@ -62,7 +62,7 @@ public class RBRMemDataReader
 
         var rbrGameState = (RBRGameState)memData.GameStateId;
 
-        if (rbrGameState == RBRGameState.Racing || rbrGameState == RBRGameState.Replay)
+        if (rbrGameState == RBRGameState.Racing || rbrGameState == RBRGameState.ReplayBegin || rbrGameState == RBRGameState.Replay)
         {
             var baseAddr0 = MemoryReader.Read<int>(pHandle, 0x165FC68);
             // racedata available
@@ -110,6 +110,7 @@ public class RBRMemDataReader
             memData.WeatherId = MemoryReader.Read<int>(pHandle, 0x1660848);
             memData.Track = GetTrackNameFromMemory();
             memData.TrackId = MemoryReader.Read<int>(pHandle, 0x7EA678, 0x70, 0x20);
+            // memData.TrackId = MemoryReader.Read<int>(pHandle, 0x8938F8, 0x08);
             // memData.TrackLength = MemoryReader.Read<float>(pHandle, 0x1659184, 0x75310);
             memData.TrackLength = memData.DistanceToFinish + memData.DistanceFromStart;
         }
