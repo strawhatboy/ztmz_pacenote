@@ -51,6 +51,8 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
   多语言文件，可以在此处对照其他文件，新建新的语言支持
 * __profiles__
   用来存放路书，里面默认有个 `default`文件夹，可以新建其他文件夹用来存放另一个版本的路书，`default`文件夹中的 `pacenote`文件为路书脚本，以地图名命名的一些文件夹中存放的是纯语音路书
+* __games__
+  用来存放各个游戏的配置以及多语言文件
 * __Python38__ (仅开发版)
   Python38的运行环境
 * __speech_model__  (仅开发版)
@@ -90,6 +92,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 * [CrewChiefV4](https://gitlab.com/mr_belowski/CrewChiefV4)
 * [dr2_logger](https://github.com/ErlerPhilipp/dr2_logger)
 * [Dirt Telemetry Tool](https://forums.codemasters.com/topic/9721-dirt-telemetry-tool-cortextuals-version/)
+* [NGPCarMenu](https://github.com/mika-n/NGPCarMenu)
 
 #### 如何贡献代码
 
@@ -131,7 +134,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 
 #### 项目计划
 
-`<a name='plan'></a>`
+<a name='plan'></a>
 
 | 版本号               | 时间段              | 更新内容                                                                                                                                                                                                         |
 | -------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -141,8 +144,9 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 | 2.5.1                | 已发布              | 特别多，见[更新记录](https://gitee.com/ztmz/ztmz_pacenote/raw/master/ZTMZ.PacenoteTool/更新记录.txt)                                                                                                                |
 | ~~2.5~~             | ~~2022-01-14之后~~ | ~~增加路书工具和脚本工具通信协作<br />对游戏内语音进行语音识别成文字<br />再自动生成脚本路书到脚本工具中~~                                                                                                      |
 | 2.6                  | 已发布              | 增加语音包制作工具<br />增加了动态语速和动态紧张感特效                                                                                                                                                           |
-| 2.6.1-2.6.6          | 2022-05             | 修复部分bug，增加部分语音包<br />增加了悬浮窗的仪表盘功能<br />增加了用于分析和改进工具使用的Google Analytics<br />增加了mesa的英文语音包<br />修复了很多赛道路书的错误                                          |
-| 3.0                  | 2023               | 增加对多种游戏的支持（EA Sports WRC/Rally，Dirt Rally 1.0，RBR/Richard Burns Rally） |
+| 2.6.1-2.6.6          | 已发布 (2022-05)             | 修复部分bug，增加部分语音包<br />增加了悬浮窗的仪表盘功能<br />增加了用于分析和改进工具使用的Google Analytics<br />增加了mesa的英文语音包<br />修复了很多赛道路书的错误                                          |
+| 2.7                  | 2022-08               | 增加对多种游戏的支持（Dirt Rally 1.0，RBR/Richard Burns Rally - RSF版） |
+| 3.0                  | 2023                  | 增加对EA Sports WRC/Rally 游戏的支持，重置简洁版界面
 
 #### 鸣谢
 

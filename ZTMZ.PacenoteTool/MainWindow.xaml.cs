@@ -107,7 +107,6 @@ namespace ZTMZ.PacenoteTool
 
             this.loadGames();
             this.initGoogleAnalytics();
-            this.checkFirstRun();
             this.initHotKeys();
             //this.initializeI18N();
             this.initializeComboBoxes();
@@ -121,6 +120,7 @@ namespace ZTMZ.PacenoteTool
             this.initializeProcessWatcher();
 
             // this.initializeNewUI();
+            this.checkFirstRun();
         }
 
         private void initializeProcessWatcher()
@@ -258,6 +258,17 @@ namespace ZTMZ.PacenoteTool
                 {
                     Config.Instance.HudFPS = 60;
                     Config.Instance.SaveUserConfig();
+                }
+
+                if (_version.Equals("2.7.0.0")) 
+                {
+                    // apply the port config to DR2's config, ugly but works.
+                    var dr2game = _games.FirstOrDefault(g => g.Name == "Dirt Rally 2.0");
+                    if (dr2game != null) 
+                    {
+                        ((UdpGameConfig)dr2game.GameConfigurations[UdpGameConfig.Name]).Port = Config.Instance.UDPListenPort;
+                        Config.Instance.SaveGameConfig(dr2game);
+                    }
                 }
             } else {
                 GoogleAnalyticsHelper.Instance.TrackLaunchEvent("non_first_run", _version);
@@ -1104,7 +1115,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                     filename = System.IO.Path.GetFullPath(this._profileManager.CurrentScriptPath);
                 } else {
                     // create one ?
-                    var dResult = BaseDialog.Show("路书脚本不存在", "并不存在自定义的路书脚本，你想要创建一个吗？注意：在当前版本下创建后，将可能无法使用原本rbr路书，想要恢复原本的rbr路书，删除新创建的脚本文件即可", null, MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    var dResult = BaseDialog.Show("dialog.scriptNotExist.title", "dialog.scriptNotExist.content", null, MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (dResult == MessageBoxResult.Yes) 
                     {
                         File.WriteAllText(recordScriptFile, _profileManager.CurrentScriptReader.ToString());

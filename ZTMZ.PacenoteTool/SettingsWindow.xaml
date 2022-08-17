@@ -41,7 +41,7 @@
                                     <RowDefinition Height="40" />
                                     <RowDefinition Height="40" />
                                     <RowDefinition Height="40" />
-                                    <RowDefinition Height="40" />
+                                    <!-- <RowDefinition Height="40" /> -->
                                     <!-- <RowDefinition Height="40" /> -->
                                     <!-- <RowDefinition Height="250" /> -->
                                     <!-- <RowDefinition Height="40" /> -->
@@ -55,21 +55,14 @@
 
                                 
 
-                                <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.playbackDeviceDesiredLatency}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}">
-                                    <TextBlock.ToolTip>
-                                        <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.playbackDeviceDesiredLatency}" />
-                                    </TextBlock.ToolTip>
-                                </TextBlock>
-                                <xctk:UIntegerUpDown Name="tb_PlaybackDeviceDesiredLatency" Grid.Row="2" Grid.Column="1" Minimum="50" Maximum="1000" Value="175" VerticalAlignment="Center" />
+                                <TextBlock Grid.Row="2" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{DynamicResource ResourceKey=settings.enableGoogleAnalytics}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.enableGoogleAnalytics}" />
+                                <ToggleButton Grid.Row="2" Grid.Column="1" x:Name="btn_enableGoogleAnalytics" />
 
-                                <TextBlock Grid.Row="3" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{DynamicResource ResourceKey=settings.enableGoogleAnalytics}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.enableGoogleAnalytics}" />
-                                <ToggleButton Grid.Row="3" Grid.Column="1" x:Name="btn_enableGoogleAnalytics" />
+                                <TextBlock Grid.Row="3" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{DynamicResource ResourceKey=settings.warnIfPortMismatch}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.warnIfPortMismatch}" />
+                                <ToggleButton Grid.Row="3" Grid.Column="1" x:Name="btn_warnIfPortMismatch" />
 
-                                <TextBlock Grid.Row="4" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{DynamicResource ResourceKey=settings.warnIfPortMismatch}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.warnIfPortMismatch}" />
-                                <ToggleButton Grid.Row="4" Grid.Column="1" x:Name="btn_warnIfPortMismatch" />
-
-                                <TextBlock Grid.Row="5" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{DynamicResource ResourceKey=settings.optInBetaPlan}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.optInBetaPlan}" />
-                                <ToggleButton Grid.Row="5" Grid.Column="1" x:Name="btn_optInBetaPlan" />
+                                <TextBlock Grid.Row="4" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{DynamicResource ResourceKey=settings.optInBetaPlan}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.optInBetaPlan}" />
+                                <ToggleButton Grid.Row="4" Grid.Column="1" x:Name="btn_optInBetaPlan" />
 
 
                             </Grid>
@@ -193,6 +186,7 @@
                                     <RowDefinition Height="40" />
                                     <RowDefinition Height="40" />
                                     <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
                                     <!-- <RowDefinition Height="40" /> -->
                                     <!-- <RowDefinition Height="40" /> -->
                                     <!-- <RowDefinition Height="40" /> -->
@@ -230,6 +224,15 @@
 
                                 <TextBlock Grid.Row="6" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.dynamicVolumePerturbationAmplitude}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.dynamicVolumePerturbationAmplitude}"></TextBlock>
                                 <Slider Name="sl_dynamicVolumePerturbationAmplitude" Grid.Row="6" Grid.Column="1" Value="0.8" Maximum="1" Minimum="0" TickFrequency="0.125" Style="{StaticResource MaterialDesignDiscreteSlider}" TickPlacement="Both" VerticalAlignment="Center" />
+
+                                
+                                <TextBlock Grid.Row="7" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.playbackDeviceDesiredLatency}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}">
+                                    <TextBlock.ToolTip>
+                                        <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.playbackDeviceDesiredLatency}" />
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
+                                <xctk:UIntegerUpDown Name="tb_PlaybackDeviceDesiredLatency" Grid.Row="7" Grid.Column="1" Minimum="50" Maximum="1000" Value="175" VerticalAlignment="Center" />
+
                             </Grid>
                         </StackPanel>
                     </ScrollViewer>

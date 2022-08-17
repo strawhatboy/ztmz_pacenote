@@ -41,6 +41,8 @@ The pacenote tool from ZTMZ Club, can be used to customize the pacenotes in the 
   Multi-language support.
 * __profiles__
   stores the pacenotes (both scripts and pure audio pacenotes). You can create other folder besides the `default` folder for your own pacenotes group.
+* __games__
+  stores configuration and multi-language files for each game.
 * __Python38__ (only for dev version)
   Python38 environment
 * __speech_model__ (only for dev version)
@@ -80,6 +82,7 @@ The pacenote tool from ZTMZ Club, can be used to customize the pacenotes in the 
 * [CrewChiefV4](https://gitlab.com/mr_belowski/CrewChiefV4)
 * [dr2_logger](https://github.com/ErlerPhilipp/dr2_logger)
 * [Dirt Telemetry Tool](https://forums.codemasters.com/topic/9721-dirt-telemetry-tool-cortextuals-version/)
+* [NGPCarMenu](https://github.com/mika-n/NGPCarMenu)
 
 #### How to contribute
 

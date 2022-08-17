@@ -47,7 +47,7 @@ namespace ZTMZ.PacenoteTool.Base
 
         private int _UDPListenPort = 20777;
 
-        [Obsolete("Use udp port in each game config respectively", true)]
+        [Obsolete("Use udp port in each game config respectively", false)]
         public int UDPListenPort
         {
             set { this._UDPListenPort = value; this._userconfig["UDPListenPort"] = value; }
@@ -208,7 +208,7 @@ namespace ZTMZ.PacenoteTool.Base
             set { this._UI_PlaybackSpeed = value; this._userconfig["UI_PlaybackSpeed"] = value; }
             get => this._UI_PlaybackSpeed;
         }
-        private int _UI_SelectedGame = 0;
+        private int _UI_SelectedGame = 1;
         public int UI_SelectedGame
         {
             set { this._UI_SelectedGame = value; this._userconfig["UI_SelectedGame"] = value; }

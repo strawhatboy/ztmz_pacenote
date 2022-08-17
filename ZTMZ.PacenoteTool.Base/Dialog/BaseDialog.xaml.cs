@@ -25,6 +25,7 @@ namespace ZTMZ.PacenoteTool.Base.Dialog
         public BaseDialog(string title_id, string msg_id, object[] args, MessageBoxButton button, MessageBoxImage image)
         {
             InitializeComponent();
+            args = args == null ? new object[] { } : args;
             this.tb_Title.Text = string.Format(I18NLoader.Instance[title_id], args);
             this.tb_Content.Text = string.Format(I18NLoader.Instance[msg_id], args);
             switch (button) 
@@ -74,7 +75,7 @@ namespace ZTMZ.PacenoteTool.Base.Dialog
                     break;
             }
             this.MouseDown += delegate { DragMove(); };
-            this.Closed += (s, e) => { Result = MessageBoxResult.Cancel; };
+            // this.Closed += (s, e) => { Result = MessageBoxResult.Cancel; };
         }
 
         private void btn_OK_Click(object sender, RoutedEventArgs e)

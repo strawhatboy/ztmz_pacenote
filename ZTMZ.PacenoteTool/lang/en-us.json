@@ -171,6 +171,10 @@
       "content": "This program wants to use Google Analytics to collect some of your \"usage information\" to help us improve the program. All of this information is sent to Google servers in an anonymous form for statistical use. You can allow or prohibit this in the settings at any time. This information includes and is limited to:\n\t- Operating system version\n\t- Opening this program event\n\t- Opening each window event in this program\n\t- Each configuration item modification event\n \t- The modification event of the main interface configuration item\n\t- The event of using a specific voice package to play the game (to count the voice package preference)",
       "btn_cancel": "Opt out",
       "btn_ok": "Opt in"
+    },
+    "scriptNotExist": {
+      "title": "Script does not exist",
+      "content": "There is no custom pacenote script, do you want to create one? Note: After creating, the original rbr game pacenote may not be available. If you want to restore the original rbr pacenote, just delete the newly created script file."
     }
   },
 
@@ -288,7 +292,7 @@
   "exception": {
     "portAlreadyInUse": {
       "title": "Port Already In Use",
-      "msg": "Port {0} is IN USE，please check if there's any program like SIMHUB，速魔软件，Dirt Telemetry Tool running, if so, try to solve this issue by UDP Port Forwarding function in SIMHUB"
+      "msg": "Port {0} is IN USE，please check if there's any program like SIMHUB，速魔软件，Dirt Telemetry Tool running, if so, try to solve this issue by UDP Port Forwarding function in SIMHUB\nSee in details (Chinese): https://www.bilibili.com/video/BV1oq4y1u7ua?p=2"
     },
     "unknown": {
       "title": "Unknown Error"
