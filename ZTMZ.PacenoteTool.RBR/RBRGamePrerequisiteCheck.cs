@@ -24,10 +24,13 @@ namespace ZTMZ.PacenoteTool.RBR;
 
 public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
 {
+    private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
     public string RBRRootDir { set; get; } = "";
     public PrerequisitesCheckResult CheckPrerequisites(IGame game)
     {
+        _logger.Info("Checking RBR Prerequisites");
+
         bool notInstalled = false;
         var key = Registry.LocalMachine.OpenSubKey("Software\\Wow6432Node\\Rallysimfans RBR");
         if (key != null)

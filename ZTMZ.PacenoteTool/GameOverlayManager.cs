@@ -327,6 +327,7 @@ namespace ZTMZ.PacenoteTool
 
     public class GameOverlayManager
     {
+        private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 #if DEV
         public static string GAME_PROCESS = "notepad";
 #else
@@ -551,7 +552,7 @@ namespace ZTMZ.PacenoteTool
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("We got exception when drawing hud: {0}", ex.ToString());
+                _logger.Error("We got exception when drawing hud: {0}", ex.ToString());
                 GoogleAnalyticsHelper.Instance.TrackExceptionEvent("We got exception when drawing hud", ex.ToString());
             }
         }
@@ -624,7 +625,7 @@ namespace ZTMZ.PacenoteTool
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("We got exception when drawing elements: {0}, {1}", ex.ToString(), GameData.ToString());
+                    _logger.Error("We got exception when drawing elements: {0}, {1}", ex.ToString(), GameData.ToString());
                     // GoogleAnalyticsHelper.Instance.TrackExceptionEvent($"We got exception when drawing elements with func: {t.ToString()}", ex.Message + UdpMessage.ToString());
                 }
 

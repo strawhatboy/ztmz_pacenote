@@ -17,11 +17,18 @@ namespace ZTMZ.PacenoteTool
     public partial class App : Application
     {
 
+        protected override void OnExit(ExitEventArgs e)
+        {
+            NLog.LogManager.Shutdown();
+            base.OnExit(e);
+        }
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
             SetupExceptionHandling();
             initializeI18N();
+            NLogManager.init();
         }
 
         private void initializeI18N()

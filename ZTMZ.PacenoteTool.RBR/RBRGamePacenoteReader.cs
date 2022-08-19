@@ -22,6 +22,7 @@ namespace ZTMZ.PacenoteTool.RBR;
 
 public class RBRGamePacenoteReader : BasePacenoteReader
 {
+    private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     public Dictionary<int, string> TrackNoNameMap = new();
     public Dictionary<int, string> TrackNoStageNameMap = new();
     public string RBRRootDir { get; private set; } = "";
@@ -155,11 +156,13 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             return base.ReadPacenoteRecord(profile, game, track);
         } else {
             // read from Memory first
+            _logger.Info("Reading pacenote from memory for track {0}", track);
             var rbrMemReader = ((RBRGameDataReader)game.GameDataReader).memDataReader;
 
             var sr = rbrMemReader.ReadPacenotesFromMemory();
             if (sr.PacenoteRecords.Count > 0) 
             {
+                _logger.Info("Pacenotes from memory found for track {0}, {1} records", track, sr.PacenoteRecords.Count);
                 return sr;
             }
 
@@ -271,7 +274,7 @@ public class RBRGamePacenoteReader : BasePacenoteReader
 
             if (numOfPacenoteRecords <= 0 || numOfPacenoteRecords >= 50000)
             {
-                Debug.WriteLine("Invalid number of pacenote records: " + numOfPacenoteRecords);
+                _logger.Error("Invalid number of pacenote records: " + numOfPacenoteRecords);
                 return null;
             }
 
@@ -282,7 +285,7 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             fs.Seek(dataOffset, SeekOrigin.Begin);
             if (dataOffsetRead != 4)
             {
-                Debug.WriteLine("Failed to read data offset");
+                _logger.Error("Failed to read data offset");
                 return null;
             }
 

@@ -12,6 +12,8 @@ namespace ZTMZ.PacenoteTool.Base
 {
     public class Config
     {
+        private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static string CONFIG_FILE = AppLevelVariables.Instance.GetPath("config.json");
         public static string USER_CONFIG_FILE = AppLevelVariables.Instance.GetPath("userconfig.json");
 
@@ -581,6 +583,7 @@ namespace ZTMZ.PacenoteTool.Base
                 }
             }
 
+            _logger.Info($"Loaded game config for {game.Name}, content: {content}");
             return gameConfig;
         }
 

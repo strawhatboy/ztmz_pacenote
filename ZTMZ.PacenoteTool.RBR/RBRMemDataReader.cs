@@ -12,6 +12,7 @@ public class RBRMemDataReader
     private bool _isProcessOpened = false;
     private Process _theProcess = null;
 
+    private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
     public bool OpenProcess(IGame game)
     {
@@ -39,10 +40,12 @@ public class RBRMemDataReader
             _isProcessOpened = true;
         } catch (Exception ex)
         {
-            Debug.WriteLine("Failed to open RBR process");
-            Debug.WriteLine(ex.Message);
+            _logger.Error("Failed to open RBR process");
+            _logger.Error(ex.Message);
             return false;
         }
+
+        _logger.Info("RBR process opened.");
         
         return true;
     }

@@ -38,6 +38,7 @@ namespace ZTMZ.PacenoteTool
     /// </summary>
     public partial class MainWindow : Window
     {
+        private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         private HotKey _hotKeyStartRecord;
         private HotKey _hotKeyStopRecord;
         private ToolState _toolState = ToolState.Replaying;
@@ -444,6 +445,7 @@ namespace ZTMZ.PacenoteTool
             if (game == null)
                 return;
 
+            _logger.Info("Trying to initialize game: " + game.Name);
             // check prerequisite
             var res = checkPrerequisite(game);
             if (res == PrerequisitesCheckResultCode.GAME_NOT_INSTALLED)
@@ -459,6 +461,7 @@ namespace ZTMZ.PacenoteTool
                         game.GameDataReader.onNewGameData += newGameDataEventHander;
                         game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
                         game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
+                        _logger.Info("Game {0} initialized.", game.Name);
                     }    
                 } catch (Exception e) {
                     if (e is PortAlreadyInUseException) 
@@ -490,6 +493,7 @@ namespace ZTMZ.PacenoteTool
             if (game == null)
                 return;
 
+            _logger.Info("Trying to uninitialize game: " + game.Name);
             game.GameDataReader.onCarDamaged -= carDamagedEventHandler;
             game.GameDataReader.onNewGameData -= newGameDataEventHander;
             game.GameDataReader.onGameStateChanged -= this.gamestateChangedHandler;
@@ -504,6 +508,7 @@ namespace ZTMZ.PacenoteTool
         {
             var lastState = evt.LastGameState;
             var state = evt.NewGameState;
+            _logger.Info("Game state changed from {0} to {1}", lastState, state);
             this.Dispatcher.Invoke(() => { this.tb_gamestate.Text = state.ToString(); });
             switch (state)
             {

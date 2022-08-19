@@ -7,6 +7,7 @@ namespace ZTMZ.PacenoteTool.Base.Game;
 
 public abstract class UdpGameDataReader : IGameDataReader, IDisposable
 {
+    private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     protected IGame _game;
     public virtual event Action<GameData, GameData> onNewGameData;
     public event Action<bool> onGameDataAvailabilityChanged;
@@ -44,7 +45,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
         {
             _udpReceiver.StartListening(iPAddress, udpConfig.Port);
         } else {
-            Debug.WriteLine("Failed to start listening UDP on address {0} and port {1}", udpConfig.IPAddress, udpConfig.Port);
+            _logger.Error("Failed to start listening UDP on address {0} and port {1}", udpConfig.IPAddress, udpConfig.Port);
         }
 
         
@@ -57,6 +58,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
                 if (this._timerCount >= 10)
                 {
                     // no gamestate change for 20s and the game is not paused.
+                    // TODO: new mechanism to get the unkown game state.
                     this.GameState = GameState.Unknown;
                     this._timerCount = 0;
                 }

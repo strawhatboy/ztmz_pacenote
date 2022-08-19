@@ -11,6 +11,7 @@ namespace ZTMZ.PacenoteTool.RBR;
 
 public class RBRGameDataReader : UdpGameDataReader
 {
+    private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     public static float G = 9.8f;
     public override GameState GameState
     {
@@ -93,6 +94,7 @@ public class RBRGameDataReader : UdpGameDataReader
 
     public override bool Initialize(IGame game)
     {
+        _logger.Info("Initializing RBRGameDataReader");
         var udpInitResult = base.Initialize(game);
         if (!udpInitResult) 
         {
@@ -114,6 +116,8 @@ public class RBRGameDataReader : UdpGameDataReader
         _timer.Elapsed += MemDataPullHandler;
         _timer.Interval = MEM_REFRESH_INTERVAL;
         _timer.Start();
+
+        _logger.Info("RBRGameDataReader initialized.");
         return true;
     }
 
