@@ -17,6 +17,8 @@ namespace ZTMZ.PacenoteTool
     public partial class App : Application
     {
 
+        private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         protected override void OnExit(ExitEventArgs e)
         {
             NLog.LogManager.Shutdown();
@@ -26,9 +28,10 @@ namespace ZTMZ.PacenoteTool
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            NLogManager.init(ToolUtils.GetToolVersion());
+            _logger.Info("Application started");
             SetupExceptionHandling();
             initializeI18N();
-            NLogManager.init();
         }
 
         private void initializeI18N()
@@ -53,6 +56,7 @@ namespace ZTMZ.PacenoteTool
             {
                 if (e.Exception.StackTrace == null)
                 {
+                    _logger.Error("Unhandled Exception with no stacktrace: {0}", e.Exception);
                     // ignore it. maybe raised by SocketException in finalizer thread.
                     return;
                 }
@@ -71,11 +75,13 @@ namespace ZTMZ.PacenoteTool
             }
             catch (Exception ex)
             {
+                _logger.Error("Unknown Error when try to handle unhandled exception: {0}", ex);
                 BaseDialog.Show("exception.unknown", ex.ToString(), null, MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 var exceptionStr = exception.ToString();
+                _logger.Fatal("Unhandled Exception: {0}", message + exceptionStr);
                 BaseDialog.Show("exception.unknown", message + exceptionStr, null, MessageBoxButton.OK, MessageBoxImage.Error);
                 GoogleAnalyticsHelper.Instance.TrackExceptionEvent(message, exceptionStr);
             }

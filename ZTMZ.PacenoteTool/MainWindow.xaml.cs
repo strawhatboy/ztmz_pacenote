@@ -98,6 +98,7 @@ namespace ZTMZ.PacenoteTool
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            _logger.Info("Window_Loaded");
             this.checkUpdate();
 
             // put initialization to window_loaded to accelerate window loading.
@@ -170,6 +171,8 @@ namespace ZTMZ.PacenoteTool
 
             // start the watch (threads started)
             _processWatcher.StartWatching();
+
+            _logger.Info("ProcessWatcher started");
         }
 
         private void loadGames()
@@ -187,6 +190,7 @@ namespace ZTMZ.PacenoteTool
             }
             this._games.Sort((g1, g2) => g1.Order.CompareTo(g2.Order));
             this._games.ForEach(g => g.GameConfigurations = Config.Instance.LoadGameConfig(g));
+            _logger.Info($"{this._games.Count} games loaded.");
         }
 
         private void initializeNewUI() {
@@ -217,6 +221,7 @@ namespace ZTMZ.PacenoteTool
                     Config.Instance.SaveUserConfig();
                 }
             }
+            _logger.Info($"Google Analytics is {(Config.Instance.EnableGoogleAnalytics ? "enabled" : "disabled")}");
         }
 
         private void checkUpdate()
@@ -231,6 +236,7 @@ namespace ZTMZ.PacenoteTool
             {
                 // something is wrong, just ignore?!
             }
+            _logger.Info("update checked.");
         }
 
         private void checkFirstRun()
@@ -274,6 +280,8 @@ namespace ZTMZ.PacenoteTool
             } else {
                 GoogleAnalyticsHelper.Instance.TrackLaunchEvent("non_first_run", _version);
             }
+
+            _logger.Info("first run checked.");
         }
 
         private void initHotKeys()
@@ -315,6 +323,8 @@ namespace ZTMZ.PacenoteTool
                     });
                 }
             }, false);
+
+            _logger.Info("hotkeys initialized.");
         }
 
         private void registerHotKeys()
@@ -508,7 +518,7 @@ namespace ZTMZ.PacenoteTool
         {
             var lastState = evt.LastGameState;
             var state = evt.NewGameState;
-            _logger.Info("Game state changed from {0} to {1}", lastState, state);
+            _logger.Debug("Game state changed from {0} to {1}", lastState, state);
             this.Dispatcher.Invoke(() => { this.tb_gamestate.Text = state.ToString(); });
             switch (state)
             {
@@ -726,6 +736,8 @@ namespace ZTMZ.PacenoteTool
             // if there's no recording device, would throw exception...
             if (this._recordingDevices.Count() > 0)
                 this.cb_recording_device.SelectedIndex = 0;
+
+            _logger.Info("Combobox initialized.");
         }
 
         private PrerequisitesCheckResultCode checkPrerequisite(IGame game)
@@ -789,50 +801,52 @@ namespace ZTMZ.PacenoteTool
 
         private void checkIfDevVersion()
         {
-            if (System.IO.Directory.Exists(Config.Instance.PythonPath) &&
-                     System.IO.Directory.Exists(Config.Instance.SpeechRecogizerModelPath))
+            var toolVersion = ToolUtils.GetToolVersion();
+
+            switch (toolVersion) 
             {
-                // dev mode
-                this.Title = string.Format("{0} {1}",
-                    I18NLoader.Instance["application.title_dev"],
-                    _version);
-                GoogleAnalyticsHelper.Instance.TrackPageView("Window - Main:Dev", "window/main_dev");
-                this.cb_record_mode.SelectedIndex = 1;  // auto script mode
-                if (Config.Instance.AutoScript_HackGameWhenStart)
-                {
-                    while (!System.IO.File.Exists(System.IO.Path.Join(Config.Instance.DirtGamePath, "dirtrally2.exe")))
+                case ToolVersion.DEV:
+                
+                    this.Title = string.Format("{0} {1}",
+                        I18NLoader.Instance["application.title_dev"],
+                        _version);
+                    GoogleAnalyticsHelper.Instance.TrackPageView("Window - Main:Dev", "window/main_dev");
+                    this.cb_record_mode.SelectedIndex = 1;  // auto script mode
+                    if (Config.Instance.AutoScript_HackGameWhenStart)
                     {
-                        var res = PromptDialog.Dialog.Prompt(
-                                    "当前为开发版本，需要定位游戏所在位置便于分离路书声音",
-                                    "尘埃拉力赛2.0游戏目录",
-                                    "");
-                        if (res != null)
+                        while (!System.IO.File.Exists(System.IO.Path.Join(Config.Instance.DirtGamePath, "dirtrally2.exe")))
                         {
-                            Config.Instance.DirtGamePath = res.ToString();
+                            var res = PromptDialog.Dialog.Prompt(
+                                        "当前为开发版本，需要定位游戏所在位置便于分离路书声音",
+                                        "尘埃拉力赛2.0游戏目录",
+                                        "");
+                            if (res != null)
+                            {
+                                Config.Instance.DirtGamePath = res.ToString();
+                            }
                         }
+                        Config.Instance.SaveUserConfig();
                     }
-                    Config.Instance.SaveUserConfig();
-                    // GameHacker.HackDLLs(Config.Instance.DirtGamePath);
-                }
+                    break;
+                case ToolVersion.STANDARD:
+                
+                    GoogleAnalyticsHelper.Instance.TrackPageView("Window - Main:Normal", "window/main_normal");
+                    this.Title = string.Format("{0} {1}",
+                        I18NLoader.Instance["application.title"],
+                        _version);
+                    // disable auto script mode
+                    this.cb_record_mode.Items.RemoveAt(this.cb_record_mode.Items.Count - 1);
+                    break;
+                case ToolVersion.TEST:
+                
+                    GoogleAnalyticsHelper.Instance.TrackPageView("Window - Main:Test", "window/main_test");
+                    this.Title = string.Format("{0} {1}",
+                        I18NLoader.Instance["application.title_test"],
+                        _version);
+                    break;
             }
-            else 
-            {
-                GoogleAnalyticsHelper.Instance.TrackPageView("Window - Main:Normal", "window/main_normal");
-                this.Title = string.Format("{0} {1}",
-                    I18NLoader.Instance["application.title"],
-                    _version);
-                // disable auto script mode
-                this.cb_record_mode.Items.RemoveAt(this.cb_record_mode.Items.Count - 1);
-            }
-            
-            // For test only
-            if (!UpdateManager.CurrentVersion.EndsWith("0"))
-            {
-                GoogleAnalyticsHelper.Instance.TrackPageView("Window - Main:Test", "window/main_test");
-                this.Title = string.Format("{0} {1}",
-                    I18NLoader.Instance["application.title_test"],
-                    _version);
-            }
+
+            _logger.Info("Current version: {0}, tool version determined.", _version);
         }
 
         private void initializeGameOverlay()
@@ -841,6 +855,8 @@ namespace ZTMZ.PacenoteTool
                 GoogleAnalyticsHelper.Instance.TrackPageView("Window - Hud", "hud");
                 this._gameOverlayManager.StartLoop();
             }
+
+            _logger.Info("Game overlay initialized.");
         }
 
         private void initializeAutoRecorder()
@@ -879,6 +895,8 @@ namespace ZTMZ.PacenoteTool
                     this.tb_autoScriptListeningDevice.ToolTip = null;
                 });
             };
+
+            _logger.Info("Auto recorder initialized.");
         }
 
         private void applyUserConfig()
@@ -921,6 +939,8 @@ namespace ZTMZ.PacenoteTool
             this.sl_playbackSpd.Value = Config.Instance.UI_PlaybackSpeed;
             this.sl_scriptTiming.Value = Config.Instance.UI_PlaybackAdjustSeconds;
             this.s_volume.Value = Config.Instance.UI_PlaybackVolume;
+
+            _logger.Info("User config applied.");
         }
 
         private void cb_game_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -941,6 +961,8 @@ namespace ZTMZ.PacenoteTool
 
             theme.SetBaseTheme(Config.Instance.IsDarkTheme ? Theme.Dark : Theme.Light);
             paletteHelper.SetTheme(theme);
+
+            _logger.Info("Theme initialized.");
         }
 
 

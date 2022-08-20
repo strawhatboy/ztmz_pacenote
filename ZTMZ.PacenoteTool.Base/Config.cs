@@ -583,7 +583,7 @@ namespace ZTMZ.PacenoteTool.Base
                 }
             }
 
-            _logger.Info($"Loaded game config for {game.Name}, content: {content}");
+            _logger.Debug($"Loaded game config for {game.Name}, content: {content}");
             return gameConfig;
         }
 

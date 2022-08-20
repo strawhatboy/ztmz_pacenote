@@ -15,6 +15,8 @@ namespace ZTMZ.PacenoteTool.Base
     {
         //public static string I18NPath = "lang";
 
+        private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         public List<string> cultures;
         public List<string> culturesFullname;
 
@@ -67,7 +69,8 @@ namespace ZTMZ.PacenoteTool.Base
             foreach (var jsonFile in jsonFiles)
             {
                 // load all files like "en-us.json" or "en-us.codemasters.json"
-                var fileNameWithoutExtension = Path.GetFileName(jsonFile.Substring(0, jsonFile.IndexOf('.')).ToLower());
+                var jsonFileWithoutDir = Path.GetFileName(jsonFile);
+                var fileNameWithoutExtension = jsonFileWithoutDir.Substring(0, jsonFileWithoutDir.IndexOf('.')).ToLower();
                 if (cultureDict.ContainsKey(fileNameWithoutExtension))
                 {
                     if (!cultures.Contains(fileNameWithoutExtension)) {
@@ -77,10 +80,18 @@ namespace ZTMZ.PacenoteTool.Base
                     }
                 }
 
+                
+                if (!Resources.ContainsKey(fileNameWithoutExtension))
+                {
+                    _logger.Warn("culture {0} not found when loading i18n json file {1}, skipping this file.", fileNameWithoutExtension, jsonFile);
+                    continue;
+                }
+
                 using (var strReader = new StringReader(File.ReadAllText(jsonFile)))
                 using (JsonTextReader reader = new JsonTextReader(strReader)) 
                 {
                     List<string> properties = new List<string>();
+                    _logger.Debug("loading i18n json file {0}", jsonFile);
                     readJson(fileNameWithoutExtension, reader, properties);
                 }
             }
@@ -123,6 +134,9 @@ namespace ZTMZ.PacenoteTool.Base
 
                 else if (reader.TokenType == JsonToken.String)
                 {
+                    var propertyName = constructPropertyName(properties);
+                    var value = reader.Value.ToString();
+                    _logger.Debug("trying to assign i18n property {0} {1} with value: {2}", culture, propertyName, value);
                     Resources[culture][constructPropertyName(properties)] = reader.Value.ToString();
                     properties.RemoveAt(properties.Count - 1);
                 }
