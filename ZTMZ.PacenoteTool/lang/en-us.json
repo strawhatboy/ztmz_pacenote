@@ -24,6 +24,7 @@
     "tooltip": {
       "btn_reset": "Need to restart the tool to take effect",
       "playbackDeviceDesiredLatency": "The delay for playing after the instructions arrive at the device, if this value is very small, the sound may be weird. Meanwhile a big delay may affect the experience",
+      "logLevel": "Set the log level, the more severe the level, the less information will be shown\nNotice: In testing version, this option doesnot take effect, the log level is always DEBUG",
 
       "warnIfPortMismatch": "Show warning dialog if the game UDP port mismatch with the tool UDP port",
 
@@ -78,6 +79,7 @@
     "language": "UI language",
     "isDarkTheme": "Dark Theme",
     "playbackDeviceDesiredLatency": "Playback device desired latency",
+    "logLevel": "Log level",
 
     "warnIfPortMismatch": "Show warning dialog if port mismatch",
 
@@ -297,5 +299,14 @@
     "unknown": {
       "title": "Unknown Error"
     }
+  },
+  "logLevel": {
+    "off": "Off",
+    "trace": "Trace",
+    "debug": "Debug",
+    "info": "Info",
+    "warn": "Warn",
+    "error": "Error",
+    "fatal": "Fatal"
   }
 }

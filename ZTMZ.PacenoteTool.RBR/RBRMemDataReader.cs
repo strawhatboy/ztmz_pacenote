@@ -65,7 +65,7 @@ public class RBRMemDataReader
 
         var rbrGameState = (RBRGameState)memData.GameStateId;
 
-        if (rbrGameState == RBRGameState.Racing || rbrGameState == RBRGameState.ReplayBegin || rbrGameState == RBRGameState.Replay)
+        if (rbrGameState == RBRGameState.RaceBegin || rbrGameState == RBRGameState.Racing || rbrGameState == RBRGameState.ReplayBegin || rbrGameState == RBRGameState.Replay)
         {
             var baseAddr0 = MemoryReader.Read<int>(pHandle, 0x165FC68);
             // racedata available

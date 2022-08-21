@@ -24,6 +24,7 @@
     "tooltip": {
       "btn_reset": "需要重启本工具来生效",
       "playbackDeviceDesiredLatency": "播放设备的 缓冲区延迟 表示指令到达播放设备后开始播放的延迟，如果延迟过低，对于某些设备可能会出现声音卡顿的现象，延迟过高可能会导致路书播放滞后",
+      "logLevel": "设置日志的级别，设置的级别越严重，日志中的信息量越少\n注意：在测试版中，此选项无效，日志级别总是设置为 调试",
 
       "warnIfPortMismatch": "当游戏的UDP端口和本工具的UDP端口不一致时，弹出提示框警告",
 
@@ -78,6 +79,7 @@
     "language": "界面语言",
     "isDarkTheme": "关灯",
     "playbackDeviceDesiredLatency": "播放设备缓冲区延迟",
+    "logLevel": "日志级别",
 
     "warnIfPortMismatch": "端口不匹配时展示警告对话框",
 
@@ -296,5 +298,14 @@
     "unknown": {
       "title": "未知错误"
     }
+  },
+  "logLevel": {
+    "off": "关闭",
+    "trace": "追踪",
+    "debug": "调试",
+    "info": "信息",
+    "warn": "警告",
+    "error": "错误",
+    "fatal": "崩溃"
   }
 }

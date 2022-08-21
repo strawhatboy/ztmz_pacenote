@@ -41,7 +41,7 @@
                                     <RowDefinition Height="40" />
                                     <RowDefinition Height="40" />
                                     <RowDefinition Height="40" />
-                                    <!-- <RowDefinition Height="40" /> -->
+                                    <RowDefinition Height="40" />
                                     <!-- <RowDefinition Height="40" /> -->
                                     <!-- <RowDefinition Height="250" /> -->
                                     <!-- <RowDefinition Height="40" /> -->
@@ -64,6 +64,18 @@
                                 <TextBlock Grid.Row="4" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{DynamicResource ResourceKey=settings.optInBetaPlan}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.optInBetaPlan}" />
                                 <ToggleButton Grid.Row="4" Grid.Column="1" x:Name="btn_optInBetaPlan" />
 
+                                <TextBlock Grid.Row="5" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{DynamicResource ResourceKey=settings.logLevel}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.logLevel}" />
+                                <ComboBox Grid.Row="5" Grid.Column="1" x:Name="cb_logLevel" VerticalAlignment="Center">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.trace}" />
+                                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.debug}" />
+                                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.info}" />
+                                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.warn}" />
+                                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.error}" />
+                                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.fatal}" />
+                                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.off}" />
+                                    </ComboBox.Items>
+                                </ComboBox>
 
                             </Grid>
                         </StackPanel>

@@ -144,6 +144,8 @@ namespace ZTMZ.PacenoteTool
                 {
                     //TODO: turn on the light, current game is running.
                     //TODO: start game data pulling
+                    
+                    _logger.Info("Got new process: {0}, trying to initialize game: {1}", pName, _currentGame.Name);
                     initializeGame(_currentGame);
                 }
             }, (pName, pPath) => {
@@ -455,7 +457,6 @@ namespace ZTMZ.PacenoteTool
             if (game == null)
                 return;
 
-            _logger.Info("Trying to initialize game: " + game.Name);
             // check prerequisite
             var res = checkPrerequisite(game);
             if (res == PrerequisitesCheckResultCode.GAME_NOT_INSTALLED)
@@ -949,6 +950,7 @@ namespace ZTMZ.PacenoteTool
             this._currentGame = this.cb_game.SelectedItem as IGame;
 
             // TODO: wait for seconds?
+            _logger.Info("Game selection changed to {0}, trying to initialize it.", this._currentGame.Name);
             initializeGame(_currentGame);
             Config.Instance.UI_SelectedGame = this.cb_game.SelectedIndex;
             Config.Instance.SaveUserConfig();

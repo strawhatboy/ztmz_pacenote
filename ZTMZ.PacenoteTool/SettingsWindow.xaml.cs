@@ -79,6 +79,15 @@ namespace ZTMZ.PacenoteTool
                 I18NLoader.Instance.SetCulture(c);
             };
 
+            // log level
+            this.cb_logLevel.SelectedIndex = (int)Config.Instance.LogLevel;
+            this.cb_logLevel.SelectionChanged += (s, e) => 
+            {
+                Config.Instance.LogLevel = this.cb_logLevel.SelectedIndex;
+                Config.Instance.SaveUserConfig();
+                NLogManager.setLogLevel(Config.Instance.LogLevel);
+            };
+
 
             initBoolSetting(btn_enableGoogleAnalytics, "EnableGoogleAnalytics");
             initBoolSetting(btn_warnIfPortMismatch, "WarnIfPortMismatch");

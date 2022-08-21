@@ -98,6 +98,7 @@ public class RBRGameDataReader : UdpGameDataReader
         var udpInitResult = base.Initialize(game);
         if (!udpInitResult) 
         {
+            _logger.Warn("Failed to initialize UDPGameDataReader, could because it was already initialized.");
             return udpInitResult;
         }
 

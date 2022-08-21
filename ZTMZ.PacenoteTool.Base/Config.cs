@@ -500,6 +500,14 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._OptInBetaPlan;
         } 
 
+        private int _LogLevel = 6;
+
+        public int LogLevel
+        {
+            set { this._LogLevel = value; this._userconfig["LogLevel"] = value; }
+            get => this._LogLevel;
+        } 
+
 
         private bool _UseDefaultSoundPackageForFallback = true;
         public bool UseDefaultSoundPackageForFallback
