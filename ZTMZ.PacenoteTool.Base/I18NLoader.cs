@@ -136,7 +136,7 @@ namespace ZTMZ.PacenoteTool.Base
                 {
                     var propertyName = constructPropertyName(properties);
                     var value = reader.Value.ToString();
-                    _logger.Debug("trying to assign i18n property {0} {1} with value: {2}", culture, propertyName, value);
+                    _logger.Trace("trying to assign i18n property {0} {1} with value: {2}", culture, propertyName, value);
                     Resources[culture][constructPropertyName(properties)] = reader.Value.ToString();
                     properties.RemoveAt(properties.Count - 1);
                 }

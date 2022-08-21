@@ -500,7 +500,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._OptInBetaPlan;
         } 
 
-        private int _LogLevel = 6;
+        private int _LogLevel = 4;
 
         public int LogLevel
         {
