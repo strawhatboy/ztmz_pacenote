@@ -60,10 +60,10 @@ public class MemoryGameConfig : IGameConfig
     }
 }
 
-[GameConfig("common_bool")]
+[GameConfig("common_config")]
 public class CommonGameConfigs: IGameConfig
 {
-    public static string Name => "common_bool";
+    public static string Name => "common_config";
 
     public Dictionary<string, string> PropertyName { set; get; }
     public List<object> PropertyValue { set; get; }

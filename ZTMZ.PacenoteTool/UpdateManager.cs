@@ -39,9 +39,10 @@ namespace ZTMZ.PacenoteTool
         public UpdateFile CheckUpdate() 
         {
             var updateFile = CheckUpdate(updateURL);
-            if (updateFile == null && Config.Instance.OptInBetaPlan) 
+            if (updateFile == null && Config.Instance.OptInBetaPlan || ToolUtils.GetToolVersion() == ToolVersion.TEST) 
             {
-                // only when there's no new stable version and user opt in beta plan, we will check beta update
+                // when there's no new stable version and user opt in beta plan, 
+                // or it is beta version running now, we will check beta update
                 updateFile = CheckUpdate(betaUpdateURL);
             }
 

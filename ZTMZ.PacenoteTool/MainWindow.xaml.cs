@@ -53,6 +53,7 @@ namespace ZTMZ.PacenoteTool
         private bool _isPureAudioRecording = true;
         private ScriptEditor.MainWindow _scriptWindow;
         private string _version = UpdateManager.CurrentVersion;
+        private ToolVersion _toolVersion = ToolVersion.STANDARD;
 
         private SettingsWindow _settingsWindow;
 
@@ -803,9 +804,9 @@ namespace ZTMZ.PacenoteTool
 
         private void checkIfDevVersion()
         {
-            var toolVersion = ToolUtils.GetToolVersion();
+            _toolVersion = ToolUtils.GetToolVersion();
 
-            switch (toolVersion) 
+            switch (_toolVersion) 
             {
                 case ToolVersion.DEV:
                 
@@ -848,7 +849,7 @@ namespace ZTMZ.PacenoteTool
                     break;
             }
 
-            _logger.Info("Current version: {0}, tool version determined.", _version);
+            _logger.Info("Current version: {0}, tool version determined: {1}.", _version, _toolVersion);
         }
 
         private void initializeGameOverlay()
@@ -955,6 +956,11 @@ namespace ZTMZ.PacenoteTool
             initializeGame(_currentGame);
             Config.Instance.UI_SelectedGame = this.cb_game.SelectedIndex;
             Config.Instance.SaveUserConfig();
+
+            if (_settingsWindow != null) 
+            {
+                _settingsWindow.SetGame(_currentGame);
+            }
         }
 
         private void initializeTheme()
@@ -1254,6 +1260,31 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
         private void tb_soundSettings_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("rundll32.exe", "Shell32.dll, Control_RunDLL \"C:\\Windows\\System32\\mmsys.cpl"));
+        }
+
+        private void tb_updates_Clicked(object sender, RequestNavigateEventArgs e)
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe", "更新记录.txt"));
+        }
+
+        private void tb_reportBug_Clicked(object s, RequestNavigateEventArgs e)
+        {
+            if (Config.Instance.Language == "zh-cn")
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo{ FileName = new Uri("https://gitee.com/ztmz/ztmz_pacenote/issues").AbsoluteUri, UseShellExecute = true } );
+            } else {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo{ FileName = new Uri("https://github.com/strawhatboy/ztmz_pacenote/issues").AbsoluteUri, UseShellExecute = true } );
+            }
+        }
+
+        private void tb_about_Clicked(object sender, RequestNavigateEventArgs e)
+        {
+            if (Config.Instance.Language == "zh-cn")
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo{ FileName = new Uri("https://gitee.com/ztmz/ztmz_pacenote").AbsoluteUri, UseShellExecute = true } );
+            } else {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo{ FileName = new Uri("https://github.com/strawhatboy/ztmz_pacenote").AbsoluteUri, UseShellExecute = true } );
+            }
         }
 
         private void chk_Hud_Click(object sender, RoutedEventArgs e)

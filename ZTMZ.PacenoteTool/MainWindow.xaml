@@ -490,12 +490,17 @@
                         </Hyperlink>
                     </TextBlock>
                     <TextBlock HorizontalAlignment="Right" Margin="0 0 10 0">
-                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote/issues" RequestNavigate="Hyperlink_RequestNavigate">
+                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote/issues" RequestNavigate="tb_reportBug_Clicked">
                             <TextBlock Text="{DynamicResource ResourceKey=ui.tb_reportBug}" />
                         </Hyperlink>
                     </TextBlock>
+                    <TextBlock HorizontalAlignment="Right" Margin="0 0 10 0">
+                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote/issues" RequestNavigate="tb_updates_Clicked">
+                            <TextBlock Text="{DynamicResource ResourceKey=ui.tb_updates}" />
+                        </Hyperlink>
+                    </TextBlock>
                     <TextBlock HorizontalAlignment="Right">
-                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote" RequestNavigate="Hyperlink_RequestNavigate">
+                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote" RequestNavigate="tb_about_Clicked">
                             <TextBlock Text="{DynamicResource ResourceKey=ui.tb_about}" />
                         </Hyperlink>
                     </TextBlock>

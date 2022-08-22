@@ -751,7 +751,7 @@ namespace ZTMZ.PacenoteTool
                 gfx.FillRectangle(_brushes["red"], rect.Left + 1, rect.Top + 1, rect.Right - 1, rect.Bottom - 1);
             }
             gfx.drawTextWithBackgroundCentered(_fonts["consolas"],
-                barWidth,
+                barWidth * 1.5f,
                 _brushes["white"],
                 _brushes["black"],
                 x + 0.5f * barWidth,
