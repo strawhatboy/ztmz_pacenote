@@ -87,6 +87,16 @@ namespace ZTMZ.PacenoteTool
                 Config.Instance.SaveUserConfig();
                 NLogManager.setLogLevel(Config.Instance.LogLevel);
             };
+            this.btn_viewLogs.Click += (s, e) =>
+            {
+                var logPath = AppLevelVariables.Instance.GetPath("logs");
+                if (!Directory.Exists(logPath)) 
+                {
+                    Directory.CreateDirectory(logPath);
+                }
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
+                    AppLevelVariables.Instance.GetPath("logs")));
+            };
 
 
             initBoolSetting(btn_enableGoogleAnalytics, "EnableGoogleAnalytics");
@@ -112,6 +122,13 @@ namespace ZTMZ.PacenoteTool
                 // need restart
                 this.tb_restartNeeded.Visibility = Visibility.Visible;
                 pi_hudChromaKeyMode.Visibility = Visibility.Visible;
+            });
+            
+            initBoolSetting(btn_hudTopMost, "HudTopMost", false, () =>
+            {
+                // need restart
+                this.tb_restartNeeded.Visibility = Visibility.Visible;
+                pi_hudTopMost.Visibility = Visibility.Visible;
             });
 
             // telemetry

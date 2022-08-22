@@ -1,7 +1,7 @@
  **注意：** 一般情况下 **只有遇到问题时才参考本疑难解答** ，没有遇到问题不要随意尝试本文的各种解决方案，可能会适得其反。
 
 **Q:** 工具在安装的时候卡在下载所需组件那里不动了怎么回事？
-**A:** 可能网络环境和微软的服务器不通畅，先 **手动下载安装运行库** （[https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer)](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer)），再运行工具的安装程序即可。如果手动也无法下载，那么可以到路书群里从群文件里下载。
+**A:** 可能网络环境和微软的服务器不通畅，先 **手动下载安装运行库** （[https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer)），再运行工具的安装程序即可。如果手动也无法下载，那么可以到路书群里从群文件里下载。
 如果你使用的是**Windows 7 SP1 x64操作系统**，那么在安装完上面的东西之后，还需要再安装[https://aka.ms/vs/16/release/vc_redist.x64.exe](https://aka.ms/vs/16/release/vc_redist.x64.exe)和[https://www.microsoft.com/zh-CN/download/details.aspx?id=47442](https://www.microsoft.com/zh-CN/download/details.aspx?id=47442)这两个东西之后，才应该可以正常安装路书工具。
 
 **Q:** 我在使用Windows 7 SP1 x64 操作系统，貌似无法安装怎么办？
@@ -34,8 +34,11 @@
 **Q:** 为什么录视频或者直播的时候很卡（帧率很低）？
 **A:** 因为万恶的 **悬浮窗，所用的技术会引起录视频和直播时帧率大幅下降** ，目前的解决办法是在主界面的最下面的“开启悬浮窗”右边的勾给勾掉（关闭悬浮窗）
 
-**Q:** 为什么工具在开始游戏之后还是没反应？
-**A:** 如果是第一次启动工具和游戏，可能未能使游戏的udp端口修改生效，这种情况重新启动一下游戏就行；如果是使用了和游戏不同的端口号，重启工具时会有提示框提醒，这时应当有在同时使用simhub并作出正确的配置
+**Q:** 为什么工具上的各种数据在开始游戏之后没有反应？
+**A:** 这基本上就是端口配置的问题。如果是第一次启动工具和游戏，可能未能使游戏的udp端口修改生效，这种情况重新启动一下游戏就行；如果是使用了和游戏不同的端口号，重启工具时会有提示框提醒，这时应当有在同时使用simhub并作出正确的配置。
+
+**Q:** 我在使用速魔软件，需要哪些配置？
+**A:** 可以询问速魔客服，可以在客服的指导下进行 SIMHUB 相关的配置。在 SIMHUB 配置完毕后，只需在 SIMHUB 转发中新加一条转发规则到任意端口大于 20000 的端口，如 20999，然后再把路书工具中的监听端口改为相同的即可（此例子为 20999）
 
 **Q:** 为什么窗口模式下屏幕左边会多出一堆跳动的英文和数字？
 **A:** 可能是在设置里不小心打开了最下面一个 **调试** 选项，关掉就可以了

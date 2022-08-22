@@ -25,6 +25,7 @@
       "btn_reset": "Need to restart the tool to take effect",
       "playbackDeviceDesiredLatency": "The delay for playing after the instructions arrive at the device, if this value is very small, the sound may be weird. Meanwhile a big delay may affect the experience",
       "logLevel": "Set the log level, the more severe the level, the less information will be shown\nNotice: In testing version, this option doesnot take effect, the log level is always DEBUG",
+      "viewLogs": "View logs",
 
       "warnIfPortMismatch": "Show warning dialog if the game UDP port mismatch with the tool UDP port",
 
@@ -50,6 +51,7 @@
       "dynamicVolumePerturbationFrequency": "The frequency of the sine wave, the higher the frequency, the faster the jitter",
       "dynamicVolumePerturbationAmplitude": "The larger the amplitude, the stronger the jitter",
 
+      "hudTopMost": "The hud will always be on top of any window in the system.",
       "hudChromaKeyMode": "Need to restart the tool.\nAfter the full-screen game mode is turned on, you can add \"ZTMZ Club Hud\" window capture in OBSStudio, plus a chroma keying filter, which can be used as a transparent mask layer for live broadcast or video recording\nNote, do not turn this option on if it is a windowed game, in addition, the color scheme after opening will be slightly different from that when windowed",
       "hudShowTelemetry": "Dashboard similar to Dirt Telemetry Tool",
       "hudSizePercentage": "The ratio of the dashboard to the height of the game screen",
@@ -105,6 +107,7 @@
     "dynamicVolumePerturbationFrequency": "Voice tension enhancement waveform frequency (Hz)",
     "dynamicVolumePerturbationAmplitude": "Voice tension enhancement waveform amplitude (0~1)",
 
+    "hudTopMost": "Always on top of all windows",
     "hudChromaKeyMode": "Whether to use chroma keying mode (for full-screen game recording or live streaming) ",
     "hudShowTelemetry": "Whether to show the telemetry dashboard",
     "hudSizePercentage": "Dashboard - Size",
@@ -240,6 +243,8 @@
 
     "tb_about": "About this tool",
     "tb_pacenotes": "Pacenotes",
+    "tb_qanda": "Q&A",
+    "tb_reportBug": "Report Bug/Feedback",
 
 
     "tooltip": {

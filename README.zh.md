@@ -3,6 +3,7 @@
 感谢大家的努力，路书工具自2.4.4以来已经收录了所有的路书脚本！！！
 
 目前基本能用，可能会时不时更新一下代码，但程序可能暂时不会发布新版本。具体可参见[更新计划](#plan) 可能存在一些问题，欢迎提PR和Issue
+[github 镜像](https://github.com/strawhatboy/ztmz_pacenote)
 
 ![](Docs/UI.zh.png)
 ![](Docs/Settings.zh.png)
@@ -17,9 +18,8 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 2. 安装期间如果检测到系统中未安装 `dotnet6`运行时，安装程序会自动下载并安装，可能会弹出UAC提示框，点击“是”即可
 3. 打开游戏
 4. 在游戏设置的语音选项(Audio)中关掉原版的路书声音(Speech选项拖到最左边)
-5. 进入计时赛选择目前支持的地图(参见[【腾讯文档】尘埃拉力赛2.0地图路书录制进程](https://docs.qq.com/sheet/DVVljT3dMWkpYSWdH))
-6. 开始体验
-7. 上述过程除了问题：[疑难解答](./QandA.md)
+5. 开始体验
+6. 上述过程出了问题：[疑难解答](./QandA.md)
 
 #### 如何和simhub一起使用
 
@@ -86,6 +86,7 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 * [Material Design Xaml Toolkit](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit)
 * [Inno Setup](https://jrsoftware.org/isinfo.php)
 * [Inno Setup Chinese Simplified Translation](https://github.com/kira-96/Inno-Setup-Chinese-Simplified-Translation)
+* [NLog](https://github.com/NLog/NLog)
 
 #### 本项目参考的项目
 

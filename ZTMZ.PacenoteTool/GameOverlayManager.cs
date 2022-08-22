@@ -465,10 +465,15 @@ namespace ZTMZ.PacenoteTool
 
             _window = new StickyWindow(process.MainWindowHandle, gfx);
             _window.Title = "ZTMZ Club Hud";
-            _window.BypassTopmost = true;
             _window.FPS = Config.Instance.HudFPS;   // 50 fps by default
             _window.AttachToClientArea = true;
-            //_window.IsTopmost = true;
+            if (Config.Instance.HudTopMost) 
+            {
+                _window.IsTopmost = Config.Instance.HudTopMost;
+            } else 
+            {
+                _window.BypassTopmost = true;
+            }
             _window.IsVisible = true;
 
 
@@ -537,7 +542,11 @@ namespace ZTMZ.PacenoteTool
 
             try
             {
-                //TODO: suppress unknown ex for now, I have no env for testing...
+                if (gfx.Height == 0 || gfx.Width == 0) 
+                {
+                    // the window is not yet visible
+                    return;
+                }
 
                 drawBasicInfo(gfx);
                 if (Config.Instance.HudShowTelemetry && TimeToShowTelemetry)
@@ -1161,37 +1170,6 @@ namespace ZTMZ.PacenoteTool
             _window?.Dispose();
             _window = null;
             _isRunning = false;
-        }
-    }
-
-    public static class GameOverlayExtensions
-    {
-        public static void addCurve(this Geometry geo, ArcSegment arcSegment)
-        {
-            var _sinkInfo = typeof(Geometry).GetField("_sink", BindingFlags.NonPublic | BindingFlags.Instance);
-            var _sink = (GeometrySink)_sinkInfo.GetValue(geo);
-            _sink.AddArc(arcSegment);
-        }
-        public static void addCurve(this Geometry geo, Point p, float radius, ArcSize arcSize, SweepDirection swpDirection=SweepDirection.Clockwise, float rotationAngle=0f)
-        {
-            var _sinkInfo = typeof(Geometry).GetField("_sink", BindingFlags.NonPublic | BindingFlags.Instance);
-            var _sink = (GeometrySink)_sinkInfo.GetValue(geo);
-            var arcSegment = new ArcSegment()
-            {
-                ArcSize = arcSize,
-                Size = new Size2F(radius, radius),
-                Point = p,
-                SweepDirection = swpDirection,
-                RotationAngle = rotationAngle
-            };
-            _sink.AddArc(arcSegment);
-        }
-
-        public static void drawTextWithBackgroundCentered(this Graphics gfx, Font font, float fontSize, IBrush brush, IBrush background, float x, float y,
-            string text)
-        {
-            var textSize = gfx.MeasureString(font, fontSize, text);
-            gfx.DrawTextWithBackground(font, fontSize, brush, background, x - textSize.X * 0.5f, y - textSize.Y * 0.5f, text);
         }
     }
 }

@@ -4,10 +4,10 @@
         <OutputType>WinExe</OutputType>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>app.ico</ApplicationIcon>
-        <AssemblyVersion>2.7.0.4</AssemblyVersion>
-        <PackageVersion>2.7.0.4</PackageVersion>
-        <Version>2.7.0.4</Version>
-        <FileVersion>2.7.0.4</FileVersion>
+        <AssemblyVersion>2.7.0.5</AssemblyVersion>
+        <PackageVersion>2.7.0.5</PackageVersion>
+        <Version>2.7.0.5</Version>
+        <FileVersion>2.7.0.5</FileVersion>
 	    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	    <SignAssembly>False</SignAssembly>
 	    <TargetFramework>net6.0-windows</TargetFramework>
@@ -22,10 +22,10 @@
       <ProjectReference Include="..\ZTMZ.PacenoteTool.AudioPackageManager\ZTMZ.PacenoteTool.AudioPackageManager.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.ScriptEditor\ZTMZ.PacenoteTool.ScriptEditor.csproj" />
+      <ProjectReference Include="..\GameOverlay\GameOverlay.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="GameOverlay.Net" Version="4.3.1" />
       <PackageReference Include="NAudio" Version="2.0.1" />
       <PackageReference Include="NAudio.Extras" Version="1.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />

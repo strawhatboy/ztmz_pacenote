@@ -76,6 +76,7 @@ The pacenote tool from ZTMZ Club, can be used to customize the pacenotes in the 
 * [Material Design Xaml Toolkit](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit)
 * [Inno Setup](https://jrsoftware.org/isinfo.php)
 * [Inno Setup Chinese Simplified Translation](https://github.com/kira-96/Inno-Setup-Chinese-Simplified-Translation)
+* [NLog](https://github.com/NLog/NLog)
 
 #### References
 

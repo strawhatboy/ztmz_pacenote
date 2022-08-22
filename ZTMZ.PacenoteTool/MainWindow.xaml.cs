@@ -1,4 +1,5 @@
 ﻿// Original UI, can be used as a "ViewModel" of the new UI
+// Lots of shit here, but it works
 
 using System;
 using System.Collections.Generic;

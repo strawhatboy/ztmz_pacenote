@@ -25,6 +25,7 @@
       "btn_reset": "需要重启本工具来生效",
       "playbackDeviceDesiredLatency": "播放设备的 缓冲区延迟 表示指令到达播放设备后开始播放的延迟，如果延迟过低，对于某些设备可能会出现声音卡顿的现象，延迟过高可能会导致路书播放滞后",
       "logLevel": "设置日志的级别，设置的级别越严重，日志中的信息量越少\n注意：在测试版中，此选项无效，日志级别总是设置为 调试",
+      "viewLogs": "查看日志",
 
       "warnIfPortMismatch": "当游戏的UDP端口和本工具的UDP端口不一致时，弹出提示框警告",
 
@@ -50,6 +51,7 @@
       "dynamicVolumePerturbationFrequency": "正弦波的频率，频率越高，抖动越快",
       "dynamicVolumePerturbationAmplitude": "振幅越大，抖动越强烈",
 
+      "hudTopMost": "悬浮窗窗口总是在所有其他窗口的上层",
       "hudChromaKeyMode": "需要重启工具生效\n在全屏游戏模式开启后，可以在OBS中添加ZTMZ Club Hud 窗口捕获，再加以色键抠像滤镜，可以用作直播或者录像的透明遮罩层\n注意，如果是窗口化游戏，不要打开这个选项，另外开启后配色方案会与窗口化时略有不同",
       "hudShowTelemetry": "类似于Dirt Telemetry Tool 的仪表盘",
       "hudSizePercentage": "仪表盘占据游戏画面高度的比例",
@@ -105,6 +107,7 @@
     "dynamicVolumePerturbationFrequency": "语音紧张感增强波形频率（赫兹）",
     "dynamicVolumePerturbationAmplitude": "语音紧张感增强波形振幅（0~1）",
     
+    "hudTopMost": "悬浮窗总是在最上层",
     "hudChromaKeyMode": "是否使用色键抠像模式（全屏游戏录像或直播用）",
     "hudShowTelemetry": "是否显示遥测仪表盘",
     "hudSizePercentage": "仪表盘 - 大小",
@@ -239,6 +242,8 @@
 
     "tb_about": "关于本工具",
     "tb_pacenotes": "点我查看路书录制进度",
+    "tb_qanda": "疑难解答",
+    "tb_reportBug": "问题/意见反馈",
 
 
     "tooltip": {

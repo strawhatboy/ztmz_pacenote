@@ -475,18 +475,31 @@
             关于本工具
         </Button-->
 
-                <TextBlock Grid.Row="0" HorizontalAlignment="Right">
-                    <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote" RequestNavigate="Hyperlink_RequestNavigate">
-                        <TextBlock Text="{DynamicResource ResourceKey=ui.tb_about}" />
-                    </Hyperlink>
-                </TextBlock>
 
-                <TextBlock Grid.Row="1" HorizontalAlignment="Right" Foreground="#FFF" Margin="0 0 5 0" Cursor="Hand" PreviewMouseDown="Me_Clicked">
+                <TextBlock Grid.Row="0" HorizontalAlignment="Right" Foreground="#FFF" Margin="0 0 5 0" Cursor="Hand" PreviewMouseDown="Me_Clicked">
                     by 草帽不是猫
                     <TextBlock.Effect>
                         <DropShadowEffect ShadowDepth="2" BlurRadius="0"  />
                     </TextBlock.Effect>
                 </TextBlock>
+                
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBlock HorizontalAlignment="Right" Margin="0 0 10 0">
+                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote/blob/master/QandA.md" RequestNavigate="Hyperlink_RequestNavigate">
+                            <TextBlock Text="{DynamicResource ResourceKey=ui.tb_qanda}" />
+                        </Hyperlink>
+                    </TextBlock>
+                    <TextBlock HorizontalAlignment="Right" Margin="0 0 10 0">
+                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote/issues" RequestNavigate="Hyperlink_RequestNavigate">
+                            <TextBlock Text="{DynamicResource ResourceKey=ui.tb_reportBug}" />
+                        </Hyperlink>
+                    </TextBlock>
+                    <TextBlock HorizontalAlignment="Right">
+                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote" RequestNavigate="Hyperlink_RequestNavigate">
+                            <TextBlock Text="{DynamicResource ResourceKey=ui.tb_about}" />
+                        </Hyperlink>
+                    </TextBlock>
+                </StackPanel>
             </Grid>
         </materialDesign:Card>
         <!-- <Border Grid.Row="8" Margin="1" Background="#8888" /> -->

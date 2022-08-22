@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net40;net45;net47;net48;netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>GameOverlay.Net</PackageId>
+    <Product>GameOverlay.Net</Product>
+    <Company />
+    <Authors>michel-pi</Authors>
+    <Version>4.3.1</Version>
+    <Description>An easy to use Direct2D1 drawing library with the ability to create transparent click-through windows.</Description>
+    <PackageTags>GameOverlay.Net overlay game click-through direct2d sharpdx drawing window directx transparent michel-pi yato yatodev</PackageTags>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Copyright>Copyright (c) 2019 michel-pi</Copyright>
+    <PackageProjectUrl>https://github.com/michel-pi/GameOverlay.Net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/michel-pi/GameOverlay.Net</RepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants />
+    <DocumentationFile>GameOverlay.xml</DocumentationFile>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

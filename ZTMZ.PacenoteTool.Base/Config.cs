@@ -333,6 +333,13 @@ namespace ZTMZ.PacenoteTool.Base
             set { this._HudFPS = value; this._userconfig["HudFPS"] = value; }
             get => this._HudFPS;
         }
+
+        private bool _HudTopMost = false;
+        public bool HudTopMost
+        {
+            set { this._HudTopMost = value; this._userconfig["HudTopMost"] = value; }
+            get => this._HudTopMost;
+        }
         
         private bool _HudChromaKeyMode = false;
         public bool HudChromaKeyMode
