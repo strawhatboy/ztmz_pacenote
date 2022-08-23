@@ -25,7 +25,7 @@ namespace ZTMZ.PacenoteTool.Dialog
         {
             InitializeComponent();
             // this.tb_Content.Text = string.Format(I18NLoader.Instance["dialog.enableGoogleAnalytics.content"], port1, port2);
-            this.MouseDown += delegate { DragMove(); };
+            this.MouseDown += (o, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
             this.Closing += (s, e) => {
                 if (!buttonClicked) {
                     e.Cancel = true;

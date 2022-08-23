@@ -36,7 +36,7 @@ namespace ZTMZ.PacenoteTool.Dialog
         {
             InitializeComponent();
             _urlRedirected = f.urlRedirected;
-            this.MouseDown += delegate { DragMove(); };
+            this.MouseDown += (o, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
         }
 
         public void DownloadFiles(IEnumerable<string> urls)

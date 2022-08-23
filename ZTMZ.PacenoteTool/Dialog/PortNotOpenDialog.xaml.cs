@@ -24,7 +24,7 @@ namespace ZTMZ.PacenoteTool.Dialog
         {
             InitializeComponent();
             this.tb_Content.Text = string.Format(I18NLoader.Instance["dialog.portNotOpen.content"], gameName, filePath);
-            this.MouseDown += delegate { DragMove(); };
+            this.MouseDown += (o, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
         }
 
         private void btn_ok_Click(object sender, RoutedEventArgs e)

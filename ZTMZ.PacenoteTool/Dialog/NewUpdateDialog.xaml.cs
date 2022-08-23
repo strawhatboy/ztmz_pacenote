@@ -26,7 +26,7 @@ namespace ZTMZ.PacenoteTool.Dialog
             this.tb_content.Text = string.Format(I18NLoader.Instance["dialog.newUpdate.content"],
                 newVersion, currentVersion);
             this.wb_Changelog.Navigate(new Uri(changelogUrl)); 
-            this.MouseDown += delegate { DragMove(); };
+            this.MouseDown += (o, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
         }
 
 

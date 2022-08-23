@@ -1264,7 +1264,12 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void tb_updates_Clicked(object sender, RequestNavigateEventArgs e)
         {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe", "更新记录.txt"));
+            if (_toolVersion == ToolVersion.TEST)
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe", "更新记录beta.txt"));
+            } else {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe", "更新记录.txt"));
+            }
         }
 
         private void tb_reportBug_Clicked(object s, RequestNavigateEventArgs e)

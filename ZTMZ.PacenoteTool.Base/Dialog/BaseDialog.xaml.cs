@@ -74,7 +74,7 @@ namespace ZTMZ.PacenoteTool.Base.Dialog
                     this.pi_Icon.Foreground = Brushes.Blue;
                     break;
             }
-            this.MouseDown += delegate { DragMove(); };
+            this.MouseDown += (o, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
             // this.Closed += (s, e) => { Result = MessageBoxResult.Cancel; };
         }
 

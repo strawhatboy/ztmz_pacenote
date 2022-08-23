@@ -23,7 +23,7 @@ namespace ZTMZ.PacenoteTool.Dialog
         public ResetConfigDialog()
         {
             InitializeComponent();
-            this.MouseDown += delegate { DragMove(); };
+            this.MouseDown += (o, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
         }
         private void btn_ok_Click(object sender, RoutedEventArgs e)
         {
