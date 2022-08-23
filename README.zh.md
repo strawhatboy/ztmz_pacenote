@@ -1,9 +1,12 @@
 # ztmz_pacenote 🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉
 
-感谢大家的努力，路书工具自2.4.4以来已经收录了所有的路书脚本！！！
+- [更新计划](#plan)。欢迎提PR和Issue。
+- [github 镜像](https://github.com/strawhatboy/ztmz_pacenote)
 
-目前基本能用，可能会时不时更新一下代码，但程序可能暂时不会发布新版本。具体可参见[更新计划](#plan) 可能存在一些问题，欢迎提PR和Issue
-[github 镜像](https://github.com/strawhatboy/ztmz_pacenote)
+#### 演示视频
+- [【8岁半小孩用手动H档驾驶B组赛车获全球纪录排行榜第25名，中国第1。DiRT Rally 2（尘埃拉力赛2），汉考克山反向赛道，用时2分53秒85。】 ](https://www.bilibili.com/video/BV13G4y1Y7Wk?share_source=copy_web&vd_source=75f5b80f3de4292c6040c4126a1e5b2b)
+
+#### 截图
 
 ![](Docs/UI.zh.png)
 ![](Docs/Settings.zh.png)
