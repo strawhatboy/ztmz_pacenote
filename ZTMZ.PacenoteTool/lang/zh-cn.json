@@ -169,7 +169,8 @@
       "title": "船深版本",
       "content": "我们发布了船深版本 {0}，你当前的版本是 {1}，要更新到最新版吗？",
       "btn_cancel": "雅蔑蝶",
-      "btn_ok": "好！"
+      "btn_ok": "好！",
+      "chkbox_skip": "跳过这个版本更新"
     },
     "enableGoogleAnalytics": {
       "title": "改善使用体验",

@@ -20,8 +20,10 @@ namespace ZTMZ.PacenoteTool.Dialog
     /// </summary>
     public partial class NewUpdateDialog : Window
     {
+        private string _newVersion;
         public NewUpdateDialog(string newVersion, string currentVersion, string changelogUrl)
         {
+            _newVersion = newVersion;
             InitializeComponent();
             this.tb_content.Text = string.Format(I18NLoader.Instance["dialog.newUpdate.content"],
                 newVersion, currentVersion);
@@ -29,6 +31,17 @@ namespace ZTMZ.PacenoteTool.Dialog
             this.MouseDown += (o, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
         }
 
+        private void chkbox_skip_Click(object sender, RoutedEventArgs e) 
+        {
+            if (this.chkbox_skip != null)
+            {
+                if (this.chkbox_skip.IsChecked.HasValue && this.chkbox_skip.IsChecked.Value)
+                {
+                    Config.Instance.SkippedVersion = _newVersion;
+                    Config.Instance.SaveUserConfig();
+                }
+            }
+        }
 
         private void btn_ok_Click(object sender, RoutedEventArgs e)
         {

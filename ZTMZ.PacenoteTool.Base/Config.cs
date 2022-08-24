@@ -475,6 +475,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._Language;
         }
 
+        private string _SkippedVersion = "1.0.0.0";
+        public string SkippedVersion
+        {
+            set { this._SkippedVersion = value; this._userconfig["SkippedVersion"] = value; }
+            get => this._SkippedVersion;
+        }
+
         private bool _IsDarkTheme = false;
 
         public bool IsDarkTheme

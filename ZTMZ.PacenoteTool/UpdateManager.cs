@@ -63,8 +63,15 @@ namespace ZTMZ.PacenoteTool
                 this.UpdateFile = versionFile;
                 // compare version
                 var newVersion = new Version(versionFile.version);
+                var skippedVersion = new Version(Config.Instance.SkippedVersion);
                 var minVersionSupported = new Version(versionFile.minVersionSupported);
                 var myVersion = new Version(CurrentVersion);
+
+                if (newVersion.Equals(skippedVersion))
+                {
+                    // this version is set to be skipped.
+                    return null;
+                }
 
                 if (myVersion.CompareTo(minVersionSupported) < 0)
                 {

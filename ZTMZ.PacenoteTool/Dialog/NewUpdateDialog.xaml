@@ -26,6 +26,8 @@
         </StackPanel>
         <TextBlock x:Name="tb_content" DockPanel.Dock="Top" Margin="20 0 20 0"/>
         <StackPanel DockPanel.Dock="Bottom" Margin="20 10 20 20" Orientation="Horizontal" HorizontalAlignment="Right" >
+            
+            <CheckBox x:Name="chkbox_skip" Content="{DynamicResource ResourceKey=dialog.newUpdate.chkbox_skip}" Margin="0 0 10 0" Click="chkbox_skip_Click" />
             <Button IsDefault="True" x:Name="btn_ok" Content="{DynamicResource ResourceKey=dialog.newUpdate.btn_ok}" Margin="0 0 10 0" Click="btn_ok_Click"></Button>
             <Button x:Name="btn_cancel" Background="Crimson" Content="{DynamicResource ResourceKey=dialog.newUpdate.btn_cancel}" Click="btn_cancel_Click" ></Button>
         </StackPanel>

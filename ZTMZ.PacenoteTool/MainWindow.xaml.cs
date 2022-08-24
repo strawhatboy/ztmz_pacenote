@@ -487,8 +487,10 @@ namespace ZTMZ.PacenoteTool
                     }
                 }
                 
-                this.cb_game.ToolTip = game.Description;
-                this.cb_game.Effect = game.IsRunning ? _processRunningEffect : null;
+                this.Dispatcher.Invoke(() => {
+                    this.cb_game.ToolTip = game.Description;
+                    this.cb_game.Effect = game.IsRunning ? _processRunningEffect : null;
+                });
             }
         }
 

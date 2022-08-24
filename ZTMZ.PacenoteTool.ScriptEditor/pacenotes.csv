@@ -30,7 +30,7 @@ detail_big_cut,大切弯,1,211|212,-1,additional|modifier
 detail_big_jump,超大飞跳,1,40002,-1,obstacles
 detail_brake,刹车,1,217,-1,driving
 detail_bridge,桥,1,27,-1,obstacles
-detail_bumps,颠簸,1,300,-1,obstacles
+detail_bumps,颠簸,1,300|19,-1,obstacles
 detail_care,小心,0,18,-1,cautions
 detail_caution,注意,0,32,-1,cautions
 detail_cobble,鹅卵石路面,1,323,-1,surface
