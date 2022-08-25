@@ -166,14 +166,15 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 * [__Hippopo__](https://space.bilibili.com/626685) 的语音包录制和路书校对
 * __大李子小妖__ 的语音包录制
 * [__mesa__](https://www.racedepartment.com/members/mesa.7580) 的英文tts语音包录制
+* [__南沢いずみ__](https://space.bilibili.com/3351506) 的天津话语音包录制
 * **左衛門** 的路书校对
 * 以及各位大佬的路书录制：（按字母顺序）
   * [HanXu](https://space.bilibili.com/1534349264)
-  * Hippopo
+  * [Hippopo](https://space.bilibili.com/626685)
   * 回家的誘いをかける
   * 栗悟饭とカメハメ波
   * [Meeke777](https://space.bilibili.com/55088592)
-  * O.Z. (Gliese-436b)
+  * [O.Z. (Gliese-436b)](https://space.bilibili.com/509694621)
   * Silenig
   * smoke (DR2略略略)
-  * Zexx
+  * [Zexx](https://space.bilibili.com/147075875)

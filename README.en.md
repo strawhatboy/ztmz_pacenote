@@ -106,14 +106,15 @@ The pacenote tool from ZTMZ Club, can be used to customize the pacenotes in the 
 * [__Hippopo__](https://space.bilibili.com/626685) : recording and making of the audio packages, proofreading of pacenote scripts
 * __大李子小妖__ : recording and making of the audio packages
 * [__mesa__](https://www.racedepartment.com/members/mesa.7580) : recording and making of the english TTS audio packages
+* [__南沢いずみ__](https://space.bilibili.com/3351506) recording and making TianjinHua audio package
 * **左衛門** : proofreading of pacenote scripts的路书校
 * __\[Pacenotes recording\]__:
-  * HanXu
-  * Hippopo
+  * [HanXu](https://space.bilibili.com/1534349264)
+  * [Hippopo](https://space.bilibili.com/626685)
   * 回家的誘いをかける
   * 栗悟饭とカメハメ波
-  * Meeke777
-  * O.Z. (Gliese-436b)
+  * [Meeke777](https://space.bilibili.com/55088592)
+  * [O.Z. (Gliese-436b)](https://space.bilibili.com/509694621)
   * Silenig
   * smoke (DR2略略略)
-  * Zexx
+  * [Zexx](https://space.bilibili.com/147075875)

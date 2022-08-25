@@ -42,6 +42,7 @@ namespace ZTMZ.PacenoteTool
         private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         private HotKey _hotKeyStartRecord;
         private HotKey _hotKeyStopRecord;
+        private bool _hotKeysRegistered = true;
         private ToolState _toolState = ToolState.Replaying;
         private ProfileManager _profileManager;
         private AudioRecorder _audioRecorder;
@@ -333,14 +334,22 @@ namespace ZTMZ.PacenoteTool
 
         private void registerHotKeys()
         {
-            this._hotKeyStartRecord?.Register();
-            this._hotKeyStopRecord?.Register();
+            if (!_hotKeysRegistered) 
+            {
+                this._hotKeyStartRecord?.Register();
+                this._hotKeyStopRecord?.Register();
+                _hotKeysRegistered = true;
+            }
         }
 
         private void unregisterHotKeys()
         {
-            this._hotKeyStartRecord?.Unregister();
-            this._hotKeyStopRecord?.Unregister();
+            if (_hotKeysRegistered)
+            {
+                this._hotKeyStartRecord?.Unregister();
+                this._hotKeyStopRecord?.Unregister();
+                _hotKeysRegistered = false;
+            }
         }
 
         private void carDamagedEventHandler(CarDamageEvent evt)
