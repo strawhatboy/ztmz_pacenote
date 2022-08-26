@@ -51,7 +51,10 @@ namespace ZTMZ.PacenoteTool
                 ComponentDispatcher.ThreadFilterMessage += new ThreadMessageEventHandler(ComponentDispatcherThreadFilterMessage);
             }
 
-            _dictHotKeyToCalBackProc.Add(Id, this);
+            if (!_dictHotKeyToCalBackProc.ContainsKey(Id))
+            {
+                _dictHotKeyToCalBackProc.Add(Id, this);
+            }
 
             Debug.Print(result.ToString() + ", " + Id + ", " + virtualKeyCode);
             return result;

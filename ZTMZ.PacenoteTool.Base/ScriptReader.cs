@@ -136,11 +136,11 @@ namespace ZTMZ.PacenoteTool.Base
 
         public static ScriptReader ReadFromDynamicPacenoteRecords(List<DynamicPacenoteRecord> records)
         {
-            PacenoteRecord record = new PacenoteRecord();
             PacenoteRecord lastRecord = null;
             ScriptReader reader = new ScriptReader();
             for (var i = 0; i < records.Count; i++)
             {
+                PacenoteRecord record = new PacenoteRecord();
                 var r = records[i];
                 r.Pacenote = r.Pacenote.Trim();
                 r.Modifier = r.Modifier.Trim();

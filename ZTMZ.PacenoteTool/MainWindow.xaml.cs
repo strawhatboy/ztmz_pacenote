@@ -42,7 +42,7 @@ namespace ZTMZ.PacenoteTool
         private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         private HotKey _hotKeyStartRecord;
         private HotKey _hotKeyStopRecord;
-        private bool _hotKeysRegistered = true;
+        private bool _hotKeysRegistered = false;
         private ToolState _toolState = ToolState.Replaying;
         private ProfileManager _profileManager;
         private AudioRecorder _audioRecorder;
