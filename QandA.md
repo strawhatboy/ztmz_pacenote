@@ -55,4 +55,7 @@
 **Q:** 虽然是中文了，但是仍然听不懂或者听不清在说什么怎么办？
 **A:** 多加练习，b站搜索拉力路书有些教程可以学习到一些路书的知识
 
+**Q:** 2.7.2 版本程序在启动时提示UnknownException，其中详细信息中包含Could find a part of the path: ... Tracks.ini 是怎么回事？
+**A:** 因为曾经安装了RBR RSF，但是后来又通过删除文件夹的形式删除了，但注册表没有删除，诱发的加载rbr失败的bug，可以通过删除注册表中的 HKEY_LOCAL_MACHINE\Software\Wow6432Node\Rallysimfans RBR 文件夹解决。详情见：[issue#I5PGBW](https://gitee.com/ztmz/ztmz_pacenote/issues/I5PGBW)
+
 未完待续。。。
