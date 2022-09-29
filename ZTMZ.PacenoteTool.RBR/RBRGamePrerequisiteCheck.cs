@@ -49,7 +49,13 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
         }
 
         var iniFilePath = Path.Join(RBRRootDir, "RichardBurnsRally.ini");
-        if (!File.Exists(iniFilePath)) 
+        if (!checkIfIniFileValid(iniFilePath)) 
+        {
+            notInstalled = true;
+        }
+
+        var trackFilePath = Path.Join(RBRRootDir, "Maps\\Tracks.ini");
+        if (!checkIfIniFileValid(trackFilePath)) 
         {
             notInstalled = true;
         }
@@ -106,6 +112,24 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
             File.Copy(iniFilePath, bakFilePath);
         }
         parser.WriteFile(Path.Join(RBRRootDir, "RichardBurnsRally.ini"), data, System.Text.Encoding.Default);
+    }
+
+    private bool checkIfIniFileValid(string iniFilePath)
+    {
+        if (!File.Exists(iniFilePath)) 
+        {
+            // RSF rbr not valid or uninstalled properly.
+            return false;
+        } else {
+            try {
+                var parser = new FileIniDataParser();
+                IniData data = parser.ReadFile(iniFilePath);
+            } catch {
+                // RSF rbr not valid or uninstalled properly.
+                return false;
+            }
+        }
+        return true;
     }
 }
 

@@ -76,13 +76,13 @@ namespace ZTMZ.PacenoteTool
             catch (Exception ex)
             {
                 _logger.Error("Unknown Error when try to handle unhandled exception: {0}", ex);
-                BaseDialog.Show("exception.unknown", ex.ToString(), null, MessageBoxButton.OK, MessageBoxImage.Error);
+                BaseDialog.Show("exception.unknown.title", ex.ToString(), null, MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 var exceptionStr = exception.ToString();
                 _logger.Fatal("Unhandled Exception: {0}", message + exceptionStr);
-                BaseDialog.Show("exception.unknown", message + exceptionStr, null, MessageBoxButton.OK, MessageBoxImage.Error);
+                BaseDialog.Show("exception.unknown.title", message + exceptionStr, null, MessageBoxButton.OK, MessageBoxImage.Error);
                 GoogleAnalyticsHelper.Instance.TrackExceptionEvent(message, exceptionStr);
             }
         }
