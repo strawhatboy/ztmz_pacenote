@@ -48,6 +48,12 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
             notInstalled = true;
         }
 
+        var iniFilePath = Path.Join(RBRRootDir, "RichardBurnsRally.ini");
+        if (!File.Exists(iniFilePath)) 
+        {
+            notInstalled = true;
+        }
+
         if (notInstalled)
         {
             return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.GAME_NOT_INSTALLED };
@@ -55,7 +61,6 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
 
         // check port
         var parser = new FileIniDataParser();
-        var iniFilePath = Path.Join(RBRRootDir, "RichardBurnsRally.ini");
         IniData data = parser.ReadFile(iniFilePath);
         var ngp = data["NGP"];
         if (ngp.ContainsKey("udpTelemetry"))

@@ -239,7 +239,7 @@ namespace ZTMZ.PacenoteTool.Base
         }
         
 
-        private bool _PlayStartAndEndSound = true;
+        private bool _PlayStartAndEndSound = false;
         public bool PlayStartAndEndSound
         {
             set { this._PlayStartAndEndSound = value; this._userconfig["PlayStartAndEndSound"] = value; }
@@ -253,7 +253,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._PlayGoSound;
         }
 
-        private bool _PlayCollisionSound = true;
+        private bool _PlayCollisionSound = false;
         public bool PlayCollisionSound
         {
             set { this._PlayCollisionSound = value; this._userconfig["PlayCollisionSound"] = value; }

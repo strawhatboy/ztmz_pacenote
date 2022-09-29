@@ -1,5 +1,5 @@
 #define MyAppName "ZTMZ Pacenote Tool"
-#define MyAppVersion "2.7.2"
+#define MyAppVersion "2.7.2.1"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.exe"
@@ -62,8 +62,8 @@ begin
     { find dotnet6 desktop }
     for i:= 0 to Lines.Count-1 do
     begin
-{ Force version 6.0.5 }
-      if StartsText('Microsoft.WindowsDesktop.App 6.0.5', Lines[i]) then
+{ Force version 6.0.9 }
+      if StartsText('Microsoft.WindowsDesktop.App 6.0.9', Lines[i]) then
       begin
         { found }
         Result:= True;
@@ -97,7 +97,7 @@ var
 begin
   if (CurPageID = wpReady) and NeedToDownload then begin
     DownloadPage.Clear;
-    DownloadPage.Add('https://download.visualstudio.microsoft.com/download/pr/5681bdf9-0a48-45ac-b7bf-21b7b61657aa/bbdc43bc7bf0d15b97c1a98ae2e82ec0/windowsdesktop-runtime-6.0.5-win-x64.exe', 'dotnet6.exe', '');
+    DownloadPage.Add('https://download.visualstudio.microsoft.com/download/pr/fe8415d4-8a35-4af9-80a5-51306a96282d/05f9b2a1b4884238e69468e49b3a5453/windowsdesktop-runtime-6.0.9-win-x64.exe', 'dotnet6.exe', '');
     DownloadPage.Show;
     try
       try

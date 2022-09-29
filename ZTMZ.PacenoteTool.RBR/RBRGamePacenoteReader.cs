@@ -58,13 +58,21 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             }
         } else 
         {
-            // HU rbr not installed.
+            // RSF rbr not installed.
+            return;
+        }
+
+
+        var trackFilePath = Path.Join(RBRRootDir, "Maps\\Tracks.ini");
+        if (!File.Exists(trackFilePath)) 
+        {
+            // RSF rbr not valid or uninstalled properly.
             return;
         }
 
         // 2. load Tracks.ini
         var parser = new FileIniDataParser();
-        IniData data = parser.ReadFile(Path.Join(RBRRootDir, "Maps\\Tracks.ini"));
+        IniData data = parser.ReadFile(trackFilePath);
         foreach (SectionData section in data.Sections)
         {
             var mapSectionName = section.SectionName;
