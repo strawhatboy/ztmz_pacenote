@@ -332,6 +332,7 @@ namespace ZTMZ.PacenoteTool
         public static string GAME_PROCESS = "notepad";
 #else
         public static string GAME_PROCESS = "dirtrally2";
+        public static string GAME_WIN_TITLE = "Dirt Rally 2.0";
 #endif
         private StickyWindow _window;
 
@@ -1122,11 +1123,17 @@ namespace ZTMZ.PacenoteTool
 
                     if (processes.Length > 0 && _window == null)
                     {
-                        Thread.Sleep(10000);
+                        Thread.Sleep(5000);
                         // dr2 has 2 windows during launching...shit
                         processes = System.Diagnostics.Process.GetProcessesByName(GAME_PROCESS);
                         var process = processes.First();
-                        this.InitializeOverlay(process);
+                        try {
+                            if (process.MainWindowTitle.StartsWith(GAME_WIN_TITLE, StringComparison.OrdinalIgnoreCase))
+                            // only when the game window available.
+                                this.InitializeOverlay(process);
+                        } catch (Exception ex) {
+                            _logger.Trace("Waiting for game window: {0}", GAME_WIN_TITLE);
+                        }
                     }
 
                     if (processes.Length == 0 && _window != null)
@@ -1171,5 +1178,6 @@ namespace ZTMZ.PacenoteTool
             _window = null;
             _isRunning = false;
         }
+
     }
 }

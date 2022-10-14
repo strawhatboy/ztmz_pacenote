@@ -479,6 +479,7 @@ namespace ZTMZ.PacenoteTool
                     if (game.GameDataReader.Initialize(game))
                     {
                         GameOverlayManager.GAME_PROCESS = game.Executable.Remove(game.Executable.IndexOf(".exe"));
+                        GameOverlayManager.GAME_WIN_TITLE = game.WindowTitle;
                         game.GameDataReader.onCarDamaged += carDamagedEventHandler;
                         game.GameDataReader.onNewGameData += newGameDataEventHander;
                         game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
