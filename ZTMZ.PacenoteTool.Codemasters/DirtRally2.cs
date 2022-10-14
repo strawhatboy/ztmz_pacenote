@@ -9,7 +9,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
     public class DirtRally2 : IGame
     {
 
-        public string WindowTitle => "Dirt Rally 2.0";
+        public string WindowTitle => "DiRT Rally 2.0";
 
         public string Name => GameName;
         public static string GameName = "Dirt Rally 2.0";

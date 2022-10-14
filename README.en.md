@@ -90,7 +90,12 @@ The pacenote tool from ZTMZ Club, can be used to customize the pacenotes in the 
 1. Fork the project
 2. Install [.net 6.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.300-windows-x64-installer)
 3. Use visual studio 2022 or JetBrains Rider to open `ZTMZ.PacenoteTool.sln` in the root directory of the project. Or even open the project's folder directly with VSCode.
-4. Make modifications and tests, create PR.
+4. run `.\build.bat` to compile the project, run `.\builddebug.bat` to compile the debug version
+5. after the lastest ZTMZ Pacenote Tool installed, copy `codrivers` and `profiles` directory from `%userprofile%\My Games\ZTMZClub\` to the path `bin\Release\net6.0-windows\` in project
+6. Download [Inno Setup](https://jrsoftware.org/download.php/is.exe) and add path including `ICSS.exe` to system `PATH` environment variable, the default installation of Inno Setup is `C:\Program Files (x86)\Inno Setup 6`
+7. install Inno Setup Chinese translation from [GitHub](https://github.com/kira-96/Inno-Setup-Chinese-Simplified-Translation). Put downloaded file `ChineseSimplified.isl` into `C:\Program Files (x86)\Inno Setup 6\Languages`
+8. run `.\package.bat` to package the tool to exe file, the output is in folder `Output`
+9. make modifications and tests, package the exe file and install it locally and test, push the code and create PR to this project
 
 #### Thanks
 

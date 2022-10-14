@@ -52,7 +52,7 @@ namespace ZTMZ.PacenoteTool.RBR
 {
     public class RBR : IGame
     {
-        public string WindowTitle => "";
+        public string WindowTitle => "Richard Burns Rally";
 
         public string Name => GameName;
         

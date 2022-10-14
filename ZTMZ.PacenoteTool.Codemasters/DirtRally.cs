@@ -8,7 +8,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
 {
     public class DirtRally : IGame
     {
-        public string WindowTitle => "Dirt Rally";
+        public string WindowTitle => "DiRT Rally";
 
         public string Name => GameName;
 

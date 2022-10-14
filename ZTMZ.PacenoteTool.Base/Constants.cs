@@ -13,6 +13,7 @@ namespace ZTMZ.PacenoteTool.Base
         public static string CODRIVER_PACKAGE_INFO_FILENAME = "info.json";
         public static string PATH_GAMES = "games";
         public static string PATH_LANGUAGE = "lang";
+        public static string PATH_DASHBOARDS = "dashboards";
 
         // system sound
         public const string SYSTEM_START_STAGE = "system_start_stage";

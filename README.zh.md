@@ -1,6 +1,6 @@
 # ztmz_pacenote 🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉
 
-- [更新计划](#plan)。欢迎提PR和Issue。
+- [更新计划](#plan)。[待完成任务](https://gitee.com/ztmz/ztmz_pacenote/milestones/176244)。欢迎提PR和Issue。
 - [github 镜像](https://github.com/strawhatboy/ztmz_pacenote)
 
 #### 演示视频
@@ -103,7 +103,12 @@ ZTMZ车队路书工具，可以录制和播放Dirt Rally 2.0游戏的路书，�
 1. Fork本项目并使用git下载源码
 2. 安装[.net 6.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.300-windows-x64-installer)
 3. 使用visual studio 2022或JetBrains Rider通过根目录的ZTMZ.PacenoteTool.sln文件打开本项目，或者直接用VSCode打开本项目文件夹
-4. 做出修改调试运行无误后推送至gitee，再创建PR到本项目
+4. 运行`.\build.bat`命令编译项目，运行`.\builddebug.bat`编译调试版本
+5. 将之前最新版本的路书工具安装后，从 `%userprofile%\My Games\ZTMZClub\` 目录中，将`codrivers`和`profiles`目录拷贝到项目的`bin\Release\net6.0-windows\`目录下
+6. 下载安装[Inno Setup](https://jrsoftware.org/download.php/is.exe)，并设置系统的Path环境变量，增加`ICSS.exe`文件所在的目录，默认安装应该是`C:\Program Files (x86)\Inno Setup 6`
+7. 从[GitHub](https://github.com/kira-96/Inno-Setup-Chinese-Simplified-Translation)上安装Inno Setup的中文语言包。具体为下载`ChineseSimplified.isl`文件放到`C:\Program Files (x86)\Inno Setup 6\Languages`目录下
+8. 运行`.\package.bat`进行打包，可以在`Output`目录找到打包好的安装包
+9. 做出修改调试运行无误后，打包项目为exe包并本地安装测试通过后，将代码推送至gitee，再创建PR到本项目
 
 #### 脚本路书编写小技巧
 

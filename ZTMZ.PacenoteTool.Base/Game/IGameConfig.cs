@@ -75,5 +75,33 @@ public class CommonGameConfigs: IGameConfig
     {
         UI = new CommonGameConfigsSettingsPane(this);
     }
+
+    public object this[string idx]
+    {
+        get {
+            var index = 0;
+            foreach (var kv in PropertyName)
+            {
+                if (kv.Key == idx)
+                {
+                    return PropertyValue[index];
+                }
+                index++;
+            }
+            return null;
+        }
+        set {
+            var index = 0;
+            foreach (var kv in PropertyName)
+            {
+                if (kv.Key == idx)
+                {
+                    PropertyValue[index] = value;
+                    return;
+                }
+                index++;
+            }
+        }
+    }
 }
 

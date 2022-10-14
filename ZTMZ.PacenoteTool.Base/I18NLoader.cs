@@ -65,7 +65,8 @@ namespace ZTMZ.PacenoteTool.Base
 
             // should be put in parameters of this method "Initialize", initializeWithPaths?
             var jsonFilesInGames = Directory.GetFiles(AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)), "*.json");
-            jsonFiles = jsonFiles.Concat(jsonFilesInGames).ToArray();
+            var jsonFilesInDashboards = Directory.GetFiles(AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE)), "*.json");
+            jsonFiles = jsonFiles.Concat(jsonFilesInGames).Concat(jsonFilesInDashboards).ToArray();
             foreach (var jsonFile in jsonFiles)
             {
                 // load all files like "en-us.json" or "en-us.codemasters.json"

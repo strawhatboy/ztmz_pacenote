@@ -1,3 +1,5 @@
+//TODO: full of SHIT here. need refactor.
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
