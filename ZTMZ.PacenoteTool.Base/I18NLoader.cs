@@ -61,12 +61,21 @@ namespace ZTMZ.PacenoteTool.Base
             CurrentCultureName = CultureInfo.CurrentCulture.Name.ToLower();
 
             // load from I18NPath
-            var jsonFiles = Directory.GetFiles(i18nPath, "*.json");
+            var jsonPaths = new List<string>{
+                i18nPath, 
+                AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)),
+                AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE))
+            };
 
-            // should be put in parameters of this method "Initialize", initializeWithPaths?
-            var jsonFilesInGames = Directory.GetFiles(AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)), "*.json");
-            var jsonFilesInDashboards = Directory.GetFiles(AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE)), "*.json");
-            jsonFiles = jsonFiles.Concat(jsonFilesInGames).Concat(jsonFilesInDashboards).ToArray();
+            var jsonFiles = new List<string>();
+            foreach (var path in jsonPaths)
+            {
+                if (Directory.Exists(path))
+                {
+                    jsonFiles.AddRange(Directory.GetFiles(path, "*.json"));
+                }
+            }
+
             foreach (var jsonFile in jsonFiles)
             {
                 // load all files like "en-us.json" or "en-us.codemasters.json"

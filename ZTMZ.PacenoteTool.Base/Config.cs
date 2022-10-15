@@ -544,6 +544,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._AdditionalPacenotesDefinitionSearchPath;
         }
 
+        private string _ExamplePacenoteString = "3_left,over_crest,dont_cut,into,4_right,tightens,over_narrow_bridge,80";
+        public string ExamplePacenoteString
+        {
+            set { this._ExamplePacenoteString = value; this._userconfig["ExamplePacenoteString"] = value; }
+            get => this._ExamplePacenoteString;
+        }
+
         public void Save(string path)
         {
             File.WriteAllText(path, JsonConvert.SerializeObject(this, Formatting.Indented));

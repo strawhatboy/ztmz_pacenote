@@ -275,7 +275,7 @@
       "btn_currentScript": "打开当前地图的脚本",
       "btn_currentCodriver": "打开当前语音包所在目录",
       "btn_currentCodriverLink": "去给语音包作者点赞（打开语音包作者的主页）",
-      "btn_playExample": "播放示例声音",
+      "btn_playExample": "试听语音包",
       "tb_playVolume": "调整播放音量，增大音量时可能会出现音频波形丢失而引起的失真情况",
       "tb_prePlay": "比如+1s表示路书会更晚播放1秒钟，-2s表示路书会更早的播放2秒钟",
       "tb_replayMode": "在游戏进行时不可切换播放模式",

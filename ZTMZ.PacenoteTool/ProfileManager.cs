@@ -135,8 +135,6 @@ namespace ZTMZ.PacenoteTool
             Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("codrivers")));
             this.CreateNewProfile(Constants.DEFAULT_PROFILE);
 
-            //load example audio file?
-            this.initExampleAudio();
 
             //load supported audio types
 
@@ -150,7 +148,13 @@ namespace ZTMZ.PacenoteTool
 
         private void initExampleAudio()
         {
-            this._exampleAudio = new AutoResampledCachedSound("Alarm01.wav");
+            this._exampleAudio = new AutoResampledCachedSound();
+            var parts = Config.Instance.ExamplePacenoteString.Split(new char[]{',', '/'}, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var part in parts)
+            {
+                var s = this.getSoundByKeyword(part, this.CurrentCoDriverSoundPackagePath);
+                this._exampleAudio.Append(s);
+            }
             //this._exampleAudio = new AudioFileReader("20210715_152916.m4a");
             // this._exampleWaveOut = new WaveOutEvent();
         }
@@ -511,9 +515,11 @@ namespace ZTMZ.PacenoteTool
         // need to be run in a non-UI thread
         public void PlayExample()
         {
+            //load example audio file?
+            this.initExampleAudio();
             this._exampleAudio.Amplification = this.CurrentPlayAmplification;
             this._exampleAudio.PlaySpeed = this.CurrentPlaySpeed;
-            this.PlaySound(this._exampleAudio, Config.Instance.UseSequentialMixerToHandleAudioConflict);
+            this.PlaySound(this._exampleAudio, true);
         }
 
         public void PlaySystem(string sound)

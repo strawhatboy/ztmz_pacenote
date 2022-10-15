@@ -7,8 +7,8 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        MinHeight="840"
-        MinWidth="500"
+        MinHeight="800"
+        MinWidth="560"
         
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
@@ -17,7 +17,7 @@
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
         Closing="Window_Closing"
-        Title="ZTMZ Club 路书工具" Height="900" Width="500" Loaded="Window_Loaded">
+        Title="ZTMZ Club 路书工具" Height="800" Width="560" Loaded="Window_Loaded">
 
     <Grid>
         <Grid.Resources>
@@ -29,7 +29,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
             <RowDefinition Height="5" />
-            <RowDefinition Height="200" />
+            <RowDefinition Height="100" />
             <RowDefinition Height="5" />
             <RowDefinition Height="110" />
             <RowDefinition Height="5" />
@@ -63,12 +63,11 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="200" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
@@ -79,21 +78,21 @@
                        Text="{DynamicResource ResourceKey=ui.tb_gameState}"
                            ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_gameState}">
                 </TextBlock>
-                <TextBlock Grid.Row="1" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_time}"
+                <TextBlock Grid.Row="0" Grid.Column="3" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_time}"
                            Text="{DynamicResource ResourceKey=ui.tb_time}"/>
-                <TextBlock Grid.Row="2" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_lapTime}"
+                <TextBlock Grid.Row="1" Grid.Column="3" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_lapTime}"
                            Text="{DynamicResource ResourceKey=ui.tb_lapTime}" />
-                <TextBlock Grid.Row="3" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_distance}" FontWeight="Bold" FontSize="16"
+                <TextBlock Grid.Row="1" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_distance}" FontWeight="Bold" FontSize="16"
                            Text="{DynamicResource ResourceKey=ui.tb_distance}"/>
-                <TextBlock Grid.Row="4" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_speed}"
+                <TextBlock Grid.Row="2" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_speed}"
                            Text="{DynamicResource ResourceKey=ui.tb_speed}"/>
-                <TextBlock Grid.Row="5" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_length}" 
+                <TextBlock Grid.Row="2" Grid.Column="3" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_length}" 
                            Text="{DynamicResource ResourceKey=ui.tb_length}"/>
-                <TextBlock Grid.Row="6" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_progress}"
+                <TextBlock Grid.Row="3" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_progress}"
                            Text="{DynamicResource ResourceKey=ui.tb_progress}"/>
-                <TextBlock Grid.Row="7" ToolTip="{DynamicResource ResourceKey=ui.tooltip.posZ}"
+                <TextBlock Grid.Row="3" Grid.Column="3" ToolTip="{DynamicResource ResourceKey=ui.tooltip.posZ}"
                            Text="{DynamicResource ResourceKey=ui.tb_posZ}"/>
-                <Grid Grid.Row="8" Grid.ColumnSpan="2">
+                <Grid Grid.Row="4" Grid.ColumnSpan="5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition />
@@ -119,14 +118,13 @@
                 </Grid>
 
                 <TextBlock Grid.Row="0" Grid.Column="1" x:Name="tb_gamestate" FontWeight="Bold" FontSize="16">N/A</TextBlock>
-                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="tb_time">N/A</TextBlock>
-                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="tb_laptime">N/A</TextBlock>
-                <TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_distance" FontWeight="Bold" FontSize="16">N/A
-                </TextBlock>
-                <TextBlock Grid.Row="4" Grid.Column="1" x:Name="tb_speed">N/A</TextBlock>
-                <TextBlock Grid.Row="5" Grid.Column="1" x:Name="tb_tracklength">N/A</TextBlock>
-                <TextBlock Grid.Row="6" Grid.Column="1" x:Name="tb_progress">N/A</TextBlock>
-                <TextBlock Grid.Row="7" Grid.Column="1" x:Name="tb_position_z">N/A</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="4" x:Name="tb_time">N/A</TextBlock>
+                <TextBlock Grid.Row="1" Grid.Column="4" x:Name="tb_laptime">N/A</TextBlock>
+                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="tb_distance" FontWeight="Bold" FontSize="16">N/A</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="tb_speed">N/A</TextBlock>
+                <TextBlock Grid.Row="2" Grid.Column="4" x:Name="tb_tracklength">N/A</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_progress">N/A</TextBlock>
+                <TextBlock Grid.Row="3" Grid.Column="4" x:Name="tb_position_z">N/A</TextBlock>
             </Grid>
         </materialDesign:Card>
         <!-- <Border Grid.Row="3" Margin="1" Background="#8888" /> -->
@@ -238,7 +236,7 @@
                     <Grid x:Name="g_tab_script" Visibility="Visible">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="40" />
-                            <RowDefinition Height="*" />
+                            <RowDefinition Height="40" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
@@ -283,6 +281,11 @@
                         <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tab_s_isDynamic}"
                                    Text="{DynamicResource ResourceKey=ui.tab_s_isDynamic}"/>
                         <CheckBox IsEnabled="False" Grid.Row="1" Grid.Column="1" Name="chb_isDynamicPlay" IsChecked="False" />
+                        
+                        <Button Grid.Row="1" Grid.Column="3" Name="btn_play_example" Click="btn_play_example_Click"
+                            ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_playExample}"  Margin="2"
+                            Content="{materialDesign:PackIcon PlayArrow}">
+                        </Button>
                         <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tab_s_author}"
                                    Text="{DynamicResource ResourceKey=ui.tab_s_author}"/>
                         <TextBlock Grid.Row="2" Grid.Column="1" Name="tb_scriptAuthor" FontSize="16" Foreground="Crimson">???
@@ -363,12 +366,8 @@
                     Content="{materialDesign:PackIcon Script}">
 
                 </Button>
-                <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Name="cb_replay_device" VerticalAlignment="Center"
+                <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_replay_device" VerticalAlignment="Center"
                        />
-                <Button Grid.Row="1" Grid.Column="3" Name="btn_play_example" Click="btn_play_example_Click"
-                    ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_playExample}"  Margin="2"
-                    Content="{materialDesign:PackIcon PlayArrow}">
-                </Button>
                 <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_playVolume}" 
                            FontSize="16"
                            Text="{DynamicResource ResourceKey=ui.tb_playVolume}">
@@ -439,7 +438,7 @@
                     <TextBlock.Effect>
                         <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
                     </TextBlock.Effect></TextBlock>
-                <CheckBox x:Name="chk_Hud" Grid.Row="7" Grid.Column="1" 
+                <ToggleButton x:Name="chk_Hud" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Left"
                                         VerticalAlignment="Center">
                     <ProgressBar x:Name="pb_Hud"
                                 Style="{StaticResource MaterialDesignCircularProgressBar}"
@@ -448,7 +447,7 @@
                                         VerticalAlignment="Center"
                                 Value="0"
                                 IsIndeterminate="True" />
-                </CheckBox>
+                </ToggleButton>
             </Grid>
         </materialDesign:Card>
         <materialDesign:Card Grid.Row="10" Margin="5 0 5 0" Padding="5 0 5 0">
