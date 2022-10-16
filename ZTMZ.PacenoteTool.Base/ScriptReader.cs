@@ -179,7 +179,24 @@ namespace ZTMZ.PacenoteTool.Base
                 }
 
                 record = PacenoteRecord.FromCrewChiefPacenoteRecord(r);
+                if (r.Pacenote.StartsWith("detail_corner", StringComparison.OrdinalIgnoreCase) && 
+                    i != records.Count - 1 &&
+                    records[i + 1].Pacenote.StartsWith("detail_corner", StringComparison.OrdinalIgnoreCase))
+                {
+                    var distance_to_next = records[i + 1].Distance - r.Distance;
+                    if (distance_to_next < 10)
+                    {
+                        // insert an 'into' after this
+                        record.Pacenotes.Add(new Pacenote() {Note = "detail_into"});
+                    } else if (distance_to_next < 20)
+                    {
+                        // insert an 'and' after this
+                        record.Pacenotes.Add(new Pacenote() {Note = "detail_and"});
+                    }
+
+                }
                 reader.PacenoteRecords.Add(record);
+                
                 lastRecord = record;
                 record = new PacenoteRecord();
             }
