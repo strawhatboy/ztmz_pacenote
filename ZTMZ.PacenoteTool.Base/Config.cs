@@ -363,7 +363,7 @@ namespace ZTMZ.PacenoteTool.Base
         }
         
         // height percentage of the game window (0~0.3)
-        private float _HudSizePercentage = 0.16f;
+        private float _HudSizePercentage = 0.12f;
         public float HudSizePercentage
         {
             set { this._HudSizePercentage = value; this._userconfig["HudSizePercentage"] = value; }

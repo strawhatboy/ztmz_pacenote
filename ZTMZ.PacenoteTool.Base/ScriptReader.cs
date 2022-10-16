@@ -146,15 +146,33 @@ namespace ZTMZ.PacenoteTool.Base
                 r.Modifier = r.Modifier.Trim();
                 if (r.Pacenote == "detail_distance_call" && i != records.Count - 1)
                 {
-                    var distance_to_call = (int) (records[i + 1].Distance - r.Distance) / 10 * 10;
-                    var distance_label = string.Format("number_{0}", distance_to_call);
+                    var distance_to_next = (records[i + 1].Distance - r.Distance);
+                    var distance_to_call_rounded = (int) distance_to_next / 10 * 10;
+                    var distance_label = string.Format("number_{0}", distance_to_call_rounded);
+                    record.Distance = r.Distance;
                     if (ScriptResource.PACENOTES.ContainsKey(distance_label))
                     {
-                        record.Distance = r.Distance;
                         record.Pacenotes.Add(new Pacenote() {Note = distance_label});
                         reader.PacenoteRecords.Add(record);
                         lastRecord = record;
-                    } // else ignore this call
+                    } else {
+                        // this could be 'and' or 'into'
+                        if (distance_to_next < 10)
+                        {
+                            // insert an 'into' after this
+                            record.Pacenotes.Add(new Pacenote() {Note = "detail_into"});
+                        } else if (distance_to_next < 20)
+                        {
+                            // insert an 'and' after this
+                            record.Pacenotes.Add(new Pacenote() {Note = "detail_and"});
+                        } else {
+                            // ignore this call
+                            continue;
+                        }
+
+                        reader.PacenoteRecords.Add(record);
+                        lastRecord = record;
+                    }
 
                     continue;
                 }
