@@ -40,6 +40,7 @@ detail_through_houses,detail_through>detail_house
 detail_through_narrow_gate,detail_through>detail_gate>detail_narrows
 detail_through_narrow_grid,detail_through>detail_grid>detail_narrows
 detail_through_tunnel,detail_through>detail_tunnel
+detail_tightens_bad,detail_caution>detail_tightens
 detail_unseen,detail_caution
 detail_water_splash,detail_ford
 number_20,number_30

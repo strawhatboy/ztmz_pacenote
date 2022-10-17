@@ -147,21 +147,21 @@ namespace ZTMZ.PacenoteTool.Base
                 if (r.Pacenote == "detail_distance_call" && i != records.Count - 1)
                 {
                     var distance_to_next = (records[i + 1].Distance - r.Distance);
-                    var distance_to_call_rounded = (int) distance_to_next / 10 * 10;
+                    var distance_to_call_rounded = (int) MathF.Floor(distance_to_next / 10f) * 10;
                     var distance_label = string.Format("number_{0}", distance_to_call_rounded);
                     record.Distance = r.Distance;
-                    if (ScriptResource.PACENOTES.ContainsKey(distance_label))
+                    if (ScriptResource.PACENOTES.ContainsKey(distance_label) && distance_to_call_rounded >= 30)
                     {
                         record.Pacenotes.Add(new Pacenote() {Note = distance_label});
                         reader.PacenoteRecords.Add(record);
                         lastRecord = record;
                     } else {
                         // this could be 'and' or 'into'
-                        if (distance_to_next < 10)
+                        if (distance_to_next < 15)
                         {
                             // insert an 'into' after this
                             record.Pacenotes.Add(new Pacenote() {Note = "detail_into"});
-                        } else if (distance_to_next < 20)
+                        } else if (distance_to_next < 30)
                         {
                             // insert an 'and' after this
                             record.Pacenotes.Add(new Pacenote() {Note = "detail_and"});
@@ -197,16 +197,16 @@ namespace ZTMZ.PacenoteTool.Base
                 }
 
                 record = PacenoteRecord.FromCrewChiefPacenoteRecord(r);
-                if (r.Pacenote.StartsWith("detail_corner", StringComparison.OrdinalIgnoreCase) && 
+                if (isCorner(r.Pacenote) && 
                     i != records.Count - 1 &&
-                    records[i + 1].Pacenote.StartsWith("detail_corner", StringComparison.OrdinalIgnoreCase))
+                    isCorner(records[i + 1].Pacenote))
                 {
                     var distance_to_next = records[i + 1].Distance - r.Distance;
-                    if (distance_to_next < 10)
+                    if (distance_to_next < 15)
                     {
                         // insert an 'into' after this
                         record.Pacenotes.Add(new Pacenote() {Note = "detail_into"});
-                    } else if (distance_to_next < 20)
+                    } else if (distance_to_next < 30)
                     {
                         // insert an 'and' after this
                         record.Pacenotes.Add(new Pacenote() {Note = "detail_and"});
@@ -225,6 +225,11 @@ namespace ZTMZ.PacenoteTool.Base
             reader.FlagComments.Add(ScriptFlags.DYNAMIC, "");
 
             return reader;
+        }
+
+        private static bool isCorner(string note) {
+            return note.EndsWith("left", StringComparison.OrdinalIgnoreCase) || 
+                note.EndsWith("right", StringComparison.OrdinalIgnoreCase);
         }
 
         public override string ToString()
