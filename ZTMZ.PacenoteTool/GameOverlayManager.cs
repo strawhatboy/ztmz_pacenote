@@ -1119,11 +1119,11 @@ namespace ZTMZ.PacenoteTool
                 while (_isRunning)
                 {
                     // 1. find process   
+                    Thread.Sleep(5000);
                     var processes = System.Diagnostics.Process.GetProcessesByName(GAME_PROCESS);
 
                     if (processes.Length > 0 && _window == null)
                     {
-                        Thread.Sleep(5000);
                         // dr2 has 2 windows during launching...shit
                         processes = System.Diagnostics.Process.GetProcessesByName(GAME_PROCESS);
                         var process = processes.First();
@@ -1164,7 +1164,6 @@ namespace ZTMZ.PacenoteTool
                     //        }
                     //    }
                     //}
-                    Thread.Sleep(1000);
                 }
             };
             _bgw.RunWorkerAsync();

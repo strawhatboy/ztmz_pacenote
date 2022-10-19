@@ -584,6 +584,7 @@ namespace ZTMZ.PacenoteTool
 
                     break;
                 case GameState.RaceBegin:
+                case GameState.AdHocRaceBegin:
                     // load trace, use lastmsg tracklength & startZ
                     // this._udpReceiver.LastMessage.TrackLength
                     if (lastState != GameState.Paused)
@@ -618,8 +619,6 @@ namespace ZTMZ.PacenoteTool
                         var worker = new BackgroundWorker();
                         worker.DoWork += (sender, e) =>
                         {
-                            // 1. load sounds
-                            this._profileManager.StartReplaying(_currentGame, this._trackName, this._selectReplayMode);
                             this.Dispatcher.Invoke(() =>
                             {
                                 this.tb_codriver.Text = this._profileManager.CurrentCoDriverName;
@@ -670,10 +669,19 @@ namespace ZTMZ.PacenoteTool
                                 }
                             });
 
-                            if (lastState != GameState.Paused && Config.Instance.PlayStartAndEndSound)
+                            if (lastState != GameState.Paused && Config.Instance.PlayStartAndEndSound && state == GameState.RaceBegin)
                             {
                                 // play start sound
                                 this._profileManager.PlaySystem(Constants.SYSTEM_START_STAGE);
+                            }
+                            
+                            // 1. load sounds
+                            this._profileManager.StartReplaying(_currentGame, this._trackName, this._selectReplayMode);
+
+                            if (state == GameState.AdHocRaceBegin) 
+                            {
+                                // relocate the current car's position
+                                this._profileManager.ReIndex(this._currentGame.GameDataReader.LastGameData.LapDistance);
                             }
                         };
                         worker.RunWorkerAsync();

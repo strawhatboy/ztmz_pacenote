@@ -165,39 +165,82 @@ namespace ZTMZ.PacenoteTool.Base
             audioFileReader.Dispose();
         }
 
+        public static int GetTailIndex(float[] audioData, float cutSampleFloatLimit = 1e-3f)
+        {
+            for (var i = audioData.Length - 1; i >= 0; i--)
+            {
+                if (MathF.Abs(audioData[i]) > cutSampleFloatLimit)
+                {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+        public static int GetHeadIndex(float[] audioData, float cutSampleFloatLimit = 1e-3f)
+        {
+            for (var i = 0; i < audioData.Length; i++)
+            {
+                if (MathF.Abs(audioData[i]) > cutSampleFloatLimit)
+                {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
         public float[] CutHeadAndTail(float cutSampleFloatLimit = 1e-3f) 
         {
-            float[] a = this.AudioData;
-
-            for (var i = 0; i < this._audioData.Length; i++)
-            {
-                if (MathF.Abs(this._audioData[i]) > cutSampleFloatLimit)
-                {
-                    a = this._audioData.Skip(i).ToArray();
-                    break;
-                }
-            }
-
-            for (var i = this._audioData.Length - 1; i >= 0; i--)
-            {
-                if (MathF.Abs(this._audioData[i]) > cutSampleFloatLimit)
-                {
-                    a = this._audioData.Take(i + 1).ToArray();
-                    break;
-                }
-            }
+            float[] a = this._audioData.Skip(GetHeadIndex(this._audioData, cutSampleFloatLimit)).ToArray();
+            a = a.Take(GetTailIndex(a, cutSampleFloatLimit) + 1).ToArray();
 
             return a;
         }
 
         public void Append(AutoResampledCachedSound sound)
         {
-            this.AudioData = this.AudioData.Concat(sound.AudioData).ToArray();
+            this.Append(sound.AudioData);
         }
 
         public void Append(float[] soundData) 
         {
-            this.AudioData = this.AudioData.Concat(soundData).ToArray();
+            if (Config.Instance.AudioProcessType == (int)AudioProcessType.MixTailAndHead)
+            {
+                var tail = this._audioData.Length - GetTailIndex(this._audioData, Config.Instance.FactorToRemoveSpaceFromAudioFiles);
+                var head = GetHeadIndex(soundData, Config.Instance.FactorToRemoveSpaceFromAudioFiles);
+
+                var newAudioLength = 0;
+                var leftStart = 0;
+                var rightStart = 0;
+                if (head > this._audioData.Length - tail) {
+                    newAudioLength += head;
+                    leftStart = head - this._audioData.Length;
+                } else {
+                    newAudioLength += this._audioData.Length - tail;
+                    rightStart = this._audioData.Length - tail - head;
+                }
+                if (tail > soundData.Length - head) {
+                    newAudioLength += tail;
+                } else {
+                    newAudioLength += soundData.Length - head;
+                }
+
+                var newAudioData = new float[newAudioLength];
+                for (var i = 0; i < newAudioData.Length; i++)
+                {
+                    if (i >= leftStart && i < leftStart + this._audioData.Length)
+                    {
+                        newAudioData[i] += this._audioData[i - leftStart];
+                    }
+                    if (i >= rightStart && i < rightStart + soundData.Length)
+                    {
+                        newAudioData[i] += soundData[i - rightStart];
+                    }
+                }
+                this._audioData = newAudioData;
+            } else {
+                this._audioData = this._audioData.Concat(soundData).ToArray();
+            }
         }
         
         public float this[int index]

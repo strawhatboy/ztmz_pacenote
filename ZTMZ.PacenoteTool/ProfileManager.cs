@@ -253,7 +253,9 @@ namespace ZTMZ.PacenoteTool
         private AutoResampledCachedSound getSoundFromCache(string path)
         {
             this.soundCache.AddOrUpdate(path, new AutoResampledCachedSound(path), (key, oldValue) => oldValue);
-            return new AutoResampledCachedSound(this.soundCache[path].CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
+            if (Config.Instance.AudioProcessType == (int)AudioProcessType.CutHeadAndTail)
+                return new AutoResampledCachedSound(this.soundCache[path].CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
+            return this.soundCache[path];
         }
 
         private void clearSoundCache()
@@ -460,7 +462,12 @@ namespace ZTMZ.PacenoteTool
             if (Config.Instance.PreloadSounds && package.tokens.ContainsKey(keyword))
             {
                 var tokens = package.tokens[keyword];
-                return new AutoResampledCachedSound(tokens[this._random.Next(0, tokens.Count)].CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
+                
+                if (Config.Instance.AudioProcessType == (int)AudioProcessType.CutHeadAndTail) 
+                {
+                    return new AutoResampledCachedSound(tokens[this._random.Next(0, tokens.Count)].CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
+                }
+                return tokens[this._random.Next(0, tokens.Count)];
             }
             if (!Config.Instance.PreloadSounds && package.tokensPath.ContainsKey(keyword))
             {

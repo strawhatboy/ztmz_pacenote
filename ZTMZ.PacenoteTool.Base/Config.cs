@@ -10,6 +10,13 @@ using System.Linq;
 
 namespace ZTMZ.PacenoteTool.Base
 {
+    public enum AudioProcessType
+    {
+        None = 0,
+        CutHeadAndTail = 1,
+        MixTailAndHead = 2,
+    }
+
     public class Config
     {
         private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
@@ -573,6 +580,13 @@ namespace ZTMZ.PacenoteTool.Base
         {
             set { this._ConnectNumericDistanceCallToPreviousPacenote = value; this._userconfig["ConnectNumericDistanceCallToPreviousPacenote"] = value; }
             get => this._ConnectNumericDistanceCallToPreviousPacenote;
+        }
+
+        private int _AudioProcessType = 2;
+        public int AudioProcessType
+        {
+            set { this._AudioProcessType = value; this._userconfig["AudioProcessType"] = value; }
+            get => this._AudioProcessType;
         }
 
         public void Save(string path)

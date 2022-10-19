@@ -95,7 +95,12 @@ public class DirtGameDataReader : UdpGameDataReader
 
             if (newGameData.LapTime > 0 && this.GameState != GameState.Racing)
             {
-                this.GameState = GameState.Racing;
+                if (this.GameState == GameState.Unknown)
+                {
+                    this.GameState = GameState.AdHocRaceBegin;
+                } else {
+                    this.GameState = GameState.Racing;
+                }
             }
             else if (newGameData.LapTime == 0 && newGameData.LapDistance <= 0)
             {

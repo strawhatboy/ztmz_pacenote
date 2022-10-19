@@ -43,5 +43,6 @@ public enum GameState
     Racing = 3,
     Paused = 4,
     RaceEnd = 5,
+    AdHocRaceBegin = 6, // race begin when the tool was opened after the race started.
 }
 

@@ -65,6 +65,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
                 else
                 {
                     this._timerCount++;
+                    // _logger.Trace("timerTick: Game state is {0}, timer count is {1}", this.GameState, this._timerCount);
                 }
             }
 
@@ -86,6 +87,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
     public virtual void onNewUdpMessage(byte[] oldMsg, byte[] newMsg)
     {
         this._timerCount = 0;
+        // _logger.Trace("onNewUdpMessage: Game state is {0}, timer count is {1}", this.GameState, this._timerCount);
     }
 
     public virtual void Uninitialize(IGame game)

@@ -50,7 +50,7 @@
       "useDynamicVolume": "会根据当前车速判断紧张程度，对语音进行正弦波扰动，车速越快越紧张",
       "dynamicVolumePerturbationFrequency": "正弦波的频率，频率越高，抖动越快",
       "dynamicVolumePerturbationAmplitude": "振幅越大，抖动越强烈",
-      "factorToRemoveSpaceFromAudioFiles": "该值越高，语音之间的停顿越少，语音的紧凑感越强，但可能引起语音的截断电流音现象",
+      "factorToRemoveSpaceFromAudioFiles": "该值越高，语音之间的停顿越少，语音的紧凑感越强。注意：此值过高可能会引起语音重叠",
       "connectCloseDistanceCallToNextPacenote": "如果distance call很短（小于等于30米），将下一个语音片段连接到当前的distance call上，如\"紧接左三\"",
       "connectNumericDistanceCallToPreviousPacenote": "如果distance call很长且是个数字（比如100米），将上一个语音片段连接到当前的distance call上，如\"右五100\"",
 

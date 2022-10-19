@@ -188,11 +188,17 @@ public class RBRGameDataReader : UdpGameDataReader
         {
             _countdownList.Clear();
             return GameState.Unknown;
-        } else if (state == RBRGameState.RaceBegin || playWhenReplay && state == RBRGameState.ReplayBegin)
+        // } else if (state == RBRGameState.RaceBegin || playWhenReplay && state == RBRGameState.ReplayBegin)
+        // {
+        //     return GameState.RaceBegin;
+        } 
+        else if (state == RBRGameState.Racing || playWhenReplay && state == RBRGameState.Replay)
         {
-            return GameState.RaceBegin;
-        } else if (state == RBRGameState.Racing || playWhenReplay && state == RBRGameState.Replay)
-        {
+            if (GameState == GameState.Unknown && memData.StageStartCountdown < 0)
+            {
+                // from unknown to racing directly.
+                return GameState.AdHocRaceBegin;
+            }
             return GameState.Racing;
         } else if (state == RBRGameState.Paused)
         {
