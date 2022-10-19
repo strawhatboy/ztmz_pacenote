@@ -551,6 +551,30 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._ExamplePacenoteString;
         }
 
+        // 5e-1f ~ 1e-5f, determine how compact between the audios
+        private float _FactorToRemoveSpaceFromAudioFiles = 1e-3f;
+        public float FactorToRemoveSpaceFromAudioFiles
+        {
+            set { this._FactorToRemoveSpaceFromAudioFiles = value; this._userconfig["FactorToRemoveSpaceFromAudioFiles"] = value; }
+            get => this._FactorToRemoveSpaceFromAudioFiles;
+        }
+
+        // connect the distance call audio to next pacenote, to improve the rhythm, e.g. "3_left [maybe pause] into,4_right"
+        private bool _ConnectCloseDistanceCallToNextPacenote = true;
+        public bool ConnectCloseDistanceCallToNextPacenote
+        {
+            set { this._ConnectCloseDistanceCallToNextPacenote = value; this._userconfig["ConnectDistanceCallToNextPacenote"] = value; }
+            get => this._ConnectCloseDistanceCallToNextPacenote;
+        }
+
+        // if the distance call is numeric, connect it to its previous call. e.g. "3_left/80"
+        private bool _ConnectNumericDistanceCallToPreviousPacenote = true;
+        public bool ConnectNumericDistanceCallToPreviousPacenote
+        {
+            set { this._ConnectNumericDistanceCallToPreviousPacenote = value; this._userconfig["ConnectNumericDistanceCallToPreviousPacenote"] = value; }
+            get => this._ConnectNumericDistanceCallToPreviousPacenote;
+        }
+
         public void Save(string path)
         {
             File.WriteAllText(path, JsonConvert.SerializeObject(this, Formatting.Indented));
@@ -626,7 +650,7 @@ namespace ZTMZ.PacenoteTool.Base
                 config = new Config();
                 config.SupportedAudioTypes = new List<string>()
                 {
-                    "*.wav", "*.mp3", "*.aiff", "*.wma", "*.aac", "*.mp4", "*.m4a"
+                    "*.wav", "*.mp3", "*.aiff", "*.wma", "*.aac", "*.mp4", "*.m4a", "*.ogg"
                 };
                 config.Save(CONFIG_FILE);
             }

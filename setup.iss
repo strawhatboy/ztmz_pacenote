@@ -1,5 +1,5 @@
 #define MyAppName "ZTMZ Pacenote Tool"
-#define MyAppVersion "2.7.2.5"
+#define MyAppVersion "2.7.2.6"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.exe"
@@ -146,8 +146,10 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [InstallDelete]
-Type: "filesandordirs"; Name: "{userdocs}\My Games\ZTMZClub\codrivers\default";
+Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\default";
+Type: files; Name: "{userdocs}\My Games\ZTMZClub\config.json";
 ; Delete previous default audio package
+; Delete previous default configuration
 
 [Files]
 ; No json file!

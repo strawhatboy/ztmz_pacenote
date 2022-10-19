@@ -201,6 +201,9 @@
                                     <RowDefinition Height="40" />
                                     <RowDefinition Height="40" />
                                     <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
                                     <!-- <RowDefinition Height="40" /> -->
                                     <!-- <RowDefinition Height="40" /> -->
                                     <!-- <RowDefinition Height="40" /> -->
@@ -240,12 +243,21 @@
                                 <Slider Name="sl_dynamicVolumePerturbationAmplitude" Grid.Row="6" Grid.Column="1" Value="0.8" Maximum="1" Minimum="0" TickFrequency="0.125" Style="{StaticResource MaterialDesignDiscreteSlider}" TickPlacement="Both" VerticalAlignment="Center" />
 
                                 
-                                <TextBlock Grid.Row="7" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.playbackDeviceDesiredLatency}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}">
-                                    <TextBlock.ToolTip>
-                                        <TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.playbackDeviceDesiredLatency}" />
-                                    </TextBlock.ToolTip>
-                                </TextBlock>
+                                <TextBlock Grid.Row="7" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.playbackDeviceDesiredLatency}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                ToolTip="{DynamicResource ResourceKey=settings.tooltip.playbackDeviceDesiredLatency}" />
                                 <xctk:UIntegerUpDown Name="tb_PlaybackDeviceDesiredLatency" Grid.Row="7" Grid.Column="1" Minimum="50" Maximum="1000" Value="175" VerticalAlignment="Center" />
+
+                                <TextBlock Grid.Row="8" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.factorToRemoveSpaceFromAudioFiles}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                    ToolTip="{DynamicResource ResourceKey=settings.tooltip.factorToRemoveSpaceFromAudioFiles}" />
+                                <Slider Name="sl_factorToRemoveSpaceFromAudioFiles" Grid.Row="8" Grid.Column="1" Value="5" Maximum="9" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True" Style="{StaticResource MaterialDesignDiscreteSlider}" TickPlacement="Both" VerticalAlignment="Center" />
+
+                                <TextBlock Grid.Row="9" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.connectCloseDistanceCallToNextPacenote}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                    ToolTip="{DynamicResource ResourceKey=settings.tooltip.connectCloseDistanceCallToNextPacenote}" />
+                                <ToggleButton Grid.Row="9" Grid.Column="1" x:Name="btn_connectCloseDistanceCallToNextPacenote" />
+                                
+                                <TextBlock Grid.Row="10" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.connectNumericDistanceCallToPreviousPacenote}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                    ToolTip="{DynamicResource ResourceKey=settings.tooltip.connectNumericDistanceCallToPreviousPacenote}" />
+                                <ToggleButton Grid.Row="10" Grid.Column="1" x:Name="btn_connectNumericDistanceCallToPreviousPacenote" />
 
                             </Grid>
                         </StackPanel>

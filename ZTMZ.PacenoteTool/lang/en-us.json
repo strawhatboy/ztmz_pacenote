@@ -50,6 +50,9 @@
       "useDynamicVolume": "It will judge the degree of tension according to the current speed and perform sine wave disturbance on the voice",
       "dynamicVolumePerturbationFrequency": "The frequency of the sine wave, the higher the frequency, the faster the jitter",
       "dynamicVolumePerturbationAmplitude": "The larger the amplitude, the stronger the jitter",
+      "factorToRemoveSpaceFromAudioFiles": "The higher the value, the more likely the voices will overlap, will increase the compactness of the voices",
+      "connectCloseDistanceCallToNextPacenote": "If there is a very close distance call (less than 30m), connect the next pacenote to this distance call",
+      "connectNumericDistanceCallToPreviousPacenote": "If there is a numeric distance call (such as 100m), connect the previous pacenote to this distance call",
 
       "hudTopMost": "The hud will always be on top of any window in the system.",
       "hudChromaKeyMode": "Need to restart the tool.\nAfter the full-screen game mode is turned on, you can add \"ZTMZ Club Hud\" window capture in OBSStudio, plus a chroma keying filter, which can be used as a transparent mask layer for live broadcast or video recording\nNote, do not turn this option on if it is a windowed game, in addition, the color scheme after opening will be slightly different from that when windowed",
@@ -106,6 +109,9 @@
     "useDynamicVolume": "Use dynamic voice tension enhancement",
     "dynamicVolumePerturbationFrequency": "Voice tension enhancement waveform frequency (Hz)",
     "dynamicVolumePerturbationAmplitude": "Voice tension enhancement waveform amplitude (0~1)",
+    "factorToRemoveSpaceFromAudioFiles": "Factor to remove space between audios (0.00001~0.5)",
+    "connectCloseDistanceCallToNextPacenote": "Connect distance call to next pacenote (Dynamic Pacenote only)",
+    "connectNumericDistanceCallToPreviousPacenote": "Connect numeric distance call to previous pacenote (Dynamic Pacenote only)",
 
     "hudTopMost": "Always on top of all windows",
     "hudChromaKeyMode": "Whether to use chroma keying mode (for full-screen game recording or live streaming) ",

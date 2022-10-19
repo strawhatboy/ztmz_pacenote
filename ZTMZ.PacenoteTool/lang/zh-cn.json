@@ -50,6 +50,9 @@
       "useDynamicVolume": "会根据当前车速判断紧张程度，对语音进行正弦波扰动，车速越快越紧张",
       "dynamicVolumePerturbationFrequency": "正弦波的频率，频率越高，抖动越快",
       "dynamicVolumePerturbationAmplitude": "振幅越大，抖动越强烈",
+      "factorToRemoveSpaceFromAudioFiles": "该值越高，语音之间的停顿越少，语音的紧凑感越强，但可能引起语音的截断电流音现象",
+      "connectCloseDistanceCallToNextPacenote": "如果distance call很短（小于等于30米），将下一个语音片段连接到当前的distance call上，如\"紧接左三\"",
+      "connectNumericDistanceCallToPreviousPacenote": "如果distance call很长且是个数字（比如100米），将上一个语音片段连接到当前的distance call上，如\"右五100\"",
 
       "hudTopMost": "悬浮窗窗口总是在所有其他窗口的上层",
       "hudChromaKeyMode": "需要重启工具生效\n在全屏游戏模式开启后，可以在OBS中添加ZTMZ Club Hud 窗口捕获，再加以色键抠像滤镜，可以用作直播或者录像的透明遮罩层\n注意，如果是窗口化游戏，不要打开这个选项，另外开启后配色方案会与窗口化时略有不同",
@@ -106,6 +109,9 @@
     "useDynamicVolume": "使用动态语音紧张感增强",
     "dynamicVolumePerturbationFrequency": "语音紧张感增强波形频率（赫兹）",
     "dynamicVolumePerturbationAmplitude": "语音紧张感增强波形振幅（0~1）",
+    "factorToRemoveSpaceFromAudioFiles": "语音间紧凑程度",
+    "connectCloseDistanceCallToNextPacenote": "将较短的 distance_call 与下个语音进行连接（仅限动态路书）",
+    "connectNumericDistanceCallToPreviousPacenote": "将较长的 distance_call 与上个语音进行连接（仅限动态路书）",
     
     "hudTopMost": "悬浮窗总是在最上层",
     "hudChromaKeyMode": "是否使用色键抠像模式（全屏游戏录像或直播用）",

@@ -253,7 +253,7 @@ namespace ZTMZ.PacenoteTool
         private AutoResampledCachedSound getSoundFromCache(string path)
         {
             this.soundCache.AddOrUpdate(path, new AutoResampledCachedSound(path), (key, oldValue) => oldValue);
-            return this.soundCache[path];
+            return new AutoResampledCachedSound(this.soundCache[path].CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
         }
 
         private void clearSoundCache()
@@ -448,6 +448,7 @@ namespace ZTMZ.PacenoteTool
         //    }
         //}
 
+        // already cut sound
         private AutoResampledCachedSound getSoundByKeyword(string keyword, string codriverPackage, bool isFinal = false)
         {
             if (ScriptResource.ALIAS_CONSTRUCTED.ContainsKey(keyword))
@@ -459,7 +460,7 @@ namespace ZTMZ.PacenoteTool
             if (Config.Instance.PreloadSounds && package.tokens.ContainsKey(keyword))
             {
                 var tokens = package.tokens[keyword];
-                return tokens[this._random.Next(0, tokens.Count)];
+                return new AutoResampledCachedSound(tokens[this._random.Next(0, tokens.Count)].CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
             }
             if (!Config.Instance.PreloadSounds && package.tokensPath.ContainsKey(keyword))
             {

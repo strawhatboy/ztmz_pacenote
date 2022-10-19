@@ -1,4 +1,5 @@
 ﻿using NAudio.Extras;
+using NAudio.Vorbis;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
@@ -125,31 +126,78 @@ namespace ZTMZ.PacenoteTool.Base
         public AutoResampledCachedSound()
         {
         }
-
-        public AutoResampledCachedSound(string audioFileName)
+        public AutoResampledCachedSound(float[] audioData)
         {
-            using (var audioFileReader = new AudioFileReader(audioFileName))
+            this.AudioData = audioData;
+        }
+
+        public AutoResampledCachedSound(string audioFileName, bool cutHeadAndTail = false)
+        {
+            WaveStream audioFileReader;
+            if (audioFileName.EndsWith("ogg", StringComparison.OrdinalIgnoreCase))
             {
-                var resampledAudio = new WaveToSampleProvider(new MediaFoundationResampler(
-                    new SampleToWaveProvider(audioFileReader),
-                    WaveFormat.CreateIeeeFloatWaveFormat(44100, 2)));
-                this.WaveFormat = resampledAudio.WaveFormat;
-
-                var wholeFile = new List<float>((int)(audioFileReader.Length / 4));
-                var buffer = new float[resampledAudio.WaveFormat.SampleRate * resampledAudio.WaveFormat.Channels];
-                int samplesRead;
-                while ((samplesRead = resampledAudio.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    wholeFile.AddRange(buffer.Take(samplesRead));
-                }
-
-                this.AudioData = wholeFile.ToArray();
+                // added support for ogg.
+                audioFileReader = new VorbisWaveReader(audioFileName);
+            } else {
+                audioFileReader = new AudioFileReader(audioFileName);
             }
+                
+            var resampledAudio = new WaveToSampleProvider(new MediaFoundationResampler(
+                new SampleToWaveProvider((ISampleProvider)audioFileReader),
+                WaveFormat.CreateIeeeFloatWaveFormat(44100, 2)));
+            this.WaveFormat = resampledAudio.WaveFormat;
+
+            var wholeFile = new List<float>((int)(audioFileReader.Length / 4));
+            var buffer = new float[resampledAudio.WaveFormat.SampleRate * resampledAudio.WaveFormat.Channels];
+            int samplesRead;
+            while ((samplesRead = resampledAudio.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                wholeFile.AddRange(buffer.Take(samplesRead));
+            }
+
+            this.AudioData = wholeFile.ToArray();
+
+            if (cutHeadAndTail)
+            {
+                CutHeadAndTail();
+            }
+
+            audioFileReader.Dispose();
+        }
+
+        public float[] CutHeadAndTail(float cutSampleFloatLimit = 1e-3f) 
+        {
+            float[] a = this.AudioData;
+
+            for (var i = 0; i < this._audioData.Length; i++)
+            {
+                if (MathF.Abs(this._audioData[i]) > cutSampleFloatLimit)
+                {
+                    a = this._audioData.Skip(i).ToArray();
+                    break;
+                }
+            }
+
+            for (var i = this._audioData.Length - 1; i >= 0; i--)
+            {
+                if (MathF.Abs(this._audioData[i]) > cutSampleFloatLimit)
+                {
+                    a = this._audioData.Take(i + 1).ToArray();
+                    break;
+                }
+            }
+
+            return a;
         }
 
         public void Append(AutoResampledCachedSound sound)
         {
             this.AudioData = this.AudioData.Concat(sound.AudioData).ToArray();
+        }
+
+        public void Append(float[] soundData) 
+        {
+            this.AudioData = this.AudioData.Concat(soundData).ToArray();
         }
         
         public float this[int index]

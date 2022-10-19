@@ -152,19 +152,39 @@ namespace ZTMZ.PacenoteTool.Base
                     record.Distance = r.Distance;
                     if (ScriptResource.PACENOTES.ContainsKey(distance_label) && distance_to_call_rounded >= 30)
                     {
-                        record.Pacenotes.Add(new Pacenote() {Note = distance_label});
-                        reader.PacenoteRecords.Add(record);
-                        lastRecord = record;
+                        var distance_pacenote = new Pacenote() {Note = distance_label};
+                        if (Config.Instance.ConnectNumericDistanceCallToPreviousPacenote)
+                        {
+                            // merge it to last call
+                            lastRecord.Pacenotes.Add(distance_pacenote);
+                        } else 
+                        {
+                            record.Pacenotes.Add(distance_pacenote);
+                            reader.PacenoteRecords.Add(record);
+                            lastRecord = record;
+                        }
                     } else {
                         // this could be 'and' or 'into'
                         if (distance_to_next < 15)
                         {
                             // insert an 'into' after this
                             record.Pacenotes.Add(new Pacenote() {Note = "detail_into"});
+                            // merge with next
+                            if (Config.Instance.ConnectCloseDistanceCallToNextPacenote)
+                            {
+                                record.Pacenotes.AddRange(PacenoteRecord.FromCrewChiefPacenoteRecord(records[i + 1]).Pacenotes);
+                                i++;
+                            }
                         } else if (distance_to_next < 30)
                         {
                             // insert an 'and' after this
                             record.Pacenotes.Add(new Pacenote() {Note = "detail_and"});
+                            // merge with next
+                            if (Config.Instance.ConnectCloseDistanceCallToNextPacenote)
+                            {
+                                record.Pacenotes.AddRange(PacenoteRecord.FromCrewChiefPacenoteRecord(records[i + 1]).Pacenotes);
+                                i++;
+                            }
                         } else {
                             // ignore this call
                             continue;
@@ -183,7 +203,9 @@ namespace ZTMZ.PacenoteTool.Base
                     continue;
                 }
 
-                if (reader.PacenoteRecords.Count > 0 && r.Distance == lastRecord.Distance)
+                if (lastRecord != null && 
+                    reader.PacenoteRecords.Count > 0 && 
+                    MathF.Round(r.Distance) == MathF.Round(lastRecord.Distance.Value))
                 {
                     //merge them
                     lastRecord.Pacenotes
@@ -206,10 +228,22 @@ namespace ZTMZ.PacenoteTool.Base
                     {
                         // insert an 'into' after this
                         record.Pacenotes.Add(new Pacenote() {Note = "detail_into"});
+                        // merge with next
+                        if (Config.Instance.ConnectCloseDistanceCallToNextPacenote)
+                        {
+                            record.Pacenotes.AddRange(PacenoteRecord.FromCrewChiefPacenoteRecord(records[i + 1]).Pacenotes);
+                            i++;
+                        }
                     } else if (distance_to_next < 30)
                     {
                         // insert an 'and' after this
                         record.Pacenotes.Add(new Pacenote() {Note = "detail_and"});
+                        // merge with next
+                        if (Config.Instance.ConnectCloseDistanceCallToNextPacenote)
+                        {
+                            record.Pacenotes.AddRange(PacenoteRecord.FromCrewChiefPacenoteRecord(records[i + 1]).Pacenotes);
+                            i++;
+                        }
                     }
 
                 }
