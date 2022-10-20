@@ -51,7 +51,7 @@ namespace ZTMZ.PacenoteTool
         private string _trackFolder;
         private AutoRecorder _autoRecorder;
         private bool _isRecordingInProgress = false;
-        private bool _isPureAudioRecording = true;
+        private bool _isPureAudioRecording = false;
         private ScriptEditor.MainWindow _scriptWindow;
         private string _version = UpdateManager.CurrentVersion;
         private ToolVersion _toolVersion = ToolVersion.STANDARD;
@@ -74,7 +74,7 @@ namespace ZTMZ.PacenoteTool
 
         private IEnumerable<RecordingDeviceInfo> _recordingDevices;
         private int _selectReplayDeviceID = 0;
-        private int _selectReplayMode = 0;
+        private int _selectReplayMode = 1;  // 0-pure audio; 1-script
         private bool _firstSoundPlayed = false;
         private double _scriptTiming = 0;
         private int _playpointAdjust = 0;
@@ -308,8 +308,8 @@ namespace ZTMZ.PacenoteTool
                         this._isRecordingInProgress = true;
                         this.Dispatcher.Invoke(() =>
                         {
-                            this.tb_isRecording.Text = "√ √ √";
-                            this.tb_isRecording.Foreground = new SolidColorBrush(Colors.Red);
+                            // this.tb_isRecording.Text = "√ √ √";
+                            // this.tb_isRecording.Foreground = new SolidColorBrush(Colors.Red);
                         });
                     }
                 }
@@ -323,8 +323,8 @@ namespace ZTMZ.PacenoteTool
                     this._isRecordingInProgress = false;
                     this.Dispatcher.Invoke(() =>
                     {
-                        this.tb_isRecording.Text = "×";
-                        this.tb_isRecording.Foreground = new SolidColorBrush(Colors.Black);
+                        // this.tb_isRecording.Text = "×";
+                        // this.tb_isRecording.Foreground = new SolidColorBrush(Colors.Black);
                     });
                 }
             }, false);
@@ -548,7 +548,7 @@ namespace ZTMZ.PacenoteTool
                         // enable mode change.
                         this.ck_record.IsEnabled = true;
                         this.ck_replay.IsEnabled = true;
-                        this.cb_replay_mode.IsEnabled = true;
+                        // this.cb_replay_mode.IsEnabled = true;
                     });
                     this._gameOverlayManager.TimeToShowStatistics = false;
                     break;
@@ -606,7 +606,7 @@ namespace ZTMZ.PacenoteTool
                         //this.ck_record.IsEnabled = false;
                         //this.ck_replay.IsEnabled = false;
                         this.cb_codrivers.IsEnabled = false;
-                        this.cb_replay_mode.IsEnabled = false;
+                        // this.cb_replay_mode.IsEnabled = false;
                     });
                     if (this._toolState == ToolState.Recording)
                     {
@@ -621,7 +621,7 @@ namespace ZTMZ.PacenoteTool
                         {
                             this.Dispatcher.Invoke(() =>
                             {
-                                this.tb_codriver.Text = this._profileManager.CurrentCoDriverName;
+                                // this.tb_codriver.Text = this._profileManager.CurrentCoDriverName;
                                 this._gameOverlayManager.ScriptAuthor = this._profileManager.CurrentCoDriverName;
                                 if (this._selectReplayMode != 0 &&
                                     this._profileManager.CurrentScriptReader != null)
@@ -642,31 +642,31 @@ namespace ZTMZ.PacenoteTool
                                 }
 
                                 // switch replay mode tab
-                                switch (this._selectReplayMode)
-                                {
-                                    case 0:
-                                        this.tab_playMode.SelectedIndex = 0;
-                                        break;
-                                    case 1:
-                                        this.tab_playMode.SelectedIndex = 1;
-                                        break;
-                                    case 2:
-                                        this.tab_playMode.SelectedIndex = this._profileManager.AudioPacenoteCount >
-                                                                          this._profileManager.ScriptPacenoteCount
-                                            ? 0
-                                            : 1;
-                                        break;
-                                    default:
-                                        this.tab_playMode.SelectedIndex = 0;
-                                        break;
-                                }
-                                if (this.tab_playMode.SelectedIndex == 0)
-                                {
-                                    this._gameOverlayManager.PacenoteType = "纯语音";
-                                } else
-                                {
-                                    this._gameOverlayManager.PacenoteType = "脚本";
-                                }
+                                // switch (this._selectReplayMode)
+                                // {
+                                //     case 0:
+                                //         this.tab_playMode.SelectedIndex = 0;
+                                //         break;
+                                //     case 1:
+                                //         this.tab_playMode.SelectedIndex = 1;
+                                //         break;
+                                //     case 2:
+                                //         this.tab_playMode.SelectedIndex = this._profileManager.AudioPacenoteCount >
+                                //                                           this._profileManager.ScriptPacenoteCount
+                                //             ? 0
+                                //             : 1;
+                                //         break;
+                                //     default:
+                                //         this.tab_playMode.SelectedIndex = 0;
+                                //         break;
+                                // }
+                                // if (this.tab_playMode.SelectedIndex == 0)
+                                // {
+                                //     this._gameOverlayManager.PacenoteType = "纯语音";
+                                // } else
+                                // {
+                                //     this._gameOverlayManager.PacenoteType = "脚本";
+                                // }
                             });
 
                             if (lastState != GameState.Paused && Config.Instance.PlayStartAndEndSound && state == GameState.RaceBegin)
@@ -683,6 +683,16 @@ namespace ZTMZ.PacenoteTool
                                 // relocate the current car's position
                                 this._profileManager.ReIndex(this._currentGame.GameDataReader.LastGameData.LapDistance);
                             }
+
+                            this.Dispatcher.Invoke(() => {
+                                if (this._profileManager.CurrentScriptReader.IsDynamic)
+                                {
+                                    this._gameOverlayManager.PacenoteType = "@dynamic";
+                                } else
+                                {
+                                    this._gameOverlayManager.PacenoteType = "normal";
+                                }
+                            });
                         };
                         worker.RunWorkerAsync();
                     }
@@ -739,11 +749,11 @@ namespace ZTMZ.PacenoteTool
 
 
             // recordingDevices
-            this._recordingDevices = AudioRecorder.GetRecordingDeviceList();
-            foreach (var rDevice in this._recordingDevices)
-            {
-                this.cb_recording_device.Items.Add(rDevice.Name);
-            }
+            // this._recordingDevices = AudioRecorder.GetRecordingDeviceList();
+            // foreach (var rDevice in this._recordingDevices)
+            // {
+            //     this.cb_recording_device.Items.Add(rDevice.Name);
+            // }
 
             for (int i = 0; i < WaveOut.DeviceCount; i++)
             {
@@ -757,8 +767,8 @@ namespace ZTMZ.PacenoteTool
 
 
             // if there's no recording device, would throw exception...
-            if (this._recordingDevices.Count() > 0)
-                this.cb_recording_device.SelectedIndex = 0;
+            // if (this._recordingDevices.Count() > 0)
+            //     this.cb_recording_device.SelectedIndex = 0;
 
             _logger.Info("Combobox initialized.");
         }
@@ -834,7 +844,7 @@ namespace ZTMZ.PacenoteTool
                         I18NLoader.Instance["application.title_dev"],
                         _version);
                     GoogleAnalyticsHelper.Instance.TrackPageView("Window - Main:Dev", "window/main_dev");
-                    this.cb_record_mode.SelectedIndex = 1;  // auto script mode
+                    // this.cb_record_mode.SelectedIndex = 1;  // auto script mode
                     if (Config.Instance.AutoScript_HackGameWhenStart)
                     {
                         while (!System.IO.File.Exists(System.IO.Path.Join(Config.Instance.DirtGamePath, "dirtrally2.exe")))
@@ -858,7 +868,9 @@ namespace ZTMZ.PacenoteTool
                         I18NLoader.Instance["application.title"],
                         _version);
                     // disable auto script mode
-                    this.cb_record_mode.Items.RemoveAt(this.cb_record_mode.Items.Count - 1);
+                    // this.cb_record_mode.Items.RemoveAt(this.cb_record_mode.Items.Count - 1);
+                    // hide replay/record selection
+                    nonDevVersionSettings();
                     break;
                 case ToolVersion.TEST:
                 
@@ -866,10 +878,31 @@ namespace ZTMZ.PacenoteTool
                     this.Title = string.Format("{0} {1}",
                         I18NLoader.Instance["application.title_test"],
                         _version);
+                    nonDevVersionSettings();
                     break;
             }
 
             _logger.Info("Current version: {0}, tool version determined: {1}.", _version, _toolVersion);
+        }
+
+        private void nonDevVersionSettings() 
+        {
+            this.ck_record.Visibility = Visibility.Collapsed;
+            this.ck_replay.Visibility = Visibility.Collapsed;
+            tb_autoScriptListeningDevice_label.Visibility = Visibility.Collapsed;
+            tb_autoScriptListeningDevice.Visibility = Visibility.Collapsed;
+            g_autoScriptListeningDevice.Visibility = Visibility.Collapsed;
+            Grid.SetRowSpan(tb_scriptAuthor_label, 2);
+            Grid.SetRowSpan(tb_scriptAuthor, 2);
+            
+            this.MouseDown += (o, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+            this.WindowStyle = WindowStyle.None;
+            sp_NonDevModeTitle.Visibility = Visibility.Visible;
+            tb_Title.Visibility = Visibility.Visible;
+            tb_Title.Text = this.Title;
+            btn_Exit.Visibility = Visibility.Visible;
+            Grid.SetColumn(btn_Settings, 2);
+            btn_Exit.Click += (o, e) => this.Close();
         }
 
         private void initializeGameOverlay()
@@ -894,7 +927,7 @@ namespace ZTMZ.PacenoteTool
                     this.g_autoScriptListeningDevice.Visibility = Visibility.Hidden;
                     this.tb_autoScriptListeningDevice.Text = deviceName;
                     this.tb_autoScriptListeningDevice.ToolTip = deviceName;
-                    this.tab_playMode.SelectedIndex = 1;
+                    // this.tab_playMode.SelectedIndex = 1;
                 });
             };
             this._autoRecorder.PieceRecognized += t =>
@@ -963,6 +996,28 @@ namespace ZTMZ.PacenoteTool
             this.sl_scriptTiming.Value = Config.Instance.UI_PlaybackAdjustSeconds;
             this.s_volume.Value = Config.Instance.UI_PlaybackVolume;
 
+            
+            List<float> factors = new List<float>()
+            { 0.00001f, 0.00005f, 0.0001f, 0.0005f, 0.001f, 0.005f, 0.01f, 0.05f, 0.1f, 0.5f };
+            Dictionary<float, int> factorToIndex = new Dictionary<float, int>();
+            for (int i = 0; i < factors.Count; i++)
+            {
+                factorToIndex.Add(factors[i], i);
+            }
+            
+            sl_factorToRemoveSpaceFromAudioFiles.Value = factorToIndex[Config.Instance.FactorToRemoveSpaceFromAudioFiles];
+            tb_factorToRemoveSpaceFromAudioFiles.Text = sl_factorToRemoveSpaceFromAudioFiles.Value.ToString();
+            sl_factorToRemoveSpaceFromAudioFiles.ValueChanged += (o, e) =>
+            {
+                var index = (int)sl_factorToRemoveSpaceFromAudioFiles.Value;
+                if (index >= 0 && index < factors.Count)
+                {
+                    Config.Instance.FactorToRemoveSpaceFromAudioFiles = factors[index];
+                    Config.Instance.SaveUserConfig();
+                }
+                tb_factorToRemoveSpaceFromAudioFiles.Text = index.ToString();
+            };
+
             _logger.Info("User config applied.");
         }
 
@@ -1025,7 +1080,7 @@ namespace ZTMZ.PacenoteTool
                         bgw.RunWorkerAsync();
                     } else
                     {
-                        this.tab_playMode.SelectedIndex = 0;
+                        // this.tab_playMode.SelectedIndex = 0;
                         GoogleAnalyticsHelper.Instance.TrackRecordEvent("pure_audio", "start");
                         this.registerHotKeys();
                     }
@@ -1046,7 +1101,7 @@ namespace ZTMZ.PacenoteTool
                 if (this._toolState == ToolState.Recording)
                 {
                     this._toolState = ToolState.Replaying;
-                    this.tb_isRecording.Text = "不可用";
+                    // this.tb_isRecording.Text = "不可用";
                     //this._autoRecorder.StopSoundCapture();
                     if (!this._isPureAudioRecording)
                     {
@@ -1072,33 +1127,33 @@ namespace ZTMZ.PacenoteTool
 
         private void Tb_recordQuality_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            switch (this.tb_recordQuality.SelectedIndex)
-            {
-                case 0:
-                    // low
-                    this._recordingConfig.SampleRate = 11025;
-                    this._recordingConfig.Mp3BitRate = 48;
-                    GoogleAnalyticsHelper.Instance.TrackRecordEvent("quality", "low");
-                    break;
-                case 1:
-                    this._recordingConfig.SampleRate = 22050;
-                    this._recordingConfig.Mp3BitRate = 128;
-                    GoogleAnalyticsHelper.Instance.TrackRecordEvent("quality", "medium");
-                    break;
-                case 2:
-                    // very huge file...
-                    this._recordingConfig.SampleRate = 44100;
-                    this._recordingConfig.Mp3BitRate = 320;
-                    GoogleAnalyticsHelper.Instance.TrackRecordEvent("quality", "high");
-                    break;
-            }
+            // switch (this.tb_recordQuality.SelectedIndex)
+            // {
+            //     case 0:
+            //         // low
+            //         this._recordingConfig.SampleRate = 11025;
+            //         this._recordingConfig.Mp3BitRate = 48;
+            //         GoogleAnalyticsHelper.Instance.TrackRecordEvent("quality", "low");
+            //         break;
+            //     case 1:
+            //         this._recordingConfig.SampleRate = 22050;
+            //         this._recordingConfig.Mp3BitRate = 128;
+            //         GoogleAnalyticsHelper.Instance.TrackRecordEvent("quality", "medium");
+            //         break;
+            //     case 2:
+            //         // very huge file...
+            //         this._recordingConfig.SampleRate = 44100;
+            //         this._recordingConfig.Mp3BitRate = 320;
+            //         GoogleAnalyticsHelper.Instance.TrackRecordEvent("quality", "high");
+            //         break;
+            // }
         }
 
         private void cb_recording_device_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            this._recordingConfig.RecordingDevice = (from x in this._recordingDevices
-                                                     where x.Name == this.cb_recording_device.SelectedItem.ToString()
-                                                     select x.Id).First();
+            // this._recordingConfig.RecordingDevice = (from x in this._recordingDevices
+            //                                          where x.Name == this.cb_recording_device.SelectedItem.ToString()
+            //                                          select x.Id).First();
         }
 
 
@@ -1210,7 +1265,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void cb_replay_mode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            this._selectReplayMode = this.cb_replay_mode.SelectedIndex;
+            // this._selectReplayMode = this.cb_replay_mode.SelectedIndex;
         }
 
         private void cb_codrivers_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1275,7 +1330,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void cb_record_mode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            this._isPureAudioRecording = this.cb_record_mode.SelectedIndex == 0;
+            // this._isPureAudioRecording = this.cb_record_mode.SelectedIndex == 0;
         }
 
         private void tb_soundSettings_RequestNavigate(object sender, RequestNavigateEventArgs e)
@@ -1379,19 +1434,19 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
 
         private void Tab_playMode_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (this.tab_playMode != null && this.g_tab_script != null && this.g_tab_pureAudio != null)
-            {
-                if (this.tab_playMode.SelectedIndex == 0)
-                {
-                    this.g_tab_pureAudio.Visibility = Visibility.Visible;
-                    this.g_tab_script.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    this.g_tab_pureAudio.Visibility = Visibility.Collapsed;
-                    this.g_tab_script.Visibility = Visibility.Visible;
-                }
-            }
+            // if (this.tab_playMode != null && this.g_tab_script != null && this.g_tab_pureAudio != null)
+            // {
+            //     if (this.tab_playMode.SelectedIndex == 0)
+            //     {
+            //         this.g_tab_pureAudio.Visibility = Visibility.Visible;
+            //         this.g_tab_script.Visibility = Visibility.Collapsed;
+            //     }
+            //     else
+            //     {
+            //         this.g_tab_pureAudio.Visibility = Visibility.Collapsed;
+            //         this.g_tab_script.Visibility = Visibility.Visible;
+            //     }
+            // }
         }
 
         private void Btn_currentCodriver_OnClick(object sender, RoutedEventArgs e)

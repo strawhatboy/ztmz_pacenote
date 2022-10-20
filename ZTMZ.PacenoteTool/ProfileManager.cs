@@ -517,7 +517,7 @@ namespace ZTMZ.PacenoteTool
             sound.Amplification = this.CurrentPlayAmplification;
             sound.Tension = this.CurrentTension;
             this.PlaySound(sound, Config.Instance.UseSequentialMixerToHandleAudioConflict);
-            Debug.WriteLine("Playing");
+            Debug.WriteLine("Playing {0}", this.CurrentPlayIndex);
         }
 
         // need to be run in a non-UI thread
@@ -552,6 +552,7 @@ namespace ZTMZ.PacenoteTool
             var res = this.AudioFiles.BinarySearch(new AudioFile() { Distance = (int)distance }, Comparer<AudioFile>.Create((a, b) => a.Distance.CompareTo(b.Distance)));
             res = res > 0 ? res - 1 : ~res;
             this.CurrentPlayIndex = res;
+            Debug.WriteLine("reindex to {0}", this.CurrentPlayIndex);
         }
     }
 }

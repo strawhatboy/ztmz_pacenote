@@ -243,24 +243,6 @@ namespace ZTMZ.PacenoteTool
             initUIntSetting(tb_dynamicVolumePerturbationFrequency, "DynamicVolumePerturbationFrequency");
             initSliderSetting(sl_dynamicVolumePerturbationAmplitude, "DynamicVolumePerturbationAmplitude");
 
-            List<float> factors = new List<float>()
-            { 0.00001f, 0.00005f, 0.0001f, 0.0005f, 0.001f, 0.005f, 0.01f, 0.05f, 0.1f, 0.5f };
-            Dictionary<float, int> factorToIndex = new Dictionary<float, int>();
-            for (int i = 0; i < factors.Count; i++)
-            {
-                factorToIndex.Add(factors[i], i);
-            }
-            
-            sl_factorToRemoveSpaceFromAudioFiles.Value = factorToIndex[Config.Instance.FactorToRemoveSpaceFromAudioFiles];
-            sl_factorToRemoveSpaceFromAudioFiles.ValueChanged += (o, e) =>
-            {
-                var index = (int)sl_factorToRemoveSpaceFromAudioFiles.Value;
-                if (index >= 0 && index < factors.Count)
-                {
-                    Config.Instance.FactorToRemoveSpaceFromAudioFiles = factors[index];
-                    Config.Instance.SaveUserConfig();
-                }
-            };
             initBoolSetting(btn_connectCloseDistanceCallToNextPacenote, "ConnectCloseDistanceCallToNextPacenote");
             initBoolSetting(btn_connectNumericDistanceCallToPreviousPacenote, "ConnectNumericDistanceCallToPreviousPacenote");
             // playbackDelay

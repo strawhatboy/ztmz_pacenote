@@ -143,7 +143,7 @@ public class RBRGameDataReader : UdpGameDataReader
     }
 
     private GameState getGameStateFromMemory(RBRMemData memData)
-    {
+    { 
         bool playWhenReplay = (bool)((CommonGameConfigs)_game.GameConfigurations[CommonGameConfigs.Name]).PropertyValue[0];
         var state = (RBRGameState)memData.GameStateId;
 
@@ -199,7 +199,10 @@ public class RBRGameDataReader : UdpGameDataReader
                 // from unknown to racing directly.
                 return GameState.AdHocRaceBegin;
             }
+            
+            this._timerCount = 0; // avoid game state set to unknown.
             return GameState.Racing;
+
         } else if (state == RBRGameState.Paused)
         {
             return GameState.Paused;

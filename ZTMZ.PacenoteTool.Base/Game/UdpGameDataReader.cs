@@ -22,7 +22,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
     public abstract GameData LastGameData { get; set; }
     public abstract string TrackName { get; }
     private Timer _timer;
-    private int _timerCount = 0;
+    protected int _timerCount = 0;
     private int _timerMessageAvailableCount = 0;
 
     public virtual bool Initialize(IGame game)

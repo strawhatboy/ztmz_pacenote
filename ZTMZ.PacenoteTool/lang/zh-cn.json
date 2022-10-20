@@ -222,7 +222,7 @@
 
     "tab_script": "脚本模式",
     "tab_s_audioPackage": "领航员语音包：",
-    "tab_s_isDynamic": "是否动态播放：",
+    "tab_s_isDynamic": "是否为动态路书：",
     "tab_s_author": "脚本路书作者：",
     "tab_s_listenDevice": "自动脚本录制监听：",
     "tab_s_audioSettings": "声音设置",
