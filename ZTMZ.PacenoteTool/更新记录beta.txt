@@ -1,4 +1,9 @@
-﻿v2.7.2.7
+﻿v2.7.2.8
+------
+* 回滚pacenote.csv 中rbr 的modifer 定义（regression bug）
+* 界面增加语音包的描述tooltip
+
+v2.7.2.7
 ------
 * 修复了rbr里不停的“特别长”（regression bug）
 * 将倒计时和出发语音裁剪成ogg格式

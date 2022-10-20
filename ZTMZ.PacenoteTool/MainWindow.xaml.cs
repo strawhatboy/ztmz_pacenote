@@ -1218,6 +1218,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
             this._profileManager.CurrentCoDriverSoundPackagePath =
                 ((CoDriverPackageInfo)this.cb_codrivers.SelectedItem).Path;
             this._gameOverlayManager.AudioPackage = this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText;
+            this.cb_codrivers.ToolTip = ((CoDriverPackageInfo) this.cb_codrivers.SelectedItem).description;
             Config.Instance.UI_SelectedAudioPackage = this.cb_codrivers.SelectedIndex;
             Config.Instance.SaveUserConfig();
             GoogleAnalyticsHelper.Instance.TrackPageView("Codriver", $"codriver/{this._gameOverlayManager.AudioPackage}");

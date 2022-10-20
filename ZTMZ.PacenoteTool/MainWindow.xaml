@@ -253,18 +253,16 @@
                                 <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
                             </TextBlock.Effect></TextBlock>
                         <ComboBox Grid.Row="0" Grid.Column="1"  Name="cb_codrivers"
-                              VerticalAlignment="Center" DisplayMemberPath="DisplayText"
+                              VerticalAlignment="Center" 
                               >
                             
-                            <!-- <ComboBox.ItemContainerStyle> -->
-                            <!--     <Style TargetType="ComboBoxItem"> -->
-                            <!--         <Setter Property="ToolTip"> -->
-                            <!--             <Setter.Value> -->
-                            <!--                 <TextBlock Text="{Binding description}" /> -->
-                            <!--             </Setter.Value> -->
-                            <!--         </Setter> -->
-                            <!--     </Style> -->
-                            <!-- </ComboBox.ItemContainerStyle> -->
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel ToolTip="{Binding Path=description}">
+                                        <TextBlock Text="{Binding Path=DisplayText}" HorizontalAlignment="Left" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
                         </ComboBox>
                         
                         
