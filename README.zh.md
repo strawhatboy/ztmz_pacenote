@@ -2,6 +2,7 @@
 
 - [更新计划](#plan)。[待完成任务](https://gitee.com/ztmz/ztmz_pacenote/milestones/176244)。欢迎提PR和Issue。
 - [github 镜像](https://github.com/strawhatboy/ztmz_pacenote)
+- 注意：购买尘埃拉力赛2.0时请务必购买 “年度版”，不要买本体！！！本体缺了大量内容，补买DLC又巨贵无比！！！年度版steam__经常打折__只要30元左右，等不及打折可以去淘宝购买。
 
 #### 演示视频
 - [【8岁半小孩用手动H档驾驶B组赛车获全球纪录排行榜第25名，中国第1。DiRT Rally 2（尘埃拉力赛2），汉考克山反向赛道，用时2分53秒85。】 ](https://www.bilibili.com/video/BV13G4y1Y7Wk)

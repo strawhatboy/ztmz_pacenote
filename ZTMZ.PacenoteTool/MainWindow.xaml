@@ -7,7 +7,8 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        MinHeight="760"
+        MinHeight="780"
+        MaxHeight="780"
         MinWidth="560"
         ResizeMode="CanResize"
         
@@ -18,11 +19,8 @@
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
         Closing="Window_Closing"
-        Title="ZTMZ Club 路书工具" Height="760" Width="560" Loaded="Window_Loaded">
+        Title="ZTMZ Club 路书工具" Height="780" Width="560" Loaded="Window_Loaded">
 
-    <WindowChrome.WindowChrome>
-        <WindowChrome ResizeBorderThickness="6" CaptionHeight="0"></WindowChrome>
-    </WindowChrome.WindowChrome>
     <Grid>
         <Grid.Resources>
 
@@ -37,7 +35,7 @@
             <RowDefinition Height="5" />
             <RowDefinition Height="110" />
             <RowDefinition Height="5" />
-            <RowDefinition Height="150" />
+            <RowDefinition Height="130" />
             <RowDefinition Height="5" />
             <RowDefinition Height="280" />
             <RowDefinition Height="5" />
@@ -77,10 +75,10 @@
         <materialDesign:Card Grid.Row="2" Margin="5 0 5 0" Padding="5 0 5 0">
             <Grid >
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="160" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="20" />
-                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="160" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
@@ -189,7 +187,7 @@
             <DockPanel>
                 <Grid x:Name="g_tab_script" Visibility="Visible">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="40" />
+                        <RowDefinition Height="60" />
                         <RowDefinition Height="40" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="*" />
@@ -212,8 +210,30 @@
                         
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel ToolTip="{Binding Path=description}">
-                                    <TextBlock Text="{Binding Path=DisplayText}" HorizontalAlignment="Left" />
+                                <StackPanel ToolTip="{Binding Path=description}" Orientation="Horizontal">
+                                    <materialDesign:PackIcon Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0 0 5 0"  >
+                                        <materialDesign:PackIcon.Style>
+                                            <Style TargetType="materialDesign:PackIcon">
+                                                <Setter Property="Kind" Value="HumanHandsdown"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding gender}" Value="M">
+                                                        <Setter Property="Kind" Value="FaceManOutline"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding gender}" Value="F">
+                                                        <Setter Property="Kind" Value="FaceWomanShimmer"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </materialDesign:PackIcon.Style>
+                                    </materialDesign:PackIcon>
+                                    <Grid VerticalAlignment="Center" >
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="2*"></RowDefinition>
+                                            <RowDefinition Height="1*"></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" Text="{Binding Path=name}" FontSize="16" HorizontalAlignment="Left" />
+                                        <TextBlock Grid.Row="1" Text="{Binding Path=language}" HorizontalAlignment="Left" />
+                                    </Grid>
                                 </StackPanel>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
@@ -357,7 +377,7 @@
                         VerticalAlignment="Center"></Slider>
                 <TextBlock Grid.Row="4" Grid.Column="3" x:Name="tb_playbackSpd" HorizontalAlignment="Center" >x 1.00</TextBlock>
 
-                <TextBlock Grid.Row="5" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.factorToRemoveSpaceFromAudioFiles}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                <TextBlock Grid.Row="5" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.factorToRemoveSpaceFromAudioFiles}" 
                                     ToolTip="{DynamicResource ResourceKey=settings.tooltip.factorToRemoveSpaceFromAudioFiles}" />
                 <Slider Name="sl_factorToRemoveSpaceFromAudioFiles" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Value="5" Maximum="9" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True" Style="{StaticResource MaterialDesignDiscreteSlider}" TickPlacement="Both" VerticalAlignment="Center" />
                 <TextBlock Grid.Row="5" Grid.Column="3" x:Name="tb_factorToRemoveSpaceFromAudioFiles" HorizontalAlignment="Center" >6</TextBlock>

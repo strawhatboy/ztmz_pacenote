@@ -571,10 +571,10 @@ namespace ZTMZ.PacenoteTool
         {
             var padding = 200;
             var infoText = new StringBuilder()
-                .Append("地图：".PadRight(8)).Append(this.TrackName.PadRight(padding)).AppendLine()
-                .Append("语音包：".PadRight(8)).Append(this.AudioPackage.PadRight(padding)).AppendLine()
-                .Append("路书作者：".PadRight(8)).Append(this.ScriptAuthor.PadRight(padding)).AppendLine()
-                .Append("路书类型：".PadRight(8)).Append(this.PacenoteType.PadRight(padding))
+                .Append(I18NLoader.Instance["overlay.track"].PadRight(16)).Append(this.TrackName.PadRight(padding)).AppendLine()
+                .Append(I18NLoader.Instance["overlay.audioPackage"].PadRight(16)).Append(this.AudioPackage.PadRight(padding)).AppendLine()
+                .Append(I18NLoader.Instance["overlay.scriptAuthor"].PadRight(16)).Append(this.ScriptAuthor.PadRight(padding)).AppendLine()
+                .Append(I18NLoader.Instance["overlay.dyanmic"].PadRight(16)).Append(this.PacenoteType.PadRight(padding))
                 .ToString();
             var size = gfx.MeasureString(_fonts["consolas"], _fonts["consolas"].FontSize, infoText);
             gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], gfx.Width - size.X, 0, infoText);

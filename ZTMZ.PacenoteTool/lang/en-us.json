@@ -110,7 +110,7 @@
     "useDynamicVolume": "Use dynamic voice tension enhancement",
     "dynamicVolumePerturbationFrequency": "Voice tension enhancement waveform frequency (Hz)",
     "dynamicVolumePerturbationAmplitude": "Voice tension enhancement waveform amplitude (0~1)",
-    "factorToRemoveSpaceFromAudioFiles": "Factor to remove space between audios (0.00001~0.5)",
+    "factorToRemoveSpaceFromAudioFiles": "Voice Compactness",
     "connectCloseDistanceCallToNextPacenote": "Connect distance call to next pacenote (Dynamic Pacenote only)",
     "connectNumericDistanceCallToPreviousPacenote": "Connect numeric distance call to previous pacenote (Dynamic Pacenote only)",
     "examplePacenoteString": "Example Pacenote",
@@ -323,5 +323,11 @@
     "warn": "Warn",
     "error": "Error",
     "fatal": "Fatal"
+  },
+  "overlay": {
+    "track": "Track:",
+    "audioPackage": "Audio Package:",
+    "scriptAuthor": "Script Author:",
+    "dyanmic": "Is @dynamic:"
   }
 }

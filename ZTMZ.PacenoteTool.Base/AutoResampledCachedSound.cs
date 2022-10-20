@@ -193,8 +193,8 @@ namespace ZTMZ.PacenoteTool.Base
 
         public float[] CutHeadAndTail(float cutSampleFloatLimit = 1e-3f) 
         {
-            float[] a = this._audioData.Skip(GetHeadIndex(this._audioData, cutSampleFloatLimit)).ToArray();
-            a = a.Take(GetTailIndex(a, cutSampleFloatLimit) + 1).ToArray();
+            float[] a = this._audioData.Skip(GetHeadIndex(this._audioData, cutSampleFloatLimit * GetAmplificationFactor(this._amplification))).ToArray();
+            a = a.Take(GetTailIndex(a, cutSampleFloatLimit * GetAmplificationFactor(this._amplification)) + 1).ToArray();
 
             return a;
         }
@@ -208,8 +208,8 @@ namespace ZTMZ.PacenoteTool.Base
         {
             if (Config.Instance.AudioProcessType == (int)AudioProcessType.MixTailAndHead)
             {
-                var tail = this._audioData.Length - GetTailIndex(this._audioData, Config.Instance.FactorToRemoveSpaceFromAudioFiles);
-                var head = GetHeadIndex(soundData, Config.Instance.FactorToRemoveSpaceFromAudioFiles);
+                var tail = this._audioData.Length - GetTailIndex(this._audioData, Config.Instance.FactorToRemoveSpaceFromAudioFiles * GetAmplificationFactor(this._amplification));
+                var head = GetHeadIndex(soundData, Config.Instance.FactorToRemoveSpaceFromAudioFiles * GetAmplificationFactor(this._amplification));
 
                 var newAudioLength = 0;
                 var leftStart = 0;
@@ -250,17 +250,8 @@ namespace ZTMZ.PacenoteTool.Base
             get
             {
                 float res;
-                if (this._amplification > 0)
-                {
-                    res = this.AudioData[index] * (1000 + this._amplification * 10) / 1000;
-                } else if (this._amplification < 0)
-                {
-                    res = this.AudioData[index] * (1000 + this._amplification) / 1000;
-                }
-                else
-                {
-                    res = this.AudioData[index];
-                }
+                
+                res = this.AudioData[index] * GetAmplificationFactor(this._amplification);
 
                 if (Config.Instance.UseDynamicVolume)
                 {
@@ -276,6 +267,19 @@ namespace ZTMZ.PacenoteTool.Base
                 }
 
                 return res;
+            }
+        }
+
+        private static float GetAmplificationFactor(float _amplification) 
+        {
+            if (_amplification > 0) 
+            {
+                return (1000 + _amplification * 10) / 1000;
+            } else if (_amplification < 0) 
+            {
+                return (1000 + _amplification) / 1000;
+            } else {
+                return 1;
             }
         }
     }

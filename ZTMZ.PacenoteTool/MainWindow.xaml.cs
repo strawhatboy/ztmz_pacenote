@@ -896,13 +896,13 @@ namespace ZTMZ.PacenoteTool
             Grid.SetRowSpan(tb_scriptAuthor, 2);
             
             this.MouseDown += (o, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
-            this.WindowStyle = WindowStyle.None;
-            sp_NonDevModeTitle.Visibility = Visibility.Visible;
-            tb_Title.Visibility = Visibility.Visible;
-            tb_Title.Text = this.Title;
-            btn_Exit.Visibility = Visibility.Visible;
-            Grid.SetColumn(btn_Settings, 2);
-            btn_Exit.Click += (o, e) => this.Close();
+            // this.WindowStyle = WindowStyle.None;
+            // sp_NonDevModeTitle.Visibility = Visibility.Visible;
+            // tb_Title.Visibility = Visibility.Visible;
+            // tb_Title.Text = this.Title;
+            // btn_Exit.Visibility = Visibility.Visible;
+            // Grid.SetColumn(btn_Settings, 2);
+            // btn_Exit.Click += (o, e) => this.Close();
         }
 
         private void initializeGameOverlay()

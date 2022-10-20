@@ -322,5 +322,11 @@
     "warn": "警告",
     "error": "错误",
     "fatal": "崩溃"
+  },
+  "overlay": {
+    "track": "地图：",
+    "audioPackage": "语音包：",
+    "scriptAuthor": "路书作者：",
+    "dyanmic": "路书类型："
   }
 }
