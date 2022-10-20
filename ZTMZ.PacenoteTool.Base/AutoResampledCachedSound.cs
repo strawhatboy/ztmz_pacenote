@@ -156,10 +156,12 @@ namespace ZTMZ.PacenoteTool.Base
             }
 
             this.AudioData = wholeFile.ToArray();
+            // always remove zeros...
+            CutHeadAndTail(1e-5);
 
             if (cutHeadAndTail)
             {
-                CutHeadAndTail();
+                CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles);
             }
 
             audioFileReader.Dispose();

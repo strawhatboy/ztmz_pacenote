@@ -196,20 +196,7 @@ namespace ZTMZ.PacenoteTool
 
         private void initFolderSelectionSetting(TextBox txtBox, Button btn, string configKey)
         {
-            var configProperty = typeof(Config).GetProperty(configKey);
-            if (configProperty.PropertyType != typeof(string))
-            {
-                return;
-            }
-            txtBox.Text = (string)configProperty.GetValue(Config.Instance);
-            txtBox.TextChanged += (o, e) =>
-            {
-                // if (Directory.Exists(txtBox.Text))
-                // {
-                    configProperty.SetValue(Config.Instance, txtBox.Text);
-                    Config.Instance.SaveUserConfig();
-                // }
-            };
+            initTextBox(txtBox, configKey);
             btn.Click += (o, e) =>
             {
                 // show directory selection dialog
@@ -220,6 +207,21 @@ namespace ZTMZ.PacenoteTool
                 {
                     txtBox.Text = dialog.FileName;
                 }
+            };
+        }
+
+        private void initTextBox(TextBox tb, string configKey)
+        {
+            var configProperty = typeof(Config).GetProperty(configKey);
+            if (configProperty.PropertyType != typeof(string))
+            {
+                return;
+            }
+            tb.Text = (string)configProperty.GetValue(Config.Instance);
+            tb.TextChanged += (o, e) =>
+            {
+                configProperty.SetValue(Config.Instance, tb.Text);
+                Config.Instance.SaveUserConfig();
             };
         }
 
@@ -263,6 +265,8 @@ namespace ZTMZ.PacenoteTool
             initBoolSetting(btn_connectNumericDistanceCallToPreviousPacenote, "ConnectNumericDistanceCallToPreviousPacenote");
             // playbackDelay
             initUIntSetting(tb_PlaybackDeviceDesiredLatency, "PlaybackDeviceDesiredLatency");
+            // example pacenote
+            initTextBox(txtBox_examplePacenoteString, "ExamplePacenoteString");
         }
 
         private void initMisc()

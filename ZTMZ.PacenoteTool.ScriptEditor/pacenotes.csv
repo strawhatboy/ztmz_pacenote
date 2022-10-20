@@ -48,7 +48,7 @@ detail_dont_cut,不要切弯,1,-1,32,additional|modifier
 detail_downhill,下坡,1,261,-1,line
 detail_early,提早入弯,1,234,-1,adjectives
 detail_extraextra_long,超级长,1,-1,-1,additional
-detail_extra_long,特别长,1,263,512,additional
+detail_extra_long,特别长,1,263,-1,additional
 detail_fence_outside,外侧篱笆,1,370,-1,construction
 detail_ford,过水,1,17,-1,obstacles
 detail_flat,全油,1,216,-1,driving

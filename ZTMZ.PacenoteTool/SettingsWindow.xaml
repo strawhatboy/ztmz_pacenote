@@ -204,7 +204,7 @@
                                     <RowDefinition Height="40" />
                                     <RowDefinition Height="40" />
                                     <RowDefinition Height="40" />
-                                    <!-- <RowDefinition Height="40" /> -->
+                                    <RowDefinition Height="40" />
                                     <!-- <RowDefinition Height="40" /> -->
                                     <!-- <RowDefinition Height="40" /> -->
                                 </Grid.RowDefinitions>
@@ -258,6 +258,15 @@
                                 <TextBlock Grid.Row="10" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.connectNumericDistanceCallToPreviousPacenote}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
                                     ToolTip="{DynamicResource ResourceKey=settings.tooltip.connectNumericDistanceCallToPreviousPacenote}" />
                                 <ToggleButton Grid.Row="10" Grid.Column="1" x:Name="btn_connectNumericDistanceCallToPreviousPacenote" />
+                                
+                                <Grid Grid.Row="11" ColumnSpan="3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*" />
+                                        <ColumnDefinition Width="2*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.examplePacenoteString}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.examplePacenoteString}"></TextBlock>
+                                    <TextBox Grid.Column="1" x:Name="txtBox_examplePacenoteString" VerticalAlignment="Center" />
+                                </Grid>
 
                             </Grid>
                         </StackPanel>

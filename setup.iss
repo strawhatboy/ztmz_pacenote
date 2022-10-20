@@ -1,5 +1,5 @@
-#define MyAppName "ZTMZ Pacenote Tool"
-#define MyAppVersion "2.7.2.6"
+﻿#define MyAppName "ZTMZ Pacenote Tool"
+#define MyAppVersion "2.7.2.7"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.exe"
@@ -62,8 +62,8 @@ begin
     { find dotnet6 desktop }
     for i:= 0 to Lines.Count-1 do
     begin
-{ Force version 6.0.9 }
-      if StartsText('Microsoft.WindowsDesktop.App 6.0.9', Lines[i]) then
+{ Force version 6.0.10 }
+      if StartsText('Microsoft.WindowsDesktop.App 6.0.10', Lines[i]) then
       begin
         { found }
         Result:= True;
@@ -97,7 +97,7 @@ var
 begin
   if (CurPageID = wpReady) and NeedToDownload then begin
     DownloadPage.Clear;
-    DownloadPage.Add('https://download.visualstudio.microsoft.com/download/pr/fe8415d4-8a35-4af9-80a5-51306a96282d/05f9b2a1b4884238e69468e49b3a5453/windowsdesktop-runtime-6.0.9-win-x64.exe', 'dotnet6.exe', '');
+    DownloadPage.Add('https://download.visualstudio.microsoft.com/download/pr/a6e878eb-d1da-40cb-8b6a-7f5b9390f09c/e4431ce2aa28b6c9956db672209be500/windowsdesktop-runtime-6.0.10-win-x64.exe', 'dotnet6.exe', '');
     DownloadPage.Show;
     try
       try
@@ -147,6 +147,16 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [InstallDelete]
 Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\default";
+Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\engmale (by mesa)";
+Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\wha1ing";
+Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\南沢いずみ";
+Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\图图（对讲机特效 by wha1ing）";
+Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\圣沙蒙VK";
+Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\拉稀车手老王";
+Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\拉稀车手老王对讲机特效版";
+Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\拉稀车手老王超快速语音包（兼容苏格兰）";
+Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\权威Authority";
+Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\紫藤林沫（测试版）";
 Type: files; Name: "{userdocs}\My Games\ZTMZClub\config.json";
 ; Delete previous default audio package
 ; Delete previous default configuration
