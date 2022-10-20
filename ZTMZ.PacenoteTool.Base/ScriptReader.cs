@@ -153,12 +153,13 @@ namespace ZTMZ.PacenoteTool.Base
                     if (ScriptResource.PACENOTES.ContainsKey(distance_label) && distance_to_call_rounded >= 30)
                     {
                         var distance_pacenote = new Pacenote() {Note = distance_label};
-                        if (Config.Instance.ConnectNumericDistanceCallToPreviousPacenote)
+                        if (Config.Instance.ConnectNumericDistanceCallToPreviousPacenote && lastRecord != null)
                         {
-                            // merge it to last call
+                            // merge it to last call if there is last call
                             lastRecord.Pacenotes.Add(distance_pacenote);
                         } else 
                         {
+                            // if there's no last call or config says no merge, add it as a separate call
                             record.Pacenotes.Add(distance_pacenote);
                             reader.PacenoteRecords.Add(record);
                             lastRecord = record;
@@ -170,8 +171,8 @@ namespace ZTMZ.PacenoteTool.Base
                             // insert an 'into' after this
                             record.Pacenotes.Add(new Pacenote() {Note = "detail_into"});
                             // merge with next
-                            if (Config.Instance.ConnectCloseDistanceCallToNextPacenote)
-                            {
+                            if (Config.Instance.ConnectCloseDistanceCallToNextPacenote && (i + 1) < records.Count)
+                            {   // make sure i+1 is valid (to prevent index out of range)
                                 record.Pacenotes.AddRange(PacenoteRecord.FromCrewChiefPacenoteRecord(records[i + 1]).Pacenotes);
                                 i++;
                             }
@@ -180,8 +181,8 @@ namespace ZTMZ.PacenoteTool.Base
                             // insert an 'and' after this
                             record.Pacenotes.Add(new Pacenote() {Note = "detail_and"});
                             // merge with next
-                            if (Config.Instance.ConnectCloseDistanceCallToNextPacenote)
-                            {
+                            if (Config.Instance.ConnectCloseDistanceCallToNextPacenote && (i + 1) < records.Count)
+                            {   // make sure i+1 is valid (to prevent index out of range)
                                 record.Pacenotes.AddRange(PacenoteRecord.FromCrewChiefPacenoteRecord(records[i + 1]).Pacenotes);
                                 i++;
                             }

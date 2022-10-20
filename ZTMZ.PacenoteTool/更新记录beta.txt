@@ -1,4 +1,9 @@
-﻿v2.7.2.8
+﻿
+v2.7.2.9
+------
+* 修复了rbr中当第一句路书为数字时，路书脚本加载失败的问题（由v2.7.2.6中的合并数字distance call到上一句的功能导致）
+
+v2.7.2.8
 ------
 * 回滚pacenote.csv 中rbr 的modifer 定义（regression bug）
 * 界面增加语音包的描述tooltip
