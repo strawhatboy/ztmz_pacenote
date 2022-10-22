@@ -559,7 +559,7 @@ namespace ZTMZ.PacenoteTool.Base
         }
 
         // 5e-1f ~ 1e-5f, determine how compact between the audios
-        private float _FactorToRemoveSpaceFromAudioFiles = 1e-2f;
+        private float _FactorToRemoveSpaceFromAudioFiles = 1e-5f;
         public float FactorToRemoveSpaceFromAudioFiles
         {
             set { this._FactorToRemoveSpaceFromAudioFiles = value; this._userconfig["FactorToRemoveSpaceFromAudioFiles"] = value; }

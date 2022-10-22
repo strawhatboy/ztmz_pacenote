@@ -8,6 +8,9 @@
 - [【8岁半小孩用手动H档驾驶B组赛车获全球纪录排行榜第25名，中国第1。DiRT Rally 2（尘埃拉力赛2），汉考克山反向赛道，用时2分53秒85。】 ](https://www.bilibili.com/video/BV13G4y1Y7Wk)
 - [理查德伯恩斯拉力赛wrc2017世界纪录](https://www.bilibili.com/video/BV1mG4y1H7or)
 
+#### 友情链接
+- [simRallyCn](https://www.simrallycn.top/)：模拟拉力中文社区
+
 #### 截图
 
 ![](Docs/UI.zh.png)

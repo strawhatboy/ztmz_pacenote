@@ -26,10 +26,10 @@
 **A:** 离了大谱，不可能发生的事发生了。简单快捷的方法是**重新安装**。原因可能是在安装了工具之后又安装了其他低版本的dotnet6 运行时，导致当前工具失效。重新安装也不行？？？手动下载安装运行库（[https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.5-windows-x64-installer)）。还不行？？？是不是下载错文件了？
 
 **Q:** 为什么工具没反应？
-**A:** 工具只有在**游戏中拉了手刹倒计时开始时**才会开始有反应
+**A:** 工具只有在**游戏中拉了手刹倒计时开始时及之后**才会开始有反应
 
 **Q:** 为什么有的地图没有路书？
-**A:** 目前只有拉力地图有路书，**RX（RALLY CROSS）地图是没有路书**的
+**A:** 目前DirtRally2.0中只有拉力地图有路书，**RX（RALLY CROSS）地图是没有路书**的
 
 **Q:** 为什么录视频或者直播的时候很卡（帧率很低）？
 **A:** 因为万恶的 **悬浮窗，所用的技术会引起录视频和直播时帧率大幅下降** ，目前的解决办法是在主界面的最下面的“开启悬浮窗”右边的勾给勾掉（关闭悬浮窗）
