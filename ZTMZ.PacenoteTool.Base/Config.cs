@@ -126,7 +126,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._AutoScript_HackGameWhenStart;
         }
 
-        private bool _UseDefaultSoundPackageByDefault = false;
+        private bool _UseDefaultSoundPackageByDefault = true;
         public bool UseDefaultSoundPackageByDefault
         {
             set { this._UseDefaultSoundPackageByDefault = value; this._userconfig["UseDefaultSoundPackageByDefault"] = value; }

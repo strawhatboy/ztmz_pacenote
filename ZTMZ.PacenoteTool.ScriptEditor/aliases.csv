@@ -91,6 +91,7 @@ over_bumps,detail_over_bumps,over bumps|over bump
 over_crest,detail_over_crest,over crest|over crests
 over_dip,detail_over_dip,over dip|over dips
 over_double_crest,detail_over_double_crest,over double crest
+over_double_jump,detail_over_double_jump,over double jump
 over_grid,detail_over_grid,over grid
 over_jump,detail_over_jump,over jump|over jumps
 over_logs,detail_over_logs,over logs|over log
@@ -123,6 +124,7 @@ through_narrow_gate,detail_through_narrow_gate,through narrow gate|pass narrow g
 through_narrow_grid,detail_through_narrow_grid,through narrow grid|pass narrow grid
 through_tunnel,detail_through_tunnel,through tunnel
 tightens,detail_tightens,tightens
+tightens_bad,detail_tightens_bad,tightens bad
 tightens_to_1,detail_tightens_to_1,tightens one
 tightens_to_2,detail_tightens_to_2,tightens two
 tightens_to_3,detail_tightens_to_3,tightens three

@@ -1368,6 +1368,7 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
             }
         }
 
+
         private void chk_Hud_Click(object sender, RoutedEventArgs e)
         {
             if (this.chk_Hud.IsChecked.HasValue)
