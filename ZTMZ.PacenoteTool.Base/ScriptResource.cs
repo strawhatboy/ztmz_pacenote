@@ -1,4 +1,5 @@
 //TODO: full of SHIT here. need refactor.
+// use Microsoft.EntityFrameworkCore.Sqlite to store all this shit.
 
 using System;
 using System.Collections.Generic;
