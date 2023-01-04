@@ -330,5 +330,14 @@
     "audioPackage": "Audio Package:",
     "scriptAuthor": "Script Author:",
     "dyanmic": "Is @dynamic:"
-  }
+  },
+
+  "arr_test": [
+    "test1",
+    "test2",
+    "test3",
+    {
+      "wtf": "wtf content"
+    }
+  ]
 }

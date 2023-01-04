@@ -51,7 +51,7 @@
                 </Grid.ColumnDefinitions>
                 <Button Name="btn_Exit" Visibility="Collapsed" Grid.Column="3" Background="Crimson" Content="{materialDesign:PackIcon Close}" Margin="2" ></Button>
             
-                <StackPanel Name="sp_NonDevModeTitle" Visibility="Collapsed" Orientation="Horizontal" Grid.Column="0" Grid.ColumnSpan="2">
+                <StackPanel Name="sp_NonDevModeTitle" Visibility="Visible" Orientation="Horizontal" Grid.Column="0" Grid.ColumnSpan="2">
                     <Image Margin="5 5 0 5" RenderOptions.BitmapScalingMode="HighQuality" >
                         <Image.Source>
                             <BitmapImage UriSource="pack://application:,,,/ZTMZ.PacenoteTool;component/app.ico" />

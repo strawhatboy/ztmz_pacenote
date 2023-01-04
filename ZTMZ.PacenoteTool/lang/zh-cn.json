@@ -329,5 +329,14 @@
     "audioPackage": "语音包：",
     "scriptAuthor": "路书作者：",
     "dyanmic": "路书类型："
-  }
+  },
+
+  "arr_test": [
+    "test1",
+    "test2",
+    "test3",
+    {
+      "wtf": "wtf content"
+    }
+  ]
 }

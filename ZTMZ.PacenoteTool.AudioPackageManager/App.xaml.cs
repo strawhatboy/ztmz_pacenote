@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -21,7 +22,14 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
 
         private void initializeI18N()
         {
-            I18NLoader.Instance.Initialize(AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE));
+            
+            // load from I18NPath
+            var jsonPaths = new List<string>{
+                AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE),
+                AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)),
+                AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE))
+            };
+            I18NLoader.Instance.Initialize(jsonPaths);
             I18NLoader.Instance.SetCulture(Config.Instance.Language);
         }
     }
