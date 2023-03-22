@@ -16,7 +16,8 @@
       "misc": "Misc",
       "playback": "Playback",
       "hud": "Hud",
-      "game": "Game"
+      "game": "Game",
+      "vr": "Vr"
     },
 
     "restartNeeded": "Need to restart the tool to take effect",
@@ -42,7 +43,7 @@
       "preloadSounds": "Preload the voice packages may take more memory (around 2GB), but will load the voice package as soon as possible",
       "additionalCoDriverPackagesSearchPath": "When searching for voice packs, additionally search this folder",
       "additionalPacenotesDefinitionSearchPath": "Put addition *.csv files here according to the format of the Pacenote definition file (pacenotes.csv)",
-      
+
       "useSequentialMixerToHandleAudioConflict": "A sequential mix can avoid voices overlap",
       "useDynamicPlaybackSpeed": "In some maps with dense pacenotes (such as Scotland), by dynamically adjusting the speech rate of the current pacenote segment according to the speed of the vehicle and the position of the next pacenote,\n to avoid the situation that the pacenote cannot keep up with the car",
       "useTempoInsteadOfRate": "Using the Tempo method can ensure that only the voice is accelerated or slowed down, while keeping the pitch unchanged, using the Rate method will cause the pitch to change (weird) ",
@@ -76,6 +77,15 @@
       "enableGoogleAnalytics": "Use Google Analytics to collect some of your \"usage information\" to help us improve the program. All of this information is sent to Google servers in an anonymous form for statistical use. You can allow or prohibit this in the settings at any time. This information includes and is limited to:\n\t- Operating system version\n\t- Opening this program event\n\t- Opening each window event in this program\n\t- Each configuration item modification event\n \t- The modification event of the main interface configuration item\n\t- The event of using a specific voice package to play the game (to count the voice package preference)",
       "optInBetaPlan": "Turn on this option to recieve updates and new features in the beta version",
 
+      "vrShowOverlay": "Enable SteamVR Overlay",
+      "vrOverlayPositionX": "VR Overlay Position X",
+      "vrOverlayPositionY": "VR Overlay Position Y",
+      "vrOverlayPositionZ": "VR Overlay Position Z",
+      "vrOverlayRotationX": "VR Overlay Rotation X",
+      "vrOverlayRotationY": "VR Overlay Rotation Y",
+      "vrOverlayRotationZ": "VR Overlay Rotation Z",
+      "vrOverlayScale": "VR Overlay Scale",
+
       "udpListenAddress": "127.0.0.1 by default",
       "udpListenPort": "If you want to use this tool along with SIMHUB, changing the default 20777 to 20778 would help",
       "udpListenPort_Warning": "The port is not consistent with the Dirt Rally 2.0 settings {0}, maybe you're using SIMHUB",
@@ -102,7 +112,7 @@
     "preloadSounds": "Preload voice packages",
     "additionalCoDriverPackagesSearchPath": "Additional Voice Pack Search Folder",
     "additionalPacenotesDefinitionSearchPath": "additional Pacenote Definition Search Folder",
-    
+
     "useSequentialMixerToHandleAudioConflict": "Use sequential mixer",
     "useDynamicPlaybackSpeed": "Use dynamic playback speech rate",
     "useTempoInsteadOfRate": "Use tempo instead of rate for playback rate adjustment",
@@ -135,6 +145,15 @@
     "hudShowDebugTelemetry": "Whether to show debug telemetry",
     "enableGoogleAnalytics": "Enable Google Analytics",
     "optInBetaPlan": "Opt in to the beta plan",
+
+    "vrShowOverlay": "Enable SteamVR Overlay",
+    "vrOverlayPositionX": "VR Overlay Position X",
+    "vrOverlayPositionY": "VR Overlay Position Y",
+    "vrOverlayPositionZ": "VR Overlay Position Z",
+    "vrOverlayRotationX": "VR Overlay Rotation X",
+    "vrOverlayRotationY": "VR Overlay Rotation Y",
+    "vrOverlayRotationZ": "VR Overlay Rotation Z",
+    "vrOverlayScale": "VR Overlay Scale",
 
     "udpListenAddress": "Telemetry UDP listen address",
     "udpListenPort": "Telemetry UDP port",

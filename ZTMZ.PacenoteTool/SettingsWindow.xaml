@@ -53,7 +53,7 @@
                                 <TextBlock Grid.Row="1" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{DynamicResource ResourceKey=settings.language}" />
                                 <ComboBox Grid.Row="1" Grid.Column="1" x:Name="cb_language" VerticalAlignment="Center" />
 
-                                
+
 
                                 <TextBlock Grid.Row="2" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Text="{DynamicResource ResourceKey=settings.enableGoogleAnalytics}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.enableGoogleAnalytics}" />
                                 <ToggleButton Grid.Row="2" Grid.Column="1" x:Name="btn_enableGoogleAnalytics" />
@@ -242,20 +242,20 @@
                                 <TextBlock Grid.Row="6" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.dynamicVolumePerturbationAmplitude}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.dynamicVolumePerturbationAmplitude}"></TextBlock>
                                 <Slider Name="sl_dynamicVolumePerturbationAmplitude" Grid.Row="6" Grid.Column="1" Value="0.8" Maximum="1" Minimum="0" TickFrequency="0.125" Style="{StaticResource MaterialDesignDiscreteSlider}" TickPlacement="Both" VerticalAlignment="Center" />
 
-                                
+
                                 <TextBlock Grid.Row="7" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.playbackDeviceDesiredLatency}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
                                 ToolTip="{DynamicResource ResourceKey=settings.tooltip.playbackDeviceDesiredLatency}" />
                                 <xctk:UIntegerUpDown Name="tb_PlaybackDeviceDesiredLatency" Grid.Row="7" Grid.Column="1" Minimum="50" Maximum="1000" Value="175" VerticalAlignment="Center" />
 
-                                
+
                                 <TextBlock Grid.Row="8" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.connectCloseDistanceCallToNextPacenote}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
                                     ToolTip="{DynamicResource ResourceKey=settings.tooltip.connectCloseDistanceCallToNextPacenote}" />
                                 <ToggleButton Grid.Row="8" Grid.Column="1" x:Name="btn_connectCloseDistanceCallToNextPacenote" />
-                                
+
                                 <TextBlock Grid.Row="9" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.connectNumericDistanceCallToPreviousPacenote}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
                                     ToolTip="{DynamicResource ResourceKey=settings.tooltip.connectNumericDistanceCallToPreviousPacenote}" />
                                 <ToggleButton Grid.Row="9" Grid.Column="1" x:Name="btn_connectNumericDistanceCallToPreviousPacenote" />
-                                
+
                                 <Grid Grid.Row="10" ColumnSpan="3">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="1*" />
@@ -320,7 +320,7 @@
                                 <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.hudChromaKeyMode}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudChromaKeyMode}" />
                                 <ToggleButton x:Name="btn_hudChromaKeyMode" Grid.Row="1" Grid.Column="1" />
                                 <materialDesign:PackIcon x:Name="pi_hudChromaKeyMode" Kind="Warning" Foreground="OrangeRed" Grid.Row="1" Grid.Column="2" Height="30" Width="30" Margin="10 0 0 0" VerticalAlignment="Center" ToolTip="{DynamicResource ResourceKey=settings.restartNeeded}" Visibility="Hidden" />
-                                
+
                                 <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.hudTopMost}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudTopMost}" />
                                 <ToggleButton x:Name="btn_hudTopMost" Grid.Row="2" Grid.Column="1" />
                                 <materialDesign:PackIcon x:Name="pi_hudTopMost" Kind="Warning" Foreground="OrangeRed" Grid.Row="2" Grid.Column="2" Height="30" Width="30" Margin="10 0 0 0" VerticalAlignment="Center" ToolTip="{DynamicResource ResourceKey=settings.restartNeeded}" Visibility="Hidden" />
@@ -390,6 +390,66 @@
                             <Image x:Name="img_CurrentGame"  Width="230" Height="108" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" HorizontalAlignment="Left" />
                             <Separator Margin="0 8 0 8" />
                             <StackPanel x:Name="sp_CurrentGame"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Width="auto" Height="auto">
+                            <materialDesign:PackIcon Width="24" Height="24" HorizontalAlignment="Center" Kind="Vr" />
+                            <TextBlock HorizontalAlignment="Center" Text="{DynamicResource ResourceKey=settings.section.vr}" />
+                        </StackPanel>
+                    </TabItem.Header>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" materialDesign:ScrollViewerAssist.IsAutoHideEnabled="True">
+                        <StackPanel Margin="16">
+                            <TextBlock Margin="0,0,0,8" Style="{StaticResource MaterialDesignHeadline5TextBlock}" Text="{DynamicResource ResourceKey=settings.section.vr}" />
+                            <Grid TextBlock.Foreground="{DynamicResource MaterialDesignBody}" Margin="24,8,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="100" />
+                                    <ColumnDefinition Width="40" />
+                                    <ColumnDefinition Width="40" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
+                                    <RowDefinition Height="40" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.hudFPS}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.hudFPS}" />
+                                <!--<TextBlock Grid.Row="0" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=setting.vrShowOverlay}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrShowOverlay}" />-->
+                                <ToggleButton x:Name="btn_vrShowOverlay" Grid.Row="0" Grid.Column="1" />
+                                <materialDesign:PackIcon x:Name="pi_vrShowOverlay" Kind="Warning" Foreground="OrangeRed" Grid.Row="0" Grid.Column="2" Height="30" Width="30" Margin="10 0 0 0" VerticalAlignment="Center" ToolTip="{DynamicResource ResourceKey=settings.restartNeeded}" Visibility="Hidden" />
+
+                                <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayPositionX}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionX}" />
+                                <Slider x:Name="sl_vrOverlayPositionX" Grid.Row="2" Grid.Column="1" Value="0" Maximum="5.0" Minimum="-5.0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" />
+
+                                <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayPositionY}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionY}" />
+                                <Slider x:Name="sl_vrOverlayPositionY" Grid.Row="3" Grid.Column="1" Value="0" Maximum="5.0" Minimum="-5.0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" />
+
+                                <TextBlock Grid.Row="4" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayPositionZ}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionZ}" />
+                                <Slider x:Name="sl_vrOverlayPositionZ" Grid.Row="4" Grid.Column="1" Value="1.0" Maximum="5.0" Minimum="-5.0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" />
+
+                                <TextBlock Grid.Row="5" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayRotationX}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationX}" />
+                                <Slider x:Name="sl_vrOverlayRotationX" Grid.Row="5" Grid.Column="1" Value="0" Maximum="1.0" Minimum="-1.0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" />
+
+                                <TextBlock Grid.Row="6" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayPositionZ}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationY}" />
+                                <Slider x:Name="sl_vrOverlayRotationY" Grid.Row="6" Grid.Column="1" Value="0" Maximum="1.0" Minimum="-1.0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" />
+
+                                <TextBlock Grid.Row="7" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayPositionZ}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationZ}" />
+                                <Slider x:Name="sl_vrOverlayRotationZ" Grid.Row="7" Grid.Column="1" Value="0" Maximum="1.0" Minimum="-1.0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" />
+
+                                <TextBlock Grid.Row="8" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayScale}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayScale}" />
+                                <Slider x:Name="sl_vrOverlayScale" Grid.Row="8" Grid.Column="1" Value="1.0" Maximum="5.0" Minimum="0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" />
+                            </Grid>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>

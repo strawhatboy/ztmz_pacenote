@@ -29,6 +29,7 @@ namespace ZTMZ.PacenoteTool
             initVoicePackage();
             initPlayback();
             initHud();
+            initVrOverlay();
         }
 
         public void SetGame(IGame game)
@@ -152,6 +153,18 @@ namespace ZTMZ.PacenoteTool
             initUIntSetting(tb_hudTelemetrySteeringDegree, "HudTelemetrySteeringDegree");
             initBoolSetting(btn_hudTelemetryShowSuspensionBars, "HudTelemetryShowSuspensionBars");
             
+        }
+
+        private void initVrOverlay()
+        {
+            initBoolSetting(btn_vrShowOverlay, "VrShowOverlay");
+            initSliderSetting(sl_vrOverlayPositionX, "VrOverlayPositionX");
+            initSliderSetting(sl_vrOverlayPositionY, "VrOverlayPositionY");
+            initSliderSetting(sl_vrOverlayPositionZ, "VrOverlayPositionZ");
+            initSliderSetting(sl_vrOverlayRotationX, "VrOverlayRotationX");
+            initSliderSetting(sl_vrOverlayRotationY, "VrOverlayRotationY");
+            initSliderSetting(sl_vrOverlayRotationZ, "VrOverlayRotationZ");
+            initSliderSetting(sl_vrOverlayScale, "VrOverlayScale");
         }
 
         private void initVoicePackage()

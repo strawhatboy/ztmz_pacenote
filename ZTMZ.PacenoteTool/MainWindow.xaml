@@ -417,6 +417,8 @@
                                     Content="{DynamicResource ResourceKey=ui.btn_audioTool}"/>
                             <Button Name="btn_startAudioPkgMgr" Margin="2" Click="Btn_startAudioPkgMgr_OnClick"
                                     Content="{DynamicResource ResourceKey=ui.btn_audioPkgMgr}"/>
+                            <Button Name="btn_startSteamVROverlay" Margin="2" Click="Btn_startAudioPkgMgr_OnClick"
+                                    Content="{DynamicResource ResourceKey=ui.btn_audioPkgMgr}"/>
                         </StackPanel>
                     </xctk:DropDownButton.DropDownContent>
                 </xctk:DropDownButton>

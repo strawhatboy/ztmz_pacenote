@@ -204,6 +204,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._UI_ShowHud;
         }
 
+        private bool _UI_ShowVROverlay = true;
+        public bool UI_ShowVROverlay
+        {
+            set { this._UI_ShowVROverlay = value; this._userconfig["UI_ShowVROverlay"] = value; }
+            get => this._UI_ShowVROverlay;
+        }
+
         private double _UI_PlaybackAdjustSeconds = 0;
         public double UI_PlaybackAdjustSeconds
         {
@@ -472,7 +479,67 @@ namespace ZTMZ.PacenoteTool.Base
             set { this._HudTelemetryShowSuspensionBars = value; this._userconfig["HudTelemetryShowSuspensionBars"] = value; }
             get => this._HudTelemetryShowSuspensionBars;
         }
-        
+
+        #endregion
+
+        #region VrOverlay
+
+        private bool _VrShowOverlay = true;
+        public bool VrShowOverlay
+        {
+            set { this._VrShowOverlay = value; this._userconfig["VrShowOverlay"] = value; }
+            get => this._VrShowOverlay;
+        }
+
+        public float _VrOverlayPositionX = 0.0f;
+        public float VrOverlayPositionX
+        {
+            set { this._VrOverlayPositionX = value; this._userconfig["VrOverlayPositionX"] = value; }
+            get => this._VrOverlayPositionX;
+        }
+
+        public float _VrOverlayPositionY = 0.0f;
+        public float VrOverlayPositionY
+        {
+            set { this._VrOverlayPositionY = value; this._userconfig["VrOverlayPositionY"] = value; }
+            get => this._VrOverlayPositionY;
+        }
+
+        public float _VrOverlayPositionZ = 1.0f;
+        public float VrOverlayPositionZ
+        {
+            set { this._VrOverlayPositionZ = value; this._userconfig["VrOverlayPositionZ"] = value; }
+            get => this._VrOverlayPositionZ;
+        }
+
+        public float _VrOverlayRotationX = 0.0f;
+        public float VrOverlayRotationX
+        {
+            set { this._VrOverlayRotationX = value; this._userconfig["VrOverlayRotationX"] = value; }
+            get => this._VrOverlayRotationX;
+        }
+
+        public float _VrOverlayRotationY = 0.0f;
+        public float VrOverlayRotationY
+        {
+            set { this._VrOverlayRotationY = value; this._userconfig["VrOverlayRotationY"] = value; }
+            get => this._VrOverlayRotationY;
+        }
+
+        public float _VrOverlayRotationZ = 0.0f;
+        public float VrOverlayRotationZ
+        {
+            set { this._VrOverlayRotationZ = value; this._userconfig["VrOverlayRotationZ"] = value; }
+            get => this._VrOverlayRotationZ;
+        }
+
+        public float _VrOverlayScale = 0.0f;
+        public float VrOverlayScale
+        {
+            set { this._VrOverlayScale = value; this._userconfig["VrOverlayScale"] = value; }
+            get => this._VrOverlayScale;
+        }
+
         #endregion
 
         private string _Language = CultureInfo.CurrentCulture.Name.ToLower();
