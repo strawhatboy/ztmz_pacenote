@@ -6,13 +6,13 @@ using System.Diagnostics;
 
 namespace VRGameOverlay.VROverlayWindow
 {
-    class Win32Stuff
+    public class Win32Stuff
     {
 
         #region Class Variables
         // Window Styles
         [Flags]
-        internal enum WindowStyle : uint
+        public enum WindowStyle : uint
         {
             Overlapped = 0x00000000,
             Tiled = 0x00000000,

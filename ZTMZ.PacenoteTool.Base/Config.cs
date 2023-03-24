@@ -491,6 +491,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._VrShowOverlay;
         }
 
+        private string _VrOverlayWindowName = "";
+        public string VrOverlayWindowName
+        {
+            set { this._VrOverlayWindowName = value; this._userconfig["VrOverlayWindowName"] = value; }
+            get => this._VrOverlayWindowName;
+        }
+
         public float _VrOverlayPositionX = 0.0f;
         public float VrOverlayPositionX
         {

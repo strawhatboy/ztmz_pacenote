@@ -81,9 +81,9 @@
       "vrOverlayPositionX": "VR图层相对于头显的位置，X轴方向",
       "vrOverlayPositionY": "VR图层相对于头显的位置，Y轴方向",
       "vrOverlayPositionZ": "VR图层相对于头显的位置，Z轴方向",
-      "vrOverlayRotationX": "VR图层相对于头显的旋转角度，X轴",
-      "vrOverlayRotationY": "VR图层相对于头显的旋转角度，X轴",
-      "vrOverlayRotationZ": "VR图层相对于头显的旋转角度，X轴",
+      "vrOverlayRotationX": "VR图层相对于头显的旋转角度，X轴方向",
+      "vrOverlayRotationY": "VR图层相对于头显的旋转角度，X轴方向",
+      "vrOverlayRotationZ": "VR图层相对于头显的旋转角度，X轴方向",
       "vrOverlayScale": "VR图层缩放比例",
 
       "udpListenAddress": "默认为127.0.0.1",
@@ -150,9 +150,9 @@
     "vrOverlayPositionX": "VR图层相对于头显的位置，X轴方向",
     "vrOverlayPositionY": "VR图层相对于头显的位置，Y轴方向",
     "vrOverlayPositionZ": "VR图层相对于头显的位置，Z轴方向",
-    "vrOverlayRotationX": "VR图层相对于头显的旋转角度，X轴",
-    "vrOverlayRotationY": "VR图层相对于头显的旋转角度，X轴",
-    "vrOverlayRotationZ": "VR图层相对于头显的旋转角度，X轴",
+    "vrOverlayRotationX": "VR图层相对于头显的旋转角度，X轴方向",
+    "vrOverlayRotationY": "VR图层相对于头显的旋转角度，Y轴方向",
+    "vrOverlayRotationZ": "VR图层相对于头显的旋转角度，Z轴方向",
     "vrOverlayScale": "VR图层缩放比例",
 
     "udpListenAddress": "监听的UDP地址",
@@ -317,7 +317,7 @@
       "tb_showHud": "是否在游戏中显示悬浮窗，需要游戏处于窗口模式或无边窗口模式",
       "tb_mute": "静音/取消静音",
 
-      "cb_gameNotInstalled": "该游戏未能正确安装，请检查游戏是否安装正确",
+      "cb_gameNotInstalled": "该游戏未能正确安装，请检查游戏是否安装正确"
     }
   },
   "misc": {
