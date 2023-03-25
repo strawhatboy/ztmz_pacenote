@@ -4,12 +4,11 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-//using System.Windows.Forms;
-//using CrewChiefV4.commands;
 using Newtonsoft.Json;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.Mathematics.Interop;
+
 /// <summary>
 /// This class stores settings for each Target Application
 /// </summary>

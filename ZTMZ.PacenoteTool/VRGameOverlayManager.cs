@@ -14,6 +14,7 @@ namespace ZTMZ.PacenoteTool
 {
     public class VRGameOverlayManager
     {
+        private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         private BackgroundWorker _bgw;
         private bool _isRunning;
         private DeviceManager _deviceManager = null;
@@ -32,9 +33,24 @@ namespace ZTMZ.PacenoteTool
                 string windowName = Win32Stuff.GetWindowText(wnd);
                 if (!string.IsNullOrWhiteSpace(windowName) && windowName == Config.Instance.VrOverlayWindowName)
                 {
-                    _vrOverlayWindow = new VROverlayWindow(windowName, wnd, enabled: false, isDisplay: false);
+                    _vrOverlayWindow = new VROverlayWindow(windowName, wnd, enabled: true, isDisplay: false, wasEnabled: true);
+                    UpdateOverlayWindow();
                     break;
                 }
+            }
+        }
+
+        public void UpdateOverlayWindow()
+        {
+            if (_vrOverlayWindow != null)
+            {
+                _vrOverlayWindow.positionX = Config.Instance.VrOverlayPositionX * 0.01f;
+                _vrOverlayWindow.positionY = Config.Instance.VrOverlayPositionY * 0.01f;
+                _vrOverlayWindow.positionZ = Config.Instance.VrOverlayPositionZ * 0.01f;
+                _vrOverlayWindow.rotationX = Config.Instance.VrOverlayRotationX * 0.01f;
+                _vrOverlayWindow.rotationY = Config.Instance.VrOverlayRotationY * 0.01f;
+                _vrOverlayWindow.rotationZ = Config.Instance.VrOverlayRotationZ * 0.01f;
+                _vrOverlayWindow.scale = Config.Instance.VrOverlayScale * 0.01f;
             }
         }
 
@@ -45,36 +61,63 @@ namespace ZTMZ.PacenoteTool
 
         private void waitForSteamVR()
         {
-           while (!this.isSteamVrRunning())
-           {
-               Thread.Sleep(1000);
-           }
+            while (!this.isSteamVrRunning())
+            {
+                Thread.Sleep(1000);
+            }
         }
 
         public void StartLoop()
         {
+            if (!this.isSteamVrRunning())
+            {
+                _logger.Info("SteamVR is not running, please check and restart application.");
+                return;
+            }
+
             _isRunning = true;
             _bgw = new BackgroundWorker();
+
             this.initliazeOverlay();
             _bgw.DoWork += (sender, args) =>
             {
+                uint vrEventSize = (uint)SharpDX.Utilities.SizeOf<VREvent_t>();
                 while (_isRunning)
                 {
-                    TrackedDevices.UpdatePoses();
-                    TrackedDevices.GetHeadPose(out SharpDX.Matrix hmdMatrix, out _, out _);
-
-                    VROverlayWindow[] currentItem = null;
-                    if (_vrOverlayWindow != null)
+                    var vrEvent = new VREvent_t();
+                    while (OpenVR.System != null && OpenVR.System.PollNextEvent(ref vrEvent, vrEventSize))
                     {
-                        currentItem.Append<VROverlayWindow>(_vrOverlayWindow);
+                        switch ((EVREventType)vrEvent.eventType)
+                        {
+                            case EVREventType.VREvent_Quit:
+                                {
+                                    this.handleVRQuit();
+                                    break;
+                                }
+                            default:
+                                break;
+                        }
                     }
-                    
-                    var windowBatch = currentItem.Where(wnd => wnd.enabled).ToList();
-                    _captureSource.Capture(windowBatch);
-                    foreach (var wnd in windowBatch)
+
+                    if (OpenVR.System != null)
                     {
-                        wnd.hmdMatrix = hmdMatrix;
-                        wnd.Draw();
+                        TrackedDevices.UpdatePoses();
+                        TrackedDevices.GetHeadPose(out SharpDX.Matrix hmdMatrix, out _, out _);
+
+                        //FIXME: just support overlay one window.
+                        VROverlayWindow[] currentItem = new VROverlayWindow[1];
+                        if (_vrOverlayWindow != null)
+                        {
+                            currentItem[0] = _vrOverlayWindow;
+                        }
+
+                        var windowBatch = currentItem.Where(wnd => wnd.enabled).ToList();
+                        _captureSource.Capture(windowBatch);
+                        foreach (var wnd in windowBatch)
+                        {
+                            wnd.hmdMatrix = hmdMatrix;
+                            wnd.Draw();
+                        }
                     }
                 }
             };

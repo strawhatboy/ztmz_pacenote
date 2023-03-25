@@ -204,13 +204,6 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._UI_ShowHud;
         }
 
-        private bool _UI_ShowVROverlay = true;
-        public bool UI_ShowVROverlay
-        {
-            set { this._UI_ShowVROverlay = value; this._userconfig["UI_ShowVROverlay"] = value; }
-            get => this._UI_ShowVROverlay;
-        }
-
         private double _UI_PlaybackAdjustSeconds = 0;
         public double UI_PlaybackAdjustSeconds
         {

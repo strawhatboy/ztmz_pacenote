@@ -85,9 +85,15 @@ namespace VRGameOverlay.VROverlayWindow
                     else if (w.Name != dub.deviceName)
                         continue;
 
+                    // get the screen size for mouse capture
+                    w.rectScreen = w.isDisplay
+                                   ? new SharpDX.Rectangle(dub.rectangle.Left, dub.rectangle.Top, dub.rectangle.Width, dub.rectangle.Height)
+                                   : new SharpDX.Rectangle(info.rcWindow.Left + (int)info.cxWindowBorders, info.rcWindow.Top, info.rcWindow.Width - (int)info.cxWindowBorders * 2, info.rcWindow.Height - (int)info.cyWindowBorders);
 
                     // update the window size for display, may need to create a new texture
-                    var rect = new SharpDX.Rectangle(0, 0, dub.width, dub.height);
+                    var rect = w.isDisplay
+                                    ? new SharpDX.Rectangle(0, 0, dub.width, dub.height)
+                                    : new SharpDX.Rectangle(Math.Abs(dub.rectangle.Left - info.rcWindow.Left) + (int)info.cxWindowBorders, Math.Abs(dub.rectangle.Top - info.rcWindow.Top), info.rcWindow.Width - (int)info.cxWindowBorders * 2, info.rcWindow.Height - (int)info.cyWindowBorders);
 
                     w.TryUpdateSize(rect, () => new Texture2D(device, new Texture2DDescription
                     {

@@ -377,23 +377,7 @@
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
-                <TabItem>
-                    <TabItem.Header>
-                        <StackPanel Width="auto" Height="auto">
-                            <materialDesign:PackIcon Width="24" Height="24" HorizontalAlignment="Center" Kind="GamepadVariantOutline" />
-                            <TextBlock HorizontalAlignment="Center" Text="{DynamicResource ResourceKey=settings.section.game}" />
-                        </StackPanel>
-                    </TabItem.Header>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" materialDesign:ScrollViewerAssist.IsAutoHideEnabled="True">
-                        <StackPanel Margin="16">
-                            <TextBlock x:Name="tb_CurrentGame" Margin="0,0,0,8" Style="{StaticResource MaterialDesignHeadline5TextBlock}" Text="{DynamicResource ResourceKey=settings.section.game}" />
-                            <Image x:Name="img_CurrentGame"  Width="230" Height="108" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" HorizontalAlignment="Left" />
-                            <Separator Margin="0 8 0 8" />
-                            <StackPanel x:Name="sp_CurrentGame"/>
-                        </StackPanel>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem>
+                                <TabItem>
                     <TabItem.Header>
                         <StackPanel Width="auto" Height="auto">
                             <materialDesign:PackIcon Width="24" Height="24" HorizontalAlignment="Center" Kind="Vr" />
@@ -406,9 +390,9 @@
                             <Grid TextBlock.Foreground="{DynamicResource MaterialDesignBody}" Margin="24,8,0,16">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition />
-                                    <ColumnDefinition Width="100" />
-                                    <ColumnDefinition Width="40" />
-                                    <ColumnDefinition Width="40" />
+                                    <ColumnDefinition Width="180" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="60" />
                                 </Grid.ColumnDefinitions>
 
                                 <Grid.RowDefinitions>
@@ -424,42 +408,60 @@
                                     <RowDefinition Height="40" />
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=setting.vrShowOverlay}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrShowOverlay}" />
+                                <TextBlock VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrShowOverlay}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrShowOverlay}" Height="20" />
                                 <ToggleButton x:Name="btn_vrShowOverlay" Grid.Row="0" Grid.Column="1" />
-                                <materialDesign:PackIcon x:Name="pi_vrShowOverlay" Kind="Warning" Foreground="OrangeRed" Grid.Row="0" Grid.Column="2" Height="30" Width="30" Margin="10 0 0 0" VerticalAlignment="Center" ToolTip="{DynamicResource ResourceKey=settings.restartNeeded}" Visibility="Hidden" />
+                                <materialDesign:PackIcon x:Name="pi_vrShowOverlay" Kind="Warning" Foreground="OrangeRed" Grid.Column="2" Height="30" Width="30" Margin="10,0,0,0" VerticalAlignment="Center" ToolTip="{DynamicResource ResourceKey=settings.restartNeeded}" Visibility="Hidden" />
 
-                                <ComboBox x:Name="cb_vrOverlayWindows" HorizontalAlignment="Center" Grid.Row="1" Width="576" />
-                                <Button x:Name="btn_vrWindowsRefresh" Grid.Column="1" Content="{materialDesign:PackIcon DotsHorizontalCircle}" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="80" Height="30" Click="btn_vrWindowsRefresh_Click" />
+                                <ComboBox x:Name="cb_vrOverlayWindows" HorizontalAlignment="Center" Grid.Row="1" Width="450" Height="24" />
+                                <Button x:Name="btn_vrWindowsRefresh" Grid.Column="1" Content="{materialDesign:PackIcon Kind=Refresh}" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="80" Height="30" Click="btn_vrWindowsRefresh_Click" />
 
-                                <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayPositionX}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionX}" />
-                                <Slider x:Name="sl_vrOverlayPositionX" Grid.Row="2" Grid.Column="1" Value="0" Maximum="5.0" Minimum="-5.0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" />
-                                <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding ElementName=sl_vrOverlayPositionX, Path=Value, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayPositionX}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionX}" Height="20" />
+                                <Slider x:Name="sl_vrOverlayPositionX" Grid.Row="2" Grid.Column="1" Value="0" Maximum="500" Minimum="-500" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" Height="20" TickFrequency="1" IsSnapToTickEnabled="True" />
+                                <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding ElementName=sl_vrOverlayPositionX, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="60" />
 
-                                <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayPositionY}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionY}" />
-                                <Slider x:Name="sl_vrOverlayPositionY" Grid.Row="3" Grid.Column="1" Value="0" Maximum="5.0" Minimum="-5.0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" />
-                                <TextBox Grid.Row="3" Grid.Column="2" Text="{Binding ElementName=sl_vrOverlayPositionY, Path=Value, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayPositionY}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionY}" Height="20" />
+                                <Slider x:Name="sl_vrOverlayPositionY" Grid.Row="3" Grid.Column="1" Value="0" Maximum="500" Minimum="-500" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" Height="20" TickFrequency="1" IsSnapToTickEnabled="True" />
+                                <TextBox Grid.Row="3" Grid.Column="2" Text="{Binding ElementName=sl_vrOverlayPositionY, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="60" />
 
-                                <TextBlock Grid.Row="4" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayPositionZ}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionZ}" />
-                                <Slider x:Name="sl_vrOverlayPositionZ" Grid.Row="4" Grid.Column="1" Value="1.0" Maximum="5.0" Minimum="-5.0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" />
-                                <TextBox Grid.Row="4" Grid.Column="2" Text="{Binding ElementName=sl_vrOverlayPositionZ, Path=Value, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Grid.Row="4" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayPositionZ}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionZ}" Height="20" />
+                                <Slider x:Name="sl_vrOverlayPositionZ" Grid.Row="4" Grid.Column="1" Value="-100" Maximum="500" Minimum="-500" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" Height="20" TickFrequency="1" IsSnapToTickEnabled="True" />
+                                <TextBox Grid.Row="4" Grid.Column="2" Text="{Binding ElementName=sl_vrOverlayPositionZ, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="60" />
 
-                                <TextBlock Grid.Row="5" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayRotationX}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationX}" />
-                                <Slider x:Name="sl_vrOverlayRotationX" Grid.Row="5" Grid.Column="1" Value="0" Maximum="1.0" Minimum="-1.0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" />
-                                <TextBox Grid.Row="5" Grid.Column="2" Text="{Binding ElementName=sl_vrOverlayRotationX, Path=Value, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Grid.Row="5" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayRotationX}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationX}" Height="20" />
+                                <Slider x:Name="sl_vrOverlayRotationX" Grid.Row="5" Grid.Column="1" Value="0" Maximum="100" Minimum="-100" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" Height="20" TickFrequency="1" IsSnapToTickEnabled="True" />
+                                <TextBox Grid.Row="5" Grid.Column="2" Text="{Binding ElementName=sl_vrOverlayRotationX, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="60" />
 
-                                <TextBlock Grid.Row="6" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayRotationY}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationY}" />
-                                <Slider x:Name="sl_vrOverlayRotationY" Grid.Row="6" Grid.Column="1" Value="0" Maximum="1.0" Minimum="-1.0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" />
-                                <TextBox Grid.Row="6" Grid.Column="2" Text="{Binding ElementName=sl_vrOverlayRotationY, Path=Value, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Grid.Row="6" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayRotationY}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationY}" Height="20" />
+                                <Slider x:Name="sl_vrOverlayRotationY" Grid.Row="6" Grid.Column="1" Value="0" Maximum="100" Minimum="-100" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" Height="20" TickFrequency="1" IsSnapToTickEnabled="True" />
+                                <TextBox Grid.Row="6" Grid.Column="2" Text="{Binding ElementName=sl_vrOverlayRotationY, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="60" />
 
-                                <TextBlock Grid.Row="7" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayRotationZ}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationZ}" />
-                                <Slider x:Name="sl_vrOverlayRotationZ" Grid.Row="7" Grid.Column="1" Value="0" Maximum="1.0" Minimum="-1.0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" />
-                                <TextBox Grid.Row="7" Grid.Column="2" Text="{Binding ElementName=sl_vrOverlayRotationZ, Path=Value, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Grid.Row="7" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayRotationZ}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationZ}" Height="20" />
+                                <Slider x:Name="sl_vrOverlayRotationZ" Grid.Row="7" Grid.Column="1" Value="0" Maximum="100" Minimum="-100" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" Height="20" TickFrequency="1" IsSnapToTickEnabled="True" />
+                                <TextBox Grid.Row="7" Grid.Column="2" Text="{Binding ElementName=sl_vrOverlayRotationZ, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="60" />
 
-                                <TextBlock Grid.Row="8" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayScale}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayScale}" />
-                                <Slider x:Name="sl_vrOverlayScale" Grid.Row="8" Grid.Column="1" Value="1.0" Maximum="5.0" Minimum="0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" />
-                                <TextBox Grid.Row="8" Grid.Column="2" Text="{Binding ElementName=sl_vrOverlayScale, Path=Value, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Grid.Row="8" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayScale}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayScale}" Height="20" />
+                                <Slider x:Name="sl_vrOverlayScale" Grid.Row="8" Grid.Column="1" Value="100" Maximum="200" Minimum="0" Style="{StaticResource MaterialDesignSlider}" VerticalAlignment="Center" Height="20" TickFrequency="1" IsSnapToTickEnabled="True" />
+                                <TextBox Grid.Row="8" Grid.Column="2" Text="{Binding ElementName=sl_vrOverlayScale, Path=Value, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="60" />
 
+                                <TextBlock Grid.Row="9" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayParamSave}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayParamSave}" Height="20" />
+                                <Button x:Name="btn_vrOverlayParamSave" Grid.Column="1" Grid.Row="9" Content="{materialDesign:PackIcon Kind=ContentSaveAll}" HorizontalAlignment="Center" VerticalAlignment="Center" Width="80" Height="30" Click="btn_vrOverlayParamSave_Click" />
                             </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Width="auto" Height="auto">
+                            <materialDesign:PackIcon Width="24" Height="24" HorizontalAlignment="Center" Kind="GamepadVariantOutline" />
+                            <TextBlock HorizontalAlignment="Center" Text="{DynamicResource ResourceKey=settings.section.game}" />
+                        </StackPanel>
+                    </TabItem.Header>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" materialDesign:ScrollViewerAssist.IsAutoHideEnabled="True">
+                        <StackPanel Margin="16">
+                            <TextBlock x:Name="tb_CurrentGame" Margin="0,0,0,8" Style="{StaticResource MaterialDesignHeadline5TextBlock}" Text="{DynamicResource ResourceKey=settings.section.game}" />
+                            <Image x:Name="img_CurrentGame"  Width="230" Height="108" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" HorizontalAlignment="Left" />
+                            <Separator Margin="0 8 0 8" />
+                            <StackPanel x:Name="sp_CurrentGame"/>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>

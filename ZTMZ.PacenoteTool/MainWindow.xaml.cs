@@ -31,6 +31,7 @@ using ZTMZ.PacenoteTool.Dialog;
 using Constants = ZTMZ.PacenoteTool.Base.Constants;
 using System.Windows.Media.Effects;
 using ZTMZ.PacenoteTool.Base.Dialog;
+using VRGameOverlay.VROverlayWindow;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -286,16 +287,17 @@ namespace ZTMZ.PacenoteTool
                     }
                 }
 
-                if (_version.Equals("2.8.1.0"))
+                if (_version.Equals("2.8.0.0"))
                 {
                     Config.Instance.VrShowOverlay = false;
+                    Config.Instance.VrOverlayWindowName = "";
                     Config.Instance.VrOverlayPositionX = 0.0f;
                     Config.Instance.VrOverlayPositionY = 0.0f;
-                    Config.Instance.VrOverlayPositionZ = 1.0f;
+                    Config.Instance.VrOverlayPositionZ = -100.0f;
                     Config.Instance.VrOverlayRotationX = 0.0f;
                     Config.Instance.VrOverlayRotationY = 0.0f;
                     Config.Instance.VrOverlayRotationZ = 0.0f;
-                    Config.Instance.VrOverlayScale = 1.0f;
+                    Config.Instance.VrOverlayScale = 100.0f;
                     Config.Instance.SaveUserConfig();
                 }
             } else {
@@ -933,10 +935,11 @@ namespace ZTMZ.PacenoteTool
 
         private void initializeVRGameOverlay()
         {
-            if (Config.Instance.UI_ShowVROverlay) {
-                GoogleAnalyticsHelper.Instance.TrackPageView("Window - VrOverlay", "vroverlay");
+            if (OpenVR.IsRuntimeInstalled() && Config.Instance.VrShowOverlay) {
                 this._vrgameOverlayManager.StartLoop();
             }
+
+            _logger.Info("Vr Game overlay initliazed.");
         }
 
         private void initializeAutoRecorder()
@@ -1433,7 +1436,8 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 
             }
             GoogleAnalyticsHelper.Instance.TrackPageView("Window - Settings", "window/settings");
-            
+
+            _settingsWindow.VrParamChanged += _vrgameOverlayManager.UpdateOverlayWindow;
             _settingsWindow.SetGame(_currentGame);
             _settingsWindow.Show();
             _settingsWindow.Focus();

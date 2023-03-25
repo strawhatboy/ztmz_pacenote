@@ -22,6 +22,7 @@ namespace ZTMZ.PacenoteTool
     {
         public event Action PortChanged;
         public event Action HudFPSChanged;
+        public event Action VrParamChanged;
         public bool CanClose { set; get; } = false;
         public SettingsWindow()
         {
@@ -159,7 +160,11 @@ namespace ZTMZ.PacenoteTool
 
         private void initVrOverlay()
         {
-            initBoolSetting(btn_vrShowOverlay, "VrShowOverlay");
+            initBoolSetting(btn_vrShowOverlay, "VrShowOverlay", false, () =>
+            {
+                this.pi_vrShowOverlay.Visibility = Visibility.Visible;
+                this.tb_restartNeeded.Visibility = Visibility.Visible;
+            });
             initWindowList();
             this.cb_vrOverlayWindows.SelectionChanged += this.cb_vrOverlayWindows_SelectChanged;
             initSliderSetting(sl_vrOverlayPositionX, "VrOverlayPositionX");
@@ -276,15 +281,21 @@ namespace ZTMZ.PacenoteTool
         {
             List<IntPtr> windows = new List<IntPtr>();
             windows.AddRange(Win32Stuff.FindWindows());
-            foreach (var wnd in windows)
+
+            this.cb_vrOverlayWindows.SelectedIndex = 0;
+            for (int i = 0; i < windows.Count; i++)
             {
+                IntPtr wnd = windows[i];
                 string windowName = Win32Stuff.GetWindowText(wnd);
                 if (!string.IsNullOrWhiteSpace(windowName))
                 {
                     this.cb_vrOverlayWindows.Items.Add(windowName);
+                    if (Config.Instance.VrOverlayWindowName == windowName)
+                    {
+                        this.cb_vrOverlayWindows.SelectedIndex = i;
+                    }
                 }
             }
-            this.cb_vrOverlayWindows.SelectedIndex = 0;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -342,6 +353,15 @@ namespace ZTMZ.PacenoteTool
                     this.cb_vrOverlayWindows.SelectedIndex = 0;
                 }
                 this.cb_vrOverlayWindows.Items.Remove(rm);
+            }
+        }
+
+        private void btn_vrOverlayParamSave_Click(object sender, RoutedEventArgs e)
+        {
+            if (Config.Instance.VrShowOverlay)
+            {
+                Config.Instance.SaveUserConfig();
+                VrParamChanged?.Invoke();
             }
         }
 

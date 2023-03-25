@@ -77,7 +77,7 @@
       "enableGoogleAnalytics": "Use Google Analytics to collect some of your \"usage information\" to help us improve the program. All of this information is sent to Google servers in an anonymous form for statistical use. You can allow or prohibit this in the settings at any time. This information includes and is limited to:\n\t- Operating system version\n\t- Opening this program event\n\t- Opening each window event in this program\n\t- Each configuration item modification event\n \t- The modification event of the main interface configuration item\n\t- The event of using a specific voice package to play the game (to count the voice package preference)",
       "optInBetaPlan": "Turn on this option to recieve updates and new features in the beta version",
 
-      "vrShowOverlay": "Enable SteamVR Overlay",
+      "vrShowOverlay": "Enable SteamVR Overlay, make sure the SteamVR is running and your vr hmd is connected.",
       "vrOverlayPositionX": "VR Overlay Position X",
       "vrOverlayPositionY": "VR Overlay Position Y",
       "vrOverlayPositionZ": "VR Overlay Position Z",
@@ -85,6 +85,7 @@
       "vrOverlayRotationY": "VR Overlay Rotation Y",
       "vrOverlayRotationZ": "VR Overlay Rotation Z",
       "vrOverlayScale": "VR Overlay Scale",
+      "vrOverlayParamSave": "VR Overlay Parameters Save, all above",
 
       "udpListenAddress": "127.0.0.1 by default",
       "udpListenPort": "If you want to use this tool along with SIMHUB, changing the default 20777 to 20778 would help",
@@ -154,6 +155,7 @@
     "vrOverlayRotationY": "VR Overlay Rotation Y",
     "vrOverlayRotationZ": "VR Overlay Rotation Z",
     "vrOverlayScale": "VR Overlay Scale",
+    "vrOverlayParamSave": "VR Overlay Parameters Save",
 
     "udpListenAddress": "Telemetry UDP listen address",
     "udpListenPort": "Telemetry UDP port",
