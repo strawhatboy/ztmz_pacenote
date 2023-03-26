@@ -144,6 +144,7 @@ namespace ZTMZ.PacenoteTool
                             wnd.Draw();
                         }
                     }
+                    Thread.Sleep(10);
                 }
             };
             _bgw.RunWorkerAsync();
