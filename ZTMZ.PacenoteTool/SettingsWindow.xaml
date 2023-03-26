@@ -412,7 +412,7 @@
                                 <ToggleButton x:Name="btn_vrShowOverlay" Grid.Row="0" Grid.Column="1" />
                                 <materialDesign:PackIcon x:Name="pi_vrShowOverlay" Kind="Warning" Foreground="OrangeRed" Grid.Column="2" Height="30" Width="30" Margin="10,0,0,0" VerticalAlignment="Center" ToolTip="{DynamicResource ResourceKey=settings.restartNeeded}" Visibility="Hidden" />
 
-                                <ComboBox x:Name="cb_vrOverlayWindows" HorizontalAlignment="Center" Grid.Row="1" Width="450" Height="24" />
+                                <ComboBox x:Name="cb_vrOverlayWindows" HorizontalAlignment="Center" Grid.Row="1" Width="420" Height="24" />
                                 <Button x:Name="btn_vrWindowsRefresh" Grid.Column="1" Content="{materialDesign:PackIcon Kind=Refresh}" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="80" Height="30" Click="btn_vrWindowsRefresh_Click" />
 
                                 <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.vrOverlayPositionX}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionX}" Height="20" />

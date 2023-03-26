@@ -17,6 +17,7 @@ namespace ZTMZ.PacenoteTool
         private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         private BackgroundWorker _bgw;
         private bool _isRunning;
+        private bool _isNeedReload = false;
         private DeviceManager _deviceManager = null;
         private Direct3D11CaptureSource _captureSource = null;
         private VROverlayWindow _vrOverlayWindow = null;
@@ -25,7 +26,12 @@ namespace ZTMZ.PacenoteTool
         {
             _deviceManager = new DeviceManager(OpenVR.System);
             _captureSource = new Direct3D11CaptureSource(_deviceManager, OpenVR.System);
-            
+
+            this.initliazeOverlayWindow();
+        }
+
+        private void initliazeOverlayWindow()
+        {
             List<IntPtr> windows = new List<IntPtr>();
             windows.AddRange(Win32Stuff.FindWindows());
             foreach (var wnd in windows)
@@ -40,10 +46,23 @@ namespace ZTMZ.PacenoteTool
             }
         }
 
+        private void ResetOverlayWindow()
+        {
+            _vrOverlayWindow.enabled = false;
+            _vrOverlayWindow.Dispose();
+            _vrOverlayWindow = null;
+            this.initliazeOverlayWindow();
+        }
+
         public void UpdateOverlayWindow()
         {
             if (_vrOverlayWindow != null)
             {
+                if (this._vrOverlayWindow.Name != Config.Instance.VrOverlayWindowName)
+                {
+                    _isNeedReload = true;
+                }
+
                 _vrOverlayWindow.positionX = Config.Instance.VrOverlayPositionX * 0.01f;
                 _vrOverlayWindow.positionY = Config.Instance.VrOverlayPositionY * 0.01f;
                 _vrOverlayWindow.positionZ = Config.Instance.VrOverlayPositionZ * 0.01f;
@@ -97,6 +116,12 @@ namespace ZTMZ.PacenoteTool
                             default:
                                 break;
                         }
+                    }
+
+                    if (_isNeedReload)
+                    {
+                        _isNeedReload = false;
+                        ResetOverlayWindow();
                     }
 
                     if (OpenVR.System != null)

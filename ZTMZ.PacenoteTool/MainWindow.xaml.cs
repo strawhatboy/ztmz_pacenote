@@ -287,7 +287,7 @@ namespace ZTMZ.PacenoteTool
                     }
                 }
 
-                if (_version.Equals("2.8.0.0"))
+                if (_version.Equals("2.8.1.0"))
                 {
                     Config.Instance.VrShowOverlay = false;
                     Config.Instance.VrOverlayWindowName = "";

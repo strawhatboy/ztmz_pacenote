@@ -18,9 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="openvr_api.dll">
+    <None Update="openvr_api.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </None>
   </ItemGroup>
 
 </Project>
