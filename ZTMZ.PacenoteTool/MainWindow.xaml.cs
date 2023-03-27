@@ -31,6 +31,7 @@ using ZTMZ.PacenoteTool.Dialog;
 using Constants = ZTMZ.PacenoteTool.Base.Constants;
 using System.Windows.Media.Effects;
 using ZTMZ.PacenoteTool.Base.Dialog;
+using VRGameOverlay.VROverlayWindow;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -47,6 +48,7 @@ namespace ZTMZ.PacenoteTool
         private ProfileManager _profileManager;
         private AudioRecorder _audioRecorder;
         private GameOverlayManager _gameOverlayManager;
+        private VRGameOverlayManager _vrgameOverlayManager;
         private string _trackName;
         private string _trackFolder;
         private AutoRecorder _autoRecorder;
@@ -108,6 +110,7 @@ namespace ZTMZ.PacenoteTool
             this._profileManager = new();
             this._audioRecorder = new();
             this._gameOverlayManager = new();
+            this._vrgameOverlayManager = new();
             this._autoRecorder = new();
 
             this.loadGames();
@@ -118,6 +121,7 @@ namespace ZTMZ.PacenoteTool
             // this.checkPrerequisite();   // should be put into every game
             this.checkIfDevVersion();
             this.initializeGameOverlay();
+            this.initializeVRGameOverlay();
             this.initializeAutoRecorder();
             this.applyUserConfig();
             this.initializeGames();
@@ -281,6 +285,20 @@ namespace ZTMZ.PacenoteTool
                         ((UdpGameConfig)dr2game.GameConfigurations[UdpGameConfig.Name]).Port = Config.Instance.UDPListenPort;
                         Config.Instance.SaveGameConfig(dr2game);
                     }
+                }
+
+                if (_version.Equals("2.8.1.0"))
+                {
+                    Config.Instance.VrShowOverlay = false;
+                    Config.Instance.VrOverlayWindowName = "";
+                    Config.Instance.VrOverlayPositionX = 0.0f;
+                    Config.Instance.VrOverlayPositionY = 0.0f;
+                    Config.Instance.VrOverlayPositionZ = -100.0f;
+                    Config.Instance.VrOverlayRotationX = 0.0f;
+                    Config.Instance.VrOverlayRotationY = 0.0f;
+                    Config.Instance.VrOverlayRotationZ = 0.0f;
+                    Config.Instance.VrOverlayScale = 100.0f;
+                    Config.Instance.SaveUserConfig();
                 }
             } else {
                 GoogleAnalyticsHelper.Instance.TrackLaunchEvent("non_first_run", _version);
@@ -915,6 +933,15 @@ namespace ZTMZ.PacenoteTool
             _logger.Info("Game overlay initialized.");
         }
 
+        private void initializeVRGameOverlay()
+        {
+            if (OpenVR.IsRuntimeInstalled() && Config.Instance.VrShowOverlay) {
+                this._vrgameOverlayManager.StartLoop();
+            }
+
+            _logger.Info("Vr Game overlay initliazed.");
+        }
+
         private void initializeAutoRecorder()
         {
 
@@ -1409,7 +1436,8 @@ AutoUpdater.NET (https://github.com/ravibpatel/AutoUpdater.NET)
                 
             }
             GoogleAnalyticsHelper.Instance.TrackPageView("Window - Settings", "window/settings");
-            
+
+            _settingsWindow.VrParamChanged += _vrgameOverlayManager.UpdateOverlayWindow;
             _settingsWindow.SetGame(_currentGame);
             _settingsWindow.Show();
             _settingsWindow.Focus();

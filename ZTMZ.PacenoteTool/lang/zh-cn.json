@@ -16,7 +16,8 @@
       "misc": "杂项",
       "playback": "播放",
       "hud": "悬浮窗",
-      "game": "当前游戏"
+      "game": "当前游戏",
+      "vr": "虚拟现实"
     },
 
     "restartNeeded": "需要重启工具来生效",
@@ -42,7 +43,7 @@
       "preloadSounds": "预加载语音包会带来较大的内存开销（约占用2GB），但会在倒计时刚开始时即可加载完毕并播放开始语音",
       "additionalCoDriverPackagesSearchPath": "在搜索语音包时，额外搜索这个文件夹",
       "additionalPacenotesDefinitionSearchPath": "在搜索路书标记定义文件(*.csv)时，额外的搜索这个文件夹\n路书标记定义文件需要按照pacenotes.csv的格式保存",
-      
+
       "useSequentialMixerToHandleAudioConflict": "队列播放模式可以避免同一时刻播放多个语音片段造成的语音重叠现象",
       "useDynamicPlaybackSpeed": "在某些路书较为密集的地图（如苏格兰）中，通过动态地根据车速与下个路书位置来调整当前路书片段的语速，来避免路书跟不上车的情况",
       "useTempoInsteadOfRate": "使用节拍方式，可以保证仅仅加速或减速语音，而保持音调不变，使用频率方式会导致音调发生变化（怪起来了）",
@@ -76,6 +77,16 @@
       "enableGoogleAnalytics": "使用Google Analytics收集你的一些“使用信息”来帮助我们改善程序，这些信息全部是以匿名形式发送到谷歌服务器用作统计使用，你可以随时在设置中允许或禁止我们对这些信息的收集。这些信息包括且仅限于：\n\t- 操作系统版本\n\t- 打开本程序事件\n\t- 打开本程序内的各个窗口事件\n\t- 各个配置项的修改事件\n\t- 主界面配置项的修改事件\n\t- 使用具体语音包进行比赛的事件(用以统计语音包偏好)",
       "optInBetaPlan": "打开此选项以获取测试版的更新和新功能，测试版的更新频率会高于正式版",
 
+      "vrShowOverlay": "打开SteamVR Overlay, 开启之前请确保SteamVR打开并且头显连接就绪",
+      "vrOverlayPositionX": "VR图层相对于头显的位置，X轴方向",
+      "vrOverlayPositionY": "VR图层相对于头显的位置，Y轴方向",
+      "vrOverlayPositionZ": "VR图层相对于头显的位置，Z轴方向",
+      "vrOverlayRotationX": "VR图层相对于头显的旋转角度，X轴方向",
+      "vrOverlayRotationY": "VR图层相对于头显的旋转角度，X轴方向",
+      "vrOverlayRotationZ": "VR图层相对于头显的旋转角度，X轴方向",
+      "vrOverlayScale": "VR图层缩放比例",
+      "vrOverlayParamSave": "保存以上全部VR图层参数",
+
       "udpListenAddress": "默认为127.0.0.1",
       "udpListenPort": "游戏默认的数据端口是20777，如果想和simhub同时使用，可以修改为20778",
       "udpListenPort_Warning": "端口号和游戏的数据端口号{0}不一致，可能你正在使用SIMHUB",
@@ -102,7 +113,7 @@
     "preloadSounds": "预加载语音包",
     "additionalCoDriverPackagesSearchPath": "额外的语音包搜索文件夹",
     "additionalPacenotesDefinitionSearchPath": "额外的路书定义文件(*.csv)搜索文件夹",
-    
+
     "useSequentialMixerToHandleAudioConflict": "使用队列播放模式",
     "useDynamicPlaybackSpeed": "使用动态语速调整",
     "useTempoInsteadOfRate": "使用修改节拍而不是频率的方式来调整播放语速",
@@ -112,9 +123,9 @@
     "dynamicVolumePerturbationAmplitude": "语音紧张感增强波形振幅（0~1）",
     "factorToRemoveSpaceFromAudioFiles": "语音间紧凑程度",
     "connectCloseDistanceCallToNextPacenote": "将较短的 distance_call 与下个语音进行连接（仅限动态路书）",
-    "connectNumericDistanceCallToPreviousPacenote": "将较长的 distance_call 与上个语音进行连接（仅限动态路书）",      
+    "connectNumericDistanceCallToPreviousPacenote": "将较长的 distance_call 与上个语音进行连接（仅限动态路书）",
     "examplePacenoteString": "示例路书片段",
-    
+
     "hudTopMost": "悬浮窗总是在最上层",
     "hudChromaKeyMode": "是否使用色键抠像模式（全屏游戏录像或直播用）",
     "hudShowTelemetry": "是否显示遥测仪表盘",
@@ -135,6 +146,16 @@
     "hudShowDebugTelemetry": "是否显示调试遥测数据",
     "enableGoogleAnalytics": "是否启用谷歌分析",
     "optInBetaPlan": "加入测试版计划",
+
+    "vrShowOverlay": "打开SteamVR Overlay",
+    "vrOverlayPositionX": "VR图层相对于头显的位置，X轴方向",
+    "vrOverlayPositionY": "VR图层相对于头显的位置，Y轴方向",
+    "vrOverlayPositionZ": "VR图层相对于头显的位置，Z轴方向",
+    "vrOverlayRotationX": "VR图层相对于头显的旋转角度，X轴方向",
+    "vrOverlayRotationY": "VR图层相对于头显的旋转角度，Y轴方向",
+    "vrOverlayRotationZ": "VR图层相对于头显的旋转角度，Z轴方向",
+    "vrOverlayScale": "VR图层缩放比例",
+    "vrOverlayParamSave": "VR图层参数保存",
 
     "udpListenAddress": "监听的UDP地址",
     "udpListenPort": "监听的UDP端口",
@@ -298,7 +319,7 @@
       "tb_showHud": "是否在游戏中显示悬浮窗，需要游戏处于窗口模式或无边窗口模式",
       "tb_mute": "静音/取消静音",
 
-      "cb_gameNotInstalled": "该游戏未能正确安装，请检查游戏是否安装正确",
+      "cb_gameNotInstalled": "该游戏未能正确安装，请检查游戏是否安装正确"
     }
   },
   "misc": {

@@ -4,10 +4,10 @@
         <OutputType>WinExe</OutputType>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>app.ico</ApplicationIcon>
-        <AssemblyVersion>2.8.0.0</AssemblyVersion>
-        <PackageVersion>2.8.0.0</PackageVersion>
-        <Version>2.8.0.0</Version>
-        <FileVersion>2.8.0.0</FileVersion>
+        <AssemblyVersion>2.8.1.0</AssemblyVersion>
+        <PackageVersion>2.8.1.0</PackageVersion>
+        <Version>2.8.1.0</Version>
+        <FileVersion>2.8.1.0</FileVersion>
 	    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	    <SignAssembly>False</SignAssembly>
 	    <TargetFramework>net6.0-windows</TargetFramework>
@@ -18,6 +18,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\OnlyR.Core\OnlyR.Core.csproj" />
+      <ProjectReference Include="..\VRGameOverlay\VRGameOverlay.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.AudioCompressor\ZTMZ.PacenoteTool.AudioCompressor.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.AudioPackageManager\ZTMZ.PacenoteTool.AudioPackageManager.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
