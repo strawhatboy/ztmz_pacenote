@@ -17,6 +17,9 @@ using SharpDX.Direct2D1;
 using ZTMZ.PacenoteTool.Base;
 using Geometry = GameOverlay.Drawing.Geometry;
 using Image = GameOverlay.Drawing.Image;
+using Point = GameOverlay.Drawing.Point;
+using Rectangle = GameOverlay.Drawing.Rectangle;
+using Color = GameOverlay.Drawing.Color;
 using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool

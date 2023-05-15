@@ -13,6 +13,8 @@ using ZTMZ.PacenoteTool.Dialog;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Base.Dialog;
 using System.Collections.Generic;
+using System.Linq;
+using VRGameOverlay.VROverlayWindow;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -20,6 +22,7 @@ namespace ZTMZ.PacenoteTool
     {
         public event Action PortChanged;
         public event Action HudFPSChanged;
+        public event Action VrParamChanged;
         public bool CanClose { set; get; } = false;
         public SettingsWindow()
         {
@@ -29,6 +32,7 @@ namespace ZTMZ.PacenoteTool
             initVoicePackage();
             initPlayback();
             initHud();
+            initVrOverlay();
         }
 
         public void SetGame(IGame game)
@@ -154,6 +158,24 @@ namespace ZTMZ.PacenoteTool
             
         }
 
+        private void initVrOverlay()
+        {
+            initBoolSetting(btn_vrShowOverlay, "VrShowOverlay", false, () =>
+            {
+                this.pi_vrShowOverlay.Visibility = Visibility.Visible;
+                this.tb_restartNeeded.Visibility = Visibility.Visible;
+            });
+            initWindowList();
+            this.cb_vrOverlayWindows.SelectionChanged += this.cb_vrOverlayWindows_SelectChanged;
+            initSliderSetting(sl_vrOverlayPositionX, "VrOverlayPositionX");
+            initSliderSetting(sl_vrOverlayPositionY, "VrOverlayPositionY");
+            initSliderSetting(sl_vrOverlayPositionZ, "VrOverlayPositionZ");
+            initSliderSetting(sl_vrOverlayRotationX, "VrOverlayRotationX");
+            initSliderSetting(sl_vrOverlayRotationY, "VrOverlayRotationY");
+            initSliderSetting(sl_vrOverlayRotationZ, "VrOverlayRotationZ");
+            initSliderSetting(sl_vrOverlayScale, "VrOverlayScale");
+        }
+
         private void initVoicePackage()
         {
             // additional voice package
@@ -255,6 +277,27 @@ namespace ZTMZ.PacenoteTool
         {
         }
 
+        private void initWindowList()
+        {
+            List<IntPtr> windows = new List<IntPtr>();
+            windows.AddRange(Win32Stuff.FindWindows());
+
+            this.cb_vrOverlayWindows.SelectedIndex = 0;
+            for (int i = 0; i < windows.Count; i++)
+            {
+                IntPtr wnd = windows[i];
+                string windowName = Win32Stuff.GetWindowText(wnd);
+                if (!string.IsNullOrWhiteSpace(windowName))
+                {
+                    this.cb_vrOverlayWindows.Items.Add(windowName);
+                    if (Config.Instance.VrOverlayWindowName == windowName)
+                    {
+                        this.cb_vrOverlayWindows.SelectedIndex = i;
+                    }
+                }
+            }
+        }
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (!CanClose)
@@ -276,6 +319,49 @@ namespace ZTMZ.PacenoteTool
             {
                 Config.Instance.ResetToDefault();
                 Config.Instance.SaveUserConfig();
+            }
+        }
+
+        private void cb_vrOverlayWindows_SelectChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Config.Instance.VrOverlayWindowName = this.cb_vrOverlayWindows.SelectedItem.ToString();
+            Config.Instance.SaveUserConfig();
+        }
+
+        private void btn_vrWindowsRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            List<IntPtr> windows = new List<IntPtr>();
+            windows.AddRange(Win32Stuff.FindWindows());
+
+            String[] currentItems = this.cb_vrOverlayWindows.Items.OfType<String>().ToArray();
+            var newWindows = windows.Where(wnd => !currentItems.Any(cu => cu == Win32Stuff.GetWindowText(wnd)));
+            var removedWindows = currentItems.Where(ws => !windows.Any(wnd => Win32Stuff.GetWindowText(wnd) == ws));
+
+            foreach (var wnd in newWindows)
+            {
+                string windowName = Win32Stuff.GetWindowText(wnd);
+                if (!string.IsNullOrWhiteSpace(windowName))
+                {
+                    this.cb_vrOverlayWindows.Items.Add(windowName);
+                }
+            }
+
+            foreach (var rm in removedWindows)
+            {
+                if (rm == this.cb_vrOverlayWindows.SelectedItem)
+                {
+                    this.cb_vrOverlayWindows.SelectedIndex = 0;
+                }
+                this.cb_vrOverlayWindows.Items.Remove(rm);
+            }
+        }
+
+        private void btn_vrOverlayParamSave_Click(object sender, RoutedEventArgs e)
+        {
+            if (Config.Instance.VrShowOverlay)
+            {
+                Config.Instance.SaveUserConfig();
+                VrParamChanged?.Invoke();
             }
         }
 

@@ -18,6 +18,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\OnlyR.Core\OnlyR.Core.csproj" />
+      <ProjectReference Include="..\VRGameOverlay\VRGameOverlay.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.AudioCompressor\ZTMZ.PacenoteTool.AudioCompressor.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.AudioPackageManager\ZTMZ.PacenoteTool.AudioPackageManager.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />

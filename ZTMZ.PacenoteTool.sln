@@ -17,18 +17,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewFolder1", "NewFolder1", 
 	ProjectSection(SolutionItems) = preProject
 		autoupdate.json = autoupdate.json
 		autoupdate.xml = autoupdate.xml
-		README.md = README.md
 		README.en.md = README.en.md
+		README.md = README.md
 		README.zh.md = README.zh.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.AudioPackageManager", "ZTMZ.PacenoteTool.AudioPackageManager\ZTMZ.PacenoteTool.AudioPackageManager.csproj", "{887AFC73-AACD-4F7C-B688-3CDA9895423F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZTMZ.PacenoteTool.AudioPackageManager", "ZTMZ.PacenoteTool.AudioPackageManager\ZTMZ.PacenoteTool.AudioPackageManager.csproj", "{887AFC73-AACD-4F7C-B688-3CDA9895423F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.Codemasters", "ZTMZ.PacenoteTool.Codemasters\ZTMZ.PacenoteTool.Codemasters.csproj", "{487E97A7-F3C8-4044-8926-FD441BF9328F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZTMZ.PacenoteTool.Codemasters", "ZTMZ.PacenoteTool.Codemasters\ZTMZ.PacenoteTool.Codemasters.csproj", "{487E97A7-F3C8-4044-8926-FD441BF9328F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.RBR", "ZTMZ.PacenoteTool.RBR\ZTMZ.PacenoteTool.RBR.csproj", "{01C5E423-60FD-4B65-9AA0-BC5FDE22A46A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZTMZ.PacenoteTool.RBR", "ZTMZ.PacenoteTool.RBR\ZTMZ.PacenoteTool.RBR.csproj", "{01C5E423-60FD-4B65-9AA0-BC5FDE22A46A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameOverlay", "GameOverlay\GameOverlay.csproj", "{4E8882A2-F33C-4099-B801-7F9D1281C125}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameOverlay", "GameOverlay\GameOverlay.csproj", "{4E8882A2-F33C-4099-B801-7F9D1281C125}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRGameOverlay", "VRGameOverlay\VRGameOverlay.csproj", "{258718C6-7093-428F-AF65-4AF12028D193}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,6 +93,12 @@ Global
 		{4E8882A2-F33C-4099-B801-7F9D1281C125}.Release_Portable|Any CPU.Build.0 = Debug|Any CPU
 		{4E8882A2-F33C-4099-B801-7F9D1281C125}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E8882A2-F33C-4099-B801-7F9D1281C125}.Release|Any CPU.Build.0 = Release|Any CPU
+		{258718C6-7093-428F-AF65-4AF12028D193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{258718C6-7093-428F-AF65-4AF12028D193}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{258718C6-7093-428F-AF65-4AF12028D193}.Release_Portable|Any CPU.ActiveCfg = Release|Any CPU
+		{258718C6-7093-428F-AF65-4AF12028D193}.Release_Portable|Any CPU.Build.0 = Release|Any CPU
+		{258718C6-7093-428F-AF65-4AF12028D193}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{258718C6-7093-428F-AF65-4AF12028D193}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
