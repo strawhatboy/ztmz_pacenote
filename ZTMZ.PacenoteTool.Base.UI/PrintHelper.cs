@@ -9,7 +9,7 @@ using System.Windows.Documents;
 using System.Windows.Markup;
 using System.Windows.Media;
 
-namespace ZTMZ.PacenoteTool.Base
+namespace ZTMZ.PacenoteTool.Base.UI
 {
     public static class PrintHelper
     {

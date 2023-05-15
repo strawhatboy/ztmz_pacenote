@@ -2,7 +2,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 
-namespace ZTMZ.PacenoteTool.Base.Game;
+using ZTMZ.PacenoteTool.Base.Game;
+
+namespace ZTMZ.PacenoteTool.Base.UI.Game;
 
 public partial class CommonGameConfigsSettingsPane : IGameConfigSettingsPane
 {

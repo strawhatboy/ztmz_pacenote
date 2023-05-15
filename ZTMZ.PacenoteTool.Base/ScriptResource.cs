@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+// using System.Windows.Controls;
+// using System.Windows.Media;
+// using System.Windows.Media.Imaging;
 using CsvHelper;
 using ZTMZ.PacenoteTool.Base;
 
@@ -42,10 +42,10 @@ namespace ZTMZ.PacenoteTool.Base
         public static Dictionary<string, string> FALLBACK { private set; get; } = loadFallback(AppLevelVariables.Instance.GetPath("./fallback.csv"));
         public static Dictionary<string, string> FLAGS { private set; get; } = loadCsv(AppLevelVariables.Instance.GetPath("./flags.csv"));
 
-        private static BitmapImage _imgFlag;
-        private static BitmapImage _imgAlias;
-        private static BitmapImage _imgModifier;
-        private static BitmapImage _imgPacenote;
+        // private static BitmapImage _imgFlag;
+        // private static BitmapImage _imgAlias;
+        // private static BitmapImage _imgModifier;
+        // private static BitmapImage _imgPacenote;
 
         // public static System.Windows.Media.ImageSource IMG_FLAG = new BitmapImage(new Uri("./flag.png", UriKind.Relative));
         // public static System.Windows.Media.ImageSource IMG_PACENOTE = new BitmapImage(new Uri("./pacenote.png", UriKind.Relative));
@@ -96,10 +96,10 @@ namespace ZTMZ.PacenoteTool.Base
             // images
             try
             {
-                _imgFlag = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Base;component/flag.png"));
-                _imgAlias = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Base;component/alias.png"));
-                _imgModifier = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Base;component/modifier.png"));
-                _imgPacenote = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Base;component/pacenote.png"));
+                // _imgFlag = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Base;component/flag.png"));
+                // _imgAlias = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Base;component/alias.png"));
+                // _imgModifier = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Base;component/modifier.png"));
+                // _imgPacenote = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Base;component/pacenote.png"));
             }
             catch
             {
@@ -254,23 +254,23 @@ namespace ZTMZ.PacenoteTool.Base
             return token;
         }
 
-        public static ImageSource GetImageByType(string type)
-        {
-            if (type == TYPE_FLAG)
-            {
-                return _imgFlag;
-            } else if (type == TYPE_ALIAS)
-            {
-                return _imgAlias;
-            } else if (type == TYPE_MODIFIER)
-            {
-                return _imgModifier;
-            } else if (type == TYPE_PACENOTE)
-            {
-                return _imgPacenote;
-            }
+        // public static ImageSource GetImageByType(string type)
+        // {
+        //     if (type == TYPE_FLAG)
+        //     {
+        //         return _imgFlag;
+        //     } else if (type == TYPE_ALIAS)
+        //     {
+        //         return _imgAlias;
+        //     } else if (type == TYPE_MODIFIER)
+        //     {
+        //         return _imgModifier;
+        //     } else if (type == TYPE_PACENOTE)
+        //     {
+        //         return _imgPacenote;
+        //     }
 
-            return null;
-        }
+        //     return null;
+        // }
     }
 }

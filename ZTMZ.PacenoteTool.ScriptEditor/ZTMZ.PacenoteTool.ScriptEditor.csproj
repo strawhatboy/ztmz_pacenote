@@ -32,6 +32,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
+      <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.UI.csproj" />
     </ItemGroup>
 
     <ItemGroup>

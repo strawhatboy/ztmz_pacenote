@@ -1,6 +1,7 @@
 using System.Windows.Controls;
+using ZTMZ.PacenoteTool.Base.Game;
 
-namespace ZTMZ.PacenoteTool.Base.Game;
+namespace ZTMZ.PacenoteTool.Base.UI.Game;
 
 public partial class MemoryGameConfigSettingsPane : IGameConfigSettingsPane
 {

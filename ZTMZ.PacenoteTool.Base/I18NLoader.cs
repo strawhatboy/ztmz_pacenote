@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.IO;
 using Newtonsoft.Json;
-using System.Windows;
+// using System.Windows;
 using Newtonsoft.Json.Linq;
 
 namespace ZTMZ.PacenoteTool.Base
@@ -26,7 +26,7 @@ namespace ZTMZ.PacenoteTool.Base
         public string CurrentCultureName { set; get; }
         public IDictionary<string, string> CurrentCulture { set; get; }
 
-        public ResourceDictionary CurrentDict { get; private set; }
+        // public ResourceDictionary CurrentDict { get; private set; }
 
         public bool IgnoreCase { get; private set; }
 
@@ -115,16 +115,16 @@ namespace ZTMZ.PacenoteTool.Base
                 return;
             }
 
-            List<ResourceDictionary> resources = new List<ResourceDictionary>();
-            //I18NLoader.Instance.Initialize();
-            //I18NLoader.Instance.SetCulture("zh-CN");
-            CurrentDict = new ResourceDictionary();
-            //newDict.Source = new Uri("https://gitee.com/ztmz/ztmz_pacenote/" + I18NLoader.Instance.CurrentCultureName);
-            foreach (var key in I18NLoader.Instance.CurrentCulture.Keys)
-            {
-                CurrentDict.Add(key, I18NLoader.Instance.CurrentCulture[key]);
-            }
-            Application.Current.Resources.MergedDictionaries.Add(CurrentDict);
+            // List<ResourceDictionary> resources = new List<ResourceDictionary>();
+            // //I18NLoader.Instance.Initialize();
+            // //I18NLoader.Instance.SetCulture("zh-CN");
+            // CurrentDict = new ResourceDictionary();
+            // //newDict.Source = new Uri("https://gitee.com/ztmz/ztmz_pacenote/" + I18NLoader.Instance.CurrentCultureName);
+            // foreach (var key in I18NLoader.Instance.CurrentCulture.Keys)
+            // {
+            //     CurrentDict.Add(key, I18NLoader.Instance.CurrentCulture[key]);
+            // }
+            // Application.Current.Resources.MergedDictionaries.Add(CurrentDict);
         }
 
         private void readJson(string culture, JObject root) {
@@ -200,13 +200,13 @@ namespace ZTMZ.PacenoteTool.Base
         {
             get
             {
-                if (this.CurrentDict.Contains(idx))
-                {
-                    if (IgnoreCase) {
-                        return this.CurrentDict[idx.ToLower()].ToString();
-                    }
-                    return this.CurrentDict[idx].ToString();
-                }
+                // if (this.CurrentDict.Contains(idx))
+                // {
+                //     if (IgnoreCase) {
+                //         return this.CurrentDict[idx.ToLower()].ToString();
+                //     }
+                //     return this.CurrentDict[idx].ToString();
+                // }
 
                 return idx;
             }

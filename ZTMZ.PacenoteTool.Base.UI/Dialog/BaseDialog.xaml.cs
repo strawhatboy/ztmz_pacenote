@@ -14,7 +14,7 @@ using System.Windows.Shapes;
 using MaterialDesignThemes.Wpf;
 using ZTMZ.PacenoteTool.Base;
 
-namespace ZTMZ.PacenoteTool.Base.Dialog
+namespace ZTMZ.PacenoteTool.Base.UI.Dialog
 {
     /// <summary>
     /// Interaction logic for BaseDialog.xaml
