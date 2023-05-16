@@ -21,7 +21,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
 
         public IGameDataReader GameDataReader { set; get; } = new DirtGameDataReader();
         
-        public BitmapImage Image { get; } = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/dirtrally.jpg"));
+        public Uri ImageUri { get; } = new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/dirtrally.jpg");
         
         public Dictionary<string, IGameConfig> GameConfigurations { set; get; }
 

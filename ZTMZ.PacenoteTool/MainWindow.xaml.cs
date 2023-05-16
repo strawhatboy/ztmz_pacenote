@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -24,7 +22,6 @@ using OnlyR.Core.Recorder;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using System.Globalization;
-using System.IO;
 using MaterialDesignThemes.Wpf;
 using System.Threading;
 using ZTMZ.PacenoteTool.Dialog;
@@ -60,8 +57,6 @@ namespace ZTMZ.PacenoteTool
 
         private SettingsWindow _settingsWindow;
 
-        private IGame _currentGame;
-        private List<IGame> _games = new();
 
         private ProcessWatcher _processWatcher;
 
@@ -184,23 +179,7 @@ namespace ZTMZ.PacenoteTool
             _logger.Info("ProcessWatcher started");
         }
 
-        private void loadGames()
-        {
-            this._games.Clear();
-            foreach (var file in Directory.EnumerateFiles(Constants.PATH_GAMES, "*.dll")) 
-            {
-                var assembly = Assembly.LoadFrom(System.IO.Path.GetFullPath(file));
-                if (assembly.GetName().Name.Equals("ZTMZ.PacenoteTool.Base")) 
-                {
-                    continue;
-                }
-                var games = assembly.GetTypes().Where(t => typeof(IGame).IsAssignableFrom(t)).Select(i => (IGame)Activator.CreateInstance(i));
-                this._games.AddRange(games);
-            }
-            this._games.Sort((g1, g2) => g1.Order.CompareTo(g2.Order));
-            this._games.ForEach(g => g.GameConfigurations = Config.Instance.LoadGameConfig(g));
-            _logger.Info($"{this._games.Count} games loaded.");
-        }
+        
 
         private void initializeNewUI() {
             this.Hide();

@@ -103,6 +103,9 @@ namespace ZTMZ.PacenoteTool.Base
             SetCulture(CurrentCultureName);
         }
 
+        // after setCulture, the CurrentCulture will be changed, 
+        // need to apply CurrentCulture to WPF Application.Current.Resources
+        // or use I18NLoader.Instance[] to get the value of the key
         public void SetCulture(string culture)
         {
             culture = culture.ToLower();
@@ -112,7 +115,6 @@ namespace ZTMZ.PacenoteTool.Base
             } else
             {
                 SetCulture("en-us");
-                return;
             }
 
             // List<ResourceDictionary> resources = new List<ResourceDictionary>();
@@ -200,13 +202,13 @@ namespace ZTMZ.PacenoteTool.Base
         {
             get
             {
-                // if (this.CurrentDict.Contains(idx))
-                // {
-                //     if (IgnoreCase) {
-                //         return this.CurrentDict[idx.ToLower()].ToString();
-                //     }
-                //     return this.CurrentDict[idx].ToString();
-                // }
+                if (this.CurrentCulture.ContainsKey(idx))
+                {
+                    if (IgnoreCase) {
+                        return this.CurrentCulture[idx.ToLower()].ToString();
+                    }
+                    return this.CurrentCulture[idx].ToString();
+                }
 
                 return idx;
             }
