@@ -28,8 +28,14 @@ public class WatchedProcess {
         if (string.IsNullOrEmpty(WindowName))
             return true;
 
-        if (p.MainWindowTitle.ToLower().Contains(WindowName.ToLower()))
-            return true;
+        try {
+            // match the window name
+            if (p.MainWindowTitle.ToLower().Contains(WindowName.ToLower()))
+                return true;
+        } catch (Exception ex) {
+        }
+
+        if (p.memory)
 
         return false;
     }
@@ -95,7 +101,25 @@ public class ProcessWatcher : IDisposable
                 {
                     if (!RunningProcesses.ContainsKey(p.ProcessName.ToLower()))
                     {
-                        onNewProcess?.Invoke(p.ProcessName.ToLower(), null);
+                        if (WatchingProcesses.ContainsKey(p.ProcessName.ToLower()) && 
+                            WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p))
+                        {
+                            onNewProcess?.Invoke(p.ProcessName.ToLower(), null);
+                        }
+                        RunningProcesses.AddOrUpdate(p.ProcessName.ToLower(), 1, (k, v) => 1);
+                    }
+                }
+
+                // loop the running processes, to raise exit event
+                foreach (var p in RunningProcesses.Keys.ToList())
+                {
+                    if (!processes.Any(x => x.ProcessName.ToLower() == p))
+                    {
+                        if (WatchingProcesses.ContainsKey(p)) {
+                            // raise only when watching
+                            onProcessExit?.Invoke(p, null);
+                        }
+                        RunningProcesses.TryRemove(p, out _);
                     }
                 }
                 Thread.Sleep(2000);
