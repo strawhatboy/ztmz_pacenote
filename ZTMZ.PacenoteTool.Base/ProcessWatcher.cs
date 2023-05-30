@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;
 
-namespace ZTMZ.PacenoteTool;
+namespace ZTMZ.PacenoteTool.Base;
 
 public class WatchedProcess {
     public string Executable { set; get; }
@@ -25,19 +25,23 @@ public class WatchedProcess {
         if (p.ProcessName.ToLower() != Executable.ToLower())
             return false;
 
-        if (string.IsNullOrEmpty(WindowName))
-            return true;
-
-        try {
-            // match the window name
-            if (p.MainWindowTitle.ToLower().Contains(WindowName.ToLower()))
-                return true;
-        } catch (Exception ex) {
+        if (!string.IsNullOrEmpty(WindowName)) {
+            try {
+                // match the window name
+                if (!p.MainWindowTitle.ToLower().Contains(WindowName.ToLower()))
+                    return false;
+            } catch (Exception ex) {
+            }
         }
 
-        if (p.memory)
+        p.Refresh();
+        if (MemoryThreshold > 0) {
+            if (p.PrivateMemorySize64 < MemoryThreshold * 1024L) {
+                return false;
+            }
+        }
 
-        return false;
+        return true;
     }
 }
 
@@ -51,7 +55,13 @@ public class ProcessWatcher : IDisposable
     Task _worker;
     bool _isWatching = false;
     object _lock = new ();
-    public ProcessWatcher(Action<string, string> newProcessHandler, Action<string, string> processExitHandler)
+
+    int _refreshInterval = 2000;    // ms
+
+    public ProcessWatcher(int refreshInterval = 2000) {
+        this._refreshInterval = refreshInterval;
+    }
+    public ProcessWatcher(Action<string, string> newProcessHandler, Action<string, string> processExitHandler, int refreshInterval = 2000) : this(refreshInterval)
     {
         onNewProcess += newProcessHandler;
         onProcessExit += processExitHandler;
@@ -122,7 +132,7 @@ public class ProcessWatcher : IDisposable
                         RunningProcesses.TryRemove(p, out _);
                     }
                 }
-                Thread.Sleep(2000);
+                Thread.Sleep(this._refreshInterval);
             }
         });
     }

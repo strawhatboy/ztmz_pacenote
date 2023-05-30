@@ -6,14 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Media;
 using System.Threading;
-using System.Windows.Media;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
-using ZTMZ.PacenoteTool.ScriptEditor;
 
-namespace ZTMZ.PacenoteTool
+namespace ZTMZ.PacenoteTool.Core
 {
     
 
@@ -322,8 +319,9 @@ namespace ZTMZ.PacenoteTool
             File.WriteAllText(Path.Join(this.CurrentItineraryPath, Constants.CODRIVER_FILENAME), codriver);
         }
 
-        public void StartReplaying(IGame game, string itinerary, int playMode = 0)
+        public void StartReplaying(IGame game, string itinerary, int playMode = 1)
         {
+            // bydefault playMode=1, script mode, only.
             this.CurrentItineraryPath = this.GetRecordingsFolder(game, itinerary);
             // this.CurrentScriptPath = this.GetScriptFile(itinerary);
             this.CurrentScriptPath = game.GamePacenoteReader.GetScriptFileForReplaying(this.CurrentProfile, game, itinerary);
