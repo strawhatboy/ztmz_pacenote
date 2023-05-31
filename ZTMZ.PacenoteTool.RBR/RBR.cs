@@ -60,7 +60,7 @@ namespace ZTMZ.PacenoteTool.RBR
 
         public string Description { get; private set; } = "";
 
-        public Uri ImageUri { get; } = new Uri("pack://application:,,,/ZTMZ.PacenoteTool.RBR;component/rbr.jpg");
+        public string ImageUri { get; } = "pack://application:,,,/ZTMZ.PacenoteTool.RBR;component/rbr.jpg";
 
         public string Executable => "RichardBurnsRally_SSE.exe";
 

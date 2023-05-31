@@ -16,13 +16,13 @@ namespace ZTMZ.PacenoteTool.Codemasters
 
         public string Description { get; private set; } = "";
 
-        public string Executable => "dirtrally2.exe";
+        public string Executable => "dirtrally2";
 
         public IGamePacenoteReader GamePacenoteReader { get; } = new BasePacenoteReader();
 
         public IGameDataReader GameDataReader { get; } = new DirtGameDataReader();
 
-        public Uri ImageUri { get; } = new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/dirtrally2.jpg");
+        public string ImageUri { get; } = "pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/dirtrally2.jpg";
         
         public Dictionary<string, IGameConfig> GameConfigurations { set; get; }
 

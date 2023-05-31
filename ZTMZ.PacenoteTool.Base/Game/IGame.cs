@@ -21,7 +21,7 @@ namespace ZTMZ.PacenoteTool.Base.Game
         /// </summary>
         string Description { get; }
 
-        Uri ImageUri { get; }
+        string ImageUri { get; }
 
         /// <summary>
         /// Executable file name for checking the path legality

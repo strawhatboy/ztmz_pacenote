@@ -7,6 +7,7 @@ using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using System.Threading.Tasks;
 using System.Threading;
+using NAudio.Wave;
 
 namespace ZTMZ.PacenoteTool.Core;
 
@@ -21,19 +22,49 @@ public class ZTMZPacenoteTool {
     private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     private IGame _currentGame;
     private List<IGame> _games = new();
-        
+
+    public List<IGame> Games => _games;
+    private List<string> _profiles = new();
+    public List<string> Profiles => _profiles;
+    private List<CoDriverPackage> _codriverPackages = new();
+    public List<CoDriverPackage> CoDriverPackages => _codriverPackages;
+    private List<string> _outputDevices = new();
+    public List<string> OutputDevices => _outputDevices;
+
+    public event Action<string> onStatusReport;
 
     // init the tool, load settings, etc.
     public void Init() {
-        _profileManager = new();
+        var jsonPaths = new List<string>{
+                AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE),
+                AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)),
+                AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE))
+            };
+        I18NLoader.Instance.Initialize(jsonPaths);
+        I18NLoader.Instance.SetCulture(Config.Instance.Language);
+        GoogleAnalyticsHelper.Instance.TrackLaunchEvent("language", Config.Instance.Language);
+        this.loadProfileManager();
         this.loadGames();
+        this.loadProfiles();
+        this.loadCodrivers();
+        this.loadOutputDevices();
         this.initGoogleAnalytics();
         this.initializeProcessWatcher();
     }
 
 #region privates
+
+    private void loadProfileManager() {
+        _logger.Info("Loading profile manager...");
+        this.onStatusReport?.Invoke("Loading profile manager...");
+        _profileManager = new();
+        _logger.Info("Profile manager loaded.");
+        this.onStatusReport?.Invoke("Profile manager loaded.");
+    }
     private void loadGames()
     {
+        _logger.Info("Loading games...");
+        this.onStatusReport?.Invoke("Loading games...");
         this._games.Clear();
         foreach (var file in Directory.EnumerateFiles(Constants.PATH_GAMES, "*.dll")) 
         {
@@ -48,8 +79,44 @@ public class ZTMZPacenoteTool {
         this._games.Sort((g1, g2) => g1.Order.CompareTo(g2.Order));
         this._games.ForEach(g => g.GameConfigurations = Config.Instance.LoadGameConfig(g));
         _logger.Info($"{this._games.Count} games loaded.");
+        this.onStatusReport?.Invoke("Games loaded.");
     }
 
+    private void loadProfiles() {
+        _logger.Info("Loading profiles...");
+        this.onStatusReport?.Invoke("Loading profiles...");
+        this._profiles = _profileManager.GetAllProfiles();
+        _logger.Info($"{this._profiles.Count} profiles loaded.");
+        this.onStatusReport?.Invoke("Profiles loaded.");
+    }
+
+    private void loadCodrivers() {
+        _logger.Info("Loading codrivers...");
+        this.onStatusReport?.Invoke("Loading codrivers...");
+        foreach (var codriver in this._profileManager.GetAllCodrivers())
+        {
+            if (!Config.Instance.UseDefaultSoundPackageByDefault && codriver.EndsWith(Constants.DEFAULT_CODRIVER))
+            {
+                continue;
+            }
+
+            var pkg = this._profileManager.CoDriverPackages[codriver];
+            this._codriverPackages.Add(pkg);
+        }
+    }
+
+    private void loadOutputDevices() {
+        _logger.Info("Loading output devices...");
+        this.onStatusReport?.Invoke("Loading output devices...");
+        // WaveOut only works for windows !!! DAMN IT !!!
+        for (int i = 0; i < NAudio.Wave.WaveOut.DeviceCount; i++)
+        {
+            WaveOutCapabilities WOC = NAudio.Wave.WaveOut.GetCapabilities(i);
+            this._outputDevices.Add(WOC.ProductName);
+        }
+        _logger.Info($"{NAudio.Wave.WaveOut.DeviceCount} output devices loaded.");
+        this.onStatusReport?.Invoke("Output devices loaded.");
+    }
     private void initGoogleAnalytics()
     {
         _logger.Info($"Google Analytics is {(Config.Instance.EnableGoogleAnalytics ? "enabled" : "disabled")}");
@@ -338,6 +405,7 @@ public class ZTMZPacenoteTool {
     {
         this._currentGame = game;
     }
+
 
 }
 
