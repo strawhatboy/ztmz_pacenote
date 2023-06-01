@@ -107,13 +107,22 @@ public class RBRGameDataReader : UdpGameDataReader
         var memConfig = game.GameConfigurations[MemoryGameConfig.Name] as MemoryGameConfig;
         if (memConfig == null)
         {
+            _logger.Error("Failed to get MemoryGameConfig from game.GameConfigurations");
+            base.Uninitialize(game);
             return false;
         }
 
         MEM_REFRESH_INTERVAL = 1000f / memConfig.RefreshRate;
 
+        _logger.Info("RBRMemDataReader trying to open process {0}", game.Executable);
         // init memory reader?
-        memDataReader.OpenProcess(game);
+        if (memDataReader.OpenProcess(game)) {
+            _logger.Info("Memory reader opened.");
+        } else {
+            _logger.Error("Failed to open memory reader.");
+            base.Uninitialize(game);
+            return false;
+        };
         _timer.Elapsed += MemDataPullHandler;
         _timer.Interval = MEM_REFRESH_INTERVAL;
         _timer.Start();

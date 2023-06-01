@@ -47,6 +47,7 @@ public class WatchedProcess {
 
 public class ProcessWatcher : IDisposable
 {
+    private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     public event Action<string, string> onNewProcess;
     public event Action<string, string> onProcessExit;
     public ConcurrentDictionary<string, WatchedProcess> WatchingProcesses { get; } = new ();
@@ -111,12 +112,16 @@ public class ProcessWatcher : IDisposable
                 {
                     if (!RunningProcesses.ContainsKey(p.ProcessName.ToLower()))
                     {
-                        if (WatchingProcesses.ContainsKey(p.ProcessName.ToLower()) && 
-                            WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p))
-                        {
+                        var exp1 = WatchingProcesses.ContainsKey(p.ProcessName.ToLower());
+                        var exp2 = WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p);
+                        if (exp1 && exp2) {
                             onNewProcess?.Invoke(p.ProcessName.ToLower(), null);
                         }
-                        RunningProcesses.AddOrUpdate(p.ProcessName.ToLower(), 1, (k, v) => 1);
+                        // magic code
+                        if (!(exp1 && !exp2)) {
+                            RunningProcesses.AddOrUpdate(p.ProcessName.ToLower(), 1, (k, v) => 1);
+                            _logger.Debug($"ProcessWatcher: new process {p.ProcessName.ToLower()}");
+                        }
                     }
                 }
 
@@ -130,6 +135,7 @@ public class ProcessWatcher : IDisposable
                             onProcessExit?.Invoke(p, null);
                         }
                         RunningProcesses.TryRemove(p, out _);
+                        _logger.Debug($"ProcessWatcher: process exit {p}");
                     }
                 }
                 Thread.Sleep(this._refreshInterval);

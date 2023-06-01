@@ -154,7 +154,7 @@ public class ZTMZPacenoteTool {
         // watch games starting
         foreach (var game in _games) 
         {
-            _processWatcher.AddToWatch(game.Executable);
+            _processWatcher.AddToWatch(game.Executable, game.WindowTitle);
         }
 
         // start the watch (threads started)
