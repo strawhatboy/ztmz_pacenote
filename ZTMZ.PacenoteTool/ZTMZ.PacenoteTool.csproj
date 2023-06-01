@@ -28,8 +28,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="NAudio" Version="2.0.1" />
-      <PackageReference Include="NAudio.Extras" Version="1.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
       <PackageReference Include="NLua" Version="1.6.0" />
       <PackageReference Include="PromptDialog" Version="1.0.0" />

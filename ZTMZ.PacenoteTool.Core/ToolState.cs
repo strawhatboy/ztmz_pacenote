@@ -1,6 +1,7 @@
 using ZTMZ.PacenoteTool.Base;
+using System.Reflection;
 
-namespace ZTMZ.PacenoteTool
+namespace ZTMZ.PacenoteTool.Core
 {
     public enum ToolState
     {
@@ -12,7 +13,7 @@ namespace ZTMZ.PacenoteTool
     {
         public static ToolVersion GetToolVersion()
         {
-            var _version = UpdateManager.CurrentVersion;
+            var _version = Assembly.GetExecutingAssembly().GetName().Version.ToString();;
             if (System.IO.Directory.Exists(Config.Instance.PythonPath) &&
                      System.IO.Directory.Exists(Config.Instance.SpeechRecogizerModelPath))
             {
@@ -22,7 +23,7 @@ namespace ZTMZ.PacenoteTool
             }
             
             // For test only
-            if (!UpdateManager.CurrentVersion.EndsWith("0"))
+            if (!_version.EndsWith("0"))
             {
                 return ToolVersion.TEST;
             }

@@ -13,6 +13,7 @@ namespace ZTMZ.PacenoteTool.Base
             var theRule = new NLog.Config.LoggingRule(RULE_NAME);
             theRule.LoggerNamePattern = "*";
             theRule.Targets.Add(logfile);
+            theRule.Targets.Add(new NLog.Targets.ConsoleTarget("logconsole"));
 
 #if DEBUG
             theRule.SetLoggingLevels(LogLevel.Trace, LogLevel.Fatal);

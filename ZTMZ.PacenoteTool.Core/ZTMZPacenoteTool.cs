@@ -35,14 +35,6 @@ public class ZTMZPacenoteTool {
 
     // init the tool, load settings, etc.
     public void Init() {
-        var jsonPaths = new List<string>{
-                AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE),
-                AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)),
-                AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE))
-            };
-        I18NLoader.Instance.Initialize(jsonPaths);
-        I18NLoader.Instance.SetCulture(Config.Instance.Language);
-        GoogleAnalyticsHelper.Instance.TrackLaunchEvent("language", Config.Instance.Language);
         this.loadProfileManager();
         this.loadGames();
         this.loadProfiles();
@@ -73,13 +65,13 @@ public class ZTMZPacenoteTool {
             {
                 continue;
             }
-            var games = assembly.GetTypes().Where(t => typeof(IGame).IsAssignableFrom(t)).Select(i => (IGame)Activator.CreateInstance(i));
+            var games = assembly.GetLoadableTypes().Where(t => typeof(IGame).IsAssignableFrom(t)).Select(i => (IGame)Activator.CreateInstance(i));
             this._games.AddRange(games);
         }
         this._games.Sort((g1, g2) => g1.Order.CompareTo(g2.Order));
         this._games.ForEach(g => g.GameConfigurations = Config.Instance.LoadGameConfig(g));
         _logger.Info($"{this._games.Count} games loaded.");
-        this.onStatusReport?.Invoke("Games loaded.");
+        this.onStatusReport?.Invoke($"{this._games.Count} games loaded.");
     }
 
     private void loadProfiles() {
@@ -87,7 +79,7 @@ public class ZTMZPacenoteTool {
         this.onStatusReport?.Invoke("Loading profiles...");
         this._profiles = _profileManager.GetAllProfiles();
         _logger.Info($"{this._profiles.Count} profiles loaded.");
-        this.onStatusReport?.Invoke("Profiles loaded.");
+        this.onStatusReport?.Invoke($"{this._profiles.Count} profiles loaded.");
     }
 
     private void loadCodrivers() {
@@ -103,6 +95,8 @@ public class ZTMZPacenoteTool {
             var pkg = this._profileManager.CoDriverPackages[codriver];
             this._codriverPackages.Add(pkg);
         }
+        _logger.Info($"{this._codriverPackages.Count} codrivers loaded.");
+        this.onStatusReport?.Invoke($"{this._codriverPackages.Count} codrivers loaded.");
     }
 
     private void loadOutputDevices() {
@@ -115,7 +109,7 @@ public class ZTMZPacenoteTool {
             this._outputDevices.Add(WOC.ProductName);
         }
         _logger.Info($"{NAudio.Wave.WaveOut.DeviceCount} output devices loaded.");
-        this.onStatusReport?.Invoke("Output devices loaded.");
+        this.onStatusReport?.Invoke($"{NAudio.Wave.WaveOut.DeviceCount} output devices loaded.");
     }
     private void initGoogleAnalytics()
     {
@@ -401,12 +395,71 @@ public class ZTMZPacenoteTool {
 
 #endregion
 
+#region Sets
+
     public void SetGame(IGame game)
     {
+        uninitializeGame(_currentGame);
         this._currentGame = game;
+
+        _logger.Info("Game selection changed to {0}, trying to initialize it.", this._currentGame.Name);
+        initializeGame(_currentGame);
+
     }
 
+    public void SetFromConfiguration() {
+        this.SetGame(Config.Instance.UI_SelectedGame);
+        this.SetProfile(Config.Instance.UI_SelectedProfile);
+        this.SetOutputDevice(Config.Instance.UI_SelectedPlaybackDevice);
+        this.SetCodriver(Config.Instance.UI_SelectedAudioPackage);
+    }
 
+    public void SetGame(int gameIndex) {
+        if (gameIndex < this.Games.Count)
+            this.SetGame(this.Games[gameIndex]);
+        else
+            this.SetGame(this.Games.First());
+    }
+
+    public void SetProfile(int profileIndex) {
+        if (profileIndex < this.Profiles.Count)
+            this._profileManager.CurrentProfile = this.Profiles[profileIndex].ToString().Split('\\').Last();
+        else
+            this._profileManager.CurrentProfile = this.Profiles.First().Split('\\').Last();
+    }
+
+    public void SetOutputDevice(int outputDeviceIndex) {
+        if (outputDeviceIndex < this.OutputDevices.Count)
+            this._profileManager.CurrentPlayDeviceId = outputDeviceIndex;
+        else
+            this._profileManager.CurrentPlayDeviceId = 0;
+    }
+
+    public void SetCodriver(int codriverIndex) {
+        if (codriverIndex < this.CoDriverPackages.Count)
+            this._profileManager.CurrentCoDriverSoundPackagePath = this.CoDriverPackages[codriverIndex].Info.Path;
+        else
+            this._profileManager.CurrentCoDriverSoundPackagePath = this.CoDriverPackages.First().Info.Path;
+    }
+
+#endregion
+
+}
+
+public static class Extensions {
+
+    public static IEnumerable<Type> GetLoadableTypes(this Assembly assembly)
+    {
+        // TODO: Argument validation
+        try
+        {
+            return assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException e)
+        {
+            return e.Types.Where(t => t != null);
+        }
+    }
 }
 
 

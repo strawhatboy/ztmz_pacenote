@@ -34,6 +34,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRGameOverlay", "VRGameOver
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.Base.UI", "ZTMZ.PacenoteTool.Base.UI\ZTMZ.PacenoteTool.Base.UI.csproj", "{FE7F3DEC-0A5B-4CD0-8134-70A693B7FC07}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.Console", "ZTMZ.PacenoteTool.Console\ZTMZ.PacenoteTool.Console.csproj", "{A3AE9DE8-2B09-4FEE-818F-522625CDF910}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.Core", "ZTMZ.PacenoteTool.Core\ZTMZ.PacenoteTool.Core.csproj", "{BB3116B5-1A52-45DD-9690-9E97C2945D22}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +111,18 @@ Global
 		{FE7F3DEC-0A5B-4CD0-8134-70A693B7FC07}.Release_Portable|Any CPU.Build.0 = Release_Portable|Any CPU
 		{FE7F3DEC-0A5B-4CD0-8134-70A693B7FC07}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE7F3DEC-0A5B-4CD0-8134-70A693B7FC07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3AE9DE8-2B09-4FEE-818F-522625CDF910}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3AE9DE8-2B09-4FEE-818F-522625CDF910}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3AE9DE8-2B09-4FEE-818F-522625CDF910}.Release_Portable|Any CPU.ActiveCfg = Release_Portable|Any CPU
+		{A3AE9DE8-2B09-4FEE-818F-522625CDF910}.Release_Portable|Any CPU.Build.0 = Release_Portable|Any CPU
+		{A3AE9DE8-2B09-4FEE-818F-522625CDF910}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3AE9DE8-2B09-4FEE-818F-522625CDF910}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB3116B5-1A52-45DD-9690-9E97C2945D22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB3116B5-1A52-45DD-9690-9E97C2945D22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB3116B5-1A52-45DD-9690-9E97C2945D22}.Release_Portable|Any CPU.ActiveCfg = Release_Portable|Any CPU
+		{BB3116B5-1A52-45DD-9690-9E97C2945D22}.Release_Portable|Any CPU.Build.0 = Release_Portable|Any CPU
+		{BB3116B5-1A52-45DD-9690-9E97C2945D22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB3116B5-1A52-45DD-9690-9E97C2945D22}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
