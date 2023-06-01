@@ -21,7 +21,7 @@ public class Program
         GoogleAnalyticsHelper.Instance.TrackLaunchEvent("language", Config.Instance.Language);
 
         
-        NLogManager.init(ToolVersion.DEV);
+        NLogManager.init(ToolVersion.TEST);
         _logger.Info("Application started");
 
         ZTMZPacenoteTool tool = new();
