@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.AudioPackageManager"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Title="语音包管理工具" Height="900" Width="800">
@@ -21,11 +20,10 @@
     <Grid>
         <DockPanel Margin="20">
             <DockPanel DockPanel.Dock="Top">
-                <Button x:Name="btn_Refresh" DockPanel.Dock="Right" Content="{materialDesign:PackIcon Refresh}"
+                <Button x:Name="btn_Refresh" DockPanel.Dock="Right" Content="refresh"
                         ToolTip="刷新" Click="Btn_Refresh_OnClick" />
-                <Button x:Name="btn_New" Content="{materialDesign:PackIcon Plus}"
+                <Button x:Name="btn_New" Content="+"
                         ToolTip="新建语音包" Click="Btn_New_OnClick" DockPanel.Dock="Right"
-                        Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
                         CommandTarget="{Binding ElementName=dialogHost}"
                         >
                     <Button.CommandParameter>
@@ -48,40 +46,32 @@
                                 <RowDefinition />
                             </Grid.RowDefinitions>
                             <TextBox Grid.Row="0" x:Name="tb_name"
-                                     materialDesign:HintAssist.Hint="语音包名称"
-                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     ToolTip="语音包名称"
                                      VerticalAlignment="Center" />
                             <ComboBox Grid.Row="1" x:Name="cb_gender"
-                                     materialDesign:HintAssist.Hint="性别"
-                                     Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                                     ToolTip="性别"
                                      VerticalAlignment="Center" >
                                 <ComboBoxItem>男</ComboBoxItem>
                                 <ComboBoxItem>女</ComboBoxItem>
                             </ComboBox>
                             <TextBox Grid.Row="2" x:Name="tb_language"
-                                     materialDesign:HintAssist.Hint="语言"
-                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     ToolTip="语言"
                                      VerticalAlignment="Center" />
                             <TextBox Grid.Row="3" x:Name="tb_version"
-                                     materialDesign:HintAssist.Hint="版本"
-                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     ToolTip="版本"
                                      VerticalAlignment="Center" />
                             <TextBox Grid.Row="4" x:Name="tb_homepage"
-                                     materialDesign:HintAssist.Hint="主页"
-                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     ToolTip="主页"
                                      VerticalAlignment="Center" />
                             <TextBox Grid.Row="5" x:Name="tb_description"
-                                     materialDesign:HintAssist.Hint="描述"
+                                     ToolTip="描述"
                                      AcceptsReturn="True"
                                      VerticalScrollBarVisibility="Auto"
                                      Height="100"
-                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                                      VerticalAlignment="Center" />
                             <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right">
                                 <Button
-                                    Style="{StaticResource MaterialDesignFlatButton}"
                                     IsDefault="True"
-                                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
                                     HorizontalAlignment="Center"
                                     Content="确认" 
                                     Margin="0 8 8 0">
@@ -90,9 +80,7 @@
                                     </Button.CommandParameter>
                                 </Button>
                                     <Button
-                                    Style="{StaticResource MaterialDesignFlatButton}"
                                     IsCancel="True"
-                                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
                                     HorizontalAlignment="Center"
                                     Content="取消"
                                     Margin="0 8 8 0">
@@ -104,7 +92,7 @@
                         </Grid>
                     </Button.CommandParameter>
                 </Button>
-                <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}">语音包：</TextBlock>
+                <TextBlock >语音包：</TextBlock>
             </DockPanel>
 
             <ListView Grid.Row="1" x:Name="lv_AudioPackages" Height="200"
@@ -163,7 +151,7 @@
                 <!--     </Style> -->
                 <!-- </ListView.ItemContainerStyle> -->
             </ListView>
-            <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="0 10 0 0" DockPanel.Dock="Top">语音包内语音片段：</TextBlock>
+            <TextBlock Margin="0 10 0 0" DockPanel.Dock="Top">语音包内语音片段：</TextBlock>
             <DataGrid Grid.Row="2" x:Name="lv_Content" IsReadOnly="True"
                       ItemsSource="{Binding DataContent}"
                       AutoGenerateColumns="False"
@@ -212,8 +200,8 @@
             </DataGrid>
         </DockPanel>
         
-        <materialDesign:DialogHost x:Name="dialogHost" DialogClosing="New_dialog_closing"
+        <!-- <materialDesign:DialogHost x:Name="dialogHost" DialogClosing="New_dialog_closing"
                                    >
-        </materialDesign:DialogHost>
+        </materialDesign:DialogHost> -->
     </Grid>
 </Window>

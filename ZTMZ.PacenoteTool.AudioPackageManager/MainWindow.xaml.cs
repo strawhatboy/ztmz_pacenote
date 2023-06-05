@@ -18,7 +18,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using MaterialDesignThemes.Wpf;
 using Newtonsoft.Json;
 using ZTMZ.PacenoteTool.Base;
 using Constants = ZTMZ.PacenoteTool.Base.Constants;
@@ -273,46 +272,46 @@ namespace ZTMZ.PacenoteTool.AudioPackageManager
             // throw new NotImplementedException();
         }
 
-        private void New_dialog_closing(object sender, DialogClosingEventArgs eventArgs)
-        {
-            if (eventArgs.Parameter != null && eventArgs.Parameter is Boolean)
-            {
-                if ((bool)eventArgs.Parameter == false)
-                {
-                    return;
-                }
-                // create audio pkg
-                CoDriverPackageInfo info = new CoDriverPackageInfo()
-                {
-                    name = this.tb_name.Text,
-                    description = this.tb_description.Text,
-                    gender = this.cb_gender.SelectedIndex == 0 ? "M" : "F",
-                    homepage = this.tb_homepage.Text,
-                    language = this.tb_language.Text,
-                    version = this.tb_version.Text
-                };
+        // private void New_dialog_closing(object sender, EventArgs eventArgs)
+        // {
+        //     if (eventArgs.Parameter != null && eventArgs.Parameter is Boolean)
+        //     {
+        //         // if ((bool)eventArgs.Parameter == false)
+        //         // {
+        //         //     return;
+        //         // }
+        //         // create audio pkg
+        //         CoDriverPackageInfo info = new CoDriverPackageInfo()
+        //         {
+        //             name = this.tb_name.Text,
+        //             description = this.tb_description.Text,
+        //             gender = this.cb_gender.SelectedIndex == 0 ? "M" : "F",
+        //             homepage = this.tb_homepage.Text,
+        //             language = this.tb_language.Text,
+        //             version = this.tb_version.Text
+        //         };
 
-                // convert name to a valid folder name
-                var folderName = this.tb_name.Text.Trim();
-                foreach (var invalidChar in Path.GetInvalidPathChars())
-                {
-                    folderName = folderName.Replace(invalidChar, '_');
-                }
+        //         // convert name to a valid folder name
+        //         var folderName = this.tb_name.Text.Trim();
+        //         foreach (var invalidChar in Path.GetInvalidPathChars())
+        //         {
+        //             folderName = folderName.Replace(invalidChar, '_');
+        //         }
 
-                // create the folder for audio pkg
-                var audioPkgPath = Path.Combine(AppLevelVariables.Instance.GetPath("codrivers\\"), folderName);
-                Directory.CreateDirectory(audioPkgPath);
+        //         // create the folder for audio pkg
+        //         var audioPkgPath = Path.Combine(AppLevelVariables.Instance.GetPath("codrivers\\"), folderName);
+        //         Directory.CreateDirectory(audioPkgPath);
 
-                // create subfolders for pacenotes
-                foreach (var p in this.Pacenotes.Keys)
-                {
-                    Directory.CreateDirectory(Path.Combine(audioPkgPath, p));
-                }
+        //         // create subfolders for pacenotes
+        //         foreach (var p in this.Pacenotes.Keys)
+        //         {
+        //             Directory.CreateDirectory(Path.Combine(audioPkgPath, p));
+        //         }
 
-                // put info json inside
-                var infoFilePath = Path.Join(audioPkgPath, CODRIVER_PACKAGE_INFO_FILENAME);
-                File.WriteAllText(infoFilePath, JsonConvert.SerializeObject(info));
-            }
-        }
+        //         // put info json inside
+        //         var infoFilePath = Path.Join(audioPkgPath, CODRIVER_PACKAGE_INFO_FILENAME);
+        //         File.WriteAllText(infoFilePath, JsonConvert.SerializeObject(info));
+        //     }
+        // }
     }
 }

@@ -7,7 +7,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using ZTMZ.PacenoteTool.Base;
-using ZTMZ.PacenoteTool.Base.Dialog;
+using ZTMZ.PacenoteTool.Base.UI.Dialog;
+using ZTMZ.PacenoteTool.Core;
 
 namespace ZTMZ.PacenoteTool
 {

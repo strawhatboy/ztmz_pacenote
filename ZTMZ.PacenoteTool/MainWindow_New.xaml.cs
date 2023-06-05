@@ -20,7 +20,6 @@ using OnlyR.Core.Recorder;
 using ZTMZ.PacenoteTool.Base;
 using System.Globalization;
 using System.IO;
-using MaterialDesignThemes.Wpf;
 using System.Threading;
 using ZTMZ.PacenoteTool.Dialog;
 using Constants = ZTMZ.PacenoteTool.Base.Constants;

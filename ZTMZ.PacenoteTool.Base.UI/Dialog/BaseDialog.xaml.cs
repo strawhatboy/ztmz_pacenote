@@ -11,7 +11,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using MaterialDesignThemes.Wpf;
 using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.Base.UI.Dialog
@@ -58,19 +57,19 @@ namespace ZTMZ.PacenoteTool.Base.UI.Dialog
                     this.pi_Icon.Visibility = Visibility.Collapsed;
                     break;
                 case MessageBoxImage.Error:
-                    this.pi_Icon.Kind = PackIconKind.Error;
+                    this.pi_Icon.Glyph = "&#xEA39;";
                     this.pi_Icon.Foreground = Brushes.Red;
                     break;
                 case MessageBoxImage.Question:
-                    this.pi_Icon.Kind = PackIconKind.Help;
+                    this.pi_Icon.Glyph = "&#xF142;";
                     this.pi_Icon.Foreground = Brushes.Blue;
                     break;
                 case MessageBoxImage.Warning:
-                    this.pi_Icon.Kind = PackIconKind.Warning;
+                    this.pi_Icon.Glyph = "&#xE7BA;";
                     this.pi_Icon.Foreground = Brushes.Orange;
                     break;
                 case MessageBoxImage.Information:
-                    this.pi_Icon.Kind = PackIconKind.Information;
+                    this.pi_Icon.Glyph = "&#xE946;";
                     this.pi_Icon.Foreground = Brushes.Blue;
                     break;
             }

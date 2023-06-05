@@ -7,8 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
-    <PackageReference Include="MaterialDesignThemes" Version="4.5.0" />
+    <PackageReference Include="ModernWpfUI" Version="0.9.6" />
+    <!-- <PackageReference Include="MaterialDesignThemes" Version="4.5.0" /> -->
   </ItemGroup>
 
   <ItemGroup>

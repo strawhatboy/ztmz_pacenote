@@ -25,6 +25,7 @@
       <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.UI.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.ScriptEditor\ZTMZ.PacenoteTool.ScriptEditor.csproj" />
       <ProjectReference Include="..\GameOverlay\GameOverlay.csproj" />
+      <ProjectReference Include="..\ZTMZ.PacenoteTool.Core\ZTMZ.PacenoteTool.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>

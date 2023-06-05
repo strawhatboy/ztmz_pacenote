@@ -33,6 +33,20 @@ public class ZTMZPacenoteTool {
 
     public event Action<string> onStatusReport;
 
+    public event Action<IGame> onGameInitialized;
+
+    public event Action<IGame> onGameStarted;
+
+    public event Action<IGame> onGameEnded;
+
+    public event Action<IGame, PrerequisitesCheckResultCode> onGameInitializeFailed;
+
+    public event Action<IGame, GameStateChangeEvent> onGameStateChanged;
+
+    public event Action<IGame, string> onTrackNameChanged;
+
+    public event Action<IGame, GameData> onNewGameData;
+
     // init the tool, load settings, etc.
     public void Init() {
         this.loadProfileManager();
@@ -130,6 +144,7 @@ public class ZTMZPacenoteTool {
                 //TODO: raise game started event!!!
                 //TODO: turn on the light, current game is running.
                 //TODO: start game data pulling
+                this.onGameStarted?.Invoke(_currentGame);
                 
                 _logger.Info("Got new process: {0}, trying to initialize game: {1}", pName, _currentGame.Name);
                 initializeGame(_currentGame);
@@ -143,6 +158,7 @@ public class ZTMZPacenoteTool {
             if (_currentGame == g) 
             {
                 //TODO: raise game UI exit effect
+                this.onGameEnded?.Invoke(_currentGame);
             }
             if (_currentGame.Name.Equals(g.Name))
             {
@@ -173,6 +189,7 @@ public class ZTMZPacenoteTool {
         if (res == PrerequisitesCheckResultCode.GAME_NOT_INSTALLED)
         {
             //TODO: raise Game not install
+            this.onGameInitializeFailed?.Invoke(game, res);
         } else {
             try {
                 if (game.GameDataReader.Initialize(game))
@@ -183,11 +200,13 @@ public class ZTMZPacenoteTool {
                     game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
                     game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
                     _logger.Info("Game {0} initialized.", game.Name);
+                    this.onGameInitialized?.Invoke(game);
                 }    
             } catch (Exception e) {
                 if (e is PortAlreadyInUseException) 
                 {
                     //TODO: raise port already in use
+                    this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.PORT_ALREADY_IN_USE);
                 }
             }
             
@@ -212,6 +231,7 @@ public class ZTMZPacenoteTool {
         var lastState = evt.LastGameState;
         var state = evt.NewGameState;
         _logger.Debug("Game state changed from {0} to {1}", lastState, state);
+        this.onGameStateChanged?.Invoke(_currentGame, evt);
         //TODO: update UI game state (in-game state)
         switch (state)
         {
@@ -242,6 +262,7 @@ public class ZTMZPacenoteTool {
                 }
                 this._trackName = this._currentGame.GameDataReader.TrackName;
                 //TODO: update UI trackname
+                this.onTrackNameChanged?.Invoke(_currentGame, this._trackName);
                 // disable profile switch, replay device selection
                 
                 var worker = Task.Run(() => {
@@ -294,6 +315,7 @@ public class ZTMZPacenoteTool {
     private void newGameDataEventHander(GameData oldData, GameData msg)
     {
         //TODO: update UI and Overlay telemetry data
+        this.onNewGameData?.Invoke(_currentGame, msg);
         if (_currentGame.GameDataReader.GameState != GameState.Racing) 
         {
             // wont play if it's not in racing state
