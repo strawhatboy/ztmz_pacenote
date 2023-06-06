@@ -2,7 +2,7 @@
 xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
 mc:Ignorable="d" 
 TextElement.FontWeight="Regular" 
-        xmlns:ui="http://schemas.modernwpf.com/2019"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
 TextElement.FontSize="13" TextOptions.TextFormattingMode="Ideal" TextOptions.TextRenderingMode="Auto" 
 Closing="Window_Closing" Title="" Height="800" Width="900">
     <Grid>

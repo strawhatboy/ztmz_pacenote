@@ -13,14 +13,21 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using ZTMZ.PacenoteTool.Base;
 
+using Wpf.Ui.Controls.ContentDialogControl;
+
+
 namespace ZTMZ.PacenoteTool.Base.UI.Dialog
 {
     /// <summary>
     /// Interaction logic for BaseDialog.xaml
     /// </summary>
-    public partial class BaseDialog : Window
+    public partial class BaseDialog : ContentDialog
     {
         public MessageBoxResult Result { get; set; }
+        public BaseDialog(ContentPresenter contentPresenter) : base(contentPresenter) {
+            InitializeComponent();
+        }
+        
         public BaseDialog(string title_id, string msg_id, object[] args, MessageBoxButton button, MessageBoxImage image)
         {
             InitializeComponent();
@@ -57,19 +64,19 @@ namespace ZTMZ.PacenoteTool.Base.UI.Dialog
                     this.pi_Icon.Visibility = Visibility.Collapsed;
                     break;
                 case MessageBoxImage.Error:
-                    this.pi_Icon.Glyph = "&#xEA39;";
+                    this.pi_Icon.Symbol = "ErrorCircle20";
                     this.pi_Icon.Foreground = Brushes.Red;
                     break;
                 case MessageBoxImage.Question:
-                    this.pi_Icon.Glyph = "&#xF142;";
+                    this.pi_Icon.Symbol = "QuestionCircle20";
                     this.pi_Icon.Foreground = Brushes.Blue;
                     break;
                 case MessageBoxImage.Warning:
-                    this.pi_Icon.Glyph = "&#xE7BA;";
+                    this.pi_Icon.Symbol = "Warning20";
                     this.pi_Icon.Foreground = Brushes.Orange;
                     break;
                 case MessageBoxImage.Information:
-                    this.pi_Icon.Glyph = "&#xE946;";
+                    this.pi_Icon.Symbol = "Info20";
                     this.pi_Icon.Foreground = Brushes.Blue;
                     break;
             }

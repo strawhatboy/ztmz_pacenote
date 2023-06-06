@@ -3,8 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Base.UI.Game">
         <Grid TextBlock.Foreground="{DynamicResource MaterialDesignBody}" Margin="24,8,0,16">
                 <Grid.ColumnDefinitions>
@@ -40,8 +39,8 @@
                                         Text="{DynamicResource ResourceKey=settings.tooltip.udpListenPort}" />
                         </TextBlock.ToolTip>
                 </TextBlock>
-                <xctk:UIntegerUpDown Grid.Row="1" Name="tb_UDPListenPort" Grid.Column="1"
-                        Value="20777" Maximum="65535" Minimum="1000" VerticalAlignment="Center" />
+                <ui:NumberBox Grid.Row="1" Name="tb_UDPListenPort" Grid.Column="1"
+                        Value="20777" VerticalAlignment="Center" />
 
         </Grid>
 </local:IGameConfigSettingsPane>

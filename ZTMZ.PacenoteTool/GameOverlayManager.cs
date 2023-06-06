@@ -397,6 +397,11 @@ namespace ZTMZ.PacenoteTool
         private float maxSuspension { set; get; }
         private float minSuspension { set; get; }
 
+        public GameOverlayManager() {
+            // init Lua
+            
+        }
+
         public void InitializeOverlay(System.Diagnostics.Process process)
         {
 #if DEV
