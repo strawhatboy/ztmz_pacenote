@@ -14,7 +14,7 @@ using System.Windows.Shapes;
 using ZTMZ.PacenoteTool.Base;
 
 using Wpf.Ui.Controls.ContentDialogControl;
-
+using System.ComponentModel;
 
 namespace ZTMZ.PacenoteTool.Base.UI.Dialog
 {
@@ -24,12 +24,8 @@ namespace ZTMZ.PacenoteTool.Base.UI.Dialog
     public partial class BaseDialog : ContentDialog
     {
         public MessageBoxResult Result { get; set; }
-        public BaseDialog(ContentPresenter contentPresenter) : base(contentPresenter) {
-            InitializeComponent();
-        }
-        
-        public BaseDialog(string title_id, string msg_id, object[] args, MessageBoxButton button, MessageBoxImage image)
-        {
+        public BaseDialog(ContentPresenter contentPresenter, string title_id, string msg_id, object[] args, MessageBoxButton button, MessageBoxImage image) : base(contentPresenter) {
+            
             InitializeComponent();
             args = args == null ? new object[] { } : args;
             this.tb_Title.Text = string.Format(I18NLoader.Instance[title_id], args);
@@ -58,60 +54,56 @@ namespace ZTMZ.PacenoteTool.Base.UI.Dialog
                     break;
             }
 
+            var descriptor = DependencyPropertyDescriptor.FromName("Symbol", this.pi_Icon.GetType(), this.pi_Icon.GetType());
+
             switch (image) 
             {
                 case MessageBoxImage.None:
                     this.pi_Icon.Visibility = Visibility.Collapsed;
                     break;
                 case MessageBoxImage.Error:
-                    this.pi_Icon.Symbol = "ErrorCircle20";
+                    descriptor.SetValue(this.pi_Icon, "ErrorCircle20");
                     this.pi_Icon.Foreground = Brushes.Red;
                     break;
                 case MessageBoxImage.Question:
-                    this.pi_Icon.Symbol = "QuestionCircle20";
+                    descriptor.SetValue(this.pi_Icon, "QuestionCircle20");
                     this.pi_Icon.Foreground = Brushes.Blue;
                     break;
                 case MessageBoxImage.Warning:
-                    this.pi_Icon.Symbol = "Warning20";
+                    descriptor.SetValue(this.pi_Icon, "Warning20");
                     this.pi_Icon.Foreground = Brushes.Orange;
                     break;
                 case MessageBoxImage.Information:
-                    this.pi_Icon.Symbol = "Info20";
+                    descriptor.SetValue(this.pi_Icon, "Info20");
                     this.pi_Icon.Foreground = Brushes.Blue;
                     break;
             }
-            this.MouseDown += (o, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
+            // this.MouseDown += (o, e) => { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); };
             // this.Closed += (s, e) => { Result = MessageBoxResult.Cancel; };
         }
 
         private void btn_OK_Click(object sender, RoutedEventArgs e)
         {
             this.Result = MessageBoxResult.OK;
-            this.Close();
+            // this.Close();
         }
 
         private void btn_Cancel_Click(object sender, RoutedEventArgs e)
         {
             this.Result = MessageBoxResult.Cancel;
-            this.Close();
+            // this.Close();
         }
 
         private void btn_Yes_Click(object sender, RoutedEventArgs e)
         {
             this.Result = MessageBoxResult.Yes;
-            this.Close();
+            // this.Close();
         }
         private void btn_No_Click(object sender, RoutedEventArgs e)
         {
             this.Result = MessageBoxResult.No;
-            this.Close();
+            // this.Close();
         }
 
-        public static MessageBoxResult Show(string title_id, string msg_id, object[] args, MessageBoxButton button, MessageBoxImage image)
-        {
-            BaseDialog dlg = new BaseDialog(title_id, msg_id, args, button, image);
-            dlg.ShowDialog();
-            return dlg.Result;
-        }
     }
 }

@@ -11,4 +11,18 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.Base.UI\ZTMZ.PacenoteTool.Base.UI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+  
+    <None Update="..\lang\en-us.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="..\lang\zh-cn.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
