@@ -68,6 +68,7 @@ public partial class App : Application
         return _host.Services.GetService(typeof(T)) as T;
     }
 
+
     /// <summary>
     /// Occurs when the application is loading.
     /// </summary>

@@ -15,6 +15,7 @@ using ZTMZ.PacenoteTool.Base;
 
 using Wpf.Ui.Controls.ContentDialogControl;
 using System.ComponentModel;
+using Wpf.Ui.Common;
 
 namespace ZTMZ.PacenoteTool.Base.UI.Dialog
 {
@@ -54,7 +55,7 @@ namespace ZTMZ.PacenoteTool.Base.UI.Dialog
                     break;
             }
 
-            var descriptor = DependencyPropertyDescriptor.FromName("Symbol", this.pi_Icon.GetType(), this.pi_Icon.GetType());
+            // var descriptor = DependencyPropertyDescriptor.FromName("Symbol", this.pi_Icon.GetType(), this.pi_Icon.GetType());
 
             switch (image) 
             {
@@ -62,19 +63,23 @@ namespace ZTMZ.PacenoteTool.Base.UI.Dialog
                     this.pi_Icon.Visibility = Visibility.Collapsed;
                     break;
                 case MessageBoxImage.Error:
-                    descriptor.SetValue(this.pi_Icon, "ErrorCircle20");
+                    this.pi_Icon.Symbol = SymbolRegular.ErrorCircle20;
+                    // descriptor.SetValue(this.pi_Icon, "ErrorCircle20");
                     this.pi_Icon.Foreground = Brushes.Red;
                     break;
                 case MessageBoxImage.Question:
-                    descriptor.SetValue(this.pi_Icon, "QuestionCircle20");
+                    this.pi_Icon.Symbol = SymbolRegular.QuestionCircle20;
+                    // descriptor.SetValue(this.pi_Icon, "QuestionCircle20");
                     this.pi_Icon.Foreground = Brushes.Blue;
                     break;
                 case MessageBoxImage.Warning:
-                    descriptor.SetValue(this.pi_Icon, "Warning20");
+                    this.pi_Icon.Symbol = SymbolRegular.Warning20;
+                    // descriptor.SetValue(this.pi_Icon, "Warning20");
                     this.pi_Icon.Foreground = Brushes.Orange;
                     break;
                 case MessageBoxImage.Information:
-                    descriptor.SetValue(this.pi_Icon, "Info20");
+                    this.pi_Icon.Symbol = SymbolRegular.Info20;
+                    // descriptor.SetValue(this.pi_Icon, "Info20");
                     this.pi_Icon.Foreground = Brushes.Blue;
                     break;
             }

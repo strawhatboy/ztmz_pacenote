@@ -13,7 +13,7 @@
         WindowBackdropType="Mica"
         WindowCornerPreference="Round"
         WindowStartupLocation="CenterScreen"
-        Title="{Binding ViewModel.Title}" Height="650" Width="1100">
+        Title="{Binding ViewModel.Title, Mode=OneWay}" Height="650" Width="1100">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -23,12 +23,16 @@
         <ui:TitleBar
             Title="{Binding ViewModel.Title, Mode=OneWay}"
             Grid.Row="0">
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="pack://application:,,,/Assets/app.ico" />
+            </ui:TitleBar.Icon>
         </ui:TitleBar>
         <ui:NavigationView
             x:Name="RootNavigation"
             Grid.Row="1"
             FooterMenuItemsSource="{Binding ViewModel.NavigationFooter, Mode=OneWay}"
-            MenuItemsSource="{Binding ViewModel.NavigationItems, Mode=OneWay}">
+            MenuItemsSource="{Binding ViewModel.NavigationItems, Mode=OneWay}"
+            PaneDisplayMode="LeftFluent">
             <ui:NavigationView.Header>
                 <ui:BreadcrumbBar
                     Margin="42,32,0,0"

@@ -38,8 +38,32 @@ public partial class MainWindowVM : ObservableObject
                 },
                 new NavigationViewItem()
                 {
-                    Content = "Data",
-                    Icon = new SymbolIcon { Symbol = SymbolRegular.DataHistogram24 },
+                    Content = "General",
+                    Icon = new SymbolIcon { Symbol = SymbolRegular.Settings20 },
+                    // TargetPageType = typeof(Views.Pages.DataPage)
+                },
+                new NavigationViewItem()
+                {
+                    Content = "Voices",
+                    Icon = new SymbolIcon { Symbol = SymbolRegular.PersonVoice20 },
+                    // TargetPageType = typeof(Views.Pages.DataPage)
+                },
+                new NavigationViewItem()
+                {
+                    Content = "Playback",
+                    Icon = new SymbolIcon { Symbol = SymbolRegular.Play20 },
+                    // TargetPageType = typeof(Views.Pages.DataPage)
+                },
+                new NavigationViewItem()
+                {
+                    Content = "Hud",
+                    Icon = new SymbolIcon { Symbol = SymbolRegular.Gauge20 },
+                    // TargetPageType = typeof(Views.Pages.DataPage)
+                },
+                new NavigationViewItem()
+                {
+                    Content = "Game",
+                    Icon = new SymbolIcon { Symbol = SymbolRegular.Games20 },
                     // TargetPageType = typeof(Views.Pages.DataPage)
                 }
             };
@@ -48,8 +72,8 @@ public partial class MainWindowVM : ObservableObject
             {
                 new NavigationViewItem()
                 {
-                    Content = "Settings",
-                    Icon = new SymbolIcon { Symbol = SymbolRegular.Settings24 },
+                    Content = "About",
+                    Icon = new SymbolIcon { Symbol = SymbolRegular.Info24 },
                     TargetPageType = typeof(Views.SettingsPage)
                 }
             };

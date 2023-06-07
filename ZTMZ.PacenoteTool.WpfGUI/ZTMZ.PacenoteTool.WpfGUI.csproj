@@ -13,16 +13,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Base.UI\ZTMZ.PacenoteTool.Base.UI.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.I18N\ZTMZ.PacenoteTool.I18N.csproj" />
   </ItemGroup>
-
   <ItemGroup>
-  
-    <None Update="..\lang\en-us.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="..\lang\zh-cn.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Resource Include="Assets\app.ico" />
   </ItemGroup>
 
 </Project>
