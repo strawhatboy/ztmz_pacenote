@@ -202,7 +202,7 @@ namespace ZTMZ.PacenoteTool.Base
         {
             get
             {
-                if (this.CurrentCulture.ContainsKey(idx))
+                if (this.CurrentCulture != null && this.CurrentCulture.ContainsKey(idx))
                 {
                     if (IgnoreCase) {
                         return this.CurrentCulture[idx.ToLower()].ToString();

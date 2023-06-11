@@ -113,12 +113,11 @@ public class ProcessWatcher : IDisposable
                     if (!RunningProcesses.ContainsKey(p.ProcessName.ToLower()))
                     {
                         var exp1 = WatchingProcesses.ContainsKey(p.ProcessName.ToLower());
-                        var exp2 = WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p);
-                        if (exp1 && exp2) {
+                        if (exp1 && WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p)) {
                             onNewProcess?.Invoke(p.ProcessName.ToLower(), null);
                         }
                         // magic code
-                        if (!(exp1 && !exp2)) {
+                        if (!(exp1 && !WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p))) {
                             RunningProcesses.AddOrUpdate(p.ProcessName.ToLower(), 1, (k, v) => 1);
                             _logger.Debug($"ProcessWatcher: new process {p.ProcessName.ToLower()}");
                         }

@@ -1,21 +1,35 @@
 
 
 
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 using Wpf.Ui.Common;
 using Wpf.Ui.Controls.IconElements;
 using Wpf.Ui.Controls.Navigation;
+using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Core;
+using ZTMZ.PacenoteTool.WpfGUI.Views;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 public partial class MainWindowVM : ObservableObject
 {
     bool _isInitialized = false;
-    public MainWindowVM()
+    public MainWindowVM(ZTMZPacenoteTool tool, IContentDialogService contentDialogService)
     {
         if (!_isInitialized) {
+            _tool = tool;
+            _contentDialogService = contentDialogService;
+            
             init();
+
         }
     }
+    private readonly IContentDialogService _contentDialogService;
+
+    private StartupDialog _startupDialog;
 
     [ObservableProperty]
     public string _title = "ZTMZ Next Generation Pacenote Tool";
@@ -27,20 +41,22 @@ public partial class MainWindowVM : ObservableObject
     [ObservableProperty]
     private ObservableCollection<object> _navigationFooter = new();
 
+    private ZTMZPacenoteTool _tool;
+
     private void init() {
-         NavigationItems = new ObservableCollection<object>
+        NavigationItems = new ObservableCollection<object>
             {
                 new NavigationViewItem()
                 {
                     Content = "Home",
                     Icon = new SymbolIcon { Symbol = SymbolRegular.Home24 },
-                    // TargetPageType = typeof(Views.Pages.DashboardPage)
+                    TargetPageType = typeof(Views.HomePage)
                 },
                 new NavigationViewItem()
                 {
                     Content = "General",
                     Icon = new SymbolIcon { Symbol = SymbolRegular.Settings20 },
-                    // TargetPageType = typeof(Views.Pages.DataPage)
+                    TargetPageType = typeof(Views.GeneralPage)
                 },
                 new NavigationViewItem()
                 {
@@ -77,7 +93,28 @@ public partial class MainWindowVM : ObservableObject
                     TargetPageType = typeof(Views.SettingsPage)
                 }
             };
+        
+        Task t = Task.Run(() => {
+            // load i18n
+            var jsonPaths = new List<string>{
+                    AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE),
+                    AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)),
+                    AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE))
+                };
+            I18NLoader.Instance.Initialize(jsonPaths);
+            I18NLoader.Instance.SetCulture(Config.Instance.Language);
+            _tool.Init();
+        });
+
         _isInitialized = true;
+    }
+
+    [RelayCommand]
+    private async Task OnShowStartupDialog() {
+        // _startupDialog = new StartupDialog(_contentDialogService.GetContentPresenter(), _tool);
+        if (!_tool.IsInitialized) {
+            // await _startupDialog.ShowAsync();
+        }
     }
 }
 

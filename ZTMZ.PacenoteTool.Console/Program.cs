@@ -11,13 +11,13 @@ public class Program
     public static void Main(string[] args)
     {
         
-        var jsonPaths = new List<string>{
-                AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE),
-                AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)),
-                AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE))
-            };
-        I18NLoader.Instance.Initialize(jsonPaths);
-        I18NLoader.Instance.SetCulture(Config.Instance.Language);
+        // var jsonPaths = new List<string>{
+        //         AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE),
+        //         AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)),
+        //         AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE))
+        //     };
+        // I18NLoader.Instance.Initialize(jsonPaths);
+        // I18NLoader.Instance.SetCulture(Config.Instance.Language);
         GoogleAnalyticsHelper.Instance.TrackLaunchEvent("language", Config.Instance.Language);
 
         

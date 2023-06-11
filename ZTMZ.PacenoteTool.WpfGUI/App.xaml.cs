@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Wpf.Ui.Contracts;
+using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 
 namespace ZTMZ.PacenoteTool.WpfGUI;
@@ -41,6 +42,10 @@ public partial class App : Application
             // Service containing navigation, same as INavigationWindow... but without window
             services.AddSingleton<INavigationService, NavigationService>();
 
+            services.AddSingleton<IContentDialogService, ContentDialogService>();
+
+            services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>();
+
             // Main window with navigation
             services.AddScoped<INavigationWindow, Views.MainWindow>();
             services.AddScoped<ViewModels.MainWindowVM>();
@@ -52,6 +57,10 @@ public partial class App : Application
             // services.AddScoped<ViewModels.DataViewModel>();
             services.AddScoped<Views.SettingsPage>();
             services.AddScoped<ViewModels.SettingsVM>();
+            services.AddScoped<Views.HomePage>();
+            services.AddScoped<ViewModels.HomePageVM>();
+            services.AddScoped<Views.GeneralPage>();
+            services.AddScoped<ViewModels.GeneralPageVM>();
 
             // Configuration
             // services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));

@@ -33,6 +33,8 @@ public class ZTMZPacenoteTool {
 
     public event Action<string> onStatusReport;
 
+    public event Action onToolInitialized;
+
     public event Action<IGame> onGameInitialized;
 
     public event Action<IGame> onGameStarted;
@@ -47,6 +49,8 @@ public class ZTMZPacenoteTool {
 
     public event Action<IGame, GameData> onNewGameData;
 
+    public bool IsInitialized { private set; get; } = false;
+
     // init the tool, load settings, etc.
     public void Init() {
         this.loadProfileManager();
@@ -56,6 +60,8 @@ public class ZTMZPacenoteTool {
         this.loadOutputDevices();
         this.initGoogleAnalytics();
         this.initializeProcessWatcher();
+        this.IsInitialized = true;
+        onToolInitialized?.Invoke();
     }
 
 #region privates

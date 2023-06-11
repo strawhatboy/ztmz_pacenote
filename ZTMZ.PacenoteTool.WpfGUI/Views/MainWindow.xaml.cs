@@ -24,15 +24,19 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
     public partial class MainWindow : INavigationWindow
     {
         public ViewModels.MainWindowVM ViewModel { get; }
-        public MainWindow(ViewModels.MainWindowVM viewModel, IPageService pageService, INavigationService navigationService)
+        public MainWindow(ViewModels.MainWindowVM viewModel, 
+            IPageService pageService, 
+            INavigationService navigationService,
+            IContentDialogService contentDialogService)
         {
             ViewModel = viewModel;
             DataContext = this;
-            
+
             Wpf.Ui.Appearance.Watcher.Watch(this);
             InitializeComponent();
 
             SetPageService(pageService);
+            contentDialogService.SetContentPresenter(RootContentDialog);
             navigationService.SetNavigationControl(RootNavigation);
         }
 
@@ -60,12 +64,12 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
 
         public void SetPageService(IPageService pageService)
         {
-            
+            this.RootNavigation.SetPageService(pageService);
         }
 
         public void SetServiceProvider(IServiceProvider serviceProvider)
         {
-            
+            this.RootNavigation.SetServiceProvider(serviceProvider);
         }
 
         public void ShowWindow()

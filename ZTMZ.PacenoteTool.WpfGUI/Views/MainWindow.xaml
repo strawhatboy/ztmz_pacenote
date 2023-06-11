@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI"
         mc:Ignorable="d"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
         ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
         ExtendsContentIntoTitleBar="True"
@@ -13,7 +14,15 @@
         WindowBackdropType="Mica"
         WindowCornerPreference="Round"
         WindowStartupLocation="CenterScreen"
+
         Title="{Binding ViewModel.Title, Mode=OneWay}" Height="650" Width="1100">
+    <b:Interaction.Triggers>
+    <b:EventTrigger EventName="Loaded">
+        <b:InvokeCommandAction
+            CommandParameter="{Binding}"
+            Command="{Binding ViewModel.ShowStartupDialogCommand}"/>
+    </b:EventTrigger>
+    </b:Interaction.Triggers>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -33,14 +42,14 @@
             FooterMenuItemsSource="{Binding ViewModel.NavigationFooter, Mode=OneWay}"
             MenuItemsSource="{Binding ViewModel.NavigationItems, Mode=OneWay}"
             PaneDisplayMode="LeftFluent">
-            <ui:NavigationView.Header>
+            <!-- <ui:NavigationView.Header>
                 <ui:BreadcrumbBar
                     Margin="42,32,0,0"
                     FontSize="28"
                     FontWeight="DemiBold" />
-            </ui:NavigationView.Header>
+            </ui:NavigationView.Header> -->
         </ui:NavigationView>
 
-        <ContentPresenter x:Name="RootContentDialog" Grid.Row="0" />
+        <ContentPresenter x:Name="RootContentDialog" Grid.Row="0" Grid.RowSpan="2"/>
     </Grid>
 </ui:FluentWindow>
