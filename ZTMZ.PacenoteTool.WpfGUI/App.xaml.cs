@@ -18,6 +18,8 @@ namespace ZTMZ.PacenoteTool.WpfGUI;
 
 public partial class App : Application
 {
+
+    private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     
     /// <summary>
     /// Interaction logic for App.xaml
@@ -102,6 +104,7 @@ public partial class App : Application
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         // For more info see https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.dispatcherunhandledexception?view=windowsdesktop-6.0
+        _logger.Error(e.Exception, "Unhandled exception occurred.");
     }
 
 }

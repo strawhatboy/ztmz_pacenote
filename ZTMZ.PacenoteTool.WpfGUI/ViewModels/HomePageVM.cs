@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using System.Windows.Data;
+using System.Threading.Tasks;
+using ZTMZ.PacenoteTool.Base.UI.Game;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -17,10 +19,10 @@ public partial class HomePageVM : ObservableObject {
     private bool _isGameInitialized;
 
     [ObservableProperty]
-    private IList<IGame> _games = new ObservableCollection<IGame>();
+    private IList<GameWithImage> _games = new ObservableCollection<GameWithImage>();
 
     [ObservableProperty]
-    private IGame _selectedGame;
+    private GameWithImage _selectedGame;
 
     [ObservableProperty]
     private IList<CoDriverPackage> _codriverPackages;
@@ -48,16 +50,16 @@ public partial class HomePageVM : ObservableObject {
             // Application.Current.Dispatcher.Invoke(() => {
                 Games.Clear();
                 foreach (var game in _tool.Games) {
-                    Games.Add(game);
+                    Games.Add(new GameWithImage(game));
                 }
             // });
             _logger.Info("Tool Initialized. in Home Page.");
-            _tool.SetGame(Games[Config.Instance.UI_SelectedGame]);
+            var theGame = Games[Config.Instance.UI_SelectedGame];
             // Application.Current.Dispatcher.Invoke(() => {      
-                SelectedGame = _tool.CurrentGame;
-            // });
-            // CodriverPackages = new ObservableCollection<CoDriverPackage>(_tool.CoDriverPackages);
-            // OutputDevices = new ObservableCollection<string>(_tool.OutputDevices);
+            SelectedGame = theGame;
+            Task.Run(() => {
+                _tool.SetGame(theGame.Game);
+            });
         };
     }
 }

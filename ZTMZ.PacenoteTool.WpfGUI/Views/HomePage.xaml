@@ -12,22 +12,22 @@
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
     <DockPanel>
-        <Grid Height="200" DockPanel.Dock="Top" >
+        <Grid Height="150" DockPanel.Dock="Top" Margin="42" HorizontalAlignment="Center">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200" />
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="150" />
                 <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="250"/>
             </Grid.ColumnDefinitions>
-            <ui:Image Height="200" Width="200" Source="pack://application:,,,/Assets/app.ico" />
+            <ui:Image CornerRadius="10" Height="150" Width="150" Source="pack://application:,,,/Assets/app.ico" />
             <ComboBox Grid.Row="0" Grid.Column="2" 
                 ItemsSource="{Binding Path=ViewModel.Games, Mode=OneWay}"
                 SelectedItem="{Binding Path=ViewModel.SelectedGame, Mode=OneWay}"
                     VerticalAlignment="Center">
                     <ComboBox.ItemTemplate>
-                    <DataTemplate DataType="{x:Type base:IGame}">
-                        <StackPanel ToolTip="{Binding Path=Description}">
-                            <!-- <ui:Image Source="{Binding Path=Image}" Width="115" Height="54" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" /> -->
-                            <TextBlock Text="{Binding Path=Name}" HorizontalAlignment="Center" />
+                    <DataTemplate>
+                        <StackPanel ToolTip="{Binding Path=Game.Description}">
+                            <ui:Image Source="{Binding Path=Image}" Width="200" Height="100" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
+                            <TextBlock Text="{Binding Path=Game.Name}" HorizontalAlignment="Center" />
                         </StackPanel>
                     </DataTemplate>
                     </ComboBox.ItemTemplate>
