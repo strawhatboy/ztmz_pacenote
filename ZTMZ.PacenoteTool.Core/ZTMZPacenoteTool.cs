@@ -21,6 +21,8 @@ public class ZTMZPacenoteTool {
     private float _playbackSpd = 1.0f;
     private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     private IGame _currentGame;
+
+    public IGame CurrentGame => _currentGame;
     private List<IGame> _games = new();
 
     public List<IGame> Games => _games;
@@ -78,18 +80,22 @@ public class ZTMZPacenoteTool {
         _logger.Info("Loading games...");
         this.onStatusReport?.Invoke("Loading games...");
         this._games.Clear();
-        foreach (var file in Directory.EnumerateFiles(Constants.PATH_GAMES, "*.dll")) 
-        {
-            var assembly = Assembly.LoadFrom(System.IO.Path.GetFullPath(file));
-            if (assembly.GetName().Name.Equals("ZTMZ.PacenoteTool.Base")) 
+        try {
+            foreach (var file in Directory.EnumerateFiles(Constants.PATH_GAMES, "*.dll")) 
             {
-                continue;
+                var assembly = Assembly.LoadFrom(System.IO.Path.GetFullPath(file));
+                if (assembly.GetName().Name.Equals("ZTMZ.PacenoteTool.Base")) 
+                {
+                    continue;
+                }
+                var games = assembly.GetLoadableTypes().Where(t => typeof(IGame).IsAssignableFrom(t)).Select(i => (IGame)Activator.CreateInstance(i));
+                this._games.AddRange(games);
             }
-            var games = assembly.GetLoadableTypes().Where(t => typeof(IGame).IsAssignableFrom(t)).Select(i => (IGame)Activator.CreateInstance(i));
-            this._games.AddRange(games);
+            this._games.Sort((g1, g2) => g1.Order.CompareTo(g2.Order));
+            this._games.ForEach(g => g.GameConfigurations = Config.Instance.LoadGameConfig(g));
+        } catch (Exception ex) {
+            _logger.Error($"Faield to load games: {ex.ToString()}");
         }
-        this._games.Sort((g1, g2) => g1.Order.CompareTo(g2.Order));
-        this._games.ForEach(g => g.GameConfigurations = Config.Instance.LoadGameConfig(g));
         _logger.Info($"{this._games.Count} games loaded.");
         this.onStatusReport?.Invoke($"{this._games.Count} games loaded.");
     }

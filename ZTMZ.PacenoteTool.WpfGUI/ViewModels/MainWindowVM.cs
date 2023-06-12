@@ -16,6 +16,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 public partial class MainWindowVM : ObservableObject
 {
+    private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     bool _isInitialized = false;
     public MainWindowVM(ZTMZPacenoteTool tool, IContentDialogService contentDialogService)
     {
@@ -101,6 +102,9 @@ public partial class MainWindowVM : ObservableObject
                     AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)),
                     AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE))
                 };
+                
+            NLogManager.init(ToolVersion.TEST);
+            _logger.Info("Application started");
             I18NLoader.Instance.Initialize(jsonPaths);
             I18NLoader.Instance.SetCulture(Config.Instance.Language);
             _tool.Init();
