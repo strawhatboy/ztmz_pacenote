@@ -7,10 +7,14 @@
     xmlns:base="clr-namespace:ZTMZ.PacenoteTool.Base.Game;assembly=ZTMZ.PacenoteTool.Base"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    xmlns:helpers="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="HomePage"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Page.Resources>
     <DockPanel>
         <Grid Height="150" DockPanel.Dock="Top" Margin="42" HorizontalAlignment="Center">
             <Grid.ColumnDefinitions>
@@ -19,18 +23,26 @@
                 <ColumnDefinition Width="250"/>
             </Grid.ColumnDefinitions>
             <ui:Image CornerRadius="10" Height="150" Width="150" Source="pack://application:,,,/Assets/app.ico" />
-            <ComboBox Grid.Row="0" Grid.Column="2" 
+            
+            <Border Grid.Row="0" Grid.Column="2" Background="FFFFFFFF" 
+                Visibility="{Binding ViewModel.IsGameInitializedFailed, 
+                             Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="40" Color="Red" ShadowDepth="0" />
+                </Border.Effect>
+            </Border>
+            <ComboBox Grid.Row="0" Grid.Column="2" Height="150"
                 ItemsSource="{Binding Path=ViewModel.Games, Mode=OneWay}"
                 SelectedItem="{Binding Path=ViewModel.SelectedGame, Mode=OneWay}"
-                    VerticalAlignment="Center">
-                    <ComboBox.ItemTemplate>
+                VerticalAlignment="Center">
+                <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel ToolTip="{Binding Path=Game.Description}">
                             <ui:Image Source="{Binding Path=Image}" Width="200" Height="100" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
                             <TextBlock Text="{Binding Path=Game.Name}" HorizontalAlignment="Center" />
                         </StackPanel>
                     </DataTemplate>
-                    </ComboBox.ItemTemplate>
+                </ComboBox.ItemTemplate>
             </ComboBox>
         </Grid>
         <Grid VerticalAlignment="Center" >

@@ -19,6 +19,9 @@ public partial class HomePageVM : ObservableObject {
     private bool _isGameInitialized;
 
     [ObservableProperty]
+    private bool _isGameInitializedFailed;
+
+    [ObservableProperty]
     private IList<GameWithImage> _games = new ObservableCollection<GameWithImage>();
 
     [ObservableProperty]
@@ -39,9 +42,13 @@ public partial class HomePageVM : ObservableObject {
         _tool.onGameStarted += (game) => IsGameRunning = true;
         _tool.onGameEnded += (game) => IsGameRunning = false;
 
-        _tool.onGameInitialized += (game) => IsGameInitialized = true;
+        _tool.onGameInitialized += (game) => {
+            IsGameInitialized = true;
+            IsGameInitializedFailed = false;
+        };
         _tool.onGameInitializeFailed += (game, code) => {
             IsGameInitialized = false;
+            IsGameInitializedFailed = true;
         };
 
         BindingOperations.EnableCollectionSynchronization(Games, _collectionLock);

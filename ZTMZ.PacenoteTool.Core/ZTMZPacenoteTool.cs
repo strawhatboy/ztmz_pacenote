@@ -213,7 +213,9 @@ public class ZTMZPacenoteTool {
                     game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
                     _logger.Info("Game {0} initialized.", game.Name);
                     this.onGameInitialized?.Invoke(game);
-                }    
+                } else {
+                    this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.UNKNOWN);
+                }
             } catch (Exception e) {
                 if (e is PortAlreadyInUseException) 
                 {
