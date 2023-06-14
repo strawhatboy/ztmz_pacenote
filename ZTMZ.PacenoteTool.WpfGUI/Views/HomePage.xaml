@@ -16,19 +16,42 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Page.Resources>
     <DockPanel>
+        <Grid DockPanel.Dock="Top" >
+            <ui:InfoBar Title="{Binding ViewModel.InfoBarTitle}" Message="{Binding ViewModel.InfoBarMessage}" IsOpen="{Binding ViewModel.InfoBarIsOpen}" />
+        </Grid>
         <Grid Height="150" DockPanel.Dock="Top" Margin="42" HorizontalAlignment="Center">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="150" />
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="250"/>
             </Grid.ColumnDefinitions>
-            <ui:Image CornerRadius="10" Height="150" Width="150" Source="pack://application:,,,/Assets/app.ico" />
             
-            <Border Grid.Row="0" Grid.Column="2" Background="FFFFFFFF" 
+            
+            <Border Grid.Row="0" Grid.Column="0" Background="White" CornerRadius="8"
                 Visibility="{Binding ViewModel.IsGameInitializedFailed, 
                              Converter={StaticResource BooleanToVisibilityConverter}}">
+                
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="40" Color="Red" ShadowDepth="0" />
+                    <DropShadowEffect BlurRadius="40" Color="Green" ShadowDepth="0" Opacity="1" />
+                </Border.Effect>
+            </Border>
+            <ui:Image CornerRadius="10" Height="130" Width="130" Source="pack://application:,,,/Assets/app.ico" />
+
+            
+            <Border Grid.Row="0" Grid.Column="2" Background="White" CornerRadius="8"
+                Visibility="{Binding ViewModel.IsGameInitializedFailed, 
+                             Converter={StaticResource BooleanToVisibilityConverter}}">
+                
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="40" Color="Red" ShadowDepth="0" Opacity="1" />
+                </Border.Effect>
+            </Border>
+            <Border Grid.Row="0" Grid.Column="2" Background="White" CornerRadius="8"
+                Visibility="{Binding ViewModel.IsGameRunning, 
+                             Converter={StaticResource BooleanToVisibilityConverter}}">
+                
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="40" Color="Green" ShadowDepth="0" Opacity="1" />
                 </Border.Effect>
             </Border>
             <ComboBox Grid.Row="0" Grid.Column="2" Height="150"
@@ -44,6 +67,23 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
+
+            <Border Grid.Row="0" Grid.Column="1" Background="#FFFF8888" Height="4" 
+                Visibility="{Binding ViewModel.IsGameInitializedFailed, 
+                             Converter={StaticResource BooleanToVisibilityConverter}}">
+                
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="40" Color="Red" ShadowDepth="0" Opacity="1" />
+                </Border.Effect>
+            </Border>
+            <Border Grid.Row="0" Grid.Column="1" Background="LightGreen" Height="4" 
+                Visibility="{Binding ViewModel.IsGameInitialized, 
+                             Converter={StaticResource BooleanToVisibilityConverter}}">
+                
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="40" Color="Green" ShadowDepth="0" Opacity="1" />
+                </Border.Effect>
+            </Border>
         </Grid>
         <Grid VerticalAlignment="Center" >
             <Grid HorizontalAlignment="Center">

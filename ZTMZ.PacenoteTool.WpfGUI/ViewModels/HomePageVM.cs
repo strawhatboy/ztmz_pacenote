@@ -5,12 +5,16 @@ using ZTMZ.PacenoteTool.Base.Game;
 using System.Windows.Data;
 using System.Threading.Tasks;
 using ZTMZ.PacenoteTool.Base.UI.Game;
+using Wpf.Ui.Controls;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 public partial class HomePageVM : ObservableObject {
 
     private ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool Tool { get; }
+
+    [ObservableProperty]
+    private bool _isRacing;
 
     [ObservableProperty]
     private bool _isGameRunning;
@@ -35,6 +39,18 @@ public partial class HomePageVM : ObservableObject {
 
     private object _collectionLock = new object();
 
+    [ObservableProperty]
+    private string _infoBarTitle;
+
+    [ObservableProperty]
+    private string _infoBarMessage;
+
+    [ObservableProperty]
+    private InfoBarSeverity _infoBarSeverity;
+
+    [ObservableProperty]
+    private bool _infoBarIsOpen;
+
     private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
     public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool) {
@@ -50,6 +66,8 @@ public partial class HomePageVM : ObservableObject {
             IsGameInitialized = false;
             IsGameInitializedFailed = true;
         };
+        _tool.onRaceBegin += (game) => IsRacing = true;
+        _tool.onRaceEnd += (game) => IsRacing = false;
 
         BindingOperations.EnableCollectionSynchronization(Games, _collectionLock);
 

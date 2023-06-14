@@ -51,6 +51,10 @@ public class ZTMZPacenoteTool {
 
     public event Action<IGame, GameData> onNewGameData;
 
+    public event Action<IGame> onRaceBegin;
+
+    public event Action<IGame> onRaceEnd;
+
     public bool IsInitialized { private set; get; } = false;
 
     // init the tool, load settings, etc.
@@ -255,12 +259,16 @@ public class ZTMZPacenoteTool {
                 break;
             case GameState.RaceEnd:
                 // end recording, unload trace loaded?
-                GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_end");
                 
-                if (lastState == GameState.Racing && Config.Instance.PlayStartAndEndSound)
-                {
-                    // play end sound
-                    this._profileManager.PlaySystem(Constants.SYSTEM_END_STAGE);
+                if (lastState == GameState.Racing) {
+                    
+                    GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_end");
+                    this.onRaceEnd?.Invoke(_currentGame);
+                    if (Config.Instance.PlayStartAndEndSound)
+                    {
+                        // play end sound
+                        this._profileManager.PlaySystem(Constants.SYSTEM_END_STAGE);
+                    }
                 }
 
                 // disable telemetry hud, show statistics?
@@ -272,6 +280,7 @@ public class ZTMZPacenoteTool {
                 // this._udpReceiver.LastMessage.TrackLength
                 if (lastState != GameState.Paused)
                 {
+                    this.onRaceBegin?.Invoke(_currentGame);
                     GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._currentGame.Name + " - " + this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
                 }
                 this._trackName = this._currentGame.GameDataReader.TrackName;
