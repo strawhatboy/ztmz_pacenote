@@ -56,7 +56,11 @@ public partial class HomePageVM : ObservableObject {
     public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool) {
         Tool = _tool;
         _tool.onGameStarted += (game) => IsGameRunning = true;
-        _tool.onGameEnded += (game) => IsGameRunning = false;
+        _tool.onGameEnded += (game) => {
+            IsGameRunning = false;
+            IsGameInitialized = false;
+            IsRacing = false; 
+        };
 
         _tool.onGameInitialized += (game) => {
             IsGameInitialized = true;
@@ -82,9 +86,12 @@ public partial class HomePageVM : ObservableObject {
             var theGame = Games[Config.Instance.UI_SelectedGame];
             // Application.Current.Dispatcher.Invoke(() => {      
             SelectedGame = theGame;
-            Task.Run(() => {
-                _tool.SetGame(theGame.Game);
-            });
         };
+        
+        Task.Run(() => {
+            // _tool.SetGame(theGame.Game);
+            _tool.Init();
+            _tool.SetFromConfiguration();
+        });
     }
 }

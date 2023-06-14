@@ -86,18 +86,20 @@ public class ProcessWatcher : IDisposable
             _isWatching = true;
         }
 
-        // current processes
-        foreach (var p in Process.GetProcesses()) 
-        {
-            if (WatchingProcesses.ContainsKey(p.ProcessName.ToLower()))
+        _worker = Task.Run(() => {
+            
+            Thread.Sleep(this._refreshInterval);
+            // current processes
+            foreach (var p in Process.GetProcesses()) 
             {
-                onNewProcess?.Invoke(p.ProcessName.ToLower(), null);
+                if (WatchingProcesses.ContainsKey(p.ProcessName.ToLower()))
+                {
+                    onNewProcess?.Invoke(p.ProcessName.ToLower(), null);
+                }
+
+                RunningProcesses.AddOrUpdate(p.ProcessName.ToLower(), 1, (k, v) => 1);
             }
 
-            RunningProcesses.AddOrUpdate(p.ProcessName.ToLower(), 1, (k, v) => 1);
-        }
-
-        _worker = Task.Run(() => {
             while (true) {
                     
                 lock(_lock) {

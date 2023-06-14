@@ -69,6 +69,7 @@ namespace ZTMZ.PacenoteTool.RBR
         public IGameDataReader GameDataReader { get; } = new RBRGameDataReader();
 
         public bool IsRunning { get; set; }
+        public bool IsInitialized { get; set; }
 
         public Dictionary<string, IGameConfig> GameConfigurations { set; get; }
         

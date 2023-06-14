@@ -20,6 +20,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
 
     public abstract GameState GameState { get; set; }
     public abstract GameData LastGameData { get; set; }
+    public abstract GameData CurrentGameData { get; set; }
     public abstract string TrackName { get; }
     private Timer _timer;
     protected int _timerCount = 0;

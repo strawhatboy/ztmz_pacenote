@@ -36,6 +36,7 @@ public class RBRGameDataReader : UdpGameDataReader
     }
 
     public override GameData LastGameData { get => _lastGameData; set => _lastGameData = value; }
+    public override GameData CurrentGameData { get => _currentGameData; set => _currentGameData = value; }
 
     /// <summary>
     /// TrackName here is in the format: [TrackNo]TrackName
@@ -70,6 +71,8 @@ public class RBRGameDataReader : UdpGameDataReader
 
     private List<float> _countdownList = new();
     private int _countdownIndex = 0;
+
+    private bool _isRacing = false;
 
     public override event Action<GameData, GameData> onNewGameData
     {
@@ -203,21 +206,30 @@ public class RBRGameDataReader : UdpGameDataReader
         } 
         else if (state == RBRGameState.Racing || playWhenReplay && state == RBRGameState.Replay)
         {
-            if (GameState == GameState.Unknown && memData.StageStartCountdown < 0)
+            if ((GameState == GameState.Unknown || GameState == GameState.Paused) && memData.StageStartCountdown < 0 && !_isRacing)
             {
                 // from unknown to racing directly.
+                _isRacing = true;
                 return GameState.AdHocRaceBegin;
             }
             
             this._timerCount = 0; // avoid game state set to unknown.
+            _isRacing = true;
             return GameState.Racing;
 
         } else if (state == RBRGameState.Paused)
         {
+            // if (GameState == GameState.Unknown && !_isRacing)
+            // {
+            //     // from racing to paused
+            //     _isRacing = true;
+            //     return GameState.AdHocRaceBegin;
+            // }
             return GameState.Paused;
         } else if (state == RBRGameState.RaceEndOrReplay0 || state == RBRGameState.RaceEnd || state == RBRGameState.RaceEndOrReplay1)
         {
             _countdownList.Clear();
+            _isRacing = false;
             return GameState.RaceEnd;
         }
 
@@ -230,7 +242,7 @@ public class RBRGameDataReader : UdpGameDataReader
         var lastUdp = oldMsg.CastToStruct<RBRUdpData>();
         var newUdp = newMsg.CastToStruct<RBRUdpData>();
 
-        _currentGameData = getGameDataFromUdp(_currentGameData, newUdp);
+        // _currentGameData = getGameDataFromUdp(_currentGameData, newUdp);
     }
 
     private GameData getGameDataFromUdp(GameData gameData, RBRUdpData data)

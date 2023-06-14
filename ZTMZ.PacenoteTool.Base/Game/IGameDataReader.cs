@@ -6,6 +6,7 @@ namespace ZTMZ.PacenoteTool.Base.Game
     {
         GameState GameState { set; get; }
         GameData LastGameData { set; get; }
+        GameData CurrentGameData { set; get; }
 
         string TrackName { get; }
         event Action<GameData, GameData> onNewGameData;

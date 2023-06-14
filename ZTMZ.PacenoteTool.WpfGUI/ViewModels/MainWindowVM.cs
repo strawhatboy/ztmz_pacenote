@@ -107,7 +107,6 @@ public partial class MainWindowVM : ObservableObject
             _logger.Info("Application started");
             I18NLoader.Instance.Initialize(jsonPaths);
             I18NLoader.Instance.SetCulture(Config.Instance.Language);
-            _tool.Init();
         });
 
         _isInitialized = true;

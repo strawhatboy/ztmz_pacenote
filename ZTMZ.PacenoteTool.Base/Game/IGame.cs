@@ -50,6 +50,8 @@ namespace ZTMZ.PacenoteTool.Base.Game
 
         bool IsRunning { set; get; }
 
+        bool IsInitialized {set;get;}
+
         int Order { get; }
     }
 }

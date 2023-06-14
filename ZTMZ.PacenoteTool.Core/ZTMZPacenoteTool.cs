@@ -197,7 +197,7 @@ public class ZTMZPacenoteTool {
 
     private void initializeGame(IGame game) 
     {
-        if (game == null)
+        if (game == null || game.IsInitialized == true)
             return;
 
         // check prerequisite
@@ -216,6 +216,7 @@ public class ZTMZPacenoteTool {
                     game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
                     game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
                     _logger.Info("Game {0} initialized.", game.Name);
+                    game.IsInitialized = true;
                     this.onGameInitialized?.Invoke(game);
                 } else {
                     this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.UNKNOWN);
@@ -242,6 +243,7 @@ public class ZTMZPacenoteTool {
         game.GameDataReader.onNewGameData -= newGameDataEventHander;
         game.GameDataReader.onGameStateChanged -= this.gamestateChangedHandler;
         game.GameDataReader.Uninitialize(game);
+        game.IsInitialized = false;
     }
 
     private void gamestateChangedHandler(GameStateChangeEvent evt)
@@ -278,9 +280,9 @@ public class ZTMZPacenoteTool {
             case GameState.AdHocRaceBegin:
                 // load trace, use lastmsg tracklength & startZ
                 // this._udpReceiver.LastMessage.TrackLength
+                this.onRaceBegin?.Invoke(_currentGame);
                 if (lastState != GameState.Paused)
                 {
-                    this.onRaceBegin?.Invoke(_currentGame);
                     GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._currentGame.Name + " - " + this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
                 }
                 this._trackName = this._currentGame.GameDataReader.TrackName;
@@ -303,7 +305,9 @@ public class ZTMZPacenoteTool {
                     if (state == GameState.AdHocRaceBegin) 
                     {
                         // relocate the current car's position
-                        this._profileManager.ReIndex(this._currentGame.GameDataReader.LastGameData.LapDistance);
+                        var distance = this._currentGame.GameDataReader.CurrentGameData.LapDistance;
+                        _logger.Info($"tring to relocate the pacenote based on the car's position {distance}");
+                        this._profileManager.ReIndex(distance);
                     }
 
                     //TODO: change overlay script type
@@ -453,10 +457,10 @@ public class ZTMZPacenoteTool {
     }
 
     public void SetFromConfiguration() {
-        this.SetGame(Config.Instance.UI_SelectedGame);
         this.SetProfile(Config.Instance.UI_SelectedProfile);
         this.SetOutputDevice(Config.Instance.UI_SelectedPlaybackDevice);
         this.SetCodriver(Config.Instance.UI_SelectedAudioPackage);
+        this.SetGame(Config.Instance.UI_SelectedGame);
     }
 
     public void SetGame(int gameIndex) {

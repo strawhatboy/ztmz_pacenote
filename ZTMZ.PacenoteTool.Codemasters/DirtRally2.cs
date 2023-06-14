@@ -27,6 +27,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
         public Dictionary<string, IGameConfig> GameConfigurations { set; get; }
 
         public bool IsRunning { get; set; }
+        public bool IsInitialized { get; set; }
         public int Order => 2000;
 
         public IGamePrerequisiteChecker GamePrerequisiteChecker { get; } = new DirtGamePrerequisiteChecker();
