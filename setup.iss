@@ -3,6 +3,7 @@
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
+#define FolderName "ZTMZClub"
 
 [Code]
 var
@@ -146,18 +147,18 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [InstallDelete]
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\default";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\engmale (by mesa)";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\wha1ing";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\南沢いずみ";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\图图（对讲机特效 by wha1ing）";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\圣沙蒙VK";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\拉稀车手老王";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\拉稀车手老王对讲机特效版";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\拉稀车手老王超快速语音包（兼容苏格兰）";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\权威Authority";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\紫藤林沫（测试版）";
-Type: files; Name: "{userdocs}\My Games\ZTMZClub\config.json";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\default";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\engmale (by mesa)";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\wha1ing";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\南沢いずみ";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\图图（对讲机特效 by wha1ing）";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\圣沙蒙VK";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\拉稀车手老王";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\拉稀车手老王对讲机特效版";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\拉稀车手老王超快速语音包（兼容苏格兰）";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\权威Authority";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\紫藤林沫（测试版）";
+Type: files; Name: "{userdocs}\My Games\{#FolderName}\config.json";
 ; Delete previous default audio package
 ; Delete previous default configuration
 

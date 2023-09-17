@@ -4,6 +4,14 @@
     "title_dev": "ZTMZ Club Pacenote Tool (Dev)",
     "title_test": "ZTMZ Club Pacenote Tool (For Testing)"
   },
+  "tabs" : {
+    "home": "Home",
+    "general": "General",
+    "voices": "Voices",
+    "playback": "Playback",
+    "hud": "Hud",
+    "game": "Game"
+  },
   "settings": {
 
     "title": "Settings",

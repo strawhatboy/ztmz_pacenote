@@ -94,4 +94,12 @@ public partial class HomePageVM : ObservableObject {
             _tool.SetFromConfiguration();
         });
     }
+
+    [RelayCommand]
+    private void GameSelectionChanged() {
+        var game = SelectedGame;
+        Config.Instance.UI_SelectedGame = Games.IndexOf(game);
+        Config.Instance.SaveUserConfig();
+        Tool.SetGame(game.Game);
+    }
 }

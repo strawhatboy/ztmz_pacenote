@@ -45,55 +45,6 @@ public partial class MainWindowVM : ObservableObject
     private ZTMZPacenoteTool _tool;
 
     private void init() {
-        NavigationItems = new ObservableCollection<object>
-            {
-                new NavigationViewItem()
-                {
-                    Content = "Home",
-                    Icon = new SymbolIcon { Symbol = SymbolRegular.Home24 },
-                    TargetPageType = typeof(Views.HomePage)
-                },
-                new NavigationViewItem()
-                {
-                    Content = "General",
-                    Icon = new SymbolIcon { Symbol = SymbolRegular.Settings20 },
-                    TargetPageType = typeof(Views.GeneralPage)
-                },
-                new NavigationViewItem()
-                {
-                    Content = "Voices",
-                    Icon = new SymbolIcon { Symbol = SymbolRegular.PersonVoice20 },
-                    // TargetPageType = typeof(Views.Pages.DataPage)
-                },
-                new NavigationViewItem()
-                {
-                    Content = "Playback",
-                    Icon = new SymbolIcon { Symbol = SymbolRegular.Play20 },
-                    // TargetPageType = typeof(Views.Pages.DataPage)
-                },
-                new NavigationViewItem()
-                {
-                    Content = "Hud",
-                    Icon = new SymbolIcon { Symbol = SymbolRegular.Gauge20 },
-                    // TargetPageType = typeof(Views.Pages.DataPage)
-                },
-                new NavigationViewItem()
-                {
-                    Content = "Game",
-                    Icon = new SymbolIcon { Symbol = SymbolRegular.Games20 },
-                    // TargetPageType = typeof(Views.Pages.DataPage)
-                }
-            };
-
-        NavigationFooter = new ObservableCollection<object>
-            {
-                new NavigationViewItem()
-                {
-                    Content = "About",
-                    Icon = new SymbolIcon { Symbol = SymbolRegular.Info24 },
-                    TargetPageType = typeof(Views.SettingsPage)
-                }
-            };
         
         Task t = Task.Run(() => {
             // load i18n
@@ -107,6 +58,64 @@ public partial class MainWindowVM : ObservableObject
             _logger.Info("Application started");
             I18NLoader.Instance.Initialize(jsonPaths);
             I18NLoader.Instance.SetCulture(Config.Instance.Language);
+
+            Application.Current.Dispatcher.Invoke(() => {
+                NavigationItems = new ObservableCollection<object>
+                {
+                    new NavigationViewItem()
+                    {
+                        Content = I18NLoader.Instance["tabs.home"],
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.Home20 },
+                        TargetPageType = typeof(Views.HomePage)
+                    },
+                    new NavigationViewItem()
+                    {
+                        Content = I18NLoader.Instance["tabs.general"],
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.Settings20 },
+                        TargetPageType = typeof(Views.GeneralPage)
+                    },
+                    new NavigationViewItem()
+                    {
+                        Content = I18NLoader.Instance["tabs.voices"],
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.PersonVoice20 },
+                        // TargetPageType = typeof(Views.Pages.DataPage)
+                    },
+                    new NavigationViewItem()
+                    {
+                        Content = I18NLoader.Instance["tabs.playback"],
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.Play20 },
+                        // TargetPageType = typeof(Views.Pages.DataPage)
+                    },
+                    new NavigationViewItem()
+                    {
+                        Content = I18NLoader.Instance["tabs.hud"],
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.Gauge20 },
+                        // TargetPageType = typeof(Views.Pages.DataPage)
+                    },
+                    new NavigationViewItem()
+                    {
+                        Content = I18NLoader.Instance["tabs.game"],
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.Games20 },
+                        // TargetPageType = typeof(Views.Pages.DataPage)
+                    }
+                };
+
+                NavigationFooter = new ObservableCollection<object>
+                {
+                    new NavigationViewItem()
+                    {
+                        Content = "User",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.PersonCircle20 },
+                    },
+                    new NavigationViewItem()
+                    {
+                        Content = "About",
+                        Icon = new SymbolIcon { Symbol = SymbolRegular.Info20 },
+                        TargetPageType = typeof(Views.SettingsPage)
+                    }
+                };
+            });
+            
         });
 
         _isInitialized = true;

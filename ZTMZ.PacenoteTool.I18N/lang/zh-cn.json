@@ -4,6 +4,14 @@
     "title_dev": "ZTMZ Club 路书工具开发版",
     "title_test": "ZTMZ Club 路书工具测试版"
   },
+  "tabs" : {
+    "home": "主页",
+    "general": "常规",
+    "voices": "语音包",
+    "playback": "播放",
+    "hud": "仪表盘",
+    "game": "当前游戏"
+  },
   "settings": {
 
     "title": "设置",
