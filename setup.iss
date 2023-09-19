@@ -1,9 +1,9 @@
 ﻿#define MyAppName "ZTMZ Next Generation Pacenote Tool"
-#define MyAppVersion "3.0-preview"
+#define MyAppVersion "2.99.99.1"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
-#define FolderName "ZTMZClub"
+#define FolderName "ZTMZClub_nextgen"
 
 [Code]
 var
@@ -164,13 +164,13 @@ Type: files; Name: "{userdocs}\My Games\{#FolderName}\config.json";
 
 [Files]
 ; No json file!
-; Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\*.json"; Excludes:"config.json,userconfig.json,*.deps.json,*.runtimeconfig.json"; DestDir: "{userdocs}\My Games\ZTMZClub"; Flags: ignoreversion
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\*.csv"; DestDir: "{userdocs}\My Games\ZTMZClub"; Flags: ignoreversion
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\codrivers\*"; DestDir: "{userdocs}\My Games\ZTMZClub\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\profiles\*"; DestDir: "{userdocs}\My Games\ZTMZClub\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\lang\*"; DestDir: "{userdocs}\My Games\ZTMZClub\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\*.json"; Excludes:"config.json,userconfig.json,*.deps.json,*.runtimeconfig.json"; DestDir: "{userdocs}\My Games\{#FolderName}"; Flags: ignoreversion
+Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\*.csv"; DestDir: "{userdocs}\My Games\{#FolderName}"; Flags: ignoreversion
+Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\codrivers\*"; DestDir: "{userdocs}\My Games\{#FolderName}\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\profiles\*"; DestDir: "{userdocs}\My Games\{#FolderName}\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\lang\*"; DestDir: "{userdocs}\My Games\{#FolderName}\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\games\*"; Excludes:"*.json"; DestDir: "{app}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\games\*.json"; Excludes:"*.deps.json"; DestDir: "{userdocs}\My Games\ZTMZClub\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\games\*.json"; Excludes:"*.deps.json"; DestDir: "{userdocs}\My Games\{#FolderName}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
