@@ -10,7 +10,7 @@ using System.Windows.Threading;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Wpf.Ui.Contracts;
+// using Wpf.Ui.Contracts;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 
@@ -18,6 +18,19 @@ namespace ZTMZ.PacenoteTool.WpfGUI;
 
 public partial class App : Application
 {
+    public App() {
+        var jsonPaths = new List<string>{
+            AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE),
+            AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)),
+            AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE))
+        };
+            
+        NLogManager.init(ToolVersion.TEST);
+        _logger.Info("Application started");
+        I18NLoader.Instance.Initialize(jsonPaths);
+        I18NLoader.Instance.SetCulture(Config.Instance.Language);
+        _logger.Info("i18n Loaded.");
+    }
 
     private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     

@@ -46,6 +46,13 @@ namespace ZTMZ.PacenoteTool
             I18NLoader.Instance.Initialize(jsonPaths);
             I18NLoader.Instance.SetCulture(Config.Instance.Language);
             GoogleAnalyticsHelper.Instance.TrackLaunchEvent("language", Config.Instance.Language);
+            var CurrentDict = new ResourceDictionary();
+            
+            foreach (var key in I18NLoader.Instance.CurrentCulture.Keys)
+            {
+                CurrentDict.Add(key, I18NLoader.Instance.CurrentCulture[key]);
+            }
+            this.Resources.MergedDictionaries.Add(CurrentDict);
         }
 
         private void SetupExceptionHandling()

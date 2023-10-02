@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.Hosting;
-using Wpf.Ui.Contracts;
+// using Wpf.Ui.Contracts;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.Services;

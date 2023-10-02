@@ -4,3 +4,5 @@ obj
 .vs
 Output
 *wpftmp.csproj
+
+.fake

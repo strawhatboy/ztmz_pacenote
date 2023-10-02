@@ -13,16 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using ZTMZ.PacenoteTool.Base;
 
-using Wpf.Ui.Controls.ContentDialogControl;
+// using Wpf.Ui.Controls;
 using System.ComponentModel;
-using Wpf.Ui.Common;
+using Wpf.Ui;
 
 namespace ZTMZ.PacenoteTool.Base.UI.Dialog
 {
     /// <summary>
     /// Interaction logic for BaseDialog.xaml
     /// </summary>
-    public partial class BaseDialog : ContentDialog
+    public partial class BaseDialog : Wpf.Ui.Controls.ContentDialog
     {
         public MessageBoxResult Result { get; set; }
         public BaseDialog(ContentPresenter contentPresenter, string title_id, string msg_id, object[] args, MessageBoxButton button, MessageBoxImage image) : base(contentPresenter) {
@@ -63,22 +63,22 @@ namespace ZTMZ.PacenoteTool.Base.UI.Dialog
                     this.pi_Icon.Visibility = Visibility.Collapsed;
                     break;
                 case MessageBoxImage.Error:
-                    this.pi_Icon.Symbol = SymbolRegular.ErrorCircle20;
+                    this.pi_Icon.Symbol = Wpf.Ui.Controls.SymbolRegular.ErrorCircle20;
                     // descriptor.SetValue(this.pi_Icon, "ErrorCircle20");
                     this.pi_Icon.Foreground = Brushes.Red;
                     break;
                 case MessageBoxImage.Question:
-                    this.pi_Icon.Symbol = SymbolRegular.QuestionCircle20;
+                    this.pi_Icon.Symbol = Wpf.Ui.Controls.SymbolRegular.QuestionCircle20;
                     // descriptor.SetValue(this.pi_Icon, "QuestionCircle20");
                     this.pi_Icon.Foreground = Brushes.Blue;
                     break;
                 case MessageBoxImage.Warning:
-                    this.pi_Icon.Symbol = SymbolRegular.Warning20;
+                    this.pi_Icon.Symbol = Wpf.Ui.Controls.SymbolRegular.Warning20;
                     // descriptor.SetValue(this.pi_Icon, "Warning20");
                     this.pi_Icon.Foreground = Brushes.Orange;
                     break;
                 case MessageBoxImage.Information:
-                    this.pi_Icon.Symbol = SymbolRegular.Info20;
+                    this.pi_Icon.Symbol = Wpf.Ui.Controls.SymbolRegular.Info20;
                     // descriptor.SetValue(this.pi_Icon, "Info20");
                     this.pi_Icon.Foreground = Brushes.Blue;
                     break;

@@ -100,6 +100,151 @@
                         <ColumnDefinition  />
                         <ColumnDefinition  />
                     </Grid.ColumnDefinitions>
+                    <ComboBox Grid.Row="0" Grid.Column="0"  Name="cb_codrivers"
+                          VerticalAlignment="Top" 
+                          ItemsSource="{Binding Path=ViewModel.CodriverPackageInfos, Mode=OneWay}"
+                          SelectedItem="{Binding Path=ViewModel.SelectedCodriver, Mode=TwoWay}"
+                          >
+                        
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel ToolTip="{Binding Path=description}" Orientation="Horizontal">
+                                    <ui:FontIcon Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0 0 5 0"  >
+                                        <ui:FontIcon.Style>
+                                            <Style TargetType="ui:FontIcon">
+                                                <Setter Property="Glyph" Value="&#xEE57;"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding gender}" Value="M">
+                                                        <Setter Property="Glyph" Value="&#xE8FA;"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding gender}" Value="F">
+                                                        <Setter Property="Glyph" Value="&#xE8F8;"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ui:FontIcon.Style>
+                                    </ui:FontIcon>
+                                    <Grid VerticalAlignment="Center" >
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="2*"></RowDefinition>
+                                            <RowDefinition Height="1*"></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" Text="{Binding Path=name}" FontSize="16" HorizontalAlignment="Left" />
+                                        <TextBlock Grid.Row="1" Text="{Binding Path=language}" HorizontalAlignment="Left" />
+                                    </Grid>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                        
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="SelectionChanged">
+                                <b:InvokeCommandAction
+                                    CommandParameter="{Binding}"
+                                    Command="{Binding ViewModel.CodriverPackageSelectionChangedCommand}"/>
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </ComboBox>
+                    <Grid Grid.Row="0" Grid.Column="1" Margin="5 0 5 0" >
+                        <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40" />
+                            <RowDefinition Height="40" />
+                            <RowDefinition Height="40" />
+                            <RowDefinition Height="40" />
+                            <RowDefinition Height="40" />
+                            <RowDefinition Height="40" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+        
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="56" />
+                            <ColumnDefinition Width="56" />
+                        </Grid.ColumnDefinitions>
+        
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource ResourceKey=ui.tb_currentTrack}"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_replayDevice}" FontSize="16"
+                                    Text="{DynamicResource ResourceKey=ui.tb_replayDevice}">
+                            <TextBlock.Effect>
+                                <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
+                            </TextBlock.Effect></TextBlock>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Name="tb_currentTrack">N/A</TextBlock>
+                        <Button Grid.Row="0" Grid.Column="2" Name="tb_currentTrack_view" 
+                                ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentTrack}"
+                            Content="File"  Margin="2"
+                            >
+                        </Button>
+                        <Button Grid.Row="0" Grid.Column="3" Name="btn_currentTrack_script" 
+                                ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentScript}"
+                                Margin="2"
+                            Content="Script">
+        
+                        </Button>
+                        <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_replay_device" VerticalAlignment="Center"
+                            ItemsSource="{Binding Path=ViewModel.OutputDevices, Mode=OneWay}"
+                            SelectedItem="{Binding Path=ViewModel.SelectedOutputDevice, Mode=TwoWay}">
+                            <b:Interaction.Triggers>
+                                <b:EventTrigger EventName="SelectionChanged">
+                                    <b:InvokeCommandAction
+                                        CommandParameter="{Binding}"
+                                        Command="{Binding ViewModel.OutputDeviceSelectionChangedCommand}"/>
+                                </b:EventTrigger>
+                            </b:Interaction.Triggers>
+                        </ComboBox>
+                        <TextBlock Grid.Row="2" Grid.Column="0" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_playVolume}" 
+                                    FontSize="16"
+                                    Text="{DynamicResource ResourceKey=ui.tb_playVolume}">
+                            <TextBlock.Effect>
+                                <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
+                            </TextBlock.Effect></TextBlock>
+                        <Slider Name="s_volume" Grid.Row="2" Grid.Column="1" Maximum="1000" Minimum="-1000" Interval="1"
+                            Value="0" 
+                            VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" Name="tb_volume">0</TextBlock>
+                        <ToggleButton x:Name="tb_mute" Grid.Row="2" Grid.Column="3" 
+                            
+                            ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_mute}"
+                            Content="?mute"
+                            />
+        
+                        <!--<TextBlock Grid.Row="3" Grid.Column="0" ToolTip="[慎用]调整路书播放点，对纯语音路书和脚本路书都有效，比如+10米表示所有路书片段会在推迟10米处播放，-10米表示所有路书片段会在提前10米处播放">播放点调整：</TextBlock>
+                    <Slider Name="s_playpointAdjust" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Maximum="100" Minimum="-100" Interval="1"
+                            Value="0" ValueChanged="S_playpointAdjust_OnValueChanged" />
+                    <TextBlock Grid.Row="3" Grid.Column="3" Name="tb_playpointAdjust">0米</TextBlock>-->
+        
+        
+                        <TextBlock Grid.Row="3" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_prePlay}"
+                                    Text="{DynamicResource ResourceKey=ui.tb_prePlay}"/>
+                        <Slider Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" x:Name="sl_scriptTiming" 
+                            Maximum="2" Minimum="-2" Value="0" 
+                            IsEnabled="True"
+                            VerticalAlignment="Center"></Slider>
+                        <TextBlock Grid.Row="3" Grid.Column="3" x:Name="tb_scriptTiming" HorizontalAlignment="Center" >0s</TextBlock>
+                        <TextBlock Grid.Row="4" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_playbackSpd}"
+                                    Text="{DynamicResource ResourceKey=ui.tb_playbackSpd}"/>
+                        <Slider Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" x:Name="sl_playbackSpd" 
+                                Maximum="1.5" Minimum="0.5" Value="1" 
+                                IsEnabled="True" TickFrequency="0.125"
+                                
+                                TickPlacement="Both" 
+                                VerticalAlignment="Center"></Slider>
+                        <TextBlock Grid.Row="4" Grid.Column="3" x:Name="tb_playbackSpd" HorizontalAlignment="Center" >x 1.00</TextBlock>
+        
+                        <TextBlock Grid.Row="5" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.factorToRemoveSpaceFromAudioFiles}" 
+                                            ToolTip="{DynamicResource ResourceKey=settings.tooltip.factorToRemoveSpaceFromAudioFiles}" />
+                        <Slider Name="sl_factorToRemoveSpaceFromAudioFiles" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Value="5" Maximum="9" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True"  TickPlacement="Both" VerticalAlignment="Center" />
+                        <TextBlock Grid.Row="5" Grid.Column="3" x:Name="tb_factorToRemoveSpaceFromAudioFiles" HorizontalAlignment="Center" >6</TextBlock>
+        
+                        <TextBlock Grid.Row="6" Grid.Column="0" 
+                                    ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_showHud}" 
+                                    Text="{DynamicResource ResourceKey=ui.tb_showHud}"
+                                    FontSize="16" >
+                            <TextBlock.Effect>
+                                <DropShadowEffect ShadowDepth="2" BlurRadius="0" Color="#FFDDDD"  />
+                            </TextBlock.Effect></TextBlock>
+                        </Grid>
+                    </Grid>
                 </Grid>
             </ui:Card.Content>
         </ui:Card>

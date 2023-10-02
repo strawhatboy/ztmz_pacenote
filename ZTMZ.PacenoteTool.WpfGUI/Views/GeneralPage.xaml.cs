@@ -1,4 +1,4 @@
-using Wpf.Ui.Controls.Navigation;
+using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.Views;

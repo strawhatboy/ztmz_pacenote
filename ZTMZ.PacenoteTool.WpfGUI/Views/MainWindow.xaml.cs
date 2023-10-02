@@ -12,9 +12,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Wpf.Ui.Contracts;
-using Wpf.Ui.Controls.Navigation;
-using Wpf.Ui.Controls.Window;
+using Wpf.Ui;
+using Wpf.Ui.Controls;
+using ZTMZ.PacenoteTool.Base;
+// using Wpf.Ui.Controls.Window;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.Views
 {
@@ -32,12 +33,15 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             ViewModel = viewModel;
             DataContext = this;
 
-            Wpf.Ui.Appearance.Watcher.Watch(this);
+            if (Config.Instance.UseSystemTheme) {
+                Wpf.Ui.Appearance.SystemThemeWatcher.Watch(this);
+            }
             InitializeComponent();
 
             SetPageService(pageService);
             contentDialogService.SetContentPresenter(RootContentDialog);
             navigationService.SetNavigationControl(RootNavigation);
+
         }
 
         public void CloseWindow()

@@ -28,6 +28,7 @@ public class Program
         tool.onStatusReport += (s) => System.Console.WriteLine(s);
         tool.Init();
         tool.SetFromConfiguration();
+        tool.SetGame(Config.Instance.UI_SelectedGame);
         while (true) {
             Thread.Sleep(2000);
         }

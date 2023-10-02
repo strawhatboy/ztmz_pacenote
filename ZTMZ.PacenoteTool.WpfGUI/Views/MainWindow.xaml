@@ -14,6 +14,7 @@
         WindowBackdropType="Mica"
         WindowCornerPreference="Round"
         WindowStartupLocation="CenterScreen"
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
 
         Title="{Binding ViewModel.Title, Mode=OneWay}" Height="650" Width="1100">
     <b:Interaction.Triggers>
@@ -40,7 +41,7 @@
             x:Name="RootNavigation"
             Grid.Row="1"
             FooterMenuItemsSource="{Binding ViewModel.NavigationFooter, Mode=OneWay}"
-            MenuItemsSource="{Binding ViewModel.NavigationItems, Mode=OneWay}"
+            MenuItemsSource="{Binding ViewModel.NavigationItems, Mode=OneWay, diag:PresentationTraceSources.TraceLevel=High}"
             PaneDisplayMode="LeftFluent">
             <!-- <ui:NavigationView.Header>
                 <ui:BreadcrumbBar

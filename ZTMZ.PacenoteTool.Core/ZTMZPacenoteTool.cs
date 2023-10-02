@@ -460,7 +460,7 @@ public class ZTMZPacenoteTool {
         this.SetProfile(Config.Instance.UI_SelectedProfile);
         this.SetOutputDevice(Config.Instance.UI_SelectedPlaybackDevice);
         this.SetCodriver(Config.Instance.UI_SelectedAudioPackage);
-        this.SetGame(Config.Instance.UI_SelectedGame);
+        // this.SetGame(Config.Instance.UI_SelectedGame);
     }
 
     public void SetGame(int gameIndex) {

@@ -564,6 +564,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._IsDarkTheme;
         }
 
+        private bool _UseSystemTheme = true;
+        public bool UseSystemTheme
+        {
+            set { this._UseSystemTheme = value; this._userconfig["UseSystemTheme"] = value; }
+            get => this._UseSystemTheme;
+        }
+
         private bool _EnableGoogleAnalytics = false;
 
         public bool EnableGoogleAnalytics

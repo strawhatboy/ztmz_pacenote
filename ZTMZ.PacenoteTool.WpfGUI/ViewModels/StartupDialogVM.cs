@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
-using Wpf.Ui.Common;
-using Wpf.Ui.Controls.ContentDialogControl;
-using Wpf.Ui.Controls.IconElements;
-using Wpf.Ui.Controls.Navigation;
+using Wpf.Ui;
+using Wpf.Ui.Controls;
+// using Wpf.Ui.Controls.IconElements;
+// using Wpf.Ui.Controls.Navigation;
 
 using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
@@ -22,7 +22,9 @@ public partial class StartupDialogVM : ObservableObject
                 Status = s;
             };
             tool.onToolInitialized += () => {
-                dialog.Hide();
+                Application.Current.Dispatcher.Invoke(() => {
+                    dialog.Hide();
+                });
             };
             _isInitialized = true;
         }

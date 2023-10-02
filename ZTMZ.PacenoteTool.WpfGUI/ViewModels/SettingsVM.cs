@@ -3,7 +3,8 @@
 // Copyright (C) Leszek Pomianowski and WPF UI Contributors.
 // All Rights Reserved.
 
-using Wpf.Ui.Controls.Navigation;
+using Wpf.Ui.Controls;
+using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -15,7 +16,7 @@ public partial class SettingsVM : ObservableObject, INavigationAware
     private string _appVersion = String.Empty;
 
     [ObservableProperty]
-    private Wpf.Ui.Appearance.ThemeType _currentTheme = Wpf.Ui.Appearance.ThemeType.Unknown;
+    private Wpf.Ui.Appearance.ApplicationTheme _currentTheme = Wpf.Ui.Appearance.ApplicationTheme.Unknown;
 
     public void OnNavigatedTo()
     {
@@ -29,7 +30,7 @@ public partial class SettingsVM : ObservableObject, INavigationAware
 
     private void InitializeViewModel()
     {
-        CurrentTheme = Wpf.Ui.Appearance.Theme.GetAppTheme();
+        CurrentTheme = Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme();
         AppVersion = $"ZTMZ Next Generation Pacenote Tool - {GetAssemblyVersion()}";
 
         _isInitialized = true;
@@ -46,20 +47,34 @@ public partial class SettingsVM : ObservableObject, INavigationAware
         switch (parameter)
         {
             case "theme_light":
-                if (CurrentTheme == Wpf.Ui.Appearance.ThemeType.Light)
+                if (CurrentTheme == Wpf.Ui.Appearance.ApplicationTheme.Light)
                     break;
 
-                Wpf.Ui.Appearance.Theme.Apply(Wpf.Ui.Appearance.ThemeType.Light);
-                CurrentTheme = Wpf.Ui.Appearance.ThemeType.Light;
+                Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Wpf.Ui.Appearance.ApplicationTheme.Light);
+                CurrentTheme = Wpf.Ui.Appearance.ApplicationTheme.Light;
+                Config.Instance.IsDarkTheme = false;
+                Config.Instance.SaveUserConfig();
+                Wpf.Ui.Appearance.SystemThemeWatcher.UnWatch(Application.Current.MainWindow);
 
                 break;
 
-            default:
-                if (CurrentTheme == Wpf.Ui.Appearance.ThemeType.Dark)
+            case "theme_dark":
+                if (CurrentTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark)
                     break;
 
-                Wpf.Ui.Appearance.Theme.Apply(Wpf.Ui.Appearance.ThemeType.Dark);
-                CurrentTheme = Wpf.Ui.Appearance.ThemeType.Dark;
+                Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Wpf.Ui.Appearance.ApplicationTheme.Dark);
+                CurrentTheme = Wpf.Ui.Appearance.ApplicationTheme.Dark;
+                Config.Instance.IsDarkTheme = true;
+                Config.Instance.SaveUserConfig();
+                Wpf.Ui.Appearance.SystemThemeWatcher.UnWatch(Application.Current.MainWindow);
+
+                break;
+            case "theme_system":
+                Wpf.Ui.Appearance.SystemThemeWatcher.UnWatch(Application.Current.MainWindow);
+                Wpf.Ui.Appearance.SystemThemeWatcher.Watch(Application.Current.MainWindow);
+                CurrentTheme = Wpf.Ui.Appearance.ApplicationTheme.Unknown;
+                Config.Instance.UseSystemTheme = true;
+                Config.Instance.SaveUserConfig();
 
                 break;
         }

@@ -29,13 +29,19 @@ public partial class HomePageVM : ObservableObject {
     private IList<GameWithImage> _games = new ObservableCollection<GameWithImage>();
 
     [ObservableProperty]
+    private IList<CoDriverPackageInfo> _codriverPackageInfos = new ObservableCollection<CoDriverPackageInfo>();
+
+    [ObservableProperty]
     private GameWithImage _selectedGame;
 
     [ObservableProperty]
-    private IList<CoDriverPackage> _codriverPackages;
+    private CoDriverPackageInfo _selectedCodriver;
 
     [ObservableProperty]
-    private IList<string> _outputDevices;
+    private IList<string> _outputDevices = new ObservableCollection<string>();
+
+    [ObservableProperty]
+    private string _selectedOutputDevice;
 
     private object _collectionLock = new object();
 
@@ -74,6 +80,8 @@ public partial class HomePageVM : ObservableObject {
         _tool.onRaceEnd += (game) => IsRacing = false;
 
         BindingOperations.EnableCollectionSynchronization(Games, _collectionLock);
+        BindingOperations.EnableCollectionSynchronization(CodriverPackageInfos, _collectionLock);
+        BindingOperations.EnableCollectionSynchronization(OutputDevices, _collectionLock);
 
         _tool.onToolInitialized += () => {
             // Application.Current.Dispatcher.Invoke(() => {
@@ -81,11 +89,22 @@ public partial class HomePageVM : ObservableObject {
                 foreach (var game in _tool.Games) {
                     Games.Add(new GameWithImage(game));
                 }
+                CodriverPackageInfos.Clear();
+                foreach (var codriverPackage in _tool.CoDriverPackages) {
+                    CodriverPackageInfos.Add(codriverPackage.Info);
+                }
+                OutputDevices.Clear();
+                foreach (var device in _tool.OutputDevices) {
+                    OutputDevices.Add(device);
+                }
             // });
             _logger.Info("Tool Initialized. in Home Page.");
             var theGame = Games[Config.Instance.UI_SelectedGame];
+            var theCodriverPackage = CodriverPackageInfos[Config.Instance.UI_SelectedAudioPackage];
             // Application.Current.Dispatcher.Invoke(() => {      
             SelectedGame = theGame;
+            SelectedCodriver = theCodriverPackage;
+            SelectedOutputDevice = OutputDevices[Config.Instance.UI_SelectedPlaybackDevice];
         };
         
         Task.Run(() => {
@@ -101,5 +120,21 @@ public partial class HomePageVM : ObservableObject {
         Config.Instance.UI_SelectedGame = Games.IndexOf(game);
         Config.Instance.SaveUserConfig();
         Tool.SetGame(game.Game);
+    }
+
+    [RelayCommand]
+    private void CodriverPackageSelectionChanged() {
+        var codriverPackage = SelectedCodriver;
+        Config.Instance.UI_SelectedAudioPackage = CodriverPackageInfos.IndexOf(codriverPackage);
+        Config.Instance.SaveUserConfig();
+        Tool.SetCodriver(Config.Instance.UI_SelectedAudioPackage);
+    }
+
+    [RelayCommand]
+    private void OutputDeviceSelectionChanged() {
+        var outputDevice = SelectedOutputDevice;
+        Config.Instance.UI_SelectedAudioPackage = OutputDevices.IndexOf(outputDevice);
+        Config.Instance.SaveUserConfig();
+        Tool.SetOutputDevice(Config.Instance.UI_SelectedAudioPackage);
     }
 }
