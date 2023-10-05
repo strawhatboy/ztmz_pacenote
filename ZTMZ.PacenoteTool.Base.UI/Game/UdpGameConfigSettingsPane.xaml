@@ -5,12 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Base.UI.Game">
-        <Grid TextBlock.Foreground="{DynamicResource MaterialDesignBody}" Margin="24,8,0,16">
+        <Grid>
                 <Grid.ColumnDefinitions>
                         <ColumnDefinition />
-                        <ColumnDefinition Width="100" />
-                        <ColumnDefinition Width="40" />
-                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="180" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                         <RowDefinition Height="40" />
@@ -18,27 +16,25 @@
                 </Grid.RowDefinitions>
 
 
-                <TextBlock Grid.Row="0" VerticalAlignment="Center"
-                        Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                <ui:TextBlock Grid.Row="0" VerticalAlignment="Center"
                         Text="{DynamicResource ResourceKey=settings.udpListenAddress}">
-                        <TextBlock.ToolTip>
-                                <TextBlock
+                        <ui:TextBlock.ToolTip>
+                                <ui:TextBlock
                                         Text="{DynamicResource ResourceKey=settings.tooltip.udpListenAddress}" />
-                        </TextBlock.ToolTip>
-                </TextBlock>
+                        </ui:TextBlock.ToolTip>
+                </ui:TextBlock>
 
                 <TextBox Grid.Row="0" Grid.Column="1" x:Name="tb_UdpListenAddress"
                         VerticalAlignment="Center"
                         Text="{DynamicResource settings.udpListenAddress}" />
 
-                <TextBlock Grid.Row="1" VerticalAlignment="Center"
-                        Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                <ui:TextBlock Grid.Row="1" VerticalAlignment="Center"
                         Text="{DynamicResource ResourceKey=settings.udpListenPort}">
-                        <TextBlock.ToolTip>
-                                <TextBlock
+                        <ui:TextBlock.ToolTip>
+                                <ui:TextBlock
                                         Text="{DynamicResource ResourceKey=settings.tooltip.udpListenPort}" />
-                        </TextBlock.ToolTip>
-                </TextBlock>
+                        </ui:TextBlock.ToolTip>
+                </ui:TextBlock>
                 <ui:NumberBox Grid.Row="1" Name="tb_UDPListenPort" Grid.Column="1"
                         Value="20777" VerticalAlignment="Center" />
 

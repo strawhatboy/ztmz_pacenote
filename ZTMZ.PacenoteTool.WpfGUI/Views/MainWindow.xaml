@@ -16,7 +16,7 @@
         WindowStartupLocation="CenterScreen"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
 
-        Title="{Binding ViewModel.Title, Mode=OneWay}" Height="650" Width="1100">
+        Title="{Binding ViewModel.Title, Mode=OneWay}" Height="650" Width="1100" MinWidth="980">
     <b:Interaction.Triggers>
     <b:EventTrigger EventName="Loaded">
         <b:InvokeCommandAction

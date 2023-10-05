@@ -1,11 +1,12 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-
+using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.Base.UI.Game;
 
+[GameConfigPane(typeof(CommonGameConfigs))]
 public partial class CommonGameConfigsSettingsPane : IGameConfigSettingsPane
 {
     CommonGameConfigs _config;
@@ -28,7 +29,7 @@ public partial class CommonGameConfigsSettingsPane : IGameConfigSettingsPane
         foreach (var cName in _config.PropertyName)
         {
             this.grid_Main.RowDefinitions.Add(new RowDefinition() { Height = _rowHeight });
-            var tb = new TextBlock() { Text = I18NLoader.Instance[cName.Key], ToolTip = I18NLoader.Instance[cName.Value], Style = (Style)this.FindResource("MaterialDesignSubtitle1TextBlock") };
+            var tb = new Wpf.Ui.Controls.TextBlock() { Text = I18NLoader.Instance[cName.Key], ToolTip = I18NLoader.Instance[cName.Value] };
             Grid.SetRow(tb, index);
             Grid.SetColumn(tb, 0);
             tb.VerticalAlignment = VerticalAlignment.Center;
@@ -38,7 +39,7 @@ public partial class CommonGameConfigsSettingsPane : IGameConfigSettingsPane
             if (value.GetType() == typeof(bool))
             {
                 int _index = index;
-                ToggleButton tbtn = new ToggleButton() { IsChecked = (bool)_config.PropertyValue[_index] };
+                ToggleSwitch tbtn = new ToggleSwitch() { IsChecked = (bool)_config.PropertyValue[_index] };
                 tbtn.Click += (sender, args) => {
                     _config.PropertyValue[_index] = (bool)tbtn.IsChecked;
                     base.RestartNeeded?.Invoke();

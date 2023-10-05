@@ -98,12 +98,7 @@ public class RBRGameDataReader : UdpGameDataReader
     public override bool Initialize(IGame game)
     {
         _logger.Info("Initializing RBRGameDataReader");
-        var udpInitResult = base.Initialize(game);
-        if (!udpInitResult) 
-        {
-            _logger.Warn("Failed to initialize UDPGameDataReader, could because it was already initialized.");
-            return udpInitResult;
-        }
+        // We won't use udp for RBR
 
         
         Debug.Assert(game.GameConfigurations.ContainsKey(MemoryGameConfig.Name));
@@ -111,7 +106,7 @@ public class RBRGameDataReader : UdpGameDataReader
         if (memConfig == null)
         {
             _logger.Error("Failed to get MemoryGameConfig from game.GameConfigurations");
-            base.Uninitialize(game);
+            // base.Uninitialize(game);
             return false;
         }
 
@@ -123,7 +118,7 @@ public class RBRGameDataReader : UdpGameDataReader
             _logger.Info("Memory reader opened.");
         } else {
             _logger.Error("Failed to open memory reader.");
-            base.Uninitialize(game);
+            // base.Uninitialize(game);
             return false;
         };
         _timer.Elapsed += MemDataPullHandler;
@@ -136,7 +131,6 @@ public class RBRGameDataReader : UdpGameDataReader
 
     public override void Uninitialize(IGame game)
     {
-        base.Uninitialize(game);
         memDataReader.CloseProgress();
         _timer.Elapsed -= MemDataPullHandler;
         _timer.Stop();
@@ -238,7 +232,7 @@ public class RBRGameDataReader : UdpGameDataReader
 
     public override void onNewUdpMessage(byte[] oldMsg, byte[] newMsg)
     {
-        base.onNewUdpMessage(oldMsg, newMsg);
+        // base.onNewUdpMessage(oldMsg, newMsg);
         var lastUdp = oldMsg.CastToStruct<RBRUdpData>();
         var newUdp = newMsg.CastToStruct<RBRUdpData>();
 

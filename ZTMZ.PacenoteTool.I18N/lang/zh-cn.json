@@ -238,6 +238,11 @@
     "tb_wheelSpdRR": "右后：",
     "tb_currentProfile": "当前配置：",
     "tb_currentGame": "选择游戏：",
+    "tb_currentGameSettings": "游戏配置",
+    "tb_codriverLink": "个人主页",
+    "tb_version": "版本",
+    "tb_description": "描述",
+    "tb_quickSettings": "快捷设置",
 
     "tab_pureAudio": "纯语音模式",
     "tab_pa_codriver": "领航员：",
@@ -250,7 +255,7 @@
     "cb_rq_high": "高",
 
     "tab_script": "脚本模式",
-    "tab_s_audioPackage": "领航员语音包：",
+    "tab_s_audioPackage": "领航员",
     "tab_s_isDynamic": "是否为动态路书：",
     "tab_s_author": "脚本路书作者：",
     "tab_s_listenDevice": "自动脚本录制监听：",

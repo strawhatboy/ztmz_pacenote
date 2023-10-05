@@ -6,6 +6,9 @@ using System.Windows.Data;
 using System.Threading.Tasks;
 using ZTMZ.PacenoteTool.Base.UI.Game;
 using Wpf.Ui.Controls;
+using System.Linq;
+using System.Reflection;
+using System.Windows.Controls;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -57,6 +60,9 @@ public partial class HomePageVM : ObservableObject {
     [ObservableProperty]
     private bool _infoBarIsOpen;
 
+    [ObservableProperty]
+    private IList<object> _currentGameSettings = new ObservableCollection<object>();
+
     private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
     public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool) {
@@ -82,6 +88,7 @@ public partial class HomePageVM : ObservableObject {
         BindingOperations.EnableCollectionSynchronization(Games, _collectionLock);
         BindingOperations.EnableCollectionSynchronization(CodriverPackageInfos, _collectionLock);
         BindingOperations.EnableCollectionSynchronization(OutputDevices, _collectionLock);
+        BindingOperations.EnableCollectionSynchronization(CurrentGameSettings, _collectionLock);
 
         _tool.onToolInitialized += () => {
             // Application.Current.Dispatcher.Invoke(() => {
@@ -120,6 +127,31 @@ public partial class HomePageVM : ObservableObject {
         Config.Instance.UI_SelectedGame = Games.IndexOf(game);
         Config.Instance.SaveUserConfig();
         Tool.SetGame(game.Game);
+
+        // Update game settings pane
+        CurrentGameSettings.Clear();
+        var settings = game.Game.GameConfigurations;
+
+        var gameConfigSettingsPaneTypes = new List<Type>();
+        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            gameConfigSettingsPaneTypes.AddRange(asm.GetTypes().Where(t => typeof(IGameConfigSettingsPane).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract));
+        }
+
+        for (var i = 0; i < settings.Count; i++) {
+            var setting = settings.ElementAt(i);
+            var pane = gameConfigSettingsPaneTypes.Where(t => t.GetCustomAttribute<GameConfigPaneAttribute>()?.PaneType == setting.Value.GetType()).FirstOrDefault();
+            if (pane != null) {
+                var instance = Activator.CreateInstance(pane, setting.Value) as IGameConfigSettingsPane;
+                instance.InitializeWithGame(game.Game);
+                CurrentGameSettings.Add(instance);
+                
+                // add separator if not the last one
+                // if (i != settings.Count - 1) {
+                //     CurrentGameSettings.Add(new Separator());
+                // }
+            }
+        }
     }
 
     [RelayCommand]

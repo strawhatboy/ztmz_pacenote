@@ -239,6 +239,11 @@
     "tb_wheelSpdRR": "RR：",
     "tb_currentProfile": "Current Profile：",
     "tb_currentGame": "Game：",
+    "tb_currentGameSettings": "Game Settings",
+    "tb_codriverLink": "Home page",
+    "tb_version": "Version",
+    "tb_description": "Description",
+    "tb_quickSettings": "Quick Settings",
 
     "tab_pureAudio": "Pure Audio Mode",
     "tab_pa_codriver": "Codriver：",
@@ -251,7 +256,7 @@
     "cb_rq_high": "High",
 
     "tab_script": "Script Mode",
-    "tab_s_audioPackage": "Audio Package：",
+    "tab_s_audioPackage": "Codriver",
     "tab_s_isDynamic": "Is Dynamic：",
     "tab_s_author": "Script Author：",
     "tab_s_listenDevice": "Auto Script Recording：",

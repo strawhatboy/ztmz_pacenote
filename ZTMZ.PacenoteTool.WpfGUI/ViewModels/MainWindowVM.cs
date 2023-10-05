@@ -11,6 +11,7 @@ using System.Windows.Data;
 using Wpf.Ui.Controls;
 // using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
 
@@ -54,20 +55,10 @@ public partial class MainWindowVM : ObservableObject
         InitNavigationItemsAndFooter();
 
         // I know it's ugly to set i18n here... but it's the only way to get it working... for now
-        SetI18N();
+        I18NHelper.ApplyI18NToApplication();
     
         _isInitialized = true;
         OnInitialized?.Invoke();
-    }
-
-    public void SetI18N() {
-        var CurrentDict = new ResourceDictionary();
-        
-        foreach (var key in I18NLoader.Instance.CurrentCulture.Keys)
-        {
-            CurrentDict.Add(key, I18NLoader.Instance.CurrentCulture[key]);
-        }
-        Application.Current.Resources.MergedDictionaries.Add(CurrentDict);
     }
 
     public void InitNavigationItemsAndFooter() {
@@ -102,12 +93,6 @@ public partial class MainWindowVM : ObservableObject
             {
                 Content = I18NLoader.Instance["tabs.hud"],
                 Icon = new SymbolIcon { Symbol = SymbolRegular.Gauge20 },
-                // TargetPageType = typeof(Views.Pages.DataPage)
-            },
-            new NavigationViewItem()
-            {
-                Content = I18NLoader.Instance["tabs.game"],
-                Icon = new SymbolIcon { Symbol = SymbolRegular.Games20 },
                 // TargetPageType = typeof(Views.Pages.DataPage)
             }
         };

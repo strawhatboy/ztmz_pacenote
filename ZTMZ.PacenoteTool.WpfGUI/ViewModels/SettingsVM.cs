@@ -53,6 +53,7 @@ public partial class SettingsVM : ObservableObject, INavigationAware
                 Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Wpf.Ui.Appearance.ApplicationTheme.Light);
                 CurrentTheme = Wpf.Ui.Appearance.ApplicationTheme.Light;
                 Config.Instance.IsDarkTheme = false;
+                Config.Instance.UseSystemTheme = false;
                 Config.Instance.SaveUserConfig();
                 Wpf.Ui.Appearance.SystemThemeWatcher.UnWatch(Application.Current.MainWindow);
 
@@ -65,6 +66,7 @@ public partial class SettingsVM : ObservableObject, INavigationAware
                 Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Wpf.Ui.Appearance.ApplicationTheme.Dark);
                 CurrentTheme = Wpf.Ui.Appearance.ApplicationTheme.Dark;
                 Config.Instance.IsDarkTheme = true;
+                Config.Instance.UseSystemTheme = false;
                 Config.Instance.SaveUserConfig();
                 Wpf.Ui.Appearance.SystemThemeWatcher.UnWatch(Application.Current.MainWindow);
 

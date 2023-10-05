@@ -5,13 +5,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Base.UI.Game">
-        <Grid x:Name="grid_Main" TextBlock.Foreground="{DynamicResource MaterialDesignBody}"
-                Margin="24,8,0,16">
+
+        <Grid x:Name="grid_Main" >
                 <Grid.ColumnDefinitions>
                         <ColumnDefinition />
-                        <ColumnDefinition Width="100" />
-                        <ColumnDefinition Width="40" />
-                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="180" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                 </Grid.RowDefinitions>

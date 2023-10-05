@@ -4,6 +4,8 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.Base.UI.Game;
 
+
+[GameConfigPane(typeof(UdpGameConfig))]
 public partial class UdpGameConfigSettingsPane : IGameConfigSettingsPane
 {
     UdpGameConfig _config;
