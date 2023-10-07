@@ -103,6 +103,9 @@
 
     "language": "UI language",
     "isDarkTheme": "Dark Theme",
+    "darkTheme": "Dark",
+    "lightTheme": "Light",
+    "systemTheme": "Follow the system theme (Need restart the tool)",
     "playbackDeviceDesiredLatency": "Playback device desired latency",
     "logLevel": "Log level",
 

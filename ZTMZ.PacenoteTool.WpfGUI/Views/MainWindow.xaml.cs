@@ -35,6 +35,8 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
 
             if (Config.Instance.UseSystemTheme) {
                 Wpf.Ui.Appearance.SystemThemeWatcher.Watch(this);
+            } else {
+                Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Config.Instance.IsDarkTheme ? Wpf.Ui.Appearance.ApplicationTheme.Dark : Wpf.Ui.Appearance.ApplicationTheme.Light);
             }
             InitializeComponent();
 
