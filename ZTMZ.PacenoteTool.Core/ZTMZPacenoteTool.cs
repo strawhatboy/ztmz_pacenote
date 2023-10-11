@@ -319,7 +319,7 @@ public class ZTMZPacenoteTool {
                 if ((lastState == GameState.RaceBegin || lastState == GameState.CountingDown) && Config.Instance.PlayGoSound)
                 {
                     // just go !
-                    this._profileManager.PlaySystem(Constants.SYSTEM_GO);
+                    this._profileManager.PlaySystem(Constants.SYSTEM_GO, true);
                 }
                 break;
             case GameState.CountingDown:

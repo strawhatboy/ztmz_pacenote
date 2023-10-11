@@ -98,15 +98,25 @@ public class RBRGameDataReader : UdpGameDataReader
     public override bool Initialize(IGame game)
     {
         _logger.Info("Initializing RBRGameDataReader");
-        // We won't use udp for RBR
-
+        // We use udp data for RBR, but only optional.
+        try {
+            var udpInitResult = base.Initialize(game);
+            if (!udpInitResult) 
+            {
+                _logger.Warn("Failed to initialize UDPGameDataReader, could because it was already initialized. But we don't care so much for RBR.");
+                // return udpInitResult;
+            }
+        } catch (PortAlreadyInUseException ex) {
+            _logger.Warn("Udp initalized failed for RBR, port already used. we don't care, not important.");
+            
+        }
         
         Debug.Assert(game.GameConfigurations.ContainsKey(MemoryGameConfig.Name));
         var memConfig = game.GameConfigurations[MemoryGameConfig.Name] as MemoryGameConfig;
         if (memConfig == null)
         {
             _logger.Error("Failed to get MemoryGameConfig from game.GameConfigurations");
-            // base.Uninitialize(game);
+            base.Uninitialize(game);
             return false;
         }
 
@@ -118,7 +128,7 @@ public class RBRGameDataReader : UdpGameDataReader
             _logger.Info("Memory reader opened.");
         } else {
             _logger.Error("Failed to open memory reader.");
-            // base.Uninitialize(game);
+            base.Uninitialize(game);
             return false;
         };
         _timer.Elapsed += MemDataPullHandler;
@@ -131,6 +141,7 @@ public class RBRGameDataReader : UdpGameDataReader
 
     public override void Uninitialize(IGame game)
     {
+        base.Uninitialize(game);
         memDataReader.CloseProgress();
         _timer.Elapsed -= MemDataPullHandler;
         _timer.Stop();
@@ -232,11 +243,11 @@ public class RBRGameDataReader : UdpGameDataReader
 
     public override void onNewUdpMessage(byte[] oldMsg, byte[] newMsg)
     {
-        // base.onNewUdpMessage(oldMsg, newMsg);
+        base.onNewUdpMessage(oldMsg, newMsg);
         var lastUdp = oldMsg.CastToStruct<RBRUdpData>();
         var newUdp = newMsg.CastToStruct<RBRUdpData>();
 
-        // _currentGameData = getGameDataFromUdp(_currentGameData, newUdp);
+        _currentGameData = getGameDataFromUdp(_currentGameData, newUdp);
     }
 
     private GameData getGameDataFromUdp(GameData gameData, RBRUdpData data)

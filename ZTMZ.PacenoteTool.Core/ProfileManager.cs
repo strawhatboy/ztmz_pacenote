@@ -528,14 +528,14 @@ namespace ZTMZ.PacenoteTool.Core
             this.PlaySound(this._exampleAudio, true);
         }
 
-        public void PlaySystem(string sound)
+        public void PlaySystem(string sound, bool isSequential = false)
         {
             Debug.WriteLine("Playing system sound : {0}", sound);
             var audio = this.getSoundByKeyword(sound, this.CurrentCoDriverSoundPackagePath);
             audio.PlaySpeed = this.CurrentPlaySpeed;
             audio.Amplification = this.CurrentPlayAmplification;
             audio.Tension = this.CurrentTension;
-            this.PlaySound(audio, false);
+            this.PlaySound(audio, isSequential);
         }
 
         private void PlaySound(AutoResampledCachedSound sound, bool isSequential) {
