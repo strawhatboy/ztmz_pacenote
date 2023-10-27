@@ -19,6 +19,7 @@ namespace ZTMZ.PacenoteTool.Base
 
     public class Config
     {
+        private object _lock = new();
         private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static string CONFIG_FILE = AppLevelVariables.Instance.GetPath("config.json");
@@ -665,20 +666,26 @@ namespace ZTMZ.PacenoteTool.Base
 
         public void Save(string path)
         {
-            File.WriteAllText(path, JsonConvert.SerializeObject(this, Formatting.Indented));
+            lock(_lock) {
+                File.WriteAllText(path, JsonConvert.SerializeObject(this, Formatting.Indented));
+            }
         }
 
         public void SaveUserConfig()
         {
             var content = System.Text.Json.JsonSerializer.Serialize(this._userconfig);
-            File.WriteAllText(USER_CONFIG_FILE, content);
+            lock(_lock) {
+                File.WriteAllText(USER_CONFIG_FILE, content);
+            }
         }
 
         public void SaveGameConfig(IGame game)
         {
             var gameConfigPath = AppLevelVariables.Instance.GetPath(Path.Join(Constants.PATH_GAMES, string.Format("{0}.json", game.Name)));
             var configContent = JsonConvert.SerializeObject(game.GameConfigurations, Formatting.Indented);
-            File.WriteAllText(gameConfigPath, configContent);
+            lock(_lock) {
+                File.WriteAllText(gameConfigPath, configContent);
+            }
         }
 
         public Dictionary<string, IGameConfig> LoadGameConfig(IGame game)

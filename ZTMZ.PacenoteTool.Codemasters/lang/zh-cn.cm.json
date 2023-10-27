@@ -5,6 +5,9 @@
         },
         "dr2": {
             "description": "Dirt Rally 2.0, 由Codemasters开发"
+        },
+        "wrc": {
+            "description": "EA Sports WRC, 由原Codemasters团队开发，Dirt Rally 精神续作"
         }
     }
 }

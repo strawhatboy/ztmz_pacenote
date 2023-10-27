@@ -44,6 +44,8 @@ public partial class MainWindowVM : ObservableObject
     private ObservableCollection<object> _navigationItems;
     [ObservableProperty]
     private ObservableCollection<object> _navigationFooter;
+    [ObservableProperty]
+    private ObservableCollection<object> _trayMenuItems;
     private ZTMZPacenoteTool _tool;
 
     private object _collectionLock = new object();
@@ -117,6 +119,17 @@ public partial class MainWindowVM : ObservableObject
         NavigationFooter = new ObservableCollection<object>();
         BindingOperations.EnableCollectionSynchronization(NavigationFooter, _collectionLock);
         items.ForEach(a => NavigationFooter.Add(a));
+
+        items = new List<object>
+        {
+            new MenuItem { Header = "Home", Tag = "tray_home" },
+            new MenuItem { Header = "Close", Tag = "tray_close" }
+        };
+
+        //TODO: Tray menu items not working now on WPF-UI/Preview-8
+        TrayMenuItems = new ObservableCollection<object>();
+        BindingOperations.EnableCollectionSynchronization(TrayMenuItems, _collectionLock);
+        items.ForEach(a => TrayMenuItems.Add(a));
     }
 
     [RelayCommand]

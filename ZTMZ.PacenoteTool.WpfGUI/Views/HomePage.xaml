@@ -75,7 +75,7 @@
                 <ComboBox Grid.Row="0" Grid.Column="2" Height="150"
                     ItemsSource="{Binding Path=ViewModel.Games, Mode=OneWay}"
                     SelectedItem="{Binding Path=ViewModel.SelectedGame, Mode=TwoWay}"
-                    ToolTip="{Binding Path=Game.Description}" 
+                    ToolTip="{Binding Path=ViewModel.SelectedGame.Game.Description}" 
                     VerticalAlignment="Center">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
@@ -205,9 +205,9 @@
                         </ComboBox>
                         <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
 
-                            <ui:Button Content="{DynamicResource ResourceKey=ui.btn_playExample}" Icon="{ui:SymbolIcon Play20}" Margin="0 0 10 0" />
-                            <ui:Button Content="{DynamicResource ResourceKey=ui.tb_codriverLink}" Icon="{ui:SymbolIcon Link20}" Margin="0 0 10 0" />
-                            <ui:Button ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentCodriver}" Icon="{ui:SymbolIcon Folder20}"  />
+                            <ui:Button Content="{DynamicResource ResourceKey=ui.btn_playExample}" Icon="{ui:SymbolIcon Play20}" Margin="0 0 10 0" Command="{Binding ViewModel.PlayExampleCommand}" />
+                            <ui:Anchor Content="{DynamicResource ResourceKey=ui.tb_codriverLink}" Icon="{ui:SymbolIcon Link20}" Margin="0 0 10 0" NavigateUri="{Binding Path=ViewModel.SelectedCodriver.homepage}" />
+                            <ui:Button ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentCodriver}" Icon="{ui:SymbolIcon Folder20}" Command="{Binding ViewModel.OpenCodriverFolderCommand}" />
                         </StackPanel>
                     </Grid>
                     <!-- details of the codriver -->
@@ -306,9 +306,9 @@
                                         Text="{DynamicResource ResourceKey=ui.tb_playVolume}">
                             </ui:TextBlock>
                             <Slider Name="s_volume" Grid.Row="2" Grid.Column="2" Maximum="100" Minimum="0" Interval="1"
-                                Value="0" 
+                                Value="{Binding Path=ViewModel.PlaybackVolume, Mode=TwoWay}" 
                                 VerticalAlignment="Center"/>
-                            <ui:TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" Name="tb_volume">0</ui:TextBlock>
+                            <ui:TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" Name="tb_volume" Text="{Binding Path=ViewModel.PlaybackVolume, Mode=OneWay, StringFormat=N1}" />
                             <!-- <ui:ToggleSwitch x:Name="tb_mute" Grid.Row="2" Grid.Column="3" 
                                 
                                 ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_mute}"
@@ -323,25 +323,32 @@
                             <ui:TextBlock Grid.Row="3" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_prePlay}"
                                         Text="{DynamicResource ResourceKey=ui.tb_prePlay}"/>
                             <Slider Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" x:Name="sl_scriptTiming" 
-                                Maximum="2" Minimum="-2" Value="0" 
+                                Maximum="2" Minimum="-2" Value="{Binding Path=ViewModel.PlaybackAdjustSeconds, Mode=TwoWay}" 
                                 IsEnabled="True"
                                 VerticalAlignment="Center"></Slider>
-                            <ui:TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_scriptTiming" HorizontalAlignment="Center" >0s</ui:TextBlock>
+                            <ui:TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_scriptTiming" HorizontalAlignment="Center"
+                                >
+                                <Run Text="{Binding Path=ViewModel.PlaybackAdjustSeconds, Mode=OneWay, StringFormat=N1}"/>
+                                <Run Text="s"/>
+                            </ui:TextBlock>
 
                             <ui:TextBlock Grid.Row="4" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_playbackSpd}"
                                         Text="{DynamicResource ResourceKey=ui.tb_playbackSpd}"/>
                             <Slider Grid.Row="4" Grid.Column="2" x:Name="sl_playbackSpd" 
-                                    Maximum="1.5" Minimum="0.5" Value="1" 
+                                    Maximum="1.5" Minimum="0.5" Value="{Binding Path=ViewModel.PlaybackSpeed, Mode=TwoWay}" 
                                     IsEnabled="True" TickFrequency="0.125"
                                     
                                     TickPlacement="Both" 
                                     VerticalAlignment="Center"></Slider>
-                            <ui:TextBlock Grid.Row="4" Grid.Column="1" x:Name="tb_playbackSpd" HorizontalAlignment="Center" >x 1.00</ui:TextBlock>
+                            <ui:TextBlock Grid.Row="4" Grid.Column="1" x:Name="tb_playbackSpd" HorizontalAlignment="Center" >
+                                <Run Text="x " />
+                                <Run Text="{Binding Path=ViewModel.PlaybackSpeed, Mode=OneWay, StringFormat=N2}"/>
+                            </ui:TextBlock>
                 
                             <ui:TextBlock Grid.Row="5" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.factorToRemoveSpaceFromAudioFiles}" 
                                                 ToolTip="{DynamicResource ResourceKey=settings.tooltip.factorToRemoveSpaceFromAudioFiles}" />
-                            <Slider Name="sl_factorToRemoveSpaceFromAudioFiles" Grid.Row="5" Grid.Column="2" Value="5" Maximum="9" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True"  TickPlacement="Both" VerticalAlignment="Center" />
-                            <ui:TextBlock Grid.Row="5" Grid.Column="1" x:Name="tb_factorToRemoveSpaceFromAudioFiles" HorizontalAlignment="Center" >6</ui:TextBlock>
+                            <Slider Name="sl_factorToRemoveSpaceFromAudioFiles" Grid.Row="5" Grid.Column="2" Value="{Binding Path=ViewModel.FactorToRemoveSpaceFromAudioFiles, Mode=TwoWay}" Maximum="9" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True"  TickPlacement="Both" VerticalAlignment="Center" />
+                            <ui:TextBlock Grid.Row="5" Grid.Column="1" x:Name="tb_factorToRemoveSpaceFromAudioFiles" HorizontalAlignment="Center" Text="{Binding Path=ViewModel.FactorToRemoveSpaceFromAudioFiles, Mode=OneWay}" />
                 
                             <!-- <ui:TextBlock Grid.Row="6" Grid.Column="0" 
                                         ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_showHud}" 

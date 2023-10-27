@@ -17,6 +17,9 @@
     <Resource Include="dirtrally2.jpg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="wrc.jpg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="track_dict_dr1.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>

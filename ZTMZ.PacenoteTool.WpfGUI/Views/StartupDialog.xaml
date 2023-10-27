@@ -7,7 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:helpers="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
-    Title="Startup"
+    Title="Loading"
+    IsFooterVisible="False"
     mc:Ignorable="d">
 
     <ui:ContentDialog.Resources>
@@ -16,8 +17,9 @@
     </ui:ContentDialog.Resources>
 
     <Grid>
-        <StackPanel>
-            <TextBlock Text="{Binding ViewModel.Status, Mode=OneWay}" />
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+            <ui:ProgressRing IsIndeterminate="True" Margin="0 0 0 10"/>
+            <ui:TextBlock Text="{Binding ViewModel.Status, Mode=OneWay}" />
         </StackPanel>
     </Grid>
 </ui:ContentDialog>

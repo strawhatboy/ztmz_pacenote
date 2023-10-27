@@ -491,8 +491,24 @@ public class ZTMZPacenoteTool {
             this._profileManager.CurrentCoDriverSoundPackagePath = this.CoDriverPackages.First().Info.Path;
     }
 
+    public void SetPlayBackSpeed(float speed) {
+        this._playbackSpd = speed;
+    }
+
+    public void SetPlaybackAdjustSeconds(float seconds) {
+        this._scriptTiming = seconds;
+    }
+
+    public void SetPlaybackVolume(int volume) {
+        this._profileManager.CurrentPlayAmplification = volume;
+    }
+
 #endregion
 
+    public void PlayExample() {
+        this._profileManager.CurrentPlaySpeed = this._playbackSpd;
+        this._profileManager.PlayExample();
+    }
 }
 
 public static class Extensions {
