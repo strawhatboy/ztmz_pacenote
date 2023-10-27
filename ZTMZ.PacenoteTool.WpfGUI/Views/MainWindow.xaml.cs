@@ -38,6 +38,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             } else {
                 Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Config.Instance.IsDarkTheme ? Wpf.Ui.Appearance.ApplicationTheme.Dark : Wpf.Ui.Appearance.ApplicationTheme.Light);
             }
+            Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(Color.FromArgb(255, 190, 77, 37), Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
             InitializeComponent();
 
             SetPageService(pageService);
@@ -81,6 +82,20 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
         public void ShowWindow()
         {
             this.Show();
+        }
+
+        // Remove navigation header when in Home page.
+        private void OnNavigationSelectionChanged(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Wpf.Ui.Controls.NavigationView navigationView)
+            {
+                return;
+            }
+
+            RootNavigation.HeaderVisibility =
+                RootNavigation.SelectedItem?.TargetPageType != typeof(HomePage)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
         }
     }
 }

@@ -33,7 +33,8 @@
 
         <ui:TitleBar
             Title="{Binding ViewModel.Title, Mode=OneWay}"
-            Grid.Row="0">
+            Grid.Row="0"
+            CloseWindowByDoubleClickOnIcon="True">
             <ui:TitleBar.Icon>
                 <ui:ImageIcon Source="pack://application:,,,/Assets/app.ico" />
             </ui:TitleBar.Icon>
@@ -43,7 +44,15 @@
             Grid.Row="1"
             FooterMenuItemsSource="{Binding ViewModel.NavigationFooter, Mode=OneWay}"
             MenuItemsSource="{Binding ViewModel.NavigationItems, Mode=OneWay, diag:PresentationTraceSources.TraceLevel=High}"
+
+            SelectionChanged="OnNavigationSelectionChanged"
             PaneDisplayMode="LeftFluent">
+            
+            <!-- <ui:NavigationView.Header>
+                <StackPanel Margin="42,32,42,20">
+                    <ui:BreadcrumbBar x:Name="BreadcrumbBar" />
+                </StackPanel>
+            </ui:NavigationView.Header> -->
             <!-- <ui:NavigationView.Header>
                 <ui:BreadcrumbBar
                     Margin="42,32,0,0"
