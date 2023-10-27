@@ -240,7 +240,7 @@
     "tb_wheelSpdRL": "左后：",
     "tb_wheelSpdRR": "右后：",
     "tb_currentProfile": "当前配置：",
-    "tb_currentGame": "选择游戏：",
+    "tb_currentGame": "选择游戏",
     "tb_currentGameSettings": "游戏配置",
     "tb_codriverLink": "个人主页",
     "tb_version": "版本",
@@ -248,7 +248,7 @@
     "tb_quickSettings": "快捷设置",
 
     "tab_pureAudio": "纯语音模式",
-    "tab_pa_codriver": "领航员：",
+    "tab_pa_codriver": "领航员",
     "tab_pa_isRecording": "是否正在录音：",
     "tab_pa_recordingQuality": "录制质量：",
     "tab_pa_recordingDevice": "录制设备：",
@@ -264,12 +264,12 @@
     "tab_s_listenDevice": "自动脚本录制监听：",
     "tab_s_audioSettings": "声音设置",
 
-    "tb_currentTrack": "当前地图：",
-    "tb_replayDevice": "播放设备：",
-    "tb_playVolume": "播放音量：",
+    "tb_currentTrack": "当前地图",
+    "tb_replayDevice": "播放设备",
+    "tb_playVolume": "播放音量",
 
-    "tb_prePlay": "预播放时间调整：",
-    "tb_replayMode": "播放模式：",
+    "tb_prePlay": "预播放时间调整",
+    "tb_replayMode": "播放模式",
     "tb_playbackSpd": "播放语速",
 
     "cb_pureAudioMode": "纯语音模式",
@@ -279,7 +279,7 @@
     "tb_recordMode": "录制模式：",
     "tb_autoScriptRecordMode": "自动脚本模式",
 
-    "tb_showHud": "悬浮窗显示：",
+    "tb_showHud": "悬浮窗显示",
 
     "db_tools": "相关工具",
     "btn_scriptTool": "路书脚本编辑工具",
@@ -292,6 +292,7 @@
     "tb_reportBug": "问题/意见反馈",
     "tb_updates": "更新记录",
     "tb_friendlink": "友情链接(SimRallyCN)",
+    "btn_playExample": "试听",
 
 
     "tooltip": {

@@ -40,6 +40,7 @@ public partial class CommonGameConfigsSettingsPane : IGameConfigSettingsPane
             {
                 int _index = index;
                 ToggleSwitch tbtn = new ToggleSwitch() { IsChecked = (bool)_config.PropertyValue[_index] };
+                tbtn.HorizontalAlignment = HorizontalAlignment.Right;
                 tbtn.Click += (sender, args) => {
                     _config.PropertyValue[_index] = (bool)tbtn.IsChecked;
                     base.RestartNeeded?.Invoke();

@@ -240,8 +240,8 @@
     "tb_wheelSpdFR": "FR：",
     "tb_wheelSpdRL": "RL：",
     "tb_wheelSpdRR": "RR：",
-    "tb_currentProfile": "Current Profile：",
-    "tb_currentGame": "Game：",
+    "tb_currentProfile": "Current Profile",
+    "tb_currentGame": "Game",
     "tb_currentGameSettings": "Game Settings",
     "tb_codriverLink": "Home page",
     "tb_version": "Version",
@@ -249,10 +249,10 @@
     "tb_quickSettings": "Quick Settings",
 
     "tab_pureAudio": "Pure Audio Mode",
-    "tab_pa_codriver": "Codriver：",
-    "tab_pa_isRecording": "Is Recording：",
-    "tab_pa_recordingQuality": "Record Quality：",
-    "tab_pa_recordingDevice": "Record Device：",
+    "tab_pa_codriver": "Codriver",
+    "tab_pa_isRecording": "Is Recording",
+    "tab_pa_recordingQuality": "Record Quality",
+    "tab_pa_recordingDevice": "Record Device",
 
     "cb_rq_low": "Low",
     "cb_rq_medium": "Medium",
@@ -265,9 +265,9 @@
     "tab_s_listenDevice": "Auto Script Recording：",
     "tab_s_audioSettings": "Audio Settings",
 
-    "tb_currentTrack": "Current Track：",
-    "tb_replayDevice": "Playback Device：",
-    "tb_playVolume": "Playback Volume：",
+    "tb_currentTrack": "Current Track",
+    "tb_replayDevice": "Playback Device",
+    "tb_playVolume": "Playback Volume",
 
     "tb_prePlay": "Preplay Time：",
     "tb_replayMode": "Playback Mode：",
@@ -280,7 +280,7 @@
     "tb_recordMode": "Record Mode：",
     "tb_autoScriptRecordMode": "Audo Script Mode",
 
-    "tb_showHud": "Show Hud in-game：",
+    "tb_showHud": "Show Hud in-game",
 
     "db_tools": "Related Tools",
     "btn_scriptTool": "Script Editor",
@@ -293,6 +293,7 @@
     "tb_reportBug": "Report Bug/Feedback",
     "tb_updates": "Update Log",
     "tb_friendlink": "Friend Link(SimRallyCN)",
+    "btn_playExample": "Play Example",
 
 
     "tooltip": {
@@ -322,7 +323,7 @@
       "btn_currentScript": "Open the script of the current track",
       "btn_currentCodriver": "Open the folder of the current codriver package",
       "btn_currentCodriverLink": "Open the homepage of the current codriver package author",
-      "btn_playExample": "Play sample sound",
+      "btn_playExample": "Play example sound",
       "tb_playVolume": "Adjust the playback volume. When the volume is increased, distortion caused by loss of audio waveform may occur",
       "tb_prePlay": "For example, +1s means Lushu will play 1 second later, -2s means Lushu will play 2 seconds earlier",
       "tb_replayMode": "The play mode cannot be switched while the game is in progress",
