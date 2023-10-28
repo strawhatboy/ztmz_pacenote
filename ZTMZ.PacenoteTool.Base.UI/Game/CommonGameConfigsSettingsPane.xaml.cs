@@ -29,7 +29,9 @@ public partial class CommonGameConfigsSettingsPane : IGameConfigSettingsPane
         foreach (var cName in _config.PropertyName)
         {
             this.grid_Main.RowDefinitions.Add(new RowDefinition() { Height = _rowHeight });
-            var tb = new Wpf.Ui.Controls.TextBlock() { Text = I18NLoader.Instance[cName.Key], ToolTip = I18NLoader.Instance[cName.Value] };
+            var tb = new Wpf.Ui.Controls.TextBlock();
+            tb.SetResourceReference(Wpf.Ui.Controls.TextBlock.TextProperty, cName.Key);
+            tb.SetResourceReference(Wpf.Ui.Controls.TextBlock.ToolTipProperty, cName.Value);
             Grid.SetRow(tb, index);
             Grid.SetColumn(tb, 0);
             tb.VerticalAlignment = VerticalAlignment.Center;

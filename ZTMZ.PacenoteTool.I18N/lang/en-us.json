@@ -31,10 +31,14 @@
     "restartNeeded": "Need to restart the tool to take effect",
 
     "tooltip": {
+      
+      "language": "Language displayed",
       "btn_reset": "Need to restart the tool to take effect",
       "playbackDeviceDesiredLatency": "The delay for playing after the instructions arrive at the device, if this value is very small, the sound may be weird. Meanwhile a big delay may affect the experience",
       "logLevel": "Set the log level, the more severe the level, the less information will be shown\nNotice: In testing version, this option doesnot take effect, the log level is always DEBUG",
       "viewLogs": "View logs",
+      "theme": "Dark/Light theme, or follow the Windows system theme",
+      "accentColor": "Color for every control in the UI",
 
       "warnIfPortMismatch": "Show warning dialog if the game UDP port mismatch with the tool UDP port",
 
@@ -101,8 +105,13 @@
       "memoryRefreshRate": "Change this value to adjust the refresh rate of the memory monitor"
     },
 
-    "language": "UI language",
+    "language": "Language",
     "isDarkTheme": "Dark Theme",
+    "theme": "Theme",
+    "accentColor": "Accent Color",
+    "accentColorR": "Red",
+    "accentColorG": "Green",
+    "accentColorB": "Blue",
     "darkTheme": "Dark",
     "lightTheme": "Light",
     "systemTheme": "Follow the system theme (Need restart the tool)",

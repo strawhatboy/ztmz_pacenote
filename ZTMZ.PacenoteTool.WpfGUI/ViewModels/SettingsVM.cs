@@ -5,6 +5,7 @@
 
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Base.UI;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -50,7 +51,12 @@ public partial class SettingsVM : ObservableObject, INavigationAware
                 if (CurrentTheme == Wpf.Ui.Appearance.ApplicationTheme.Light)
                     break;
 
-                Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Wpf.Ui.Appearance.ApplicationTheme.Light);
+
+                Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(ThemeHelper.GetAccentColor(), 
+                    Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
+                Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Wpf.Ui.Appearance.ApplicationTheme.Light,
+                    WindowBackdropType.Mica,
+                    false);
                 CurrentTheme = Wpf.Ui.Appearance.ApplicationTheme.Light;
                 Config.Instance.IsDarkTheme = false;
                 Config.Instance.UseSystemTheme = false;
@@ -63,7 +69,12 @@ public partial class SettingsVM : ObservableObject, INavigationAware
                 if (CurrentTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark)
                     break;
 
-                Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Wpf.Ui.Appearance.ApplicationTheme.Dark);
+
+                Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(ThemeHelper.GetAccentColor(), 
+                    Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
+                Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Wpf.Ui.Appearance.ApplicationTheme.Dark,
+                    WindowBackdropType.Mica,
+                    false);
                 CurrentTheme = Wpf.Ui.Appearance.ApplicationTheme.Dark;
                 Config.Instance.IsDarkTheme = true;
                 Config.Instance.UseSystemTheme = false;
@@ -74,6 +85,7 @@ public partial class SettingsVM : ObservableObject, INavigationAware
             case "theme_system":
                 Wpf.Ui.Appearance.SystemThemeWatcher.UnWatch(Application.Current.MainWindow);
                 Wpf.Ui.Appearance.SystemThemeWatcher.Watch(Application.Current.MainWindow);
+                Wpf.Ui.Appearance.ApplicationThemeManager.ApplySystemTheme();
                 CurrentTheme = Wpf.Ui.Appearance.ApplicationTheme.Unknown;
                 Config.Instance.UseSystemTheme = true;
                 Config.Instance.SaveUserConfig();

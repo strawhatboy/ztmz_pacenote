@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Base.UI;
 // using Wpf.Ui.Controls.Window;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.Views
@@ -32,13 +33,18 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
         {
             ViewModel = viewModel;
             DataContext = this;
+            
+            Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(ThemeHelper.GetAccentColor(), 
+                Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
 
             if (Config.Instance.UseSystemTheme) {
                 Wpf.Ui.Appearance.SystemThemeWatcher.Watch(this);
             } else {
-                Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Config.Instance.IsDarkTheme ? Wpf.Ui.Appearance.ApplicationTheme.Dark : Wpf.Ui.Appearance.ApplicationTheme.Light);
+                Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Config.Instance.IsDarkTheme ? Wpf.Ui.Appearance.ApplicationTheme.Dark : Wpf.Ui.Appearance.ApplicationTheme.Light,
+                    WindowBackdropType.Mica,
+                    false
+                );
             }
-            Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(Color.FromArgb(255, 190, 77, 37), Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
             InitializeComponent();
 
             SetPageService(pageService);

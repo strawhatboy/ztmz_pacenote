@@ -22,13 +22,13 @@
             <Setter Property="VerticalAlignment" Value="Center"></Setter>
         </Style>
     </Page.Resources>
-    <Grid Margin="40 0 40 0">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="500" />
+            <ColumnDefinition Width="480" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <ui:InfoBar Grid.Row="0" Title="{Binding ViewModel.InfoBarTitle}" Message="{Binding ViewModel.InfoBarMessage}" IsOpen="{Binding ViewModel.InfoBarIsOpen}" />
@@ -121,7 +121,7 @@
                         </Grid.ColumnDefinitions>  
                         <ui:SymbolIcon Symbol="Games20" FontSize="26" Margin="0 0 10 0" />
                         <ui:TextBlock VerticalAlignment="Center" FontTypography="BodyStrong" Text="{Binding ViewModel.SelectedGame.Game.Name, Mode=OneWay}" Grid.Column="1" />
-                        <ui:Button Appearance="Primary" Content="启动游戏" Grid.Column="2" HorizontalAlignment="Right"/>
+                        <!-- <ui:Button Appearance="Primary" Content="启动游戏" Grid.Column="2" HorizontalAlignment="Right"/> -->
                     </Grid>
                     <!-- game settings -->
                     <ItemsControl ItemsSource="{Binding Path=ViewModel.CurrentGameSettings, Mode=OneWay}">
@@ -188,8 +188,10 @@
                                         </ui:TextBlock>
                                         <ui:TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Path=name}" HorizontalAlignment="Left" />
                                         <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
-                                            <ui:TextBlock Text="{Binding Path=language}" FontSize="10" Margin="0 0 10 0" HorizontalAlignment="Left" />
-                                            <ui:TextBlock Text="{Binding Path=version}" FontSize="10" Margin="0 0 10 0" HorizontalAlignment="Left" />
+                                            <ui:TextBlock Text="{Binding Path=language}" 
+                                            Appearance="Tertiary" FontTypography="Caption" Margin="0 0 10 0" HorizontalAlignment="Left" />
+                                            <ui:TextBlock Text="{Binding Path=version}" 
+                                            Appearance="Tertiary" FontTypography="Caption" Margin="0 0 10 0" HorizontalAlignment="Left" />
                                         </StackPanel>
                                     </Grid>
                                 </DataTemplate>
@@ -257,7 +259,7 @@
                         </Grid>
                     </Border> -->
                     <Border 
-                        BorderThickness="0,1,0,0" BorderBrush="LightGray"
+                        BorderThickness="0,1,0,0" BorderBrush="{ui:ThemeResource DividerStrokeColorDefaultBrush}"
                         Background="Transparent">
                         <Grid Margin="16" >
                             <Grid.RowDefinitions>

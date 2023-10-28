@@ -65,39 +65,45 @@ public partial class MainWindowVM : ObservableObject
 
     public void InitNavigationItemsAndFooter() {
         
-        var items = new List<object>
-        {
-            new NavigationViewItem()
-            {
-                Content = I18NLoader.Instance["tabs.home"],
-                Icon = new SymbolIcon { Symbol = SymbolRegular.Home20 },
-                TargetPageType = typeof(Views.HomePage)
-            },
-            new NavigationViewItem()
-            {
-                Content = I18NLoader.Instance["tabs.general"],
-                Icon = new SymbolIcon { Symbol = SymbolRegular.Settings20 },
-                TargetPageType = typeof(Views.GeneralPage)
-            },
-            new NavigationViewItem()
-            {
-                Content = I18NLoader.Instance["tabs.voices"],
-                Icon = new SymbolIcon { Symbol = SymbolRegular.PersonVoice20 },
-                // TargetPageType = typeof(Views.Pages.DataPage)
-            },
-            new NavigationViewItem()
-            {
-                Content = I18NLoader.Instance["tabs.playback"],
-                Icon = new SymbolIcon { Symbol = SymbolRegular.Play20 },
-                // TargetPageType = typeof(Views.Pages.DataPage)
-            },
-            new NavigationViewItem()
-            {
-                Content = I18NLoader.Instance["tabs.hud"],
-                Icon = new SymbolIcon { Symbol = SymbolRegular.Gauge20 },
-                // TargetPageType = typeof(Views.Pages.DataPage)
-            }
+        var items = new List<object>();
+        var home = new NavigationViewItem() {
+            // Content = I18NLoader.Instance["tabs.home"],
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Home20 },
+            TargetPageType = typeof(Views.HomePage)
         };
+        home.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.home");
+        items.Add(home);
+
+        var general = new NavigationViewItem() {
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Settings20 },
+            TargetPageType = typeof(Views.GeneralPage)
+        };
+        general.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.general");
+        items.Add(general);
+
+        var voices = new NavigationViewItem() {
+            Icon = new SymbolIcon { Symbol = SymbolRegular.PersonVoice20 },
+            // TargetPageType = typeof(Views.Pages.DataPage)
+        };
+        voices.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.voices");
+        items.Add(voices);
+
+        var playback = new NavigationViewItem() {
+            Content = I18NLoader.Instance["tabs.playback"],
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Play20 },
+            // TargetPageType = typeof(Views.Pages.DataPage)
+        };
+        playback.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.playback");
+        items.Add(playback);
+
+        var hud = new NavigationViewItem() {
+            Content = I18NLoader.Instance["tabs.hud"],
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Gauge20 },
+            // TargetPageType = typeof(Views.Pages.DataPage)
+        };
+        hud.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.hud");
+        items.Add(hud);
+
         NavigationItems = new ObservableCollection<object>();
         BindingOperations.EnableCollectionSynchronization(NavigationItems, _collectionLock);
         items.ForEach(a => NavigationItems.Add(a));

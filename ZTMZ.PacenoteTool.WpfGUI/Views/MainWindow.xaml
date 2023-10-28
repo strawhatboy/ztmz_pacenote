@@ -44,15 +44,16 @@
             Grid.Row="1"
             FooterMenuItemsSource="{Binding ViewModel.NavigationFooter, Mode=OneWay}"
             MenuItemsSource="{Binding ViewModel.NavigationItems, Mode=OneWay, diag:PresentationTraceSources.TraceLevel=High}"
-
+            Padding="42,0,42,0"
+            BreadcrumbBar="{Binding ElementName=BreadcrumbBar}"
             SelectionChanged="OnNavigationSelectionChanged"
             PaneDisplayMode="LeftFluent">
             
-            <!-- <ui:NavigationView.Header>
+            <ui:NavigationView.Header>
                 <StackPanel Margin="42,32,42,20">
                     <ui:BreadcrumbBar x:Name="BreadcrumbBar" />
                 </StackPanel>
-            </ui:NavigationView.Header> -->
+            </ui:NavigationView.Header>
             <!-- <ui:NavigationView.Header>
                 <ui:BreadcrumbBar
                     Margin="42,32,0,0"
