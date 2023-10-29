@@ -78,6 +78,14 @@ public partial class App : Application
             services.AddScoped<ViewModels.HomePageVM>();
             services.AddScoped<Views.GeneralPage>();
             services.AddScoped<ViewModels.GeneralPageVM>();
+            services.AddScoped<Views.VoicePage>();
+            services.AddScoped<ViewModels.VoicePageVM>();
+            services.AddScoped<Views.VoicePage>();
+            services.AddScoped<ViewModels.VoicePageVM>();
+            services.AddScoped<Views.PlayPage>();
+            services.AddScoped<ViewModels.PlayPageVM>();
+            services.AddScoped<Views.HudPage>();
+            services.AddScoped<ViewModels.HudPageVM>();
 
             // Configuration
             // services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));

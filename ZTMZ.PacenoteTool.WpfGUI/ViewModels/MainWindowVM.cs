@@ -87,23 +87,21 @@ public partial class MainWindowVM : ObservableObject
 
         var voices = new NavigationViewItem() {
             Icon = new SymbolIcon { Symbol = SymbolRegular.PersonVoice20 },
-            // TargetPageType = typeof(Views.Pages.DataPage)
+            TargetPageType = typeof(Views.VoicePage)
         };
         voices.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.voices");
         items.Add(voices);
 
         var playback = new NavigationViewItem() {
-            Content = I18NLoader.Instance["tabs.playback"],
             Icon = new SymbolIcon { Symbol = SymbolRegular.Play20 },
-            // TargetPageType = typeof(Views.Pages.DataPage)
+            TargetPageType = typeof(Views.PlayPage)
         };
         playback.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.playback");
         items.Add(playback);
 
         var hud = new NavigationViewItem() {
-            Content = I18NLoader.Instance["tabs.hud"],
             Icon = new SymbolIcon { Symbol = SymbolRegular.Gauge20 },
-            // TargetPageType = typeof(Views.Pages.DataPage)
+            TargetPageType = typeof(Views.HudPage)
         };
         hud.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.hud");
         items.Add(hud);
