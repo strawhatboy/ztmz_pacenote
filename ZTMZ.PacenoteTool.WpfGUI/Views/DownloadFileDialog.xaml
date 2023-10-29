@@ -4,9 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
         IsFooterVisible="False"
         mc:Ignorable="d"
+        DialogMaxWidth="750"
         >
+    <ui:ContentDialog.Resources>
+        <Style BasedOn="{StaticResource {x:Type ui:ContentDialog}}" TargetType="{x:Type local:DownloadFileDialog}" />
+    </ui:ContentDialog.Resources>
 
     <DockPanel>
         <TextBlock x:Name="tb_title" DockPanel.Dock="Top" Margin="20 20 20 0" 

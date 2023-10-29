@@ -13,6 +13,7 @@ using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.Core;
+using ZTMZ.PacenoteTool.WpfGUI.Services;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
@@ -23,16 +24,19 @@ public partial class MainWindowVM : ObservableObject
     bool _isInitialized = false;
 
     public event Action OnInitialized;
-    public MainWindowVM(ZTMZPacenoteTool tool, IContentDialogService contentDialogService)
+    public MainWindowVM(ZTMZPacenoteTool tool, IContentDialogService contentDialogService, UpdateService updateService)
     {
         if (!_isInitialized) {
             _tool = tool;
             _contentDialogService = contentDialogService;
+            _updateService = updateService;
             
             init();
         }
     }
     private readonly IContentDialogService _contentDialogService;
+
+    private readonly UpdateService _updateService;
 
     private StartupDialog _startupDialog;
 
@@ -143,6 +147,9 @@ public partial class MainWindowVM : ObservableObject
         _startupDialog = new StartupDialog(_contentDialogService.GetContentPresenter(), _tool);
         if (!_tool.IsInitialized) {
             await _startupDialog.ShowAsync();
+        }
+        if (Config.Instance.CheckUpdateWhenStartup) {
+            var updateFile = await _updateService.CheckUpdate();
         }
     }
 }

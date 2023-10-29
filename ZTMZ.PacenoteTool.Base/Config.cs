@@ -695,6 +695,20 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._AudioProcessType;
         }
 
+        private bool _StartWithWindows = false;
+        public bool StartWithWindows
+        {
+            set { this._StartWithWindows = value; this._userconfig["StartWithWindows"] = value; }
+            get => this._StartWithWindows;
+        }
+
+        private bool _CheckUpdateWhenStartup = true;
+        public bool CheckUpdateWhenStartup
+        {
+            set { this._CheckUpdateWhenStartup = value; this._userconfig["CheckUpdateWhenStartup"] = value; }
+            get => this._CheckUpdateWhenStartup;
+        }
+
         public void Save(string path)
         {
             lock(_lock) {
