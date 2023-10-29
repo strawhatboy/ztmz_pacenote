@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using System.IO;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Wpf.Ui.Controls;
@@ -29,6 +30,18 @@ public partial class GeneralPageVM : ObservableObject {
 
     [ObservableProperty]
     private Visibility _accentColorPickerVisibility = Config.Instance.UseSystemTheme ? Visibility.Collapsed : Visibility.Visible;
+
+    [ObservableProperty]
+    private bool _isAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
+
+    [ObservableProperty]
+    private bool _isStartWithWindows = Config.Instance.StartWithWindows;
+
+    [ObservableProperty]
+    private bool _isOptInBetaPlan = Config.Instance.OptInBetaPlan;
+
+    [ObservableProperty]
+    private int _logLevel = Config.Instance.LogLevel;
 
     partial void OnAccentColorRChanged(int value)
     {
@@ -121,5 +134,40 @@ public partial class GeneralPageVM : ObservableObject {
         Config.Instance.SaveUserConfig();
         I18NLoader.Instance.SetCulture(c);
         I18NHelper.ApplyI18NToApplication();
+    }
+
+    partial void OnIsAutoUpdateChanged(bool value)
+    {
+        Config.Instance.CheckUpdateWhenStartup = value;
+        Config.Instance.SaveUserConfig();
+    }
+
+    partial void OnIsStartWithWindowsChanged(bool value)
+    {
+        Config.Instance.StartWithWindows = value;
+        Config.Instance.SaveUserConfig();
+    }
+
+    partial void OnIsOptInBetaPlanChanged(bool value)
+    {
+        Config.Instance.OptInBetaPlan = value;
+        Config.Instance.SaveUserConfig();
+    }
+
+    partial void OnLogLevelChanged(int value)
+    {
+        Config.Instance.LogLevel = value;
+        Config.Instance.SaveUserConfig();
+    }
+
+    [RelayCommand]
+    private void ViewLogs() {
+        var logPath = AppLevelVariables.Instance.GetPath("logs");
+        if (!Directory.Exists(logPath)) 
+        {
+            Directory.CreateDirectory(logPath);
+        }
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
+            AppLevelVariables.Instance.GetPath("logs")));
     }
 }

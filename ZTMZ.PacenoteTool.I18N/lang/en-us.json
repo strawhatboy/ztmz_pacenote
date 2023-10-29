@@ -39,6 +39,8 @@
       "viewLogs": "View logs",
       "theme": "Dark/Light theme, or follow the Windows system theme",
       "accentColor": "Color for every control in the UI",
+      "checkUpdateWhenStartup": "Whether to check for update when the tool starts",
+      "startWithWindows": "Whether to start the tool when Windows starts",
 
       "warnIfPortMismatch": "Show warning dialog if the game UDP port mismatch with the tool UDP port",
 
@@ -117,6 +119,8 @@
     "systemTheme": "Follow the system theme (Need restart the tool)",
     "playbackDeviceDesiredLatency": "Playback device desired latency",
     "logLevel": "Log level",
+    "checkUpdateWhenStartup": "Check update when startup",
+    "startWithWindows": "Start with Windows",
 
     "warnIfPortMismatch": "Show warning dialog if port mismatch",
 
@@ -210,8 +214,8 @@
       "content": "You're going to reset all the configuration to default, are you sure? After selecting 'OK', the changes need restarting the tool to take effect."
     },
     "downloadFile": {
-      "title": "Downloading {0}",
-      "file": "File: {0}",
+      "title": "Downloading...",
+      "file": "{0} File: {0}",
       "btn_cancel": "Cancel"
     },
     "newUpdate": {

@@ -155,5 +155,134 @@
                 </ComboBox>
             </Grid>
         </ui:Card>
+
+        <!-- startup check update -->
+        <ui:Card Margin="0 0 0 5"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="PhoneUpdate20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.checkUpdateWhenStartup}" />
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.checkUpdateWhenStartup}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding Path=ViewModel.IsAutoUpdate, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
+
+        <!-- startWithWindows -->
+        <ui:Card Margin="0 0 0 5"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="PersonRunning20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.startWithWindows}" />
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.startWithWindows}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding Path=ViewModel.IsStartWithWindows, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
+
+        <!-- OptInBetaPlan -->
+        <ui:Card Margin="0 0 0 5"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="New20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.optInBetaPlan}" />
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.optInBetaPlan}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding Path=ViewModel.IsOptInBetaPlan, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
+
+        <!-- LogLevel -->
+        <ui:Card Margin="0 0 0 5"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="MailError20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.logLevel}" />
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.logLevel}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:Button Icon="{ui:SymbolIcon FolderMail20}" Grid.Column="1" Command="{Binding ViewModel.ViewLogsCommand}"
+                    Content="{DynamicResource ResourceKey=settings.tooltip.viewLogs}" Margin="0 0 10 0" />
+                <ComboBox Grid.Column="2" SelectedIndex="{Binding Path=ViewModel.LogLevel, Mode=TwoWay}">
+                    <ComboBox.Items>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.trace}" />
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.debug}" />
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.info}" />
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.warn}" />
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.error}" />
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.fatal}" />
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.off}" />
+                    </ComboBox.Items>
+                </ComboBox>
+            </Grid>
+        </ui:Card>
     </StackPanel>
 </Page>

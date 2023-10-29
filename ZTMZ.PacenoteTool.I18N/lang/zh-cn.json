@@ -38,6 +38,8 @@
       "viewLogs": "查看日志",
       "theme": "工具显示的暗色或亮色主题，或者跟随Windows系统设置",
       "accentColor": "工具上各种组件的主要颜色",
+      "checkUpdateWhenStartup": "是否在工具启动时，自动检查更新",
+      "startWithWindows": "是否在Windows启动时，自动启动本工具",
 
       "warnIfPortMismatch": "当游戏的UDP端口和本工具的UDP端口不一致时，弹出提示框警告",
 
@@ -116,6 +118,8 @@
     "systemTheme": "跟随系统主题 (需要重启工具生效)",
     "playbackDeviceDesiredLatency": "播放设备缓冲区延迟",
     "logLevel": "日志级别",
+    "checkUpdateWhenStartup": "自动更新",
+    "startWithWindows": "开机自动启动",
 
     "warnIfPortMismatch": "端口不匹配时展示警告对话框",
 
@@ -209,8 +213,8 @@
       "content": "你准备好了重置所有的设置到默认吗？如果是的请选择“好的”，然后重启工具来让设置生效。"
     },
     "downloadFile": {
-      "title": "正在下载... {0}",
-      "file": "当前文件: {0}",
+      "title": "正在下载...",
+      "file": "{0} 当前文件: {1}",
       "btn_cancel": "取消"
     },
     "newUpdate": {
