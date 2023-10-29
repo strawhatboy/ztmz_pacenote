@@ -88,10 +88,9 @@
                                             FontTypography="Caption" />
                         </Grid>
                     </StackPanel>
-                    <ui:Button HorizontalAlignment="Stretch"
+                    <ui:Card HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"
                                 Grid.Column="1"
-                                Appearance="Secondary"
                                 Background="{Binding Path=ViewModel.AccentColor, Mode=OneWay}" />
                 </Grid>
                 <Border Grid.Row="1"
@@ -100,28 +99,28 @@
                         Background="Transparent" >
                     <Grid Margin="16">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="60"/>
                             <ColumnDefinition Width="40" />
                             <ColumnDefinition Width="160" />
-                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition />
                             <RowDefinition />
                             <RowDefinition />
                         </Grid.RowDefinitions>
-                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.accentColorR}" />
-                        <ui:TextBlock Grid.Row="1"
+                        <ui:TextBlock Grid.Column="1" Text="{DynamicResource ResourceKey=settings.accentColorR}" />
+                        <ui:TextBlock Grid.Column="1" Grid.Row="1"
                             Text="{DynamicResource ResourceKey=settings.accentColorG}" />
-                        <ui:TextBlock Grid.Row="2"
+                        <ui:TextBlock Grid.Column="1" Grid.Row="2"
                             Text="{DynamicResource ResourceKey=settings.accentColorB}" />
-                        <ui:TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Path=ViewModel.AccentColorR, Mode=OneWay}" />
-                        <ui:TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=ViewModel.AccentColorG, Mode=OneWay}" />
-                        <ui:TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Path=ViewModel.AccentColorB, Mode=OneWay}" />
+                        <ui:TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Path=ViewModel.AccentColorR, Mode=OneWay}" />
+                        <ui:TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Path=ViewModel.AccentColorG, Mode=OneWay}" />
+                        <ui:TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Path=ViewModel.AccentColorB, Mode=OneWay}" />
 
-                        <Slider Grid.Row="0" Grid.Column="2" Maximum="255" Minimum="0" Interval="1" Value="{Binding Path=ViewModel.AccentColorR, Mode=TwoWay}" />
-                        <Slider Grid.Row="1" Grid.Column="2" Maximum="255" Minimum="0" Interval="1" Value="{Binding Path=ViewModel.AccentColorG, Mode=TwoWay}" />
-                        <Slider Grid.Row="2" Grid.Column="2" Maximum="255" Minimum="0" Interval="1" Value="{Binding Path=ViewModel.AccentColorB, Mode=TwoWay}" />
+                        <Slider Grid.Row="0" Grid.Column="3" Maximum="255" Minimum="0" Interval="1" Value="{Binding Path=ViewModel.AccentColorR, Mode=TwoWay}" />
+                        <Slider Grid.Row="1" Grid.Column="3" Maximum="255" Minimum="0" Interval="1" Value="{Binding Path=ViewModel.AccentColorG, Mode=TwoWay}" />
+                        <Slider Grid.Row="2" Grid.Column="3" Maximum="255" Minimum="0" Interval="1" Value="{Binding Path=ViewModel.AccentColorB, Mode=TwoWay}" />
                     </Grid>
                 </Border>
             </Grid>

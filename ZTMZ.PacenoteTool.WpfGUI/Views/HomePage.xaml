@@ -143,10 +143,10 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.RowSpan="2" >
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0 0 10 0" VerticalAlignment="Center" Grid.RowSpan="2" >
                             <ui:SymbolIcon Symbol="PersonVoice20" FontSize="26" Margin="0 0 0 10" />
                             <ui:TextBlock Text="{DynamicResource ResourceKey=ui.tab_s_audioPackage}" FontTypography="Body" />
                         </StackPanel>
@@ -273,7 +273,7 @@
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                 
-                                <ColumnDefinition Width="200" />
+                                <ColumnDefinition Width="150" />
                                 <ColumnDefinition Width="56" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>

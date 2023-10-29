@@ -59,6 +59,8 @@ public partial class App : Application
 
             services.AddSingleton<IContentDialogService, ContentDialogService>();
 
+            services.AddSingleton<UpdateService, UpdateService>();
+
             services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>();
 
             // Main window with navigation

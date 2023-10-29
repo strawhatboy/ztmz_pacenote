@@ -1,0 +1,23 @@
+﻿<ui:ContentDialog x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.DownloadFileDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        IsFooterVisible="False"
+        mc:Ignorable="d"
+        >
+
+    <DockPanel>
+        <TextBlock x:Name="tb_title" DockPanel.Dock="Top" Margin="20 20 20 0" 
+                   Text="{DynamicResource ResourceKey=dialog.downloadFile.title}" />
+        <TextBlock x:Name="tb_file" DockPanel.Dock="Top" Margin="20 10 20 10" Text="{DynamicResource ResourceKey=dialog.downloadFile.file}" TextWrapping="WrapWithOverflow" />
+        <StackPanel DockPanel.Dock="Top" Margin="20 10 20 10" >
+            <ProgressBar x:Name="pb" Height="10" Value="0" />
+            <ui:TextBlock x:Name="tb_speed" HorizontalAlignment="Right" />
+        </StackPanel>
+        <!--<StackPanel Margin="20 10 20 20" HorizontalAlignment="Right" DockPanel.Dock="Bottom">
+            <Button Content="{DynamicResource ResourceKey=dialog.downloadFile.cancel}" Background="Crimson" Click="Button_Click"/>
+        </StackPanel>-->
+    </DockPanel>
+</ui:ContentDialog>
