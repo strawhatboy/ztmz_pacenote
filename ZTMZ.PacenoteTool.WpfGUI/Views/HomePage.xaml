@@ -33,6 +33,7 @@
         </Grid.ColumnDefinitions>
         <ui:InfoBar Grid.Row="0" Title="{Binding ViewModel.InfoBarTitle}" Message="{Binding ViewModel.InfoBarMessage}" IsOpen="{Binding ViewModel.InfoBarIsOpen}" />
 
+        <!-- left pane -->
         <StackPanel Grid.Row="1" Margin="0 0 20 0" >
             <Grid >
                 <Grid.RowDefinitions>
@@ -133,6 +134,45 @@
                     </ItemsControl>
                 </StackPanel>
             </ui:Card>
+            <!-- hud -->
+            <ui:CardExpander Margin="0 20 0 0" IsExpanded="True">
+                <ui:CardExpander.Header>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
+                            <ui:SymbolIcon Symbol="Gauge20" FontSize="26" Margin="0 0 10 0" VerticalAlignment="Center" />
+                            <ui:TextBlock Text="{DynamicResource ResourceKey=tabs.hud}" FontTypography="BodyStrong" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <ui:ToggleSwitch Grid.Column="1" Name="tb_hud" 
+                            IsChecked="{Binding Path=ViewModel.IsHudEnabled, Mode=TwoWay}"
+                            ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_showHud}"
+                            Margin="0 0 10 0"
+                            />
+                    </Grid>
+                </ui:CardExpander.Header>
+                <ui:CardAction Command="{Binding ViewModel.MoreHudSettingsCommand}" Padding="5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="#609D51" />
+                        <Border Grid.Column="1" Background="#D3A95B" />
+                        <Border Grid.Column="2" Background="#B9574A" />
+                        <Border Grid.Column="3" Background="#B9574A" />
+                        <Border Grid.Column="4" Background="#D3A95B" />
+                        <Border Grid.Column="5" Background="#609D51" />
+                        <ui:TextBlock Text="6" Grid.ColumnSpan="6" FontTypography="Display" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0 10 0 10" />
+                    </Grid>
+                </ui:CardAction>
+            </ui:CardExpander>
         </StackPanel>
         <StackPanel Grid.Row="1" VerticalAlignment="Top" Margin="0 40 0 0"  Grid.Column="1">
             <ui:Card Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" Margin="0 0 0 0" Padding="0">
@@ -146,9 +186,9 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0 0 10 0" VerticalAlignment="Center" Grid.RowSpan="2" >
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0 0 16 0" VerticalAlignment="Center" Grid.RowSpan="2" >
                             <ui:SymbolIcon Symbol="PersonVoice20" FontSize="26" Margin="0 0 0 10" />
-                            <ui:TextBlock Text="{DynamicResource ResourceKey=ui.tab_s_audioPackage}" FontTypography="Body" />
+                            <ui:TextBlock Text="{DynamicResource ResourceKey=ui.tab_s_audioPackage}" FontTypography="BodyStrong" />
                         </StackPanel>
                         <ComboBox Grid.Column="1" Name="cb_codrivers" 
                                 VerticalAlignment="Top" 
@@ -206,10 +246,10 @@
                             </b:Interaction.Triggers>
                         </ComboBox>
                         <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
-
                             <ui:Button Content="{DynamicResource ResourceKey=ui.btn_playExample}" Icon="{ui:SymbolIcon Play20}" Margin="0 0 10 0" Command="{Binding ViewModel.PlayExampleCommand}" />
                             <ui:Anchor Content="{DynamicResource ResourceKey=ui.tb_codriverLink}" Icon="{ui:SymbolIcon Link20}" Margin="0 0 10 0" NavigateUri="{Binding Path=ViewModel.SelectedCodriver.homepage}" />
-                            <ui:Button ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentCodriver}" Icon="{ui:SymbolIcon Folder20}" Command="{Binding ViewModel.OpenCodriverFolderCommand}" />
+                            <ui:Button ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentCodriver}" Icon="{ui:SymbolIcon Folder20}" Margin="0 0 10 0" Command="{Binding ViewModel.OpenCodriverFolderCommand}" />
+                            <ui:Button Content="{DynamicResource ResourceKey=settings.more}" Icon="{ui:SymbolIcon MoreHorizontal20}" Command="{Binding ViewModel.MoreCodriverSettingsCommand}" />
                         </StackPanel>
                     </Grid>
                     <!-- details of the codriver -->
@@ -269,7 +309,7 @@
                                 <RowDefinition Height="40" />
                                 <RowDefinition Height="40" />
                                 <RowDefinition Height="40" />
-                                <RowDefinition Height="*" />
+                                <RowDefinition Height="40" />
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                 
@@ -279,18 +319,16 @@
                             </Grid.ColumnDefinitions>
                 
                             <ui:TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource ResourceKey=ui.tb_currentTrack}"/>
-                            <ui:TextBlock Grid.Row="0" Grid.Column="1" Name="tb_currentTrack">N/A</ui:TextBlock>
-                            <Button Grid.Row="0" Grid.Column="2" Name="tb_currentTrack_view" 
+                            <ui:TextBlock Grid.Row="0" Grid.Column="1" Name="tb_currentTrack" Text="{Binding Path=ViewModel.CurrentTrack, Mode=OneWay}" />
+                            <!-- <ui:Button Grid.Row="0" Grid.Column="2" Name="tb_currentTrack_view" 
                                     ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentTrack}"
-                                Content="File"  Margin="2"
-                                >
-                            </Button>
-                            <Button Grid.Row="0" Grid.Column="3" Name="btn_currentTrack_script" 
+                                Icon="{ui:SymbolIcon Folder20}" HorizontalAlignment="Right"
+                                /> -->
+                            <!-- <Button Grid.Row="0" Grid.Column="3" Name="btn_currentTrack_script" 
                                     ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentScript}"
                                     Margin="2"
-                                Content="Script">
+                                Content="Script"> -->
                 
-                            </Button>
                             <ui:TextBlock Grid.Row="1" Grid.Column="0" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_replayDevice}"
                                         Text="{DynamicResource ResourceKey=ui.tb_replayDevice}" />
                             <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Name="cb_replay_device" VerticalAlignment="Center"
@@ -311,17 +349,7 @@
                                 Value="{Binding Path=ViewModel.PlaybackVolume, Mode=TwoWay}" 
                                 VerticalAlignment="Center"/>
                             <ui:TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" Name="tb_volume" Text="{Binding Path=ViewModel.PlaybackVolume, Mode=OneWay, StringFormat=N1}" />
-                            <!-- <ui:ToggleSwitch x:Name="tb_mute" Grid.Row="2" Grid.Column="3" 
-                                
-                                ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_mute}"
-                                /> -->
-                
-                            <!--<ui:TextBlock Grid.Row="3" Grid.Column="0" ToolTip="[慎用]调整路书播放点，对纯语音路书和脚本路书都有效，比如+10米表示所有路书片段会在推迟10米处播放，-10米表示所有路书片段会在提前10米处播放">播放点调整：</ui:TextBlock>
-                        <Slider Name="s_playpointAdjust" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Maximum="100" Minimum="-100" Interval="1"
-                                Value="0" ValueChanged="S_playpointAdjust_OnValueChanged" />
-                        <ui:TextBlock Grid.Row="3" Grid.Column="3" Name="tb_playpointAdjust">0米</ui:TextBlock>-->
-                
-                
+                          
                             <ui:TextBlock Grid.Row="3" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_prePlay}"
                                         Text="{DynamicResource ResourceKey=ui.tb_prePlay}"/>
                             <Slider Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" x:Name="sl_scriptTiming" 
@@ -361,6 +389,8 @@
                             <ui:ToggleSwitch Grid.Row="6" Grid.Column="1">
         
                             </ui:ToggleSwitch> -->
+                            <ui:Button Grid.Row="6" Grid.Column="2" HorizontalAlignment="Right" Content="{DynamicResource ResourceKey=settings.more}" Icon="{ui:SymbolIcon MoreHorizontal20}" 
+                                Command="{Binding ViewModel.MorePlaySettingsCommand}"/>
                         </Grid>
                     </Border>
                 </StackPanel>

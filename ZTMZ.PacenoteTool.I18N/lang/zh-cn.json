@@ -7,13 +7,15 @@
   "tabs" : {
     "home": "主页",
     "general": "常规",
-    "voices": "语音包",
+    "voices": "领航员",
     "playback": "播放",
-    "hud": "仪表盘",
-    "game": "当前游戏"
+    "hud": "悬浮窗",
+    "game": "当前游戏",
+    "user": "用户",
+    "about": "关于"
   },
   "settings": {
-
+    "more": "更多",
     "title": "设置",
 
     "btn_reset": "恢复默认设置",

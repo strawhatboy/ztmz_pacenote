@@ -59,7 +59,8 @@ public partial class App : Application
 
             services.AddSingleton<IContentDialogService, ContentDialogService>();
 
-            services.AddSingleton<UpdateService, UpdateService>();
+            services.AddSingleton<UpdateService>();
+            services.AddSingleton<StartupService>();
 
             services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>();
 
@@ -86,6 +87,8 @@ public partial class App : Application
             services.AddScoped<ViewModels.PlayPageVM>();
             services.AddScoped<Views.HudPage>();
             services.AddScoped<ViewModels.HudPageVM>();
+            services.AddScoped<Views.UserPage>();
+            services.AddScoped<ViewModels.UserPageVM>();
 
             // Configuration
             // services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));

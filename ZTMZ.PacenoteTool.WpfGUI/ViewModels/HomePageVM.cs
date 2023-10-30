@@ -9,6 +9,7 @@ using Wpf.Ui.Controls;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Controls;
+using ZTMZ.PacenoteTool.WpfGUI.Views;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -67,9 +68,21 @@ public partial class HomePageVM : ObservableObject {
 
     private List<Type>? _gameConfigSettingsPaneTypes = null;
 
+    [ObservableProperty]
+    private bool _isHudEnabled = Config.Instance.UI_ShowHud;
+
+    partial void OnIsHudEnabledChanged(bool value)
+    {
+        Config.Instance.UI_ShowHud = value;
+        Config.Instance.SaveUserConfig();
+    }
+
     #region QuickSettings
     [ObservableProperty]
     private float _playbackVolume = 50.0f;
+
+    [ObservableProperty]
+    private string _currentTrack;
 
     partial void OnPlaybackVolumeChanged(float value)
     {
@@ -135,7 +148,10 @@ public partial class HomePageVM : ObservableObject {
 
     private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool) {
+    private readonly IServiceProvider _serviceProvider;
+
+    public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool, IServiceProvider serviceProvider) {
+        _serviceProvider = serviceProvider;
         Tool = _tool;
         _tool.onGameStarted += (game) => IsGameRunning = true;
         _tool.onGameEnded += (game) => {
@@ -152,7 +168,13 @@ public partial class HomePageVM : ObservableObject {
             IsGameInitialized = false;
             IsGameInitializedFailed = true;
         };
-        _tool.onRaceBegin += (game) => IsRacing = true;
+        _tool.onRaceBegin += (game) => { 
+            IsRacing = true; 
+        };
+        _tool.onTrackNameChanged += (game, trackName) => {
+            CurrentTrack = trackName;
+        };
+
         _tool.onRaceEnd += (game) => IsRacing = false;
 
         BindingOperations.EnableCollectionSynchronization(Games, _collectionLock);
@@ -268,4 +290,21 @@ public partial class HomePageVM : ObservableObject {
                     System.IO.Path.GetFullPath(SelectedCodriver.Path)));
     }
 
+    [RelayCommand]
+    private void MoreCodriverSettings() {
+        var _navigationWindow = (_serviceProvider.GetService(typeof(INavigationWindow)) as INavigationWindow)!;
+        _navigationWindow.Navigate(typeof(VoicePage));
+    }
+
+    [RelayCommand]
+    private void MoreHudSettings() {
+        var _navigationWindow = (_serviceProvider.GetService(typeof(INavigationWindow)) as INavigationWindow)!;
+        _navigationWindow.Navigate(typeof(HudPage));
+    }
+
+    [RelayCommand]
+    private void MorePlaySettings() {
+        var _navigationWindow = (_serviceProvider.GetService(typeof(INavigationWindow)) as INavigationWindow)!;
+        _navigationWindow.Navigate(typeof(PlayPage));
+    }
 }

@@ -6,6 +6,7 @@ using System.Windows.Media;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.WpfGUI.Services;
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 public partial class GeneralPageVM : ObservableObject {
@@ -74,7 +75,10 @@ public partial class GeneralPageVM : ObservableObject {
         }
     }
 
-    public GeneralPageVM() {
+    private readonly StartupService _startupService;
+
+    public GeneralPageVM(StartupService startupService) {
+        _startupService = startupService;
         foreach (var c in I18NLoader.Instance.culturesFullname)
         {
             Languages.Add(c);
@@ -146,6 +150,13 @@ public partial class GeneralPageVM : ObservableObject {
     {
         Config.Instance.StartWithWindows = value;
         Config.Instance.SaveUserConfig();
+        if (value) {
+            // set to start with windows
+            _startupService.AddApplicationToCurrentUserStartup();
+        } else {
+            // remove from startup
+            _startupService.RemoveApplicationFromCurrentUserStartup();
+        }
     }
 
     partial void OnIsOptInBetaPlanChanged(bool value)

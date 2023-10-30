@@ -110,20 +110,22 @@ public partial class MainWindowVM : ObservableObject
         BindingOperations.EnableCollectionSynchronization(NavigationItems, _collectionLock);
         items.ForEach(a => NavigationItems.Add(a));
 
-        items = new List<object>
-        {
-            new NavigationViewItem()
-            {
-                Content = "User",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.PersonCircle20 },
-            },
-            new NavigationViewItem()
-            {
-                Content = "About",
-                Icon = new SymbolIcon { Symbol = SymbolRegular.Info20 },
-                TargetPageType = typeof(Views.SettingsPage)
-            }
+        items = new List<object>();
+        var user = new NavigationViewItem() {
+            Icon = new SymbolIcon { Symbol = SymbolRegular.PersonCircle20 },
+            TargetPageType = typeof(Views.UserPage)
         };
+        user.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.user");
+        items.Add(user);
+
+        var about = new NavigationViewItem() {
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Info20 },
+            TargetPageType = typeof(Views.SettingsPage)
+        };
+        about.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.about");
+        items.Add(about);
+
+
         NavigationFooter = new ObservableCollection<object>();
         BindingOperations.EnableCollectionSynchronization(NavigationFooter, _collectionLock);
         items.ForEach(a => NavigationFooter.Add(a));
