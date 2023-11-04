@@ -474,6 +474,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._HudTelemetryShowSuspensionBars;
         }
 
+        private int _UI_SelectedHudIndex = 0;
+        public int UI_SelectedHudIndex
+        {
+            set { this._UI_SelectedHudIndex = value; this._userconfig["UI_SelectedHudIndex"] = value; }
+            get => this._UI_SelectedHudIndex;
+        }
+
         #endregion
 
         #region VrOverlay

@@ -6,6 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:system="clr-namespace:System;assembly=System.Runtime"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:localUI="clr-namespace:ZTMZ.PacenoteTool.Base.UI;assembly=ZTMZ.PacenoteTool.Base.UI"
       Title="GeneralPage"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
@@ -213,6 +214,8 @@
                 <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding Path=ViewModel.IsStartWithWindows, Mode=TwoWay}" />
             </Grid>
         </ui:Card>
+
+        <localUI:CommonSettingsItem Label="settings.startWithWindows" Description="settings.tooltip.startWithWindows" SettingsPropertyName="StartWithWindows" />
 
         <!-- OptInBetaPlan -->
         <ui:Card Margin="0 0 0 5"

@@ -1,0 +1,5 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="pack://application:,,,/ZTMZ.PacenoteTool.Base.UI;component/CommonSettingsItem.xaml" />
+  </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>
