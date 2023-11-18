@@ -88,7 +88,10 @@ namespace ZTMZ.PacenoteTool.Codemasters
             } else {
                 return "UnknownTrack";
             }
+            return GetItinerary(itineraryMap, trackLength, startZ);
+        }
 
+        public string GetItinerary(Dictionary<string, List<ItineraryProperty>> itineraryMap, string trackLength, float startZ) {
             if (itineraryMap.ContainsKey(trackLength))
             {
                 var candidates = itineraryMap[trackLength];

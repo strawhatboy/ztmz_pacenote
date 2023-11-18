@@ -215,7 +215,7 @@
             </Grid>
         </ui:Card>
 
-        <localUI:CommonSettingsItem Label="settings.startWithWindows" Description="settings.tooltip.startWithWindows" SettingsPropertyName="StartWithWindows" />
+        <!-- <localUI:CommonSettingsItem Label="settings.startWithWindows" Description="settings.tooltip.startWithWindows" SettingsPropertyName="StartWithWindows" /> -->
 
         <!-- OptInBetaPlan -->
         <ui:Card Margin="0 0 0 5"

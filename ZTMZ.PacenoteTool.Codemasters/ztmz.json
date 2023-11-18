@@ -1,0 +1,106 @@
+{
+	"versions":
+	{
+		"schema": 1,
+		"data": 3
+	},
+	"id": "ztmz",
+	"header":
+	{
+		"channels": []
+	},
+	"packets": [
+        {
+            "id": "session_start",
+            "channels": [
+				"vehicle_position_z",
+				"stage_length"
+            ]
+        },
+		{
+			"id": "session_pause",
+			"channels": [
+				"stage_current_time",
+				"stage_current_distance"
+			]
+		},
+		{
+			"id": "session_resume",
+			"channels": [
+				"stage_current_time",
+				"stage_current_distance"
+			]
+		},
+		{
+			"id": "session_end",
+			"channels": [
+				"stage_current_time",
+				"stage_current_distance"
+			]
+		},
+		{
+			"id": "session_update",
+			"channels": [
+				"packet_uid",
+				"game_total_time",
+				"game_delta_time",
+				"game_frame_count",
+				"shiftlights_fraction",
+				"shiftlights_rpm_start",
+				"shiftlights_rpm_end",
+				"shiftlights_rpm_valid",
+				"vehicle_gear_index",
+				"vehicle_gear_index_neutral",
+				"vehicle_gear_index_reverse",
+				"vehicle_gear_maximum",
+				"vehicle_speed",
+				"vehicle_transmission_speed",
+				"vehicle_position_x",
+				"vehicle_position_y",
+				"vehicle_position_z",
+				"vehicle_velocity_x",
+				"vehicle_velocity_y",
+				"vehicle_velocity_z",
+				"vehicle_acceleration_x",
+				"vehicle_acceleration_y",
+				"vehicle_acceleration_z",
+				"vehicle_left_direction_x",
+				"vehicle_left_direction_y",
+				"vehicle_left_direction_z",
+				"vehicle_forward_direction_x",
+				"vehicle_forward_direction_y",
+				"vehicle_forward_direction_z",
+				"vehicle_up_direction_x",
+				"vehicle_up_direction_y",
+				"vehicle_up_direction_z",
+				"vehicle_hub_position_bl",
+				"vehicle_hub_position_br",
+				"vehicle_hub_position_fl",
+				"vehicle_hub_position_fr",
+				"vehicle_hub_velocity_bl",
+				"vehicle_hub_velocity_br",
+				"vehicle_hub_velocity_fl",
+				"vehicle_hub_velocity_fr",
+				"vehicle_cp_forward_speed_bl",
+				"vehicle_cp_forward_speed_br",
+				"vehicle_cp_forward_speed_fl",
+				"vehicle_cp_forward_speed_fr",
+				"vehicle_brake_temperature_bl",
+				"vehicle_brake_temperature_br",
+				"vehicle_brake_temperature_fl",
+				"vehicle_brake_temperature_fr",
+				"vehicle_engine_rpm_max",
+				"vehicle_engine_rpm_idle",
+				"vehicle_engine_rpm_current",
+				"vehicle_throttle",
+				"vehicle_brake",
+				"vehicle_clutch",
+				"vehicle_steering",
+				"vehicle_handbrake",
+				"stage_current_time",
+				"stage_current_distance",
+				"stage_length"
+			]
+		}
+	]
+}

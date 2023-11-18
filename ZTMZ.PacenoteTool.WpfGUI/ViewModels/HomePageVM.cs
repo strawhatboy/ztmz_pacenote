@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Controls;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
+using ZTMZ.PacenoteTool.Base.UI;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -152,6 +153,7 @@ public partial class HomePageVM : ObservableObject {
 
     public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool, IServiceProvider serviceProvider) {
         _serviceProvider = serviceProvider;
+        var contentDialogService = serviceProvider.GetService(typeof(IContentDialogService)) as IContentDialogService;
         Tool = _tool;
         _tool.onGameStarted += (game) => IsGameRunning = true;
         _tool.onGameEnded += (game) => {
@@ -166,7 +168,29 @@ public partial class HomePageVM : ObservableObject {
         };
         _tool.onGameInitializeFailed += (game, code) => {
             IsGameInitialized = false;
-            IsGameInitializedFailed = true;
+            IsGameInitializedFailed = code != PrerequisitesCheckResultCode.OK;
+
+            if (code == PrerequisitesCheckResultCode.PORT_NOT_OPEN) {
+                // show port not open dialog
+                _ = Application.Current.Dispatcher.Invoke(async () =>
+                {
+                    var result = await contentDialogService?.ShowSimpleDialogAsync(
+                        new SimpleContentDialogCreateOptions()
+                        {
+                            Title = I18NLoader.Instance["dialog.portNotOpen.title"],
+                            Content = string.Format(I18NLoader.Instance["dialog.portNotOpen.content"], game.Name, ""),
+                            PrimaryButtonText = I18NLoader.Instance["dialog.portNotOpen.btn_ok"],
+                            // SecondaryButtonText = "Don't Save",
+                            CloseButtonText = I18NLoader.Instance["dialog.portNotOpen.btn_cancel"]
+                        }
+                    );
+
+                    if (result == ContentDialogResult.Primary) {
+                        // force fix
+                        game.GamePrerequisiteChecker.ForceFix(game);
+                    }
+                });
+            }
         };
         _tool.onRaceBegin += (game) => { 
             IsRacing = true; 
@@ -276,12 +300,14 @@ public partial class HomePageVM : ObservableObject {
         var outputDevice = SelectedOutputDevice;
         Config.Instance.UI_SelectedPlaybackDevice = OutputDevices.IndexOf(outputDevice);
         Config.Instance.SaveUserConfig();
-        Tool.SetOutputDevice(Config.Instance.UI_SelectedAudioPackage);
+        Tool.SetOutputDevice(Config.Instance.UI_SelectedPlaybackDevice);
     }
 
     [RelayCommand]
     private void PlayExample() {
+        // Application.Current.Dispatcher.Invoke(() => {
         Tool.PlayExample();
+        // });
     }
 
     [RelayCommand]

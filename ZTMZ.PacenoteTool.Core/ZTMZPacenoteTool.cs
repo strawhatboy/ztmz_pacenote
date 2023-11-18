@@ -230,6 +230,7 @@ public class ZTMZPacenoteTool {
             }
             
             //TODO: raise UI game state.
+            this.onGameInitializeFailed?.Invoke(game, res);
         }
     }
 
