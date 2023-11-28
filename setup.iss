@@ -1,8 +1,9 @@
-﻿#define MyAppName "ZTMZ Pacenote Tool"
-#define MyAppVersion "2.9.0.0"
+﻿#define MyAppName "ZTMZ Next Generation Pacenote Tool"
+#define MyAppVersion "2.99.99.2"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
-#define MyAppExeName "ZTMZ.PacenoteTool.exe"
+#define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
+#define FolderName "ZTMZClub_nextgen"
 
 [Code]
 var
@@ -97,7 +98,7 @@ var
 begin
   if (CurPageID = wpReady) and NeedToDownload then begin
     DownloadPage.Clear;
-    DownloadPage.Add('https://download.visualstudio.microsoft.com/download/pr/a6e878eb-d1da-40cb-8b6a-7f5b9390f09c/e4431ce2aa28b6c9956db672209be500/windowsdesktop-runtime-6.0.10-win-x64.exe', 'dotnet6.exe', '');
+    DownloadPage.Add('https://download.visualstudio.microsoft.com/download/pr/52d6ef78-d4ec-4713-9e01-eb8e77276381/e58f307cda1df61e930209b13ecb47a4/windowsdesktop-runtime-6.0.25-win-x64.exe', 'dotnet6.exe', '');
     DownloadPage.Show;
     try
       try
@@ -127,7 +128,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={autopf}\ztmzclub_pacenotetool
+DefaultDirName={autopf}\ztmzclub_pacenotetool_nextgen
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 PrivilegesRequired=lowest
@@ -146,31 +147,31 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [InstallDelete]
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\default";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\engmale (by mesa)";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\wha1ing";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\南沢いずみ";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\图图（对讲机特效 by wha1ing）";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\圣沙蒙VK";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\拉稀车手老王";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\拉稀车手老王对讲机特效版";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\拉稀车手老王超快速语音包（兼容苏格兰）";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\权威Authority";
-Type: filesandordirs; Name: "{userdocs}\My Games\ZTMZClub\codrivers\紫藤林沫（测试版）";
-Type: files; Name: "{userdocs}\My Games\ZTMZClub\config.json";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\default";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\engmale (by mesa)";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\wha1ing";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\南沢いずみ";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\图图（对讲机特效 by wha1ing）";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\圣沙蒙VK";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\拉稀车手老王";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\拉稀车手老王对讲机特效版";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\拉稀车手老王超快速语音包（兼容苏格兰）";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\权威Authority";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\紫藤林沫（测试版）";
+Type: files; Name: "{userdocs}\My Games\{#FolderName}\config.json";
 ; Delete previous default audio package
 ; Delete previous default configuration
 
 [Files]
 ; No json file!
-; Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*.json"; Excludes:"config.json,userconfig.json,*.deps.json,*.runtimeconfig.json"; DestDir: "{userdocs}\My Games\ZTMZClub"; Flags: ignoreversion
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\*.csv"; DestDir: "{userdocs}\My Games\ZTMZClub"; Flags: ignoreversion
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\codrivers\*"; DestDir: "{userdocs}\My Games\ZTMZClub\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\profiles\*"; DestDir: "{userdocs}\My Games\ZTMZClub\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\lang\*"; DestDir: "{userdocs}\My Games\ZTMZClub\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\games\*"; Excludes:"*.json"; DestDir: "{app}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\games\*.json"; Excludes:"*.deps.json"; DestDir: "{userdocs}\My Games\ZTMZClub\games"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool\bin\Release\net6.0-windows\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\*.json"; Excludes:"config.json,userconfig.json,*.deps.json,*.runtimeconfig.json"; DestDir: "{userdocs}\My Games\{#FolderName}"; Flags: ignoreversion
+Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\*.csv"; DestDir: "{userdocs}\My Games\{#FolderName}"; Flags: ignoreversion
+Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\codrivers\*"; DestDir: "{userdocs}\My Games\{#FolderName}\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\profiles\*"; DestDir: "{userdocs}\My Games\{#FolderName}\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\lang\*"; DestDir: "{userdocs}\My Games\{#FolderName}\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\games\*"; Excludes:"*.json"; DestDir: "{app}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\games\*.json"; Excludes:"*.deps.json"; DestDir: "{userdocs}\My Games\{#FolderName}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net6.0-windows\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

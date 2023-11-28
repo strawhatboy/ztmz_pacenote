@@ -60,15 +60,16 @@ namespace ZTMZ.PacenoteTool.RBR
 
         public string Description { get; private set; } = "";
 
-        public BitmapImage Image { get; } = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.RBR;component/rbr.jpg"));
+        public string ImageUri { get; } = "pack://application:,,,/ZTMZ.PacenoteTool.RBR;component/rbr.jpg";
 
-        public string Executable => "RichardBurnsRally_SSE.exe";
+        public string Executable => "RichardBurnsRally_SSE";
 
         public IGamePacenoteReader GamePacenoteReader { get; } = new RBRGamePacenoteReader();
 
         public IGameDataReader GameDataReader { get; } = new RBRGameDataReader();
 
         public bool IsRunning { get; set; }
+        public bool IsInitialized { get; set; }
 
         public Dictionary<string, IGameConfig> GameConfigurations { set; get; }
         

@@ -7,7 +7,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using ZTMZ.PacenoteTool.Base;
-using ZTMZ.PacenoteTool.Base.Dialog;
+using ZTMZ.PacenoteTool.Base.UI.Dialog;
+using ZTMZ.PacenoteTool.Core;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -36,9 +37,22 @@ namespace ZTMZ.PacenoteTool
 
         private void initializeI18N()
         {
-            I18NLoader.Instance.Initialize(AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE));
+            // load from I18NPath
+            var jsonPaths = new List<string>{
+                AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE),
+                AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)),
+                AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE))
+            };
+            I18NLoader.Instance.Initialize(jsonPaths);
             I18NLoader.Instance.SetCulture(Config.Instance.Language);
             GoogleAnalyticsHelper.Instance.TrackLaunchEvent("language", Config.Instance.Language);
+            var CurrentDict = new ResourceDictionary();
+            
+            foreach (var key in I18NLoader.Instance.CurrentCulture.Keys)
+            {
+                CurrentDict.Add(key, I18NLoader.Instance.CurrentCulture[key]);
+            }
+            this.Resources.MergedDictionaries.Add(CurrentDict);
         }
 
         private void SetupExceptionHandling()

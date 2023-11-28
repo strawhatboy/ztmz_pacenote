@@ -4,15 +4,18 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Dialog"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"
         ResizeMode="CanMinimize"        
-        Background="{DynamicResource MaterialDesignPaper}"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        
+        Background="{DynamicResource SystemControlPageBackgroundAltHighBrush}"
+        Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}"
+        ui:ThemeManager.IsThemeAware="True"
+        ui:WindowHelper.UseModernWindowStyle="True"
         Title="memememe" Height="400" Width="600">
 
     <Grid>
@@ -36,10 +39,10 @@
         <!-- Canvas for back and setting buttons-->
         <Canvas Grid.Row="0">
             <Button Name="btn_Back" Canvas.Left="20" Canvas.Top="20" Width="42" Height="42" Margin="2" ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_settings}" Style="{StaticResource MaterialDesignFloatingActionMiniButton}" >
-                <materialDesign:PackIcon Kind="ArrowLeft" Height="25" Width="25" />
+                <!-- <materialDesign:PackIcon Kind="ArrowLeft" Height="25" Width="25" /> -->
             </Button>
             <Button Name="btn_Settings" Canvas.Right="20" Canvas.Top="20" Width="42" Height="42" Margin="2" ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_settings}" Style="{StaticResource MaterialDesignFloatingActionMiniButton}">
-                <materialDesign:PackIcon Kind="Cog" Height="25" Width="25" />
+                <!-- <materialDesign:PackIcon Kind="Cog" Height="25" Width="25" /> -->
             </Button>
         </Canvas>
 

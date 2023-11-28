@@ -19,8 +19,8 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             this.Description = description;
         }
 
-        public System.Windows.Media.ImageSource Image =>
-            ScriptResource.GetImageByType(this.Type);
+        public System.Windows.Media.ImageSource Image => null;
+            // ScriptResource.GetImageByType(this.Type);
 
 
         public string Text { get; private set; }

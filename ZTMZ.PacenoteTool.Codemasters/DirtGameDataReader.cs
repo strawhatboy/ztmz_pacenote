@@ -23,6 +23,7 @@ public class DirtGameDataReader : UdpGameDataReader
     }
 
     public override GameData LastGameData { get => _lastGameData; set => _lastGameData = value; }
+    public override GameData CurrentGameData { get => _currentGameData; set => _currentGameData = value; }
     public override string TrackName => DRHelper.Instance.GetItinerary(_game, _currentRawData.TrackLength.ToString("f2", CultureInfo.InvariantCulture), _currentRawData.PosZ );
 
     public GameState _gameState;

@@ -20,6 +20,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
 
     public abstract GameState GameState { get; set; }
     public abstract GameData LastGameData { get; set; }
+    public abstract GameData CurrentGameData { get; set; }
     public abstract string TrackName { get; }
     private Timer _timer;
     protected int _timerCount = 0;
@@ -81,6 +82,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
         };
         this._timer.Start();
         isInitialized = true;
+        _logger.Debug("UdpGameDataReader initialized");
         return isInitialized;
     }
 
@@ -92,16 +94,21 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
 
     public virtual void Uninitialize(IGame game)
     {
-        if (!isInitialized)
+        if (!isInitialized) { 
+            _logger.Warn("UdpGameDataReader is not initialized when uninitializing");
             return;
+        }
 
-        if (_udpReceiver == null)
+        if (_udpReceiver == null) {
+            _logger.Warn("UdpGameDataReader is not initialized when uninitializing");
             return;
+        }
 
         _udpReceiver.StopListening();
         _udpReceiver.Dispose();
         _udpReceiver = null;
         isInitialized = false;
+        _logger.Debug("UdpGameDataReader uninitialized");
     }
 
     public void Dispose()

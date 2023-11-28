@@ -4,22 +4,25 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Dialog"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d" Width="600" Height="450" WindowStyle="None"
              ResizeMode="CanResize"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"        
-        Background="{DynamicResource MaterialDesignPaper}"
+        
+        Background="{DynamicResource SystemControlPageBackgroundAltHighBrush}"
+        Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}"
+        ui:ThemeManager.IsThemeAware="True"
+        ui:WindowHelper.UseModernWindowStyle="True"
              d:DesignHeight="450" d:DesignWidth="600">
     <WindowChrome.WindowChrome>
         <WindowChrome ResizeBorderThickness="0" CaptionHeight="0"></WindowChrome>
     </WindowChrome.WindowChrome>
     <DockPanel>
         <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}" DockPanel.Dock="Top" Margin="20 20 20 0" Text="{DynamicResource ResourceKey=dialog.resetConfig.title}" />
-        <materialDesign:PackIcon Kind="Warning" Height="60" Width="60" Margin="20" Foreground="OrangeRed" DockPanel.Dock="Left"  />
+        <ui:FontIcon Glyph="&#xE7BA;" Height="60" Width="60" Margin="20" Foreground="OrangeRed" DockPanel.Dock="Left"  />
         <StackPanel DockPanel.Dock="Bottom" Margin="20 10 20 20" Orientation="Horizontal" HorizontalAlignment="Right" >
             <Button IsDefault="True" x:Name="btn_ok" Content="{DynamicResource ResourceKey=dialog.resetConfig.btn_ok}" Click="btn_ok_Click" Margin="0 0 10 0"></Button>
             <Button x:Name="btn_cancel" Background="Crimson" Content="{DynamicResource ResourceKey=dialog.resetConfig.btn_cancel}" Click="btn_cancel_Click"></Button>

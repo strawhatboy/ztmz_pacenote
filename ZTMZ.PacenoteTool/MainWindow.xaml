@@ -5,21 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
         MinHeight="780"
         MaxHeight="780"
         MinWidth="560"
         ResizeMode="CanResize"
         
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        TextElement.FontWeight="Regular"
-        TextElement.FontSize="13"
-        TextOptions.TextFormattingMode="Ideal" 
-        TextOptions.TextRenderingMode="Auto"        
-        Background="{DynamicResource MaterialDesignPaper}"
-        Closing="Window_Closing"
-        Title="ZTMZ Club 路书工具" Height="780" Width="560" Loaded="Window_Loaded">
+        Background="{DynamicResource SystemControlPageBackgroundAltHighBrush}"
+        Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}"
+        ui:ThemeManager.IsThemeAware="True"
+        ui:WindowHelper.UseModernWindowStyle="True"
+        
+        Title="ZTMZ Club 路书工具" Height="780" Width="560" >
 
     <Grid>
         <Grid.Resources>
@@ -41,7 +39,7 @@
             <RowDefinition Height="5" />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
-        <materialDesign:Card Margin="5 5 5 0" Padding="5 0 5 0">
+        <Grid Margin="5 5 5 0" >
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -49,9 +47,9 @@
                     <ColumnDefinition Width="56" />
                     <ColumnDefinition Width="56" />
                 </Grid.ColumnDefinitions>
-                <Button Name="btn_Exit" Visibility="Collapsed" Grid.Column="3" Background="Crimson" Content="{materialDesign:PackIcon Close}" Margin="2" ></Button>
+                <Button Name="btn_Exit" Visibility="Collapsed" Grid.Column="3" Background="Crimson" Content="Close" Margin="2" ></Button>
             
-                <StackPanel Name="sp_NonDevModeTitle" Visibility="Collapsed" Orientation="Horizontal" Grid.Column="0" Grid.ColumnSpan="2">
+                <StackPanel Name="sp_NonDevModeTitle" Visibility="Visible" Orientation="Horizontal" Grid.Column="0" Grid.ColumnSpan="2">
                     <Image Margin="5 5 0 5" RenderOptions.BitmapScalingMode="HighQuality" >
                         <Image.Source>
                             <BitmapImage UriSource="pack://application:,,,/ZTMZ.PacenoteTool;component/app.ico" />
@@ -61,18 +59,18 @@
                         FontSize="16" Margin="10 0 0 0"  />
                 </StackPanel>
                 <RadioButton Grid.Column="0" Name="ck_record" GroupName="mode"
-                         Click="Ck_record_OnChecked" ToolTip="{DynamicResource ResourceKey=ui.tooltip.rb_record}" 
+                         ToolTip="{DynamicResource ResourceKey=ui.tooltip.rb_record}" 
                              Content="{DynamicResource ResourceKey=ui.rb_record}">
                 </RadioButton>
-                <RadioButton Grid.Column="1" Name="ck_replay" GroupName="mode" Click="Ck_replay_OnChecked" IsChecked="True"
+                <RadioButton Grid.Column="1" Name="ck_replay" GroupName="mode" IsChecked="True"
                          ToolTip="{DynamicResource ResourceKey=ui.tooltip.rb_replay}" 
                              Content="{DynamicResource ResourceKey=ui.rb_replay}">
                 </RadioButton>
-                <Button Name="btn_Settings" Grid.Column="3" Content="{materialDesign:PackIcon Cog}" Margin="2" ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_settings}" Click="Btn_Settings_OnClick"></Button>
+                <Button Name="btn_Settings" Grid.Column="3" Content="Cog" Margin="2" ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_settings}" ></Button>
             </Grid>
-        </materialDesign:Card >
+        </Grid >
         <!-- <Border Grid.Row="1" Margin="1" Background="#8888" /> -->
-        <materialDesign:Card Grid.Row="2" Margin="5 0 5 0" Padding="5 0 5 0">
+        <Grid Grid.Row="2" Margin="5 0 5 0" >
             <Grid >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="160" />
@@ -140,9 +138,9 @@
                 <TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_progress">N/A</TextBlock>
                 <TextBlock Grid.Row="3" Grid.Column="4" x:Name="tb_position_z">N/A</TextBlock>
             </Grid>
-        </materialDesign:Card>
+        </Grid>
         <!-- <Border Grid.Row="3" Margin="1" Background="#8888" /> -->
-        <materialDesign:Card Grid.Row="4" Margin="5 0 5 0" Padding="5 0 5 0">
+        <Grid Grid.Row="4" Margin="5 0 5 0" >
             <Grid>
                 
                 <Grid.RowDefinitions>
@@ -181,9 +179,9 @@
                       VerticalAlignment="Center"
                           />
             </Grid>
-        </materialDesign:Card>
+        </Grid>
 
-        <materialDesign:Card Grid.Row="6" Margin="5 0 5 0" Padding="5 0 5 0">
+        <Grid Grid.Row="6" Margin="5 0 5 0" >
             <DockPanel>
                 <Grid x:Name="g_tab_script" Visibility="Visible">
                     <Grid.RowDefinitions>
@@ -211,21 +209,21 @@
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel ToolTip="{Binding Path=description}" Orientation="Horizontal">
-                                    <materialDesign:PackIcon Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0 0 5 0"  >
-                                        <materialDesign:PackIcon.Style>
-                                            <Style TargetType="materialDesign:PackIcon">
-                                                <Setter Property="Kind" Value="HumanHandsdown"/>
+                                    <ui:FontIcon Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0 0 5 0"  >
+                                        <ui:FontIcon.Style>
+                                            <Style TargetType="ui:FontIcon">
+                                                <Setter Property="Glyph" Value="&#xEE57;"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding gender}" Value="M">
-                                                        <Setter Property="Kind" Value="FaceManOutline"/>
+                                                        <Setter Property="Glyph" Value="&#xE8FA;"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding gender}" Value="F">
-                                                        <Setter Property="Kind" Value="FaceWomanShimmer"/>
+                                                        <Setter Property="Glyph" Value="&#xE8F8;"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
-                                        </materialDesign:PackIcon.Style>
-                                    </materialDesign:PackIcon>
+                                        </ui:FontIcon.Style>
+                                    </ui:FontIcon>
                                     <Grid VerticalAlignment="Center" >
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="2*"></RowDefinition>
@@ -242,21 +240,21 @@
                     
                     <Button Grid.Row="0" Grid.Column="2" Name="btn_currentCodriver" 
                             ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentCodriver}"
-                            Click="Btn_currentCodriver_OnClick"  Margin="2"
-                            Content="{materialDesign:PackIcon FolderMusic}" />
+                             Margin="2"
+                            Content="music" />
                     
                     <Button Grid.Row="0" Grid.Column="3" Name="btn_currentCodriverLink"
                             ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentCodriverLink}"
-                            Click="Btn_currentCodriverLink_OnClick"  Margin="2" Foreground="Crimson" Background="Cyan"
-                            Content="{materialDesign:PackIcon Heart}" />
+                             Margin="2" Foreground="Crimson" Background="Cyan"
+                            Content="like" />
 
                     <TextBlock Grid.Row="1" Grid.Column="0" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tab_s_isDynamic}"
                                Text="{DynamicResource ResourceKey=ui.tab_s_isDynamic}"/>
                     <CheckBox IsEnabled="False" Grid.Row="1" Grid.Column="1" Name="chb_isDynamicPlay" IsChecked="False" />
                     
-                    <Button Grid.Row="1" Grid.Column="3" Name="btn_play_example" Click="btn_play_example_Click"
+                    <Button Grid.Row="1" Grid.Column="3" Name="btn_play_example" 
                         ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_playExample}"  Margin="2"
-                        Content="{materialDesign:PackIcon PlayArrow}">
+                        Content="Play">
                     </Button>
                     <TextBlock Name="tb_scriptAuthor_label" Grid.Row="2" Grid.Column="0" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tab_s_author}"
                                Text="{DynamicResource ResourceKey=ui.tab_s_author}"/>
@@ -275,7 +273,7 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Row="0" >
-                        <Hyperlink Name="tb_soundSettings" RequestNavigate="tb_soundSettings_RequestNavigate" NavigateUri="http://shit.com" >
+                        <Hyperlink Name="tb_soundSettings"  NavigateUri="http://shit.com" >
                             <TextBlock Text="{DynamicResource ResourceKey=ui.tab_s_audioSettings}" />
                         </Hyperlink>
                         </TextBlock>
@@ -297,9 +295,9 @@
             <!--     </TabItem> -->
             <!-- </TabControl> -->
 
-        </materialDesign:Card>
+        </Grid>
         <!-- <Border Grid.Row="6" Margin="1" Background="#8888" /> -->
-        <materialDesign:Card Grid.Row="8" Margin="5 0 5 0" Padding="5 0 5 0">
+        <Grid Grid.Row="8" Margin="5 0 5 0" >
             <Grid >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40" />
@@ -327,13 +325,13 @@
                 <TextBlock Grid.Row="0" Grid.Column="1" Name="tb_currentTrack">N/A</TextBlock>
                 <Button Grid.Row="0" Grid.Column="2" Name="tb_currentTrack_view" 
                         ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentTrack}"
-                    Content="{materialDesign:PackIcon FolderFile}"  Margin="2"
-                    Click="tb_currentTrack_view_Click">
+                    Content="File"  Margin="2"
+                    >
                 </Button>
                 <Button Grid.Row="0" Grid.Column="3" Name="btn_currentTrack_script" 
                         ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentScript}"
-                    Click="btn_currentTrack_script_Click"  Margin="2"
-                    Content="{materialDesign:PackIcon Script}">
+                     Margin="2"
+                    Content="Script">
 
                 </Button>
                 <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Name="cb_replay_device" VerticalAlignment="Center"
@@ -349,10 +347,10 @@
                     VerticalAlignment="Center"/>
                 <TextBlock Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" Name="tb_volume">0</TextBlock>
                 <ToggleButton x:Name="tb_mute" Grid.Row="2" Grid.Column="3" 
-                    Style="{StaticResource MaterialDesignActionToggleButton}"
+                    
                     ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_mute}"
-                    Content="{materialDesign:PackIcon Kind=VolumeHigh}"
-                    materialDesign:ToggleButtonAssist.OnContent="{materialDesign:PackIcon Kind=VolumeOff}" />
+                    Content="?mute"
+                    />
 
                 <!--<TextBlock Grid.Row="3" Grid.Column="0" ToolTip="[慎用]调整路书播放点，对纯语音路书和脚本路书都有效，比如+10米表示所有路书片段会在推迟10米处播放，-10米表示所有路书片段会在提前10米处播放">播放点调整：</TextBlock>
             <Slider Name="s_playpointAdjust" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Maximum="100" Minimum="-100" Interval="1"
@@ -372,14 +370,14 @@
                 <Slider Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" x:Name="sl_playbackSpd" 
                         Maximum="1.5" Minimum="0.5" Value="1" 
                         IsEnabled="True" TickFrequency="0.125"
-                        Style="{StaticResource MaterialDesignDiscreteSlider}"
+                        
                         TickPlacement="Both" 
                         VerticalAlignment="Center"></Slider>
                 <TextBlock Grid.Row="4" Grid.Column="3" x:Name="tb_playbackSpd" HorizontalAlignment="Center" >x 1.00</TextBlock>
 
                 <TextBlock Grid.Row="5" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.factorToRemoveSpaceFromAudioFiles}" 
                                     ToolTip="{DynamicResource ResourceKey=settings.tooltip.factorToRemoveSpaceFromAudioFiles}" />
-                <Slider Name="sl_factorToRemoveSpaceFromAudioFiles" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Value="5" Maximum="9" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True" Style="{StaticResource MaterialDesignDiscreteSlider}" TickPlacement="Both" VerticalAlignment="Center" />
+                <Slider Name="sl_factorToRemoveSpaceFromAudioFiles" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Value="5" Maximum="9" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True"  TickPlacement="Both" VerticalAlignment="Center" />
                 <TextBlock Grid.Row="5" Grid.Column="3" x:Name="tb_factorToRemoveSpaceFromAudioFiles" HorizontalAlignment="Center" >6</TextBlock>
 
                 <TextBlock Grid.Row="6" Grid.Column="0" 
@@ -392,7 +390,7 @@
                 <ToggleButton x:Name="chk_Hud" Grid.Row="6" Grid.Column="1" HorizontalAlignment="Left"
                                         VerticalAlignment="Center">
                     <ProgressBar x:Name="pb_Hud"
-                                Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                
                                                     Width="18" Height="18"
                             Visibility="Hidden"
                                         VerticalAlignment="Center"
@@ -400,8 +398,8 @@
                                 IsIndeterminate="True" />
                 </ToggleButton>
             </Grid>
-        </materialDesign:Card>
-        <materialDesign:Card Grid.Row="10" Margin="5 0 5 0" Padding="5 0 5 0">
+        </Grid>
+        <Grid Grid.Row="10" Margin="5 0 5 0" >
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition></RowDefinition>
@@ -411,11 +409,11 @@
                                      Content="{DynamicResource ResourceKey=ui.db_tools}">
                     <xctk:DropDownButton.DropDownContent>
                         <StackPanel>
-                            <Button Name="btn_startScriptEditor"  Margin="2" Click="Btn_startScriptEditor_OnClick"
+                            <Button Name="btn_startScriptEditor"  Margin="2" 
                                     Content="{DynamicResource ResourceKey=ui.btn_scriptTool}"/>
-                            <Button Name="btn_startAudioCompressor" Margin="2" Click="Btn_startAudioCompressor_OnClick"
+                            <Button Name="btn_startAudioCompressor" Margin="2" 
                                     Content="{DynamicResource ResourceKey=ui.btn_audioTool}"/>
-                            <Button Name="btn_startAudioPkgMgr" Margin="2" Click="Btn_startAudioPkgMgr_OnClick"
+                            <Button Name="btn_startAudioPkgMgr" Margin="2" 
                                     Content="{DynamicResource ResourceKey=ui.btn_audioPkgMgr}"/>
                         </StackPanel>
                     </xctk:DropDownButton.DropDownContent>
@@ -426,7 +424,7 @@
         </Button-->
 
 
-                <TextBlock Grid.Row="0" HorizontalAlignment="Right" Foreground="#FFF" Margin="0 0 5 0" Cursor="Hand" PreviewMouseDown="Me_Clicked">
+                <TextBlock Grid.Row="0" HorizontalAlignment="Right" Foreground="#FFF" Margin="0 0 5 0" Cursor="Hand" >
                     by 草帽不是猫
                     <TextBlock.Effect>
                         <DropShadowEffect ShadowDepth="2" BlurRadius="0"  />
@@ -435,33 +433,33 @@
                 
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
                     <TextBlock HorizontalAlignment="Right" Margin="0 0 10 0">
-                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote/blob/master/QandA.md" RequestNavigate="Hyperlink_RequestNavigate">
+                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote/blob/master/QandA.md" >
                             <TextBlock Text="{DynamicResource ResourceKey=ui.tb_qanda}" />
                         </Hyperlink>
                     </TextBlock>
                     <TextBlock HorizontalAlignment="Right" Margin="0 0 10 0">
-                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote/issues" RequestNavigate="tb_reportBug_Clicked">
+                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote/issues" >
                             <TextBlock Text="{DynamicResource ResourceKey=ui.tb_reportBug}" />
                         </Hyperlink>
                     </TextBlock>
                     <TextBlock HorizontalAlignment="Right" Margin="0 0 10 0">
-                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote/issues" RequestNavigate="tb_updates_Clicked">
+                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote/issues" >
                             <TextBlock Text="{DynamicResource ResourceKey=ui.tb_updates}" />
                         </Hyperlink>
                     </TextBlock>
                     <TextBlock HorizontalAlignment="Right" Margin="0 0 10 0">
-                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote" RequestNavigate="tb_about_Clicked">
+                        <Hyperlink NavigateUri="https://gitee.com/ztmz/ztmz_pacenote" >
                             <TextBlock Text="{DynamicResource ResourceKey=ui.tb_about}" />
                         </Hyperlink>
                     </TextBlock>
                     <TextBlock HorizontalAlignment="Right">
-                        <Hyperlink NavigateUri="https://www.simrallycn.top/index" RequestNavigate="Hyperlink_RequestNavigate">
+                        <Hyperlink NavigateUri="https://www.simrallycn.top/index" >
                             <TextBlock Text="{DynamicResource ResourceKey=ui.tb_friendlink}" />
                         </Hyperlink>
                     </TextBlock>
                 </StackPanel>
             </Grid>
-        </materialDesign:Card>
+        </Grid>
         <!-- <Border Grid.Row="8" Margin="1" Background="#8888" /> -->
 
     </Grid>

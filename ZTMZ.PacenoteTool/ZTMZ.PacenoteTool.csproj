@@ -4,10 +4,10 @@
         <OutputType>WinExe</OutputType>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>app.ico</ApplicationIcon>
-        <AssemblyVersion>2.9.0.0</AssemblyVersion>
-        <PackageVersion>2.9.0.0</PackageVersion>
-        <Version>2.9.0.0</Version>
-        <FileVersion>2.9.0.0</FileVersion>
+        <AssemblyVersion>2.99.99.1</AssemblyVersion>
+        <PackageVersion>2.99.99.1</PackageVersion>
+        <Version>2.99.99.1</Version>
+        <FileVersion>2.99.99.1</FileVersion>
 	    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	    <SignAssembly>False</SignAssembly>
 	    <TargetFramework>net6.0-windows</TargetFramework>
@@ -22,13 +22,13 @@
       <ProjectReference Include="..\ZTMZ.PacenoteTool.AudioCompressor\ZTMZ.PacenoteTool.AudioCompressor.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.AudioPackageManager\ZTMZ.PacenoteTool.AudioPackageManager.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
+      <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.UI.csproj" />
       <ProjectReference Include="..\ZTMZ.PacenoteTool.ScriptEditor\ZTMZ.PacenoteTool.ScriptEditor.csproj" />
       <ProjectReference Include="..\GameOverlay\GameOverlay.csproj" />
+      <ProjectReference Include="..\ZTMZ.PacenoteTool.Core\ZTMZ.PacenoteTool.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="NAudio" Version="2.0.1" />
-      <PackageReference Include="NAudio.Extras" Version="1.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
       <PackageReference Include="NLua" Version="1.6.0" />
       <PackageReference Include="PromptDialog" Version="1.0.0" />

@@ -5,6 +5,9 @@
         },
         "dr2": {
             "description": "Dirt Rally 2.0, by Codemasters"
+        },
+        "wrc": {
+            "description": "EA Sports WRC, by EA Sports"
         }
     }
 }

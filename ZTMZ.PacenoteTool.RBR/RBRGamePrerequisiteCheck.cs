@@ -65,34 +65,8 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
             return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.GAME_NOT_INSTALLED };
         }
 
-        // check port
-        var parser = new FileIniDataParser();
-        IniData data = parser.ReadFile(iniFilePath);
-        var ngp = data["NGP"];
-        if (ngp.ContainsKey("udpTelemetry"))
-        {
-            if (ngp["udpTelemetry"].Equals("1"))
-            {
-                if (ngp.ContainsKey("udpTelemetryPort"))
-                {
-                    var port = ngp["udpTelemetryPort"];
-                    var configPort = ((UdpGameConfig)game.GameConfigurations[UdpGameConfig.Name]).Port.ToString();
-                    if (port.Equals(configPort))
-                    {
-                        return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.OK };
-                    } else
-                    {
-                        return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.PORT_NOT_MATCH, Msg = "Port not match",
-                            Params = new List<object> { game.Name, iniFilePath, port, configPort }
-                        };
-                    }
-                } 
-            } 
-        } 
-        
-        return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.PORT_NOT_OPEN, Msg = "Port not open" , 
-            Params = new List<object> { game.Name, iniFilePath }
-        };
+        // check port, we don't use UDP anymore, no more port checking.
+        return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.OK };
     }
 
     public void ForceFix(IGame game)

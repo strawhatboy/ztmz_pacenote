@@ -44,6 +44,18 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "buildDebugConsole",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/ZTMZ.PacenoteTool.Console/ZTMZ.PacenoteTool.Console.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "Run",
             "command": "dotnet",
             "type": "process",

@@ -1,0 +1,39 @@
+﻿<ui:ContentDialog x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.NewUpdateDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
+        mc:Ignorable="d"
+        Title=""
+        PrimaryButtonText="{DynamicResource ResourceKey=dialog.newUpdate.btn_ok}"
+        CloseButtonText="{DynamicResource ResourceKey=dialog.newUpdate.btn_cancel}"
+        IsPrimaryButtonEnabled="True"
+        IsSecondaryButtonEnabled="False"
+        DialogMaxWidth="750"
+        >
+    <ui:ContentDialog.Resources>
+        <Style BasedOn="{StaticResource {x:Type ui:ContentDialog}}" TargetType="{x:Type local:NewUpdateDialog}" />
+    </ui:ContentDialog.Resources>
+
+    <ui:ContentDialog.TitleTemplate>
+        <DataTemplate>
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                <ui:SymbolIcon Symbol="PhoneUpdate20" Margin="0 0 10 0" Foreground="LightSeaGreen" DockPanel.Dock="Left" VerticalAlignment="Center"  />
+                <ui:TextBlock DockPanel.Dock="Top" Text="{DynamicResource ResourceKey=dialog.newUpdate.title}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </DataTemplate>
+    </ui:ContentDialog.TitleTemplate>
+
+    <Grid>
+        <DockPanel>
+            <TextBlock x:Name="tb_content" DockPanel.Dock="Top" Margin="0 0 0 0"/>
+            <StackPanel DockPanel.Dock="Bottom" Margin="0 10 0 0" Orientation="Horizontal" HorizontalAlignment="Right" >
+                
+                <CheckBox x:Name="chkbox_skip" Content="{DynamicResource ResourceKey=dialog.newUpdate.chkbox_skip}" Click="chkbox_skip_Click" />
+            </StackPanel>
+            <WebBrowser x:Name="wb_Changelog" Margin="0 10 0 0" ></WebBrowser>
+        </DockPanel>
+    </Grid>
+</ui:ContentDialog>

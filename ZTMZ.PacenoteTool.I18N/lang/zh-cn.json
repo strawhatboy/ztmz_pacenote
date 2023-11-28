@@ -1,0 +1,394 @@
+﻿{
+  "application": {
+    "title": "ZTMZ Club 路书工具",
+    "title_dev": "ZTMZ Club 路书工具开发版",
+    "title_test": "ZTMZ Club 路书工具测试版"
+  },
+  "tabs" : {
+    "home": "主页",
+    "general": "常规",
+    "voices": "领航员",
+    "playback": "播放",
+    "hud": "悬浮窗",
+    "game": "当前游戏",
+    "user": "用户",
+    "about": "关于"
+  },
+  "settings": {
+    "more": "更多",
+    "title": "设置",
+
+    "btn_reset": "恢复默认设置",
+
+    "section": {
+      "general": "常规",
+      "voicePackage": "语音包",
+      "misc": "杂项",
+      "playback": "播放",
+      "hud": "悬浮窗",
+      "game": "当前游戏",
+      "vr": "虚拟现实"
+    },
+
+    "restartNeeded": "需要重启工具来生效",
+
+    "tooltip": {
+      "language": "修改工具界面上的语言显示",
+      "btn_reset": "需要重启本工具来生效",
+      "playbackDeviceDesiredLatency": "播放设备的 缓冲区延迟 表示指令到达播放设备后开始播放的延迟，如果延迟过低，对于某些设备可能会出现声音卡顿的现象，延迟过高可能会导致路书播放滞后",
+      "logLevel": "设置日志的级别，设置的级别越严重，日志中的信息量越少\n注意：在测试版中，此选项无效，日志级别总是设置为 调试",
+      "viewLogs": "查看日志",
+      "theme": "工具显示的暗色或亮色主题，或者跟随Windows系统设置",
+      "accentColor": "工具上各种组件的主要颜色",
+      "checkUpdateWhenStartup": "是否在工具启动时，自动检查更新",
+      "startWithWindows": "是否在Windows启动时，自动启动本工具",
+
+      "warnIfPortMismatch": "当游戏的UDP端口和本工具的UDP端口不一致时，弹出提示框警告",
+
+      "hudFPS": "锁定悬浮窗的帧率，不至于因为悬浮窗的内容更新频繁影响了系统性能",
+      "playStartAndEndSound": "在赛道开始和赛道结束时，播放对应的语音（通常是骚话），可以通过此选项关闭",
+      "playGoSound": "当倒计时刚好结束时，播放出发语音",
+      "playCollisionSound": "当车辆发生碰撞时，播放撞车语音",
+      "collision_slight": "当速度骤降这么多时，播放撞车语音（轻微）",
+      "collision_medium": "当速度骤降这么多时，播放撞车语音（中等）",
+      "collision_severe": "当速度骤降这么多时，播放撞车语音（严重）",
+      "playWheelAbnormalSound": "发生爆胎时，播放相关语音",
+      "useDefaultSoundPackageByDefault": "忽略默认（微软慧慧）语音包",
+      "useDefaultSoundPackageForFallback": "如果当前选择的语音包不完整，缺失的语音使用默认（微软慧慧）语音包中对应的语音",
+      "preloadSounds": "预加载语音包会带来较大的内存开销（约占用2GB），但会在倒计时刚开始时即可加载完毕并播放开始语音",
+      "additionalCoDriverPackagesSearchPath": "在搜索语音包时，额外搜索这个文件夹",
+      "additionalPacenotesDefinitionSearchPath": "在搜索路书标记定义文件(*.csv)时，额外的搜索这个文件夹\n路书标记定义文件需要按照pacenotes.csv的格式保存",
+
+      "useSequentialMixerToHandleAudioConflict": "队列播放模式可以避免同一时刻播放多个语音片段造成的语音重叠现象",
+      "useDynamicPlaybackSpeed": "在某些路书较为密集的地图（如苏格兰）中，通过动态地根据车速与下个路书位置来调整当前路书片段的语速，来避免路书跟不上车的情况",
+      "useTempoInsteadOfRate": "使用节拍方式，可以保证仅仅加速或减速语音，而保持音调不变，使用频率方式会导致音调发生变化（怪起来了）",
+      "dynamicPlaybackMaxSpeed": "动态地调整语速时，不超过这个倍数，比如设置为2.0，那么最多语速 x2.0",
+      "useDynamicVolume": "会根据当前车速判断紧张程度，对语音进行正弦波扰动，车速越快越紧张",
+      "dynamicVolumePerturbationFrequency": "正弦波的频率，频率越高，抖动越快",
+      "dynamicVolumePerturbationAmplitude": "振幅越大，抖动越强烈",
+      "factorToRemoveSpaceFromAudioFiles": "该值越高，语音之间的停顿越少，语音的紧凑感越强。注意：此值过高可能会引起语音重叠",
+      "connectCloseDistanceCallToNextPacenote": "如果distance call很短（小于等于30米），将下一个语音片段连接到当前的distance call上，如\"紧接左三\"",
+      "connectNumericDistanceCallToPreviousPacenote": "如果distance call很长且是个数字（比如100米），将上一个语音片段连接到当前的distance call上，如\"右五100\"",
+      "examplePacenoteString": "在尝试不同的语音包时，播放的示例路书片段",
+
+      "hudTopMost": "悬浮窗窗口总是在所有其他窗口的上层",
+      "hudChromaKeyMode": "需要重启工具生效\n在全屏游戏模式开启后，可以在OBS中添加ZTMZ Club Hud 窗口捕获，再加以色键抠像滤镜，可以用作直播或者录像的透明遮罩层\n注意，如果是窗口化游戏，不要打开这个选项，另外开启后配色方案会与窗口化时略有不同",
+      "hudShowTelemetry": "类似于Dirt Telemetry Tool 的仪表盘",
+      "hudSizePercentage": "仪表盘占据游戏画面高度的比例",
+      "hudPaddingH": "仪表盘内元素距离仪表盘两侧边界的距离，按照游戏画面高度的比例",
+      "hudPaddingV": "仪表盘内元素距离仪表盘上下边界的距离，按照游戏画面高度的比例",
+      "hudElementSpacing": "仪表盘内元素之间的间隔",
+      "hudSectorThicknessRatio": "仪表盘内扇形元素的宽度，如速度表、转速表等",
+      "hudBackgroundOpacity": "仪表盘背景透明度，越低越透明",
+      "hudTelemetryShowGBall": "G力球可以帮助了解车辆目前的惯性动态",
+      "hudTelemetryShowSpdSector": "速度表表示了车辆当前的实时速度，非轮速",
+      "hudTelemetryShowRPMSector": "转速表表示了引擎当前的转速",
+      "hudTelemetryShowPedals": "离合器（蓝色）、刹车（红色）、油门（绿色）的状态",
+      "hudTelemetryShowGear": "H挡的形式展示，左上角为R挡",
+      "hudTelemetryShowSteering": "方向盘的转向状态",
+      "hudTelemetrySteeringDegree": "方向盘从一侧限位转向另一侧限位所经过的角度",
+      "hudTelemetryShowSuspensionBars": "轮速（绿色）、刹车温度（红色），悬挂位置（白色）和悬挂速度（蓝色）",
+      "hudShowDebugTelemetry": "在游戏画面左侧显示出所有遥测数据以供调试和问题诊断",
+      "enableGoogleAnalytics": "使用Google Analytics收集你的一些“使用信息”来帮助我们改善程序，这些信息全部是以匿名形式发送到谷歌服务器用作统计使用，你可以随时在设置中允许或禁止我们对这些信息的收集。这些信息包括且仅限于：\n\t- 操作系统版本\n\t- 打开本程序事件\n\t- 打开本程序内的各个窗口事件\n\t- 各个配置项的修改事件\n\t- 主界面配置项的修改事件\n\t- 使用具体语音包进行比赛的事件(用以统计语音包偏好)",
+      "optInBetaPlan": "打开此选项以获取测试版的更新和新功能，测试版的更新频率会高于正式版",
+
+      "vrShowOverlay": "打开SteamVR Overlay, 开启之前请确保SteamVR打开并且头显连接就绪",
+      "vrOverlayPositionX": "VR图层相对于头显的位置，X轴方向",
+      "vrOverlayPositionY": "VR图层相对于头显的位置，Y轴方向",
+      "vrOverlayPositionZ": "VR图层相对于头显的位置，Z轴方向",
+      "vrOverlayRotationX": "VR图层相对于头显的旋转角度，X轴方向",
+      "vrOverlayRotationY": "VR图层相对于头显的旋转角度，X轴方向",
+      "vrOverlayRotationZ": "VR图层相对于头显的旋转角度，X轴方向",
+      "vrOverlayScale": "VR图层缩放比例",
+      "vrOverlayParamSave": "保存以上全部VR图层参数",
+
+      "udpListenAddress": "默认为127.0.0.1",
+      "udpListenPort": "游戏默认的数据端口是20777，如果想和simhub同时使用，可以修改为20778",
+      "udpListenPort_Warning": "端口号和游戏的数据端口号{0}不一致，可能你正在使用SIMHUB",
+      "memoryRefreshRate": "修改这个值可以改变内存读取频率"
+    },
+
+    "language": "界面语言",
+    "isDarkTheme": "关灯",
+    "theme": "主题",
+    "accentColor": "主要配色",
+    "accentColorR": "红",
+    "accentColorG": "绿",
+    "accentColorB": "蓝",
+    "darkTheme": "黑色主题",
+    "lightTheme": "浅色主题",
+    "systemTheme": "跟随系统主题 (需要重启工具生效)",
+    "playbackDeviceDesiredLatency": "播放设备缓冲区延迟",
+    "logLevel": "日志级别",
+    "checkUpdateWhenStartup": "自动更新",
+    "startWithWindows": "开机自动启动",
+
+    "warnIfPortMismatch": "端口不匹配时展示警告对话框",
+
+    "hudFPS": "悬浮窗锁定帧率，修改需要重启工具后生效",
+    "playStartAndEndSound": "播放开始/结束语音",
+    "playGoSound": "播放出发语音",
+    "playCollisionSound": "播放撞车语音",
+    "collision_slight": "撞车语音（轻微）阈值（千米/时）",
+    "collision_medium": "撞车语音（中等）阈值（千米/时）",
+    "collision_severe": "撞车语音（严重）阈值（千米/时）",
+    "playWheelAbnormalSound": "[实验性] 播放爆胎语音",
+    "useDefaultSoundPackageByDefault": "忽略默认（微软慧慧）语音包",
+    "useDefaultSoundPackageForFallback": "使用默认（微软慧慧）语音包作为后备",
+    "preloadSounds": "预加载语音包",
+    "additionalCoDriverPackagesSearchPath": "额外的语音包搜索文件夹",
+    "additionalPacenotesDefinitionSearchPath": "额外的路书定义文件(*.csv)搜索文件夹",
+
+    "useSequentialMixerToHandleAudioConflict": "使用队列播放模式",
+    "useDynamicPlaybackSpeed": "使用动态语速调整",
+    "useTempoInsteadOfRate": "使用修改节拍而不是频率的方式来调整播放语速",
+    "dynamicPlaybackMaxSpeed": "动态语速调整上限",
+    "useDynamicVolume": "使用动态语音紧张感增强",
+    "dynamicVolumePerturbationFrequency": "语音紧张感增强波形频率（赫兹）",
+    "dynamicVolumePerturbationAmplitude": "语音紧张感增强波形振幅（0~1）",
+    "factorToRemoveSpaceFromAudioFiles": "语音间紧凑程度",
+    "connectCloseDistanceCallToNextPacenote": "将较短的 distance_call 与下个语音进行连接（仅限动态路书）",
+    "connectNumericDistanceCallToPreviousPacenote": "将较长的 distance_call 与上个语音进行连接（仅限动态路书）",
+    "examplePacenoteString": "示例路书片段",
+
+    "hudTopMost": "悬浮窗总是在最上层",
+    "hudChromaKeyMode": "是否使用色键抠像模式（全屏游戏录像或直播用）",
+    "hudShowTelemetry": "是否显示遥测仪表盘",
+    "hudSizePercentage": "仪表盘 - 大小",
+    "hudPaddingH": "仪表盘 - 两侧留白",
+    "hudPaddingV": "仪表盘 - 上下留白",
+    "hudElementSpacing": "仪表盘 - 元素间隔",
+    "hudSectorThicknessRatio": "仪表盘 - 扇形元素宽度",
+    "hudBackgroundOpacity": "仪表盘 - 背景透明度",
+    "hudTelemetryShowGBall": "仪表盘 - 是否显示G力球",
+    "hudTelemetryShowSpdSector": "仪表盘 - 是否显示速度表",
+    "hudTelemetryShowRPMSector": "仪表盘 - 是否显示转速表",
+    "hudTelemetryShowPedals": "仪表盘 - 是否显示踏板状态（离合器、刹车、油门）",
+    "hudTelemetryShowGear": "仪表盘 - 是否显示挡位",
+    "hudTelemetryShowSteering": "仪表盘 - 是否显示方向盘状态",
+    "hudTelemetrySteeringDegree": "仪表盘 - 方向盘角度",
+    "hudTelemetryShowSuspensionBars": "仪表盘 - 是否显示轮胎和悬挂状态",
+    "hudShowDebugTelemetry": "是否显示调试遥测数据",
+    "enableGoogleAnalytics": "是否启用谷歌分析",
+    "optInBetaPlan": "加入测试版计划",
+
+    "vrShowOverlay": "打开SteamVR Overlay",
+    "vrOverlayPositionX": "VR图层相对于头显的位置，X轴方向",
+    "vrOverlayPositionY": "VR图层相对于头显的位置，Y轴方向",
+    "vrOverlayPositionZ": "VR图层相对于头显的位置，Z轴方向",
+    "vrOverlayRotationX": "VR图层相对于头显的旋转角度，X轴方向",
+    "vrOverlayRotationY": "VR图层相对于头显的旋转角度，Y轴方向",
+    "vrOverlayRotationZ": "VR图层相对于头显的旋转角度，Z轴方向",
+    "vrOverlayScale": "VR图层缩放比例",
+    "vrOverlayParamSave": "VR图层参数保存",
+
+    "udpListenAddress": "监听的UDP地址",
+    "udpListenPort": "监听的UDP端口",
+    "memoryRefreshRate": "内存刷新频率 (Hz)"
+  },
+
+  "dialog": {
+    "common": {
+      "btn_ok": "可以",
+      "btn_cancel": "取消",
+      "btn_yes": "好",
+      "btn_no": "不行"
+    },
+    "portNotOpen": {
+      "title": "端口未打开",
+      "btn_ok": "帮我打开",
+      "btn_cancel": "再见",
+      "content": "我们发现你的游戏\"{0}\"的位于 {1} 的配置文件中的端口未正常打开！如果没有打开，工具将无法正常工作，点击“帮我打开”自动修改配置文件，然后重新启动游戏，点击“再见”退出程序自行修改。"
+    },
+    "portMismatch": {
+      "title": "端口不匹配",
+      "btn_ok": "好的",
+      "btn_FORCE": "帮我强行修复",
+      "ckbox_show": "下次不再显示该对话框",
+      "content": "你的游戏\"{0}\"的位于 {1} 的配置文件有问题, 其中的端口号 {2} 和本工具所监听的端口号 {3} 不一致，有可能导致本工具无法识别地图\n\n\t(1) 可能你正在使用可以支持端口转发的SIMHUB. 如果是的话而且你觉得一切尽在掌握中, 请点击下面的“好的”按钮忽略本条警告.\n\n\t(2) 或者说你现在被水淹没不知所措，完全搞不懂这个弹窗的意义，那说明你的游戏\"{0}\"的配置已经是其他某些工具的形状了，此时请务必点击下方的“帮我强行修复”按钮，我们会自动帮你把游戏\"{0}\"的配置修改为原始的形状。然后别忘了重新启动游戏。"
+    },
+    "resetConfig": {
+      "title": "恢复到默认设置",
+      "btn_ok": "好的",
+      "btn_cancel": "算了",
+
+      "content": "你准备好了重置所有的设置到默认吗？如果是的请选择“好的”，然后重启工具来让设置生效。"
+    },
+    "downloadFile": {
+      "title": "正在下载...",
+      "file": "{0} 当前文件: {1}",
+      "btn_cancel": "取消"
+    },
+    "newUpdate": {
+      "title": "船深版本",
+      "content": "我们发布了船深版本 {0}，你当前的版本是 {1}，要更新到最新版吗？",
+      "btn_cancel": "雅蔑蝶",
+      "btn_ok": "好！",
+      "chkbox_skip": "跳过这个版本更新"
+    },
+    "enableGoogleAnalytics": {
+      "title": "改善使用体验",
+      "content": "本程序想要使用Google Analytics收集你的一些“使用信息”来帮助我们改善程序，这些信息全部是以匿名形式发送到谷歌服务器用作统计使用，你可以随时在设置中允许或禁止我们对这些信息的收集。这些信息包括且仅限于：\n\t- 操作系统版本\n\t- 打开本程序事件\n\t- 打开本程序内的各个窗口事件\n\t- 各个配置项的修改事件\n\t- 主界面配置项的修改事件\n\t- 使用具体语音包进行比赛的事件(用以统计语音包偏好)",
+      "btn_cancel": "哒咩×",
+      "btn_ok": "啊对对对"
+    },
+    "scriptNotExist": {
+      "title": "路书脚本不存在",
+      "content": "并不存在自定义的路书脚本，你想要创建一个吗？注意：在当前版本下创建后，将可能无法使用原本rbr路书，想要恢复原本的rbr路书，删除新创建的脚本文件即可"
+    }
+  },
+
+  "ui": {
+    "rb_record": "录制模式",
+    "rb_replay": "播放模式",
+    "tb_gameState": "游戏状态：",
+    "tb_time": "时间：",
+    "tb_lapTime": "行驶时间：",
+    "tb_distance": "行驶距离：",
+    "tb_speed": "速度：",
+    "tb_length": "圈总长：",
+    "tb_progress": "进度：",
+    "tb_posZ": "PosZ：",
+    "tb_wheelSpdFL": "左前：",
+    "tb_wheelSpdFR": "右前：",
+    "tb_wheelSpdRL": "左后：",
+    "tb_wheelSpdRR": "右后：",
+    "tb_currentProfile": "当前配置：",
+    "tb_currentGame": "选择游戏",
+    "tb_currentGameSettings": "游戏配置",
+    "tb_codriverLink": "个人主页",
+    "tb_version": "版本",
+    "tb_description": "描述",
+    "tb_quickSettings": "快捷设置",
+
+    "tab_pureAudio": "纯语音模式",
+    "tab_pa_codriver": "领航员",
+    "tab_pa_isRecording": "是否正在录音：",
+    "tab_pa_recordingQuality": "录制质量：",
+    "tab_pa_recordingDevice": "录制设备：",
+
+    "cb_rq_low": "低",
+    "cb_rq_medium": "中",
+    "cb_rq_high": "高",
+
+    "tab_script": "脚本模式",
+    "tab_s_audioPackage": "领航员",
+    "tab_s_isDynamic": "是否为动态路书：",
+    "tab_s_author": "脚本路书作者：",
+    "tab_s_listenDevice": "自动脚本录制监听：",
+    "tab_s_audioSettings": "声音设置",
+
+    "tb_currentTrack": "当前地图",
+    "tb_replayDevice": "播放设备",
+    "tb_playVolume": "播放音量",
+
+    "tb_prePlay": "预播放时间调整",
+    "tb_replayMode": "播放模式",
+    "tb_playbackSpd": "播放语速",
+
+    "cb_pureAudioMode": "纯语音模式",
+    "cb_scriptMode": "脚本模式",
+    "cb_mixMode": "混合模式",
+
+    "tb_recordMode": "录制模式：",
+    "tb_autoScriptRecordMode": "自动脚本模式",
+
+    "tb_showHud": "悬浮窗显示",
+
+    "db_tools": "相关工具",
+    "btn_scriptTool": "路书脚本编辑工具",
+    "btn_audioTool": "音频批量操作工具",
+    "btn_audioPkgMgr": "语音包管理工具",
+
+    "tb_about": "关于本工具",
+    "tb_pacenotes": "点我查看路书录制进度",
+    "tb_qanda": "疑难解答",
+    "tb_reportBug": "问题/意见反馈",
+    "tb_updates": "更新记录",
+    "tb_friendlink": "友情链接(SimRallyCN)",
+    "btn_playExample": "试听",
+
+
+    "tooltip": {
+      "rb_record": "模式切换必须在游戏状态处于Unknown时可以（不在游戏中）\n\n纯语音模式:\n在录制模式下的游戏开始后可以按F1录制路书片段，按F4结束路书片段录制\n在游戏开始倒计时时也可以暂停游戏录制游戏开始语音，开始语音只能录制一段，并且在播放时会在倒计时开始时播放。在地图文件夹中会录制成“-2.wav”文件\n\n自动脚本模式:\n在该模式下请保持电脑的安静，没有QQ、迅雷、浏览器视频等可能发出声音对语音识别产生影响的软件正在运行",
+      "rb_replay": "模式切换必须在游戏状态处于Unknown时可以（不在游戏中），在播放模式下的游戏开始后如果存在对应地图的路书，就会在到达指定地点后自动播放已经录制的路书片段",
+      "btn_settings": "打开设置界面",
+      "tb_gameState": "当前的游戏状态\nRaceBegin：游戏开始倒计时\nRacing：正在跑\nPaused：暂停\nRaceEnd：游戏结束\nUnknown：未知状态",
+      "tb_time": "游戏时间，可能不太准确",
+      "tb_lapTime": "单圈时间，比赛用时",
+      "tb_distance": "行驶距离，单位：米",
+      "tb_speed": "行驶速度，单位：公里每小时",
+      "tb_length": "赛道长度，单位：米",
+      "tb_progress": "赛道进度，0.5表示完成了一半",
+      "tb_posZ": "车辆所在高度",
+      "tb_wheelSpd": "轮速",
+      "tb_currentProfile": "在程序文件夹的profiles文件夹中，按文件夹分为不同的配置，可以录制多套路书，在游戏进行时不可切换配置",
+      "tab_pa_codriver": "本赛道的领航员",
+      "tab_pa_isRecording": "在录制模式下，游戏中(RaceBegin, Racing, Paused)，按F1键开始录制路书片段，按F4键停止录制路书片段",
+      "cb_rq_low": "低质量录制，文件较小，便于分享\n低情商：声音可能失真\n高情商：对讲机效果(YES)",
+      "cb_rq_medium": "中等质量录制",
+      "cb_rq_high": "高质量录制，文件较大\n保留了很多声音细节，更加真实",
+      "tab_s_isDynamic": "根据脚本文件中的@dynamic开关决定是否动态播放",
+      "tab_s_author": "当前地图脚本路书的作者",
+      "tab_s_listenDevice": "自动脚本录制模式当前监听的设备",
+      "tb_replayDevice": "在游戏进行时不可切换播放设备",
+      "btn_currentTrack": "打开当前地图录制文件夹",
+      "btn_currentScript": "打开当前地图的脚本",
+      "btn_currentCodriver": "打开当前语音包所在目录",
+      "btn_currentCodriverLink": "去给语音包作者点赞（打开语音包作者的主页）",
+      "btn_playExample": "试听语音包",
+      "tb_playVolume": "调整播放音量，增大音量时可能会出现音频波形丢失而引起的失真情况",
+      "tb_prePlay": "比如+1s表示路书会更晚播放1秒钟，-2s表示路书会更早的播放2秒钟",
+      "tb_replayMode": "在游戏进行时不可切换播放模式",
+      "tb_playbackSpd": "固定调整语速，可与动态调整语速叠加",
+      "cb_pureAudioMode": "纯语音路书的播放",
+      "cb_scriptMode": "使用脚本模式播放，需要配置领航员语音包",
+      "cb_mixMode": "群魔乱舞！不可在同时存在动态脚本和纯语音路书的赛道使用",
+      "tb_recordMode": "在游戏进行时不可切换播放模式",
+      "cb_pureAudioRecordMode": "纯语音录制",
+      "tb_autoScriptRecordMode": "通过语音识别自动录制脚本",
+      "tb_showHud": "是否在游戏中显示悬浮窗，需要游戏处于窗口模式或无边窗口模式",
+      "tb_mute": "静音/取消静音",
+
+      "cb_gameNotInstalled": "该游戏未能正确安装，请检查游戏是否安装正确"
+    }
+  },
+  "misc": {
+    "gender_male": "男",
+    "gender_female": "女",
+    "gender_unknown": "未知"
+  },
+  "exception": {
+    "portAlreadyInUse": {
+      "title": "端口被占用！",
+      "msg": "端口 {0} 已经被占用，请检查是否有其他程序如 SIMHUB，速魔软件，Dirt Telemetry Tool 正在运行，并尝试使用 SIMHUB 的端口转发功能 配合 本工具中的设置页面里的端口修改功能 解决此问题\n详情参见：https://www.bilibili.com/video/BV1oq4y1u7ua?p=2"
+    },
+    "unknown": {
+      "title": "未知错误"
+    }
+  },
+  "logLevel": {
+    "off": "关闭",
+    "trace": "追踪",
+    "debug": "调试",
+    "info": "信息",
+    "warn": "警告",
+    "error": "错误",
+    "fatal": "崩溃"
+  },
+  "overlay": {
+    "track": "地图：",
+    "audioPackage": "语音包：",
+    "scriptAuthor": "路书作者：",
+    "dyanmic": "路书类型："
+  },
+
+  "arr_test": [
+    "test1",
+    "test2",
+    "test3",
+    {
+      "wtf": "wtf content"
+    }
+  ]
+}

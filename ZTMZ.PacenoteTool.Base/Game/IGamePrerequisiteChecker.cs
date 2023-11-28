@@ -15,6 +15,7 @@ public enum PrerequisitesCheckResultCode
     GAME_NOT_INSTALLED = 300,
     PORT_NOT_OPEN = 400,
     PORT_NOT_MATCH = 401,
+    PORT_ALREADY_IN_USE = 402,
     UNKNOWN = 800,
 }
 public class PrerequisitesCheckResult

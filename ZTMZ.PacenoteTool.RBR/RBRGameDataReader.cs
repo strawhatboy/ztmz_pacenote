@@ -36,6 +36,7 @@ public class RBRGameDataReader : UdpGameDataReader
     }
 
     public override GameData LastGameData { get => _lastGameData; set => _lastGameData = value; }
+    public override GameData CurrentGameData { get => _currentGameData; set => _currentGameData = value; }
 
     /// <summary>
     /// TrackName here is in the format: [TrackNo]TrackName
@@ -71,6 +72,8 @@ public class RBRGameDataReader : UdpGameDataReader
     private List<float> _countdownList = new();
     private int _countdownIndex = 0;
 
+    private bool _isRacing = false;
+
     public override event Action<GameData, GameData> onNewGameData
     {
         add 
@@ -95,25 +98,39 @@ public class RBRGameDataReader : UdpGameDataReader
     public override bool Initialize(IGame game)
     {
         _logger.Info("Initializing RBRGameDataReader");
-        var udpInitResult = base.Initialize(game);
-        if (!udpInitResult) 
-        {
-            _logger.Warn("Failed to initialize UDPGameDataReader, could because it was already initialized.");
-            return udpInitResult;
+        // We use udp data for RBR, but only optional.
+        try {
+            var udpInitResult = base.Initialize(game);
+            if (!udpInitResult) 
+            {
+                _logger.Warn("Failed to initialize UDPGameDataReader, could because it was already initialized. But we don't care so much for RBR.");
+                // return udpInitResult;
+            }
+        } catch (PortAlreadyInUseException ex) {
+            _logger.Warn("Udp initalized failed for RBR, port already used. we don't care, not important.");
+            
         }
-
         
         Debug.Assert(game.GameConfigurations.ContainsKey(MemoryGameConfig.Name));
         var memConfig = game.GameConfigurations[MemoryGameConfig.Name] as MemoryGameConfig;
         if (memConfig == null)
         {
+            _logger.Error("Failed to get MemoryGameConfig from game.GameConfigurations");
+            base.Uninitialize(game);
             return false;
         }
 
         MEM_REFRESH_INTERVAL = 1000f / memConfig.RefreshRate;
 
+        _logger.Info("RBRMemDataReader trying to open process {0}", game.Executable);
         // init memory reader?
-        memDataReader.OpenProcess(game);
+        if (memDataReader.OpenProcess(game)) {
+            _logger.Info("Memory reader opened.");
+        } else {
+            _logger.Error("Failed to open memory reader.");
+            base.Uninitialize(game);
+            return false;
+        };
         _timer.Elapsed += MemDataPullHandler;
         _timer.Interval = MEM_REFRESH_INTERVAL;
         _timer.Start();
@@ -194,21 +211,30 @@ public class RBRGameDataReader : UdpGameDataReader
         } 
         else if (state == RBRGameState.Racing || playWhenReplay && state == RBRGameState.Replay)
         {
-            if (GameState == GameState.Unknown && memData.StageStartCountdown < 0)
+            if ((GameState == GameState.Unknown || GameState == GameState.Paused) && memData.StageStartCountdown < 0 && !_isRacing)
             {
                 // from unknown to racing directly.
+                _isRacing = true;
                 return GameState.AdHocRaceBegin;
             }
             
             this._timerCount = 0; // avoid game state set to unknown.
+            _isRacing = true;
             return GameState.Racing;
 
         } else if (state == RBRGameState.Paused)
         {
+            // if (GameState == GameState.Unknown && !_isRacing)
+            // {
+            //     // from racing to paused
+            //     _isRacing = true;
+            //     return GameState.AdHocRaceBegin;
+            // }
             return GameState.Paused;
         } else if (state == RBRGameState.RaceEndOrReplay0 || state == RBRGameState.RaceEnd || state == RBRGameState.RaceEndOrReplay1)
         {
             _countdownList.Clear();
+            _isRacing = false;
             return GameState.RaceEnd;
         }
 

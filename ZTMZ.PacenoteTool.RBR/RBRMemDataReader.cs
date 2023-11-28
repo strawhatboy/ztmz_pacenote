@@ -21,7 +21,7 @@ public class RBRMemDataReader
             return true;
         }
         
-        var rbrProcesses = Process.GetProcessesByName(game.Executable.Remove(game.Executable.IndexOf(".exe")));
+        var rbrProcesses = Process.GetProcessesByName(game.Executable);
         if (rbrProcesses.Length == 0)
         {
             return false;

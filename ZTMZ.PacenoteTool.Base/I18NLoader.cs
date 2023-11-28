@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.IO;
 using Newtonsoft.Json;
-using System.Windows;
+// using System.Windows;
+using Newtonsoft.Json.Linq;
 
 namespace ZTMZ.PacenoteTool.Base
 {
@@ -25,7 +26,9 @@ namespace ZTMZ.PacenoteTool.Base
         public string CurrentCultureName { set; get; }
         public IDictionary<string, string> CurrentCulture { set; get; }
 
-        public ResourceDictionary CurrentDict { get; private set; }
+        // public ResourceDictionary CurrentDict { get; private set; }
+
+        public bool IgnoreCase { get; private set; }
 
 
         private static I18NLoader _instance;
@@ -41,11 +44,12 @@ namespace ZTMZ.PacenoteTool.Base
             }
         }
 
-        private I18NLoader()
+        private I18NLoader(bool ignoreCase = false)
         {
+            IgnoreCase = ignoreCase;
         }
 
-        public void Initialize(string i18nPath = "lang")
+        public void Initialize(IList<string> i18nPaths)
         {
             Resources = new Dictionary<string, Dictionary<string, string>>();
             cultures = new List<string>(); 
@@ -60,15 +64,8 @@ namespace ZTMZ.PacenoteTool.Base
             // shit, dotnet6 has no zh-cn
             CurrentCultureName = CultureInfo.CurrentCulture.Name.ToLower();
 
-            // load from I18NPath
-            var jsonPaths = new List<string>{
-                i18nPath, 
-                AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)),
-                AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE))
-            };
-
             var jsonFiles = new List<string>();
-            foreach (var path in jsonPaths)
+            foreach (var path in i18nPaths)
             {
                 if (Directory.Exists(path))
                 {
@@ -97,18 +94,18 @@ namespace ZTMZ.PacenoteTool.Base
                     continue;
                 }
 
-                using (var strReader = new StringReader(File.ReadAllText(jsonFile)))
-                using (JsonTextReader reader = new JsonTextReader(strReader)) 
-                {
-                    List<string> properties = new List<string>();
-                    _logger.Debug("loading i18n json file {0}", jsonFile);
-                    readJson(fileNameWithoutExtension, reader, properties);
-                }
+                var content = File.ReadAllText(jsonFile);
+                var jObj = JObject.Parse(content);
+                _logger.Debug("loading i18n json file {0}", jsonFile);
+                readJson(fileNameWithoutExtension, jObj);
             }
 
             SetCulture(CurrentCultureName);
         }
 
+        // after setCulture, the CurrentCulture will be changed, 
+        // need to apply CurrentCulture to WPF Application.Current.Resources
+        // or use I18NLoader.Instance[] to get the value of the key
         public void SetCulture(string culture)
         {
             culture = culture.ToLower();
@@ -118,19 +115,51 @@ namespace ZTMZ.PacenoteTool.Base
             } else
             {
                 SetCulture("en-us");
-                return;
             }
 
-            List<ResourceDictionary> resources = new List<ResourceDictionary>();
-            //I18NLoader.Instance.Initialize();
-            //I18NLoader.Instance.SetCulture("zh-CN");
-            CurrentDict = new ResourceDictionary();
-            //newDict.Source = new Uri("https://gitee.com/ztmz/ztmz_pacenote/" + I18NLoader.Instance.CurrentCultureName);
-            foreach (var key in I18NLoader.Instance.CurrentCulture.Keys)
+            // List<ResourceDictionary> resources = new List<ResourceDictionary>();
+            // //I18NLoader.Instance.Initialize();
+            // //I18NLoader.Instance.SetCulture("zh-CN");
+            // CurrentDict = new ResourceDictionary();
+            // //newDict.Source = new Uri("https://gitee.com/ztmz/ztmz_pacenote/" + I18NLoader.Instance.CurrentCultureName);
+            // foreach (var key in I18NLoader.Instance.CurrentCulture.Keys)
+            // {
+            //     CurrentDict.Add(key, I18NLoader.Instance.CurrentCulture[key]);
+            // }
+            // Application.Current.Resources.MergedDictionaries.Add(CurrentDict);
+        }
+
+        private void readJson(string culture, JObject root) {
+            foreach (var child in root.Children())
             {
-                CurrentDict.Add(key, I18NLoader.Instance.CurrentCulture[key]);
+                if (child is JProperty property)
+                {
+                    readJson(culture, property.Value);
+                }
             }
-            Application.Current.Resources.MergedDictionaries.Add(CurrentDict);
+        }
+
+        private void readJson(string culture, JToken unknownToken) {
+            if (unknownToken is JValue value)
+            {
+                var propertyName = unknownToken.Path;
+                if (IgnoreCase) {
+                    propertyName = propertyName.ToLower();
+                }
+                var valueStr = value.Value.ToString();
+                _logger.Trace("trying to assign i18n property {0} {1} with value: {2}", culture, propertyName, valueStr);
+                Resources[culture][propertyName] = valueStr;
+            }
+            else if (unknownToken is JObject obj)
+            {
+                readJson(culture, obj);
+            }
+            else if (unknownToken is JArray array)
+            {
+                foreach (var x in array) {
+                    readJson(culture, x);
+                }
+            }
         }
 
         private void readJson(string culture, JsonTextReader reader, List<string> properties)
@@ -173,9 +202,12 @@ namespace ZTMZ.PacenoteTool.Base
         {
             get
             {
-                if (this.CurrentDict.Contains(idx))
+                if (this.CurrentCulture != null && this.CurrentCulture.ContainsKey(idx))
                 {
-                    return this.CurrentDict[idx].ToString();
+                    if (IgnoreCase) {
+                        return this.CurrentCulture[idx.ToLower()].ToString();
+                    }
+                    return this.CurrentCulture[idx].ToString();
                 }
 
                 return idx;

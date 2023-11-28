@@ -1,4 +1,4 @@
-using MaterialDesignThemes.Wpf;
+
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -9,9 +9,10 @@ using System.Windows.Controls.Primitives;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Xceed.Wpf.Toolkit;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.Dialog;
 using ZTMZ.PacenoteTool.Base.Game;
-using ZTMZ.PacenoteTool.Base.Dialog;
+using ZTMZ.PacenoteTool.Base.UI.Dialog;
 using System.Collections.Generic;
 using System.Linq;
 using VRGameOverlay.VROverlayWindow;
@@ -41,12 +42,12 @@ namespace ZTMZ.PacenoteTool
             sp_CurrentGame.Children.Clear();
             foreach (var kv in game.GameConfigurations)
             {
-                IGameConfigSettingsPane pane = kv.Value.UI;
-                sp_CurrentGame.Children.Add(pane);
-                sp_CurrentGame.Children.Add(new Separator());
-                img_CurrentGame.Source = game.Image;
-                pane.InitializeWithGame(game);
-                pane.RestartNeeded = () => this.tb_restartNeeded.Visibility = Visibility.Visible;
+                // IGameConfigSettingsPane pane = kv.Value.UI;
+                // sp_CurrentGame.Children.Add(pane);
+                // sp_CurrentGame.Children.Add(new Separator());
+                // img_CurrentGame.Source = game.Image;
+                // pane.InitializeWithGame(game);
+                // pane.RestartNeeded = () => this.tb_restartNeeded.Visibility = Visibility.Visible;
             }
         }
 
@@ -56,11 +57,11 @@ namespace ZTMZ.PacenoteTool
 
             initBoolSetting(this.btn_IsDarkTheme, "IsDarkTheme", false, () =>
             {
-                var paletteHelper = new PaletteHelper();
-                var theme = paletteHelper.GetTheme();
+                // var paletteHelper = new PaletteHelper();
+                // var theme = paletteHelper.GetTheme();
             
-                theme.SetBaseTheme(Config.Instance.IsDarkTheme ? Theme.Dark : Theme.Light);
-                paletteHelper.SetTheme(theme);
+                // theme.SetBaseTheme(Config.Instance.IsDarkTheme ? Theme.Dark : Theme.Light);
+                // paletteHelper.SetTheme(theme);
             });
 
             // language

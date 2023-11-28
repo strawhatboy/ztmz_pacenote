@@ -24,6 +24,7 @@ using ICSharpCode.AvalonEdit.Search;
 using ICSharpCode.AvalonEdit.Utils;
 using Microsoft.Win32;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Base.UI;
 using Path = System.IO.Path;
 
 namespace ZTMZ.PacenoteTool.ScriptEditor

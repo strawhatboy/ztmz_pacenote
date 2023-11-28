@@ -1,21 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Windows.Controls;
 using Newtonsoft.Json;
 
 namespace ZTMZ.PacenoteTool.Base.Game;
 
 public interface IGameConfig
 {
-    IGameConfigSettingsPane UI { get; set; }
+    // IGameConfigSettingsPane UI { get; set; }
 }
 
-public abstract class IGameConfigSettingsPane: UserControl
-{
-    public abstract void InitializeWithGame(IGame game);
-    public Action RestartNeeded;
-}
 
 public class GameConfigAttribute : Attribute
 {
@@ -34,13 +28,13 @@ public class UdpGameConfig : IGameConfig
     public int Port { set; get; }
 
     [JsonIgnore]
-    public IGameConfigSettingsPane UI { set; get; }
+    // public IGameConfigSettingsPane UI { set; get; }
 
     public static string Name => "udp";
 
     public UdpGameConfig()
     {
-        UI = new UdpGameConfigSettingsPane(this);
+        // UI = new UdpGameConfigSettingsPane(this);
     }
 }
 
@@ -51,12 +45,12 @@ public class MemoryGameConfig : IGameConfig
 
     public static string Name => "memory";
 
-    [JsonIgnore]
-    public IGameConfigSettingsPane UI { set; get; }
+    // [JsonIgnore]
+    // public IGameConfigSettingsPane UI { set; get; }
 
     public MemoryGameConfig()
     {
-        UI = new MemoryGameConfigSettingsPane(this);
+        // UI = new MemoryGameConfigSettingsPane(this);
     }
 }
 
@@ -68,12 +62,12 @@ public class CommonGameConfigs: IGameConfig
     public Dictionary<string, string> PropertyName { set; get; }
     public List<object> PropertyValue { set; get; }
 
-    [JsonIgnore]
-    public IGameConfigSettingsPane UI {set;get;}
+    // [JsonIgnore]
+    // public IGameConfigSettingsPane UI {set;get;}
 
     public CommonGameConfigs()
     {
-        UI = new CommonGameConfigsSettingsPane(this);
+        // UI = new CommonGameConfigsSettingsPane(this);
     }
 
     public object this[string idx]

@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Windows.Media.Imaging;
 namespace ZTMZ.PacenoteTool.Base.Game
 {
     public interface IGame
@@ -22,7 +21,7 @@ namespace ZTMZ.PacenoteTool.Base.Game
         /// </summary>
         string Description { get; }
 
-        BitmapImage Image { get; }
+        string ImageUri { get; }
 
         /// <summary>
         /// Executable file name for checking the path legality
@@ -50,6 +49,8 @@ namespace ZTMZ.PacenoteTool.Base.Game
 
 
         bool IsRunning { set; get; }
+
+        bool IsInitialized {set;get;}
 
         int Order { get; }
     }

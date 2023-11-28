@@ -19,6 +19,7 @@ namespace ZTMZ.PacenoteTool.Base
 
     public class Config
     {
+        private object _lock = new();
         private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static string CONFIG_FILE = AppLevelVariables.Instance.GetPath("config.json");
@@ -473,6 +474,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._HudTelemetryShowSuspensionBars;
         }
 
+        private int _UI_SelectedHudIndex = 0;
+        public int UI_SelectedHudIndex
+        {
+            set { this._UI_SelectedHudIndex = value; this._userconfig["UI_SelectedHudIndex"] = value; }
+            get => this._UI_SelectedHudIndex;
+        }
+
         #endregion
 
         #region VrOverlay
@@ -556,12 +564,50 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._SkippedVersion;
         }
 
+        // user defined dark/light theme
         private bool _IsDarkTheme = false;
-
         public bool IsDarkTheme
         {
             set { this._IsDarkTheme = value; this._userconfig["IsDarkTheme"] = value; }
             get => this._IsDarkTheme;
+        }
+
+        // Windows 10/11 system theme, dark/light
+        private bool _UseSystemTheme = true;
+        public bool UseSystemTheme
+        {
+            set { this._UseSystemTheme = value; this._userconfig["UseSystemTheme"] = value; }
+            get => this._UseSystemTheme;
+        }
+
+        // Windows 10/11 system accent color
+        private bool _UseSystemAccentColor = true;
+        public bool UseSystemAccentColor
+        {
+            set { this._UseSystemAccentColor = value; this._userconfig["UseSystemAccentColor"] = value; }
+            get => this._UseSystemAccentColor;
+        }
+
+        // custom accent color
+        private int _AccentColorR = 222;
+        public int AccentColorR 
+        {
+            set { this._AccentColorR = value; this._userconfig["AccentColorR"] = value; }
+            get => this._AccentColorR;
+        }
+
+        private int _AccentColorG = 156;
+        public int AccentColorG 
+        {
+            set { this._AccentColorG = value; this._userconfig["AccentColorG"] = value; }
+            get => this._AccentColorG;
+        }
+
+        private int _AccentColorB = 18;
+        public int AccentColorB 
+        {
+            set { this._AccentColorB = value; this._userconfig["AccentColorB"] = value; }
+            get => this._AccentColorB;
         }
 
         private bool _EnableGoogleAnalytics = false;
@@ -656,22 +702,42 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._AudioProcessType;
         }
 
+        private bool _StartWithWindows = false;
+        public bool StartWithWindows
+        {
+            set { this._StartWithWindows = value; this._userconfig["StartWithWindows"] = value; }
+            get => this._StartWithWindows;
+        }
+
+        private bool _CheckUpdateWhenStartup = true;
+        public bool CheckUpdateWhenStartup
+        {
+            set { this._CheckUpdateWhenStartup = value; this._userconfig["CheckUpdateWhenStartup"] = value; }
+            get => this._CheckUpdateWhenStartup;
+        }
+
         public void Save(string path)
         {
-            File.WriteAllText(path, JsonConvert.SerializeObject(this, Formatting.Indented));
+            lock(_lock) {
+                File.WriteAllText(path, JsonConvert.SerializeObject(this, Formatting.Indented));
+            }
         }
 
         public void SaveUserConfig()
         {
             var content = System.Text.Json.JsonSerializer.Serialize(this._userconfig);
-            File.WriteAllText(USER_CONFIG_FILE, content);
+            lock(_lock) {
+                File.WriteAllText(USER_CONFIG_FILE, content);
+            }
         }
 
         public void SaveGameConfig(IGame game)
         {
             var gameConfigPath = AppLevelVariables.Instance.GetPath(Path.Join(Constants.PATH_GAMES, string.Format("{0}.json", game.Name)));
             var configContent = JsonConvert.SerializeObject(game.GameConfigurations, Formatting.Indented);
-            File.WriteAllText(gameConfigPath, configContent);
+            lock(_lock) {
+                File.WriteAllText(gameConfigPath, configContent);
+            }
         }
 
         public Dictionary<string, IGameConfig> LoadGameConfig(IGame game)
