@@ -42,6 +42,8 @@ bridge,detail_bridge,bridge
 bumps,detail_bumps,bumps|bump
 care,detail_care,care
 caution,detail_caution,caution
+double_caution,detail_double_caution,double caution
+triple_caution,detail_triple_caution,triple caution
 cobble,detail_cobble,cobble|cobbles
 concrete,detail_concrete,concrete
 continues,detail_continues,continues
@@ -57,6 +59,7 @@ dry,detail_dry,dry
 early,detail_early,early
 extraextra_long,detail_extraextra_long,extra extra long
 extra_long,detail_extra_long,extra long
+fence,detail_fence,fence|fences
 fence_outside,detail_fence_outside,fence outside|fences outside
 fence_inside,detail_fence_inside,fence inside|fences inside
 finish,detail_finish,finish|over finish
@@ -106,10 +109,13 @@ over_long_crest,detail_over_long_crest,over long crest
 over_narrow_bridge,detail_over_narrow_bridge,over narrow bridge
 over_small_crest,detail_over_small_crest,over small crest
 over_small_bumps,detail_over_small_bumps,over small bump|over small bumps
+over_small_jump,detail_over_small_jump,over small jump
 over_very_long_crest,detail_over_very_long_crest,over very long crest
 pass_junction,detail_pass_junction,pass junction|through junction|over junction|past junction
 plus,detail_plus,plus
 post,detail_post,post|posts
+post_inside,detail_post_inside,post inside|posts inside
+post_outside,detail_post_outside,post outside|posts outside
 right_entry_chicane,detail_right_entry_chicane,chicane right entry
 rocks_inside,detail_rocks_inside,rocks inside|rock inside
 rocks_outside,detail_rocks_outside,rocks outside|rock outside
@@ -137,6 +143,7 @@ through_posts,detail_post,through post|through posts
 through_tunnel,detail_through_tunnel,through tunnel
 tightens,detail_tightens,tightens|titans|titus
 tightens_bad,detail_tightens_bad,tightens bad|titans bad
+tightens_to_squre,detail_tightens_to_squre,tightens square|titans square|tightens square|titans square
 tightens_to_1,detail_tightens_to_1,tightens one|titans one|tightens 1|titans 1
 tightens_to_2,detail_tightens_to_2,tightens two|titans two|tightens 2|titans 2
 tightens_to_3,detail_tightens_to_3,tightens three|titans three|tightens 3|titans 3
@@ -148,11 +155,15 @@ opens_to_4,detail_opens_to_4,opens four|opens 4
 opens_to_5,detail_opens_to_5,opens five|opens 5
 opens_to_6,detail_opens_to_6,opens six|opens 6
 opens_to_flat,detail_opens_to_flat,opens flat|opens to flat
+stake,detail_stake,stake
+stake_inside,detail_stake_inside,stake inside
+stake_outside,detail_stake_outside,stake outside
 tightens_to_acute,detail_tightens_to_acute,tightens acute|tightens hairpin
 tree_inside,detail_tree_inside,tree inside|trees inside
 tree_outside,detail_tree_outside,tree outside|trees outside
 tunnel,detail_tunnel,tunnel|pass tunnel
 turn,detail_turn,turn|turned
+twisty,detail_twisty,twisty
 unseen,detail_unseen,unseen|unseed
 uphill,detail_uphill,up hill|uphill
 very_long,detail_longlong,very long

@@ -436,8 +436,15 @@ namespace ZTMZ.PacenoteTool.Core
             //    this.Players.Add(player);
             //}
 
-
-            this.CurrentPlayIndex = 0;
+            // index to the 1st non-zero distance for now.
+            //TODO: play pacenotes with distance less than 0 before start
+            for (int i = 0; i < this.AudioFiles.Count; i++)
+            {
+                if (this.AudioFiles[i].Distance > 0) {
+                    this.CurrentPlayIndex = i;
+                    break;
+                }
+            }
         }
         //private AutoResampledCachedSound getSoundByKeywordTryTmp(string keyword)
         //{

@@ -7,8 +7,10 @@ detail_big_cut,detail_cut
 detail_big_jump,detail_jump
 detail_ditches_inside,detail_dont_cut
 detail_ditches_outside,detail_keep_in
+detail_double_caution,detail_caution
 detail_early,detail_care
 detail_fence_outside,detail_keep_in
+detail_fence_inside,detail_dont_cut
 corner_flat_left,corner_6_left
 corner_flat_right,corner_6_right
 detail_jump_maybe,detail_jump
@@ -30,9 +32,12 @@ detail_over_long_crest,detail_over_crest>detail_long
 detail_over_narrow_bridge,detail_over_bridge>detail_narrows
 detail_over_very_long_crest,detail_over_crest>detail_longlong
 detail_pass_junction,detail_junction
+detail_post_inside,detail_dont_cut
 detail_slow,detail_brake
 detail_small_crest,detail_crest
 detail_small_cut,detail_cut
+detail_small_jump,detail_jump
+detail_stake_inside,detail_dont_cut
 detail_through_grid,detail_through>detail_through_gate
 detail_through_logs,detail_through>detail_logs
 detail_through_gate,detail_through>detail_gate
@@ -41,7 +46,12 @@ detail_through_narrow_gate,detail_through_gate>detail_narrows
 detail_through_narrow_grid,detail_through_grid>detail_narrows
 detail_through_tunnel,detail_through>detail_tunnel
 detail_tightens_bad,detail_caution>detail_tightens
+detail_tightens_to_squre,detail_tightens_to_1
+detail_triple_caution,detail_caution
+detail_tree_inside,detail_dont_cut
+detail_twisty,detail_kinks
 detail_unseen,detail_caution
+detail_wall_inside,detail_dont_cut
 detail_water_splash,detail_ford
 number_20,number_30
 number_90,number_100

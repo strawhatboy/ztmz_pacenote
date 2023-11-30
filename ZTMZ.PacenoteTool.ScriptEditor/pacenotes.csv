@@ -34,6 +34,8 @@ detail_bridge,桥,1,27,-1,obstacles
 detail_bumps,颠簸,1,300|19,-1,obstacles
 detail_care,小心,0,18,-1,cautions
 detail_caution,注意,0,32,-1,cautions
+detail_double_caution,非常注意,0,-1,-1,cautions
+detail_triple_caution,特别注意,0,-1,-1,cautions
 detail_cobble,鹅卵石路面,1,323,-1,surface
 detail_concrete,水泥路,1,322,-1,surface
 detail_continues,持续,1,-1,-1,none
@@ -51,6 +53,7 @@ detail_downhill,下坡,1,261,-1,line
 detail_early,提早入弯,1,234,-1,adjectives
 detail_extraextra_long,超级长,1,-1,-1,additional
 detail_extra_long,特别长,1,263,-1,additional
+detail_fence,篱笆,1,-1,-1,construction
 detail_fence_inside,内侧篱笆,1,-1,-1,construction
 detail_fence_outside,外侧篱笆,1,370,-1,construction
 detail_ford,过水,1,17,-1,obstacles
@@ -107,10 +110,13 @@ detail_over_long_crest,过长坡,1,2029,-1,
 detail_over_narrow_bridge,过窄桥,1,-1,-1,
 detail_over_small_crest,过小坡,1,-1,-1,
 detail_over_small_bumps,过小颠簸,1,-1,-1,
+detail_over_small_jump,过小跳坡,1,-1,-1,
 detail_over_very_long_crest,过超长坡,1,-1,-1,
 detail_pass_junction,通过路口,1,-1,-1,
 detail_plus,+,1,232,4096,
 detail_post,杆子,1,-1,-1,obstacles
+detail_post_inside,内侧杆子,1,-1,-1,obstacles
+detail_post_outside,外侧杆子,1,-1,-1,obstacles
 detail_right_entry_chicane,右进弯/路障靠右,1,393,-1,
 detail_rocks_inside,内侧岩石,1,40007,-1,
 detail_rocks_outside,外侧岩石,1,40010,-1,
@@ -123,6 +129,9 @@ detail_small_crest,小坡,1,2109,-1,
 detail_small_cut,小切弯,1,218,-1,
 detail_small_jump,小跳坡,1,-1,-1,
 detail_snow,积雪路面,1,325,-1,
+detail_stake,树桩,1,-1,-1,obstacles
+detail_stake_inside,内侧树桩,1,-1,-1,obstacles
+detail_stake_outside,外侧树桩,1,-1,-1,obstacles
 detail_sudden,马上,0,-1,-1,
 detail_tarmac,柏油路,1,321,-1,
 detail_then,然后,0,413,-1,
@@ -138,12 +147,14 @@ detail_through_posts,通过杆子,1,-1,-1,
 detail_through_tunnel,通过隧道,1,-1,-1,
 detail_tightens,变急,1,-1,4,
 detail_tightens_bad,变很急,1,-1,128,
+detail_tightens_to_squre,变急到直角弯,1,-1,-1,
 detail_tightens_to_1,变急到1,1,2006,-1,
 detail_tightens_to_2,变急到2,1,2005,-1,
 detail_tightens_to_3,变急到3,1,2004,-1,
 detail_tightens_to_4,变急到4,1,2003,-1,
 detail_tightens_to_5,变急到5,1,2002,-1,
 detail_tightens_to_acute,急回头弯,1,2007,-1,
+detail_twisty,蛇形弯,1,-1,-1,
 detail_tree_inside,内侧树木,1,40008,-1,
 detail_tree_outside,外侧树木,1,40011,-1,
 detail_ice,结冰路面,1,329,-1,

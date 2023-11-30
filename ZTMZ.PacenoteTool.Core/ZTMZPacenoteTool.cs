@@ -64,7 +64,7 @@ public class ZTMZPacenoteTool {
         this.loadProfiles();
         this.loadCodrivers();
         this.loadOutputDevices();
-        this.initGoogleAnalytics();
+        // this.initGoogleAnalytics();
         this.initializeProcessWatcher();
         this.IsInitialized = true;
         onToolInitialized?.Invoke();
@@ -265,7 +265,7 @@ public class ZTMZPacenoteTool {
                 
                 if (lastState == GameState.Racing) {
                     
-                    GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_end");
+                    // GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_end");
                     this.onRaceEnd?.Invoke(_currentGame);
                     if (Config.Instance.PlayStartAndEndSound)
                     {
@@ -284,7 +284,7 @@ public class ZTMZPacenoteTool {
                 this.onRaceBegin?.Invoke(_currentGame);
                 if (lastState != GameState.Paused)
                 {
-                    GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._currentGame.Name + " - " + this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
+                    // GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._currentGame.Name + " - " + this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
                 }
                 this._trackName = this._currentGame.GameDataReader.TrackName;
                 //TODO: update UI trackname

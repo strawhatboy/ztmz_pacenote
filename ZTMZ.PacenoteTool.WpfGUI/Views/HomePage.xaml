@@ -54,7 +54,7 @@
                         <DropShadowEffect BlurRadius="40" Color="LightGreen" ShadowDepth="0" Opacity="1" />
                     </Border.Effect>
                 </Border>
-                <ui:Image CornerRadius="10" Height="130" Width="130" Source="pack://application:,,,/Assets/app.ico" />
+                <ui:Image CornerRadius="10" Height="130" Width="130" Source="pack://application:,,,/Assets/app.png" RenderOptions.BitmapScalingMode="HighQuality" />
 
                 
                 <!-- <Border Grid.Row="0" Grid.Column="2" Background="White" CornerRadius="8"
@@ -319,7 +319,7 @@
                             </Grid.ColumnDefinitions>
                 
                             <ui:TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource ResourceKey=ui.tb_currentTrack}"/>
-                            <ui:TextBlock Grid.Row="0" Grid.Column="1" Name="tb_currentTrack" Text="{Binding Path=ViewModel.CurrentTrack, Mode=OneWay}" />
+                            <ui:TextBlock Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Name="tb_currentTrack" Text="{Binding Path=ViewModel.CurrentTrack, Mode=OneWay}" />
                             <!-- <ui:Button Grid.Row="0" Grid.Column="2" Name="tb_currentTrack_view" 
                                     ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentTrack}"
                                 Icon="{ui:SymbolIcon Folder20}" HorizontalAlignment="Right"

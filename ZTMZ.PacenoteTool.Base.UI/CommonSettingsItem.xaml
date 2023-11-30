@@ -19,9 +19,13 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal"
                                 VerticalAlignment="Center">
-                        <ui:SymbolIcon Symbol="PhoneUpdate20"
-                                       FontSize="26"
-                                       Margin="0 0 10 0" />
+                        <ContentControl
+                                x:Name="Icon"
+                                Grid.Column="1"
+                                Margin="0 0 10 0"
+                                Content="{TemplateBinding Icon}"
+                                TextElement.FontSize="26"
+                                Focusable="False" />
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition />
@@ -44,7 +48,14 @@
               <Trigger Property="DataType" Value="System.Boolean" >
                 <Setter TargetName="the_content" Property="Content">
                   <Setter.Value>
-                    <ui:ToggleSwitch IsChecked="{TemplateBinding Value}" />
+                    <ui:ToggleSwitch IsChecked="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SettingsPropertyBooleanValue}" />
+                  </Setter.Value>
+                </Setter>          
+              </Trigger>
+              <Trigger Property="DataType" Value="System.String" >
+                <Setter TargetName="the_content" Property="Content">
+                  <Setter.Value>
+                    <ui:TextBox  />
                   </Setter.Value>
                 </Setter>          
               </Trigger>

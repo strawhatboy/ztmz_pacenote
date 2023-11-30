@@ -1,7 +1,10 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using Wpf.Ui.Controls;
+using Wpf.Ui.Converters;
 
 namespace ZTMZ.PacenoteTool.Base.UI;
 
@@ -10,6 +13,25 @@ public partial class CommonSettingsItem : UserControl
     public CommonSettingsItem()
     {
         // InitializeComponent();
+    }
+
+        /// <summary>
+    /// Property for <see cref="Icon"/>.
+    /// </summary>
+    public static readonly DependencyProperty IconProperty = DependencyProperty.Register(
+        nameof(Icon),
+        typeof(IconElement),
+        typeof(CommonSettingsItem),
+        new PropertyMetadata(null, null, IconSourceElementConverter.ConvertToIconElement)
+    );
+
+        /// <summary>
+    /// Gets or sets displayed <see cref="IconElement"/>.
+    /// </summary>
+    public IconElement? Icon
+    {
+        get => (IconElement)GetValue(IconProperty);
+        set => SetValue(IconProperty, value);
     }
 
     [Bindable(true), TypeConverter(typeof(StringToTypeConverter))]
@@ -31,7 +53,7 @@ public partial class CommonSettingsItem : UserControl
         typeof(CommonSettingsItem),
         new PropertyMetadata(typeof(bool)));
 
-    [Bindable(true), TypeConverter(typeof(I18NToStringConverter))]
+    // [Bindable(true), TypeConverter(typeof(I18NToStringConverter))]
     public string Label
     {
         get
@@ -50,7 +72,7 @@ public partial class CommonSettingsItem : UserControl
         typeof(CommonSettingsItem),
         new PropertyMetadata(""));
 
-    [Bindable(true), TypeConverter(typeof(I18NToStringConverter))]
+    // [Bindable(true), TypeConverter(typeof(I18NToStringConverter))]
     public string Description
     {
         get
@@ -69,36 +91,45 @@ public partial class CommonSettingsItem : UserControl
         typeof(CommonSettingsItem),
         new PropertyMetadata(""));
 
-    [Bindable(true)]
-    public object Value
+    // [Bindable(true)]
+    public bool? SettingsPropertyBooleanValue
     {
         get
         {
-            return (object)GetValue(ValueProperty);
+            // Debug.WriteLine("SettingsPropertyBooleanValue: " + (bool)GetValue(SettingsPropertyBooleanValueProperty));
+            return (bool)GetValue(SettingsPropertyBooleanValueProperty);
         }
         set
         {
-            SetValue(ValueProperty, value);
+            // Debug.WriteLine("SettingsPropertyBooleanValue: " + value);
+            SetValue(SettingsPropertyBooleanValueProperty, value);
         }
     }
 
-    public static DependencyProperty ValueProperty = DependencyProperty.Register(
-        nameof(Value),
-        typeof(object),
+    public static DependencyProperty SettingsPropertyBooleanValueProperty = DependencyProperty.Register(
+        nameof(SettingsPropertyBooleanValue),
+        typeof(bool),
         typeof(CommonSettingsItem),
-        new PropertyMetadata(null, OnValuePropertyChangedCallback));
+        new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnValuePropertyChangedCallback));
 
     [Bindable(true)]
     public string SettingsPropertyName
     {
         get
         {
+            // Debug.WriteLine("SettingsPropertyName: " + (string)GetValue(SettingsPropertyNameProperty));
             return (string)GetValue(SettingsPropertyNameProperty);
         }
         set
         {
+            // Debug.WriteLine("SettingsPropertyName: " + value);
             SetValue(SettingsPropertyNameProperty, value);
-            Value = typeof(Config).GetProperty(value)?.GetValue(Config.Instance);
+            var prop = typeof(Config).GetProperty(value);
+            if (prop != null) {
+                if (prop.PropertyType == typeof(bool)) {
+                    SettingsPropertyBooleanValue = (bool)prop.GetValue(Config.Instance);
+                }
+            }
         }
     }
 
@@ -108,6 +139,7 @@ public partial class CommonSettingsItem : UserControl
         typeof(CommonSettingsItem),
         new PropertyMetadata(""));
     private static void OnValuePropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        Debug.WriteLine("OnValuePropertyChangedCallback: " + e.NewValue);
         var self = (CommonSettingsItem)d;
         var configProperty = typeof(Config).GetProperty(self.SettingsPropertyName);
         if (configProperty != null) {
