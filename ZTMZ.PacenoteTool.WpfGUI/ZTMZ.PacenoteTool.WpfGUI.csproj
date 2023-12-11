@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>2.99.99.3</AssemblyVersion>
-    <PackageVersion>2.99.99.3</PackageVersion>
-    <Version>2.99.99.3</Version>
-    <FileVersion>2.99.99.3</FileVersion>
+    <AssemblyVersion>2.99.99.4</AssemblyVersion>
+    <PackageVersion>2.99.99.4</PackageVersion>
+    <Version>2.99.99.4</Version>
+    <FileVersion>2.99.99.4</FileVersion>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 

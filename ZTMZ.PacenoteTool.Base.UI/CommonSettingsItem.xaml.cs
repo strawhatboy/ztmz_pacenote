@@ -1,8 +1,10 @@
 using System;
 using System.ComponentModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using Wpf.Ui.Controls;
 using Wpf.Ui.Converters;
 
@@ -10,9 +12,36 @@ namespace ZTMZ.PacenoteTool.Base.UI;
 
 public partial class CommonSettingsItem : UserControl
 {
-    public CommonSettingsItem()
-    {
-        // InitializeComponent();
+    public CommonSettingsItem() {
+        InitializeComponent();
+        this.DataContext = this;
+
+        // add databinding to property value
+        if (DataType == typeof(bool)) {
+            var toggleSwitch = new ToggleSwitch();
+            this.the_content.Content = toggleSwitch;
+            toggleSwitch.SetBinding(ToggleSwitch.IsCheckedProperty, new Binding(nameof(SettingsPropertyValue)) {
+                Source = this,
+                Mode = BindingMode.TwoWay,
+                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+            });
+        } else if (DataType == typeof(string)) {
+            var textBox = new Wpf.Ui.Controls.TextBox();
+            this.the_content.Content = textBox;
+            textBox.SetBinding(Wpf.Ui.Controls.TextBox.TextProperty, new Binding(nameof(SettingsPropertyValue)) {
+                Source = this,
+                Mode = BindingMode.TwoWay,
+                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+            });
+        } else if (DataType == typeof(int)) {
+            var intInput = new Wpf.Ui.Controls.NumberBox();
+            this.the_content.Content = intInput;
+            intInput.SetBinding(Wpf.Ui.Controls.NumberBox.ValueProperty, new Binding(nameof(SettingsPropertyValue)) {
+                Source = this,
+                Mode = BindingMode.TwoWay,
+                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+            });
+        }
     }
 
         /// <summary>
@@ -92,25 +121,25 @@ public partial class CommonSettingsItem : UserControl
         new PropertyMetadata(""));
 
     // [Bindable(true)]
-    public bool? SettingsPropertyBooleanValue
+    public object? SettingsPropertyValue
     {
         get
         {
             // Debug.WriteLine("SettingsPropertyBooleanValue: " + (bool)GetValue(SettingsPropertyBooleanValueProperty));
-            return (bool)GetValue(SettingsPropertyBooleanValueProperty);
+            return GetValue(SettingsPropertyValueProperty);
         }
         set
         {
             // Debug.WriteLine("SettingsPropertyBooleanValue: " + value);
-            SetValue(SettingsPropertyBooleanValueProperty, value);
+            SetValue(SettingsPropertyValueProperty, value);
         }
     }
 
-    public static DependencyProperty SettingsPropertyBooleanValueProperty = DependencyProperty.Register(
-        nameof(SettingsPropertyBooleanValue),
-        typeof(bool),
+    public static DependencyProperty SettingsPropertyValueProperty = DependencyProperty.Register(
+        nameof(SettingsPropertyValue),
+        typeof(object),
         typeof(CommonSettingsItem),
-        new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnValuePropertyChangedCallback));
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnValuePropertyChangedCallback));
 
     [Bindable(true)]
     public string SettingsPropertyName
@@ -124,12 +153,6 @@ public partial class CommonSettingsItem : UserControl
         {
             // Debug.WriteLine("SettingsPropertyName: " + value);
             SetValue(SettingsPropertyNameProperty, value);
-            var prop = typeof(Config).GetProperty(value);
-            if (prop != null) {
-                if (prop.PropertyType == typeof(bool)) {
-                    SettingsPropertyBooleanValue = (bool)prop.GetValue(Config.Instance);
-                }
-            }
         }
     }
 
@@ -137,7 +160,19 @@ public partial class CommonSettingsItem : UserControl
         nameof(SettingsPropertyName),
         typeof(string),
         typeof(CommonSettingsItem),
-        new PropertyMetadata(""));
+        new PropertyMetadata("", OnSettingsPropertyNamePropertyChangedCallback));
+
+    private static void OnSettingsPropertyNamePropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        // set property value
+        var prop = typeof(Config).GetProperty(e.NewValue.ToString());
+        if (prop != null) {
+            if (prop.PropertyType == typeof(bool)) {
+                d.SetValue(SettingsPropertyValueProperty, (bool)prop.GetValue(Config.Instance));
+            }
+        }
+    }
+
     private static void OnValuePropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e) {
         Debug.WriteLine("OnValuePropertyChangedCallback: " + e.NewValue);
         var self = (CommonSettingsItem)d;

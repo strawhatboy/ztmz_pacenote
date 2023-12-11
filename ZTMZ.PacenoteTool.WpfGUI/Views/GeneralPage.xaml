@@ -215,8 +215,8 @@
             </Grid>
         </ui:Card>
 
-        <!-- <localUI:CommonSettingsItem Icon="{ui:SymbolIcon PersonRunning20}" Label="{DynamicResource ResourceKey=settings.startWithWindows}" 
-            Description="{DynamicResource ResourceKey=settings.tooltip.startWithWindows}" SettingsPropertyName="StartWithWindows" /> -->
+        <localUI:CommonSettingsItem Icon="{ui:SymbolIcon PersonRunning20}" Label="{DynamicResource ResourceKey=settings.startWithWindows}" 
+            Description="{DynamicResource ResourceKey=settings.tooltip.startWithWindows}" SettingsPropertyName="StartWithWindows" />
 
         <!-- OptInBetaPlan -->
         <ui:Card Margin="0 0 0 5"

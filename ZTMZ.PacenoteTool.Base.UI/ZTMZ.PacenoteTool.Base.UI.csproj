@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0-windows</TargetFrameworks>
+    <TargetFrameworks>net8.0-windows</TargetFrameworks>
 	  <UseWPF>true</UseWPF>
 	  <Configurations>Debug;Release;Release_Portable</Configurations>
   </PropertyGroup>
@@ -9,8 +9,8 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
-    <PackageReference Include="WPF-UI" Version="3.0.0-preview.8" />
-    <PackageReference Include="WPF-UI.Tray" Version="3.0.0-preview.8" />
+    <PackageReference Include="WPF-UI" Version="3.0.0-preview.12" />
+    <PackageReference Include="WPF-UI.Tray" Version="3.0.0-preview.11" />
     <!-- <PackageReference Include="MaterialDesignThemes" Version="4.5.0" /> -->
   </ItemGroup>
 
