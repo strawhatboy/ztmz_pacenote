@@ -8,6 +8,14 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.Base.UI;
 
+
+public class GameContext {
+    public string TrackName { set; get; } = "";
+    public string AudioPackage { set; get; } = "";
+    public string ScriptAuthor { set; get; } = "";
+    public string PacenoteType { set; get; } = "";
+}
+
 /// <summary>
 /// Dashboard 
 ///     json descriptor
@@ -59,20 +67,21 @@ public class Dashboard {
             {
                 ClrEnabled = false
             };
-            LuaG.DoChunk(File.ReadAllText(Path.Combine(Descriptor.Path, Descriptor.LuaScriptPath)), $"{Guid.NewGuid()}.lua");
+            LuaG.DoChunk(File.ReadAllText(Path.Combine(Descriptor.Path, Constants.FILE_LUA_SCRIPT)), $"{Guid.NewGuid()}.lua");
             LuaG.CallMember("onInit", graphics, Config.Instance);
             _logger.Info($"Dashboard \"{Descriptor.Name}\" loaded");
         }
     }
 
-    public void Render(Graphics graphics, GameData gameData) {
+    public void Render(Graphics graphics, GameData gameData, GameContext gameContext) {
         // render lua script
-        LuaG.CallMember("onUpdate", graphics, Config.Instance, gameData);
+        LuaG.CallMember("onUpdate", graphics, Config.Instance, gameData, gameContext);
     }
 
     public void Unload() {
         LuaG.CallMember("onExit");
         _logger.Info($"Dashboard {Descriptor.Name} unloaded");
+        LuaG.Clear();
     }
 }
 
@@ -82,7 +91,6 @@ public class DashboardDescriptor {
     public string Author { get; set; }
     public string Version { get; set; }
     public string PreviewImagePath { get; set; }
-    public string LuaScriptPath { get; set; }
     public Dictionary<string, string> ImageResources { get; set; }
     public string Path { get; set; }
 }

@@ -12,6 +12,7 @@ using System.Windows.Controls;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
 using ZTMZ.PacenoteTool.Base.UI;
 using System.Diagnostics;
+using System.Threading;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -152,29 +153,41 @@ public partial class HomePageVM : ObservableObject {
 
     private readonly IServiceProvider _serviceProvider;
 
-    private GameOverlayManager gameOverlayManager = new();
+    private GameOverlayManager _gameOverlayManager;
 
-    public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool, IServiceProvider serviceProvider) {
+    public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool, IServiceProvider serviceProvider, GameOverlayManager gameOverlayManager) {
+        _gameOverlayManager = gameOverlayManager;
         _serviceProvider = serviceProvider;
         var contentDialogService = serviceProvider.GetService(typeof(IContentDialogService)) as IContentDialogService;
         Tool = _tool;
-        _tool.onGameStarted += (game) => IsGameRunning = true;
+        _tool.onGameStarted += (game) => {
+            IsGameRunning = true;
+            // GameOverlay
+            _logger.Info("Game started. in Home Page. Initializing GameOverlay.");
+            var process = Process.GetProcessesByName(game.Executable).FirstOrDefault();
+            if (process != null) {
+                _gameOverlayManager.UninitializeOverlay();
+                _gameOverlayManager.InitializeOverlay(process.MainWindowHandle);
+            }
+        };
         _tool.onGameEnded += (game) => {
             IsGameRunning = false;
             IsGameInitialized = false;
             IsRacing = false; 
+            
+            _gameOverlayManager.UninitializeOverlay();
         };
 
         _tool.onGameInitialized += (game) => {
             IsGameInitialized = true;
             IsGameInitializedFailed = false;
-
-            // GameOverlay
-            Application.Current.Dispatcher.Invoke(() => {
-                _logger.Info("Game Initialized. in Home Page. Initializing GameOverlay.");
-                gameOverlayManager.InitializeOverlay(Process.GetProcessesByName(game.Executable).First());
-            });
         };
+        _tool.onGameUninitialized += (game) => {
+            IsGameInitialized = false;
+            IsGameInitializedFailed = false;
+            IsRacing = false; 
+        };
+
         _tool.onGameInitializeFailed += (game, code) => {
             IsGameInitialized = false;
             IsGameInitializedFailed = code != PrerequisitesCheckResultCode.OK;

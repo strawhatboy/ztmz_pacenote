@@ -38,6 +38,7 @@ public class ZTMZPacenoteTool {
     public event Action onToolInitialized;
 
     public event Action<IGame> onGameInitialized;
+    public event Action<IGame> onGameUninitialized;
 
     public event Action<IGame> onGameStarted;
 
@@ -245,6 +246,7 @@ public class ZTMZPacenoteTool {
         game.GameDataReader.onGameStateChanged -= this.gamestateChangedHandler;
         game.GameDataReader.Uninitialize(game);
         game.IsInitialized = false;
+        this.onGameUninitialized?.Invoke(game);
     }
 
     private void gamestateChangedHandler(GameStateChangeEvent evt)

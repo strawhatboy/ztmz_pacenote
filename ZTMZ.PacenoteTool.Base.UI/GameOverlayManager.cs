@@ -1,5 +1,5 @@
 
-// #define DEV
+#define DEV
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -31,6 +31,7 @@ namespace ZTMZ.PacenoteTool
         private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 #if DEV
         public static string GAME_PROCESS = "notepad";
+        public static string GAME_WIN_TITLE = "Dirt Rally 2.0";
 #else
         public static string GAME_PROCESS = "dirtrally2";
         public static string GAME_WIN_TITLE = "Dirt Rally 2.0";
@@ -46,10 +47,7 @@ namespace ZTMZ.PacenoteTool
 
         private Random _random;
 
-        public string TrackName { set; get; } = "";
-        public string AudioPackage { set; get; } = "";
-        public string ScriptAuthor { set; get; } = "";
-        public string PacenoteType { set; get; } = "";
+        public GameContext GameContext { set; get; } = new GameContext();
 
         private bool _TimeToShowTelemetry = false;
 
@@ -116,10 +114,10 @@ namespace ZTMZ.PacenoteTool
             _logger.Info($"Loaded {Dashboards.Count} Dashboards.");
         }
 
-        public void InitializeOverlay(System.Diagnostics.Process process)
+        public void InitializeOverlay(nint processWindowHandle)
         {
 #if DEV
-            UdpMessage = new UDPMessage()
+            GameData = new GameData()
             {
                 Brake = 0.5f,
                 Throttle = 0.3f,
@@ -150,31 +148,15 @@ namespace ZTMZ.PacenoteTool
                 SuspensionSpeedFrontRight = 23,
                 SuspensionSpeedRearLeft = 35,
                 SuspensionSpeedRearRight = 46,
-                Sector = 1,
                 Time = 20,
                 CarPos = 30,
-                CurrentLap = 1,
                 LapDistance = 200,
-                LapsComplete = 1,
                 LapTime = 20,
-                PitchX = 234,
-                PitchY = 324,
-                PitchZ = 232,
                 PosX = 245,
                 PosY = 425,
                 PosZ = 5356,
-                RollX = 24,
-                RollY = 90,
-                RollZ = 425,
-                Sector1Time = 835,
-                Sector2Time = 835,
-                SpeedX = 5753,
-                SpeedY = 53,
-                SpeedZ = 3536,
                 TimeStamp = DateTime.Now,
-                TotalLaps = 4,
                 TrackLength = 35667,
-                LastLapTime = 36,
             };
             TimeToShowTelemetry = true;
 #endif
@@ -186,7 +168,7 @@ namespace ZTMZ.PacenoteTool
             };
 
 
-            _window = new StickyWindow(process.MainWindowHandle, gfx);
+            _window = new StickyWindow(processWindowHandle, gfx);
             _window.Title = "ZTMZ Club Hud";
             _window.FPS = Config.Instance.HudFPS;   // 50 fps by default
             _window.AttachToClientArea = true;
@@ -210,7 +192,7 @@ namespace ZTMZ.PacenoteTool
         public void UninitializeOverlay()
         {
             _isRunning = false;
-            _window.Dispose();
+            _window?.Dispose();
         }
 
         private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e) {
@@ -225,7 +207,7 @@ namespace ZTMZ.PacenoteTool
             _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
             gfx.ClearScene(_brushes["clear"]);
             foreach (var dashboard in Dashboards) {
-                dashboard.Render(gfx, GameData);
+                dashboard.Render(gfx, GameData, GameContext);
             }
         }
 
@@ -318,10 +300,10 @@ namespace ZTMZ.PacenoteTool
         {
             var padding = 200;
             var infoText = new StringBuilder()
-                .Append(I18NLoader.Instance["overlay.track"].PadRight(16)).Append(this.TrackName.PadRight(padding)).AppendLine()
-                .Append(I18NLoader.Instance["overlay.audioPackage"].PadRight(16)).Append(this.AudioPackage.PadRight(padding)).AppendLine()
-                .Append(I18NLoader.Instance["overlay.scriptAuthor"].PadRight(16)).Append(this.ScriptAuthor.PadRight(padding)).AppendLine()
-                .Append(I18NLoader.Instance["overlay.dyanmic"].PadRight(16)).Append(this.PacenoteType.PadRight(padding))
+                .Append(I18NLoader.Instance["overlay.track"].PadRight(16)).Append(GameContext.TrackName.PadRight(padding)).AppendLine()
+                .Append(I18NLoader.Instance["overlay.audioPackage"].PadRight(16)).Append(GameContext.AudioPackage.PadRight(padding)).AppendLine()
+                .Append(I18NLoader.Instance["overlay.scriptAuthor"].PadRight(16)).Append(GameContext.ScriptAuthor.PadRight(padding)).AppendLine()
+                .Append(I18NLoader.Instance["overlay.dyanmic"].PadRight(16)).Append(GameContext.PacenoteType.PadRight(padding))
                 .ToString();
             var size = gfx.MeasureString(_fonts["consolas"], _fonts["consolas"].FontSize, infoText);
             gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], gfx.Width - size.X, 0, infoText);
@@ -882,7 +864,7 @@ namespace ZTMZ.PacenoteTool
                         try {
                             if (process.MainWindowTitle.StartsWith(GAME_WIN_TITLE, StringComparison.OrdinalIgnoreCase))
                             // only when the game window available.
-                                this.InitializeOverlay(process);
+                                this.InitializeOverlay(process.MainWindowHandle);
                         } catch (Exception ex) {
                             _logger.Trace("Waiting for game window: {0}", GAME_WIN_TITLE);
                         }

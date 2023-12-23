@@ -23,7 +23,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : INavigationWindow
+    public partial class MainWindow : FluentWindow, INavigationWindow
     {
         public ViewModels.MainWindowVM ViewModel { get; }
         public MainWindow(ViewModels.MainWindowVM viewModel, 
@@ -33,6 +33,18 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
         {
             ViewModel = viewModel;
             DataContext = this;
+            
+            InitializeComponent();
+
+            SetPageService(pageService);
+            contentDialogService.SetContentPresenter(RootContentDialog);
+            navigationService.SetNavigationControl(RootNavigation);
+
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // theme
             
             Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(ThemeHelper.GetAccentColor(), 
                 Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
@@ -45,12 +57,6 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
                     false
                 );
             }
-            InitializeComponent();
-
-            SetPageService(pageService);
-            contentDialogService.SetContentPresenter(RootContentDialog);
-            navigationService.SetNavigationControl(RootNavigation);
-
         }
 
         public void CloseWindow()

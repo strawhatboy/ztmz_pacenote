@@ -15,6 +15,7 @@
         WindowBackdropType="Mica"
         WindowCornerPreference="Round"
         WindowStartupLocation="CenterScreen"
+        Loaded="MainWindow_Loaded"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
 
         Title="{Binding ViewModel.Title, Mode=OneWay}" Height="650" Width="1050" MinWidth="1050">

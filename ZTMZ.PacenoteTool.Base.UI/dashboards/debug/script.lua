@@ -26,7 +26,7 @@ function onInit(gfx, conf)
     resources["fonts"] = _fonts;
 end
 
-function onUpdate(gfx, conf, data)
+function onUpdate(gfx, conf, data, ctx)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], 0, 0, data.ToString());

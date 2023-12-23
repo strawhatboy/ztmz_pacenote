@@ -1,6 +1,6 @@
 {
-    "Name": "Debug",
-    "Description": "Show debug information",
+    "Name": "Map Info",
+    "Description": "Show map info in the game.",
     "Author": "草帽不是猫",
     "Version": "0.0.1",
     "PreviewImagePath": "",

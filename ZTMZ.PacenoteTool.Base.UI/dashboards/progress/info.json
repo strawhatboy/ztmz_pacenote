@@ -1,6 +1,6 @@
 {
-    "Name": "Debug",
-    "Description": "Show debug information",
+    "Name": "Progress",
+    "Description": "Show track progress",
     "Author": "草帽不是猫",
     "Version": "0.0.1",
     "PreviewImagePath": "",

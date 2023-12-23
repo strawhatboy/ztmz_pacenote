@@ -61,6 +61,7 @@ public partial class App : Application
 
             services.AddSingleton<UpdateService>();
             services.AddSingleton<StartupService>();
+            services.AddSingleton<GameOverlayManager>();
 
             services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>();
 

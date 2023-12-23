@@ -14,6 +14,8 @@ namespace ZTMZ.PacenoteTool.Base
         public static string PATH_GAMES = "games";
         public static string PATH_LANGUAGE = "lang";
         public static string PATH_DASHBOARDS = "dashboards";
+        public static string FILE_LUA_SCRIPT = "script.lua";
+        public static string FILE_SETTINGS = "settings.json";
 
         // system sound
         public const string SYSTEM_START_STAGE = "system_start_stage";
