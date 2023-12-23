@@ -1,6 +1,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace ZTMZ.PacenoteTool.Base.Game;
 
@@ -65,5 +66,18 @@ public struct GameData
     public override int GetHashCode()
     {
         return base.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+        // loop through every field on the object and print it out
+        var fields = this.GetType().GetFields();
+        var stringBuilder = new StringBuilder();
+        foreach (var field in fields)
+        {
+            stringBuilder.AppendLine($"{field.Name}: {field.GetValue(this)}");
+        }
+        
+        return stringBuilder.ToString();
     }
 }

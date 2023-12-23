@@ -1,0 +1,9 @@
+{
+    "Name": "Debug",
+    "Description": "Show Debug Info",
+    "Author": "草帽不是猫",
+    "Version": "0.0.1",
+    "PreviewImagePath": "",
+    "LuaScriptPath": "script.lua",
+    "ImageResources": {}
+}

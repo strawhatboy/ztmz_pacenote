@@ -9,13 +9,14 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
-    <PackageReference Include="WPF-UI" Version="3.0.0-preview.12" />
+    <PackageReference Include="WPF-UI" Version="3.0.0-preview.13" />
     <PackageReference Include="WPF-UI.Tray" Version="3.0.0-preview.11" />
     <!-- <PackageReference Include="MaterialDesignThemes" Version="4.5.0" /> -->
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
+    <ProjectReference Include="..\GameOverlay\GameOverlay.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,5 +36,14 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
 
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="dashboards\debug\info.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="dashboards\debug\script.lua">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

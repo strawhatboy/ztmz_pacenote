@@ -10,9 +10,9 @@
             "type": "coreclr",
             "request": "launch",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/ZTMZ.PacenoteTool.WpfGUI/bin/Debug/net6.0-windows/ZTMZ.PacenoteTool.WpfGUI.exe",
+            "program": "${workspaceFolder}/ZTMZ.PacenoteTool.WpfGUI/bin/Debug/net8.0-windows/ZTMZ.PacenoteTool.WpfGUI.exe",
             "args": [],
-            "cwd": "${workspaceFolder}/ZTMZ.PacenoteTool.WpfGUI/bin/Debug/net6.0-windows/",
+            "cwd": "${workspaceFolder}/ZTMZ.PacenoteTool.WpfGUI/bin/Debug/net8.0-windows/",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "justMyCode": true,
@@ -27,9 +27,9 @@
             "request": "launch",
             // "preLaunchTask": "buildDebugConsole",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/ZTMZ.PacenoteTool.Console/bin/Debug/net6.0-windows/ZTMZ.PacenoteTool.Console.exe",
+            "program": "${workspaceFolder}/ZTMZ.PacenoteTool.Console/bin/Debug/net8.0-windows/ZTMZ.PacenoteTool.Console.exe",
             "args": [],
-            "cwd": "${workspaceFolder}/ZTMZ.PacenoteTool.Console/bin/Debug/net6.0-windows/",
+            "cwd": "${workspaceFolder}/ZTMZ.PacenoteTool.Console/bin/Debug/net8.0-windows/",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false
@@ -43,9 +43,9 @@
             "request": "launch",
             "preLaunchTask": "buildDebug",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/ZTMZ.PacenoteTool.AudioPackageManager/bin/Debug/net6.0-windows/ZTMZ.PacenoteTool.AudioPackageManager.exe",
+            "program": "${workspaceFolder}/ZTMZ.PacenoteTool.AudioPackageManager/bin/Debug/net8.0-windows/ZTMZ.PacenoteTool.AudioPackageManager.exe",
             "args": [],
-            "cwd": "${workspaceFolder}/ZTMZ.PacenoteTool.AudioPackageManager/bin/Debug/net6.0-windows/",
+            "cwd": "${workspaceFolder}/ZTMZ.PacenoteTool.AudioPackageManager/bin/Debug/net8.0-windows/",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false
@@ -59,9 +59,9 @@
             "request": "launch",
             "preLaunchTask": "buildDebug",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/ZTMZ.PacenoteTool.AudioCompressor/bin/Debug/net6.0-windows/ZTMZ.PacenoteTool.AudioBatchProcessor",
+            "program": "${workspaceFolder}/ZTMZ.PacenoteTool.AudioCompressor/bin/Debug/net8.0-windows/ZTMZ.PacenoteTool.AudioBatchProcessor",
             "args": [],
-            "cwd": "${workspaceFolder}/ZTMZ.PacenoteTool.AudioCompressor/bin/Debug/net6.0-windows/",
+            "cwd": "${workspaceFolder}/ZTMZ.PacenoteTool.AudioCompressor/bin/Debug/net8.0-windows/",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false

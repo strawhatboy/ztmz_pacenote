@@ -96,7 +96,6 @@ public partial class GeneralPageVM : ObservableObject {
     [RelayCommand]
     private void ThemeSelectionChanged() {
         Config.Instance.IsDarkTheme = ThemeSelection == 1;
-        Config.Instance.SaveUserConfig();
         var theme = selectionToTheme(ThemeSelection);
         if (CurrentTheme == theme)
             return;
@@ -119,6 +118,7 @@ public partial class GeneralPageVM : ObservableObject {
             Config.Instance.UseSystemTheme = true;
             AccentColorPickerVisibility = Visibility.Collapsed;
         }
+        Config.Instance.SaveUserConfig();
     }
 
     private Wpf.Ui.Appearance.ApplicationTheme selectionToTheme(int selection) {

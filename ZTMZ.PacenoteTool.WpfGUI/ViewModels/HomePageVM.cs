@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Windows.Controls;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
 using ZTMZ.PacenoteTool.Base.UI;
+using System.Diagnostics;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -151,6 +152,8 @@ public partial class HomePageVM : ObservableObject {
 
     private readonly IServiceProvider _serviceProvider;
 
+    private GameOverlayManager gameOverlayManager = new();
+
     public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool, IServiceProvider serviceProvider) {
         _serviceProvider = serviceProvider;
         var contentDialogService = serviceProvider.GetService(typeof(IContentDialogService)) as IContentDialogService;
@@ -165,6 +168,12 @@ public partial class HomePageVM : ObservableObject {
         _tool.onGameInitialized += (game) => {
             IsGameInitialized = true;
             IsGameInitializedFailed = false;
+
+            // GameOverlay
+            Application.Current.Dispatcher.Invoke(() => {
+                _logger.Info("Game Initialized. in Home Page. Initializing GameOverlay.");
+                gameOverlayManager.InitializeOverlay(Process.GetProcessesByName(game.Executable).First());
+            });
         };
         _tool.onGameInitializeFailed += (game, code) => {
             IsGameInitialized = false;

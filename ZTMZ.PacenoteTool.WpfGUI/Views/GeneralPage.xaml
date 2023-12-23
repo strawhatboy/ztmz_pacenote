@@ -215,7 +215,7 @@
             </Grid>
         </ui:Card>
 
-        <localUI:CommonSettingsItem Icon="{ui:SymbolIcon PersonRunning20}" Label="{DynamicResource ResourceKey=settings.startWithWindows}" 
+        <localUI:CommonSettingsItem Icon="PersonRunning20" Label="{DynamicResource ResourceKey=settings.startWithWindows}" 
             Description="{DynamicResource ResourceKey=settings.tooltip.startWithWindows}" SettingsPropertyName="StartWithWindows" />
 
         <!-- OptInBetaPlan -->
