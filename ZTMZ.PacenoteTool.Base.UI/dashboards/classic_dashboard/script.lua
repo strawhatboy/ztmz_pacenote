@@ -142,16 +142,16 @@ function drawGear(gfx, conf, data, helper, x, y, width, height)
     local isNGear = false;
     local rect;
     if (gear == -1 or gear == 10) then
-        rect = rectangles[0];
+        rect = rectangles[1];
         gearText = "R";
     end
     if (gear == 0) then
-        rect = rectangles[0];
+        rect = rectangles[1];
         isNGear = true;
         gearText = "N";
     end
     if (gear > 0 and gear < 10) then
-        rect = rectangles[gear];
+        rect = rectangles[gear+1];
         gearText = tostring(gear);
     end
 
