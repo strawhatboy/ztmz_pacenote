@@ -22,7 +22,7 @@ public partial class App : Application
         var jsonPaths = new List<string>{
             AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE),
             AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)),
-            AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE))
+            AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE)),
         };
             
         NLogManager.init(ToolVersion.TEST);

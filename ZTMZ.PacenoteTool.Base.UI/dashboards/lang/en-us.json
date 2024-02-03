@@ -1,0 +1,22 @@
+{
+    "dashboards": {
+        "classic": {
+            "debug": {
+                "name": "Debug",
+                "description": "Show debug information"
+            },
+            "mapInfo": {
+                "name": "Map Info",
+                "description": "Show map info in the game."
+            },
+            "progress": {
+                "name": "Progress",
+                "description": "Show track progress"
+            },
+            "classicDashboard": {
+                "name": "Classic Dashboard",
+                "description": "Show classic dashboard"
+            }
+        }
+    }
+}

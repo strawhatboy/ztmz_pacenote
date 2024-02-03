@@ -47,7 +47,13 @@ namespace ZTMZ.PacenoteTool
 
         private Random _random;
 
-        public GameContext GameContext { set; get; } = new GameContext();
+        public DashboardScriptArguments DashboardScriptArguments { set; get; } = new DashboardScriptArguments() {
+            Config = Config.Instance,
+            I18NLoader = I18NLoader.Instance,
+            GameData = new GameData(),
+            GameContext = new GameContext(),
+            GameOverlayDrawingHelper = new GameOverlayDrawingHelper()
+        };
 
         private bool _TimeToShowTelemetry = false;
 
@@ -102,6 +108,11 @@ namespace ZTMZ.PacenoteTool
                 // loop through subfolders and load all dashboards
                 foreach (var dashboardPath in System.IO.Directory.GetDirectories(dashboardsPath))
                 {
+                    if (!System.IO.File.Exists(System.IO.Path.Combine(dashboardPath, "info.json")))
+                    {
+                        _logger.Warn("Dashboard info.json not exists: {0}", dashboardPath);
+                        continue;
+                    }
                     var dashboard = new Dashboard(System.IO.Path.Combine(dashboardPath, "info.json"));
                     dashboard.Descriptor.Path = dashboardPath;
                     Dashboards.Add(dashboard);
@@ -167,6 +178,8 @@ namespace ZTMZ.PacenoteTool
                 TextAntiAliasing = true
             };
 
+            // set graphics to dashboard arguments
+            DashboardScriptArguments.Graphics = gfx;
 
             _window = new StickyWindow(processWindowHandle, gfx);
             _window.Title = "ZTMZ Club Hud";
@@ -197,17 +210,17 @@ namespace ZTMZ.PacenoteTool
 
         private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e) {
             var gfx = e.Graphics;
+            _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
             foreach (var dashboard in Dashboards) {
-                dashboard.Load(gfx);
+                dashboard.Load(DashboardScriptArguments);
             }
         }
 
         private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e) {
             var gfx = e.Graphics;
-            _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
             gfx.ClearScene(_brushes["clear"]);
             foreach (var dashboard in Dashboards) {
-                dashboard.Render(gfx, GameData, GameContext);
+                dashboard.Render(DashboardScriptArguments);
             }
         }
 
@@ -299,19 +312,19 @@ namespace ZTMZ.PacenoteTool
         private void drawBasicInfo(Graphics gfx)
         {
             var padding = 200;
-            var infoText = new StringBuilder()
-                .Append(I18NLoader.Instance["overlay.track"].PadRight(16)).Append(GameContext.TrackName.PadRight(padding)).AppendLine()
-                .Append(I18NLoader.Instance["overlay.audioPackage"].PadRight(16)).Append(GameContext.AudioPackage.PadRight(padding)).AppendLine()
-                .Append(I18NLoader.Instance["overlay.scriptAuthor"].PadRight(16)).Append(GameContext.ScriptAuthor.PadRight(padding)).AppendLine()
-                .Append(I18NLoader.Instance["overlay.dyanmic"].PadRight(16)).Append(GameContext.PacenoteType.PadRight(padding))
-                .ToString();
-            var size = gfx.MeasureString(_fonts["consolas"], _fonts["consolas"].FontSize, infoText);
-            gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], gfx.Width - size.X, 0, infoText);
+            // var infoText = new StringBuilder()
+            //     .Append(I18NLoader.Instance["overlay.track"].PadRight(16)).Append(GameContext.TrackName.PadRight(padding)).AppendLine()
+            //     .Append(I18NLoader.Instance["overlay.audioPackage"].PadRight(16)).Append(GameContext.AudioPackage.PadRight(padding)).AppendLine()
+            //     .Append(I18NLoader.Instance["overlay.scriptAuthor"].PadRight(16)).Append(GameContext.ScriptAuthor.PadRight(padding)).AppendLine()
+            //     .Append(I18NLoader.Instance["overlay.dyanmic"].PadRight(16)).Append(GameContext.PacenoteType.PadRight(padding))
+            //     .ToString();
+            // var size = gfx.MeasureString(_fonts["consolas"], _fonts["consolas"].FontSize, infoText);
+            // gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], gfx.Width - size.X, 0, infoText);
         }
 
         private void drawDebugTelemetry(Graphics gfx)
         {
-            gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], 0, 0, GameData.ToString());
+            // gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], 0, 0, GameData.ToString());
         }
 
         private void drawTelemetry(Graphics gfx)
@@ -545,11 +558,11 @@ namespace ZTMZ.PacenoteTool
             var geo_path = gfx.CreateGeometry();
             geo_path.BeginFigure(new Point(centerX,
                 centerY - radiusOuter), true);
-            geo_path.addCurve(new Point(centerX + radiusOuter * MathF.Cos(steeringAngle),
+            geo_path.AddCurve(new Point(centerX + radiusOuter * MathF.Cos(steeringAngle),
                 centerY - radiusOuter * MathF.Sin(steeringAngle)), radiusOuter, arcSize, sweepDirection);
             geo_path.AddPoint(new Point(centerX + radiusInner * MathF.Cos(steeringAngle),
                 centerY - radiusInner * MathF.Sin(steeringAngle)));
-            geo_path.addCurve(new Point(centerX,
+            geo_path.AddCurve(new Point(centerX,
                 centerY - radiusInner), radiusInner, arcSize, backsDirection);
             geo_path.EndFigure();
             geo_path.Close();
@@ -559,11 +572,11 @@ namespace ZTMZ.PacenoteTool
             var geo_cur = gfx.CreateGeometry();
             geo_cur.BeginFigure(new Point(centerX + radiusOuter * MathF.Cos(steeringAngle + alpha),
                 centerY - radiusOuter * MathF.Sin(steeringAngle + alpha)), true);
-            geo_cur.addCurve(new Point(centerX + radiusOuter * MathF.Cos(steeringAngle - alpha),
+            geo_cur.AddCurve(new Point(centerX + radiusOuter * MathF.Cos(steeringAngle - alpha),
                 centerY - radiusOuter * MathF.Sin(steeringAngle - alpha)), radiusOuter, ArcSize.Small, SweepDirection.Clockwise);
             geo_cur.AddPoint(new Point(centerX + radiusInner * MathF.Cos(steeringAngle - alpha),
                 centerY - radiusInner * MathF.Sin(steeringAngle - alpha)));
-            geo_cur.addCurve(new Point(centerX + radiusInner * MathF.Cos(steeringAngle + alpha),
+            geo_cur.AddCurve(new Point(centerX + radiusInner * MathF.Cos(steeringAngle + alpha),
                 centerY - radiusInner * MathF.Sin(steeringAngle + alpha)), radiusInner, ArcSize.Small, SweepDirection.CounterClockwise);
             geo_cur.EndFigure();
             geo_cur.Close();
@@ -715,7 +728,7 @@ namespace ZTMZ.PacenoteTool
                     ),
                 true
                 );
-            geo_bg.addCurve(
+            geo_bg.AddCurve(
                 new Point(
                     centerX + radiusOuter * MathF.Cos(MathF.PI * 1.75f),
                     centerY - radiusOuter * MathF.Sin(MathF.PI * 1.75f)
@@ -728,7 +741,7 @@ namespace ZTMZ.PacenoteTool
                     centerY - radiusInner * MathF.Sin(MathF.PI * 1.75f)
                 )
             );
-            geo_bg.addCurve(
+            geo_bg.AddCurve(
                 new Point(
                     centerX + radiusInner * MathF.Cos(MathF.PI * 1.25f),
                     centerY - radiusInner * MathF.Sin(MathF.PI * 1.25f)
@@ -753,7 +766,7 @@ namespace ZTMZ.PacenoteTool
                 ),
                 true
             );
-            geo_bg.addCurve(
+            geo_bg.AddCurve(
                 new Point(
                     centerX + radiusOuter * MathF.Cos(angle),
                     centerY - radiusOuter * MathF.Sin(angle)
@@ -770,7 +783,7 @@ namespace ZTMZ.PacenoteTool
                 centerX + radiusInner * MathF.Cos(MathF.PI * 1.25f),
                 centerY - radiusInner * MathF.Sin(MathF.PI * 1.25f)
             );
-            geo_bg.addCurve(
+            geo_bg.AddCurve(
                 endPoint,
                 radiusInner, arcSize, SweepDirection.CounterClockwise
             );
@@ -919,4 +932,140 @@ namespace ZTMZ.PacenoteTool
         #endregion
 
     }
+
+
+    public class GameOverlayDrawingHelper {
+        public Point getPoint(float x, float y)
+        {
+            return new Point(x, y);
+        }
+
+        public Rectangle getRectangle(float x, float y, float right, float bottom)
+        {
+            return new Rectangle(x, y, right, bottom);
+        }
+
+        public Color getColor(byte r, byte g, byte b, byte a)
+        {
+            return new Color(r, g, b, a);
+        }
+
+        public Point drawSector(Graphics gfx, 
+            string unit,
+            float x, 
+            float y, 
+            float width, 
+            float height, 
+            float value, 
+            float maxValue, 
+            IBrush bgBrush,
+            IBrush valueBrush,
+            IBrush emptyBrush,
+            Font textFont,
+            float thicknessRatio=0.2f)
+        {
+            if (value > maxValue)
+            {
+                value = maxValue;
+            }
+            if (value < 0)
+            {
+                value = 0;
+            }
+            var centerX = x + 0.5f * width;
+            var centerY = y + 0.5f * height;
+            var radiusOuter = MathF.Min(width, height) * 0.5f;
+            var radiusInner = radiusOuter * (1 - thicknessRatio);
+            // draw backgroud geometry
+            var geo_bg = gfx.CreateGeometry();
+            geo_bg.BeginFigure(
+                new Point(
+                    centerX + radiusOuter * MathF.Cos(MathF.PI * 1.25f), 
+                    centerY - radiusOuter * MathF.Sin(MathF.PI * 1.25f)
+                    ),
+                true
+                );
+            geo_bg.AddCurve(
+                new Point(
+                    centerX + radiusOuter * MathF.Cos(MathF.PI * 1.75f),
+                    centerY - radiusOuter * MathF.Sin(MathF.PI * 1.75f)
+                ),
+                radiusOuter, ArcSize.Large
+            );
+            geo_bg.AddPoint(
+                new Point(
+                    centerX + radiusInner * MathF.Cos(MathF.PI * 1.75f),
+                    centerY - radiusInner * MathF.Sin(MathF.PI * 1.75f)
+                )
+            );
+            geo_bg.AddCurve(
+                new Point(
+                    centerX + radiusInner * MathF.Cos(MathF.PI * 1.25f),
+                    centerY - radiusInner * MathF.Sin(MathF.PI * 1.25f)
+                ),
+                radiusInner, ArcSize.Large, SweepDirection.CounterClockwise
+            );
+            geo_bg.EndFigure();
+            geo_bg.Close();
+            gfx.FillGeometry(geo_bg, emptyBrush);
+            gfx.DrawGeometry(geo_bg, bgBrush, 1);
+            
+            // draw value
+            var angle = MathF.PI * 1.25f - value / maxValue * MathF.PI * 1.5f;
+            var arcSize = value / maxValue * 270f >= 180f ? ArcSize.Large : ArcSize.Small;
+            radiusOuter -= 1;
+            radiusInner += 1;
+            geo_bg = gfx.CreateGeometry();
+            geo_bg.BeginFigure(
+                new Point(
+                    centerX + radiusOuter * MathF.Cos(MathF.PI * 1.25f), 
+                    centerY - radiusOuter * MathF.Sin(MathF.PI * 1.25f)
+                ),
+                true
+            );
+            geo_bg.AddCurve(
+                new Point(
+                    centerX + radiusOuter * MathF.Cos(angle),
+                    centerY - radiusOuter * MathF.Sin(angle)
+                ),
+                radiusOuter, arcSize
+            );
+            geo_bg.AddPoint(
+                new Point(
+                    centerX + radiusInner * MathF.Cos(angle),
+                    centerY - radiusInner * MathF.Sin(angle)
+                )
+            );
+            var endPoint = new Point(
+                centerX + radiusInner * MathF.Cos(MathF.PI * 1.25f),
+                centerY - radiusInner * MathF.Sin(MathF.PI * 1.25f)
+            );
+            geo_bg.AddCurve(
+                endPoint,
+                radiusInner, arcSize, SweepDirection.CounterClockwise
+            );
+            geo_bg.EndFigure();
+            geo_bg.Close();
+            gfx.FillGeometry(geo_bg, valueBrush);
+
+            gfx.drawTextWithBackgroundCentered(textFont,
+                0.2f * radiusOuter,
+                valueBrush,
+                bgBrush,
+                centerX,
+                centerY + radiusInner,
+                unit);
+            gfx.drawTextWithBackgroundCentered(textFont,
+                0.5f * radiusOuter,
+                valueBrush,
+                bgBrush,
+                centerX,
+                centerY,
+                Convert.ToInt32(value).ToString());
+
+            return endPoint;
+        }
+    }
 }
+
+

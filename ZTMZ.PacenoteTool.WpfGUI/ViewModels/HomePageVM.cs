@@ -219,6 +219,14 @@ public partial class HomePageVM : ObservableObject {
         };
         _tool.onTrackNameChanged += (game, trackName) => {
             CurrentTrack = trackName;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.TrackName = trackName;
+        };
+
+        _tool.onNewGameData += (game, data) => {
+            if (_isRacing) {
+                // update game data.
+                _gameOverlayManager.DashboardScriptArguments.GameData = data;
+            }
         };
 
         _tool.onRaceEnd += (game) => IsRacing = false;

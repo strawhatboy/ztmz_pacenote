@@ -16,6 +16,16 @@ public class GameContext {
     public string PacenoteType { set; get; } = "";
 }
 
+public class DashboardScriptArguments {
+    public Graphics Graphics { get; set; }
+    public Config Config { get; set; }
+    public I18NLoader I18NLoader { get; set; }
+    public GameData GameData { get; set; }
+    public GameContext GameContext { get; set; }
+
+    public GameOverlayDrawingHelper GameOverlayDrawingHelper { get; set; }
+}
+
 /// <summary>
 /// Dashboard 
 ///     json descriptor
@@ -51,14 +61,14 @@ public class Dashboard {
 
     private LuaGlobal LuaG { get; set; }
 
-    public void Load(Graphics graphics) {
+    public void Load(DashboardScriptArguments args) {
         // load resources
         if (!string.IsNullOrEmpty(Descriptor.PreviewImagePath))
-            this.PreviewImage = new Image(graphics, Descriptor.PreviewImagePath);
+            this.PreviewImage = new Image(args.Graphics, Descriptor.PreviewImagePath);
 
         this.ImageResources = new Dictionary<string, Image>();
         foreach (var imageResource in Descriptor.ImageResources) {
-            this.ImageResources.Add(imageResource.Key, new Image(graphics, imageResource.Value));
+            this.ImageResources.Add(imageResource.Key, new Image(args.Graphics, imageResource.Value));
         }
         // load lua script
         using (var lua = new Lua()) {
@@ -68,19 +78,19 @@ public class Dashboard {
                 ClrEnabled = false
             };
             LuaG.DoChunk(File.ReadAllText(Path.Combine(Descriptor.Path, Constants.FILE_LUA_SCRIPT)), $"{Guid.NewGuid()}.lua");
-            LuaG.CallMember("onInit", graphics, Config.Instance);
-            _logger.Info($"Dashboard \"{Descriptor.Name}\" loaded");
+            LuaG.CallMember("onInit", args);
+            _logger.Info($"Dashboard \"{I18NLoader.Instance[Descriptor.Name]}\" loaded");
         }
     }
 
-    public void Render(Graphics graphics, GameData gameData, GameContext gameContext) {
+    public void Render(DashboardScriptArguments args) {
         // render lua script
-        LuaG.CallMember("onUpdate", graphics, Config.Instance, gameData, gameContext);
+        LuaG.CallMember("onUpdate", args);
     }
 
     public void Unload() {
         LuaG.CallMember("onExit");
-        _logger.Info($"Dashboard {Descriptor.Name} unloaded");
+        _logger.Info($"Dashboard {I18NLoader.Instance[Descriptor.Name]} unloaded");
         LuaG.Clear();
     }
 }

@@ -1,0 +1,22 @@
+{
+    "dashboards": {
+        "classic": {
+            "debug": {
+                "name": "调试信息",
+                "description": "显示调试信息"
+            },
+            "mapInfo": {
+                "name": "地图信息",
+                "description": "显示地图信息"
+            },
+            "progress": {
+                "name": "进度条",
+                "description": "显示进度条"
+            },
+            "classicDashboard": {
+                "name": "经典仪表盘",
+                "description": "显示经典仪表盘"
+            }
+        }
+    }
+}

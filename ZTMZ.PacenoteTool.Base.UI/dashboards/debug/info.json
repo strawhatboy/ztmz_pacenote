@@ -1,6 +1,6 @@
 {
-    "Name": "Debug",
-    "Description": "Show debug information",
+    "Name": "dashboards.classic.debug.name",
+    "Description": "dashboards.classic.debug.description",
     "Author": "草帽不是猫",
     "Version": "0.0.1",
     "PreviewImagePath": "",

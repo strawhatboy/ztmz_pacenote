@@ -1,6 +1,6 @@
 {
-    "Name": "Progress",
-    "Description": "Show track progress",
+    "Name": "dashboards.classic.progress.name",
+    "Description": "dashboards.classic.progress.description",
     "Author": "草帽不是猫",
     "Version": "0.0.1",
     "PreviewImagePath": "",

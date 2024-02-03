@@ -1,6 +1,19 @@
 local resources = {};
 
-function onInit(gfx, conf)
+-- This function is called when the script is loaded
+-- args: dotnet object
+--     args.Graphics: GameOverlay.Drawing.Graphics
+--     args.Config: ZTMZ.PacenoteTool.Base.Config
+--     args.I18NLoader: ZTMZ.PacenoteTool.Base.I18NLoader
+--     args.GameData: ZTMZ.PacenoteTool.Base.Game.GameData
+--     args.GameContext: 
+--         args.GameContext.TrackName: string
+--         args.GameContext.AudioPackage: string
+--         args.GameContext.ScriptAuthor: string
+--         args.GameContext.PacenoteType: string
+function onInit(args)
+    local gfx = args.Graphics;
+    local conf = args.Config;
     local _brushes = {};
     _brushes["black"] = gfx.CreateSolidBrush(0, 0, 0);
     _brushes["white"] = gfx.CreateSolidBrush(255, 255, 255);
@@ -26,14 +39,16 @@ function onInit(gfx, conf)
     resources["fonts"] = _fonts;
 end
 
-function onUpdate(gfx, conf, data, ctx)
+function onUpdate(args)
+    local gfx = args.Graphics;
+    local data = args.GameData;
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], 0, 0, data.ToString());
 end
 
 function onExit()
-    for k,v in resources["brushes"] do
+    for k,v in ipairs(resources["brushes"]) do
         v.Dispose();
     end
 end

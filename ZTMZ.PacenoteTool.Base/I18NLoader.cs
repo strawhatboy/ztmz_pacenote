@@ -44,7 +44,7 @@ namespace ZTMZ.PacenoteTool.Base
             }
         }
 
-        private I18NLoader(bool ignoreCase = false)
+        private I18NLoader(bool ignoreCase = true)
         {
             IgnoreCase = ignoreCase;
         }
@@ -143,11 +143,11 @@ namespace ZTMZ.PacenoteTool.Base
             if (unknownToken is JValue value)
             {
                 var propertyName = unknownToken.Path;
-                if (IgnoreCase) {
-                    propertyName = propertyName.ToLower();
-                }
                 var valueStr = value.Value.ToString();
                 _logger.Trace("trying to assign i18n property {0} {1} with value: {2}", culture, propertyName, valueStr);
+                if (IgnoreCase) {
+                    Resources[culture][propertyName.ToLower()] = valueStr;
+                }
                 Resources[culture][propertyName] = valueStr;
             }
             else if (unknownToken is JObject obj)
@@ -202,16 +202,20 @@ namespace ZTMZ.PacenoteTool.Base
         {
             get
             {
+                if (IgnoreCase) {
+                    idx = idx.ToLower();
+                }
                 if (this.CurrentCulture != null && this.CurrentCulture.ContainsKey(idx))
                 {
-                    if (IgnoreCase) {
-                        return this.CurrentCulture[idx.ToLower()].ToString();
-                    }
                     return this.CurrentCulture[idx].ToString();
                 }
 
                 return idx;
             }
+        }
+
+        public string ResolveByKey(string idx) {
+            return this[idx];
         }
     }
 }

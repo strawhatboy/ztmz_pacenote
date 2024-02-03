@@ -108,10 +108,10 @@ namespace ZTMZ.PacenoteTool.Core
         public ZTMZAudioPlaybackEngine Player { set; get; }
 
 
-        public AudioFile CurrentAudioFile => this.AudioFiles != null && this.CurrentPlayIndex < this.AudioFiles.Count()
+        public AudioFile CurrentAudioFile => this.AudioFiles != null && this.CurrentPlayIndex >= 0 && this.CurrentPlayIndex < this.AudioFiles.Count()
             ? this.AudioFiles[this.CurrentPlayIndex]
             : null;
-        public AudioFile NextAudioFile => this.AudioFiles != null && this.CurrentPlayIndex+1 < this.AudioFiles.Count()
+        public AudioFile NextAudioFile => this.AudioFiles != null && this.CurrentPlayIndex > 0 && this.CurrentPlayIndex+1 < this.AudioFiles.Count()
             ? this.AudioFiles[this.CurrentPlayIndex+1]
             : null;
 

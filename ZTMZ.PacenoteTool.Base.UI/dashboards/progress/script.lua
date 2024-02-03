@@ -1,6 +1,19 @@
 local resources = {};
 
-function onInit(gfx, conf)
+-- This function is called when the script is loaded
+-- args: dotnet object
+--     args.Graphics: GameOverlay.Drawing.Graphics
+--     args.Config: ZTMZ.PacenoteTool.Base.Config
+--     args.I18NLoader: ZTMZ.PacenoteTool.Base.I18NLoader
+--     args.GameData: ZTMZ.PacenoteTool.Base.Game.GameData
+--     args.GameContext: 
+--         args.GameContext.TrackName: string
+--         args.GameContext.AudioPackage: string
+--         args.GameContext.ScriptAuthor: string
+--         args.GameContext.PacenoteType: string
+function onInit(args)
+    local gfx = args.Graphics;
+    local conf = args.Config;
     local _brushes = {};
     if (conf.HudChromaKeyMode) then
         _brushes["green"] = gfx.CreateSolidBrush(0, 0, 255);
@@ -11,7 +24,10 @@ function onInit(gfx, conf)
     resources["brushes"] = _brushes;
 end
 
-function onUpdate(gfx, conf, data, ctx)
+function onUpdate(args)
+    local gfx = args.Graphics;
+    local conf = args.Config;
+    local data = args.GameData;
     local _brushes = resources["brushes"];
     gfx.FillRectangle(_brushes["green"], 
                 0, 
@@ -21,7 +37,7 @@ function onUpdate(gfx, conf, data, ctx)
 end
 
 function onExit()
-    for k,v in resources["brushes"] do
+    for k,v in ipairs(resources["brushes"]) do
         v.Dispose();
     end
 end

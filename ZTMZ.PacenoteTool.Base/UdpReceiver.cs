@@ -60,8 +60,8 @@ namespace ZTMZ.PacenoteTool.Base
             }
             any = new IPEndPoint(ipAddress, port);
             client = new UdpClient();
-            client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            client.ExclusiveAddressUse = false;
+            // client.Client.SetSocketOption(SocketOptionLevel.Udp, , true);
+            // client.ExclusiveAddressUse = false;
             client.Client.Bind(any);
             UdpState s;
             s.e = any;
