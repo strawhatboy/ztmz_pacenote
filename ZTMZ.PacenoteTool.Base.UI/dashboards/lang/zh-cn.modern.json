@@ -4,7 +4,11 @@
             "wrc": {
                 "name": "WRC",
                 "description": "WRC 直播仪表盘2023",
-            }
+            },
+            "fiesta": {
+                "name": "Fiesta",
+                "description": "福特嘉年华WRC仪表盘",
+            },
         },
         "settings": {
             "padding": "内部间距",

@@ -4,7 +4,11 @@
             "wrc": {
                 "name": "WRC",
                 "description": "WRC Broadcasting Dashboard 2023",
-            }
+            },
+            "fiesta": {
+                "name": "Fiesta",
+                "description": "Ford Fiesta WRC Dashboard",
+            },
         },
         "settings": {
             "padding": "Padding",

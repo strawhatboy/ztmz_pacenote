@@ -109,6 +109,12 @@ public class Dashboard {
             return DashboardConfigurations.PropertyValue[DashboardConfigurations.PropertyName.Keys.ToList().IndexOf(key)];
         return null;
     }
+
+    public void SaveConfig() {
+        File.WriteAllText(Path.Combine(Descriptor.Path, Constants.FILE_SETTINGS), JsonConvert.SerializeObject(DashboardConfigurations, Formatting.Indented));
+        // save IsEnabled in descriptor
+        File.WriteAllText(Path.Combine(Descriptor.Path, Constants.DASHBOARD_INFO_FILE_NAME), JsonConvert.SerializeObject(Descriptor, Formatting.Indented));
+    }
 }
 
 public class DashboardDescriptor {

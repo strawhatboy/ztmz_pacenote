@@ -1,15 +1,15 @@
 <Page x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.PlayPage"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:system="clr-namespace:System;assembly=System.Runtime"
-      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      Title="PlayPage"
-      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-      mc:Ignorable="d">
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Title="PlayPage"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    mc:Ignorable="d">
     <Page.Resources>
         <!-- <Style TargetType="ui:Card">
             <Setter Property="Padding" Value="16"></Setter>
@@ -17,6 +17,361 @@
         </Style> -->
     </Page.Resources>
     <StackPanel Orientation="Vertical">
-        <ui:TextBlock Text="WIP" />
+        <!-- useSequentialMixerToHandleAudioConflict -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="PeopleQueue20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.useSequentialMixerToHandleAudioConflict}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.useSequentialMixerToHandleAudioConflict}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
+                    IsChecked="{Binding Path=ViewModel.UseSequentialMixerToHandleAudioConflict, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
+
+        <!-- useDynamicPlaybackSpeed -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="TopSpeed20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.useDynamicPlaybackSpeed}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.useDynamicPlaybackSpeed}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
+                    IsChecked="{Binding Path=ViewModel.UseDynamicPlaybackSpeed, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
+
+        <!-- useTempoInsteadOfRate -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Joystick20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.useTempoInsteadOfRate}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.useTempoInsteadOfRate}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
+                    IsChecked="{Binding Path=ViewModel.UseTempoInsteadOfRate, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
+
+        <!-- dynamicPlaybackMaxSpeed -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="TopSpeed20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.dynamicPlaybackMaxSpeed}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.dynamicPlaybackMaxSpeed}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:TextBlock Text="{Binding Path=ViewModel.DynamicPlaybackMaxSpeed, Mode=OneWay, StringFormat=N1}"
+                    Grid.Column="1" VerticalAlignment="Center" />
+                <Slider Grid.Row="4" Grid.Column="2"
+                    Maximum="1.5" Minimum="1"
+                    IsSnapToTickEnabled="True" 
+                    Value="{Binding Path=ViewModel.DynamicPlaybackMaxSpeed, Mode=TwoWay}"
+                    IsEnabled="True" TickFrequency="0.1"
+                    TickPlacement="Both"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </ui:Card>
+
+        <!-- useDynamicVolume -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="SpeakerSettings20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.useDynamicVolume}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.useDynamicVolume}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
+                    IsChecked="{Binding Path=ViewModel.UseDynamicVolume, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
+
+        <!-- dynamicVolumePerturbationFrequency -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="SpeakerEdit20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.dynamicVolumePerturbationFrequency}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.dynamicVolumePerturbationFrequency}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:NumberBox Grid.Column="1"
+                    Value="{Binding Path=ViewModel.DynamicVolumePerturbationFrequency, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
+
+        <!-- dynamicVolumePerturbationAmplitude -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="40" /> 
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="TopSpeed20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.dynamicVolumePerturbationAmplitude}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.dynamicVolumePerturbationAmplitude}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:TextBlock Text="{Binding Path=ViewModel.DynamicVolumePerturbationAmplitude, Mode=OneWay, StringFormat=N1}"
+                    Grid.Column="1" VerticalAlignment="Center" />
+                <Slider Grid.Row="4" Grid.Column="2"
+                    Maximum="1" Minimum="0"
+                    IsSnapToTickEnabled="True" 
+                    Value="{Binding Path=ViewModel.DynamicVolumePerturbationAmplitude, Mode=TwoWay}"
+                    IsEnabled="True" TickFrequency="0.125"
+                    TickPlacement="Both"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </ui:Card>
+        
+        <!-- playbackDeviceDesiredLatency -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Timer20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.playbackDeviceDesiredLatency}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.playbackDeviceDesiredLatency}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:NumberBox Grid.Column="1"
+                    Value="{Binding Path=ViewModel.PlaybackDeviceDesiredLatency, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
+
+        <!-- connectCloseDistanceCallToNextPacenote -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Script16"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.connectCloseDistanceCallToNextPacenote}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.connectCloseDistanceCallToNextPacenote}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
+                    IsChecked="{Binding Path=ViewModel.ConnectCloseDistanceCallToNextPacenote, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
+
+        <!-- connectNumericDistanceCallToPreviousPacenote -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Script16"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.connectNumericDistanceCallToPreviousPacenote}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.connectNumericDistanceCallToPreviousPacenote}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
+                    IsChecked="{Binding Path=ViewModel.ConnectNumericDistanceCallToPreviousPacenote, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
+
+        <!-- examplePacenoteString -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="560" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Script16"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.examplePacenoteString}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.examplePacenoteString}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:TextBox Grid.Column="1" VerticalAlignment="Center"
+                    Text="{Binding Path=ViewModel.ExamplePacenoteString, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
     </StackPanel>
 </Page>

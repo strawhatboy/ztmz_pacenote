@@ -104,7 +104,7 @@ function drawStaticFrames(gfx, data, helper, x, y, radius, padding)
     -- draw the static frames
     -- 1. background
     -- print("drawing the background")
-    for alpha=10,100,8 do
+    for alpha=10,100,20 do
         _brushes["background"].Color = helper.getColor(
             _brushes["background"].Color.R,
             _brushes["background"].Color.G,
@@ -167,7 +167,7 @@ function drawRPM(gfx, data, helper, x, y, radius, padding)
         if (arcAngle > math.pi) then
             arcSize = ARCSIZE_LARGE;
         end
-        drawGeo(gfx, helper, x, y, 7 * math.pi / 6, 7 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, _brushes["clutch"]);
+        drawGeo(gfx, helper, x, y, 7 * math.pi / 6, 7 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, _brushes["rpm"]);
     end
 end
 
@@ -206,7 +206,7 @@ end
 function drawClutch(gfx, data, helper, x, y, radius, padding)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
-    local telemetryRadius = radius - padding - radius * 0.20;
+    local telemetryRadius = radius - padding - radius * 0.19;
     local clutchWeight = radius * 0.04;
     local clutch = data.Clutch;
     if (clutch > 0) then
@@ -222,7 +222,7 @@ end
 function drawHandBrake(gfx, data, helper, x, y, radius, padding)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
-    local telemetryRadius = radius - padding - radius * 0.20;
+    local telemetryRadius = radius - padding - radius * 0.19;
     local handBrakeWeight = radius * 0.04;
     local handBrake = data.HandBrake;
     if (handBrake > 0) then

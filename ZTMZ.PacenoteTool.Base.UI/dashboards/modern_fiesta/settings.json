@@ -2,13 +2,16 @@
     "PropertyName": {
         "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
         "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
-
+        "dashboards.settings.size": "dashboards.settings.tooltip.size",
+        "dashboards.settings.whRatio": "dashboards.settings.tooltip.whRatio",
     },
     "PropertyValue": [
+        0,
         1,
-        -1
-    ],
+        0.2,
+        2
+    ], 
     "ValueRange": [
-        [], []
+        [], [], [0.1, 0.5], [1, 3]
     ]
 }

@@ -232,7 +232,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._UseDynamicPlaybackSpeed;
         }
 
-        private float _DynamicPlaybackMaxSpeed = 1.5f;
+        private float _DynamicPlaybackMaxSpeed = 1.2f;
         public float DynamicPlaybackMaxSpeed
         {
             set { this._DynamicPlaybackMaxSpeed = value; this._userconfig["DynamicPlaybackMaxSpeed"] = value; }

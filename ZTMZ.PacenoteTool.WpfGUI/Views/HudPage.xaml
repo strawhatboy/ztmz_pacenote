@@ -16,7 +16,11 @@
             <Setter Property="Margin" Value="0 0 0 5"></Setter>
         </Style> -->
     </Page.Resources>
-    <StackPanel Orientation="Vertical">
-        <ui:TextBlock Text="WIP" />
-    </StackPanel>
+    <ItemsControl x:Name="tStack" ItemsSource="{Binding ViewModel.DashboardItems}">
+        <ItemsControl.ItemsPanel>
+           <ItemsPanelTemplate>
+              <StackPanel Orientation="Vertical"/>
+           </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+    </ItemsControl>
 </Page>

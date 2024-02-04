@@ -62,6 +62,8 @@ public class CommonGameConfigs: IGameConfig
     public Dictionary<string, string> PropertyName { set; get; }
     public List<object> PropertyValue { set; get; }
 
+    public List<List<double>> ValueRange { set; get; }
+
     // [JsonIgnore]
     // public IGameConfigSettingsPane UI {set;get;}
 

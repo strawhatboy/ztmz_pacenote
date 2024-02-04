@@ -101,6 +101,7 @@ namespace ZTMZ.PacenoteTool
         private float minSuspension { set; get; }
 
         public List<Dashboard> Dashboards { set; get; } = new List<Dashboard>();
+        public List<bool> DashboardEnabled { set; get; } = new List<bool>();
 
         public GameOverlayManager() {
             var dashboardsPath = AppLevelVariables.Instance.GetPath(Constants.PATH_DASHBOARDS);
@@ -109,12 +110,12 @@ namespace ZTMZ.PacenoteTool
                 // loop through subfolders and load all dashboards
                 foreach (var dashboardPath in System.IO.Directory.GetDirectories(dashboardsPath))
                 {
-                    if (!System.IO.File.Exists(System.IO.Path.Combine(dashboardPath, "info.json")))
+                    if (!System.IO.File.Exists(System.IO.Path.Combine(dashboardPath, Constants.DASHBOARD_INFO_FILE_NAME)))
                     {
                         _logger.Warn("Dashboard info.json not exists: {0}", dashboardPath);
                         continue;
                     }
-                    var dashboard = new Dashboard(System.IO.Path.Combine(dashboardPath, "info.json"));
+                    var dashboard = new Dashboard(System.IO.Path.Combine(dashboardPath, Constants.DASHBOARD_INFO_FILE_NAME));
                     // dashboard.Descriptor.Path = dashboardPath;
                     Dashboards.Add(dashboard);
                 }
@@ -215,17 +216,33 @@ namespace ZTMZ.PacenoteTool
             gfx.LoadCustomFont(AppLevelVariables.Instance.GetPath(Constants.PATH_FONTS));
             _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
             foreach (var dashboard in Dashboards) {
-                if (dashboard.Descriptor.IsEnabled)
+                if (dashboard.Descriptor.IsEnabled) {
                     dashboard.Load(DashboardScriptArguments);
+                    DashboardEnabled.Add(true);
+                } else {
+                    DashboardEnabled.Add(false);
+                }
             }
         }
 
         private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e) {
             var gfx = e.Graphics;
             gfx.ClearScene(_brushes["clear"]);
-            foreach (var dashboard in Dashboards) {
-                if (dashboard.Descriptor.IsEnabled)
-                    dashboard.Render(DashboardScriptArguments);
+            for (var i = 0; i < Dashboards.Count; i++) {
+                var dashboard = Dashboards[i];
+                if (dashboard.Descriptor.IsEnabled) {
+                    if (DashboardEnabled[i]) {
+                        dashboard.Render(DashboardScriptArguments);
+                    } else {
+                        dashboard.Load(DashboardScriptArguments);
+                        DashboardEnabled[i] = true;
+                    }
+                } else {
+                    if (DashboardEnabled[i]) {
+                        dashboard.Unload();
+                        DashboardEnabled[i] = false;
+                    }
+                }
             }
         }
 

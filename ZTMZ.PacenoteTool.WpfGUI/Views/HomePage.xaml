@@ -367,7 +367,7 @@
                             <Slider Grid.Row="4" Grid.Column="2" x:Name="sl_playbackSpd" 
                                     Maximum="1.5" Minimum="0.5" Value="{Binding Path=ViewModel.PlaybackSpeed, Mode=TwoWay}" 
                                     IsEnabled="True" TickFrequency="0.125"
-                                    
+                                    IsSnapToTickEnabled="True" 
                                     TickPlacement="Both" 
                                     VerticalAlignment="Center"></Slider>
                             <ui:TextBlock Grid.Row="4" Grid.Column="1" x:Name="tb_playbackSpd" HorizontalAlignment="Center" >
