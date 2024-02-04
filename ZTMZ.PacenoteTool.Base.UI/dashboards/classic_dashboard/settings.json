@@ -1,0 +1,38 @@
+{
+    "PropertyName": {
+        "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
+        "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
+        "dashboards.settings.size": "dashboards.settings.tooltip.size",
+        "dashboards.settings.paddingH": "dashboards.settings.tooltip.paddingH",
+        "dashboards.settings.paddingV": "dashboards.settings.tooltip.paddingV",
+        "dashboards.settings.elementSpacing": "dashboards.settings.tooltip.elementSpacing",
+        "dashboards.settings.sectorThicknessRatio": "dashboards.settings.tooltip.sectorThicknessRatio",
+        "dashboards.settings.backgroundOpacity": "dashboards.settings.tooltip.backgroundOpacity",
+        "dashboards.settings.whRatio": "dashboards.settings.tooltip.whRatio",
+        "dashboards.settings.showGBall": "dashboards.settings.tooltip.showGBall",
+        "dashboards.settings.showSpdSector": "dashboards.settings.tooltip.showSpdSector",
+        "dashboards.settings.showRpmSector": "dashboards.settings.tooltip.showRpmSector",
+        "dashboards.settings.showGear": "dashboards.settings.tooltip.showGear",
+        "dashboards.settings.showPedals": "dashboards.settings.tooltip.showPedals",
+        "dashboards.settings.showSteering": "dashboards.settings.tooltip.showSteering",
+        "dashboards.settings.steeringDegree": "dashboards.settings.tooltip.steeringDegree"
+    },
+    "PropertyValue": [
+        0,
+        1,
+        0.12,
+        0.2,
+        0.1,
+        0.2,
+        0.25,
+        0.5,
+        6,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        540
+    ]
+}

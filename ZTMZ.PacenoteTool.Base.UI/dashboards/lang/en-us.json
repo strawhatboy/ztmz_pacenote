@@ -17,6 +17,50 @@
                 "name": "Classic Dashboard",
                 "description": "Show classic dashboard"
             }
+        },
+        "settings": {
+            "enabled": "Enabled",
+            "positionH": "Horizontal position",
+            "positionV": "Vertical position",
+            "top": "Top",
+            "bottom": "Bottom",
+            "left": "Left",
+            "right": "Right",
+            "center": "Center",
+            "size": "Size",
+            "paddingH": "Horizontal padding",
+            "paddingV": "Vertical padding",
+            "elementSpacing": "Element spacing",
+            "sectorThicknessRatio": "Sector thickness ratio",
+            "backgroundOpacity": "Background opacity",
+            "whRatio": "Width/Height ratio",
+            "showGBall": "Show G ball",
+            "showSpdSector": "Show speed sector",
+            "showRpmSector": "Show RPM sector",
+            "showGear": "Show gear",
+            "showPedals": "Show pedals",
+            "showSteering": "Show steering",
+            "steeringDegree": "Steering degree",
+
+            "tooltip": {
+                "enabled": "Enable or disable the dashboard",
+                "positionH": "Horizontal position of the dashboard",
+                "positionV": "Vertical position of the dashboard",
+                "size": "Size of the dashboard, relative to the screen size",
+                "paddingH": "Horizontal padding of the dashboard",
+                "paddingV": "Vertical padding of the dashboard",
+                "elementSpacing": "Spacing between elements of the dashboard",
+                "sectorThicknessRatio": "Thickness of the speed and RPM sectors",
+                "backgroundOpacity": "Opacity of the dashboard background",
+                "whRatio": "Width/Height ratio of the dashboard",
+                "showGBall": "Show the G ball",
+                "showSpdSector": "Show the speed sector",
+                "showRpmSector": "Show the RPM sector",
+                "showGear": "Show the gear",
+                "showPedals": "Show the pedals",
+                "showSteering": "Show the steering",
+                "steeringDegree": "Steering degree"
+            }
         }
     }
 }

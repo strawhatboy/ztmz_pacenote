@@ -2,10 +2,13 @@
     "PropertyName": {
         "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
         "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
-
+        "dashboards.settings.size": "dashboards.settings.tooltip.size",
+        "dashboards.settings.padding": "dashboards.settings.tooltip.padding",
     },
     "PropertyValue": [
         0,
-        1
+        1,
+        0.25,
+        0.12,
     ]
 }

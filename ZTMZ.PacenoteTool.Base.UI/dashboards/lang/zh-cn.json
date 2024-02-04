@@ -17,6 +17,50 @@
                 "name": "经典仪表盘",
                 "description": "显示经典仪表盘"
             }
+        },
+        "settings": {
+            "enabled": "启用",
+            "positionH": "水平位置",
+            "positionV": "垂直位置",
+            "top": "顶部",
+            "bottom": "底部",
+            "left": "左侧",
+            "right": "右侧",
+            "center": "中心",
+            "size": "大小",
+            "paddingH": "水平间距",
+            "paddingV": "垂直间距",
+            "elementSpacing": "元素间距",
+            "sectorThicknessRatio": "扇形厚度比",
+            "backgroundOpacity": "背景透明度",
+            "whRatio": "宽高比",
+            "showGBall": "显示G力球",
+            "showSpdSector": "显示速度表盘",
+            "showRpmSector": "显示转速表盘",
+            "showGear": "显示档位",
+            "showPedals": "显示踏板",
+            "showSteering": "显示方向盘",
+            "steeringDegree": "方向盘角度",
+
+            "tooltip": {
+                "enabled": "启用/禁用仪表盘",
+                "positionH": "仪表盘水平位置",
+                "positionV": "仪表盘垂直位置",
+                "size": "仪表盘大小",
+                "paddingH": "仪表盘水平间距",
+                "paddingV": "仪表盘垂直间距",
+                "elementSpacing": "仪表盘元素间距",
+                "sectorThicknessRatio": "仪表盘扇形厚度比",
+                "backgroundOpacity": "仪表盘背景透明度",
+                "whRatio": "仪表盘宽高比",
+                "showGBall": "显示G力球",
+                "showSpdSector": "显示速度表盘",
+                "showRpmSector": "显示转速表盘",
+                "showGear": "显示档位",
+                "showPedals": "显示踏板",
+                "showSteering": "显示方向盘",
+                "steeringDegree": "方向盘角度"
+            }
         }
     }
 }

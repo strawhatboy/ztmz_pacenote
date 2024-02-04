@@ -25,6 +25,7 @@ public struct GameData
     public float Clutch;
     public float Brake;
     public float Throttle;
+    public float HandBrake;
 
     public float Steering;
     public float Gear;

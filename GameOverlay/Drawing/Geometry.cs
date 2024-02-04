@@ -274,5 +274,10 @@ namespace GameOverlay.Drawing
             };
             _sink.AddArc(arcSegment);
         }
+
+        public void AddCurveWithArcSegmentArgs(Point p, float radius, ArcSize arcSize, SweepDirection swpDirection=SweepDirection.Clockwise, float rotationAngle=0f)
+        {
+            AddCurve(p, radius, arcSize, swpDirection, rotationAngle);
+        }
     }
 }

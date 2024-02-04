@@ -53,8 +53,11 @@ public class ZTMZPacenoteTool {
     public event Action<IGame, GameData> onNewGameData;
 
     public event Action<IGame> onRaceBegin;
+    public event Action<IGame> onRaceBegined;
 
     public event Action<IGame> onRaceEnd;
+
+    public string CurrentScriptAuthor => _profileManager?.CurrentScriptReader?.Author;
 
     public bool IsInitialized { private set; get; } = false;
 
@@ -314,7 +317,9 @@ public class ZTMZPacenoteTool {
                     }
 
                     //TODO: change overlay script type
+                    this.onRaceBegined?.Invoke(_currentGame);
                 });
+
                 
 
                 break;

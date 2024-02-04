@@ -53,6 +53,20 @@ public partial class CommonGameConfigsSettingsPane : IGameConfigSettingsPane
                 tbtn.VerticalAlignment = VerticalAlignment.Center;
                 
                 this.grid_Main.Children.Add(tbtn);
+            } else if (value.GetType() == typeof(string)) 
+            {
+                int _index = index;
+                Wpf.Ui.Controls.TextBox tbox = new Wpf.Ui.Controls.TextBox() { Text = (string)_config.PropertyValue[_index] };
+                // tbox.HorizontalAlignment = HorizontalAlignment.Right;
+                tbox.TextChanged += (sender, args) => {
+                    _config.PropertyValue[_index] = tbox.Text;
+                    base.RestartNeeded?.Invoke();
+                    Config.Instance.SaveGameConfig(game);
+                };
+                Grid.SetRow(tbox, _index);
+                Grid.SetColumn(tbox, 1);
+                tbox.VerticalAlignment = VerticalAlignment.Center;
+                this.grid_Main.Children.Add(tbox);
             }
 
             index++;

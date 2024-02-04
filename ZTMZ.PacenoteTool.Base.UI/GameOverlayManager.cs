@@ -22,6 +22,7 @@ using Rectangle = GameOverlay.Drawing.Rectangle;
 using Color = GameOverlay.Drawing.Color;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Base.UI;
+using System.IO;
 
 namespace ZTMZ.PacenoteTool
 {
@@ -114,7 +115,7 @@ namespace ZTMZ.PacenoteTool
                         continue;
                     }
                     var dashboard = new Dashboard(System.IO.Path.Combine(dashboardPath, "info.json"));
-                    dashboard.Descriptor.Path = dashboardPath;
+                    // dashboard.Descriptor.Path = dashboardPath;
                     Dashboards.Add(dashboard);
                 }
             }
@@ -210,9 +211,12 @@ namespace ZTMZ.PacenoteTool
 
         private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e) {
             var gfx = e.Graphics;
+            // load custom fonts
+            gfx.LoadCustomFont(AppLevelVariables.Instance.GetPath(Constants.PATH_FONTS));
             _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
             foreach (var dashboard in Dashboards) {
-                dashboard.Load(DashboardScriptArguments);
+                if (dashboard.Descriptor.IsEnabled)
+                    dashboard.Load(DashboardScriptArguments);
             }
         }
 
@@ -220,7 +224,8 @@ namespace ZTMZ.PacenoteTool
             var gfx = e.Graphics;
             gfx.ClearScene(_brushes["clear"]);
             foreach (var dashboard in Dashboards) {
-                dashboard.Render(DashboardScriptArguments);
+                if (dashboard.Descriptor.IsEnabled)
+                    dashboard.Render(DashboardScriptArguments);
             }
         }
 
@@ -273,7 +278,8 @@ namespace ZTMZ.PacenoteTool
             foreach (var pair in _fonts) pair.Value.Dispose();
             foreach (var pair in _images) pair.Value.Dispose();
             foreach (var dashboard in Dashboards) {
-                dashboard.Unload();
+                if (dashboard.Descriptor.IsEnabled)
+                    dashboard.Unload();
             }
         }
 
@@ -935,6 +941,8 @@ namespace ZTMZ.PacenoteTool
 
 
     public class GameOverlayDrawingHelper {
+
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         public Point getPoint(float x, float y)
         {
             return new Point(x, y);
@@ -978,31 +986,38 @@ namespace ZTMZ.PacenoteTool
             var radiusInner = radiusOuter * (1 - thicknessRatio);
             // draw backgroud geometry
             var geo_bg = gfx.CreateGeometry();
+            var pointOuterStart = new Point(
+                centerX + radiusOuter * MathF.Cos(MathF.PI * 1.25f), 
+                centerY - radiusOuter * MathF.Sin(MathF.PI * 1.25f)
+            );
+            var pointOuterEnd = new Point(
+                centerX + radiusOuter * MathF.Cos(MathF.PI * 1.75f),
+                centerY - radiusOuter * MathF.Sin(MathF.PI * 1.75f)
+            );
+            var pointInnerEnd = new Point(
+                centerX + radiusInner * MathF.Cos(MathF.PI * 1.75f),
+                centerY - radiusInner * MathF.Sin(MathF.PI * 1.75f)
+            );
+            var pointInnerStart = new Point(
+                centerX + radiusInner * MathF.Cos(MathF.PI * 1.25f),
+                centerY - radiusInner * MathF.Sin(MathF.PI * 1.25f)
+            );
+            _logger.Info("radiusOuter: {0}, radiusInner: {1}", radiusOuter, radiusInner);
+            _logger.Info("pointOuterStart: {0}, pointOuterEnd: {1}, pointInnerEnd: {2}, pointInnerStart: {3}", pointOuterStart, pointOuterEnd, pointInnerEnd, pointInnerStart);
+            
             geo_bg.BeginFigure(
-                new Point(
-                    centerX + radiusOuter * MathF.Cos(MathF.PI * 1.25f), 
-                    centerY - radiusOuter * MathF.Sin(MathF.PI * 1.25f)
-                    ),
+                pointOuterStart,
                 true
                 );
             geo_bg.AddCurve(
-                new Point(
-                    centerX + radiusOuter * MathF.Cos(MathF.PI * 1.75f),
-                    centerY - radiusOuter * MathF.Sin(MathF.PI * 1.75f)
-                ),
+                pointOuterEnd,
                 radiusOuter, ArcSize.Large
             );
             geo_bg.AddPoint(
-                new Point(
-                    centerX + radiusInner * MathF.Cos(MathF.PI * 1.75f),
-                    centerY - radiusInner * MathF.Sin(MathF.PI * 1.75f)
-                )
+                pointInnerEnd
             );
             geo_bg.AddCurve(
-                new Point(
-                    centerX + radiusInner * MathF.Cos(MathF.PI * 1.25f),
-                    centerY - radiusInner * MathF.Sin(MathF.PI * 1.25f)
-                ),
+                pointInnerStart,
                 radiusInner, ArcSize.Large, SweepDirection.CounterClockwise
             );
             geo_bg.EndFigure();
@@ -1056,7 +1071,7 @@ namespace ZTMZ.PacenoteTool
                 centerY + radiusInner,
                 unit);
             gfx.drawTextWithBackgroundCentered(textFont,
-                0.5f * radiusOuter,
+                0.45f * radiusOuter,
                 valueBrush,
                 bgBrush,
                 centerX,

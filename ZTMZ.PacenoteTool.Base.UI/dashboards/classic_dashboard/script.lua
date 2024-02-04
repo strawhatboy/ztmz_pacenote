@@ -51,6 +51,8 @@ function onInit(args)
     
     local _fonts = {};
     _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
+    _fonts["wrc"] = gfx.CreateCustomFont("WRC Clean Roman", 14);
+    _fonts["wrcGear"] = gfx.CreateCustomFont("WRC Clean Roman", 32);
     _fonts["telemetryGear"] = gfx.CreateFont("Consolas", 32);
     
     resources["brushes"] = _brushes;
@@ -78,7 +80,7 @@ function drawSpdSector(gfx, conf, data, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     local maxSpeed = math.max(maxSpeed, data.Speed); 
-    helper.drawSector(gfx, "SPD (KM/h)", x, y, width, height, data.Speed, maxSpeed, _brushes["black"], _brushes["white"], _brushes["grey"], _fonts["consolas"], conf.HudSectorThicknessRatio);
+    helper.drawSector(gfx, "SPD (KM/h)", x, y, width, height, data.Speed, maxSpeed, _brushes["black"], _brushes["white"], _brushes["grey"], _fonts["wrc"], conf.HudSectorThicknessRatio);
 end
 
 function drawPedals(gfx, conf, data, helper, x, y, width, height)
@@ -108,7 +110,7 @@ function drawGear(gfx, conf, data, helper, x, y, width, height)
     local _fonts = resources["fonts"];
     -- var font = gfx.CreateFont("consolas", width);
     -- var actualSize = MathF.Min(width, height);
-    -- gfx.DrawText(_fonts["consolas"], actualSize, _brushes["white"], x, y, getGearText(Convert.ToInt32(UdpMessage.Gear)));
+    -- gfx.DrawText(_fonts["wrc"], actualSize, _brushes["white"], x, y, getGearText(Convert.ToInt32(UdpMessage.Gear)));
     local columns = math.floor(math.ceil(data.MaxGears * 0.5)) + 1;
 
     local barWidth = width / (columns + (columns-1) * conf.HudSectorThicknessRatio);
@@ -158,7 +160,7 @@ function drawGear(gfx, conf, data, helper, x, y, width, height)
     if (not isNGear) then
         gfx.FillRectangle(_brushes["red"], rect.Left + 1, rect.Top + 1, rect.Right - 1, rect.Bottom - 1);
     end
-    gfx.drawTextWithBackgroundCentered(_fonts["consolas"],
+    gfx.drawTextWithBackgroundCentered(_fonts["wrc"],
         barWidth * 1.5,
         _brushes["white"],
         _brushes["black"],
@@ -255,7 +257,7 @@ end
 function drawRPMSector(gfx, conf, data, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
-    helper.drawSector(gfx, "RPM", x, y, width, height, data.RPM, data.MaxRPM, _brushes["black"], _brushes["white"], _brushes["grey"], _fonts["consolas"], conf.HudSectorThicknessRatio);
+    helper.drawSector(gfx, "RPM", x, y, width, height, data.RPM, data.MaxRPM, _brushes["black"], _brushes["white"], _brushes["grey"], _fonts["wrc"], conf.HudSectorThicknessRatio);
 end
 
 

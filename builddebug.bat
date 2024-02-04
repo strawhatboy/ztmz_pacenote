@@ -16,4 +16,13 @@ rem copy built games to target folder
 echo copying built games to target folder
 xcopy ZTMZ.PacenoteTool.Codemasters\bin\Debug\net8.0-windows\ ZTMZ.PacenoteTool.WpfGUI\bin\Debug\net8.0-windows\games\ /Y /V /S
 xcopy ZTMZ.PacenoteTool.RBR\bin\Debug\net8.0-windows\ ZTMZ.PacenoteTool.WpfGUI\bin\Debug\net8.0-windows\games\ /Y /V /S
+
+echo copying i18n files to target folder
+xcopy ZTMZ.PacenoteTool.I18N\lang\ "%userprofile%\Documents\My Games\ZTMZClub_nextgen\lang\" /Y /V /S
+
+echo copying dashboards files to target folder
+xcopy ZTMZ.PacenoteTool.Base.UI\dashboards\ "%userprofile%\Documents\My Games\ZTMZClub_nextgen\dashboards\" /Y /V /S
+
+echo copying custom fonts to target folder
+xcopy ZTMZ.PacenoteTool.Base.UI\fonts\ "%userprofile%\Documents\My Games\ZTMZClub_nextgen\fonts\" /Y /V /S
 echo done.

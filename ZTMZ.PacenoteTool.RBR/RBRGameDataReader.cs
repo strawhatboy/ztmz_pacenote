@@ -269,6 +269,7 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.Throttle = data.control.throttle;
         gameData.Steering = data.control.steering;
         gameData.Gear = data.control.gear;
+        gameData.HandBrake = data.control.handbrake;
         
         
         // gameData.MaxGears = data.MaxGears;
@@ -310,6 +311,7 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.Brake = data.Brake;
         gameData.Throttle = data.Throttle;
         gameData.Steering = data.Steering;
+        gameData.HandBrake = data.Handbrake;
         gameData.Gear = data.GearId;
         gameData.Speed = data.SpeedKMH;
         gameData.TrackLength = data.TrackLength;

@@ -202,6 +202,131 @@
                 Draws diagonal lines
             </summary>
         </member>
+        <member name="T:GameOverlay.Drawing.CustomFont.CustomFontFileEnumerator">
+            <summary>
+            Resource FontFileEnumerator.
+            </summary>
+        </member>
+        <member name="M:GameOverlay.Drawing.CustomFont.CustomFontFileEnumerator.#ctor(SharpDX.DirectWrite.Factory,SharpDX.DirectWrite.FontFileLoader,SharpDX.DataPointer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:GameOverlay.Drawing.CustomFont.CustomFontFileEnumerator"/> class.
+            </summary>
+            <param name="factory">The factory.</param>
+            <param name="loader">The loader.</param>
+            <param name="key">The key.</param>
+        </member>
+        <member name="M:GameOverlay.Drawing.CustomFont.CustomFontFileEnumerator.SharpDX#DirectWrite#FontFileEnumerator#MoveNext">
+            <summary>
+            Advances to the next font file in the collection. When it is first created, the enumerator is positioned before the first element of the collection and the first call to MoveNext advances to the first file.
+            </summary>
+            <returns>
+            the value TRUE if the enumerator advances to a file; otherwise, FALSE if the enumerator advances past the last file in the collection.
+            </returns>
+            <unmanaged>HRESULT IDWriteFontFileEnumerator::MoveNext([Out] BOOL* hasCurrentFile)</unmanaged>
+        </member>
+        <member name="P:GameOverlay.Drawing.CustomFont.CustomFontFileEnumerator.SharpDX#DirectWrite#FontFileEnumerator#CurrentFontFile">
+            <summary>
+            Gets a reference to the current font file.
+            </summary>
+            <value></value>
+            <returns>a reference to the newly created <see cref="T:SharpDX.DirectWrite.FontFile"/> object.</returns>
+            <unmanaged>HRESULT IDWriteFontFileEnumerator::GetCurrentFontFile([Out] IDWriteFontFile** fontFile)</unmanaged>
+        </member>
+        <member name="T:GameOverlay.Drawing.CustomFont.CustomFontFileStream">
+            <summary>
+            This FontFileStream implem is reading data from a <see cref="T:SharpDX.DataStream"/>.
+            </summary>
+        </member>
+        <member name="M:GameOverlay.Drawing.CustomFont.CustomFontFileStream.#ctor(SharpDX.DataStream)">
+            <summary>
+            Initializes a new instance of the <see cref="T:GameOverlay.Drawing.CustomFont.CustomFontFileStream"/> class.
+            </summary>
+            <param name="stream">The stream.</param>
+        </member>
+        <member name="M:GameOverlay.Drawing.CustomFont.CustomFontFileStream.SharpDX#DirectWrite#FontFileStream#ReadFileFragment(System.IntPtr@,System.Int64,System.Int64,System.IntPtr@)">
+            <summary>
+            Reads a fragment from a font file.
+            </summary>
+            <param name="fragmentStart">When this method returns, contains an address of a  reference to the start of the font file fragment.  This parameter is passed uninitialized.</param>
+            <param name="fileOffset">The offset of the fragment, in bytes, from the beginning of the font file.</param>
+            <param name="fragmentSize">The size of the file fragment, in bytes.</param>
+            <param name="fragmentContext">When this method returns, contains the address of</param>
+            <remarks>
+            Note that ReadFileFragment implementations must check whether the requested font file fragment is within the file bounds. Otherwise, an error should be returned from ReadFileFragment.   {{DirectWrite}} may invoke <see cref="T:SharpDX.DirectWrite.FontFileStream"/> methods on the same object from multiple threads simultaneously. Therefore, ReadFileFragment implementations that rely on internal mutable state must serialize access to such state across multiple threads. For example, an implementation that uses separate Seek and Read operations to read a file fragment must place the code block containing Seek and Read calls under a lock or a critical section.
+            </remarks>
+            <unmanaged>HRESULT IDWriteFontFileStream::ReadFileFragment([Out, Buffer] const void** fragmentStart,[None] __int64 fileOffset,[None] __int64 fragmentSize,[Out] void** fragmentContext)</unmanaged>
+        </member>
+        <member name="M:GameOverlay.Drawing.CustomFont.CustomFontFileStream.SharpDX#DirectWrite#FontFileStream#ReleaseFileFragment(System.IntPtr)">
+            <summary>
+            Releases a fragment from a file.
+            </summary>
+            <param name="fragmentContext">A reference to the client-defined context of a font fragment returned from {{ReadFileFragment}}.</param>
+            <unmanaged>void IDWriteFontFileStream::ReleaseFileFragment([None] void* fragmentContext)</unmanaged>
+        </member>
+        <member name="M:GameOverlay.Drawing.CustomFont.CustomFontFileStream.SharpDX#DirectWrite#FontFileStream#GetFileSize">
+            <summary>
+            Obtains the total size of a file.
+            </summary>
+            <returns>the total size of the file.</returns>
+            <remarks>
+            Implementing GetFileSize() for asynchronously loaded font files may require downloading the complete file contents. Therefore, this method should be used only for operations that either require a complete font file to be loaded (for example, copying a font file) or that need to make decisions based on the value of the file size (for example, validation against a persisted file size).
+            </remarks>
+            <unmanaged>HRESULT IDWriteFontFileStream::GetFileSize([Out] __int64* fileSize)</unmanaged>
+        </member>
+        <member name="M:GameOverlay.Drawing.CustomFont.CustomFontFileStream.SharpDX#DirectWrite#FontFileStream#GetLastWriteTime">
+            <summary>
+            Obtains the last modified time of the file.
+            </summary>
+            <returns>
+            the last modified time of the file in the format that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC).
+            </returns>
+            <remarks>
+            The "last modified time" is used by DirectWrite font selection algorithms to determine whether one font resource is more up to date than another one.
+            </remarks>
+            <unmanaged>HRESULT IDWriteFontFileStream::GetLastWriteTime([Out] __int64* lastWriteTime)</unmanaged>
+        </member>
+        <member name="T:GameOverlay.Drawing.CustomFont.CustomFontLoader">
+            <summary>
+            ResourceFont main loader. This classes implements FontCollectionLoader and FontFileLoader.
+            It reads all fonts embedded as resource in the current assembly and expose them.
+            </summary>
+        </member>
+        <member name="M:GameOverlay.Drawing.CustomFont.CustomFontLoader.#ctor(SharpDX.DirectWrite.Factory,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="!:ResourceFontLoader"/> class.
+            </summary>
+            <param name="factory">The factory.</param>
+        </member>
+        <member name="P:GameOverlay.Drawing.CustomFont.CustomFontLoader.Key">
+            <summary>
+            Gets the key used to identify the FontCollection as well as storing index for fonts.
+            </summary>
+            <value>The key.</value>
+        </member>
+        <member name="M:GameOverlay.Drawing.CustomFont.CustomFontLoader.SharpDX#DirectWrite#FontCollectionLoader#CreateEnumeratorFromKey(SharpDX.DirectWrite.Factory,SharpDX.DataPointer)">
+            <summary>
+            Creates a font file enumerator object that encapsulates a collection of font files. The font system calls back to this interface to create a font collection.
+            </summary>
+            <param name="factory">Pointer to the <see cref="T:SharpDX.DirectWrite.Factory"/> object that was used to create the current font collection.</param>
+            <param name="collectionKey">A font collection key that uniquely identifies the collection of font files within the scope of the font collection loader being used. The buffer allocated for this key must be at least  the size, in bytes, specified by collectionKeySize.</param>
+            <returns>
+            a reference to the newly created font file enumerator.
+            </returns>
+            <unmanaged>HRESULT IDWriteFontCollectionLoader::CreateEnumeratorFromKey([None] IDWriteFactory* factory,[In, Buffer] const void* collectionKey,[None] int collectionKeySize,[Out] IDWriteFontFileEnumerator** fontFileEnumerator)</unmanaged>
+        </member>
+        <member name="M:GameOverlay.Drawing.CustomFont.CustomFontLoader.SharpDX#DirectWrite#FontFileLoader#CreateStreamFromKey(SharpDX.DataPointer)">
+            <summary>
+            Creates a font file stream object that encapsulates an open file resource.
+            </summary>
+            <param name="fontFileReferenceKey">A reference to a font file reference key that uniquely identifies the font file resource within the scope of the font loader being used. The buffer allocated for this key must at least be the size, in bytes, specified by  fontFileReferenceKeySize.</param>
+            <returns>
+            a reference to the newly created <see cref="T:SharpDX.DirectWrite.FontFileStream"/> object.
+            </returns>
+            <remarks>
+            The resource is closed when the last reference to fontFileStream is released.
+            </remarks>
+            <unmanaged>HRESULT IDWriteFontFileLoader::CreateStreamFromKey([In, Buffer] const void* fontFileReferenceKey,[None] int fontFileReferenceKeySize,[Out] IDWriteFontFileStream** fontFileStream)</unmanaged>
+        </member>
         <member name="T:GameOverlay.Drawing.Font">
             <summary>
             Defines a particular format for text, including font family name, size, and style attributes.

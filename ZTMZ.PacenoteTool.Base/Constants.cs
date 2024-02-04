@@ -13,6 +13,7 @@ namespace ZTMZ.PacenoteTool.Base
         public static string CODRIVER_PACKAGE_INFO_FILENAME = "info.json";
         public static string PATH_GAMES = "games";
         public static string PATH_LANGUAGE = "lang";
+        public static string PATH_FONTS = "fonts";
         public static string PATH_DASHBOARDS = "dashboards";
         public static string FILE_LUA_SCRIPT = "script.lua";
         public static string FILE_SETTINGS = "settings.json";

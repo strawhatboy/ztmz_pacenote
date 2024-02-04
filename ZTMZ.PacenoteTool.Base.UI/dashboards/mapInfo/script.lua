@@ -24,6 +24,7 @@ function onInit(args)
 
     local _fonts = {};
     _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
+    _fonts["wrc"] = gfx.CreateCustomFont("WRC Clean Roman", 14);
         
     resources["brushes"] = _brushes;
     resources["fonts"] = _fonts;
@@ -39,10 +40,9 @@ function onUpdate(args)
     local _brushes = resources["brushes"];
     local infoText = i18n.ResolveByKey("overlay.track") .. "\t" .. ctx.TrackName .. "\n" ..
         i18n.ResolveByKey("overlay.audioPackage") .. "\t" .. ctx.AudioPackage .. "\n" ..
-        i18n.ResolveByKey("overlay.scriptAuthor") .. "\t" .. ctx.ScriptAuthor .. "\n" ..
-        i18n.ResolveByKey("overlay.dyanmic") .. "\t" .. ctx.PacenoteType;
-    local size = gfx.MeasureString(_fonts["consolas"], _fonts["consolas"].FontSize, infoText);
-    gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], gfx.Width - size.X, 0, infoText);
+        i18n.ResolveByKey("overlay.scriptAuthor") .. "\t" .. ctx.ScriptAuthor;
+    local size = gfx.MeasureString(_fonts["wrc"], _fonts["wrc"].FontSize, infoText);
+    gfx.DrawTextWithBackground(_fonts["wrc"], _brushes["green"], _brushes["background"], gfx.Width - size.X, 0, infoText);
 end
 
 function onExit()

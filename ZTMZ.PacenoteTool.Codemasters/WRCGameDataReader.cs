@@ -135,6 +135,7 @@ public class WRCGameDataReader : DirtGameDataReader
         message.Clutch = wrcData.vehicle_clutch;
         message.Brake = wrcData.vehicle_brake;
         message.Throttle = wrcData.vehicle_throttle;
+        message.HandBrake = wrcData.vehicle_handbrake;
 
         message.Steering = wrcData.vehicle_steering;
         message.Gear = wrcData.vehicle_gear_index;

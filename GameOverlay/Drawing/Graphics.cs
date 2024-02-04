@@ -8,6 +8,7 @@ using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
 
 using GameOverlay.PInvoke;
+using GameOverlay.Drawing.CustomFont;
 
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using Factory = SharpDX.Direct2D1.Factory;
@@ -27,6 +28,8 @@ namespace GameOverlay.Drawing
 		private HwndRenderTargetProperties _deviceProperties;
 		private Factory _factory;
 		private FontFactory _fontFactory;
+
+		private FontCollection _fontCollection;
 
 		private volatile int _fpsCount;
 		private volatile bool _resize;
@@ -273,6 +276,25 @@ namespace GameOverlay.Drawing
 			if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
 
 			return new Font(_fontFactory, fontFamilyName, size, bold, italic, wordWrapping);
+		}
+
+		public Font CreateCustomFont(string fontFamilyName, float size, bool bold = false, bool italic = false, bool stretch = false, bool wordWrapping = false)
+		{
+			if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
+
+			TextFormat textFormat = new TextFormat(_fontFactory, fontFamilyName, _fontCollection, bold ? FontWeight.Bold : FontWeight.Normal, italic ? FontStyle.Italic : FontStyle.Normal, stretch ? FontStretch.Expanded : FontStretch.Normal, size);
+
+			return new Font(textFormat);
+		}
+
+		public void LoadCustomFont(string fontPath)
+		{
+			if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
+
+
+			// Create a custom font collection
+			var customFontLoader = new CustomFontLoader(_fontFactory, fontPath);
+			_fontCollection = new FontCollection(_fontFactory, customFontLoader, customFontLoader.Key);
 		}
 
 		/// <summary>

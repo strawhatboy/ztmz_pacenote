@@ -1,0 +1,16 @@
+{
+    "dashboards": {
+        "modern": {
+            "wrc": {
+                "name": "WRC",
+                "description": "WRC 直播仪表盘2023",
+            }
+        },
+        "settings": {
+            "padding": "内部间距",
+            "tooltip": {
+                "padding": "仪表盘距离边缘的占比",
+            }
+        }
+    }
+}

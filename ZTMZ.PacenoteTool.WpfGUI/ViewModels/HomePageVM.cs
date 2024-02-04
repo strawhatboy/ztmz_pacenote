@@ -217,9 +217,13 @@ public partial class HomePageVM : ObservableObject {
         _tool.onRaceBegin += (game) => { 
             IsRacing = true; 
         };
+        _tool.onRaceBegined += (game) => {
+            _gameOverlayManager.DashboardScriptArguments.GameContext.ScriptAuthor = _tool.CurrentScriptAuthor;
+        };
         _tool.onTrackNameChanged += (game, trackName) => {
             CurrentTrack = trackName;
             _gameOverlayManager.DashboardScriptArguments.GameContext.TrackName = trackName;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.AudioPackage = SelectedCodriver.name;
         };
 
         _tool.onNewGameData += (game, data) => {

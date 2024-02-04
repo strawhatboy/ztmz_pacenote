@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using GameOverlay.Drawing;
 using Neo.IronLua;
 using Newtonsoft.Json;
@@ -22,6 +23,8 @@ public class DashboardScriptArguments {
     public I18NLoader I18NLoader { get; set; }
     public GameData GameData { get; set; }
     public GameContext GameContext { get; set; }
+
+    public Dashboard Self { get; set; }
 
     public GameOverlayDrawingHelper GameOverlayDrawingHelper { get; set; }
 }
@@ -48,12 +51,17 @@ public class Dashboard {
 
     public DashboardDescriptor Descriptor { get; set; }
 
+    // reuse CommonGameConfig as dashboard configuration :) settings.json
+    public CommonGameConfigs DashboardConfigurations { set; get; }
+
     public Dashboard(DashboardDescriptor descriptor) {
         Descriptor = descriptor;
     }
 
     public Dashboard(string jsonDescriptorPath) {
         Descriptor = JsonConvert.DeserializeObject<DashboardDescriptor>(File.ReadAllText(jsonDescriptorPath));
+        Descriptor.Path = Path.GetDirectoryName(jsonDescriptorPath);
+        DashboardConfigurations = JsonConvert.DeserializeObject<CommonGameConfigs>(File.ReadAllText(Path.Combine(Descriptor.Path, Constants.FILE_SETTINGS)));
     }
 
     public Image PreviewImage { get; set; }
@@ -78,12 +86,14 @@ public class Dashboard {
                 ClrEnabled = false
             };
             LuaG.DoChunk(File.ReadAllText(Path.Combine(Descriptor.Path, Constants.FILE_LUA_SCRIPT)), $"{Guid.NewGuid()}.lua");
+            args.Self = this;
             LuaG.CallMember("onInit", args);
             _logger.Info($"Dashboard \"{I18NLoader.Instance[Descriptor.Name]}\" loaded");
         }
     }
 
     public void Render(DashboardScriptArguments args) {
+        args.Self = this;
         // render lua script
         LuaG.CallMember("onUpdate", args);
     }
@@ -92,6 +102,12 @@ public class Dashboard {
         LuaG.CallMember("onExit");
         _logger.Info($"Dashboard {I18NLoader.Instance[Descriptor.Name]} unloaded");
         LuaG.Clear();
+    }
+
+    public object GetConfigByKey(string key) {
+        if (DashboardConfigurations.PropertyName.ContainsKey(key))
+            return DashboardConfigurations.PropertyValue[DashboardConfigurations.PropertyName.Keys.ToList().IndexOf(key)];
+        return null;
     }
 }
 
@@ -103,5 +119,6 @@ public class DashboardDescriptor {
     public string PreviewImagePath { get; set; }
     public Dictionary<string, string> ImageResources { get; set; }
     public string Path { get; set; }
+    public bool IsEnabled { get; set; } = true;
 }
 

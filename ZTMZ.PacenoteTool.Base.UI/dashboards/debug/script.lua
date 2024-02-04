@@ -33,6 +33,7 @@ function onInit(args)
     
     local _fonts = {};
     _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
+    _fonts["wrc"] = gfx.CreateCustomFont("WRC Clean Roman", 14);
     _fonts["telemetryGear"] = gfx.CreateFont("Consolas", 32);
     
     resources["brushes"] = _brushes;
@@ -44,7 +45,7 @@ function onUpdate(args)
     local data = args.GameData;
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
-    gfx.DrawTextWithBackground(_fonts["consolas"], _brushes["green"], _brushes["background"], 0, 0, data.ToString());
+    gfx.DrawTextWithBackground(_fonts["wrc"], _brushes["green"], _brushes["background"], 0, 0, data.ToString());
 end
 
 function onExit()

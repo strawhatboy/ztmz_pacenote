@@ -37,13 +37,19 @@
     </Resource>
 
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="fonts\WRCCleanRoman.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   
   <ItemGroup>
 
-    <None Update="dashboards\i18n\en-us.json">
+    <None Update="dashboards\lang\en-us.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="dashboards\i18n\zh-cn.json">
+    <None Update="dashboards\lang\zh-cn.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
 
@@ -74,6 +80,26 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="dashboards\progress\settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+
+    <None Update="dashboards\classic_dashboard\info.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="dashboards\classic_dashboard\script.lua">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="dashboards\classic_dashboard\settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+
+    <None Update="dashboards\modern_wrc\info.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="dashboards\modern_wrc\script.lua">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="dashboards\modern_wrc\settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

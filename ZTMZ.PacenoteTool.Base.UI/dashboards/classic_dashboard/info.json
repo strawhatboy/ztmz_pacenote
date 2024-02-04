@@ -4,5 +4,6 @@
     "Author": "草帽不是猫",
     "Version": "0.0.1",
     "PreviewImagePath": "",
-    "ImageResources": {}
+    "ImageResources": {},
+    "IsEnabled": false,
 }

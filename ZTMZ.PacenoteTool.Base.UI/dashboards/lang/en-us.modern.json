@@ -1,0 +1,16 @@
+{
+    "dashboards": {
+        "modern": {
+            "wrc": {
+                "name": "WRC",
+                "description": "WRC Broadcasting Dashboard 2023",
+            }
+        },
+        "settings": {
+            "padding": "Padding",
+            "tooltip": {
+                "padding": "Padding horizontally and vertically",
+            }
+        }
+    }
+}
