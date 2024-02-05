@@ -106,6 +106,13 @@ public partial class MainWindowVM : ObservableObject
         hud.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.hud");
         items.Add(hud);
 
+        var vr = new NavigationViewItem() {
+            Icon = new SymbolIcon { Symbol = SymbolRegular.HeadsetVr20 },
+            TargetPageType = typeof(Views.VRPage)
+        };
+        hud.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.vr");
+        items.Add(hud);
+
         NavigationItems = new ObservableCollection<object>();
         BindingOperations.EnableCollectionSynchronization(NavigationItems, _collectionLock);
         items.ForEach(a => NavigationItems.Add(a));

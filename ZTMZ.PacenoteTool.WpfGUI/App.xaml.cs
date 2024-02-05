@@ -90,6 +90,8 @@ public partial class App : Application
             services.AddScoped<ViewModels.HudPageVM>();
             services.AddScoped<Views.UserPage>();
             services.AddScoped<ViewModels.UserPageVM>();
+            services.AddScoped<Views.VRPage>();
+            services.AddScoped<ViewModels.VRPageVM>();
 
             // Configuration
             // services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));

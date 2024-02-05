@@ -103,6 +103,8 @@ namespace ZTMZ.PacenoteTool
         public List<Dashboard> Dashboards { set; get; } = new List<Dashboard>();
         public List<bool> DashboardEnabled { set; get; } = new List<bool>();
 
+        public List<bool> DashboardErrorEncountered { set; get; } = new List<bool>();
+
         public GameOverlayManager() {
             var dashboardsPath = AppLevelVariables.Instance.GetPath(Constants.PATH_DASHBOARDS);
             if (System.IO.Directory.Exists(dashboardsPath))
@@ -219,6 +221,7 @@ namespace ZTMZ.PacenoteTool
             gfx.LoadCustomFont(AppLevelVariables.Instance.GetPath(Constants.PATH_FONTS));
             _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
             foreach (var dashboard in Dashboards) {
+                DashboardErrorEncountered.Add(false);
                 if (dashboard.Descriptor.IsEnabled) {
                     dashboard.Load(DashboardScriptArguments);
                     DashboardEnabled.Add(true);
@@ -236,7 +239,15 @@ namespace ZTMZ.PacenoteTool
                     var dashboard = Dashboards[i];
                     if (dashboard.Descriptor.IsEnabled) {
                         if (DashboardEnabled[i]) {
-                            dashboard.Render(DashboardScriptArguments);
+                            try {
+                                dashboard.Render(DashboardScriptArguments);
+                            } catch (Exception ex) {
+                                // log error for the first time for this dashboard
+                                if (!DashboardErrorEncountered[i]) {
+                                    _logger.Error(ex, "Error when rendering dashboard: {0}", dashboard.Descriptor.Name);
+                                    DashboardErrorEncountered[i] = true;
+                                }
+                            }
                         } else {
                             dashboard.Load(DashboardScriptArguments);
                             DashboardEnabled[i] = true;
