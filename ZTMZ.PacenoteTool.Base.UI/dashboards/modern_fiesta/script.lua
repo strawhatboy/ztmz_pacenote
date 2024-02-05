@@ -128,7 +128,7 @@ function drawRPM(gfx, data, conf, helper, x, y, width, height)
     end
 
     if (rpmLevel > 3) then
-        local framesLimit = BLINK_INTERVAL_FRAMES_PERCENTAGE * conf.HudFPS;
+        local framesLimit = BLINK_INTERVAL_FRAMES_PERCENTAGE * gfx.FPS;
         if (framesCount > framesLimit) then
             framesCount = 0;
             if (bInBlink) then

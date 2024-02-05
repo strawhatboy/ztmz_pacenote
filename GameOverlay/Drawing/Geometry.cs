@@ -98,10 +98,12 @@ namespace GameOverlay.Drawing
 
         /// <summary>
         /// Adds a curved line to the currently open figure.
+        /// This seems to be not working properly.
         /// </summary>
         /// <param name="point">The end point of the curved line.</param>
         /// <param name="radius">The radius of the resulting arc in degrees.</param>
         /// <param name="rotationAngle">A value determining the rotation angle this curve.</param>
+        [Obsolete("This method is not working properly")]
         public void AddCurve(Point point, float radius, float rotationAngle = 0.0f)
         {
             bool minus = radius < 0.0f;
@@ -127,6 +129,7 @@ namespace GameOverlay.Drawing
         /// <param name="radius_x">The radius on the X-Axis of the resulting arc in degrees.</param>
         /// <param name="radius_y">The radius on the Y-Axis of the resulting arc in degrees.</param>
         /// <param name="rotationAngle">A value determining the rotation angle this curve.</param>
+        [Obsolete("This method is not working properly")]
         public void AddCurve(Point point, float radius_x, float radius_y, float rotationAngle = 0.0f)
         {
             _sink.AddArc(new ArcSegment
@@ -275,6 +278,15 @@ namespace GameOverlay.Drawing
             _sink.AddArc(arcSegment);
         }
 
+        /// <summary>
+        /// Adds a curved line to the currently open figure.
+        /// Please check https://learn.microsoft.com/en-us/dotnet/api/system.windows.media.arcsegment?view=windowsdesktop-8.0
+        /// </summary>
+        /// <param name="p">The destination point</param>
+        /// <param name="radius">Radius! distance between center of the circle to the border</param>
+        /// <param name="arcSize">whether the Arc greater than pi/2 or not</param>
+        /// <param name="swpDirection">clockwise or not</param>
+        /// <param name="rotationAngle">rotate the Curve</param>
         public void AddCurveWithArcSegmentArgs(Point p, float radius, ArcSize arcSize, SweepDirection swpDirection=SweepDirection.Clockwise, float rotationAngle=0f)
         {
             AddCurve(p, radius, arcSize, swpDirection, rotationAngle);

@@ -9,11 +9,27 @@
                 "name": "Fiesta",
                 "description": "Ford Fiesta WRC Dashboard",
             },
+            "wrc_info": {
+                "name": "WRC Info board",
+                "description": "WRC Info board to show the driver information, stage and time",
+            },
+            "wrc2": {
+                "name": "WRC Style 2",
+                "description": "WRC Broadcasting Dashboard 2023",
+            }
         },
         "settings": {
             "padding": "Padding",
+            "marginH": "Margin horizontally",
+            "marginV": "Margin vertically",
+            "drivername": "Driver Name",
+            "driverregion": "Driver Region",
             "tooltip": {
                 "padding": "Padding horizontally and vertically",
+                "marginH": "Margin horizontally, relative to the screen width",
+                "marginV": "Margin vertically, relative to the screen height",
+                "drivername": "Driver Name",
+                "driverregion": "Driver Region",
             }
         }
     }

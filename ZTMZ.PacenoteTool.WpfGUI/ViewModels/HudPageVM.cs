@@ -152,7 +152,7 @@ public partial class HudPageVM : ObservableObject {
                         var sliderValue = Convert.ToDouble(dashboard.GetConfigByKey(configKey));
                         // add textblock show value
                         var valueTextBlock = new Wpf.Ui.Controls.TextBlock();
-                        valueTextBlock.Text = sliderValue.ToString("N1");
+                        valueTextBlock.Text = sliderValue.ToString("N2");
                         valueTextBlock.VerticalAlignment = VerticalAlignment.Center;
                         Grid.SetRow(valueTextBlock, i);
                         Grid.SetColumn(valueTextBlock, 1);
@@ -166,7 +166,7 @@ public partial class HudPageVM : ObservableObject {
                         // slider.SetBinding(Slider.ValueProperty, new Binding(configKey) { Source = dashboard.DashboardConfigurations });
                         slider.ValueChanged += (sender, args) => {
                             dashboard.DashboardConfigurations.PropertyValue[index] = (float)slider.Value;
-                            valueTextBlock.Text = ((float)slider.Value).ToString("N1");
+                            valueTextBlock.Text = ((float)slider.Value).ToString("N2");
                             dashboard.SaveConfig();
                         };
                         slider.Margin = new Thickness(0, 0, 10, 0);

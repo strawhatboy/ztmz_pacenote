@@ -1,0 +1,13 @@
+{
+    "Name": "dashboards.modern.wrc_info.name",
+    "Description": "dashboards.modern.wrc_info.description",
+    "Author": "草帽不是猫",
+    "Version": "0.0.1",
+    "PreviewImagePath": "",
+    "ImageResources": {},
+    "ImageResourcesInDirectory": {
+        "flags": "flags",
+        "manufacturers": "manufacturers",
+    },
+    "IsEnabled": true,
+}

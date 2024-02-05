@@ -48,7 +48,7 @@ function onInit(args)
     _brushes["border"] = gfx.CreateSolidBrush(0x5d, 0x5b, 0x58, 100);
     _brushes["background"] = gfx.CreateSolidBrush(0x00, 0x00, 0x00, 100);
     _brushes["transparent"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
-    _brushes["telemetryBackground"] = gfx.CreateSolidBrush(0x2c, 0x33, 0x3c, 255);
+    _brushes["telemetryBackground"] = gfx.CreateSolidBrush(0x2c, 0x33, 0x3c, 125);
     _brushes["rpm"] = gfx.CreateSolidBrush(0x9c, 0x9e, 0x5c, 255)
     _brushes["brake"] = gfx.CreateSolidBrush(0xd2, 0x18, 0x1d, 255)
     _brushes["throttle"] = gfx.CreateSolidBrush(0xc3, 0xe1, 0x67, 255)
@@ -104,7 +104,7 @@ function drawStaticFrames(gfx, data, helper, x, y, radius, padding)
     -- draw the static frames
     -- 1. background
     -- print("drawing the background")
-    for alpha=10,100,20 do
+    for alpha=10,30,4 do
         _brushes["background"].Color = helper.getColor(
             _brushes["background"].Color.R,
             _brushes["background"].Color.G,
@@ -239,7 +239,7 @@ function drawSpeed(gfx, data, helper, x, y, radius, padding)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     local telemetryRadius = radius - padding - radius * 0.03;
-    local speedWeight = radius * 0.5;
+    local speedWeight = (radius - padding) * 0.52;
     local speed = data.Speed;
     gfx.drawTextWithBackgroundCentered(_fonts["wrc"], speedWeight, _brushes["white"], _brushes["transparent"], x, y - telemetryRadius / 6, math.floor(speed));
 end
@@ -249,7 +249,7 @@ function drawGear(gfx, data, helper, x, y, radius, padding)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     local telemetryRadius = radius - padding - radius * 0.03;
-    local gearWeight = radius * 0.2;
+    local gearWeight = (radius - padding) * 0.22;
     local gear = math.floor(data.Gear);
     local gearText = "";
     if (gear == -1 or gear == 10) then

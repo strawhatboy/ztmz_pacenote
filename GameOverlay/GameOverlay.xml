@@ -492,6 +492,7 @@
         <member name="M:GameOverlay.Drawing.Geometry.AddCurve(GameOverlay.Drawing.Point,System.Single,System.Single)">
             <summary>
             Adds a curved line to the currently open figure.
+            This seems to be not working properly.
             </summary>
             <param name="point">The end point of the curved line.</param>
             <param name="radius">The radius of the resulting arc in degrees.</param>
@@ -561,6 +562,17 @@
             <param name="left">The first object to compare.</param>
             <param name="right">The second object to compare.</param>
             <returns> <see langword="true" /> if <paramref name="left" /> and <paramref name="right" /> are equal; otherwise, <see langword="false" />.</returns>
+        </member>
+        <member name="M:GameOverlay.Drawing.Geometry.AddCurveWithArcSegmentArgs(GameOverlay.Drawing.Point,System.Single,SharpDX.Direct2D1.ArcSize,SharpDX.Direct2D1.SweepDirection,System.Single)">
+            <summary>
+            Adds a curved line to the currently open figure.
+            Please check https://learn.microsoft.com/en-us/dotnet/api/system.windows.media.arcsegment?view=windowsdesktop-8.0
+            </summary>
+            <param name="p">The destination point</param>
+            <param name="radius">Radius! distance between center of the circle to the border</param>
+            <param name="arcSize">whether the Arc greater than pi/2 or not</param>
+            <param name="swpDirection">clockwise or not</param>
+            <param name="rotationAngle">rotate the Curve</param>
         </member>
         <member name="T:GameOverlay.Drawing.Graphics">
             <summary>

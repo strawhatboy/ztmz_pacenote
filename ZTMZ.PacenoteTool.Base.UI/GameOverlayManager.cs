@@ -130,12 +130,13 @@ namespace ZTMZ.PacenoteTool
         public void InitializeOverlay(nint processWindowHandle)
         {
 #if DEV
-            GameData = new GameData()
+            DashboardScriptArguments.GameData = new GameData()
             {
                 Brake = 0.5f,
                 Throttle = 0.3f,
                 Clutch = 0.9f,
-                RPM = 6300f,
+                HandBrake = 1.0f,
+                RPM = 9000f,
                 MaxRPM = 9000f,
                 IdleRPM = 1000f,
                 Speed = 130f,
@@ -228,19 +229,21 @@ namespace ZTMZ.PacenoteTool
         private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e) {
             var gfx = e.Graphics;
             gfx.ClearScene(_brushes["clear"]);
-            for (var i = 0; i < Dashboards.Count; i++) {
-                var dashboard = Dashboards[i];
-                if (dashboard.Descriptor.IsEnabled) {
-                    if (DashboardEnabled[i]) {
-                        dashboard.Render(DashboardScriptArguments);
+            if (TimeToShowTelemetry) {
+                for (var i = 0; i < Dashboards.Count; i++) {
+                    var dashboard = Dashboards[i];
+                    if (dashboard.Descriptor.IsEnabled) {
+                        if (DashboardEnabled[i]) {
+                            dashboard.Render(DashboardScriptArguments);
+                        } else {
+                            dashboard.Load(DashboardScriptArguments);
+                            DashboardEnabled[i] = true;
+                        }
                     } else {
-                        dashboard.Load(DashboardScriptArguments);
-                        DashboardEnabled[i] = true;
-                    }
-                } else {
-                    if (DashboardEnabled[i]) {
-                        dashboard.Unload();
-                        DashboardEnabled[i] = false;
+                        if (DashboardEnabled[i]) {
+                            dashboard.Unload();
+                            DashboardEnabled[i] = false;
+                        }
                     }
                 }
             }

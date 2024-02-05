@@ -216,6 +216,7 @@ public partial class HomePageVM : ObservableObject {
         };
         _tool.onRaceBegin += (game) => { 
             IsRacing = true; 
+            _gameOverlayManager.TimeToShowTelemetry = true;
         };
         _tool.onRaceBegined += (game) => {
             _gameOverlayManager.DashboardScriptArguments.GameContext.ScriptAuthor = _tool.CurrentScriptAuthor;
@@ -233,7 +234,10 @@ public partial class HomePageVM : ObservableObject {
             }
         };
 
-        _tool.onRaceEnd += (game) => IsRacing = false;
+        _tool.onRaceEnd += (game) => { 
+            IsRacing = false;
+            _gameOverlayManager.TimeToShowTelemetry = false;
+        };
 
         BindingOperations.EnableCollectionSynchronization(Games, _collectionLock);
         BindingOperations.EnableCollectionSynchronization(CodriverPackageInfos, _collectionLock);

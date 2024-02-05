@@ -76,8 +76,22 @@ public class Dashboard {
 
         this.ImageResources = new Dictionary<string, Image>();
         foreach (var imageResource in Descriptor.ImageResources) {
-            this.ImageResources.Add(imageResource.Key, new Image(args.Graphics, imageResource.Value));
+            this.ImageResources.Add(imageResource.Key, new Image(args.Graphics, Path.Combine(Descriptor.Path, imageResource.Value)));
         }
+
+        foreach (var imageResourceDirectory in Descriptor.ImageResourcesInDirectory) {
+            // imageResourceDirectory.Value is the directory path
+            var directory = Path.Combine(Descriptor.Path, imageResourceDirectory.Value);
+            if (!Directory.Exists(directory)) continue;
+            foreach (var file in Directory.GetFiles(directory, "*.*").Where(
+                s => s.ToLower().EndsWith(".png") || s.ToLower().EndsWith(".jpg") || s.ToLower().EndsWith(".jpeg") || s.ToLower().EndsWith(".bmp") || s.ToLower().EndsWith(".gif") 
+            )) {
+                // Warning, this will overwrite the same key if the file name is the same
+                // so append the directory name to the key, separated by @
+                this.ImageResources.Add(imageResourceDirectory.Key + "@" + Path.GetFileNameWithoutExtension(file), new Image(args.Graphics, file));
+            }
+        }
+
         // load lua script
         using (var lua = new Lua()) {
             LuaG = lua.CreateEnvironment();
@@ -124,6 +138,8 @@ public class DashboardDescriptor {
     public string Version { get; set; }
     public string PreviewImagePath { get; set; }
     public Dictionary<string, string> ImageResources { get; set; }
+
+    public Dictionary<string, string> ImageResourcesInDirectory { get; set; }
     public string Path { get; set; }
     public bool IsEnabled { get; set; } = true;
 }
