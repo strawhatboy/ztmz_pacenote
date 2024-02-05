@@ -13,6 +13,7 @@ using ZTMZ.PacenoteTool.WpfGUI.Views;
 using ZTMZ.PacenoteTool.Base.UI;
 using System.Diagnostics;
 using System.Threading;
+using VRGameOverlay.VROverlayWindow;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -155,8 +156,11 @@ public partial class HomePageVM : ObservableObject {
 
     private GameOverlayManager _gameOverlayManager;
 
-    public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool, IServiceProvider serviceProvider, GameOverlayManager gameOverlayManager) {
+    private VRGameOverlayManager _vrGameOverlayManager;
+
+    public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool, IServiceProvider serviceProvider, GameOverlayManager gameOverlayManager, VRGameOverlayManager vRGameOverlayManager) {
         _gameOverlayManager = gameOverlayManager;
+        _vrGameOverlayManager = vRGameOverlayManager;
         _serviceProvider = serviceProvider;
         var contentDialogService = serviceProvider.GetService(typeof(IContentDialogService)) as IContentDialogService;
         Tool = _tool;
@@ -173,6 +177,13 @@ public partial class HomePageVM : ObservableObject {
                     _logger.Info("Initializing GameOverlay...");
                     _gameOverlayManager.UninitializeOverlay();
                     _gameOverlayManager.InitializeOverlay(process.MainWindowHandle);
+
+                    _logger.Info("Try to initialize VRGameOverlay...");
+                    if (OpenVR.IsRuntimeInstalled() && Config.Instance.VrShowOverlay) {
+                        _vrGameOverlayManager.StopLoop();
+                        _vrGameOverlayManager.StartLoop();
+                        _logger.Info("Vr Game overlay initliazed.");
+                    }
                 }
             });
         };

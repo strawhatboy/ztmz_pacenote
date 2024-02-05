@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
     <ProjectReference Include="..\GameOverlay\GameOverlay.csproj" />
+    <ProjectReference Include="..\VRGameOverlay\VRGameOverlay.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,4 @@
-<Page x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.VRPage"
+<Page x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.VrPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -11,12 +11,402 @@
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
     <Page.Resources>
-        <!-- <Style TargetType="ui:Card">
-            <Setter Property="Padding" Value="16"></Setter>
-            <Setter Property="Margin" Value="0 0 0 5"></Setter>
-        </Style> -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Page.Resources>
     <StackPanel Orientation="Vertical">
+        <!-- vrShowOverlay -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="HeadsetVr20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.vrShowOverlay}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrShowOverlay}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
+                    IsChecked="{Binding Path=ViewModel.VrShowOverlay, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
+
+        <!-- window selection -->
+        <ui:Card Margin="0 0 0 5"
+                Padding="0" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid Margin="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="160" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <ui:SymbolIcon Symbol="Window20"
+                                        FontSize="26"
+                                        Margin="0 0 10 0" />
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <ui:TextBlock Text="{DynamicResource ResourceKey=settings.vrUseZTMZHud}" />
+                            <ui:TextBlock Grid.Row="1"
+                                            Text="{DynamicResource ResourceKey=settings.tooltip.vrUseZTMZHud}"
+                                            Appearance="Tertiary"
+                                            FontTypography="Caption" />
+                        </Grid>
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1"
+                                    HorizontalAlignment="Right"
+                                    IsChecked="{Binding Path=ViewModel.VrUseZTMZHud, Mode=TwoWay}" />
+                </Grid>
+                <Border Grid.Row="1"
+                        BorderThickness="0,1,0,0"
+                        BorderBrush="{ui:ThemeResource DividerStrokeColorDefaultBrush}"
+                        Visibility="{Binding Path=ViewModel.VrNotUseZTMZHud, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
+                        Background="Transparent" >
+                    <Grid Margin="16">
+                        <!-- window refresh and selection -->
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="40" />
+                            <ColumnDefinition Width="160" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ComboBox Grid.Column="0"
+                                    Grid.Row="0"
+                                    ItemsSource="{Binding Path=ViewModel.VrWindowList, Mode=OneWay}"
+                                    SelectedItem="{Binding Path=ViewModel.VrSelectedWindow, Mode=TwoWay}"
+                                    DisplayMemberPath="Name"
+                                    SelectedValuePath="Name"
+                                    IsEditable="False"
+                                    IsReadOnly="True"
+                        />
+                        <ui:Button Grid.Column="1"
+                                Grid.Row="0"
+                                Margin="10 0 0 0"
+                                Icon="{ui:SymbolIcon ArrowReset20}"
+                                Command="{Binding Path=ViewModel.RefreshVRWindowListCommand}" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </ui:Card>
+
+        <!-- vrOverlayPositionX -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="TopSpeed20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.vrOverlayPositionX}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionX}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:TextBlock Text="{Binding Path=ViewModel.VrOverlayPositionX, Mode=OneWay, StringFormat=N1}"
+                    Grid.Column="1" VerticalAlignment="Center" />
+                <Slider Grid.Row="4" Grid.Column="2"
+                    Maximum="500" Minimum="-500"
+                    Value="{Binding Path=ViewModel.VrOverlayPositionX, Mode=TwoWay}"
+                    IsEnabled="True" TickFrequency="1"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </ui:Card>
+
+        <!-- vrOverlayPositionY -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="TopSpeed20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.vrOverlayPositionY}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionY}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:TextBlock Text="{Binding Path=ViewModel.VrOverlayPositionY, Mode=OneWay, StringFormat=N1}"
+                    Grid.Column="1" VerticalAlignment="Center" />
+                <Slider Grid.Row="4" Grid.Column="2"
+                    Maximum="500" Minimum="-500"
+                    Value="{Binding Path=ViewModel.VrOverlayPositionY, Mode=TwoWay}"
+                    IsEnabled="True" TickFrequency="1"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </ui:Card>
+
+        <!-- vrOverlayPositionZ -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="TopSpeed20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.vrOverlayPositionZ}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionZ}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:TextBlock Text="{Binding Path=ViewModel.VrOverlayPositionZ, Mode=OneWay, StringFormat=N1}"
+                    Grid.Column="1" VerticalAlignment="Center" />
+                <Slider Grid.Row="4" Grid.Column="2"
+                    Maximum="500" Minimum="-500"
+                    Value="{Binding Path=ViewModel.VrOverlayPositionZ, Mode=TwoWay}"
+                    IsEnabled="True" TickFrequency="1"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </ui:Card>
+
+        <!-- vrOverlayRotationX -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="TopSpeed20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.vrOverlayRotationX}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationX}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:TextBlock Text="{Binding Path=ViewModel.VrOverlayRotationX, Mode=OneWay, StringFormat=N1}"
+                    Grid.Column="1" VerticalAlignment="Center" />
+                <Slider Grid.Row="4" Grid.Column="2"
+                    Maximum="100" Minimum="-100"
+                    Value="{Binding Path=ViewModel.VrOverlayRotationX, Mode=TwoWay}"
+                    IsEnabled="True" TickFrequency="1"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </ui:Card>
+
+        <!-- vrOverlayRotationY -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="TopSpeed20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.vrOverlayRotationY}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationY}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:TextBlock Text="{Binding Path=ViewModel.VrOverlayRotationY, Mode=OneWay, StringFormat=N1}"
+                    Grid.Column="1" VerticalAlignment="Center" />
+                <Slider Grid.Row="4" Grid.Column="2"
+                    Maximum="100" Minimum="-100"
+                    Value="{Binding Path=ViewModel.VrOverlayRotationY, Mode=TwoWay}"
+                    IsEnabled="True" TickFrequency="1"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </ui:Card>
+
+        <!-- vrOverlayRotationZ -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="TopSpeed20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.vrOverlayRotationZ}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationZ}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:TextBlock Text="{Binding Path=ViewModel.VrOverlayRotationZ, Mode=OneWay, StringFormat=N1}"
+                    Grid.Column="1" VerticalAlignment="Center" />
+                <Slider Grid.Row="4" Grid.Column="2"
+                    Maximum="100" Minimum="-100"
+                    Value="{Binding Path=ViewModel.VrOverlayRotationZ, Mode=TwoWay}"
+                    IsEnabled="True" TickFrequency="1"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </ui:Card>
+
+        <!-- vrOverlayScale -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="TopSpeed20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.vrOverlayScale}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayScale}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:TextBlock Text="{Binding Path=ViewModel.vrOverlayScale, Mode=OneWay, StringFormat=N1}"
+                    Grid.Column="1" VerticalAlignment="Center" />
+                <Slider Grid.Row="4" Grid.Column="2"
+                    Maximum="200" Minimum="0"
+                    Value="{Binding Path=ViewModel.VrOverlayScale, Mode=TwoWay}"
+                    IsEnabled="True" TickFrequency="1"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </ui:Card>
+
+        
+
+        <!-- vrOverlayParamSave -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="TopSpeed20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.vrOverlayParamSave}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayParamSave}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:Button Grid.Column="2"
+                    Icon="{ui:SymbolIcon Save20}"
+                    Command="{Binding Path=ViewModel.SaveVrSettingsCommand}" />
+            </Grid>
+        </ui:Card>
 
     </StackPanel>
 </Page>

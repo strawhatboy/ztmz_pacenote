@@ -38,6 +38,8 @@ namespace ZTMZ.PacenoteTool.Base
         public const string SYSTEM_COUNTDOWN_2 = "system_countdown_2";
         public const string SYSTEM_COUNTDOWN_1 = "system_countdown_1";
 
+        public const string HUD_WINDOW_NAME = "ZTMZ Club Hud - LgfZGP4pFeLZK342TKcpFGPS3YcHLvbs";
+
         public static Dictionary<string, string> SYSTEM_SOUND = new Dictionary<string, string>()
         {
             { SYSTEM_START_STAGE, "地图载入" },

@@ -9,6 +9,7 @@ using Wpf.Ui.Controls;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Controls;
+using ZTMZ.PacenoteTool.Base.UI;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 

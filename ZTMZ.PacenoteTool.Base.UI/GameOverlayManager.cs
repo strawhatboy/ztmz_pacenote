@@ -24,7 +24,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Base.UI;
 using System.IO;
 
-namespace ZTMZ.PacenoteTool
+namespace ZTMZ.PacenoteTool.Base.UI
 {
 
     public class GameOverlayManager
@@ -188,7 +188,7 @@ namespace ZTMZ.PacenoteTool
             DashboardScriptArguments.Graphics = gfx;
 
             _window = new StickyWindow(processWindowHandle, gfx);
-            _window.Title = "ZTMZ Club Hud";
+            _window.Title = Constants.HUD_WINDOW_NAME;
             _window.FPS = Config.Instance.HudFPS;   // 50 fps by default
             _window.AttachToClientArea = true;
             if (Config.Instance.HudTopMost) 

@@ -485,6 +485,13 @@ namespace ZTMZ.PacenoteTool.Base
 
         #region VrOverlay
 
+        private bool _VrUseZTMZHud = true;
+        public bool VrUseZTMZHud
+        {
+            set { this._VrUseZTMZHud = value; this._userconfig["VrUseZTMZHud"] = value; }
+            get => this._VrUseZTMZHud;
+        }
+
         private bool _VrShowOverlay = true;
         public bool VrShowOverlay
         {

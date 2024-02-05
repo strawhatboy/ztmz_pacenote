@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 // using Wpf.Ui.Contracts;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 
 namespace ZTMZ.PacenoteTool.WpfGUI;
@@ -62,6 +63,7 @@ public partial class App : Application
             services.AddSingleton<UpdateService>();
             services.AddSingleton<StartupService>();
             services.AddSingleton<GameOverlayManager>();
+            services.AddSingleton<VRGameOverlayManager>();
 
             services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>();
 
@@ -90,8 +92,8 @@ public partial class App : Application
             services.AddScoped<ViewModels.HudPageVM>();
             services.AddScoped<Views.UserPage>();
             services.AddScoped<ViewModels.UserPageVM>();
-            services.AddScoped<Views.VRPage>();
-            services.AddScoped<ViewModels.VRPageVM>();
+            services.AddScoped<Views.VrPage>();
+            services.AddScoped<ViewModels.VrPageVM>();
 
             // Configuration
             // services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));

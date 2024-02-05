@@ -94,6 +94,7 @@
       "enableGoogleAnalytics": "Use Google Analytics to collect some of your \"usage information\" to help us improve the program. All of this information is sent to Google servers in an anonymous form for statistical use. You can allow or prohibit this in the settings at any time. This information includes and is limited to:\n\t- Operating system version\n\t- Opening this program event\n\t- Opening each window event in this program\n\t- Each configuration item modification event\n \t- The modification event of the main interface configuration item\n\t- The event of using a specific voice package to play the game (to count the voice package preference)",
       "optInBetaPlan": "Turn on this option to recieve updates and new features in the beta version",
 
+      "vrUseZTMZHud":"In SteamVR overlay, use ZTMZ Hud to display the game telemetry",
       "vrShowOverlay": "Enable SteamVR Overlay, make sure the SteamVR is running and your vr hmd is connected.",
       "vrOverlayPositionX": "VR Overlay Position X",
       "vrOverlayPositionY": "VR Overlay Position Y",
@@ -174,6 +175,7 @@
     "enableGoogleAnalytics": "Enable Google Analytics",
     "optInBetaPlan": "Opt in to the beta plan",
 
+    "vrUseZTMZHud": "Use ZTMZ Hud in VR",
     "vrShowOverlay": "Enable SteamVR Overlay",
     "vrOverlayPositionX": "VR Overlay Position X",
     "vrOverlayPositionY": "VR Overlay Position Y",

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using ZTMZ.PacenoteTool.Base;
 using VRGameOverlay.VROverlayWindow;
 
-namespace ZTMZ.PacenoteTool
+namespace ZTMZ.PacenoteTool.Base.UI
 {
     public class VRGameOverlayManager
     {
@@ -98,7 +98,7 @@ namespace ZTMZ.PacenoteTool
             _bgw = new BackgroundWorker();
 
             this.initliazeOverlay();
-            _bgw.DoWork += (sender, args) =>
+            _bgw.DoWork += (sender, e) =>
             {
                 uint vrEventSize = (uint)SharpDX.Utilities.SizeOf<VREvent_t>();
                 while (_isRunning)

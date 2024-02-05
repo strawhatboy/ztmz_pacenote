@@ -4,11 +4,11 @@ using ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.Views;
 
-public partial class VRPage : INavigableView<VRPageVM>
+public partial class VrPage : INavigableView<VrPageVM>
 {
-    public VRPageVM ViewModel { get; }
+    public VrPageVM ViewModel { get; }
 
-    public VRPage(VRPageVM viewModel)
+    public VrPage(VrPageVM viewModel)
     {
         ViewModel = viewModel;
         DataContext = this;
