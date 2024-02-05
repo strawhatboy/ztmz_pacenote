@@ -162,10 +162,10 @@ function drawClutch(gfx, self, data, helper, x, y, width, height)
     local clutchWidth = clutchHeightTotal * clutchWHRatio;
 
     local widthStart = x + width * 0.368;
-    local heightEnd = y + height * 0.85;
+    local heightStart = y + height * 0.54;
 
-    gfx.ClipRegionStart(widthStart, heightEnd - clutchClipHeight, widthStart + clutchWidth, heightEnd);
-    gfx.DrawImage(self.ImageResources["images@clutch"], widthStart, heightEnd - clutchHeightTotal, widthStart + clutchWidth, heightEnd);
+    gfx.ClipRegionStart(widthStart, heightStart, widthStart + clutchWidth, heightStart + clutchClipHeight);
+    gfx.DrawImage(self.ImageResources["images@clutch"], widthStart, heightStart, widthStart + clutchWidth, heightStart + clutchHeightTotal);
     gfx.ClipRegionEnd();
 end
 

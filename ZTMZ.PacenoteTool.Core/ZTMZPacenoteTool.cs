@@ -454,14 +454,22 @@ public class ZTMZPacenoteTool {
 
 #region Sets
 
-    public void SetGame(IGame game)
+    public bool SetGame(IGame game)
     {
+        bool gameRunning = false;
         uninitializeGame(_currentGame);
+        // if the game was not the current game, and the game is running, need to trigger the gamestarted event
+        // to trigger the game overlay.
+        if (this._processWatcher.IsWatchedProcessRunning(game.Executable, game.WindowTitle)) {
+            this.onGameStarted?.Invoke(game);
+            gameRunning = true;
+        }
+
         this._currentGame = game;
 
         _logger.Info("Game selection changed to {0}, trying to initialize it.", this._currentGame.Name);
         initializeGame(_currentGame);
-
+        return gameRunning;
     }
 
     public void SetFromConfiguration() {

@@ -76,6 +76,22 @@ public class ProcessWatcher : IDisposable
         WatchingProcesses[executable.ToLower()] = new WatchedProcess() { Executable = executable, WindowName = windowName, MemoryThreshold = memoryThreshold };
     }
 
+    public bool IsWatchedProcessRunning(string executable, string windowName = "", int memoryThreshold = 0) {
+        if (string.IsNullOrEmpty(executable))
+            return false;
+
+        // process in in Watched Processes and is running by checking MatchProcess
+        if (WatchingProcesses.ContainsKey(executable.ToLower())) {
+            foreach (var p in Process.GetProcesses()) {
+                if (WatchingProcesses[executable.ToLower()].MatchProcess(p)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public void StartWatching()
     {
         lock(_lock) {

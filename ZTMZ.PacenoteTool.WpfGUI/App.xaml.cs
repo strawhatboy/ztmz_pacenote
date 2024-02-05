@@ -112,6 +112,7 @@ public partial class App : Application
     /// </summary>
     private async void OnStartup(object sender, StartupEventArgs e)
     {
+        SetupExceptionHandling();
         await _host.StartAsync();
     }
 
@@ -131,7 +132,54 @@ public partial class App : Application
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         // For more info see https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.dispatcherunhandledexception?view=windowsdesktop-6.0
+        MessageBox.Show(e.Exception.Message, "Unhandled exception occurred", MessageBoxButton.OK, MessageBoxImage.Error);
         _logger.Error(e.Exception, "Unhandled exception occurred.");
+    }
+
+    private void SetupExceptionHandling()
+    {
+        AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            LogUnhandledException((Exception)e.ExceptionObject, "AppDomain.CurrentDomain.UnhandledException");
+
+        DispatcherUnhandledException += (s, e) =>
+        {
+            LogUnhandledException(e.Exception, "Application.Current.DispatcherUnhandledException");
+            e.Handled = true;
+        };
+
+        TaskScheduler.UnobservedTaskException += (s, e) =>
+        {
+            if (e.Exception.StackTrace == null)
+            {
+                _logger.Error("Unhandled Exception with no stacktrace: {0}", e.Exception);
+                // ignore it. maybe raised by SocketException in finalizer thread.
+                return;
+            }
+            LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
+            e.SetObserved();
+        };
+    }
+
+    private void LogUnhandledException(Exception exception, string source)
+    {
+        string message = $"Unhandled exception ({source})";
+        try
+        {
+            System.Reflection.AssemblyName assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName();
+            message = string.Format("Unhandled exception in {0} v{1}", assemblyName.Name, assemblyName.Version);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("Unknown Error when try to handle unhandled exception: {0}", ex);
+            MessageBox.Show(ex.ToString(), "exception.unknown.title", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            var exceptionStr = exception.ToString();
+            _logger.Fatal("Unhandled Exception: {0}", message + exceptionStr);
+            MessageBox.Show(message + exceptionStr, "exception.unknown.title", MessageBoxButton.OK, MessageBoxImage.Error);
+            // GoogleAnalyticsHelper.Instance.TrackExceptionEvent(message, exceptionStr);
+        }
     }
 
 }

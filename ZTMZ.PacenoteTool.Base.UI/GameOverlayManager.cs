@@ -129,12 +129,13 @@ namespace ZTMZ.PacenoteTool
 
         public void InitializeOverlay(nint processWindowHandle)
         {
+            _logger.Info("Initializing overlay....");
 #if DEV
             DashboardScriptArguments.GameData = new GameData()
             {
                 Brake = 0.5f,
                 Throttle = 0.3f,
-                Clutch = 0.9f,
+                Clutch = 0.65f,
                 HandBrake = 1.0f,
                 RPM = 9000f,
                 MaxRPM = 9000f,
@@ -203,6 +204,7 @@ namespace ZTMZ.PacenoteTool
             _window.SetupGraphics += _window_SetupGraphics;
 
             this.Run();
+            _logger.Info("GameOverlay initialized.!");
         }
 
         public void UninitializeOverlay()

@@ -46,10 +46,11 @@
   
   <ItemGroup>
 
-    <None Update="dashboards\lang\en-us.json">
+    <None Update="dashboards\lang\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="dashboards\lang\zh-cn.json">
+
+    <None Update="dashboards\lang\en-us.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
 

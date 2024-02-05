@@ -164,11 +164,17 @@ public partial class HomePageVM : ObservableObject {
             IsGameRunning = true;
             // GameOverlay
             _logger.Info("Game started. in Home Page. Initializing GameOverlay.");
-            var process = Process.GetProcessesByName(game.Executable).FirstOrDefault();
-            if (process != null) {
-                _gameOverlayManager.UninitializeOverlay();
-                _gameOverlayManager.InitializeOverlay(process.MainWindowHandle);
-            }
+            Task.Run(() => {
+                _logger.Info("Wait for 5 seconds..In case the machine is too slow to launch the game");
+                Thread.Sleep(5000);
+                _logger.Info("Finished waiting. in Home Page. Initializing GameOverlay..");
+                var process = Process.GetProcessesByName(game.Executable).FirstOrDefault();
+                if (process != null) {
+                    _logger.Info("Initializing GameOverlay...");
+                    _gameOverlayManager.UninitializeOverlay();
+                    _gameOverlayManager.InitializeOverlay(process.MainWindowHandle);
+                }
+            });
         };
         _tool.onGameEnded += (game) => {
             IsGameRunning = false;
@@ -285,7 +291,7 @@ public partial class HomePageVM : ObservableObject {
         var game = SelectedGame;
         Config.Instance.UI_SelectedGame = Games.IndexOf(game);
         Config.Instance.SaveUserConfig();
-        Tool.SetGame(game.Game);
+        IsGameRunning = Tool.SetGame(game.Game);
 
         // Update game settings pane
         CurrentGameSettings.Clear();
