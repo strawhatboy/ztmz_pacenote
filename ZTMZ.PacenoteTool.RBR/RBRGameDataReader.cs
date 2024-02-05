@@ -254,7 +254,7 @@ public class RBRGameDataReader : UdpGameDataReader
     {
         gameData.TimeStamp = DateTime.Now;
         gameData.Time = data.stage.raceTime;
-        gameData.LapTime = data.stage.raceTime;
+        // gameData.LapTime = data.stage.raceTime;
         gameData.LapDistance = data.stage.distanceToEnd / (1 - data.stage.progress) * data.stage.progress;
         gameData.CompletionRate = data.stage.progress;
         gameData.Speed = data.car.speed;
@@ -317,6 +317,7 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.TrackLength = data.TrackLength;
         gameData.LapDistance = data.DistanceFromStart;
         gameData.CompletionRate = data.DistanceFromStart / data.TrackLength;
+        gameData.LapTime = data.RaceTime;
         gameData.MaxRPM = 10000f;
         gameData.MaxGears = 6;
         // var xInertia = (data.XSpeed - _currentMemData.XSpeed) / MEM_REFRESH_INTERVAL;
@@ -335,6 +336,7 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.PosZ = data.Z;
 
         gameData.RPM = data.EngineRPM;
+        
         // ground speed instead of wheel speed.
         // gameData.Speed = MathF.Sqrt(MathF.Pow(data.XSpeed, 2f) + MathF.Pow(data.YSpeed, 2f) + MathF.Pow(data.ZSpeed, 2f)); 
 

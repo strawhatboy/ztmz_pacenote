@@ -104,7 +104,7 @@ function drawStaticFrames(gfx, data, helper, x, y, radius, padding)
     -- draw the static frames
     -- 1. background
     -- print("drawing the background")
-    for alpha=10,30,4 do
+    for alpha=10,100,10 do
         _brushes["background"].Color = helper.getColor(
             _brushes["background"].Color.R,
             _brushes["background"].Color.G,
