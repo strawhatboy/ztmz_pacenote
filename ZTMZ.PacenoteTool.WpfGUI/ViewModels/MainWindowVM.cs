@@ -41,7 +41,7 @@ public partial class MainWindowVM : ObservableObject
     private StartupDialog _startupDialog;
 
     [ObservableProperty]
-    public string _title = "ZTMZ Next Generation Pacenote Tool";
+    public string _title = "ZTMZ Next Generation Pacenote Tool - " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? String.Empty;
 
     
     [ObservableProperty]

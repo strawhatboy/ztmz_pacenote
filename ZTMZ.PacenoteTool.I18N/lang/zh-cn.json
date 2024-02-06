@@ -36,7 +36,7 @@
     "tooltip": {
       "language": "修改工具界面上的语言显示",
       "btn_reset": "需要重启本工具来生效",
-      "playbackDeviceDesiredLatency": "播放设备的 缓冲区延迟 表示指令到达播放设备后开始播放的延迟，如果延迟过低，对于某些设备可能会出现声音卡顿的现象，延迟过高可能会导致路书播放滞后",
+      "playbackDeviceDesiredLatency": "播放设备的 缓冲区延迟 表示指令到达播放设备后开始播放的延迟，如果延迟过低，\n对于某些设备可能会出现声音卡顿的现象，延迟过高可能会导致路书播放滞后",
       "logLevel": "设置日志的级别，设置的级别越严重，日志中的信息量越少\n注意：在测试版中，此选项无效，日志级别总是设置为 调试",
       "viewLogs": "查看日志",
       "theme": "工具显示的暗色或亮色主题，或者跟随Windows系统设置",
@@ -61,7 +61,7 @@
       "additionalPacenotesDefinitionSearchPath": "在搜索路书标记定义文件(*.csv)时，额外的搜索这个文件夹\n路书标记定义文件需要按照pacenotes.csv的格式保存",
 
       "useSequentialMixerToHandleAudioConflict": "队列播放模式可以避免同一时刻播放多个语音片段造成的语音重叠现象",
-      "useDynamicPlaybackSpeed": "在某些路书较为密集的地图（如苏格兰）中，通过动态地根据车速与下个路书位置来调整当前路书片段的语速，来避免路书跟不上车的情况",
+      "useDynamicPlaybackSpeed": "在某些路书较为密集的地图（如苏格兰）中，通过动态地根据车速与下个路书位置\n来调整当前路书片段的语速，来避免路书跟不上车的情况",
       "useTempoInsteadOfRate": "使用节拍方式，可以保证仅仅加速或减速语音，而保持音调不变，使用频率方式会导致音调发生变化（怪起来了）",
       "dynamicPlaybackMaxSpeed": "动态地调整语速时，不超过这个倍数，比如设置为2.0，那么最多语速 x2.0",
       "useDynamicVolume": "会根据当前车速判断紧张程度，对语音进行正弦波扰动，车速越快越紧张",
@@ -123,6 +123,8 @@
     "playbackDeviceDesiredLatency": "播放设备缓冲区延迟",
     "logLevel": "日志级别",
     "checkUpdateWhenStartup": "自动更新",
+    "checkUpdateWhenStartup_On": "自动更新 (已开启)",
+    "checkUpdateWhenStartup_Off": "自动更新 (已关闭)",
     "startWithWindows": "开机自动启动",
 
     "warnIfPortMismatch": "端口不匹配时展示警告对话框",
@@ -187,7 +189,9 @@
 
     "udpListenAddress": "监听的UDP地址",
     "udpListenPort": "监听的UDP端口",
-    "memoryRefreshRate": "内存刷新频率 (Hz)"
+    "memoryRefreshRate": "内存刷新频率 (Hz)",
+
+    "staff": "制作组（出来挨打？",
   },
 
   "dialog": {
@@ -242,6 +246,19 @@
   },
 
   "ui": {
+    "specialThanks": "特别感谢 李总(KyoLee)支持的固态硬盘!!! 和Meeke777支持的EA Sports WRC游戏!!! 以及ZTMZ Club, SimRallyCN, 和所有付出努力的大佬们!!!",
+    "eula": "用户协议",
+    "license": "开源协议",
+    "opensoftware": "引用开源软件",
+    "opensoftware_dependency": "依赖的开源软件",
+    "opensoftware_notdependent_anymore": "(不再依赖)",
+    "opensoftware_reference": "参考的开源软件",
+    "opensoftware_notopen": "(非开源软件)",
+    "contactUs": "联系我们",
+    "contactUs_github": "GitHub",
+    "contactUs_gitee": "Gitee",
+    "contactUs_QQ": "QQ",
+
     "rb_record": "录制模式",
     "rb_replay": "播放模式",
     "tb_gameState": "游戏状态：",
@@ -393,5 +410,28 @@
     {
       "wtf": "wtf content"
     }
-  ]
+  ],
+
+  "staff": {
+    "specialThanks": "特别感谢",
+    "rnd": "技术研发",
+    "rnd_staff": {
+      "mainProgrammer": "主程序",
+      "uiDesigner": "界面设计",
+      "vrSupport": "VR程序设计",
+      "initialIdea": "初始创意",
+      "ideaProvider": "创意指导",
+    },
+    "club": "车队",
+    "club_staff": {
+      "clubLeader": "车队队长",
+      "eventOrganizer": "车队赛事组织",
+      "toolOrganizer": "工具制作组织",
+      "specialGuest": "特邀嘉宾",
+    },
+    "audioPkg": "语音包制作",
+    "script": "路书脚本",
+    "all": "和所有参与制作和测试的人员，以及所有该工具的使用者，感谢你们!!!",
+    "missing": "如有遗漏，请联系我[狗头]"
+  }
 }

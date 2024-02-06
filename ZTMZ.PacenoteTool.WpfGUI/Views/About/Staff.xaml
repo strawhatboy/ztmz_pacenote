@@ -1,0 +1,218 @@
+<UserControl Width="800"
+    x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.About.Staff"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:Wpf.Ui.Controls"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Base.UI"
+    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Style TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+        <Style TargetType="ui:TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+    </UserControl.Resources>
+    <!-- like staff in the end of the movie -->
+    <StackPanel>
+        <!-- special thanks -->
+        <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
+            Text="{DynamicResource staff.specialThanks}" />
+        <!-- <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+            <ui:HyperlinkButton Content="李总(KyoLee)" NavigateUri="https://space.bilibili.com/864668" />
+            <ui:HyperlinkButton Content="7颗豆子(Meeke777)" NavigateUri="https://space.bilibili.com/55088592" />
+            <ui:HyperlinkButton Content="小贤少少(xxss)" NavigateUri="https://space.bilibili.com/253480317"/> 
+        </StackPanel> -->
+        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+            <ui:TextBlock Text="李总(KyoLee)" />
+            <ui:TextBlock Margin="10 0 0 0" Text="7颗豆子(Meeke777)" />
+            <ui:TextBlock Margin="10 0 0 0" Text="小贤少少(xxss)" />
+        </StackPanel>
+
+        <!-- audio pkgs -->
+        <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
+            Text="{DynamicResource staff.audioPkg}" />
+        <WrapPanel Orientation="Horizontal" Width="400">
+            <ui:TextBlock Text="Bigboxx" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="圣沙蒙VK" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="紫藤林沫" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="DR2车手老王" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="权威Authority" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="wha1ing" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Hippopo" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="大李子小妖" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="mesa" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="沧竹烽-南沢いずみ(天津话)" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="左衛門" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Chester117" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Kiko(萝莉音)" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Nooblesone泡面君" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="古轩言" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="图图" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="简哲" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Jeffery" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="吉米(山东寿光话)" Margin="10 0 0 0"/>
+        </WrapPanel>
+
+        <!-- script -->
+        <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
+            Text="{DynamicResource staff.script}" />
+        <WrapPanel Orientation="Horizontal" Width="400">
+            <ui:TextBlock Text="含蓄" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Hippopo" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="回家的誘いをかける" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="栗悟饭とカメハメ波" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Meeke777" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="O.Z.(Gliese-436b)" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Silenig" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="smoke(DR2略略略)" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Zexx" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="年轮" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="DR2车手老王" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="沧竹烽" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="花腩居士" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Panda2Bad" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="李昕珂" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Xhown" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Yang" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="凌绝" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="冰彻天空" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Nekuz" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Sebastian" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Erwachsene" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="米酷二二三" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="牛爷爷" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="毅杨千秋（千年老妖）" Margin="10 0 0 0"/>
+        </WrapPanel>
+
+        <!-- rnd staff -->
+        <!-- <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
+        Text="{DynamicResource staff.rnd}"/>
+        <Grid HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <ui:TextBlock VerticalAlignment="Center" TextAlignment="Right" Text="{DynamicResource
+        staff.rnd_staff.mainProgrammer}" />
+            <ui:HyperlinkButton Content="草帽不是猫" Margin="10 0 0 0"
+        NavigateUri="https://space.bilibili.com/4750996" Grid.Column="1" />
+            <ui:TextBlock VerticalAlignment="Center" TextAlignment="Right" Text="{DynamicResource
+        staff.rnd_staff.uiDesigner}" Grid.Row="1"/>
+            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="10 0 0 0">
+                <ui:HyperlinkButton Content="无状态选手" NavigateUri="https://space.bilibili.com/313805979" />
+                <ui:TextBlock Margin="10 0 0 0" VerticalAlignment="Center" Text="SamLIU" />
+            </StackPanel>
+            <ui:TextBlock VerticalAlignment="Center" TextAlignment="Right" Text="{DynamicResource
+        staff.rnd_staff.vrSupport}" Grid.Row="2"/>
+            <ui:HyperlinkButton Content="子夜(Lw_Ziye)" Margin="10 0 0 0"
+        NavigateUri="https://space.bilibili.com/4723067" Grid.Row="2" Grid.Column="1"/>
+            <ui:TextBlock VerticalAlignment="Center" TextAlignment="Right" Text="{DynamicResource
+        staff.rnd_staff.initialIdea}" Grid.Row="3"/>
+            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Margin="10 0 0 0">
+                <ui:HyperlinkButton Content="7颗豆子(Meeke777)" NavigateUri="https://space.bilibili.com/55088592" />
+                <ui:HyperlinkButton Content="幻想最初(Greened U)" NavigateUri="https://space.bilibili.com/254447657" />
+            </StackPanel>
+            <ui:TextBlock VerticalAlignment="Center" TextAlignment="Right" Text="{DynamicResource
+        staff.rnd_staff.ideaProvider}" Grid.Row="4"/>
+            <ui:HyperlinkButton Content="Bigboxx" Margin="10 0 0 0"
+        NavigateUri="https://space.bilibili.com/13133308" Grid.Row="4" Grid.Column="1"/>
+
+        </Grid> -->
+        <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
+            Text="{DynamicResource staff.rnd}" />
+        <Grid HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="380" />
+                <ColumnDefinition Width="380" />
+            </Grid.ColumnDefinitions>
+            <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+                Text="{DynamicResource staff.rnd_staff.mainProgrammer}" />
+            <ui:TextBlock Text="草帽不是猫" Margin="10 0 0 0"
+                Grid.Column="1" />
+            <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+                Text="{DynamicResource staff.rnd_staff.uiDesigner}" Grid.Row="1" />
+            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+                <ui:TextBlock Text="无状态选手"
+                    Margin="10 0 0 0"/>
+                <ui:TextBlock Margin="10 0 0 0" Text="SamLIU" />
+            </StackPanel>
+            <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+                Text="{DynamicResource staff.rnd_staff.vrSupport}" Grid.Row="2" />
+            <ui:TextBlock Text="子夜(Lw_Ziye)" Margin="10 0 0 0"
+                Grid.Row="2" Grid.Column="1" />
+            <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+                Text="{DynamicResource staff.rnd_staff.initialIdea}" Grid.Row="3" />
+            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                <ui:TextBlock Text="7颗豆子(Meeke777)"
+                    Margin="10 0 0 0"/>
+                <ui:TextBlock Text="幻想最初(Greened U)"
+                    Margin="10 0 0 0" />
+            </StackPanel>
+            <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+                Text="{DynamicResource staff.rnd_staff.ideaProvider}" Grid.Row="4" />
+            <ui:TextBlock Text="Bigboxx" Margin="10 0 0 0"
+                Grid.Row="4" Grid.Column="1" />
+
+        </Grid>
+
+        <!-- club -->
+        <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
+            Text="{DynamicResource staff.club}" />
+
+        <Grid HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="380" />
+                <ColumnDefinition Width="380" />
+            </Grid.ColumnDefinitions>
+            <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+                Text="{DynamicResource staff.club_staff.clubLeader}" />
+            <ui:TextBlock Text="李总(KyoLee)" Margin="10 0 0 0"
+                Grid.Column="1" />
+            <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+                Text="{DynamicResource staff.club_staff.eventOrganizer}" Grid.Row="1" />
+            <ui:TextBlock Text="小贤少少(xxss)" Margin="10 0 0 0"
+                Grid.Row="1" Grid.Column="1" />
+            <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+                    Text="{DynamicResource staff.club_staff.toolOrganizer}" Grid.Row="2" />
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                <ui:TextBlock Text="无状态选手"
+                    Margin="10 0 0 0"/>
+                <ui:TextBlock Text="DR2车手老王"
+                    Margin="10 0 0 0" />
+            </StackPanel>
+            <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+                Text="{DynamicResource staff.club_staff.specialGuest}" Grid.Row="3" />
+            <ui:TextBlock Text="钣金霍" Margin="10 0 0 0"
+                Grid.Row="3" Grid.Column="1" />
+        </Grid>
+
+        <!-- all -->
+        <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
+            Text="{DynamicResource staff.all}" />
+        <ui:TextBlock HorizontalAlignment="Center" Text="{DynamicResource staff.missing}" />
+    </StackPanel>
+
+</UserControl>

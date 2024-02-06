@@ -9,7 +9,7 @@ using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
-public partial class GeneralPageVM : ObservableObject {
+public partial class GeneralPageVM : ObservableObject, INavigationAware {
     [ObservableProperty]
     private SolidColorBrush _accentColor = new SolidColorBrush(ThemeHelper.GetAccentColor());
 
@@ -180,5 +180,16 @@ public partial class GeneralPageVM : ObservableObject {
         }
         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
             AppLevelVariables.Instance.GetPath("logs")));
+    }
+
+    
+    public void OnNavigatedTo()
+    {
+        // update AutoUpdate settings, since it may be changed in About/Settings page
+        IsAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
+    }
+
+    public void OnNavigatedFrom()
+    {
     }
 }

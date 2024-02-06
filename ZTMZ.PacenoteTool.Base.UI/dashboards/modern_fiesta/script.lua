@@ -86,11 +86,10 @@ function drawRPM(gfx, data, conf, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     
-    local redZoneBlink = 0.85;
+    local redZoneBlink = 0.8;
     local redZone = 0.7;
-    local yellowZone = 0.55;
-    local greenZone = 0.4;
-    local emptyZone = 0.25;
+    local yellowZone = 0.5;
+    local greenZone = 0.2;
 
     local rpm = data.RPM;
     local maxRPM = data.MaxRPM;

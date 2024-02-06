@@ -37,7 +37,7 @@
       
       "language": "Language displayed",
       "btn_reset": "Need to restart the tool to take effect",
-      "playbackDeviceDesiredLatency": "The delay for playing after the instructions arrive at the device, if this value is very small, the sound may be weird. Meanwhile a big delay may affect the experience",
+      "playbackDeviceDesiredLatency": "The delay for playing after the instructions arrive at the device, if this value is very small, \nthe sound may be weird. Meanwhile a big delay may affect the experience",
       "logLevel": "Set the log level, the more severe the level, the less information will be shown\nNotice: In testing version, this option doesnot take effect, the log level is always DEBUG",
       "viewLogs": "View logs",
       "theme": "Dark/Light theme, or follow the Windows system theme",
@@ -47,7 +47,7 @@
 
       "warnIfPortMismatch": "Show warning dialog if the game UDP port mismatch with the tool UDP port",
 
-      "hudFPS": "Lock FPS of the in-game hud, high FPS may bring negative influence to the performance of some screen recording softwares like OBS",
+      "hudFPS": "Lock FPS of the in-game hud, high FPS may bring negative influence to the performance of \nsome screen recording softwares like OBS",
       "playStartAndEndSound": "Play special start/end stage voice",
       "playGoSound": "Just after the count down, there will be something like 'Go' played if this option was checked",
       "playCollisionSound": "Play special collision voice",
@@ -57,21 +57,21 @@
       "playWheelAbnormalSound": "Play special voice for wheel puncture, maybe not accurate for different wheels",
       "useDefaultSoundPackageByDefault": "Ignore default AI-generated voice package",
       "useDefaultSoundPackageForFallback": "If current voice package is not complete, use default AI-generated voice package for fallback",
-      "preloadSounds": "Preload the voice packages may take more memory (around 2GB), but will load the voice package as soon as possible",
+      "preloadSounds": "Preload the voice packages may take more memory (around 2GB), \nbut will load the voice package as soon as possible",
       "additionalCoDriverPackagesSearchPath": "When searching for voice packs, additionally search this folder",
-      "additionalPacenotesDefinitionSearchPath": "Put addition *.csv files here according to the format of the Pacenote definition file (pacenotes.csv)",
+      "additionalPacenotesDefinitionSearchPath": "Put addition *.csv files here according to the format of \nthe Pacenote definition file (pacenotes.csv)",
 
       "useSequentialMixerToHandleAudioConflict": "A sequential mix can avoid voices overlap",
-      "useDynamicPlaybackSpeed": "In some maps with dense pacenotes (such as Scotland), by dynamically adjusting the speech rate of the current pacenote segment according to the speed of the vehicle and the position of the next pacenote,\n to avoid the situation that the pacenote cannot keep up with the car",
-      "useTempoInsteadOfRate": "Using the Tempo method can ensure that only the voice is accelerated or slowed down, while keeping the pitch unchanged, using the Rate method will cause the pitch to change (weird) ",
-      "dynamicPlaybackMaxSpeed": "When dynamically adjusting the speech rate, it does not exceed this multiple. For example, if it is set to 2.0, then the maximum speech rate is x2.0",
-      "useDynamicVolume": "It will judge the degree of tension according to the current speed and perform sine wave disturbance on the voice",
+      "useDynamicPlaybackSpeed": "In some maps with dense pacenotes (such as Scotland), by dynamically adjusting the speech rate of \nthe current pacenote segment according to the speed of the vehicle and the position of the next pacenote,\n to avoid the situation that the pacenote cannot keep up with the car",
+      "useTempoInsteadOfRate": "Using the Tempo method can ensure that only the voice is accelerated or slowed down, \nwhile keeping the pitch unchanged, using the Rate method will cause the pitch to change (weird) ",
+      "dynamicPlaybackMaxSpeed": "When dynamically adjusting the speech rate, it does not exceed this multiple. For example, \nif it is set to 2.0, then the maximum speech rate is x2.0",
+      "useDynamicVolume": "It will judge the degree of tension according to the current speed and \nperform sine wave disturbance on the voice",
       "dynamicVolumePerturbationFrequency": "The frequency of the sine wave, the higher the frequency, the faster the jitter",
       "dynamicVolumePerturbationAmplitude": "The larger the amplitude, the stronger the jitter",
       "factorToRemoveSpaceFromAudioFiles": "The higher the value, the more likely the voices will overlap, will increase the compactness of the voices",
       "connectCloseDistanceCallToNextPacenote": "If there is a very close distance call (less than 30m), connect the next pacenote to this distance call",
       "connectNumericDistanceCallToPreviousPacenote": "If there is a numeric distance call (such as 100m), connect the previous pacenote to this distance call",
-      "examplePacenoteString": "The example pacenote for playing when trying different voice packages",
+      "examplePacenoteString": "The example pacenote for playing \nwhen trying different voice packages",
 
       "hudTopMost": "The hud will always be on top of any window in the system.",
       "hudChromaKeyMode": "Need to restart the tool.\nAfter the full-screen game mode is turned on, you can add \"ZTMZ Club Hud\" window capture in OBSStudio, plus a chroma keying filter, which can be used as a transparent mask layer for live broadcast or video recording\nNote, do not turn this option on if it is a windowed game, in addition, the color scheme after opening will be slightly different from that when windowed",
@@ -124,6 +124,8 @@
     "playbackDeviceDesiredLatency": "Playback device desired latency",
     "logLevel": "Log level",
     "checkUpdateWhenStartup": "Check update when startup",
+    "checkUpdateWhenStartup_On": "Auto Update (On)",
+    "checkUpdateWhenStartup_Off": "Auto Update (Off)",
     "startWithWindows": "Start with Windows",
 
     "warnIfPortMismatch": "Show warning dialog if port mismatch",
@@ -188,7 +190,9 @@
 
     "udpListenAddress": "Telemetry UDP listen address",
     "udpListenPort": "Telemetry UDP port",
-    "memoryRefreshRate": "Memory Refresh Rate (Hz)"
+    "memoryRefreshRate": "Memory Refresh Rate (Hz)",
+
+    "staff": "Staff",
   },
 
   "dialog": {
@@ -243,6 +247,18 @@
   },
 
   "ui": {
+    "specialThanks": "Special Thanks to KyoLee's SSD!!! Meeke777's EA Sports WRC game!!! and ZTMZ Club, SimRallyCN, and all the contributors!!!",
+    "eula": "EULA",
+    "license": "Open source Licenses",
+    "opensoftware": "Open source Softwares",
+    "opensoftware_dependency": "Open source Softwares (Dependency)",
+    "opensoftware_notdependent_anymore": "(Not dependent anymore)",
+    "opensoftware_reference": "Open source Softwares (Reference)",
+    "opensoftware_notopen": "(Non-open software)",
+    "contactUs": "Contact Us",
+    "contactUs_github": "GitHub",
+    "contactUs_gitee": "Gitee",
+    "contactUs_QQ": "QQ",
 
     "rb_record": "Record Mode",
     "rb_replay": "Replay mode",
@@ -395,5 +411,28 @@
     {
       "wtf": "wtf content"
     }
-  ]
+  ],
+
+  "staff": {
+    "specialThanks": "Special Thanks",
+    "rnd": "Technology",
+    "rnd_staff": {
+      "mainProgrammer": "Main Programmer",
+      "uiDesigner": "UI Designer",
+      "vrSupport": "VR Support",
+      "initialIdea": "Initial Idea",
+      "ideaProvider": "Idea Provider",
+    },
+    "club": "Club",
+    "club_staff": {
+      "clubLeader": "Club Leader",
+      "eventOrganizer": "Event Organizer",
+      "toolOrganizer": "工具制作组织",
+      "specialGuest": "Special Guest",
+    },
+    "audioPkg": "Audio Package",
+    "script": "Pacenote Script",
+    "all": "And all people who have contributed to this tool, \nand all the players who have used this tool, thank you all!!!",
+    "missing": "If there's someone missing, please contact us to add him/her in."
+  }
 }

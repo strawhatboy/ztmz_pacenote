@@ -1,0 +1,52 @@
+<UserControl
+    x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.About.ContactUs"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:Wpf.Ui.Controls"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Base.UI"
+    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Style TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+        <Style TargetType="ui:TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+    </UserControl.Resources>
+    <!-- like staff in the end of the movie -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+            Text="{DynamicResource ui.contactUs_gitee}" />
+        <ui:HyperlinkButton Grid.Column="1" Content="https://gitee.com/ztmz/ztmz_pacenote"
+            NavigateUri="https://gitee.com/ztmz/ztmz_pacenote" />
+        <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+            Grid.Row="1"
+            Text="{DynamicResource ui.contactUs_github}" />
+        <ui:HyperlinkButton Grid.Column="1" Grid.Row="1"
+            Content="https://github.com/strawhatboy/ztmz_pacenote"
+            NavigateUri="https://github.com/strawhatboy/ztmz_pacenote" />
+        <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+            Grid.Row="2"
+            Text="{DynamicResource ui.contactUs_QQ}" />
+        <ui:TextBlock Grid.Column="1" Grid.Row="2" Margin="10 0 0 0">
+            <Run Text="207790761 (ZTMZ Club 总群)" />
+            <LineBreak />
+            <Run Text="697673264 (ZTMZ Next Generation Pacenote)" />
+            <LineBreak />
+            <Run Text="658110104 (RBR拉力 Simrallycn中国总群)" />
+            <LineBreak />
+        </ui:TextBlock>
+    </Grid>
+
+</UserControl>

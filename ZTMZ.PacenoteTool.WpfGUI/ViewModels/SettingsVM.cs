@@ -3,9 +3,12 @@
 // Copyright (C) Leszek Pomianowski and WPF UI Contributors.
 // All Rights Reserved.
 
+using System.IO;
+using System.Windows.Controls;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.Core;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -17,12 +20,30 @@ public partial class SettingsVM : ObservableObject, INavigationAware
     private string _appVersion = String.Empty;
 
     [ObservableProperty]
-    private Wpf.Ui.Appearance.ApplicationTheme _currentTheme = Wpf.Ui.Appearance.ApplicationTheme.Unknown;
+    private bool _isAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
+
+    private readonly IContentDialogService _contentDialogService;
+
+    public SettingsVM(IContentDialogService contentDialogService)
+    {
+        _contentDialogService = contentDialogService;
+    }
+
+    partial void OnIsAutoUpdateChanged(bool value)
+    {
+        Config.Instance.CheckUpdateWhenStartup = value;
+        Config.Instance.SaveUserConfig();
+    }
+
 
     public void OnNavigatedTo()
     {
+        // update AutoUpdate settings, since it may be changed in General page
+        IsAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
+        
         if (!_isInitialized)
             InitializeViewModel();
+        
     }
 
     public void OnNavigatedFrom()
@@ -31,8 +52,7 @@ public partial class SettingsVM : ObservableObject, INavigationAware
 
     private void InitializeViewModel()
     {
-        CurrentTheme = Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme();
-        AppVersion = $"ZTMZ Next Generation Pacenote Tool - {GetAssemblyVersion()}";
+        AppVersion = GetAssemblyVersion();
 
         _isInitialized = true;
     }
@@ -42,55 +62,82 @@ public partial class SettingsVM : ObservableObject, INavigationAware
         return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? String.Empty;
     }
 
+    private UserControl _staff = new Views.About.Staff();
+
+    private UserControl _opensoftware = new Views.About.OpenSoftware();
+
+    private UserControl _contactUs = new Views.About.ContactUs();
+
+
     [RelayCommand]
-    private void OnChangeTheme(string parameter)
-    {
-        switch (parameter)
-        {
-            case "theme_light":
-                if (CurrentTheme == Wpf.Ui.Appearance.ApplicationTheme.Light)
-                    break;
+    private async void OpenStaffDialog() {
+        await _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions() {
+            Title = I18NLoader.Instance["settings.staff"],
+            Content = _staff,
+            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+        });
+    }
 
-
-                Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(ThemeHelper.GetAccentColor(), 
-                    Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
-                Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Wpf.Ui.Appearance.ApplicationTheme.Light,
-                    WindowBackdropType.Mica,
-                    false);
-                CurrentTheme = Wpf.Ui.Appearance.ApplicationTheme.Light;
-                Config.Instance.IsDarkTheme = false;
-                Config.Instance.UseSystemTheme = false;
-                Config.Instance.SaveUserConfig();
-                Wpf.Ui.Appearance.SystemThemeWatcher.UnWatch(Application.Current.MainWindow);
-
-                break;
-
-            case "theme_dark":
-                if (CurrentTheme == Wpf.Ui.Appearance.ApplicationTheme.Dark)
-                    break;
-
-
-                Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(ThemeHelper.GetAccentColor(), 
-                    Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
-                Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Wpf.Ui.Appearance.ApplicationTheme.Dark,
-                    WindowBackdropType.Mica,
-                    false);
-                CurrentTheme = Wpf.Ui.Appearance.ApplicationTheme.Dark;
-                Config.Instance.IsDarkTheme = true;
-                Config.Instance.UseSystemTheme = false;
-                Config.Instance.SaveUserConfig();
-                Wpf.Ui.Appearance.SystemThemeWatcher.UnWatch(Application.Current.MainWindow);
-
-                break;
-            case "theme_system":
-                Wpf.Ui.Appearance.SystemThemeWatcher.UnWatch(Application.Current.MainWindow);
-                Wpf.Ui.Appearance.SystemThemeWatcher.Watch(Application.Current.MainWindow);
-                Wpf.Ui.Appearance.ApplicationThemeManager.ApplySystemTheme();
-                CurrentTheme = Wpf.Ui.Appearance.ApplicationTheme.Unknown;
-                Config.Instance.UseSystemTheme = true;
-                Config.Instance.SaveUserConfig();
-
-                break;
+    [RelayCommand]
+    private async void OpenUpdateHistoryDialog() {
+        var updateHistoryText = "";
+        if (ToolUtils.GetToolVersion() == ToolVersion.TEST) {  
+            updateHistoryText = await File.ReadAllTextAsync("更新记录beta.txt");
+        } else {
+            updateHistoryText = await File.ReadAllTextAsync("更新记录.txt");
         }
+        await _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions() {
+            Title = I18NLoader.Instance["ui.tb_updates"],
+            Content = updateHistoryText,
+            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+        });
+    }
+
+    [RelayCommand]
+    private async void OpenEULADialog() {
+        var eula = "";
+        if (Config.Instance.Language == "zh-cn") {
+            eula = await File.ReadAllTextAsync("eula-cn.txt");
+        } else {
+            eula = await File.ReadAllTextAsync("eula.txt");
+        }
+        await _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions() {
+            Title = I18NLoader.Instance["ui.eula"],
+            Content = eula,
+            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+        });
+    }
+
+    [RelayCommand]
+    private async void OpenLicenseDialog() {
+        var privacyPolicy = "";
+        if (Config.Instance.Language == "zh-cn") {
+            privacyPolicy = await File.ReadAllTextAsync("license-cn.txt");
+        } else {
+            privacyPolicy = await File.ReadAllTextAsync("license.txt");
+        }
+        await _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions() {
+            Title = I18NLoader.Instance["ui.license"],
+            Content = privacyPolicy,
+            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+        });
+    }
+
+    [RelayCommand]
+    private async void OpenOpenSourceSoftwareDialog() {
+        await _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions() {
+            Title = I18NLoader.Instance["ui.opensoftware"],
+            Content = _opensoftware,
+            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+        });
+    }
+
+    [RelayCommand]
+    private async void OpenContactUsDialog() {
+        await _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions() {
+            Title = I18NLoader.Instance["ui.contactUs"],
+            Content = _contactUs,
+            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+        });
     }
 }

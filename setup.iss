@@ -1,5 +1,5 @@
 ﻿#define MyAppName "ZTMZ Next Generation Pacenote Tool"
-#define MyAppVersion "2.99.99.6"
+#define MyAppVersion "2.99.99.7"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
@@ -140,8 +140,8 @@ VersionInfoVersion={#MyAppVersion}
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile:"license.txt"; InfoBeforeFile:"eula.txt";
-Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"; LicenseFile:"license-cn.txt"; InfoBeforeFile:"eula-cn.txt";
+Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile:"ZTMZ.PacenoteTool.WpfGUI\license.txt"; InfoBeforeFile:"ZTMZ.PacenoteTool.WpfGUI\eula.txt";
+Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"; LicenseFile:"ZTMZ.PacenoteTool.WpfGUI\license-cn.txt"; InfoBeforeFile:"ZTMZ.PacenoteTool.WpfGUI\eula-cn.txt";
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";

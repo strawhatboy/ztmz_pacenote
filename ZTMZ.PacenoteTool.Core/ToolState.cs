@@ -13,7 +13,7 @@ namespace ZTMZ.PacenoteTool.Core
     {
         public static ToolVersion GetToolVersion()
         {
-            var _version = Assembly.GetExecutingAssembly().GetName().Version.ToString();;
+            var _version = Assembly.GetEntryAssembly().GetName().Version.ToString();;
             if (System.IO.Directory.Exists(Config.Instance.PythonPath) &&
                      System.IO.Directory.Exists(Config.Instance.SpeechRecogizerModelPath))
             {

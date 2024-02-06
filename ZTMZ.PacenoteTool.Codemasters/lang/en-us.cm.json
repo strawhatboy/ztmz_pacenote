@@ -7,7 +7,7 @@
             "description": "Dirt Rally 2.0, by Codemasters"
         },
         "wrc": {
-            "description": "EA Sports WRC, by EA Sports"
+            "description": "EA Sports WRC, by EA Sports. UDP bugs, not supported\nIt's recommended to tune the volume to 0 and just use the Hud."
         }
     }
 }

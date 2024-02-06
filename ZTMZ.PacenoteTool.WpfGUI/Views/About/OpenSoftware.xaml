@@ -1,0 +1,73 @@
+<UserControl
+    x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.About.OpenSoftware"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:Wpf.Ui.Controls"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Base.UI"
+    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Style TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+        <Style TargetType="ui:TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+    </UserControl.Resources>
+    <!-- like staff in the end of the movie -->
+    <StackPanel>
+        
+        <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
+            Text="{DynamicResource ui.opensoftware_dependency}" />
+        <!-- opensoftware_dependency -->
+        <ui:HyperlinkButton Content="Newtonsoft.Json" NavigateUri="https://www.newtonsoft.com/json" />
+        <ui:HyperlinkButton Content="NAudio" NavigateUri="https://github.com/naudio/NAudio" />
+        <StackPanel Orientation="Horizontal">
+            <ui:HyperlinkButton Content="PromptDialog" NavigateUri="https://github.com/manuelcanepa/wpf-prompt-dialog" />
+            <ui:TextBlock Text="{DynamicResource ui.opensoftware_notdependent_anymore}" />
+        </StackPanel>
+        <ui:HyperlinkButton Content="AvalonEdit" NavigateUri="http://avalonedit.net/" />
+        <StackPanel Orientation="Horizontal">
+            <ui:HyperlinkButton Content="WindowsAPICodePack-Shell" NavigateUri="https://github.com/aybe/Windows-API-Code-Pack-1.1" />
+            <ui:TextBlock Text="{DynamicResource ui.opensoftware_notdependent_anymore}" />
+        </StackPanel>
+        <ui:HyperlinkButton Content="Vosk" NavigateUri="https://alphacephei.com/vosk/" />
+        <ui:HyperlinkButton Content="GameOverlay.Net" NavigateUri="https://github.com/michel-pi/GameOverlay.Net" />
+        <StackPanel Orientation="Horizontal">
+            <ui:HyperlinkButton Content="CoDriver-Splitter" NavigateUri="https://github.com/CookiePLMonster/CoDriver-Splitter" />
+            <ui:TextBlock Text="{DynamicResource ui.opensoftware_notdependent_anymore}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <ui:HyperlinkButton Content="Material Design Xaml Toolkit" NavigateUri="https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit" />
+            <ui:TextBlock Text="{DynamicResource ui.opensoftware_notdependent_anymore}" />
+        </StackPanel>
+        <ui:HyperlinkButton Content="Inno Setup" NavigateUri="https://jrsoftware.org/isinfo.php" />
+        <ui:HyperlinkButton Content="Inno Setup Chinese Simplified Translation" NavigateUri="https://github.com/kira-96/Inno-Setup-Chinese-Simplified-Translation" />
+        <ui:HyperlinkButton Content="NLog" NavigateUri="https://github.com/NLog/NLog" />
+        <ui:HyperlinkButton Content="CommunityToolkit.Mvvm" NavigateUri="https://github.com/CommunityToolkit/dotnet" />
+        <ui:HyperlinkButton Content="Microsoft.Xaml.Behaviors.Wpf " NavigateUri="https://github.com/microsoft/XamlBehaviorsWpf" />
+        <ui:HyperlinkButton Content="WPF-UI" NavigateUri="https://github.com/lepoco/wpfui" />
+        <ui:HyperlinkButton Content="CommunityToolkit.Mvvm" NavigateUri="https://github.com/CommunityToolkit/dotnet" />
+        <ui:HyperlinkButton Content="CsvHelper" NavigateUri="https://github.com/JoshClose/CsvHelper" />
+        <ui:HyperlinkButton Content="SoundTouch.Net" NavigateUri="https://github.com/owoudenberg/soundtouch.net" />
+        <ui:HyperlinkButton Content="NeoLua" NavigateUri="https://github.com/neolithos/neolua" />
+        
+        <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
+            Text="{DynamicResource ui.opensoftware_reference}" />
+        <!-- opensoftware_reference -->
+        <ui:HyperlinkButton Content="CrewChiefV4" NavigateUri="https://gitlab.com/mr_belowski/CrewChiefV4" />
+        <ui:HyperlinkButton Content="dr2_logger" NavigateUri="https://github.com/ErlerPhilipp/dr2_logger" />
+        
+        <StackPanel Orientation="Horizontal">
+            <ui:HyperlinkButton Content="Dirt Telemetry Tool" NavigateUri="https://forums.codemasters.com/topic/9721-dirt-telemetry-tool-cortextuals-version/" />
+            <ui:TextBlock Text="{DynamicResource ui.opensoftware_notopen}" />
+        </StackPanel>
+        <ui:HyperlinkButton Content="NGPCarMenu" NavigateUri="https://github.com/mika-n/NGPCarMenu" />
+        <StackPanel Orientation="Horizontal">
+            <ui:HyperlinkButton Content="SimHub" NavigateUri="https://www.simhubdash.com/" />
+            <ui:TextBlock Text="{DynamicResource ui.opensoftware_notopen}" />
+        </StackPanel>
+    </StackPanel>
+
+</UserControl>

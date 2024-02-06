@@ -1,0 +1,5 @@
+* This program is open source based on the GPLv3 license
+* This program is developed based on dotnet8
+* This program is installed and run with non-administrator privileges, and will not modify or obtain any information on the computer that is not related to this program
+* The voice pack used in this program is owned by the author of the voice pack
+* The LOGOs and names of other games used in this program are owned by the company of the game itself

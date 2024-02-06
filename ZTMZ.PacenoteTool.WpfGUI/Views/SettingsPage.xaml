@@ -20,39 +20,138 @@
         <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
     </Page.Resources>
 
-    <StackPanel Margin="42">
-        <TextBlock
-            FontSize="20"
-            FontWeight="Medium"
-            Text="Personalization" />
-        <TextBlock Margin="0,12,0,0" Text="Theme" />
-        <RadioButton
-            Margin="0,12,0,0"
-            Command="{Binding ViewModel.ChangeThemeCommand, Mode=OneWay}"
-            CommandParameter="theme_light"
-            Content="Light"
-            GroupName="themeSelect"
-            IsChecked="{Binding ViewModel.CurrentTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light, Mode=OneWay}" />
-        <RadioButton
-            Margin="0,8,0,0"
-            Command="{Binding ViewModel.ChangeThemeCommand, Mode=OneWay}"
-            CommandParameter="theme_dark"
-            Content="Dark"
-            GroupName="themeSelect"
-            IsChecked="{Binding ViewModel.CurrentTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark, Mode=OneWay}" />
-        <RadioButton
-            Margin="0,8,0,0"
-            Command="{Binding ViewModel.ChangeThemeCommand, Mode=OneWay}"
-            CommandParameter="theme_system"
-            Content="System"
-            GroupName="themeSelect"
-            IsChecked="{Binding ViewModel.CurrentTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Unknown, Mode=OneWay}" />
+    <StackPanel>
+        <!-- Icon -->
+        <ui:Image CornerRadius="10" Height="130" Width="130"
+            Source="pack://application:,,,/Assets/app.png"
+            RenderOptions.BitmapScalingMode="HighQuality" />
 
-        <TextBlock
-            Margin="0,24,0,0"
-            FontSize="20"
-            FontWeight="Medium"
-            Text="About" />
-        <TextBlock Margin="0,12,0,0" Text="{Binding ViewModel.AppVersion, Mode=OneWay}" />
+        <!-- Version and autoupdate toggle -->
+        <StackPanel Margin="0,20,0,0" Orientation="Horizontal" HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+            <ui:TextBlock FontTypography="Caption" Text="{Binding ViewModel.AppVersion}"
+                Margin="0 0 10 0" VerticalAlignment="Center" />
+            <ui:ToggleSwitch OnContent="{DynamicResource settings.checkUpdateWhenStartup_On}"
+                OffContent="{DynamicResource settings.checkUpdateWhenStartup_Off}"
+                IsChecked="{Binding ViewModel.IsAutoUpdate, Mode=TwoWay}" />
+        </StackPanel>
+
+        <Border Padding="0" Margin="0,20,0,0" Width="500">
+            <StackPanel>
+                <!-- Special Thanks -->
+                <ui:TextBlock FontTypography="Caption" TextWrapping="Wrap" Text="{DynamicResource ui.specialThanks}" />
+
+                <!-- Staff -->
+                <ui:CardAction
+                    Margin="0 8 0 0"
+                    Padding="16"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    IsChevronVisible="False"
+                    Command="{Binding ViewModel.OpenStaffDialogCommand}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock VerticalAlignment="Center" Grid.Column="0" Text="{DynamicResource settings.staff}" />
+                        <ui:SymbolIcon FontSize="26" Grid.Column="1" Symbol="ContactCardGroup20" />
+                    </Grid>
+                </ui:CardAction>
+                <!-- update history -->
+                <ui:CardAction
+                    Margin="0 8 0 0"
+                    Padding="16"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    IsChevronVisible="False"
+                    Command="{Binding ViewModel.OpenUpdateHistoryDialogCommand}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock VerticalAlignment="Center" Grid.Column="0" Text="{DynamicResource ui.tb_updates}" />
+                        <ui:SymbolIcon FontSize="26" Grid.Column="1" Symbol="DualScreenUpdate20" />
+                    </Grid>
+                </ui:CardAction>
+                <!-- EULA -->
+                <ui:CardAction
+                    Margin="0 8 0 0"
+                    Padding="16"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    IsChevronVisible="False"
+                    Command="{Binding ViewModel.OpenEULADialogCommand}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock VerticalAlignment="Center" Grid.Column="0" Text="{DynamicResource ui.eula}" />
+                        <ui:SymbolIcon FontSize="26" Grid.Column="1" Symbol="DocumentBulletList20" />
+                    </Grid>
+                </ui:CardAction>
+                <!-- opensource licenses -->
+                <Grid 
+                    Margin="0 8 0 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <ui:CardAction
+                        Grid.Column="0"
+                        Padding="16"
+                        Margin="0 0 4 0"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        IsChevronVisible="False"
+                        Command="{Binding ViewModel.OpenOpenSourceSoftwareDialogCommand}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBlock VerticalAlignment="Center" Grid.Column="0" Text="{DynamicResource ui.opensoftware}" />
+                            <ui:SymbolIcon FontSize="26" Grid.Column="1" Symbol="StoreMicrosoft20" />
+                        </Grid>
+                    </ui:CardAction>
+                    <ui:CardAction
+                        Grid.Column="1"
+                        Padding="16"
+                        Margin="4 0 0 0"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        IsChevronVisible="False"
+                        Command="{Binding ViewModel.OpenLicenseDialogCommand}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBlock VerticalAlignment="Center" Grid.Column="0" Text="{DynamicResource ui.license}" />
+                            <ui:SymbolIcon FontSize="26" Grid.Column="1" Symbol="CodeBlock20" />
+                        </Grid>
+                    </ui:CardAction>
+                </Grid>
+                <!-- bottom contact us -->
+                <ui:CardAction
+                    Margin="0 8 0 0"
+                    Padding="16"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    IsChevronVisible="False"
+                    Command="{Binding ViewModel.OpenContactUsDialogCommand}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock VerticalAlignment="Center" Grid.Column="0" Text="{DynamicResource ui.contactUs}" />
+                        <ui:SymbolIcon FontSize="26" Grid.Column="1" Symbol="Mail20" />
+                    </Grid>
+                </ui:CardAction>
+            </StackPanel>
+        </Border>
     </StackPanel>
 </Page>
