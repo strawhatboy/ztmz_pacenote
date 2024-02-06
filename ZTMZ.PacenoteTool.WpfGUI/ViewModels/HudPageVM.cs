@@ -14,6 +14,31 @@ using ZTMZ.PacenoteTool.Base.UI;
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 public partial class HudPageVM : ObservableObject {
+
+    [ObservableProperty]
+    private float _hudFPS = Config.Instance.HudFPS;
+
+    partial void OnHudFPSChanged(float value)
+    {
+        Config.Instance.HudFPS = Convert.ToInt32(value);
+        _gameOverlayManager.SetFPS(Config.Instance.HudFPS);
+        Config.Instance.SaveUserConfig();
+    }
+    
+    [ObservableProperty]
+    private bool _hudLockFPS = Config.Instance.HudLockFPS;
+
+    partial void OnHudLockFPSChanged(bool value)
+    {
+        Config.Instance.HudLockFPS = value;
+        if (value) {
+            _gameOverlayManager.SetFPS(Config.Instance.HudFPS);
+        } else {
+            _gameOverlayManager.SetFPS(0);
+        }
+        Config.Instance.SaveUserConfig();
+    }
+
     [ObservableProperty]
     private ObservableCollection<object> _dashboardItems = new();
 
@@ -43,7 +68,8 @@ public partial class HudPageVM : ObservableObject {
             // toggle button in 2nd column
             ToggleSwitch toggleSwitch = new ToggleSwitch();
             toggleSwitch.SetBinding(ToggleSwitch.IsCheckedProperty, new Binding("IsEnabled") { Source = dashboard.Descriptor });
-            toggleSwitch.IsEnabledChanged += (sender, args) => {
+            // toggle event
+            toggleSwitch.Click += (sender, args) => {
                 dashboard.Descriptor.IsEnabled = (bool)toggleSwitch.IsChecked;
                 dashboard.SaveConfig();
             };
@@ -61,8 +87,8 @@ public partial class HudPageVM : ObservableObject {
 
             var configGrid = new Grid();
             configGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            configGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(40, GridUnitType.Pixel) });
-            configGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
+            configGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(60, GridUnitType.Pixel) });
+            configGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(160, GridUnitType.Pixel) });
             // content will be the dashboard configurations
             for (var i = 0; i < dashboard.DashboardConfigurations.PropertyName.Keys.Count; i++) {
                 var index = i;
@@ -121,10 +147,10 @@ public partial class HudPageVM : ObservableObject {
 
                 if (configValue.GetType() == typeof(bool)) {
                     var _toggleSwitch = new ToggleSwitch();
-                    _toggleSwitch.IsEnabled = (bool)dashboard.GetConfigByKey(configKey);
+                    _toggleSwitch.IsChecked = (bool)dashboard.GetConfigByKey(configKey);
                     // _toggleSwitch.SetBinding(ToggleSwitch.IsCheckedProperty, new Binding(configKey) { Source = dashboard.DashboardConfigurations });
                     _toggleSwitch.Margin = new Thickness(0, 0, 10, 0);
-                    _toggleSwitch.IsEnabledChanged += (sender, args) => {
+                    _toggleSwitch.Click += (sender, args) => {
                         dashboard.DashboardConfigurations.PropertyValue[index] = (bool)_toggleSwitch.IsChecked;
                         dashboard.SaveConfig();
                     };

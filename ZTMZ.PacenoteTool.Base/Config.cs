@@ -335,6 +335,13 @@ namespace ZTMZ.PacenoteTool.Base
 
         #region HUD
 
+        private bool _HudLockFPS = true;
+        public bool HudLockFPS
+        {
+            set { this._HudLockFPS = value; this._userconfig["HudLockFPS"] = value; }
+            get => this._HudLockFPS;
+        }
+
         private int _HudFPS = 60;
         public int HudFPS
         {

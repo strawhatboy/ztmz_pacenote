@@ -46,9 +46,10 @@ function onInit(args)
     end
 
     _brushes["border"] = gfx.CreateSolidBrush(0x5d, 0x5b, 0x58, 100);
+    _brushes["line"] = gfx.CreateSolidBrush(255, 255, 255, 100);
     _brushes["background"] = gfx.CreateSolidBrush(0x00, 0x00, 0x00, 100);
     _brushes["transparent"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
-    _brushes["telemetryBackground"] = gfx.CreateSolidBrush(0x2c, 0x33, 0x3c, 125);
+    _brushes["telemetryBackground"] = gfx.CreateSolidBrush(0x2c, 0x33, 0x3c, 10);
     _brushes["rpm"] = gfx.CreateSolidBrush(0x9c, 0x9e, 0x5c, 255)
     _brushes["brake"] = gfx.CreateSolidBrush(0xd2, 0x18, 0x1d, 255)
     _brushes["throttle"] = gfx.CreateSolidBrush(0xc3, 0xe1, 0x67, 255)
@@ -105,50 +106,45 @@ function drawStaticFrames(gfx, data, helper, x, y, radius, padding)
     -- 1. background
     -- print("drawing the background")
     for alpha=10,100,10 do
-        _brushes["background"].Color = helper.getColor(
-            _brushes["background"].Color.R,
-            _brushes["background"].Color.G,
-            _brushes["background"].Color.B,
-            alpha);
-        gfx.FillCircle(_brushes["background"], x, y, (radius - padding * alpha / 100));
+        gfx.FillCircle(_brushes["telemetryBackground"], x, y, (radius - padding * alpha / 100));
     end
 
     -- 2. border
-    -- print("drawing the border")
+    -- print("drawing the border")ClrEnabled = false
     gfx.FillCircle(_brushes["border"], x, y, radius - padding);
 
     -- 3. telemetryBackground
-    -- print("drawing the telemetryBackground")
+    -- -- print("drawing the telemetryBackground")
     local telemetryRadius = radius - padding - radius * 0.02;
-    gfx.FillCircle(_brushes["telemetryBackground"], x, y, telemetryRadius);
+    -- gfx.FillCircle(_brushes["telemetryBackground"], x, y, telemetryRadius);
 
     -- 4. arc separating brake and throttle
     -- from -pi/6 to 7pi/6
     -- print("drawing the arc separating brake and throttle")
     local radius1stArc = radius - padding - radius * 0.16;
-    drawGeo(gfx, helper, x, y, 7.0 * math.pi / 6.0, (2.0 - 1.0 / 6.0) * math.pi, radius1stArc, radius1stArc - radius * 0.01, ARCSIZE_LARGE, _brushes["white"]);
+    drawGeo(gfx, helper, x, y, 7.0 * math.pi / 6.0, (2.0 - 1.0 / 6.0) * math.pi, radius1stArc, radius1stArc - radius * 0.01, ARCSIZE_LARGE, _brushes["line"]);
 
     -- 5. arc separating brake and speed
     -- from -pi/6 to 7pi/6
     -- print("drawing the arc separating brake and speed")
     local radius2ndArc = radius - padding - radius * 0.24;
-    drawGeo(gfx, helper, x, y, 7.0 * math.pi / 6.0, -math.pi / 6.0, radius2ndArc, radius2ndArc - radius * 0.01, ARCSIZE_LARGE, _brushes["white"]);
+    drawGeo(gfx, helper, x, y, 7.0 * math.pi / 6.0, -math.pi / 6.0, radius2ndArc, radius2ndArc - radius * 0.01, ARCSIZE_LARGE, _brushes["line"]);
 
     local lineWeight = radius * 0.01;
 
-    gfx.DrawLine(_brushes["white"], x + radius2ndArc * math.cos(-math.pi / 6), y - radius2ndArc * math.sin(-math.pi / 6),
+    gfx.DrawLine(_brushes["line"], x + radius2ndArc * math.cos(-math.pi / 6), y - radius2ndArc * math.sin(-math.pi / 6),
         x + telemetryRadius * math.cos(-math.pi / 6), y - telemetryRadius * math.sin(-math.pi / 6), lineWeight);
-    gfx.DrawLine(_brushes["white"], x + radius2ndArc * math.cos(7 * math.pi / 6), y - radius2ndArc * math.sin(7 * math.pi / 6),
+    gfx.DrawLine(_brushes["line"], x + radius2ndArc * math.cos(7 * math.pi / 6), y - radius2ndArc * math.sin(7 * math.pi / 6),
         x + telemetryRadius * math.cos(7 * math.pi / 6), y - telemetryRadius * math.sin(7 * math.pi / 6), lineWeight);
     
     -- vertical line
-    gfx.DrawLine(_brushes["white"], x, y - radius1stArc, x, y - telemetryRadius + radius * 0.03, lineWeight);
-    gfx.DrawLine(_brushes["white"], x + radius2ndArc * math.cos(-math.pi / 6), y - radius2ndArc * math.sin(-math.pi / 6),
+    gfx.DrawLine(_brushes["line"], x, y - radius1stArc, x, y - telemetryRadius + radius * 0.03, lineWeight);
+    gfx.DrawLine(_brushes["line"], x + radius2ndArc * math.cos(-math.pi / 6), y - radius2ndArc * math.sin(-math.pi / 6),
         x + radius2ndArc * math.cos(-math.pi / 6) - radius * 0.2, y - radius2ndArc * math.sin(-math.pi / 6), lineWeight);
-    gfx.DrawLine(_brushes["white"], x + radius2ndArc * math.cos(7 * math.pi / 6), y - radius2ndArc * math.sin(7 * math.pi / 6),
+    gfx.DrawLine(_brushes["line"], x + radius2ndArc * math.cos(7 * math.pi / 6), y - radius2ndArc * math.sin(7 * math.pi / 6),
         x + radius2ndArc * math.cos(7 * math.pi / 6) + radius * 0.2, y - radius2ndArc * math.sin(7 * math.pi / 6), lineWeight);
 
-    gfx.DrawLine(_brushes["white"], x + radius2ndArc * math.cos(5 * math.pi / 6), y - radius2ndArc * math.sin(5 * math.pi / 6),
+    gfx.DrawLine(_brushes["line"], x + radius2ndArc * math.cos(5 * math.pi / 6), y - radius2ndArc * math.sin(5 * math.pi / 6),
         x + radius1stArc * math.cos(5 * math.pi / 6), y - radius1stArc * math.sin(5 * math.pi / 6), lineWeight);
     
     gfx.drawTextWithBackgroundCentered(_fonts["wrc"], radius * 0.10, _brushes["white"], _brushes["transparent"], x, y - radius2ndArc * math.sin(-math.pi / 6), " Km/h ");
@@ -167,7 +163,17 @@ function drawRPM(gfx, data, helper, x, y, radius, padding)
         if (arcAngle > math.pi) then
             arcSize = ARCSIZE_LARGE;
         end
-        drawGeo(gfx, helper, x, y, 7 * math.pi / 6, 7 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, _brushes["rpm"]);
+        -- RPM color should become from green to yellow and then red
+        local rpmBrush = gfx.CreateSolidBrush(
+            _brushes["rpm"].Color.R + (255 - _brushes["rpm"].Color.R) * rpm / maxRPM,
+            _brushes["rpm"].Color.G - _brushes["rpm"].Color.G * rpm / maxRPM * 0.5,
+            _brushes["rpm"].Color.B - _brushes["rpm"].Color.B * rpm / maxRPM,
+            _brushes["rpm"].Color.A
+        );
+        drawGeo(gfx, helper, x, y, 7 * math.pi / 6, 7 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, rpmBrush);
+        
+        -- release the color
+        rpmBrush.Dispose();
     end
 end
 
@@ -239,7 +245,7 @@ function drawSpeed(gfx, data, helper, x, y, radius, padding)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     local telemetryRadius = radius - padding - radius * 0.03;
-    local speedWeight = (radius - padding) * 0.52;
+    local speedWeight = (radius - padding) * 0.56;
     local speed = data.Speed;
     gfx.drawTextWithBackgroundCentered(_fonts["wrc"], speedWeight, _brushes["white"], _brushes["transparent"], x, y - telemetryRadius / 6, math.floor(speed));
 end
@@ -249,7 +255,7 @@ function drawGear(gfx, data, helper, x, y, radius, padding)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     local telemetryRadius = radius - padding - radius * 0.03;
-    local gearWeight = (radius - padding) * 0.22;
+    local gearWeight = (radius - padding) * 0.35;
     local gear = math.floor(data.Gear);
     local gearText = "";
     if (gear == -1 or gear == 10) then

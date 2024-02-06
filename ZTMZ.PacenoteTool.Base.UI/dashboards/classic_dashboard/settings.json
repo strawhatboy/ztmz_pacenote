@@ -8,7 +8,6 @@
         "dashboards.settings.elementSpacing": "dashboards.settings.tooltip.elementSpacing",
         "dashboards.settings.sectorThicknessRatio": "dashboards.settings.tooltip.sectorThicknessRatio",
         "dashboards.settings.backgroundOpacity": "dashboards.settings.tooltip.backgroundOpacity",
-        "dashboards.settings.whRatio": "dashboards.settings.tooltip.whRatio",
         "dashboards.settings.showGBall": "dashboards.settings.tooltip.showGBall",
         "dashboards.settings.showSpdSector": "dashboards.settings.tooltip.showSpdSector",
         "dashboards.settings.showRpmSector": "dashboards.settings.tooltip.showRpmSector",
@@ -26,7 +25,6 @@
         0.2,
         0.25,
         0.5,
-        6,
         true,
         true,
         true,
@@ -36,6 +34,6 @@
         540
     ],
     "ValueRange": [
-        [], [], [0.1, 0.5], [0.1, 0.3], [0.1, 0.3], [0.1, 0.3], [0.1, 0.5], [0.1, 1], [3, 10], [], [], [], [], [], [], [90, 1080]
+        [], [], [0.1, 0.5], [0.1, 0.3], [0.1, 0.3], [0.1, 0.3], [0.1, 0.5], [0.1, 1], [], [], [], [], [], [], [90, 1080]
     ]
 }

@@ -79,7 +79,7 @@ namespace ZTMZ.PacenoteTool.RBR
 
         public Dictionary<string, IGameConfig> DefaultGameConfigurations { get; } = new() {
             { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback.ToString(), Port = 6776 } },
-            { MemoryGameConfig.Name, new MemoryGameConfig() { RefreshRate = 24f } },
+            { MemoryGameConfig.Name, new MemoryGameConfig() { RefreshRate = 60f } },    // use 60Hz as default
             { CommonGameConfigs.Name, new CommonGameConfigs() 
             { 
                 PropertyName = new() {

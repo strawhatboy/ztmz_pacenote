@@ -59,7 +59,7 @@ function onInit(args)
     resources["fonts"] = _fonts;
 end
 
-function drawGBall(gfx, conf, data, helper, x, y, width, height)
+function drawGBall(gfx, conf, self, data, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     local centerX = x + 0.5 * width;
@@ -76,14 +76,14 @@ function drawGBall(gfx, conf, data, helper, x, y, width, height)
     gfx.FillCircle(_brushes["red"], ballX, ballY, radius * 0.1);
 end
 
-function drawSpdSector(gfx, conf, data, helper, x, y, width, height)
+function drawSpdSector(gfx, conf, self, data, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     local maxSpeed = math.max(maxSpeed, data.Speed); 
-    helper.drawSector(gfx, "SPD (KM/h)", x, y, width, height, data.Speed, maxSpeed, _brushes["black"], _brushes["white"], _brushes["grey"], _fonts["wrc"], conf.HudSectorThicknessRatio);
+    helper.drawSector(gfx, "SPD (KM/h)", x, y, width, height, data.Speed, maxSpeed, _brushes["black"], _brushes["white"], _brushes["grey"], _fonts["wrc"], self.GetConfigByKey("dashboards.settings.sectorThicknessRatio"));
 end
 
-function drawPedals(gfx, conf, data, helper, x, y, width, height)
+function drawPedals(gfx, conf, self, data, helper, x, y, width, height)
     -- print("drawPedals on " .. x .. ", " .. y .. ", " .. width .. ", " .. height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
@@ -105,7 +105,7 @@ function drawPedals(gfx, conf, data, helper, x, y, width, height)
     gfx.FillRectangle(_brushes["green"], 1 + x + 2 * pedalWidth + 2 * spacing, 1 + y + height * (1-data.Throttle), x + width - 1, y + height - 1);
 end
 
-function drawGear(gfx, conf, data, helper, x, y, width, height)
+function drawGear(gfx, conf, self, data, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     -- var font = gfx.CreateFont("consolas", width);
@@ -113,10 +113,11 @@ function drawGear(gfx, conf, data, helper, x, y, width, height)
     -- gfx.DrawText(_fonts["wrc"], actualSize, _brushes["white"], x, y, getGearText(Convert.ToInt32(UdpMessage.Gear)));
     local columns = math.floor(math.ceil(data.MaxGears * 0.5)) + 1;
 
-    local barWidth = width / (columns + (columns-1) * conf.HudSectorThicknessRatio);
-    local spacingH = conf.HudSectorThicknessRatio * barWidth;
-    local barHeight = height / (2 + conf.HudSectorThicknessRatio);
-    local spacingV = barHeight * conf.HudSectorThicknessRatio;
+    local hudSectorThicknessRatio = self.GetConfigByKey("dashboards.settings.sectorThicknessRatio");
+    local barWidth = width / (columns + (columns-1) * hudSectorThicknessRatio);
+    local spacingH = hudSectorThicknessRatio * barWidth;
+    local barHeight = height / (2 + hudSectorThicknessRatio);
+    local spacingV = barHeight * hudSectorThicknessRatio;
 
     local rectangles = {
         -- R
@@ -124,8 +125,8 @@ function drawGear(gfx, conf, data, helper, x, y, width, height)
     };
 
     for i = 1,data.MaxGears do
-        local row = (i + 1) % 2;
-        local column = (i + 1) / 2;
+        local row = math.floor((i + 1) % 2);
+        local column = math.floor((i + 1) / 2);
         table.insert(rectangles, helper.getRectangle(
             x + column * (spacingH + barWidth),
             y + row * (spacingV + barHeight),
@@ -169,16 +170,16 @@ function drawGear(gfx, conf, data, helper, x, y, width, height)
         gearText);
 end
 
-function drawSteering(gfx, conf, data, helper, x, y, width, height)
+function drawSteering(gfx, conf, self, data, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     local centerX = x + 0.5 * width;
     local centerY = y + 0.5 * height;
     local radiusOuter = math.min(width, height) * 0.5;
-    local radiusInner = radiusOuter * (1 - conf.HudSectorThicknessRatio);
+    local radiusInner = radiusOuter * (1 - self.GetConfigByKey("dashboards.settings.sectorThicknessRatio"));
     local radiusWidth = radiusOuter - radiusInner;
 
-    local rawSteeringAngle = data.Steering * conf.HudTelemetrySteeringDegree * 0.5;
+    local rawSteeringAngle = data.Steering * self.GetConfigByKey("dashboards.settings.steeringDegree") * 0.5;
     -- bg
     local pathBrush;
     local bgBrush;
@@ -228,11 +229,11 @@ function drawSteering(gfx, conf, data, helper, x, y, width, height)
     local geo_path = gfx.CreateGeometry();
     geo_path.BeginFigure(helper.getPoint(centerX,
         centerY - radiusOuter), true);
-    geo_path.AddCurve(helper.getPoint(centerX + radiusOuter * math.cos(steeringAngle),
+    geo_path.AddCurveWithArcSegmentArgs(helper.getPoint(centerX + radiusOuter * math.cos(steeringAngle),
         centerY - radiusOuter * math.sin(steeringAngle)), radiusOuter, arcSize, sweepDirection);
     geo_path.AddPoint(helper.getPoint(centerX + radiusInner * math.cos(steeringAngle),
         centerY - radiusInner * math.sin(steeringAngle)));
-    geo_path.AddCurve(helper.getPoint(centerX,
+    geo_path.AddCurveWithArcSegmentArgs(helper.getPoint(centerX,
         centerY - radiusInner), radiusInner, arcSize, backsDirection);
     geo_path.EndFigure();
     geo_path.Close();
@@ -242,11 +243,11 @@ function drawSteering(gfx, conf, data, helper, x, y, width, height)
     local geo_cur = gfx.CreateGeometry();
     geo_cur.BeginFigure(helper.getPoint(centerX + radiusOuter * math.cos(steeringAngle + alpha),
         centerY - radiusOuter * math.sin(steeringAngle + alpha)), true);
-    geo_cur.AddCurve(helper.getPoint(centerX + radiusOuter * math.cos(steeringAngle - alpha),
+    geo_cur.AddCurveWithArcSegmentArgs(helper.getPoint(centerX + radiusOuter * math.cos(steeringAngle - alpha),
         centerY - radiusOuter * math.sin(steeringAngle - alpha)), radiusOuter, ARCSIZE_SMALL, SWEEPDIRECTION_CLOCKWISE);
     geo_cur.AddPoint(helper.getPoint(centerX + radiusInner * math.cos(steeringAngle - alpha),
         centerY - radiusInner * math.sin(steeringAngle - alpha)));
-    geo_cur.AddCurve(helper.getPoint(centerX + radiusInner * math.cos(steeringAngle + alpha),
+    geo_cur.AddCurveWithArcSegmentArgs(helper.getPoint(centerX + radiusInner * math.cos(steeringAngle + alpha),
         centerY - radiusInner * math.sin(steeringAngle + alpha)), radiusInner, ARCSIZE_SMALL, SWEEPDIRECTION_COUNTERCLOCKWISE);
     geo_cur.EndFigure();
     geo_cur.Close();
@@ -254,10 +255,10 @@ function drawSteering(gfx, conf, data, helper, x, y, width, height)
     gfx.FillGeometry(geo_cur, _brushes["red"]);
 end
 
-function drawRPMSector(gfx, conf, data, helper, x, y, width, height)
+function drawRPMSector(gfx, conf, self, data, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
-    helper.drawSector(gfx, "RPM", x, y, width, height, data.RPM, data.MaxRPM, _brushes["black"], _brushes["white"], _brushes["grey"], _fonts["wrc"], conf.HudSectorThicknessRatio);
+    helper.drawSector(gfx, "RPM", x, y, width, height, data.RPM, data.MaxRPM, _brushes["black"], _brushes["white"], _brushes["grey"], _fonts["wrc"], self.GetConfigByKey("dashboards.settings.sectorThicknessRatio"));
 end
 
 
@@ -268,29 +269,61 @@ function onUpdate(args)
     local ctx = args.GameContext;
     local i18n = args.I18NLoader;
     local helper = args.GameOverlayDrawingHelper;
+    local self = args.Self
 
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     
     local drawFuncs = {};
-    if (conf.HudTelemetryShowGBall) then table.insert(drawFuncs, drawGBall); end
-    if (conf.HudTelemetryShowSpdSector) then table.insert(drawFuncs, drawSpdSector); end
-    if (conf.HudTelemetryShowRPMSector) then table.insert(drawFuncs, drawRPMSector); end
-    if (conf.HudTelemetryShowPedals) then table.insert(drawFuncs, drawPedals); end
-    if (conf.HudTelemetryShowGear) then table.insert(drawFuncs, drawGear); end
-    if (conf.HudTelemetryShowSteering) then table.insert(drawFuncs, drawSteering); end
+    if (self.GetConfigByKey("dashboards.settings.showGBall")) then table.insert(drawFuncs, drawGBall); end
+    if (self.GetConfigByKey("dashboards.settings.showSpdSector")) then table.insert(drawFuncs, drawSpdSector); end
+    if (self.GetConfigByKey("dashboards.settings.showRpmSector")) then table.insert(drawFuncs, drawRPMSector); end
+    if (self.GetConfigByKey("dashboards.settings.showPedals")) then table.insert(drawFuncs, drawPedals); end
+    if (self.GetConfigByKey("dashboards.settings.showGear")) then table.insert(drawFuncs, drawGear); end
+    if (self.GetConfigByKey("dashboards.settings.showSteering")) then table.insert(drawFuncs, drawSteering); end
     
     -- calculate the margin, padding, pos of each element
     --print("calculating the margin, padding, pos of each element");
-    local telemetryHeight = gfx.Height * conf.HudSizePercentage;
+    local telemetryHeight = gfx.Height * self.GetConfigByKey("dashboards.settings.size");
     local telemetryWidth = telemetryHeight * #drawFuncs; -- elements are squre?
-    local telemetryStartPosX = 0.5 * (gfx.Width - telemetryWidth);
-    local telemetryStartPosY = gfx.Height - telemetryHeight;
+    -- local telemetryStartPosX = 0.5 * (gfx.Width - telemetryWidth);
+    -- local telemetryStartPosY = gfx.Height - telemetryHeight;
 
-    local telemetryPaddingH = telemetryHeight * conf.HudPaddingH;
-    local telemetryPaddingV = telemetryHeight * conf.HudPaddingV;
+    local telemetryPaddingH = telemetryHeight * self.GetConfigByKey("dashboards.settings.paddingH");
+    local telemetryPaddingV = telemetryHeight * self.GetConfigByKey("dashboards.settings.paddingV");
 
-    local telemetrySpacing = telemetryHeight * conf.HudElementSpacing;
+    local telemetrySpacing = telemetryHeight * self.GetConfigByKey("dashboards.settings.elementSpacing");
+    
+    local positionH = self.GetConfigByKey("dashboards.settings.positionH");
+    local positionV = self.GetConfigByKey("dashboards.settings.positionV");
+
+    local telemetryStartPosX = 0;
+    if (positionH == -1) then
+        -- -1 means left
+        telemetryStartPosX = 0 + telemetryPaddingH;
+    else
+        if (positionH == 1) then
+            -- 1 means right
+            telemetryStartPosX = gfx.Width - telemetryWidth - telemetryPaddingH;
+        else
+            -- 0 means center
+            telemetryStartPosX = gfx.Width / 2 - telemetryWidth / 2;
+        end
+    end
+
+    local telemetryStartPosY = 0;
+    if (positionV == -1) then
+        -- -1 means top
+        telemetryStartPosY = 0 + telemetryPaddingV;
+    else
+        if (positionV == 1) then
+            -- 1 means bottom
+            telemetryStartPosY = gfx.Height - telemetryHeight - telemetryPaddingV;
+        else
+            -- 0 means center
+            telemetryStartPosY = gfx.Height / 2 - telemetryHeight / 2;
+        end
+    end
     
     -- drawBackground
     --print("drawBackground");
@@ -298,7 +331,7 @@ function onUpdate(args)
         _brushes["telemetryBackground"].Color.R,
         _brushes["telemetryBackground"].Color.G,
         _brushes["telemetryBackground"].Color.B,
-        255 * conf.HudBackgroundOpacity);
+        255 * self.GetConfigByKey("dashboards.settings.backgroundOpacity"));
     gfx.FillRectangle(_brushes["telemetryBackground"], 
         telemetryStartPosX,
         telemetryStartPosY,
@@ -315,7 +348,7 @@ function onUpdate(args)
     for k,t in ipairs(drawFuncs) do
         -- print("drawFuncs...")
         --try catch
-        t(gfx, conf, data, helper, elementStartX, elementStartY, elementWidth, elementHeight);
+        t(gfx, conf, self, data, helper, elementStartX, elementStartY, elementWidth, elementHeight);
 
         elementStartX = elementStartX + elementWidth + telemetrySpacing;
     end

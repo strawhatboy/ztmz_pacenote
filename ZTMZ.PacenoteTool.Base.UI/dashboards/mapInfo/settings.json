@@ -1,14 +1,8 @@
 {
     "PropertyName": {
-        "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
-        "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
-
     },
     "PropertyValue": [
-        1,
-        -1
     ],
     "ValueRange": [
-        [], []
     ]
 }

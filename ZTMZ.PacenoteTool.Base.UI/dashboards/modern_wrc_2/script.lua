@@ -121,7 +121,17 @@ function drawRPM(gfx, self, data, helper, x, y, width, height)
         if (arcAngle > math.pi) then
             arcSize = ARCSIZE_LARGE;
         end
-        drawGeo(gfx, helper, x + width * 0.471, y + height * 0.624, 6.45 * math.pi / 6, 6.45 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, _brushes["rpm"]);
+        -- RPM color should become from green to yellow and then red
+        local rpmBrush = gfx.CreateSolidBrush(
+            _brushes["rpm"].Color.R + (255 - _brushes["rpm"].Color.R) * rpm / maxRPM,
+            _brushes["rpm"].Color.G - _brushes["rpm"].Color.G * rpm / maxRPM * 0.5,
+            _brushes["rpm"].Color.B - _brushes["rpm"].Color.B * rpm / maxRPM,
+            _brushes["rpm"].Color.A
+        );
+        drawGeo(gfx, helper, x + width * 0.471, y + height * 0.624, 6.45 * math.pi / 6, 6.45 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, rpmBrush);
+        
+        -- release the color
+        rpmBrush.Dispose();
     end
 end
 

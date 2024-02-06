@@ -129,6 +129,18 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
     local stageTimeStrMinute = math.floor(stageTime / 60);
     local stageTimeStrSecond = math.floor(stageTime % 60);
     local stageTimeMilisecond = math.floor((stageTime - math.floor(stageTime)) * 1000);
+    if (stageTimeStrMinute < 10) then
+        stageTimeStrMinute = "0" .. stageTimeStrMinute;
+    end
+    if (stageTimeStrSecond < 10) then
+        stageTimeStrSecond = "0" .. stageTimeStrSecond;
+    end
+    if (stageTimeMilisecond < 10) then
+        stageTimeMilisecond = "00" .. stageTimeMilisecond;
+    elseif (stageTimeMilisecond < 100) then
+        stageTimeMilisecond = "0" .. stageTimeMilisecond;
+    end
+    
     local stageTimeStr = stageTimeStrMinute .. ":" .. stageTimeStrSecond .. "." .. stageTimeMilisecond;
     
     size = gfx.MeasureString(_fonts["wrc"], driverWeight, stageTimeStr);
@@ -143,7 +155,7 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
     geo_path.BeginFigure(helper.getPoint(x + width - size.X - padding * 2, y - size.Y), true);
     geo_path.AddPoint(helper.getPoint(x + width, y - size.Y));
     geo_path.AddPoint(helper.getPoint(x + width, y));
-    geo_path.AddPoint(helper.getPoint(x + width - size.X - padding * 2 - height / 8, y));
+    geo_path.AddPoint(helper.getPoint(x + width - size.X - padding * 2 - size.Y / 8, y));
     geo_path.EndFigure();
     geo_path.Close();
     gfx.FillGeometry(geo_path, _brushes["background"]);

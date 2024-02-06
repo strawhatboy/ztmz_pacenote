@@ -3,15 +3,15 @@
         "classic": {
             "debug": {
                 "name": "Debug",
-                "description": "Show debug information"
+                "description": "Show debug information (TopLeft corner)"
             },
             "mapInfo": {
                 "name": "Map Info",
-                "description": "Show map info in the game."
+                "description": "Show map info in the game (TopRight corner)."
             },
             "progress": {
                 "name": "Progress",
-                "description": "Show track progress"
+                "description": "Show classic track progress"
             },
             "classicDashboard": {
                 "name": "Classic Dashboard",

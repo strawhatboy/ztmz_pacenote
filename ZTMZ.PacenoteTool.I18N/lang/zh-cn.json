@@ -127,7 +127,7 @@
 
     "warnIfPortMismatch": "端口不匹配时展示警告对话框",
 
-    "hudFPS": "悬浮窗锁定帧率，修改需要重启工具后生效",
+    "hudFPS": "悬浮窗锁定帧率",
     "playStartAndEndSound": "播放开始/结束语音",
     "playGoSound": "播放出发语音",
     "playCollisionSound": "播放撞车语音",

@@ -23,6 +23,7 @@ using Color = GameOverlay.Drawing.Color;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Base.UI;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ZTMZ.PacenoteTool.Base.UI
 {
@@ -105,6 +106,10 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         public List<bool> DashboardErrorEncountered { set; get; } = new List<bool>();
 
+        private int initializeRetryCount = 0;
+        private int initializeRetryMax = 30;    // 30 seconds
+        private int initializeRetryInterval = 1000;
+
         public GameOverlayManager() {
             var dashboardsPath = AppLevelVariables.Instance.GetPath(Constants.PATH_DASHBOARDS);
             if (System.IO.Directory.Exists(dashboardsPath))
@@ -179,7 +184,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
 #endif
             var gfx = new Graphics()
             {
-                MeasureFPS = false,
+                MeasureFPS = true,
                 PerPrimitiveAntiAliasing = true,
                 TextAntiAliasing = true
             };
@@ -187,32 +192,61 @@ namespace ZTMZ.PacenoteTool.Base.UI
             // set graphics to dashboard arguments
             DashboardScriptArguments.Graphics = gfx;
 
-            _window = new StickyWindow(processWindowHandle, gfx);
-            _window.Title = Constants.HUD_WINDOW_NAME;
-            _window.FPS = Config.Instance.HudFPS;   // 50 fps by default
-            _window.AttachToClientArea = true;
-            if (Config.Instance.HudTopMost) 
-            {
-                _window.IsTopmost = Config.Instance.HudTopMost;
-            } else 
-            {
-                _window.BypassTopmost = true;
-            }
-            _window.IsVisible = true;
+            Task.Run(() => {
+                // retry if failed
+                // possible crash because of window not responding
+                while (initializeRetryCount < initializeRetryMax)
+                {
+                    try
+                    {
+                        _window = new StickyWindow(processWindowHandle, gfx);
+                        initializeRetryCount = 0;
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(ex, "Failed to initialize overlay, retrying...");
+                        initializeRetryCount++;
+                        Thread.Sleep(initializeRetryInterval);
+                    }
+                }
+
+                _window.Title = Constants.HUD_WINDOW_NAME;
+                if (Config.Instance.HudLockFPS) {
+                    _window.FPS = Config.Instance.HudFPS;   // 60 fps by default
+                } else {
+                    _window.FPS = 0;    // no limit
+                }
+                _window.AttachToClientArea = true;
+                if (Config.Instance.HudTopMost) 
+                {
+                    _window.IsTopmost = Config.Instance.HudTopMost;
+                } else 
+                {
+                    _window.BypassTopmost = true;
+                }
+                _window.IsVisible = true;
 
 
-            _window.DestroyGraphics += _window_DestroyGraphics;
-            _window.DrawGraphics += _window_DrawGraphics;
-            _window.SetupGraphics += _window_SetupGraphics;
+                _window.DestroyGraphics += _window_DestroyGraphics;
+                _window.DrawGraphics += _window_DrawGraphics;
+                _window.SetupGraphics += _window_SetupGraphics;
 
-            this.Run();
-            _logger.Info("GameOverlay initialized.!");
+                this.Run();
+                _logger.Info("GameOverlay initialized.!");
+            });
         }
 
         public void UninitializeOverlay()
         {
             _isRunning = false;
             _window?.Dispose();
+        }
+
+        public void SetFPS(int fps)
+        {
+            if (_window != null)
+                _window.FPS = fps;  
         }
 
         private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e) {

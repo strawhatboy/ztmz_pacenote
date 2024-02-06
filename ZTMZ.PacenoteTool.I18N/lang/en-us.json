@@ -128,7 +128,7 @@
 
     "warnIfPortMismatch": "Show warning dialog if port mismatch",
 
-    "hudFPS": "In-game Hud FPS, changes need restarting this tool to take effect",
+    "hudFPS": "In-game Hud FPS",
     "playStartAndEndSound": "Play special start/end stage voice",
     "playGoSound": "Play special voice when the race started",
     "playCollisionSound": "Play special collision voice",

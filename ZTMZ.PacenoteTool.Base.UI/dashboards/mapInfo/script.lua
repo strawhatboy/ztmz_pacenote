@@ -38,7 +38,8 @@ function onUpdate(args)
     local padding = 200;
     local _fonts = resources["fonts"];
     local _brushes = resources["brushes"];
-    local infoText = i18n.ResolveByKey("overlay.track") .. "\t" .. ctx.TrackName .. "\n" ..
+    local infoText = "FPS:\t" .. gfx.FPS .. "\n" ..
+        i18n.ResolveByKey("overlay.track") .. "\t" .. ctx.TrackName .. "\n" ..
         i18n.ResolveByKey("overlay.audioPackage") .. "\t" .. ctx.AudioPackage .. "\n" ..
         i18n.ResolveByKey("overlay.scriptAuthor") .. "\t" .. ctx.ScriptAuthor;
     local size = gfx.MeasureString(_fonts["wrc"], _fonts["wrc"].FontSize, infoText);

@@ -1,26 +1,96 @@
 <Page x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.HudPage"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:system="clr-namespace:System;assembly=System.Runtime"
-      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      Title="HudPage"
-      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-      mc:Ignorable="d">
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Title="HudPage"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    mc:Ignorable="d">
     <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <!-- <Style TargetType="ui:Card">
             <Setter Property="Padding" Value="16"></Setter>
             <Setter Property="Margin" Value="0 0 0 5"></Setter>
         </Style> -->
     </Page.Resources>
-    <ItemsControl x:Name="tStack" ItemsSource="{Binding ViewModel.DashboardItems}">
-        <ItemsControl.ItemsPanel>
-           <ItemsPanelTemplate>
-              <StackPanel Orientation="Vertical"/>
-           </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-    </ItemsControl>
+    <StackPanel Orientation="Vertical">
+        <!-- FPS -->
+        <ui:Card Margin="0 0 0 5"
+            Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid Margin="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="160" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal"
+                        VerticalAlignment="Center">
+                        <ui:SymbolIcon Symbol="Fps6020"
+                            FontSize="26"
+                            Margin="0 0 10 0" />
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <ui:TextBlock
+                                Text="{DynamicResource ResourceKey=settings.hudFPS}" />
+                            <ui:TextBlock Grid.Row="1"
+                                Text="{DynamicResource ResourceKey=settings.tooltip.hudFPS}"
+                                Appearance="Tertiary"
+                                FontTypography="Caption" />
+                        </Grid>
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
+                        IsChecked="{Binding Path=ViewModel.HudLockFPS, Mode=TwoWay}" />
+
+                </Grid>
+                <Border Grid.Row="1"
+                    BorderThickness="0,1,0,0"
+                    BorderBrush="{ui:ThemeResource DividerStrokeColorDefaultBrush}"
+                    Visibility="{Binding Path=ViewModel.HudLockFPS, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
+                    Background="Transparent">
+                    <Grid Margin="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="40" />
+                            <ColumnDefinition Width="160" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock
+                            Text="{Binding Path=ViewModel.HudFPS, Mode=OneWay, StringFormat=N0}"
+                            Grid.Column="1" VerticalAlignment="Center" />
+                        <Slider Grid.Row="0" Grid.Column="2"
+                            Maximum="240" Minimum="30"
+                            IsSnapToTickEnabled="True"
+                            Value="{Binding Path=ViewModel.HudFPS, Mode=TwoWay}"
+                            IsEnabled="{Binding Path=ViewModel.HudLockFPS, Mode=OneWay}"
+                            TickFrequency="30"
+                            TickPlacement="Both"
+                            VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </ui:Card>
+
+        <!-- Dashboards -->
+        <ItemsControl x:Name="tStack" ItemsSource="{Binding ViewModel.DashboardItems}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </StackPanel>
 </Page>
