@@ -2499,28 +2499,28 @@
             Gets the height of this Image
             </summary>
         </member>
-        <member name="M:GameOverlay.Drawing.Image.#ctor(SharpDX.Direct2D1.RenderTarget,System.Byte[])">
+        <member name="M:GameOverlay.Drawing.Image.#ctor(SharpDX.Direct2D1.RenderTarget,System.Byte[],System.Collections.Generic.IEnumerable{System.Guid})">
             <summary>
             Initializes a new Image for the given device by using a byte[].
             </summary>
             <param name="device">The Graphics device.</param>
             <param name="bytes">A byte[] containing image data.</param>
         </member>
-        <member name="M:GameOverlay.Drawing.Image.#ctor(SharpDX.Direct2D1.RenderTarget,System.String)">
+        <member name="M:GameOverlay.Drawing.Image.#ctor(SharpDX.Direct2D1.RenderTarget,System.String,System.Collections.Generic.IEnumerable{System.Guid})">
             <summary>
             Initializes a new Image for the given device by using a file on disk.
             </summary>
             <param name="device">The Graphics device.</param>
             <param name="path">The path to an image file on disk.</param>
         </member>
-        <member name="M:GameOverlay.Drawing.Image.#ctor(GameOverlay.Drawing.Graphics,System.Byte[])">
+        <member name="M:GameOverlay.Drawing.Image.#ctor(GameOverlay.Drawing.Graphics,System.Byte[],System.Collections.Generic.IEnumerable{System.Guid})">
             <summary>
             Initializes a new Image for the given device by using a byte[].
             </summary>
             <param name="device">The Graphics device.</param>
             <param name="bytes">A byte[] containing image data.</param>
         </member>
-        <member name="M:GameOverlay.Drawing.Image.#ctor(GameOverlay.Drawing.Graphics,System.String)">
+        <member name="M:GameOverlay.Drawing.Image.#ctor(GameOverlay.Drawing.Graphics,System.String,System.Collections.Generic.IEnumerable{System.Guid})">
             <summary>
             Initializes a new Image for the given device by using a file on disk.
             </summary>

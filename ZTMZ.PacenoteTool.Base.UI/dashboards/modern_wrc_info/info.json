@@ -3,11 +3,14 @@
     "Description": "dashboards.modern.wrc_info.description",
     "Author": "草帽不是猫",
     "Version": "0.0.1",
-    "PreviewImagePath": "",
+    "PreviewImage": null,
     "ImageResources": {},
     "ImageResourcesInDirectory": {
-        "flags": "flags",
-        "manufacturers": "manufacturers",
+        "flags": {
+            "Path": "flags",
+            "FormatGUID": "6fddc324-4e03-4bfe-b185-3d77768dc917"
+        },
+        "manufacturers": null
     },
     "IsEnabled": true,
 }

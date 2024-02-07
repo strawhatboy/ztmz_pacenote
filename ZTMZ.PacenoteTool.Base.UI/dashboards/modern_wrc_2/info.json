@@ -3,11 +3,14 @@
     "Description": "dashboards.modern.wrc2.description",
     "Author": "草帽不是猫",
     "Version": "0.0.1",
-    "PreviewImagePath": "",
+    "PreviewImage": null,
     "ImageResources": {
     },
     "ImageResourcesInDirectory": {
-        "images": "images"
+        "images": {
+            "Path": "images",
+            "FormatGUID": "6fddc324-4e03-4bfe-b185-3d77768dc917"
+        }
     },
     "IsEnabled": true,
 }

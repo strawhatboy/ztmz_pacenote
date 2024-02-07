@@ -301,7 +301,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e) {
             var gfx = e.Graphics;
             gfx.ClearScene(_brushes["clear"]);
-            if (TimeToShowTelemetry) {
+            if (Config.Instance.UI_ShowHud && TimeToShowTelemetry) {
                 for (var i = 0; i < Dashboards.Count; i++) {
                     var dashboard = Dashboards[i];
                     if (dashboard.Descriptor.IsEnabled) {

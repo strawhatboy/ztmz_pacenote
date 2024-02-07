@@ -8,6 +8,8 @@ using GameOverlay.Drawing.Imaging;
 
 using Bitmap = SharpDX.Direct2D1.Bitmap;
 using PixelFormat = SharpDX.WIC.PixelFormat;
+using System.Collections;
+using System.Diagnostics;
 
 namespace GameOverlay.Drawing
 {
@@ -42,23 +44,24 @@ namespace GameOverlay.Drawing
         /// </summary>
         /// <param name="device">The Graphics device.</param>
         /// <param name="bytes">A byte[] containing image data.</param>
-        public Image(RenderTarget device, byte[] bytes)
-            => Bitmap = LoadBitmapFromMemory(device, bytes);
+        public Image(RenderTarget device, byte[] bytes, System.Collections.Generic.IEnumerable<Guid> pixelFormatEnumerator = null)
+            => Bitmap = LoadBitmapFromMemory(device, bytes, pixelFormatEnumerator);
 
         /// <summary>
         /// Initializes a new Image for the given device by using a file on disk.
         /// </summary>
         /// <param name="device">The Graphics device.</param>
         /// <param name="path">The path to an image file on disk.</param>
-        public Image(RenderTarget device, string path)
-            => Bitmap = LoadBitmapFromFile(device, path);
+        public Image(RenderTarget device, string path, System.Collections.Generic.IEnumerable<Guid> pixelFormatEnumerator = null)
+            => Bitmap = LoadBitmapFromFile(device, path, pixelFormatEnumerator);
 
         /// <summary>
         /// Initializes a new Image for the given device by using a byte[].
         /// </summary>
         /// <param name="device">The Graphics device.</param>
         /// <param name="bytes">A byte[] containing image data.</param>
-        public Image(Graphics device, byte[] bytes) : this(device.GetRenderTarget(), bytes)
+        public Image(Graphics device, byte[] bytes, System.Collections.Generic.IEnumerable<Guid> pixelFormatEnumerator = null) 
+            : this(device.GetRenderTarget(), bytes, pixelFormatEnumerator)
         {
         }
 
@@ -67,7 +70,8 @@ namespace GameOverlay.Drawing
         /// </summary>
         /// <param name="device">The Graphics device.</param>
         /// <param name="path">The path to an image file on disk.</param>
-        public Image(Graphics device, string path) : this(device.GetRenderTarget(), path)
+        public Image(Graphics device, string path, System.Collections.Generic.IEnumerable<Guid> pixelFormatEnumerator = null) 
+            : this(device.GetRenderTarget(), path, pixelFormatEnumerator)
         {
         }
 
@@ -176,10 +180,11 @@ namespace GameOverlay.Drawing
             return left?.Equals(right) == true;
         }
 
-        private static Bitmap LoadBitmapFromMemory(RenderTarget device, byte[] bytes)
+        private static Bitmap LoadBitmapFromMemory(RenderTarget device, byte[] bytes, System.Collections.Generic.IEnumerable<Guid> pixelFormatEnumerator = null)
         {
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (bytes == null) throw new ArgumentNullException(nameof(bytes));
+
             if (bytes.Length == 0) throw new ArgumentOutOfRangeException(nameof(bytes));
 
             Bitmap bmp = null;
@@ -193,7 +198,11 @@ namespace GameOverlay.Drawing
                 stream = new MemoryStream(bytes);
                 decoder = new BitmapDecoder(ImageFactory, stream, DecodeOptions.CacheOnDemand);
 
-				bmp = ImageDecoder.Decode(device, decoder);
+                if (pixelFormatEnumerator == null) {
+                    bmp = ImageDecoder.Decode(device, decoder);
+                } else {
+                    bmp = ImageDecoder.Decode(device, decoder, pixelFormatEnumerator);
+                }
 
 				decoder.Dispose();
                 stream.Dispose();
@@ -212,7 +221,11 @@ namespace GameOverlay.Drawing
             }
         }
 
-        private static Bitmap LoadBitmapFromFile(RenderTarget device, string path) => LoadBitmapFromMemory(device, File.ReadAllBytes(path));
+        private static Bitmap LoadBitmapFromFile(RenderTarget device, string path, System.Collections.Generic.IEnumerable<Guid> pixelFormatEnumerator = null) 
+        {
+            Debug.WriteLine("LoadBitmapFromFile: " + path);
+            return LoadBitmapFromMemory(device, File.ReadAllBytes(path), pixelFormatEnumerator);
+        }
 
         private static void TryCatch(Action action)
         {

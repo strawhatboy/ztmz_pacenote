@@ -91,41 +91,55 @@ public class Dashboard {
 
     private LuaGlobal LuaG { get; set; }
 
-    public void Load(DashboardScriptArguments args) {
+    private Lua _lua = new Lua();
+
+    private void loadImageResources(DashboardScriptArguments args) {
         // load resources
-        if (!string.IsNullOrEmpty(Descriptor.PreviewImagePath))
-            this.PreviewImage = new Image(args.Graphics, Descriptor.PreviewImagePath);
+        if (Descriptor.PreviewImage != null && !string.IsNullOrEmpty(Descriptor.PreviewImage.Path))
+            this.PreviewImage = Descriptor.PreviewImage.GetImage(args.Graphics);
 
         this.ImageResources = new Dictionary<string, Image>();
         foreach (var imageResource in Descriptor.ImageResources) {
-            this.ImageResources.Add(imageResource.Key, new Image(args.Graphics, Path.Combine(Descriptor.Path, imageResource.Value)));
+            imageResource.Value.Path = Path.Combine(Descriptor.Path, imageResource.Value.Path);
+            this.ImageResources.Add(imageResource.Key, imageResource.Value.GetImage(args.Graphics));
         }
 
         foreach (var imageResourceDirectory in Descriptor.ImageResourcesInDirectory) {
-            // imageResourceDirectory.Value is the directory path
-            var directory = Path.Combine(Descriptor.Path, imageResourceDirectory.Value);
+            // imageResourceDirectory.Value is the ImageDescriptor contains the path of images and formatGUID
+            if (imageResourceDirectory.Value == null) continue;
+
+            var directory = Path.Combine(Descriptor.Path, imageResourceDirectory.Value.Path);
             if (!Directory.Exists(directory)) continue;
             foreach (var file in Directory.GetFiles(directory, "*.*").Where(
                 s => s.ToLower().EndsWith(".png") || s.ToLower().EndsWith(".jpg") || s.ToLower().EndsWith(".jpeg") || s.ToLower().EndsWith(".bmp") || s.ToLower().EndsWith(".gif") 
             )) {
                 // Warning, this will overwrite the same key if the file name is the same
                 // so append the directory name to the key, separated by @
-                this.ImageResources.Add(imageResourceDirectory.Key + "@" + Path.GetFileNameWithoutExtension(file), new Image(args.Graphics, file));
+                var imageDescriptor = new DashboardResourceImageDescriptor() {
+                    Path = file,
+                    FormatGUID = imageResourceDirectory.Value.FormatGUID
+                };
+                this.ImageResources.Add(imageResourceDirectory.Key + "@" + Path.GetFileNameWithoutExtension(file), imageDescriptor.GetImage(args.Graphics));
             }
+        }
+    }
+
+    public void Load(DashboardScriptArguments args) {
+        // check if resources loaded, if loaded, just load the script
+        if (this.ImageResources == null) {
+            loadImageResources(args);
         }
 
         // load lua script
-        using (var lua = new Lua()) {
-            LuaG = lua.CreateEnvironment();
-            LuaG.DefaultCompileOptions = new LuaCompileOptions()
-            {
-                ClrEnabled = false
-            };
-            LuaG.DoChunk(File.ReadAllText(Path.Combine(Descriptor.Path, Constants.FILE_LUA_SCRIPT)), $"{Guid.NewGuid()}.lua");
-            args.Self = this;
-            LuaG.CallMember("onInit", args);
-            _logger.Info($"Dashboard \"{I18NLoader.Instance[Descriptor.Name]}\" loaded");
-        }
+        LuaG = _lua.CreateEnvironment();
+        LuaG.DefaultCompileOptions = new LuaCompileOptions()
+        {
+            ClrEnabled = false
+        };
+        LuaG.DoChunk(File.ReadAllText(Path.Combine(Descriptor.Path, Constants.FILE_LUA_SCRIPT)), $"{Guid.NewGuid()}.lua");
+        args.Self = this;
+        LuaG.CallMember("onInit", args);
+        _logger.Info($"Dashboard \"{I18NLoader.Instance[Descriptor.Name]}\" loaded");
     }
 
     public void Render(DashboardScriptArguments args) {
@@ -151,15 +165,28 @@ public class Dashboard {
     }
 }
 
+public class DashboardResourceImageDescriptor {
+    public string Path {set;get;}
+    public string FormatGUID {set;get;}
+
+    public Image GetImage(Graphics graphics) {
+        if (!string.IsNullOrEmpty(FormatGUID)) {
+            return new Image(graphics, Path, new Guid[] {Guid.Parse(FormatGUID)});
+        } else {
+            return new Image(graphics, Path);
+        }
+    }
+}
+
 public class DashboardDescriptor {
     public string Name { get; set; }
     public string Description { get; set; }
     public string Author { get; set; }
     public string Version { get; set; }
-    public string PreviewImagePath { get; set; }
-    public Dictionary<string, string> ImageResources { get; set; }
+    public DashboardResourceImageDescriptor PreviewImage { get; set; }
+    public Dictionary<string, DashboardResourceImageDescriptor> ImageResources { get; set; }
 
-    public Dictionary<string, string> ImageResourcesInDirectory { get; set; }
+    public Dictionary<string, DashboardResourceImageDescriptor> ImageResourcesInDirectory { get; set; }
     public string Path { get; set; }
     public bool IsEnabled { get; set; } = true;
 }

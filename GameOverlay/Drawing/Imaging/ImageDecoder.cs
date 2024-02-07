@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Diagnostics;
 using SharpDX.Direct2D1;
 using SharpDX.WIC;
 
@@ -105,7 +105,7 @@ namespace GameOverlay.Drawing.Imaging
 		{
 			PixelFormat.Format4bppIndexed,
 			PixelFormat.Format2bppIndexed,
-			PixelFormat.Format1bppIndexed,
+			PixelFormat.Format1bppIndexed,	// png?
 			PixelFormat.Format4bppGray,
 			PixelFormat.Format2bppGray,
 			PixelFormat.FormatDontCare,
@@ -146,10 +146,15 @@ namespace GameOverlay.Drawing.Imaging
 
 		public static Bitmap Decode(RenderTarget device, BitmapDecoder decoder)
 		{
+			return Decode(device, decoder, _pixelFormatEnumerator);
+		}
+
+		public static Bitmap Decode(RenderTarget device, BitmapDecoder decoder, IEnumerable<Guid> pixelFormatEnumerator)
+		{
 			var frame = decoder.GetFrame(0);
 			var converter = new FormatConverter(Image.ImageFactory);
 
-			foreach (var format in _pixelFormatEnumerator)
+			foreach (var format in pixelFormatEnumerator)
 			{
 				try
 				{
@@ -160,6 +165,7 @@ namespace GameOverlay.Drawing.Imaging
 					TryCatch(() => converter.Dispose());
 					TryCatch(() => frame.Dispose());
 
+					Debug.WriteLine("Image Format: " + format.ToString() + " (" + format.ToString("B") + ")");
 					return bmp;
 				}
 				catch
