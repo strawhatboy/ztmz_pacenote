@@ -169,8 +169,8 @@ public partial class HomePageVM : ObservableObject {
             // GameOverlay
             _logger.Info("Game started. in Home Page. Initializing GameOverlay.");
             Task.Run(() => {
-                _logger.Info("Wait for 5 seconds..In case the machine is too slow to launch the game");
-                Thread.Sleep(5000);
+                // _logger.Info("Wait for 5 seconds..In case the machine is too slow to launch the game");
+                // Thread.Sleep(5000);
                 _logger.Info("Finished waiting. in Home Page. Initializing GameOverlay..");
                 var process = Process.GetProcessesByName(game.Executable).FirstOrDefault();
                 if (process != null) {

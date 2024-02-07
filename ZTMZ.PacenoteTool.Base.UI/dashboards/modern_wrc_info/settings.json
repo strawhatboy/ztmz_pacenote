@@ -1,5 +1,6 @@
 {
     "PropertyName": {
+        "dashboards.settings.enabled": "dashboards.settings.tooltip.enabled",
         "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
         "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
         "dashboards.settings.size": "dashboards.settings.tooltip.size",
@@ -9,6 +10,7 @@
         "dashboards.settings.driverregion": "dashboards.settings.tooltip.driverregion",
     },
     "PropertyValue": [
+        true,
         1,
         1,
         0.04,
@@ -18,6 +20,6 @@
         "cn"
     ],
     "ValueRange": [
-        [], [], [0.01, 0.2], [0.01, 0.2], [0.01, 0.2], [], []
+        [], [], [], [0.01, 0.2], [0.01, 0.2], [0.01, 0.2], [], []
     ]
 }

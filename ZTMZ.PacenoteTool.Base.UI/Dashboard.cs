@@ -29,6 +29,10 @@ public class DashboardScriptArguments {
     public GameOverlayDrawingHelper GameOverlayDrawingHelper { get; set; }
 }
 
+public class DashboardConfigs : CommonGameConfigs {
+
+}
+
 /// <summary>
 /// Dashboard 
 ///     json descriptor
@@ -52,7 +56,7 @@ public class Dashboard {
     public DashboardDescriptor Descriptor { get; set; }
 
     // reuse CommonGameConfig as dashboard configuration :) settings.json
-    public CommonGameConfigs DashboardConfigurations { set; get; }
+    public DashboardConfigs DashboardConfigurations { set; get; }
 
     public Dashboard(DashboardDescriptor descriptor) {
         Descriptor = descriptor;
@@ -61,7 +65,25 @@ public class Dashboard {
     public Dashboard(string jsonDescriptorPath) {
         Descriptor = JsonConvert.DeserializeObject<DashboardDescriptor>(File.ReadAllText(jsonDescriptorPath));
         Descriptor.Path = Path.GetDirectoryName(jsonDescriptorPath);
-        DashboardConfigurations = JsonConvert.DeserializeObject<CommonGameConfigs>(File.ReadAllText(Path.Combine(Descriptor.Path, Constants.FILE_SETTINGS)));
+        loadConfig();
+    }
+
+    private void loadConfig() { 
+        var dashBoardConfig = JsonConvert.DeserializeObject<DashboardConfigs>(File.ReadAllText(Path.Combine(Descriptor.Path, Constants.FILE_SETTINGS)));
+        if (File.Exists(Path.Combine(Descriptor.Path, Constants.FILE_USER_SETTINGS))) {
+            var userConfig = JsonConvert.DeserializeObject<DashboardConfigs>(File.ReadAllText(Path.Combine(Descriptor.Path, Constants.FILE_USER_SETTINGS)));
+            dashBoardConfig.Merge(userConfig);
+        } else {
+            // create user settings file
+            File.WriteAllText(Path.Combine(Descriptor.Path, Constants.FILE_USER_SETTINGS), JsonConvert.SerializeObject(dashBoardConfig, Formatting.Indented));
+        }
+        DashboardConfigurations = dashBoardConfig;
+        Descriptor.IsEnabled = (bool)dashBoardConfig["dashboards.settings.enabled"];
+    }
+
+    public void SetIsEnable(bool value) {
+        Descriptor.IsEnabled = value;
+        DashboardConfigurations["dashboards.settings.enabled"] = value;
     }
 
     public Image PreviewImage { get; set; }
@@ -125,9 +147,7 @@ public class Dashboard {
     }
 
     public void SaveConfig() {
-        File.WriteAllText(Path.Combine(Descriptor.Path, Constants.FILE_SETTINGS), JsonConvert.SerializeObject(DashboardConfigurations, Formatting.Indented));
-        // save IsEnabled in descriptor
-        File.WriteAllText(Path.Combine(Descriptor.Path, Constants.DASHBOARD_INFO_FILE_NAME), JsonConvert.SerializeObject(Descriptor, Formatting.Indented));
+        File.WriteAllText(Path.Combine(Descriptor.Path, Constants.FILE_USER_SETTINGS), JsonConvert.SerializeObject(DashboardConfigurations, Formatting.Indented));
     }
 }
 

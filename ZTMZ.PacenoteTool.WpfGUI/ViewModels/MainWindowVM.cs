@@ -156,7 +156,11 @@ public partial class MainWindowVM : ObservableObject
             await _startupDialog.ShowAsync();
         }
         if (Config.Instance.CheckUpdateWhenStartup) {
-            var updateFile = await _updateService.CheckUpdate();
+            try {
+                var updateFile = await _updateService.CheckUpdate();
+            } catch (Exception ex) {
+                _logger.Error(ex, "CheckUpdate failed");
+            }
         }
     }
 }

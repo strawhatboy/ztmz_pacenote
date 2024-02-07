@@ -70,7 +70,7 @@ public partial class HudPageVM : ObservableObject {
             toggleSwitch.SetBinding(ToggleSwitch.IsCheckedProperty, new Binding("IsEnabled") { Source = dashboard.Descriptor });
             // toggle event
             toggleSwitch.Click += (sender, args) => {
-                dashboard.Descriptor.IsEnabled = (bool)toggleSwitch.IsChecked;
+                dashboard.SetIsEnable((bool)toggleSwitch.IsChecked);
                 dashboard.SaveConfig();
             };
             toggleSwitch.Margin = new Thickness(0, 0, 10, 0);

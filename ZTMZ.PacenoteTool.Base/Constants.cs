@@ -19,6 +19,8 @@ namespace ZTMZ.PacenoteTool.Base
         public static string FILE_LUA_SCRIPT = "script.lua";
         public static string FILE_SETTINGS = "settings.json";
 
+        public static string FILE_USER_SETTINGS = "user_settings.json";
+
         // system sound
         public const string SYSTEM_START_STAGE = "system_start_stage";
         public const string SYSTEM_END_STAGE = "system_end_stage";

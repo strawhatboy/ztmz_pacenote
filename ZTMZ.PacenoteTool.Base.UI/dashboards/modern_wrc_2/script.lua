@@ -111,8 +111,8 @@ end
 function drawRPM(gfx, self, data, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
-    local telemetryRadius = height * 0.378
-    local rpmWeight = height * 0.01;
+    local telemetryRadius = height * 0.385
+    local rpmWeight = height * 0.015;
     local rpm = data.RPM;
     local maxRPM = data.MaxRPM
     if (rpm > 0) then
@@ -128,7 +128,7 @@ function drawRPM(gfx, self, data, helper, x, y, width, height)
             _brushes["rpm"].Color.B - _brushes["rpm"].Color.B * rpm / maxRPM,
             _brushes["rpm"].Color.A
         );
-        drawGeo(gfx, helper, x + width * 0.471, y + height * 0.624, 6.45 * math.pi / 6, 6.45 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, rpmBrush);
+        drawGeo(gfx, helper, x + width * 0.471, y + height * 0.62, 6.45 * math.pi / 6, 6.45 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, rpmBrush);
         
         -- release the color
         rpmBrush.Dispose();
@@ -183,12 +183,12 @@ function drawHandBrake(gfx, self, data, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     
-    local telemetryRadius = height * 0.351
-    local heightStart = y + height * 0.62;
-    local widthStart = x + width * 0.4705;
+    local telemetryRadius = height * 0.348
+    local heightStart = y + height * 0.617;
+    local widthStart = x + width * 0.470;
 
     local handBrake = data.HandBrake;
-    local handBrakeWeight = height * 0.036;
+    local handBrakeWeight = height * 0.028;
 
     if (handBrake > 0) then
         local arcAngle = 53.0 * math.pi / 48.0 * handBrake;

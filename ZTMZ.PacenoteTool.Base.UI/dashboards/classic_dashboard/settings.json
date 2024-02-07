@@ -1,5 +1,6 @@
 {
     "PropertyName": {
+        "dashboards.settings.enabled": "dashboards.settings.tooltip.enabled",
         "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
         "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
         "dashboards.settings.size": "dashboards.settings.tooltip.size",
@@ -17,6 +18,7 @@
         "dashboards.settings.steeringDegree": "dashboards.settings.tooltip.steeringDegree"
     },
     "PropertyValue": [
+        false,
         0,
         1,
         0.12,
@@ -34,6 +36,6 @@
         540
     ],
     "ValueRange": [
-        [], [], [0.1, 0.5], [0.1, 0.3], [0.1, 0.3], [0.1, 0.3], [0.1, 0.5], [0.1, 1], [], [], [], [], [], [], [90, 1080]
+        [], [], [], [0.1, 0.5], [0.1, 0.3], [0.1, 0.3], [0.1, 0.3], [0.1, 0.5], [0.1, 1], [], [], [], [], [], [], [90, 1080]
     ]
 }

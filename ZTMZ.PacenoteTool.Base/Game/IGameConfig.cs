@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Newtonsoft.Json;
 
@@ -96,6 +97,24 @@ public class CommonGameConfigs: IGameConfig
                     return;
                 }
                 index++;
+            }
+        }
+    }
+
+    public void Merge(CommonGameConfigs other)
+    {
+        for(int i = 0; i < other.PropertyName.Count; i++)
+        {
+            var kv = other.PropertyName.ElementAt(i);
+            if (!PropertyName.ContainsKey(kv.Key))
+            {
+                PropertyName.Add(kv.Key, kv.Value);
+                PropertyValue.Add(other.PropertyValue[i]);
+                ValueRange.Add(other.ValueRange[i]);
+            } else {
+                var index = PropertyName.Keys.ToList().IndexOf(kv.Key);
+                PropertyValue[index] = other.PropertyValue[i];
+                ValueRange[index] = other.ValueRange[i];
             }
         }
     }

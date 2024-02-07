@@ -210,7 +210,7 @@
         </Grid>
 
         <!-- all -->
-        <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
+        <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle" TextWrapping="Wrap"
             Text="{DynamicResource staff.all}" />
         <ui:TextBlock HorizontalAlignment="Center" Text="{DynamicResource staff.missing}" />
     </StackPanel>

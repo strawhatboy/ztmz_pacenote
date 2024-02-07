@@ -107,7 +107,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
         public List<bool> DashboardErrorEncountered { set; get; } = new List<bool>();
 
         private int initializeRetryCount = 0;
-        private int initializeRetryMax = 30;    // 30 seconds
+        private int initializeRetryMax = 60;    // 30 seconds
         private int initializeRetryInterval = 1000;
 
         public GameOverlayManager() {
@@ -1069,8 +1069,6 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 centerX + radiusInner * MathF.Cos(MathF.PI * 1.25f),
                 centerY - radiusInner * MathF.Sin(MathF.PI * 1.25f)
             );
-            _logger.Info("radiusOuter: {0}, radiusInner: {1}", radiusOuter, radiusInner);
-            _logger.Info("pointOuterStart: {0}, pointOuterEnd: {1}, pointInnerEnd: {2}, pointInnerStart: {3}", pointOuterStart, pointOuterEnd, pointInnerEnd, pointInnerStart);
             
             geo_bg.BeginFigure(
                 pointOuterStart,

@@ -136,7 +136,7 @@ public partial class App : Application
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         // For more info see https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.dispatcherunhandledexception?view=windowsdesktop-6.0
-        MessageBox.Show(e.Exception.Message, "Unhandled exception occurred", MessageBoxButton.OK, MessageBoxImage.Error);
+        MessageBox.Show(e.Exception.ToString(), "Unhandled exception occurred", MessageBoxButton.OK, MessageBoxImage.Error);
         _logger.Error(e.Exception, "Unhandled exception occurred.");
     }
 
