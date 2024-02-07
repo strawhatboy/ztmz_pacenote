@@ -89,22 +89,44 @@ public partial class HudPageVM : ObservableObject {
             configGrid.ColumnDefinitions.Add(new ColumnDefinition());
             configGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(60, GridUnitType.Pixel) });
             configGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(160, GridUnitType.Pixel) });
+
+            bool enabledPropertyEncountered = false;
             // content will be the dashboard configurations
             for (var i = 0; i < dashboard.DashboardConfigurations.PropertyName.Keys.Count; i++) {
                 var index = i;
+                var rowIndex = i;
                 var configKey = dashboard.DashboardConfigurations.PropertyName.Keys.ElementAt(i);
+                
+                // ignore enabled property
+                if (dashboard.DashboardConfigurations.PropertyName.Keys.ElementAt(i) == "dashboards.settings.enabled") {
+                    enabledPropertyEncountered = true;
+                    continue;
+                }
+
+                if (enabledPropertyEncountered) {
+                    rowIndex = i - 1;
+                }
+
                 var configTooltip = dashboard.DashboardConfigurations.PropertyName[configKey];
                 var configValue = dashboard.DashboardConfigurations.PropertyValue[i];
                 var valueRange = dashboard.DashboardConfigurations.ValueRange[i];
 
                 configGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(40, GridUnitType.Pixel) });
+                var configNameStackPanel = new StackPanel();
                 var configName = new Wpf.Ui.Controls.TextBlock();
                 configName.SetResourceReference(Wpf.Ui.Controls.TextBlock.TextProperty, configKey);
-                configName.SetResourceReference(Wpf.Ui.Controls.TextBlock.ToolTipProperty, configTooltip);
-                configName.VerticalAlignment = VerticalAlignment.Center;
-                Grid.SetRow(configName, i);
-                Grid.SetColumn(configName, 0);
-                configGrid.Children.Add(configName);
+                // configName.SetResourceReference(Wpf.Ui.Controls.TextBlock.ToolTipProperty, configTooltip);
+                configName.HorizontalAlignment = HorizontalAlignment.Left;
+                var configTooltipText = new Wpf.Ui.Controls.TextBlock();
+                configTooltipText.SetResourceReference(Wpf.Ui.Controls.TextBlock.TextProperty, configTooltip);
+                configTooltipText.Appearance = TextColor.Tertiary;
+                configTooltipText.FontTypography = FontTypography.Caption;
+                configNameStackPanel.Children.Add(configName);
+                configNameStackPanel.Children.Add(configTooltipText);
+
+                Grid.SetRow(configNameStackPanel, rowIndex);
+                Grid.SetColumn(configNameStackPanel, 0);
+                configGrid.Children.Add(configNameStackPanel);
 
                 if (configKey == "dashboards.settings.positionH") {
                     var comboBox = new ComboBox();
@@ -120,7 +142,7 @@ public partial class HudPageVM : ObservableObject {
                         dashboard.SaveConfig();
                     };
                     comboBox.VerticalAlignment = VerticalAlignment.Center;
-                    Grid.SetRow(comboBox, i);
+                    Grid.SetRow(comboBox, rowIndex);
                     Grid.SetColumn(comboBox, 2);
                     configGrid.Children.Add(comboBox);
                     continue;
@@ -139,7 +161,7 @@ public partial class HudPageVM : ObservableObject {
                         dashboard.SaveConfig();
                     };
                     comboBox.VerticalAlignment = VerticalAlignment.Center;
-                    Grid.SetRow(comboBox, i);
+                    Grid.SetRow(comboBox, rowIndex);
                     Grid.SetColumn(comboBox, 2);
                     configGrid.Children.Add(comboBox);
                     continue;
@@ -155,7 +177,7 @@ public partial class HudPageVM : ObservableObject {
                         dashboard.SaveConfig();
                     };
                     _toggleSwitch.VerticalAlignment = VerticalAlignment.Center;
-                    Grid.SetRow(_toggleSwitch, i);
+                    Grid.SetRow(_toggleSwitch, rowIndex);
                     Grid.SetColumn(_toggleSwitch, 2);
                     configGrid.Children.Add(_toggleSwitch);
                 } else if (configValue.GetType() == typeof(string)) {
@@ -167,7 +189,7 @@ public partial class HudPageVM : ObservableObject {
                         dashboard.SaveConfig();
                     };
                     textBox.VerticalAlignment = VerticalAlignment.Center;
-                    Grid.SetRow(textBox, i);
+                    Grid.SetRow(textBox, rowIndex);
                     Grid.SetColumn(textBox, 2);
                     configGrid.Children.Add(textBox);
                 } else if (configValue.GetType() == typeof(float) || 
@@ -181,7 +203,7 @@ public partial class HudPageVM : ObservableObject {
                         var valueTextBlock = new Wpf.Ui.Controls.TextBlock();
                         valueTextBlock.Text = sliderValue.ToString("N2");
                         valueTextBlock.VerticalAlignment = VerticalAlignment.Center;
-                        Grid.SetRow(valueTextBlock, i);
+                        Grid.SetRow(valueTextBlock, rowIndex);
                         Grid.SetColumn(valueTextBlock, 1);
                         configGrid.Children.Add(valueTextBlock);
 
@@ -198,7 +220,7 @@ public partial class HudPageVM : ObservableObject {
                         };
                         slider.Margin = new Thickness(0, 0, 10, 0);
                         slider.VerticalAlignment = VerticalAlignment.Center;
-                        Grid.SetRow(slider, i);
+                        Grid.SetRow(slider, rowIndex);
                         Grid.SetColumn(slider, 2);
                         configGrid.Children.Add(slider);
 
@@ -212,7 +234,7 @@ public partial class HudPageVM : ObservableObject {
                         };
                         numberBox.Margin = new Thickness(0, 0, 10, 0);
                         numberBox.VerticalAlignment = VerticalAlignment.Center;
-                        Grid.SetRow(numberBox, i);
+                        Grid.SetRow(numberBox, rowIndex);
                         Grid.SetColumn(numberBox, 2);
                         configGrid.Children.Add(numberBox);
                     }

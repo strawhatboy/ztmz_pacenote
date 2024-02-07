@@ -35,56 +35,56 @@
         <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
             Text="{DynamicResource staff.audioPkg}" />
         <WrapPanel Orientation="Horizontal" Width="400">
-            <ui:TextBlock Text="Bigboxx" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="圣沙蒙VK" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="紫藤林沫" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="DR2车手老王" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="权威Authority" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="wha1ing" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Hippopo" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="大李子小妖" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="mesa" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="沧竹烽-南沢いずみ(天津话)" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="左衛門" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Chester117" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Kiko(萝莉音)" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Nooblesone泡面君" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="古轩言" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="图图" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="简哲" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Jeffery" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="吉米(山东寿光话)" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="Bigboxx" Margin="10 0 0 0" />
+            <ui:TextBlock Text="圣沙蒙VK" Margin="10 0 0 0" />
+            <ui:TextBlock Text="紫藤林沫" Margin="10 0 0 0" />
+            <ui:TextBlock Text="DR2车手老王" Margin="10 0 0 0" />
+            <ui:TextBlock Text="权威Authority" Margin="10 0 0 0" />
+            <ui:TextBlock Text="wha1ing" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Hippopo" Margin="10 0 0 0" />
+            <ui:TextBlock Text="大李子小妖" Margin="10 0 0 0" />
+            <ui:TextBlock Text="mesa" Margin="10 0 0 0" />
+            <ui:TextBlock Text="沧竹烽-南沢いずみ(天津话)" Margin="10 0 0 0" />
+            <ui:TextBlock Text="左衛門" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Chester117" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Kiko(萝莉音)" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Nooblesone泡面君" Margin="10 0 0 0" />
+            <ui:TextBlock Text="古轩言" Margin="10 0 0 0" />
+            <ui:TextBlock Text="图图" Margin="10 0 0 0" />
+            <ui:TextBlock Text="简哲" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Jeffery" Margin="10 0 0 0" />
+            <ui:TextBlock Text="吉米(山东寿光话)" Margin="10 0 0 0" />
         </WrapPanel>
 
         <!-- script -->
         <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
             Text="{DynamicResource staff.script}" />
         <WrapPanel Orientation="Horizontal" Width="400">
-            <ui:TextBlock Text="含蓄" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Hippopo" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="回家的誘いをかける" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="栗悟饭とカメハメ波" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Meeke777" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="O.Z.(Gliese-436b)" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Silenig" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="smoke(DR2略略略)" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Zexx" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="年轮" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="DR2车手老王" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="沧竹烽" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="花腩居士" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Panda2Bad" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="李昕珂" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Xhown" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Yang" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="凌绝" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="冰彻天空" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Nekuz" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Sebastian" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="Erwachsene" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="米酷二二三" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="牛爷爷" Margin="10 0 0 0"/>
-            <ui:TextBlock Text="毅杨千秋（千年老妖）" Margin="10 0 0 0"/>
+            <ui:TextBlock Text="含蓄" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Hippopo" Margin="10 0 0 0" />
+            <ui:TextBlock Text="回家的誘いをかける" Margin="10 0 0 0" />
+            <ui:TextBlock Text="栗悟饭とカメハメ波" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Meeke777" Margin="10 0 0 0" />
+            <ui:TextBlock Text="O.Z.(Gliese-436b)" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Silenig" Margin="10 0 0 0" />
+            <ui:TextBlock Text="smoke(DR2略略略)" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Zexx" Margin="10 0 0 0" />
+            <ui:TextBlock Text="年轮" Margin="10 0 0 0" />
+            <ui:TextBlock Text="DR2车手老王" Margin="10 0 0 0" />
+            <ui:TextBlock Text="沧竹烽" Margin="10 0 0 0" />
+            <ui:TextBlock Text="花腩居士" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Panda2Bad" Margin="10 0 0 0" />
+            <ui:TextBlock Text="李昕珂" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Xhown" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Yang" Margin="10 0 0 0" />
+            <ui:TextBlock Text="凌绝" Margin="10 0 0 0" />
+            <ui:TextBlock Text="冰彻天空" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Nekuz" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Sebastian" Margin="10 0 0 0" />
+            <ui:TextBlock Text="Erwachsene" Margin="10 0 0 0" />
+            <ui:TextBlock Text="米酷二二三" Margin="10 0 0 0" />
+            <ui:TextBlock Text="牛爷爷" Margin="10 0 0 0" />
+            <ui:TextBlock Text="毅杨千秋（千年老妖）" Margin="10 0 0 0" />
         </WrapPanel>
 
         <!-- rnd staff -->
@@ -137,6 +137,10 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="380" />
@@ -150,7 +154,7 @@
                 Text="{DynamicResource staff.rnd_staff.uiDesigner}" Grid.Row="1" />
             <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
                 <ui:TextBlock Text="无状态选手"
-                    Margin="10 0 0 0"/>
+                    Margin="10 0 0 0" />
                 <ui:TextBlock Margin="10 0 0 0" Text="SamLIU" />
             </StackPanel>
             <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
@@ -161,7 +165,7 @@
                 Text="{DynamicResource staff.rnd_staff.initialIdea}" Grid.Row="3" />
             <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
                 <ui:TextBlock Text="7颗豆子(Meeke777)"
-                    Margin="10 0 0 0"/>
+                    Margin="10 0 0 0" />
                 <ui:TextBlock Text="幻想最初(Greened U)"
                     Margin="10 0 0 0" />
             </StackPanel>
@@ -169,6 +173,18 @@
                 Text="{DynamicResource staff.rnd_staff.ideaProvider}" Grid.Row="4" />
             <ui:TextBlock Text="Bigboxx" Margin="10 0 0 0"
                 Grid.Row="4" Grid.Column="1" />
+            <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+                Text="{DynamicResource staff.rnd_staff.tester}" Grid.Row="5" />
+            
+            <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
+                <ui:TextBlock Text="Bigboxx" Margin="10 0 0 0"/>
+                <ui:TextBlock Text="DR2车手老王" Margin="10 0 0 0"/>
+            </StackPanel>
+            <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
+                <ui:TextBlock Text="沧竹烽" Margin="10 0 0 0"/>
+                <ui:TextBlock Text="年轮" Margin="10 0 0 0"/>
+            </StackPanel>
+
 
         </Grid>
 
@@ -196,10 +212,10 @@
             <ui:TextBlock Text="小贤少少(xxss)" Margin="10 0 0 0"
                 Grid.Row="1" Grid.Column="1" />
             <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
-                    Text="{DynamicResource staff.club_staff.toolOrganizer}" Grid.Row="2" />
+                Text="{DynamicResource staff.club_staff.toolOrganizer}" Grid.Row="2" />
             <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
                 <ui:TextBlock Text="无状态选手"
-                    Margin="10 0 0 0"/>
+                    Margin="10 0 0 0" />
                 <ui:TextBlock Text="DR2车手老王"
                     Margin="10 0 0 0" />
             </StackPanel>
@@ -210,7 +226,8 @@
         </Grid>
 
         <!-- all -->
-        <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle" TextWrapping="Wrap"
+        <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
+            TextWrapping="Wrap"
             Text="{DynamicResource staff.all}" />
         <ui:TextBlock HorizontalAlignment="Center" Text="{DynamicResource staff.missing}" />
     </StackPanel>

@@ -125,11 +125,14 @@ public class Dashboard {
     }
 
     public void Load(DashboardScriptArguments args) {
+        _logger.Debug("Loading dashboard {0}", Descriptor.Name);
         // check if resources loaded, if loaded, just load the script
         if (this.ImageResources == null) {
+            _logger.Debug("Loading resources for dashboard {0}", Descriptor.Name);
             loadImageResources(args);
         }
 
+        _logger.Debug("Loading lua script for dashboard {0}", Descriptor.Name);
         // load lua script
         LuaG = _lua.CreateEnvironment();
         LuaG.DefaultCompileOptions = new LuaCompileOptions()
@@ -138,6 +141,8 @@ public class Dashboard {
         };
         LuaG.DoChunk(File.ReadAllText(Path.Combine(Descriptor.Path, Constants.FILE_LUA_SCRIPT)), $"{Guid.NewGuid()}.lua");
         args.Self = this;
+
+        _logger.Debug("Calling onInit for dashboard {0}", Descriptor.Name);
         LuaG.CallMember("onInit", args);
         _logger.Info($"Dashboard \"{I18NLoader.Instance[Descriptor.Name]}\" loaded");
     }

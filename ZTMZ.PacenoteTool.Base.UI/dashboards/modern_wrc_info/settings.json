@@ -4,6 +4,7 @@
         "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
         "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
         "dashboards.settings.size": "dashboards.settings.tooltip.size",
+        "dashboards.settings.whRatio": "dashboards.settings.tooltip.whRatio",
         "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
         "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV",
         "dashboards.settings.drivername": "dashboards.settings.tooltip.drivername",
@@ -14,12 +15,13 @@
         1,
         1,
         0.04,
+        16,
         0.04,
         0.085,
         "林臻东",
         "cn"
     ],
     "ValueRange": [
-        [], [], [], [0.01, 0.2], [0.01, 0.2], [0.01, 0.2], [], []
+        [], [], [], [0.01, 0.2], [10, 20], [0.01, 0.2], [0.01, 0.2], [], []
     ]
 }

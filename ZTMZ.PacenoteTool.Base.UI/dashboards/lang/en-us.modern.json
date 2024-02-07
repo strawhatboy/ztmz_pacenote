@@ -29,7 +29,7 @@
                 "marginH": "Margin horizontally, relative to the screen width",
                 "marginV": "Margin vertically, relative to the screen height",
                 "drivername": "Driver Name",
-                "driverregion": "Driver Region",
+                "driverregion": "Driver Region, ISO 3166-1 alpha-2 code",
             }
         }
     }

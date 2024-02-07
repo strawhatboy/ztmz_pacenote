@@ -185,7 +185,7 @@ function onUpdate(args)
     local positionV = self.GetConfigByKey("dashboards.settings.positionV");
     local marginH = self.GetConfigByKey("dashboards.settings.marginH") * gfx.Width;
     local marginV = self.GetConfigByKey("dashboards.settings.marginV") * gfx.Height;
-    local whRatio = 577.0 / 34.0;
+    local whRatio = self.GetConfigByKey("dashboards.settings.whRatio");
 
     -- print("calulating the margin, padding, pos of each element")
     
