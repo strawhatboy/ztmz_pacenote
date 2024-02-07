@@ -91,7 +91,7 @@ public class Dashboard {
 
     private LuaGlobal LuaG { get; set; }
 
-    private Lua _lua = new Lua();
+    private Lua _lua;
 
     private void loadImageResources(DashboardScriptArguments args) {
         // load resources
@@ -124,16 +124,21 @@ public class Dashboard {
         }
     }
 
-    public void Load(DashboardScriptArguments args) {
+    public void Load(DashboardScriptArguments args, bool forceReload = false) {
         _logger.Debug("Loading dashboard {0}", Descriptor.Name);
-        // check if resources loaded, if loaded, just load the script
-        if (this.ImageResources == null) {
+        // check if resources loaded, if loaded, just load the script,
+        // NO !! YOU CANNOT JUST LOAD THE SCRIPT, YOU NEED TO RELOAD THE RESOURCES!!!
+        // THE GRPAHICS DEVICE IS RECREATED when the game process ends and then starts, 
+        // THE RESOURCES NEED TO BE RELOADED!!! because the factory used to create the image is different!!
+        // AND if factories are different, Error 0x88990012 | D2DERR_WRONG_FACTORY will be thrown !!!
+        if (forceReload || this.ImageResources == null) {
             _logger.Debug("Loading resources for dashboard {0}", Descriptor.Name);
             loadImageResources(args);
         }
 
         _logger.Debug("Loading lua script for dashboard {0}", Descriptor.Name);
         // load lua script
+        _lua = new Lua();
         LuaG = _lua.CreateEnvironment();
         LuaG.DefaultCompileOptions = new LuaCompileOptions()
         {
@@ -157,6 +162,8 @@ public class Dashboard {
         LuaG.CallMember("onExit");
         _logger.Info($"Dashboard {I18NLoader.Instance[Descriptor.Name]} unloaded");
         LuaG.Clear();
+        _lua?.Dispose();
+        _lua = null;
     }
 
     public object GetConfigByKey(string key) {

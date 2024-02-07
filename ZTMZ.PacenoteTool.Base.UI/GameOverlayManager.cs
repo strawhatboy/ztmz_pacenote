@@ -102,7 +102,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private float minSuspension { set; get; }
 
         public List<Dashboard> Dashboards { set; get; } = new List<Dashboard>();
-        public List<bool> DashboardEnabled { set; get; } = new List<bool>();
+        public List<bool> DashboardLoaded { set; get; } = new List<bool>();
 
         public List<bool> DashboardErrorEncountered { set; get; } = new List<bool>();
 
@@ -135,6 +135,9 @@ namespace ZTMZ.PacenoteTool.Base.UI
             {
                 _logger.Warn("Dashboard path not exists: {0}", dashboardsPath);
             }
+
+            DashboardLoaded.AddRange(Enumerable.Repeat(false, Dashboards.Count));
+            DashboardErrorEncountered.AddRange(Enumerable.Repeat(false, Dashboards.Count));
             _logger.Info($"Loaded {Dashboards.Count} Dashboards.");
         }
 
@@ -252,6 +255,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
         {
             _isRunning = false;
             _window?.Dispose();
+            _logger.Info("GameOverlay uninitialized.!");
         }
 
         public void SetFPS(int fps)
@@ -262,11 +266,21 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e) {
             var gfx = e.Graphics;
+            
+            if (e.RecreateResources) {
+                foreach (var pair in _brushes) pair.Value.Dispose();
+                foreach (var pair in _fonts) pair.Value.Dispose();
+                foreach (var pair in _images) pair.Value.Dispose();
+            }
+
+            _logger.Debug("Setting up graphics..., the factory is: {0}, factory in LuaArgs is {1}", gfx.GetFactory().NativePointer, DashboardScriptArguments.Graphics.GetFactory().NativePointer);
+            _logger.Debug("Setting up graphics..., the fontFactory is: {0}, fontfactory in LuaArgs is {1}", gfx.GetFontFactory().NativePointer, DashboardScriptArguments.Graphics.GetFontFactory().NativePointer);
             // load custom fonts
             gfx.LoadCustomFont(AppLevelVariables.Instance.GetPath(Constants.PATH_FONTS));
             _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
-            foreach (var dashboard in Dashboards) {
-                DashboardErrorEncountered.Add(false);
+            for (int i = 0; i < Dashboards.Count; i++) {
+                var dashboard = Dashboards[i];
+                DashboardErrorEncountered[i] = false;
                 if (dashboard.Descriptor.IsEnabled) {
 
                     while (dashboardLoadRetryCount < dashboardLoadRetryMax)
@@ -274,8 +288,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
                         try
                         {
                             Thread.Sleep(dashboardLoadRetryInterval);
-                            dashboard.Load(DashboardScriptArguments);
-                            DashboardEnabled.Add(true);
+                            dashboard.Load(DashboardScriptArguments, true); // force reload resources
+                            DashboardLoaded[i] = true;
                             dashboardLoadRetryCount = 0;
                             break;
                         }
@@ -288,12 +302,12 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     if (dashboardLoadRetryCount >= dashboardLoadRetryMax)
                     {
                         _logger.Error("Failed to load dashboard: {0}, retry count: {1}", dashboard.Descriptor.Name, dashboardLoadRetryCount);
-                        DashboardEnabled.Add(false);
+                        DashboardLoaded[i] = false;
                         dashboard.SetIsEnable(false);   // disable it
                     }
                     dashboardLoadRetryCount = 0;
                 } else {
-                    DashboardEnabled.Add(false);
+                    DashboardLoaded[i] = false;
                 }
             }
         }
@@ -305,7 +319,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 for (var i = 0; i < Dashboards.Count; i++) {
                     var dashboard = Dashboards[i];
                     if (dashboard.Descriptor.IsEnabled) {
-                        if (DashboardEnabled[i]) {
+                        if (DashboardLoaded[i]) {
                             try {
                                 dashboard.Render(DashboardScriptArguments);
                             } catch (Exception ex) {
@@ -317,12 +331,12 @@ namespace ZTMZ.PacenoteTool.Base.UI
                             }
                         } else {
                             dashboard.Load(DashboardScriptArguments);
-                            DashboardEnabled[i] = true;
+                            DashboardLoaded[i] = true;
                         }
                     } else {
-                        if (DashboardEnabled[i]) {
+                        if (DashboardLoaded[i]) {
                             dashboard.Unload();
-                            DashboardEnabled[i] = false;
+                            DashboardLoaded[i] = false;
                         }
                     }
                 }
@@ -377,9 +391,14 @@ namespace ZTMZ.PacenoteTool.Base.UI
             foreach (var pair in _brushes) pair.Value.Dispose();
             foreach (var pair in _fonts) pair.Value.Dispose();
             foreach (var pair in _images) pair.Value.Dispose();
-            foreach (var dashboard in Dashboards) {
-                if (dashboard.Descriptor.IsEnabled)
-                    dashboard.Unload();
+            for (int i = 0; i < Dashboards.Count; i++) {
+                var dashboard = Dashboards[i];
+                if (dashboard.Descriptor.IsEnabled) {
+                    if (DashboardLoaded[i]) {
+                        dashboard.Unload();
+                        DashboardLoaded[i] = false;
+                    }
+                }
             }
         }
 
