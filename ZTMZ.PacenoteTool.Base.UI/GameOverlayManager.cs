@@ -107,8 +107,12 @@ namespace ZTMZ.PacenoteTool.Base.UI
         public List<bool> DashboardErrorEncountered { set; get; } = new List<bool>();
 
         private int initializeRetryCount = 0;
-        private int initializeRetryMax = 60;    // 30 seconds
-        private int initializeRetryInterval = 1000;
+        private int initializeRetryMax = 60;    // 60 seconds
+        private int initializeRetryInterval = 5000;
+
+        private int dashboardLoadRetryCount = 0;
+        private int dashboardLoadRetryMax = 10;    // 10 seconds
+        private int dashboardLoadRetryInterval = 1000;
 
         public GameOverlayManager() {
             var dashboardsPath = AppLevelVariables.Instance.GetPath(Constants.PATH_DASHBOARDS);
@@ -134,7 +138,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             _logger.Info($"Loaded {Dashboards.Count} Dashboards.");
         }
 
-        public void InitializeOverlay(nint processWindowHandle)
+        public void InitializeOverlay(Process p)
         {
             _logger.Info("Initializing overlay....");
 #if DEV
@@ -195,11 +199,12 @@ namespace ZTMZ.PacenoteTool.Base.UI
             Task.Run(() => {
                 // retry if failed
                 // possible crash because of window not responding
-                while (initializeRetryCount < initializeRetryMax)
+                while (p != null && !p.HasExited && initializeRetryCount < initializeRetryMax)
                 {
                     try
                     {
-                        _window = new StickyWindow(processWindowHandle, gfx);
+                        Thread.Sleep(initializeRetryInterval);
+                        _window = new StickyWindow(p.MainWindowHandle, gfx);
                         initializeRetryCount = 0;
                         break;
                     }
@@ -207,8 +212,14 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     {
                         _logger.Error(ex, "Failed to initialize overlay, retrying...");
                         initializeRetryCount++;
-                        Thread.Sleep(initializeRetryInterval);
                     }
+                }
+
+                initializeRetryCount = 0;
+                if (_window == null)
+                {
+                    _logger.Error("Failed to initialize overlay, retry count: {0}", initializeRetryCount);
+                    return;
                 }
 
                 _window.Title = Constants.HUD_WINDOW_NAME;
@@ -257,8 +268,30 @@ namespace ZTMZ.PacenoteTool.Base.UI
             foreach (var dashboard in Dashboards) {
                 DashboardErrorEncountered.Add(false);
                 if (dashboard.Descriptor.IsEnabled) {
-                    dashboard.Load(DashboardScriptArguments);
-                    DashboardEnabled.Add(true);
+
+                    while (dashboardLoadRetryCount < dashboardLoadRetryMax)
+                    {
+                        try
+                        {
+                            Thread.Sleep(dashboardLoadRetryInterval);
+                            dashboard.Load(DashboardScriptArguments);
+                            DashboardEnabled.Add(true);
+                            dashboardLoadRetryCount = 0;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error(ex, "Failed to load dashboard: {0}, retrying...", dashboard.Descriptor.Name);
+                            dashboardLoadRetryCount++;
+                        }
+                    }
+                    if (dashboardLoadRetryCount >= dashboardLoadRetryMax)
+                    {
+                        _logger.Error("Failed to load dashboard: {0}, retry count: {1}", dashboard.Descriptor.Name, dashboardLoadRetryCount);
+                        DashboardEnabled.Add(false);
+                        dashboard.SetIsEnable(false);   // disable it
+                    }
+                    dashboardLoadRetryCount = 0;
                 } else {
                     DashboardEnabled.Add(false);
                 }
@@ -950,7 +983,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                         try {
                             if (process.MainWindowTitle.StartsWith(GAME_WIN_TITLE, StringComparison.OrdinalIgnoreCase))
                             // only when the game window available.
-                                this.InitializeOverlay(process.MainWindowHandle);
+                                this.InitializeOverlay(process);
                         } catch (Exception ex) {
                             _logger.Trace("Waiting for game window: {0}", GAME_WIN_TITLE);
                         }

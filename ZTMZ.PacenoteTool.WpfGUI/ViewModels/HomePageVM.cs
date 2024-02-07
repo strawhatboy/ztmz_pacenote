@@ -164,26 +164,22 @@ public partial class HomePageVM : ObservableObject {
         _serviceProvider = serviceProvider;
         var contentDialogService = serviceProvider.GetService(typeof(IContentDialogService)) as IContentDialogService;
         Tool = _tool;
-        _tool.onGameStarted += (game) => {
+        _tool.onGameStarted += (game, p) => {
             IsGameRunning = true;
             // GameOverlay
             _logger.Info("Game started. in Home Page. Initializing GameOverlay.");
             Task.Run(() => {
                 // _logger.Info("Wait for 5 seconds..In case the machine is too slow to launch the game");
                 // Thread.Sleep(5000);
-                _logger.Info("Finished waiting. in Home Page. Initializing GameOverlay..");
-                var process = Process.GetProcessesByName(game.Executable).FirstOrDefault();
-                if (process != null) {
-                    _logger.Info("Initializing GameOverlay...");
-                    _gameOverlayManager.UninitializeOverlay();
-                    _gameOverlayManager.InitializeOverlay(process.MainWindowHandle);
+                _logger.Info("Initializing GameOverlay...");
+                _gameOverlayManager.UninitializeOverlay();
+                _gameOverlayManager.InitializeOverlay(p);
 
-                    _logger.Info("Try to initialize VRGameOverlay...");
-                    if (OpenVR.IsRuntimeInstalled() && Config.Instance.VrShowOverlay) {
-                        _vrGameOverlayManager.StopLoop();
-                        _vrGameOverlayManager.StartLoop();
-                        _logger.Info("Vr Game overlay initliazed.");
-                    }
+                _logger.Info("Try to initialize VRGameOverlay...");
+                if (OpenVR.IsRuntimeInstalled() && Config.Instance.VrShowOverlay) {
+                    _vrGameOverlayManager.StopLoop();
+                    _vrGameOverlayManager.StartLoop();
+                    _logger.Info("Vr Game overlay initliazed.");
                 }
             });
         };

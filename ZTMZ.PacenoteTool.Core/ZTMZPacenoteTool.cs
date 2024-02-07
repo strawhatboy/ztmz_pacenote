@@ -8,6 +8,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 using System.Threading.Tasks;
 using System.Threading;
 using NAudio.Wave;
+using System.Diagnostics;
 
 namespace ZTMZ.PacenoteTool.Core;
 
@@ -40,7 +41,7 @@ public class ZTMZPacenoteTool {
     public event Action<IGame> onGameInitialized;
     public event Action<IGame> onGameUninitialized;
 
-    public event Action<IGame> onGameStarted;
+    public event Action<IGame, Process> onGameStarted;
 
     public event Action<IGame> onGameEnded;
 
@@ -152,9 +153,9 @@ public class ZTMZPacenoteTool {
 
     private void initializeProcessWatcher()
     {
-        _processWatcher = new ProcessWatcher((pName, pPath) => {
+        _processWatcher = new ProcessWatcher(p => {
             // new process
-            var g = _games.FirstOrDefault(g => g.Executable.ToLower().Equals(pName));
+            var g = _games.FirstOrDefault(g => g.Executable.ToLower().Equals(p.ProcessName.ToLower()));
             if (g == null)
                 return;
 
@@ -164,9 +165,9 @@ public class ZTMZPacenoteTool {
                 //TODO: raise game started event!!!
                 //TODO: turn on the light, current game is running.
                 //TODO: start game data pulling
-                this.onGameStarted?.Invoke(_currentGame);
+                this.onGameStarted?.Invoke(_currentGame, p);
                 
-                _logger.Info("Got new process: {0}, trying to initialize game: {1}", pName, _currentGame.Name);
+                _logger.Info("Got new process: {0}, trying to initialize game: {1}", p.ProcessName, _currentGame.Name);
                 initializeGame(_currentGame);
             }
         }, (pName, pPath) => {
@@ -460,8 +461,9 @@ public class ZTMZPacenoteTool {
         uninitializeGame(_currentGame);
         // if the game was not the current game, and the game is running, need to trigger the gamestarted event
         // to trigger the game overlay.
-        if (_currentGame != null && _currentGame != game && _processWatcher.IsWatchedProcessRunning(game.Executable, game.WindowTitle)) {
-            this.onGameStarted?.Invoke(game);
+        Process watchedProcess = _processWatcher.IsWatchedProcessRunning(game.Executable, game.WindowTitle);
+        if (_currentGame != null && _currentGame != game && watchedProcess != null) {
+            this.onGameStarted?.Invoke(game, watchedProcess);
             gameRunning = true;
         }
 

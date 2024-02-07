@@ -48,7 +48,7 @@ public class WatchedProcess {
 public class ProcessWatcher : IDisposable
 {
     private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-    public event Action<string, string> onNewProcess;
+    public event Action<Process> onNewProcess;
     public event Action<string, string> onProcessExit;
     public ConcurrentDictionary<string, WatchedProcess> WatchingProcesses { get; } = new ();
 
@@ -62,7 +62,7 @@ public class ProcessWatcher : IDisposable
     public ProcessWatcher(int refreshInterval = 2000) {
         this._refreshInterval = refreshInterval;
     }
-    public ProcessWatcher(Action<string, string> newProcessHandler, Action<string, string> processExitHandler, int refreshInterval = 2000) : this(refreshInterval)
+    public ProcessWatcher(Action<Process> newProcessHandler, Action<string, string> processExitHandler, int refreshInterval = 2000) : this(refreshInterval)
     {
         onNewProcess += newProcessHandler;
         onProcessExit += processExitHandler;
@@ -76,20 +76,20 @@ public class ProcessWatcher : IDisposable
         WatchingProcesses[executable.ToLower()] = new WatchedProcess() { Executable = executable, WindowName = windowName, MemoryThreshold = memoryThreshold };
     }
 
-    public bool IsWatchedProcessRunning(string executable, string windowName = "", int memoryThreshold = 0) {
+    public Process IsWatchedProcessRunning(string executable, string windowName = "", int memoryThreshold = 0) {
         if (string.IsNullOrEmpty(executable))
-            return false;
+            return null;
 
         // process in in Watched Processes and is running by checking MatchProcess
         if (WatchingProcesses.ContainsKey(executable.ToLower())) {
             foreach (var p in Process.GetProcesses()) {
                 if (WatchingProcesses[executable.ToLower()].MatchProcess(p)) {
-                    return true;
+                    return p;
                 }
             }
         }
 
-        return false;
+        return null;
     }
 
     public void StartWatching()
@@ -110,7 +110,7 @@ public class ProcessWatcher : IDisposable
             {
                 if (WatchingProcesses.ContainsKey(p.ProcessName.ToLower()))
                 {
-                    onNewProcess?.Invoke(p.ProcessName.ToLower(), null);
+                    onNewProcess?.Invoke(p);
                 }
 
                 RunningProcesses.AddOrUpdate(p.ProcessName.ToLower(), 1, (k, v) => 1);
@@ -132,7 +132,7 @@ public class ProcessWatcher : IDisposable
                     {
                         var exp1 = WatchingProcesses.ContainsKey(p.ProcessName.ToLower());
                         if (exp1 && WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p)) {
-                            onNewProcess?.Invoke(p.ProcessName.ToLower(), null);
+                            onNewProcess?.Invoke(p);
                         }
                         // magic code
                         if (!(exp1 && !WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p))) {
