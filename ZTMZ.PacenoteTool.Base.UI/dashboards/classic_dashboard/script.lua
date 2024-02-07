@@ -358,4 +358,7 @@ function onExit()
     for k,v in ipairs(resources["brushes"]) do
         v.Dispose();
     end
+    for k,v in ipairs(resources["fonts"]) do
+        v.Dispose();
+    end
 end
