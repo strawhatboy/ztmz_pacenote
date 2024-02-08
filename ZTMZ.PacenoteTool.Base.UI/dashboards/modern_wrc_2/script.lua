@@ -30,6 +30,7 @@ local ARCSIZE_LARGE = 1;
 function onInit(args)
     local gfx = args.Graphics;
     local conf = args.Config;
+    local helper = args.GameOverlayDrawingHelper;
     local _brushes = {};
     _brushes["black"] = gfx.CreateSolidBrush(0, 0, 0);
     _brushes["white"] = gfx.CreateSolidBrush(255, 255, 255);
@@ -49,7 +50,14 @@ function onInit(args)
     _brushes["background"] = gfx.CreateSolidBrush(0x00, 0x00, 0x00, 100);
     _brushes["transparent"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
     _brushes["telemetryBackground"] = gfx.CreateSolidBrush(0x2c, 0x33, 0x3c, 255);
-    _brushes["rpm"] = gfx.CreateSolidBrush(0x9c, 0x9e, 0x5c, 255)
+    _brushes["rpm"] = gfx.CreateLinearGradientBrush(
+        -- green
+        helper.getColor(0x31, 0xd2, 0x1b, 255),
+        -- yellow
+        helper.getColor(0xd3, 0xec, 0x46, 255),
+        -- red
+        helper.getColor(0xfb, 0x21, 0x0d, 255)
+    );
     _brushes["brake"] = gfx.CreateSolidBrush(0xd2, 0x18, 0x1d, 255)
     _brushes["throttle"] = gfx.CreateSolidBrush(0xc3, 0xe1, 0x67, 255)
     _brushes["clutch"] = gfx.CreateSolidBrush(0x2a, 0xb4, 0x5d, 255)
@@ -122,16 +130,8 @@ function drawRPM(gfx, self, data, helper, x, y, width, height)
             arcSize = ARCSIZE_LARGE;
         end
         -- RPM color should become from green to yellow and then red
-        local rpmBrush = gfx.CreateSolidBrush(
-            _brushes["rpm"].Color.R + (255 - _brushes["rpm"].Color.R) * rpm / maxRPM,
-            _brushes["rpm"].Color.G - _brushes["rpm"].Color.G * rpm / maxRPM * 0.5,
-            _brushes["rpm"].Color.B - _brushes["rpm"].Color.B * rpm / maxRPM,
-            _brushes["rpm"].Color.A
-        );
-        drawGeo(gfx, helper, x + width * 0.471, y + height * 0.62, 6.45 * math.pi / 6, 6.45 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, rpmBrush);
-        
-        -- release the color
-        rpmBrush.Dispose();
+        _brushes["rpm"].SetRange(x + width * 0.471 - telemetryRadius, y + height * 0.62, x + width * 0.471 + telemetryRadius, y + height * 0.62);
+        drawGeo(gfx, helper, x + width * 0.471, y + height * 0.62, 6.45 * math.pi / 6, 6.45 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, _brushes["rpm"]);
     end
 end
 
@@ -299,6 +299,8 @@ function onUpdate(args)
         end
     end
     local width = size * whRatio;
+
+    telemetryStartX = telemetryStartX + 0.029 * width;  -- center the dashboard?
 
     drawStaticFrames(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);
     drawRPM(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);

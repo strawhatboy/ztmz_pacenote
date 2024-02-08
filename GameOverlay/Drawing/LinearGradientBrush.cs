@@ -47,6 +47,11 @@ namespace GameOverlay.Drawing
             float position = 0.0f;
             float stepSize = 1.0f / colors.Length;
 
+            if (colors.Length > 1)
+            {
+                stepSize = 1.0f / (colors.Length - 1);
+            }
+
             var gradientStops = new GradientStop[colors.Length];
 
             for (int i = 0; i < colors.Length; i++)

@@ -372,6 +372,20 @@ namespace GameOverlay.Drawing
 			return new SolidBrush(_device, color);
 		}
 
+		public LinearGradientBrush CreateLinearGradientBrush(params Color[] colors)
+		{
+			if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
+
+			return new LinearGradientBrush(_device, colors);
+		}
+
+		public RadialGradientBrush CreateRadialGradientBrush(params Color[] colors)
+		{
+			if (!IsInitialized) throw new InvalidOperationException("The DirectX device is not initialized");
+
+			return new RadialGradientBrush(_device, colors);
+		}
+
 		/// <summary>
 		/// Specifies a matrix to which all subsequent drawing operations are transformed.
 		/// </summary>

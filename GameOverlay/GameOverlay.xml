@@ -2683,6 +2683,31 @@
             <param name="right">The second object to compare.</param>
             <returns> <see langword="true" /> if <paramref name="left" /> and <paramref name="right" /> are equal; otherwise, <see langword="false" />.</returns>
         </member>
+        <member name="T:GameOverlay.Drawing.RadialGradientBrush">
+            <summary>
+            Represents a radial gradient brush used with a Graphics surface.
+            check https://learn.microsoft.com/en-us/windows/winui/api/microsoft.ui.xaml.media.radialgradientbrush?view=winui-2.8
+            </summary>
+        </member>
+        <member name="M:GameOverlay.Drawing.RadialGradientBrush.Dispose(System.Boolean)">
+            <summary>
+            Releases all resources used by this LinearGradientBrush.
+            </summary>
+            <param name="disposing">A Boolean value indicating whether this is called from the destructor.</param>
+        </member>
+        <member name="M:GameOverlay.Drawing.RadialGradientBrush.Dispose">
+            <summary>
+            Releases all resources used by this LinearGradientBrush.
+            </summary>
+        </member>
+        <member name="M:GameOverlay.Drawing.RadialGradientBrush.Equals(GameOverlay.Drawing.LinearGradientBrush,GameOverlay.Drawing.LinearGradientBrush)">
+            <summary>
+            Returns a value indicating whether two specified instances of LinearGradientBrush represent the same value.
+            </summary>
+            <param name="left">The first object to compare.</param>
+            <param name="right">The second object to compare.</param>
+            <returns> <see langword="true" /> if <paramref name="left" /> and <paramref name="right" /> are equal; otherwise, <see langword="false" />.</returns>
+        </member>
         <member name="T:GameOverlay.Drawing.Scene">
             <summary>
             Represents a Scene / frame of a Graphics surface.

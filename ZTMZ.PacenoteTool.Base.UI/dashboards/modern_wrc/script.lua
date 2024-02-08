@@ -31,6 +31,7 @@ function onInit(args)
     local gfx = args.Graphics;
     local conf = args.Config;
     local _brushes = {};
+    local helper = args.GameOverlayDrawingHelper;
     _brushes["black"] = gfx.CreateSolidBrush(0, 0, 0);
     _brushes["white"] = gfx.CreateSolidBrush(255, 255, 255);
     _brushes["red"] = gfx.CreateSolidBrush(255, 0, 0);
@@ -49,12 +50,31 @@ function onInit(args)
     _brushes["line"] = gfx.CreateSolidBrush(255, 255, 255, 100);
     _brushes["background"] = gfx.CreateSolidBrush(0x00, 0x00, 0x00, 100);
     _brushes["transparent"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
-    _brushes["telemetryBackground"] = gfx.CreateSolidBrush(0x2c, 0x33, 0x3c, 10);
-    _brushes["rpm"] = gfx.CreateSolidBrush(0x9c, 0x9e, 0x5c, 255)
-    _brushes["brake"] = gfx.CreateSolidBrush(0xd2, 0x18, 0x1d, 255)
+    -- _brushes["telemetryBackground"] = gfx.CreateSolidBrush(0x2c, 0x33, 0x3c, 10);
+    _brushes["telemetryBackground"] = gfx.CreateRadialGradientBrush(
+        helper.getColor(0x2c, 0x33, 0x3c, 255),
+        helper.getColor(0x2c, 0x33, 0x3c, 230),
+        helper.getColor(0x2c, 0x33, 0x3c, 215),
+        helper.getColor(0x2c, 0x33, 0x3c, 10));
+    -- _brushes["rpm"] = gfx.CreateSolidBrush(0x9c, 0x9e, 0x5c, 255)
+    _brushes["rpm"] = gfx.CreateLinearGradientBrush(
+        -- green
+        helper.getColor(0x31, 0xd2, 0x1b, 255),
+        -- yellow
+        helper.getColor(0xd3, 0xec, 0x46, 255),
+        -- red
+        helper.getColor(0xfb, 0x21, 0x0d, 255)
+    );
+    _brushes["brake"] = gfx.CreateLinearGradientBrush(
+        helper.getColor(0x7a, 0x27, 0x2a, 255),
+        helper.getColor(0xd2, 0x18, 0x1d, 255)
+    );
     _brushes["throttle"] = gfx.CreateSolidBrush(0xc3, 0xe1, 0x67, 255)
     _brushes["clutch"] = gfx.CreateSolidBrush(0x2a, 0xb4, 0x5d, 255)
-    _brushes["hybrid"] = gfx.CreateSolidBrush(0x45, 0xf2, 0xee, 255)
+    _brushes["hybrid"] = gfx.CreateLinearGradientBrush(
+        helper.getColor(0x15, 0xa2, 0xae, 255),
+        helper.getColor(0x3a, 0xe3, 0xf2, 255)
+    );
     
     local _fonts = {};
     _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
@@ -105,13 +125,18 @@ function drawStaticFrames(gfx, data, helper, x, y, radius, padding)
     -- draw the static frames
     -- 1. background
     -- print("drawing the background")
-    for alpha=10,100,10 do
-        gfx.FillCircle(_brushes["telemetryBackground"], x, y, (radius - padding * alpha / 100));
-    end
+    -- for alpha=10,100,10 do
+    --     gfx.FillCircle(_brushes["telemetryBackground"], x, y, (radius - padding * alpha / 100));
+    -- end
+
+    -- use RadialGradientBrush
+    _brushes["telemetryBackground"].SetCenter(x, y);
+    _brushes["telemetryBackground"].SetRadius(radius, radius);
+    gfx.FillCircle(_brushes["telemetryBackground"], x, y, radius);
 
     -- 2. border
     -- print("drawing the border")ClrEnabled = false
-    gfx.FillCircle(_brushes["border"], x, y, radius - padding);
+    -- gfx.FillCircle(_brushes["border"], x, y, radius - padding);
 
     -- 3. telemetryBackground
     -- -- print("drawing the telemetryBackground")
@@ -164,16 +189,9 @@ function drawRPM(gfx, data, helper, x, y, radius, padding)
             arcSize = ARCSIZE_LARGE;
         end
         -- RPM color should become from green to yellow and then red
-        local rpmBrush = gfx.CreateSolidBrush(
-            _brushes["rpm"].Color.R + (255 - _brushes["rpm"].Color.R) * rpm / maxRPM,
-            _brushes["rpm"].Color.G - _brushes["rpm"].Color.G * rpm / maxRPM * 0.5,
-            _brushes["rpm"].Color.B - _brushes["rpm"].Color.B * rpm / maxRPM,
-            _brushes["rpm"].Color.A
-        );
-        drawGeo(gfx, helper, x, y, 7 * math.pi / 6, 7 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, rpmBrush);
-        
-        -- release the color
-        rpmBrush.Dispose();
+        -- use linear gradient brush
+        _brushes["rpm"].SetRange(x - telemetryRadius, y, x + telemetryRadius, y);
+        drawGeo(gfx, helper, x, y, 7 * math.pi / 6, 7 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, _brushes["rpm"]);
     end
 end
 
@@ -205,6 +223,12 @@ function drawBrake(gfx, data, helper, x, y, radius, padding)
         if (arcAngle > math.pi) then
             arcSize = ARCSIZE_LARGE;
         end
+        _brushes["brake"].SetRange(
+            x + telemetryRadius * math.cos(7 * math.pi / 6),
+            y - telemetryRadius * math.sin(7 * math.pi / 6),
+            x,
+            y - telemetryRadius
+        );
         drawGeo(gfx, helper, x, y, 7 * math.pi / 6, 7 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - brakeWeight, arcSize, _brushes["brake"]);
     end
 end
@@ -237,6 +261,12 @@ function drawHandBrake(gfx, data, helper, x, y, radius, padding)
         if (arcAngle > math.pi) then
             arcSize = ARCSIZE_LARGE;
         end
+        _brushes["hybrid"].SetRange(
+            x + telemetryRadius * math.cos(-math.pi / 6),
+            y - telemetryRadius * math.sin(-math.pi / 6),
+            x + telemetryRadius * math.cos(-math.pi / 6 + math.pi),
+            y - telemetryRadius * math.sin(-math.pi / 6 + math.pi)
+        );
         drawGeo(gfx, helper, x, y, -math.pi / 6 + arcAngle, -math.pi / 6, telemetryRadius, telemetryRadius - handBrakeWeight, arcSize, _brushes["hybrid"]);
     end
 end
