@@ -155,7 +155,8 @@ public partial class MainWindowVM : ObservableObject
         if (!_tool.IsInitialized) {
             await _startupDialog.ShowAsync();
         }
-        if (Config.Instance.CheckUpdateWhenStartup) {
+        if (Config.Instance.CheckUpdateWhenStartup || ToolUtils.GetToolVersion() == ToolVersion.TEST) {
+            // force update if it is Test version
             try {
                 var updateFile = await _updateService.CheckUpdate();
             } catch (Exception ex) {

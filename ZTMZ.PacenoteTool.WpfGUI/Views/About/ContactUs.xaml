@@ -21,6 +21,8 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -38,8 +40,15 @@
             NavigateUri="https://github.com/strawhatboy/ztmz_pacenote" />
         <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
             Grid.Row="2"
+            Text="{DynamicResource ui.raise_issue}" />
+        <ui:HyperlinkButton Grid.Column="1" Grid.Row="2"
+            Content="https://gitee.com/ztmz/ztmz_pacenote/issues"
+            NavigateUri="https://gitee.com/ztmz/ztmz_pacenote/issues" />
+        
+        <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+            Grid.Row="3"
             Text="{DynamicResource ui.contactUs_QQ}" />
-        <ui:TextBlock Grid.Column="1" Grid.Row="2" Margin="10 0 0 0">
+        <ui:TextBlock Grid.Column="1" Grid.Row="3" Margin="10 0 0 0">
             <Run Text="207790761 (ZTMZ Club 总群)" />
             <LineBreak />
             <Run Text="697673264 (ZTMZ Next Generation Pacenote)" />
@@ -47,6 +56,12 @@
             <Run Text="658110104 (RBR拉力 Simrallycn中国总群)" />
             <LineBreak />
         </ui:TextBlock>
+        <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+            Grid.Row="4"
+            Text="{DynamicResource ui.tb_friendlink}" />
+        <ui:HyperlinkButton Grid.Column="1" Grid.Row="4"
+            Content="https://www.simrallycn.top/index"
+            NavigateUri="https://www.simrallycn.top/index" />
     </Grid>
 
 </UserControl>

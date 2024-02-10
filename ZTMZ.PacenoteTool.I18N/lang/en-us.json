@@ -258,6 +258,7 @@
     "contactUs": "Contact Us",
     "contactUs_github": "GitHub",
     "contactUs_gitee": "Gitee",
+    "raise_issue": "Issue Report",
     "contactUs_QQ": "QQ",
 
     "rb_record": "Record Mode",
@@ -428,7 +429,7 @@
     "club_staff": {
       "clubLeader": "Club Leader",
       "eventOrganizer": "Event Organizer",
-      "toolOrganizer": "工具制作组织",
+      "toolOrganizer": "Tool making Organizer",
       "specialGuest": "Special Guest",
     },
     "audioPkg": "Audio Package",
