@@ -311,7 +311,10 @@ function onUpdate(args)
     end
     local width = size * whRatio;
 
-    telemetryStartX = telemetryStartX + 0.029 * width;  -- center the dashboard?
+    local useOffset = self.GetConfigByKey("dashboards.settings.useOffset");
+    if (useOffset) then
+        telemetryStartX = telemetryStartX + 0.029 * width;  -- center the dashboard?
+    end
 
     drawStaticFrames(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);
     drawRPM(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);
