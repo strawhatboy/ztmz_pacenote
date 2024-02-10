@@ -435,5 +435,10 @@
     "script": "Pacenote Script",
     "all": "And all people who have contributed to this tool, \nand all the players who have used this tool, thank you all!!!",
     "missing": "If there's someone missing, please contact us to add him/her in."
+  },
+
+  "chinese_localization": {
+    "pacenote": "WRC中文路书MOD",
+    "language": "WRC游戏内汉化"
   }
 }

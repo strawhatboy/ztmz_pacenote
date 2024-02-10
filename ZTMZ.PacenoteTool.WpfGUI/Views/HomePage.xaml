@@ -81,7 +81,7 @@
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <!-- <StackPanel ToolTip="{Binding Path=Game.Description}"> -->
-                                <ui:Image Source="{Binding Path=Image}" ToolTip="{Binding Path=Game.Description}" Width="200" Height="100" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
+                                <ui:Image Source="{Binding Path=Image}" ToolTip="{Binding Path=Game.Description}" Width="214" Height="100" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
                                 <!-- <ui:TextBlock Text="{Binding Path=Game.Name}" HorizontalAlignment="Center" />
                             </StackPanel> -->
                         </DataTemplate>
@@ -395,7 +395,54 @@
                     </Border>
                 </StackPanel>
             </ui:Card>
-            <ui:CardExpander IsExpanded="True" Margin="0 20 0 0">
+            <Grid Margin="0 20 0 0" Visibility="{Binding Path=ViewModel.ShowWRCLocalization, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <!-- 中文路书 -->
+                <ui:CardAction
+                    BorderBrush="{ui:ThemeResource SystemAccentColorPrimaryBrush}"
+                    BorderThickness="2,2,2,2"
+                    Padding="16"
+                    Margin="0 0 10 0"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    IsChevronVisible="False"
+                    Command="{Binding ViewModel.OpenChinesePacenoteCommand}"
+                >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock VerticalAlignment="Center" Grid.Column="0" Text="{DynamicResource ResourceKey=chinese_localization.pacenote}" />
+                        <ui:SymbolIcon FontSize="26" Grid.Column="1" Symbol="Script16" />
+                    </Grid>
+                </ui:CardAction>
+                <!-- 中文汉化 -->
+                <ui:CardAction
+                    BorderBrush="{ui:ThemeResource SystemFillColorSuccessBrush}"
+                    BorderThickness="2,2,2,2"
+                    Padding="16"
+                    Margin="10 0 0 0"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    IsChevronVisible="False"
+                    Grid.Column="1"
+                    Command="{Binding ViewModel.OpenChineseLocalizationCommand}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock VerticalAlignment="Center" Grid.Column="0" Text="{DynamicResource ResourceKey=chinese_localization.language}" />
+                        <ui:SymbolIcon FontSize="26" Grid.Column="1" Symbol="LocalLanguage20" />
+                    </Grid>
+                </ui:CardAction>
+            </Grid>
+            <!-- <ui:CardExpander IsExpanded="True" >
                 <ui:CardExpander.Header>
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="Settings20" Margin="0 0 10 0" />
@@ -403,7 +450,7 @@
                     </StackPanel>
                 </ui:CardExpander.Header>
                 
-            </ui:CardExpander>
+            </ui:CardExpander> -->
         </StackPanel>
     </Grid>
 </Page>

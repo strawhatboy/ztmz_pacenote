@@ -335,7 +335,10 @@ public partial class HomePageVM : ObservableObject {
                 }
             }
         }
-       
+
+        // TODO: UGLY CODE
+        // for EAWRC, localization part
+        ShowWRCLocalization = game.Game.Name == "EA SPORTS™ WRC";
     }
 
     [RelayCommand]
@@ -384,4 +387,23 @@ public partial class HomePageVM : ObservableObject {
         var _navigationWindow = (_serviceProvider.GetService(typeof(INavigationWindow)) as INavigationWindow)!;
         _navigationWindow.Navigate(typeof(PlayPage));
     }
+
+    // TODO: UGLY CODE
+    // for EAWRC, localization part
+    #region EAWRC
+    [ObservableProperty]
+    private bool _showWRCLocalization = false;
+
+    [RelayCommand]
+    private void OpenChinesePacenote() {
+        // open url https://gitee.com/ztmz/ea_wrc_chinese_codrivers/releases in default browser
+        Process.Start(new ProcessStartInfo("https://gitee.com/ztmz/ea_wrc_chinese_codrivers/releases") { UseShellExecute = true });
+    }
+
+    [RelayCommand]
+    private void OpenChineseLocalization() {
+        // open url https://gitee.com/ztmz/ea_wrc_chinese_translation/releases in default browser
+        Process.Start(new ProcessStartInfo("https://gitee.com/ztmz/ea_wrc_chinese_translation/releases") { UseShellExecute = true });
+    }
+    #endregion
 }

@@ -18,7 +18,7 @@
         Loaded="MainWindow_Loaded"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
 
-        Title="{Binding ViewModel.Title, Mode=OneWay}" Height="660" Width="1050" MinWidth="1050" MinHeight="660">
+        Title="{Binding ViewModel.Title, Mode=OneWay}" Height="760" Width="1050" MinWidth="1050" MinHeight="760">
     <b:Interaction.Triggers>
     <b:EventTrigger EventName="Loaded">
         <b:InvokeCommandAction

@@ -434,5 +434,10 @@
     "script": "路书脚本",
     "all": "和所有参与制作和测试的人员，以及所有该工具的使用者，感谢你们!!!",
     "missing": "如有遗漏，请联系我[狗头]"
+  },
+
+  "chinese_localization": {
+    "pacenote": "WRC中文路书MOD",
+    "language": "WRC游戏内汉化"
   }
 }

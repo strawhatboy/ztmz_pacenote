@@ -175,13 +175,13 @@ public partial class App : Application
         catch (Exception ex)
         {
             _logger.Error("Unknown Error when try to handle unhandled exception: {0}", ex);
-            MessageBox.Show(ex.ToString(), "exception.unknown.title", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(ex.ToString(), I18NLoader.Instance["exception.unknown.title"], MessageBoxButton.OK, MessageBoxImage.Error);
         }
         finally
         {
             var exceptionStr = exception.ToString();
             _logger.Fatal("Unhandled Exception: {0}", message + exceptionStr);
-            MessageBox.Show(message + exceptionStr, "exception.unknown.title", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(message + exceptionStr, I18NLoader.Instance["exception.unknown.title"], MessageBoxButton.OK, MessageBoxImage.Error);
             // GoogleAnalyticsHelper.Instance.TrackExceptionEvent(message, exceptionStr);
         }
     }

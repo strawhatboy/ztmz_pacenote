@@ -49,7 +49,11 @@ function onInit(args)
     _brushes["border"] = gfx.CreateSolidBrush(0x5d, 0x5b, 0x58, 100);
     _brushes["background"] = gfx.CreateSolidBrush(0x00, 0x00, 0x00, 100);
     _brushes["transparent"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
-    _brushes["telemetryBackground"] = gfx.CreateSolidBrush(0x2c, 0x33, 0x3c, 255);
+    _brushes["telemetryBackground"] = gfx.CreateRadialGradientBrush(
+        helper.getColor(0x2c, 0x33, 0x3c, 255),
+        helper.getColor(0x2c, 0x33, 0x3c, 230),
+        helper.getColor(0x2c, 0x33, 0x3c, 215),
+        helper.getColor(0x2c, 0x33, 0x3c, 10));
     _brushes["rpm"] = gfx.CreateLinearGradientBrush(
         -- green
         helper.getColor(0x31, 0xd2, 0x1b, 255),
@@ -112,7 +116,14 @@ function drawStaticFrames(gfx, self, data, helper, x, y, width, height)
     -- draw the static frames
     -- 1. background
     -- print("drawing the background")
-    -- just draw the background (1278x352)
+    
+    local centerX = x + width * 0.471;
+    local centerY = y + height * 0.62;
+    local radius = height * 0.40
+    _brushes["telemetryBackground"].SetCenter(centerX, centerY);
+    _brushes["telemetryBackground"].SetRadius(radius, radius);
+    gfx.FillCircle(_brushes["telemetryBackground"], x, y, radius);
+    -- 2. just draw the background (1278x352)
     gfx.DrawImage(self.ImageResources["images@background"], x, y, x + width, y + height);
 end
 
