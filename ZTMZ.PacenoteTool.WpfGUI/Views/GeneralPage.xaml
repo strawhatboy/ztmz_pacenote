@@ -247,6 +247,35 @@
             </Grid>
         </ui:Card>
 
+        <!-- EnableOnlineAnalytics -->
+        <ui:Card Margin="0 0 0 5"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="DataArea20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.enableOnlineAnalytics}" />
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.enableOnlineAnalytics}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding Path=ViewModel.EnableOnlineAnalytics, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
+
         <!-- LogLevel -->
         <ui:Card Margin="0 0 0 5"
                  Padding="16">

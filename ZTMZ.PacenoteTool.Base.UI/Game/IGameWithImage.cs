@@ -28,7 +28,7 @@ public class GameWithImage
             var drawingVisual = new DrawingVisual();
             var drawingContext = drawingVisual.RenderOpen();
             drawingContext.DrawImage(Image, new Rect(0, 0, Image.Width, Image.Height));
-            var text = new FormattedText(I18NLoader.Instance["game.wrc.description"], System.Globalization.CultureInfo.CurrentCulture, System.Windows.FlowDirection.LeftToRight, new Typeface("Arial"), 26, Brushes.Red);
+            var text = new FormattedText(I18NLoader.Instance["game.wrc.description"], System.Globalization.CultureInfo.CurrentCulture, System.Windows.FlowDirection.LeftToRight, new Typeface("Arial"), 24, Brushes.Red);
             text.MaxTextWidth = Image.Width - 30;
             drawingContext.DrawRectangle(
                 new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(180, 255, 255, 255)), 

@@ -148,7 +148,7 @@ public class ZTMZPacenoteTool {
     }
     private void initGoogleAnalytics()
     {
-        _logger.Info($"Google Analytics is {(Config.Instance.EnableGoogleAnalytics ? "enabled" : "disabled")}");
+        _logger.Info($"Google Analytics is {(Config.Instance.EnableOnlineAnalytics ? "enabled" : "disabled")}");
     }
 
     private void initializeProcessWatcher()

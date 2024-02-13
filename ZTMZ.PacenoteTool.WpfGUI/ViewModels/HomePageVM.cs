@@ -158,10 +158,17 @@ public partial class HomePageVM : ObservableObject {
 
     private VRGameOverlayManager _vrGameOverlayManager;
 
-    public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool, IServiceProvider serviceProvider, GameOverlayManager gameOverlayManager, VRGameOverlayManager vRGameOverlayManager) {
+    private AzureAppInsightsManager _azureAppInsightsManager;
+
+    public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool, 
+        IServiceProvider serviceProvider, 
+        GameOverlayManager gameOverlayManager, 
+        VRGameOverlayManager vRGameOverlayManager,
+        AzureAppInsightsManager azureAppInsightsManager) {
         _gameOverlayManager = gameOverlayManager;
         _vrGameOverlayManager = vRGameOverlayManager;
         _serviceProvider = serviceProvider;
+        _azureAppInsightsManager = azureAppInsightsManager;
         var contentDialogService = serviceProvider.GetService(typeof(IContentDialogService)) as IContentDialogService;
         Tool = _tool;
         _tool.onGameStarted += (game, p) => {
@@ -238,6 +245,12 @@ public partial class HomePageVM : ObservableObject {
             CurrentTrack = trackName;
             _gameOverlayManager.DashboardScriptArguments.GameContext.TrackName = trackName;
             _gameOverlayManager.DashboardScriptArguments.GameContext.AudioPackage = SelectedCodriver.name;
+            _azureAppInsightsManager.TrackEvent("RaceTrackChanged", 
+                new Dictionary<string, string>{ 
+                    {"Game", game.Name },
+                    {"SelectedCodriver", SelectedCodriver.name},
+                    {"TrackName", trackName }
+                });
         };
 
         _tool.onNewGameData += (game, data) => {
@@ -347,6 +360,8 @@ public partial class HomePageVM : ObservableObject {
         Config.Instance.UI_SelectedAudioPackage = CodriverPackageInfos.IndexOf(codriverPackage);
         Config.Instance.SaveUserConfig();
         Tool.SetCodriver(Config.Instance.UI_SelectedAudioPackage);
+        _azureAppInsightsManager.TrackEvent("CodriverPackageSelectionChanged", 
+            new Dictionary<string, string>{ {"SelectedCodriver", codriverPackage.name }});
     }
 
     [RelayCommand]

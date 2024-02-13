@@ -24,12 +24,13 @@ public partial class MainWindowVM : ObservableObject
     bool _isInitialized = false;
 
     public event Action OnInitialized;
-    public MainWindowVM(ZTMZPacenoteTool tool, IContentDialogService contentDialogService, UpdateService updateService)
+    public MainWindowVM(ZTMZPacenoteTool tool, IContentDialogService contentDialogService, UpdateService updateService, AzureAppInsightsManager azureAppInsightsManager)
     {
         if (!_isInitialized) {
             _tool = tool;
             _contentDialogService = contentDialogService;
             _updateService = updateService;
+            _azureAppInsightsManager = azureAppInsightsManager;
             
             init();
         }
@@ -39,6 +40,8 @@ public partial class MainWindowVM : ObservableObject
     private readonly UpdateService _updateService;
 
     private StartupDialog _startupDialog;
+
+    private AzureAppInsightsManager _azureAppInsightsManager;
 
     [ObservableProperty]
     public string _title = "ZTMZ Next Generation Pacenote Tool - " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? String.Empty;
@@ -159,7 +162,9 @@ public partial class MainWindowVM : ObservableObject
             // force update if it is Test version
             try {
                 var updateFile = await _updateService.CheckUpdate();
+                _azureAppInsightsManager.TrackEvent("CheckUpdate", new Dictionary<string, string>{ {"Result", updateFile == null ? "NoUpdate" : "UpdateAvailable" }});
             } catch (Exception ex) {
+                _azureAppInsightsManager.TrackException(ex, new Dictionary<string, string>{ {"CheckUpdate", "Failed" }});
                 _logger.Error(ex, "CheckUpdate failed");
             }
         }

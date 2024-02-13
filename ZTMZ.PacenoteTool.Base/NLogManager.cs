@@ -1,4 +1,6 @@
 
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights;
 using NLog;
 
 namespace ZTMZ.PacenoteTool.Base
@@ -14,6 +16,14 @@ namespace ZTMZ.PacenoteTool.Base
             theRule.LoggerNamePattern = "*";
             theRule.Targets.Add(logfile);
             theRule.Targets.Add(new NLog.Targets.ConsoleTarget("logconsole"));
+
+            // also init microsoft.applicationinsights with nlogtarget here
+            // TelemetryConfiguration telemetryConfiguration = TelemetryConfiguration.CreateDefault();
+            // telemetryConfiguration.ConnectionString = "InstrumentationKey=6ca7ac93-0219-4c20-b7dd-758f1ecb2d5b;IngestionEndpoint=https://eastasia-0.in.applicationinsights.azure.com/;LiveEndpoint=https://eastasia.livediagnostics.monitor.azure.com/";
+            // Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget aiTarget = new Microsoft.ApplicationInsights.NLogTarget.ApplicationInsightsTarget();
+            // aiTarget.InstrumentationKey = "6ca7ac93-0219-4c20-b7dd-758f1ecb2d5b";
+            // aiTarget.Name = "ZTMZ Next Generation Pacenote Tool";
+            // theRule.Targets.Add(aiTarget);
 
 #if DEBUG
             theRule.SetLoggingLevels(LogLevel.Trace, LogLevel.Fatal);

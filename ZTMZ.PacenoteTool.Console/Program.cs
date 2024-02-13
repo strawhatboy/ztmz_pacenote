@@ -18,10 +18,10 @@ public class Program
         //     };
         // I18NLoader.Instance.Initialize(jsonPaths);
         // I18NLoader.Instance.SetCulture(Config.Instance.Language);
-        GoogleAnalyticsHelper.Instance.TrackLaunchEvent("language", Config.Instance.Language);
+        // GoogleAnalyticsHelper.Instance.TrackLaunchEvent("language", Config.Instance.Language);
 
         
-        NLogManager.init(ToolVersion.TEST);
+        NLogManager.init(ToolUtils.GetToolVersion());
         _logger.Info("Application started");
 
         ZTMZPacenoteTool tool = new();

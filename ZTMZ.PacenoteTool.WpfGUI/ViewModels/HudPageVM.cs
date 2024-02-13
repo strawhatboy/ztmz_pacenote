@@ -24,6 +24,16 @@ public partial class HudPageVM : ObservableObject {
         _gameOverlayManager.SetFPS(Config.Instance.HudFPS);
         Config.Instance.SaveUserConfig();
     }
+
+    [ObservableProperty]
+    private bool _hudTopMost = Config.Instance.HudTopMost;
+
+    partial void OnHudTopMostChanged(bool value)
+    {
+        Config.Instance.HudTopMost = value;
+        _gameOverlayManager.SetTopMost(value);
+        Config.Instance.SaveUserConfig();
+    }
     
     [ObservableProperty]
     private bool _hudLockFPS = Config.Instance.HudLockFPS;

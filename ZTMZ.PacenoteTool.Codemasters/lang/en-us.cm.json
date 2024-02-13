@@ -7,7 +7,7 @@
             "description": "Dirt Rally 2.0, by Codemasters"
         },
         "wrc": {
-            "description": "EA Sports WRC, by EA Sports. because of UDP bugs, not supported\nIt's recommended to tune the playback volume in this tool to 0 and just use the Hud."
+            "description": "EA Sports WRC, by EA Sports. because of UDP bugs, not supported\nIt's recommended to tune the playback volume in this tool to 0 and just use the Hud. 中文MOD语音替换版本和游戏汉化在本工具右下角的两个按钮中"
         }
     }
 }

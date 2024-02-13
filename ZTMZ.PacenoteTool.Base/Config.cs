@@ -349,7 +349,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._HudFPS;
         }
 
-        private bool _HudTopMost = false;
+        private bool _HudTopMost = true;
         public bool HudTopMost
         {
             set { this._HudTopMost = value; this._userconfig["HudTopMost"] = value; }
@@ -624,19 +624,19 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._AccentColorB;
         }
 
-        private bool _EnableGoogleAnalytics = false;
+        private bool _EnableOnlineAnalytics = true;
 
-        public bool EnableGoogleAnalytics
+        public bool EnableOnlineAnalytics
         {
-            set { this._EnableGoogleAnalytics = value; this._userconfig["EnableGoogleAnalytics"] = value; }
-            get => this._EnableGoogleAnalytics;
+            set { this._EnableOnlineAnalytics = value; this._userconfig["EnableGoogleAnalytics"] = value; }
+            get => this._EnableOnlineAnalytics;
         } 
-        private bool _IsGoogleAnalyticsSet = false;
+        private bool _IsOnlineAnalyticsSet = false;
 
-        public bool IsGoogleAnalyticsSet
+        public bool IsOnlineAnalyticsSet
         {
-            set { this._IsGoogleAnalyticsSet = value; this._userconfig["IsGoogleAnalyticsSet"] = value; }
-            get => this._IsGoogleAnalyticsSet;
+            set { this._IsOnlineAnalyticsSet = value; this._userconfig["IsGoogleAnalyticsSet"] = value; }
+            get => this._IsOnlineAnalyticsSet;
         } 
 
         

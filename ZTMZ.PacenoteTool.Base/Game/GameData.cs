@@ -33,6 +33,10 @@ public struct GameData
     public float RPM;
     public float MaxRPM;
     public float IdleRPM;
+    public float ShiftLightsFraction;
+    public float ShiftLightsRPMStart;
+    public float ShiftLightsRPMEnd;
+    public bool ShiftLightsRPMValid;
     public float G_long;
     public float G_lat;
 

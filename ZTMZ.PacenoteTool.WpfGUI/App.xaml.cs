@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 // using Wpf.Ui.Contracts;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 
 namespace ZTMZ.PacenoteTool.WpfGUI;
@@ -26,11 +27,17 @@ public partial class App : Application
             AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE)),
         };
             
-        NLogManager.init(ToolVersion.TEST);
+        NLogManager.init(ToolUtils.GetToolVersion());
         _logger.Info("Application started");
         I18NLoader.Instance.Initialize(jsonPaths);
         I18NLoader.Instance.SetCulture(Config.Instance.Language);
         _logger.Info("i18n Loaded.");
+        GetService<AzureAppInsightsManager>().TrackEvent("Application started", new Dictionary<string, string> {
+            { "Language", Config.Instance.Language },
+            { "Version", ToolUtils.GetToolVersion().ToString() },
+            { "OSVersion", Environment.OSVersion.ToString() },
+            { "AppVersion", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? String.Empty }
+        });
     }
 
     private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
@@ -64,6 +71,7 @@ public partial class App : Application
             services.AddSingleton<StartupService>();
             services.AddSingleton<GameOverlayManager>();
             services.AddSingleton<VRGameOverlayManager>();
+            services.AddSingleton<AzureAppInsightsManager>();
 
             services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>();
 
@@ -136,6 +144,7 @@ public partial class App : Application
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         // For more info see https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.dispatcherunhandledexception?view=windowsdesktop-6.0
+        GetService<AzureAppInsightsManager>().TrackException(e.Exception);
         MessageBox.Show(e.Exception.ToString(), "Unhandled exception occurred", MessageBoxButton.OK, MessageBoxImage.Error);
         _logger.Error(e.Exception, "Unhandled exception occurred.");
     }
@@ -181,8 +190,9 @@ public partial class App : Application
         {
             var exceptionStr = exception.ToString();
             _logger.Fatal("Unhandled Exception: {0}", message + exceptionStr);
+            GetService<AzureAppInsightsManager>().TrackException(exception);
             MessageBox.Show(message + exceptionStr, I18NLoader.Instance["exception.unknown.title"], MessageBoxButton.OK, MessageBoxImage.Error);
-            // GoogleAnalyticsHelper.Instance.TrackExceptionEvent(message, exceptionStr);
+            Task.Delay(5000).Wait();
         }
     }
 

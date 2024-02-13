@@ -7,7 +7,7 @@
             "description": "Dirt Rally 2.0, 由Codemasters开发"
         },
         "wrc": {
-            "description": "EA Sports WRC, 由原Codemasters团队开发，Dirt Rally 精神续作\n由于UDP存在严重bug，建议把本工具内的播放音量调为最小，仅使用仪表盘功能，中文路书请使用MOD语音替换版本而不是本工具外挂路书"
+            "description": "EA Sports WRC, 由原Codemasters团队开发，Dirt Rally 精神续作\n由于UDP存在严重bug，建议把本工具内的播放音量调为最小，仅使用仪表盘功能，中文路书请使用MOD语音替换版本而不是本工具外挂路书，中文MOD语音替换版本和游戏汉化在本工具右下角的两个按钮中"
         }
     }
 }

@@ -264,6 +264,12 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 _window.FPS = fps;  
         }
 
+        public void SetTopMost(bool topMost)
+        {
+            if (_window != null)
+                _window.IsTopmost = topMost;
+        }
+
         private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e) {
             var gfx = e.Graphics;
             

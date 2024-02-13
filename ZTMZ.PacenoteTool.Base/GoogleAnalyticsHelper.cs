@@ -94,7 +94,7 @@ public class GoogleAnalyticsHelper
     {
         try
         {
-            if (Config.Instance.EnableGoogleAnalytics)
+            if (Config.Instance.EnableOnlineAnalytics)
                 await _tracker.TrackEventAsync(category, action, label, customDimensions, customMetrics, value);
         }
         catch
@@ -109,7 +109,7 @@ public class GoogleAnalyticsHelper
     {
         try
         {
-            if (Config.Instance.EnableGoogleAnalytics)
+            if (Config.Instance.EnableOnlineAnalytics)
                 await _tracker.TrackPageViewAsync(pageTitle, pageUrl, customDimensions, customMetrics);
         }
         catch
