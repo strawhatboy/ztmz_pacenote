@@ -628,14 +628,14 @@ namespace ZTMZ.PacenoteTool.Base
 
         public bool EnableOnlineAnalytics
         {
-            set { this._EnableOnlineAnalytics = value; this._userconfig["EnableGoogleAnalytics"] = value; }
+            set { this._EnableOnlineAnalytics = value; this._userconfig["EnableOnlineAnalytics"] = value; }
             get => this._EnableOnlineAnalytics;
         } 
         private bool _IsOnlineAnalyticsSet = false;
 
         public bool IsOnlineAnalyticsSet
         {
-            set { this._IsOnlineAnalyticsSet = value; this._userconfig["IsGoogleAnalyticsSet"] = value; }
+            set { this._IsOnlineAnalyticsSet = value; this._userconfig["IsOnlineAnalyticsSet"] = value; }
             get => this._IsOnlineAnalyticsSet;
         } 
 

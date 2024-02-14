@@ -18,7 +18,7 @@ using ZTMZ.PacenoteTool.Base;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.WpfGUI.Models;
 
-namespace ZTMZ.PacenoteTool.WpfGUI.Views
+namespace ZTMZ.PacenoteTool.WpfGUI.Views.Dialog
 {
     /// <summary>
     /// Interaction logic for DownloadFileDialog.xaml

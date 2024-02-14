@@ -14,6 +14,7 @@ using ZTMZ.PacenoteTool.Base.UI;
 using System.Diagnostics;
 using System.Threading;
 using VRGameOverlay.VROverlayWindow;
+using System.CodeDom;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -32,6 +33,9 @@ public partial class HomePageVM : ObservableObject {
 
     [ObservableProperty]
     private bool _isGameInitializedFailed;
+
+    [ObservableProperty]
+    private string _gameInitializeFailureMessage;
 
     [ObservableProperty]
     private IList<GameWithImage> _games = new ObservableCollection<GameWithImage>();
@@ -210,6 +214,7 @@ public partial class HomePageVM : ObservableObject {
 
         _tool.onGameInitializeFailed += (game, code) => {
             IsGameInitialized = false;
+            _logger.Warn($"Game {game.Name} initialize failed. Code: {code}");
             IsGameInitializedFailed = code != PrerequisitesCheckResultCode.OK;
 
             if (code == PrerequisitesCheckResultCode.PORT_NOT_OPEN) {
@@ -232,6 +237,30 @@ public partial class HomePageVM : ObservableObject {
                         game.GamePrerequisiteChecker.ForceFix(game);
                     }
                 });
+            } else if (code == PrerequisitesCheckResultCode.PORT_NOT_MATCH && Config.Instance.WarnIfPortMismatch) {
+                // show port not match dialog
+                _ = Application.Current.Dispatcher.Invoke(async () =>
+                {
+                    var result = await contentDialogService?.ShowSimpleDialogAsync(
+                        new SimpleContentDialogCreateOptions()
+                        {
+                            Title = I18NLoader.Instance["dialog.portMismatch.title"],
+                            Content = string.Format(I18NLoader.Instance["dialog.portMismatch.content"], game.Name, ""),
+                            PrimaryButtonText = I18NLoader.Instance["dialog.portMismatch.btn_FORCE"],
+                            SecondaryButtonText = I18NLoader.Instance["dialog.portMismatch.ckbox_show"],
+                            CloseButtonText = I18NLoader.Instance["dialog.portMismatch.btn_ok"]
+                        }
+                    );
+
+                    if (result == ContentDialogResult.Primary) {
+                        // force fix
+                        game.GamePrerequisiteChecker.ForceFix(game);
+                    } else if (result == ContentDialogResult.Secondary) {
+                        Config.Instance.WarnIfPortMismatch = false;
+                        Config.Instance.SaveUserConfig();
+                    }
+                });
+            } else {
             }
         };
         _tool.onRaceBegin += (game) => { 

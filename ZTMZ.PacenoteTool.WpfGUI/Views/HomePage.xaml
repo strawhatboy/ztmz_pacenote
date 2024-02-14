@@ -97,7 +97,8 @@
 
                 <Border Grid.Row="0" Grid.Column="1" Background="#FFFF8888" Height="4" 
                     Visibility="{Binding ViewModel.IsGameInitializedFailed, 
-                                Converter={StaticResource BooleanToVisibilityConverter}}">
+                                Converter={StaticResource BooleanToVisibilityConverter}}"
+                    ToolTip="{Binding ViewModel.GameInitializeFailureMessage}">
                     
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="40" Color="Red" ShadowDepth="0" Opacity="1" />

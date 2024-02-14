@@ -7,7 +7,7 @@ using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
 
-namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
+namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels.Dialog;
 
 public partial class StartupDialogVM : ObservableObject
 {

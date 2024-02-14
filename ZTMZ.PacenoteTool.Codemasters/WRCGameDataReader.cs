@@ -145,6 +145,10 @@ public class WRCGameDataReader : DirtGameDataReader
         message.IdleRPM = wrcData.vehicle_engine_rpm_idle;
         message.G_lat = -wrcData.vehicle_acceleration_x / 10f;
         message.G_long = -wrcData.vehicle_acceleration_y / 10f;
+        message.ShiftLightsFraction = wrcData.shiftlights_fraction;
+        message.ShiftLightsRPMStart = wrcData.shiftlights_rpm_start;
+        message.ShiftLightsRPMEnd = wrcData.shiftlights_rpm_end;
+        message.ShiftLightsRPMValid = wrcData.shiftlights_rpm_valid;
         
         message.BrakeTempRearLeft = wrcData.vehicle_brake_temperature_bl;
         message.BrakeTempRearRight = wrcData.vehicle_brake_temperature_br;

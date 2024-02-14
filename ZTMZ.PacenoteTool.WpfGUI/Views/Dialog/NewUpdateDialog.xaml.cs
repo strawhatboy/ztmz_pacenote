@@ -14,7 +14,7 @@ using System.Windows.Shapes;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
 
-namespace ZTMZ.PacenoteTool.WpfGUI.Views
+namespace ZTMZ.PacenoteTool.WpfGUI.Views.Dialog
 {
     /// <summary>
     /// Interaction logic for NewUpdateDialog.xaml

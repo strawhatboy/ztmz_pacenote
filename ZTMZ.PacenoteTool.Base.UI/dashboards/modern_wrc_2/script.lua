@@ -14,6 +14,10 @@ local SWEEPDIRECTION_CLOCKWISE = 1;
 local ARCSIZE_SMALL = 0;
 local ARCSIZE_LARGE = 1;
 
+local framesCount = 0;
+local bInBlink = true;
+local BLINK_INTERVAL_FRAMES_PERCENTAGE = 0.05;
+
 -- This function is called when the script is loaded
 -- args: dotnet object
 --     args.Graphics: GameOverlay.Drawing.Graphics
@@ -142,7 +146,24 @@ function drawRPM(gfx, self, data, helper, x, y, width, height)
         end
         -- RPM color should become from green to yellow and then red
         _brushes["rpm"].SetRange(x + width * 0.471 - telemetryRadius, y + height * 0.62, x + width * 0.471 + telemetryRadius, y + height * 0.62);
-        drawGeo(gfx, helper, x + width * 0.471, y + height * 0.62, 6.45 * math.pi / 6, 6.45 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, _brushes["rpm"]);
+
+        -- blink
+        if (data.ShiftLightsRPMValid) then
+            local framesLimit = BLINK_INTERVAL_FRAMES_PERCENTAGE * gfx.FPS;
+            if (framesCount > framesLimit) then
+                framesCount = 0;
+                if (bInBlink) then
+                    bInBlink = false;
+                else
+                    bInBlink = true;
+                end
+            end
+            if (bInBlink) then
+                drawGeo(gfx, helper, x + width * 0.471, y + height * 0.62, 6.45 * math.pi / 6, 6.45 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, _brushes["rpm"]);
+            end
+        else
+            drawGeo(gfx, helper, x + width * 0.471, y + height * 0.62, 6.45 * math.pi / 6, 6.45 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, _brushes["rpm"]);
+        end
     end
 end
 

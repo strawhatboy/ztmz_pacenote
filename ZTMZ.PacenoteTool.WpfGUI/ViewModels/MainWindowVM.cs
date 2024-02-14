@@ -15,6 +15,7 @@ using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
+using ZTMZ.PacenoteTool.WpfGUI.Views.Dialog;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -166,6 +167,26 @@ public partial class MainWindowVM : ObservableObject
             } catch (Exception ex) {
                 _azureAppInsightsManager.TrackException(ex, new Dictionary<string, string>{ {"CheckUpdate", "Failed" }});
                 _logger.Error(ex, "CheckUpdate failed");
+            }
+        }
+        if (!Config.Instance.IsOnlineAnalyticsSet) {
+            // show the dialog to ask user to enable online analytics
+            var dialog = _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions {
+                Title = I18NLoader.Instance["dialog.enableOnlineAnalytics.title"],
+                Content = I18NLoader.Instance["dialog.enableOnlineAnalytics.content"],
+                PrimaryButtonText = I18NLoader.Instance["dialog.enableOnlineAnalytics.btn_ok"],
+                CloseButtonText = I18NLoader.Instance["dialog.enableOnlineAnalytics.btn_cancel"]
+            });
+            var result = await dialog;
+            Config.Instance.IsOnlineAnalyticsSet = true;
+            if (result == ContentDialogResult.Primary) {
+                Config.Instance.EnableOnlineAnalytics = true;
+                Config.Instance.SaveUserConfig();
+                _azureAppInsightsManager.TrackEvent("OnlineAnalytics", new Dictionary<string, string> { { "Result", "Enabled" }});
+            } else {
+                Config.Instance.EnableOnlineAnalytics = false;
+                Config.Instance.SaveUserConfig();
+                _azureAppInsightsManager.TrackEvent("OnlineAnalytics", new Dictionary<string, string> { { "Result", "Disabled" }});
             }
         }
     }

@@ -212,7 +212,7 @@
     "portMismatch": {
       "title": "Port Mismatch",
       "btn_ok": "OK",
-      "btn_FORCE": "FORCE REPARATION",
+      "btn_FORCE": "FORCE REPAIRATION",
       "ckbox_show": "Do not show this dialog next time",
       "content": "Your game \"{0}\" settings located in {1} is not correct, the port definition {2} is mismatched with the settings {3} in our tool, which would lead to unsuccessful track recognition. \n\n\t(1) Maybe you're using SIMHUB, which allows udp port forwarding. If so, please select 'OK' below to keep the settings untouched.\n\n\t(2) Or you dont know what is going on and you're confused with this dialog, then just click 'FORCE REPARATION', we'll handle it automatically. Then don't forget to restart the game."
     },
@@ -237,7 +237,7 @@
     },
     "enableOnlineAnalytics": {
       "title": "Improve user experience",
-      "content": "This program wants to use Google Analytics/Azure AppInsights to collect some of your \"usage information\" to help us improve the program. All of this information is sent to Google/Microsoft servers in an anonymous form for statistical use. You can allow or prohibit this in the settings at any time. This information includes and is limited to:\n\t- Operating system version\n\t- Opening this program event\n\t- Opening each window event in this program\n\t- Each configuration item modification event\n \t- The modification event of the main interface configuration item\n\t- The event of using a specific voice package to play the game (to count the voice package preference)",
+      "content": "This program wants to use Google Analytics/Azure AppInsights to collect some of your \"usage information\" to help us improve the program. All of this information is sent to Google/Microsoft servers in an anonymous form for statistical use. You can allow or prohibit this in the settings at any time. This information includes and is limited to:\n\t- Application crash/exception (for bug fixing)\n\t- Operating system version\n\t- Opening this program event\n\t- Opening each window event in this program\n\t- Each configuration item modification event\n \t- The modification event of the main interface configuration item\n\t- The event of using a specific voice package to play the game (to count the voice package preference)",
       "btn_cancel": "Opt out",
       "btn_ok": "Opt in"
     },

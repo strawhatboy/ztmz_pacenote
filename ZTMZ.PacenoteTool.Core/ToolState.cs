@@ -23,7 +23,7 @@ namespace ZTMZ.PacenoteTool.Core
             }
             
             // For test only
-            if (!_version.EndsWith("0"))
+            if (!_version.EndsWith(".0"))
             {
                 return ToolVersion.TEST;
             }

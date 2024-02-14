@@ -11,6 +11,7 @@ using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.WpfGUI.Models;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
+using ZTMZ.PacenoteTool.WpfGUI.Views.Dialog;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.Services;
 

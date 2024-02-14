@@ -1,9 +1,9 @@
 <ui:ContentDialog
-    x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.StartupDialog"
+    x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.Dialog.StartupDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
+    xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views.Dialog"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:helpers="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
