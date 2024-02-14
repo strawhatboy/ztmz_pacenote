@@ -41,6 +41,7 @@
             "showPedals": "Show pedals",
             "showSteering": "Show steering",
             "steeringDegree": "Steering degree",
+            "switchGearNSpeed": "Switch Gear and Speed",
 
             "tooltip": {
                 "enabled": "Enable or disable the dashboard",
@@ -59,7 +60,8 @@
                 "showGear": "Show the gear",
                 "showPedals": "Show the pedals",
                 "showSteering": "Show the steering",
-                "steeringDegree": "Steering degree"
+                "steeringDegree": "Steering degree",
+                "switchGearNSpeed": "Switch Gear and Speed numbers displayed on the dashboard"
             }
         }
     }

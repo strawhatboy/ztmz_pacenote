@@ -132,6 +132,7 @@ function drawStaticFrames(gfx, self, data, helper, x, y, width, height)
 end
 
 function drawRPM(gfx, self, data, helper, x, y, width, height)
+    framesCount = framesCount + 1;
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     local telemetryRadius = height * 0.385
@@ -148,7 +149,7 @@ function drawRPM(gfx, self, data, helper, x, y, width, height)
         _brushes["rpm"].SetRange(x + width * 0.471 - telemetryRadius, y + height * 0.62, x + width * 0.471 + telemetryRadius, y + height * 0.62);
 
         -- blink
-        if (data.ShiftLightsRPMValid) then
+        if (data.ShiftLightsRPMValid or (rpm / maxRPM) >= 0.8) then
             local framesLimit = BLINK_INTERVAL_FRAMES_PERCENTAGE * gfx.FPS;
             if (framesCount > framesLimit) then
                 framesCount = 0;
@@ -244,7 +245,20 @@ function drawHandBrake(gfx, self, data, helper, x, y, width, height)
     end
 end
 
-function drawSpeed(gfx, self, data, helper, x, y, width, height)
+function getGear(gear)
+    if (gear == -1 or gear == 10) then
+        return "R";
+    end
+    if (gear == 0) then
+        return "N";
+    end
+    if (gear > 0 and gear < 10) then
+        return tostring(gear);
+    end
+    return "";
+end
+
+function drawSpeed(gfx, self, data, helper, x, y, width, height, switchGearNSpeed)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
 
@@ -252,26 +266,28 @@ function drawSpeed(gfx, self, data, helper, x, y, width, height)
     local centerY = y + height * 0.55;
 
     local speedWeight = height * 0.25;
-    local speed = data.Speed;
+    local speed = math.floor(data.Speed);
+    local speedText = "";
+    if (switchGearNSpeed) then
+        speed = math.floor(data.Gear);
+        speedText = getGear(speed);
+    else
+        speedText = tostring(speed);
+    end
 
-    gfx.drawTextWithBackgroundCentered(_fonts["wrc"], speedWeight, _brushes["white"], _brushes["transparent"], centerX, centerY, math.floor(speed));
+    gfx.drawTextWithBackgroundCentered(_fonts["wrc"], speedWeight, _brushes["white"], _brushes["transparent"], centerX, centerY, speedText);
 end
 
-function drawGear(gfx, self, data, helper, x, y, width, height)
+function drawGear(gfx, self, data, helper, x, y, width, height, switchGearNSpeed)
     -- right bottom
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
 
     local gearWeight = height * 0.13;
     local gear = math.floor(data.Gear);
-    local gearText = "";
-    if (gear == -1 or gear == 10) then
-        gearText = "R";
-    end
-    if (gear == 0) then
-        gearText = "N";
-    end
-    if (gear > 0 and gear < 10) then
+    local gearText = getGear(gear);
+    if (switchGearNSpeed) then
+        gear = math.floor(data.Speed);
         gearText = tostring(gear);
     end
     gfx.drawTextWithBackgroundCentered(_fonts["wrcGear"], gearWeight, _brushes["white"], _brushes["transparent"], x + width * 0.53, y + height * 0.73, gearText);
@@ -298,6 +314,7 @@ function onUpdate(args)
     local positionH = self.GetConfigByKey("dashboards.settings.positionH");
     local positionV = self.GetConfigByKey("dashboards.settings.positionV");
     local whRatio = 1278.0 / 352.0;
+    local switchGearNSpeed = self.GetConfigByKey("dashboards.settings.switchGearNSpeed")
 
     -- print("calulating the margin, padding, pos of each element")
     
@@ -342,9 +359,10 @@ function onUpdate(args)
     drawThrottle(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);
     drawBrake(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);
     drawClutch(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);
-    drawSpeed(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);
-    drawGear(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);
     drawHandBrake(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);
+
+    drawSpeed(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size, switchGearNSpeed);
+    drawGear(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size, switchGearNSpeed);
 end
 
 function onExit()

@@ -15,7 +15,7 @@
     </Page.Resources>
     <StackPanel Orientation="Vertical">
         <!-- vrShowOverlay -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -46,7 +46,7 @@
         </ui:Card>
 
         <!-- window selection -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
                 Padding="0" >
             <Grid>
                 <Grid.RowDefinitions>
@@ -115,7 +115,7 @@
         </ui:Card>
 
         <!-- vrOverlayPositionX -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -152,7 +152,7 @@
         </ui:Card>
 
         <!-- vrOverlayPositionY -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -189,7 +189,7 @@
         </ui:Card>
 
         <!-- vrOverlayPositionZ -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -226,7 +226,7 @@
         </ui:Card>
 
         <!-- vrOverlayRotationX -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -263,7 +263,7 @@
         </ui:Card>
 
         <!-- vrOverlayRotationY -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -300,7 +300,7 @@
         </ui:Card>
 
         <!-- vrOverlayRotationZ -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -337,7 +337,7 @@
         </ui:Card>
 
         <!-- vrOverlayScale -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -376,7 +376,7 @@
         
 
         <!-- vrOverlayParamSave -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>

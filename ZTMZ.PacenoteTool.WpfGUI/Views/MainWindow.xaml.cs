@@ -45,10 +45,6 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             // theme
-            
-            Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(ThemeHelper.GetAccentColor(), 
-                Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
-
             if (Config.Instance.UseSystemTheme) {
                 Wpf.Ui.Appearance.SystemThemeWatcher.Watch(this);
             } else {
@@ -56,6 +52,8 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
                     WindowBackdropType.Mica,
                     false
                 );
+                Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(ThemeHelper.GetAccentColor(), 
+                    Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
             }
         }
 

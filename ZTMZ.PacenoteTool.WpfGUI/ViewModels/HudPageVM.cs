@@ -93,7 +93,7 @@ public partial class HudPageVM : ObservableObject {
             grid.Children.Add(toggleSwitch);
 
             cardExpander.Header = grid;
-            cardExpander.Margin = new Thickness(0, 0, 0, 5);
+            cardExpander.Margin = new Thickness(0, 0, 0, 3);
 
             var configGrid = new Grid();
             configGrid.ColumnDefinitions.Add(new ColumnDefinition());

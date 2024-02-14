@@ -41,6 +41,7 @@
             "showPedals": "显示踏板",
             "showSteering": "显示方向盘",
             "steeringDegree": "方向盘角度",
+            "switchGearNSpeed": "交换挡位和速度",
 
             "tooltip": {
                 "enabled": "启用/禁用仪表盘",
@@ -59,7 +60,8 @@
                 "showGear": "显示档位",
                 "showPedals": "显示踏板",
                 "showSteering": "显示方向盘",
-                "steeringDegree": "方向盘角度"
+                "steeringDegree": "方向盘角度",
+                "switchGearNSpeed": "把速度数值和挡位数值交换显示，开车时更专注于挡位"
             }
         }
     }

@@ -19,7 +19,7 @@
     </Page.Resources>
     <StackPanel Orientation="Vertical">
         <!-- theme -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -60,7 +60,7 @@
             </Grid>
         </ui:Card>
         <!-- accent color -->
-        <ui:Card Margin="0 0 0 5" Visibility="{Binding Path=ViewModel.AccentColorPickerVisibility, Mode=OneWay}"
+        <ui:Card Margin="0 0 0 3" Visibility="{Binding Path=ViewModel.AccentColorPickerVisibility, Mode=OneWay}"
                 Padding="0" >
             <Grid>
                 <Grid.RowDefinitions>
@@ -128,7 +128,7 @@
         </ui:Card>
         
         <!-- language -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -158,7 +158,7 @@
         </ui:Card>
 
         <!-- startup check update -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -187,7 +187,7 @@
         </ui:Card>
 
         <!-- startWithWindows -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -219,7 +219,7 @@
             Description="{DynamicResource ResourceKey=settings.tooltip.startWithWindows}" SettingsPropertyName="StartWithWindows" /> -->
 
         <!-- OptInBetaPlan -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -248,7 +248,7 @@
         </ui:Card>
 
         <!-- EnableOnlineAnalytics -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -277,7 +277,7 @@
         </ui:Card>
 
         <!-- LogLevel -->
-        <ui:Card Margin="0 0 0 5"
+        <ui:Card Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
