@@ -45,7 +45,7 @@ public class ZTMZPacenoteTool {
 
     public event Action<IGame> onGameEnded;
 
-    public event Action<IGame, PrerequisitesCheckResultCode> onGameInitializeFailed;
+    public event Action<IGame, PrerequisitesCheckResultCode, List<object>> onGameInitializeFailed;
 
     public event Action<IGame, GameStateChangeEvent> onGameStateChanged;
 
@@ -207,10 +207,11 @@ public class ZTMZPacenoteTool {
 
         // check prerequisite
         var res = checkPrerequisite(game);
-        if (res == PrerequisitesCheckResultCode.GAME_NOT_INSTALLED)
+        var code = res.Code;
+        if (code == PrerequisitesCheckResultCode.GAME_NOT_INSTALLED)
         {
             //TODO: raise Game not install
-            this.onGameInitializeFailed?.Invoke(game, res);
+            this.onGameInitializeFailed?.Invoke(game, code, null);
         } else {
             try {
                 if (game.GameDataReader.Initialize(game))
@@ -224,18 +225,18 @@ public class ZTMZPacenoteTool {
                     game.IsInitialized = true;
                     this.onGameInitialized?.Invoke(game);
                 } else {
-                    this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.UNKNOWN);
+                    this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.UNKNOWN, null);
                 }
             } catch (Exception e) {
-                if (e is PortAlreadyInUseException) 
+                if (e is PortAlreadyInUseException ex) 
                 {
                     //TODO: raise port already in use
-                    this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.PORT_ALREADY_IN_USE);
+                    this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.PORT_ALREADY_IN_USE, new List<object>{ex.Port});
                 }
             }
             
             //TODO: raise UI game state.
-            this.onGameInitializeFailed?.Invoke(game, res);
+            this.onGameInitializeFailed?.Invoke(game, code, res.Params);
         }
     }
 
@@ -430,7 +431,7 @@ public class ZTMZPacenoteTool {
         }
     }
 
-    private PrerequisitesCheckResultCode checkPrerequisite(IGame game)
+    private PrerequisitesCheckResult checkPrerequisite(IGame game)
     {
         // check the file
         var preCheck = game.GamePrerequisiteChecker;
@@ -448,7 +449,7 @@ public class ZTMZPacenoteTool {
             case PrerequisitesCheckResultCode.GAME_NOT_INSTALLED:
                 break;
         }
-        return checkResult.Code;
+        return checkResult;
     }
 
 #endregion

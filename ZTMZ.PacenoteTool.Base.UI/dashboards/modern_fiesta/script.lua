@@ -1,21 +1,6 @@
 local resources = {};
-local MAX_SPEED = 200;
-local MAX_WHEEL_SPEED = 220;
-local MAX_WHEEL_TEMP = 800;
-local MAX_G_FORCE = 2.2;
-local MAX_SUSPENSION_SPD = 1000; -- m/s
-local MIN_SUSPENSION_SPD = -1000;
-local MAX_SUSPENSION = 200;
-local MIN_SUSPENSION = -200;
-
-local SWEEPDIRECTION_COUNTERCLOCKWISE = 0;
-local SWEEPDIRECTION_CLOCKWISE = 1;
-
-local ARCSIZE_SMALL = 0;
-local ARCSIZE_LARGE = 1;
 local framesCount = 0;
 local bInBlink = true;
-local BLINK_INTERVAL_FRAMES_PERCENTAGE = 0.05;
 
 -- This function is called when the script is loaded
 -- args: dotnet object
@@ -24,6 +9,7 @@ local BLINK_INTERVAL_FRAMES_PERCENTAGE = 0.05;
 --     args.I18NLoader: ZTMZ.PacenoteTool.Base.I18NLoader
 --     args.GameData: ZTMZ.PacenoteTool.Base.Game.GameData
 --     args.GameOverlayDrawingHelper: ZTMZ.PacenoteTool.GameOverlayDrawingHelper
+--     args.Self: ZTMZ.PacenoteTool.Base.UI.Dashboard
 --     args.GameContext: 
 --         args.GameContext.TrackName: string
 --         args.GameContext.AudioPackage: string
@@ -86,7 +72,7 @@ function drawRPM(gfx, data, conf, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     
-    local redZoneBlink = 0.8;
+    local redZoneBlink = 0.85;
     local redZone = 0.7;
     local yellowZone = 0.5;
     local greenZone = 0.2;
@@ -150,16 +136,7 @@ function drawGear(gfx, data, conf, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     local gear = data.Gear;
-    local gearText = "N";
-    if (gear == -1 or gear == 10) then
-        gearText = "R";
-    end
-    if (gear == 0) then
-        gearText = "N";
-    end
-    if (gear > 0 and gear < 10) then
-        gearText = tostring(gear);
-    end
+    local gearText = getGear(gear);
 
     gfx.drawTextWithBackgroundCentered(_fonts["wrcGear"], height * 0.8, _brushes["white"], _brushes["transparent"], x + width / 2, y + height / 2, gearText);
 end

@@ -1,22 +1,6 @@
 local resources = {};
-local MAX_SPEED = 200;
-local MAX_WHEEL_SPEED = 220;
-local MAX_WHEEL_TEMP = 800;
-local MAX_G_FORCE = 2.2;
-local MAX_SUSPENSION_SPD = 1000; -- m/s
-local MIN_SUSPENSION_SPD = -1000;
-local MAX_SUSPENSION = 200;
-local MIN_SUSPENSION = -200;
-
-local SWEEPDIRECTION_COUNTERCLOCKWISE = 0;
-local SWEEPDIRECTION_CLOCKWISE = 1;
-
-local ARCSIZE_SMALL = 0;
-local ARCSIZE_LARGE = 1;
-
 local framesCount = 0;
 local bInBlink = true;
-local BLINK_INTERVAL_FRAMES_PERCENTAGE = 0.05;
 
 -- This function is called when the script is loaded
 -- args: dotnet object
@@ -25,6 +9,7 @@ local BLINK_INTERVAL_FRAMES_PERCENTAGE = 0.05;
 --     args.I18NLoader: ZTMZ.PacenoteTool.Base.I18NLoader
 --     args.GameData: ZTMZ.PacenoteTool.Base.Game.GameData
 --     args.GameOverlayDrawingHelper: ZTMZ.PacenoteTool.GameOverlayDrawingHelper
+--     args.Self: ZTMZ.PacenoteTool.Base.UI.Dashboard
 --     args.GameContext: 
 --         args.GameContext.TrackName: string
 --         args.GameContext.AudioPackage: string
@@ -88,38 +73,6 @@ function onInit(args)
     
     resources["brushes"] = _brushes;
     resources["fonts"] = _fonts;
-end
-
-function drawGeo(gfx, helper, centerX, centerY, startAngle, endAngle, radiusOuter, radiusInner, arcSize, brush)
-    -- force cast to float???
-    radiusOuter = radiusOuter + 0.0;
-    radiusInner = radiusInner + 0.0;
-    local geo_path = gfx.CreateGeometry();
-    local pointOuterStart = helper.getPoint(centerX + radiusOuter * math.cos(startAngle),
-        centerY - radiusOuter * math.sin(startAngle));
-    local pointOuterEnd = helper.getPoint(centerX + radiusOuter * math.cos(endAngle),
-        centerY - radiusOuter * math.sin(endAngle));
-    local pointInnerStart = helper.getPoint(centerX + radiusInner * math.cos(startAngle),
-        centerY - radiusInner * math.sin(startAngle));
-    local pointInnerEnd = helper.getPoint(centerX + radiusInner * math.cos(endAngle),
-        centerY - radiusInner * math.sin(endAngle));
-
-    -- print("startAngle: " .. startAngle .. " endAngle: " .. endAngle .. " radiusOuter: " .. radiusOuter .. " radiusInner: " .. radiusInner);
-    -- print("pointOuterStart: " .. pointOuterStart.X .. " " .. pointOuterStart.Y);
-    -- print("PointOuterEnd: " .. pointOuterEnd.X .. " " .. pointOuterEnd.Y);
-    -- print("pointInnerStart: " .. pointInnerStart.X .. " " .. pointInnerStart.Y);
-    -- print("pointInnerEnd: " .. pointInnerEnd.X .. " " .. pointInnerEnd.Y);
-
-    geo_path.BeginFigure(pointOuterStart, true);
-    -- use full 5 parameters to make sure the correct method is called???
-    -- fuck the stupid method
-    geo_path.AddCurveWithArcSegmentArgs(pointOuterEnd, radiusOuter, arcSize, SWEEPDIRECTION_CLOCKWISE);
-    geo_path.AddPoint(pointInnerEnd);
-    geo_path.AddCurveWithArcSegmentArgs(pointInnerStart, radiusInner, arcSize, SWEEPDIRECTION_COUNTERCLOCKWISE);
-    geo_path.EndFigure();
-    geo_path.Close();
-
-    gfx.FillGeometry(geo_path, brush);
 end
 
 function drawStaticFrames(gfx, data, helper, x, y, radius, padding) 
@@ -198,7 +151,7 @@ function drawRPM(gfx, data, helper, x, y, radius, padding)
         _brushes["rpm"].SetRange(x - telemetryRadius, y, x + telemetryRadius, y);
 
         -- blink
-        if (data.ShiftLightsRPMValid or (rpm / maxRPM) >= 0.8) then
+        if (data.ShiftLightsRPMValid or (rpm / maxRPM) >= 0.85) then
             local framesLimit = BLINK_INTERVAL_FRAMES_PERCENTAGE * gfx.FPS;
             if (framesCount > framesLimit) then
                 framesCount = 0;
@@ -291,21 +244,6 @@ function drawHandBrake(gfx, data, helper, x, y, radius, padding)
         );
         drawGeo(gfx, helper, x, y, -math.pi / 6 + arcAngle, -math.pi / 6, telemetryRadius, telemetryRadius - handBrakeWeight, arcSize, _brushes["hybrid"]);
     end
-end
-
--- input: gear: float
--- output: string
-function getGear(gear)
-    if (gear == -1 or gear == 10) then
-        return "R";
-    end
-    if (gear == 0) then
-        return "N";
-    end
-    if (gear > 0 and gear < 10) then
-        return tostring(gear);
-    end
-    return "";
 end
 
 function drawSpeed(gfx, data, helper, x, y, radius, padding, switchGearNSpeed)

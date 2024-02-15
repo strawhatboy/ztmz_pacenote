@@ -212,12 +212,14 @@ public partial class HomePageVM : ObservableObject {
             IsRacing = false; 
         };
 
-        _tool.onGameInitializeFailed += (game, code) => {
+        _tool.onGameInitializeFailed += (game, code, parameters) => {
             IsGameInitialized = false;
             _logger.Warn($"Game {game.Name} initialize failed. Code: {code}");
             IsGameInitializedFailed = code != PrerequisitesCheckResultCode.OK;
+            var message = "";
 
             if (code == PrerequisitesCheckResultCode.PORT_NOT_OPEN) {
+                message = string.Format(I18NLoader.Instance["dialog.portNotOpen.content"], parameters[0], parameters[1]);
                 // show port not open dialog
                 _ = Application.Current.Dispatcher.Invoke(async () =>
                 {
@@ -225,7 +227,7 @@ public partial class HomePageVM : ObservableObject {
                         new SimpleContentDialogCreateOptions()
                         {
                             Title = I18NLoader.Instance["dialog.portNotOpen.title"],
-                            Content = string.Format(I18NLoader.Instance["dialog.portNotOpen.content"], game.Name, ""),
+                            Content = message,
                             PrimaryButtonText = I18NLoader.Instance["dialog.portNotOpen.btn_ok"],
                             // SecondaryButtonText = "Don't Save",
                             CloseButtonText = I18NLoader.Instance["dialog.portNotOpen.btn_cancel"]
@@ -238,6 +240,11 @@ public partial class HomePageVM : ObservableObject {
                     }
                 });
             } else if (code == PrerequisitesCheckResultCode.PORT_NOT_MATCH && Config.Instance.WarnIfPortMismatch) {
+                message = string.Format(I18NLoader.Instance["dialog.portMismatch.content"], 
+                    parameters[0], 
+                    parameters[1], 
+                    parameters[2], 
+                    parameters[3]);
                 // show port not match dialog
                 _ = Application.Current.Dispatcher.Invoke(async () =>
                 {
@@ -245,7 +252,7 @@ public partial class HomePageVM : ObservableObject {
                         new SimpleContentDialogCreateOptions()
                         {
                             Title = I18NLoader.Instance["dialog.portMismatch.title"],
-                            Content = string.Format(I18NLoader.Instance["dialog.portMismatch.content"], game.Name, ""),
+                            Content = message,
                             PrimaryButtonText = I18NLoader.Instance["dialog.portMismatch.btn_FORCE"],
                             SecondaryButtonText = I18NLoader.Instance["dialog.portMismatch.ckbox_show"],
                             CloseButtonText = I18NLoader.Instance["dialog.portMismatch.btn_ok"]
@@ -260,8 +267,25 @@ public partial class HomePageVM : ObservableObject {
                         Config.Instance.SaveUserConfig();
                     }
                 });
-            } else {
+            } else if (code == PrerequisitesCheckResultCode.PORT_ALREADY_IN_USE) {
+                message = string.Format(I18NLoader.Instance["exception.portAlreadyInUse.msg"], parameters[0]);
+                // show port already in use dialog
+                _ = Application.Current.Dispatcher.Invoke(async () =>
+                {
+                    var result = await contentDialogService?.ShowSimpleDialogAsync(
+                        new SimpleContentDialogCreateOptions()
+                        {
+                            Title = I18NLoader.Instance["exception.portAlreadyInUse.title"],
+                            Content = message,
+                            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+                        }
+                    );
+                });
+            } else if (code == PrerequisitesCheckResultCode.GAME_NOT_INSTALLED) {
+                message = I18NLoader.Instance["ui.tooltip.cb_gameNotInstalled"];
             }
+
+            GameInitializeFailureMessage = message;
         };
         _tool.onRaceBegin += (game) => { 
             IsRacing = true; 

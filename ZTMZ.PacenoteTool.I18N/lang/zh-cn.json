@@ -57,7 +57,7 @@
       "playWheelAbnormalSound": "发生爆胎时，播放相关语音",
       "useDefaultSoundPackageByDefault": "忽略默认（微软慧慧）语音包",
       "useDefaultSoundPackageForFallback": "如果当前选择的语音包不完整，缺失的语音使用默认（微软慧慧）语音包中对应的语音",
-      "preloadSounds": "预加载语音包会带来较大的内存开销（约占用2GB），但会在倒计时刚开始时即可加载完毕并播放开始语音",
+      "preloadSounds": "预加载语音包会带来较慢的程序启动和较大的内存开销（约占用2.5GB），\n但会在倒计时刚开始时即可加载完毕并播放开始语音",
       "additionalCoDriverPackagesSearchPath": "在搜索语音包时，额外搜索这个文件夹",
       "additionalPacenotesDefinitionSearchPath": "在搜索路书标记定义文件(*.csv)时，额外的搜索这个文件夹\n路书标记定义文件需要按照pacenotes.csv的格式保存",
 
@@ -140,7 +140,7 @@
     "playWheelAbnormalSound": "[实验性] 播放爆胎语音",
     "useDefaultSoundPackageByDefault": "忽略默认（微软慧慧）语音包",
     "useDefaultSoundPackageForFallback": "使用默认（微软慧慧）语音包作为后备",
-    "preloadSounds": "预加载语音包",
+    "preloadSounds": "预加载语音包（如果电脑内存吃紧，不建议开启）",
     "additionalCoDriverPackagesSearchPath": "额外的语音包搜索文件夹",
     "additionalPacenotesDefinitionSearchPath": "额外的路书定义文件(*.csv)搜索文件夹",
 

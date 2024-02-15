@@ -16,6 +16,7 @@ namespace ZTMZ.PacenoteTool.Core
 
     public class ProfileManager
     {
+        private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public string CurrentProfile { set; get; }
         public string CurrentItineraryPath { set; get; }
@@ -128,9 +129,12 @@ namespace ZTMZ.PacenoteTool.Core
 
         public ProfileManager()
         {
+            _logger.Debug("initializing profile manager");
             Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("profiles")));
             Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("codrivers")));
             this.CreateNewProfile(Constants.DEFAULT_PROFILE);
+
+            _logger.Debug("initializing codriver sounds");
 
 
             //load supported audio types
@@ -160,6 +164,7 @@ namespace ZTMZ.PacenoteTool.Core
         {
             foreach (var codriverPath in this.GetAllCodrivers())
             {
+                _logger.Debug("loading codriver sounds from {0}", codriverPath);
                 this.CoDriverPackages[codriverPath] = new CoDriverPackage();
                 
                 // try load info
@@ -187,6 +192,7 @@ namespace ZTMZ.PacenoteTool.Core
                     };
                 }
 
+                _logger.Debug("loaded codriver info: {0}", this.CoDriverPackages[codriverPath].Info);
                 List<string> filePaths = new List<string>();
                 // try file directly
 
@@ -195,10 +201,13 @@ namespace ZTMZ.PacenoteTool.Core
                     filePaths.AddRange(Directory.GetFiles(codriverPath, supportedFilter));
                 }
 
+                _logger.Debug("found {0} sounds from files directly", filePaths.Count);
+
                 foreach (var f in filePaths)
                 {
                     if (Config.Instance.PreloadSounds)
                     {
+                        _logger.Trace("preloading sound from file {0}", f);
                         this.CoDriverPackages[codriverPath].tokens[Path.GetFileNameWithoutExtension(f)] =
                             new List<AutoResampledCachedSound>() { new AutoResampledCachedSound(f) };
                     }
@@ -208,9 +217,11 @@ namespace ZTMZ.PacenoteTool.Core
                             new List<string>() { f };
                     }
                 }
+                _logger.Debug("loaded {0} sounds from files directly", filePaths.Count);
 
                 // not found, try folders
                 var soundFilePaths = Directory.GetDirectories(codriverPath);
+                _logger.Debug("found {0} subfolders", soundFilePaths.Length);
                 foreach (var soundFilePath in soundFilePaths)
                 {
                     filePaths.Clear();
@@ -244,6 +255,9 @@ namespace ZTMZ.PacenoteTool.Core
                         }
                     }
                 }
+                _logger.Debug("loaded {0} sounds", Config.Instance.PreloadSounds ? 
+                    this.CoDriverPackages[codriverPath].tokens.Count : 
+                    this.CoDriverPackages[codriverPath].tokensPath.Count);
             }
         }
 
@@ -267,12 +281,15 @@ namespace ZTMZ.PacenoteTool.Core
 
         public List<string> GetAllCodrivers()
         {
+            _logger.Debug("getting all codrivers");
             var dirs = Directory.GetDirectories(AppLevelVariables.Instance.GetPath("codrivers\\")).ToList();
-            if (Directory.Exists(Config.Instance.AdditionalCoDriverPackagesSearchPath))
+            if (!string.IsNullOrEmpty(Config.Instance.AdditionalCoDriverPackagesSearchPath) && 
+                Directory.Exists(Config.Instance.AdditionalCoDriverPackagesSearchPath))
             {
                 dirs.AddRange(Directory.GetDirectories(Config.Instance.AdditionalCoDriverPackagesSearchPath));
             }
 
+            _logger.Debug("found {0} codrivers", dirs.Count);
             return dirs;
         }
 

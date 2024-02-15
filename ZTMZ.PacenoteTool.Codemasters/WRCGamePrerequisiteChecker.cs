@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -53,7 +54,9 @@ public class WRCGamePrerequisiteChecker : IGamePrerequisiteChecker
             var packet = packets.FirstOrDefault(p => p["structure"]?.ToString() == "ztmz" && p["packet"]?.ToString() == "session_update");
             if (packet == null)
             {
-                return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.PORT_NOT_OPEN };
+                return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.PORT_NOT_OPEN, Params = new List<object>() {
+                    game.Name, WRCUDPConfigFile
+                }};
             }
         } else {
             return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.UNKNOWN };

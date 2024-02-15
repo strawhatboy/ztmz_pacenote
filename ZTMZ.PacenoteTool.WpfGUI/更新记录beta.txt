@@ -1,3 +1,7 @@
+v2.99.99.11-3.0-dev-preview
+------
+* 修复了因为开启语音包预加载导致的loading profile...的bug
+
 v2.99.99.10-3.0-dev-preview
 ------
 * 增加了Microsoft Azure Insights 来收集用户使用信息和程序崩溃信息，便于统计和程序bug修复

@@ -58,7 +58,7 @@
       "playWheelAbnormalSound": "Play special voice for wheel puncture, maybe not accurate for different wheels",
       "useDefaultSoundPackageByDefault": "Ignore default AI-generated voice package",
       "useDefaultSoundPackageForFallback": "If current voice package is not complete, use default AI-generated voice package for fallback",
-      "preloadSounds": "Preload the voice packages may take more memory (around 2GB), \nbut will load the voice package as soon as possible",
+      "preloadSounds": "Preload the voice packages will take more memory (around 2.5GB), \nbut will load the voice package as soon as possible",
       "additionalCoDriverPackagesSearchPath": "When searching for voice packs, additionally search this folder",
       "additionalPacenotesDefinitionSearchPath": "Put addition *.csv files here according to the format of \nthe Pacenote definition file (pacenotes.csv)",
 
@@ -141,7 +141,7 @@
     "playWheelAbnormalSound": "[Experimental] Play special voice for wheel puncture",
     "useDefaultSoundPackageByDefault": "Ignore default AI-generated voice package",
     "useDefaultSoundPackageForFallback": "Fallback to default voice package",
-    "preloadSounds": "Preload voice packages",
+    "preloadSounds": "Preload voice packages (Not recommended for limited RAM)",
     "additionalCoDriverPackagesSearchPath": "Additional Voice Pack Search Folder",
     "additionalPacenotesDefinitionSearchPath": "additional Pacenote Definition Search Folder",
 

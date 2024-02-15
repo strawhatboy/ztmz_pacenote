@@ -318,7 +318,7 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.LapDistance = data.DistanceFromStart;
         gameData.CompletionRate = data.DistanceFromStart / data.TrackLength;
         gameData.LapTime = data.RaceTime;
-        gameData.MaxRPM = 10000f;
+        gameData.MaxRPM = 8500f;    // use 8500 as default
         gameData.MaxGears = 6;
         // var xInertia = (data.XSpeed - _currentMemData.XSpeed) / MEM_REFRESH_INTERVAL;
         // var yInertia = (data.YSpeed - _currentMemData.YSpeed) / MEM_REFRESH_INTERVAL;

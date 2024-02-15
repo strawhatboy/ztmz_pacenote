@@ -6,6 +6,7 @@ local resources = {};
 --     args.Config: ZTMZ.PacenoteTool.Base.Config
 --     args.I18NLoader: ZTMZ.PacenoteTool.Base.I18NLoader
 --     args.GameData: ZTMZ.PacenoteTool.Base.Game.GameData
+--     args.Self: ZTMZ.PacenoteTool.Base.UI.Dashboard
 --     args.GameContext: 
 --         args.GameContext.TrackName: string
 --         args.GameContext.AudioPackage: string
