@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="fonts\WRCCleanRoman.ttf">
+    <None Update="fonts\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -51,7 +51,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
 
-    <None Update="dashboards\lang\en-us.json">
+    <None Update="dashboards\common\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
 
