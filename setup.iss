@@ -140,8 +140,8 @@ VersionInfoVersion={#MyAppVersion}
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile:"ZTMZ.PacenoteTool.WpfGUI\license.txt"; InfoBeforeFile:"ZTMZ.PacenoteTool.WpfGUI\eula.txt";
-Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"; LicenseFile:"ZTMZ.PacenoteTool.WpfGUI\license-cn.txt"; InfoBeforeFile:"ZTMZ.PacenoteTool.WpfGUI\eula-cn.txt";
+Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile:"LICENSE"; InfoBeforeFile:"ZTMZ.PacenoteTool.WpfGUI\eula.txt";
+Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"; LicenseFile:"LICENSE"; InfoBeforeFile:"ZTMZ.PacenoteTool.WpfGUI\eula-cn.txt";
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";

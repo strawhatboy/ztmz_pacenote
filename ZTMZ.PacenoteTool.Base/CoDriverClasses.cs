@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
@@ -31,6 +32,11 @@ namespace ZTMZ.PacenoteTool.Base
         public string DisplayText =>
             string.Format("[{0}][{1}] {2}", language, GenderStr, name);
 
+        public override string ToString()
+        {
+            return DisplayText;
+        }
+
         [JsonIgnore]
         public string GenderStr
         {
@@ -56,8 +62,8 @@ namespace ZTMZ.PacenoteTool.Base
     public class CoDriverPackage
     {
         public CoDriverPackageInfo Info { set; get; }
-        public Dictionary<string, List<string>> tokensPath { private set; get; } = new();
+        public ConcurrentDictionary<string, ConcurrentBag<string>> tokensPath { private set; get; } = new();
 
-        public Dictionary<string, List<AutoResampledCachedSound>> tokens { private set; get; } = new();
+        public ConcurrentDictionary<string, ConcurrentBag<AutoResampledCachedSound>> tokens { private set; get; } = new();
     }
 }
