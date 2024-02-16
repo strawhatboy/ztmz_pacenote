@@ -151,7 +151,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 Throttle = 1f,
                 Clutch = 1.0f,
                 HandBrake = 1.0f,
-                RPM = 9000f,
+                RPM = 6000f,
                 MaxRPM = 9000f,
                 IdleRPM = 1000f,
                 Speed = 130f,

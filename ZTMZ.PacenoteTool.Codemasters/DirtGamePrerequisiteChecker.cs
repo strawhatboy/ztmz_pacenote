@@ -12,6 +12,7 @@ namespace ZTMZ.PacenoteTool.Codemasters;
 
 public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
 {
+    private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     private string _dr1settingsFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games/DiRT Rally/hardwaresettings/hardware_settings_config.xml");
     private string _dr1settingsVRFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games/DiRT Rally/hardwaresettings/hardware_settings_config_vr.xml");
     private string _dr2settingsFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games/DiRT Rally 2.0/hardwaresettings/hardware_settings_config.xml");
@@ -51,11 +52,21 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
 
         if (File.Exists(settingsFile))
         {
-            b1 = this.Check(game, settingsFile);
+            try {
+                b1 = this.Check(game, settingsFile);
+            } catch (Exception e) {
+                _logger.Error(e, "Error while checking prerequisites for {0} at {1}", game.Name, settingsFile);
+                b1 = new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.UNKNOWN, IsOK = false };
+            }
         }
         if (File.Exists(settingsVRFile))
         {
-            b2 = this.Check(game, settingsVRFile);
+            try {
+                b2 = this.Check(game, settingsVRFile);
+            } catch (Exception e) {
+                _logger.Error(e, "Error while checking prerequisites for {0} at {1}", game.Name, settingsVRFile);
+                b2 = new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.UNKNOWN, IsOK = false };
+            }
         }
         if (b1.IsOK && b2.IsOK)
         {

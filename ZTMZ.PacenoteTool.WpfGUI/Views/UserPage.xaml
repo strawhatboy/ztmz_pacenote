@@ -17,6 +17,6 @@
         </Style> -->
     </Page.Resources>
     <StackPanel Orientation="Vertical">
-        <ui:TextBlock Text="WIP" />
+        <ui:TextBlock Text="正在施工/WIP" />
     </StackPanel>
 </Page>

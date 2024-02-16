@@ -224,6 +224,7 @@ public class ZTMZPacenoteTool {
                     _logger.Info("Game {0} initialized.", game.Name);
                     game.IsInitialized = true;
                     this.onGameInitialized?.Invoke(game);
+                    return;
                 } else {
                     this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.UNKNOWN, null);
                 }
