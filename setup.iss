@@ -1,5 +1,5 @@
 ﻿#define MyAppName "ZTMZ Next Generation Pacenote Tool"
-#define MyAppVersion "2.99.99.11"
+#define MyAppVersion "2.99.99.12"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
@@ -158,6 +158,13 @@ Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\拉稀�
 Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\拉稀车手老王超快速语音包（兼容苏格兰）";
 Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\权威Authority";
 Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\紫藤林沫（测试版）";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\0-a117语音";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\0-a117语音（对讲机特效）";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\0-b无状态选手-女声";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\0-c117暴躁语音";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\古轩言（无线电特效）";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\吉米";
+Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\简哲自己";
 Type: files; Name: "{userdocs}\My Games\{#FolderName}\config.json";
 ; Delete previous default audio package
 ; Delete previous default configuration

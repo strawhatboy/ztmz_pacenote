@@ -81,7 +81,7 @@ function drawStaticFrames(gfx, self, data, helper, x, y, width, height)
     _brushes["telemetryBackground"].SetCenter(centerX, centerY);
     _brushes["telemetryBackground"].SetRadius(radius, radius);
     -- 2. just draw the background (1278x352)
-    gfx.FillCircle(_brushes["telemetryBackground"], centerX, centerX, radius);
+    gfx.FillCircle(_brushes["telemetryBackground"], centerX, centerY, radius);
     gfx.DrawImage(self.ImageResources["images@background"], x, y, x + width, y + height);
 end
 

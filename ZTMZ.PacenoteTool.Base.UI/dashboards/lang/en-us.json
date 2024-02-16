@@ -16,6 +16,10 @@
             "classicDashboard": {
                 "name": "Classic Dashboard",
                 "description": "Show classic dashboard"
+            },
+            "pedals_statistics": {
+                "name": "Pedals Statistics",
+                "description": "Show pedals statistics"
             }
         },
         "settings": {
@@ -42,6 +46,7 @@
             "showSteering": "Show steering",
             "steeringDegree": "Steering degree",
             "switchGearNSpeed": "Switch Gear and Speed",
+            "recordedFrames": "Recorded frames",
 
             "tooltip": {
                 "enabled": "Enable or disable the dashboard",
@@ -61,7 +66,8 @@
                 "showPedals": "Show the pedals",
                 "showSteering": "Show the steering",
                 "steeringDegree": "Steering degree",
-                "switchGearNSpeed": "Switch Gear and Speed numbers displayed on the dashboard"
+                "switchGearNSpeed": "Switch Gear and Speed numbers displayed on the dashboard",
+                "recordedFrames": "Recorded frames to show the pedals statistics, in 60fps, 120 means 2 seconds data"
             }
         }
     }

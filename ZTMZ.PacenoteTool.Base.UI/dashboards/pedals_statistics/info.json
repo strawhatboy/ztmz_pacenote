@@ -1,0 +1,11 @@
+{
+    "Name": "dashboards.classic.pedals_statistics.name",
+    "Description": "dashboards.classic.pedals_statistics.description",
+    "Author": "草帽不是猫",
+    "Version": "0.0.1",
+    "PreviewImage": null,
+    "ImageResources": {},
+    "ImageResourcesInDirectory": {
+    },
+    "IsEnabled": true,
+}

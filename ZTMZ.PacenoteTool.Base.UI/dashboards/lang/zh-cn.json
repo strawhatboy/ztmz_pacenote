@@ -16,6 +16,10 @@
             "classicDashboard": {
                 "name": "经典仪表盘",
                 "description": "显示经典仪表盘"
+            },
+            "pedals_statistics": {
+                "name": "踏板状态统计",
+                "description": "显示最近一段时间的踏板状态"
             }
         },
         "settings": {
@@ -42,6 +46,7 @@
             "showSteering": "显示方向盘",
             "steeringDegree": "方向盘角度",
             "switchGearNSpeed": "交换挡位和速度",
+            "recordedFrames": "踏板状态帧数",
 
             "tooltip": {
                 "enabled": "启用/禁用仪表盘",
@@ -61,7 +66,8 @@
                 "showPedals": "显示踏板",
                 "showSteering": "显示方向盘",
                 "steeringDegree": "方向盘角度",
-                "switchGearNSpeed": "把速度数值和挡位数值交换显示，开车时更专注于挡位"
+                "switchGearNSpeed": "把速度数值和挡位数值交换显示，开车时更专注于挡位",
+                "recordedFrames": "保留的最近的踏板活动状态的帧数，按60fps保存，设置为120表示为保存2秒的数据"
             }
         }
     }
