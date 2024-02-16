@@ -170,6 +170,7 @@ public partial class MainWindowVM : ObservableObject
             }
         }
         if (!Config.Instance.IsOnlineAnalyticsSet) {
+            // anyway to wait for other dialog to close?
             // show the dialog to ask user to enable online analytics
             var dialog = _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions {
                 Title = I18NLoader.Instance["dialog.enableOnlineAnalytics.title"],
