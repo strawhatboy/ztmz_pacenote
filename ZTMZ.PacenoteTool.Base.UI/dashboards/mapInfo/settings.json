@@ -3,7 +3,7 @@
         "dashboards.settings.enabled": "dashboards.settings.tooltip.enabled",
     },
     "PropertyValue": [
-        true
+        false
     ],
     "ValueRange": [
         []
