@@ -1,6 +1,6 @@
 {
-  "version": "2.99.99.9",
-  "url": "https://gitee.com/ztmz/ztmz_pacenote/releases/download/v2.99.99.9/ZTMZClub_PacenoteTool_Installer_2.99.99.9.exe",
+  "version": "2.99.99.11",
+  "url": "https://gitee.com/ztmz/ztmz_pacenote/releases/download/v2.99.99.11/ZTMZClub_PacenoteTool_Installer_2.99.99.11.exe",
   "urlRedirected": true,
   "changelog": "https://gitee.com/ztmz/ztmz_pacenote/raw/master/ZTMZ.PacenoteTool.WpfGUI/更新记录beta.txt",
   "minVersionSupported": "2.5.1"
