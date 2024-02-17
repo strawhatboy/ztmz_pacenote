@@ -11,7 +11,7 @@
             },
             "wrc_info": {
                 "name": "WRC Info board",
-                "description": "WRC Info board to show the driver information, stage and time",
+                "description": "WRC Info board to show the driver information, stage, progress and time",
             },
             "wrc2": {
                 "name": "WRC Style 2",

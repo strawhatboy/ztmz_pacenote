@@ -30,6 +30,7 @@ local ARCSIZE_LARGE = 1;
 function onInit(args)
     local gfx = args.Graphics;
     local conf = args.Config;
+    local helper = args.GameOverlayDrawingHelper;
     local _brushes = {};
     _brushes["black"] = gfx.CreateSolidBrush(0, 0, 0);
     _brushes["white"] = gfx.CreateSolidBrush(255, 255, 255);
@@ -50,6 +51,10 @@ function onInit(args)
     _brushes["transparent"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
     _brushes["telemetryBackground"] = gfx.CreateSolidBrush(0x2c, 0x33, 0x3c, 255);
     _brushes["theme"] = gfx.CreateSolidBrush(0xfc, 0x4a, 0x01, 255);
+    _brushes["themeRG"] = gfx.CreateRadialGradientBrush(
+        helper.getColor(0xfc, 0x4a, 0x01, 255),
+        helper.getColor(0xfc, 0x4a, 0x01, 200),
+        helper.getColor(0xfc, 0x4a, 0x01, 0));
     
     local _fonts = {};
     _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
@@ -146,21 +151,44 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
     size = gfx.MeasureString(_fonts["wrc"], driverWeight, stageTimeStr);
     gfx.DrawText(_fonts["wrc"], driverWeight, _brushes["white"], x + 7 * width / 10 + (3 * width / 10 - size.X) / 2, y + height / 2 - size.Y / 2, stageTimeStr);
     
+    -- stage progress, orange line on top of grey line
+    local stageProgress = data.CompletionRate;
+
+    if (stageProgress > 1) then
+        stageProgress = 1;
+    elseif (stageProgress < 0) then
+        stageProgress = 0;
+    end
+
+    local stageProgressWeight = 0.1 * height;
+    local stageProgressY = y - stageProgressWeight;
+    local stageProgressX = x;
+    
+    gfx.FillRectangle(_brushes["border"], stageProgressX, stageProgressY, stageProgressX + width, stageProgressY + stageProgressWeight);
+    gfx.FillRectangle(_brushes["theme"], stageProgressX, stageProgressY, stageProgressX + width * stageProgress, stageProgressY + stageProgressWeight);
+    -- theme circle at the end of the progress bar
+    local dotCenterX = stageProgressX + width * stageProgress;
+    local dotCenterY = stageProgressY + stageProgressWeight / 2;
+    _brushes["themeRG"].SetCenter(dotCenterX, dotCenterY);
+    _brushes["themeRG"].SetRadius(stageProgressWeight * 1.5, stageProgressWeight * 1.5)
+    gfx.FillCircle(_brushes["themeRG"], dotCenterX, dotCenterY, stageProgressWeight * 1.5);
+
     -- stage name
     local stageName = ctx.TrackName;
     size = gfx.MeasureString(_fonts["wrc"], driverWeight * 0.8, stageName);
     local padding = height;
 
     local geo_path = gfx.CreateGeometry();
-    geo_path.BeginFigure(helper.getPoint(x + width - size.X - padding * 2, y - size.Y), true);
-    geo_path.AddPoint(helper.getPoint(x + width, y - size.Y));
-    geo_path.AddPoint(helper.getPoint(x + width, y));
-    geo_path.AddPoint(helper.getPoint(x + width - size.X - padding * 2 - size.Y / 8, y));
+    geo_path.BeginFigure(helper.getPoint(x + width - size.X - padding * 2, y - size.Y - stageProgressWeight), true);
+    geo_path.AddPoint(helper.getPoint(x + width, y - size.Y - stageProgressWeight));
+    geo_path.AddPoint(helper.getPoint(x + width, y - stageProgressWeight));
+    geo_path.AddPoint(helper.getPoint(x + width - size.X - padding * 2 - size.Y / 8, y - stageProgressWeight));
     geo_path.EndFigure();
     geo_path.Close();
     gfx.FillGeometry(geo_path, _brushes["background"]);
     
-    gfx.DrawText(_fonts["wrc"], driverWeight * 0.8, _brushes["white"], x + width - size.X - padding, y - size.Y, stageName);
+    gfx.DrawText(_fonts["wrc"], driverWeight * 0.8, _brushes["white"], x + width - size.X - padding, y - size.Y - stageProgressWeight, stageName);
+
 end
 
 

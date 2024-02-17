@@ -11,7 +11,7 @@
             },
             "wrc_info": {
                 "name": "WRC信息面板",
-                "description": "WRC信息面板, 包括赛事信息, 车辆信息, 驾驶员信息等",
+                "description": "WRC信息面板, 包括赛事信息, 驾驶时间，赛道完成度, 驾驶员信息等",
             },
             "wrc2": {
                 "name": "WRC风格2",
