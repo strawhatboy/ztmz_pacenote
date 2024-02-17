@@ -295,6 +295,8 @@ function onUpdate(args)
     local positionV = self.GetConfigByKey("dashboards.settings.positionV")
     local padding = size * self.GetConfigByKey("dashboards.settings.padding")
     local switchGearNSpeed = self.GetConfigByKey("dashboards.settings.switchGearNSpeed")
+    local marginH = self.GetConfigByKey("dashboards.settings.marginH") * gfx.Width;
+    local marginV = self.GetConfigByKey("dashboards.settings.marginV") * gfx.Height;
     
     -- print("calulating the margin, padding, pos of each element")
     
@@ -303,11 +305,11 @@ function onUpdate(args)
     local telemetryCenterX = 0;
     if (positionH == -1) then
         -- -1 means left
-        telemetryCenterX = size / 2;
+        telemetryCenterX = size / 2 + marginH;
     else
         if (positionH == 1) then
             -- 1 means right
-            telemetryCenterX = gfx.Width - size / 2;
+            telemetryCenterX = gfx.Width - size / 2 - marginH;
         else
             -- 0 means center
             telemetryCenterX = gfx.Width / 2;
@@ -317,11 +319,11 @@ function onUpdate(args)
     local telemetryCenterY = 0;
     if (positionV == -1) then
         -- -1 means top
-        telemetryCenterY = size / 2;
+        telemetryCenterY = size / 2 + marginV;
     else
         if (positionV == 1) then
             -- 1 means bottom
-            telemetryCenterY = gfx.Height - size / 2;
+            telemetryCenterY = gfx.Height - size / 2 - marginV;
         else
             -- 0 means center
             telemetryCenterY = gfx.Height / 2;

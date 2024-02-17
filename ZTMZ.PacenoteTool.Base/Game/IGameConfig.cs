@@ -101,6 +101,7 @@ public class CommonGameConfigs: IGameConfig
         }
     }
 
+    // merge from another common config
     public void Merge(CommonGameConfigs other)
     {
         for(int i = 0; i < other.PropertyName.Count; i++)
@@ -114,7 +115,7 @@ public class CommonGameConfigs: IGameConfig
             } else {
                 var index = PropertyName.Keys.ToList().IndexOf(kv.Key);
                 PropertyValue[index] = other.PropertyValue[i];
-                ValueRange[index] = other.ValueRange[i];
+                // DO NOT OVERRIDE THE VALUE_RANGE ValueRange[index] = other.ValueRange[i];
             }
         }
     }

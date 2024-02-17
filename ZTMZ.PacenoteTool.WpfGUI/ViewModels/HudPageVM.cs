@@ -98,7 +98,7 @@ public partial class HudPageVM : ObservableObject {
             var configGrid = new Grid();
             configGrid.ColumnDefinitions.Add(new ColumnDefinition());
             configGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(60, GridUnitType.Pixel) });
-            configGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(160, GridUnitType.Pixel) });
+            configGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(260, GridUnitType.Pixel) });
 
             bool enabledPropertyEncountered = false;
             // content will be the dashboard configurations

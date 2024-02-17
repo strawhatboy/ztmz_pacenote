@@ -3,6 +3,8 @@
         "dashboards.settings.enabled": "dashboards.settings.tooltip.enabled",
         "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
         "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
+        "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
+        "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV",
         "dashboards.settings.size": "dashboards.settings.tooltip.size",
         "dashboards.settings.paddingH": "dashboards.settings.tooltip.paddingH",
         "dashboards.settings.paddingV": "dashboards.settings.tooltip.paddingV",
@@ -21,6 +23,8 @@
         false,
         0,
         1,
+        0,
+        0,
         0.12,
         0.2,
         0.1,
@@ -36,6 +40,6 @@
         540
     ],
     "ValueRange": [
-        [], [], [], [0.1, 0.5], [0.1, 0.3], [0.1, 0.3], [0.1, 0.3], [0.1, 0.5], [0.1, 1], [], [], [], [], [], [], [90, 1080]
+        [], [], [], [0, 0.5], [0, 0.5], [0.1, 0.5], [0.1, 0.3], [0.1, 0.3], [0.1, 0.3], [0.1, 0.5], [0.1, 1], [], [], [], [], [], [], [90, 1080]
     ]
 }

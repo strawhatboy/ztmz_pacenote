@@ -1,18 +1,4 @@
 local resources = {};
-local MAX_SPEED = 200;
-local MAX_WHEEL_SPEED = 220;
-local MAX_WHEEL_TEMP = 800;
-local MAX_G_FORCE = 2.2;
-local MAX_SUSPENSION_SPD = 1000; -- m/s
-local MIN_SUSPENSION_SPD = -1000;
-local MAX_SUSPENSION = 200;
-local MIN_SUSPENSION = -200;
-
-local SWEEPDIRECTION_COUNTERCLOCKWISE = 0;
-local SWEEPDIRECTION_CLOCKWISE = 1;
-
-local ARCSIZE_SMALL = 0;
-local ARCSIZE_LARGE = 1;
 
 -- This function is called when the script is loaded
 -- args: dotnet object
@@ -296,15 +282,17 @@ function onUpdate(args)
     
     local positionH = self.GetConfigByKey("dashboards.settings.positionH");
     local positionV = self.GetConfigByKey("dashboards.settings.positionV");
+    local marginH = self.GetConfigByKey("dashboards.settings.marginH") * gfx.Width;
+    local marginV = self.GetConfigByKey("dashboards.settings.marginV") * gfx.Height;
 
     local telemetryStartPosX = 0;
     if (positionH == -1) then
         -- -1 means left
-        telemetryStartPosX = 0 + telemetryPaddingH;
+        telemetryStartPosX = 0 + marginH;
     else
         if (positionH == 1) then
             -- 1 means right
-            telemetryStartPosX = gfx.Width - telemetryWidth - telemetryPaddingH;
+            telemetryStartPosX = gfx.Width - telemetryWidth - marginH;
         else
             -- 0 means center
             telemetryStartPosX = gfx.Width / 2 - telemetryWidth / 2;
@@ -314,11 +302,11 @@ function onUpdate(args)
     local telemetryStartPosY = 0;
     if (positionV == -1) then
         -- -1 means top
-        telemetryStartPosY = 0 + telemetryPaddingV;
+        telemetryStartPosY = 0 + marginV;
     else
         if (positionV == 1) then
             -- 1 means bottom
-            telemetryStartPosY = gfx.Height - telemetryHeight - telemetryPaddingV;
+            telemetryStartPosY = gfx.Height - telemetryHeight - marginV;
         else
             -- 0 means center
             telemetryStartPosY = gfx.Height / 2 - telemetryHeight / 2;

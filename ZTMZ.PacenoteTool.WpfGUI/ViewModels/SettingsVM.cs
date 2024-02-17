@@ -4,6 +4,7 @@
 // All Rights Reserved.
 
 using System.IO;
+using System.Reflection;
 using System.Windows.Controls;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
@@ -82,9 +83,9 @@ public partial class SettingsVM : ObservableObject, INavigationAware
     private async void OpenUpdateHistoryDialog() {
         var updateHistoryText = "";
         if (ToolUtils.GetToolVersion() == ToolVersion.TEST) {  
-            updateHistoryText = await File.ReadAllTextAsync("更新记录beta.txt");
+            updateHistoryText = await File.ReadAllTextAsync(getFilePathAccordingToCurrentExecutionPath("更新记录beta.txt"));
         } else {
-            updateHistoryText = await File.ReadAllTextAsync("更新记录.txt");
+            updateHistoryText = await File.ReadAllTextAsync(getFilePathAccordingToCurrentExecutionPath("更新记录.txt"));
         }
         await _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions() {
             Title = I18NLoader.Instance["ui.tb_updates"],
@@ -97,9 +98,9 @@ public partial class SettingsVM : ObservableObject, INavigationAware
     private async void OpenEULADialog() {
         var eula = "";
         if (Config.Instance.Language == "zh-cn") {
-            eula = await File.ReadAllTextAsync("eula-cn.txt");
+            eula = await File.ReadAllTextAsync(getFilePathAccordingToCurrentExecutionPath("eula-cn.txt"));
         } else {
-            eula = await File.ReadAllTextAsync("eula.txt");
+            eula = await File.ReadAllTextAsync(getFilePathAccordingToCurrentExecutionPath("eula.txt"));
         }
         await _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions() {
             Title = I18NLoader.Instance["ui.eula"],
@@ -112,9 +113,9 @@ public partial class SettingsVM : ObservableObject, INavigationAware
     private async void OpenLicenseDialog() {
         var privacyPolicy = "";
         if (Config.Instance.Language == "zh-cn") {
-            privacyPolicy = await File.ReadAllTextAsync("license-cn.txt");
+            privacyPolicy = await File.ReadAllTextAsync(getFilePathAccordingToCurrentExecutionPath("license-cn.txt"));
         } else {
-            privacyPolicy = await File.ReadAllTextAsync("license.txt");
+            privacyPolicy = await File.ReadAllTextAsync(getFilePathAccordingToCurrentExecutionPath("license.txt"));
         }
         await _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions() {
             Title = I18NLoader.Instance["ui.license"],
@@ -139,5 +140,10 @@ public partial class SettingsVM : ObservableObject, INavigationAware
             Content = _contactUs,
             CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
         });
+    }
+
+    private string getFilePathAccordingToCurrentExecutionPath(string fileName)
+    {
+        return Path.Join(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), fileName);
     }
 }

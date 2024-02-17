@@ -5,7 +5,9 @@
         "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
         "dashboards.settings.size": "dashboards.settings.tooltip.size",
         "dashboards.settings.padding": "dashboards.settings.tooltip.padding",
-        "dashboards.settings.switchGearNSpeed": "dashboards.settings.tooltip.switchGearNSpeed"
+        "dashboards.settings.switchGearNSpeed": "dashboards.settings.tooltip.switchGearNSpeed",
+        "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
+        "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV"
     },
     "PropertyValue": [
         false,
@@ -14,8 +16,10 @@
         0.28,
         0.12,
         false,
+        0,
+        0
     ],
     "ValueRange": [
-        [], [], [], [0.1, 0.5], [0.05, 0.2], []
+        [], [], [], [0.1, 0.5], [0.05, 0.2], [], [0, 0.5], [0, 0.5]
     ]
 }

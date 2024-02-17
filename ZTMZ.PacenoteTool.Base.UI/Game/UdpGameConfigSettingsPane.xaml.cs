@@ -28,6 +28,8 @@ public partial class UdpGameConfigSettingsPane : IGameConfigSettingsPane
         this.tb_UDPListenPort.Value = (uint)_config.Port;
         this.tb_UDPListenPort.ValueChanged += (s, e) =>
         {
+            if (this.tb_UDPListenPort.Value == null)
+                return;
             _config.Port = (int)this.tb_UDPListenPort.Value.Value;
             base.RestartNeeded?.Invoke();
             // open the port mismatch dialog next time.
