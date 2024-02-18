@@ -349,7 +349,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._HudFPS;
         }
 
-        private bool _HudTopMost = true;
+        private bool _HudTopMost = false;
         public bool HudTopMost
         {
             set { this._HudTopMost = value; this._userconfig["HudTopMost"] = value; }
