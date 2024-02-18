@@ -123,6 +123,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         private bool _hudShowInSeparateWindow = false;
 
+        public event Action<bool> OnGameOverlayInitializingStateChanged;
+
         public GameOverlayManager() {
             var dashboardsPath = AppLevelVariables.Instance.GetPath(Constants.PATH_DASHBOARDS);
             if (System.IO.Directory.Exists(dashboardsPath))
@@ -235,6 +237,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
         }
 
         public void InitializeOverlay(IntPtr windowHandle) {
+            OnGameOverlayInitializingStateChanged?.Invoke(true);
             _logger.Info("Initializing overlay for window handle: {0}", windowHandle.ToString("X8"));
 
             var gfx = new Graphics()
@@ -259,6 +262,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         public void InitializeOverlay(Process p)
         {
+            OnGameOverlayInitializingStateChanged?.Invoke(true);
             _gameProcess = p;
             if (_hudShowInSeparateWindow) {
                 // do nothing
@@ -330,6 +334,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
             this.Run();
             _logger.Info("GameOverlay initialized.!");
+            OnGameOverlayInitializingStateChanged?.Invoke(false);
         }
 
         public void UninitializeOverlay()

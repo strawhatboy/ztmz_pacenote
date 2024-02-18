@@ -60,8 +60,14 @@ public partial class HudPageVM : ObservableObject {
     
     private GameOverlayManager _gameOverlayManager;
 
+    [ObservableProperty]
+    private bool _isHudInitializing = false;
+
     public HudPageVM(GameOverlayManager gameOverlayManager) {
         _gameOverlayManager = gameOverlayManager;
+        _gameOverlayManager.OnGameOverlayInitializingStateChanged += (isInitializing) => {
+            IsHudInitializing = isInitializing;
+        };
 
         foreach (var dashboard in _gameOverlayManager.Dashboards) {
             var cardExpander = new CardExpander();

@@ -6,12 +6,14 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:helper="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
     Title="HudPage"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <helper:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <!-- <Style TargetType="ui:Card">
             <Setter Property="Padding" Value="16"></Setter>
             <Setter Property="Margin" Value="0 0 0 5"></Setter>
@@ -116,7 +118,7 @@
         </ui:Card>
 
         <!-- show in separated window -->
-        <ui:CardAction Margin="0 0 0 3" Command="{Binding ViewModel.ShowInSeparateWindowCommand}" >
+        <ui:CardAction Margin="0 0 0 3" Command="{Binding ViewModel.ShowInSeparateWindowCommand}" IsEnabled="{Binding ViewModel.IsHudInitializing, Converter={StaticResource InverseBooleanConverter}}" >
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
@@ -140,6 +142,9 @@
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
+                
+                <ui:ProgressRing Visibility="{Binding ViewModel.IsHudInitializing, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                    Grid.Column="1" IsIndeterminate="True" HorizontalAlignment="Right" />
             </Grid>
         </ui:CardAction>
 
