@@ -115,6 +115,34 @@
             </Grid>
         </ui:Card>
 
+        <!-- show in separated window -->
+        <ui:CardAction Margin="0 0 0 3" Command="{Binding ViewModel.ShowInSeparateWindowCommand}" >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Share20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.hudShowInSeparateWindow}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.hudShowInSeparateWindow}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+            </Grid>
+        </ui:CardAction>
+
         <ui:TextBlock
             Text="{DynamicResource ResourceKey=tabs.dashboard}"
             Margin="0 0 0 5"

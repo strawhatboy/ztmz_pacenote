@@ -24,6 +24,9 @@ using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Base.UI;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Interop;
+using System.Security.Principal;
 
 namespace ZTMZ.PacenoteTool.Base.UI
 {
@@ -114,6 +117,12 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private int dashboardLoadRetryMax = 10;    // 10 seconds
         private int dashboardLoadRetryInterval = 1000;
 
+        private Window _gameOverlaySeparateWindow = new SeparateWindowForOverlay();
+
+        private Process _gameProcess = null;
+
+        private bool _hudShowInSeparateWindow = false;
+
         public GameOverlayManager() {
             var dashboardsPath = AppLevelVariables.Instance.GetPath(Constants.PATH_DASHBOARDS);
             if (System.IO.Directory.Exists(dashboardsPath))
@@ -139,11 +148,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             DashboardLoaded.AddRange(Enumerable.Repeat(false, Dashboards.Count));
             DashboardErrorEncountered.AddRange(Enumerable.Repeat(false, Dashboards.Count));
             _logger.Info($"Loaded {Dashboards.Count} Dashboards.");
-        }
-
-        public void InitializeOverlay(Process p)
-        {
-            _logger.Info("Initializing overlay....");
+            
 #if DEV
             DashboardScriptArguments.GameData = new GameData()
             {
@@ -189,6 +194,78 @@ namespace ZTMZ.PacenoteTool.Base.UI
             };
             TimeToShowTelemetry = true;
 #endif
+
+            _gameOverlaySeparateWindow.Closing += (sender, args) => {
+                _hudShowInSeparateWindow = false;
+                // UninitializeOverlayInSeparateWindow();
+                (sender as Window)?.Hide();
+                args.Cancel = true;
+
+                // game window is running? show in game window instead
+                if (_gameProcess != null && !_gameProcess.HasExited) {
+                    try {
+                        _window.ParentWindowHandle = _gameProcess.MainWindowHandle;
+                    } catch {
+                        _logger.Error("Failed to set game window as parent window, game window may not be ready yet.");
+                        UninitializeOverlayInSeparateWindow();
+                    }
+                } else {
+                    UninitializeOverlayInSeparateWindow();
+                }
+            };
+        }
+
+        public void InitializeOverlayInSeparateWindow() {
+            if (_hudShowInSeparateWindow) {
+                // do nothing
+                _logger.Warn("Hud is already shown in separate window, do nothing.");
+                return;
+            }
+            _logger.Info("Initializing overlay in separate window....");
+            _hudShowInSeparateWindow = true;
+            _gameOverlaySeparateWindow.Title = "PacenoteTool GameOverlay Separate Window";
+            _gameOverlaySeparateWindow.Width = 1280;
+            _gameOverlaySeparateWindow.Height = 720;
+            _gameOverlaySeparateWindow.Show();
+            if (_isRunning && _window != null) {
+                _window.ParentWindowHandle = new WindowInteropHelper(_gameOverlaySeparateWindow).Handle;
+            } else {
+                InitializeOverlay(new WindowInteropHelper(_gameOverlaySeparateWindow).Handle);
+            }
+        }
+
+        public void InitializeOverlay(IntPtr windowHandle) {
+            _logger.Info("Initializing overlay for window handle: {0}", windowHandle.ToString("X8"));
+
+            var gfx = new Graphics()
+            {
+                MeasureFPS = true,
+                PerPrimitiveAntiAliasing = true,
+                TextAntiAliasing = true
+            };
+
+            // set graphics to dashboard arguments
+            DashboardScriptArguments.Graphics = gfx;
+            try {
+                _window = new StickyWindow(windowHandle, gfx);
+            } catch (Exception ex) {
+                _logger.Error(ex, "Failed to initialize overlay using window handle");
+                return;
+            }
+            if (_window != null) {
+                initializeOverlayIfWindowReady();
+            }
+        }
+
+        public void InitializeOverlay(Process p)
+        {
+            _gameProcess = p;
+            if (_hudShowInSeparateWindow) {
+                // do nothing
+                _logger.Warn("Hud is already shown in separate window, do nothing.");
+                return;
+            }
+            _logger.Info("Initializing overlay for process: {0}", p.ProcessName);
             var gfx = new Graphics()
             {
                 MeasureFPS = true,
@@ -225,37 +302,52 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     return;
                 }
 
-                _window.Title = Constants.HUD_WINDOW_NAME;
-                if (Config.Instance.HudLockFPS) {
-                    _window.FPS = Config.Instance.HudFPS;   // 60 fps by default
-                } else {
-                    _window.FPS = 0;    // no limit
-                }
-                _window.AttachToClientArea = true;
-                if (Config.Instance.HudTopMost) 
-                {
-                    _window.IsTopmost = Config.Instance.HudTopMost;
-                } else 
-                {
-                    _window.BypassTopmost = true;
-                }
-                _window.IsVisible = true;
-
-
-                _window.DestroyGraphics += _window_DestroyGraphics;
-                _window.DrawGraphics += _window_DrawGraphics;
-                _window.SetupGraphics += _window_SetupGraphics;
-
-                this.Run();
-                _logger.Info("GameOverlay initialized.!");
+                initializeOverlayIfWindowReady();
             });
+        }
+
+        private void initializeOverlayIfWindowReady() {
+            _window.Title = Constants.HUD_WINDOW_NAME;
+            if (Config.Instance.HudLockFPS) {
+                _window.FPS = Config.Instance.HudFPS;   // 60 fps by default
+            } else {
+                _window.FPS = 0;    // no limit
+            }
+            _window.AttachToClientArea = true;
+            if (Config.Instance.HudTopMost) 
+            {
+                _window.IsTopmost = Config.Instance.HudTopMost;
+            } else 
+            {
+                _window.BypassTopmost = true;
+            }
+            _window.IsVisible = true;
+
+
+            _window.DestroyGraphics += _window_DestroyGraphics;
+            _window.DrawGraphics += _window_DrawGraphics;
+            _window.SetupGraphics += _window_SetupGraphics;
+
+            this.Run();
+            _logger.Info("GameOverlay initialized.!");
         }
 
         public void UninitializeOverlay()
         {
+            if (_hudShowInSeparateWindow) {
+                // do nothing
+                return;
+            }
             _isRunning = false;
             _window?.Dispose();
             _logger.Info("GameOverlay uninitialized.!");
+        }
+
+        public void UninitializeOverlayInSeparateWindow() {
+            _isRunning = false;
+            _hudShowInSeparateWindow = false;
+            _window?.Dispose();
+            _logger.Info("GameOverlay uninitialized in separate window.!");
         }
 
         public void SetFPS(int fps)
@@ -271,6 +363,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
         }
 
         private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e) {
+            _isRunning = true;
             var gfx = e.Graphics;
             
             if (e.RecreateResources) {

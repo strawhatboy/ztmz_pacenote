@@ -143,6 +143,7 @@ public partial class App : Application
     /// </summary>
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
+        _logger.Error(e.Exception, "Unhandled exception occurred.");
         // For more info see https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.dispatcherunhandledexception?view=windowsdesktop-6.0
         GetService<AzureAppInsightsManager>().TrackException(e.Exception);
         GetService<IContentDialogService>().ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions
@@ -150,8 +151,7 @@ public partial class App : Application
             Title = I18NLoader.Instance["exception.unknown.title"],
             Content = e.Exception.ToString(),
             CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
-        }).Wait();
-        _logger.Error(e.Exception, "Unhandled exception occurred.");
+        });
     }
 
     private void SetupExceptionHandling()
@@ -206,8 +206,8 @@ public partial class App : Application
                 Title = I18NLoader.Instance["exception.unknown.title"],
                 Content = message + exceptionStr,
                 CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
-            }).Wait();
-            Task.Delay(5000).Wait();
+            });
+            // Task.Delay(5000).Wait();
         }
     }
 

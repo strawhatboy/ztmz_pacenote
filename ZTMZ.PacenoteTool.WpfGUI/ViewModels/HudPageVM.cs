@@ -52,6 +52,11 @@ public partial class HudPageVM : ObservableObject {
     [ObservableProperty]
     private ObservableCollection<object> _dashboardItems = new();
 
+    [RelayCommand]
+    private void ShowInSeparateWindow() {
+        // _gameOverlayManager.UninitializeOverlay();
+        _gameOverlayManager.InitializeOverlayInSeparateWindow();
+    }
     
     private GameOverlayManager _gameOverlayManager;
 
