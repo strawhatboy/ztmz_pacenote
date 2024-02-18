@@ -59,3 +59,37 @@ function getGear(gear)
     end
     return "";
 end
+
+function getRPMLevel(data)
+    local redZoneBlink = 0.9;
+    local redZone = 0.7;
+    local yellowZone = 0.5;
+    local greenZone = 0.3;
+
+    local rpm = data.RPM;
+    local maxRPM = data.MaxRPM;
+    local rpmPercentage = rpm / maxRPM;
+    local rpmLevel = 0;
+    if (rpmPercentage > redZoneBlink) then
+        rpmLevel = 4;
+    else
+        if (rpmPercentage > redZone) then
+            rpmLevel = 3;
+        else
+            if (rpmPercentage > yellowZone) then
+                rpmLevel = 2;
+            else
+                if (rpmPercentage > greenZone) then
+                    rpmLevel = 1;
+                end
+            end
+        end
+    end
+
+    if (data.ShiftLightsRPMValid and data.ShiftLightsFraction >= 1) then
+        -- in EA WRC, this means the shift light is blinking
+        rpmLevel = 4;
+    end
+
+    return rpmLevel
+end

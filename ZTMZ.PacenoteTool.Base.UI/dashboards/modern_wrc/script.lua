@@ -23,7 +23,7 @@ function onInit(args)
     local helper = args.GameOverlayDrawingHelper;
     _brushes["black"] = gfx.CreateSolidBrush(0, 0, 0);
     _brushes["white"] = gfx.CreateSolidBrush(255, 255, 255);
-    _brushes["red"] = gfx.CreateSolidBrush(255, 0, 0);
+    _brushes["red"] = gfx.CreateSolidBrush(255, 0, 0, 200);
     _brushes["grey"] = gfx.CreateSolidBrush(64, 64, 64);
     if (conf.HudChromaKeyMode) then
         _brushes["green"] = gfx.CreateSolidBrush(0, 0, 255);
@@ -151,7 +151,8 @@ function drawRPM(gfx, data, helper, x, y, radius, padding)
         _brushes["rpm"].SetRange(x - telemetryRadius, y, x + telemetryRadius, y);
 
         -- blink
-        if (data.ShiftLightsRPMValid or (rpm / maxRPM) >= 0.85) then
+        local rpmLevel = getRPMLevel(data);
+        if (rpmLevel == 4) then
             local framesLimit = BLINK_INTERVAL_FRAMES_PERCENTAGE * gfx.FPS;
             if (framesCount > framesLimit) then
                 framesCount = 0;
@@ -165,6 +166,7 @@ function drawRPM(gfx, data, helper, x, y, radius, padding)
                 drawGeo(gfx, helper, x, y, 7 * math.pi / 6, 7 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, _brushes["rpm"]);
             end
         else
+            bInBlink = true;
             drawGeo(gfx, helper, x, y, 7 * math.pi / 6, 7 * math.pi / 6 - arcAngle, telemetryRadius, telemetryRadius - rpmWeight, arcSize, _brushes["rpm"]);
         end
     end
@@ -259,7 +261,13 @@ function drawSpeed(gfx, data, helper, x, y, radius, padding, switchGearNSpeed)
     else
         speedText = tostring(speed);
     end
-    gfx.drawTextWithBackgroundCentered(_fonts["wrc"], speedWeight, _brushes["white"], _brushes["transparent"], x, y - telemetryRadius / 6, speedText);
+    
+    --ugly code
+    if (not bInBlink and switchGearNSpeed) then
+        gfx.drawTextWithBackgroundCentered(_fonts["wrc"], speedWeight, _brushes["white"], _brushes["red"], x, y - telemetryRadius / 6, speedText);
+    else
+        gfx.drawTextWithBackgroundCentered(_fonts["wrc"], speedWeight, _brushes["white"], _brushes["transparent"], x, y - telemetryRadius / 6, speedText);
+    end
 end
 
 function drawGear(gfx, data, helper, x, y, radius, padding, switchGearNSpeed)
@@ -274,7 +282,14 @@ function drawGear(gfx, data, helper, x, y, radius, padding, switchGearNSpeed)
         gear = math.floor(data.Speed);
         gearText = tostring(gear);
     end
-    gfx.drawTextWithBackgroundCentered(_fonts["wrcGear"], gearWeight, _brushes["white"], _brushes["transparent"], x + telemetryRadius * 0.55, y + telemetryRadius * 0.55, gearText);
+    
+    --ugly code
+    if (not bInBlink and not switchGearNSpeed) then
+        gfx.drawTextWithBackgroundCentered(_fonts["wrcGear"], gearWeight, _brushes["white"], _brushes["red"], x + telemetryRadius * 0.55, y + telemetryRadius * 0.55, gearText);
+    else
+        gfx.drawTextWithBackgroundCentered(_fonts["wrcGear"], gearWeight, _brushes["white"], _brushes["transparent"], x + telemetryRadius * 0.55, y + telemetryRadius * 0.55, gearText);
+    end
+    
 end
 
 

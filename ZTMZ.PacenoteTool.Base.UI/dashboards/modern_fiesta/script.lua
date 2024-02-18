@@ -72,30 +72,7 @@ function drawRPM(gfx, data, conf, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     
-    local redZoneBlink = 0.85;
-    local redZone = 0.7;
-    local yellowZone = 0.5;
-    local greenZone = 0.2;
-
-    local rpm = data.RPM;
-    local maxRPM = data.MaxRPM;
-    local rpmPercentage = rpm / maxRPM;
-    local rpmLevel = 0;
-    if (rpmPercentage > redZoneBlink) then
-        rpmLevel = 4;
-    else
-        if (rpmPercentage > redZone) then
-            rpmLevel = 3;
-        else
-            if (rpmPercentage > yellowZone) then
-                rpmLevel = 2;
-            else
-                if (rpmPercentage > greenZone) then
-                    rpmLevel = 1;
-                end
-            end
-        end
-    end
+    local rpmLevel = getRPMLevel(data);
     
     if (rpmLevel > 0) then
         gfx.FillRectangle(_brushes["rpm_low"], x, y, x + width / 6, y + height);
@@ -108,12 +85,12 @@ function drawRPM(gfx, data, conf, helper, x, y, width, height)
     end
 
     -- data.ShiftLightsRPMValid is from EA WRC game, in RBR, it's complex to get the shift light
-    if (rpmLevel > 2 and rpmLevel < 4 and not data.ShiftLightsRPMValid) then
+    if (rpmLevel > 2 and rpmLevel < 4) then
         gfx.FillRectangle(_brushes["rpm_high"], x + 2 * width / 6, y, x + 3 * width / 6, y + height);
         gfx.FillRectangle(_brushes["rpm_high"], x + 3 * width / 6, y, x + 4 * width / 6, y + height);
     end
 
-    if (rpmLevel > 3 or data.ShiftLightsRPMValid) then
+    if (rpmLevel > 3) then
         local framesLimit = BLINK_INTERVAL_FRAMES_PERCENTAGE * gfx.FPS;
         if (framesCount > framesLimit) then
             framesCount = 0;
