@@ -5,4 +5,4 @@
 OutputBaseFilename=ZTMZClub_PacenoteTool_Installer_{#MyAppVersion}
 
 [Files]
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\*"; Excludes: "*.csv,XAudio*"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\*"; Excludes: "*.csv,XAudio*"; DestDir: "{app}"; Flags: ignoreversion

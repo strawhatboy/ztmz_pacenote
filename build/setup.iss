@@ -1,5 +1,5 @@
 ﻿#define MyAppName "ZTMZ Next Generation Pacenote Tool"
-#define MyAppVersion "2.99.99.13"
+#define MyAppVersion "2.99.99.14"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
@@ -140,8 +140,8 @@ VersionInfoVersion={#MyAppVersion}
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile:"LICENSE"; InfoBeforeFile:"ZTMZ.PacenoteTool.WpfGUI\eula.txt";
-Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"; LicenseFile:"LICENSE"; InfoBeforeFile:"ZTMZ.PacenoteTool.WpfGUI\eula-cn.txt";
+Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile:"..\LICENSE"; InfoBeforeFile:"..\src\ZTMZ.PacenoteTool.WpfGUI\eula.txt";
+Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"; LicenseFile:"..\LICENSE"; InfoBeforeFile:"..\src\ZTMZ.PacenoteTool.WpfGUI\eula-cn.txt";
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
@@ -171,16 +171,16 @@ Type: files; Name: "{userdocs}\My Games\{#FolderName}\config.json";
 
 [Files]
 ; No json file!
-; Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\*.json"; Excludes:"config.json,userconfig.json,*.deps.json,*.runtimeconfig.json"; DestDir: "{userdocs}\My Games\{#FolderName}"; Flags: ignoreversion
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\*.csv"; DestDir: "{userdocs}\My Games\{#FolderName}"; Flags: ignoreversion
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\codrivers\*"; DestDir: "{userdocs}\My Games\{#FolderName}\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\profiles\*"; DestDir: "{userdocs}\My Games\{#FolderName}\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\lang\*"; DestDir: "{userdocs}\My Games\{#FolderName}\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\games\*"; Excludes:"*.json"; DestDir: "{app}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\games\*.json"; Excludes:"*.deps.json"; DestDir: "{userdocs}\My Games\{#FolderName}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\dashboards\*"; DestDir: "{userdocs}\My Games\{#FolderName}\dashboards"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\fonts\*"; DestDir: "{userdocs}\My Games\{#FolderName}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\*.json"; Excludes:"config.json,userconfig.json,*.deps.json,*.runtimeconfig.json"; DestDir: "{userdocs}\My Games\{#FolderName}"; Flags: ignoreversion
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\*.csv"; DestDir: "{userdocs}\My Games\{#FolderName}"; Flags: ignoreversion
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\codrivers\*"; DestDir: "{userdocs}\My Games\{#FolderName}\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\profiles\*"; DestDir: "{userdocs}\My Games\{#FolderName}\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\lang\*"; DestDir: "{userdocs}\My Games\{#FolderName}\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\games\*"; Excludes:"*.json"; DestDir: "{app}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\games\*.json"; Excludes:"*.deps.json"; DestDir: "{userdocs}\My Games\{#FolderName}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\dashboards\*"; DestDir: "{userdocs}\My Games\{#FolderName}\dashboards"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\fonts\*"; DestDir: "{userdocs}\My Games\{#FolderName}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

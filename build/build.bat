@@ -1,5 +1,10 @@
 @echo off
 
+set currentDir=%cd%
+
+cd /D "%~dp0"
+cd ../src
+
 cd ZTMZ.PacenoteTool.Codemasters
 dotnet build -c Release
 cd ..
@@ -31,6 +36,9 @@ echo copying pacenote definitions to target folder
 xcopy ZTMZ.PacenoteTool.ScriptEditor\*.csv "%userprofile%\Documents\My Games\ZTMZClub_nextgen\" /Y /V /Q
 xcopy ZTMZ.PacenoteTool.ScriptEditor\*.csv ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\ /Y /V /Q
 
+cd /D "%~dp0"
 .\launchWpfUIRelease.bat
+
+cd /D "%currentDir%"
 
 echo done.
