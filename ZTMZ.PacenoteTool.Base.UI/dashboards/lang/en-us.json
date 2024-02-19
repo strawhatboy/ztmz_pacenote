@@ -47,6 +47,7 @@
             "steeringDegree": "Steering degree",
             "switchGearNSpeed": "Switch Gear and Speed",
             "recordedFrames": "Recorded frames",
+            "lineWeight": "Line weight",
 
             "tooltip": {
                 "enabled": "Enable or disable the dashboard",
@@ -67,7 +68,8 @@
                 "showSteering": "Show the steering",
                 "steeringDegree": "Steering degree",
                 "switchGearNSpeed": "Switch Gear and Speed numbers displayed on the dashboard",
-                "recordedFrames": "Recorded frames to show the pedals statistics, in 60fps, 120 means 2 seconds data"
+                "recordedFrames": "Recorded frames to show the pedals statistics, in 60fps, 120 means 2 seconds data",
+                "lineWeight": "Line weight of the dashboard"
             }
         }
     }

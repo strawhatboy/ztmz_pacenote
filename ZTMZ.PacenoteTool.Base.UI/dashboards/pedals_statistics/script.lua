@@ -48,6 +48,7 @@ function drawStaticFrames(gfx, self, data, helper, x, y, width, height)
 end
 
 function drawLines(gfx, self, data, helper, x, y, width, height)
+    local lineWeight = self.GetConfigByKey("dashboards.settings.lineWeight");
     local _brushes = resources["brushes"];
     -- resize the recordedData array according to the recordedDataLength
     if (recordedDataLength > #recordedData) then
@@ -120,9 +121,9 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
     geoClutch.EndFigure(false);
     geoClutch.Close();
 
-    gfx.DrawGeometry(geoThrottle, _brushes["green"], 1);
-    gfx.DrawGeometry(geoBrake, _brushes["red"], 1);
-    gfx.DrawGeometry(geoClutch, _brushes["blue"], 1);
+    gfx.DrawGeometry(geoThrottle, _brushes["green"], lineWeight);
+    gfx.DrawGeometry(geoBrake, _brushes["red"], lineWeight);
+    gfx.DrawGeometry(geoClutch, _brushes["blue"], lineWeight);
 end
 
 
