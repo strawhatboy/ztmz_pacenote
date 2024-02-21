@@ -7,6 +7,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Controls;
 using Wpf.Ui.Controls;
+using Wpf.Ui.Extensions;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.Core;

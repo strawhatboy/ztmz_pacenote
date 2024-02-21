@@ -60,11 +60,11 @@ function getGear(gear)
     return "";
 end
 
-function getRPMLevel(data)
-    local redZoneBlink = 0.88;
+function getRPMLevel(data, conf)
+    local redZoneBlink = conf.HudShiftRedZone;
     local redZone = 0.7;
-    local yellowZone = 0.5;
-    local greenZone = 0.3;
+    local yellowZone = conf.HudShiftYellowZone;
+    local greenZone = conf.HudShiftGreenZone;
 
     local rpm = data.RPM;
     local maxRPM = data.MaxRPM;
@@ -72,29 +72,36 @@ function getRPMLevel(data)
     local rpmLevel = 0;
     if (rpmPercentage > redZoneBlink) then
         rpmLevel = 4;
-    else
-        if (rpmPercentage > redZone) then
-            rpmLevel = 3;
-        else
-            if (rpmPercentage > yellowZone) then
-                rpmLevel = 2;
-            else
-                if (rpmPercentage > greenZone) then
-                    rpmLevel = 1;
-                end
-            end
-        end
+    elseif (rpmPercentage > yellowZone) then
+        rpmLevel = 2;
+    elseif (rpmPercentage > greenZone) then
+        rpmLevel = 1;
     end
 
     if (data.ShiftLightsRPMValid) then
         -- EA WRC Only
-        if (data.ShiftLightsFraction >= 1) then
+        rpmLightOnRange = data.ShiftLightsRPMEnd - data.ShiftLightsRPMStart;
+        if (rpm >= data.ShiftLightsRPMEnd) then
         -- in EA WRC, this means the shift light is blinking
             rpmLevel = 4;
-        elseif (rpmLevel == 4) then
-            -- not yet
-            rpmLevel = 3;
         end
+
+        if (rpm >= data.ShiftLightsRPMStart and rpm < (data.ShiftLightsRPMStart + 0.5 * rpmLightOnRange)) then
+            -- in EA WRC, this means the shift light is on, green
+            rpmLevel = 1;
+        end
+
+        if (rpm >= (data.ShiftLightsRPMStart + 0.5 * rpmLightOnRange) and rpm < data.ShiftLightsRPMEnd) then
+            -- in EA WRC, this means the shift light is on, yellow
+            rpmLevel = 2;
+        end
+
+        if (rpm < data.ShiftLightsRPMStart) then
+            -- in EA WRC, this means the shift light is off
+            rpmLevel = 0;
+        end
+
+        -- there's no red light in EA WRC, or there should not be red light
     end
 
     return rpmLevel

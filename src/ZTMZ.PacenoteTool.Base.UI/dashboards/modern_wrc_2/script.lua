@@ -85,7 +85,7 @@ function drawStaticFrames(gfx, self, data, helper, x, y, width, height)
     gfx.DrawImage(self.ImageResources["images@background"], x, y, x + width, y + height);
 end
 
-function drawRPM(gfx, self, data, helper, x, y, width, height)
+function drawRPM(gfx, self, data, conf, helper, x, y, width, height)
     framesCount = framesCount + 1;
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
@@ -103,7 +103,7 @@ function drawRPM(gfx, self, data, helper, x, y, width, height)
         _brushes["rpm"].SetRange(x + width * 0.471 - telemetryRadius, y + height * 0.62, x + width * 0.471 + telemetryRadius, y + height * 0.62);
 
         -- blink
-        local rpmLevel = getRPMLevel(data);
+        local rpmLevel = getRPMLevel(data, conf);
         if (rpmLevel == 4) then
             local framesLimit = BLINK_INTERVAL_FRAMES_PERCENTAGE * gfx.FPS;
             if (framesCount > framesLimit) then
@@ -312,7 +312,7 @@ function onUpdate(args)
     end
 
     drawStaticFrames(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);
-    drawRPM(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);
+    drawRPM(gfx, self, data, conf, helper, telemetryStartX, telemetryStartY, width, size);
     drawThrottle(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);
     drawBrake(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);
     drawClutch(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, size);

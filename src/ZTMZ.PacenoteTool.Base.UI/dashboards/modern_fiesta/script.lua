@@ -72,7 +72,7 @@ function drawRPM(gfx, data, conf, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     
-    local rpmLevel = getRPMLevel(data);
+    local rpmLevel = getRPMLevel(data, conf);
     
     if (rpmLevel > 0) then
         gfx.FillRectangle(_brushes["rpm_low"], x, y, x + width / 6, y + height);

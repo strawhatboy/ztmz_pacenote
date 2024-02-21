@@ -481,6 +481,27 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._HudTelemetryShowSuspensionBars;
         }
 
+        private float _HudShiftGreenZone = 0.75f;
+        public float HudShiftGreenZone
+        {
+            set { this._HudShiftGreenZone = value; this._userconfig["HudShiftGreenZone"] = value; }
+            get => this._HudShiftGreenZone;
+        }
+
+        private float _HudShiftYellowZone = 0.85f;
+        public float HudShiftYellowZone
+        {
+            set { this._HudShiftYellowZone = value; this._userconfig["HudShiftYellowZone"] = value; }
+            get => this._HudShiftYellowZone;
+        }
+
+        private float _HudShiftRedZone = 0.95f;
+        public float HudShiftRedZone
+        {
+            set { this._HudShiftRedZone = value; this._userconfig["HudShiftRedZone"] = value; }
+            get => this._HudShiftRedZone;
+        }
+
         private int _UI_SelectedHudIndex = 0;
         public int UI_SelectedHudIndex
         {

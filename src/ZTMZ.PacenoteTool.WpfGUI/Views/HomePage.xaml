@@ -31,7 +31,11 @@
             <ColumnDefinition Width="480" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <ui:InfoBar Grid.Row="0" Title="{Binding ViewModel.InfoBarTitle}" Message="{Binding ViewModel.InfoBarMessage}" IsOpen="{Binding ViewModel.InfoBarIsOpen}" />
+        <ui:InfoBar Grid.Row="0" Grid.ColumnSpan="2" 
+            Title="{Binding ViewModel.InfoBarTitle}" 
+            Message="{Binding ViewModel.InfoBarMessage}" 
+            IsOpen="{Binding ViewModel.InfoBarIsOpen}" 
+            Severity="{Binding ViewModel.InfoBarSeverity}"/>
 
         <!-- left pane -->
         <StackPanel Grid.Row="1" Margin="0 0 20 0" >

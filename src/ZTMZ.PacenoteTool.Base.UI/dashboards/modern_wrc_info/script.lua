@@ -174,7 +174,7 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
     gfx.FillCircle(_brushes["themeRG"], dotCenterX, dotCenterY, stageProgressWeight * 1.5);
 
     -- stage name
-    local stageName = ctx.TrackName;
+    local stageName = ctx.TrackName .. " @ " .. string.format("%.1f", math.floor(data.TrackLength) / 1000) .. " km";
     size = gfx.MeasureString(_fonts["wrc"], driverWeight * 0.8, stageName);
     local padding = height;
 

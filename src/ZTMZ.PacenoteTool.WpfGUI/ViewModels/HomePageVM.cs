@@ -15,6 +15,7 @@ using System.Diagnostics;
 using System.Threading;
 using VRGameOverlay.VROverlayWindow;
 using System.CodeDom;
+using Wpf.Ui.Extensions;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -214,8 +215,10 @@ public partial class HomePageVM : ObservableObject {
 
         _tool.onGameInitializeFailed += (game, code, parameters) => {
             IsGameInitialized = false;
-            _logger.Warn($"Game {game.Name} initialize failed. Code: {code}");
             IsGameInitializedFailed = code != PrerequisitesCheckResultCode.OK;
+            if (IsGameInitializedFailed) {
+                _logger.Warn($"Game {game.Name} initialize failed. Code: {code}");
+            }
             var message = "";
 
             if (code == PrerequisitesCheckResultCode.PORT_NOT_OPEN) {
@@ -285,7 +288,13 @@ public partial class HomePageVM : ObservableObject {
                 message = I18NLoader.Instance["ui.tooltip.cb_gameNotInstalled"];
             }
 
-            GameInitializeFailureMessage = message;
+            // Finally InfoBar closable issue was fixed in WPF-UI 3.0.0
+            if (code != PrerequisitesCheckResultCode.OK && !string.IsNullOrEmpty(message)) {
+                // GameInitializeFailureMessage = message;
+                // InfoBarIsOpen = true;
+                // InfoBarMessage = message;
+                // InfoBarSeverity = InfoBarSeverity.Warning;
+            }
         };
         _tool.onRaceBegin += (game) => { 
             IsRacing = true; 

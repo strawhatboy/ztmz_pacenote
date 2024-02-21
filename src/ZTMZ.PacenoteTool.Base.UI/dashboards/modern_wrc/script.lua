@@ -132,7 +132,7 @@ function drawStaticFrames(gfx, data, helper, x, y, radius, padding)
     gfx.drawTextWithBackgroundCentered(_fonts["wrc"], radius * 0.10, _brushes["white"], _brushes["transparent"], x, y - radius2ndArc * math.sin(-math.pi / 6), " Km/h ");
 end
 
-function drawRPM(gfx, data, helper, x, y, radius, padding)
+function drawRPM(gfx, data, conf, helper, x, y, radius, padding)
     framesCount = framesCount + 1;
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
@@ -151,7 +151,7 @@ function drawRPM(gfx, data, helper, x, y, radius, padding)
         _brushes["rpm"].SetRange(x - telemetryRadius, y, x + telemetryRadius, y);
 
         -- blink
-        local rpmLevel = getRPMLevel(data);
+        local rpmLevel = getRPMLevel(data, conf);
         if (rpmLevel == 4) then
             local framesLimit = BLINK_INTERVAL_FRAMES_PERCENTAGE * gfx.FPS;
             if (framesCount > framesLimit) then
@@ -346,7 +346,7 @@ function onUpdate(args)
     end
 
     drawStaticFrames(gfx, data, helper, telemetryCenterX, telemetryCenterY, size / 2, padding);
-    drawRPM(gfx, data, helper, telemetryCenterX, telemetryCenterY, size / 2, padding);
+    drawRPM(gfx, data, conf, helper, telemetryCenterX, telemetryCenterY, size / 2, padding);
     drawThrottle(gfx, data, helper, telemetryCenterX, telemetryCenterY, size / 2, padding);
     drawBrake(gfx, data, helper, telemetryCenterX, telemetryCenterY, size / 2, padding);
     drawClutch(gfx, data, helper, telemetryCenterX, telemetryCenterY, size / 2, padding);

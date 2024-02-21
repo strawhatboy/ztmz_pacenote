@@ -9,6 +9,8 @@ using System.Windows.Data;
 
 // using Wpf.Ui.Common;
 using Wpf.Ui.Controls;
+using Wpf.Ui.Extensions;
+
 // using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
