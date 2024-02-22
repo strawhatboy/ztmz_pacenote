@@ -5,10 +5,10 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>2.99.99.14</AssemblyVersion>
-    <PackageVersion>2.99.99.14</PackageVersion>
-    <Version>2.99.99.14</Version>
-    <FileVersion>2.99.99.14</FileVersion>
+    <AssemblyVersion>2.99.99.15</AssemblyVersion>
+    <PackageVersion>2.99.99.15</PackageVersion>
+    <Version>2.99.99.15</Version>
+    <FileVersion>2.99.99.15</FileVersion>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 
