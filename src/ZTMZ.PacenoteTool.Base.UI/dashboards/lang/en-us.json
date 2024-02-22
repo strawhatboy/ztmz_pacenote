@@ -48,6 +48,9 @@
             "switchGearNSpeed": "Switch Gear and Speed",
             "recordedFrames": "Recorded frames",
             "lineWeight": "Line weight",
+            "showThrottlePedal": "Show throttle pedal",
+            "showBrakePedal": "Show brake pedal",
+            "showClutchPedal": "Show clutch pedal",
 
             "tooltip": {
                 "enabled": "Enable or disable the dashboard",
@@ -69,7 +72,10 @@
                 "steeringDegree": "Steering degree",
                 "switchGearNSpeed": "Switch Gear and Speed numbers displayed on the dashboard",
                 "recordedFrames": "Recorded frames to show the pedals statistics, in 60fps, 120 means 2 seconds data",
-                "lineWeight": "Line weight of the dashboard"
+                "lineWeight": "Line weight of the dashboard",
+                "showThrottlePedal": "Show green line for throttle pedal",
+                "showBrakePedal": "Show red line for brake pedal",
+                "showClutchPedal": "Show blue line for clutch pedal"
             }
         }
     }

@@ -50,6 +50,9 @@ end
 function drawLines(gfx, self, data, helper, x, y, width, height)
     local lineWeight = self.GetConfigByKey("dashboards.settings.lineWeight");
     local _brushes = resources["brushes"];
+    local showThrottlePedal = self.GetConfigByKey("dashboards.settings.showThrottlePedal");
+    local showBrakePedal = self.GetConfigByKey("dashboards.settings.showBrakePedal");
+    local showClutchPedal = self.GetConfigByKey("dashboards.settings.showClutchPedal");
     -- resize the recordedData array according to the recordedDataLength
     if (recordedDataLength > #recordedData) then
         for i = #recordedData + 1, recordedDataLength do
@@ -121,9 +124,17 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
     geoClutch.EndFigure(false);
     geoClutch.Close();
 
-    gfx.DrawGeometry(geoThrottle, _brushes["green"], lineWeight);
-    gfx.DrawGeometry(geoBrake, _brushes["red"], lineWeight);
-    gfx.DrawGeometry(geoClutch, _brushes["blue"], lineWeight);
+    if (showThrottlePedal) then
+        gfx.DrawGeometry(geoThrottle, _brushes["green"], lineWeight);
+    end
+    
+    if (showBrakePedal) then
+        gfx.DrawGeometry(geoBrake, _brushes["red"], lineWeight);
+    end
+
+    if (showClutchPedal) then
+        gfx.DrawGeometry(geoClutch, _brushes["blue"], lineWeight);
+    end
 end
 
 

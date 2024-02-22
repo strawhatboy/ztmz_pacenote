@@ -148,12 +148,12 @@ public partial class App : Application
         _logger.Error(e.Exception, "Unhandled exception occurred.");
         // For more info see https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.dispatcherunhandledexception?view=windowsdesktop-6.0
         GetService<AzureAppInsightsManager>().TrackException(e.Exception);
-        GetService<IContentDialogService>().ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions
+        new Wpf.Ui.Controls.MessageBox
         {
             Title = I18NLoader.Instance["exception.unknown.title"],
             Content = e.Exception.ToString(),
             CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
-        });
+        }.ShowDialogAsync().Wait();
     }
 
     private void SetupExceptionHandling()
@@ -191,25 +191,24 @@ public partial class App : Application
         catch (Exception ex)
         {
             _logger.Error("Unknown Error when try to handle unhandled exception: {0}", ex);
-            GetService<IContentDialogService>().ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions
+            new Wpf.Ui.Controls.MessageBox
             {
                 Title = I18NLoader.Instance["exception.unknown.title"],
                 Content = ex.ToString(),
                 CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
-            }).Wait();
+            }.ShowDialogAsync().Wait();
         }
         finally
         {
             var exceptionStr = exception.ToString();
             _logger.Fatal("Unhandled Exception: {0}", message + exceptionStr);
             GetService<AzureAppInsightsManager>().TrackException(exception);
-            GetService<IContentDialogService>().ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions
+            new Wpf.Ui.Controls.MessageBox
             {
                 Title = I18NLoader.Instance["exception.unknown.title"],
                 Content = message + exceptionStr,
                 CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
-            });
-            // Task.Delay(5000).Wait();
+            }.ShowDialogAsync().Wait();
         }
     }
 

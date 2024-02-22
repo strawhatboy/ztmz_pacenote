@@ -226,18 +226,16 @@ public partial class HomePageVM : ObservableObject {
                 // show port not open dialog
                 _ = Application.Current.Dispatcher.Invoke(async () =>
                 {
-                    var result = await contentDialogService?.ShowSimpleDialogAsync(
-                        new SimpleContentDialogCreateOptions()
-                        {
-                            Title = I18NLoader.Instance["dialog.portNotOpen.title"],
-                            Content = message,
-                            PrimaryButtonText = I18NLoader.Instance["dialog.portNotOpen.btn_ok"],
-                            // SecondaryButtonText = "Don't Save",
-                            CloseButtonText = I18NLoader.Instance["dialog.portNotOpen.btn_cancel"]
-                        }
-                    );
+                    var result = await new Wpf.Ui.Controls.MessageBox {
+                        Title = I18NLoader.Instance["dialog.portNotOpen.title"],
+                        Content = message,
+                        PrimaryButtonText = I18NLoader.Instance["dialog.portNotOpen.btn_ok"],
+                        // SecondaryButtonText = "Don't Save",
+                        CloseButtonText = I18NLoader.Instance["dialog.portNotOpen.btn_cancel"]
+                    }.ShowDialogAsync();
+        
 
-                    if (result == ContentDialogResult.Primary) {
+                    if (result == Wpf.Ui.Controls.MessageBoxResult.Primary) {
                         // force fix
                         game.GamePrerequisiteChecker.ForceFix(game);
                     }
@@ -251,21 +249,19 @@ public partial class HomePageVM : ObservableObject {
                 // show port not match dialog
                 _ = Application.Current.Dispatcher.Invoke(async () =>
                 {
-                    var result = await contentDialogService?.ShowSimpleDialogAsync(
-                        new SimpleContentDialogCreateOptions()
-                        {
-                            Title = I18NLoader.Instance["dialog.portMismatch.title"],
-                            Content = message,
-                            PrimaryButtonText = I18NLoader.Instance["dialog.portMismatch.btn_FORCE"],
-                            SecondaryButtonText = I18NLoader.Instance["dialog.portMismatch.ckbox_show"],
-                            CloseButtonText = I18NLoader.Instance["dialog.portMismatch.btn_ok"]
-                        }
-                    );
+                    var result = await new Wpf.Ui.Controls.MessageBox
+                    {
+                        Title = I18NLoader.Instance["dialog.portMismatch.title"],
+                        Content = message,
+                        PrimaryButtonText = I18NLoader.Instance["dialog.portMismatch.btn_FORCE"],
+                        SecondaryButtonText = I18NLoader.Instance["dialog.portMismatch.ckbox_show"],
+                        CloseButtonText = I18NLoader.Instance["dialog.portMismatch.btn_ok"]
+                    }.ShowDialogAsync();
 
-                    if (result == ContentDialogResult.Primary) {
+                    if (result == Wpf.Ui.Controls.MessageBoxResult.Primary) {
                         // force fix
                         game.GamePrerequisiteChecker.ForceFix(game);
-                    } else if (result == ContentDialogResult.Secondary) {
+                    } else if (result == Wpf.Ui.Controls.MessageBoxResult.Secondary) {
                         Config.Instance.WarnIfPortMismatch = false;
                         Config.Instance.SaveUserConfig();
                     }
@@ -275,14 +271,12 @@ public partial class HomePageVM : ObservableObject {
                 // show port already in use dialog
                 _ = Application.Current.Dispatcher.Invoke(async () =>
                 {
-                    var result = await contentDialogService?.ShowSimpleDialogAsync(
-                        new SimpleContentDialogCreateOptions()
-                        {
-                            Title = I18NLoader.Instance["exception.portAlreadyInUse.title"],
-                            Content = message,
-                            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
-                        }
-                    );
+                    var result = await new Wpf.Ui.Controls.MessageBox
+                    {
+                        Title = I18NLoader.Instance["exception.portAlreadyInUse.title"],
+                        Content = message,
+                        CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+                    }.ShowDialogAsync();
                 });
             } else if (code == PrerequisitesCheckResultCode.GAME_NOT_INSTALLED) {
                 message = I18NLoader.Instance["ui.tooltip.cb_gameNotInstalled"];

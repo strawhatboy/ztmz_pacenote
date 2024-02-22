@@ -377,8 +377,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 foreach (var pair in _images) pair.Value.Dispose();
             }
 
-            _logger.Debug("Setting up graphics..., the factory is: {0}, factory in LuaArgs is {1}", gfx.GetFactory().NativePointer, DashboardScriptArguments.Graphics.GetFactory().NativePointer);
-            _logger.Debug("Setting up graphics..., the fontFactory is: {0}, fontfactory in LuaArgs is {1}", gfx.GetFontFactory().NativePointer, DashboardScriptArguments.Graphics.GetFontFactory().NativePointer);
+            // _logger.Debug("Setting up graphics..., the factory is: {0}, factory in LuaArgs is {1}", gfx.GetFactory().NativePointer, DashboardScriptArguments.Graphics.GetFactory().NativePointer);
+            // _logger.Debug("Setting up graphics..., the fontFactory is: {0}, fontfactory in LuaArgs is {1}", gfx.GetFontFactory().NativePointer, DashboardScriptArguments.Graphics.GetFontFactory().NativePointer);
             // load custom fonts
             gfx.LoadCustomFont(AppLevelVariables.Instance.GetPath(Constants.PATH_FONTS));
             _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
@@ -391,7 +391,6 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     {
                         try
                         {
-                            Thread.Sleep(dashboardLoadRetryInterval);
                             dashboard.Load(DashboardScriptArguments, true); // force reload resources
                             DashboardLoaded[i] = true;
                             dashboardLoadRetryCount = 0;
@@ -401,6 +400,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                         {
                             _logger.Error(ex, "Failed to load dashboard: {0}, retrying...", dashboard.Descriptor.Name);
                             dashboardLoadRetryCount++;
+                            Thread.Sleep(dashboardLoadRetryInterval);
                         }
                     }
                     if (dashboardLoadRetryCount >= dashboardLoadRetryMax)
