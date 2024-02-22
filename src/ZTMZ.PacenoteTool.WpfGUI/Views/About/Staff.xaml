@@ -179,6 +179,7 @@
             <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
                 <ui:TextBlock Text="Bigboxx" Margin="10 0 0 0"/>
                 <ui:TextBlock Text="DR2车手老王" Margin="10 0 0 0"/>
+                <ui:TextBlock Text="含蓄" Margin="10 0 0 0"/>
             </StackPanel>
             <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
                 <ui:TextBlock Text="沧竹烽" Margin="10 0 0 0"/>

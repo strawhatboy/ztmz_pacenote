@@ -156,14 +156,14 @@ function drawClutch(gfx, self, data, helper, x, y, width, height)
     -- 71x145
     local clutch = data.Clutch
     local clutchHeightTotal = height * 0.31
-    local clutchClipHeight = clutchHeightTotal * clutch;
+    local clutchClipHeight = clutchHeightTotal * (1-clutch);
     local clutchWHRatio = 71.0 / 145.0;
     local clutchWidth = clutchHeightTotal * clutchWHRatio;
 
     local widthStart = x + width * 0.368;
     local heightStart = y + height * 0.54;
 
-    gfx.ClipRegionStart(widthStart, heightStart, widthStart + clutchWidth, heightStart + clutchClipHeight);
+    gfx.ClipRegionStart(widthStart, heightStart + clutchClipHeight, widthStart + clutchWidth, heightStart + clutchHeightTotal);
     gfx.DrawImage(self.ImageResources["images@clutch"], widthStart, heightStart, widthStart + clutchWidth, heightStart + clutchHeightTotal);
     gfx.ClipRegionEnd();
 end
@@ -185,7 +185,7 @@ function drawHandBrake(gfx, self, data, helper, x, y, width, height)
         if (arcAngle > math.pi) then
             arcSize = ARCSIZE_LARGE;
         end
-        drawGeo(gfx, helper, widthStart, heightStart, 43 * math.pi / 48, -5.0 * math.pi / 24, telemetryRadius, telemetryRadius - handBrakeWeight, arcSize, _brushes["hybrid"]);
+        drawGeo(gfx, helper, widthStart, heightStart, 43 * math.pi / 48 - arcAngle, -5.0 * math.pi / 24, telemetryRadius, telemetryRadius - handBrakeWeight, arcSize, _brushes["hybrid"]);
     end
 
     -- draw icon 40x33
