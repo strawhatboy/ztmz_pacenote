@@ -51,6 +51,7 @@
             "showThrottlePedal": "Show throttle pedal",
             "showBrakePedal": "Show brake pedal",
             "showClutchPedal": "Show clutch pedal",
+            "showHandBrakePedal": "Show hand brake (pedal?)",
 
             "tooltip": {
                 "enabled": "Enable or disable the dashboard",
@@ -75,7 +76,8 @@
                 "lineWeight": "Line weight of the dashboard",
                 "showThrottlePedal": "Show green line for throttle pedal",
                 "showBrakePedal": "Show red line for brake pedal",
-                "showClutchPedal": "Show blue line for clutch pedal"
+                "showClutchPedal": "Show blue line for clutch pedal",
+                "showHandBrakePedal": "Show yellow line for handbrake, handbrake data is only available \nin some games (RBR, EA Sports WRC)"
             }
         }
     }

@@ -24,6 +24,7 @@ function onInit(args)
     _brushes["red"] = gfx.CreateSolidBrush(255, 0, 0, 150);
     _brushes["green"] = gfx.CreateSolidBrush(0, 255, 0, 150);
     _brushes["blue"] = gfx.CreateSolidBrush(0, 0, 255, 150);
+    _brushes["yellow"] = gfx.CreateSolidBrush(255, 255, 0, 150);
 
     _brushes["telemetryBackground"] = gfx.CreateSolidBrush(0x2c, 0x33, 0x3c, 100);
     
@@ -53,6 +54,7 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
     local showThrottlePedal = self.GetConfigByKey("dashboards.settings.showThrottlePedal");
     local showBrakePedal = self.GetConfigByKey("dashboards.settings.showBrakePedal");
     local showClutchPedal = self.GetConfigByKey("dashboards.settings.showClutchPedal");
+    local showHandBrakePedal = self.GetConfigByKey("dashboards.settings.showHandBrakePedal");
     -- resize the recordedData array according to the recordedDataLength
     if (recordedDataLength > #recordedData) then
         for i = #recordedData + 1, recordedDataLength do
@@ -74,7 +76,7 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
         if (currentDataIndex > recordedDataLength) then
             currentDataIndex = 1;
         end
-        recordedData[currentDataIndex] = { data.Throttle, data.Brake, data.Clutch };
+        recordedData[currentDataIndex] = { data.Throttle, data.Brake, data.Clutch, data.HandBrake };
     elseif (data.LapTime - lastTime < 0) then
         lastTime = data.LapTime;
     end
@@ -86,8 +88,18 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
     local geoThrottle = gfx.CreateGeometry();
     local geoBrake = gfx.CreateGeometry();
     local geoClutch = gfx.CreateGeometry();
+    local geoHandBrake = gfx.CreateGeometry();
 
     local isFirst = true;
+
+    local throttle = 0;
+    local brake = 0;
+    local clutch = 0;
+    local handBrake = 0;
+    local throttleY = 0;
+    local brakeY = 0;
+    local clutchY = 0;
+    local handBrakeY = 0;
 
     for i = currentDataIndex + 1, currentDataIndex + recordedDataLength do
         if (i > recordedDataLength) then
@@ -95,12 +107,37 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
         end
 
         -- print("drawing the lines: " .. i)
-        local throttle = recordedData[i][1];
-        local brake = recordedData[i][2];
-        local clutch = recordedData[i][3];
-        local throttleY = y + height - throttle * height;
-        local brakeY = y + height - brake * height;
-        local clutchY = y + height - clutch * height;
+        throttle = recordedData[i][1];
+        brake = recordedData[i][2];
+        clutch = recordedData[i][3];
+        handBrake = recordedData[i][4];
+        if (throttle < 0) then
+            throttle = 0;
+        elseif (throttle > 1) then
+            throttle = 1;
+        end
+
+        if (brake < 0) then
+            brake = 0;
+        elseif (brake > 1) then
+            brake = 1;
+        end
+
+        if (clutch < 0) then
+            clutch = 0;
+        elseif (clutch > 1) then
+            clutch = 1;
+        end
+
+        if (handBrake < 0) then
+            handBrake = 0;
+        elseif (handBrake > 1) then
+            handBrake = 1;
+        end
+        throttleY = y + height - throttle * height;
+        brakeY = y + height - brake * height;
+        clutchY = y + height - clutch * height;
+        handBrakeY = y + height - handBrake * height;
 
         -- print("drawing the lines: " .. throttleY .. " " .. brakeY .. " " .. clutchY)
         if (isFirst) then
@@ -108,10 +145,12 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
             geoThrottle.BeginFigure(helper.getPoint(lastX, throttleY), false);
             geoBrake.BeginFigure(helper.getPoint(lastX, brakeY), false);
             geoClutch.BeginFigure(helper.getPoint(lastX, clutchY), false);
+            geoHandBrake.BeginFigure(helper.getPoint(lastX, handBrakeY), false);
         else
             geoThrottle.AddPoint(helper.getPoint(lastX, throttleY));
             geoBrake.AddPoint(helper.getPoint(lastX, brakeY));
             geoClutch.AddPoint(helper.getPoint(lastX, clutchY));
+            geoHandBrake.AddPoint(helper.getPoint(lastX, handBrakeY));
         end
 
         lastX = lastX + step;
@@ -123,6 +162,8 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
     geoBrake.Close();
     geoClutch.EndFigure(false);
     geoClutch.Close();
+    geoHandBrake.EndFigure(false);
+    geoHandBrake.Close();
 
     if (showThrottlePedal) then
         gfx.DrawGeometry(geoThrottle, _brushes["green"], lineWeight);
@@ -134,6 +175,10 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
 
     if (showClutchPedal) then
         gfx.DrawGeometry(geoClutch, _brushes["blue"], lineWeight);
+    end
+
+    if (showHandBrakePedal and data.HandBrakeValid) then    -- handbrake data should be available
+        gfx.DrawGeometry(geoHandBrake, _brushes["yellow"], lineWeight);
     end
 end
 

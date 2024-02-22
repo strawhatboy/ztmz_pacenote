@@ -157,7 +157,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 Brake = 1f,
                 Throttle = 1f,
                 Clutch = 0.3f,
-                HandBrake = 0.5f,
+                HandBrake = 0.95f,
+                HandBrakeValid = true,
                 RPM = 6000f,
                 MaxRPM = 9000f,
                 IdleRPM = 1000f,
@@ -192,7 +193,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 PosY = 425,
                 PosZ = 5356,
                 TimeStamp = DateTime.Now,
-                TrackLength = 35667,
+                TrackLength = 35667
             };
             TimeToShowTelemetry = true;
 #endif

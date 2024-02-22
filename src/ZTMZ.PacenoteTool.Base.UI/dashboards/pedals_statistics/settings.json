@@ -13,7 +13,8 @@
         "dashboards.settings.lineWeight": "dashboards.settings.tooltip.lineWeight",
         "dashboards.settings.showThrottlePedal": "dashboards.settings.tooltip.showThrottlePedal",
         "dashboards.settings.showBrakePedal": "dashboards.settings.tooltip.showBrakePedal",
-        "dashboards.settings.showClutchPedal": "dashboards.settings.tooltip.showClutchPedal"
+        "dashboards.settings.showClutchPedal": "dashboards.settings.tooltip.showClutchPedal",
+        "dashboards.settings.showHandBrakePedal": "dashboards.settings.tooltip.showHandBrakePedal"
     },
     "PropertyValue": [
         true,
@@ -23,15 +24,16 @@
         5,
         0.08,
         0.11,
-        300,
+        180,
         0.02,
         0.06,
         2,
         true,
         true,
+        false,
         false
     ],
     "ValueRange": [
-        [], [], [], [0.01, 1], [3, 10], [0.0, 0.5], [0.0, 0.5], [300, 1200], [0.0, 0.3], [0.0, 0.3], [1, 10], [], [], []
+        [], [], [], [0.01, 1], [3, 10], [0.0, 0.5], [0.0, 0.5], [180, 1200], [0.0, 0.3], [0.0, 0.3], [1, 10], [], [], [], []
     ]
 }

@@ -270,6 +270,7 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.Steering = data.control.steering;
         gameData.Gear = data.control.gear;
         gameData.HandBrake = data.control.handbrake;
+        gameData.HandBrakeValid = true;
         
         
         // gameData.MaxGears = data.MaxGears;

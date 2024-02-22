@@ -136,6 +136,7 @@ public class WRCGameDataReader : DirtGameDataReader
         message.Brake = wrcData.vehicle_brake;
         message.Throttle = wrcData.vehicle_throttle;
         message.HandBrake = wrcData.vehicle_handbrake;
+        message.HandBrakeValid = true;
 
         message.Steering = wrcData.vehicle_steering;
         message.Gear = wrcData.vehicle_gear_index;

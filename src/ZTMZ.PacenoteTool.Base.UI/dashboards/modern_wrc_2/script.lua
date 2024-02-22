@@ -180,9 +180,10 @@ function drawHandBrake(gfx, self, data, helper, x, y, width, height)
     local handBrakeWeight = height * 0.028;
 
     if (handBrake > 0) then
-        local arcAngle = 53.0 * math.pi / 48.0 * handBrake;
+        local totalArcAngle = 53.0 * math.pi / 48.0;
+        local arcAngle = totalArcAngle * (1-handBrake);
         local arcSize = ARCSIZE_SMALL;
-        if (arcAngle > math.pi) then
+        if (totalArcAngle - arcAngle > math.pi) then
             arcSize = ARCSIZE_LARGE;
         end
         drawGeo(gfx, helper, widthStart, heightStart, 43 * math.pi / 48 - arcAngle, -5.0 * math.pi / 24, telemetryRadius, telemetryRadius - handBrakeWeight, arcSize, _brushes["hybrid"]);

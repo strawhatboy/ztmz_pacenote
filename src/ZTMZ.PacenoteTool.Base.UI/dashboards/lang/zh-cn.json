@@ -51,6 +51,7 @@
             "showThrottlePedal": "显示油门踏板",
             "showBrakePedal": "显示刹车踏板",
             "showClutchPedal": "显示离合器踏板",
+            "showHandBrakePedal": "显示手刹（踏板？不，是线性手刹",
 
             "tooltip": {
                 "enabled": "启用/禁用仪表盘",
@@ -75,7 +76,8 @@
                 "lineWeight": "仪表盘中线条的粗细",
                 "showThrottlePedal": "用绿色线条显示油门踏板",
                 "showBrakePedal": "用红色线条显示刹车踏板",
-                "showClutchPedal": "用蓝色线条显示离合器踏板"
+                "showClutchPedal": "用蓝色线条显示离合器踏板",
+                "showHandBrakePedal": "用黄色线条显示手刹状态，手刹状态只有在RBR和EA Sports WRC这两个游戏中有效"
             }
         }
     }

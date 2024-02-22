@@ -20,6 +20,7 @@ function onInit(args)
     _brushes["black"] = gfx.CreateSolidBrush(0, 0, 0);
     _brushes["white"] = gfx.CreateSolidBrush(255, 255, 255);
     _brushes["red"] = gfx.CreateSolidBrush(255, 0, 0);
+    _brushes["yellow"] = gfx.CreateSolidBrush(255, 255, 0);
     _brushes["grey"] = gfx.CreateSolidBrush(64, 64, 64);
     if (conf.HudChromaKeyMode) then
         _brushes["green"] = gfx.CreateSolidBrush(0, 0, 255);
@@ -87,7 +88,14 @@ function drawPedals(gfx, conf, self, data, helper, x, y, width, height)
     gfx.DrawRectangle(_brushes["black"], x + 2 * pedalWidth + 2 * spacing-1, y-1, x + width+1, y + height+1, 1);
 
     gfx.FillRectangle(_brushes["blue"], 1 + x, 1 + y + height * (1-data.Clutch), x + pedalWidth - 1, y + height - 1);
-    gfx.FillRectangle(_brushes["red"], 1 + x + pedalWidth + spacing, 1 + y + height * (1-data.Brake), x + 2 * pedalWidth + spacing - 1, y + height - 1);
+    if (data.HandBrakeValid) then
+        -- left half is handbrake
+        -- right half is brake
+        gfx.FillRectangle(_brushes["red"], 1 + x + pedalWidth + spacing, 1 + y + height * (1-data.Brake), x + 2 * pedalWidth + spacing - 1, y + height - 1);
+        gfx.FillRectangle(_brushes["yellow"], 1 + x + pedalWidth + spacing, 1 + y + height * (1-data.HandBrake), x + 1.5 * pedalWidth + spacing, y + height - 1);
+    else
+        gfx.FillRectangle(_brushes["red"], 1 + x + pedalWidth + spacing, 1 + y + height * (1-data.Brake), x + 2 * pedalWidth + spacing - 1, y + height - 1);
+    end
     gfx.FillRectangle(_brushes["green"], 1 + x + 2 * pedalWidth + 2 * spacing, 1 + y + height * (1-data.Throttle), x + width - 1, y + height - 1);
 end
 
