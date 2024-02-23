@@ -5,10 +5,10 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>2.99.99.15</AssemblyVersion>
-    <PackageVersion>2.99.99.15</PackageVersion>
-    <Version>2.99.99.15</Version>
-    <FileVersion>2.99.99.15</FileVersion>
+    <AssemblyVersion>2.99.99.16</AssemblyVersion>
+    <PackageVersion>2.99.99.16</PackageVersion>
+    <Version>2.99.99.16</Version>
+    <FileVersion>2.99.99.16</FileVersion>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 
@@ -22,15 +22,26 @@
     <ProjectReference Include="..\ZTMZ.PacenoteTool.I18N\ZTMZ.PacenoteTool.I18N.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\app.ico" >
+    <Resource Include="Assets\app.ico">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Assets\app.png" >
+    <Resource Include="Assets\app.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
 
   <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
     <None Update="更新记录.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

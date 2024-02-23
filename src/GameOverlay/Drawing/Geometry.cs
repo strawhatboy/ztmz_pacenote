@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Diagnostics;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
@@ -67,7 +67,7 @@ namespace GameOverlay.Drawing
         /// <summary>
         /// Ends the currently started figure.
         /// </summary>
-        /// <param name="closed">A Boolean value indicating whether this figure should automatically be closen by the Graphics device.</param>
+        /// <param name="closed">A Boolean value indicating whether this figure is open or closed. コ or 口</param>
         public void EndFigure(bool closed = true)
         {
             _sink.EndFigure(closed ? FigureEnd.Closed : FigureEnd.Open);

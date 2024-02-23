@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ZTMZ.PacenoteTool.WpfGUI": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

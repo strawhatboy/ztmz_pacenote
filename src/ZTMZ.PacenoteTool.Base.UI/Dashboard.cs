@@ -143,7 +143,8 @@ public class Dashboard {
         LuaG = _lua.CreateEnvironment();
         LuaG.DefaultCompileOptions = new LuaCompileOptions()
         {
-            ClrEnabled = false
+            ClrEnabled = false,
+            
         };
         foreach (var commonLuaScript in Directory.GetFiles(AppLevelVariables.Instance.GetPath(Path.Join(Constants.PATH_DASHBOARDS, "common")), "*.lua")) {
             _logger.Debug("Loading common lua script {0}", commonLuaScript);

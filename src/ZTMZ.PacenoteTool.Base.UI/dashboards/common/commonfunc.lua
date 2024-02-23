@@ -43,6 +43,9 @@ function drawGeo(gfx, helper, centerX, centerY, startAngle, endAngle, radiusOute
     geo_path.Close();
 
     gfx.FillGeometry(geo_path, brush);
+
+    -- need manually dispose this object!
+    geo_path.Dispose();
 end
 
 -- input: gear: float

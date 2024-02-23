@@ -85,6 +85,7 @@ function drawStaticFrames(gfx, self, data, helper, x, y, width, height)
     geo_path.Close();
 
     gfx.FillGeometry(geo_path, _brushes["theme"]);
+    geo_path.Dispose();
 
     -- print("drawing the middle frame")
     geo_path = gfx.CreateGeometry();
@@ -96,16 +97,18 @@ function drawStaticFrames(gfx, self, data, helper, x, y, width, height)
     geo_path.EndFigure();
     geo_path.Close();
     gfx.FillGeometry(geo_path, _brushes["theme"]);
+    geo_path.Dispose();
 
     -- print("drawing the right frame")
     geo_path = gfx.CreateGeometry();
     geo_path.BeginFigure(helper.getPoint(x + 7 * width / 10, y), true);
     geo_path.AddPoint(helper.getPoint(x + width, y));
     geo_path.AddPoint(helper.getPoint(x + width, y + height));
-    geo_path.AddPoint(helper.getPoint(x + 7 * width / 10 - height / 8, y + height));
+    geo_path.AddPoint(helper.getPoint(x + 7 * width / 10 - height / 4, y + height));
     geo_path.EndFigure();
     geo_path.Close();
     gfx.FillGeometry(geo_path, _brushes["theme"]);
+    geo_path.Dispose();
 end
 
 function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, height)
@@ -124,7 +127,7 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
         local imageWHRatio = regionImage.Width / regionImage.Height;
         local ImageHeight = 3 * height / 4;
         local ImageWidth = ImageHeight * imageWHRatio;
-        local startX = x + 7 * width / 10 - height / 2 - ImageWidth;
+        local startX = x + 7 * width / 10 - height - ImageWidth;
         local startY = y + height / 2 - ImageHeight / 2;
         gfx.DrawImage(regionImage, startX, startY, startX + ImageWidth, startY + ImageHeight);
     end
@@ -182,10 +185,11 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
     geo_path.BeginFigure(helper.getPoint(x + width - size.X - padding * 2, y - size.Y - stageProgressWeight), true);
     geo_path.AddPoint(helper.getPoint(x + width, y - size.Y - stageProgressWeight));
     geo_path.AddPoint(helper.getPoint(x + width, y - stageProgressWeight));
-    geo_path.AddPoint(helper.getPoint(x + width - size.X - padding * 2 - size.Y / 8, y - stageProgressWeight));
+    geo_path.AddPoint(helper.getPoint(x + width - size.X - padding * 2 - size.Y / 4, y - stageProgressWeight));
     geo_path.EndFigure();
     geo_path.Close();
     gfx.FillGeometry(geo_path, _brushes["background"]);
+    geo_path.Dispose();
     
     gfx.DrawText(_fonts["wrc"], driverWeight * 0.8, _brushes["white"], x + width - size.X - padding, y - size.Y - stageProgressWeight, stageName);
 

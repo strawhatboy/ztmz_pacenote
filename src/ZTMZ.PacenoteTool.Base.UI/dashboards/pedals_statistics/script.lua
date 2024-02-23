@@ -85,10 +85,11 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
     -- draw the lines
     local step = width / recordedDataLength;
     local lastX = x;
-    local geoThrottle = gfx.CreateGeometry();
-    local geoBrake = gfx.CreateGeometry();
-    local geoClutch = gfx.CreateGeometry();
-    local geoHandBrake = gfx.CreateGeometry();
+    -- local geoThrottle = gfx.CreateGeometry();
+    -- local geoBrake = gfx.CreateGeometry();
+    -- local geoClutch = gfx.CreateGeometry();
+    -- local geoHandBrake = gfx.CreateGeometry();
+    -- change from geometry to lines
 
     local isFirst = true;
 
@@ -100,6 +101,11 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
     local brakeY = 0;
     local clutchY = 0;
     local handBrakeY = 0;
+    
+    local lastThrottleY = throttleY;
+    local lastBrakeY = brakeY;
+    local lastClutchY = clutchY;
+    local lastHandBrakeY = handBrakeY;
 
     for i = currentDataIndex + 1, currentDataIndex + recordedDataLength do
         if (i > recordedDataLength) then
@@ -142,44 +148,60 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
         -- print("drawing the lines: " .. throttleY .. " " .. brakeY .. " " .. clutchY)
         if (isFirst) then
             isFirst = false;
-            geoThrottle.BeginFigure(helper.getPoint(lastX, throttleY), false);
-            geoBrake.BeginFigure(helper.getPoint(lastX, brakeY), false);
-            geoClutch.BeginFigure(helper.getPoint(lastX, clutchY), false);
-            geoHandBrake.BeginFigure(helper.getPoint(lastX, handBrakeY), false);
+            -- geoThrottle.BeginFigure(helper.getPoint(lastX, throttleY), false);
+            -- geoBrake.BeginFigure(helper.getPoint(lastX, brakeY), false);
+            -- geoClutch.BeginFigure(helper.getPoint(lastX, clutchY), false);
+            -- geoHandBrake.BeginFigure(helper.getPoint(lastX, handBrakeY), false);
         else
-            geoThrottle.AddPoint(helper.getPoint(lastX, throttleY));
-            geoBrake.AddPoint(helper.getPoint(lastX, brakeY));
-            geoClutch.AddPoint(helper.getPoint(lastX, clutchY));
-            geoHandBrake.AddPoint(helper.getPoint(lastX, handBrakeY));
+            -- geoThrottle.AddPoint(helper.getPoint(lastX, throttleY));
+            -- geoBrake.AddPoint(helper.getPoint(lastX, brakeY));
+            -- geoClutch.AddPoint(helper.getPoint(lastX, clutchY));
+            -- geoHandBrake.AddPoint(helper.getPoint(lastX, handBrakeY));
+            if (showThrottlePedal) then
+                gfx.DrawLine(_brushes["green"], lastX, lastThrottleY, lastX + step, throttleY, lineWeight);
+            end
+            if (showBrakePedal) then
+                gfx.DrawLine(_brushes["red"], lastX, lastBrakeY, lastX + step, brakeY, lineWeight);
+            end
+            if (showClutchPedal) then
+                gfx.DrawLine(_brushes["blue"], lastX, lastClutchY, lastX + step, clutchY, lineWeight);
+            end
+            if (showHandBrakePedal and data.HandBrakeValid) then
+                gfx.DrawLine(_brushes["yellow"], lastX, lastHandBrakeY, lastX + step, handBrakeY, lineWeight);
+            end
         end
 
         lastX = lastX + step;
+        lastThrottleY = throttleY;
+        lastBrakeY = brakeY;
+        lastClutchY = clutchY;
+        lastHandBrakeY = handBrakeY;
     end
 
-    geoThrottle.EndFigure(false);
-    geoThrottle.Close();
-    geoBrake.EndFigure(false);
-    geoBrake.Close();
-    geoClutch.EndFigure(false);
-    geoClutch.Close();
-    geoHandBrake.EndFigure(false);
-    geoHandBrake.Close();
+    -- geoThrottle.EndFigure(false);
+    -- geoThrottle.Close();
+    -- geoBrake.EndFigure(false);
+    -- geoBrake.Close();
+    -- geoClutch.EndFigure(false);
+    -- geoClutch.Close();
+    -- geoHandBrake.EndFigure(false);
+    -- geoHandBrake.Close();
 
-    if (showThrottlePedal) then
-        gfx.DrawGeometry(geoThrottle, _brushes["green"], lineWeight);
-    end
+    -- if (showThrottlePedal) then
+    --     gfx.DrawGeometry(geoThrottle, _brushes["green"], lineWeight);
+    -- end
     
-    if (showBrakePedal) then
-        gfx.DrawGeometry(geoBrake, _brushes["red"], lineWeight);
-    end
+    -- if (showBrakePedal) then
+    --     gfx.DrawGeometry(geoBrake, _brushes["red"], lineWeight);
+    -- end
 
-    if (showClutchPedal) then
-        gfx.DrawGeometry(geoClutch, _brushes["blue"], lineWeight);
-    end
+    -- if (showClutchPedal) then
+    --     gfx.DrawGeometry(geoClutch, _brushes["blue"], lineWeight);
+    -- end
 
-    if (showHandBrakePedal and data.HandBrakeValid) then    -- handbrake data should be available
-        gfx.DrawGeometry(geoHandBrake, _brushes["yellow"], lineWeight);
-    end
+    -- if (showHandBrakePedal and data.HandBrakeValid) then    -- handbrake data should be available
+    --     gfx.DrawGeometry(geoHandBrake, _brushes["yellow"], lineWeight);
+    -- end
 end
 
 

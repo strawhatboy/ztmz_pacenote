@@ -233,6 +233,7 @@ function drawSteering(gfx, conf, self, data, helper, x, y, width, height)
     geo_path.Close();
 
     gfx.FillGeometry(geo_path, pathBrush);
+    geo_path.Dispose();
     
     local geo_cur = gfx.CreateGeometry();
     geo_cur.BeginFigure(helper.getPoint(centerX + radiusOuter * math.cos(steeringAngle + alpha),
@@ -247,6 +248,7 @@ function drawSteering(gfx, conf, self, data, helper, x, y, width, height)
     geo_cur.Close();
     
     gfx.FillGeometry(geo_cur, _brushes["red"]);
+    geo_cur.Dispose();
 end
 
 function drawRPMSector(gfx, conf, self, data, helper, x, y, width, height)

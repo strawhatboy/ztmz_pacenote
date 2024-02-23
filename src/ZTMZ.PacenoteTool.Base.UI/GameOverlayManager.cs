@@ -798,6 +798,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             geo_path.Close();
 
             gfx.FillGeometry(geo_path, pathBrush);
+            geo_path.Dispose();
             
             var geo_cur = gfx.CreateGeometry();
             geo_cur.BeginFigure(new Point(centerX + radiusOuter * MathF.Cos(steeringAngle + alpha),
@@ -812,6 +813,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             geo_cur.Close();
             
             gfx.FillGeometry(geo_cur, _brushes["red"]);
+            geo_cur.Dispose();
         }
         
         private string getGearText(int g)
@@ -982,6 +984,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
             geo_bg.Close();
             gfx.FillGeometry(geo_bg, _brushes["grey"]);
             gfx.DrawGeometry(geo_bg, _brushes["black"], 1);
+
+            geo_bg.Dispose();
             
             // draw value
             var angle = MathF.PI * 1.25f - value / maxValue * MathF.PI * 1.5f;
@@ -1020,6 +1024,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
             geo_bg.EndFigure();
             geo_bg.Close();
             gfx.FillGeometry(geo_bg, _brushes["white"]);
+
+            geo_bg.Dispose();
 
             gfx.drawTextWithBackgroundCentered(_fonts["consolas"],
                 0.2f * radiusOuter,
@@ -1246,6 +1252,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             geo_bg.Close();
             gfx.FillGeometry(geo_bg, emptyBrush);
             gfx.DrawGeometry(geo_bg, bgBrush, 1);
+            geo_bg.Dispose();
             
             // draw value
             var angle = MathF.PI * 1.25f - value / maxValue * MathF.PI * 1.5f;
@@ -1284,6 +1291,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             geo_bg.EndFigure();
             geo_bg.Close();
             gfx.FillGeometry(geo_bg, valueBrush);
+            geo_bg.Dispose();
 
             gfx.drawTextWithBackgroundCentered(textFont,
                 0.2f * radiusOuter,
