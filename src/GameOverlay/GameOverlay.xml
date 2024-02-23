@@ -439,7 +439,6 @@
             <summary>
             Represents a Geometry which can be drawn by a Graphics device.
             </summary>
-            POSSIBLE UNMANAGED MEMORY LEAK IN THIS CLASS !!!!
         </member>
         <member name="P:GameOverlay.Drawing.Geometry.IsOpen">
             <summary>
@@ -475,8 +474,7 @@
             <summary>
             Ends the currently started figure.
             </summary>
-            <param name="closed">A Boolean value indicating whether this figure should automatically be closen by the Graphics device.</param>
-            ???? close here means the last point will be connected to the first point, but not closed by the Graphics device !!!
+            <param name="closed">A Boolean value indicating whether this figure is open or closed. コ or 口</param>
         </member>
         <member name="M:GameOverlay.Drawing.Geometry.AddPoint(GameOverlay.Drawing.Point)">
             <summary>
