@@ -94,8 +94,10 @@ public partial class App : Application
             services.AddScoped<ViewModels.GeneralPageVM>();
             services.AddScoped<Views.VoicePage>();
             services.AddScoped<ViewModels.VoicePageVM>();
-            services.AddScoped<Views.VoicePage>();
-            services.AddScoped<ViewModels.VoicePageVM>();
+            services.AddScoped<Views.VoiceSettingsPage>();
+            services.AddScoped<ViewModels.VoiceSettingsPageVM>();
+            services.AddScoped<Views.VoicePackagePage>();
+            services.AddScoped<ViewModels.VoicePackagePageVM>();
             services.AddScoped<Views.PlayPage>();
             services.AddScoped<ViewModels.PlayPageVM>();
             services.AddScoped<Views.HudPage>();

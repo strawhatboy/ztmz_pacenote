@@ -81,6 +81,7 @@
                     ItemsSource="{Binding Path=ViewModel.Games, Mode=OneWay}"
                     SelectedItem="{Binding Path=ViewModel.SelectedGame, Mode=TwoWay}"
                     ToolTip="{Binding Path=ViewModel.SelectedGame.Game.Description}" 
+                    ToolTipService.InitialShowDelay="100"
                     VerticalAlignment="Center">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
@@ -102,7 +103,8 @@
                 <Border Grid.Row="0" Grid.Column="1" Background="#FFFF8888" Height="4" 
                     Visibility="{Binding ViewModel.IsGameInitializedFailed, 
                                 Converter={StaticResource BooleanToVisibilityConverter}}"
-                    ToolTip="{Binding ViewModel.GameInitializeFailureMessage}">
+                    ToolTip="{Binding ViewModel.GameInitializeFailureMessage}"
+                    ToolTipService.InitialShowDelay="100">
                     
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="40" Color="Red" ShadowDepth="0" Opacity="1" />
@@ -154,6 +156,7 @@
                         <ui:ToggleSwitch Grid.Column="1" Name="tb_hud" 
                             IsChecked="{Binding Path=ViewModel.IsHudEnabled, Mode=TwoWay}"
                             ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_showHud}"
+                            ToolTipService.InitialShowDelay="100"
                             Margin="0 0 10 0"
                             />
                     </Grid>
@@ -199,12 +202,14 @@
                                 VerticalAlignment="Top" 
                                 ItemsSource="{Binding Path=ViewModel.CodriverPackageInfos, Mode=OneWay}"
                                 SelectedItem="{Binding Path=ViewModel.SelectedCodriver, Mode=TwoWay}"
-                                ToolTip="{Binding Path=ViewModel.SelectedCodriver.description}"
+                                ToolTipService.ToolTip="{Binding Path=ViewModel.SelectedCodriver.description}"
+                                ToolTipService.InitialShowDelay="100"
                                 Margin="0 0 0 10"
                                 >
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid VerticalAlignment="Center" ToolTip="{Binding Path=description}" >
+                                    <Grid VerticalAlignment="Center" ToolTip="{Binding Path=description}" 
+                                    ToolTipService.InitialShowDelay="100">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="*"></RowDefinition>
                                             <RowDefinition Height="*"></RowDefinition>
@@ -253,7 +258,8 @@
                         <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
                             <ui:Button Content="{DynamicResource ResourceKey=ui.btn_playExample}" Icon="{ui:SymbolIcon Play20}" Margin="0 0 10 0" Command="{Binding ViewModel.PlayExampleCommand}" />
                             <ui:Anchor Content="{DynamicResource ResourceKey=ui.tb_codriverLink}" Icon="{ui:SymbolIcon Link20}" Margin="0 0 10 0" NavigateUri="{Binding Path=ViewModel.SelectedCodriver.homepage}" />
-                            <ui:Button ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentCodriver}" Icon="{ui:SymbolIcon Folder20}" Margin="0 0 10 0" Command="{Binding ViewModel.OpenCodriverFolderCommand}" />
+                            <ui:Button ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentCodriver}" 
+                                ToolTipService.InitialShowDelay="100" Icon="{ui:SymbolIcon Folder20}" Margin="0 0 10 0" Command="{Binding ViewModel.OpenCodriverFolderCommand}" />
                             <ui:Button Content="{DynamicResource ResourceKey=settings.more}" Icon="{ui:SymbolIcon MoreHorizontal20}" Command="{Binding ViewModel.MoreCodriverSettingsCommand}" />
                         </StackPanel>
                     </Grid>
@@ -335,7 +341,8 @@
                                 Content="Script"> -->
                 
                             <ui:TextBlock Grid.Row="1" Grid.Column="0" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_replayDevice}"
-                                        Text="{DynamicResource ResourceKey=ui.tb_replayDevice}" />
+                                ToolTipService.InitialShowDelay="100"
+                                Text="{DynamicResource ResourceKey=ui.tb_replayDevice}" />
                             <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Name="cb_replay_device" VerticalAlignment="Center"
                                 ItemsSource="{Binding Path=ViewModel.OutputDevices, Mode=OneWay}"
                                 SelectedItem="{Binding Path=ViewModel.SelectedOutputDevice, Mode=TwoWay}">
@@ -348,7 +355,8 @@
                                 </b:Interaction.Triggers>
                             </ComboBox>
                             <ui:TextBlock Grid.Row="2" Grid.Column="0" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_playVolume}" 
-                                        Text="{DynamicResource ResourceKey=ui.tb_playVolume}">
+                                ToolTipService.InitialShowDelay="100"
+                                Text="{DynamicResource ResourceKey=ui.tb_playVolume}">
                             </ui:TextBlock>
                             <Slider Name="s_volume" Grid.Row="2" Grid.Column="2" Maximum="100" Minimum="0" Interval="1"
                                 Value="{Binding Path=ViewModel.PlaybackVolume, Mode=TwoWay}" 
@@ -356,7 +364,8 @@
                             <ui:TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" Name="tb_volume" Text="{Binding Path=ViewModel.PlaybackVolume, Mode=OneWay, StringFormat=N1}" />
                           
                             <ui:TextBlock Grid.Row="3" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_prePlay}"
-                                        Text="{DynamicResource ResourceKey=ui.tb_prePlay}"/>
+                                ToolTipService.InitialShowDelay="100"
+                                Text="{DynamicResource ResourceKey=ui.tb_prePlay}"/>
                             <Slider Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" x:Name="sl_scriptTiming" 
                                 Maximum="2" Minimum="-2" Value="{Binding Path=ViewModel.PlaybackAdjustSeconds, Mode=TwoWay}" 
                                 IsEnabled="True"
@@ -368,7 +377,8 @@
                             </ui:TextBlock>
 
                             <ui:TextBlock Grid.Row="4" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_playbackSpd}"
-                                        Text="{DynamicResource ResourceKey=ui.tb_playbackSpd}"/>
+                                ToolTipService.InitialShowDelay="100"
+                                Text="{DynamicResource ResourceKey=ui.tb_playbackSpd}"/>
                             <Slider Grid.Row="4" Grid.Column="2" x:Name="sl_playbackSpd" 
                                     Maximum="1.5" Minimum="0.5" Value="{Binding Path=ViewModel.PlaybackSpeed, Mode=TwoWay}" 
                                     IsEnabled="True" TickFrequency="0.125"
@@ -381,7 +391,8 @@
                             </ui:TextBlock>
                 
                             <ui:TextBlock Grid.Row="5" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.factorToRemoveSpaceFromAudioFiles}" 
-                                                ToolTip="{DynamicResource ResourceKey=settings.tooltip.factorToRemoveSpaceFromAudioFiles}" />
+                                ToolTip="{DynamicResource ResourceKey=settings.tooltip.factorToRemoveSpaceFromAudioFiles}" 
+                                ToolTipService.InitialShowDelay="100"/>
                             <Slider Name="sl_factorToRemoveSpaceFromAudioFiles" Grid.Row="5" Grid.Column="2" Value="{Binding Path=ViewModel.FactorToRemoveSpaceFromAudioFiles, Mode=TwoWay}" Maximum="9" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True"  TickPlacement="Both" VerticalAlignment="Center" />
                             <ui:TextBlock Grid.Row="5" Grid.Column="1" x:Name="tb_factorToRemoveSpaceFromAudioFiles" HorizontalAlignment="Center" Text="{Binding Path=ViewModel.FactorToRemoveSpaceFromAudioFiles, Mode=OneWay}" />
                 

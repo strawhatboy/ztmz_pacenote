@@ -32,6 +32,13 @@
       "vr": "虚拟现实"
     },
 
+    "subsection": {
+      "voicePackage": "领航员设置",
+      "tooltip": {
+        "voicePackage": "领航员设置，包括领航员语音包的开始结束语音开启、预加载、搜索路径等"
+      }
+    },
+
     "restartNeeded": "需要重启工具来生效",
 
     "tooltip": {

@@ -17,9 +17,10 @@
         </Style> -->
     </Page.Resources>
     <StackPanel Orientation="Vertical">
-        <!-- playStartAndEndSound -->
-        <ui:Card Margin="0 0 0 3"
-            Padding="16">
+        <ui:CardAction Margin="0 0 0 3" 
+            Command="{Binding ViewModel.NavigateForwardCommand}"
+            CommandParameter="{x:Type local:VoiceSettingsPage}"
+            >
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
@@ -27,7 +28,7 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal"
                     VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="ArrowBetweenDown20"
+                    <ui:SymbolIcon Symbol="ChatSettings20"
                         FontSize="26"
                         Margin="0 0 10 0" />
                     <Grid>
@@ -36,340 +37,57 @@
                             <RowDefinition />
                         </Grid.RowDefinitions>
                         <ui:TextBlock
-                            Text="{DynamicResource ResourceKey=settings.playStartAndEndSound}" />
+                            Text="{DynamicResource ResourceKey=settings.subsection.voicePackage}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.playStartAndEndSound}"
+                            Text="{DynamicResource ResourceKey=settings.subsection.tooltip.voicePackage}"
                             Appearance="Tertiary"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
-                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
-                    IsChecked="{Binding Path=ViewModel.PlayStartAndEndSound, Mode=TwoWay}" />
             </Grid>
-        </ui:Card>
+        </ui:CardAction>
+        
+        <ui:TextBlock
+            Text="{DynamicResource ResourceKey=tabs.voices}"
+            Margin="0 0 0 5"
+            FontTypography="Subtitle" />
 
-        <!-- playGoSound -->
-        <ui:Card Margin="0 0 0 3"
-            Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="160" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="AirplaneTakeOff20"
-                        FontSize="26"
-                        Margin="0 0 10 0" />
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock
-                            Text="{DynamicResource ResourceKey=settings.playGoSound}" />
-                        <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.playGoSound}"
-                            Appearance="Tertiary"
-                            FontTypography="Caption" />
-                    </Grid>
-                </StackPanel>
-                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
-                    IsChecked="{Binding Path=ViewModel.PlayGoSound, Mode=TwoWay}" />
-            </Grid>
-        </ui:Card>
-
-        <!-- playCollisionSound -->
-        <ui:Card Margin="0 0 0 3"
-            Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="160" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="VehicleCarCollision20"
-                        FontSize="26"
-                        Margin="0 0 10 0" />
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock
-                            Text="{DynamicResource ResourceKey=settings.playCollisionSound}" />
-                        <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.playCollisionSound}"
-                            Appearance="Tertiary"
-                            FontTypography="Caption" />
-                    </Grid>
-                </StackPanel>
-                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
-                    IsChecked="{Binding Path=ViewModel.PlayCollisionSound, Mode=TwoWay}" />
-            </Grid>
-        </ui:Card>
-
-        <!-- collision_slight -->
-        <ui:Card Margin="0 0 0 3"
-            Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="160" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="Info20"
-                        FontSize="26"
-                        Margin="0 0 10 0" />
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock
-                            Text="{DynamicResource ResourceKey=settings.collision_slight}" />
-                        <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.collision_slight}"
-                            Appearance="Tertiary"
-                            FontTypography="Caption" />
-                    </Grid>
-                </StackPanel>
-                <ui:NumberBox Grid.Column="1"
-                    Value="{Binding Path=ViewModel.CollisionSpeedChangeThreshold_Slight, Mode=TwoWay}" />
-            </Grid>
-        </ui:Card>
-
-        <!-- collision_medium -->
-        <ui:Card Margin="0 0 0 3"
-            Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="160" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="Warning20"
-                        FontSize="26"
-                        Margin="0 0 10 0" />
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock
-                            Text="{DynamicResource ResourceKey=settings.collision_medium}" />
-                        <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.collision_medium}"
-                            Appearance="Tertiary"
-                            FontTypography="Caption" />
-                    </Grid>
-                </StackPanel>
-                <ui:NumberBox Grid.Column="1"
-                    Value="{Binding Path=ViewModel.CollisionSpeedChangeThreshold_Medium, Mode=TwoWay}" />
-            </Grid>
-        </ui:Card>
-
-        <!-- collision_severe -->
-        <ui:Card Margin="0 0 0 3"
-            Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="160" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="ErrorCircle20"
-                        FontSize="26"
-                        Margin="0 0 10 0" />
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock
-                            Text="{DynamicResource ResourceKey=settings.collision_severe}" />
-                        <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.collision_severe}"
-                            Appearance="Tertiary"
-                            FontTypography="Caption" />
-                    </Grid>
-                </StackPanel>
-                <ui:NumberBox Grid.Column="1"
-                    Value="{Binding Path=ViewModel.CollisionSpeedChangeThreshold_Severe, Mode=TwoWay}" />
-            </Grid>
-        </ui:Card>
-
-        <!-- useDefaultSoundPackageByDefault -->
-        <ui:Card Margin="0 0 0 3"
-            Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="160" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="PersonVoice20"
-                        FontSize="26"
-                        Margin="0 0 10 0" />
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock
-                            Text="{DynamicResource ResourceKey=settings.useDefaultSoundPackageByDefault}" />
-                        <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.useDefaultSoundPackageByDefault}"
-                            Appearance="Tertiary"
-                            FontTypography="Caption" />
-                    </Grid>
-                </StackPanel>
-                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
-                    IsChecked="{Binding Path=ViewModel.UseDefaultSoundPackageByDefault, Mode=TwoWay}" />
-            </Grid>
-        </ui:Card>
-
-        <!-- useDefaultSoundPackageForFallback -->
-        <ui:Card Margin="0 0 0 3"
-            Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="160" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="PersonVoice20"
-                        FontSize="26"
-                        Margin="0 0 10 0" />
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock
-                            Text="{DynamicResource ResourceKey=settings.useDefaultSoundPackageForFallback}" />
-                        <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.useDefaultSoundPackageForFallback}"
-                            Appearance="Tertiary"
-                            FontTypography="Caption" />
-                    </Grid>
-                </StackPanel>
-                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
-                    IsChecked="{Binding Path=ViewModel.UseDefaultSoundPackageForFallback, Mode=TwoWay}" />
-            </Grid>
-        </ui:Card>
-
-        <!-- preloadSounds -->
-        <ui:Card Margin="0 0 0 3"
-            Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="160" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="ClockArrowDownload20"
-                        FontSize="26"
-                        Margin="0 0 10 0" />
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock
-                            Text="{DynamicResource ResourceKey=settings.preloadSounds}" />
-                        <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.preloadSounds}"
-                            Appearance="Tertiary"
-                            FontTypography="Caption" />
-                    </Grid>
-                </StackPanel>
-                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
-                    IsChecked="{Binding Path=ViewModel.PreloadSounds, Mode=TwoWay}" />
-            </Grid>
-        </ui:Card>
-
-        <!-- additionalCoDriverPackagesSearchPath -->
-        <ui:Card Margin="0 0 0 3"
-            Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="300" />
-                    <ColumnDefinition Width="40" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="FolderOpen20"
-                        FontSize="26"
-                        Margin="0 0 10 0" />
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock
-                            Text="{DynamicResource ResourceKey=settings.additionalCoDriverPackagesSearchPath}" />
-                        <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.additionalCoDriverPackagesSearchPath}"
-                            Appearance="Tertiary"
-                            FontTypography="Caption" />
-                    </Grid>
-                </StackPanel>
-                <ui:TextBox Grid.Column="1" VerticalAlignment="Center"
-                    Text="{Binding Path=ViewModel.AdditionalCoDriverPackagesSearchPath, Mode=TwoWay}" />
-                <ui:Button
-                    HorizontalAlignment="Right"
-                    Grid.Column="2"
-                    Icon="{ui:SymbolIcon Folder20}"
-                    Command="{Binding ViewModel.OpenFolderAdditionalCoDriverPackagesSearchPathCommand}"
-                />
-            </Grid>
-        </ui:Card>
-
-        <!-- additionalPacenotesDefinitionSearchPath -->
-        <ui:Card Margin="0 0 0 3"
-            Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="300" />
-                    <ColumnDefinition Width="40" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="FolderOpen20"
-                        FontSize="26"
-                        Margin="0 0 10 0" />
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock
-                            Text="{DynamicResource ResourceKey=settings.additionalPacenotesDefinitionSearchPath}" />
-                        <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.additionalPacenotesDefinitionSearchPath}"
-                            Appearance="Tertiary"
-                            FontTypography="Caption" />
-                    </Grid>
-                </StackPanel>
-                <ui:TextBox Grid.Column="1" VerticalAlignment="Center"
-                    Text="{Binding Path=ViewModel.AdditionalPacenotesDefinitionSearchPath, Mode=TwoWay}" />
-                <ui:Button
-                HorizontalAlignment="Right"
-                    Grid.Column="2"
-                    Icon="{ui:SymbolIcon Folder20}"
-                    Command="{Binding ViewModel.OpenFolderAdditionalPacenotesDefinitionSearchPathCommand}"
-                />
-            </Grid>
-        </ui:Card>
+        <ItemsControl ItemsSource="{Binding ViewModel.VoicePackages}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical">
+                        <ui:CardAction Margin="0 0 0 3"
+                            Command="{Binding DataContext.ViewModel.NavigateToVoicePackagePageCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                            CommandParameter="{Binding Path}"
+                        >
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="160" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                                    <ui:SymbolIcon Symbol="ChatSettings20"
+                                        FontSize="26"
+                                        Margin="0 0 10 0" />
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <ui:TextBlock
+                                            Text="{Binding name}" />
+                                        <ui:TextBlock Grid.Row="1"
+                                            Text="{Binding description}"
+                                            Appearance="Tertiary"
+                                            FontTypography="Caption" />
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
+                        </ui:CardAction>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </StackPanel>
 </Page>

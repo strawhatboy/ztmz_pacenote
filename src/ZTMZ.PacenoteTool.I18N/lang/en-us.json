@@ -32,6 +32,13 @@
       "vr": "Vr"
     },
 
+    "subsection": {
+      "voicePackage": "Settings",
+      "tooltip": {
+        "voicePackage": "CoDrivers Audio Package Settings, including play start/end sound, collision sound, wheel puncture sound, etc."
+      }
+    },
+
     "restartNeeded": "Need to restart the tool to take effect",
 
     "tooltip": {

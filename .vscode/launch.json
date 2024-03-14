@@ -10,9 +10,9 @@
             "type": "coreclr",
             "request": "launch",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/ZTMZ.PacenoteTool.WpfGUI/bin/Debug/net8.0-windows/ZTMZ.PacenoteTool.WpfGUI.exe",
+            "program": "${workspaceFolder}/src/ZTMZ.PacenoteTool.WpfGUI/bin/Debug/net8.0-windows/ZTMZ.PacenoteTool.WpfGUI.exe",
             "args": [],
-            "cwd": "${workspaceFolder}/ZTMZ.PacenoteTool.WpfGUI/bin/Debug/net8.0-windows/",
+            "cwd": "${workspaceFolder}/src/ZTMZ.PacenoteTool.WpfGUI/bin/Debug/net8.0-windows/",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "justMyCode": true,
