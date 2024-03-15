@@ -528,6 +528,11 @@ public class ZTMZPacenoteTool {
         this._profileManager.CurrentPlaySpeed = this._playbackSpd;
         this._profileManager.PlayExample();
     }
+
+    public void PlaySound(string path) {
+        this._profileManager.CurrentPlaySpeed = this._playbackSpd;
+        this._profileManager.PlaySound(new AutoResampledCachedSound(path), true);
+    }
 }
 
 public static class Extensions {

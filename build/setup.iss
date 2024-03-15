@@ -9,6 +9,29 @@
 var
   DownloadPage: TDownloadWizardPage;
   NeedToDownload: Boolean;
+  DirPage: TInputDirWizardPage;
+  HiddenPage: TInputDirWizardPage;
+  HiddenPage2: TInputDirWizardPage;
+
+procedure AppendDirBrowseClick(Sender: TObject);
+begin
+  HiddenPage.Values[0] := DirPage.Values[0];
+  HiddenPage.Buttons[0].OnClick(HiddenPage.Buttons[0]);
+  DirPage.Values[0] := HiddenPage.Values[0];
+end;
+procedure AppendDirBrowseClick2(Sender: TObject);
+begin
+  HiddenPage2.Values[0] := DirPage.Values[1];
+  HiddenPage2.Buttons[0].OnClick(HiddenPage2.Buttons[0]);
+  DirPage.Values[1] := HiddenPage2.Values[0];
+end;
+
+function SkipPage(Sender: TWizardPage): Boolean;
+begin
+  Result := True;
+end;
+
+
 { Exec with output stored in result. }
 { ResultString will only be altered if True is returned. }
 function ExecWithResult(const Filename, Params, WorkingDir: String; const ShowCmd: Integer;
@@ -85,10 +108,52 @@ begin
   Result := True;
 end;
 
+procedure RegisterPreviousData(PreviousDataKey: Integer);
+begin
+  SetPreviousData(PreviousDataKey, 'InstallDir', DirPage.Values[0]);
+  SetPreviousData(PreviousDataKey, 'ZTMZHome', DirPage.Values[1]);
+end;
+
+function GetInstallDir(const Param: String): String;
+begin
+  Result := DirPage.Values[0];
+end;
+
+function GetZTMZHome(const Param: String): String;
+begin
+  Result := DirPage.Values[1];
+end;
+
+{ The Main Function }
 procedure InitializeWizard;
 begin
   NeedToDownload:= (not CheckDotNetInstalled);
   DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), @OnDownloadProgress);
+
+  DirPage := CreateInputDirPage(
+  wpSelectDir, SetupMessage(msgWizardSelectDir), '', '', False, '');
+
+  DirPage.Add(ExpandConstant('{cm:ZTMZInstallFolder}'));
+  DirPage.Add(ExpandConstant('{cm:ZTMZFolder}'));
+
+  { assign default directories for the items from the previously stored data; if }
+  { there are no data stored from the previous installation, use default folders }
+  { of your choice }
+  DirPage.Values[0] := GetPreviousData('InstallDir', ExpandConstant('{autopf}\ztmzclub_pacenotetool_nextgen'));
+  DirPage.Values[1] := GetPreviousData('ZTMZHome', ExpandConstant('{userdocs}\My Games\{#FolderName}'));
+
+  DirPage.Buttons[0].OnClick := @AppendDirBrowseClick;
+  DirPage.Buttons[1].OnClick := @AppendDirBrowseClick2;
+
+  HiddenPage := CreateInputDirPage(
+    wpSelectDir, SetupMessage(msgWizardSelectDir), '', '', True, ExpandConstant('{cm:ZTMZInstallFolder}'));
+  HiddenPage.Add('');
+  HiddenPage.OnShouldSkipPage := @SkipPage;
+
+  HiddenPage2 := CreateInputDirPage(
+    wpSelectDir, SetupMessage(msgWizardSelectDir), '', '', True, ExpandConstant('{cm:ZTMZFolder}'));
+  HiddenPage2.Add('');
+  HiddenPage2.OnShouldSkipPage := @SkipPage;
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -137,55 +202,63 @@ SolidCompression=yes
 WizardStyle=modern
 VersionInfoVersion={#MyAppVersion}
 ;PrivilegesRequired=lowest
-UninstallDisplayIcon={app}\{#MyAppExeName}
+UninstallDisplayIcon={code:GetInstallDir}\{#MyAppExeName}
+
+; use custom dir page
+DisableDirPage=yes
 
 [Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile:"..\LICENSE"; InfoBeforeFile:"..\src\ZTMZ.PacenoteTool.WpfGUI\eula.txt";
-Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"; LicenseFile:"..\LICENSE"; InfoBeforeFile:"..\src\ZTMZ.PacenoteTool.WpfGUI\eula-cn.txt";
+Name: "english"; MessagesFile: "compiler:Default.isl,customMessage.en.isl"; LicenseFile:"..\LICENSE"; InfoBeforeFile:"..\src\ZTMZ.PacenoteTool.WpfGUI\eula.txt";
+Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl,customMessage.cn.isl"; LicenseFile:"..\LICENSE"; InfoBeforeFile:"..\src\ZTMZ.PacenoteTool.WpfGUI\eula-cn.txt";
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [InstallDelete]
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\default";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\engmale (by mesa)";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\wha1ing";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\南沢いずみ";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\图图（对讲机特效 by wha1ing）";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\圣沙蒙VK";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\拉稀车手老王";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\拉稀车手老王对讲机特效版";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\拉稀车手老王超快速语音包（兼容苏格兰）";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\权威Authority";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\紫藤林沫（测试版）";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\0-a117语音";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\0-a117语音（对讲机特效）";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\0-b无状态选手-女声";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\0-c117暴躁语音";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\古轩言（无线电特效）";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\吉米";
-Type: filesandordirs; Name: "{userdocs}\My Games\{#FolderName}\codrivers\简哲自己";
-Type: files; Name: "{userdocs}\My Games\{#FolderName}\config.json";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\default";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\engmale (by mesa)";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\wha1ing";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\南沢いずみ";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\图图（对讲机特效 by wha1ing）";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\圣沙蒙VK";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\拉稀车手老王";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\拉稀车手老王对讲机特效版";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\拉稀车手老王超快速语音包（兼容苏格兰）";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\权威Authority";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\紫藤林沫（测试版）";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\0-a117语音";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\0-a117语音（对讲机特效）";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\0-b无状态选手-女声";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\0-c117暴躁语音";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\古轩言（无线电特效）";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\吉米";
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\简哲自己";
+Type: files; Name: "{code:GetZTMZHome}\config.json";
 ; Delete previous default audio package
 ; Delete previous default configuration
 
 [Files]
 ; No json file!
-; Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\*.json"; Excludes:"config.json,userconfig.json,*.deps.json,*.runtimeconfig.json"; DestDir: "{userdocs}\My Games\{#FolderName}"; Flags: ignoreversion
-Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\*.csv"; DestDir: "{userdocs}\My Games\{#FolderName}"; Flags: ignoreversion
-Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\codrivers\*"; DestDir: "{userdocs}\My Games\{#FolderName}\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\profiles\*"; DestDir: "{userdocs}\My Games\{#FolderName}\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\lang\*"; DestDir: "{userdocs}\My Games\{#FolderName}\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\games\*"; Excludes:"*.json"; DestDir: "{app}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\games\*.json"; Excludes:"*.deps.json"; DestDir: "{userdocs}\My Games\{#FolderName}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\dashboards\*"; DestDir: "{userdocs}\My Games\{#FolderName}\dashboards"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\fonts\*"; DestDir: "{userdocs}\My Games\{#FolderName}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\*.json"; Excludes:"config.json,userconfig.json,*.deps.json,*.runtimeconfig.json"; DestDir: "{code:GetZTMZHome}"; Flags: ignoreversion
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\*.csv"; DestDir: "{code:GetZTMZHome}"; Flags: ignoreversion
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\codrivers\*"; DestDir: "{code:GetZTMZHome}\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\profiles\*"; DestDir: "{code:GetZTMZHome}\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\lang\*"; DestDir: "{code:GetZTMZHome}\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\games\*"; Excludes:"*.json"; DestDir: "{code:GetInstallDir}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\games\*.json"; Excludes:"*.deps.json"; DestDir: "{code:GetZTMZHome}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\runtimes\*"; DestDir: "{code:GetInstallDir}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\dashboards\*"; DestDir: "{code:GetZTMZHome}\dashboards"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\fonts\*"; DestDir: "{code:GetZTMZHome}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autoprograms}\{#MyAppName}"; Filename: "{code:GetInstallDir}\{#MyAppExeName}"
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{code:GetInstallDir}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{code:GetInstallDir}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+
+[Registry]
+Root: HKCU; Subkey: "Software\{#MyAppName}"; Flags: uninsdeletekeyifempty
+Root: HKCU; Subkey: "Software\{#MyAppName}"; ValueType: string; ValueName: "InstallDir"; ValueData: "{code:GetInstallDir}"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\{#MyAppName}"; ValueType: string; ValueName: "ZTMZHome"; ValueData: "{code:GetZTMZHome}"; Flags: uninsdeletevalue

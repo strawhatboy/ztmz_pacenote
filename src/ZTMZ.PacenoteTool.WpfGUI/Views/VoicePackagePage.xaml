@@ -18,6 +18,50 @@
             <Setter Property="Margin" Value="0 0 0 5"></Setter>
         </Style> -->
     </Page.Resources>
-    <StackPanel Orientation="Vertical">
-    </StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <!-- info -->
+            <RowDefinition Height="Auto" />
+            <!-- sound list -->
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        
+        <ItemsControl ItemsSource="{Binding ViewModel.VoicePackages}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical">
+                        <ui:CardAction Margin="0 0 0 3"
+                            Command="{Binding DataContext.ViewModel.NavigateToVoicePackagePageCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                            CommandParameter="{Binding Path}"
+                        >
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="160" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                                    <ui:SymbolIcon Symbol="ChatSettings20"
+                                        FontSize="26"
+                                        Margin="0 0 10 0" />
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <ui:TextBlock
+                                            Text="{Binding name}" />
+                                        <ui:TextBlock Grid.Row="1"
+                                            Text="{Binding description}"
+                                            Appearance="Tertiary"
+                                            FontTypography="Caption" />
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
+                        </ui:CardAction>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
 </Page>

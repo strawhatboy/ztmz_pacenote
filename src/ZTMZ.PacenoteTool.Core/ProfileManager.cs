@@ -573,7 +573,7 @@ namespace ZTMZ.PacenoteTool.Core
             this.PlaySound(audio, isSequential);
         }
 
-        private void PlaySound(AutoResampledCachedSound sound, bool isSequential)
+        public void PlaySound(AutoResampledCachedSound sound, bool isSequential)
         {
             if (!Config.Instance.UI_Mute)
             {

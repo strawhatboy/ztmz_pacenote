@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Microsoft.Win32;
 
 
 namespace ZTMZ.PacenoteTool.Base
@@ -11,7 +12,22 @@ namespace ZTMZ.PacenoteTool.Base
     public class AppLevelVariables
     {
         private string _appConfigFolder;
-        public string AppConfigFolder => _appConfigFolder ?? (_appConfigFolder = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games\\ZTMZClub_nextgen"));
+        public string AppConfigFolder {
+            get {
+                // if not found, use My Documents\My Games\ZTMZClub_nextgen
+                if (string.IsNullOrEmpty(_appConfigFolder))
+                {
+                    // read from registry HKCU\Software\ZTMZ Next Generation Pacenote Tool\ZTMZHome
+                    var key = Registry.CurrentUser.OpenSubKey(@"Software\ZTMZ Next Generation Pacenote Tool");
+                    if (key != null)
+                    {
+                        _appConfigFolder = key.GetValue("ZTMZHome") as string;
+                    }
+                }
+
+                return _appConfigFolder;
+            }
+        }
 
         private static AppLevelVariables _instance;
         public static AppLevelVariables Instance => _instance ?? (_instance = new AppLevelVariables());

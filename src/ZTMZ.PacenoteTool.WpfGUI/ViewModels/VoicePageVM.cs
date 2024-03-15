@@ -33,14 +33,16 @@ public partial class VoicePageVM : ObservableObject {
 
         BindingOperations.EnableCollectionSynchronization(VoicePackages, _collectionLock);
 
-        // this.tool.onToolInitialized += () => {
-            // update the view model
-            VoicePackages.Clear();
-            foreach (var pkg in tool.CoDriverPackages)
-            {
-                VoicePackages.Add(pkg.Info);
-            }
-        // };
+        // TODO: need to check the voice pkgs online and update the list
+        // provide update, download/install, create, export, import options
+        // import/export can be done by file dialog or drag and drop
+        // import/export support zip file format
+
+        VoicePackages.Clear();
+        foreach (var pkg in tool.CoDriverPackages)
+        {
+            VoicePackages.Add(pkg.Info);
+        }
     }
 
     [RelayCommand]
@@ -52,7 +54,6 @@ public partial class VoicePageVM : ObservableObject {
     [RelayCommand]
     private void NavigateToVoicePackagePage(string voicePkgPath)
     {
-        // TODO: how to pass the voice package path to the next page?
         // set the voice package path in the view model and then navigate to the next page
         voicePackagePageVM.VoicePackagePath = voicePkgPath;
         _ = navigationService.NavigateWithHierarchy(typeof(ZTMZ.PacenoteTool.WpfGUI.Views.VoicePackagePage));
