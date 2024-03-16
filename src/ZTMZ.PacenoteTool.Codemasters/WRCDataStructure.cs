@@ -79,5 +79,10 @@ public struct WRCDataStructure {
     public float stage_current_time;
     public double stage_current_distance;
     public double stage_length;
+    public UInt16 vehicle_id;
+    public UInt16 vehicle_class_id;
+    public UInt16 vehicle_model_id;
+    public UInt16 location_id;
+    public UInt16 route_id;
 }
 

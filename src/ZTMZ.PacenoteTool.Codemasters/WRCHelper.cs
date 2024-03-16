@@ -2,25 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 namespace ZTMZ.PacenoteTool.Codemasters;
 
 public class WRCItineraryProperty
-    {
-        public float start_z { set; get; }
-        public string track_name { set; get; } = "";
-        public float end_track_length { set; get; }
-    }
+{
+    public float start_z { set; get; }
+    public string track_name { set; get; } = "";
+    public float end_track_length { set; get; }
+}
 public class WRCHelper
 {
     // not lazy, initialized when loading the assembly
     private static WRCHelper _instance = new WRCHelper();
     public static WRCHelper Instance => _instance;
-    public Dictionary<string, List<WRCItineraryProperty>> ItineraryMap { set; get; } = new();
+    public Dictionary<int, string> ItineraryMap { set; get; } = new();
     private WRCHelper() {
-        var jsonContent = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "track_dict_wrc.json");
-        this.ItineraryMap = JsonConvert.DeserializeObject<Dictionary<string, List<WRCItineraryProperty>>>(jsonContent);
+        var jsonContent = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "WRC_ids.json");
+        var jsonObj = JObject.Parse(jsonContent);
+        var itineraries = jsonObj["routes"];
+        var locations = jsonObj["locations"];
+        var vehicle_manufacturers = jsonObj["vehicle_manufacturers"];
+        var vehicle_classes = jsonObj["vehicle_classes"];
+        var vehicles = jsonObj["vehicles"];
     }
 
     public string GetItinerary(IGame game, string trackLength, float startZ)

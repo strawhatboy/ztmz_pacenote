@@ -99,7 +99,12 @@
 				"vehicle_handbrake",
 				"stage_current_time",
 				"stage_current_distance",
-				"stage_length"
+				"stage_length",
+				"vehicle_id",
+				"vehicle_class_id",
+				"vehicle_manufacturer_id",
+				"location_id",
+				"route_id"
 			]
 		}
 	]
