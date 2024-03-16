@@ -78,5 +78,7 @@ namespace ZTMZ.PacenoteTool.Base
             Constants.SYSTEM_PUNCTURE_FRONT_LEFT, Constants.SYSTEM_PUNCTURE_FRONT_RIGHT,
             Constants.SYSTEM_PUNCTURE_REAR_LEFT, Constants.SYSTEM_PUNCTURE_REAR_RIGHT
         };
+
+        public static IList<string> SupportedAudioTypes { set; get; } = Config.Instance.SupportedAudioTypes;
     }
 }

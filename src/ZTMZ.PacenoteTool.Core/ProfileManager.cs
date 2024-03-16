@@ -126,7 +126,6 @@ namespace ZTMZ.PacenoteTool.Core
 
         private object obj = new();
 
-        public IList<string> SupportedAudioTypes { set; get; } = new List<string>();
 
         public ProfileManager()
         {
@@ -142,7 +141,7 @@ namespace ZTMZ.PacenoteTool.Core
 
             // var jsonContent = File.ReadAllText("supported_audio_types.json");
             // this.SupportedAudioTypes = JsonConvert.DeserializeObject<string[]>(jsonContent).ToList();
-            this.SupportedAudioTypes = Config.Instance.SupportedAudioTypes;
+            // this.SupportedAudioTypes = Config.Instance.SupportedAudioTypes;
 
             // load all codriver sounds
             this.initCodriverSounds().Wait();
@@ -166,106 +165,27 @@ namespace ZTMZ.PacenoteTool.Core
             List<Task> tasks = new List<Task>();
             foreach (var codriverPath in this.GetAllCodrivers())
             {
-                tasks.Add(Task.Run(() =>
+                tasks.Add(Task.Run(async () =>
                 {
-
-                    _logger.Debug("loading codriver sounds from {0}", codriverPath);
-                    this.CoDriverPackages[codriverPath] = new CoDriverPackage();
-
-                    // try load info
-                    var infoFilePath = Path.Join(codriverPath, Constants.CODRIVER_PACKAGE_INFO_FILENAME);
-                    if (File.Exists(infoFilePath))
-                    {
-                        try
-                        {
-                            this.CoDriverPackages[codriverPath].Info =
-                                JsonConvert.DeserializeObject<CoDriverPackageInfo>(File.ReadAllText(infoFilePath));
-                            this.CoDriverPackages[codriverPath].Info.Path = codriverPath;
-                        }
-                        catch
-                        {
-                            // boom
-                        }
-                    }
-                    else
-                    {
-                        this.CoDriverPackages[codriverPath].Info = new CoDriverPackageInfo()
-                        {
-                            name = codriverPath,
-                            Path = codriverPath,
-                            version = "0.0.0",
-                        };
-                    }
-
-                    _logger.Debug("loaded codriver info: {0}", this.CoDriverPackages[codriverPath].Info);
-                    List<string> filePaths = new List<string>();
-                    // try file directly
-
-                    foreach (var supportedFilter in this.SupportedAudioTypes)
-                    {
-                        filePaths.AddRange(Directory.GetFiles(codriverPath, supportedFilter));
-                    }
-
-                    // _logger.Debug("found {0} sounds from files directly", filePaths.Count);
-
-                    foreach (var f in filePaths)
-                    {
-                        if (Config.Instance.PreloadSounds)
-                        {
-                            _logger.Trace("preloading sound from file {0}", f);
-                            this.CoDriverPackages[codriverPath].tokens[Path.GetFileNameWithoutExtension(f)] =
-                                new ConcurrentBag<AutoResampledCachedSound>() { new AutoResampledCachedSound(f) };
-                        }
-                        else
-                        {
-                            this.CoDriverPackages[codriverPath].tokensPath[Path.GetFileNameWithoutExtension(f)] =
-                                new ConcurrentBag<string>() { f };
-                        }
-                    }
-                    // _logger.Debug("loaded {0} sounds from files directly", filePaths.Count);
-
-                    // not found, try folders
-                    var soundFilePaths = Directory.GetDirectories(codriverPath);
-                    // _logger.Debug("found {0} subfolders", soundFilePaths.Length);
-                    foreach (var soundFilePath in soundFilePaths)
-                    {
-                        filePaths.Clear();
-                        //var soundFilePath = string.Format("{0}/{1}", codriverPath, keyword);
-                        if (Directory.Exists(soundFilePath))
-                        {
-                            if (Config.Instance.PreloadSounds)
-                            {
-                                this.CoDriverPackages[codriverPath].tokens[Path.GetFileName(soundFilePath)] = new ConcurrentBag<AutoResampledCachedSound>();
-                            }
-                            else
-                            {
-                                this.CoDriverPackages[codriverPath].tokensPath[Path.GetFileName(soundFilePath)] = new ConcurrentBag<string>();
-                            }
-                            // load all files
-                            foreach (var supportedFilter in this.SupportedAudioTypes)
-                            {
-                                filePaths.AddRange(Directory.GetFiles(soundFilePath, supportedFilter));
-                            }
-
-                            foreach (var filePath in filePaths)
-                            {
-                                if (Config.Instance.PreloadSounds)
-                                {
-                                    this.CoDriverPackages[codriverPath].tokens[Path.GetFileName(soundFilePath)].Add(new AutoResampledCachedSound(filePath));
-                                }
-                                else
-                                {
-                                    this.CoDriverPackages[codriverPath].tokensPath[Path.GetFileName(soundFilePath)].Add(filePath);
-                                }
-                            }
-                        }
-                    }
-                    _logger.Debug("loaded {0} sounds for {1}", Config.Instance.PreloadSounds ?
-                        this.CoDriverPackages[codriverPath].tokens.Count :
-                        this.CoDriverPackages[codriverPath].tokensPath.Count, this.CoDriverPackages[codriverPath].Info);
+                    this.CoDriverPackages[codriverPath] = await CoDriverPackage.Load(codriverPath);
                 }));
             }
             await Task.WhenAll(tasks.ToArray());
+        }
+
+        public async Task RefreshCodriverSounds()
+        {
+            this.CoDriverPackages.Clear();
+            await this.initCodriverSounds();
+        }
+
+        public async Task AddCodriverSounds(string path)
+        {
+            var package = await CoDriverPackage.Import(path);
+            if (package != null)
+            {
+                this.CoDriverPackages[package.Info.Path] = package;
+            }
         }
 
         private AutoResampledCachedSound getSoundFromCache(string path)
@@ -386,7 +306,7 @@ namespace ZTMZ.PacenoteTool.Core
 
                 // load all files
                 IEnumerable<string> filePaths = new List<string>();
-                foreach (var supportedFilter in this.SupportedAudioTypes)
+                foreach (var supportedFilter in Constants.SupportedAudioTypes)
                 {
                     filePaths = filePaths.Concat(Directory.GetFiles(this.CurrentItineraryPath, supportedFilter)
                         .AsEnumerable());

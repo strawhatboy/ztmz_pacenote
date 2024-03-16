@@ -751,6 +751,27 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._CheckUpdateWhenStartup;
         }
 
+        private string _UpdateDefinitionUrl = "https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate.json";
+        public string UpdateDefinitionUrl
+        {
+            set { this._UpdateDefinitionUrl = value; this._userconfig["UpdateDefinitionUrl"] = value; }
+            get => this._UpdateDefinitionUrl;
+        }
+
+        private string _UpdateDefinitionUrl_Beta = "https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate_beta.json";
+        public string UpdateDefinitionUrl_Beta
+        {
+            set { this._UpdateDefinitionUrl_Beta = value; this._userconfig["UpdateDefinitionUrl_Beta"] = value; }
+            get => this._UpdateDefinitionUrl_Beta;
+        }
+
+        private string _UpdateDefinitionUrl_AudioPkg = "https://gitee.com/ztmz/ztmz_audio_pkgs/raw/master/repo.json";
+        public string UpdateDefinitionUrl_AudioPkg
+        {
+            set { this._UpdateDefinitionUrl_AudioPkg = value; this._userconfig["UpdateDefinitionUrl_AudioPkg"] = value; }
+            get => this._UpdateDefinitionUrl_AudioPkg;
+        }
+
         public void Save(string path)
         {
             lock(_lock) {

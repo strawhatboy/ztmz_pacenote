@@ -183,6 +183,10 @@ begin
 end;
 
 [Setup]
+; Need to set the signtool in Inno Setup UI, tool name is "mssign"
+; tool command is "signtool.exe sign /f "[THE PFX CERT PATH]" /p [THE PASSWORD] /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a $p"
+; replace [THE PFX CERT PATH] with the path of the pfx file, and [THE PASSWORD] with the password of the pfx file
+SignTool=mssign $f
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{9EF39FA9-58C6-40E7-B957-75EAC73369E7}
@@ -262,3 +266,4 @@ Filename: "{code:GetInstallDir}\{#MyAppExeName}"; Description: "{cm:LaunchProgra
 Root: HKCU; Subkey: "Software\{#MyAppName}"; Flags: uninsdeletekeyifempty
 Root: HKCU; Subkey: "Software\{#MyAppName}"; ValueType: string; ValueName: "InstallDir"; ValueData: "{code:GetInstallDir}"; Flags: uninsdeletevalue
 Root: HKCU; Subkey: "Software\{#MyAppName}"; ValueType: string; ValueName: "ZTMZHome"; ValueData: "{code:GetZTMZHome}"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\{#MyAppName}"; ValueType: string; ValueName: "AppVersion"; ValueData: "{#MyAppVersion}"; Flags: uninsdeletevalue
