@@ -1,6 +1,7 @@
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Neo.IronLua;
 
 namespace ZTMZ.PacenoteTool.Base;
 
@@ -34,6 +35,7 @@ public static class StringHelper
 
     public static string ReadContentFromResource(Assembly asm, string resourceName)
     {
+        resourceName = resourceName.lower();
         var resName = asm.GetName().Name + ".g.resources";
         using (var stream = asm.GetManifestResourceStream(resName))
         using (var reader = new System.Resources.ResourceReader(stream))

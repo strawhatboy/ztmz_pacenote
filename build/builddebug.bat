@@ -5,15 +5,15 @@ set currentDir=%cd%
 cd /D "%~dp0"
 cd ../src
 cd ZTMZ.PacenoteTool.Codemasters
-dotnet build -c Debug
+dotnet build -c Debug --property WarningLevel=0
 cd ..
 
 cd ZTMZ.PacenoteTool.RBR
-dotnet build -c Debug
+dotnet build -c Debug --property WarningLevel=0
 cd ..
 
 cd ZTMZ.PacenoteTool.WpfGUI
-dotnet build -c Debug
+dotnet build -c Debug --property WarningLevel=0
 cd ..
 
 rem copy built games to target folder

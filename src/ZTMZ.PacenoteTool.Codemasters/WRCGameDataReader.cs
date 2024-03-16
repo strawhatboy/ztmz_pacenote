@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Numerics;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 
@@ -13,8 +14,12 @@ public class WRCGameDataReader : DirtGameDataReader
     private GameData _lastGameData;
     
     private GameData _currentGameData;
+
+    private WRCDataStructure _lastPacket;
+
+    private WRCDataStructure _currentPacket;
     public override string TrackName => 
-        WRCHelper.Instance.GetItinerary(_game, _currentGameData.TrackLength.ToString("f2", CultureInfo.InvariantCulture), _currentGameData.PosZ );
+        WRCHelper.Instance.GetItinerary(_game, _currentPacket.location_id, _currentPacket.route_id);
 
 
     private event Action<CarDamageEvent> _onCarDamaged;
@@ -45,6 +50,8 @@ public class WRCGameDataReader : DirtGameDataReader
 
         var oldPacket = lastMsg.CastToStruct<WRCDataStructure>();
         var packet = newMsg.CastToStruct<WRCDataStructure>();
+        _lastPacket = packet;
+        _currentPacket = packet;
 
         var newGameData = this.RawData2GameData(packet);
         _onNewGameData?.Invoke(_lastGameData, newGameData);
@@ -144,8 +151,7 @@ public class WRCGameDataReader : DirtGameDataReader
         message.RPM = wrcData.vehicle_engine_rpm_current;
         message.MaxRPM = wrcData.vehicle_engine_rpm_max;
         message.IdleRPM = wrcData.vehicle_engine_rpm_idle;
-        message.G_lat = wrcData.vehicle_acceleration_y / 10f;
-        message.G_long = wrcData.vehicle_acceleration_x / 10f;
+
         message.ShiftLightsFraction = wrcData.shiftlights_fraction;
         message.ShiftLightsRPMStart = wrcData.shiftlights_rpm_start;
         message.ShiftLightsRPMEnd = wrcData.shiftlights_rpm_end;
@@ -165,6 +171,14 @@ public class WRCGameDataReader : DirtGameDataReader
         message.SuspensionSpeedRearRight = wrcData.vehicle_hub_velocity_br;
         message.SuspensionSpeedFrontLeft = wrcData.vehicle_hub_velocity_fl;
         message.SuspensionSpeedFrontRight = wrcData.vehicle_hub_velocity_fr;
+
+        // calculate G long and G lat according to the vehicle's direction and acceleration
+        var forward = new Vector3(wrcData.vehicle_forward_direction_x, wrcData.vehicle_forward_direction_y, wrcData.vehicle_forward_direction_z);
+        var acceleration = new Vector3(wrcData.vehicle_acceleration_x, wrcData.vehicle_acceleration_y, wrcData.vehicle_acceleration_z);
+        var gLong = Vector3.Dot(acceleration, forward);
+        var gLat = Vector3.Dot(acceleration, Vector3.Cross(forward, new Vector3(0, 1, 0)));
+        message.G_long = gLong / 9.8f;
+        message.G_lat = -gLat / 9.8f;
 
         return message;
     }
