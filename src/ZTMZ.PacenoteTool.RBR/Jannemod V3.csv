@@ -1,0 +1,538 @@
+Id,Pacenote,Sound count,Column,Link,Standard,Sounds,Package,Category,Description,ZTMZSequence
+120,LEFT,4,0,INTO,FLATLEFT,left1.ogg;left2.ogg;left3.ogg;left4.ogg,RBR,CORNERS,Left,corner_left
+121,RIGHT,4,1,INTO,FLATRIGHT,right1.ogg;right2.ogg;right3.ogg;right4.ogg,RBR,CORNERS,Right,corner_right
+26,FLATLEFT,4,0,INTO,,flat_left1.ogg;flat_left2.ogg;flat_left3.ogg;flat_left4.ogg,RBR,CORNERS,Flat Left,corner_flat_left
+25,FLATRIGHT,4,1,INTO,,flat_right1.ogg;flat_right2.ogg;flat_right3.ogg;flat_right4.ogg,RBR,CORNERS,Flat Right,corner_flat_right
+2056,FLATLEFTMINUS,4,0,INTO,EASYLEFT,six_left_plus1.ogg;six_left_plus2.ogg;six_left_plus3.ogg;six_left_plus4.ogg,RBR,CORNERS,6 Left+,corner_6_left>detail_plus
+2050,FLATRIGHTMINUS,4,1,INTO,EASYRIGHT,six_right_plus1.ogg;six_right_plus2.ogg;six_right_plus3.ogg;six_right_plus4.ogg,RBR,CORNERS,6 Right+,corner_6_right>detail_plus
+5,EASYLEFT,4,0,INTO,,six_left1.ogg;six_left2.ogg;six_left3.ogg;six_left4.ogg,RBR,CORNERS,6 Left,corner_6_left
+6,EASYRIGHT,4,1,INTO,,six_right1.ogg;six_right2.ogg;six_right3.ogg;six_right4.ogg,RBR,CORNERS,6 Right,corner_6_right
+2057,QUICKLEFT,4,0,INTO,FASTLEFT,five_left_plus1.ogg;five_left_plus2.ogg;five_left_plus3.ogg;five_left_plus4.ogg,RBR,CORNERS,5 Left+,corner_5_left>detail_plus
+2051,QUICKRIGHT,4,1,INTO,FASTRIGHT,five_right_plus1.ogg;five_right_plus2.ogg;five_right_plus3.ogg;five_right_plus4.ogg,RBR,CORNERS,5 Right+,corner_5_right>detail_plus
+4,FASTLEFT,4,0,INTO,,five_left1.ogg;five_left2.ogg;five_left3.ogg;five_left4.ogg,RBR,CORNERS,5 Left,corner_5_left
+7,FASTRIGHT,4,1,INTO,,five_right1.ogg;five_right2.ogg;five_right3.ogg;five_right4.ogg,RBR,CORNERS,5 Right,corner_5_right
+2058,EMLEFT,4,0,INTO,MEDIUMLEFT,four_left_plus1.ogg;four_left_plus2.ogg;four_left_plus3.ogg;four_left_plus4.ogg,RBR,CORNERS,4 Left+,corner_4_left>detail_plus
+2052,EMRIGHT,4,1,INTO,MEDIUMRIGHT,four_right_plus1.ogg;four_right_plus2.ogg;four_right_plus3.ogg;four_right_plus4.ogg,RBR,CORNERS,4 Right+,corner_4_right>detail_plus
+3,MEDIUMLEFT,4,0,INTO,,four_left1.ogg;four_left2.ogg;four_left3.ogg;four_left4.ogg,RBR,CORNERS,4 Left,corner_4_left
+8,MEDIUMRIGHT,4,1,INTO,,four_right1.ogg;four_right2.ogg;four_right3.ogg;four_right4.ogg,RBR,CORNERS,4 Right,corner_4_right
+2059,PLUSLEFT,4,0,INTO,KLEFT,three_left_plus1.ogg;three_left_plus2.ogg;three_left_plus3.ogg;three_left_plus4.ogg,RBR,CORNERS,3 Left+,corner_3_left>detail_plus
+2053,PLUSRIGHT,4,1,INTO,KRIGHT,three_right_plus1.ogg;three_right_plus2.ogg;three_right_plus3.ogg;three_right_plus4.ogg,RBR,CORNERS,3 Right+,corner_3_right>detail_plus
+2,KLEFT,4,0,INTO,,three_left1.ogg;three_left2.ogg;three_left3.ogg;three_left4.ogg,RBR,CORNERS,3 Left,corner_3_left
+9,KRIGHT,4,1,INTO,,three_right1.ogg;three_right2.ogg;three_right3.ogg;three_right4.ogg,RBR,CORNERS,3 Right,corner_3_right
+2263,SQUARE_LEFT_PLUS,4,0,INTO,90_LEFT,two_left_plus1.ogg;two_left_plus2.ogg;two_left_plus3.ogg;two_left_plus4.ogg,RBR,CORNERS,2 Left+,corner_2_left>detail_plus
+2262,SQUARE_RIGHT_PLUS,4,1,INTO,90_RIGHT,two_right_plus1.ogg;two_right_plus2.ogg;two_right_plus3.ogg;two_right_plus4.ogg,RBR,CORNERS,2 Right+,corner_2_right>detail_plus
+1,90_LEFT,4,0,INTO,,two_left1.ogg;two_left2.ogg;two_left3.ogg;two_left4.ogg,RBR,CORNERS,2 Left,corner_2_left
+10,90_RIGHT,4,1,INTO,,two_right1.ogg;two_right2.ogg;two_right3.ogg;two_right4.ogg,RBR,CORNERS,2 Right,corner_2_right
+2060,MINUSLEFT,4,0,INTO,HAIRPINLEFT,one_left_plus1.ogg;one_left_plus2.ogg;one_left_plus3.ogg;one_left_plus4.ogg,RBR,CORNERS,1 Left+,corner_1_left>detail_plus
+2054,MINUSRIGHT,4,1,INTO,HAIRPINRIGHT,one_right_plus1.ogg;one_right_plus2.ogg;one_right_plus3.ogg;one_right_plus4.ogg,RBR,CORNERS,1 Right+,corner_1_right>detail_plus
+102,TWO_LEFT,4,0,INTO,HAIRPINLEFT,one_left1.ogg;one_left2.ogg;one_left3.ogg;one_left4.ogg,RBR,CORNERS,1 Left,corner_1_left
+112,TWO_RIGHT,4,1,INTO,HAIRPINRIGHT,one_right1.ogg;one_right2.ogg;one_right3.ogg;one_right4.ogg,RBR,CORNERS,1 Right,corner_1_right
+2061,VERYSLOWLEFT,4,0,INTO,HAIRPINLEFT,hp_left_plus1.ogg;hp_left_plus2.ogg;hp_left_plus3.ogg;hp_left_plus4.ogg,RBR,CORNERS,Hairpin Left+,corner_open_hairpin_left>detail_plus
+2055,VERYSLOWRIGHT,4,1,INTO,HAIRPINRIGHT,hp_right_plus1.ogg;hp_right_plus2.ogg;hp_right_plus3.ogg;hp_right_plus4.ogg,RBR,CORNERS,Hairpin Right+,corner_open_hairpin_right>detail_plus
+0,HAIRPINLEFT,4,0,INTO,,hp_left1.ogg;hp_left2.ogg;hp_left3.ogg;hp_left4.ogg,RBR,CORNERS,Hairpin Left,corner_open_hairpin_left
+11,HAIRPINRIGHT,4,1,INTO,,hp_right1.ogg;hp_right2.ogg;hp_right3.ogg;hp_right4.ogg,RBR,CORNERS,Hairpin Right,corner_open_hairpin_right
+2040,ACUTE_LEFT,4,0,INTO,HAIRPINLEFT,acute_left1.ogg;acute_left2.ogg;acute_left3.ogg;acute_left4.ogg,RBR,CORNERS,Acute Left,corner_left_acute
+2041,ACUTE_RIGHT,4,1,INTO,HAIRPINRIGHT,acute_right1.ogg;acute_right2.ogg;acute_right3.ogg;acute_right4.ogg,RBR,CORNERS,Acute Right,corner_right_acute
+9999,LINE_CHANGE,0,-1,,,,RBR,CORNERS,,
+2202,SHORT_LEFT,4,0,INTO,FLATLEFT,short_left1.ogg;short_left2.ogg;short_left3.ogg;short_left4.ogg,RBR,CORNERS,Short Left,detail_short>corner_left
+2203,SHORT_RIGHT,4,1,INTO,FLATRIGHT,short_right1.ogg;short_right2.ogg;short_right3.ogg;short_right4.ogg,RBR,CORNERS,Short Right,detail_short>corner_right
+125,LEFT_RIGHT,4,0,INTO,,left_right1.ogg;left_right2.ogg;left_right3.ogg;left_right4.ogg,RBR,CORNERS,Left-Right,corner_left>detail_and>corner_right
+124,RIGHT_LEFT,4,1,INTO,,right_left1.ogg;right_left2.ogg;right_left3.ogg;right_left4.ogg,RBR,CORNERS,Right-Left,corner_right>detail_and>corner_left
+2226,LEFT_OVER,4,0,INTO,,left_over1.ogg;left_over2.ogg;left_over3.ogg;left_over4.ogg,RBR,CORNERS,Left Over_(dist.),corner_left>detail_over
+2227,RIGHT_OVER,4,1,INTO,,right_over1.ogg;right_over2.ogg;right_over3.ogg;right_over4.ogg,RBR,CORNERS,Right Over_(dist.),corner_right>detail_over
+127,LEFT_AROUND,4,0,INTO,,left_around1.ogg;left_around2.ogg;left_around3.ogg;left_around4.ogg,RBR,CORNERS,Left Around,corner_left>detail_around
+126,RIGHT_AROUND,4,1,INTO,,right_around1.ogg;right_around2.ogg;right_around3.ogg;right_around4.ogg,RBR,CORNERS,Right Around,corner_right>detail_around
+2206,DONUT_LEFT,4,0,INTO,,donut_left1.ogg;donut_left2.ogg;donut_left3.ogg;donut_left4.ogg,RBR,CORNERS,Donut Left,corner_reverse_donut
+2205,DONUT_RIGHT,4,1,INTO,,donut_right1.ogg;donut_right2.ogg;donut_right3.ogg;donut_right4.ogg,RBR,CORNERS,Donut Right,corner_donut
+392,LEFT_ENTRY_CHICANE,4,0,INTO,TWISTY,chicane_left_entry1.ogg;chicane_left_entry2.ogg;chicane_left_entry3.ogg;chicane_left_entry4.ogg,RBR,CORNERS,Left Entry Chicane,detail_left_entry_chicane
+393,RIGHT_ENTRY_CHICANE,4,1,INTO,TWISTY,chicane_right_entry1.ogg;chicane_right_entry2.ogg;chicane_right_entry3.ogg;chicane_right_entry4.ogg,RBR,CORNERS,Right Entry Chicane,detail_right_entry_chicane
+378,CHICANE,4,0,INTO,TWISTY,chicane1.ogg;chicane2.ogg;chicane3.ogg;chicane4.ogg,RBR,CORNERS,Chicane,detail_chicane
+2026,FLAT_SCALE,3,0,INTO,,flat_scale1.ogg;flat_scale2.ogg;flat_scale3.ogg,RBR,CORNERS,Flat,
+2074,FLATMINUS_SCALE,3,1,INTO,,six_plus_scale1.ogg;six_plus_scale2.ogg;six_plus_scale3.ogg,RBR,CORNERS,6+,
+2075,EASY_SCALE,3,0,INTO,,six_scale1.ogg;six_scale2.ogg;six_scale3.ogg,RBR,CORNERS,6,
+2076,QUICK_SCALE,3,1,INTO,,five_plus_scale1.ogg;five_plus_scale2.ogg;five_plus_scale3.ogg,RBR,CORNERS,5+,
+2077,FAST_SCALE,3,0,INTO,,five_scale1.ogg;five_scale2.ogg;five_scale3.ogg,RBR,CORNERS,5,
+2078,EM_SCALE,3,1,INTO,,four_plus_scale1.ogg;four_plus_scale2.ogg;four_plus_scale3.ogg,RBR,CORNERS,4+,
+2247,MEDIUM_SCALE,3,0,INTO,,four_scale1.ogg;four_scale2.ogg;four_scale3.ogg,RBR,CORNERS,4,
+2079,PLUS_SCALE,3,1,INTO,,three_plus_scale1.ogg;three_plus_scale2.ogg;three_plus_scale3.ogg,RBR,CORNERS,3+,
+2080,K_SCALE,3,0,INTO,,three_scale1.ogg;three_scale2.ogg;three_scale3.ogg,RBR,CORNERS,3,
+2272,SQUARE_PLUS_SCALE,3,1,INTO,,two_plus_scale1.ogg;two_plus_scale2.ogg;two_plus_scale3.ogg,RBR,CORNERS,2+,
+2081,SQUARE_SCALE,3,0,INTO,,two_scale1.ogg;two_scale2.ogg;two_scale3.ogg,RBR,CORNERS,2,
+2082,MINUS_SCALE,3,1,INTO,,one_plus_scale1.ogg;one_plus_scale2.ogg;one_plus_scale3.ogg,RBR,CORNERS,1+,
+2083,SLOW_SCALE,3,0,INTO,,one_scale1.ogg;one_scale2.ogg;one_scale3.ogg,RBR,CORNERS,1,
+2084,VERYSLOW_SCALE,3,1,INTO,,hp_plus_scale1.ogg;hp_plus_scale2.ogg;hp_plus_scale3.ogg,RBR,CORNERS,Hairpin+,
+2207,HP_SCALE,3,0,INTO,,hp_scale1.ogg;hp_scale2.ogg;hp_scale3.ogg,RBR,CORNERS,Hairpin,
+2208,ACUTE_SCALE,3,1,INTO,,acute_scale1.ogg;acute_scale2.ogg;acute_scale3.ogg,RBR,CORNERS,Acute,
+123,NIU_LEFT_INTO,3,-1,INTO,,left1.ogg;left2.ogg;left3.ogg,RBR,CORNERS,,corner_left
+122,NIU_RIGHT_INTO,4,-1,INTO,,right1.ogg;right2.ogg;right3.ogg;right4.ogg,RBR,CORNERS,,corner_right
+0,NARROWS,3,0,,,narrows1.ogg;narrows2.ogg;narrows3.ogg,RBR,MODIFIER,Narrows,detail_narrows
+0,WIDEOUT,3,1,,,wideout1.ogg;wideout2.ogg;wideout3.ogg,RBR,MODIFIER,Wideout,detail_widens
+0,TIGHTENS,3,0,,,tightens1.ogg;tightens2.ogg;tightens3.ogg,RBR,MODIFIER,Tightens,detail_tightens
+0,TIGHTENSBAD,3,1,,,doubletightens1.ogg;doubletightens2.ogg;doubletightens3.ogg,RBR,MODIFIER,Double Tightens,detail_tightens_bad
+0,CUT,3,0,,,cut1.ogg;cut2.ogg;cut3.ogg,RBR,MODIFIER,Cut,detail_cut
+0,DONTCUT,3,1,,,dontcut1.ogg;dontcut2.ogg;dontcut3.ogg,RBR,MODIFIER,Don't,detail_dont_cut
+0,LONG,3,0,,,long1.ogg;long2.ogg;long3.ogg,RBR,MODIFIER,Long,detail_long
+0,MAYBE,3,1,,,maybe1.ogg;maybe2.ogg;maybe3.ogg,RBR,MODIFIER,Maybe,detail_maybe
+0,SOUND_FILE,0,-1,,,,RBR,MODIFIER,Sound File,
+0,STANDARD_CALL,0,-1,,,,RBR,MODIFIER,Standard Call,
+0,DISTANCE_CALL,0,0,,,,RBR,LINKS,Distance Call,detail_distance_call
+0,EMPTY_CALL,0,1,INTO,,,RBR,LINKS,Empty Call,
+0,INTO,4,0,,,into1.ogg;into2.ogg;into3.ogg;into4.ogg,RBR,LINKS,Into,detail_into
+0,AND,4,1,,,and1.ogg;and2.ogg;and3.ogg;and4.ogg,RBR,LINKS,And,detail_and
+0,ONTO,4,0,,,onto1.ogg;onto2.ogg;onto3.ogg;onto4.ogg,RBR,LINKS,Onto,detail_into
+2030,IMMEDIATE,4,1,,,immediate1.ogg;immediate2.ogg;immediate3.ogg;immediate4.ogg,RBR,LINKS,Immediate,detail_sudden
+2224,AGAIN,4,0,,,again1.ogg;again2.ogg;again3.ogg;again4.ogg,RBR,LINKS,Again,
+2105,TO_FINISH,4,1,,,tofinish1.ogg;tofinish2.ogg;tofinish3.ogg;tofinish4.ogg,RBR,LINKS,To Finish,detail_finish
+149,10,4,0,,,10_1.ogg;10_2.ogg;10_3.ogg;10_4.ogg,RBR,LINKS,10,
+150,20,4,1,,,20_1.ogg;20_2.ogg;20_3.ogg;20_4.ogg,RBR,LINKS,20,number_20
+2110,DIST21,4,0,,,21_1.ogg;21_2.ogg;21_3.ogg;21_4.ogg,RBR,LINKS,21,number_20
+2111,DIST31,4,1,,,31_1.ogg;31_2.ogg;31_3.ogg;31_4.ogg,RBR,LINKS,31,number_30
+2112,DIST41,4,0,,,41_1.ogg;41_2.ogg;41_3.ogg;41_4.ogg,RBR,LINKS,41,number_40
+2113,DIST51,4,1,,,51_1.ogg;51_2.ogg;51_3.ogg;51_4.ogg,RBR,LINKS,51,number_50
+2114,DIST61,4,0,,,61_1.ogg;61_2.ogg;61_3.ogg;61_4.ogg,RBR,LINKS,61,number_60
+2115,DIST71,4,1,,,71_1.ogg;71_2.ogg;71_3.ogg;71_4.ogg,RBR,LINKS,71,number_70
+2116,DIST81,4,0,,,81_1.ogg;81_2.ogg;81_3.ogg;81_4.ogg,RBR,LINKS,81,number_80
+2117,DIST101,4,1,,,101_1.ogg;101_2.ogg;101_3.ogg;101_4.ogg,RBR,LINKS,101,number_100
+2118,DIST121,4,0,,,121_1.ogg;121_2.ogg;121_3.ogg;121_4.ogg,RBR,LINKS,121,number_120
+2119,DIST141,4,1,,,141_1.ogg;141_2.ogg;141_3.ogg;141_4.ogg,RBR,LINKS,141,number_140
+2120,DIST151,4,0,,,151_1.ogg;151_2.ogg;151_3.ogg;151_4.ogg,RBR,LINKS,151,number_150
+2121,DIST161,4,1,,,161_1.ogg;161_2.ogg;161_3.ogg;161_4.ogg,RBR,LINKS,161,number_160
+2122,DIST181,4,0,,,181_1.ogg;181_2.ogg;181_3.ogg;181_4.ogg,RBR,LINKS,181,number_180
+2123,DIST201,4,1,,,201_1.ogg;201_2.ogg;201_3.ogg;201_4.ogg,RBR,LINKS,201,number_200
+2124,DIST251,4,0,,,251_1.ogg;251_2.ogg;251_3.ogg;251_4.ogg,RBR,LINKS,251,number_250
+2125,DIST301,4,1,,,301_1.ogg;301_2.ogg;301_3.ogg;301_4.ogg,RBR,LINKS,301,number_300
+2126,DIST351,4,0,,,351_1.ogg;351_2.ogg;351_3.ogg;351_4.ogg,RBR,LINKS,351,number_350
+2127,DIST401,4,1,,,401_1.ogg;401_2.ogg;401_3.ogg;401_4.ogg,RBR,LINKS,401,number_400
+2128,DIST451,4,0,,,451_1.ogg;451_2.ogg;451_3.ogg;451_4.ogg,RBR,LINKS,451,number_450
+2129,DIST501,4,1,,,501_1.ogg;501_2.ogg;501_3.ogg;501_4.ogg,RBR,LINKS,501,number_500
+2130,DIST601,4,0,,,601_1.ogg;601_2.ogg;601_3.ogg;601_4.ogg,RBR,LINKS,601,number_600
+2131,DIST701,4,1,,,701_1.ogg;701_2.ogg;701_3.ogg;701_4.ogg,RBR,LINKS,701,number_700
+2132,DIST801,4,0,,,801_1.ogg;801_2.ogg;801_3.ogg;801_4.ogg,RBR,LINKS,801,number_800
+2133,DIST901,4,1,,,901_1.ogg;901_2.ogg;901_3.ogg;901_4.ogg,RBR,LINKS,901,number_900
+2134,DIST1001,4,0,,,1001_1.ogg;1001_2.ogg;1001_3.ogg;1001_4.ogg,RBR,LINKS,1001,number_1000
+435,NEXT_LAP,4,0,,,onto_nextlap1.ogg;onto_nextlap2.ogg;onto_nextlap3.ogg;onto_nextlap4.ogg,RBR,LINKS,Onto Next Lap
+436,TAKE_EXIT,4,1,,,onto_finish1.ogg;onto_finish2.ogg;onto_finish3.ogg;onto_finish4.ogg,RBR,LINKS,Onto Finish,detail_finish
+0,CALLOUT_TIME,0,0,,,,RBR,LINKS,Callout Time,
+0,CALLOUT_DISTANCE,0,1,,,,RBR,LINKS,Callout Distance,
+0,CALLOUT_ADJUST,0,0,,,,RBR,LINKS,Callout Adjust,
+0,SOUND_INDEX,0,1,,,,RBR,LINKS,Sound Index,
+0,PLACE_HOLDER,0,0,,,,RBR,LINKS,Placeholder,
+22,FINISH,4,-1,,,finish1.ogg;finish2.ogg;finish3.ogg;finish4.ogg,RBR,LINKS,Finish,detail_finish
+556,SPLIT_TIME,1,-1,,,split_time.ogg,RBR,LINKS,Split Time,
+430,DONE,1,-1,,,finish1.ogg,RBR,LINKS,Done,
+2025,NIU_JATKUU,4,-1,,,and1.ogg;and2.ogg;and3.ogg;and4.ogg,RBR,LINKS,And (NIU),detail_and
+298,OPENS,2,0,,,opens1.ogg;opens2.ogg,RBR,ADJECTIVES,Opens,detail_opens
+2018,OPENSTIGHTENS,2,1,,,opens_tightens1.ogg;opens_tightens2.ogg,RBR,ADJECTIVES,Opens Tightens,detail_opens>detail_and>detail_tightens
+2032,OPENSLITTLE,2,0,,,opens_abit1.ogg;opens_abit2.ogg,RBR,ADJECTIVES,Opens A Bit,detail_opens
+2033,OPENSLONG,2,1,,,opens_long1.ogg;opens_long2.ogg,RBR,ADJECTIVES,Opens Long,detail_opens>detail_long
+2034,OPENSVERYLONG,2,0,,,opens_verylong1.ogg;opens_verylong2.ogg,RBR,ADJECTIVES,Opens Very Long,detail_opens>detail_longlong
+2251,OPENSVERYVERYLONG,2,1,,,opens_veryverylong1.ogg;opens_veryverylong2.ogg,RBR,ADJECTIVES,Opens Very Very Long,detail_opens>detail_extra_long
+2252,OPENSFUCKINGLONG,2,0,,,opens_fuckinglong1.ogg;opens_fuckinglong2.ogg,RBR,ADJECTIVES,Opens Fucking Long,detail_opens>detail_extraextra_long
+2035,OPENSEARLY,2,1,,,opens_early1.ogg;opens_early2.ogg,RBR,ADJECTIVES,Opens Early,detail_opens>detail_early
+2036,OPENSATJUNCTION,2,0,,,opens_at_junction1.ogg;opens_at_junction2.ogg,RBR,ADJECTIVES,Opens At Junction,detail_opens>detail_junction
+2037,OPENSOVERCREST,2,1,,,opens_overcrest1.ogg;opens_overcrest2.ogg,RBR,ADJECTIVES,Opens Over Crest,detail_opens>detail_over_crest
+2255,OPENSSHARP,2,0,,,opens_sharp1.ogg;opens_sharp2.ogg,RBR,ADJECTIVES,Opens Sharp,detail_opens>detail_and>detail_tightens
+2256,OPENSROUND,2,1,,,opens_round1.ogg;opens_round2.ogg,RBR,ADJECTIVES,Opens Round,detail_opens>detail_and>detail_around
+9999,LINE_CHANGE,0,-1,,,,RBR,ADJECTIVES,
+0,TIGHTENS,3,0,,,tightens1.ogg;tightens2.ogg;tightens3.ogg,RBR,ADJECTIVES,Tightens,detail_tightens
+0,TIGHTENSBAD,3,1,,,doubletightens1.ogg;doubletightens2.ogg;doubletightens3.ogg,RBR,ADJECTIVES,Double Tightens,detail_tightens_bad
+2015,TIGHTENSLATE,2,0,,,tightens_late1.ogg;tightens_late2.ogg,RBR,ADJECTIVES,Tightens Late,detail_tightens>detail_late
+2042,TIGHTENSEARLY,2,1,,,tightens_early1.ogg;tightens_early2.ogg,RBR,ADJECTIVES,Tightens Early,detail_tightens>detail_early
+2043,TIGHTENSLITTLE,2,0,,,tightens_abit1.ogg;tightens_abit2.ogg,RBR,ADJECTIVES,Tightens A Bit,detail_tightens
+2044,TIGHTENSLONG,2,1,,,tightens_long1.ogg;tightens_long2.ogg,RBR,ADJECTIVES,Tightens Long,detail_tightens>detail_long
+2045,TIGHTENSVERYLONG,2,0,,,tightens_verylong1.ogg;tightens_verylong2.ogg,RBR,ADJECTIVES,Tightens Very Long,detail_tightens>detail_longlong
+2249,TIGHTENSVERYVERYLONG,2,1,,,tightens_veryverylong1.ogg;tightens_veryverylong2.ogg,RBR,ADJECTIVES,Tightens Very Very Long,detail_tightens>detail_extra_long
+2250,TIGHTENSFUCKINGLONG,2,0,,,tightens_fuckinglong1.ogg;tightens_fuckinglong2.ogg,RBR,ADJECTIVES,Tightens Fucking Long,detail_tightens>detail_extraextra_long
+2046,TIGHTENSATJUNCTION,2,1,,,tightens_at_junction1.ogg;tightens_at_junction2.ogg,RBR,ADJECTIVES,Tightens At Junction,detail_tightens>detail_junction
+2047,TIGHTENSOVERCREST,2,0,,,tightens_overcrest1.ogg;tightens_overcrest2.ogg,RBR,ADJECTIVES,Tightens Over Crest,detail_tightens>detail_over_crest
+2187,TIGHTENSSUMPPU,2,1,,,tightens_sumppu1.ogg;tightens_sumppu2.ogg,RBR,ADJECTIVES,Tightens Sumppu,detail_tightens>detail_narrows
+2253,TIGHTENSSHARP,2,0,,,tightens_sharp1.ogg;tightens_sharp2.ogg,RBR,ADJECTIVES,Tightens Sharp,detail_tightens>detail_narrows
+2254,TIGHTENSROUND,2,1,,,tightens_round1.ogg;tightens_round2.ogg,RBR,ADJECTIVES,Tightens Round,detail_tightens>detail_around
+2031,NIPS,2,0,,,nips1.ogg;nips2.ogg,RBR,ADJECTIVES,Nips,detail_keep_in
+2019,TIGHTENSOPENS,2,1,,,tightens_opens1.ogg;tightens_opens2.ogg,RBR,ADJECTIVES,Tightens Opens,detail_tightens>detail_opens
+2062,TIGHTENSTOFLATMINUS,3,0,,,tightens_six_plus1.ogg;tightens_six_plus2.ogg;tightens_six_plus3.ogg,RBR,ADJECTIVES,Tightens 6+,detail_tightens>detail_plus
+2001,TIGHTENSTOSIX,3,1,,,tightens_six1.ogg;tightens_six2.ogg;tightens_six3.ogg,RBR,ADJECTIVES,Tightens 6,detail_tightens
+2063,TIGHTENSTOQUICK,3,0,,,tightens_five_plus1.ogg;tightens_five_plus2.ogg;tightens_five_plus3.ogg,RBR,ADJECTIVES,Tightens 5+,detail_tightens_to_5>detail_plus
+2002,TIGHTENSTOFIVE,3,1,,,tightens_five1.ogg;tightens_five2.ogg;tightens_five3.ogg,RBR,ADJECTIVES,Tightens 5,detail_tightens_to_5
+2064,TIGHTENSTOEM,3,0,,,tightens_four_plus1.ogg;tightens_four_plus2.ogg;tightens_four_plus3.ogg,RBR,ADJECTIVES,Tightens 4+,detail_tightens_to_4>detail_plus
+2003,TIGHTENSTOFOUR,3,1,,,tightens_four1.ogg;tightens_four2.ogg;tightens_four3.ogg,RBR,ADJECTIVES,Tightens 4,detail_tightens_to_4
+2065,TIGHTENSTOPLUS,3,0,,,tightens_three_plus1.ogg;tightens_three_plus2.ogg;tightens_three_plus3.ogg,RBR,ADJECTIVES,Tightens 3+,detail_tightens_to_3>detail_plus
+2004,TIGHTENSTOTHREE,3,1,,,tightens_three1.ogg;tightens_three2.ogg;tightens_three3.ogg,RBR,ADJECTIVES,Tightens 3,detail_tightens_to_3
+2264,TIGHTENSTOSQUARE_PLUS,3,0,,,tightens_two_plus1.ogg;tightens_two_plus2.ogg;tightens_two_plus3.ogg,RBR,ADJECTIVES,Tightens 2+,detail_tightens_to_2>detail_plus
+2005,TIGHTENSTOTWO,3,1,,,tightens_two1.ogg;tightens_two2.ogg;tightens_two3.ogg,RBR,ADJECTIVES,Tightens 2,detail_tightens_to_2
+2066,TIGHTENSTOMINUS,3,0,,,tightens_one_plus1.ogg;tightens_one_plus2.ogg;tightens_one_plus3.ogg,RBR,ADJECTIVES,Tightens 1+,detail_tightens_to_1>detail_plus
+2006,TIGHTENSTOONE,3,1,,,tightens_one1.ogg;tightens_one2.ogg;tightens_one3.ogg,RBR,ADJECTIVES,Tightens 1,detail_tightens_to_1
+2067,TIGHTENSTOVERYSLOW,3,0,,,tightens_hp_plus1.ogg;tightens_hp_plus2.ogg;tightens_hp_plus3.ogg,RBR,ADJECTIVES,Tightens Hairpin+,detail_tightens_to_acute
+2007,TIGHTENSTOHP,3,1,,,tightens_hp1.ogg;tightens_hp2.ogg;tightens_hp3.ogg,RBR,ADJECTIVES,Tightens Hairpin,detail_tightens_to_acute
+2027,TIGHTENSTOACUTE,4,0,,,tightens_acute1.ogg;tightens_acute2.ogg;tightens_acute3.ogg,RBR,ADJECTIVES,Tightens Acute,detail_tightens_to_acute
+2068,TOFLATMINUS,3,0,,,_six_plus1.ogg;_six_plus2.ogg;_six_plus3.ogg,RBR,ADJECTIVES,_6+,detail_opens_to_flat>detail_plus
+2008,TOSIX,3,1,,,_six1.ogg;_six2.ogg;_six3.ogg,RBR,ADJECTIVES,_6,detail_opens_to_flat
+2069,TOQUICK,3,0,,,_five_plus1.ogg;_five_plus2.ogg;_five_plus3.ogg,RBR,ADJECTIVES,_5+,detail_opens_to_5>detail_plus
+2009,TOFIVE,3,1,,,_five1.ogg;_five2.ogg;_five3.ogg,RBR,ADJECTIVES,_5,detail_opens_to_5
+2070,TOEM,3,0,,,_four_plus1.ogg;_four_plus2.ogg;_four_plus3.ogg,RBR,ADJECTIVES,_4+,detail_opens_to_4>detail_plus
+2010,TOFOUR,3,1,,,_four1.ogg;_four2.ogg;_four3.ogg,RBR,ADJECTIVES,_4,detail_opens_to_4
+2071,TOPLUS,3,0,,,_three_plus1.ogg;_three_plus2.ogg;_three_plus3.ogg,RBR,ADJECTIVES,_3+,detail_opens_to_3>detail_plus
+2011,TOTHREE,3,1,,,_three1.ogg;_three2.ogg;_three3.ogg,RBR,ADJECTIVES,_3,detail_opens_to_3
+2265,TOSQUARE_PLUS,3,0,,,_two_plus1.ogg;_two_plus2.ogg;_two_plus3.ogg,RBR,ADJECTIVES,_2+,detail_opens_to_2>detail_plus
+2012,TOTWO,3,1,,,_two1.ogg;_two2.ogg;_two3.ogg,RBR,ADJECTIVES,_2,detail_opens_to_2
+2072,TOMINUS,3,0,,,_one_plus1.ogg;_one_plus2.ogg;_one_plus3.ogg,RBR,ADJECTIVES,_1+,detail_opens_to_1>detail_plus
+2013,TOONE,3,1,,,_one1.ogg;_one2.ogg;_one3.ogg,RBR,ADJECTIVES,_1,detail_opens_to_1
+2073,TOVERYSLOW,3,0,,,_hp_plus1.ogg;_hp_plus2.ogg;_hp_plus3.ogg,RBR,ADJECTIVES,_Hairpin+,detail_opens>detail_plus
+2014,TOHP,3,1,,,_hp1.ogg;_hp2.ogg;_hp3.ogg,RBR,ADJECTIVES,_Hairpin,corner_open_hairpin
+2028,TOACUTE,3,0,,,_acute1.ogg;_acute2.ogg;_acute3.ogg,RBR,ADJECTIVES,_Acute,corner_acute
+2104,NIU_LOIVA_ALKU,3,-1,,,late1.ogg;late2.ogg;late3.ogg,RBR,ADJECTIVES,Late (NIU),detail_late
+295,NA_NEGATIVE,1,-1,,,negative.ogg,RBR,ADJECTIVES,Negative (N/A),detail_bad
+294,NA_POSITIVE,1,-1,,,positive.ogg,RBR,ADJECTIVES,Positive (N/A),detail_good
+243,NA_EXACT,1,-1,,,exact.ogg,RBR,ADJECTIVES,Exact (N/A),detail_exact
+245,NA_DIRECTLY,1,-1,,,directly.ogg,RBR,ADJECTIVES,Directly (N/A),detail_directly
+252,NA_SLIGHT,1,-1,,,slight.ogg,RBR,ADJECTIVES,Slight (N/A),detail_slightly
+246,NA_LIGHT,1,-1,,,light.ogg,RBR,ADJECTIVES,Light (N/A),detail_light
+248,NA_SMALL,1,-1,,,small.ogg,RBR,ADJECTIVES,Small (N/A),detail_small
+247,NA_BIG,1,-1,,,big.ogg,RBR,ADJECTIVES,Big (N/A),detail_big
+253,NA_GOOD,1,-1,,,good.ogg,RBR,ADJECTIVES,Good (N/A),detail_good
+257,NA_STRAIGHT,1,-1,,,straight.ogg,RBR,ADJECTIVES,Straight (N/A),detail_straight
+238,NA_MANY,1,-1,,,many.ogg,RBR,ADJECTIVES,Many (N/A),detail_many
+237,NA_MUCH,1,-1,,,much.ogg,RBR,ADJECTIVES,Much (N/A),detail_much
+239,NA_VERY,1,-1,,,very.ogg,RBR,ADJECTIVES,Very (N/A),detail_very
+14,NARROWS,3,0,,,narrows1.ogg;narrows2.ogg;narrows3.ogg,RBR,ADDITIONAL,Narrows,detail_narrows
+15,WIDEOUT,3,1,,,wideout1.ogg;wideout2.ogg;wideout3.ogg,RBR,ADDITIONAL,Wideout,detail_widens
+2186,WIDENS,2,0,,,widens1.ogg;widens2.ogg,RBR,ADDITIONAL,Widens,detail_widens
+2185,SUMPPU,2,1,,,sumppu1.ogg;sumppu2.ogg,RBR,ADDITIONAL,Sumppu,detail_narrows
+2219,BIG_SUMPPU,2,0,,,big_sumppu1.ogg;big_sumppu2.ogg,RBR,ADDITIONAL,Big Sumppu,detail_big>detail_narrows
+2220,SMALL_SUMPPU,2,1,,,small_sumppu1.ogg;small_sumppu2.ogg,RBR,ADDITIONAL,Small Sumppu,detail_small>detail_narrows
+2221,ONTO_NARROWER_ROAD,2,0,,,onto_narrower1.ogg;onto_narrower2.ogg,RBR,ADDITIONAL,Onto Narrower,detail_narrows
+2222,ONTO_WIDER_ROAD,2,1,,,onto_wider1.ogg;onto_wider2.ogg,RBR,ADDITIONAL,Onto Wider,detail_widens
+251,TIGHT,2,0,,,tight1.ogg;tight2.ogg,RBR,ADDITIONAL,Tight,detail_tightens
+256,WIDE,2,1,,,wide1.ogg;wide2.ogg,RBR,ADDITIONAL,Wide,detail_widens
+255,NARROW,2,0,,,narrow1.ogg;narrow2.ogg,RBR,ADDITIONAL,Narrow,detail_narrows
+293,CRAMPED,2,1,,,cramped1.ogg;cramped2.ogg,RBR,ADDITIONAL,Cramped,detail_narrows
+2234,GETS_FASTER,2,0,,,gets_faster1.ogg;gets_faster2.ogg,RBR,ADDITIONAL,Gets Faster,detail_fast
+2235,GETS_SLOWER,2,1,,,gets_slower1.ogg;gets_slower2.ogg,RBR,ADDITIONAL,Gets Slower,detail_slow
+9999,LINE_CHANGE,0,-1,,,,RBR,ADDITIONAL,
+264,SHORT,2,0,,,short1.ogg;short2.ogg,RBR,ADDITIONAL,Short,detail_short
+2103,HALF_LONG,3,1,,,halflong1.ogg;halflong2.ogg;halflong3.ogg,RBR,ADDITIONAL,Halflong,detail_half_long
+0,LONG,3,0,,,long1.ogg;long2.ogg;long3.ogg,RBR,ADDITIONAL,Long,detail_long
+274,VERY_LONG,3,1,,,verylong1.ogg;verylong2.ogg;verylong3.ogg,RBR,ADDITIONAL,Very Long,detail_longlong
+2216,EXTRAEXTRALONG,3,0,,,veryverylong1.ogg;veryverylong2.ogg;veryverylong3.ogg,RBR,ADDITIONAL,Very Very Long,detail_extra_long
+2248,FUCKINGLONG,3,1,,,fuckinglong1.ogg;fuckinglong2.ogg;fuckinglong3.ogg,RBR,ADDITIONAL,Fucking Long,detail_extraextra_long
+353,TURN,3,0,INTO,,turn1.ogg;turn2.ogg;turn3.ogg,RBR,ADDITIONAL,Turn,detail_turn
+351,JUNCTION,3,1,INTO,,junction1.ogg;junction2.ogg;junction3.ogg,RBR,ADDITIONAL,Junction,detail_junction
+2209,PAST_JUNCTION,2,0,,,past_junction1.ogg;past_junction2.ogg,RBR,ADDITIONAL,Past Junction,detail_pass_junction
+2102,DOUBLE,2,1,,,double1.ogg;double2.ogg,RBR,ADDITIONAL,Double,detail_double
+230,MINUS,2,0,,,minus1.ogg;minus2.ogg,RBR,ADDITIONAL,Minus,detail_minus
+232,PLUS,2,1,,,plus1.ogg;plus2.ogg,RBR,ADDITIONAL,Plus,detail_plus
+250,ROUND,3,0,,,round1.ogg;round2.ogg;round3.ogg,RBR,ADDITIONAL,Round,detail_around
+249,SHARP,3,1,,,sharp1.ogg;sharp2.ogg;sharp3.ogg,RBR,ADDITIONAL,Sharp,detail_narrows
+411,INSIDE,2,0,,,in1.ogg;in2.ogg,RBR,ADDITIONAL,In,detail_inside
+412,OUTSIDE,2,1,,,out1.ogg;out2.ogg,RBR,ADDITIONAL,Out,detail_outside
+240,HARD,3,0,,,hard1.ogg;hard2.ogg;hard3.ogg,RBR,ADDITIONAL,Hard,detail_hard
+236,EASY,3,1,,,easy1.ogg;easy2.ogg;easy3.ogg,RBR,ADDITIONAL,Easy,detail_easy
+254,BAD,3,0,,,bad1.ogg;bad2.ogg;bad3.ogg,RBR,ADDITIONAL,Bad,detail_bad
+0,MAYBE,3,1,,,maybe1.ogg;maybe2.ogg;maybe3.ogg,RBR,ADDITIONAL,Maybe,detail_maybe
+216,FLATOUT,3,0,,,flat1.ogg;flat2.ogg;flat3.ogg,RBR,ADDITIONAL,Flat,detail_flat
+241,FAST,3,1,,,fast1.ogg;fast2.ogg;fast3.ogg,RBR,ADDITIONAL,Fast,detail_fast
+242,SLOW,3,0,,,slow1.ogg;slow2.ogg;slow3.ogg,RBR,ADDITIONAL,Slow,detail_slow
+2277,TRUST,2,1,,,trust1.ogg;trust2.ogg,RBR,ADDITIONAL,Trust,detail_trust
+2276,DEEP,2,0,,,deep1.ogg;deep2.ogg,RBR,ADDITIONAL,Deep,detail_deep
+342,CAMBER,2,0,,,camber1.ogg;camber2.ogg,RBR,ADDITIONAL,Camber,detail_camber
+355,BADCAMBER,2,1,,,badcamber1.ogg;badcamber2.ogg,RBR,ADDITIONAL,Bad Camber,detail_bad_camber
+260,UPHILL,2,0,,,up1.ogg;up2.ogg,RBR,ADDITIONAL,Up,detail_uphill
+261,DOWNHILL,261,1,,,down1.ogg;down2.ogg,RBR,ADDITIONAL,Down,detail_downhill
+301,HIDDEN,2,0,,,unseen1.ogg;unseen2.ogg,RBR,ADDITIONAL,Unseen,detail_unseen
+2622,TWO_PARTS,2,1,,,two_parts1.ogg;two_parts2.ogg,RBR,ADDITIONAL,Two Parts,detail_bales
+2623,THREE_PARTS,2,0,,,three_parts1.ogg;three_parts2.ogg,RBR,ADDITIONAL,Three Parts,detail_bales
+2624,FOUR_PARTS,2,1,,,four_parts1.ogg;four_parts2.ogg,RBR,ADDITIONAL,Four Parts,detail_bales
+2625,FIVE_PARTS,2,0,,,five_parts1.ogg;five_parts2.ogg,RBR,ADDITIONAL,Five Parts,detail_bales
+2085,REMEMBER,2,1,,,remember1.ogg;remember2.ogg,RBR,ADDITIONAL,Remember,detail_remember
+2086,PATIENT,2,0,,,patient1.ogg;patient2.ogg,RBR,ADDITIONAL,Patient,detail_patient
+2240,FICKLE,2,1,,,fickle1.ogg;fickle2.ogg,RBR,ADDITIONAL,Fickle,detail_fickle
+2244,IMPORTANT,2,0,,,important1.ogg;important2.ogg,RBR,ADDITIONAL,Important,detail_important
+2038,SCALEPLUS,2,0,,,scale_plus1.ogg;scale_plus2.ogg,RBR,ADDITIONAL,Scale Plus,detail_plus
+2039,SCALEMINUS,2,1,,,scale_minus1.ogg;scale_minus2.ogg,RBR,ADDITIONAL,Scale Minus,detail_minus
+263,NIU_LONGLONG,3,-1,,,verylong1.ogg;verylong2.ogg;verylong3.ogg,RBR,ADDITIONAL,Very Long (NIU),detail_longlong
+231,NA_MINUSMINUS,1,-1,,,minusminus.ogg,RBR,ADDITIONAL,Miius Minus (N/A),detail_minus>detail_minus
+233,NA_PLUSPLUS,1,-1,,,plusplus.ogg,RBR,ADDITIONAL,Plus Plus (N/A),detail_plus>detail_plus
+275,NA_VERY_SHORT,1,-1,,,very_short.ogg,RBR,ADDITIONAL,Very Short (N/A),detail_very>detail_short
+265,NA_SHORTSHORT,1,-1,,,shortshort.ogg,RBR,ADDITIONAL,Short Short (N/A),detail_short>detail_short
+302,NIU_BLIND,2,-1,,,unseen1.ogg;unseen2.ogg,RBR,ADDITIONAL,Unseen (NIU),detail_unseen
+343,NIU_REVERSE_CAMBER,2,-1,,,WC1.ogg;WC2.ogg,RBR,ADDITIONAL,Bad Camber (NIU),detail_bad_camber
+408,NIU_IN,2,-1,,,in1.ogg;in2.ogg,RBR,ADDITIONAL,In (NIU),detail_inside
+368,NIU_POSITIVE_CAMBER,2,-1,,,camber1.ogg;camber2.ogg,RBR,ADDITIONAL,Camber (NIU),detail_good>detail_camber
+367,NIU_NEGATIVE_CAMBER,2,-1,,,badcamber1.ogg;badcamber2.ogg,RBR,ADDITIONAL,Bad Camber (NIU),detail_bad_camber
+30,KEEPLEFT,2,0,,,keep_left1.ogg;keep_left2.ogg,RBR,LINE,Keep Left,detail_keep_left
+29,KEEPRIGHT,2,1,,,keep_right1.ogg;keep_right2.ogg,RBR,LINE,Keep Right,detail_keep_right
+2100,FROM_LEFT,2,0,,,from_left1.ogg;from_left2.ogg,RBR,LINE,From Left,detail_from_left
+2101,FROM_RIGHT,2,1,,,from_right1.ogg;from_right2.ogg,RBR,LINE,From Right,detail_from_right
+31,KEEPMIDDLE,2,0,,,keep_middle1.ogg;keep_middle2.ogg,RBR,LINE,Keep Middle,detail_keep_middle
+12,TWISTY,2,1,INTO,,twisty1.ogg;twisty2.ogg,RBR,LINE,Twisty,detail_twisty
+2093,TWISTY_FROMLEFT,2,0,INTO,,twisty_from_left1.ogg;twisty_from_left2.ogg,RBR,LINE,Twisty From Left,detail_twisty>detail_from_left
+2094,TWISTY_FROMRIGHT,2,1,INTO,,twisty_from_right1.ogg;twisty_from_right2.ogg,RBR,LINE,Twisty From Right,detail_twisty>detail_from_right
+28,GOSTRAIGHT,2,0,INTO,,go_straight1.ogg;go_straight2.ogg,RBR,LINE,Go Straight,detail_go_straight
+2229,STAY_OUT,2,1,,,stay_out1.ogg;stay_out2.ogg,RBR,LINE,Stay Out,detail_keep_out
+220,KEEP_IN,2,0,,,keep_in1.ogg;keep_in2.ogg,RBR,LINE,Keep In,detail_keep_in
+221,KEEP_OUT,2,1,,,keep_out1.ogg;keep_out2.ogg,RBR,LINE,Keep Out,detail_keep_out
+234,EARLY,3,0,,,early1.ogg;early2.ogg;early3.ogg,RBR,LINE,Early,detail_early
+235,LATE,3,1,,,late1.ogg;late2.ogg;late3.ogg,RBR,LINE,Late,detail_late
+432,LINE_NOTE,2,0,,,line1.ogg;line2.ogg,RBR,LINE,Line,
+9999,LINE_CHANGE,0,-1,,,,RBR,LINE,
+0,CUT,3,0,,,cut1.ogg;cut2.ogg;cut3.ogg,RBR,LINE,Cut,detail_cut
+212,FULLCUT,2,1,,,full_cut1.ogg;full_cut2.ogg,RBR,LINE,Full Cut,detail_big_cut
+218,LIGHT_CUT,2,0,,,small_cut1.ogg;small_cut2.ogg,RBR,LINE,Small Cut,detail_small_cut
+223,CLIP,2,1,,,clip1.ogg;clip2.ogg,RBR,LINE,Clip,detail_clip
+2273,LATE_CUT,2,0,,,late_cut1.ogg;late_cut2.ogg,RBR,LINE,Late Cut,detail_late>detail_cut
+272,HOOK,2,1,,,hook1.ogg;hook2.ogg,RBR,LINE,Hook,detail_hook
+2159,CUT_THROUGH,2,0,,,cut_through1.ogg;cut_through2.ogg,RBR,LINE,Cut Through,detail_cut>detail_through
+0,DONTCUT,3,0,,,dontcut1.ogg;dontcut2.ogg;dontcut3.ogg,RBR,LINE,Don't,detail_dont_cut
+2016,DONTCUTEARLY,2,0,,,dont_early1.ogg;dont_early2.ogg,RBR,LINE,Don't Early,detail_dont_cut>detail_early
+2017,DONTCUTLATE,2,1,,,dont_late1.ogg;dont_late2.ogg,RBR,LINE,Don't Late,detail_dont_cut>detail_late
+2242,DOUBLE_DONT,2,0,,,double_dont1.ogg;double_dont2.ogg,RBR,LINE,Double Don't,detail_care>detail_dont_cut
+2243,TRIPLE_DONT,2,1,,,triple_dont1.ogg;triple_dont2.ogg,RBR,LINE,Triple Don't,detail_caution>detail_dont_cut
+2095,DONTBLOCK,2,0,,,post1.ogg;post2.ogg,RBR,LINE,Post,detail_post
+2268,POSTS,2,1,,,posts1.ogg;posts2.ogg,RBR,LINE,Posts,detail_post
+2266,POST_EARLY,2,0,,,post_early1.ogg;post_early2.ogg,RBR,LINE,Post Early,detail_post>detail_early
+2267,POST_LATE,2,1,,,post_late1.ogg;post_late2.ogg,RBR,LINE,Post Late,detail_post>detail_late
+2097,GRIP_IN,2,0,,,grip_in1.ogg;grip_in2.ogg,RBR,LINE,Grip In,detail_keep_in
+2098,GRIP_OUT,2,1,,,grip_out1.ogg;grip_out2.ogg,RBR,LINE,Grip Out,detail_keep_out
+2096,GRIP_MIDDLE,2,0,,,grip_middle1.ogg;grip_middle2.ogg,RBR,LINE,Grip Middle,detail_keep_middle
+2099,GO_ROUND,2,1,,,go_round1.ogg;go_round2.ogg,RBR,LINE,Go Round,detail_around
+267,GOWIDE,2,0,,,go_wide1.ogg;go_wide2.ogg,RBR,LINE,Go Wide,detail_widens
+2197,ONTO_STRAIGHT,2,1,,,onto_straight1.ogg;onto_straight2.ogg,RBR,LINE,Onto Straight,detail_go_straight
+2405,LEFTISH,2,0,,,leftish1.ogg;leftish2.ogg,RBR,LINE,Leftish,corner_left
+2406,RIGHTISH,2,1,,,rightish1.ogg;rightish2.ogg,RBR,LINE,Rightish,corner_right
+2020,NIU_HANG,2,-1,,,keep_out1.ogg;keep_out2.ogg,RBR,LINE,,detail_keep_out
+549,NIU_HOLD,2,-1,,,keep_in1.ogg;keep_in2.ogg,RBR,LINE,Hold (NIU),detail_keep_in
+2023,NIU_HAE,2,-1,,,line1.ogg;line2.ogg,RBR,LINE,Hae (NIU),
+266,NA_GONARROW,1,-1,,,gonarrow.ogg,RBR,LINE,Go Narrow (N/A),detail_narrows
+211,NIU_DEEPCUT,2,-1,,,full_cut1.ogg;full_cut2.ogg,RBR,LINE,Ahne (NIU),detail_big_cut
+555,NA_TO_SIGHT_DISTANCE,1,-1,,,to_sight_distance.ogg,RBR,LINE,To Sight Distance (N/A),
+213,NA_KEEP_CENTRE,2,-1,,,keep_middle1.ogg;keep_middle2.ogg,RBR,LINE,Keskeltä (N/A),detail_keep_middle
+340,CREST,2,0,INTO,OVERCREST,crest1.ogg;crest2.ogg,RBR,OBSTACLES,Crest,detail_crest
+2109,SMALL_CREST,2,1,INTO,OVERCREST,small_crest1.ogg;small_crest2.ogg,RBR,OBSTACLES,Small Crest,detail_small_crest
+2090,LONGCREST,2,0,INTO,OVERCREST,long_crest1.ogg;long_crest2.ogg,RBR,OBSTACLES,Long Crest,detail_long_crest
+2195,DOUBLECREST,2,1,INTO,OVERCREST,double_crest1.ogg;double_crest2.ogg,RBR,OBSTACLES,Double Crest,detail_double>detail_crest
+2225,TO_CREST,2,0,,OVERCREST,to_crest1.ogg;to_crest2.ogg,RBR,OBSTACLES,To Crest,detail_crest
+2269,OVERCREST_NOLINK,2,1,,OVERCREST,over_crest1.ogg;over_crest2.ogg,RBR,OBSTACLES,Over Crest,detail_over_crest
+2191,OVERSMALLCREST,2,0,,OVERCREST,over_small_crest1.ogg;over_small_crest2.ogg,RBR,OBSTACLES,Over Small Crest,detail_over_small_crest
+2192,OVERLONGCREST,2,1,,OVERCREST,over_long_crest1.ogg;over_long_crest2.ogg,RBR,OBSTACLES,Over Long Crest,detail_over_long_crest
+2193,OVERTWOCRESTS,2,0,,OVERCREST,over_two_crests1.ogg;over_two_crests2.ogg,RBR,OBSTACLES,Over Two Crests,detail_over_double_crest
+2194,OVERTHREECRESTS,2,1,,OVERCREST,over_three_crests1.ogg;over_three_crests2.ogg,RBR,OBSTACLES,Over Three Crests,detail_over_double_crest>detail_over_crest
+2029,CONTINUESOVERCREST,2,0,,OVERCREST,continues_over_crest1.ogg;continues_over_crest2.ogg,RBR,OBSTACLES,Continues Over Crest,detail_continues>detail_over_crest
+2089,CONTINUESOVERSMALLCREST,2,1,,OVERCREST,continues_over_small_crest1.ogg;continues_over_small_crest2.ogg,RBR,OBSTACLES,Continues Over Small Crest,detail_continues>detail_over_small_crest
+2245,CREST_TO_LEFT,2,0,,OVERCREST,crest_to_left1.ogg;crest_to_left2.ogg,RBR,OBSTACLES,Crest To Left,detail_crest>detail_and>corner_left
+2246,CREST_TO_RIGHT,2,1,,OVERCREST,crest_to_right1.ogg;crest_to_right2.ogg,RBR,OBSTACLES,Crest To Right,detail_crest>detail_and>corner_right
+2257,OVER_EARLY_CREST,2,0,,OVERCREST,over_early_crest1.ogg;over_early_crest2.ogg,RBR,OBSTACLES,Over Early Crest,detail_over_crest>detail_early
+2258,OVER_LATE_CREST,2,1,,OVERCREST,over_late_crest1.ogg;over_late_crest2.ogg,RBR,OBSTACLES,Over Late Crest,detail_over_crest>detail_late
+362,DROPS,2,0,,,drops1.ogg;drops2.ogg,RBR,OBSTACLES,Drops,detail_drops
+2092,TO_BUMP,2,1,,,to_bump1.ogg;to_bump2.ogg,RBR,OBSTACLES,(Jump) To Bump,detail_bumps
+9999,LINE_CHANGE,0,-1,,,,RBR,OBSTACLES,
+20,JUMP,2,0,INTO,,jump1.ogg;jump2.ogg,RBR,OBSTACLES,Jump,detail_jump
+2188,JUMP_MAYBE,2,1,INTO,JUMP,jump_maybe1.ogg;jump_maybe2.ogg,RBR,OBSTACLES,Jump Maybe,detail_jump_maybe
+2516,BIG_JUMP,2,0,INTO,JUMP,big_jump1.ogg;big_jump2.ogg,RBR,OBSTACLES,Big Jump,detail_big_jump
+2087,SMALL_JUMP,2,1,INTO,JUMP,small_jump1.ogg;small_jump2.ogg,RBR,OBSTACLES,Small Jump,detail_small_jump
+2106,FLAT_JUMP,2,0,INTO,JUMP,flat_jump1.ogg;flat_jump2.ogg,RBR,OBSTACLES,Flat Jump,detail_flat>detail_jump
+2107,JUMP_DAB,2,1,INTO,JUMP,jump_dab1.ogg;jump_dab2.ogg,RBR,OBSTACLES,Jump Dab,detail_small_jump
+2196,DOUBLE_JUMP,2,0,INTO,JUMP,double_jump1.ogg;double_jump2.ogg,RBR,OBSTACLES,Double Jump,detail_over_double_jump
+2241,TO_JUMP,2,1,,JUMP,to_jump1.ogg;to_jump2.ogg,RBR,OBSTACLES,To Jump,detail_jump
+2108,OVER_JUMP,2,0,,JUMP,over_jump1.ogg;over_jump2.ogg,RBR,OBSTACLES,Over Jump,detail_over_jump
+2190,OVER_JUMP_DAB,2,1,,JUMP,over_jump_dab1.ogg;over_jump_dab2.ogg,RBR,OBSTACLES,Over Jump Dab,detail_over_small_crest
+2088,OVER_BIG_JUMP,2,0,,JUMP,over_big_jump1.ogg;over_big_jump2.ogg,RBR,OBSTACLES,Over Big Jump,detail_over_big_jump
+2189,OVER_SMALL_JUMP,2,1,,JUMP,over_small_jump1.ogg;over_small_jump2.ogg,RBR,OBSTACLES,Over Small Jump,detail_over_small_jump
+361,DIP,2,0,,,dip1.ogg;dip2.ogg,RBR,OBSTACLES,Dip,detail_dip
+2024,TODIP,2,1,,,to_dip1.ogg;to_dip2.ogg,RBR,OBSTACLES,To Dip,detail_dip
+27,BRIDGE,2,0,ONTO,,bridge1.ogg;bridge2.ogg,RBR,OBSTACLES,Bridge,detail_bridge
+2211,NARROW_BRIDGE,2,1,ONTO,BRIDGE,narrow_bridge1.ogg;narrow_bridge2.ogg,RBR,OBSTACLES,Narrow Bridge,detail_over_narrow_bridge
+200,OVER_BRIDGE,2,0,INTO,BRIDGE,over_bridge1.ogg;over_bridge2.ogg,RBR,OBSTACLES,Over Bridge,detail_over_bridge
+2231,OVER_NARROW_BRIDGE,2,1,,BRIDGE,over_narrow_bridge1.ogg;over_narrow_bridge2.ogg,RBR,OBSTACLES,Over Narrow Bridge,detail_over_narrow_bridge
+2210,ONTO_BRIDGE,2,0,,BRIDGE,onto_bridge1.ogg;onto_bridge2.ogg,RBR,OBSTACLES,Onto Bridge,detail_bridge
+2212,ONTO_NARROW_BRIDGE,2,1,,BRIDGE,onto_narrow_bridge1.ogg;onto_narrow_bridge2.ogg,RBR,OBSTACLES,Onto Narrow Bridge,detail_over_narrow_bridge
+2515,GATE,2,0,,,gate1.ogg;gate2.ogg,RBR,OBSTACLES,Gate,detail_gate
+2213,THROUGH_GATE,2,1,,,through_gate1.ogg;through_gate2.ogg,RBR,OBSTACLES,Through Gate,detail_through_gate
+2214,NARROW_GATE,2,0,,,narrow_gate1.ogg;narrow_gate2.ogg,RBR,OBSTACLES,Narrow Gate,detail_through_narrow_gate
+2215,THROUGH_NARROW_GATE,2,1,,,through_narrow_gate1.ogg;through_narrow_gate2.ogg,RBR,OBSTACLES,Through Narrow Gate,detail_through_narrow_gate
+381,TUNNEL,2,0,INTO,,tunnel1.ogg;tunnel2.ogg,RBR,OBSTACLES,Tunnel,detail_tunnel
+384,RAILS,2,1,INTO,,rails1.ogg;rails2.ogg,RBR,OBSTACLES,Rails,detail_rails
+17,FORD,2,0,INTO,,water1.ogg;water2.ogg,RBR,OBSTACLES,Water,detail_ford
+344,HOLE,2,1,INTO,BUMP,hole1.ogg;hole2.ogg,RBR,OBSTACLES,Hole,detail_hole
+19,BUMP,2,0,INTO,,bump1.ogg;bump2.ogg,RBR,OBSTACLES,Bump,detail_bumps
+300,BUMPS,2,1,INTO,BUMP,bumps1.ogg;bumps2.ogg,RBR,OBSTACLES,Bumps,detail_bumps
+2237,BUMPS_OVER,2,0,INTO,BUMP,bumps_over1.ogg;bumps_over2.ogg,RBR,OBSTACLES,Bumps Over_(dist.),detail_bumps>detail_over
+345,RUTS,2,1,,,ruts1.ogg;ruts2.ogg,RBR,OBSTACLES,Ruts,detail_ruts
+2091,RUT,2,0,,,rut1.ogg;rut2.ogg,RBR,OBSTACLES,Rut,detail_ruts
+346,DEEPRUTS,2,1,,,deep_ruts1.ogg;deep_ruts2.ogg,RBR,OBSTACLES,Deep Ruts,detail_deep>detail_ruts
+2611,BALE,2,0,,,bale1.ogg;bale2.ogg,RBR,OBSTACLES,Bale,detail_bales
+2507,TWO_BALES,2,1,,,two_bales1.ogg;two_bales2.ogg,RBR,OBSTACLES,Two Bales,detail_bales
+2508,THREE_BALES,2,0,,,three_bales1.ogg;three_bales2.ogg,RBR,OBSTACLES,Three Bales,detail_bales
+2509,FOUR_BALES,2,1,,,four_bales1.ogg;four_bales2.ogg,RBR,OBSTACLES,Four Bales,detail_bales
+2626,FIVE_BALES,2,0,,,five_bales1.ogg;five_bales2.ogg,RBR,OBSTACLES,Five Bales,detail_bales
+2521,BALES,2,1,,,bales1.ogg;bales2.ogg,RBR,OBSTACLES,Bales,detail_bales
+2512,LOGS,2,0,,,logs1.ogg;logs2.ogg,RBR,OBSTACLES,Logs,detail_logs
+2238,OVER_ROCKS,2,1,,,over_rocks1.ogg;over_rocks2.ogg,RBR,OBSTACLES,Over Rocks,detail_over>detail_rocks
+16,OVERCREST,2,-1,INTO,,over_crest1.ogg;over_crest2.ogg,RBR,OBSTACLES,Over Crest (With link),detail_over_crest
+388,NIU_WATER,2,-1,INTO,,water1.ogg;water2.ogg,RBR,OBSTACLES,Water (NIU),detail_ford
+292,NIU_BUMPY,2,-1,INTO,,bumps1.ogg;bumps2.ogg,RBR,OBSTACLES,Bumps (NIU),detail_bumps
+354,NIU_STEEP_DROP,2,-1,,,drops1.ogg;drops2.ogg,RBR,OBSTACLES,Drops (NIU),detail_drops
+369,NIU_COMPRESSION,2,-1,,,dip1.ogg;dip2.ogg,RBR,OBSTACLES,Dip (NIU),detail_dip
+2501,NIU_SMALL_CREST_FABZ,2,-1,INTO,,small_crest1.ogg;small_crest2.ogg,RBR,OBSTACLES,Small Crest (NIU),detail_small_crest
+2503,NIU_BROW,2,-1,INTO,,crest1.ogg;crest2.ogg,RBR,OBSTACLES,Crest (NIU),detail_crest
+373,NA_TREE,1,-1,INTO,,tree.ogg,RBR,OBSTACLES,Tree (N/A),detail_tree
+374,NA_STUMP,1,-1,INTO,,stump.ogg,RBR,OBSTACLES,Stump (N/A),detail_stump
+379,NA_STONE,1,-1,INTO,,stone.ogg,RBR,OBSTACLES,Stone (N/A),detail_rocks
+380,NA_ROCK,1,-1,INTO,,rock.ogg,RBR,OBSTACLES,Rock (N/A),detail_rocks
+385,NA_SIGN,1,-1,INTO,,sign.ogg,RBR,OBSTACLES,Sign (N/A),detail_sign
+386,NA_BUSH,1,-1,INTO,,bush.ogg,RBR,OBSTACLES,Bush (N/A),detail_bush
+397,NA_BARRELS,1,-1,INTO,,barrels.ogg,RBR,OBSTACLES,Barrels (N/A),detail_bales
+201,NIU_OVER_RAILS,2,-1,INTO,,rails1.ogg;rails2.ogg,RBR,OBSTACLES,Raiteet (NIU),detail_rails
+202,NIU_OVER_RAILWAY,2,-1,INTO,,rails1.ogg;rails2.ogg,RBR,OBSTACLES,Raiteet (NIU),detail_rails
+390,NA_NETTING,1,-1,INTO,,netting.ogg,RBR,OBSTACLES,Netting (N/A),detail_grid
+394,NA_TYRES,1,-1,INTO,,tyres.ogg,RBR,OBSTACLES,Tyres (N/A),detail_tyres
+395,NA_SPECTATORS,1,-1,INTO,,spectators.ogg,RBR,OBSTACLES,Spectators (N/A),detail_spectators
+396,NA_MARSHALLS,1,-1,INTO,,marshalls.ogg,RBR,OBSTACLES,Marshalls (N/A),detail_marshalls
+391,NA_TAPE,1,-1,INTO,,tape.ogg,RBR,OBSTACLES,Tape (N/A),detail_tape
+389,NIU_PUDDLE,2,-1,INTO,FORD,water1.ogg;water2.ogg,RBR,OBSTACLES,Water (NIU),detail_water_splash
+2135,BALE_IN,2,0,,,bale_in1.ogg;bale_in2.ogg,RBR,CONSTRUCTION,Bale In,detail_inside>detail_bales
+2136,BALE_OUT,2,1,,,bale_out1.ogg;bale_out2.ogg,RBR,CONSTRUCTION,Bale Out,detail_outside>detail_bales
+2137,TIRES_IN,2,0,,,tires_in1.ogg;tires_in2.ogg,RBR,CONSTRUCTION,Tires In,detail_inside>detail_tyres
+2138,TIRES_OUT,2,1,,,tires_out1.ogg;tires_out2.ogg,RBR,CONSTRUCTION,Tires Out,detail_outside>detail_tyres
+2139,ROCK_IN,2,0,,,rock_in1.ogg;rock_in2.ogg,RBR,CONSTRUCTION,Stone In,detail_inside>detail_rocks
+2140,ROCK_OUT,2,1,,,rock_out1.ogg;rock_out2.ogg,RBR,CONSTRUCTION,Stone Out,detail_outside>detail_rocks
+2141,FENCE_IN,2,0,,,fence_in1.ogg;fence_in2.ogg,RBR,CONSTRUCTION,Fence In,detail_fence_inside
+2142,FENCE_OUT,2,1,,,fence_out1.ogg;fence_out2.ogg,RBR,CONSTRUCTION,Fence Out,detail_fence_outside
+2143,TREE_IN,2,0,,,tree_in1.ogg;tree_in2.ogg,RBR,CONSTRUCTION,Tree In,detail_tree_inside
+2144,TREE_OUT,2,1,,,tree_out1.ogg;tree_out2.ogg,RBR,CONSTRUCTION,Tree Out,detail_tree_outside
+2145,DITCH_IN,2,0,,,ditch_in1.ogg;ditch_in2.ogg,RBR,CONSTRUCTION,Ditch In,detail_ditches_inside
+2146,DITCH_OUT,2,1,,,ditch_out1.ogg;ditch_out2.ogg,RBR,CONSTRUCTION,Ditch Out,detail_ditches_outside
+2147,DROP_IN,2,0,,,drop_in1.ogg;drop_in2.ogg,RBR,CONSTRUCTION,Drop In,detail_drops_inside
+2148,DROP_OUT,2,1,,,drop_out1.ogg;drop_out2.ogg,RBR,CONSTRUCTION,Drop Out,detail_drops_outside
+2149,HOUSE_IN,2,0,,,house_in1.ogg;house_in2.ogg,RBR,CONSTRUCTION,House In,detail_inside>detail_house
+2150,HOUSE_OUT,2,1,,,house_out1.ogg;house_out2.ogg,RBR,CONSTRUCTION,House Out,detail_outside>detail_house
+2151,NIU_BARRIER_IN,2,-1,,,fence_in1.ogg;fence_in2.ogg,RBR,CONSTRUCTION,Fence In (NIU),detail_fence_inside
+2152,NIU_BARRIER_OUT,2,-1,,,fence_out1.ogg;fence_out2.ogg,RBR,CONSTRUCTION,Fence Out (NIU),detail_fence_outside
+2153,SIGN_IN,2,0,,,sign_in1.ogg;sign_in2.ogg,RBR,CONSTRUCTION,Sign In,detail_inside>detail_sign
+2154,SIGN_OUT,2,1,,,sign_out1.ogg;sign_out2.ogg,RBR,CONSTRUCTION,Sign Out,detail_outside>detail_sign
+2155,POST_IN,2,0,,,post_in1.ogg;post_in2.ogg,RBR,CONSTRUCTION,Post In,detail_post_inside
+2156,POST_OUT,2,1,,,post_out1.ogg;post_out2.ogg,RBR,CONSTRUCTION,Post Out,detail_post_inside
+2157,LOG_IN,2,0,,,log_in1.ogg;log_in2.ogg,RBR,CONSTRUCTION,Log In,detail_logs_inside
+2158,LOG_OUT,2,1,,,log_out1.ogg;log_out2.ogg,RBR,CONSTRUCTION,Log Out,detail_logs_outside
+2200,LOGS_IN,2,0,,,logs_in1.ogg;logs_in2.ogg,RBR,CONSTRUCTION,Logs In,detail_logs_inside
+2201,LOGS_OUT,2,1,,,logs_out1.ogg;logs_out2.ogg,RBR,CONSTRUCTION,Logs Out,detail_logs_outside
+376,NIU_POST,2,-1,INTO,,post1.ogg;post2.ogg,RBR,CONSTRUCTION,Post (NIU),detail_post
+375,NA_MAST,1,-1,INTO,,mast.ogg,RBR,CONSTRUCTION,Mast (N/A),detail_post
+371,NA_WALL,1,-1,INTO,,wall.ogg,RBR,CONSTRUCTION,Wall (N/A),detail_wall
+370,NA_FENCE,1,-1,INTO,,fence.ogg,RBR,CONSTRUCTION,Fence (N/A),detail_fence
+372,NA_HOUSE,1,-1,INTO,,house.ogg,RBR,CONSTRUCTION,House (N/A),detail_house
+377,NA_ISLAND,1,-1,INTO,,island.ogg,RBR,CONSTRUCTION,Island (N/A),detail_island
+387,NA_PATH,1,-1,INTO,,path.ogg,RBR,CONSTRUCTION,Path (N/A),
+382,NA_ROAD,1,-1,INTO,,road.ogg,RBR,CONSTRUCTION,Road (N/A),
+399,NA_ROUNDABOUT,1,-1,INTO,,roundabout.ogg,RBR,CONSTRUCTION,Roundabout (N/A),
+443,NA_WOODEN_FENCE,1,-1,INTO,,wooden_fence.ogg,RBR,CONSTRUCTION,Wooden Fence (N/A),detail_fence
+2270,CARE_NOLINK,3,0,,CARE,care1.ogg;care2.ogg;care3.ogg,RBR,CAUTIONS,Care,detail_care
+299,FAKES,2,1,,CARE,deceptive1.ogg;deceptive2.ogg,RBR,CAUTIONS,Deceptive,detail_deceptive
+2021,CAREIN,2,0,,CARE,care_in1.ogg;care_in2.ogg,RBR,CAUTIONS,Care In,detail_inside>detail_care
+2022,CAREOUT,2,1,,CARE,care_out1.ogg;care_out2.ogg,RBR,CAUTIONS,Care Out,detail_outside>detail_care
+2271,CAUTION_NOLINK,3,0,,CAUTION,caution1.ogg;caution2.ogg;caution3.ogg,RBR,CAUTIONS,Caution,detail_caution
+303,DOUBLE_CAUTION,3,1,,CAUTION,double_caution1.ogg;double_caution2.ogg;double_caution3.ogg,RBR,CAUTIONS,Double Caution,detail_double_caution
+0,CAUTION_WATER,2,0,,,caution_water1.ogg;caution_water2.ogg,RBR,CAUTIONS,Caution Water,detail_ford>detail_caution
+268,SLIPPERY,2,1,,,slippy1.ogg;slippy2.ogg,RBR,CAUTIONS,Slippery,detail_slippery
+2183,SLIPPY_ENTRY,2,0,,,slippy_entry1.ogg;slippy_entry2.ogg,RBR,CAUTIONS,Slippy Entry,detail_entry>detail_slippery
+2184,SLIPPY_EXIT,2,1,,,slippy_exit1.ogg;slippy_exit2.ogg,RBR,CAUTIONS,Slippy Exit,detail_exit>detail_slippery
+2204,SLIPPERY_MAYBE,2,0,,,maybe_slippy1.ogg;maybe_slippy2.ogg,RBR,CAUTIONS,Maybe Slippy,detail_maybe>detail_slippery
+2217,VERY_SLIPPY,2,1,,,very_slippy1.ogg;very_slippy2.ogg,RBR,CAUTIONS,Very Slippy,detail_very>detail_slippery
+2182,SLIPPY_BRAKING,2,0,,,slippy_braking1.ogg;slippy_braking2.ogg,RBR,CAUTIONS,Slippy Braking,detail_slippery>detail_brake
+217,BRAKE,3,1,,,brake1.ogg;brake2.ogg;brake3.ogg,RBR,CAUTIONS,Brake,detail_brake
+2176,BRAKE_INTO,3,0,,,brake_into1.ogg;brake_into2.ogg;brake_into3.ogg,RBR,CAUTIONS,Brake Into,detail_brake>detail_into
+2177,BRAKE_AND,3,1,,,brake_and1.ogg;brake_and2.ogg;brake_and3.ogg,RBR,CAUTIONS,Brake And,detail_brake>detail_and
+2275,NIU_BRAKE_JATKUU,3,-1,,,brake_and1.ogg;brake_and2.ogg;brake_and3.ogg,RBR,CAUTIONS,Brake And (NIU),detail_brake>detail_and
+2259,BRAKE_10,3,0,,,brake_10_1.ogg;brake_10_2.ogg;brake_10_3.ogg,RBR,CAUTIONS,Brake 10,detail_brake
+2178,BRAKE_20,3,1,,,brake_20_1.ogg;brake_20_2.ogg;brake_20_3.ogg,RBR,CAUTIONS,Brake 20,detail_brake>number_20
+2179,BRAKE_30,3,0,,,brake_30_1.ogg;brake_30_2.ogg;brake_30_3.ogg,RBR,CAUTIONS,Brake 30,detail_brake>number_30
+2180,BRAKE_40,3,1,,,brake_40_1.ogg;brake_40_2.ogg;brake_40_3.ogg,RBR,CAUTIONS,Brake 40,detail_brake>number_40
+2181,BRAKE_50,3,0,,,brake_50_1.ogg;brake_50_2.ogg;brake_50_3.ogg,RBR,CAUTIONS,Brake 50,detail_brake>number_50
+2228,PRECISE,2,1,,,precise1.ogg;precise2.ogg,RBR,CAUTIONS,Precise,detail_exact
+2230,BUMPY_BRAKING,2,0,,,bumpy_braking1.ogg;bumpy_braking2.ogg,RBR,CAUTIONS,Bumpy Braking,detail_brake>detail_bumps
+18,CARE,3,-1,INTO,,care1.ogg;care2.ogg;care3.ogg,RBR,CAUTIONS,Care (With Link),detail_care
+32,CAUTION,3,-1,INTO,,caution1.ogg;caution2.ogg;caution3.ogg,RBR,CAUTIONS,Caution (With Link),detail_caution
+277,NIU_SLIPPY,2,-1,,,slippy1.ogg;slippy2.ogg,RBR,CAUTIONS,Slippy (NIU),detail_slippery
+304,NA_TRIPLE_CAUTION,3,-1,INTO,,double_caution1.ogg;double_caution2.ogg;double_caution3.ogg,RBR,CAUTIONS,Triple Caution (N/A),detail_triple_caution
+302,NIU_BLIND,2,-1,,,unseen1.ogg;unseen2.ogg,RBR,CAUTIONS,Unseen (NIU),detail_unseen
+350,NA_DITCH,1,-1,,,ditch.ogg,RBR,CAUTIONS,Ditch (N/A),detail_ditches
+347,NA_BORDER,1,-1,,,border.ogg,RBR,CAUTIONS,Border (N/A),detail_border
+348,NA_EDGE,1,-1,,,edge.ogg,RBR,CAUTIONS,Edge (N/A),detail_edge
+349,NA_CURB,1,-1,,,curb.ogg,RBR,CAUTIONS,Curb (N/A),detail_curb
+356,NA_SHOULDER,1,-1,,,shoulder.ogg,RBR,CAUTIONS,Shoulder (N/A),detail_shoulder
+359,NA_STEEP_SLOPE,1,-1,,,steep_slope.ogg,RBR,CAUTIONS,Steep Slope (N/A),detail_steep_slope
+358,NA_STEEP_INCLINE,1,-1,,,steep_incline.ogg,RBR,CAUTIONS,Steep Incline (N/A),detail_steep_incline
+357,NA_STEEP_HILL,1,-1,,,steep_hill.ogg,RBR,CAUTIONS,Steep Hill (N/A),detail_steep_hill
+243,NIU_EXACT,2,-1,,,precise1.ogg;precise2.ogg,RBR,CAUTIONS,Precise (NIU),detail_exact
+2604,NIU_WATCH,2,-1,,,precise1.ogg;precise2.ogg,RBR,CAUTIONS,Precise (NIU),detail_exact
+551,L_FOOT_BRAKING,2,0,,,dab1.ogg;dab2.ogg,RBR,DRIVING,Dab,detail_dab
+219,HANDBRAKE,2,1,,,handbrake1.ogg;handbrake2.ogg,RBR,DRIVING,Handbrake,detail_handbrake
+2049,NEAT,2,0,,,neat1.ogg;neat2.ogg,RBR,DRIVING,Neat,detail_neat
+244,SLOWING,3,1,,,slowing1.ogg;slowing2.ogg;slowing3.ogg,RBR,DRIVING,Slowing,detail_slowing
+2600,BE_BRAVE,2,0,,,be_brave1.ogg;be_brave2.ogg,RBR,DRIVING,Be Brave,detail_brave
+215,GO_FULL,3,1,,,go1.ogg;go2.ogg;go3.ogg,RBR,DRIVING,Go,detail_flat
+271,SIDEWAYS,3,0,,,rotate1.ogg;rotate2.ogg;rotate3.ogg,RBR,DRIVING,Rotate,detail_rotate
+2048,WALK,2,1,,,walk1.ogg;walk2.ogg,RBR,DRIVING,Walk,detail_walk
+431,STOP,2,0,,,stop1.ogg;stop2.ogg,RBR,DRIVING,Stop,detail_stop
+2223,LIFT,2,1,,,lift1.ogg;lift2.ogg,RBR,DRIVING,Lift,detail_lift
+270,NA_UNDERSTEER,1,-1,,,understeer.ogg,RBR,DRIVING,Understeer (N/A),detail_understeer
+273,NA_DRAWS_IN,1,-1,,,draws_in.ogg,RBR,DRIVING,Draws In (N/A),detail_draws_in
+550,NA_TAKE_SPEED,1,-1,,,take_speed.ogg,RBR,DRIVING,Take Speed (N/A),detail_take_speed
+2615,NIU_DAB,2,-1,,,dab1.ogg;dab2.ogg,RBR,DRIVING,Dab (NIU),detail_dab
+557,ENTRY,2,0,,,at_entry1.ogg;at_entry2.ogg,RBR,PREPOSITIONS,At Entry,detail_entry
+2198,AT_EXIT,2,1,,,at_exit1.ogg;at_exit2.ogg,RBR,PREPOSITIONS,At Exit,detail_exit
+2160,AT_TREE,2,0,,,at_tree1.ogg;at_tree2.ogg,RBR,PREPOSITIONS,At Tree,detail_tree
+2161,AT_TREES,2,1,,,at_trees1.ogg;at_trees2.ogg,RBR,PREPOSITIONS,At Trees,detail_tree
+2162,AT_BALE,2,0,,,at_bale1.ogg;at_bale2.ogg,RBR,PREPOSITIONS,At Bale,detail_bales
+2163,AT_ROCK,2,1,,,at_rock1.ogg;at_rock2.ogg,RBR,PREPOSITIONS,At Rock,detail_rocks
+2164,AT_GUARDRAIL,2,0,,,at_guardrail1.ogg;at_guardrail2.ogg,RBR,PREPOSITIONS,At Guardrail,detail_rails
+2165,AT_BANNER,2,1,,,at_banner1.ogg;at_banner2.ogg,RBR,PREPOSITIONS,At Banner,detail_banner
+2166,AT_TAPE,2,0,,,at_tape1.ogg;at_tape2.ogg,RBR,PREPOSITIONS,At Tape,detail_tape
+2167,AT_FENCE,2,1,,,at_fence1.ogg;at_fence2.ogg,RBR,PREPOSITIONS,At Fence,detail_fence
+2168,AT_FLAG,2,0,,,at_flag1.ogg;at_flag2.ogg,RBR,PREPOSITIONS,At Flag,detail_flag
+2169,AT_HOUSE,2,1,,,at_house1.ogg;at_house2.ogg,RBR,PREPOSITIONS,At House,detail_house
+2170,AT_SIGN,2,0,,,at_sign1.ogg;at_sign2.ogg,RBR,PREPOSITIONS,At Sign,detail_sign
+2171,AT_POST,2,1,,,at_post1.ogg;at_post2.ogg,RBR,PREPOSITIONS,At Post,detail_post
+2172,AT_JUNCTION,2,0,,,at_junction1.ogg;at_junction2.ogg,RBR,PREPOSITIONS,At Junction,detail_junction
+2173,AT_CREST,2,1,,,at_crest1.ogg;at_crest2.ogg,RBR,PREPOSITIONS,At Crest,detail_crest
+2174,AT_GATE,2,0,,,at_gate1.ogg;at_gate2.ogg,RBR,PREPOSITIONS,At Gate,detail_gate
+2175,AT_BRIDGE,2,1,,,at_bridge1.ogg;at_bridge2.ogg,RBR,PREPOSITIONS,At Bridge,detail_bridge
+2199,AT_OPENING,2,0,,,at_opening1.ogg;at_opening2.ogg,RBR,PREPOSITIONS,At Opening,detail_junction
+2218,AT_BUSH,2,1,,,at_bush1.ogg;at_bush2.ogg,RBR,PREPOSITIONS,At Bush,detail_bush
+2261,AT_LOG,2,0,,,at_log1.ogg;at_log2.ogg,RBR,PREPOSITIONS,At Log,detail_logs
+2274,AT_LOGS,2,1,,,at_logs1.ogg;at_logs2.ogg,RBR,PREPOSITIONS,At Logs,detail_logs
+403,NA_ON,1,-1,,,on.ogg,RBR,PREPOSITIONS,On (N/A),
+410,NA_FOR,1,-1,,,for.ogg,RBR,PREPOSITIONS,For (N/A),
+404,NA_UNTIL,1,-1,,,until.ogg,RBR,PREPOSITIONS,Until (N/A),detail_until
+402,NA_NEAR,1,-1,,,near.ogg,RBR,PREPOSITIONS,Near (N/A),detail_near
+414,NA_OFF,1,-1,,,off.ogg,RBR,PREPOSITIONS,Off (N/A),
+401,NA_AFTER,1,-1,,,after.ogg,RBR,PREPOSITIONS,After (N/A),
+409,NA_BEHIND,1,-1,,,behind.ogg,RBR,PREPOSITIONS,Behind (N/A),
+406,NA_BEFORE,1,-1,,,before.ogg,RBR,PREPOSITIONS,Before (N/A),
+405,NA_AT,1,-1,,,at.ogg,RBR,PREPOSITIONS,At (N/A),detail_at
+407,NA_OVER,1,-1,,,over.ogg,RBR,PREPOSITIONS,Over (N/A),detail_over
+400,NA_THROUGH,1,-1,,,through.ogg,RBR,PREPOSITIONS,Through (N/A),detail_through
+413,NA_THEN,1,-1,,,then.ogg,RBR,PREPOSITIONS,Then (N/A),detail_then
+540,ONTO_GRAVEL,2,0,,,onto_gravel1.ogg;onto_gravel2.ogg,RBR,SURFACE,Onto Gravel,detail_gravel
+541,ONTO_TARMAC,2,1,,,onto_tarmac1.ogg;onto_tarmac2.ogg,RBR,SURFACE,Onto Tarmac,detail_tarmac
+542,ONTO_CONCRETE,2,0,,,onto_concrete1.ogg;onto_concrete2.ogg,RBR,SURFACE,Onto Concrete,detail_concrete
+545,ONTO_SNOW,2,1,,,onto_snow1.ogg;onto_snow2.ogg,RBR,SURFACE,Onto Snow,detail_snow
+543,ONTO_COBBLES,2,0,,,onto_cobbles1.ogg;onto_cobbles2.ogg,RBR,SURFACE,Onto Cobbles,detail_cobble
+320,GRAVEL,2,1,,,gravel1.ogg;gravel2.ogg,RBR,SURFACE,Gravel,detail_gravel
+321,TARMAC,2,0,,,tarmac1.ogg;tarmac2.ogg,RBR,SURFACE,Tarmac,detail_tarmac
+322,CONCRETE,2,1,,,concrete1.ogg;concrete2.ogg,RBR,SURFACE,Concrete,detail_concrete
+325,SNOW,2,0,,,snow1.ogg;snow2.ogg,RBR,SURFACE,Snow,detail_snow
+327,ICY,2,1,,,icy1.ogg;icy2.ogg,RBR,SURFACE,Icy,detail_ice
+323,COBBLES,2,0,,,cobbles1.ogg;cobbles2.ogg,RBR,SURFACE,Cobbles,detail_cobble
+291,DIRTY,2,1,,,shit1.ogg;shit2.ogg,RBR,SURFACE,Shit,detail_dirty
+2571,SURFACE_NOTE,2,0,,,surface1.ogg;surface2.ogg,RBR,SURFACE,Surface,
+2236,SURFACE_CHANGE,2,1,,,surface_change1.ogg;surface_change2.ogg,RBR,SURFACE,Surface Change,
+2232,GETS_ROUGHER,2,0,,,gets_rougher1.ogg;gets_rougher2.ogg,RBR,SURFACE,Gets Rougher,
+2233,GETS_SMOOTHER,2,1,,,gets_smoother1.ogg;gets_smoother2.ogg,RBR,SURFACE,Gets Smoother,
+2239,ONTO_FIELD,2,0,,,onto_field1.ogg;onto_field2.ogg,RBR,SURFACE,Onto Field,
+2260,BLACK_ICE,2,1,,,black_ice1.ogg;black_ice2.ogg,RBR,SURFACE,Black Ice,detail_ice
+329,NIU_ICE,2,-1,,,icy1.ogg;icy2.ogg,RBR,SURFACE,Icy (NIU),detail_ice
+324,NA_GRIT,1,-1,,,grit.ogg,RBR,SURFACE,Grit (N/A),detail_gravel
+326,NA_ONSPLIT,1,-1,,,onsplit.ogg,RBR,SURFACE,On Split (N/A),
+328,NA_RUBBLE,1,-1,,,rubble.ogg,RBR,SURFACE,Rubble (N/A),detail_gravel
+330,NA_LOOSE_GRAVEL,1,-1,,,loose_gravel.ogg,RBR,SURFACE,Loose Gravel (N/A),detail_loose_gravel
+544,NA_ONTO_GRIT,1,-1,,,onto_grit.ogg,RBR,SURFACE,Onto Grit (N/A),detail_gravel

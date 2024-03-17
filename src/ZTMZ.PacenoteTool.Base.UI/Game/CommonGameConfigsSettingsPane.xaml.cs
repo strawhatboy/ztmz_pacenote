@@ -38,6 +38,7 @@ public partial class CommonGameConfigsSettingsPane : IGameConfigSettingsPane
             this.grid_Main.Children.Add(tb);
 
             var value = _config.PropertyValue[index];
+            var valueType = _config.PropertyType[index];
             if (value.GetType() == typeof(bool))
             {
                 int _index = index;
@@ -55,18 +56,45 @@ public partial class CommonGameConfigsSettingsPane : IGameConfigSettingsPane
                 this.grid_Main.Children.Add(tbtn);
             } else if (value.GetType() == typeof(string)) 
             {
-                int _index = index;
-                Wpf.Ui.Controls.TextBox tbox = new Wpf.Ui.Controls.TextBox() { Text = (string)_config.PropertyValue[_index] };
-                // tbox.HorizontalAlignment = HorizontalAlignment.Right;
-                tbox.TextChanged += (sender, args) => {
-                    _config.PropertyValue[_index] = tbox.Text;
-                    base.RestartNeeded?.Invoke();
-                    Config.Instance.SaveGameConfig(game);
-                };
-                Grid.SetRow(tbox, _index);
-                Grid.SetColumn(tbox, 1);
-                tbox.VerticalAlignment = VerticalAlignment.Center;
-                this.grid_Main.Children.Add(tbox);
+                if (valueType.StartsWith("file:"))
+                {
+                    int _index = index;
+                    var fileType = valueType.Substring(5);
+
+                    Wpf.Ui.Controls.Button btn = new Wpf.Ui.Controls.Button() { Icon = new Wpf.Ui.Controls.SymbolIcon{ Symbol = SymbolRegular.DocumentBulletList20 }, ToolTip = value };
+                    btn.Click += (sender, args) => {
+                        var dlg = new Microsoft.Win32.OpenFileDialog();
+                        dlg.DefaultExt = fileType;
+                        dlg.Filter = $"{fileType.ToUpper()}|*.{fileType}";
+                        if (dlg.ShowDialog() == true)
+                        {
+                            // tbox.Text = dlg.FileName;
+                            _config.PropertyValue[_index] = dlg.FileName;
+                            btn.ToolTip = dlg.FileName;
+                            base.RestartNeeded?.Invoke();
+                            Config.Instance.SaveGameConfig(game);
+                        }
+                    };
+                    Grid.SetRow(btn, _index);
+                    Grid.SetColumn(btn, 1);
+                    btn.VerticalAlignment = VerticalAlignment.Center;
+                    btn.HorizontalAlignment = HorizontalAlignment.Right;
+                    this.grid_Main.Children.Add(btn);
+
+                } else {
+                    int _index = index;
+                    Wpf.Ui.Controls.TextBox tbox = new Wpf.Ui.Controls.TextBox() { Text = (string)_config.PropertyValue[_index] };
+                    // tbox.HorizontalAlignment = HorizontalAlignment.Right;
+                    tbox.TextChanged += (sender, args) => {
+                        _config.PropertyValue[_index] = tbox.Text;
+                        base.RestartNeeded?.Invoke();
+                        Config.Instance.SaveGameConfig(game);
+                    };
+                    Grid.SetRow(tbox, _index);
+                    Grid.SetColumn(tbox, 1);
+                    tbox.VerticalAlignment = VerticalAlignment.Center;
+                    this.grid_Main.Children.Add(tbox);
+                }
             }
 
             index++;

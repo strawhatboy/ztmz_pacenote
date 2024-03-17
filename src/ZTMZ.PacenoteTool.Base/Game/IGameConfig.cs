@@ -60,10 +60,12 @@ public class CommonGameConfigs: IGameConfig
 {
     public static string Name => "common_config";
 
-    public Dictionary<string, string> PropertyName { set; get; }
-    public List<object> PropertyValue { set; get; }
+    public Dictionary<string, string> PropertyName { set; get; } = new();
+    public List<object> PropertyValue { set; get; } = new();
 
-    public List<List<double>> ValueRange { set; get; }
+    public List<List<double>> ValueRange { set; get; } = new();
+
+    public List<string> PropertyType { set; get; } = new();
 
     // [JsonIgnore]
     // public IGameConfigSettingsPane UI {set;get;}

@@ -837,6 +837,14 @@ namespace ZTMZ.PacenoteTool.Base
                 {
                     gameConfig.Add(kv.Key, kv.Value);
                 }
+
+                if (kv.Value is CommonGameConfigs commonGameConfigs)
+                {
+                    if (gameConfig[kv.Key] is CommonGameConfigs commonGameConfigs2)
+                    {
+                        commonGameConfigs2.Merge(commonGameConfigs);
+                    }
+                }
             }
 
             _logger.Debug($"Loaded game config for {game.Name}, content: {content}");

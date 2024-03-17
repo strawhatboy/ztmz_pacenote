@@ -33,6 +33,9 @@ detail_over_narrow_bridge,detail_over_bridge>detail_narrows
 detail_over_very_long_crest,detail_over_crest>detail_longlong
 detail_pass_junction,detail_junction
 detail_post_inside,detail_dont_cut
+detail_rails,detail_fence
+detail_rails_inside,detail_dont_cut
+detail_rails_outside,detail_keep_in
 detail_slow,detail_brake
 detail_small_crest,detail_crest
 detail_small_cut,detail_cut

@@ -4,8 +4,10 @@
             "description": "最经典的拉力赛模拟游戏Richard Burns Rally，这里是RSF（Rallysimfans）版本",
             "additional_settings": {
                 "playPacenotesWhenReplaying": "在播放比赛回放的时候播放路书",
+                "additional_pacenote_def": "额外的RBR路书定义",
                 "tooltip": {
-                    "playPacenotesWhenReplaying": "当播放比赛回放（录像）的时候，也播放路书"
+                    "playPacenotesWhenReplaying": "当播放比赛回放（录像）的时候，也播放路书",
+                    "additional_pacenote_def": "额外的路书定义，包含了从RBR路书到ZTMZ路书的转换"
                 }
             }
         }

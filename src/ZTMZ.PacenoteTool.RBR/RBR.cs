@@ -44,6 +44,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows.Media.Imaging;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
@@ -83,11 +84,17 @@ namespace ZTMZ.PacenoteTool.RBR
             { CommonGameConfigs.Name, new CommonGameConfigs() 
             { 
                 PropertyName = new() {
-                    { "game.rbr.additional_settings.playPacenotesWhenReplaying", "game.rbr.additional_settings.tooltip.playPacenotesWhenReplaying" }
+                    { "game.rbr.additional_settings.playPacenotesWhenReplaying", "game.rbr.additional_settings.tooltip.playPacenotesWhenReplaying" },
+                    { "game.rbr.additional_settings.additional_pacenote_def", "game.rbr.additional_settings.tooltip.additional_pacenote_def" }
                 },
                 PropertyValue = new() {
-                    true
-                } 
+                    true,
+                    AppLevelVariables.Instance.GetPath("Jannemod V3.csv")   // default pacenote
+                },
+                PropertyType = new() {
+                    "bool",
+                    "file:csv"
+                }
             }},
         };
 
