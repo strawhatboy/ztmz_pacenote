@@ -84,5 +84,20 @@ public struct WRCDataStructure {
     public UInt16 vehicle_model_id;
     public UInt16 location_id;
     public UInt16 route_id;
+    public float stage_previous_split_time;
+    public float stage_result_time;
+    public float stage_result_time_penalty;
+    public byte stage_result_status;
+    public float stage_progress;
+    public byte vehicle_tyre_state_bl;
+    public byte vehicle_tyre_state_br;
+    public byte vehicle_tyre_state_fl;
+    public byte vehicle_tyre_state_fr;
+    [MarshalAs(UnmanagedType.U1)]
+    public bool stage_shakedown;
+    public byte game_mode;
+    [MarshalAs(UnmanagedType.U1)]
+    public bool vehicle_cluster_abs;
 }
+
 

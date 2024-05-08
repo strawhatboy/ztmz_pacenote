@@ -11,9 +11,9 @@ namespace ZTMZ.PacenoteTool.Codemasters;
 
 public class WRCGameDataReader : DirtGameDataReader
 {
-    private GameData _lastGameData;
+    // private GameData LastGameData;
     
-    private GameData _currentGameData;
+    // private GameData CurrentGameData;
 
     private WRCDataStructure _lastPacket;
 
@@ -50,17 +50,17 @@ public class WRCGameDataReader : DirtGameDataReader
 
         var oldPacket = lastMsg.CastToStruct<WRCDataStructure>();
         var packet = newMsg.CastToStruct<WRCDataStructure>();
-        _lastPacket = packet;
+        _lastPacket = oldPacket;
         _currentPacket = packet;
 
         var newGameData = this.RawData2GameData(packet);
-        _onNewGameData?.Invoke(_lastGameData, newGameData);
-        _currentGameData = newGameData;
+        _onNewGameData?.Invoke(LastGameData, newGameData);
+        CurrentGameData = newGameData;
 
         if (!packet.Equals(oldPacket))
         {
-            var spdDiff = _lastGameData.Speed - _currentGameData.Speed;
-            if (Config.Instance.PlayCollisionSound && _currentGameData.Speed != 0)
+            var spdDiff = LastGameData.Speed - CurrentGameData.Speed;
+            if (Config.Instance.PlayCollisionSound && CurrentGameData.Speed != 0)
             {
                 int severity = -1;
                 // collision happens. speed == 0 means reset or end stage
@@ -81,35 +81,27 @@ public class WRCGameDataReader : DirtGameDataReader
                 }
             }
 
-            if (_currentGameData.LapTime > 0 && this.GameState != GameState.Racing)
-            {
-                if (this.GameState == GameState.Unknown)
-                {
-                    this.GameState = GameState.AdHocRaceBegin;
-                } else {
-                    this.GameState = GameState.Racing;
-                }
-            }
-            else if (_currentGameData.LapTime == 0 && _currentGameData.LapDistance <= 0)
-            {
-                // CountDown not works in Daily Event, only works for TimeTrial
-                //if (message.Time != this.LastMessage.Time)
-                //{
-                //    if (this.GameState != GameState.CountDown)
-                //        this.GameState = GameState.CountDown;
-                //}
-                //else 
-                if (_currentGameData.Time == 0 && this.GameState != GameState.RaceEnd)
-                {
-                    this.GameState = GameState.RaceEnd;
-                }
-                else if (this.GameState != GameState.RaceBegin)
+            if (CurrentGameData.CompletionRate <= 0.0f) {
+                if (this.GameState != GameState.RaceBegin)
                 {
                     this.GameState = GameState.RaceBegin;
                 }
+            } else if (CurrentGameData.CompletionRate >= 1.0f) {
+                if (this.GameState != GameState.RaceEnd)
+                {
+                    this.GameState = GameState.RaceEnd;
+                }
+            } else {
+                if (this.GameState == GameState.Unknown)
+                {
+                    this.GameState = GameState.AdHocRaceBegin;
+                } else if (this.GameState != GameState.Racing)
+                {
+                    this.GameState = GameState.Racing;
+                }
             }
             
-            this._lastGameData = this._currentGameData;
+            this.LastGameData = this.CurrentGameData;
         }
         else
         {
@@ -126,10 +118,10 @@ public class WRCGameDataReader : DirtGameDataReader
         message.TimeStamp = DateTime.Now;
         message.Time = wrcData.game_total_time;
         message.LapTime = wrcData.stage_current_time;
-        message.LapDistance = (float)wrcData.stage_current_distance;
         message.Speed = wrcData.vehicle_speed * 3.6f; // m/s -> km/h
         message.TrackLength = (float)wrcData.stage_length;
-        message.CompletionRate = message.LapDistance / message.TrackLength;
+        message.CompletionRate = wrcData.stage_progress;
+        message.LapDistance = message.TrackLength * message.CompletionRate;
         message.PosX = wrcData.vehicle_position_x;
         message.PosY = wrcData.vehicle_position_y;
         message.PosZ = wrcData.vehicle_position_z;
@@ -172,6 +164,8 @@ public class WRCGameDataReader : DirtGameDataReader
         message.SuspensionSpeedFrontLeft = wrcData.vehicle_hub_velocity_fl;
         message.SuspensionSpeedFrontRight = wrcData.vehicle_hub_velocity_fr;
 
+        
+
         // calculate G long and G lat according to the vehicle's direction and acceleration
         var forward = new Vector3(wrcData.vehicle_forward_direction_x, wrcData.vehicle_forward_direction_y, wrcData.vehicle_forward_direction_z);
         var acceleration = new Vector3(wrcData.vehicle_acceleration_x, wrcData.vehicle_acceleration_y, wrcData.vehicle_acceleration_z);
@@ -179,6 +173,8 @@ public class WRCGameDataReader : DirtGameDataReader
         var gLat = Vector3.Dot(acceleration, Vector3.Cross(forward, new Vector3(0, 1, 0)));
         message.G_long = gLong / 9.8f;
         message.G_lat = -gLat / 9.8f;
+
+        message.GameSpecificData = wrcData;
 
         return message;
     }

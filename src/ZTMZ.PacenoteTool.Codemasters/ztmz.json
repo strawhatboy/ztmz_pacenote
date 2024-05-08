@@ -104,7 +104,19 @@
 				"vehicle_class_id",
 				"vehicle_manufacturer_id",
 				"location_id",
-				"route_id"
+				"route_id",
+				"stage_previous_split_time",
+				"stage_result_time",
+				"stage_result_time_penalty",
+				"stage_result_status",
+				"stage_progress",
+				"vehicle_tyre_state_bl",
+				"vehicle_tyre_state_br",
+				"vehicle_tyre_state_fl",
+				"vehicle_tyre_state_fr",
+				"stage_shakedown",
+				"game_mode",
+				"vehicle_cluster_abs"
 			]
 		}
 	]

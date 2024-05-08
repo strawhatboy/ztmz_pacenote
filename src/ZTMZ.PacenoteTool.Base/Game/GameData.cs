@@ -64,6 +64,8 @@ public struct GameData
     // public int TrackNumber { set; get; }
     public DateTime TimeStamp;
 
+    public object GameSpecificData;
+
     public override bool Equals([NotNullWhen(true)] object obj)
     {
         return base.Equals(obj);
@@ -76,14 +78,28 @@ public struct GameData
 
     public override string ToString()
     {
+        return toString(this);
+    }
+
+    private string toString(object o)
+    {
         // loop through every field on the object and print it out
-        var fields = this.GetType().GetFields();
+        var fields = o.GetType().GetFields();
         var stringBuilder = new StringBuilder();
         foreach (var field in fields)
         {
-            stringBuilder.AppendLine($"{field.Name}: {field.GetValue(this)}");
+            stringBuilder.AppendLine($"{field.Name}: {field.GetValue(o)}");
         }
         
         return stringBuilder.ToString();
+    }
+
+    public string GameSpecificDataToString()
+    {
+        if (GameSpecificData == null)
+        {
+            return "No Game Specific Data";
+        }
+        return toString(GameSpecificData);
     }
 }

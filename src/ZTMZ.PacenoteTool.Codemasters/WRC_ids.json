@@ -5,7 +5,7 @@
 		"data":
 		{
 			"build": 1,
-			"major": 6,
+			"major": 8,
 			"minor": 0
 		}
 	},
@@ -1753,6 +1753,92 @@
 		{
 			"id": 379,
 			"name": "Příkazy"
+		}
+	],
+	"vehicle_tyre_state": [
+		{
+			"id": 0,
+			"name": "undamaged"
+		},
+		{
+			"id": 1,
+			"name": "punctured"
+		},
+		{
+			"id": 2,
+			"name": "burst"
+		}
+	],
+	"game_mode": [
+		{
+			"id": 0,
+			"name": "time_trial"
+		},
+		{
+			"id": 1,
+			"name": "quick_play_multiplayer"
+		},
+		{
+			"id": 2,
+			"name": "quick_play_solo"
+		},
+		{
+			"id": 3,
+			"name": "esports"
+		},
+		{
+			"id": 4,
+			"name": "career"
+		},
+		{
+			"id": 5,
+			"name": "test_drive"
+		},
+		{
+			"id": 6,
+			"name": "moments"
+		},
+		{
+			"id": 7,
+			"name": "clubs"
+		},
+		{
+			"id": 8,
+			"name": "championship"
+		},
+		{
+			"id": 9,
+			"name": "rally_school"
+		}
+	],
+	"stage_result_status": [
+		{
+			"id": 0,
+			"name": "not_finished"
+		},
+		{
+			"id": 1,
+			"name": "finished"
+		},
+		{
+			"id": 2,
+			"name": "timed_out_stage"
+		},
+		{
+			"id": 3,
+			"name": "terminally_damaged"
+		},
+		{
+			"id": 4,
+			"name": "retired"
+		},
+		{
+			"id": 5,
+			"name": "disqualified"
+		},
+		{
+			"id": 6,
+			"name": "unknown"
 		}
 	]
 }

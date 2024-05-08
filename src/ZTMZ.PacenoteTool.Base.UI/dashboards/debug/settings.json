@@ -1,11 +1,13 @@
 {
     "PropertyName": {
         "dashboards.settings.enabled": "dashboards.settings.tooltip.enabled",
+        "dashboards.settings.showGameSpecificData": "dashboards.settings.tooltip.showGameSpecificData"
     },
     "PropertyValue": [
+        false,
         false
     ],
     "ValueRange": [
-        []
+        [], []
     ]
 }

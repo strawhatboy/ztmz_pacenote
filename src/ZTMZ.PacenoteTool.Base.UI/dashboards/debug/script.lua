@@ -46,7 +46,12 @@ function onUpdate(args)
     local data = args.GameData;
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
-    gfx.DrawTextWithBackground(_fonts["wrc"], _brushes["green"], _brushes["background"], 0, 0, data.ToString());
+    local self = args.Self;
+    if (self.GetConfigByKey("dashboards.settings.showGameSpecificData")) then
+        gfx.DrawTextWithBackground(_fonts["wrc"], _brushes["green"], _brushes["background"], 0, 0, data.GameSpecificDataToString());
+    else
+        gfx.DrawTextWithBackground(_fonts["wrc"], _brushes["green"], _brushes["background"], 0, 0, data.ToString());
+    end
 end
 
 function onExit()

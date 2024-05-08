@@ -188,6 +188,8 @@ public class DirtGameDataReader : UdpGameDataReader
         gameData.PosZ = data.PosZ;
         gameData.HandBrakeValid = false;
 
+        gameData.GameSpecificData = data;
+
         return gameData;
     }
 
