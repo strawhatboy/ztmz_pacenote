@@ -51,7 +51,7 @@ public partial class CommonSettingsItem : UserControl
         nameof(Icon),
         typeof(IconElement),
         typeof(CommonSettingsItem),
-        new PropertyMetadata(null, null, IconSourceElementConverter.ConvertToIconElement)
+        new PropertyMetadata(null, null, null)
     );
 
         /// <summary>
