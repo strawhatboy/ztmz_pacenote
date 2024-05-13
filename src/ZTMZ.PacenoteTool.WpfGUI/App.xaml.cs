@@ -150,12 +150,14 @@ public partial class App : Application
         _logger.Error(e.Exception, "Unhandled exception occurred.");
         // For more info see https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.dispatcherunhandledexception?view=windowsdesktop-6.0
         GetService<AzureAppInsightsManager>().TrackException(e.Exception);
-        new Wpf.Ui.Controls.MessageBox
-        {
-            Title = I18NLoader.Instance["exception.unknown.title"],
-            Content = e.Exception.ToString(),
-            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
-        }.ShowDialogAsync().Wait();
+        Dispatcher.Invoke(() => {
+            new Wpf.Ui.Controls.MessageBox
+            {
+                Title = I18NLoader.Instance["exception.unknown.title"],
+                Content = e.Exception.ToString(),
+                CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+            }.ShowDialogAsync().Wait();
+        });
     }
 
     private void SetupExceptionHandling()

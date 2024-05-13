@@ -11,6 +11,7 @@
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
     <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <!-- <Style TargetType="ui:Card">
             <Setter Property="Padding" Value="16"></Setter>
             <Setter Property="Margin" Value="0 0 0 5"></Setter>
@@ -68,7 +69,8 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition />
-                                    <ColumnDefinition Width="160" />
+                                    <ColumnDefinition Width="200" />
+                                    <ColumnDefinition Width="140" />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Orientation="Horizontal"
                                     VerticalAlignment="Center">
@@ -88,6 +90,16 @@
                                             FontTypography="Caption" />
                                     </Grid>
                                 </StackPanel>
+                                
+                                <ui:Button Grid.Column="2" Icon="{ui:SymbolIcon PhoneUpdate20}" Content="{DynamicResource misc.update}" Margin="0 0 10 0" Command="{Binding DataContext.ViewModel.UpdateCodriverPkgCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" CommandParameter="{Binding DisplayText}"
+                                Visibility="{Binding needUpdate, 
+                                Converter={StaticResource BooleanToVisibilityConverter}}"
+                                Appearance="Primary"/>
+
+                                <ui:Button Grid.Column="2" Icon="{ui:SymbolIcon ArrowDownload20}" Content="{DynamicResource misc.download}" Margin="0 0 10 0" Command="{Binding DataContext.ViewModel.UpdateCodriverPkgCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" CommandParameter="{Binding DisplayText}"
+                                Visibility="{Binding needDownload, 
+                                Converter={StaticResource BooleanToVisibilityConverter}}"
+                                Appearance="Primary"/>
                             </Grid>
                         </ui:CardAction>
                     </StackPanel>

@@ -10,6 +10,8 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using ZTMZ.PacenoteTool.WpfGUI.Services;
+using ZTMZ.PacenoteTool.WpfGUI.Models;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -20,13 +22,14 @@ public partial class VoicePageVM : ObservableObject {
     private readonly INavigationService navigationService;
 
     [ObservableProperty]
-    private ObservableCollection<CoDriverPackageInfo> _voicePackages = new ObservableCollection<CoDriverPackageInfo>();
+    private ObservableCollection<CodriverPackageUpdateFile> _voicePackages = new ();
 
     private object _collectionLock = new();
 
     public VoicePageVM(Core.ZTMZPacenoteTool tool, 
     VoicePackagePageVM voicePackagePageVM,
-    INavigationService navigationService) {
+    INavigationService navigationService,
+    UpdateService updateService) {
         this.tool = tool;
         this.voicePackagePageVM = voicePackagePageVM;
         this.navigationService = navigationService;
@@ -39,10 +42,22 @@ public partial class VoicePageVM : ObservableObject {
         // import/export support zip file format
 
         VoicePackages.Clear();
-        foreach (var pkg in tool.CoDriverPackages)
-        {
-            VoicePackages.Add(pkg.Info);
-        }
+        Task.Run(async () => {
+            var needUpdatePkgs = await updateService.CheckCodriverPackagesUpdate((from p in tool.CoDriverPackages select p.Info).ToList());
+            var needUpdateOrDownload = (from p in needUpdatePkgs where p.needUpdate || p.needDownload select p).ToList();
+            foreach (var pkg in needUpdateOrDownload) {
+                VoicePackages.Add(pkg);
+            }
+
+            // local
+            var local = (from p in tool.CoDriverPackages
+                where !needUpdateOrDownload.Any(x => x.DisplayText == p.Info.DisplayText)
+                select new CodriverPackageUpdateFile(p.Info) { needUpdate = false, needDownload = false }).ToList();
+            foreach (var pkg in local) {
+                VoicePackages.Add(pkg);
+            }
+
+        });
     }
 
     [RelayCommand]
@@ -63,5 +78,21 @@ public partial class VoicePageVM : ObservableObject {
     private void NavigateBack()
     {
         _ = navigationService.GoBack();
+    }
+
+    [RelayCommand]
+    private void UpdateCodriverPkg(string pkgDisplayText)
+    {
+        // download and install the voice package
+        // show progress bar
+        // show success or failure message
+        var pkg = VoicePackages.FirstOrDefault(p => p.DisplayText == pkgDisplayText);
+        if (pkg != null) {
+            pkg.isDownloading = true;
+            pkg.needUpdate = false;
+            pkg.needDownload = false;
+            // download and install
+            
+        }
     }
 }

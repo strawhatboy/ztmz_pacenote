@@ -28,6 +28,8 @@ public class UpdateService {
 
     const string betaUpdateURL = "https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate_beta.json";
 
+    const string codriverPkgURL = "https://gitee.com/ztmz/ztmz_audio_pkgs/raw/master/repo.json";
+
 
     public static string CurrentVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
@@ -44,6 +46,41 @@ public class UpdateService {
         }
 
         return updateFile;
+    }
+
+    public async Task<List<CodriverPackageUpdateFile>> CheckCodriverPackagesUpdate(List<CoDriverPackageInfo> packages) {
+        using (HttpClient w = new HttpClient()) {
+            var json = await w.GetStringAsync(codriverPkgURL);
+            if (json == null) {
+                return null;
+            }
+
+            var updates = JsonConvert.DeserializeObject<List<CodriverPackageUpdateFile>>(json);
+            if (updates == null || updates.Count == 0) {
+                return null;
+            }
+
+            List<CodriverPackageUpdateFile> needUpdate = new List<CodriverPackageUpdateFile>();
+            
+            // compare versions
+            foreach (var update in updates) {
+                var pkg = packages.FirstOrDefault(p => p.DisplayText == update.DisplayText);    // a little bit slow, but it's ok
+                if (pkg != null) {
+                    var newVersion = new Version(update.version);
+                    var myVersion = new Version(pkg.version);
+                    if (myVersion.CompareTo(newVersion) < 0) {
+                        // append to need update list   
+                        update.needUpdate = true;
+                    }
+                    needUpdate.Add(update);
+                } else {
+                    update.needDownload = true;
+                    needUpdate.Add(update);
+                }
+            }
+
+            return needUpdate;
+        }
     }
 
     public async Task<UpdateFile> CheckUpdate(string url)

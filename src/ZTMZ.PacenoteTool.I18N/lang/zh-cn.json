@@ -387,7 +387,9 @@
   "misc": {
     "gender_male": "男",
     "gender_female": "女",
-    "gender_unknown": "未知"
+    "gender_unknown": "未知",
+    "download": "下载",
+    "update": "更新"
   },
   "exception": {
     "portAlreadyInUse": {

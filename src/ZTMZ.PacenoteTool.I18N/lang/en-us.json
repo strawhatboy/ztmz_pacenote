@@ -388,7 +388,9 @@
   "misc": {
     "gender_male": "Male",
     "gender_female": "Female",
-    "gender_unknown": "Unknown"
+    "gender_unknown": "Unknown",
+    "download": "Download",
+    "update": "Update"
   },
   "exception": {
     "portAlreadyInUse": {
