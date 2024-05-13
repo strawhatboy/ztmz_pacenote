@@ -453,5 +453,21 @@
   "chinese_localization": {
     "pacenote": "WRC中文路书MOD",
     "language": "WRC游戏内汉化"
+  },
+
+  "dashboard": {
+    "speed": "SPEED",
+    "rpm": "RPM",
+    "gear": "GEAR",
+    "gBall": "G-Force",
+    "steering": "STEERING",
+    "pedals": "PEDALS",
+    "suspension": "SUSPENSION",
+    "tyre": "TYRE",
+    "Temp": "TEMP",
+    "throttle": "THROTTLE",
+    "clutch": "CLUTCH",
+    "brake": "BRAKE",
+    "handbrake": "HANDBRAKE"
   }
 }
