@@ -24,11 +24,11 @@ public class UpdateService {
         _contentDialogService = contentDialogService;
     }
 
-    const string updateURL = "https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate.json";
+    string updateURL = Config.Instance.UpdateDefinitionUrl;
 
-    const string betaUpdateURL = "https://gitee.com/ztmz/ztmz_pacenote/raw/master/autoupdate_beta.json";
+    string betaUpdateURL = Config.Instance.UpdateDefinitionUrl_Beta;
 
-    const string codriverPkgURL = "https://gitee.com/ztmz/ztmz_audio_pkgs/raw/master/repo.json";
+    string codriverPkgURL = Config.Instance.UpdateDefinitionUrl_AudioPkg;
 
 
     public static string CurrentVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();

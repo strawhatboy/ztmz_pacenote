@@ -12,6 +12,7 @@ using System.Windows.Controls;
 using Microsoft.Win32;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 using ZTMZ.PacenoteTool.WpfGUI.Models;
+using System.IO;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -81,7 +82,7 @@ public partial class VoicePageVM : ObservableObject {
     }
 
     [RelayCommand]
-    private void UpdateCodriverPkg(string pkgDisplayText)
+    private async void UpdateCodriverPkg(string pkgDisplayText)
     {
         // download and install the voice package
         // show progress bar
@@ -92,7 +93,17 @@ public partial class VoicePageVM : ObservableObject {
             pkg.needUpdate = false;
             pkg.needDownload = false;
             // download and install
-            
+            FileDownloader fd = new();
+            var progress = new Progress<float>(p => {
+                pkg.downloadProgress = p;   // update progress bar
+            });
+            var downloadedFiles = await fd.DownloadFiles(new List<string> { pkg.url }, progress);
+            var downloadedFile = downloadedFiles[pkg.url];
+            pkg.isDownloading = false;
+            pkg.isInstalling = true;
+            // install, unzip to the voice package folder
+            await Task.Run(() => System.IO.Compression.ZipFile.ExtractToDirectory(downloadedFile, Path.Join(AppContext.BaseDirectory, Constants.PATH_CODRIVERS), true));
+            pkg.isInstalling = false;
         }
     }
 }

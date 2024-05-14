@@ -24,6 +24,7 @@ public class CodriverPackageUpdateFile: CoDriverPackageInfo {
         this.Path = info.Path;
     }
     public string url { set; get; }
+    public bool urlRedirected { set; get; } = false;
     public string changelog { set; get; }
     public bool needUpdate {set;get;} = false;
     public bool isDownloading {set;get;} = false;
