@@ -390,6 +390,8 @@
     "gender_female": "Female",
     "gender_unknown": "Unknown",
     "download": "Download",
+    "downloading": "Downloading...",
+    "installing": "Installing...",
     "update": "Update"
   },
   "exception": {

@@ -13,6 +13,8 @@ using Microsoft.Win32;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 using ZTMZ.PacenoteTool.WpfGUI.Models;
 using System.IO;
+using System.Text;
+using SevenZipExtractor;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -89,21 +91,28 @@ public partial class VoicePageVM : ObservableObject {
         // show success or failure message
         var pkg = VoicePackages.FirstOrDefault(p => p.DisplayText == pkgDisplayText);
         if (pkg != null) {
-            pkg.isDownloading = true;
-            pkg.needUpdate = false;
-            pkg.needDownload = false;
+            pkg.IsDownloading = true;
+            pkg.NeedUpdate = false;
+            pkg.NeedDownload = false;
             // download and install
             FileDownloader fd = new();
             var progress = new Progress<float>(p => {
-                pkg.downloadProgress = p;   // update progress bar
+                pkg.DownloadProgress = p;   // update progress bar
             });
-            var downloadedFiles = await fd.DownloadFiles(new List<string> { pkg.url }, progress);
+            var downloadedFiles = await fd.DownloadFiles(new List<string> { pkg.Url }, progress);
             var downloadedFile = downloadedFiles[pkg.url];
-            pkg.isDownloading = false;
-            pkg.isInstalling = true;
+            pkg.IsDownloading = false;
+            pkg.IsInstalling = true;
             // install, unzip to the voice package folder
-            await Task.Run(() => System.IO.Compression.ZipFile.ExtractToDirectory(downloadedFile, Path.Join(AppContext.BaseDirectory, Constants.PATH_CODRIVERS), true));
-            pkg.isInstalling = false;
+            await Task.Run(() => {
+                using (ArchiveFile f = new(downloadedFile)) {
+                    f.Extract(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS), true);
+                }
+            });
+            pkg.IsInstalling = false;
+
+            // update the tool's voice packages list?
+            this.tool.RefreshCodrivers();
         }
     }
 }

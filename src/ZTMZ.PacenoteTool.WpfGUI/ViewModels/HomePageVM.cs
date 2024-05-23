@@ -326,15 +326,15 @@ public partial class HomePageVM : ObservableObject {
         BindingOperations.EnableCollectionSynchronization(OutputDevices, _collectionLock);
         BindingOperations.EnableCollectionSynchronization(CurrentGameSettings, _collectionLock);
 
+        _tool.onCodriversRefreshed += () => {
+            loadCodrivers();
+        };
+
         _tool.onToolInitialized += () => {
             // Application.Current.Dispatcher.Invoke(() => {
                 Games.Clear();
                 foreach (var game in _tool.Games) {
                     Games.Add(new GameWithImage(game));
-                }
-                CodriverPackageInfos.Clear();
-                foreach (var codriverPackage in _tool.CoDriverPackages) {
-                    CodriverPackageInfos.Add(codriverPackage.Info);
                 }
                 OutputDevices.Clear();
                 foreach (var device in _tool.OutputDevices) {
@@ -343,12 +343,10 @@ public partial class HomePageVM : ObservableObject {
             // });
             _logger.Info("Tool Initialized. in Home Page.");
             var theGame = Games[Config.Instance.UI_SelectedGame];
-            var theCodriverPackage = CodriverPackageInfos[Config.Instance.UI_SelectedAudioPackage];
             // Application.Current.Dispatcher.Invoke(() => {      
             SelectedGame = theGame;
-            SelectedCodriver = theCodriverPackage;
             SelectedOutputDevice = OutputDevices[Config.Instance.UI_SelectedPlaybackDevice];
-
+            loadCodrivers();
             FactorToRemoveSpaceFromAudioFiles = _factorToIndex[Config.Instance.FactorToRemoveSpaceFromAudioFiles];
             PlaybackVolume = (float)(Config.Instance.UI_PlaybackVolume + 1000f) / 20f;  // [-1000, 1000] to [0, 100]
             PlaybackSpeed = Config.Instance.UI_PlaybackSpeed;
@@ -360,6 +358,15 @@ public partial class HomePageVM : ObservableObject {
             _tool.Init();
             _tool.SetFromConfiguration();
         });
+    }
+
+    private void loadCodrivers() {
+        CodriverPackageInfos.Clear();
+        foreach (var codriverPackage in Tool.CoDriverPackages) {
+            CodriverPackageInfos.Add(codriverPackage.Info);
+        }
+        var theCodriverPackage = CodriverPackageInfos[Config.Instance.UI_SelectedAudioPackage == -1 ? 0 : Config.Instance.UI_SelectedAudioPackage];
+        SelectedCodriver = theCodriverPackage;
     }
 
     [RelayCommand]
@@ -412,6 +419,7 @@ public partial class HomePageVM : ObservableObject {
 
     [RelayCommand]
     private void CodriverPackageSelectionChanged() {
+        if (SelectedCodriver == null) return;
         var codriverPackage = SelectedCodriver;
         Config.Instance.UI_SelectedAudioPackage = CodriverPackageInfos.IndexOf(codriverPackage);
         Config.Instance.SaveUserConfig();

@@ -12,23 +12,71 @@ public class UpdateFile
     public string minVersionSupported { set; get; }
 }
 
-public class CodriverPackageUpdateFile: CoDriverPackageInfo {
+public partial class CodriverPackageUpdateFile: ObservableObject {
     public CodriverPackageUpdateFile() {}
     public CodriverPackageUpdateFile(CoDriverPackageInfo info) {
-        this.name = info.name;
-        this.description = info.description;
-        this.gender = info.gender;
-        this.language = info.language;
-        this.homepage = info.homepage;
-        this.version = info.version;
+        this.Name = info.name;
+        this.Description = info.description;
+        this.Gender = info.gender;
+        this.Language = info.language;
+        this.Homepage = info.homepage;
+        this.Version = info.version;
         this.Path = info.Path;
     }
-    public string url { set; get; }
-    public bool urlRedirected { set; get; } = false;
-    public string changelog { set; get; }
-    public bool needUpdate {set;get;} = false;
-    public bool isDownloading {set;get;} = false;
-    public bool isInstalling {set;get;} = false;
-    public float downloadProgress {set;get;} = 0;
-    public bool needDownload {set;get;} = false;    // no local file
+    [ObservableProperty]
+    public string name;
+    [ObservableProperty]
+    public string description;
+    [ObservableProperty]
+    public string gender;
+    [ObservableProperty]
+    public string language;
+    [ObservableProperty]
+    public string homepage;
+    [ObservableProperty]
+    public string version;
+
+    [ObservableProperty]
+    public string url;
+
+    [ObservableProperty]
+    public bool urlRedirected;
+    [ObservableProperty]
+    public string changelog;
+    [ObservableProperty]
+    public bool needUpdate;
+    [ObservableProperty]
+    public bool isDownloading;
+    [ObservableProperty]
+    public bool isInstalling = false;
+    [ObservableProperty]
+    public float downloadProgress = 0;
+    [ObservableProperty]
+    public bool needDownload = false;    // no local file
+
+    [ObservableProperty]
+    public string path;
+
+    public string GenderStr
+    {
+        get
+        {
+            switch (gender)
+            {
+                case "M":
+                {
+                    return I18NLoader.Instance["misc.gender_male"];
+                }
+                case "F":
+                {
+                    return I18NLoader.Instance["misc.gender_female"];
+                }
+            }
+
+            return I18NLoader.Instance["misc.gender_unknown"];
+        }
+    }
+
+    public string DisplayText =>
+        string.Format("[{0}][{1}] {2}", Language, GenderStr, Name);
 }

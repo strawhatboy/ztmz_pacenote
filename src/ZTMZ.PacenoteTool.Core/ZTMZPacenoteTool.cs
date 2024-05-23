@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using NAudio.Wave;
 using System.Diagnostics;
+using System.DirectoryServices.ActiveDirectory;
 
 namespace ZTMZ.PacenoteTool.Core;
 
@@ -37,6 +38,8 @@ public class ZTMZPacenoteTool {
     public event Action<string> onStatusReport;
 
     public event Action onToolInitialized;
+
+    public event Action onCodriversRefreshed;
 
     public event Action<IGame> onGameInitialized;
     public event Action<IGame> onGameUninitialized;
@@ -132,6 +135,13 @@ public class ZTMZPacenoteTool {
         }
         _logger.Info($"{this._codriverPackages.Count} codrivers loaded.");
         this.onStatusReport?.Invoke($"{this._codriverPackages.Count} codrivers loaded.");
+    }
+
+    public async void RefreshCodrivers() {
+        this._codriverPackages.Clear();
+        await this._profileManager.RefreshCodriverSounds();
+        this.loadCodrivers();
+        this.onCodriversRefreshed?.Invoke();
     }
 
     private void loadOutputDevices() {
@@ -490,21 +500,21 @@ public class ZTMZPacenoteTool {
     }
 
     public void SetProfile(int profileIndex) {
-        if (profileIndex < this.Profiles.Count)
+        if (profileIndex < this.Profiles.Count && profileIndex >= 0)
             this._profileManager.CurrentProfile = this.Profiles[profileIndex].ToString().Split('\\').Last();
         else
             this._profileManager.CurrentProfile = this.Profiles.First().Split('\\').Last();
     }
 
     public void SetOutputDevice(int outputDeviceIndex) {
-        if (outputDeviceIndex < this.OutputDevices.Count)
+        if (outputDeviceIndex < this.OutputDevices.Count && outputDeviceIndex >= 0)
             this._profileManager.CurrentPlayDeviceId = outputDeviceIndex;
         else
             this._profileManager.CurrentPlayDeviceId = 0;
     }
 
     public void SetCodriver(int codriverIndex) {
-        if (codriverIndex < this.CoDriverPackages.Count)
+        if (codriverIndex < this.CoDriverPackages.Count && codriverIndex >= 0)
             this._profileManager.CurrentCoDriverSoundPackagePath = this.CoDriverPackages[codriverIndex].Info.Path;
         else
             this._profileManager.CurrentCoDriverSoundPackagePath = this.CoDriverPackages.First().Info.Path;

@@ -64,7 +64,8 @@ public class UpdateService {
             
             // compare versions
             foreach (var update in updates) {
-                var pkg = packages.FirstOrDefault(p => p.DisplayText == update.DisplayText);    // a little bit slow, but it's ok
+                var updateDisplayText = update.DisplayText;
+                var pkg = packages.FirstOrDefault(p => p.DisplayText == updateDisplayText);    // a little bit slow, but it's ok
                 if (pkg != null) {
                     var newVersion = new Version(update.version);
                     var myVersion = new Version(pkg.version);

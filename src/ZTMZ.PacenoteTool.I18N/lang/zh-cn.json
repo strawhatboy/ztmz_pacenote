@@ -389,6 +389,8 @@
     "gender_female": "女",
     "gender_unknown": "未知",
     "download": "下载",
+    "downloading": "正在下载...",
+    "installing": "正在安装...",
     "update": "更新"
   },
   "exception": {
