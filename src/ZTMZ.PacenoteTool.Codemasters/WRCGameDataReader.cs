@@ -81,7 +81,7 @@ public class WRCGameDataReader : DirtGameDataReader
                 }
             }
 
-            if (CurrentGameData.CompletionRate <= 0.0f) {
+            if (CurrentGameData.CompletionRate <= 0.0f && CurrentGameData.LapTime <= 0.0f) {
                 if (this.GameState != GameState.RaceBegin)
                 {
                     this.GameState = GameState.RaceBegin;
