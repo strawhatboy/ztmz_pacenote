@@ -32,6 +32,7 @@ around_bales,detail_around_bales,around bales
 around_bridge,detail_around_bridge,around bridge
 around_the_sign,detail_around_the_sign,around the sign
 bad_camber,detail_bad_camber,bad camber
+bad_dip,detail_bad_dip,bad dip
 bales,detail_bales,bales
 between_bales,detail_between_bales,between bales|through bales
 big_crest,detail_big_crest,big crest|big crests

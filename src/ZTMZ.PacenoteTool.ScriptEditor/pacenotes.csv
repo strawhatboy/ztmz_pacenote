@@ -33,6 +33,7 @@ detail_around_bales,绕过草垛,1,-1,-1,obstacles
 detail_around_bridge,绕过桥,1,-1,-1,obstacles
 detail_around_the_sign,绕过路标,1,-1,-1,obstacles
 detail_bad_camber,路面外倾,1,355|367,-1,road
+detail_bad_dip,坏坑,1,-1,-1,road
 detail_banner,横幅,1,-1,-1,construction
 detail_bales,草垛,1,397|378,-1,obstacles
 detail_between_bales,通过草垛,1,-1,-1,obstacles

@@ -219,27 +219,8 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [InstallDelete]
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\default";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\engmale (by mesa)";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\wha1ing";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\南沢いずみ";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\图图（对讲机特效 by wha1ing）";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\圣沙蒙VK";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\拉稀车手老王";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\拉稀车手老王对讲机特效版";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\拉稀车手老王超快速语音包（兼容苏格兰）";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\权威Authority";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\紫藤林沫（测试版）";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\0-a117语音";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\0-a117语音（对讲机特效）";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\0-b无状态选手-女声";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\0-c117暴躁语音";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\古轩言（无线电特效）";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\吉米";
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\简哲自己";
 Type: files; Name: "{code:GetZTMZHome}\config.json";
 ; Delete previous default audio package
-; Delete previous default configuration
 
 [Files]
 ; No json file!
