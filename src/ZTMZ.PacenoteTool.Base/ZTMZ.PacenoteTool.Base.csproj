@@ -21,5 +21,12 @@
     <PackageReference Include="SevenZipExtractor" Version="1.0.17"/>
   </ItemGroup>
 
-
+  <ItemGroup>
+    <None Update="x64\7z.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="x86\7z.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

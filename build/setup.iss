@@ -1,5 +1,5 @@
 ﻿#define MyAppName "ZTMZ Next Generation Pacenote Tool"
-#define MyAppVersion "2.99.99.17"
+#define MyAppVersion "2.99.99.18"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
@@ -234,6 +234,8 @@ Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\games\*.json
 Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\runtimes\*"; DestDir: "{code:GetInstallDir}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\dashboards\*"; DestDir: "{code:GetZTMZHome}\dashboards"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\fonts\*"; DestDir: "{code:GetZTMZHome}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\x64\*"; DestDir: "{code:GetInstallDir}\x64"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\x86\*"; DestDir: "{code:GetInstallDir}\x86"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
