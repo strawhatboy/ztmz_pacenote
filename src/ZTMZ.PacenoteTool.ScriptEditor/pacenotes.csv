@@ -130,6 +130,7 @@ detail_over_small_bumps,过小颠簸,1,-1,-1,
 detail_over_small_jump,过小跳坡,1,-1,-1,
 detail_over_very_long_crest,过超长坡,1,-1,-1,
 detail_pass_junction,通过路口,1,-1,-1,
+detail_patchy,碎冰路面,1,-1,-1,surface
 detail_plus,+,1,232|233,4096,
 detail_post,杆子,1,-1,-1,obstacles
 detail_post_inside,内侧杆子,1,-1,-1,obstacles
