@@ -33,6 +33,7 @@ detail_around_bales,绕过草垛,1,-1,-1,obstacles
 detail_around_bridge,绕过桥,1,-1,-1,obstacles
 detail_around_the_sign,绕过路标,1,-1,-1,obstacles
 detail_bad_camber,路面外倾,1,355|367,-1,road
+detail_bad_dip,坏坑,1,-1,-1,road
 detail_banner,横幅,1,-1,-1,construction
 detail_bales,草垛,1,397|378,-1,obstacles
 detail_between_bales,通过草垛,1,-1,-1,obstacles
@@ -129,6 +130,7 @@ detail_over_small_bumps,过小颠簸,1,-1,-1,
 detail_over_small_jump,过小跳坡,1,-1,-1,
 detail_over_very_long_crest,过超长坡,1,-1,-1,
 detail_pass_junction,通过路口,1,-1,-1,
+detail_patchy,碎冰路面,1,-1,-1,surface
 detail_plus,+,1,232|233,4096,
 detail_post,杆子,1,-1,-1,obstacles
 detail_post_inside,内侧杆子,1,-1,-1,obstacles

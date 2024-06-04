@@ -32,6 +32,7 @@ around_bales,detail_around_bales,around bales
 around_bridge,detail_around_bridge,around bridge
 around_the_sign,detail_around_the_sign,around the sign
 bad_camber,detail_bad_camber,bad camber
+bad_dip,detail_bad_dip,bad dip
 bales,detail_bales,bales
 between_bales,detail_between_bales,between bales|through bales
 big_crest,detail_big_crest,big crest|big crests
@@ -112,6 +113,7 @@ over_small_bumps,detail_over_small_bumps,over small bump|over small bumps
 over_small_jump,detail_over_small_jump,over small jump
 over_very_long_crest,detail_over_very_long_crest,over very long crest
 pass_junction,detail_pass_junction,pass junction|through junction|over junction|past junction
+patchy,detail_patchy,patchy
 plus,detail_plus,plus
 post,detail_post,post|posts
 post_inside,detail_post_inside,post inside|posts inside
