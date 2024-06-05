@@ -16,9 +16,9 @@ corner_flat_right,右七,0,-1,-1,corners
 corner_left_acute,左回头弯/左发卡,0,0|2040,-1,corners
 corner_open_hairpin_left,宽左回头弯/宽左发卡,0,127|40003,-1,corners
 corner_open_hairpin_right,宽右回头弯/宽右发卡,0,126|40004,-1,corners
-corner_open_hairpin,宽回头弯/宽发卡,0,127|126,-1,corners
+corner_open_hairpin,宽回头弯/宽发卡,0,-1,-1,corners
 corner_right_acute,右回头弯/右发卡,0,11|2041,-1,corners
-corner_acute,回头弯/发卡,0,0|11,-1,corners
+corner_acute,回头弯/发卡,0,-1,-1,corners
 corner_square_left,左直角弯,0,1,-1,corners
 corner_square_right,右直角弯,0,10,-1,corners
 corner_twisty_left,左扭曲弯,1,125,-1,corners
@@ -48,7 +48,7 @@ detail_care,小心,0,18|2021|2022,-1,cautions
 detail_caution,注意,0,32|303|304,-1,cautions
 detail_double_caution,非常注意,0,-1,-1,cautions
 detail_triple_caution,特别注意,0,-1,-1,cautions
-detail_chicane,路障,1,378,-1,obstacles
+detail_chicane,路障,1,-1,-1,obstacles
 detail_cobble,鹅卵石路面,1,323|543,-1,surface
 detail_concrete,水泥路,1,322,-1,surface
 detail_continues,持续,1,-1,-1,none
@@ -59,7 +59,7 @@ detail_distance_call,距离呼叫,1,13,-1,none
 detail_dry,干燥路面,1,-1,-1,surface
 detail_finish,到达终点,1,22,-1,links
 detail_ditches,深沟,1,350,-1,cautions
-detail_ditches_inside,内有深沟,1,350,-1,cautions
+detail_ditches_inside,内有深沟,1,-1,-1,cautions
 detail_ditches_outside,外侧深沟,1,-1,-1,cautions
 detail_dip,低洼,1,361|2024,-1,cautions
 detail_dont_cut,不要切弯,1,2016|2017,32,additional|modifier
@@ -115,7 +115,7 @@ detail_over_big_bumps,过大颠簸,1,-1,-1,
 detail_over_big_crest,过大坡,1,-1,-1,
 detail_over_big_jump,过大跳坡,1,-1,-1,
 detail_over_bridge,过桥,1,200,-1,
-detail_over_bumps,颠簸弯,1,292,-1,
+detail_over_bumps,颠簸弯,1,-1,-1,
 detail_over_crest,过坡,1,16|2029,-1,
 detail_over_dip,过坑,1,-1,-1,
 detail_over_double_crest,连过两个坡,1,-1,-1,
@@ -123,7 +123,7 @@ detail_over_double_jump,连续跳坡,1,-1,-1,
 detail_over_grid,过网格板,1,-1,-1,
 detail_over_jump,过坡跳,1,2108,-1,
 detail_over_logs,过原木,1,-1,-1,
-detail_over_long_crest,过长坡,1,2029,-1,
+detail_over_long_crest,过长坡,1,-1,-1,
 detail_over_narrow_bridge,过窄桥,1,-1,-1,
 detail_over_small_crest,过小坡,1,-1,-1,
 detail_over_small_bumps,过小颠簸,1,-1,-1,
@@ -137,7 +137,7 @@ detail_post_inside,内侧杆子,1,-1,-1,obstacles
 detail_post_outside,外侧杆子,1,-1,-1,obstacles
 detail_rails,栏杆,1,-1,-1,obstacles
 detail_right_entry_chicane,右进弯/路障靠右,1,393,-1,
-detail_rocks,岩石,1,40004,-1,
+detail_rocks,岩石,1,-1,-1,
 detail_rocks_inside,内侧岩石,1,40007,-1,
 detail_rocks_outside,外侧岩石,1,40010,-1,
 detail_rough,路面粗糙,1,-1,-1,
@@ -175,7 +175,7 @@ detail_tightens_to_4,变急到4,1,2003,-1,
 detail_tightens_to_5,变急到5,1,2002,-1,
 detail_tightens_to_acute,急回头弯,1,2007,-1,
 detail_twisty,蛇形弯,1,-1,-1,
-detail_tree,树木,1,373,-1,
+detail_tree,树木,1,-1,-1,
 detail_tree_inside,内侧树木,1,40008,-1,
 detail_tree_outside,外侧树木,1,40011,-1,
 detail_ice,结冰路面,1,329|327,-1,
