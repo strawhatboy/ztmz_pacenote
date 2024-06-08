@@ -345,7 +345,7 @@ public partial class HomePageVM : ObservableObject {
             var theGame = Games[Config.Instance.UI_SelectedGame];
             // Application.Current.Dispatcher.Invoke(() => {      
             SelectedGame = theGame;
-            SelectedOutputDevice = OutputDevices[(Config.Instance.UI_SelectedPlaybackDevice < 0 || Config.Instance.UI_SelectedPlaybackDevice > OutputDevices.Count) ? 0 : Config.Instance.UI_SelectedPlaybackDevice];
+            SelectedOutputDevice = OutputDevices[(Config.Instance.UI_SelectedPlaybackDevice < 0 || Config.Instance.UI_SelectedPlaybackDevice >= OutputDevices.Count) ? 0 : Config.Instance.UI_SelectedPlaybackDevice];
             loadCodrivers();
             FactorToRemoveSpaceFromAudioFiles = _factorToIndex[Config.Instance.FactorToRemoveSpaceFromAudioFiles];
             PlaybackVolume = (float)(Config.Instance.UI_PlaybackVolume + 1000f) / 20f;  // [-1000, 1000] to [0, 100]
@@ -365,7 +365,7 @@ public partial class HomePageVM : ObservableObject {
         foreach (var codriverPackage in Tool.CoDriverPackages) {
             CodriverPackageInfos.Add(codriverPackage.Info);
         }
-        var theCodriverPackage = CodriverPackageInfos[(Config.Instance.UI_SelectedAudioPackage < 0 || Config.Instance.UI_SelectedAudioPackage > CodriverPackageInfos.Count) ? 0 : Config.Instance.UI_SelectedAudioPackage];
+        var theCodriverPackage = CodriverPackageInfos[(Config.Instance.UI_SelectedAudioPackage < 0 || Config.Instance.UI_SelectedAudioPackage >= CodriverPackageInfos.Count) ? 0 : Config.Instance.UI_SelectedAudioPackage];
         SelectedCodriver = theCodriverPackage;
     }
 
