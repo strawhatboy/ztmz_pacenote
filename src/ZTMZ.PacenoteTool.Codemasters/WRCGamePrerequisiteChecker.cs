@@ -61,8 +61,34 @@ public class WRCGamePrerequisiteChecker : IGamePrerequisiteChecker
         } else {
             return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.UNKNOWN };
         }
+
+        // check if scheme is correct
+        var ztmzConfig = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "ztmz.json");
+        var ztmzJsonConfig = JObject.Parse(ztmzConfig);
+        var originalZtmzJsonConfig = JObject.Parse(File.ReadAllText(WRCUDPZTMZChannelFile));
+        if (compareConfigVersion(originalZtmzJsonConfig, ztmzJsonConfig))
+        {   // we got new ztmz json config, force fix!
+            return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.PORT_NOT_OPEN, Params = new List<object>() {
+                game.Name, WRCUDPConfigFile
+            }};
+        }
         
         return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.OK };
+    }
+
+    private bool compareConfigVersion(JObject config, JObject ztmzJsonConfig)
+    {
+        var configVersion = getVersionFromConfig(config);
+        var ztmzJsonConfigVersion = getVersionFromConfig(ztmzJsonConfig);
+        return configVersion < ztmzJsonConfigVersion;
+    }
+
+    private Version getVersionFromConfig(JObject config)
+    {
+        var version = config["versions"];
+        var scheme = version["schema"].Value<int>();
+        var data = version["data"].Value<int>();
+        return new Version(scheme, data);
     }
 
     public void ForceFix(IGame game)
@@ -74,47 +100,19 @@ public class WRCGamePrerequisiteChecker : IGamePrerequisiteChecker
         var udpConfig = game.GameConfigurations[UdpGameConfig.Name] as UdpGameConfig;
 
         if (packetsNode is JArray packets && udpConfig != null) {
-            // add packetobject
-            packets.Add(new JObject {
-                { "structure", "ztmz" },
-                { "packet", "session_update" },
-                { "ip", udpConfig.IPAddress },
-                { "port", udpConfig.Port },
-                { "frequencyHz", 60 },
-                { "bEnabled", true }
-            });
-            packets.Add(new JObject {
-                { "structure", "ztmz" },
-                { "packet", "session_start" },
-                { "ip", udpConfig.IPAddress },
-                { "port", udpConfig.Port + 1 },
-                { "frequencyHz", 60 },
-                { "bEnabled", true }
-            });
-            packets.Add(new JObject {
-                { "structure", "ztmz" },
-                { "packet", "session_pause" },
-                { "ip", udpConfig.IPAddress },
-                { "port", udpConfig.Port + 2 },
-                { "frequencyHz", 60 },
-                { "bEnabled", true }
-            });
-            packets.Add(new JObject {
-                { "structure", "ztmz" },
-                { "packet", "session_resume" },
-                { "ip", udpConfig.IPAddress },
-                { "port", udpConfig.Port + 3 },
-                { "frequencyHz", 60 },
-                { "bEnabled", true }
-            });
-            packets.Add(new JObject {
-                { "structure", "ztmz" },
-                { "packet", "session_end" },
-                { "ip", udpConfig.IPAddress },
-                { "port", udpConfig.Port + 4 },
-                { "frequencyHz", 60 },
-                { "bEnabled", true }
-            });
+            var packet = packets.FirstOrDefault(p => p["structure"]?.ToString() == "ztmz" && p["packet"]?.ToString() == "session_update");
+            if (packet == null)
+            {
+                // add packetobject
+                packets.Add(new JObject {
+                    { "structure", "ztmz" },
+                    { "packet", "session_update" },
+                    { "ip", udpConfig.IPAddress },
+                    { "port", udpConfig.Port },
+                    { "frequencyHz", 60 },
+                    { "bEnabled", true }
+                });
+            }
         }
 
         File.WriteAllText(WRCUDPConfigFile, config.ToString(Newtonsoft.Json.Formatting.Indented));
