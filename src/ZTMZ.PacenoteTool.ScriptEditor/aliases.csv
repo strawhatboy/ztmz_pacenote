@@ -21,10 +21,10 @@ hairpin_left,corner_left_acute,hairpin left|heaven left|hair pit left|hairbit le
 hairpin_right,corner_right_acute,hairpin right|heaven right|hair pit right|hairbit right|hair bit right|airpin right|a bit right
 half_long,detail_half_long,half long
 ice,detail_ice,ice
-left_acute,corner_left_acute,left acute
+left_acute,corner_left_acute,left acute|acute hairpin left
 open_hairpin_left,corner_open_hairpin_left,open hairpin left
 open_hairpin_right,corner_open_hairpin_right,open hairpin right
-right_acute,corner_right_acute,right acute
+right_acute,corner_right_acute,right acute|acute hairpin right
 square_left,corner_square_left,square left
 square_right,corner_square_right,square right
 and,detail_and,and|enter
@@ -145,17 +145,23 @@ through_posts,detail_post,through post|through posts
 through_tunnel,detail_through_tunnel,through tunnel
 tightens,detail_tightens,tightens|titans|titus
 tightens_bad,detail_tightens_bad,tightens bad|titans bad
+tightens_to_hairpin,detail_tightens_to_hairpin,tightens hairpin
 tightens_to_squre,detail_tightens_to_squre,tightens square|titans square|tightens square|titans square
 tightens_to_1,detail_tightens_to_1,tightens one|titans one|tightens 1|titans 1
 tightens_to_2,detail_tightens_to_2,tightens two|titans two|tightens 2|titans 2
 tightens_to_3,detail_tightens_to_3,tightens three|titans three|tightens 3|titans 3
 tightens_to_4,detail_tightens_to_4,tightens four|titans four|tightens 4|titans 4
 tightens_to_5,detail_tightens_to_5,tightens five|titans five|tightens 5|titans 5
+tightens_to_6,detail_tightens_to_6,tightens six|tightens 6
+opens_to_square,detail_opens_to_square,opens square
+opens_to_hairpin,detail_opens_to_hairpin,opens hairpin
+opens_to_1,detail_opens_to_1,opens one|opens 1
 opens_to_2,detail_opens_to_2,opens two|opens to|opens 2
 opens_to_3,detail_opens_to_3,opens three|opens 3
 opens_to_4,detail_opens_to_4,opens four|opens 4
 opens_to_5,detail_opens_to_5,opens five|opens 5
 opens_to_6,detail_opens_to_6,opens six|opens 6
+opens_and_tightens,detail_opens_and_tightens,opens and tightens
 opens_to_flat,detail_opens_to_flat,opens flat|opens to flat
 stake,detail_stake,stake
 stake_inside,detail_stake_inside,stake inside
@@ -166,7 +172,7 @@ tree_outside,detail_tree_outside,tree outside|trees outside
 tunnel,detail_tunnel,tunnel|pass tunnel
 turn,detail_turn,turn|turned
 twisty,detail_twisty,twisty
-unseen,detail_unseen,unseen|unseed
+unseen,detail_unseen,unseen|unseed|and see
 uphill,detail_uphill,up hill|uphill
 very_long,detail_longlong,very long
 wall,detail_wall,wall|walls
@@ -212,3 +218,5 @@ widens,detail_widens,widens
 800,number_800,eight hundred|over eight hundred|over 800|800
 900,number_900,nine hundred|over nine hundred|over 900|900
 1000,number_1000,one thousand|over one thousand|over 1000|1000
+neat,detail_neat,neat
+at_junction,detail_at_junction,at junction
