@@ -112,17 +112,12 @@ Id,Pacenote,Sound count,Column,Link,Standard,Sounds,Package,Category,Description
 2134,DIST1001,4,0,,,1001_1.ogg;1001_2.ogg;1001_3.ogg;1001_4.ogg,RBR,LINKS,1001,number_1000
 435,NEXT_LAP,4,0,,,onto_nextlap1.ogg;onto_nextlap2.ogg;onto_nextlap3.ogg;onto_nextlap4.ogg,RBR,LINKS,Onto Next Lap,
 436,TAKE_EXIT,4,1,,,onto_finish1.ogg;onto_finish2.ogg;onto_finish3.ogg;onto_finish4.ogg,RBR,LINKS,Onto Finish,detail_finish
-0,CALLOUT_TIME,0,0,,,,RBR,LINKS,Callout Time,
-0,CALLOUT_DISTANCE,0,1,,,,RBR,LINKS,Callout Distance,
-0,CALLOUT_ADJUST,0,0,,,,RBR,LINKS,Callout Adjust,
-0,SOUND_INDEX,0,1,,,,RBR,LINKS,Sound Index,
-0,PLACE_HOLDER,0,0,,,,RBR,LINKS,Placeholder,
 22,FINISH,4,-1,,,finish1.ogg;finish2.ogg;finish3.ogg;finish4.ogg,RBR,LINKS,Finish,detail_finish
 556,SPLIT_TIME,1,-1,,,split_time.ogg,RBR,LINKS,Split Time,
 430,DONE,1,-1,,,finish1.ogg,RBR,LINKS,Done,
 2025,NIU_JATKUU,4,-1,,,and1.ogg;and2.ogg;and3.ogg;and4.ogg,RBR,LINKS,And (NIU),detail_and
 298,OPENS,2,0,,,opens1.ogg;opens2.ogg,RBR,ADJECTIVES,Opens,detail_opens
-2018,OPENSTIGHTENS,2,1,,,opens_tightens1.ogg;opens_tightens2.ogg,RBR,ADJECTIVES,Opens Tightens,detail_opens>detail_and>detail_tightens
+2018,OPENSTIGHTENS,2,1,,,opens_tightens1.ogg;opens_tightens2.ogg,RBR,ADJECTIVES,Opens Tightens,opens_and_tightens
 2032,OPENSLITTLE,2,0,,,opens_abit1.ogg;opens_abit2.ogg,RBR,ADJECTIVES,Opens A Bit,detail_opens
 2033,OPENSLONG,2,1,,,opens_long1.ogg;opens_long2.ogg,RBR,ADJECTIVES,Opens Long,detail_opens>detail_long
 2034,OPENSVERYLONG,2,0,,,opens_verylong1.ogg;opens_verylong2.ogg,RBR,ADJECTIVES,Opens Very Long,detail_opens>detail_longlong
@@ -131,11 +126,9 @@ Id,Pacenote,Sound count,Column,Link,Standard,Sounds,Package,Category,Description
 2035,OPENSEARLY,2,1,,,opens_early1.ogg;opens_early2.ogg,RBR,ADJECTIVES,Opens Early,detail_opens>detail_early
 2036,OPENSATJUNCTION,2,0,,,opens_at_junction1.ogg;opens_at_junction2.ogg,RBR,ADJECTIVES,Opens At Junction,detail_opens>detail_junction
 2037,OPENSOVERCREST,2,1,,,opens_overcrest1.ogg;opens_overcrest2.ogg,RBR,ADJECTIVES,Opens Over Crest,detail_opens>detail_over_crest
-2255,OPENSSHARP,2,0,,,opens_sharp1.ogg;opens_sharp2.ogg,RBR,ADJECTIVES,Opens Sharp,detail_opens>detail_and>detail_tightens
+2255,OPENSSHARP,2,0,,,opens_sharp1.ogg;opens_sharp2.ogg,RBR,ADJECTIVES,Opens Sharp,opens_and_tightens
 2256,OPENSROUND,2,1,,,opens_round1.ogg;opens_round2.ogg,RBR,ADJECTIVES,Opens Round,detail_opens>detail_and>detail_around
 9999,LINE_CHANGE,0,-1,,,,RBR,ADJECTIVES,,
-0,TIGHTENS,3,0,,,tightens1.ogg;tightens2.ogg;tightens3.ogg,RBR,ADJECTIVES,Tightens,detail_tightens
-0,TIGHTENSBAD,3,1,,,doubletightens1.ogg;doubletightens2.ogg;doubletightens3.ogg,RBR,ADJECTIVES,Double Tightens,detail_tightens_bad
 2015,TIGHTENSLATE,2,0,,,tightens_late1.ogg;tightens_late2.ogg,RBR,ADJECTIVES,Tightens Late,detail_tightens>detail_late
 2042,TIGHTENSEARLY,2,1,,,tightens_early1.ogg;tightens_early2.ogg,RBR,ADJECTIVES,Tightens Early,detail_tightens>detail_early
 2043,TIGHTENSLITTLE,2,0,,,tightens_abit1.ogg;tightens_abit2.ogg,RBR,ADJECTIVES,Tightens A Bit,detail_tightens
@@ -162,8 +155,8 @@ Id,Pacenote,Sound count,Column,Link,Standard,Sounds,Package,Category,Description
 2005,TIGHTENSTOTWO,3,1,,,tightens_two1.ogg;tightens_two2.ogg;tightens_two3.ogg,RBR,ADJECTIVES,Tightens 2,detail_tightens_to_2
 2066,TIGHTENSTOMINUS,3,0,,,tightens_one_plus1.ogg;tightens_one_plus2.ogg;tightens_one_plus3.ogg,RBR,ADJECTIVES,Tightens 1+,detail_tightens_to_1>detail_plus
 2006,TIGHTENSTOONE,3,1,,,tightens_one1.ogg;tightens_one2.ogg;tightens_one3.ogg,RBR,ADJECTIVES,Tightens 1,detail_tightens_to_1
-2067,TIGHTENSTOVERYSLOW,3,0,,,tightens_hp_plus1.ogg;tightens_hp_plus2.ogg;tightens_hp_plus3.ogg,RBR,ADJECTIVES,Tightens Hairpin+,detail_tightens_to_acute
-2007,TIGHTENSTOHP,3,1,,,tightens_hp1.ogg;tightens_hp2.ogg;tightens_hp3.ogg,RBR,ADJECTIVES,Tightens Hairpin,detail_tightens_to_acute
+2067,TIGHTENSTOVERYSLOW,3,0,,,tightens_hp_plus1.ogg;tightens_hp_plus2.ogg;tightens_hp_plus3.ogg,RBR,ADJECTIVES,Tightens Hairpin+,detail_tightens_to_hairpin>detail_plus
+2007,TIGHTENSTOHP,3,1,,,tightens_hp1.ogg;tightens_hp2.ogg;tightens_hp3.ogg,RBR,ADJECTIVES,Tightens Hairpin,detail_tightens_to_hairpin
 2027,TIGHTENSTOACUTE,4,0,,,tightens_acute1.ogg;tightens_acute2.ogg;tightens_acute3.ogg,RBR,ADJECTIVES,Tightens Acute,detail_tightens_to_acute
 2068,TOFLATMINUS,3,0,,,_six_plus1.ogg;_six_plus2.ogg;_six_plus3.ogg,RBR,ADJECTIVES,_6+,detail_opens_to_flat>detail_plus
 2008,TOSIX,3,1,,,_six1.ogg;_six2.ogg;_six3.ogg,RBR,ADJECTIVES,_6,detail_opens_to_flat
@@ -177,13 +170,13 @@ Id,Pacenote,Sound count,Column,Link,Standard,Sounds,Package,Category,Description
 2012,TOTWO,3,1,,,_two1.ogg;_two2.ogg;_two3.ogg,RBR,ADJECTIVES,_2,detail_opens_to_2
 2072,TOMINUS,3,0,,,_one_plus1.ogg;_one_plus2.ogg;_one_plus3.ogg,RBR,ADJECTIVES,_1+,detail_opens_to_1>detail_plus
 2013,TOONE,3,1,,,_one1.ogg;_one2.ogg;_one3.ogg,RBR,ADJECTIVES,_1,detail_opens_to_1
-2073,TOVERYSLOW,3,0,,,_hp_plus1.ogg;_hp_plus2.ogg;_hp_plus3.ogg,RBR,ADJECTIVES,_Hairpin+,detail_opens>detail_plus
-2014,TOHP,3,1,,,_hp1.ogg;_hp2.ogg;_hp3.ogg,RBR,ADJECTIVES,_Hairpin,corner_open_hairpin
-2028,TOACUTE,3,0,,,_acute1.ogg;_acute2.ogg;_acute3.ogg,RBR,ADJECTIVES,_Acute,corner_acute
+2073,TOVERYSLOW,3,0,,,_hp_plus1.ogg;_hp_plus2.ogg;_hp_plus3.ogg,RBR,ADJECTIVES,_Hairpin+,detail_opens_to_hairpin>detail_plus
+2014,TOHP,3,1,,,_hp1.ogg;_hp2.ogg;_hp3.ogg,RBR,ADJECTIVES,_Hairpin,detail_opens_to_hairpin
+2028,TOACUTE,3,0,,,_acute1.ogg;_acute2.ogg;_acute3.ogg,RBR,ADJECTIVES,_Acute,detail_opens_to_acute
 2104,NIU_LOIVA_ALKU,3,-1,,,late1.ogg;late2.ogg;late3.ogg,RBR,ADJECTIVES,Late (NIU),detail_late
 295,NA_NEGATIVE,1,-1,,,negative.ogg,RBR,ADJECTIVES,Negative (N/A),detail_bad
 294,NA_POSITIVE,1,-1,,,positive.ogg,RBR,ADJECTIVES,Positive (N/A),detail_good
-243,NA_EXACT,1,-1,,,exact.ogg,RBR,ADJECTIVES,Exact (N/A),detail_exact
+243,NA_EXACT,1,-1,,,exact.ogg,RBR,ADJECTIVES, ,detail_exact
 245,NA_DIRECTLY,1,-1,,,directly.ogg,RBR,ADJECTIVES,Directly (N/A),detail_directly
 252,NA_SLIGHT,1,-1,,,slight.ogg,RBR,ADJECTIVES,Slight (N/A),detail_slightly
 246,NA_LIGHT,1,-1,,,light.ogg,RBR,ADJECTIVES,Light (N/A),detail_light
@@ -211,7 +204,6 @@ Id,Pacenote,Sound count,Column,Link,Standard,Sounds,Package,Category,Description
 9999,LINE_CHANGE,0,-1,,,,RBR,ADDITIONAL,,
 264,SHORT,2,0,,,short1.ogg;short2.ogg,RBR,ADDITIONAL,Short,detail_short
 2103,HALF_LONG,3,1,,,halflong1.ogg;halflong2.ogg;halflong3.ogg,RBR,ADDITIONAL,Halflong,detail_half_long
-0,LONG,3,0,,,long1.ogg;long2.ogg;long3.ogg,RBR,ADDITIONAL,Long,detail_long
 274,VERY_LONG,3,1,,,verylong1.ogg;verylong2.ogg;verylong3.ogg,RBR,ADDITIONAL,Very Long,detail_longlong
 2216,EXTRAEXTRALONG,3,0,,,veryverylong1.ogg;veryverylong2.ogg;veryverylong3.ogg,RBR,ADDITIONAL,Very Very Long,detail_extra_long
 2248,FUCKINGLONG,3,1,,,fuckinglong1.ogg;fuckinglong2.ogg;fuckinglong3.ogg,RBR,ADDITIONAL,Fucking Long,detail_extraextra_long
@@ -228,7 +220,6 @@ Id,Pacenote,Sound count,Column,Link,Standard,Sounds,Package,Category,Description
 240,HARD,3,0,,,hard1.ogg;hard2.ogg;hard3.ogg,RBR,ADDITIONAL,Hard,detail_hard
 236,EASY,3,1,,,easy1.ogg;easy2.ogg;easy3.ogg,RBR,ADDITIONAL,Easy,detail_easy
 254,BAD,3,0,,,bad1.ogg;bad2.ogg;bad3.ogg,RBR,ADDITIONAL,Bad,detail_bad
-0,MAYBE,3,1,,,maybe1.ogg;maybe2.ogg;maybe3.ogg,RBR,ADDITIONAL,Maybe,detail_maybe
 216,FLATOUT,3,0,,,flat1.ogg;flat2.ogg;flat3.ogg,RBR,ADDITIONAL,Flat,detail_flat
 241,FAST,3,1,,,fast1.ogg;fast2.ogg;fast3.ogg,RBR,ADDITIONAL,Fast,detail_fast
 242,SLOW,3,0,,,slow1.ogg;slow2.ogg;slow3.ogg,RBR,ADDITIONAL,Slow,detail_slow
@@ -275,14 +266,12 @@ Id,Pacenote,Sound count,Column,Link,Standard,Sounds,Package,Category,Description
 235,LATE,3,1,,,late1.ogg;late2.ogg;late3.ogg,RBR,LINE,Late,detail_late
 432,LINE_NOTE,2,0,,,line1.ogg;line2.ogg,RBR,LINE,Line,
 9999,LINE_CHANGE,0,-1,,,,RBR,LINE,,
-0,CUT,3,0,,,cut1.ogg;cut2.ogg;cut3.ogg,RBR,LINE,Cut,detail_cut
 212,FULLCUT,2,1,,,full_cut1.ogg;full_cut2.ogg,RBR,LINE,Full Cut,detail_big_cut
 218,LIGHT_CUT,2,0,,,small_cut1.ogg;small_cut2.ogg,RBR,LINE,Small Cut,detail_small_cut
 223,CLIP,2,1,,,clip1.ogg;clip2.ogg,RBR,LINE,Clip,detail_clip
 2273,LATE_CUT,2,0,,,late_cut1.ogg;late_cut2.ogg,RBR,LINE,Late Cut,detail_late>detail_cut
 272,HOOK,2,1,,,hook1.ogg;hook2.ogg,RBR,LINE,Hook,detail_hook
 2159,CUT_THROUGH,2,0,,,cut_through1.ogg;cut_through2.ogg,RBR,LINE,Cut Through,detail_cut>detail_through
-0,DONTCUT,3,0,,,dontcut1.ogg;dontcut2.ogg;dontcut3.ogg,RBR,LINE,Don't,detail_dont_cut
 2016,DONTCUTEARLY,2,0,,,dont_early1.ogg;dont_early2.ogg,RBR,LINE,Don't Early,detail_dont_cut>detail_early
 2017,DONTCUTLATE,2,1,,,dont_late1.ogg;dont_late2.ogg,RBR,LINE,Don't Late,detail_dont_cut>detail_late
 2242,DOUBLE_DONT,2,0,,,double_dont1.ogg;double_dont2.ogg,RBR,LINE,Double Don't,detail_care>detail_dont_cut
@@ -305,7 +294,7 @@ Id,Pacenote,Sound count,Column,Link,Standard,Sounds,Package,Category,Description
 266,NA_GONARROW,1,-1,,,gonarrow.ogg,RBR,LINE,Go Narrow (N/A),detail_narrows
 211,NIU_DEEPCUT,2,-1,,,full_cut1.ogg;full_cut2.ogg,RBR,LINE,Ahne (NIU),detail_big_cut
 555,NA_TO_SIGHT_DISTANCE,1,-1,,,to_sight_distance.ogg,RBR,LINE,To Sight Distance (N/A),
-213,NA_KEEP_CENTRE,2,-1,,,keep_middle1.ogg;keep_middle2.ogg,RBR,LINE,Keskeltä (N/A),detail_keep_middle
+213,NA_KEEP_CENTRE,2,-1,,,keep_middle1.ogg;keep_middle2.ogg,RBR,LINE,Keskelt?? (N/A),detail_keep_middle
 340,CREST,2,0,INTO,OVERCREST,crest1.ogg;crest2.ogg,RBR,OBSTACLES,Crest,detail_crest
 2109,SMALL_CREST,2,1,INTO,OVERCREST,small_crest1.ogg;small_crest2.ogg,RBR,OBSTACLES,Small Crest,detail_small_crest
 2090,LONGCREST,2,0,INTO,OVERCREST,long_crest1.ogg;long_crest2.ogg,RBR,OBSTACLES,Long Crest,detail_long_crest
@@ -431,7 +420,6 @@ Id,Pacenote,Sound count,Column,Link,Standard,Sounds,Package,Category,Description
 2022,CAREOUT,2,1,,CARE,care_out1.ogg;care_out2.ogg,RBR,CAUTIONS,Care Out,detail_outside>detail_care
 2271,CAUTION_NOLINK,3,0,,CAUTION,caution1.ogg;caution2.ogg;caution3.ogg,RBR,CAUTIONS,Caution,detail_caution
 303,DOUBLE_CAUTION,3,1,,CAUTION,double_caution1.ogg;double_caution2.ogg;double_caution3.ogg,RBR,CAUTIONS,Double Caution,detail_double_caution
-0,CAUTION_WATER,2,0,,,caution_water1.ogg;caution_water2.ogg,RBR,CAUTIONS,Caution Water,detail_ford>detail_caution
 268,SLIPPERY,2,1,,,slippy1.ogg;slippy2.ogg,RBR,CAUTIONS,Slippery,detail_slippery
 2183,SLIPPY_ENTRY,2,0,,,slippy_entry1.ogg;slippy_entry2.ogg,RBR,CAUTIONS,Slippy Entry,detail_entry>detail_slippery
 2184,SLIPPY_EXIT,2,1,,,slippy_exit1.ogg;slippy_exit2.ogg,RBR,CAUTIONS,Slippy Exit,detail_exit>detail_slippery
@@ -505,7 +493,7 @@ Id,Pacenote,Sound count,Column,Link,Standard,Sounds,Package,Category,Description
 404,NA_UNTIL,1,-1,,,until.ogg,RBR,PREPOSITIONS,Until (N/A),detail_until
 402,NA_NEAR,1,-1,,,near.ogg,RBR,PREPOSITIONS,Near (N/A),detail_near
 414,NA_OFF,1,-1,,,off.ogg,RBR,PREPOSITIONS,Off (N/A),
-401,NA_AFTER,1,-1,,,after.ogg,RBR,PREPOSITIONS,After (N/A),
+401,NA_AFTER,1,-1,,,after.ogg,RBR,PREPOSITIONS,After (N/A),detail_after
 409,NA_BEHIND,1,-1,,,behind.ogg,RBR,PREPOSITIONS,Behind (N/A),
 406,NA_BEFORE,1,-1,,,before.ogg,RBR,PREPOSITIONS,Before (N/A),
 405,NA_AT,1,-1,,,at.ogg,RBR,PREPOSITIONS,At (N/A),detail_at
