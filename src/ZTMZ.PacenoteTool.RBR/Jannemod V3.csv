@@ -79,7 +79,7 @@ Id,Pacenote,Sound count,Column,Link,Standard,Sounds,Package,Category,Description
 4075,EMPTY_CALL,0,1,INTO,,,RBR,LINKS,Empty Call,
 4083,INTO,4,0,,,into1.ogg;into2.ogg;into3.ogg;into4.ogg,RBR,LINKS,Into,detail_into
 4084,AND,4,1,,,and1.ogg;and2.ogg;and3.ogg;and4.ogg,RBR,LINKS,And,detail_and
-4082,ONTO,4,0,,,onto1.ogg;onto2.ogg;onto3.ogg;onto4.ogg,RBR,LINKS,Onto,detail_into
+4082,ONTO,4,0,,,onto1.ogg;onto2.ogg;onto3.ogg;onto4.ogg,RBR,LINKS,Onto,detail_onto
 2030,IMMEDIATE,4,1,,,immediate1.ogg;immediate2.ogg;immediate3.ogg;immediate4.ogg,RBR,LINKS,Immediate,detail_sudden
 2224,AGAIN,4,0,,,again1.ogg;again2.ogg;again3.ogg;again4.ogg,RBR,LINKS,Again,
 2105,TO_FINISH,4,1,,,tofinish1.ogg;tofinish2.ogg;tofinish3.ogg;tofinish4.ogg,RBR,LINKS,To Finish,detail_finish
