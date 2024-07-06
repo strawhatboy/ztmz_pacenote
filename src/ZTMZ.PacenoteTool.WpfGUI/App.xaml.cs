@@ -76,6 +76,7 @@ public partial class App : Application
             services.AddSingleton<AzureAppInsightsManager>();
 
             services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>();
+            services.AddSingleton<UpdateConfigSetter>();
 
             // Main window with navigation
             services.AddScoped<INavigationWindow, Views.MainWindow>();

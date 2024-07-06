@@ -16,6 +16,7 @@ using System.Threading;
 using VRGameOverlay.VROverlayWindow;
 using System.CodeDom;
 using Wpf.Ui.Extensions;
+using ZTMZ.PacenoteTool.WpfGUI.Services;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -165,15 +166,19 @@ public partial class HomePageVM : ObservableObject {
 
     private AzureAppInsightsManager _azureAppInsightsManager;
 
+    private UpdateConfigSetter _updateConfigSetter;
+
     public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool, 
         IServiceProvider serviceProvider, 
         GameOverlayManager gameOverlayManager, 
         VRGameOverlayManager vRGameOverlayManager,
-        AzureAppInsightsManager azureAppInsightsManager) {
+        AzureAppInsightsManager azureAppInsightsManager,
+        UpdateConfigSetter updateConfigSetter) {
         _gameOverlayManager = gameOverlayManager;
         _vrGameOverlayManager = vRGameOverlayManager;
         _serviceProvider = serviceProvider;
         _azureAppInsightsManager = azureAppInsightsManager;
+        _updateConfigSetter = updateConfigSetter;
         var contentDialogService = serviceProvider.GetService(typeof(IContentDialogService)) as IContentDialogService;
         Tool = _tool;
         _tool.onGameStarted += (game, p) => {
@@ -331,6 +336,9 @@ public partial class HomePageVM : ObservableObject {
         };
 
         _tool.onToolInitialized += () => {
+            // update new version settings
+            updateConfigSetter.SetConfiguration(_tool);
+
             // Application.Current.Dispatcher.Invoke(() => {
                 Games.Clear();
                 foreach (var game in _tool.Games) {

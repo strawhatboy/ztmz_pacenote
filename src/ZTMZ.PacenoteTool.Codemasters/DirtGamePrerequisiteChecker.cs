@@ -7,6 +7,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 using System.Xml.XPath;
 using ZTMZ.PacenoteTool.Base;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace ZTMZ.PacenoteTool.Codemasters;
 
@@ -19,9 +20,10 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
     private string _dr2settingsVRFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games/DiRT Rally 2.0/hardwaresettings/hardware_settings_config_vr.xml");
     public bool IsPassed { set; get; } = false;
     private XDocument? _xmlFile;
-    private XElement? _udpNode;
+    private IEnumerable<XElement>? _udpNode;
 
     private string configPort = "20777";
+    private string configIP = "127.0.0.1";
     public PrerequisitesCheckResult CheckPrerequisites(IGame game)
     {
         var settingsFile = "";
@@ -113,46 +115,64 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
     public PrerequisitesCheckResult Check(IGame game, string file)
     {
         configPort = ((UdpGameConfig)game.GameConfigurations[UdpGameConfig.Name]).Port.ToString();
+        configIP = ((UdpGameConfig)game.GameConfigurations[UdpGameConfig.Name]).IPAddress;
         this._xmlFile = XDocument.Load(file);
-        this._udpNode = this._xmlFile.Root.XPathSelectElement("./motion_platform/udp");
-        if (this._udpNode.Attribute("enabled").Value != "true" || this._udpNode.Attribute("extradata").Value != "3")
+        this._udpNode = this._xmlFile.Root.XPathSelectElements("./motion_platform/udp");
+
+        foreach (var node in this._udpNode)
         {
-            return new PrerequisitesCheckResult()
+            if (this.CheckUdpNode(game, node))
             {
-                IsOK = false,
-                Msg = "",
-                Code = PrerequisitesCheckResultCode.PORT_NOT_OPEN,
-                Params = new List<object>() { game.Name, file }
-            };
+                this.IsPassed = true;
+                return new PrerequisitesCheckResult()
+                {
+                    IsOK = true,
+                    Msg = "",
+                    Code = PrerequisitesCheckResultCode.OK,
+                };
+            }
         }
 
-        if (!this._udpNode.Attribute("port").Value.Equals(configPort))
-        {
-            return new PrerequisitesCheckResult()
-            {
-                IsOK = false,
-                Msg = "",
-                Code = PrerequisitesCheckResultCode.PORT_NOT_MATCH,
-                Params = new List<object> { game.Name, file, this._udpNode.Attribute("port").Value, configPort }
-            };
-        }
-
-        this.IsPassed = true;
         return new PrerequisitesCheckResult()
         {
-            IsOK = true,
+            IsOK = false,
             Msg = "",
-            Code = PrerequisitesCheckResultCode.OK,
+            Code = PrerequisitesCheckResultCode.PORT_NOT_OPEN,
+            Params = new List<object> { 
+                game.Name,
+                file
+            }
         };
+    }
+
+    private bool CheckUdpNode(IGame game, XElement node) {
+        if (node.Attribute("enabled").Value != "true" || node.Attribute("extradata").Value != "3")
+        {
+            return false;
+        }
+
+        if (!node.Attribute("port").Value.Equals(configPort))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     public void Write(string file)
     {
         this._xmlFile = XDocument.Load(file);
-        this._udpNode = this._xmlFile.Root.XPathSelectElement("./motion_platform/udp");
-        this._udpNode.Attribute("enabled").Value = "true";
-        this._udpNode.Attribute("extradata").Value = "3";
-        this._udpNode.Attribute("port").Value = configPort;
+        var motionPlatformNode = this._xmlFile.Root.XPathSelectElement("./motion_platform");
+        if (motionPlatformNode != null)
+        {
+            var udpNode = new XElement("udp");
+            udpNode.SetAttributeValue("enabled", "true");
+            udpNode.SetAttributeValue("extradata", "3");
+            udpNode.SetAttributeValue("ip", configIP);
+            udpNode.SetAttributeValue("port", configPort);
+            udpNode.SetAttributeValue("delay", "1");
+            motionPlatformNode.Add(udpNode);
+        }
         this._xmlFile.Save(file);
     }
 }

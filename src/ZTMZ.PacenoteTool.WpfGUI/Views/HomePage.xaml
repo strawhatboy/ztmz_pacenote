@@ -14,53 +14,68 @@
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
     <Page.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <Style TargetType="TextBlock">
-            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+            <Setter Property="VerticalAlignment"
+                    Value="Center"></Setter>
         </Style>
         <Style TargetType="ui:TextBlock">
-            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+            <Setter Property="VerticalAlignment"
+                    Value="Center"></Setter>
         </Style>
     </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="480" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="480"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <ui:InfoBar Grid.Row="0" Grid.ColumnSpan="2" 
-            Title="{Binding ViewModel.InfoBarTitle}" 
-            Message="{Binding ViewModel.InfoBarMessage}" 
-            IsOpen="{Binding ViewModel.InfoBarIsOpen}" 
-            Severity="{Binding ViewModel.InfoBarSeverity}"/>
+        <ui:InfoBar Grid.Row="0"
+                    Grid.ColumnSpan="2"
+                    Title="{Binding ViewModel.InfoBarTitle}"
+                    Message="{Binding ViewModel.InfoBarMessage}"
+                    IsOpen="{Binding ViewModel.InfoBarIsOpen}"
+                    Severity="{Binding ViewModel.InfoBarSeverity}"/>
 
         <!-- left pane -->
-        <StackPanel Grid.Row="1" Margin="0 0 20 0" >
-            <Grid >
+        <StackPanel Grid.Row="1"
+                    Margin="0 0 20 0">
+            <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="234" />
+                    <RowDefinition Height="234"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="150"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="250"/>
                 </Grid.ColumnDefinitions>
-                
-                
-                <Border Grid.Row="0" Grid.Column="0" Background="White" CornerRadius="8" Height="130"
-                    Visibility="{Binding ViewModel.IsRacing, 
+
+
+                <Border Grid.Row="0"
+                        Grid.Column="0"
+                        Background="White"
+                        CornerRadius="8"
+                        Height="130"
+                        Visibility="{Binding ViewModel.IsRacing, 
                                 Converter={StaticResource BooleanToVisibilityConverter}}">
-                    
+
                     <Border.Effect>
-                        <DropShadowEffect BlurRadius="40" Color="LightGreen" ShadowDepth="0" Opacity="1" />
+                        <DropShadowEffect BlurRadius="40"
+                                          Color="LightGreen"
+                                          ShadowDepth="0"
+                                          Opacity="1"/>
                     </Border.Effect>
                 </Border>
-                <ui:Image CornerRadius="10" Height="130" Width="130" Source="pack://application:,,,/Assets/app.png" RenderOptions.BitmapScalingMode="HighQuality" />
+                <ui:Image CornerRadius="10"
+                          Height="130"
+                          Width="130"
+                          Source="pack://application:,,,/Assets/app.png"
+                          RenderOptions.BitmapScalingMode="HighQuality"/>
 
-                
+
                 <!-- <Border Grid.Row="0" Grid.Column="2" Background="White" CornerRadius="8"
                     Visibility="{Binding ViewModel.IsGameInitializedFailed, 
                                 Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -69,25 +84,39 @@
                         <DropShadowEffect BlurRadius="40" Color="Red" ShadowDepth="0" Opacity="1" />
                     </Border.Effect>
                 </Border> -->
-                <Border Grid.Row="0" Grid.Column="2" Background="White" CornerRadius="8" Height="150"
-                    Visibility="{Binding ViewModel.IsGameRunning, 
+                <Border Grid.Row="0"
+                        Grid.Column="2"
+                        Background="White"
+                        CornerRadius="8"
+                        Height="150"
+                        Visibility="{Binding ViewModel.IsGameRunning, 
                                 Converter={StaticResource BooleanToVisibilityConverter}}">
-                    
+
                     <Border.Effect>
-                        <DropShadowEffect BlurRadius="40" Color="LightGreen" ShadowDepth="0" Opacity="1" />
+                        <DropShadowEffect BlurRadius="40"
+                                          Color="LightGreen"
+                                          ShadowDepth="0"
+                                          Opacity="1"/>
                     </Border.Effect>
                 </Border>
-                <ComboBox Grid.Row="0" Grid.Column="2" Height="150"
-                    ItemsSource="{Binding Path=ViewModel.Games, Mode=OneWay}"
-                    SelectedItem="{Binding Path=ViewModel.SelectedGame, Mode=TwoWay}"
-                    ToolTip="{Binding Path=ViewModel.SelectedGame.Game.Description}" 
-                    ToolTipService.InitialShowDelay="100"
-                    VerticalAlignment="Center">
+                <ComboBox Grid.Row="0"
+                          Grid.Column="2"
+                          Height="150"
+                          ItemsSource="{Binding Path=ViewModel.Games, Mode=OneWay}"
+                          SelectedItem="{Binding Path=ViewModel.SelectedGame, Mode=TwoWay}"
+                          ToolTip="{Binding Path=ViewModel.SelectedGame.Game.Description}"
+                          ToolTipService.InitialShowDelay="100"
+                          VerticalAlignment="Center">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <!-- <StackPanel ToolTip="{Binding Path=Game.Description}"> -->
-                                <ui:Image Source="{Binding Path=Image}" ToolTip="{Binding Path=Game.Description}" Width="214" Height="100" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
-                                <!-- <ui:TextBlock Text="{Binding Path=Game.Name}" HorizontalAlignment="Center" />
+                            <ui:Image Source="{Binding Path=Image}"
+                                      ToolTip="{Binding Path=Game.Description}"
+                                      Width="214"
+                                      Height="100"
+                                      Stretch="UniformToFill"
+                                      RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <!-- <ui:TextBlock Text="{Binding Path=Game.Name}" HorizontalAlignment="Center" />
                             </StackPanel> -->
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
@@ -100,90 +129,136 @@
                     </b:Interaction.Triggers>
                 </ComboBox>
 
-                <Border Grid.Row="0" Grid.Column="1" Background="#FFFF8888" Height="4" 
-                    Visibility="{Binding ViewModel.IsGameInitializedFailed, 
+                <Border Grid.Row="0"
+                        Grid.Column="1"
+                        Background="#FFFF8888"
+                        Height="4"
+                        Visibility="{Binding ViewModel.IsGameInitializedFailed, 
                                 Converter={StaticResource BooleanToVisibilityConverter}}"
-                    ToolTip="{Binding ViewModel.GameInitializeFailureMessage}"
-                    ToolTipService.InitialShowDelay="100">
-                    
+                        ToolTip="{Binding ViewModel.GameInitializeFailureMessage}"
+                        ToolTipService.InitialShowDelay="100">
+
                     <Border.Effect>
-                        <DropShadowEffect BlurRadius="40" Color="Red" ShadowDepth="0" Opacity="1" />
+                        <DropShadowEffect BlurRadius="40"
+                                          Color="Red"
+                                          ShadowDepth="0"
+                                          Opacity="1"/>
                     </Border.Effect>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="1" Background="LightGreen" Height="4" 
-                    Visibility="{Binding ViewModel.IsGameInitialized, 
+                <Border Grid.Row="0"
+                        Grid.Column="1"
+                        Background="LightGreen"
+                        Height="4"
+                        Visibility="{Binding ViewModel.IsGameInitialized, 
                                 Converter={StaticResource BooleanToVisibilityConverter}}">
-                    
+
                     <Border.Effect>
-                        <DropShadowEffect BlurRadius="40" Color="LightGreen" ShadowDepth="0" Opacity="1" />
+                        <DropShadowEffect BlurRadius="40"
+                                          Color="LightGreen"
+                                          ShadowDepth="0"
+                                          Opacity="1"/>
                     </Border.Effect>
                 </Border>
             </Grid>
-            <ui:Card Padding="16">
-                <StackPanel>
-                    <Grid Margin="0 0 0 10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="100" />
-                        </Grid.ColumnDefinitions>  
-                        <ui:SymbolIcon Symbol="Games20" FontSize="26" Margin="0 0 10 0" />
-                        <ui:TextBlock VerticalAlignment="Center" FontTypography="BodyStrong" Text="{Binding ViewModel.SelectedGame.Game.Name, Mode=OneWay}" Grid.Column="1" />
-                        <!-- <ui:Button Appearance="Primary" Content="启动游戏" Grid.Column="2" HorizontalAlignment="Right"/> -->
-                    </Grid>
-                    <!-- game settings -->
-                    <ItemsControl ItemsSource="{Binding Path=ViewModel.CurrentGameSettings, Mode=OneWay}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
-                </StackPanel>
-            </ui:Card>
+            <ui:CardExpander Padding="16">
+                <ui:CardExpander.Header>
+                    <StackPanel>
+                        <Grid Margin="0 0 0 0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Symbol="Games20"
+                                           FontSize="26"
+                                           Margin="0 0 10 0"/>
+                            <ui:TextBlock VerticalAlignment="Center"
+                                          FontTypography="BodyStrong"
+                                          Text="{DynamicResource ResourceKey=settings.gameSettings}"
+                                          Grid.Column="1"/>
+                            <!-- <ui:Button Appearance="Primary" Content="启动游戏" Grid.Column="2" HorizontalAlignment="Right"/> -->
+                        </Grid>
+                    </StackPanel>
+                </ui:CardExpander.Header>
+                <!-- game settings -->
+                <ItemsControl ItemsSource="{Binding Path=ViewModel.CurrentGameSettings, Mode=OneWay}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ui:CardExpander>
             <!-- hud -->
-            <ui:CardExpander Margin="0 20 0 0" IsExpanded="True">
+            <ui:CardExpander Margin="0 20 0 0"
+                             IsExpanded="True">
                 <ui:CardExpander.Header>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
-                            <ui:SymbolIcon Symbol="Gauge20" FontSize="26" Margin="0 0 10 0" VerticalAlignment="Center" />
-                            <ui:TextBlock Text="{DynamicResource ResourceKey=tabs.hud}" FontTypography="BodyStrong" VerticalAlignment="Center" />
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <ui:SymbolIcon Symbol="Gauge20"
+                                           FontSize="26"
+                                           Margin="0 0 10 0"
+                                           VerticalAlignment="Center"/>
+                            <ui:TextBlock Text="{DynamicResource ResourceKey=tabs.hud}"
+                                          FontTypography="BodyStrong"
+                                          VerticalAlignment="Center"/>
                         </StackPanel>
-                        <ui:ToggleSwitch Grid.Column="1" Name="tb_hud" 
-                            IsChecked="{Binding Path=ViewModel.IsHudEnabled, Mode=TwoWay}"
-                            ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_showHud}"
-                            ToolTipService.InitialShowDelay="100"
-                            Margin="0 0 10 0"
-                            />
+                        <ui:ToggleSwitch Grid.Column="1"
+                                         Name="tb_hud"
+                                         IsChecked="{Binding Path=ViewModel.IsHudEnabled, Mode=TwoWay}"
+                                         ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_showHud}"
+                                         ToolTipService.InitialShowDelay="100"
+                                         Margin="0 0 10 0"/>
                     </Grid>
                 </ui:CardExpander.Header>
-                <ui:CardAction Command="{Binding ViewModel.MoreHudSettingsCommand}" Padding="5">
+                <ui:CardAction Command="{Binding ViewModel.MoreHudSettingsCommand}"
+                               Padding="5">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Background="#609D51" />
-                        <Border Grid.Column="1" Background="#D3A95B" />
-                        <Border Grid.Column="2" Background="#B9574A" />
-                        <Border Grid.Column="3" Background="#B9574A" />
-                        <Border Grid.Column="4" Background="#D3A95B" />
-                        <Border Grid.Column="5" Background="#609D51" />
-                        <ui:TextBlock Text="6" Grid.ColumnSpan="6" FontTypography="Display" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0 10 0 10" />
+                        <Border Grid.Column="0"
+                                Background="#609D51"/>
+                        <Border Grid.Column="1"
+                                Background="#D3A95B"/>
+                        <Border Grid.Column="2"
+                                Background="#B9574A"/>
+                        <Border Grid.Column="3"
+                                Background="#B9574A"/>
+                        <Border Grid.Column="4"
+                                Background="#D3A95B"/>
+                        <Border Grid.Column="5"
+                                Background="#609D51"/>
+                        <ui:TextBlock Text="6"
+                                      Grid.ColumnSpan="6"
+                                      FontTypography="Display"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Center"
+                                      Margin="0 10 0 10"/>
                     </Grid>
                 </ui:CardAction>
             </ui:CardExpander>
         </StackPanel>
-        <StackPanel Grid.Row="1" VerticalAlignment="Top" Margin="0 40 0 0"  Grid.Column="1">
-            <ui:Card Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" Margin="0 0 0 0" Padding="0">
+        <StackPanel Grid.Row="1"
+                    VerticalAlignment="Top"
+                    Margin="0 40 0 0"
+                    Grid.Column="1">
+            <ui:Card Grid.Row="1"
+                     Grid.Column="0"
+                     Grid.ColumnSpan="3"
+                     VerticalAlignment="Top"
+                     Margin="0 0 0 0"
+                     Padding="0">
                 <StackPanel>
                     <Grid Margin="16">
                         <Grid.RowDefinitions>
@@ -191,25 +266,33 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0 0 16 0" VerticalAlignment="Center" Grid.RowSpan="2" >
-                            <ui:SymbolIcon Symbol="PersonVoice20" FontSize="26" Margin="0 0 0 10" />
-                            <ui:TextBlock Text="{DynamicResource ResourceKey=ui.tab_s_audioPackage}" FontTypography="BodyStrong" />
+                        <StackPanel Orientation="Vertical"
+                                    HorizontalAlignment="Center"
+                                    Margin="0 0 16 0"
+                                    VerticalAlignment="Center"
+                                    Grid.RowSpan="2">
+                            <ui:SymbolIcon Symbol="PersonVoice20"
+                                           FontSize="26"
+                                           Margin="0 0 0 10"/>
+                            <ui:TextBlock Text="{DynamicResource ResourceKey=ui.tab_s_audioPackage}"
+                                          FontTypography="BodyStrong"/>
                         </StackPanel>
-                        <ComboBox Grid.Column="1" Name="cb_codrivers" 
-                                VerticalAlignment="Top" 
-                                ItemsSource="{Binding Path=ViewModel.CodriverPackageInfos, Mode=OneWay}"
-                                SelectedItem="{Binding Path=ViewModel.SelectedCodriver, Mode=TwoWay}"
-                                ToolTipService.ToolTip="{Binding Path=ViewModel.SelectedCodriver.description}"
-                                ToolTipService.InitialShowDelay="100"
-                                Margin="0 0 0 10"
-                                >
+                        <ComboBox Grid.Column="1"
+                                  Name="cb_codrivers"
+                                  VerticalAlignment="Top"
+                                  ItemsSource="{Binding Path=ViewModel.CodriverPackageInfos, Mode=OneWay}"
+                                  SelectedItem="{Binding Path=ViewModel.SelectedCodriver, Mode=TwoWay}"
+                                  ToolTipService.ToolTip="{Binding Path=ViewModel.SelectedCodriver.description}"
+                                  ToolTipService.InitialShowDelay="100"
+                                  Margin="0 0 0 10">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid VerticalAlignment="Center" ToolTip="{Binding Path=description}" 
-                                    ToolTipService.InitialShowDelay="100">
+                                    <Grid VerticalAlignment="Center"
+                                          ToolTip="{Binding Path=description}"
+                                          ToolTipService.InitialShowDelay="100">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="*"></RowDefinition>
                                             <RowDefinition Height="*"></RowDefinition>
@@ -218,35 +301,58 @@
                                             <ColumnDefinition Width="40"></ColumnDefinition>
                                             <ColumnDefinition Width="*"></ColumnDefinition>
                                         </Grid.ColumnDefinitions>
-                                        <ui:TextBlock Grid.Column="0" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" >
+                                        <ui:TextBlock Grid.Column="0"
+                                                      Grid.RowSpan="2"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      FontSize="24">
                                             <ui:TextBlock.Style>
                                                 <Style TargetType="TextBlock">
-                                                    <Setter Property="Text" Value="❓"/>
-                                                    <Setter Property="Foreground" Value="Gray"/>
+                                                    <Setter Property="Text"
+                                                            Value="❓"/>
+                                                    <Setter Property="Foreground"
+                                                            Value="Gray"/>
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding gender}" Value="M">
-                                                            <Setter Property="Text" Value="🚹"/>
-                                                            <Setter Property="Foreground" Value="RoyalBlue"/>
+                                                        <DataTrigger Binding="{Binding gender}"
+                                                                     Value="M">
+                                                            <Setter Property="Text"
+                                                                    Value="🚹"/>
+                                                            <Setter Property="Foreground"
+                                                                    Value="RoyalBlue"/>
                                                         </DataTrigger>
-                                                        <DataTrigger Binding="{Binding gender}" Value="F">
-                                                            <Setter Property="Text" Value="🚺"/>
-                                                            <Setter Property="Foreground" Value="DeepPink"/>
+                                                        <DataTrigger Binding="{Binding gender}"
+                                                                     Value="F">
+                                                            <Setter Property="Text"
+                                                                    Value="🚺"/>
+                                                            <Setter Property="Foreground"
+                                                                    Value="DeepPink"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </ui:TextBlock.Style>
                                         </ui:TextBlock>
-                                        <ui:TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Path=name}" HorizontalAlignment="Left" />
-                                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
-                                            <ui:TextBlock Text="{Binding Path=language}" 
-                                            Appearance="Tertiary" FontTypography="Caption" Margin="0 0 10 0" HorizontalAlignment="Left" />
-                                            <ui:TextBlock Text="{Binding Path=version}" 
-                                            Appearance="Tertiary" FontTypography="Caption" Margin="0 0 10 0" HorizontalAlignment="Left" />
+                                        <ui:TextBlock Grid.Row="0"
+                                                      Grid.Column="1"
+                                                      Text="{Binding Path=name}"
+                                                      HorizontalAlignment="Left"/>
+                                        <StackPanel Grid.Row="1"
+                                                    Grid.Column="1"
+                                                    Orientation="Horizontal">
+                                            <ui:TextBlock Text="{Binding Path=language}"
+                                                          Appearance="Tertiary"
+                                                          FontTypography="Caption"
+                                                          Margin="0 0 10 0"
+                                                          HorizontalAlignment="Left"/>
+                                            <ui:TextBlock Text="{Binding Path=version}"
+                                                          Appearance="Tertiary"
+                                                          FontTypography="Caption"
+                                                          Margin="0 0 10 0"
+                                                          HorizontalAlignment="Left"/>
                                         </StackPanel>
                                     </Grid>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
-                            
+
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="SelectionChanged">
                                     <b:InvokeCommandAction
@@ -255,12 +361,25 @@
                                 </b:EventTrigger>
                             </b:Interaction.Triggers>
                         </ComboBox>
-                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
-                            <ui:Button Content="{DynamicResource ResourceKey=ui.btn_playExample}" Icon="{ui:SymbolIcon Play20}" Margin="0 0 10 0" Command="{Binding ViewModel.PlayExampleCommand}" />
-                            <ui:Anchor Content="{DynamicResource ResourceKey=ui.tb_codriverLink}" Icon="{ui:SymbolIcon Link20}" Margin="0 0 10 0" NavigateUri="{Binding Path=ViewModel.SelectedCodriver.homepage}" />
-                            <ui:Button ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentCodriver}" 
-                                ToolTipService.InitialShowDelay="100" Icon="{ui:SymbolIcon Folder20}" Margin="0 0 10 0" Command="{Binding ViewModel.OpenCodriverFolderCommand}" />
-                            <ui:Button Content="{DynamicResource ResourceKey=settings.more}" Icon="{ui:SymbolIcon MoreHorizontal20}" Command="{Binding ViewModel.MoreCodriverSettingsCommand}" />
+                        <StackPanel Grid.Row="1"
+                                    Grid.Column="1"
+                                    Orientation="Horizontal">
+                            <ui:Button Content="{DynamicResource ResourceKey=ui.btn_playExample}"
+                                       Icon="{ui:SymbolIcon Play20}"
+                                       Margin="0 0 10 0"
+                                       Command="{Binding ViewModel.PlayExampleCommand}"/>
+                            <ui:Anchor Content="{DynamicResource ResourceKey=ui.tb_codriverLink}"
+                                       Icon="{ui:SymbolIcon Link20}"
+                                       Margin="0 0 10 0"
+                                       NavigateUri="{Binding Path=ViewModel.SelectedCodriver.homepage}"/>
+                            <ui:Button ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentCodriver}"
+                                       ToolTipService.InitialShowDelay="100"
+                                       Icon="{ui:SymbolIcon Folder20}"
+                                       Margin="0 0 10 0"
+                                       Command="{Binding ViewModel.OpenCodriverFolderCommand}"/>
+                            <ui:Button Content="{DynamicResource ResourceKey=settings.more}"
+                                       Icon="{ui:SymbolIcon MoreHorizontal20}"
+                                       Command="{Binding ViewModel.MoreCodriverSettingsCommand}"/>
                         </StackPanel>
                     </Grid>
                     <!-- details of the codriver -->
@@ -309,28 +428,35 @@
                                 Text="{Binding ViewModel.SelectedCodriver.description, Mode=OneWay}" />
                         </Grid>
                     </Border> -->
-                    <Border 
-                        BorderThickness="0,1,0,0" BorderBrush="{ui:ThemeResource DividerStrokeColorDefaultBrush}"
+                    <Border
+                        BorderThickness="0,1,0,0"
+                        BorderBrush="{ui:ThemeResource DividerStrokeColorDefaultBrush}"
                         Background="Transparent">
-                        <Grid Margin="16" >
+                        <Grid Margin="16">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="40" />
-                                <RowDefinition Height="40" />
-                                <RowDefinition Height="40" />
-                                <RowDefinition Height="40" />
-                                <RowDefinition Height="40" />
-                                <RowDefinition Height="40" />
-                                <RowDefinition Height="40" />
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="40"/>
+                                <RowDefinition Height="40"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
-                
-                                <ColumnDefinition Width="150" />
-                                <ColumnDefinition Width="56" />
-                                <ColumnDefinition Width="*" />
+
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="56"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                
-                            <ui:TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource ResourceKey=ui.tb_currentTrack}"/>
-                            <ui:TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Name="tb_currentTrack" Text="{Binding Path=ViewModel.CurrentTrack, Mode=OneWay}" />
+
+                            <ui:TextBlock Grid.Row="0"
+                                          Grid.Column="0"
+                                          Text="{DynamicResource ResourceKey=ui.tb_currentTrack}"/>
+                            <ui:TextBlock Grid.Row="0"
+                                          Grid.Column="1"
+                                          Grid.ColumnSpan="3"
+                                          Name="tb_currentTrack"
+                                          Text="{Binding Path=ViewModel.CurrentTrack, Mode=OneWay}"/>
                             <!-- <ui:Button Grid.Row="0" Grid.Column="2" Name="tb_currentTrack_view" 
                                     ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentTrack}"
                                 Icon="{ui:SymbolIcon Folder20}" HorizontalAlignment="Right"
@@ -339,13 +465,19 @@
                                     ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentScript}"
                                     Margin="2"
                                 Content="Script"> -->
-                
-                            <ui:TextBlock Grid.Row="1" Grid.Column="0" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_replayDevice}"
-                                ToolTipService.InitialShowDelay="100"
-                                Text="{DynamicResource ResourceKey=ui.tb_replayDevice}" />
-                            <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Name="cb_replay_device" VerticalAlignment="Center"
-                                ItemsSource="{Binding Path=ViewModel.OutputDevices, Mode=OneWay}"
-                                SelectedItem="{Binding Path=ViewModel.SelectedOutputDevice, Mode=TwoWay}">
+
+                            <ui:TextBlock Grid.Row="1"
+                                          Grid.Column="0"
+                                          ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_replayDevice}"
+                                          ToolTipService.InitialShowDelay="100"
+                                          Text="{DynamicResource ResourceKey=ui.tb_replayDevice}"/>
+                            <ComboBox Grid.Row="1"
+                                      Grid.Column="1"
+                                      Grid.ColumnSpan="2"
+                                      Name="cb_replay_device"
+                                      VerticalAlignment="Center"
+                                      ItemsSource="{Binding Path=ViewModel.OutputDevices, Mode=OneWay}"
+                                      SelectedItem="{Binding Path=ViewModel.SelectedOutputDevice, Mode=TwoWay}">
                                 <b:Interaction.Triggers>
                                     <b:EventTrigger EventName="SelectionChanged">
                                         <b:InvokeCommandAction
@@ -354,48 +486,91 @@
                                     </b:EventTrigger>
                                 </b:Interaction.Triggers>
                             </ComboBox>
-                            <ui:TextBlock Grid.Row="2" Grid.Column="0" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_playVolume}" 
-                                ToolTipService.InitialShowDelay="100"
-                                Text="{DynamicResource ResourceKey=ui.tb_playVolume}">
+                            <ui:TextBlock Grid.Row="2"
+                                          Grid.Column="0"
+                                          ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_playVolume}"
+                                          ToolTipService.InitialShowDelay="100"
+                                          Text="{DynamicResource ResourceKey=ui.tb_playVolume}">
                             </ui:TextBlock>
-                            <Slider Name="s_volume" Grid.Row="2" Grid.Column="2" Maximum="100" Minimum="0" Interval="1"
-                                Value="{Binding Path=ViewModel.PlaybackVolume, Mode=TwoWay}" 
-                                VerticalAlignment="Center"/>
-                            <ui:TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" Name="tb_volume" Text="{Binding Path=ViewModel.PlaybackVolume, Mode=OneWay, StringFormat=N1}" />
-                          
-                            <ui:TextBlock Grid.Row="3" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_prePlay}"
-                                ToolTipService.InitialShowDelay="100"
-                                Text="{DynamicResource ResourceKey=ui.tb_prePlay}"/>
-                            <Slider Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" x:Name="sl_scriptTiming" 
-                                Maximum="2" Minimum="-2" Value="{Binding Path=ViewModel.PlaybackAdjustSeconds, Mode=TwoWay}" 
-                                IsEnabled="True"
-                                VerticalAlignment="Center"></Slider>
-                            <ui:TextBlock Grid.Row="3" Grid.Column="1" x:Name="tb_scriptTiming" HorizontalAlignment="Center"
-                                >
+                            <Slider Name="s_volume"
+                                    Grid.Row="2"
+                                    Grid.Column="2"
+                                    Maximum="100"
+                                    Minimum="0"
+                                    Interval="1"
+                                    Value="{Binding Path=ViewModel.PlaybackVolume, Mode=TwoWay}"
+                                    VerticalAlignment="Center"/>
+                            <ui:TextBlock Grid.Row="2"
+                                          Grid.Column="1"
+                                          HorizontalAlignment="Center"
+                                          Name="tb_volume"
+                                          Text="{Binding Path=ViewModel.PlaybackVolume, Mode=OneWay, StringFormat=N1}"/>
+
+                            <ui:TextBlock Grid.Row="3"
+                                          ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_prePlay}"
+                                          ToolTipService.InitialShowDelay="100"
+                                          Text="{DynamicResource ResourceKey=ui.tb_prePlay}"/>
+                            <Slider Grid.Row="3"
+                                    Grid.Column="2"
+                                    Grid.ColumnSpan="2"
+                                    x:Name="sl_scriptTiming"
+                                    Maximum="2"
+                                    Minimum="-2"
+                                    Value="{Binding Path=ViewModel.PlaybackAdjustSeconds, Mode=TwoWay}"
+                                    IsEnabled="True"
+                                    VerticalAlignment="Center"></Slider>
+                            <ui:TextBlock Grid.Row="3"
+                                          Grid.Column="1"
+                                          x:Name="tb_scriptTiming"
+                                          HorizontalAlignment="Center">
                                 <Run Text="{Binding Path=ViewModel.PlaybackAdjustSeconds, Mode=OneWay, StringFormat=N1}"/>
                                 <Run Text="s"/>
                             </ui:TextBlock>
 
-                            <ui:TextBlock Grid.Row="4" ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_playbackSpd}"
-                                ToolTipService.InitialShowDelay="100"
-                                Text="{DynamicResource ResourceKey=ui.tb_playbackSpd}"/>
-                            <Slider Grid.Row="4" Grid.Column="2" x:Name="sl_playbackSpd" 
-                                    Maximum="1.5" Minimum="0.5" Value="{Binding Path=ViewModel.PlaybackSpeed, Mode=TwoWay}" 
-                                    IsEnabled="True" TickFrequency="0.125"
-                                    IsSnapToTickEnabled="True" 
-                                    TickPlacement="Both" 
+                            <ui:TextBlock Grid.Row="4"
+                                          ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_playbackSpd}"
+                                          ToolTipService.InitialShowDelay="100"
+                                          Text="{DynamicResource ResourceKey=ui.tb_playbackSpd}"/>
+                            <Slider Grid.Row="4"
+                                    Grid.Column="2"
+                                    x:Name="sl_playbackSpd"
+                                    Maximum="1.5"
+                                    Minimum="0.5"
+                                    Value="{Binding Path=ViewModel.PlaybackSpeed, Mode=TwoWay}"
+                                    IsEnabled="True"
+                                    TickFrequency="0.125"
+                                    IsSnapToTickEnabled="True"
+                                    TickPlacement="Both"
                                     VerticalAlignment="Center"></Slider>
-                            <ui:TextBlock Grid.Row="4" Grid.Column="1" x:Name="tb_playbackSpd" HorizontalAlignment="Center" >
-                                <Run Text="x " />
+                            <ui:TextBlock Grid.Row="4"
+                                          Grid.Column="1"
+                                          x:Name="tb_playbackSpd"
+                                          HorizontalAlignment="Center">
+                                <Run Text="x "/>
                                 <Run Text="{Binding Path=ViewModel.PlaybackSpeed, Mode=OneWay, StringFormat=N2}"/>
                             </ui:TextBlock>
-                
-                            <ui:TextBlock Grid.Row="5" VerticalAlignment="Center" Text="{DynamicResource ResourceKey=settings.factorToRemoveSpaceFromAudioFiles}" 
-                                ToolTip="{DynamicResource ResourceKey=settings.tooltip.factorToRemoveSpaceFromAudioFiles}" 
-                                ToolTipService.InitialShowDelay="100"/>
-                            <Slider Name="sl_factorToRemoveSpaceFromAudioFiles" Grid.Row="5" Grid.Column="2" Value="{Binding Path=ViewModel.FactorToRemoveSpaceFromAudioFiles, Mode=TwoWay}" Maximum="9" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True"  TickPlacement="Both" VerticalAlignment="Center" />
-                            <ui:TextBlock Grid.Row="5" Grid.Column="1" x:Name="tb_factorToRemoveSpaceFromAudioFiles" HorizontalAlignment="Center" Text="{Binding Path=ViewModel.FactorToRemoveSpaceFromAudioFiles, Mode=OneWay}" />
-                
+
+                            <ui:TextBlock Grid.Row="5"
+                                          VerticalAlignment="Center"
+                                          Text="{DynamicResource ResourceKey=settings.factorToRemoveSpaceFromAudioFiles}"
+                                          ToolTip="{DynamicResource ResourceKey=settings.tooltip.factorToRemoveSpaceFromAudioFiles}"
+                                          ToolTipService.InitialShowDelay="100"/>
+                            <Slider Name="sl_factorToRemoveSpaceFromAudioFiles"
+                                    Grid.Row="5"
+                                    Grid.Column="2"
+                                    Value="{Binding Path=ViewModel.FactorToRemoveSpaceFromAudioFiles, Mode=TwoWay}"
+                                    Maximum="9"
+                                    Minimum="0"
+                                    TickFrequency="1"
+                                    IsSnapToTickEnabled="True"
+                                    TickPlacement="Both"
+                                    VerticalAlignment="Center"/>
+                            <ui:TextBlock Grid.Row="5"
+                                          Grid.Column="1"
+                                          x:Name="tb_factorToRemoveSpaceFromAudioFiles"
+                                          HorizontalAlignment="Center"
+                                          Text="{Binding Path=ViewModel.FactorToRemoveSpaceFromAudioFiles, Mode=OneWay}"/>
+
                             <!-- <ui:TextBlock Grid.Row="6" Grid.Column="0" 
                                         ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_showHud}" 
                                         Text="{DynamicResource ResourceKey=ui.tb_showHud}"
@@ -405,16 +580,21 @@
                             <ui:ToggleSwitch Grid.Row="6" Grid.Column="1">
         
                             </ui:ToggleSwitch> -->
-                            <ui:Button Grid.Row="6" Grid.Column="2" HorizontalAlignment="Right" Content="{DynamicResource ResourceKey=settings.more}" Icon="{ui:SymbolIcon MoreHorizontal20}" 
-                                Command="{Binding ViewModel.MorePlaySettingsCommand}"/>
+                            <ui:Button Grid.Row="6"
+                                       Grid.Column="2"
+                                       HorizontalAlignment="Right"
+                                       Content="{DynamicResource ResourceKey=settings.more}"
+                                       Icon="{ui:SymbolIcon MoreHorizontal20}"
+                                       Command="{Binding ViewModel.MorePlaySettingsCommand}"/>
                         </Grid>
                     </Border>
                 </StackPanel>
             </ui:Card>
-            <Grid Margin="0 20 0 0" Visibility="{Binding Path=ViewModel.ShowWRCLocalization, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid Margin="0 20 0 0"
+                  Visibility="{Binding Path=ViewModel.ShowWRCLocalization, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
                 <!-- 中文路书 -->
@@ -426,15 +606,18 @@
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Stretch"
                     IsChevronVisible="False"
-                    Command="{Binding ViewModel.OpenChinesePacenoteCommand}"
-                >
+                    Command="{Binding ViewModel.OpenChinesePacenoteCommand}">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <ui:TextBlock VerticalAlignment="Center" Grid.Column="0" Text="{DynamicResource ResourceKey=chinese_localization.pacenote}" />
-                        <ui:SymbolIcon FontSize="26" Grid.Column="1" Symbol="Script16" />
+                        <ui:TextBlock VerticalAlignment="Center"
+                                      Grid.Column="0"
+                                      Text="{DynamicResource ResourceKey=chinese_localization.pacenote}"/>
+                        <ui:SymbolIcon FontSize="26"
+                                       Grid.Column="1"
+                                       Symbol="Script16"/>
                     </Grid>
                 </ui:CardAction>
                 <!-- 中文汉化 -->
@@ -450,11 +633,15 @@
                     Command="{Binding ViewModel.OpenChineseLocalizationCommand}">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <ui:TextBlock VerticalAlignment="Center" Grid.Column="0" Text="{DynamicResource ResourceKey=chinese_localization.language}" />
-                        <ui:SymbolIcon FontSize="26" Grid.Column="1" Symbol="LocalLanguage20" />
+                        <ui:TextBlock VerticalAlignment="Center"
+                                      Grid.Column="0"
+                                      Text="{DynamicResource ResourceKey=chinese_localization.language}"/>
+                        <ui:SymbolIcon FontSize="26"
+                                       Grid.Column="1"
+                                       Symbol="LocalLanguage20"/>
                     </Grid>
                 </ui:CardAction>
             </Grid>
