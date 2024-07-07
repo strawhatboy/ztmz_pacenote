@@ -29,7 +29,7 @@ public class UpdateConfigSetter
                 if (game != null) {
                     UdpGameConfig cfg = (UdpGameConfig)game.GameConfigurations[UdpGameConfig.Name];
                     cfg.Port = 59996;
-                    Config.Instance.SaveGameConfig(dr1);
+                    Config.Instance.SaveGameConfig(game);
                 }
             };
             
