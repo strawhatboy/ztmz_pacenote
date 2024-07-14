@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
+using ZTMZ.PacenoteTool.Base.Script;
 
 namespace ZTMZ.PacenoteTool.Base
 {
@@ -150,7 +151,7 @@ namespace ZTMZ.PacenoteTool.Base
                     var distance_to_call_rounded = (int) MathF.Floor(distance_to_next / 10f) * 10;
                     var distance_label = string.Format("number_{0}", distance_to_call_rounded);
                     record.Distance = r.Distance;
-                    if (ScriptResource.PACENOTES.ContainsKey(distance_label) && distance_to_call_rounded >= 30)
+                    if (Script.ScriptResource.Instance.FilenameToIdDict.ContainsKey(distance_label) && distance_to_call_rounded >= 30)
                     {
                         var distance_pacenote = new Pacenote() {Note = distance_label};
                         if (Config.Instance.ConnectNumericDistanceCallToPreviousPacenote && lastRecord != null)

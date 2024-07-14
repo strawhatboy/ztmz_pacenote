@@ -27,9 +27,11 @@ namespace ZTMZ.PacenoteTool.Base
 
             Pacenote result = new Pacenote();
             var note = parts[0].Trim();
-            if (!ScriptResource.PACENOTES.ContainsKey(note) && !ScriptResource.ALIAS_CONSTRUCTED.ContainsKey(note))
+            if (!Script.ScriptResource.Instance.FilenameToIdDict.ContainsKey(note))
             {
-                throw new Exception(note);
+                // throw new Exception(note); wont throw, let it be 
+                // we have no such token in database, but we can try to play it if there is such filename in the codriver package
+                // so do nothing here.
             }
 
             result.Note = parts[0].Trim();
@@ -38,9 +40,10 @@ namespace ZTMZ.PacenoteTool.Base
                 if (!string.IsNullOrWhiteSpace(parts[i]))
                 {
                     var mod = parts[i].Trim();
-                    if (!ScriptResource.MODIFIERS.ContainsKey(mod) && !ScriptResource.ALIAS_CONSTRUCTED.ContainsKey(mod))
+                    if (!Script.ScriptResource.Instance.FilenameToIdDict.ContainsKey(mod))
                     {
-                        throw new Exception(mod);
+                        // throw new Exception(mod);
+                        // same reason like before, wont throw
                     }
 
                     result.Modifiers.Add(mod);
@@ -200,6 +203,7 @@ namespace ZTMZ.PacenoteTool.Base
             };
         }
 
+        [Obsolete("This method is used for speech recognition to write script automatically which is not campatible now.")]
         public static string[] RawTextToAliases(string rawText)
         {
             var parts = rawText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -233,6 +237,7 @@ namespace ZTMZ.PacenoteTool.Base
             return result.ToArray();
         }
 
+        [Obsolete("This method is used for speech recognition to write script automatically which is not campatible now.")]
         public static string AliasesToPacenotes(string[] aliaes)
         {
             StringBuilder sb = new();

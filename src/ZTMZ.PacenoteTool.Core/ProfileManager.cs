@@ -190,7 +190,10 @@ namespace ZTMZ.PacenoteTool.Core
 
         private AutoResampledCachedSound getSoundFromCache(string path)
         {
-            this.soundCache.AddOrUpdate(path, new AutoResampledCachedSound(path), (key, oldValue) => oldValue);
+            if (!this.soundCache.ContainsKey(path))
+            {
+                this.soundCache.AddOrUpdate(path, new AutoResampledCachedSound(path), (key, oldValue) => oldValue);
+            }
             if (Config.Instance.AudioProcessType == (int)AudioProcessType.CutHeadAndTail)
                 return new AutoResampledCachedSound(this.soundCache[path].CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
             return this.soundCache[path];
@@ -403,35 +406,45 @@ namespace ZTMZ.PacenoteTool.Core
         // already cut sound
         private AutoResampledCachedSound getSoundByKeyword(string keyword, string codriverPackage, bool isFinal = false)
         {
-            if (ScriptResource.ALIAS_CONSTRUCTED.ContainsKey(keyword))
-            {
-                keyword = ScriptResource.ALIAS_CONSTRUCTED[keyword].Item2;
-            }
+            // keyword is the filename used to find the correct audio file, in new sqlite3 based pacenote structure,
+            // we first use this keyword to find the corresponding pacenote id (integer), then random select an audio file
+            // related to the pacenote id
+
 
             var package = this.CoDriverPackages[codriverPackage];
-            if (Config.Instance.PreloadSounds && package.tokens.ContainsKey(keyword))
+            var id = 0;
+            if (ZTMZ.PacenoteTool.Base.Script.ScriptResource.Instance.FilenameToIdDict.ContainsKey(keyword))
             {
-                var tokens = package.tokens[keyword];
+                id = ZTMZ.PacenoteTool.Base.Script.ScriptResource.Instance.FilenameToIdDict[keyword];
+            } else {
+                // unknown keyword, try to use the tokensPath
+                if (Config.Instance.PreloadSounds && package.tokens.ContainsKey(keyword))
+                {
+                    var tokens = package.tokens[keyword];
 
-                if (Config.Instance.AudioProcessType == (int)AudioProcessType.CutHeadAndTail)
-                {
-                    return new AutoResampledCachedSound(tokens.ElementAt(this._random.Next(0, tokens.Count)).CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
+                    if (Config.Instance.AudioProcessType == (int)AudioProcessType.CutHeadAndTail)
+                    {
+                        return new AutoResampledCachedSound(tokens.ElementAt(this._random.Next(0, tokens.Count)).CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
+                    }
+                    return tokens.ElementAt(this._random.Next(0, tokens.Count));
                 }
-                return tokens.ElementAt(this._random.Next(0, tokens.Count));
+                if (!Config.Instance.PreloadSounds && package.tokensPath.ContainsKey(keyword))
+                {
+                    var tokens = package.tokensPath[keyword];
+                    if (tokens.Count > 0)
+                    {
+                        return this.getSoundFromCache(tokens.ElementAt(this._random.Next(0, tokens.Count)));
+                    }
+                    else
+                    {
+                        // No sound file in the folder
+                        return new AutoResampledCachedSound();
+                    }
+                }
             }
-            if (!Config.Instance.PreloadSounds && package.tokensPath.ContainsKey(keyword))
-            {
-                var tokens = package.tokensPath[keyword];
-                if (tokens.Count > 0)
-                {
-                    return this.getSoundFromCache(tokens.ElementAt(this._random.Next(0, tokens.Count)));
-                }
-                else
-                {
-                    // No sound file in the folder
-                    return new AutoResampledCachedSound();
-                }
-            }
+
+            // TODO: use id
+
 
             // not found, try fallback keyword
             if (ScriptResource.FALLBACK.ContainsKey(keyword))

@@ -23,9 +23,34 @@ public class ScriptResourceComplexity {
     public string name;
 }
 
+public enum ScriptResourceComplexities {
+    SIMPLE = 0,
+    NORMAL = 1,
+    COMPLEX = 2,
+    MISC = -1
+}
+
 public class ScriptResourceType {
     public int id;
     public string name;
+}
+
+public enum ScriptResourceTypes {
+    CORNERS         =   0,
+    MODIFIER        =   1,
+    LINKS           =   2,
+    ADJECTIVES      =   3,
+    ROAD            =   4,
+    LINE            =   5,
+    OBSTACLES       =   6,
+    CONSTRUCTION    =   7,
+    CAUTIONS        =   8,
+    DRIVING         =   9,
+    PREPOSITIONS    =   10,
+    SURFACE         =   11,
+    NUMBERS         =   12,
+    MISC            =   13,
+
 }
 
 public class ScriptResourceFilenames {

@@ -67,6 +67,8 @@ namespace ZTMZ.PacenoteTool.Base
         private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public CoDriverPackageInfo Info { set; get; }
+        public ConcurrentDictionary<int, ConcurrentBag<string>> id2tokensPath { private set; get; } = new();
+        public ConcurrentDictionary<int, ConcurrentBag<AutoResampledCachedSound>> id2tokens { private set; get; } = new();
         public ConcurrentDictionary<string, ConcurrentBag<string>> tokensPath { private set; get; } = new();
 
         public ConcurrentDictionary<string, ConcurrentBag<AutoResampledCachedSound>> tokens { private set; get; } = new();
@@ -181,6 +183,25 @@ namespace ZTMZ.PacenoteTool.Base
             _logger.Debug("loaded {0} sounds for {1}", Config.Instance.PreloadSounds ?
                 package.tokens.Count :
                 package.tokensPath.Count, package.Info);
+
+            // append tokens & tokensPath to id2tokens & id2tokensPath
+            foreach (var id in Script.ScriptResource.Instance.PacenoteDict.Keys)
+            {
+                var filenames = Script.ScriptResource.Instance.FilenameDict[id];
+                foreach (var filename in filenames) {
+                    if (Config.Instance.PreloadSounds && package.tokens.ContainsKey(filename))
+                    {
+                        package.id2tokens[id] = package.tokens[filename];
+                    }
+                    if (package.tokensPath.ContainsKey(filename))
+                    {
+                        package.id2tokensPath[id] = package.tokensPath[filename];
+                    }
+                }
+            }
+            _logger.Debug("loaded {0} sounds for {1} on id2tokens", Config.Instance.PreloadSounds ?
+                package.id2tokens.Count :
+                package.id2tokensPath.Count, package.Info);
 
             return package;
         }
