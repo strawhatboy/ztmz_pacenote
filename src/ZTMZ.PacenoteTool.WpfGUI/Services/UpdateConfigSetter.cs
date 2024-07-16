@@ -43,7 +43,9 @@ public class UpdateConfigSetter
         foreach (var item in _configSetters)
         {
             var updateFlagFile = AppLevelVariables.Instance.GetPath(item.Key.ToString());
-            if (currentVersion < item.Key && !File.Exists(updateFlagFile))
+            // current version is greater than or equal to the version in the dictionary
+            // and the update flag file does not exist, then set the configurations
+            if (currentVersion >= item.Key && !File.Exists(updateFlagFile))
             {
                 _logger.Info("Setting configurations for version {0}", item.Key);
                 item.Value(tool);
