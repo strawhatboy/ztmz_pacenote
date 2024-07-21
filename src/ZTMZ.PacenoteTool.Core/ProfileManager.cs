@@ -409,13 +409,11 @@ namespace ZTMZ.PacenoteTool.Core
             // keyword is the filename used to find the correct audio file, in new sqlite3 based pacenote structure,
             // we first use this keyword to find the corresponding pacenote id (integer), then random select an audio file
             // related to the pacenote id
-
-
             var package = this.CoDriverPackages[codriverPackage];
-            var id = 0;
-            if (ZTMZ.PacenoteTool.Base.Script.ScriptResource.Instance.FilenameToIdDict.ContainsKey(keyword))
+            var id = -1;
+            if (Base.Script.ScriptResource.Instance.FilenameToIdDict.ContainsKey(keyword))
             {
-                id = ZTMZ.PacenoteTool.Base.Script.ScriptResource.Instance.FilenameToIdDict[keyword];
+                id = Base.Script.ScriptResource.Instance.FilenameToIdDict[keyword];
             } else {
                 // unknown keyword, try to use the tokensPath
                 if (Config.Instance.PreloadSounds && package.tokens.ContainsKey(keyword))
@@ -443,34 +441,53 @@ namespace ZTMZ.PacenoteTool.Core
                 }
             }
 
-            // TODO: use id
+            // TODO: simplify these id & keyword handling
+            return getSoundById(id, package, isFinal);
+        }
 
+        private AutoResampledCachedSound getSoundById(int id, CoDriverPackage package, bool isFinal = false) {
+            if (id == -1)
+            {   // wtf?
+                return new AutoResampledCachedSound();
+            }
 
-            // not found, try fallback keyword
-            if (ScriptResource.FALLBACK.ContainsKey(keyword))
+            if (Config.Instance.PreloadSounds && package.id2tokens.ContainsKey(id))
             {
-                var fallbacks = ScriptResource.FALLBACK[keyword].Split('>', StringSplitOptions.RemoveEmptyEntries);
-                if (fallbacks.Length > 1)
-                {
-                    AutoResampledCachedSound sound = new AutoResampledCachedSound();
-                    foreach (var fallback in fallbacks)
+                var tokens = package.id2tokens[id];
+                if (tokens.Count > 0) {
+                    if (Config.Instance.AudioProcessType == (int)AudioProcessType.CutHeadAndTail)
                     {
-                        sound.Append(getSoundByKeyword(fallback, codriverPackage));
+                        return new AutoResampledCachedSound(tokens.ElementAt(this._random.Next(0, tokens.Count)).CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
                     }
-                    return sound;
+                    return tokens.ElementAt(this._random.Next(0, tokens.Count));
                 }
-                else if (fallbacks.Length == 1)
+            }
+            if (!Config.Instance.PreloadSounds && package.id2tokensPath.ContainsKey(id))
+            {
+                var tokens = package.id2tokensPath[id];
+                if (tokens.Count > 0)
                 {
-                    return getSoundByKeyword(fallbacks[0], codriverPackage);
+                    return this.getSoundFromCache(tokens.ElementAt(this._random.Next(0, tokens.Count)));
                 }
+            }
+
+            // not found, try fallback ids
+            if (ZTMZ.PacenoteTool.Base.Script.ScriptResource.Instance.FallbackDict.ContainsKey(id))
+            {
+                var fallbacks = ZTMZ.PacenoteTool.Base.Script.ScriptResource.Instance.FallbackDict[id];
+                AutoResampledCachedSound sound = new AutoResampledCachedSound();
+                foreach(var fallback in fallbacks)
+                {
+                    sound.Append(getSoundById(fallback, package));
+                }
+                return sound;
             }
 
             if (!isFinal && Config.Instance.UseDefaultSoundPackageForFallback)
             {
                 // not found, try default 
-                return getSoundByKeyword(keyword, AppLevelVariables.Instance.GetPath(Constants.DEFAULT_CODRIVER), true);
+                return getSoundById(id, package, true);
             }
-
             return new AutoResampledCachedSound();
         }
 

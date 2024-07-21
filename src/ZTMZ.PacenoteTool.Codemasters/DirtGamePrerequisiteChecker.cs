@@ -22,7 +22,7 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
     private XDocument? _xmlFile;
     private IEnumerable<XElement>? _udpNode;
 
-    private string configPort = "20777";
+    private string configPort = "59996";
     private string configIP = "127.0.0.1";
     public PrerequisitesCheckResult CheckPrerequisites(IGame game)
     {
