@@ -13,6 +13,9 @@
     <Resource Include="rbr.jpg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="jannemod_v3.zdb">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
     <None Update="lang\en-us.rbr.json">

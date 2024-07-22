@@ -54,5 +54,16 @@ public static class StringHelper
             return result;
         }
     }
+
+    public static void ExtractFileFromResource(Assembly asm, string resourceName, string fileName) {
+        
+        resourceName = resourceName.lower();
+        var resName = asm.GetName().Name + ".g.resources";
+        using (var stream = asm.GetManifestResourceStream(resName))
+        using (var file = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+        {
+            stream.CopyTo(file);
+        }
+    }
 }
 

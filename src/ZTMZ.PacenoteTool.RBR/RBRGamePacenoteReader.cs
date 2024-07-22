@@ -5,6 +5,7 @@
 // (0x440BBB0) + 0x24 is the pointer of pacenotes
 // read pacenotes from (pointer of pacenotes) by pacenote count
 
+//TODO: ScriptReader, ScriptResource should be changed to use sqlite files.
 
 using Microsoft.Win32;
 using ZTMZ.PacenoteTool.Base;
@@ -212,9 +213,11 @@ public class RBRGamePacenoteReader : BasePacenoteReader
                 if (section.Keys.ContainsKey("type"))
                 {
                     var type = int.Parse(section.Keys["type"]);
-                    if (ScriptResource.ID_2_PACENOTE.ContainsKey(type))
+                    if (RBRScriptResource.Instance.PacenoteId2ZTMZIds.ContainsKey(type))
                     {
-                        record.Pacenote = ScriptResource.ID_2_PACENOTE[type];
+                        var ztmzIds = RBRScriptResource.Instance.PacenoteId2ZTMZIds[type];
+                        //TODO: it's a list!!!! how to convert to list of string?
+                        // record.Pacenote = Base.Script.ScriptResource.Instance.FilenameDict[type];
                     }
                 }
 

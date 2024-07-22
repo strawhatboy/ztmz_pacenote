@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Dapper;
@@ -72,7 +73,7 @@ public class ScriptResource
 
     private NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-    public static string DBNAME="data.db";
+    public static string DBNAME="data.zdb";
 
     public SqliteConnection Connection { get; private set; }
 
@@ -97,7 +98,7 @@ public class ScriptResource
         if (!File.Exists(dbFile)) {
             // ERROR
             logger.Error($"Database file not found: {dbFile}");
-            throw new Exception($"Database file not found: {dbFile}");
+            throw new FileNotFoundException($"Database file not found: {dbFile}");
         }
 
         Connection = new SqliteConnection($"Data Source={dbFile};Version=3;");
