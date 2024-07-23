@@ -67,6 +67,7 @@ public class ZTMZPacenoteTool {
 
     // init the tool, load settings, etc.
     public void Init() {
+        this.loadPacenoteDefinitions();
         this.loadProfileManager();
         this.loadGames();
         this.loadProfiles();
@@ -79,6 +80,14 @@ public class ZTMZPacenoteTool {
     }
 
 #region privates
+
+    private void loadPacenoteDefinitions() {
+        _logger.Info("Loading pacenote definitions...");
+        this.onStatusReport?.Invoke("Loading pacenote definitions...");
+        Task.Run(ZTMZ.PacenoteTool.Base.Script.ScriptResource.Instance.LoadData).Wait();
+        _logger.Info("Pacenote definitions loaded.");
+        this.onStatusReport?.Invoke("Pacenote definitions loaded.");
+    }
 
     private void loadProfileManager() {
         _logger.Info("Loading profile manager...");
@@ -172,9 +181,9 @@ public class ZTMZPacenoteTool {
             g.IsRunning = true;
             if (_currentGame == g) 
             {
-                //TODO: raise game started event!!!
-                //TODO: turn on the light, current game is running.
-                //TODO: start game data pulling
+                // raise game started event!!!
+                // turn on the light, current game is running.
+                // start game data pulling
                 this.onGameStarted?.Invoke(_currentGame, p);
                 
                 _logger.Info("Got new process: {0}, trying to initialize game: {1}", p.ProcessName, _currentGame.Name);
@@ -188,12 +197,12 @@ public class ZTMZPacenoteTool {
             g.IsRunning = false;
             if (_currentGame == g) 
             {
-                //TODO: raise game UI exit effect
+                // raise game UI exit effect
                 this.onGameEnded?.Invoke(_currentGame);
             }
             if (_currentGame.Name.Equals(g.Name))
             {
-                //TODO: turn off the light, current game is exiting.
+                // turn off the light, current game is exiting.
                 uninitializeGame(_currentGame);
             }
         });
@@ -220,13 +229,13 @@ public class ZTMZPacenoteTool {
         var code = res.Code;
         if (code == PrerequisitesCheckResultCode.GAME_NOT_INSTALLED)
         {
-            //TODO: raise Game not install
+            // raise Game not install
             this.onGameInitializeFailed?.Invoke(game, code, null);
         } else {
             try {
                 if (game.GameDataReader.Initialize(game))
                 {
-                    //TODO: inform the Overlay, game is ready to go.
+                    // inform the Overlay, game is ready to go.
                     game.GameDataReader.onCarDamaged += carDamagedEventHandler;
                     game.GameDataReader.onNewGameData += newGameDataEventHander;
                     game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
@@ -240,12 +249,12 @@ public class ZTMZPacenoteTool {
             } catch (Exception e) {
                 if (e is PortAlreadyInUseException ex) 
                 {
-                    //TODO: raise port already in use
+                    // raise port already in use
                     this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.PORT_ALREADY_IN_USE, new List<object>{ex.Port});
                 }
             }
             
-            //TODO: raise UI game state.
+            // raise UI game state.
             this.onGameInitializeFailed?.Invoke(game, code, res.Params);
         }
     }

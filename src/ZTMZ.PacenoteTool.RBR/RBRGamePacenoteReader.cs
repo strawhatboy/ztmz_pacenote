@@ -216,8 +216,8 @@ public class RBRGamePacenoteReader : BasePacenoteReader
                     if (RBRScriptResource.Instance.PacenoteId2ZTMZIds.ContainsKey(type))
                     {
                         var ztmzIds = RBRScriptResource.Instance.PacenoteId2ZTMZIds[type];
-                        //TODO: it's a list!!!! how to convert to list of string?
-                        // record.Pacenote = Base.Script.ScriptResource.Instance.FilenameDict[type];
+                        //it's a list!!! use comma separated string
+                        record.Pacenote = string.Join(",", from p in ztmzIds select Base.Script.ScriptResource.Instance.FilenameDict[p].First());
                     }
                 }
 

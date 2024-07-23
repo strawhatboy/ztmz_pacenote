@@ -45,6 +45,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
@@ -102,6 +103,8 @@ namespace ZTMZ.PacenoteTool.RBR
         {
             this.Description = I18NLoader.Instance["game.rbr.description"];
             GameConfigurations = DefaultGameConfigurations;
+            // init script resource
+            Task.Run(RBRScriptResource.Instance.LoadData).Wait();
         }
     }
 }

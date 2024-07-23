@@ -66,7 +66,7 @@ public class RBRScriptResource
             logger.Error("DB file not found: " + dbPath);
             throw new FileNotFoundException("DB file not found: " + dbPath);
         }
-        Connection = new SqliteConnection($"Data Source={dbPath};Version=3;");
+        Connection = new SqliteConnection($"Data Source={dbPath}");
         Connection.Open();
         Connection.EnableExtensions(true);
     }

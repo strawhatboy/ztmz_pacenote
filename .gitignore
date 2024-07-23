@@ -4,5 +4,6 @@ obj
 .vs
 Output
 *wpftmp.csproj
+build/target
 
 .fake

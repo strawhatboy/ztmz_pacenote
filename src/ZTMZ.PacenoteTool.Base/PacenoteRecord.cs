@@ -146,10 +146,17 @@ namespace ZTMZ.PacenoteTool.Base
         {
             PacenoteRecord ret = new PacenoteRecord();
             ret.Distance = record.Distance;
-            var pn = new Pacenote()
-            {
-                Note = record.Pacenote
-            };
+            var pn = new Pacenote();
+            var parts = record.Pacenote.Split(','); // for jannemod, one token fallback to several ztmz tokens, ugly but hope works well
+            if (parts.Length <= 1)
+                pn.Note = record.Pacenote;
+            else {
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    ret.Pacenotes.Add(new Pacenote{ Note = parts[i].Trim() });
+                }
+                pn = ret.Pacenotes.Last();  // append modifier to the last one
+            }
             if (record.Modifier != "none")
             {
                 pn.Modifiers = pn.Modifiers.Concat(from p in record.Modifier.Split(',') select p.Trim()).ToList();

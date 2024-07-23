@@ -101,7 +101,7 @@ public class ScriptResource
             throw new FileNotFoundException($"Database file not found: {dbFile}");
         }
 
-        Connection = new SqliteConnection($"Data Source={dbFile};Version=3;");
+        Connection = new SqliteConnection($"Data Source={dbFile};");
         // load tables
 
         Connection.Open();
