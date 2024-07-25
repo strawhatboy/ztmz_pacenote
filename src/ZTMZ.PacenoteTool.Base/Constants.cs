@@ -24,6 +24,7 @@ namespace ZTMZ.PacenoteTool.Base
         // system sound
         public const string SYSTEM_START_STAGE = "system_start_stage";
         public const string SYSTEM_END_STAGE = "system_end_stage";
+        public const string SYSTEM_RETIRED = "system_retired";
         public const string SYSTEM_GO = "system_go";
         public const string SYSTEM_PUNCTURE_FRONT_LEFT = "system_puncture_front_left";
         public const string SYSTEM_PUNCTURE_FRONT_RIGHT = "system_puncture_front_right";
