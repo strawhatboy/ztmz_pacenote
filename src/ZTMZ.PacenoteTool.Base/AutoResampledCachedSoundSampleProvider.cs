@@ -43,9 +43,18 @@ namespace ZTMZ.PacenoteTool.Base
             {
                 buffer[offset + i] = cachedSound[samplesRead + i];
             }
+
+            // this is very necessary to avoid the sound from being cut off
+            if (samplesToCopy < count)
+            {
+                for (int i = samplesToCopy; i < count; i++)
+                {
+                    buffer[offset + i] = 0;
+                }
+            }
             // Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
             samplesRead += samplesToCopy;
-            return (int)samplesToCopy;
+            return count;
         }
 
 

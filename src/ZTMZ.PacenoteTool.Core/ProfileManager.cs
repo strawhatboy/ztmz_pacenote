@@ -391,6 +391,8 @@ namespace ZTMZ.PacenoteTool.Core
                 {
                     this.CurrentPlayIndex = i;
                     break;
+                } else {
+                    // pre stage audios
                 }
             }
         }

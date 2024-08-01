@@ -6,15 +6,15 @@ cd /D "%~dp0"
 cd ../src
 
 cd ZTMZ.PacenoteTool.Codemasters
-dotnet publish -c Release -r win-x64 -o ../../build/target --property WarningLevel=0
+dotnet build -c Release --property WarningLevel=0
 cd ..
 
 cd ZTMZ.PacenoteTool.RBR
-dotnet publish -c Release -r win-x64 -o ../../build/target --property WarningLevel=0
+dotnet build -c Release --property WarningLevel=0
 cd ..
 
 cd ZTMZ.PacenoteTool.WpfGUI
-dotnet publish -c Release -r win-x64 -o ../../build/target --property WarningLevel=0
+dotnet build -c Release --property WarningLevel=0
 cd ..
 
 rem copy built games to target folder

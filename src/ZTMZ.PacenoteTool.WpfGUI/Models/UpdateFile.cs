@@ -15,6 +15,7 @@ public class UpdateFile
 public partial class CodriverPackageUpdateFile: ObservableObject {
     public CodriverPackageUpdateFile() {}
     public CodriverPackageUpdateFile(CoDriverPackageInfo info) {
+        this.Id = info.id;
         this.Name = info.name;
         this.Description = info.description;
         this.Gender = info.gender;
@@ -23,6 +24,8 @@ public partial class CodriverPackageUpdateFile: ObservableObject {
         this.Version = info.version;
         this.Path = info.Path;
     }
+    [ObservableProperty]
+    public string id;  // uuid
     [ObservableProperty]
     public string name;
     [ObservableProperty]

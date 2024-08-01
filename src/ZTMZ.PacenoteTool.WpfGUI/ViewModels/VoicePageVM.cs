@@ -54,7 +54,7 @@ public partial class VoicePageVM : ObservableObject {
 
             // local
             var local = (from p in tool.CoDriverPackages
-                where !needUpdateOrDownload.Any(x => x.DisplayText == p.Info.DisplayText)
+                where !needUpdateOrDownload.Any(x => x.Id == p.Info.id)
                 select new CodriverPackageUpdateFile(p.Info) { needUpdate = false, needDownload = false }).ToList();
             foreach (var pkg in local) {
                 VoicePackages.Add(pkg);
@@ -84,12 +84,12 @@ public partial class VoicePageVM : ObservableObject {
     }
 
     [RelayCommand]
-    private async void UpdateCodriverPkg(string pkgDisplayText)
+    private async void UpdateCodriverPkg(string id)
     {
         // download and install the voice package
         // show progress bar
         // show success or failure message
-        var pkg = VoicePackages.FirstOrDefault(p => p.DisplayText == pkgDisplayText);
+        var pkg = VoicePackages.FirstOrDefault(p => p.id == id);
         if (pkg != null) {
             pkg.IsDownloading = true;
             pkg.NeedUpdate = false;

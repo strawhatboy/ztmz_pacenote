@@ -22,6 +22,7 @@ namespace ZTMZ.PacenoteTool.Base
 
     public class CoDriverPackageInfo
     {
+        public string id { set; get; }  // uuid
         public string name { set; get; }
         public string description { set; get; }
         public string gender { set; get; }
