@@ -20,24 +20,8 @@ namespace ZTMZ.PacenoteTool.Base
 
         public int Read(float[] buffer, int offset, int count)
         {
-
-            var availableSamples = cachedSound.AudioData.Length - samplesRead;
+            var availableSamples = Math.Max(0, cachedSound.AudioData.Length - samplesRead);
             var samplesToCopy = Math.Min(availableSamples, count);
-
-            
-            // // if (_processor.AvailableSamples == 0)
-            // // {
-            // if (samplesToCopy > 0)
-            // {
-            //     _processor.PutSamples(cachedSound.AudioData[samplesRead..], samplesToCopy);
-            // }
-            // // }
-            //
-            //
-            // var soundTouchReadBuffer = new float[samplesToCopy];
-            // var desiredSampleFrames = samplesToCopy/this.WaveFormat.Channels;
-            // var received = _processor.ReceiveSamples(soundTouchReadBuffer, desiredSampleFrames) *
-            //                this.WaveFormat.Channels;
 
             for (int i = 0; i < samplesToCopy; i++)
             {
@@ -45,15 +29,23 @@ namespace ZTMZ.PacenoteTool.Base
             }
 
             // this is very necessary to avoid the sound from being cut off
-            if (samplesToCopy < count)
+            // #IAH9PW finally fixed.
+            if (samplesToCopy < count && samplesToCopy > 0)
             {
-                for (int i = samplesToCopy; i < count; i++)
+                for (int i = samplesToCopy; i < count-1; i++)
                 {
                     buffer[offset + i] = 0;
                 }
             }
-            // Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
+
             samplesRead += samplesToCopy;
+
+            if (samplesToCopy <= 0)
+            {
+                // no more samples to read, we return 0 to avoid infinite loop
+                return 0;
+            }
+
             return count;
         }
 
