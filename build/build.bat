@@ -32,9 +32,9 @@ xcopy ZTMZ.PacenoteTool.Base.UI\dashboards\ "%userprofile%\Documents\My Games\ZT
 echo copying custom fonts to target folder
 xcopy ZTMZ.PacenoteTool.Base.UI\fonts\ "%userprofile%\Documents\My Games\ZTMZClub_nextgen\fonts\" /Y /V /S /Q
 
-echo copying pacenote definitions to target folder
-xcopy ZTMZ.PacenoteTool.ScriptEditor\*.csv "%userprofile%\Documents\My Games\ZTMZClub_nextgen\" /Y /V /Q
-xcopy ZTMZ.PacenoteTool.ScriptEditor\*.csv ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\ /Y /V /Q
+echo copying pacenote definitions database to target folder
+xcopy ZTMZ.PacenoteTool.Base\*.zdb "%userprofile%\Documents\My Games\ZTMZClub_nextgen\" /Y /V /Q
+xcopy ZTMZ.PacenoteTool.RBR\*.zdb "%userprofile%\Documents\My Games\ZTMZClub_nextgen\games\" /Y /V /Q
 
 cd /D "%~dp0"
 .\launchWpfUIRelease.bat

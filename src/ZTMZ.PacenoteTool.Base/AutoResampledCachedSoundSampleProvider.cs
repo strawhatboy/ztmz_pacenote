@@ -32,7 +32,7 @@ namespace ZTMZ.PacenoteTool.Base
             // #IAH9PW finally fixed.
             if (samplesToCopy < count && samplesToCopy > 0)
             {
-                for (int i = samplesToCopy; i < count-1; i++)
+                for (int i = samplesToCopy; i < count; i++)
                 {
                     buffer[offset + i] = 0;
                 }
