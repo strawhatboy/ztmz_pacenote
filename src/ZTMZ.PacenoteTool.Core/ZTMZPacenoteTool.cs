@@ -295,8 +295,8 @@ public class ZTMZPacenoteTool {
                     this.onRaceEnd?.Invoke(_currentGame);
                     if (Config.Instance.PlayStartAndEndSound)
                     {
-                        // play end sound
-                        this._profileManager.PlaySystem(Constants.SYSTEM_END_STAGE);
+                        // play end sound, as sequential sound, not system sound
+                        this._profileManager.PlaySystem(Constants.SYSTEM_END_STAGE, true, false);
                     }
                 }
 
@@ -322,12 +322,19 @@ public class ZTMZPacenoteTool {
 
                     if (lastState != GameState.Paused && Config.Instance.PlayStartAndEndSound && state == GameState.RaceBegin)
                     {
-                        // play start sound
-                        this._profileManager.PlaySystem(Constants.SYSTEM_START_STAGE);
+                        // play start sound as sequential system sound
+                        this._profileManager.PlaySystem(Constants.SYSTEM_START_STAGE, true, true);
                     }
                     
                     // 1. load sounds
                     this._profileManager.StartReplaying(_currentGame, this._trackName);
+
+                    // 2. play minus script sound when in race begin but not AdhocRaceBegin
+                    if (state == GameState.RaceBegin)
+                    {
+                        // play minus distance script sound, some corners before "GO"
+                        this._profileManager.PlayMinusScript();
+                    }
 
                     if (state == GameState.AdHocRaceBegin) 
                     {

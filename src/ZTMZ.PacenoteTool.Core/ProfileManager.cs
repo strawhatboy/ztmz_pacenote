@@ -515,22 +515,44 @@ namespace ZTMZ.PacenoteTool.Core
             this.PlaySound(this._exampleAudio, true);
         }
 
-        public void PlaySystem(string sound, bool isSequential = false)
+        public void PlayMinusScript()
+        {
+            if (this.CurrentPlayIndex > 0)
+            {
+                for (int i = 0; i < this.AudioFiles.Count; i++)
+                {
+                    if (this.AudioFiles[i].Distance <= 0)
+                    {   // play it!
+                        // try to amplify the sound.
+                        var sound = this.AudioFiles[this.CurrentPlayIndex++].Sound;
+                        sound.PlaySpeed = this.CurrentPlaySpeed;
+                        sound.Amplification = this.CurrentPlayAmplification;
+                        sound.Tension = this.CurrentTension;
+                        this.PlaySound(sound, true, true);  // play it as sequential system sound, followed by start stage sound
+                        Debug.WriteLine("Playing {0}", this.CurrentPlayIndex);
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+
+        public void PlaySystem(string sound, bool isSequential = false, bool isSystem = false)
         {
             Debug.WriteLine("Playing system sound : {0}", sound);
             var audio = this.getSoundByKeyword(sound, this.CurrentCoDriverSoundPackagePath);
             audio.PlaySpeed = this.CurrentPlaySpeed;
             audio.Amplification = this.CurrentPlayAmplification;
             audio.Tension = this.CurrentTension;
-            this.PlaySound(audio, isSequential);
+            this.PlaySound(audio, isSequential, isSystem);
         }
 
-        public void PlaySound(AutoResampledCachedSound sound, bool isSequential)
+        public void PlaySound(AutoResampledCachedSound sound, bool isSequential, bool isSystem = false)
         {
             if (!Config.Instance.UI_Mute)
             {
                 this.Player.PlaybackRate = this.CurrentPlaySpeed;
-                this.Player.PlaySound(sound, isSequential);
+                this.Player.PlaySound(sound, isSequential, isSystem);
             }
         }
 
