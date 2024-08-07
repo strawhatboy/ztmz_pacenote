@@ -75,16 +75,9 @@ public class DirtGameDataReader : UdpGameDataReader
             var spdDiff = _lastGameData.Speed - newGameData.Speed;
             if (Config.Instance.PlayCollisionSound && newGameData.Speed != 0)
             {
-                int severity = -1;
-                // collision happens. speed == 0 means reset or end stage
-                if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Severe)
-                    severity = 2;
-                else if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Medium)
-                    severity = 1;
-                else if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Slight)
-                    severity = 0;
-                    
-                if (severity != -1) 
+                CollisionSeverity severity = CollisionDetector.DetectCollision(_lastGameData, newGameData);
+
+                if (severity != CollisionSeverity.None) 
                 {
                     _onCarDamaged?.Invoke(new CarDamageEvent
                     {

@@ -62,16 +62,9 @@ public class WRCGameDataReader : DirtGameDataReader
             var spdDiff = LastGameData.Speed - CurrentGameData.Speed;
             if (Config.Instance.PlayCollisionSound && CurrentGameData.Speed != 0)
             {
-                int severity = -1;
-                // collision happens. speed == 0 means reset or end stage
-                if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Severe)
-                    severity = 2;
-                else if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Medium)
-                    severity = 1;
-                else if (spdDiff >= Config.Instance.CollisionSpeedChangeThreshold_Slight)
-                    severity = 0;
+                CollisionSeverity severity = CollisionDetector.DetectCollision(LastGameData, CurrentGameData);
                     
-                if (severity != -1) 
+                if (severity != CollisionSeverity.None) 
                 {
                     _onCarDamaged?.Invoke(new CarDamageEvent
                     {

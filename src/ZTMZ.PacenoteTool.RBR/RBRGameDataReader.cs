@@ -156,6 +156,18 @@ public class RBRGameDataReader : UdpGameDataReader
         _currentMemData = memData;
         _onNewGameData?.Invoke(_lastGameData, _currentGameData);
 
+        // we're using acceleration to detect collision now, available in RBR.
+        if (Config.Instance.PlayCollisionSound && _currentGameData.Speed != 0) {
+            CollisionSeverity severity = CollisionDetector.DetectCollision(_lastGameData, _currentGameData);
+            if (severity != CollisionSeverity.None) {
+                _onCarDamaged?.Invoke(new CarDamageEvent
+                {
+                    DamageType = CarDamage.Collision,
+                    Parameters = new Dictionary<string, object> { { CarDamageConstants.SEVERITY, severity } }
+                });
+            }
+        }
+
         this.GameState = getGameStateFromMemory(memData);
     }
 

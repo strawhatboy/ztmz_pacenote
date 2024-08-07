@@ -8,11 +8,11 @@ namespace ZTMZ.PacenoteTool.Base.Game;
 public struct GameData
 {
     
-    public float Time;
-    public float LapTime;
+    public float Time;  // in seconds
+    public float LapTime;   // in seconds
     public float LapDistance;
     public float CompletionRate; // 0-1, 0.5 means finished 50%
-    public float Speed;
+    public float Speed; // km/h
     public float TrackLength;
 
     // Wheel Pressure

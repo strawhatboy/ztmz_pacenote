@@ -297,21 +297,21 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._DynamicVolumePerturbationAmplitude;
         }
 
-        private float _CollisionSpeedChangeThreshold_Slight = 10f;
+        private float _CollisionSpeedChangeThreshold_Slight = 160f;
         public float CollisionSpeedChangeThreshold_Slight
         {
             set { this._CollisionSpeedChangeThreshold_Slight = value; this._userconfig["CollisionSpeedChangeThreshold_Slight"] = value; }
             get => this._CollisionSpeedChangeThreshold_Slight;
         }
 
-        private float _CollisionSpeedChangeThreshold_Medium = 20f;
+        private float _CollisionSpeedChangeThreshold_Medium = 280f;
         public float CollisionSpeedChangeThreshold_Medium
         {
             set { this._CollisionSpeedChangeThreshold_Medium = value; this._userconfig["CollisionSpeedChangeThreshold_Medium"] = value; }
             get => this._CollisionSpeedChangeThreshold_Medium;
         }
 
-        private float _CollisionSpeedChangeThreshold_Severe = 30f;
+        private float _CollisionSpeedChangeThreshold_Severe = 400f;    // 400 m/s^2 = 40g，安全气囊弹出时的加速度
         public float CollisionSpeedChangeThreshold_Severe
         {
             set { this._CollisionSpeedChangeThreshold_Severe = value; this._userconfig["CollisionSpeedChangeThreshold_Severe"] = value; }
