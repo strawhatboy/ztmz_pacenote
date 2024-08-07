@@ -36,6 +36,13 @@ public class UpdateConfigSetter
             setGamePort(dr1);
             setGamePort(dr2);
         });
+
+        this._configSetters.Add(new Version("2.99.99.21"), tool => {
+            Config.Instance.CollisionSpeedChangeThreshold_Slight = 160f;
+            Config.Instance.CollisionSpeedChangeThreshold_Medium = 280f;
+            Config.Instance.CollisionSpeedChangeThreshold_Severe = 400f;
+            Config.Instance.SaveUserConfig();
+        });
     }
 
     public void SetConfiguration(ZTMZPacenoteTool tool)
