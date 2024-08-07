@@ -22,7 +22,7 @@ public class CollisionDetector
         }
 
         // speed difference devided by time difference is the acceleration
-        var acceleration = (currentGameData.Speed - lastGameData.Speed) / (currentGameData.LapTime - lastGameData.LapTime);
+        var acceleration = (lastGameData.Speed - currentGameData.Speed) / 3.6 / (currentGameData.LapTime - lastGameData.LapTime);
 
         if (acceleration >= Config.Instance.CollisionSpeedChangeThreshold_Severe)
         {
