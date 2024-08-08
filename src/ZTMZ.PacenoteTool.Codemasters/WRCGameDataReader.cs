@@ -37,6 +37,12 @@ public class WRCGameDataReader : DirtGameDataReader
         }
         remove { _onNewGameData -= value; }
     }
+    private event Action _onCarReset;
+    public override event Action onCarReset
+    {
+        add { _onCarReset += value; }
+        remove { _onCarReset -= value; }
+    }
 
     public override void onNewUdpMessage(byte[] lastMsg, byte[] newMsg)
     {
@@ -62,7 +68,7 @@ public class WRCGameDataReader : DirtGameDataReader
             var spdDiff = LastGameData.Speed - CurrentGameData.Speed;
             if (Config.Instance.PlayCollisionSound && CurrentGameData.Speed != 0)
             {
-                CollisionSeverity severity = CollisionDetector.DetectCollision(LastGameData, CurrentGameData);
+                CollisionSeverity severity = CarEventDetector.DetectCollision(LastGameData, CurrentGameData);
                     
                 if (severity != CollisionSeverity.None) 
                 {
@@ -72,6 +78,11 @@ public class WRCGameDataReader : DirtGameDataReader
                         Parameters = new Dictionary<string, object> { { CarDamageConstants.SEVERITY, severity } }
                     });
                 }
+            }
+            
+            if (CarEventDetector.IsCarReset(LastGameData, CurrentGameData))
+            {
+                _onCarReset?.Invoke();
             }
 
             if (CurrentGameData.CompletionRate <= 0.0f && CurrentGameData.LapTime <= 0.0f) {

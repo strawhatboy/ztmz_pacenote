@@ -13,6 +13,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
     public event Action<bool> onGameDataAvailabilityChanged;
     public virtual event Action<GameStateChangeEvent> onGameStateChanged;
     public virtual event Action<CarDamageEvent> onCarDamaged;
+    public virtual event Action onCarReset;
 
     private UdpReceiver _udpReceiver;
 

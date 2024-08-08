@@ -57,6 +57,13 @@ public class DirtGameDataReader : UdpGameDataReader
         remove { _onCarDamaged -= value; }
     }
 
+    private event Action _onCarReset;
+    public override event Action onCarReset
+    {
+        add { _onCarReset += value; }
+        remove { _onCarReset -= value; }
+    }
+
     public override void onNewUdpMessage(byte[] lastMsg, byte[] newMsg)
     {
         base.onNewUdpMessage(lastMsg, newMsg);
@@ -75,7 +82,7 @@ public class DirtGameDataReader : UdpGameDataReader
             var spdDiff = _lastGameData.Speed - newGameData.Speed;
             if (Config.Instance.PlayCollisionSound && newGameData.Speed != 0)
             {
-                CollisionSeverity severity = CollisionDetector.DetectCollision(_lastGameData, newGameData);
+                CollisionSeverity severity = CarEventDetector.DetectCollision(_lastGameData, newGameData);
 
                 if (severity != CollisionSeverity.None) 
                 {
@@ -85,6 +92,11 @@ public class DirtGameDataReader : UdpGameDataReader
                         Parameters = new Dictionary<string, object> { { CarDamageConstants.SEVERITY, severity } }
                     });
                 }
+            }
+
+            if (CarEventDetector.IsCarReset(_lastGameData, newGameData))
+            {
+                _onCarReset?.Invoke();
             }
 
             if (newGameData.LapTime > 0 && this.GameState != GameState.Racing)

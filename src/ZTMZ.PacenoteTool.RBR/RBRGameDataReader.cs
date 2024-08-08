@@ -94,6 +94,12 @@ public class RBRGameDataReader : UdpGameDataReader
         add { _onCarDamaged += value; }
         remove { _onCarDamaged -= value; }
     }
+    private event Action _onCarReset;
+    public override event Action onCarReset
+    {
+        add { _onCarReset += value; }
+        remove { _onCarReset -= value; }
+    }
 
     public override bool Initialize(IGame game)
     {
@@ -158,7 +164,7 @@ public class RBRGameDataReader : UdpGameDataReader
 
         // we're using acceleration to detect collision now, available in RBR.
         if (Config.Instance.PlayCollisionSound && _currentGameData.Speed != 0) {
-            CollisionSeverity severity = CollisionDetector.DetectCollision(_lastGameData, _currentGameData);
+            CollisionSeverity severity = CarEventDetector.DetectCollision(_lastGameData, _currentGameData);
             if (severity != CollisionSeverity.None) {
                 _onCarDamaged?.Invoke(new CarDamageEvent
                 {
@@ -166,6 +172,10 @@ public class RBRGameDataReader : UdpGameDataReader
                     Parameters = new Dictionary<string, object> { { CarDamageConstants.SEVERITY, severity } }
                 });
             }
+        }
+
+        if (CarEventDetector.IsCarReset(_lastGameData, _currentGameData)) {
+            _onCarReset?.Invoke();
         }
 
         this.GameState = getGameStateFromMemory(memData);
