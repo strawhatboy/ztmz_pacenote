@@ -16,6 +16,8 @@ namespace ZTMZ.PacenoteTool.Base.Game
         event Action<GameStateChangeEvent> onGameStateChanged;
         event Action<CarDamageEvent> onCarDamaged;
 
+        event Action onCarReset;
+
         bool Initialize(IGame game);
         void Uninitialize(IGame game);
     }

@@ -240,6 +240,7 @@ public class ZTMZPacenoteTool {
                     game.GameDataReader.onNewGameData += newGameDataEventHander;
                     game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
                     game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
+                    game.GameDataReader.onCarReset += carResetHandler;
                     _logger.Info("Game {0} initialized.", game.Name);
                     game.IsInitialized = true;
                     this.onGameInitialized?.Invoke(game);
@@ -268,11 +269,13 @@ public class ZTMZPacenoteTool {
         game.GameDataReader.onCarDamaged -= carDamagedEventHandler;
         game.GameDataReader.onNewGameData -= newGameDataEventHander;
         game.GameDataReader.onGameStateChanged -= this.gamestateChangedHandler;
+        game.GameDataReader.onCarReset -= carResetHandler;
         game.GameDataReader.Uninitialize(game);
         game.IsInitialized = false;
         this.onGameUninitialized?.Invoke(game);
     }
 
+#region EventHandlers
     private void gamestateChangedHandler(GameStateChangeEvent evt)
     {
         var lastState = evt.LastGameState;
@@ -456,6 +459,14 @@ public class ZTMZPacenoteTool {
                 break;
         }
     }
+
+    private void carResetHandler() {
+        var distance = this._currentGame.GameDataReader.CurrentGameData.LapDistance;
+        _logger.Info($"tring to relocate the pacenote based on the car's position {distance} because of car reset.");
+        this._profileManager.ReIndex(distance);
+    }
+
+#endregion
 
     private PrerequisitesCheckResult checkPrerequisite(IGame game)
     {

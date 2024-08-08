@@ -18,7 +18,7 @@ public class CarEventDetector
         // if currentGameData's LapTime is less than or equal to lastGameData's LapTime, then it's not a collision.
         // if currentGameData's Speed is less than 1.0f, then it's not a collision, it's a vehicle reset.
         if (currentGameData.LapTime <= lastGameData.LapTime || 
-        currentGameData.Speed < 1.0f && lastGameData.LapDistance > currentGameData.LapDistance)
+        currentGameData.Speed < 5.0f && lastGameData.LapDistance > currentGameData.LapDistance)
         {
             return CollisionSeverity.None;
         }
