@@ -1,67 +1,95 @@
 <Page x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.VoicePackagePage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:system="clr-namespace:System;assembly=System.Runtime"
-    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    Title="VoicePage"
-    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-    mc:Ignorable="d"
-    ui:NavigationView.HeaderContent="{Binding ViewModel.HeaderContent}"
-    >
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:system="clr-namespace:System;assembly=System.Runtime"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="VoicePage"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+      mc:Ignorable="d"
+      ui:NavigationView.HeaderContent="{Binding ViewModel.HeaderContent}">
     <Page.Resources>
         <!-- <Style TargetType="ui:Card">
             <Setter Property="Padding" Value="16"></Setter>
             <Setter Property="Margin" Value="0 0 0 5"></Setter>
         </Style> -->
+        <Style x:Key="Body_Content_DataGrid_Centering"
+               TargetType="{x:Type DataGridCell}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGridCell}">
+                        <Grid Background="{TemplateBinding Background}">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <!-- info -->
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto"/>
             <!-- sound list -->
-            <RowDefinition Height="*" />
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
-        <ItemsControl ItemsSource="{Binding ViewModel.VoicePackages}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Vertical">
-                        <ui:CardAction Margin="0 0 0 3"
-                            Command="{Binding DataContext.ViewModel.NavigateToVoicePackagePageCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                            CommandParameter="{Binding Path}"
-                        >
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition />
-                                    <ColumnDefinition Width="160" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Orientation="Horizontal"
-                                    VerticalAlignment="Center">
-                                    <ui:SymbolIcon Symbol="ChatSettings20"
-                                        FontSize="26"
-                                        Margin="0 0 10 0" />
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition />
-                                            <RowDefinition />
-                                        </Grid.RowDefinitions>
-                                        <ui:TextBlock
-                                            Text="{Binding name}" />
-                                        <ui:TextBlock Grid.Row="1"
-                                            Text="{Binding description}"
-                                            Appearance="Tertiary"
-                                            FontTypography="Caption" />
-                                    </Grid>
-                                </StackPanel>
-                            </Grid>
-                        </ui:CardAction>
-                    </StackPanel>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+
+        <DataGrid Grid.Row="2"
+                     x:Name="lv_Content"
+                     IsReadOnly="True"
+                     ItemsSource="{Binding ViewModel.DataContent}"
+                     CellStyle="{StaticResource Body_Content_DataGrid_Centering}"
+                     AutoGenerateColumns="False"
+                     CanUserAddRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn
+                    Binding="{Binding id}"
+                    Header="ID"/>
+                <DataGridTextColumn
+                    Binding="{Binding Token}"
+                    Header="标记"/>
+                <DataGridTextColumn
+                    Binding="{Binding TokenDescription}"
+                    Header="标记描述"/>
+                <DataGridTextColumn
+                    Binding="{Binding IsAvailable}"
+                    Header="是否可用"/>
+                <DataGridTextColumn
+                    Binding="{Binding Type}"
+                    Header="类型"/>
+                <DataGridTextColumn
+                    Binding="{Binding FilesCount}"
+                    Header="文件个数"/>
+                <DataGridTemplateColumn
+                    Header="试听">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ListBox ItemsSource="{Binding Files}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock>
+                                                <ui:Button Margin="0"
+                                                    x:Name="hl_listen"
+                                                    Content="{Binding Index}"
+                                                           CommandParameter="{Binding FilePath}"
+                                                           Command="{Binding ViewModel.ListenCommand, RelativeSource={RelativeSource AncestorType=Page}}">
+                                                </ui:Button>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel IsItemsHost="True"/>
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                            </ListBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Page>

@@ -17,6 +17,7 @@ namespace ZTMZ.PacenoteTool.Core
 
     public class ProfileManager
     {
+        public static string DEFAULT_CODRIVER_PACKAGE_ID = "3322c09e-142e-42a1-90fe-2ffc81d03548";
         private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public string CurrentProfile { set; get; }
@@ -38,6 +39,19 @@ namespace ZTMZ.PacenoteTool.Core
                 }
 
                 return null;
+            }
+        }
+
+        private CoDriverPackage _defaultCoDriverSoundPackage;
+        public CoDriverPackage DefaultCoDriverSoundPackage
+        {
+            get
+            {
+                if (_defaultCoDriverSoundPackage == null)
+                {
+                    _defaultCoDriverSoundPackage = this.CoDriverPackages.First(p => p.Value.Info.id == DEFAULT_CODRIVER_PACKAGE_ID).Value;
+                }
+                return _defaultCoDriverSoundPackage;
             }
         }
 
@@ -487,8 +501,8 @@ namespace ZTMZ.PacenoteTool.Core
 
             if (!isFinal && Config.Instance.UseDefaultSoundPackageForFallback)
             {
-                // not found, try default 
-                return getSoundById(id, package, true);
+                // not found, try default, I mean default codriver sound package
+                return getSoundById(id, DefaultCoDriverSoundPackage, true);
             }
             return new AutoResampledCachedSound();
         }

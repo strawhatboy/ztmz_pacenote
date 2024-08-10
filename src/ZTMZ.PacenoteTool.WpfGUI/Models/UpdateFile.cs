@@ -53,6 +53,8 @@ public partial class CodriverPackageUpdateFile: ObservableObject {
     [ObservableProperty]
     public bool isInstalling = false;
     [ObservableProperty]
+    public bool isAvailable = false;
+    [ObservableProperty]
     public float downloadProgress = 0;
     [ObservableProperty]
     public bool needDownload = false;    // no local file

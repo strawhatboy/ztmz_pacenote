@@ -47,9 +47,9 @@ public class CarEventDetector
     public static bool IsCarReset(GameData lastGameData, GameData currentGameData)
     {
         // if currentGameData's Speed is less than 1.0f, and the lapdistance decreases, then it's not a collision, it's a vehicle reset.
-        // these is one exception, when the car runs backward and got a collision.
+        // there is one exception, when the car runs backward and got a collision.
         if (currentGameData.LapTime > lastGameData.LapTime && 
-            currentGameData.Speed < 1.0f && 
+            currentGameData.Speed < 5.0f && 
             currentGameData.Speed < lastGameData.Speed &&
             lastGameData.Speed - currentGameData.Speed > 5.0f &&
             lastGameData.LapDistance > currentGameData.LapDistance) // 5 km/h
