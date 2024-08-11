@@ -15,11 +15,13 @@ using ZTMZ.PacenoteTool.WpfGUI.Models;
 using System.IO;
 using System.Text;
 using SevenZipExtractor;
+using NLog;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 public partial class VoicePageVM : ObservableObject {
 
+    private static readonly Logger logger = LogManager.GetCurrentClassLogger();
     private readonly ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool;
     private readonly VoicePackagePageVM voicePackagePageVM;
     private readonly INavigationService navigationService;
@@ -105,6 +107,14 @@ public partial class VoicePageVM : ObservableObject {
             pkg.IsInstalling = true;
             // install, unzip to the voice package folder
             await Task.Run(() => {
+                if (Directory.Exists(pkg.Path)) {
+                    try {
+                        Directory.Delete(pkg.Path, true);  // delete if exists
+                    } catch (Exception e) {
+                        // failed to delete, could be in use
+                        logger.Warn(e, $"Failed to delete the existing voice package folder {pkg.Path}");
+                    }
+                }
                 using (ArchiveFile f = new(downloadedFile)) {
                     f.Extract(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS), true);
                 }

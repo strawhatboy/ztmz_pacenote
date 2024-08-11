@@ -72,6 +72,7 @@ public class UpdateService {
                     if (myVersion.CompareTo(newVersion) < 0) {
                         // append to need update list   
                         update.needUpdate = true;
+                        update.Path = pkg.Path; // keep the original path for deletion
                     }
                     needUpdate.Add(update);
                 } else {

@@ -223,6 +223,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [InstallDelete]
 Type: files; Name: "{code:GetZTMZHome}\config.json";
 ; Delete previous default audio package
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\default";
 
 [Files]
 ; No json file!
