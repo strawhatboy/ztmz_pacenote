@@ -458,10 +458,20 @@ namespace ZTMZ.PacenoteTool.Core
             }
 
             // TODO: simplify these id & keyword handling
-            return getSoundById(id, package, isFinal);
+            HashSet<int> visitedIds = new HashSet<int>();
+            return getSoundById(id, package, visitedIds, isFinal);
         }
 
-        private AutoResampledCachedSound getSoundById(int id, CoDriverPackage package, bool isFinal = false) {
+        /// <summary>
+        /// Get the sound by pacenote id
+        /// </summary>
+        /// <param name="id">The pacenote id defined in sqlite file</param>
+        /// <param name="package">the CoDriverPackage</param>
+        /// <param name="isFinal">if we should stop the fallback,
+        /// 1. We fallback into the default codriver package, no more fallback, isFinal=true
+        /// 2. We encounter a </param>
+        /// <returns>The sound</returns>
+        private AutoResampledCachedSound getSoundById(int id, CoDriverPackage package, HashSet<int> visitedIds, bool isFinal=false) {
             if (id == -1)
             {   // wtf?
                 return new AutoResampledCachedSound();
@@ -487,14 +497,20 @@ namespace ZTMZ.PacenoteTool.Core
                 }
             }
 
-            // not found, try fallback ids
+            // not found, visited, try fallbacks
+            visitedIds.Add(id);
+            // not found, try fallback ids or default codriver package
             if (ZTMZ.PacenoteTool.Base.Script.ScriptResource.Instance.FallbackDict.ContainsKey(id))
             {
                 var fallbacks = ZTMZ.PacenoteTool.Base.Script.ScriptResource.Instance.FallbackDict[id];
                 AutoResampledCachedSound sound = new AutoResampledCachedSound();
                 foreach(var fallback in fallbacks)
                 {
-                    sound.Append(getSoundById(fallback, package));
+                    if (visitedIds.Contains(fallback))
+                    {
+                        continue;   // ignore visited ids to avoid infinite loop
+                    }
+                    sound.Append(getSoundById(fallback, package, visitedIds));
                 }
                 return sound;
             }
@@ -502,7 +518,7 @@ namespace ZTMZ.PacenoteTool.Core
             if (!isFinal && Config.Instance.UseDefaultSoundPackageForFallback)
             {
                 // not found, try default, I mean default codriver sound package
-                return getSoundById(id, DefaultCoDriverSoundPackage, true);
+                return getSoundById(id, DefaultCoDriverSoundPackage, visitedIds, true);
             }
             return new AutoResampledCachedSound();
         }
