@@ -335,11 +335,13 @@ public class RBRGamePacenoteReader : BasePacenoteReader
     private static string getModifiersFromFlag(int flag)
     {
         var modifiers = new List<string>();
-        foreach (var kv in ScriptResource.ID_2_MODIFIER)
+        foreach (var kv in RBRScriptResource.Instance.ModiferId2ZTMZids)
         {
             if ((flag & kv.Key) == kv.Key)
             {
-                modifiers.Add(kv.Value);
+                var ztmzIds = kv.Value;
+                //it's a list!!! use comma separated string
+                modifiers.Add(string.Join(",", from p in ztmzIds select Base.Script.ScriptResource.Instance.FilenameDict[p].First()));
             }
         }
         return string.Join(",", modifiers);
@@ -348,9 +350,11 @@ public class RBRGamePacenoteReader : BasePacenoteReader
     public static DynamicPacenoteRecord GetDynamicPacenoteRecord(int ptype, int pflag, float pdistance)
     {
         DynamicPacenoteRecord record = new DynamicPacenoteRecord();
-        if (ScriptResource.ID_2_PACENOTE.ContainsKey(ptype))
+        // remove ID_2_PACENOTE
+        if (RBRScriptResource.Instance.PacenoteId2ZTMZIds.ContainsKey(ptype))
         {
-            record.Pacenote = ScriptResource.ID_2_PACENOTE[ptype];
+            var ztmzIds = RBRScriptResource.Instance.PacenoteId2ZTMZIds[ptype];
+            record.Pacenote = string.Join(",", from p in ztmzIds select Base.Script.ScriptResource.Instance.FilenameDict[p].First());
         }
         record.Modifier = getModifiersFromFlag(pflag);
         record.Distance = pdistance;
