@@ -504,6 +504,7 @@ namespace ZTMZ.PacenoteTool.Core
             {
                 var fallbacks = ZTMZ.PacenoteTool.Base.Script.ScriptResource.Instance.FallbackDict[id];
                 AutoResampledCachedSound sound = new AutoResampledCachedSound();
+                var soundCount = 0;
                 foreach(var fallback in fallbacks)
                 {
                     if (visitedIds.Contains(fallback))
@@ -511,8 +512,14 @@ namespace ZTMZ.PacenoteTool.Core
                         continue;   // ignore visited ids to avoid infinite loop
                     }
                     sound.Append(getSoundById(fallback, package, visitedIds));
+                    soundCount++;
                 }
-                return sound;
+
+                // only if we have sound, or we use default codriver sound package for fallback
+                if (soundCount > 0)
+                {
+                    return sound;
+                }
             }
 
             if (!isFinal && Config.Instance.UseDefaultSoundPackageForFallback)
