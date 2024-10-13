@@ -193,5 +193,16 @@ public partial class MainWindowVM : ObservableObject
             }
         }
     }
+
+    [RelayCommand]
+    private async Task RaiseIssue() {
+        if (Config.Instance.Language == "zh-cn") {
+            // navigate to the issue page on gitee
+            Process.Start("explorer.exe", "https://gitee.com/ztmz/ztmz_pacenote/issues");
+        } else {
+            // navigate to the issue page on github
+            Process.Start("explorer.exe", "https://github.com/strawhatboy/ztmz_pacenote/issues");
+        }
+    }
 }
 

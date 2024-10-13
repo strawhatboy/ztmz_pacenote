@@ -42,6 +42,26 @@
             <ui:TitleBar.Icon>
                 <ui:ImageIcon Source="pack://application:,,,/Assets/app.ico" />
             </ui:TitleBar.Icon>
+            <ui:TitleBar.Header>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                    <ui:Button Icon="{ui:SymbolIcon Lightbulb20}" Command="{Binding ViewModel.RaiseIssueCommand}" ToolTip="{DynamicResource ResourceKey=ui.raise_issue}"
+                    FontSize="16"
+                    SnapsToDevicePixels="True"
+                    Background="Transparent"
+                    ToolTipService.InitialShowDelay="100" />
+                    <!-- ButtonsForeground="{Binding Path=ButtonsForeground, RelativeSource={RelativeSource AncestorType={x:Type ui:TitleBar}}}"
+                    MouseOverButtonsForeground="{Binding Path=MouseOverButtonsForeground, RelativeSource={RelativeSource AncestorType={x:Type ui:TitleBar}}}"
+                    MouseOverBackground="{Binding Path=ButtonsBackground, RelativeSource={RelativeSource AncestorType={x:Type ui:TitleBar}}}"
+                    OverridesDefaultStyle="True" -->
+                    <ui:Button Icon="{ui:SymbolIcon HeartCircle20}" Foreground="Red"
+                    SnapsToDevicePixels="True"
+                    Background="Transparent"
+                    FontSize="16"
+                    ToolTip="{DynamicResource ResourceKey=ui.donate}"
+                    ToolTipService.InitialShowDelay="100"
+                    />
+                </StackPanel>
+            </ui:TitleBar.Header>
         </ui:TitleBar>
         <ui:NavigationView
             x:Name="RootNavigation"

@@ -54,7 +54,7 @@ public partial class SettingsVM : ObservableObject, INavigationAware
 
     private void InitializeViewModel()
     {
-        AppVersion = GetAssemblyVersion();
+        AppVersion = $"{GetAssemblyVersion()} [{ToolUtils.GetToolVersion()}]";
 
         _isInitialized = true;
     }

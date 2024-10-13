@@ -5,6 +5,7 @@
     xmlns:controls="clr-namespace:Wpf.Ui.Controls"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Base.UI"
+    FontFamily="pack://application:,,,/fonts/#Noto Serif SC"
     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
