@@ -25,6 +25,7 @@ namespace ZTMZ.PacenoteTool.Base
 
     public class UdpReceiver : IDisposable
     {
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private UdpClient client;
         private IPEndPoint any;
         public event Action<byte[], byte[]> onNewMessage;
@@ -52,6 +53,7 @@ namespace ZTMZ.PacenoteTool.Base
 
         private void initUDPClient(IPAddress ipAddress, int port)
         {
+            logger.Info("Start to get UDP traffic from {0}:{1}", ipAddress, port);
             // check if port in use
             bool alreadyinuse = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().GetActiveUdpListeners().Any(p => p.Port == port);
             if (alreadyinuse)
@@ -70,6 +72,7 @@ namespace ZTMZ.PacenoteTool.Base
             client?.BeginReceive(this.receiveMessage, s);
             this.isInitialized = true;
             this.ListenStarted?.Invoke();
+            logger.Info("UDP traffic listening started.");
         }
 
         public void StartListening(int port) 

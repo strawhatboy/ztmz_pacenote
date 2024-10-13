@@ -15,6 +15,7 @@ public class WRCGamePrerequisiteChecker : IGamePrerequisiteChecker
     public static string WRCUDPZTMZChannelFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games/WRC/telemetry/udp/ztmz.json");
     public PrerequisitesCheckResult CheckPrerequisites(IGame game)
     {
+        var udpConfig = game.GameConfigurations[UdpGameConfig.Name] as UdpGameConfig;
         JObject? config = null;
         if (File.Exists(WRCUDPConfigFile))
         {
@@ -52,7 +53,8 @@ public class WRCGamePrerequisiteChecker : IGamePrerequisiteChecker
         if (packetsNode is JArray packets) {
         // find if exists packetobject's property "structure" equals "ztmz" and "packet" equals "session_update"
             var packet = packets.FirstOrDefault(p => p["structure"]?.ToString() == "ztmz" && p["packet"]?.ToString() == "session_update");
-            if (packet == null)
+            if (packet == null || 
+                (udpConfig != null && packet["port"]?.ToString() != udpConfig.Port.ToString())) // has udp config but port not match
             {
                 return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.PORT_NOT_OPEN, Params = new List<object>() {
                     game.Name, WRCUDPConfigFile
@@ -112,6 +114,12 @@ public class WRCGamePrerequisiteChecker : IGamePrerequisiteChecker
                     { "frequencyHz", 60 },
                     { "bEnabled", true }
                 });
+            } else {
+                // exist, update port and ip
+                packet["port"] = udpConfig.Port;
+                packet["ip"] = udpConfig.IPAddress;
+                packet["bEnabled"] = true;
+                packet["frequencyHz"] = 60;
             }
         }
 

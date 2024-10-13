@@ -145,7 +145,7 @@ namespace ZTMZ.PacenoteTool.Base
                 var r = records[i];
                 r.Pacenote = r.Pacenote.Trim();
                 r.Modifier = r.Modifier.Trim();
-                if (r.Pacenote == "detail_distance_call" && i != records.Count - 1)
+                if (r.Pacenote.EndsWith("distance_call") && i != records.Count - 1)
                 {
                     var distance_to_next = (records[i + 1].Distance - r.Distance);
                     var distance_to_call_rounded = (int) MathF.Floor(distance_to_next / 10f) * 10;
@@ -199,7 +199,7 @@ namespace ZTMZ.PacenoteTool.Base
                     continue;
                 }
 
-                if (r.Pacenote == "detail_distance_call" && i == records.Count - 1)
+                if (r.Pacenote.EndsWith("distance_call") && i == records.Count - 1)
                 {
                     // ignore this
                     continue;
