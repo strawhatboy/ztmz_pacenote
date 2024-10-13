@@ -10,6 +10,7 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d"
+    FontFamily="pack://application:,,,/fonts/#Noto Serif SC"
     ui:NavigationView.HeaderContent="{DynamicResource ResourceKey=settings.subsection.voicePackage}"
     >
     <Page.Resources>

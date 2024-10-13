@@ -55,6 +55,9 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
                 Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(ThemeHelper.GetAccentColor(), 
                     Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
             }
+
+            // disallow 2 instances
+            
         }
 
         public void CloseWindow()

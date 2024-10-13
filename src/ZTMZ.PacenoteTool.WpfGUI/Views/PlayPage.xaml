@@ -7,6 +7,7 @@
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="PlayPage"
+    FontFamily="pack://application:,,,/fonts/#Noto Serif SC"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">

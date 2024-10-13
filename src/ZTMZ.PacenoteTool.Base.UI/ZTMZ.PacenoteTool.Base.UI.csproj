@@ -36,11 +36,10 @@
     <Resource Include="Res\Segoe Fluent Icons.ttf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="fonts\**">
+    <None Include="fonts\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

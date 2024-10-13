@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -23,6 +24,15 @@ namespace ZTMZ.PacenoteTool.WpfGUI;
 public partial class App : Application
 {
     public App() {
+
+        // Ensure only one instance of the application is running
+        if (!mutex.WaitOne(TimeSpan.FromMilliseconds(500), true))
+        {
+            MessageBox.Show("有个路书工具进程已经在运行中了，不能再运行另外一个，会引发端口冲突\nAnother instance of the application is already running.");
+            Current.Shutdown();
+            return;
+        }
+
         var jsonPaths = new List<string>{
             AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE),
             AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)),
@@ -43,6 +53,8 @@ public partial class App : Application
     }
 
     private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
+    private static Mutex mutex = new Mutex(true, "{F1D4A3D4-6D1A-4D3A-8D1A-4D1A6D1A4D3A}"); // unique id
     
     /// <summary>
     /// Interaction logic for App.xaml

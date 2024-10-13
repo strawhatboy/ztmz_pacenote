@@ -113,10 +113,22 @@ public class CommonGameConfigs: IGameConfig
             {
                 PropertyName.Add(kv.Key, kv.Value);
                 PropertyValue.Add(other.PropertyValue[i]);
-                ValueRange.Add(other.ValueRange[i]);
+                if (other.PropertyType.Count > i) {
+                    PropertyType.Add(other.PropertyType[i]);
+                }
+                if (other.ValueRange.Count > i) {
+                    ValueRange.Add(other.ValueRange[i]);
+                }
             } else {
                 var index = PropertyName.Keys.ToList().IndexOf(kv.Key);
                 PropertyValue[index] = other.PropertyValue[i];
+                if (other.PropertyType.Count > i) {
+                    if (PropertyType.Count <= index) {
+                        PropertyType.Add(other.PropertyType[i]);
+                    } else {
+                        PropertyType[index] = other.PropertyType[i];
+                    }
+                }
                 // DO NOT OVERRIDE THE VALUE_RANGE ValueRange[index] = other.ValueRange[i];
             }
         }

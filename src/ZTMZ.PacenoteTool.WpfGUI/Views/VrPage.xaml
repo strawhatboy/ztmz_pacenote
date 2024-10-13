@@ -9,6 +9,7 @@
     Title="VRPage"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    FontFamily="pack://application:,,,/fonts/#Noto Serif SC"
     mc:Ignorable="d">
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
