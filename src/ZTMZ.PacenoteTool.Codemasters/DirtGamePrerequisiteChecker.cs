@@ -121,7 +121,7 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
 
         foreach (var node in this._udpNode)
         {
-            if (this.CheckUdpNode(game, node))
+            if (this.CheckUdpNode(node))
             {
                 this.IsPassed = true;
                 return new PrerequisitesCheckResult()
@@ -145,7 +145,7 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
         };
     }
 
-    private bool CheckUdpNode(IGame game, XElement node) {
+    private bool CheckUdpNode(XElement node) {
         if (node.Attribute("enabled").Value != "true" || node.Attribute("extradata").Value != "3")
         {
             return false;
@@ -165,6 +165,20 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
         var motionPlatformNode = this._xmlFile.Root.XPathSelectElement("./motion_platform");
         if (motionPlatformNode != null)
         {
+            // check if there is already a udp node with the same enabled, extradata, ip, port and delay,
+            // if not, add a new udp node
+            // motion_platform can have multiple udp nodes
+            var udpNodes = motionPlatformNode.XPathSelectElements("./udp");
+            foreach (var node in udpNodes)
+            {
+                if (this.CheckUdpNode(node))
+                {
+                    // udp node already exists, no need to add a new one
+                    _logger.Warn("udp node already exists in {0}, won't add a new one", file);
+                    return;
+                }
+            }
+
             var udpNode = new XElement("udp");
             udpNode.SetAttributeValue("enabled", "true");
             udpNode.SetAttributeValue("extradata", "3");
