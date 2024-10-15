@@ -57,6 +57,7 @@ public class RBRScriptResource
     public List<RBRPacenote> Pacenotes { get; private set; } = new();
     public List<RBRPacenote2ZTMZ> Pacenote2ZTMZs { get; private set; } = new();
     public List<RBRModifier2ZTMZ> Modifier2ZTMZs { get; private set; } = new();
+    public Dictionary<int, RBRPacenote> PacenotesDict { get; private set; } = new();
     public Dictionary<int, List<int>> PacenoteId2ZTMZIds { get; private set; } = new();
     public Dictionary<int, List<int>> ModiferId2ZTMZids { get; private set; } = new();
     private RBRScriptResource() {
@@ -76,6 +77,7 @@ public class RBRScriptResource
         Pacenote2ZTMZs = (await Connection.QueryAsync<RBRPacenote2ZTMZ>("SELECT * FROM pacenote_ztmz")).ToList();
         Modifier2ZTMZs = (await Connection.QueryAsync<RBRModifier2ZTMZ>("SELECT * FROM modifier_ztmz")).ToList();
 
+        PacenotesDict = Pacenotes.ToDictionary(x => x.id, x => x);
         PacenoteId2ZTMZIds = Pacenote2ZTMZs.GroupBy(x => x.id).ToDictionary(x => x.Key, x => x.OrderBy(y => y.order_id).Select(y => y.ztmz_id).ToList());
         ModiferId2ZTMZids = Modifier2ZTMZs.GroupBy(x => x.id).ToDictionary(x => x.Key, x => x.OrderBy(y => y.order_id).Select(y => y.ztmz_id).ToList());
     }

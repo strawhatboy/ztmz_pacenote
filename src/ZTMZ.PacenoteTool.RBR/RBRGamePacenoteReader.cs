@@ -18,12 +18,13 @@ using System.Linq;
 using System;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using CsvHelper.Expressions;
 
 namespace ZTMZ.PacenoteTool.RBR;
 
 public class RBRGamePacenoteReader : BasePacenoteReader
 {
-    private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+    private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     public Dictionary<int, string> TrackNoNameMap = new();
     public Dictionary<int, string> TrackNoStageNameMap = new();
     public string RBRRootDir { get; private set; } = "";
@@ -209,31 +210,27 @@ public class RBRGamePacenoteReader : BasePacenoteReader
         {
             if (Regex.IsMatch(section.SectionName, "^P[0-9]+$"))
             {
-                DynamicPacenoteRecord record = new DynamicPacenoteRecord();
+                int type = -1;
+                float distance = 0;
+                int flag = 0;
                 if (section.Keys.ContainsKey("type"))
                 {
-                    var type = int.Parse(section.Keys["type"]);
-                    if (RBRScriptResource.Instance.PacenoteId2ZTMZIds.ContainsKey(type))
-                    {
-                        var ztmzIds = RBRScriptResource.Instance.PacenoteId2ZTMZIds[type];
-                        //it's a list!!! use comma separated string
-                        record.Pacenote = string.Join(",", from p in ztmzIds select Base.Script.ScriptResource.Instance.FilenameDict[p].First());
-                    }
+                    type = int.Parse(section.Keys["type"]);
                 }
 
                 if (section.Keys.ContainsKey("distance"))
                 {
-                    var distance = float.Parse(section.Keys["distance"]);
-                    record.Distance = distance;
+                    distance = float.Parse(section.Keys["distance"]);
                 }
 
                 if (section.Keys.ContainsKey("flag"))
                 {
-                    var flag = int.Parse(section.Keys["flag"]);
-                    record.Modifier = getModifiersFromFlag(flag);
+                    flag = int.Parse(section.Keys["flag"]);
                 }
 
-                if (!string.IsNullOrEmpty(record.Pacenote))
+                var record = GetDynamicPacenoteRecord(type, flag, distance);
+
+                if (record != null && !string.IsNullOrEmpty(record.Pacenote))
                 {
                     dynamicRecords.Add(record);
                 }
@@ -349,12 +346,24 @@ public class RBRGamePacenoteReader : BasePacenoteReader
 
     public static DynamicPacenoteRecord GetDynamicPacenoteRecord(int ptype, int pflag, float pdistance)
     {
+        if (ptype < 0) {
+            // wtf is this.
+            return null;
+        }
         DynamicPacenoteRecord record = new DynamicPacenoteRecord();
         // remove ID_2_PACENOTE
         if (RBRScriptResource.Instance.PacenoteId2ZTMZIds.ContainsKey(ptype))
         {
             var ztmzIds = RBRScriptResource.Instance.PacenoteId2ZTMZIds[ptype];
             record.Pacenote = string.Join(",", from p in ztmzIds select Base.Script.ScriptResource.Instance.FilenameDict[p].First());
+        } else {
+            // log warning
+            _logger.Warn("Pacenote mapping {0} from RBR to ZTMZ not found, along with flag {1} and distance {2}", ptype, pflag, pdistance);
+            if (RBRScriptResource.Instance.PacenotesDict.ContainsKey(ptype)) {
+                _logger.Warn("Pacenote type {0} found in RBRScriptResource, but not mapped to ZTMZ", ptype);
+            } else {
+                _logger.Warn("Pacenote type {0} not found in RBRScriptResource", ptype);
+            }
         }
         record.Modifier = getModifiersFromFlag(pflag);
         record.Distance = pdistance;

@@ -209,6 +209,8 @@ WizardStyle=modern
 VersionInfoVersion={#MyAppVersion}
 ;PrivilegesRequired=lowest
 UninstallDisplayIcon={code:GetInstallDir}\{#MyAppExeName}
+; Very high compression ratio
+Compression=lzma2/ultra64
 
 ; use custom dir page
 DisableDirPage=yes

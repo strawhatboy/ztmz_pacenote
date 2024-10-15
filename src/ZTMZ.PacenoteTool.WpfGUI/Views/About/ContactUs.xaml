@@ -30,26 +30,26 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
-            Text="{DynamicResource ui.contactUs_gitee}" />
+            Text="{DynamicResource ui.contactUs_gitee}" VerticalAlignment="Center" />
         <ui:HyperlinkButton Grid.Column="1" Content="https://gitee.com/ztmz/ztmz_pacenote"
-            NavigateUri="https://gitee.com/ztmz/ztmz_pacenote" />
+            NavigateUri="https://gitee.com/ztmz/ztmz_pacenote" VerticalAlignment="Center" />
         <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
-            Grid.Row="1"
+            Grid.Row="1" VerticalAlignment="Center"
             Text="{DynamicResource ui.contactUs_github}" />
         <ui:HyperlinkButton Grid.Column="1" Grid.Row="1"
             Content="https://github.com/strawhatboy/ztmz_pacenote"
-            NavigateUri="https://github.com/strawhatboy/ztmz_pacenote" />
+            NavigateUri="https://github.com/strawhatboy/ztmz_pacenote" VerticalAlignment="Center" />
         <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
-            Grid.Row="2"
+            Grid.Row="2" VerticalAlignment="Center"
             Text="{DynamicResource ui.raise_issue}" />
         <ui:HyperlinkButton Grid.Column="1" Grid.Row="2"
             Content="https://gitee.com/ztmz/ztmz_pacenote/issues"
-            NavigateUri="https://gitee.com/ztmz/ztmz_pacenote/issues" />
+            NavigateUri="https://gitee.com/ztmz/ztmz_pacenote/issues" VerticalAlignment="Center" />
         
         <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
             Grid.Row="3"
             Text="{DynamicResource ui.contactUs_QQ}" />
-        <ui:TextBlock Grid.Column="1" Grid.Row="3" Margin="10 0 0 0">
+        <ui:TextBlock Grid.Column="1" Grid.Row="3" Margin="10 0 0 0" VerticalAlignment="Center">
             <Run Text="207790761 (ZTMZ Club 总群)" />
             <LineBreak />
             <Run Text="697673264 (ZTMZ Next Generation Pacenote)" />
@@ -58,9 +58,9 @@
             <LineBreak />
         </ui:TextBlock>
         <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
-            Grid.Row="4"
+            Grid.Row="4" VerticalAlignment="Center"
             Text="{DynamicResource ui.tb_friendlink}" />
-        <ui:HyperlinkButton Grid.Column="1" Grid.Row="4"
+        <ui:HyperlinkButton Grid.Column="1" Grid.Row="4" VerticalAlignment="Center"
             Content="https://www.simrallycn.top/index"
             NavigateUri="https://www.simrallycn.top/index" />
     </Grid>
