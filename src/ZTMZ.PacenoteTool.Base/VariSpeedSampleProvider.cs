@@ -1,4 +1,5 @@
 using System;
+using NAudio.Dsp;
 using NAudio.Wave;
 using SoundTouch;
 

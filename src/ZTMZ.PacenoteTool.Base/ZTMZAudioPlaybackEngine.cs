@@ -78,11 +78,13 @@ namespace ZTMZ.PacenoteTool.Base
         public void PlaySound(AutoResampledCachedSound sound, bool isSequential = true, bool isSystem = false)
         {
             AddMixerInput(
-                new VariSpeedSampleProvider(
-                    new AutoResampledCachedSoundSampleProvider(sound), 
-                    500, 
-                    this.PlaybackRate, Config.Instance.UseTempoInsteadOfRate), 
-                isSequential, isSystem);            
+                new InterComEffectSampleProvider(
+                    new VariSpeedSampleProvider(
+                        new AutoResampledCachedSoundSampleProvider(sound), 
+                        500, 
+                        this.PlaybackRate, Config.Instance.UseTempoInsteadOfRate), 
+                    Config.Instance.IntercomEffect),
+                    isSequential, isSystem);
             // AddMixerInput(
             //         new AutoResampledCachedSoundSampleProvider(sound), 
             //     isSequential);

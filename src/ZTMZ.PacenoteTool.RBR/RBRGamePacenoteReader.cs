@@ -360,7 +360,7 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             // log warning
             _logger.Warn("Pacenote mapping {0} from RBR to ZTMZ not found, along with flag {1} and distance {2}", ptype, pflag, pdistance);
             if (RBRScriptResource.Instance.PacenotesDict.ContainsKey(ptype)) {
-                _logger.Warn("Pacenote type {0} found in RBRScriptResource, but not mapped to ZTMZ", ptype);
+                _logger.Warn("Pacenote type {0} found in RBRScriptResource, which is {1}, but not mapped to ZTMZ", ptype, RBRScriptResource.Instance.PacenotesDict[ptype].First().name);
             } else {
                 _logger.Warn("Pacenote type {0} not found in RBRScriptResource", ptype);
             }

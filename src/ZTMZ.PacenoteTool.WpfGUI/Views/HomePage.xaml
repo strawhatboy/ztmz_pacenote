@@ -442,6 +442,7 @@
                                 <RowDefinition Height="40"/>
                                 <RowDefinition Height="40"/>
                                 <RowDefinition Height="40"/>
+                                <RowDefinition Height="40"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
 
@@ -572,16 +573,27 @@
                                           HorizontalAlignment="Center"
                                           Text="{Binding Path=ViewModel.FactorToRemoveSpaceFromAudioFiles, Mode=OneWay}"/>
 
-                            <!-- <ui:TextBlock Grid.Row="6" Grid.Column="0" 
-                                        ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_showHud}" 
-                                        Text="{DynamicResource ResourceKey=ui.tb_showHud}"
-                                        >
+                            <ui:TextBlock Grid.Row="6" Grid.Column="0" 
+                                        ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_intercom}" 
+                                        Text="{DynamicResource ResourceKey=ui.tb_intercom}"
+                                        />
+                            <Slider Name="sl_intercomEffect"
+                                        Grid.Row="6"
+                                        Grid.Column="2"
+                                        Value="{Binding Path=ViewModel.IntercomEffect, Mode=TwoWay}"
+                                        Maximum="100"
+                                        Minimum="0"
+                                        TickFrequency="1"
+                                        IsSnapToTickEnabled="False"
+                                        VerticalAlignment="Center"/>
+                                        
+                            <ui:TextBlock Grid.Row="6"
+                                        Grid.Column="1"
+                                        x:Name="tb_intercomEffect"
+                                        HorizontalAlignment="Center"
+                                        Text="{Binding Path=ViewModel.IntercomEffect, Mode=OneWay}"/>
         
-                            </ui:TextBlock>
-                            <ui:ToggleSwitch Grid.Row="6" Grid.Column="1">
-        
-                            </ui:ToggleSwitch> -->
-                            <ui:Button Grid.Row="6"
+                            <ui:Button Grid.Row="7"
                                        Grid.Column="2"
                                        HorizontalAlignment="Right"
                                        Content="{DynamicResource ResourceKey=settings.more}"

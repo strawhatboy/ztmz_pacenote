@@ -340,6 +340,7 @@
     "tb_updates": "更新记录",
     "tb_friendlink": "友情链接(SimRallyCN)",
     "btn_playExample": "试听",
+    "tb_intercom": "对讲机特效",
 
 
     "tooltip": {
@@ -383,7 +384,8 @@
       "tb_showHud": "是否在游戏中显示悬浮窗，需要游戏处于窗口模式或无边窗口模式",
       "tb_mute": "静音/取消静音",
 
-      "cb_gameNotInstalled": "该游戏未能正确安装，请检查游戏是否安装正确"
+      "cb_gameNotInstalled": "该游戏未能正确安装，请检查游戏是否安装正确",
+      "tb_intercom": "数值越大 效果越强，声音更像是从对讲机中发出",
     }
   },
   "misc": {

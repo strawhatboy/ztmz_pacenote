@@ -714,6 +714,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._FactorToRemoveSpaceFromAudioFiles;
         }
 
+        private int _IntercomEffect = 0;
+        public int IntercomEffect
+        {
+            set { this._IntercomEffect = value; this._userconfig["IntercomEffect"] = value; }
+            get => this._IntercomEffect;
+        }
+
         // connect the distance call audio to next pacenote, to improve the rhythm, e.g. "3_left [maybe pause] into,4_right"
         private bool _ConnectCloseDistanceCallToNextPacenote = true;
         public bool ConnectCloseDistanceCallToNextPacenote

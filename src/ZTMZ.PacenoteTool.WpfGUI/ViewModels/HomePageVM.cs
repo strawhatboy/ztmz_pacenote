@@ -130,6 +130,14 @@ public partial class HomePageVM : ObservableObject {
         Config.Instance.SaveUserConfig();
     }
 
+    [ObservableProperty]
+    private int _intercomEffect = 0;
+    partial void OnIntercomEffectChanged(int value)
+    {
+        Config.Instance.IntercomEffect = value;
+        Config.Instance.SaveUserConfig();
+    }
+
     private static Dictionary<float, int> _factorToIndex = new() {
         { 0.00001f, 0 },
         { 0.00005f, 1 },
@@ -359,6 +367,7 @@ public partial class HomePageVM : ObservableObject {
             PlaybackVolume = (float)(Config.Instance.UI_PlaybackVolume + 1000f) / 20f;  // [-1000, 1000] to [0, 100]
             PlaybackSpeed = Config.Instance.UI_PlaybackSpeed;
             PlaybackAdjustSeconds = (float)Config.Instance.UI_PlaybackAdjustSeconds;
+            IntercomEffect = Config.Instance.IntercomEffect;
         };
         
         Task.Run(() => {
