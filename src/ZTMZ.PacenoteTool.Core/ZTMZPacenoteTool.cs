@@ -360,6 +360,12 @@ public class ZTMZPacenoteTool {
                     // just go !
                     this._profileManager.PlaySystem(Constants.SYSTEM_GO, true);
                 }
+                if (lastState == GameState.Paused) {
+                    // paused to racing, probably adhoc, need to relocate pacenotes
+                    var distance = this._currentGame.GameDataReader.CurrentGameData.LapDistance;
+                    _logger.Info($"game state changed to racing from paused, if in RBR need to relocate pacenote, tring to relocate the pacenote based on the car's position {distance}");
+                    this._profileManager.ReIndex(distance);
+                }
                 break;
             case GameState.CountingDown:
                 if (evt.Parameters != null) 

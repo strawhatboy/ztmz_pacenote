@@ -42,7 +42,7 @@ public class InterComEffectSampleProvider : ISampleProvider
             buffer[offset + i] = highShelfFilter.Transform(buffer[offset + i]);
 
             // need to amplify the sound by level, when intercom level become larger, the sound will be louder
-            buffer[offset + i] *= (level*15+100) / 100f;
+            // buffer[offset + i] *= (level*15+100) / 100f;
         }
         
         return samplesRead;

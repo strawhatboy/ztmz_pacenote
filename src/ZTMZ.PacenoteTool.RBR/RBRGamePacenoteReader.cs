@@ -35,6 +35,7 @@ public class RBRGamePacenoteReader : BasePacenoteReader
     public static string WEATHER_SUFFIX_OVERCAST = "_O";
     public static string FILE_EXTENSION_DRIVELINE = ".dls";
     public static string FILE_EXTENSION_PACENOTE = ".pacenote";
+    public static string FILE_EXTENSION_INI_PACENOTE = ".ini";
     private static List<string> DLS_FILE_SUFFIXES = new List<string>() { 
         WEATHER_SUFFIX_EVENING + FILE_EXTENSION_DRIVELINE,
         WEATHER_SUFFIX_MORNING + FILE_EXTENSION_DRIVELINE,
@@ -106,10 +107,10 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             if (defaultSection.Keys.ContainsKey("MyPacenotesPath"))
             {
                 var customPacenotePath = trimIniValue(defaultSection.Keys["MyPacenotesPath"]);
-                if (Directory.Exists(Path.Join(RBRRootDir, customPacenotePath)))
+                if (Directory.Exists(Path.Join(RBRRootDir, customPacenotePath)) && customPacenotePath != "Disabled")
                 {
                     _hasCustomPacenote = true;
-                    _customPacenoteFolder = customPacenotePath;
+                    _customPacenoteFolder = Path.Join(RBRRootDir, customPacenotePath);
                 }
             }
         }
@@ -165,7 +166,12 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             // *.pacenote
             return base.ReadPacenoteRecord(profile, game, track);
         } else {
-            // read from Memory first
+            // should read custom defined pacenote first.
+            if (fileName.EndsWith(FILE_EXTENSION_INI_PACENOTE)) {
+                _logger.Info("Reading pacenote from ini file {0} for track {1}", fileName, track);
+                return ReadPacenoteRecordFromIniFile(fileName);
+            }
+
             _logger.Info("Reading pacenote from memory for track {0}", track);
             var rbrMemReader = ((RBRGameDataReader)game.GameDataReader).memDataReader;
 
@@ -179,9 +185,9 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             if (fileName.EndsWith(FILE_EXTENSION_DRIVELINE)) 
             {
                 return ReadPacenoteRecordFromDLSFile(fileName);
-            } else {
-                return ReadPacenoteRecordFromIniFile(fileName);
             }
+
+            return null;    
         }
         
     }
@@ -389,14 +395,19 @@ public class RBRGamePacenoteReader : BasePacenoteReader
         var trackNo = trackInfo.Item1;
         var trackName = trackInfo.Item2;
         // 1. try custom pacenote file
-        if (_hasCustomPacenote && Directory.Exists(Path.Join(_customPacenoteFolder, trackName)))
-        {
-            // use latest!
-            var files = Directory.GetFiles(Path.Join(_customPacenoteFolder, trackName), "*.ini");
-            var latestFile = files.Select(f => new FileInfo(f)).OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
-            if (latestFile != null) 
-            {
-                return latestFile.FullName;
+        if (_hasCustomPacenote) {
+            var customPacenoteFolder = Path.Join(_customPacenoteFolder, trackName);
+            if (!Directory.Exists(customPacenoteFolder)) {
+                customPacenoteFolder = Path.Join(_customPacenoteFolder, trackName + " BTB"); // maybe it's a BTB track
+            }
+
+            if (Directory.Exists(customPacenoteFolder)) {
+                // load the latest file
+                var files = Directory.GetFiles(customPacenoteFolder, "*.ini");
+                var latestFile = files.Select(f => new FileInfo(f)).OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
+                if (latestFile != null) {
+                    return latestFile.FullName;
+                }
             }
         }
 

@@ -1,5 +1,5 @@
 ﻿#define MyAppName "ZTMZ Next Generation Pacenote Tool"
-#define MyAppVersion "2.99.99.23"
+#define MyAppVersion "2.99.99.24"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
@@ -203,14 +203,13 @@ DefaultDirName={autopf}\ztmzclub_pacenotetool_nextgen
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 PrivilegesRequired=lowest
-Compression=lzma
+Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
 VersionInfoVersion={#MyAppVersion}
 ;PrivilegesRequired=lowest
 UninstallDisplayIcon={code:GetInstallDir}\{#MyAppExeName}
 ; Very high compression ratio
-Compression=lzma2/ultra64
 
 ; use custom dir page
 DisableDirPage=yes
