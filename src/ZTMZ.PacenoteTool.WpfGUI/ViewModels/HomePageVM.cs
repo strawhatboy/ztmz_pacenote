@@ -293,14 +293,16 @@ public partial class HomePageVM : ObservableObject {
                 });
             } else if (code == PrerequisitesCheckResultCode.GAME_NOT_INSTALLED) {
                 message = I18NLoader.Instance["ui.tooltip.cb_gameNotInstalled"];
+            } else if (code == PrerequisitesCheckResultCode.CONFIG_FILE_CORRUPTED) {
+                message = string.Format(I18NLoader.Instance["exception.configFileCorrupted.msg"], parameters[0], parameters[1]);
             }
 
             // Finally InfoBar closable issue was fixed in WPF-UI 3.0.0
             if (code != PrerequisitesCheckResultCode.OK && !string.IsNullOrEmpty(message)) {
-                // GameInitializeFailureMessage = message;
-                // InfoBarIsOpen = true;
-                // InfoBarMessage = message;
-                // InfoBarSeverity = InfoBarSeverity.Warning;
+                GameInitializeFailureMessage = message;
+                InfoBarIsOpen = true;
+                InfoBarMessage = message;
+                InfoBarSeverity = InfoBarSeverity.Warning;
             }
         };
         _tool.onRaceBegin += (game) => { 

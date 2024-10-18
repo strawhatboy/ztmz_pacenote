@@ -112,11 +112,24 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
         }
     }
 
+    private XDocument loadXml(string file)
+    {
+        try {
+            return XDocument.Load(file);
+        } catch (Exception e) {
+            _logger.Error(e, "Error while loading xml file {0}", file);
+            return null;
+        }
+    }
+
     public PrerequisitesCheckResult Check(IGame game, string file)
     {
         configPort = ((UdpGameConfig)game.GameConfigurations[UdpGameConfig.Name]).Port.ToString();
         configIP = ((UdpGameConfig)game.GameConfigurations[UdpGameConfig.Name]).IPAddress;
-        this._xmlFile = XDocument.Load(file);
+        this._xmlFile = this.loadXml(file);
+        if (this._xmlFile == null) {
+            return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.CONFIG_FILE_CORRUPTED, IsOK = false, Params = new List<object> { game.Name, file } };
+        }
         this._udpNode = this._xmlFile.Root.XPathSelectElements("./motion_platform/udp");
 
         foreach (var node in this._udpNode)
@@ -161,7 +174,11 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
 
     public void Write(string file)
     {
-        this._xmlFile = XDocument.Load(file);
+        this._xmlFile = this.loadXml(file);
+        if (this._xmlFile == null) {
+            _logger.Error("Error while loading xml file {0} when force fixing the game configuration", file);
+            return;
+        }
         var motionPlatformNode = this._xmlFile.Root.XPathSelectElement("./motion_platform");
         if (motionPlatformNode != null)
         {

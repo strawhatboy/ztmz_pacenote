@@ -403,6 +403,10 @@
       "title": "Port Already In Use",
       "msg": "Port {0} is IN USE，please check if there's any program like SIMHUB，速魔软件，Dirt Telemetry Tool running, if so, try to solve this issue by UDP Port Forwarding function in SIMHUB\nSee in details (Chinese): https://www.bilibili.com/video/BV1oq4y1u7ua?p=2"
     },
+    "configFileCorrupted": {
+      "title": "Configuration file corrupted.",
+      "msg": "Configuration file {1} for game {0} is currently corrupted\nIf it's DirtRally1.0/2.0, please try removing that file and restart the game to reset it to default;\nIf it's RBR, please try a minimum reinstall of the game."
+    },
     "unknown": {
       "title": "Unknown Error"
     }
