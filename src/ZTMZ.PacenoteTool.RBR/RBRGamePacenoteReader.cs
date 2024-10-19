@@ -166,12 +166,7 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             // *.pacenote
             return base.ReadPacenoteRecord(profile, game, track);
         } else {
-            // should read custom defined pacenote first.
-            if (fileName.EndsWith(FILE_EXTENSION_INI_PACENOTE)) {
-                _logger.Info("Reading pacenote from ini file {0} for track {1}", fileName, track);
-                return ReadPacenoteRecordFromIniFile(fileName);
-            }
-
+            // should read pacenote from memory, even custom pacenote is loaded in memory.
             _logger.Info("Reading pacenote from memory for track {0}", track);
             var rbrMemReader = ((RBRGameDataReader)game.GameDataReader).memDataReader;
 
@@ -180,6 +175,11 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             {
                 _logger.Info("Pacenotes from memory found for track {0}, {1} records", track, sr.PacenoteRecords.Count);
                 return sr;
+            }
+
+            if (fileName.EndsWith(FILE_EXTENSION_INI_PACENOTE)) {
+                _logger.Info("Reading pacenote from ini file {0} for track {1}", fileName, track);
+                return ReadPacenoteRecordFromIniFile(fileName);
             }
 
             if (fileName.EndsWith(FILE_EXTENSION_DRIVELINE)) 
