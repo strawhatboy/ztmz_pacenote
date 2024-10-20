@@ -21,7 +21,7 @@ public partial class CodriverPackageUpdateFile: ObservableObject {
         this.Gender = info.gender;
         this.Language = info.language;
         this.Homepage = info.homepage;
-        this.Version = info.version;
+        this.OriginalVersion = info.version;
         this.Path = info.Path;
     }
     [ObservableProperty]
@@ -38,6 +38,8 @@ public partial class CodriverPackageUpdateFile: ObservableObject {
     public string homepage;
     [ObservableProperty]
     public string version;
+    [ObservableProperty]
+    public string originalVersion;
 
     [ObservableProperty]
     public string url;

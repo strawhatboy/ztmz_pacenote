@@ -57,7 +57,7 @@ public partial class VoicePageVM : ObservableObject {
             // local
             var local = (from p in tool.CoDriverPackages
                 where !needUpdateOrDownload.Any(x => x.Id == p.Info.id)
-                select new CodriverPackageUpdateFile(p.Info) { needUpdate = false, needDownload = false, isAvailable = true }).ToList();
+                select new CodriverPackageUpdateFile(p.Info) { NeedUpdate = false, NeedDownload = false, IsAvailable = true, Version=p.Info.version }).ToList();
             foreach (var pkg in local) {
                 VoicePackages.Add(pkg);
             }

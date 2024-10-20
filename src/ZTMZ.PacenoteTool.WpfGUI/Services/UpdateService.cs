@@ -73,6 +73,7 @@ public class UpdateService {
                         // append to need update list   
                         update.needUpdate = true;
                         update.Path = pkg.Path; // keep the original path for deletion
+                        update.originalVersion = pkg.version;
                     }
                     needUpdate.Add(update);
                 } else {
