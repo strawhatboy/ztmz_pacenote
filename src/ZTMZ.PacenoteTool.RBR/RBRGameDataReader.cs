@@ -262,13 +262,13 @@ public class RBRGameDataReader : UdpGameDataReader
             // detect with G_long
             CollisionSeverity severity = CollisionSeverity.None;
             if (newUdpGameData.G_long <= -Config.Instance.CollisionSpeedChangeThreshold_Severe) {
-                _logger.Debug($"Acceleration: {newUdpGameData.G_long}");
+                _logger.Trace($"Acceleration: {newUdpGameData.G_long}");
                 severity = CollisionSeverity.Severe;
             } else if (newUdpGameData.G_long <= -Config.Instance.CollisionSpeedChangeThreshold_Medium) {
-                _logger.Debug($"Acceleration: {newUdpGameData.G_long}");
+                _logger.Trace($"Acceleration: {newUdpGameData.G_long}");
                 severity = CollisionSeverity.Medium;
             } else if (newUdpGameData.G_long <= -Config.Instance.CollisionSpeedChangeThreshold_Slight) {
-                _logger.Debug($"Acceleration: {newUdpGameData.G_long}");
+                _logger.Trace($"Acceleration: {newUdpGameData.G_long}");
                 severity = CollisionSeverity.Slight;
             }
 
@@ -355,7 +355,7 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.Speed = data.SpeedKMH;
         gameData.TrackLength = data.TrackLength;
         gameData.LapDistance = data.DistanceFromStart;
-        gameData.CompletionRate = data.DistanceFromStart / data.DistanceToFinish + data.DistanceFromStart;
+        gameData.CompletionRate = data.DistanceFromStart / (data.DistanceToFinish + data.DistanceFromStart);
         gameData.LapTime = data.RaceTime;
         gameData.MaxRPM = 8500f;    // use 8500 as default
         gameData.MaxGears = 6;

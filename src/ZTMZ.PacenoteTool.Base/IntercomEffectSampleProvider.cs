@@ -42,7 +42,7 @@ public class InterComEffectSampleProvider : ISampleProvider
         distortionThreshold = DISTORTION_THRESHOLD_MIN + (DISTORTION_THRESHOLD_MAX - DISTORTION_THRESHOLD_MIN) * Math.Abs(MathF.Pow(level / 100f - 1, 3));
         distortionGain = DISTORTION_GAIN_MIN + (DISTORTION_GAIN_MAX - DISTORTION_GAIN_MIN) * Math.Abs(MathF.Pow(level / 100f, 3));
 
-        logger.Debug($"InterComEffectSampleProvider: level={level}, lowPassFrequency={lowPassFrequency}, highPassFrequency={highPassFrequency}, distortionGain={distortionGain}, distortionThreshold={distortionThreshold}");
+        logger.Trace($"InterComEffectSampleProvider: level={level}, lowPassFrequency={lowPassFrequency}, highPassFrequency={highPassFrequency}, distortionGain={distortionGain}, distortionThreshold={distortionThreshold}");
     }
     
     public WaveFormat WaveFormat { get; }

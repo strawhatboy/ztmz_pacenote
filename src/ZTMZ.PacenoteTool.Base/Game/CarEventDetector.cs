@@ -29,17 +29,17 @@ public class CarEventDetector
 
         if (acceleration >= Config.Instance.CollisionSpeedChangeThreshold_Severe)
         {
-            logger.Debug($"Acceleration: {acceleration}, Speed: {currentGameData.Speed}, LapTime: {currentGameData.LapTime}, LapDistance: {currentGameData.LapDistance}, lastSpeed: {lastGameData.Speed}, lastLapTime: {lastGameData.LapTime}, lastLapDistance: {lastGameData.LapDistance}");
+            logger.Trace($"Acceleration: {acceleration}, Speed: {currentGameData.Speed}, LapTime: {currentGameData.LapTime}, LapDistance: {currentGameData.LapDistance}, lastSpeed: {lastGameData.Speed}, lastLapTime: {lastGameData.LapTime}, lastLapDistance: {lastGameData.LapDistance}");
             return CollisionSeverity.Severe;
         }
         else if (acceleration >= Config.Instance.CollisionSpeedChangeThreshold_Medium)
         {
-            logger.Debug($"Acceleration: {acceleration}, Speed: {currentGameData.Speed}, LapTime: {currentGameData.LapTime}, LapDistance: {currentGameData.LapDistance}, lastSpeed: {lastGameData.Speed}, lastLapTime: {lastGameData.LapTime}, lastLapDistance: {lastGameData.LapDistance}");
+            logger.Trace($"Acceleration: {acceleration}, Speed: {currentGameData.Speed}, LapTime: {currentGameData.LapTime}, LapDistance: {currentGameData.LapDistance}, lastSpeed: {lastGameData.Speed}, lastLapTime: {lastGameData.LapTime}, lastLapDistance: {lastGameData.LapDistance}");
             return CollisionSeverity.Medium;
         }
         else if (acceleration >= Config.Instance.CollisionSpeedChangeThreshold_Slight)
         {
-            logger.Debug($"Acceleration: {acceleration}, Speed: {currentGameData.Speed}, LapTime: {currentGameData.LapTime}, LapDistance: {currentGameData.LapDistance}, lastSpeed: {lastGameData.Speed}, lastLapTime: {lastGameData.LapTime}, lastLapDistance: {lastGameData.LapDistance}");
+            logger.Trace($"Acceleration: {acceleration}, Speed: {currentGameData.Speed}, LapTime: {currentGameData.LapTime}, LapDistance: {currentGameData.LapDistance}, lastSpeed: {lastGameData.Speed}, lastLapTime: {lastGameData.LapTime}, lastLapDistance: {lastGameData.LapDistance}");
             return CollisionSeverity.Slight;
         }
         else
