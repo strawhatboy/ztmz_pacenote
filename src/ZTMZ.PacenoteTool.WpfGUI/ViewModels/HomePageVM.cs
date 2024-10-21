@@ -250,7 +250,7 @@ public partial class HomePageVM : ObservableObject {
 
                     if (result == Wpf.Ui.Controls.MessageBoxResult.Primary) {
                         // force fix
-                        game.GamePrerequisiteChecker.ForceFix(game);
+                        await forceFixGame(game);
                     }
                 });
             } else if (code == PrerequisitesCheckResultCode.PORT_NOT_MATCH && Config.Instance.WarnIfPortMismatch) {
@@ -273,7 +273,7 @@ public partial class HomePageVM : ObservableObject {
 
                     if (result == Wpf.Ui.Controls.MessageBoxResult.Primary) {
                         // force fix
-                        game.GamePrerequisiteChecker.ForceFix(game);
+                        await forceFixGame(game);
                     } else if (result == Wpf.Ui.Controls.MessageBoxResult.Secondary) {
                         Config.Instance.WarnIfPortMismatch = false;
                         Config.Instance.SaveUserConfig();
@@ -377,6 +377,19 @@ public partial class HomePageVM : ObservableObject {
             _tool.Init();
             _tool.SetFromConfiguration();
         });
+    }
+
+    private async Task forceFixGame(IGame game) {
+        try {
+            game.GamePrerequisiteChecker.ForceFix(game);
+        } catch (Exception e) {
+            _logger.Error(e, "Force fix failed.");
+            await new Wpf.Ui.Controls.MessageBox {
+                Title = I18NLoader.Instance["exception.forceFixError.title"],
+                Content = I18NLoader.Instance["exception.forceFixError.msg"] + e.Message,
+                CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+            }.ShowDialogAsync();
+        }
     }
 
     private void loadCodrivers() {

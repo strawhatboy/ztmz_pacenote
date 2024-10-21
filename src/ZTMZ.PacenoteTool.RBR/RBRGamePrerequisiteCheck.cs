@@ -44,20 +44,20 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
             }
         } else 
         {
-            // HU rbr not installed.
+            // rsf rbr not installed.
             notInstalled = true;
         }
 
         var iniFilePath = Path.Join(RBRRootDir, "RichardBurnsRally.ini");
         if (!checkIfIniFileValid(iniFilePath)) 
         {
-            notInstalled = true;
+            return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.CONFIG_FILE_CORRUPTED, IsOK = false, Params = new List<object> { game.Name, iniFilePath } };
         }
 
         var trackFilePath = Path.Join(RBRRootDir, "Maps\\Tracks.ini");
         if (!checkIfIniFileValid(trackFilePath)) 
         {
-            notInstalled = true;
+            return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.CONFIG_FILE_CORRUPTED, IsOK = false, Params = new List<object> { game.Name, trackFilePath } };
         }
 
         if (notInstalled)

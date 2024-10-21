@@ -317,14 +317,14 @@
                                                         <DataTrigger Binding="{Binding gender}"
                                                                      Value="M">
                                                             <Setter Property="Text"
-                                                                    Value="🚹"/>
+                                                                    Value="♂"/>
                                                             <Setter Property="Foreground"
                                                                     Value="RoyalBlue"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding gender}"
                                                                      Value="F">
                                                             <Setter Property="Text"
-                                                                    Value="🚺"/>
+                                                                    Value="♀"/>
                                                             <Setter Property="Foreground"
                                                                     Value="DeepPink"/>
                                                         </DataTrigger>

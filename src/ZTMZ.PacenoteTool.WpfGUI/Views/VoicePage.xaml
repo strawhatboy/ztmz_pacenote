@@ -79,16 +79,65 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Orientation="Horizontal" Margin="10"
                                     VerticalAlignment="Center">
-                                    <ui:SymbolIcon Symbol="ChatSettings20"
-                                        FontSize="26"
-                                        Margin="0 0 10 0" />
+                                    <ui:TextBlock 
+                                        FontSize="24"
+                                        Margin="0 0 10 0" >
+                                        <ui:TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text"
+                                                        Value="❓"/>
+                                                <Setter Property="Foreground"
+                                                        Value="Gray"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Gender}"
+                                                                 Value="M">
+                                                        <Setter Property="Text"
+                                                                Value="♂"/>
+                                                        <Setter Property="Foreground"
+                                                                Value="RoyalBlue"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Gender}"
+                                                                 Value="F">
+                                                        <Setter Property="Text"
+                                                                Value="♀"/>
+                                                        <Setter Property="Foreground"
+                                                                Value="DeepPink"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ui:TextBlock.Style>
+                                    </ui:TextBlock>
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition />
                                             <RowDefinition />
                                         </Grid.RowDefinitions>
-                                        <ui:TextBlock
-                                            Text="{Binding Name}" />
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <ui:TextBlock
+                                                Text="{Binding Name}" 
+                                                VerticalAlignment="Center"/>
+                                            <ui:TextBlock
+                                                Padding="5 0 0 0"
+                                                Text="{Binding Language}"
+                                                Appearance="Secondary"
+                                                FontTypography="Caption" 
+                                                VerticalAlignment="Center"/>
+                                            <ui:TextBlock
+                                                Padding="5 0 0 0"
+                                                Text="{Binding OriginalVersion}"
+                                                Appearance="Tertiary"
+                                                TextDecorations="Strikethrough"
+                                                Visibility="{Binding NeedUpdate, 
+                                Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                FontTypography="Caption"
+                                                VerticalAlignment="Center"/>
+                                            <ui:TextBlock
+                                                Padding="5 0 0 0"
+                                                Text="{Binding Version}"
+                                                Appearance="Tertiary"
+                                                FontTypography="Caption"
+                                                VerticalAlignment="Center" />
+                                        </StackPanel>
                                         <ui:TextBlock Grid.Row="1"
                                             Text="{Binding Description}"
                                             Appearance="Tertiary"

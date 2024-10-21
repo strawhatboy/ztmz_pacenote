@@ -177,7 +177,7 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
         this._xmlFile = this.loadXml(file);
         if (this._xmlFile == null) {
             _logger.Error("Error while loading xml file {0} when force fixing the game configuration", file);
-            return;
+            throw new Exception(string.Format("Error while loading xml file {0}", file));
         }
         var motionPlatformNode = this._xmlFile.Root.XPathSelectElement("./motion_platform");
         if (motionPlatformNode != null)
