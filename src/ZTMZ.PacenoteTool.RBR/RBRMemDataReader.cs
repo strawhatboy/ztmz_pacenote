@@ -70,14 +70,14 @@ public class RBRMemDataReader
             var baseAddr0 = MemoryReader.Read<int>(pHandle, 0x165FC68);
             // racedata available
             memData.SpeedKMH = MemoryReader.Read<float>(pHandle, baseAddr0 + 12);
-            memData.EngineRPM = MemoryReader.Read<float>(pHandle, baseAddr0 + 16);
-            memData.WaterTemperatureCelsius = MemoryReader.Read<float>(pHandle, baseAddr0 + 20);
-            memData.TurboPressureBar = MemoryReader.Read<float>(pHandle, baseAddr0 + 24) / 100000f;
+            memData.RaceTime = MemoryReader.Read<float>(pHandle, baseAddr0 + 0x140);
             memData.DistanceFromStart = MemoryReader.Read<float>(pHandle, baseAddr0 + 32);
             memData.TravelledDistance = MemoryReader.Read<float>(pHandle, baseAddr0 + 36);
             memData.DistanceToFinish = MemoryReader.Read<float>(pHandle, baseAddr0 + 40);
+            memData.EngineRPM = MemoryReader.Read<float>(pHandle, baseAddr0 + 16);
+            memData.WaterTemperatureCelsius = MemoryReader.Read<float>(pHandle, baseAddr0 + 20);
+            memData.TurboPressureBar = MemoryReader.Read<float>(pHandle, baseAddr0 + 24) / 100000f;
             memData.CurrentStagePosition = MemoryReader.Read<float>(pHandle, baseAddr0 + 0x13C);
-            memData.RaceTime = MemoryReader.Read<float>(pHandle, baseAddr0 + 0x140);
             memData.WrongWay = MemoryReader.Read<byte>(pHandle, baseAddr0 + 0x150) > 0;
             memData.SessionTime = MemoryReader.Read<float>(pHandle, baseAddr0 + 0x15C);
             memData.GearId = MemoryReader.Read<byte>(pHandle, baseAddr0 + 0x170) - 1;   // -1 = R, 0 = N, 1 = 1 ...

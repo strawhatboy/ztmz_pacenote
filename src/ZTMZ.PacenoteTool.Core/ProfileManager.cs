@@ -576,7 +576,7 @@ namespace ZTMZ.PacenoteTool.Core
 
         public void PlaySystem(string sound, bool isSequential = false, bool isSystem = false)
         {
-            Debug.WriteLine("Playing system sound : {0}", sound);
+            Debug.WriteLine(string.Format("Playing system sound : {0}", sound));
             var audio = this.getSoundByKeyword(sound, this.CurrentCoDriverSoundPackagePath);
             audio.PlaySpeed = this.CurrentPlaySpeed;
             audio.Amplification = this.CurrentPlayAmplification;
