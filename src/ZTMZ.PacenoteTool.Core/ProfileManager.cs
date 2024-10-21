@@ -430,6 +430,17 @@ namespace ZTMZ.PacenoteTool.Core
             if (Base.Script.ScriptResource.Instance.FilenameToIdDict.ContainsKey(keyword))
             {
                 id = Base.Script.ScriptResource.Instance.FilenameToIdDict[keyword];
+                if (Config.Instance.UseReversePacenote) {
+                    // try to find the reverse pacenote
+                    if (Base.Script.ScriptResource.Instance.ReverseCorners.Any(r => r.id == id))
+                    {
+                        var reverseId = Base.Script.ScriptResource.Instance.ReverseCorners.First(r => r.id == id).replacement_id;
+                        if (reverseId != -1)
+                        {
+                            id = reverseId;
+                        }
+                    }
+                }
             } else {
                 // unknown keyword, try to use the tokensPath
                 if (Config.Instance.PreloadSounds && package.tokens.ContainsKey(keyword))

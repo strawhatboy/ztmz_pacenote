@@ -333,6 +333,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._WheelAbnormalPercentageReportThreshold;
         }
 
+        private bool _UseReversePacenote = false;
+        public bool UseReversePacenote
+        {
+            set { this._UseReversePacenote = value; this._userconfig["UseReversePacenote"] = value; }
+            get => this._UseReversePacenote;
+        }
+
         #region HUD
 
         private bool _HudLockFPS = true;

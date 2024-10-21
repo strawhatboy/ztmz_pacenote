@@ -66,6 +66,11 @@ public class ScriptResourceFallbacks {
     public int order_id;
 }
 
+public class ScriptResourceReverseCorners {
+    public int id;
+    public int replacement_id;
+}
+
 public class ScriptResource
 {
     private static ScriptResource _instance;
@@ -82,6 +87,7 @@ public class ScriptResource
     public List<ScriptResourceType> Types { get; private set; } = new();
     public List<ScriptResourceFilenames> Filenames { get; private set; } = new();
     public List<ScriptResourceFallbacks> Fallbacks { get; private set; } = new();
+    public List<ScriptResourceReverseCorners> ReverseCorners { get; private set; } = new();
 
     public Dictionary<int, ScriptResourcePacenote> PacenoteDict { get; private set; } = new();
     public Dictionary<int, ScriptResourceComplexity> ComplexityDict { get; private set; } = new();
@@ -114,6 +120,7 @@ public class ScriptResource
         Types = (await Connection.QueryAsync<ScriptResourceType>("SELECT * FROM pacenote_type")).ToList();
         Filenames = (await Connection.QueryAsync<ScriptResourceFilenames>("SELECT * FROM pacenote_filenames")).ToList();
         Fallbacks = (await Connection.QueryAsync<ScriptResourceFallbacks>("SELECT * FROM pacenote_fallbacks")).ToList();
+        ReverseCorners = (await Connection.QueryAsync<ScriptResourceReverseCorners>("SELECT * FROM reverse_corners")).ToList();
 
         PacenoteDict = Pacenotes.ToDictionary(x => x.id);
         ComplexityDict = Complexities.ToDictionary(x => x.id);

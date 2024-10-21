@@ -34,6 +34,14 @@ public partial class VoiceSettingsPageVM : ObservableObject {
     }
 
     [ObservableProperty]
+    private bool _useReversePacenote = Config.Instance.UseReversePacenote;
+    partial void OnUseReversePacenoteChanged(bool value)
+    {
+        Config.Instance.UseReversePacenote = value;
+        Config.Instance.SaveUserConfig();
+    }
+
+    [ObservableProperty]
     private bool _playCollisionSound = Config.Instance.PlayCollisionSound;
 
     partial void OnPlayCollisionSoundChanged(bool value)
