@@ -162,22 +162,6 @@ public class RBRGameDataReader : UdpGameDataReader
         _currentMemData = memData;
         _onNewGameData?.Invoke(_lastGameData, _currentGameData);
 
-        // we're using acceleration to detect collision now, available in RBR.
-        if (Config.Instance.PlayCollisionSound && _currentGameData.Speed != 0) {
-            CollisionSeverity severity = CarEventDetector.DetectCollision(_lastGameData, _currentGameData);
-            if (severity != CollisionSeverity.None) {
-                _onCarDamaged?.Invoke(new CarDamageEvent
-                {
-                    DamageType = CarDamage.Collision,
-                    Parameters = new Dictionary<string, object> { { CarDamageConstants.SEVERITY, severity } }
-                });
-            }
-        }
-
-        if (CarEventDetector.IsCarReset(_lastGameData, _currentGameData)) {
-            _onCarReset?.Invoke();
-        }
-
         this.GameState = getGameStateFromMemory(memData);
     }
 
@@ -269,18 +253,50 @@ public class RBRGameDataReader : UdpGameDataReader
         var lastUdp = oldMsg.CastToStruct<RBRUdpData>();
         var newUdp = newMsg.CastToStruct<RBRUdpData>();
 
+        // we're using acceleration to detect collision now, available in RBR.
+        // use UDP data for collision detection, because it's time consistent.
+        // memory data is read sequentially, not time consistent.
+        GameData lastUdpGameData = getGameDataFromUdp(new GameData(), lastUdp);
+        GameData newUdpGameData = getGameDataFromUdp(new GameData(), newUdp);
+        if (Config.Instance.PlayCollisionSound && _currentGameData.Speed != 0) {
+            // detect with G_long
+            CollisionSeverity severity = CollisionSeverity.None;
+            if (newUdpGameData.G_long <= -Config.Instance.CollisionSpeedChangeThreshold_Severe) {
+                _logger.Debug($"Acceleration: {newUdpGameData.G_long}");
+                severity = CollisionSeverity.Severe;
+            } else if (newUdpGameData.G_long <= -Config.Instance.CollisionSpeedChangeThreshold_Medium) {
+                _logger.Debug($"Acceleration: {newUdpGameData.G_long}");
+                severity = CollisionSeverity.Medium;
+            } else if (newUdpGameData.G_long <= -Config.Instance.CollisionSpeedChangeThreshold_Slight) {
+                _logger.Debug($"Acceleration: {newUdpGameData.G_long}");
+                severity = CollisionSeverity.Slight;
+            }
+
+            if (severity != CollisionSeverity.None) {
+                _onCarDamaged?.Invoke(new CarDamageEvent
+                {
+                    DamageType = CarDamage.Collision,
+                    Parameters = new Dictionary<string, object> { { CarDamageConstants.SEVERITY, severity } }
+                });
+            }
+        }
+
+        if (CarEventDetector.IsCarReset(lastUdpGameData, newUdpGameData)) {
+            _onCarReset?.Invoke();
+        }
+
         _currentGameData = getGameDataFromUdp(_currentGameData, newUdp);
     }
 
     private GameData getGameDataFromUdp(GameData gameData, RBRUdpData data)
     {
-        gameData.TimeStamp = DateTime.Now;
+        // gameData.TimeStamp = DateTime.Now;
         gameData.Time = data.stage.raceTime;
         // gameData.LapTime = data.stage.raceTime;
-        gameData.LapDistance = data.stage.distanceToEnd / (1 - data.stage.progress) * data.stage.progress;
-        gameData.CompletionRate = data.stage.progress;
-        gameData.Speed = data.car.speed;
-        // gameData.TrackLength = data.stage.distanceToEnd / (1 - data.stage.progress);
+        // gameData.LapDistance = data.stage.distanceToEnd / (100 - data.stage.progress) * data.stage.progress;
+        // gameData.CompletionRate = data.stage.progress;
+        // gameData.Speed = data.car.speed;
+        // gameData.TrackLength = data.stage.distanceToEnd / (100 - data.stage.progress);
         // gameData.SpeedRearLeft = data.contro[0];
         // gameData.SpeedRearRight = data.car.wheelSpeed[1];
         // gameData.SpeedFrontLeft = data.car.wheelSpeed[2];
@@ -334,6 +350,7 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.Throttle = data.Throttle;
         gameData.Steering = data.Steering;
         gameData.HandBrake = data.Handbrake;
+        gameData.HandBrakeValid = true;
         gameData.Gear = data.GearId;
         gameData.Speed = data.SpeedKMH;
         gameData.TrackLength = data.TrackLength;

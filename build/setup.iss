@@ -226,9 +226,6 @@ Type: files; Name: "{code:GetZTMZHome}\config.json";
 ; Delete previous default audio package
 Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\default";
 
-; embed wha1ing new audio package for version 3.0
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\wha1ing";
-
 [Files]
 ; No json file!
 ; Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\*.json"; Excludes:"config.json,userconfig.json,*.deps.json,*.runtimeconfig.json"; DestDir: "{code:GetZTMZHome}"; Flags: ignoreversion
