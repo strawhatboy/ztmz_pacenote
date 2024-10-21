@@ -409,6 +409,10 @@
     },
     "unknown": {
       "title": "Unknown Error"
+    },
+    "forceFixError": {
+      "title": "Force Fix Error",
+      "msg": "Error occurs when trying to fix the issue, please check the log file for more details."
     }
   },
   "logLevel": {
