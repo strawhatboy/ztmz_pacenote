@@ -13,6 +13,12 @@ ARCSIZE_SMALL = 0;
 ARCSIZE_LARGE = 1;
 BLINK_INTERVAL_FRAMES_PERCENTAGE = 0.05;
 
+function getRotatePoint(gfx, helper, centerX, centerY, pointX, pointY, angle)
+    local point = helper.getPoint(centerX + (pointX - centerX) * math.cos(angle) - (pointY - centerY) * math.sin(angle),
+        centerY + (pointX - centerX) * math.sin(angle) + (pointY - centerY) * math.cos(angle));
+    return point;
+end
+
 function drawGeo(gfx, helper, centerX, centerY, startAngle, endAngle, radiusOuter, radiusInner, arcSize, brush)
     -- force cast to float???
     radiusOuter = radiusOuter + 0.0;

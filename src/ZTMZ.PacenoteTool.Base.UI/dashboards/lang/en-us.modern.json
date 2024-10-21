@@ -16,6 +16,10 @@
             "wrc2": {
                 "name": "WRC Style 2",
                 "description": "WRC Broadcasting Dashboard 2023",
+            },
+            "progress": {
+                "name": "Modern Progress",
+                "description": "Show modern WRC track progress"
             }
         },
         "settings": {
@@ -25,6 +29,7 @@
             "drivername": "Driver Name",
             "driverregion": "Driver Region",
             "useOffset": "Use horizontal offset",
+            "verticalOrHorizontal": "Vertical or Horizontal",
             "tooltip": {
                 "padding": "Padding horizontally and vertically",
                 "marginH": "Margin horizontally, relative to the screen width",
@@ -32,6 +37,7 @@
                 "drivername": "Driver Name",
                 "driverregion": "Driver Region, ISO 3166-1 alpha-2 code",
                 "useOffset": "When horizontal position is set to Center, switch on \nto center the circular elements in this dashboard",
+                "verticalOrHorizontal": "Show the progress bar vertically or horizontally, \nselected for vertical, unselected for horizontal",
             }
         }
     }

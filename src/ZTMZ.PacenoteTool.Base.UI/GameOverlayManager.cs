@@ -193,7 +193,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 PosY = 425,
                 PosZ = 5356,
                 TimeStamp = DateTime.Now,
-                TrackLength = 35667
+                TrackLength = 8667
             };
             TimeToShowTelemetry = true;
 #endif

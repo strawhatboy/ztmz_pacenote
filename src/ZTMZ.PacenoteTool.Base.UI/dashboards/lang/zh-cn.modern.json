@@ -16,6 +16,10 @@
             "wrc2": {
                 "name": "WRC风格2",
                 "description": "WRC 直播仪表盘2023 风格2",
+            },
+            "progress": {
+                "name": "现代版进度条",
+                "description": "显示类WRC赛道进度条"
             }
         },
         "settings": {
@@ -25,6 +29,7 @@
             "drivername": "车手姓名",
             "driverregion": "车手地区",
             "useOffset": "使用位置偏移",
+            "verticalOrHorizontal": "垂直还是水平",
             "tooltip": {
                 "padding": "仪表盘距离边缘的占比, 是相对于仪表盘大小的比值",
                 "marginH": "仪表盘水平方向边距占比, 是相对于屏幕宽度的比值",
@@ -32,6 +37,7 @@
                 "drivername": "车手姓名显示",
                 "driverregion": "车手地区显示, 遵从ISO 3166-1 alpha-2 标准",
                 "useOffset": "对此仪表使用水平位置偏移，保证在水平方向设置为居中时，圆形仪表的中心在屏幕中心",
+                "verticalOrHorizontal": "垂直还是水平，显示进度条的方向，选中代表垂直显示，未选中代表水平显示",
             }
         }
     }

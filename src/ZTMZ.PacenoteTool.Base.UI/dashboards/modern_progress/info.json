@@ -1,0 +1,10 @@
+{
+    "Name": "dashboards.modern.progress.name",
+    "Description": "dashboards.modern.progress.description",
+    "Author": "草帽不是猫",
+    "Version": "0.0.1",
+    "PreviewImage": null,
+    "ImageResources": {},
+    "ImageResourcesInDirectory": {},
+    "IsEnabled": false,
+}
