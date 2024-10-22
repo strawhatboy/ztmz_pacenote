@@ -54,6 +54,7 @@
                     MouseOverBackground="{Binding Path=ButtonsBackground, RelativeSource={RelativeSource AncestorType={x:Type ui:TitleBar}}}"
                     OverridesDefaultStyle="True" -->
                     <ui:Button Icon="{ui:SymbolIcon HeartCircle20}" Foreground="Red"
+                    Command="{Binding ViewModel.BuyMeACoffeeCommand}"
                     SnapsToDevicePixels="True"
                     Background="Transparent"
                     FontSize="16"

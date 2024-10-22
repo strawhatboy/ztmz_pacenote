@@ -204,5 +204,10 @@ public partial class MainWindowVM : ObservableObject
             Process.Start("explorer.exe", "https://github.com/strawhatboy/ztmz_pacenote/issues");
         }
     }
+
+    [RelayCommand]
+    private async Task BuyMeACoffee() {
+        Process.Start("explorer.exe", "https://gitee.com/ztmz/ztmz_pacenote/buy_me_a_coffee");
+    }
 }
 

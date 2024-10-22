@@ -273,7 +273,7 @@
     "contactUs_gitee": "Gitee",
     "raise_issue": "Issue Report",
     "contactUs_QQ": "QQ",
-    "donate": "Buy me a coffee",
+    "donate": "Buy me a coffee (Please make sure this links to gitee.com)",
 
     "rb_record": "Record Mode",
     "rb_replay": "Replay mode",
@@ -387,7 +387,7 @@
       "tb_showHud": "Whether to display the floating window in the game, the game needs to be in window mode or borderless window mode",
       "tb_mute": "Mute/Unmute",
 
-      "cb_gameNotInstalled": "The game is not installed",
+      "cb_gameNotInstalled": "The game is not installed. if it's playable RSFRBR, please install the game with minimum installation to fix the registry issue, and then restart this tool",
       "tb_intercom": "The larger the value is, the more the intercom effect will be, and the more the voice will be distorted",
     }
   },

@@ -272,7 +272,7 @@
     "contactUs_gitee": "Gitee",
     "raise_issue": "问题反馈",
     "contactUs_QQ": "QQ",
-    "donate": "给草帽买杯咖啡",
+    "donate": "给草帽买杯咖啡（请确认前往的网站是gitee.com）",
 
     "rb_record": "录制模式",
     "rb_replay": "播放模式",
@@ -386,7 +386,7 @@
       "tb_showHud": "是否在游戏中显示悬浮窗，需要游戏处于窗口模式或无边窗口模式",
       "tb_mute": "静音/取消静音",
 
-      "cb_gameNotInstalled": "该游戏未能正确安装，请检查游戏是否安装正确",
+      "cb_gameNotInstalled": "该游戏未能正确安装，请检查游戏是否安装正确。如果是已经可以运行的RSFRBR 游戏，请使用最小化模式安装游戏来修复注册表，并重启路书工具",
       "tb_intercom": "数值越大 效果越强，声音更像是从对讲机中发出",
     }
   },
