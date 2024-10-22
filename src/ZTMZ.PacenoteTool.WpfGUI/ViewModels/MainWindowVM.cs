@@ -207,7 +207,7 @@ public partial class MainWindowVM : ObservableObject
 
     [RelayCommand]
     private async Task BuyMeACoffee() {
-        Process.Start("explorer.exe", "https://gitee.com/ztmz/ztmz_pacenote/buy_me_a_coffee");
+        Process.Start("explorer.exe", "https://gitee.com/ztmz/ztmz_pacenote/tree/master/buy_me_a_coffee");
     }
 }
 
