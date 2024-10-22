@@ -131,11 +131,11 @@ function onUpdate(args)
     local progressEndY = telemetryEndY;
 
     local cursorPoints = {}; -- 5 points
-    cursorPoints[1] = { progressEndX, progressEndY + height + cursorSize / 2 };
-    cursorPoints[2] = { progressEndX + cursorSize / 2, progressEndY + height + cursorSize };
-    cursorPoints[3] = { progressEndX + cursorSize / 2, progressEndY + height + 2 * cursorSize };
-    cursorPoints[4] = { progressEndX - cursorSize / 2, progressEndY + height + 2 * cursorSize };
-    cursorPoints[5] = { progressEndX - cursorSize / 2, progressEndY + height + cursorSize };
+    cursorPoints[1] = { progressEndX, progressEndY + height / 2 + cursorSize / 2 };
+    cursorPoints[2] = { progressEndX + cursorSize / 2, progressEndY + height / 2 + cursorSize };
+    cursorPoints[3] = { progressEndX + cursorSize / 2, progressEndY + height / 2 + 2 * cursorSize };
+    cursorPoints[4] = { progressEndX - cursorSize / 2, progressEndY + height / 2 + 2 * cursorSize };
+    cursorPoints[5] = { progressEndX - cursorSize / 2, progressEndY + height / 2 + cursorSize };
 
     if (isVertical) then
         -- rotate all the positions according to the center

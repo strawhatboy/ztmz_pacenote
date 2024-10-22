@@ -212,6 +212,7 @@ function drawSpeed(gfx, self, data, helper, x, y, width, height, switchGearNSpee
     local speedWeight = height * 0.25;
     local speed = math.floor(data.Speed);
     local speedText = "";
+    local maxGear = math.floor(data.MaxGears);
     if (switchGearNSpeed) then
         speed = math.floor(data.Gear);
         speedText = getGear(speed);
@@ -220,7 +221,7 @@ function drawSpeed(gfx, self, data, helper, x, y, width, height, switchGearNSpee
     end
 
     --ugly code
-    if (not bInBlink and switchGearNSpeed) then
+    if (not bInBlink and switchGearNSpeed and speed < maxGear) then
         gfx.drawTextWithBackgroundCentered(_fonts["wrc"], speedWeight, _brushes["white"], _brushes["red"], centerX, centerY, speedText);
     else
         gfx.drawTextWithBackgroundCentered(_fonts["wrc"], speedWeight, _brushes["white"], _brushes["transparent"], centerX, centerY, speedText);
@@ -235,13 +236,14 @@ function drawGear(gfx, self, data, helper, x, y, width, height, switchGearNSpeed
     local gearWeight = height * 0.13;
     local gear = math.floor(data.Gear);
     local gearText = getGear(gear);
+    local maxGear = math.floor(data.MaxGears);
     if (switchGearNSpeed) then
         gear = math.floor(data.Speed);
         gearText = tostring(gear);
     end
 
     --ugly code
-    if (not bInBlink and not switchGearNSpeed) then
+    if (not bInBlink and not switchGearNSpeed and gear < maxGear) then
         gfx.drawTextWithBackgroundCentered(_fonts["wrcGear"], gearWeight, _brushes["white"], _brushes["red"], x + width * 0.53, y + height * 0.73, gearText);
     else
         gfx.drawTextWithBackgroundCentered(_fonts["wrcGear"], gearWeight, _brushes["white"], _brushes["transparent"], x + width * 0.53, y + height * 0.73, gearText);

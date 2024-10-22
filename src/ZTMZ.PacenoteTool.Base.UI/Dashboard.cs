@@ -150,22 +150,47 @@ public class Dashboard {
             _logger.Debug("Loading common lua script {0}", commonLuaScript);
             LuaG.DoChunk(File.ReadAllText(commonLuaScript), $"{Guid.NewGuid()}.lua");
         }
-        LuaG.DoChunk(File.ReadAllText(Path.Combine(Descriptor.Path, Constants.FILE_LUA_SCRIPT)), $"{Guid.NewGuid()}.lua");
+        try {
+            LuaG.DoChunk(File.ReadAllText(Path.Combine(Descriptor.Path, Constants.FILE_LUA_SCRIPT)), $"{Guid.NewGuid
+        ()}.lua");
+        } catch (Exception e) {
+            if (e is LuaParseException ex) {
+                _logger.Error("Lua parsing error at line {0}, column {1}: {2}", ex.Line, ex.Column, ex);
+            }
+        }
         args.Self = this;
 
         _logger.Debug("Calling onInit for dashboard {0}", Descriptor.Name);
-        LuaG.CallMember("onInit", args);
+        try {
+            LuaG.CallMember("onInit", args);
+        } catch (Exception e) {
+            if (e is LuaRuntimeException ex) {
+                _logger.Error("onInit, Lua runtime error at line {0}, column {1}: {2}", ex.Line, ex.Column, ex);
+            }
+        }
         _logger.Info($"Dashboard \"{I18NLoader.Instance[Descriptor.Name]}\" loaded");
     }
 
     public void Render(DashboardScriptArguments args) {
         args.Self = this;
         // render lua script
-        LuaG.CallMember("onUpdate", args);
+        try {
+            LuaG.CallMember("onUpdate", args);
+        } catch (Exception e) {
+            if (e is LuaRuntimeException ex) {
+                _logger.Error("onUpdate, Lua runtime error at line {0}, column {1}: {2}", ex.Line, ex.Column, ex);
+            }
+        }
     }
 
     public void Unload() {
-        LuaG.CallMember("onExit");
+        try {
+            LuaG.CallMember("onExit");
+        } catch (Exception e) {
+            if (e is LuaRuntimeException ex) {
+                _logger.Error("onExit, Lua runtime error at line {0}, column {1}: {2}", ex.Line, ex.Column, ex);
+            }
+        }
         _logger.Info($"Dashboard {I18NLoader.Instance[Descriptor.Name]} unloaded");
         LuaG.Clear();
         _lua?.Dispose();

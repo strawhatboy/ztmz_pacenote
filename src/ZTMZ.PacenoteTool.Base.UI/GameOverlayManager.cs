@@ -154,16 +154,16 @@ namespace ZTMZ.PacenoteTool.Base.UI
 #if DEV
             DashboardScriptArguments.GameData = new GameData()
             {
-                Brake = 1f,
-                Throttle = 1f,
+                Brake = 0.7f,
+                Throttle = 0.5f,
                 Clutch = 0.3f,
-                HandBrake = 0.95f,
+                HandBrake = 0.7f,
                 HandBrakeValid = true,
-                RPM = 6000f,
+                RPM = 8800f,
                 MaxRPM = 9000f,
                 IdleRPM = 1000f,
                 Speed = 130f,
-                Gear = 6f,
+                Gear = 6,
                 MaxGears = 6,
                 G_lat = 0.5f,
                 G_long = 0.2f,

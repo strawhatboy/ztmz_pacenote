@@ -19,7 +19,7 @@
             },
             "progress": {
                 "name": "现代版进度条",
-                "description": "显示类WRC赛道进度条"
+                "description": "显示类似WRC的赛道进度条"
             }
         },
         "settings": {

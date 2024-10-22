@@ -20,6 +20,10 @@
             "pedals_statistics": {
                 "name": "踏板状态统计",
                 "description": "显示最近一段时间的踏板状态"
+            },
+            "wrcDashboard": {
+                "name": "经典WRC直播仪表盘",
+                "description": "经典WRC直播遥测长方形表盘，复刻自佐腾酱的优化版本（❤来自佐腾酱"
             }
         },
         "settings": {

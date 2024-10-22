@@ -1,0 +1,15 @@
+{
+    "Name": "dashboards.classic.wrcDashboard.name",
+    "Description": "dashboards.classic.wrcDashboard.description",
+    "Author": "草帽不是猫",
+    "Version": "0.0.1",
+    "PreviewImage": null,
+    "ImageResources": {},
+    "ImageResourcesInDirectory": {
+        "images": {
+            "Path": "images",
+            "FormatGUID": "6fddc324-4e03-4bfe-b185-3d77768dc917"
+        }
+    },
+    "IsEnabled": false,
+}
