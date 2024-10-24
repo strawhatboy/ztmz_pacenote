@@ -196,6 +196,20 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
                 }
             }
 
+            // check duplicate udp nodes
+            HashSet<string> udpNodeSet = new HashSet<string>();
+            foreach (var node in udpNodes)
+            {
+                string nodeStr = node.ToString();
+                if (udpNodeSet.Contains(nodeStr))
+                {
+                    // remove duplicate udp nodes, to avoid multicasting the same data
+                    node.Remove();
+                    continue;
+                }
+                udpNodeSet.Add(nodeStr);
+            }
+
             var udpNode = new XElement("udp");
             udpNode.SetAttributeValue("enabled", "true");
             udpNode.SetAttributeValue("extradata", "3");
