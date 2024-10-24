@@ -48,7 +48,7 @@
                     FontSize="16"
                     SnapsToDevicePixels="True"
                     Background="Transparent"
-                    ToolTipService.InitialShowDelay="100" />
+                    ToolTipService.InitialShowDelay="100" Content="{DynamicResource ResourceKey=ui.raise_issue}" />
                     <!-- ButtonsForeground="{Binding Path=ButtonsForeground, RelativeSource={RelativeSource AncestorType={x:Type ui:TitleBar}}}"
                     MouseOverButtonsForeground="{Binding Path=MouseOverButtonsForeground, RelativeSource={RelativeSource AncestorType={x:Type ui:TitleBar}}}"
                     MouseOverBackground="{Binding Path=ButtonsBackground, RelativeSource={RelativeSource AncestorType={x:Type ui:TitleBar}}}"
