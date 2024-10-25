@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using HarmonyLib;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -32,6 +33,11 @@ public partial class App : Application
             Current.Shutdown();
             return;
         }
+
+        // harmony patch
+        HarmonyLib.Harmony harmony = new HarmonyLib.Harmony("ZTMZ.PacenoteTool.WpfGUI");
+        // patch ZTMZ.PacenoteTool.Base to fix the SevenZipExtractor issue
+       ArchiveFilePatch.Patch(harmony);
 
         var jsonPaths = new List<string>{
             AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE),

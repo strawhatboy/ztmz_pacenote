@@ -25,7 +25,7 @@
             "cwd": "${workspaceFolder}/src/ZTMZ.PacenoteTool.WpfGUI/bin/Debug/net8.0-windows/",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
-            "justMyCode": true,
+            "justMyCode": false,
             "stopAtEntry": false
         },        
         {
