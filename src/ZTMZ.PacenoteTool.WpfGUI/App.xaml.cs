@@ -37,7 +37,7 @@ public partial class App : Application
         // harmony patch
         HarmonyLib.Harmony harmony = new HarmonyLib.Harmony("ZTMZ.PacenoteTool.WpfGUI");
         // patch ZTMZ.PacenoteTool.Base to fix the SevenZipExtractor issue
-       ArchiveFilePatch.Patch(harmony);
+        ArchiveFilePatch.Patch(harmony);
 
         var jsonPaths = new List<string>{
             AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE),
