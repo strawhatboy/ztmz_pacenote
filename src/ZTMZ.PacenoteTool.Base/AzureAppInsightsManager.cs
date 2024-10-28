@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 
+[Obsolete("This class is deprecated, we will not collect data for analysis because of the unstability of providers")]
 public class AzureAppInsightsManager {
     private TelemetryClient telemetryClient;
     public void init() {
@@ -19,6 +20,7 @@ public class AzureAppInsightsManager {
     }
 
     public void TrackEvent(string eventName, Dictionary<string, string> properties = null, Dictionary<string, double> metrics = null) {
+        return;
         if (Config.Instance.EnableOnlineAnalytics) {
             try {
                 telemetryClient.TrackEvent(eventName, properties, metrics);
@@ -27,6 +29,7 @@ public class AzureAppInsightsManager {
     }
 
     public void TrackException(Exception ex, Dictionary<string, string> properties = null, Dictionary<string, double> metrics = null) {
+        return;
         if (Config.Instance.EnableOnlineAnalytics) {
             try {
                 telemetryClient.TrackException(ex, properties, metrics);
@@ -35,6 +38,7 @@ public class AzureAppInsightsManager {
     }
 
     public void TrackPageView(string pageName) {
+        return;
         if (Config.Instance.EnableOnlineAnalytics) {
             try {
                 telemetryClient.TrackPageView(pageName);

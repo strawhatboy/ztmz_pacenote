@@ -1,8 +1,11 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using GoogleAnalyticsTracker.Simple;
 
 namespace ZTMZ.PacenoteTool.Base;
+
+[Obsolete("This class is deprecated, we will not collect data for analysis because of the unstability of providers")]
 public class GoogleAnalyticsHelper
 {
     public static string EVENT_WINDOW = "window";
@@ -92,6 +95,7 @@ public class GoogleAnalyticsHelper
         IDictionary<int, long?>? customMetrics = null,
         long value = 1)
     {
+        return;
         try
         {
             if (Config.Instance.EnableOnlineAnalytics)
@@ -107,6 +111,7 @@ public class GoogleAnalyticsHelper
         IDictionary<int, string?>? customDimensions = null,
         IDictionary<int, long?>? customMetrics = null)
     {
+        return;
         try
         {
             if (Config.Instance.EnableOnlineAnalytics)

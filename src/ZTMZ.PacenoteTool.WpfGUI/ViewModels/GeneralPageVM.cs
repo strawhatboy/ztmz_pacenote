@@ -42,9 +42,6 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
     private bool _isOptInBetaPlan = Config.Instance.OptInBetaPlan;
 
     [ObservableProperty]
-    private bool _enableOnlineAnalytics = Config.Instance.EnableOnlineAnalytics;
-
-    [ObservableProperty]
     private int _logLevel = Config.Instance.LogLevel;
 
     partial void OnAccentColorRChanged(int value)
@@ -165,12 +162,6 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
     partial void OnIsOptInBetaPlanChanged(bool value)
     {
         Config.Instance.OptInBetaPlan = value;
-        Config.Instance.SaveUserConfig();
-    }
-
-    partial void OnEnableOnlineAnalyticsChanged(bool value)
-    {
-        Config.Instance.EnableOnlineAnalytics = value;
         Config.Instance.SaveUserConfig();
     }
 

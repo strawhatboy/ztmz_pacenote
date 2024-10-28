@@ -654,6 +654,7 @@ namespace ZTMZ.PacenoteTool.Base
 
         private bool _EnableOnlineAnalytics = true;
 
+        [Obsolete("Won't enable online analystics any more")]
         public bool EnableOnlineAnalytics
         {
             set { this._EnableOnlineAnalytics = value; this._userconfig["EnableOnlineAnalytics"] = value; }
@@ -661,6 +662,7 @@ namespace ZTMZ.PacenoteTool.Base
         } 
         private bool _IsOnlineAnalyticsSet = false;
 
+        [Obsolete("Won't enable online analystics any more")]
         public bool IsOnlineAnalyticsSet
         {
             set { this._IsOnlineAnalyticsSet = value; this._userconfig["IsOnlineAnalyticsSet"] = value; }
