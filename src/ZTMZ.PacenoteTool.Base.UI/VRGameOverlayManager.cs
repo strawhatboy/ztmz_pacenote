@@ -24,6 +24,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         public void initliazeOverlay()
         {
+            _logger.Info("Initializing VR Overlay");
             _deviceManager = new DeviceManager(OpenVR.System);
             _captureSource = new Direct3D11CaptureSource(_deviceManager, OpenVR.System);
 
@@ -32,6 +33,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         private void initliazeOverlayWindow()
         {
+            _logger.Info("Initializing VR Overlay Window");
             List<IntPtr> windows = new List<IntPtr>();
             windows.AddRange(Win32Stuff.FindWindows());
             foreach (var wnd in windows)
@@ -48,6 +50,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         private void ResetOverlayWindow()
         {
+            _logger.Info("Resetting VR Overlay Window");
             _vrOverlayWindow.enabled = false;
             _vrOverlayWindow.Dispose();
             _vrOverlayWindow = null;
@@ -58,6 +61,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
         {
             if (_vrOverlayWindow != null)
             {
+                _logger.Info($"Updating VR Overlay Window {Config.Instance.VrOverlayWindowName}");
                 if (this._vrOverlayWindow.Name != Config.Instance.VrOverlayWindowName)
                 {
                     _isNeedReload = true;

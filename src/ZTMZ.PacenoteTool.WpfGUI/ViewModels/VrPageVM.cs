@@ -76,6 +76,9 @@ public partial class VrPageVM : ObservableObject {
                 {
                     _vrWindowList.Add(new { Name = windowName, Handle = wnd });
                 }
+                if (windowName == Config.Instance.VrOverlayWindowName) {
+                    VrSelectedWindow = _vrWindowList.Last();
+                }
             }
         });
     }
@@ -93,6 +96,7 @@ public partial class VrPageVM : ObservableObject {
     {
         Config.Instance.VrOverlayWindowName = (string) value.GetType().GetProperty("Name").GetValue(value);
         Config.Instance.SaveUserConfig();
+        // _vrGameOverlayManager.UpdateOverlayWindow();
     }
 
     [ObservableProperty]

@@ -109,7 +109,7 @@
                                 Grid.Row="0"
                                 Margin="10 0 0 0"
                                 Icon="{ui:SymbolIcon ArrowReset20}"
-                                Command="{Binding Path=ViewModel.RefreshVRWindowListCommand}" />
+                                Command="{Binding Path=ViewModel.RefreshvrWindowListCommand}" />
                     </Grid>
                 </Border>
             </Grid>
@@ -405,7 +405,7 @@
                 </StackPanel>
                 <ui:Button Grid.Column="2"
                     Icon="{ui:SymbolIcon Save20}"
-                    Command="{Binding Path=ViewModel.SaveVrSettingsCommand}" />
+                    Command="{Binding Path=ViewModel.SavevrSettingsCommand}" />
             </Grid>
         </ui:Card>
 

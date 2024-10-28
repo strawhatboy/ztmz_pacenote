@@ -534,7 +534,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._VrShowOverlay;
         }
 
-        private string _VrOverlayWindowName = "";
+        private string _VrOverlayWindowName = Constants.HUD_WINDOW_NAME;
         public string VrOverlayWindowName
         {
             set { this._VrOverlayWindowName = value; this._userconfig["VrOverlayWindowName"] = value; }
