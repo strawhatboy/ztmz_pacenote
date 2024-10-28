@@ -37,10 +37,6 @@ public class InterComEffectSampleProvider : ISampleProvider
         var highPassFrequency = HIGH_FREQUENCY_MIN + (HIGH_FREQUENCY_MAX - HIGH_FREQUENCY_MIN) * (100-level) / 100f;
         lowPassFilter = BiQuadFilter.LowPassFilter(sourceProvider.WaveFormat.SampleRate, highPassFrequency, Q);
         this.WaveFormat = sourceProvider.WaveFormat;
-        // distortion gain ranges from 1.0 to 2.0, distortion threshold ranges from 1.0 to 0.5
-        
-        distortionThreshold = DISTORTION_THRESHOLD_MIN + (DISTORTION_THRESHOLD_MAX - DISTORTION_THRESHOLD_MIN) * Math.Abs(MathF.Pow(level / 100f - 1, 3));
-        distortionGain = DISTORTION_GAIN_MIN + (DISTORTION_GAIN_MAX - DISTORTION_GAIN_MIN) * Math.Abs(MathF.Pow(level / 100f, 3));
 
         logger.Trace($"InterComEffectSampleProvider: level={level}, lowPassFrequency={lowPassFrequency}, highPassFrequency={highPassFrequency}, distortionGain={distortionGain}, distortionThreshold={distortionThreshold}");
     }
@@ -51,25 +47,32 @@ public class InterComEffectSampleProvider : ISampleProvider
     {
         // Read from the source
         int samplesRead = sourceProvider.Read(buffer, offset, count);
+        float meanSample = 0;
+        float maxSample = 0;
         
         // Apply the BiQuadFilter to each sample
         for (int i = 0; i < samplesRead; i++)
         {
+            maxSample = Math.Max(maxSample, Math.Abs(buffer[offset + i]));
+            meanSample += Math.Abs(buffer[offset + i]);
             // filter the sound by low pass filter and high pass filter
             buffer[offset + i] = lowPassFilter.Transform(buffer[offset + i]);
             buffer[offset + i] = highPassFilter.Transform(buffer[offset + i]);
 
-            // amplify and distort the sound
-            buffer[offset + i] = buffer[offset + i] * 2;
-            if (buffer[offset + i] > distortionThreshold)
+        }
+        meanSample /= samplesRead;
+
+        for (int i = 0; i < samplesRead; i++)
+        {
+            // change distortion threshold and gain based on the maxSample
+            distortionThreshold = maxSample - (maxSample - meanSample) * Math.Abs(MathF.Pow(level / 100f, 3));
+            // amplify the sample if the level is high
+            buffer[offset + i] = buffer[offset + i] * (MathF.Pow(level, 2) / 1000f + 1);
+
+            if (Math.Abs(buffer[offset + i]) > distortionThreshold)
             {
-                buffer[offset + i] = distortionThreshold;
+                buffer[offset + i] = MathF.Sign(buffer[offset + i]) * distortionThreshold;
             }
-            else if (buffer[offset + i] < -distortionThreshold)
-            {
-                buffer[offset + i] = -distortionThreshold;
-            }
-            buffer[offset + i] = buffer[offset + i] * distortionGain;
         }
         
         return samplesRead;
