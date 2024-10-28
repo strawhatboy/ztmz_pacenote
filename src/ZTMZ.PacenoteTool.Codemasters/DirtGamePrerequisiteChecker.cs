@@ -186,16 +186,6 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
             // if not, add a new udp node
             // motion_platform can have multiple udp nodes
             var udpNodes = motionPlatformNode.XPathSelectElements("./udp");
-            foreach (var node in udpNodes)
-            {
-                if (this.CheckUdpNode(node))
-                {
-                    // udp node already exists, no need to add a new one
-                    _logger.Warn("udp node already exists in {0}, won't add a new one", file);
-                    return;
-                }
-            }
-
             // check duplicate udp nodes
             HashSet<string> udpNodeSet = new HashSet<string>();
             foreach (var node in udpNodes)
@@ -205,9 +195,21 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
                 {
                     // remove duplicate udp nodes, to avoid multicasting the same data
                     node.Remove();
+                    _logger.Info("Removed duplicate udp node: {0}", nodeStr);
                     continue;
                 }
                 udpNodeSet.Add(nodeStr);
+            }
+
+            // check if udp node already exists
+            foreach (var node in udpNodes)
+            {
+                if (this.CheckUdpNode(node))
+                {
+                    // udp node already exists, no need to add a new one
+                    _logger.Warn("udp node already exists in {0}, won't add a new one", file);
+                    return;
+                }
             }
 
             var udpNode = new XElement("udp");
