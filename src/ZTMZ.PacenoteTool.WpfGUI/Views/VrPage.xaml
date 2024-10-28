@@ -364,7 +364,7 @@
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
-                <ui:TextBlock Text="{Binding Path=ViewModel.vrOverlayScale, Mode=OneWay, StringFormat=N1}"
+                <ui:TextBlock Text="{Binding Path=ViewModel.VrOverlayScale, Mode=OneWay, StringFormat=N1}"
                     Grid.Column="1" VerticalAlignment="Center" />
                 <Slider Grid.Row="4" Grid.Column="2"
                     Maximum="200" Minimum="0"
