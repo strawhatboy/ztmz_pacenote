@@ -1,5 +1,5 @@
 ﻿#define MyAppName "ZTMZ Next Generation Pacenote Tool"
-#define MyAppVersion "2.99.99.25.1"
+#define MyAppVersion "2.99.99.26"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
@@ -124,14 +124,35 @@ begin
   Result := DirPage.Values[1];
 end;
 
+procedure ProjectLinkLabelOnClick(Sender: TObject; const Link: string; LinkType: TSysLinkType);
+var
+  ErrorCode: Integer;
+begin
+  ShellExecAsOriginalUser('open', 'http://gitee.com/ztmz', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+end;
+
 { The Main Function }
 procedure InitializeWizard;
+var
+  ProjectLinkLabel: TNewLinkLabel;
 begin
+  { the link label at bottom left}
+  ProjectLinkLabel := TNewLinkLabel.Create(WizardForm);
+  ProjectLinkLabel.Parent := WizardForm;
+  ProjectLinkLabel.Caption := '<a href="http://gitee.com/ztmz">ZTMZ Club</a>';
+  ProjectLinkLabel.Left := ScaleX(16);
+  ProjectLinkLabel.Top :=
+    WizardForm.BackButton.Top +
+    (WizardForm.BackButton.Height div 2) -
+    (ProjectLinkLabel.Height div 2);
+  ProjectLinkLabel.Anchors := [akLeft, akBottom];
+  ProjectLinkLabel.OnLinkClick := @ProjectLinkLabelOnClick;
+
   NeedToDownload:= (not CheckDotNetInstalled);
   DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), @OnDownloadProgress);
 
   DirPage := CreateInputDirPage(
-  wpSelectDir, SetupMessage(msgWizardSelectDir), '', '', False, '');
+  wpSelectDir, SetupMessage(msgWizardSelectDir), '', ExpandConstant('{cm:SelectInstallTarget}'), False, '');
 
   DirPage.Add(ExpandConstant('{cm:ZTMZInstallFolder}'));
   DirPage.Add(ExpandConstant('{cm:ZTMZFolder}'));
@@ -209,7 +230,7 @@ WizardStyle=modern
 VersionInfoVersion={#MyAppVersion}
 ;PrivilegesRequired=lowest
 UninstallDisplayIcon={code:GetInstallDir}\{#MyAppExeName}
-; Very high compression ratio
+WizardSmallImageFile=wizard_small_image.bmp
 
 ; use custom dir page
 DisableDirPage=yes
