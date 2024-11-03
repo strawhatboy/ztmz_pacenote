@@ -36,6 +36,9 @@
     <Resource Include="Res\Segoe Fluent Icons.ttf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="unknown_dashboard_preview_image.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>

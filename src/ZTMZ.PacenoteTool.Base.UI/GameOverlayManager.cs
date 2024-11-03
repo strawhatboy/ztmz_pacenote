@@ -179,7 +179,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 SuspensionFrontRight = 0.7f,
                 SuspensionRearLeft = 0.75f,
                 SuspensionRearRight = 0.71f,
-                CompletionRate = 0.35f,
+                CompletionRate = 0.95f,
                 Steering = 0.9f,
                 SuspensionSpeedFrontLeft = 20,
                 SuspensionSpeedFrontRight = 23,

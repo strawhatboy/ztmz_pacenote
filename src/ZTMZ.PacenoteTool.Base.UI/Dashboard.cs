@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows.Media.Imaging;
 using GameOverlay.Drawing;
 using Neo.IronLua;
 using Newtonsoft.Json;
@@ -67,6 +68,7 @@ public class Dashboard {
         Descriptor = JsonConvert.DeserializeObject<DashboardDescriptor>(File.ReadAllText(jsonDescriptorPath));
         Descriptor.Path = Path.GetDirectoryName(jsonDescriptorPath);
         loadConfig();
+        loadPreviewImage();
     }
 
     private void loadConfig() { 
@@ -82,12 +84,21 @@ public class Dashboard {
         Descriptor.IsEnabled = (bool)dashBoardConfig["dashboards.settings.enabled"];
     }
 
+    private void loadPreviewImage() {
+        if (!string.IsNullOrEmpty(Descriptor.PreviewImagePath)) {
+            this.PreviewImage = new BitmapImage(new Uri(Path.Combine(Descriptor.Path, Descriptor.PreviewImagePath)));
+        } else {
+            this.PreviewImage = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Base.UI;component/unknown_dashboard_preview_image.png"));
+        }
+        this.PreviewImage.Freeze();
+    }
+
     public void SetIsEnable(bool value) {
         Descriptor.IsEnabled = value;
         DashboardConfigurations["dashboards.settings.enabled"] = value;
     }
 
-    public Image PreviewImage { get; set; }
+    public BitmapImage PreviewImage { get; set; }   // use wpf compatible image
     public Dictionary<string, Image> ImageResources { get; set; }
 
     private LuaGlobal LuaG { get; set; }
@@ -96,8 +107,6 @@ public class Dashboard {
 
     private void loadImageResources(DashboardScriptArguments args) {
         // load resources
-        if (Descriptor.PreviewImage != null && !string.IsNullOrEmpty(Descriptor.PreviewImage.Path))
-            this.PreviewImage = Descriptor.PreviewImage.GetImage(args.Graphics);
 
         this.ImageResources = new Dictionary<string, Image>();
         foreach (var imageResource in Descriptor.ImageResources) {
@@ -226,7 +235,7 @@ public class DashboardDescriptor {
     public string Description { get; set; }
     public string Author { get; set; }
     public string Version { get; set; }
-    public DashboardResourceImageDescriptor PreviewImage { get; set; }
+    public string PreviewImagePath { get; set; } // use wpf to render the preview image
     public Dictionary<string, DashboardResourceImageDescriptor> ImageResources { get; set; }
 
     public Dictionary<string, DashboardResourceImageDescriptor> ImageResourcesInDirectory { get; set; }

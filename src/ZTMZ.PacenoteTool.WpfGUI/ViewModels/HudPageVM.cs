@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Controls;
 using ZTMZ.PacenoteTool.Base.UI;
+using System.Windows.Media;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -69,22 +70,41 @@ public partial class HudPageVM : ObservableObject {
             IsHudInitializing = isInitializing;
         };
 
+        // maybe we should create a custom control for this, but it's working for now
         foreach (var dashboard in _gameOverlayManager.Dashboards) {
             var cardExpander = new CardExpander();
+            cardExpander.Padding = new Thickness(6);
             Grid grid = new Grid();
+            // 1st column for the preview image.
+            grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
             grid.ColumnDefinitions.Add(new ColumnDefinition());
             grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Auto) });
             grid.RowDefinitions.Add(new RowDefinition());
             grid.RowDefinitions.Add(new RowDefinition());
 
+            // preview image
+            Wpf.Ui.Controls.Image previewImage = new Wpf.Ui.Controls.Image();
+            previewImage.Source = dashboard.PreviewImage;
+            previewImage.Height = 50;
+            previewImage.Width = 100;
+            previewImage.Stretch = Stretch.UniformToFill;
+            previewImage.Margin = new Thickness(0, 0, 10, 0);
+            RenderOptions.SetBitmapScalingMode(previewImage, BitmapScalingMode.HighQuality);
+            Grid.SetRow(previewImage, 0);
+            Grid.SetColumn(previewImage, 0);
+            Grid.SetRowSpan(previewImage, 2);
+
             Wpf.Ui.Controls.TextBlock title = new Wpf.Ui.Controls.TextBlock();
             title.SetResourceReference(Wpf.Ui.Controls.TextBlock.TextProperty, dashboard.Descriptor.Name);
+            Grid.SetRow(title, 0);
+            Grid.SetColumn(title, 1);
 
             Wpf.Ui.Controls.TextBlock description = new Wpf.Ui.Controls.TextBlock();
             description.SetResourceReference(Wpf.Ui.Controls.TextBlock.TextProperty, dashboard.Descriptor.Description);
             description.Appearance = TextColor.Tertiary;
             description.FontTypography = FontTypography.Caption;
             Grid.SetRow(description, 1);
+            Grid.SetColumn(description, 1);
 
             // toggle button in 2nd column
             ToggleSwitch toggleSwitch = new ToggleSwitch();
@@ -96,9 +116,10 @@ public partial class HudPageVM : ObservableObject {
             };
             toggleSwitch.Margin = new Thickness(0, 0, 10, 0);
 
-            Grid.SetColumn(toggleSwitch, 1);
+            Grid.SetColumn(toggleSwitch, 2);
             Grid.SetRowSpan(toggleSwitch, 2);
 
+            grid.Children.Add(previewImage);
             grid.Children.Add(title);
             grid.Children.Add(description);
             grid.Children.Add(toggleSwitch);

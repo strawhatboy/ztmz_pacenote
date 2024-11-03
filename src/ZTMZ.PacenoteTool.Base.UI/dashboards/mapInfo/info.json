@@ -3,7 +3,7 @@
     "Description": "dashboards.classic.mapinfo.description",
     "Author": "草帽不是猫",
     "Version": "0.0.1",
-    "PreviewImage": null,
+    "PreviewImagePath": "preview.png",
     "ImageResources": {},
     "ImageResourcesInDirectory": {},
     "IsEnabled": true,
