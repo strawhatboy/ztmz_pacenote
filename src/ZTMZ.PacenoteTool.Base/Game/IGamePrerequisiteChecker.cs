@@ -17,6 +17,7 @@ public enum PrerequisitesCheckResultCode
     PORT_NOT_MATCH = 401,
     PORT_ALREADY_IN_USE = 402,
     CONFIG_FILE_CORRUPTED = 500,
+    CONFIG_FILE_ABNORMAL = 501, // e.g. duplicate entries
     UNKNOWN = 800,
 }
 public class PrerequisitesCheckResult

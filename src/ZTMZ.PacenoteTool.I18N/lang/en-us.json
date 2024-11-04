@@ -415,6 +415,12 @@
     "forceFixError": {
       "title": "Force Fix Error",
       "msg": "Error occurs when trying to fix the issue, please check the log file for more details."
+    },
+    "configFileAbnormal": {
+      "title": "Configuration file abnormal",
+      "msg": "The configuration file {1} for game {0} is abnormal, maybe duplicate entries found which would lead to strange behavior",
+      "btn_ok": "Force Fix",
+      "btn_cancel": "Cancel"
     }
   },
   "logLevel": {

@@ -130,6 +130,19 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
         if (this._xmlFile == null) {
             return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.CONFIG_FILE_CORRUPTED, IsOK = false, Params = new List<object> { game.Name, file } };
         }
+
+        // duplicate entries check
+        var motion_platform_node = this._xmlFile.Root.XPathSelectElement("./motion_platform");
+        bool isAbnormal = false;
+        if (motion_platform_node != null)
+        {
+            isAbnormal = this.CheckIfThereisDuplicateEntries(motion_platform_node);
+        }
+        if (isAbnormal)
+        {
+            return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.CONFIG_FILE_ABNORMAL, IsOK = false, Params = new List<object> { game.Name, file } };
+        }
+        
         this._udpNode = this._xmlFile.Root.XPathSelectElements("./motion_platform/udp");
 
         foreach (var node in this._udpNode)
@@ -170,6 +183,22 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
         }
 
         return true;
+    }
+
+    private bool CheckIfThereisDuplicateEntries(XElement node) {
+        // the node is motion_platform
+        var udpNodes = node.XPathSelectElements("./udp");
+        HashSet<string> udpNodeSet = new HashSet<string>();
+        foreach (var udpNode in udpNodes)
+        {
+            string udpNodeStr = udpNode.ToString();
+            if (udpNodeSet.Contains(udpNodeStr))
+            {
+                return true;
+            }
+            udpNodeSet.Add(udpNodeStr);
+        }
+        return false;
     }
 
     public void Write(string file)

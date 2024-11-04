@@ -233,6 +233,7 @@ public partial class HomePageVM : ObservableObject {
                 _logger.Warn($"Game {game.Name} initialize failed. Code: {code}");
             }
             var message = "";
+            bool showToast = false;
 
             if (code == PrerequisitesCheckResultCode.PORT_NOT_OPEN) {
                 message = string.Format(I18NLoader.Instance["dialog.portNotOpen.content"], parameters[0], parameters[1]);
@@ -249,8 +250,26 @@ public partial class HomePageVM : ObservableObject {
         
 
                     if (result == Wpf.Ui.Controls.MessageBoxResult.Primary) {
-                        // force fix
-                        await forceFixGame(game);
+                        // force fix, show toast when fix failed
+                        showToast = !await forceFixGame(game); 
+                    }
+                });
+            } else if (code == PrerequisitesCheckResultCode.CONFIG_FILE_ABNORMAL) {
+                message = string.Format(I18NLoader.Instance["exception.configFileAbnormal.msg"], parameters[0], parameters[1]);
+                _ = Application.Current.Dispatcher.Invoke(async () =>
+                {
+                    var result = await new Wpf.Ui.Controls.MessageBox {
+                        Title = I18NLoader.Instance["exception.configFileAbnormal.title"],
+                        Content = message,
+                        PrimaryButtonText = I18NLoader.Instance["exception.configFileAbnormal.btn_ok"],
+                        // SecondaryButtonText = "Don't Save",
+                        CloseButtonText = I18NLoader.Instance["exception.configFileAbnormal.btn_cancel"]
+                    }.ShowDialogAsync();
+        
+
+                    if (result == Wpf.Ui.Controls.MessageBoxResult.Primary) {
+                        // force fix, show toast when fix failed
+                        showToast = !await forceFixGame(game); 
                     }
                 });
             } else if (code == PrerequisitesCheckResultCode.PORT_NOT_MATCH && Config.Instance.WarnIfPortMismatch) {
@@ -273,7 +292,7 @@ public partial class HomePageVM : ObservableObject {
 
                     if (result == Wpf.Ui.Controls.MessageBoxResult.Primary) {
                         // force fix
-                        await forceFixGame(game);
+                        showToast = !await forceFixGame(game);
                     } else if (result == Wpf.Ui.Controls.MessageBoxResult.Secondary) {
                         Config.Instance.WarnIfPortMismatch = false;
                         Config.Instance.SaveUserConfig();
@@ -291,14 +310,17 @@ public partial class HomePageVM : ObservableObject {
                         CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
                     }.ShowDialogAsync();
                 });
+                showToast = true;
             } else if (code == PrerequisitesCheckResultCode.GAME_NOT_INSTALLED) {
                 message = I18NLoader.Instance["ui.tooltip.cb_gameNotInstalled"];
+                showToast = true;
             } else if (code == PrerequisitesCheckResultCode.CONFIG_FILE_CORRUPTED) {
                 message = string.Format(I18NLoader.Instance["exception.configFileCorrupted.msg"], parameters[0], parameters[1]);
+                showToast = true;
             }
 
             // Finally InfoBar closable issue was fixed in WPF-UI 3.0.0
-            if (code != PrerequisitesCheckResultCode.OK && !string.IsNullOrEmpty(message)) {
+            if (code != PrerequisitesCheckResultCode.OK && !string.IsNullOrEmpty(message) && showToast) {
                 GameInitializeFailureMessage = message;
                 InfoBarIsOpen = true;
                 InfoBarMessage = message;
@@ -379,9 +401,10 @@ public partial class HomePageVM : ObservableObject {
         });
     }
 
-    private async Task forceFixGame(IGame game) {
+    private async Task<bool> forceFixGame(IGame game) {
         try {
             game.GamePrerequisiteChecker.ForceFix(game);
+            return true;
         } catch (Exception e) {
             _logger.Error(e, "Force fix failed.");
             await new Wpf.Ui.Controls.MessageBox {
@@ -389,6 +412,7 @@ public partial class HomePageVM : ObservableObject {
                 Content = I18NLoader.Instance["exception.forceFixError.msg"] + e.Message,
                 CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
             }.ShowDialogAsync();
+            return false;
         }
     }
 
