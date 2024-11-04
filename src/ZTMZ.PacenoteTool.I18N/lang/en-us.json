@@ -418,7 +418,7 @@
     },
     "configFileAbnormal": {
       "title": "Configuration file abnormal",
-      "msg": "The configuration file {1} for game {0} is abnormal, maybe duplicate entries found which would lead to strange behavior",
+      "msg": "The configuration file {1} for game {0} is abnormal, maybe duplicate entries found which would lead to strange behavior\n Do you want to force fix it?\n [IMPORTANT] Do not forget to restart the game after fixing it.",
       "btn_ok": "Force Fix",
       "btn_cancel": "Cancel"
     }
