@@ -48,7 +48,11 @@
   </ItemGroup>
   
   <ItemGroup>
-
+    <!-- copy all dashboards -->
+    <None Update="dashboards\**\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+<!-- 
     <None Update="dashboards\lang\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -151,6 +155,6 @@
     </None>
     <None Update="dashboards\pedals_statistics\settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </None> -->
   </ItemGroup>
 </Project>
