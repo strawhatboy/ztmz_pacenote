@@ -40,9 +40,9 @@ function onInit(args)
     _brushes["background"] = gfx.CreateSolidBrush(0x00, 0x00, 0x00, 100);
     _brushes["transparent"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
     _brushes["telemetryBackground"] = gfx.CreateRadialGradientBrush(
-        helper.getColor(0x2c, 0x33, 0x3c, 255),
-        helper.getColor(0x2c, 0x33, 0x3c, 230),
-        helper.getColor(0x2c, 0x33, 0x3c, 215),
+        helper.getColor(0x2c, 0x33, 0x3c, 150),
+        helper.getColor(0x2c, 0x33, 0x3c, 110),
+        helper.getColor(0x2c, 0x33, 0x3c, 80),
         helper.getColor(0x2c, 0x33, 0x3c, 0));
     _brushes["rpm"] = gfx.CreateLinearGradientBrush(
         -- green

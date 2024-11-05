@@ -119,9 +119,9 @@ function onUpdate(args)
         finishFlagsEndPositions[i] = { finishFlagStartX + height / 2 * ((i - 1) % 3 + 1), finishFlagStartY + height / 2 * (math.floor((i - 1) / 3) + 1) };
     end
 
-    for i = 1, blocksCount - 1 do
-        splitBarStartPositions[i] = { telemetryStartX + size / blocksCount * i - splitBarWidth / 2, telemetryStartY };
-        splitBarEndPositions[i] = { telemetryStartX + size / blocksCount * i + splitBarWidth / 2, telemetryEndY };
+    for i = 1, blocksCount do
+        splitBarStartPositions[i] = { telemetryStartX + size / blocksCount * (i-1) - splitBarWidth / 2, telemetryStartY };
+        splitBarEndPositions[i] = { telemetryStartX + size / blocksCount * (i-1) + splitBarWidth / 2, telemetryEndY };
     end
     for i = 1, blocksCount do
         barStartPositions[i] = { telemetryStartX + size / blocksCount * (i - 1) + splitBarWidth / 2, telemetryStartY };
@@ -156,7 +156,7 @@ function onUpdate(args)
             barEndPositions[i][1] = barEnd.X;
             barEndPositions[i][2] = barEnd.Y;
         end
-        for i = 1, blocksCount - 1 do
+        for i = 1, blocksCount do
             splitBarStart = getRotatePoint(gfx, helper, centerX, centerY, splitBarStartPositions[i][1], splitBarStartPositions[i][2], -math.pi / 2);
             splitBarStartPositions[i][1] = splitBarStart.X;
             splitBarStartPositions[i][2] = splitBarStart.Y;
@@ -202,7 +202,7 @@ function onUpdate(args)
         else
             -- if progressEndX is greater than barEndPositions[i][1], then fill the bar with _brushes["inprogress"] till progressEndX, and break the loop;
             -- else fill the bar with _brushes["darkgrey"] till barEndPositions[i][1]
-            if (progressEndX > barEndPositions[i][1]) then
+            if (progressEndX < barEndPositions[i][1]) then
                 gfx.FillRectangle(_brushes["inprogress"], barStartPositions[i][1], barStartPositions[i][2], progressEndX, barEndPositions[i][2]);
                 break;
             else
@@ -212,7 +212,7 @@ function onUpdate(args)
     end
 
     -- print("drawing split bars")
-    for i = 1, blocksCount - 1 do
+    for i = 1, blocksCount do
         gfx.FillRectangle(_brushes["splitBar"], splitBarStartPositions[i][1], splitBarStartPositions[i][2], splitBarEndPositions[i][1], splitBarEndPositions[i][2]);
     end
 
