@@ -55,6 +55,8 @@
         <ui:HyperlinkButton Content="[MS-PL, Apache-2.0] CsvHelper" NavigateUri="https://github.com/JoshClose/CsvHelper" />
         <ui:HyperlinkButton Content="[LGPL-2.1] SoundTouch.Net" NavigateUri="https://github.com/owoudenberg/soundtouch.net" />
         <ui:HyperlinkButton Content="[Apache-2.0] NeoLua" NavigateUri="https://github.com/neolithos/neolua" />
+        <ui:HyperlinkButton Content="[MIT] SevenZipExtractor" NavigateUri="https://github.com/adoconnection/SevenZipExtractor" />
+        <ui:HyperlinkButton Content="[MIT] Lib.Harmony" NavigateUri="https://github.com/pardeike/Harmony" />
         
         <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
             Text="{DynamicResource ui.opensoftware_reference}" />
