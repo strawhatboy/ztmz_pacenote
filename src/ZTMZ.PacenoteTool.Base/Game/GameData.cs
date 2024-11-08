@@ -90,7 +90,10 @@ public struct GameData
         {
             stringBuilder.AppendLine($"{field.Name}: {field.GetValue(o)}");
         }
+        stringBuilder.AppendLine();
         
+        var gameSpecificData = GameSpecificDataToString();
+        stringBuilder.Append(gameSpecificData);
         return stringBuilder.ToString();
     }
 

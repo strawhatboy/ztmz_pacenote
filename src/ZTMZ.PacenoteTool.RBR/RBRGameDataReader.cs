@@ -375,6 +375,8 @@ public class RBRGameDataReader : UdpGameDataReader
         // ground speed instead of wheel speed.
         // gameData.Speed = MathF.Sqrt(MathF.Pow(data.XSpeed, 2f) + MathF.Pow(data.YSpeed, 2f) + MathF.Pow(data.ZSpeed, 2f)); 
 
+        gameData.GameSpecificData = data;
+
         return gameData;
     }
 }
