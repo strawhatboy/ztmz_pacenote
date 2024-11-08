@@ -281,10 +281,6 @@ public class RBRGameDataReader : UdpGameDataReader
             }
         }
 
-        if (CarEventDetector.IsCarReset(lastUdpGameData, newUdpGameData)) {
-            _onCarReset?.Invoke();
-        }
-
         _currentGameData = getGameDataFromUdp(_currentGameData, newUdp);
     }
 
