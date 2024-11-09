@@ -69,6 +69,7 @@
       "preloadSounds": "Preload the voice packages will take more memory (around 2.5GB), \nbut will load the voice package as soon as possible",
       "additionalCoDriverPackagesSearchPath": "When searching for voice packs, additionally search this folder",
       "additionalPacenotesDefinitionSearchPath": "Put addition *.csv files here according to the format of \nthe Pacenote definition file (pacenotes.csv)",
+      "removeIntoAndOnto": "In some games, the words 'into', 'and', 'onto' are used to connect the pacenotes, \nthis option will remove these words to make the pacenotes more fluent",
 
       "useSequentialMixerToHandleAudioConflict": "A sequential mix can avoid voices overlap",
       "useDynamicPlaybackSpeed": "In some maps with dense pacenotes (such as Scotland), by dynamically adjusting the speech rate of \nthe current pacenote segment according to the speed of the vehicle and the position of the next pacenote,\n to avoid the situation that the pacenote cannot keep up with the car",
@@ -153,7 +154,8 @@
     "useDefaultSoundPackageForFallback": "Fallback to default voice package",
     "preloadSounds": "Preload voice packages (Not recommended for limited RAM)",
     "additionalCoDriverPackagesSearchPath": "Additional Voice Pack Search Folder",
-    "additionalPacenotesDefinitionSearchPath": "additional Pacenote Definition Search Folder",
+    "additionalPacenotesDefinitionSearchPath": "Additional Pacenote Definition Search Folder",
+    "removeIntoAndOnto": "Remove all into, and, onto tokens",
 
     "useSequentialMixerToHandleAudioConflict": "Use sequential mixer",
     "useDynamicPlaybackSpeed": "Use dynamic playback speech rate",

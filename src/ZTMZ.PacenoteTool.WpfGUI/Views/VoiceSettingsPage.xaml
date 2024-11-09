@@ -82,6 +82,37 @@
             </Grid>
         </ui:Card>
 
+        <!-- RemoveIntoAndOnto -->
+        <ui:Card Margin="0 0 0 3"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Branch20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.removeIntoAndOnto}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.removeIntoAndOnto}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right"
+                    IsChecked="{Binding Path=ViewModel.RemoveIntoAndOnto, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
+
         <!-- reversePacenote -->
         <ui:Card Margin="0 0 0 3"
             Padding="16">

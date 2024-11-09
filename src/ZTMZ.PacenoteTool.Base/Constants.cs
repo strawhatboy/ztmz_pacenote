@@ -40,6 +40,9 @@ namespace ZTMZ.PacenoteTool.Base
         public const string SYSTEM_COUNTDOWN_3 = "system_countdown_3";
         public const string SYSTEM_COUNTDOWN_2 = "system_countdown_2";
         public const string SYSTEM_COUNTDOWN_1 = "system_countdown_1";
+        public const int PACENOTE_INTO = 114;
+        public const int PACENOTE_ONTO = 327;
+        public const int PACENOTE_AND = 29;
 
         public const string HUD_WINDOW_NAME = "ZTMZ Club Hud - LgfZGP4pFeLZK342TKcpFGPS3YcHLvbs";
 

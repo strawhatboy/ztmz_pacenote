@@ -34,6 +34,14 @@ public partial class VoiceSettingsPageVM : ObservableObject {
     }
 
     [ObservableProperty]
+    private bool _removeIntoAndOnto = Config.Instance.RemoveIntoAndOnto;
+    partial void OnRemoveIntoAndOntoChanged(bool value)
+    {
+        Config.Instance.RemoveIntoAndOnto = value;
+        Config.Instance.SaveUserConfig();
+    }
+
+    [ObservableProperty]
     private bool _useReversePacenote = Config.Instance.UseReversePacenote;
     partial void OnUseReversePacenoteChanged(bool value)
     {

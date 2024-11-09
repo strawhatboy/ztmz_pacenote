@@ -708,6 +708,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._AdditionalPacenotesDefinitionSearchPath;
         }
 
+        private bool _RemoveIntoAndOnto = false;
+        public bool RemoveIntoAndOnto
+        {
+            set { this._RemoveIntoAndOnto = value; this._userconfig["RemoveIntoAndOnto"] = value; }
+            get => this._RemoveIntoAndOnto;
+        }
+
         private string _ExamplePacenoteString = "3_left,over_crest,dont_cut,into,4_right,tightens,over_narrow_bridge,80";
         public string ExamplePacenoteString
         {

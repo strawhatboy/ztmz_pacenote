@@ -68,6 +68,7 @@
       "preloadSounds": "预加载语音包会带来较慢的程序启动和较大的内存开销（约占用2.5GB），\n但会在倒计时刚开始时即可加载完毕并播放开始语音",
       "additionalCoDriverPackagesSearchPath": "在搜索语音包时，额外搜索这个文件夹",
       "additionalPacenotesDefinitionSearchPath": "在搜索路书标记定义文件(*.csv)时，额外的搜索这个文件夹\n路书标记定义文件需要按照pacenotes.csv的格式保存",
+      "removeIntoAndOnto": "有些游戏中的into, and和onto会过多，影响听感，打开此选项来移除所有",
 
       "useSequentialMixerToHandleAudioConflict": "队列播放模式可以避免同一时刻播放多个语音片段造成的语音重叠现象",
       "useDynamicPlaybackSpeed": "在某些路书较为密集的地图（如苏格兰）中，通过动态地根据车速与下个路书位置\n来调整当前路书片段的语速，来避免路书跟不上车的情况",
@@ -153,6 +154,7 @@
     "preloadSounds": "预加载语音包（如果电脑内存吃紧，不建议开启）",
     "additionalCoDriverPackagesSearchPath": "额外的语音包搜索文件夹",
     "additionalPacenotesDefinitionSearchPath": "额外的路书定义文件(*.csv)搜索文件夹",
+    "removeIntoAndOnto": "移除所有的into, and和onto",
 
     "useSequentialMixerToHandleAudioConflict": "使用队列播放模式",
     "useDynamicPlaybackSpeed": "使用动态语速调整",

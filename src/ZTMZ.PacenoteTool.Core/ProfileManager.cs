@@ -488,6 +488,14 @@ namespace ZTMZ.PacenoteTool.Core
                 return new AutoResampledCachedSound();
             }
 
+            // ugly, if we have into, onto, and, we should remove them when flag is set
+            if (Config.Instance.RemoveIntoAndOnto) {
+                if (id == Constants.PACENOTE_INTO || id == Constants.PACENOTE_ONTO || id == Constants.PACENOTE_AND)
+                {
+                    return new AutoResampledCachedSound();
+                }
+            }
+
             if (Config.Instance.PreloadSounds && package.id2tokens.ContainsKey(id))
             {
                 var tokens = package.id2tokens[id];

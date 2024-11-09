@@ -516,8 +516,8 @@
                                     Grid.Column="2"
                                     Grid.ColumnSpan="2"
                                     x:Name="sl_scriptTiming"
-                                    Maximum="2"
-                                    Minimum="-2"
+                                    Maximum="4"
+                                    Minimum="-4"
                                     Value="{Binding Path=ViewModel.PlaybackAdjustSeconds, Mode=TwoWay}"
                                     IsEnabled="True"
                                     VerticalAlignment="Center"></Slider>
