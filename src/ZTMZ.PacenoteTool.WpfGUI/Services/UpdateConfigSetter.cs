@@ -43,6 +43,20 @@ public class UpdateConfigSetter
             Config.Instance.CollisionSpeedChangeThreshold_Severe = 400f;
             Config.Instance.SaveUserConfig();
         });
+
+        this._configSetters.Add(new Version("2.99.99.27"), tool => {
+            var rbr = tool.Games.FirstOrDefault(a => a.Name == "Richard Burns Rally - RSF");
+            if (rbr != null) {
+                // use jannemod_v3.zdb as default pacenote
+                CommonGameConfigs cfg = (CommonGameConfigs)rbr.GameConfigurations[CommonGameConfigs.Name];
+
+                cfg.PropertyName.Add("game.rbr.additional_settings.additional_pacenote_def", "game.rbr.additional_settings.tooltip.additional_pacenote_def");
+                cfg.PropertyValue.Add(AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, "jannemod_v3.zdb")));
+                cfg.PropertyType.Add("file:zdb");
+
+                Config.Instance.SaveGameConfig(rbr);
+            }
+        });
     }
 
     public void SetConfiguration(ZTMZPacenoteTool tool)

@@ -61,6 +61,7 @@ public class RBRScriptResource
     public Dictionary<int, List<int>> PacenoteId2ZTMZIds { get; private set; } = new();
     public Dictionary<int, List<int>> ModiferId2ZTMZids { get; private set; } = new();
     private RBRScriptResource() {
+        // DBNAME = AppLevelVariables.Instance.GetConfig("game.rbr.additional_settings.additional_pacenote_def");
         var dbPath = AppLevelVariables.Instance.GetPath(Path.Join(Constants.PATH_GAMES, DBNAME));
         if (!File.Exists(dbPath))
         {

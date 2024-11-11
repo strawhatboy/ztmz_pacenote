@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -61,9 +62,12 @@ public partial class CommonGameConfigsSettingsPane : IGameConfigSettingsPane
                     int _index = index;
                     var fileType = valueType.Substring(5);
 
+                    StackPanel sp = new StackPanel() { Orientation = Orientation.Horizontal };
+                    Wpf.Ui.Controls.TextBlock vtb = new Wpf.Ui.Controls.TextBlock() { Text = Path.GetFileName(value.ToString()), FontStyle = FontStyles.Italic, VerticalAlignment = VerticalAlignment.Center };
                     Wpf.Ui.Controls.Button btn = new Wpf.Ui.Controls.Button() { Icon = new Wpf.Ui.Controls.SymbolIcon{ Symbol = SymbolRegular.DocumentBulletList20 }, ToolTip = value };
                     btn.Click += (sender, args) => {
                         var dlg = new Microsoft.Win32.OpenFileDialog();
+                        dlg.InitialDirectory = Path.GetDirectoryName(value.ToString());
                         dlg.DefaultExt = fileType;
                         dlg.Filter = $"{fileType.ToUpper()}|*.{fileType}";
                         if (dlg.ShowDialog() == true)
@@ -75,11 +79,14 @@ public partial class CommonGameConfigsSettingsPane : IGameConfigSettingsPane
                             Config.Instance.SaveGameConfig(game);
                         }
                     };
-                    Grid.SetRow(btn, _index);
-                    Grid.SetColumn(btn, 1);
+                    btn.ToolTip = Path.GetFileName(value.ToString());
+                    sp.Children.Add(vtb);
+                    sp.Children.Add(btn);
+                    Grid.SetRow(sp, _index);
+                    Grid.SetColumn(sp, 1);
                     btn.VerticalAlignment = VerticalAlignment.Center;
                     btn.HorizontalAlignment = HorizontalAlignment.Right;
-                    this.grid_Main.Children.Add(btn);
+                    this.grid_Main.Children.Add(sp);
 
                 } else {
                     int _index = index;

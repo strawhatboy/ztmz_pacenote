@@ -90,11 +90,11 @@ namespace ZTMZ.PacenoteTool.RBR
                 },
                 PropertyValue = new() {
                     true,
-                    AppLevelVariables.Instance.GetPath("Jannemod V3.csv")   // default pacenote
+                    AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, "jannemod_v3.zdb"))   // default pacenote
                 },
                 PropertyType = new() {
                     "bool",
-                    "file:csv"
+                    "file:zdb"
                 }
             }},
         };
