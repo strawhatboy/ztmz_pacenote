@@ -78,7 +78,9 @@ public struct GameData
 
     public override string ToString()
     {
-        return toString(this);
+        var thisData = toString(this);
+        var gameSpecificData = GameSpecificDataToString();
+        return thisData + gameSpecificData;
     }
 
     private string toString(object o)
@@ -92,8 +94,6 @@ public struct GameData
         }
         stringBuilder.AppendLine();
         
-        var gameSpecificData = GameSpecificDataToString();
-        stringBuilder.Append(gameSpecificData);
         return stringBuilder.ToString();
     }
 

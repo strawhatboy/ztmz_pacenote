@@ -1,114 +1,114 @@
 namespace ZTMZ.PacenoteTool.RBR;
 public struct RBRMemData
 {
-	public float TrackLength { get; set; }
+	public float TrackLength;
 
-	public float SpeedKMH { get; set; }
+	public float SpeedKMH;
 
-	public float EngineRPM { get; set; }
+	public float EngineRPM;
 
-	public float WaterTemperatureCelsius { get; set; }
+	public float WaterTemperatureCelsius;
 
-	public float TurboPressureBar { get; set; }
+	public float TurboPressureBar;
 
-	public float TravelledDistance { get; set; }
+	public float TravelledDistance;
 
-	public float DistanceFromStart { get; set; }
+	public float DistanceFromStart;
 
-	public float DistanceToFinish { get; set; }
+	public float DistanceToFinish;
 
-	public float RaceTime { get; set; }
+	public float RaceTime;
 
-	public bool WrongWay { get; set; }
+	public bool WrongWay;
 
-	public int GearId { get; set; }
+	public int GearId;
 
-	public float Steering { get; set; }
+	public float Steering;
 
-	public float Throttle { get; set; }
+	public float Throttle;
 
-	public float Brake { get; set; }
+	public float Brake;
 
-	public float Handbrake { get; set; }
+	public float Handbrake;
 
-	public float Clutch { get; set; }
+	public float Clutch;
 
-	public byte GameStateId { get; set; }
+	public byte GameStateId;
 
-	public float X { get; set; }
+	public float X;
 
-	public float Y { get; set; }
+	public float Y;
 
-	public float Z { get; set; }
+	public float Z;
 
-	public float SessionTime { get; set; }
+	public float SessionTime;
 
-	public float XSpin { get; set; }
+	public float XSpin;
 
-	public float YSpin { get; set; }
+	public float YSpin;
 
-	public float ZSpin { get; set; }
+	public float ZSpin;
 
-	public float XSpeed { get; set; }
+	public float XSpeed;
 
-	public float YSpeed { get; set; }
+	public float YSpeed;
 
-	public float ZSpeed { get; set; }
+	public float ZSpeed;
 
-	public float CurrentStagePosition { get; set; }
+	public float CurrentStagePosition;
 
-	public string CarModel { get; set; }
+	public string CarModel;
 
-	public string Track { get; set; }
+	public string Track;
 
-	public int CarModelId { get; set; }
+	public int CarModelId;
 
-	public int TrackId { get; set; }
+	public int TrackId;
 
-	public int DamageId { get; set; }
+	public int DamageId;
 
-	public string Damage { get; set; }
+	public string Damage;
 
-	public int WeatherId { get; set; }
+	public int WeatherId;
 
-	public string Weather { get; set; }
+	public string Weather;
 
-	public int TransmissionId { get; set; }
+	public int TransmissionId;
 
-	public string Transmission { get; set; }
+	public string Transmission;
 
-	public bool IsRunning { get; set; }
+	public bool IsRunning;
 
-	public string Gear { get; set; }
+	public string Gear;
 
-	public bool Split1Done { get; set; }
+	public bool Split1Done;
 
-	public bool Split2Done { get; set; }
+	public bool Split2Done;
 
-	public float Split1Time { get; set; }
+	public float Split1Time;
 
-	public float Split2Time { get; set; }
+	public float Split2Time;
 
-	public bool RaceEnded { get; set; }
+	public bool RaceEnded;
 
-	public double GroundSpeed { get; set; }
+	public double GroundSpeed;
 
-	public bool IsRendering { get; set; }
+	public bool IsRendering;
 
-	public double Roll { get; set; }
+	public double Roll;
 
-	public double Pitch { get; set; }
+	public double Pitch;
 
-	public double Yaw { get; set; }
+	public double Yaw;
 
-	public bool FalseStart { get; set; }
+	public bool FalseStart;
 
-	public float StageStartCountdown { get; set; }
+	public float StageStartCountdown;
 
-	public float GuessedLength { get; set; }
+	public float GuessedLength;
 
 
-	public double CurrentGearUpshiftRpm { get; set; }
+	public double CurrentGearUpshiftRpm;
 
-	public float FFBValue { get; set; }
+	public float FFBValue;
 }
