@@ -75,6 +75,7 @@ public partial class CommonGameConfigsSettingsPane : IGameConfigSettingsPane
                             // tbox.Text = dlg.FileName;
                             _config.PropertyValue[_index] = dlg.FileName;
                             btn.ToolTip = dlg.FileName;
+                            vtb.Text = Path.GetFileName(dlg.FileName);
                             base.RestartNeeded?.Invoke();
                             Config.Instance.SaveGameConfig(game);
                         }

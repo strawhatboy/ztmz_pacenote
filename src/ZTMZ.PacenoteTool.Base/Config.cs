@@ -865,7 +865,8 @@ namespace ZTMZ.PacenoteTool.Base
                 {
                     if (gameConfig[kv.Key] is CommonGameConfigs commonGameConfigs2)
                     {
-                        commonGameConfigs2.Merge(commonGameConfigs);
+                        // do not override the existing values
+                        commonGameConfigs2.Merge(commonGameConfigs, isOverride: false);
                     }
                 }
             }

@@ -459,11 +459,12 @@ public partial class HomePageVM : ObservableObject {
                     instance.InitializeWithGame(game.Game);
                     CurrentGameSettings.Add(instance);
                     _gameConfigSettingsPanes[game.Game].Add(instance);
-                    
-                    // add separator if not the last one
-                    // if (i != settings.Count - 1) {
-                    //     CurrentGameSettings.Add(new Separator());
-                    // }
+                    instance.RestartNeeded += () => {
+                        _logger.Info("Game config changed. Restart needed.");
+                        InfoBarIsOpen = true;
+                        InfoBarMessage = I18NLoader.Instance["settings.restartNeeded"];
+                        InfoBarSeverity = InfoBarSeverity.Warning;
+                    };
                 }
             }
         }

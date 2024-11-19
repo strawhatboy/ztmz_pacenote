@@ -49,7 +49,7 @@ public class RBRScriptResource
         }
     }
 
-    private NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     private string DBNAME = "jannemod_v3.zdb";
 
     public SqliteConnection Connection { get; private set; }
@@ -62,7 +62,11 @@ public class RBRScriptResource
     public Dictionary<int, List<int>> ModiferId2ZTMZids { get; private set; } = new();
     private RBRScriptResource() {
         // DBNAME = AppLevelVariables.Instance.GetConfig("game.rbr.additional_settings.additional_pacenote_def");
-        var dbPath = AppLevelVariables.Instance.GetPath(Path.Join(Constants.PATH_GAMES, DBNAME));
+    }
+
+    public async Task LoadData(string dbPath) {
+        logger.Info("Loading RBR pacenote data from " + dbPath);
+        // var dbPath = AppLevelVariables.Instance.GetPath(Path.Join(Constants.PATH_GAMES, DBNAME));
         if (!File.Exists(dbPath))
         {
             logger.Error("DB file not found: " + dbPath);
@@ -71,9 +75,6 @@ public class RBRScriptResource
         Connection = new SqliteConnection($"Data Source={dbPath}");
         Connection.Open();
         Connection.EnableExtensions(true);
-    }
-
-    public async Task LoadData() {
         Pacenotes = (await Connection.QueryAsync<RBRPacenote>("SELECT * FROM pacenote")).ToList();
         Pacenote2ZTMZs = (await Connection.QueryAsync<RBRPacenote2ZTMZ>("SELECT * FROM pacenote_ztmz")).ToList();
         Modifier2ZTMZs = (await Connection.QueryAsync<RBRModifier2ZTMZ>("SELECT * FROM modifier_ztmz")).ToList();
@@ -81,5 +82,6 @@ public class RBRScriptResource
         PacenotesDict = Pacenotes.GroupBy(x => x.id).ToDictionary(x => x.Key, x => x.ToList());
         PacenoteId2ZTMZIds = Pacenote2ZTMZs.GroupBy(x => x.id).ToDictionary(x => x.Key, x => x.OrderBy(y => y.order_id).Select(y => y.ztmz_id).ToList());
         ModiferId2ZTMZids = Modifier2ZTMZs.GroupBy(x => x.id).ToDictionary(x => x.Key, x => x.OrderBy(y => y.order_id).Select(y => y.ztmz_id).ToList());
+        logger.Info("RBR pacenote data loaded.");
     }
 }

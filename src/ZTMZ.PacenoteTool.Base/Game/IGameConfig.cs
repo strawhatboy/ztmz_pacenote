@@ -104,7 +104,7 @@ public class CommonGameConfigs: IGameConfig
     }
 
     // merge from another common config
-    public void Merge(CommonGameConfigs other)
+    public void Merge(CommonGameConfigs other, bool isOverride = true)
     {
         for(int i = 0; i < other.PropertyName.Count; i++)
         {
@@ -120,13 +120,15 @@ public class CommonGameConfigs: IGameConfig
                     ValueRange.Add(other.ValueRange[i]);
                 }
             } else {
-                var index = PropertyName.Keys.ToList().IndexOf(kv.Key);
-                PropertyValue[index] = other.PropertyValue[i];
-                if (other.PropertyType.Count > i) {
-                    if (PropertyType.Count <= index) {
-                        PropertyType.Add(other.PropertyType[i]);
-                    } else {
-                        PropertyType[index] = other.PropertyType[i];
+                if (isOverride) {
+                    var index = PropertyName.Keys.ToList().IndexOf(kv.Key);
+                    PropertyValue[index] = other.PropertyValue[i];
+                    if (other.PropertyType.Count > i) {
+                        if (PropertyType.Count <= index) {
+                            PropertyType.Add(other.PropertyType[i]);
+                        } else {
+                            PropertyType[index] = other.PropertyType[i];
+                        }
                     }
                 }
                 // DO NOT OVERRIDE THE VALUE_RANGE ValueRange[index] = other.ValueRange[i];

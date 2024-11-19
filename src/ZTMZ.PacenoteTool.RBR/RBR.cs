@@ -73,7 +73,18 @@ namespace ZTMZ.PacenoteTool.RBR
         public bool IsRunning { get; set; }
         public bool IsInitialized { get; set; }
 
-        public Dictionary<string, IGameConfig> GameConfigurations { set; get; }
+        private Dictionary<string, IGameConfig> _gameConfigurations;
+        public Dictionary<string, IGameConfig> GameConfigurations { 
+            set {
+                _gameConfigurations = value;
+                // load script resource
+                var pacenoteDef = ((CommonGameConfigs)_gameConfigurations[CommonGameConfigs.Name])["game.rbr.additional_settings.additional_pacenote_def"].ToString();
+                Task.Run(() => RBRScriptResource.Instance.LoadData(pacenoteDef)).Wait();
+            }
+            get {
+                return _gameConfigurations;
+            }
+        }
         
         public int Order => 3000;
 
@@ -103,8 +114,6 @@ namespace ZTMZ.PacenoteTool.RBR
         {
             this.Description = I18NLoader.Instance["game.rbr.description"];
             GameConfigurations = DefaultGameConfigurations;
-            // init script resource
-            Task.Run(RBRScriptResource.Instance.LoadData).Wait();
         }
     }
 }
