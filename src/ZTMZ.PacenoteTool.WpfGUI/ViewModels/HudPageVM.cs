@@ -251,9 +251,12 @@ public partial class HudPageVM : ObservableObject {
 
                         // use slider
                         var slider = new Slider();
+                        slider.TickFrequency = 0.01;
+                        slider.IsSnapToTickEnabled = true;
                         slider.Minimum = valueRange[0];
                         slider.Maximum = valueRange[1];
                         slider.Value = sliderValue;
+                        slider.SmallChange = 0.01;
                         // slider.SetBinding(Slider.ValueProperty, new Binding(configKey) { Source = dashboard.DashboardConfigurations });
                         slider.ValueChanged += (sender, args) => {
                             dashboard.DashboardConfigurations.PropertyValue[index] = (float)slider.Value;

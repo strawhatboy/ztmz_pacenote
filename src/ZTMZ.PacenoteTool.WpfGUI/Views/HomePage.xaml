@@ -592,7 +592,7 @@
                                         Maximum="100"
                                         Minimum="0"
                                         TickFrequency="1"
-                                        IsSnapToTickEnabled="False"
+                                        IsSnapToTickEnabled="True"
                                         VerticalAlignment="Center"/>
                                         
                             <ui:TextBlock Grid.Row="6"
