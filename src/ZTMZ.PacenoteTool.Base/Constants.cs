@@ -44,7 +44,7 @@ namespace ZTMZ.PacenoteTool.Base
         public const int PACENOTE_ONTO = 327;
         public const int PACENOTE_AND = 29;
 
-        public const string HUD_WINDOW_NAME = "ZTMZ Club Hud - LgfZGP4pFeLZK342TKcpFGPS3YcHLvbs";
+        public const string HUD_WINDOW_NAME = "ZTMZ Club Hud - main";
 
         public static Dictionary<string, string> SYSTEM_SOUND = new Dictionary<string, string>()
         {
