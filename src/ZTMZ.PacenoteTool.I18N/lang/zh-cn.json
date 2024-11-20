@@ -42,6 +42,7 @@
     "restartNeeded": "需要重启工具来生效",
 
     "tooltip": {
+      "autoInitializeGame": "当游戏启动时，自动选择对应的游戏",
       "language": "修改工具界面上的语言显示",
       "btn_reset": "需要重启本工具来生效",
       "playbackDeviceDesiredLatency": "播放设备的 缓冲区延迟 表示指令到达播放设备后开始播放的延迟，如果延迟过低，\n对于某些设备可能会出现声音卡顿的现象，延迟过高可能会导致路书播放滞后",
@@ -121,6 +122,8 @@
       "memoryRefreshRate": "修改这个值可以改变内存读取频率"
     },
 
+    "autoInitializeGame_on": "自动选择游戏",
+    "autoInitializeGame_off": "不自动选择游戏",
     "language": "界面语言",
     "isDarkTheme": "关灯",
     "theme": "主题",

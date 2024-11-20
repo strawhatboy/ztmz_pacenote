@@ -138,6 +138,14 @@ public partial class HomePageVM : ObservableObject {
         Config.Instance.SaveUserConfig();
     }
 
+    [ObservableProperty]
+    private bool _autoInitializeGame = Config.Instance.AutoInitializeGame;
+    partial void OnAutoInitializeGameChanged(bool value)
+    {
+        Config.Instance.AutoInitializeGame = value;
+        Config.Instance.SaveUserConfig();
+    }
+
     private static Dictionary<float, int> _factorToIndex = new() {
         { 0.00001f, 0 },
         { 0.00005f, 1 },
@@ -190,6 +198,13 @@ public partial class HomePageVM : ObservableObject {
         var contentDialogService = serviceProvider.GetService(typeof(IContentDialogService)) as IContentDialogService;
         Tool = _tool;
         _tool.onGameStarted += (game, p) => {
+            if (!Config.Instance.AutoInitializeGame && SelectedGame.Game != game) {
+                _logger.Info("Game started. in Home Page. AutoInitializeGame is false. Do nothing because current selected game is not the started game.");
+                return;
+            }
+            if (Config.Instance.AutoInitializeGame && SelectedGame.Game != game) {
+                SelectedGame = Games.Where(g => g.Game == game).FirstOrDefault();
+            }
             IsGameRunning = true;
             // GameOverlay
             _logger.Info("Game started. in Home Page. Initializing GameOverlay.");

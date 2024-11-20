@@ -44,9 +44,10 @@
         <!-- left pane -->
         <StackPanel Grid.Row="1"
                     Margin="0 0 20 0">
-            <Grid>
+            <Grid Margin="0 50 0 0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="234"/>
+                    <RowDefinition Height="140"/>
+                    <RowDefinition Height="60" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="150"/>
@@ -160,7 +161,14 @@
                                           Opacity="1"/>
                     </Border.Effect>
                 </Border>
-            </Grid>
+                <ui:ToggleSwitch Grid.Row="1" Grid.ColumnSpan="3"
+                    HorizontalAlignment="Center" OnContent="{DynamicResource settings.autoInitializeGame_on}"
+                    OffContent="{DynamicResource settings.autoInitializeGame_off}"
+                    IsChecked="{Binding ViewModel.AutoInitializeGame, Mode=TwoWay}"
+                    ToolTip="{DynamicResource settings.tooltip.autoInitializeGame}" 
+                    ToolTipService.InitialShowDelay="100"
+                />
+            </Grid>            
             <ui:CardExpander Padding="16">
                 <ui:CardExpander.Header>
                     <StackPanel>

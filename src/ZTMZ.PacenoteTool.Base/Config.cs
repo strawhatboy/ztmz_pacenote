@@ -795,6 +795,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._UpdateDefinitionUrl_AudioPkg;
         }
 
+        private bool _AutoInitializeGame = true;
+        public bool AutoInitializeGame
+        {
+            set { this._AutoInitializeGame = value; this._userconfig["AutoInitializeGame"] = value; }
+            get => this._AutoInitializeGame;
+        }
+
         public void Save(string path)
         {
             lock(_lock) {

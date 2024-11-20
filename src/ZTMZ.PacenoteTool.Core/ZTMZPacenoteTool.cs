@@ -179,14 +179,12 @@ public class ZTMZPacenoteTool {
                 return;
 
             g.IsRunning = true;
+            this.onGameStarted?.Invoke(_currentGame, p);
             if (_currentGame == g) 
             {
                 // raise game started event!!!
                 // turn on the light, current game is running.
                 // start game data pulling
-                this.onGameStarted?.Invoke(_currentGame, p);
-                
-                _logger.Info("Got new process: {0}, trying to initialize game: {1}", p.ProcessName, _currentGame.Name);
                 initializeGame(_currentGame);
             }
         }, (pName, pPath) => {

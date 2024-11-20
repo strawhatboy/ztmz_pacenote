@@ -42,7 +42,7 @@
     "restartNeeded": "Need to restart the tool to take effect",
 
     "tooltip": {
-      
+      "autoInitializeGame": "Automatically select the game when the game launches",
       "language": "Language displayed",
       "btn_reset": "Need to restart the tool to take effect",
       "playbackDeviceDesiredLatency": "The delay for playing after the instructions arrive at the device, if this value is very small, \nthe sound may be weird. Meanwhile a big delay may affect the experience",
@@ -122,6 +122,8 @@
       "memoryRefreshRate": "Change this value to adjust the refresh rate of the memory monitor"
     },
 
+    "autoInitializeGame_on": "Auto Game Selection",
+    "autoInitializeGame_off": "Manual Game Selection",
     "language": "Language",
     "isDarkTheme": "Dark Theme",
     "theme": "Theme",
