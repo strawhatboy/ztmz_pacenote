@@ -179,7 +179,7 @@ public class ZTMZPacenoteTool {
                 return;
 
             g.IsRunning = true;
-            this.onGameStarted?.Invoke(_currentGame, p);
+            this.onGameStarted?.Invoke(g, p);
             if (_currentGame == g) 
             {
                 // raise game started event!!!
