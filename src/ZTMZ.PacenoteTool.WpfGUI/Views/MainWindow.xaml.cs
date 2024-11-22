@@ -47,6 +47,8 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             // theme
             if (Config.Instance.UseSystemTheme) {
                 Wpf.Ui.Appearance.SystemThemeWatcher.Watch(this);
+                var systemTheme = Wpf.Ui.Appearance.ApplicationThemeManager.GetSystemTheme();
+                Wpf.Ui.Appearance.ApplicationThemeManager.Apply(systemTheme == Wpf.Ui.Appearance.SystemTheme.Dark ? Wpf.Ui.Appearance.ApplicationTheme.Dark : Wpf.Ui.Appearance.ApplicationTheme.Light, WindowBackdropType.Mica, false);
             } else {
                 Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Config.Instance.IsDarkTheme ? Wpf.Ui.Appearance.ApplicationTheme.Dark : Wpf.Ui.Appearance.ApplicationTheme.Light,
                     WindowBackdropType.Mica,
@@ -55,9 +57,6 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
                 Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(ThemeHelper.GetAccentColor(), 
                     Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
             }
-
-            // disallow 2 instances
-            
         }
 
         public void CloseWindow()
