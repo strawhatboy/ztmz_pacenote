@@ -204,6 +204,7 @@ public partial class HomePageVM : ObservableObject {
             }
             if (Config.Instance.AutoInitializeGame && SelectedGame.Game != game) {
                 SelectedGame = Games.Where(g => g.Game == game).FirstOrDefault();
+                return;
             }
             IsGameRunning = true;
             // GameOverlay

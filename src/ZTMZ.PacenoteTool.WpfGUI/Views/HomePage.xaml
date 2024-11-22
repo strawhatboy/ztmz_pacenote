@@ -44,9 +44,9 @@
         <!-- left pane -->
         <StackPanel Grid.Row="1"
                     Margin="0 0 20 0">
-            <Grid Margin="0 50 0 0">
+            <Grid Margin="0 40 0 0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="140"/>
+                    <RowDefinition Height="150"/>
                     <RowDefinition Height="60" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
