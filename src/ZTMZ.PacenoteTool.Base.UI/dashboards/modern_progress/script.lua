@@ -24,7 +24,7 @@ function onInit(args)
     _brushes["background"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 100);
     _brushes["splitBar"] = gfx.CreateSolidBrush(255, 255, 255);
     _brushes["inprogress"] = gfx.CreateSolidBrush(152, 204, 245);
-    _brushes["darkgrey"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F);
+    _brushes["darkgrey"] = gfx.CreateSolidBrush(0x66, 0x66, 0x66);
     _brushes["darkred"] = gfx.CreateSolidBrush(128, 18, 18);
     _brushes["black"] = gfx.CreateSolidBrush(0, 0, 0);
         
@@ -106,7 +106,7 @@ function onUpdate(args)
     local finishLineStartX = telemetryStartX + size - splitBarWidth / 2;
     local finishLineStartY = telemetryStartY;
     local finishLineEndX = telemetryStartX + size + splitBarWidth / 2;
-    local finishLineEndY = telemetryEndY + height * 2;  -- the finish line is a little bit longer than the bar
+    local finishLineEndY = telemetryEndY + height;  -- the finish line is a little bit longer than the bar
     local finishFlagStartX = finishLineEndX;
     local finishFlagStartY = telemetryStartY;
     local finishFlagEndX = finishFlagStartX + height;
@@ -115,8 +115,8 @@ function onUpdate(args)
     local finishFlagsStartPositions = {}
     local finishFlagsEndPositions = {}
     for i = 1, 18 do
-        finishFlagsStartPositions[i] = { finishFlagStartX + height / 2 * ((i - 1) % 3), finishFlagStartY + height / 2 * math.floor((i - 1) / 3) };
-        finishFlagsEndPositions[i] = { finishFlagStartX + height / 2 * ((i - 1) % 3 + 1), finishFlagStartY + height / 2 * (math.floor((i - 1) / 3) + 1) };
+        finishFlagsStartPositions[i] = { finishFlagStartX + height / 3 * ((i - 1) % 3), finishFlagStartY + height / 3 * math.floor((i - 1) / 3) };
+        finishFlagsEndPositions[i] = { finishFlagStartX + height / 3 * ((i - 1) % 3 + 1), finishFlagStartY + height / 3 * (math.floor((i - 1) / 3) + 1) };
     end
 
     for i = 1, blocksCount do
