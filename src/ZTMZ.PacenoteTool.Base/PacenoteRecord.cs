@@ -87,6 +87,12 @@ namespace ZTMZ.PacenoteTool.Base
             var rawTextParseResult = PacenoteRecord.ParseRawText(realContent);
             realContent = rawTextParseResult[0];
             var rawText = rawTextParseResult[1];
+            // should also allow pacenote line like
+            // 20:1_left,3_right,2_left/dont_cut
+            // which has : between distance and pacenotes
+            if (realContent.IndexOf(':') != -1) {
+                realContent = realContent.Replace(':', ',');    // 简单粗暴
+            }
             var parts = realContent.Split(',');
             if (parts.Length == 0)
             {
