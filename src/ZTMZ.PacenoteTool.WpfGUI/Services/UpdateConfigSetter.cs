@@ -52,14 +52,18 @@ public class UpdateConfigSetter
 
                 // locate the index of the property
                 int index = cfg.PropertyName.Keys.ToList().IndexOf("game.rbr.additional_settings.additional_pacenote_def");
+                if (cfg.PropertyType.Count == 0 || cfg.PropertyType.Count <= index) {
+                    // no propertyType
+                    var defaultConfig = (CommonGameConfigs)rbr.DefaultGameConfigurations[CommonGameConfigs.Name];
+                    cfg.PropertyType = defaultConfig.PropertyType;
+                }
+                cfg.PropertyType[index] = "file:zdb";
                 if (index == -1) {
                     cfg.PropertyName.Add("game.rbr.additional_settings.additional_pacenote_def", "game.rbr.additional_settings.tooltip.additional_pacenote_def");
                     cfg.PropertyValue.Add(AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, "jannemod_v3.zdb")));
-                    cfg.PropertyType.Add("file:zdb");
                 } else {
                     cfg.PropertyName["game.rbr.additional_settings.additional_pacenote_def"] = "game.rbr.additional_settings.tooltip.additional_pacenote_def";
                     cfg.PropertyValue[index] = AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, "jannemod_v3.zdb"));
-                    cfg.PropertyType[index] = "file:zdb";
                 }
 
                 Config.Instance.SaveGameConfig(rbr);
