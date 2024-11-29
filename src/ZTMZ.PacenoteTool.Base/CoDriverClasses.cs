@@ -4,6 +4,7 @@ using System.IO;
 using Newtonsoft.Json;
 using System.IO.Compression;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ZTMZ.PacenoteTool.Base
 {
@@ -192,11 +193,27 @@ namespace ZTMZ.PacenoteTool.Base
                 foreach (var filename in filenames) {
                     if (Config.Instance.PreloadSounds && package.tokens.ContainsKey(filename))
                     {
-                        package.id2tokens[id] = package.tokens[filename];
+                        if (package.id2tokens.ContainsKey(id)) {
+                            var tmpList = package.tokens[filename].ToList();
+                            for (int i = 0; i < package.tokens[filename].Count; i++) {
+                                package.id2tokens[id].Add(tmpList[i]);
+                            }
+                        }
+                        else {
+                            package.id2tokens[id] = package.tokens[filename];
+                        }
                     }
                     if (package.tokensPath.ContainsKey(filename))
                     {
-                        package.id2tokensPath[id] = package.tokensPath[filename];
+                        if (package.id2tokensPath.ContainsKey(id)) {
+                            var tmpList = package.tokensPath[filename].ToList();
+                            for (int i = 0; i < package.tokensPath[filename].Count; i++) {
+                                package.id2tokensPath[id].Add(tmpList[i]);
+                            }
+                        }
+                        else {
+                            package.id2tokensPath[id] = package.tokensPath[filename];
+                        }
                     }
                 }
             }
