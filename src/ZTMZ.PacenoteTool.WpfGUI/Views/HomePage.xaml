@@ -11,7 +11,7 @@
     xmlns:helpers="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="HomePage"
-    FontFamily="pack://application:,,,/fonts/#Noto Serif SC"
+    FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
     <Page.Resources>

@@ -17,10 +17,10 @@
         WindowStartupLocation="CenterScreen"
         Loaded="MainWindow_Loaded"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
-        FontFamily="pack://application:,,,/fonts/#Noto Serif SC"
+        FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
         Title="{Binding ViewModel.Title, Mode=OneWay}" Height="760" Width="1180" MinWidth="1180" MinHeight="760">
     <ui:FluentWindow.Resources>
-        <FontFamily x:Key="noto_serif_sc" >pack://application:,,,/fonts/#Noto Serif SC</FontFamily>
+        <FontFamily x:Key="noto_serif_sc" >pack://application:,,,/fonts/#Noto Sans SC</FontFamily>
     </ui:FluentWindow.Resources>
     <b:Interaction.Triggers>
     <b:EventTrigger EventName="Loaded">

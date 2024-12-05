@@ -8,7 +8,7 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:helper="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
     Title="HudPage"
-    FontFamily="pack://application:,,,/fonts/#Noto Serif SC"
+    FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
