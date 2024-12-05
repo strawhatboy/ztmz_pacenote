@@ -391,7 +391,7 @@
       "tb_showHud": "Whether to display the floating window in the game, the game needs to be in window mode or borderless window mode",
       "tb_mute": "Mute/Unmute",
 
-      "cb_gameNotInstalled": "The game is not installed. if it's playable RSFRBR, please install the game with minimum installation to fix the registry issue, and then restart this tool",
+      "cb_gameNotInstalled": "The game is not installed. if it's playable RSFRBR, please install the game with minimum installation to fix the registry issue, and then restart this tool\nIt is possible that the game was just installed from Steam and has not been started yet, please start the game first, and end the game, and then restart this tool and the game",
       "tb_intercom": "The larger the value is, the more the intercom effect will be, and the more the voice will be distorted",
     }
   },
