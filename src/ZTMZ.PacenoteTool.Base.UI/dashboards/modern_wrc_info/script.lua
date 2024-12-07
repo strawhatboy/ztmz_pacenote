@@ -208,52 +208,11 @@ function onUpdate(args)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     
-    -- print("calulating the margin, padding, pos of each element")
-    
-    -- calculate the margin, padding, pos of each element
-    ---- print("calculating the margin, padding, pos of each element"); 
-    local size = gfx.Height * self.GetConfigByKey("dashboards.settings.size");
-    local positionH = self.GetConfigByKey("dashboards.settings.positionH");
-    local positionV = self.GetConfigByKey("dashboards.settings.positionV");
-    local marginH = self.GetConfigByKey("dashboards.settings.marginH") * gfx.Width;
-    local marginV = self.GetConfigByKey("dashboards.settings.marginV") * gfx.Height;
     local whRatio = self.GetConfigByKey("dashboards.settings.whRatio");
+    local telemetryStartX, telemetryStartY, width, height = getDashboardPositionStart(self, gfx, whRatio);
 
-    -- print("calulating the margin, padding, pos of each element")
-    
-    -- calculate the margin, padding, pos of each element
-    ---- print("calculating the margin, padding, pos of each element"); 
-    local telemetryStartX = 0;
-    if (positionH == -1) then
-        -- -1 means left
-        telemetryStartX = 0 + marginH;
-    else
-        if (positionH == 1) then
-            -- 1 means right
-            telemetryStartX = gfx.Width - size * whRatio - marginH;
-        else
-            -- 0 means center
-            telemetryStartX = gfx.Width / 2 - size * whRatio / 2;
-        end
-    end
-    
-    local telemetryStartY = 0;
-    if (positionV == -1) then
-        -- -1 means top
-        telemetryStartY = 0 + marginV;
-    else
-        if (positionV == 1) then
-            -- 1 means bottom
-            telemetryStartY = gfx.Height - size - marginV;
-        else
-            -- 0 means center
-            telemetryStartY = gfx.Height / 2 - size / 2;
-        end
-    end
-    local width = size * whRatio;
-
-    drawStaticFrames(gfx, self, data, helper, telemetryStartX, telemetryStartY, size * whRatio, size);
-    drawDriverNameAndRegion(gfx, self, data, ctx, helper, telemetryStartX, telemetryStartY, size * whRatio, size);
+    drawStaticFrames(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
+    drawDriverNameAndRegion(gfx, self, data, ctx, helper, telemetryStartX, telemetryStartY, width, height);
 end
 
 function onExit()

@@ -307,55 +307,21 @@ function onUpdate(args)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     
-    local size = gfx.Height * self.GetConfigByKey("dashboards.settings.size")
-    local positionH = self.GetConfigByKey("dashboards.settings.positionH")
-    local positionV = self.GetConfigByKey("dashboards.settings.positionV")
     local padding = size * self.GetConfigByKey("dashboards.settings.padding")
     local switchGearNSpeed = self.GetConfigByKey("dashboards.settings.switchGearNSpeed")
-    local marginH = self.GetConfigByKey("dashboards.settings.marginH") * gfx.Width;
-    local marginV = self.GetConfigByKey("dashboards.settings.marginV") * gfx.Height;
-    
-    -- print("calulating the margin, padding, pos of each element")
-    
-    -- calculate the margin, padding, pos of each element
-    ---- print("calculating the margin, padding, pos of each element"); 
-    local telemetryCenterX = 0;
-    if (positionH == -1) then
-        -- -1 means left
-        telemetryCenterX = size / 2 + marginH;
-    else
-        if (positionH == 1) then
-            -- 1 means right
-            telemetryCenterX = gfx.Width - size / 2 - marginH;
-        else
-            -- 0 means center
-            telemetryCenterX = gfx.Width / 2;
-        end
-    end
 
-    local telemetryCenterY = 0;
-    if (positionV == -1) then
-        -- -1 means top
-        telemetryCenterY = size / 2 + marginV;
-    else
-        if (positionV == 1) then
-            -- 1 means bottom
-            telemetryCenterY = gfx.Height - size / 2 - marginV;
-        else
-            -- 0 means center
-            telemetryCenterY = gfx.Height / 2;
-        end
-    end
+    local telemetryCenterX, telemetryCenterY, width, height = getDashboardPositionCenter(self, gfx, 1.0);
+    local radius = height / 2;
 
-    drawStaticFrames(gfx, data, helper, telemetryCenterX, telemetryCenterY, size / 2, padding);
-    drawRPM(gfx, data, conf, helper, telemetryCenterX, telemetryCenterY, size / 2, padding);
-    drawThrottle(gfx, data, helper, telemetryCenterX, telemetryCenterY, size / 2, padding);
-    drawBrake(gfx, data, helper, telemetryCenterX, telemetryCenterY, size / 2, padding);
-    drawClutch(gfx, data, helper, telemetryCenterX, telemetryCenterY, size / 2, padding);
-    drawHandBrake(gfx, data, helper, telemetryCenterX, telemetryCenterY, size / 2, padding);
+    drawStaticFrames(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding);
+    drawRPM(gfx, data, conf, helper, telemetryCenterX, telemetryCenterY, radius, padding);
+    drawThrottle(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding);
+    drawBrake(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding);
+    drawClutch(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding);
+    drawHandBrake(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding);
 
-    drawSpeed(gfx, data, helper, telemetryCenterX, telemetryCenterY, size / 2, padding, switchGearNSpeed);
-    drawGear(gfx, data, helper, telemetryCenterX, telemetryCenterY, size / 2, padding, switchGearNSpeed);
+    drawSpeed(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding, switchGearNSpeed);
+    drawGear(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding, switchGearNSpeed);
 end
 
 function onExit()

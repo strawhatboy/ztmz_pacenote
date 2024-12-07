@@ -43,56 +43,15 @@ function onUpdate(args)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     
-    -- print("calulating the margin, padding, pos of each element")
-    
-    -- calculate the margin, padding, pos of each element
-    ---- print("calculating the margin, padding, pos of each element"); 
-    -- size is width here. the bar's length
-    local size = gfx.Height * self.GetConfigByKey("dashboards.settings.size");
-    local positionH = self.GetConfigByKey("dashboards.settings.positionH");
-    local positionV = self.GetConfigByKey("dashboards.settings.positionV");
-    local marginH = self.GetConfigByKey("dashboards.settings.marginH") * gfx.Width;
-    local marginV = self.GetConfigByKey("dashboards.settings.marginV") * gfx.Height;
     local whRatio = self.GetConfigByKey("dashboards.settings.whRatio");
     local isVertical = self.GetConfigByKey("dashboards.settings.verticalOrHorizontal");
+    local centerX, centerY, height, width = getDashboardPositionCenter(self, gfx, 1 / whRatio);
 
-    -- print("calulating the margin, padding, pos of each element")
-    
-    -- calculate the margin, padding, pos of each element
-    ---- print("calculating the margin, padding, pos of each element"); 
-    local centerX = 0;
-    local height = size / whRatio;
-    if (positionH == -1) then
-        -- -1 means left
-        centerX = 0 + marginH;
-    else
-        if (positionH == 1) then
-            -- 1 means right
-            centerX = gfx.Width - marginH;
-        else
-            -- 0 means center
-            centerX = gfx.Width / 2;
-        end
-    end
-    
-    local centerY = 0;
-    if (positionV == -1) then
-        -- -1 means top
-        centerY = 0 + marginV;
-    else
-        if (positionV == 1) then
-            -- 1 means bottom
-            centerY = gfx.Height - marginV;
-        else
-            -- 0 means center
-            centerY = gfx.Height / 2;
-        end
-    end
-    local telemetryStartX = centerX - size / 2;
+    local telemetryStartX = centerX - width / 2;
     local telemetryStartY = centerY - height / 2;
 
     local blocksCount = 2 ^ (math.floor(math.log(data.TrackLength / 1000) / math.log(2)));
-    local telemetryEndX = telemetryStartX + size;
+    local telemetryEndX = telemetryStartX + width;
     local telemetryEndY = telemetryStartY + height;
 
     local splitBarWidth = 2;
@@ -103,9 +62,9 @@ function onUpdate(args)
     local splitBarEndPositions = {};
     local barStartPositions = {};
     local barEndPositions = {};
-    local finishLineStartX = telemetryStartX + size - splitBarWidth / 2;
+    local finishLineStartX = telemetryStartX + width - splitBarWidth / 2;
     local finishLineStartY = telemetryStartY;
-    local finishLineEndX = telemetryStartX + size + splitBarWidth / 2;
+    local finishLineEndX = telemetryStartX + width + splitBarWidth / 2;
     local finishLineEndY = telemetryEndY + height;  -- the finish line is a little bit longer than the bar
     local finishFlagStartX = finishLineEndX;
     local finishFlagStartY = telemetryStartY;
@@ -120,14 +79,14 @@ function onUpdate(args)
     end
 
     for i = 1, blocksCount do
-        splitBarStartPositions[i] = { telemetryStartX + size / blocksCount * (i-1) - splitBarWidth / 2, telemetryStartY };
-        splitBarEndPositions[i] = { telemetryStartX + size / blocksCount * (i-1) + splitBarWidth / 2, telemetryEndY };
+        splitBarStartPositions[i] = { telemetryStartX + width / blocksCount * (i-1) - splitBarWidth / 2, telemetryStartY };
+        splitBarEndPositions[i] = { telemetryStartX + width / blocksCount * (i-1) + splitBarWidth / 2, telemetryEndY };
     end
     for i = 1, blocksCount do
-        barStartPositions[i] = { telemetryStartX + size / blocksCount * (i - 1) + splitBarWidth / 2, telemetryStartY };
-        barEndPositions[i] = { telemetryStartX + size / blocksCount * i - splitBarWidth / 2, telemetryEndY };
+        barStartPositions[i] = { telemetryStartX + width / blocksCount * (i - 1) + splitBarWidth / 2, telemetryStartY };
+        barEndPositions[i] = { telemetryStartX + width / blocksCount * i - splitBarWidth / 2, telemetryEndY };
     end
-    local progressEndX = telemetryStartX + size * data.CompletionRate;
+    local progressEndX = telemetryStartX + width * data.CompletionRate;
     local progressEndY = telemetryEndY;
 
     local cursorPoints = {}; -- 5 points

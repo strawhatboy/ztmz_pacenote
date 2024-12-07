@@ -115,3 +115,50 @@ function getRPMLevel(data, conf)
 
     return rpmLevel
 end
+
+function getDashboardPositionCenter(self, gfx, whRatio)
+    local height = gfx.Height * self.GetConfigByKey("dashboards.settings.size")
+    local positionH = self.GetConfigByKey("dashboards.settings.positionH")
+    local positionV = self.GetConfigByKey("dashboards.settings.positionV")
+    local marginH = self.GetConfigByKey("dashboards.settings.marginH") * gfx.Width;
+    local marginV = self.GetConfigByKey("dashboards.settings.marginV") * gfx.Height;
+    local width = height * whRatio;
+    
+    local telemetryCenterX = 0;
+    if (positionH == -1) then
+        -- -1 means left
+        telemetryCenterX = width / 2 + marginH;
+    else
+        if (positionH == 1) then
+            -- 1 means right
+            telemetryCenterX = gfx.Width - width / 2 - marginH;
+        else
+            -- 0 means center
+            telemetryCenterX = gfx.Width / 2;
+        end
+    end
+
+    local telemetryCenterY = 0;
+    if (positionV == -1) then
+        -- -1 means top
+        telemetryCenterY = height / 2 + marginV;
+    else
+        if (positionV == 1) then
+            -- 1 means bottom
+            telemetryCenterY = gfx.Height - height / 2 - marginV;
+        else
+            -- 0 means center
+            telemetryCenterY = gfx.Height / 2;
+        end
+    end
+
+    return telemetryCenterX, telemetryCenterY, width, height;
+end
+
+-- top left
+function getDashboardPositionStart(self, gfx, whRatio)
+    centerX, centerY, width, height = getDashboardPositionCenter(self, gfx, whRatio);
+    return centerX - width / 2, centerY - height / 2, width, height;
+end
+
+

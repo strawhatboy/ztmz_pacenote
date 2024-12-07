@@ -131,48 +131,12 @@ function onUpdate(args)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     
-    local size = gfx.Height * self.GetConfigByKey("dashboards.settings.size");
-    local positionH = self.GetConfigByKey("dashboards.settings.positionH");
-    local positionV = self.GetConfigByKey("dashboards.settings.positionV");
     local whRatio = self.GetConfigByKey("dashboards.settings.whRatio");
-    local marginH = self.GetConfigByKey("dashboards.settings.marginH") * gfx.Width;
-    local marginV = self.GetConfigByKey("dashboards.settings.marginV") * gfx.Height;
+    local telemetryStartX, telemetryStartY, width, height = getDashboardPositionStart(self, gfx, whRatio);
 
-    -- print("calulating the margin, padding, pos of each element")
-    
-    -- calculate the margin, padding, pos of each element
-    ---- print("calculating the margin, padding, pos of each element"); 
-    local telemetryStartX = 0;
-    if (positionH == -1) then
-        -- -1 means left
-        telemetryStartX = 0 + marginH;
-    else
-        if (positionH == 1) then
-            -- 1 means right
-            telemetryStartX = gfx.Width - size * whRatio - marginH;
-        else
-            -- 0 means center
-            telemetryStartX = gfx.Width / 2 - size * whRatio / 2;
-        end
-    end
-    
-    local telemetryStartY = 0;
-    if (positionV == -1) then
-        -- -1 means top
-        telemetryStartY = 0 + marginV;
-    else
-        if (positionV == 1) then
-            -- 1 means bottom
-            telemetryStartY = gfx.Height - size - marginV;
-        else
-            -- 0 means center
-            telemetryStartY = gfx.Height / 2 - size / 2;
-        end
-    end
-
-    drawStaticFrames(gfx, data, conf, helper, telemetryStartX, telemetryStartY, size * whRatio, size);
-    drawRPM(gfx, data, conf, helper, telemetryStartX, telemetryStartY, size * whRatio, size);
-    drawGear(gfx, data, conf, helper, telemetryStartX, telemetryStartY, size * whRatio, size);
+    drawStaticFrames(gfx, data, conf, helper, telemetryStartX, telemetryStartY, width, height);
+    drawRPM(gfx, data, conf, helper, telemetryStartX, telemetryStartY, width, height);
+    drawGear(gfx, data, conf, helper, telemetryStartX, telemetryStartY, width, height);
 end
 
 function onExit()
