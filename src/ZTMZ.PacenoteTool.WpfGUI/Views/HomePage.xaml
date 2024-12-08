@@ -161,6 +161,12 @@
                                           Opacity="1"/>
                     </Border.Effect>
                 </Border>
+                <ProgressBar Grid.Row="0"
+                    Grid.Column="1"
+                    Height="6"
+                    Visibility="{Binding ViewModel.IsGameInitializeInProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    IsIndeterminate="True"
+                    />
                 <ui:ToggleSwitch Grid.Row="1" Grid.ColumnSpan="3"
                     HorizontalAlignment="Center" OnContent="{DynamicResource settings.autoInitializeGame_on}"
                     OffContent="{DynamicResource settings.autoInitializeGame_off}"

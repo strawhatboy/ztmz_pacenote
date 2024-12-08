@@ -146,6 +146,9 @@ public partial class HomePageVM : ObservableObject {
         Config.Instance.SaveUserConfig();
     }
 
+    [ObservableProperty]
+    private bool _isGameInitializeInProgress = false;
+
     private static Dictionary<float, int> _factorToIndex = new() {
         { 0.00001f, 0 },
         { 0.00005f, 1 },
@@ -234,6 +237,7 @@ public partial class HomePageVM : ObservableObject {
 
         _tool.onGameInitialized += (game) => {
             IsGameInitialized = true;
+            IsGameInitializeInProgress = false;
             IsGameInitializedFailed = false;
         };
         _tool.onGameUninitialized += (game) => {
@@ -244,6 +248,7 @@ public partial class HomePageVM : ObservableObject {
 
         _tool.onGameInitializeFailed += (game, code, parameters) => {
             IsGameInitialized = false;
+            IsGameInitializeInProgress = false;
             IsGameInitializedFailed = code != PrerequisitesCheckResultCode.OK;
             if (IsGameInitializedFailed) {
                 _logger.Warn($"Game {game.Name} initialize failed. Code: {code}");
@@ -447,6 +452,7 @@ public partial class HomePageVM : ObservableObject {
         Config.Instance.UI_SelectedGame = Games.IndexOf(game);
         Config.Instance.SaveUserConfig();
         Task.Run(async () => {
+            IsGameInitializeInProgress = true;
             IsGameRunning = await Tool.SetGame(game.Game);
         });
 
