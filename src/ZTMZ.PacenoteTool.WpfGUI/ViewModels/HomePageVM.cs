@@ -442,11 +442,13 @@ public partial class HomePageVM : ObservableObject {
     }
 
     [RelayCommand]
-    private void GameSelectionChanged() {
+    private async void GameSelectionChanged() {
         var game = SelectedGame;
         Config.Instance.UI_SelectedGame = Games.IndexOf(game);
         Config.Instance.SaveUserConfig();
-        IsGameRunning = Tool.SetGame(game.Game);
+        Task.Run(async () => {
+            IsGameRunning = await Tool.SetGame(game.Game);
+        });
 
         // Update game settings pane
         CurrentGameSettings.Clear();

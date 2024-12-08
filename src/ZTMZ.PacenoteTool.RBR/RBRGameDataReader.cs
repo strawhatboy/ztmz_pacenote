@@ -129,14 +129,27 @@ public class RBRGameDataReader : UdpGameDataReader
         MEM_REFRESH_INTERVAL = 1000f / memConfig.RefreshRate;
 
         _logger.Info("RBRMemDataReader trying to open process {0}", game.Executable);
-        // init memory reader?
-        if (memDataReader.OpenProcess(game)) {
-            _logger.Info("Memory reader opened.");
-        } else {
+        // init memory reader? with retry?
+        var retry = 3;
+        var success = false;
+        while (retry-- > 0)
+        {
+            if (memDataReader.OpenProcess(game))
+            {
+                _logger.Info("Memory reader opened.");
+                success = true;
+                break;
+            }
+            _logger.Error($"Failed to open memory reader, retrying... {retry} times left.");
+            // sleep?
+            System.Threading.Thread.Sleep(1000);
+        }
+        if (!success) {
             _logger.Error("Failed to open memory reader.");
             base.Uninitialize(game);
             return false;
         };
+
         _timer.Elapsed += MemDataPullHandler;
         _timer.Interval = MEM_REFRESH_INTERVAL;
         _timer.Start();

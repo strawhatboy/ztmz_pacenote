@@ -28,6 +28,7 @@ public class RBRMemDataReader
         }
 
         var rbrProcess = rbrProcesses[0];
+        rbrProcess.Refresh();
         if (rbrProcess.HasExited)
         {
             return false;

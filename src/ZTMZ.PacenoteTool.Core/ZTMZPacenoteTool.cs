@@ -497,7 +497,7 @@ public class ZTMZPacenoteTool {
 
 #region Sets
 
-    public bool SetGame(IGame game)
+    public async Task<bool> SetGame(IGame game)
     {
         bool gameRunning = false;
         uninitializeGame(_currentGame);
