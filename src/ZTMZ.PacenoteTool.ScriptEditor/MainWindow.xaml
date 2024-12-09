@@ -1,13 +1,17 @@
-﻿<Window x:Class="ZTMZ.PacenoteTool.ScriptEditor.MainWindow"
+﻿<ui:FluentWindow x:Class="ZTMZ.PacenoteTool.ScriptEditor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+        xmlns:ww2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.ScriptEditor"
-        mc:Ignorable="d" Closing="MainWindow_OnClosing"
-        Title="ZTMZ Club 路书脚本编辑工具v1.4" Height="450" Width="1280" DataContext="{Binding RelativeSource={RelativeSource Self}}">
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        mc:Ignorable="d"
+        ExtendsContentIntoTitleBar="True"
+        WindowBackdropType="Mica"
+        WindowCornerPreference="Default"
+        Title="ZTMZ Club 路书脚本编辑工具v1.4" MinHeight="450" MinWidth="1280">
     <Window.InputBindings>
         <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}"></KeyBinding>
         <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveAsCommand}"></KeyBinding>
@@ -15,17 +19,25 @@
         <KeyBinding Key="I" Modifiers="Control" Command="{Binding ImportCommand}"></KeyBinding>
     </Window.InputBindings>
     <Grid>
-        <DockPanel Margin="0" VerticalAlignment="Stretch" LastChildFill="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <ui:TitleBar
+            Title="ZTMZ Club 路书脚本编辑工具v2.0"
+            Grid.Row="0"
+            />
+        <DockPanel Grid.Row="1" Margin="0" VerticalAlignment="Stretch" LastChildFill="True">
 
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5">
-                <Button Name="btn_save" Click="Btn_save_OnClick" ToolTip="Ctrl+S">保存</Button>
-                <Button Name="btn_saveAs" Click="Btn_saveAs_OnClick" ToolTip="Ctrl+Shift+S">另存为...</Button>
-                <Button Name="btn_open" Click="Btn_open_OnClick" ToolTip="Ctrl+O">打开路书脚本</Button>
-                <Button Name="btn_openFolder" Click="btn_openFolder_Click" ToolTip="Ctrl+O">打开当前路书所在文件夹</Button>
-                <Button Name="btn_importFromCrewChief" Click="Btn_importFromCrewChief_OnClick"
+                <ui:Button Name="btn_save" Click="Btn_save_OnClick" ToolTip="Ctrl+S">保存</ui:Button>
+                <ui:Button Name="btn_saveAs" Click="Btn_saveAs_OnClick" ToolTip="Ctrl+Shift+S">另存为...</ui:Button>
+                <ui:Button Name="btn_open" Click="Btn_open_OnClick" ToolTip="Ctrl+O">打开路书脚本</ui:Button>
+                <ui:Button Name="btn_openFolder" Click="btn_openFolder_Click" ToolTip="Ctrl+O">打开当前路书所在文件夹</ui:Button>
+                <ui:Button Name="btn_importFromCrewChief" Click="Btn_importFromCrewChief_OnClick"
                         ToolTip="Ctrl+I 注意：将会覆盖当前文本编辑器中的内容">
                     导入CrewChief路书脚本
-                </Button>
+                </ui:Button>
                 
             </StackPanel>
 
@@ -52,37 +64,24 @@
                 <TextBlock HorizontalAlignment="Right" Margin="15 0 5 0" VerticalAlignment="Center">当前状态：</TextBlock>
                 <TextBlock x:Name="tb_status" HorizontalAlignment="Right" Margin="15 0 5 0" Padding="5 0 5 0" Background="AliceBlue" VerticalAlignment="Center">OK</TextBlock>
             </StackPanel>
-            <ListBox x:Name="lb_viewMode" DockPanel.Dock="Bottom" SelectedIndex="0" SelectionChanged="lb_viewMode_SelectionChanged">
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel IsItemsHost="True" />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-                <ListBoxItem>代码</ListBoxItem>
-                <ListBoxItem>图形</ListBoxItem>
-            </ListBox>
-            <Grid>
-                <avalonEdit:TextEditor
-                                   Margin="0 0 0 0"
-                                   Name="avalonEditor"
-                                   SyntaxHighlighting="pacenote"
-                                   FontFamily="Consolas"
-                                   Foreground="Red"
-                                   FontSize="16"
-                                   ShowLineNumbers="True"
-                                   MouseHover="AvalonEditor_OnMouseHover"
-                                   MouseHoverStopped="AvalonEditor_OnMouseHoverStopped"
-                                   AllowDrop="True"
-                                   TextChanged="AvalonEditor_OnTextChanged"
-                                   Drop="AvalonEditor_OnDrop" 
-                                   WordWrap="True"
-                                   LineNumbersForeground="#DDDDDD"/>
-                <ScrollViewer x:Name="sv_graphical" Visibility="Hidden">
-                    <WrapPanel Name="wp_graphical" >
-                        <TextBlock Text="敬请期待" />
-                    </WrapPanel>
-                </ScrollViewer>
-            </Grid>
+            <TabControl TabStripPlacement="Bottom">
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Text="代码" />
+                    </TabItem.Header>
+                    <ww2:WebView2
+                        x:Name="WebView"
+                        Margin="1"
+                        HorizontalAlignment="Stretch"
+                        Source="https://www.microsoft.com"
+                        VerticalAlignment="Stretch" /> 
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Text="图形" />
+                    </TabItem.Header>
+                </TabItem>
+            </TabControl>
         </DockPanel>
     </Grid>
-</Window>
+</ui:FluentWindow>
