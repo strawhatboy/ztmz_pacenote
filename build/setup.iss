@@ -161,7 +161,12 @@ begin
   { there are no data stored from the previous installation, use default folders }
   { of your choice }
   DirPage.Values[0] := GetPreviousData('InstallDir', ExpandConstant('{autopf}\ztmzclub_pacenotetool_nextgen'));
-  DirPage.Values[1] := GetPreviousData('ZTMZHome', ExpandConstant('{userdocs}\My Games\{#FolderName}'));
+  try
+    DirPage.Values[1] := GetPreviousData('ZTMZHome', ExpandConstant('{userdocs}\My Games\{#FolderName}'));
+  except
+    { damn, some user has their documents folder interrputed, try appdata }
+    DirPage.Values[1] := GetPreviousData('ZTMZHome', ExpandConstant('{autoappdata}\{#FolderName}'));
+  end;
 
   DirPage.Buttons[0].OnClick := @AppendDirBrowseClick;
   DirPage.Buttons[1].OnClick := @AppendDirBrowseClick2;
