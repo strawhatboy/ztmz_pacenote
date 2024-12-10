@@ -24,6 +24,7 @@ public class RBRMemDataReader
         var rbrProcesses = Process.GetProcessesByName(game.Executable);
         if (rbrProcesses.Length == 0)
         {
+            _logger.Error("RBR process not found.");
             return false;
         }
 
@@ -31,6 +32,7 @@ public class RBRMemDataReader
         rbrProcess.Refresh();
         if (rbrProcess.HasExited)
         {
+            _logger.Error("RBR process has exited.");
             return false;
         }
 

@@ -3,7 +3,7 @@
 //
 // [NGP]
 // udpTelemetry=1
-// udpTelemetryAddress=127.0.0.1
+// udpTelemetryEndpoints=127.0.0.1
 // udpTelemetryPort=6776
 //
 // 
@@ -79,8 +79,8 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
 
         if ((ngp.ContainsKey("udpTelemetry") && ngp["udpTelemetry"] != "1") ||  // udpTelemetry not enabled
          (!ngp.ContainsKey("udpTelemetry")) ||  // no udpTelemetry config 
-         (ngp.ContainsKey("udpTelemetry") && ngp["udpTelemetry"] == "1" &&  // udpTelemetryAddress doesnot include ztmz settings
-        ngp.ContainsKey("udpTelemetryAddress") && !ngp["udpTelemetryAddress"].Contains(udpConfig.Port.ToString()))) {
+         (ngp.ContainsKey("udpTelemetry") && ngp["udpTelemetry"] == "1" &&  // udpTelemetryEndpoints doesnot include ztmz settings
+        ngp.ContainsKey("udpTelemetryEndpoints") && !ngp["udpTelemetryEndpoints"].Contains(udpConfig.Port.ToString()))) {
             // port not open
             return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.PORT_NOT_OPEN, IsOK = false, Params = new List<object>{
                 game.Name, iniFilePath
@@ -88,8 +88,8 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
         }
 
         // check duplicated port opening
-        if (ngp.ContainsKey("udpTelemetryAddress")) {
-            var addresses = ngp["udpTelemetryAddress"].Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        if (ngp.ContainsKey("udpTelemetryEndpoints")) {
+            var addresses = ngp["udpTelemetryEndpoints"].Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
             bool hasConfig = false;
             foreach (var addr in addresses) {
                 if (addr.Contains(udpConfig.Port.ToString())) {
@@ -122,17 +122,17 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
         ngp["udpTelemetry"] = "1";
         // append udp configuration
         var udpAddress = $"{udpConfig.IPAddress}:{udpConfig.Port}";
-        if (ngp.ContainsKey("udpTelemetryAddress")) 
+        if (ngp.ContainsKey("udpTelemetryEndpoints")) 
         {
-            var originalAddress = ngp["udpTelemetryAddress"];
+            var originalAddress = ngp["udpTelemetryEndpoints"];
             var originalAddresses = originalAddress.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).ToList();
             // remove all entries with same port
             originalAddresses.RemoveAll(a => a.Contains(udpConfig.Port.ToString()));
             // then append
             originalAddresses.Add(udpAddress);
-            ngp["udpTelemetryAddress"] = string.Join(',', originalAddresses);
+            ngp["udpTelemetryEndpoints"] = string.Join(',', originalAddresses);
         } else {
-            ngp.AddKey("udpTelemetryAddress", udpAddress);
+            ngp.AddKey("udpTelemetryEndpoints", udpAddress);
         }
         // Shit! why this breaks the game? because it's using UTF8 as defaut, but not system default...
         // so create bak incase...

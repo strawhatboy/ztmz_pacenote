@@ -272,7 +272,11 @@ public partial class HomePageVM : ObservableObject {
 
                     if (result == Wpf.Ui.Controls.MessageBoxResult.Primary) {
                         // force fix, show toast when fix failed
-                        showToast = !await forceFixGame(game); 
+                        showToast = true;
+                        var isFixed = await forceFixGame(game); 
+                        if (isFixed) {
+                            message = I18NLoader.Instance["settings.restartNeeded"];
+                        }
                     }
                 });
             } else if (code == PrerequisitesCheckResultCode.CONFIG_FILE_ABNORMAL) {
@@ -290,7 +294,11 @@ public partial class HomePageVM : ObservableObject {
 
                     if (result == Wpf.Ui.Controls.MessageBoxResult.Primary) {
                         // force fix, show toast when fix failed
-                        showToast = !await forceFixGame(game); 
+                        showToast = true;
+                        var isFixed = await forceFixGame(game); 
+                        if (isFixed) {
+                            message = I18NLoader.Instance["settings.restartNeeded"];
+                        }
                     }
                 });
             } else if (code == PrerequisitesCheckResultCode.PORT_NOT_MATCH && Config.Instance.WarnIfPortMismatch) {
@@ -312,8 +320,12 @@ public partial class HomePageVM : ObservableObject {
                     }.ShowDialogAsync();
 
                     if (result == Wpf.Ui.Controls.MessageBoxResult.Primary) {
-                        // force fix
-                        showToast = !await forceFixGame(game);
+                        // force fix, show toast when fix failed
+                        showToast = true;
+                        var isFixed = await forceFixGame(game); 
+                        if (isFixed) {
+                            message = I18NLoader.Instance["settings.restartNeeded"];
+                        }
                     } else if (result == Wpf.Ui.Controls.MessageBoxResult.Secondary) {
                         Config.Instance.WarnIfPortMismatch = false;
                         Config.Instance.SaveUserConfig();
