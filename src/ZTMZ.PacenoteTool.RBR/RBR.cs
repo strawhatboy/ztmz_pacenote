@@ -91,7 +91,7 @@ namespace ZTMZ.PacenoteTool.RBR
         public IGamePrerequisiteChecker GamePrerequisiteChecker { get; } = new RBRGamePrerequisiteChecker();
 
         public Dictionary<string, IGameConfig> DefaultGameConfigurations { get; } = new() {
-            { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback.ToString(), Port = 6776 } },
+            { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback.ToString(), Port = 59986 } },
             { MemoryGameConfig.Name, new MemoryGameConfig() { RefreshRate = 60f } },    // use 60Hz as default
             { CommonGameConfigs.Name, new CommonGameConfigs() 
             { 
