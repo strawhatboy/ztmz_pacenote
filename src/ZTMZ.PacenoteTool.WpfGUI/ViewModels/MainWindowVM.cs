@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
@@ -182,6 +183,11 @@ public partial class MainWindowVM : ObservableObject
             // navigate to the issue page on github
             Process.Start("explorer.exe", "https://github.com/strawhatboy/ztmz_pacenote/issues");
         }
+    }
+
+    [RelayCommand]
+    private async Task ShowHelp() {
+        Process.Start("explorer.exe", Path.Join(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Assets\ztmz_ngptool_3.0_help.png"));
     }
 
     [RelayCommand]
