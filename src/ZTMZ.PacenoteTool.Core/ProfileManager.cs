@@ -617,7 +617,7 @@ namespace ZTMZ.PacenoteTool.Core
             var res = this.AudioFiles.BinarySearch(new AudioFile() { Distance = (int)distance }, Comparer<AudioFile>.Create((a, b) => a.Distance.CompareTo(b.Distance)));
             res = res > 0 ? res - 1 : ~res;
             this.CurrentPlayIndex = res;
-            Debug.WriteLine("reindex to {0}", this.CurrentPlayIndex);
+            _logger.Info("reindex to {0}", this.CurrentPlayIndex);
         }
     }
 }

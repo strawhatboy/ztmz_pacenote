@@ -30,6 +30,15 @@ namespace ZTMZ.PacenoteTool.Base
         public string language { set; get; }
         public string homepage { set; get; }
         public string version { set; get; }
+        // integrity check, the percentage of the sounds that cover the pacenote tokens.
+        // for example, there are 100 "simple" tokens available, and 90 of them have corresponding sounds. 
+        // then the integrity_simple is 90%.
+        public float integrity_simple { set; get; }
+        // for example, there are 50 "normal" and 100 "simple" tokens available, and 90 of "simple", 25 of "normal" have corresponding sounds. 
+        // then the integrity_normal is (90+25)/(50+100) = 76.7%
+        public float integrity_normal { set; get; }
+        // integrity_complex = (n_simple_available + n_normal_available + n_complex_available) / n_total
+        public float integrity_complex { set; get; }
 
         [JsonIgnore] public string Path { set; get; }
 
@@ -221,7 +230,34 @@ namespace ZTMZ.PacenoteTool.Base
                 package.id2tokens.Count :
                 package.id2tokensPath.Count, package.Info);
 
+            await CalculateIntegrities(package);
+
             return package;
+        }
+
+        public static async Task CalculateIntegrities(CoDriverPackage package) {
+            var simpleTokensCount = Script.ScriptResource.Instance.SimpleTokensCount;
+            var normalTokensCount = Script.ScriptResource.Instance.NormalTokensCount;
+            var complexTokensCount = Script.ScriptResource.Instance.ComplexTokensCount;
+            var totalTokensCount = simpleTokensCount + normalTokensCount + complexTokensCount;
+            var pkgSimpleTokensCount = 0;
+            var pkgNormalTokensCount = 0;
+            var pkgComplexTokensCount = 0;
+            if (Config.Instance.PreloadSounds) {
+                pkgSimpleTokensCount = package.id2tokens.Count(x => Script.ScriptResource.Instance.ComplexityDict[Script.ScriptResource.Instance.PacenoteDict[x.Key].complexity].id == (int)Script.ScriptResourceComplexities.SIMPLE);
+                pkgNormalTokensCount = package.id2tokens.Count(x => Script.ScriptResource.Instance.ComplexityDict[Script.ScriptResource.Instance.PacenoteDict[x.Key].complexity].id == (int)Script.ScriptResourceComplexities.NORMAL);
+                pkgComplexTokensCount = package.id2tokens.Count(x => Script.ScriptResource.Instance.ComplexityDict[Script.ScriptResource.Instance.PacenoteDict[x.Key].complexity].id == (int)Script.ScriptResourceComplexities.COMPLEX);
+            } else {
+                pkgSimpleTokensCount = package.id2tokensPath.Count(x => Script.ScriptResource.Instance.ComplexityDict[Script.ScriptResource.Instance.PacenoteDict[x.Key].complexity].id == (int)Script.ScriptResourceComplexities.SIMPLE);
+                pkgNormalTokensCount = package.id2tokensPath.Count(x => Script.ScriptResource.Instance.ComplexityDict[Script.ScriptResource.Instance.PacenoteDict[x.Key].complexity].id == (int)Script.ScriptResourceComplexities.NORMAL);
+                pkgComplexTokensCount = package.id2tokensPath.Count(x => Script.ScriptResource.Instance.ComplexityDict[Script.ScriptResource.Instance.PacenoteDict[x.Key].complexity].id == (int)Script.ScriptResourceComplexities.COMPLEX);
+            }
+
+            package.Info.integrity_simple = (float)pkgSimpleTokensCount / simpleTokensCount;
+            package.Info.integrity_normal = (float)(pkgSimpleTokensCount + pkgNormalTokensCount) / (simpleTokensCount + normalTokensCount);
+            package.Info.integrity_complex = (float)(pkgSimpleTokensCount + pkgNormalTokensCount + pkgComplexTokensCount) / totalTokensCount;
+
+            _logger.Info($"calculated integrity for pkg: {package.Info.name} - simple {package.Info.integrity_simple}, normal {package.Info.integrity_normal}, complex {package.Info.integrity_complex}");
         }
         
         public async static Task<CoDriverPackage> Import(string path)

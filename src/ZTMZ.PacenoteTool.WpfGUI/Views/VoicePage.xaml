@@ -9,10 +9,12 @@
     Title="VoicePage"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    xmlns:helpers="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
     FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
     mc:Ignorable="d">
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <helpers:PercentageToColorConverter x:Key="PercentageToColorConverter" />
         <!-- <Style TargetType="ui:Card">
             <Setter Property="Padding" Value="16"></Setter>
             <Setter Property="Margin" Value="0 0 0 5"></Setter>
@@ -137,6 +139,28 @@
                                                 Appearance="Tertiary"
                                                 FontTypography="Caption"
                                                 VerticalAlignment="Center" />
+                                            <!-- integrity level -->
+                                            <Border BorderBrush="{DynamicResource TextFillColorSecondaryBrush}" 
+                                            Background="{Binding Path=Integrity_simple, Converter={StaticResource PercentageToColorConverter}}" BorderThickness="1" CornerRadius="5" Padding="4 0" Margin="10 0 0 0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <ui:TextBlock Text="{DynamicResource integrityLevel.simple}" FontTypography="Caption" Foreground="#9999FF" />
+                                                    <ui:TextBlock Text="{Binding Path=Integrity_simple, StringFormat={}{0:P2}}" FontTypography="Caption" Foreground="#9999FF"  />
+                                                </StackPanel>
+                                            </Border>
+                                            <Border BorderBrush="{DynamicResource TextFillColorSecondaryBrush}" 
+                                            Background="{Binding Path=Integrity_simple, Converter={StaticResource PercentageToColorConverter}}" BorderThickness="1" CornerRadius="5" Padding="4 0" Margin="10 0 0 0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <ui:TextBlock Text="{DynamicResource integrityLevel.normal}" FontTypography="Caption" Foreground="#9999FF"  />
+                                                    <ui:TextBlock Text="{Binding Path=Integrity_normal, StringFormat={}{0:P2}}" FontTypography="Caption" Foreground="#9999FF"  />
+                                                </StackPanel>
+                                            </Border>
+                                            <Border BorderBrush="{DynamicResource TextFillColorSecondaryBrush}" 
+                                            Background="{Binding Path=Integrity_simple, Converter={StaticResource PercentageToColorConverter}}" BorderThickness="1" CornerRadius="5" Padding="4 0" Margin="10 0 0 0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <ui:TextBlock Text="{DynamicResource integrityLevel.complex}" FontTypography="Caption" Foreground="#9999FF"  />
+                                                    <ui:TextBlock Text="{Binding Path=Integrity_complex, StringFormat={}{0:P2}}" FontTypography="Caption" Foreground="#9999FF"  />
+                                                </StackPanel>
+                                            </Border>
                                         </StackPanel>
                                         <ui:TextBlock Grid.Row="1"
                                             Text="{Binding Description}"

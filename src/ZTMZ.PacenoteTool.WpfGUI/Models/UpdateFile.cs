@@ -23,6 +23,9 @@ public partial class CodriverPackageUpdateFile: ObservableObject {
         this.Homepage = info.homepage;
         this.OriginalVersion = info.version;
         this.Path = info.Path;
+        this.Integrity_simple = info.integrity_simple;
+        this.Integrity_normal = info.integrity_normal;
+        this.Integrity_complex = info.integrity_complex;
     }
     [ObservableProperty]
     public string id;  // uuid
@@ -63,6 +66,13 @@ public partial class CodriverPackageUpdateFile: ObservableObject {
 
     [ObservableProperty]
     public string path;
+
+    [ObservableProperty]
+    public float integrity_simple = 0;
+    [ObservableProperty]
+    public float integrity_normal = 0;
+    [ObservableProperty]
+    public float integrity_complex = 0;
 
     public string GenderStr
     {

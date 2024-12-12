@@ -95,6 +95,10 @@ public class ScriptResource
     public Dictionary<int, List<string>> FilenameDict { get; private set; } = new();
     public Dictionary<int, List<int>> FallbackDict { get; private set; } = new();
     public Dictionary<string, int> FilenameToIdDict { get; private set; } = new();
+
+    public int SimpleTokensCount { get; private set; } = 0;
+    public int NormalTokensCount { get; private set; } = 0;
+    public int ComplexTokensCount { get; private set; } = 0;
     
 
     private ScriptResource() {
@@ -129,5 +133,9 @@ public class ScriptResource
         FilenameDict = Filenames.GroupBy(x => x.id).ToDictionary(x => x.Key, x => x.OrderByDescending(y => y.is_primary).Select(y => y.filename).ToList());
         FallbackDict = Fallbacks.GroupBy(x => x.id).ToDictionary(x => x.Key, x => x.OrderBy(y => y.order_id).Select(y => y.fallback_id).ToList());
         FilenameToIdDict = Filenames.ToDictionary(x => x.filename, x => x.id);
+
+        SimpleTokensCount = Pacenotes.Count(x => ComplexityDict[x.complexity].id == (int)ScriptResourceComplexities.SIMPLE);
+        NormalTokensCount = Pacenotes.Count(x => ComplexityDict[x.complexity].id == (int)ScriptResourceComplexities.NORMAL);
+        ComplexTokensCount = Pacenotes.Count(x => ComplexityDict[x.complexity].id == (int)ScriptResourceComplexities.COMPLEX);
     }
 }

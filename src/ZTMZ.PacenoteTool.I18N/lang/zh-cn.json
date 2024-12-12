@@ -436,6 +436,11 @@
     "error": "错误",
     "fatal": "崩溃"
   },
+  "integrityLevel": {
+    "simple": "简单",
+    "normal": "普通",
+    "complex": "复杂"
+  },
   "overlay": {
     "track": "地图：",
     "audioPackage": "语音包：",
