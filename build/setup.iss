@@ -1,5 +1,5 @@
 ﻿#define MyAppName "ZTMZ Next Generation Pacenote Tool"
-#define MyAppVersion "2.99.99.28"
+#define MyAppVersion "2.99.99.29"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
@@ -266,6 +266,7 @@ Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\dashboards\*"; 
 Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\fonts\*"; DestDir: "{code:GetZTMZHome}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\x64\*"; DestDir: "{code:GetInstallDir}\x64"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\x86\*"; DestDir: "{code:GetInstallDir}\x86"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\Assets\ztmz_ngptool_3.0_help.png"; DestDir: "{code:GetInstallDir}\Assets"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; db files
 Source: "..\src\ZTMZ.PacenoteTool.Base\*.zdb"; DestDir: "{code:GetZTMZHome}"; Flags: ignoreversion
 Source: "..\src\ZTMZ.PacenoteTool.RBR\*.zdb"; DestDir: "{code:GetZTMZHome}\games"; Flags: ignoreversion
