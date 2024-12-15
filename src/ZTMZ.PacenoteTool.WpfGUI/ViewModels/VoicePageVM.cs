@@ -16,6 +16,7 @@ using System.IO;
 using System.Text;
 using SevenZipExtractor;
 using NLog;
+using System.Runtime.CompilerServices;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -30,6 +31,9 @@ public partial class VoicePageVM : ObservableObject {
     private ObservableCollection<CodriverPackageUpdateFile> _voicePackages = new ();
 
     private object _collectionLock = new();
+
+    private object _updateLock = new();
+    private Queue<CodriverPackageUpdateFile> _updateQueue = new();
 
     public VoicePageVM(Core.ZTMZPacenoteTool tool, 
     VoicePackagePageVM voicePackagePageVM,
@@ -96,6 +100,9 @@ public partial class VoicePageVM : ObservableObject {
             pkg.IsDownloading = true;
             pkg.NeedUpdate = false;
             pkg.NeedDownload = false;
+            lock (_updateLock) {
+                _updateQueue.Enqueue(pkg);
+            }
             // download and install
             FileDownloader fd = new();
             var progress = new Progress<float>(p => {
@@ -122,8 +129,13 @@ public partial class VoicePageVM : ObservableObject {
             pkg.IsInstalling = false;
             pkg.IsAvailable = true;
 
-            // update the tool's voice packages list?
-            this.tool.RefreshCodrivers();
+            lock (_updateQueue) {
+                _updateQueue.Dequeue();
+                if (_updateQueue.Count == 0) {
+                    // update the tool's voice packages list? when this is the last updating one
+                    this.tool.RefreshCodrivers();
+                }
+            }
         }
     }
 }
