@@ -114,7 +114,8 @@ public class RBRGameDataReader : UdpGameDataReader
             }
         } catch (PortAlreadyInUseException ex) {
             _logger.Warn("Udp initalized failed for RBR, port already used. we don't care, not important.");
-            
+        } catch (Exception ex) {
+            _logger.Error(ex, "Failed to initialize UDPGameDataReader");
         }
         
         Debug.Assert(game.GameConfigurations.ContainsKey(MemoryGameConfig.Name));

@@ -16,7 +16,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
 
         public string Description { get; private set; } = "";
 
-        public string Executable => "dirt";
+        public string Executable => "drt";
         public IGamePacenoteReader GamePacenoteReader {get;} = new BasePacenoteReader();
 
         public IGameDataReader GameDataReader { set; get; } = new DirtGameDataReader();

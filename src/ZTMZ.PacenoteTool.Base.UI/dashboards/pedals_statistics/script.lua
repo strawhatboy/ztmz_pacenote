@@ -218,7 +218,9 @@ function onUpdate(args)
     local _fonts = resources["fonts"];
     
     local whRatio = self.GetConfigByKey("dashboards.settings.whRatio");
-    recordedDataLength = math.floor(self.GetConfigByKey("dashboards.settings.recordedFrames"));
+    recordedDataLength = math.floor(self.GetConfigByKey("dashboards.settings.recordedFrames"));    
+    local paddingH = self.GetConfigByKey("dashboards.settings.paddingH");
+    local paddingV = self.GetConfigByKey("dashboards.settings.paddingV");
     local telemetryStartX, telemetryStartY, width, height = getDashboardPositionStart(self, gfx, whRatio);
     
 

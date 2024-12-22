@@ -24,7 +24,7 @@ function onInit(args)
     _brushes["background"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 100);
     _brushes["splitBar"] = gfx.CreateSolidBrush(255, 255, 255);
     _brushes["inprogress"] = gfx.CreateSolidBrush(152, 204, 245);
-    _brushes["darkgrey"] = gfx.CreateSolidBrush(0x66, 0x66, 0x66);
+    _brushes["done"] = gfx.CreateSolidBrush(0xcc, 0xcc, 0xcc);
     _brushes["darkred"] = gfx.CreateSolidBrush(128, 18, 18);
     _brushes["black"] = gfx.CreateSolidBrush(0, 0, 0);
         
@@ -151,21 +151,21 @@ function onUpdate(args)
     for i = 1, blocksCount do
         if (isVertical) then
             -- if progressEndY is greater than barEndPositions[i][2], then fill the bar with _brushes["inprogress"] till progressEndY, and break the loop;
-            -- else fill the bar with _brushes["darkgrey"] till barEndPositions[i][2]
+            -- else fill the bar with _brushes["done"] till barEndPositions[i][2]
             if (progressEndY > barEndPositions[i][2]) then
                 gfx.FillRectangle(_brushes["inprogress"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], progressEndY);
                 break;
             else
-                gfx.FillRectangle(_brushes["darkgrey"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], barEndPositions[i][2]);
+                gfx.FillRectangle(_brushes["done"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], barEndPositions[i][2]);
             end
         else
             -- if progressEndX is greater than barEndPositions[i][1], then fill the bar with _brushes["inprogress"] till progressEndX, and break the loop;
-            -- else fill the bar with _brushes["darkgrey"] till barEndPositions[i][1]
+            -- else fill the bar with _brushes["done"] till barEndPositions[i][1]
             if (progressEndX < barEndPositions[i][1]) then
                 gfx.FillRectangle(_brushes["inprogress"], barStartPositions[i][1], barStartPositions[i][2], progressEndX, barEndPositions[i][2]);
                 break;
             else
-                gfx.FillRectangle(_brushes["darkgrey"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], barEndPositions[i][2]);
+                gfx.FillRectangle(_brushes["done"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], barEndPositions[i][2]);
             end
         end
     end
