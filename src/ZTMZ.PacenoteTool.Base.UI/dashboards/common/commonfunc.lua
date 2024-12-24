@@ -90,23 +90,23 @@ function getRPMLevel(data, conf)
     if (data.ShiftLightsRPMValid) then
         -- EA WRC Only
         rpmLightOnRange = data.ShiftLightsRPMEnd - data.ShiftLightsRPMStart;
-        if (rpm >= (data.ShiftLightsRPMStart + 0.75 * rpmLightOnRange)) then
+        if (rpm >= (data.ShiftLightsRPMStart + 1 * rpmLightOnRange)) then
         -- in EA WRC, this means the shift light is blinking
         -- we blink if the rpm is very close to the ShiftLightsRPMEnd
             rpmLevel = 4;
         end
 
-        if (rpm >= data.ShiftLightsRPMStart and rpm < (data.ShiftLightsRPMStart + 0.25 * rpmLightOnRange)) then
+        if (rpm >= data.ShiftLightsRPMStart and rpm < (data.ShiftLightsRPMStart + 0.33333 * rpmLightOnRange)) then
             -- in EA WRC, this means the shift light is on, green
             rpmLevel = 1;
         end
 
-        if (rpm >= (data.ShiftLightsRPMStart + 0.25 * rpmLightOnRange) and rpm < (data.ShiftLightsRPMStart + 0.5 * rpmLightOnRange)) then
+        if (rpm >= (data.ShiftLightsRPMStart + 0.33333 * rpmLightOnRange) and rpm < (data.ShiftLightsRPMStart + 0.66667 * rpmLightOnRange)) then
             -- in EA WRC, this means the shift light is on, red
             rpmLevel = 2;
         end
 
-        if (rpm >= (data.ShiftLightsRPMStart + 0.5 * rpmLightOnRange) and rpm < (data.ShiftLightsRPMStart + 0.75 * rpmLightOnRange)) then
+        if (rpm >= (data.ShiftLightsRPMStart + 0.66667 * rpmLightOnRange) and rpm < (data.ShiftLightsRPMStart + 1 * rpmLightOnRange)) then
             -- in EA WRC, this means the shift light is on, red
             rpmLevel = 3;
         end

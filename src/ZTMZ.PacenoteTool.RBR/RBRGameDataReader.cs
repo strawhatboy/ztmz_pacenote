@@ -448,7 +448,7 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.ShiftLightsRPMValid = _currentGearShiftRPM.Count >= 2;
         gameData.MaxRPM = gameData.ShiftLightsRPMValid ? _currentRPMLimit : 7500;
         gameData.MaxGears = gameData.ShiftLightsRPMValid ? _currentGearShiftRPM.Count - 2 : 5;   // 5 gears by default
-        gameData.ShiftLightsRPMStart = gameData.ShiftLightsRPMValid ? _currentGearShiftRPM[data.GearId] - 750 : 5750;
+        gameData.ShiftLightsRPMStart = gameData.ShiftLightsRPMValid ? _currentGearShiftRPM[data.GearId] - 1000 : 5750;
         gameData.ShiftLightsRPMEnd = gameData.ShiftLightsRPMValid ? _currentGearShiftRPM[data.GearId] : 6500;
         gameData.ShiftLightsFraction = (data.EngineRPM - gameData.ShiftLightsRPMStart) / (gameData.ShiftLightsRPMEnd - gameData.ShiftLightsRPMStart);
         // var xInertia = (data.XSpeed - _currentMemData.XSpeed) / MEM_REFRESH_INTERVAL;
