@@ -203,7 +203,7 @@ public class ZTMZPacenoteTool {
                 // turn off the light, current game is exiting.
                 uninitializeGame(_currentGame);
             }
-        });
+        }, Config.Instance.ProcessWatcherInterval);
 
         // watch games starting
         foreach (var game in _games) 

@@ -340,6 +340,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._UseReversePacenote;
         }
 
+        private int _ProcessWatcherInterval = 1000;
+        public int ProcessWatcherInterval
+        {
+            set { this._ProcessWatcherInterval = value; this._userconfig["ProcessWatcherInterval"] = value; }
+            get => this._ProcessWatcherInterval;
+        }
+
         #region HUD
 
         private bool _HudLockFPS = true;

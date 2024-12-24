@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Timers;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
@@ -24,6 +25,11 @@ public class RBRGameDataReader : UdpGameDataReader
                 return;
             }
             this._gameState = value;
+            if (value == GameState.RaceBegin || value == GameState.AdHocRaceBegin)
+            {
+                // read current car rpm info
+                readCurrentRPMInfo();
+            }
             this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState });
         }
         get => this._gameState;
@@ -56,6 +62,8 @@ public class RBRGameDataReader : UdpGameDataReader
         }
     }
 
+    public override string CarName => "";
+
     public static float MEM_REFRESH_INTERVAL = 33.3f; // 33.3ms = 30Hz
     public GameState _gameState;
     private GameData _lastGameData;
@@ -73,6 +81,76 @@ public class RBRGameDataReader : UdpGameDataReader
     private int _countdownIndex = 0;
 
     private bool _isRacing = false;
+
+    private Dictionary<int, float> _currentGearShiftRPM = new();
+    private float _currentRPMLimit = 0;
+
+    private void readCurrentRPMInfo() {
+        _currentGearShiftRPM.Clear();
+        _currentRPMLimit = 0;
+
+        var rbr_root = ((RBRGamePacenoteReader)_game.GamePacenoteReader).RBRRootDir;
+        if (!Directory.Exists(rbr_root)) {
+            return;
+        }
+
+        // actually the car slot id with corresonding physics folder
+        var rbr_physics_dict = new Dictionary<int, string> {
+            { 0, "rsfdata\\Physics\\c_xsara" },
+            { 1, "rsfdata\\Physics\\h_accent" },
+            { 2, "rsfdata\\Physics\\mg_zr" },
+            { 3, "rsfdata\\Physics\\m_lancer" },
+            { 4, "rsfdata\\Physics\\p_206" },
+            { 5, "rsfdata\\Physics\\s_i2003" },
+            { 6, "rsfdata\\Physics\\t_coroll" },
+            { 7, "rsfdata\\Physics\\s_i2000" },
+        };
+
+        var carSlotId = _currentMemData.CarModelId;
+        if (!rbr_physics_dict.ContainsKey(carSlotId)) {
+            return;
+        }
+
+        var physics_file = Path.Combine(rbr_root, rbr_physics_dict[carSlotId], "common.lsp");
+        if (!File.Exists(physics_file)) {
+            return;
+        }
+
+        var lines = File.ReadAllLines(physics_file);
+        var gearUpShift = new Dictionary<int, float>();
+        foreach (var line in lines) {
+            var slines = line.Trim().Split(new char[]{ ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+            if (slines.Length < 2) {
+                continue;
+            }
+
+            var key = slines[0];
+            var value = slines[1];
+            if (key == "RPMLimit") {
+                _currentRPMLimit = float.Parse(value);
+            } else if (key.StartsWith("Gear") && key.EndsWith("Upshift")) {
+                var fake_gear = int.Parse(key.Substring(4, 1));
+                gearUpShift[fake_gear-1] = float.Parse(value);
+            }
+        }
+
+        var maxGear = gearUpShift.Count > 2 ? gearUpShift.Count - 2 : 5;
+
+        // fill zero gear shift rpm
+        if (gearUpShift.ContainsKey(-1) && gearUpShift.ContainsKey(0) && gearUpShift.ContainsKey(1) && gearUpShift[-1] == 0) {
+            gearUpShift[-1] = gearUpShift[0] == 0 ? gearUpShift[1] : gearUpShift[0];
+        }
+        if (gearUpShift.ContainsKey(0) && gearUpShift.ContainsKey(1) && gearUpShift[0] == 0) {
+            gearUpShift[0] = gearUpShift[1];
+        }
+        if (gearUpShift.ContainsKey(maxGear) && gearUpShift[maxGear] == 0) {
+            gearUpShift[maxGear] = _currentRPMLimit;
+        }
+
+        _currentGearShiftRPM = gearUpShift;
+
+        _logger.Info("Read current RPM info: {0}, {1}, {2}", _currentRPMLimit, maxGear, string.Join(", ", gearUpShift));
+    }
 
     public override event Action<GameData, GameData> onNewGameData
     {
@@ -312,13 +390,13 @@ public class RBRGameDataReader : UdpGameDataReader
         // gameData.SpeedFrontLeft = data.car.wheelSpeed[2];
         // gameData.SpeedFrontRight = data.car.wheelSpeed[3];
 
-        gameData.Clutch = data.control.clutch;
-        gameData.Brake = data.control.brake;
-        gameData.Throttle = data.control.throttle;
-        gameData.Steering = data.control.steering;
-        gameData.Gear = data.control.gear;
-        gameData.HandBrake = data.control.handbrake;
-        gameData.HandBrakeValid = true;
+        // gameData.Clutch = data.control.clutch;
+        // gameData.Brake = data.control.brake;
+        // gameData.Throttle = data.control.throttle;
+        // gameData.Steering = data.control.steering;
+        // gameData.Gear = data.control.gear;
+        // gameData.HandBrake = data.control.handbrake;
+        // gameData.HandBrakeValid = true;
         
         
         // gameData.MaxGears = data.MaxGears;
@@ -367,8 +445,12 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.LapDistance = data.DistanceFromStart;
         gameData.CompletionRate = data.DistanceFromStart / (data.DistanceToFinish + data.DistanceFromStart);
         gameData.LapTime = data.RaceTime;
-        gameData.MaxRPM = 9000f;    // use 9000 as default
-        gameData.MaxGears = 6;
+        gameData.ShiftLightsRPMValid = _currentGearShiftRPM.Count >= 2;
+        gameData.MaxRPM = gameData.ShiftLightsRPMValid ? _currentRPMLimit : 7500;
+        gameData.MaxGears = gameData.ShiftLightsRPMValid ? _currentGearShiftRPM.Count - 2 : 5;   // 5 gears by default
+        gameData.ShiftLightsRPMStart = gameData.ShiftLightsRPMValid ? _currentGearShiftRPM[data.GearId] - 750 : 5750;
+        gameData.ShiftLightsRPMEnd = gameData.ShiftLightsRPMValid ? _currentGearShiftRPM[data.GearId] : 6500;
+        gameData.ShiftLightsFraction = (data.EngineRPM - gameData.ShiftLightsRPMStart) / (gameData.ShiftLightsRPMEnd - gameData.ShiftLightsRPMStart);
         // var xInertia = (data.XSpeed - _currentMemData.XSpeed) / MEM_REFRESH_INTERVAL;
         // var yInertia = (data.YSpeed - _currentMemData.YSpeed) / MEM_REFRESH_INTERVAL;
         // var inertia = (float)Math.Sqrt(xInertia * xInertia + yInertia * yInertia);

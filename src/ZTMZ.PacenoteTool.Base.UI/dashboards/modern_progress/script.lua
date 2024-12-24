@@ -24,7 +24,7 @@ function onInit(args)
     _brushes["background"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 100);
     _brushes["splitBar"] = gfx.CreateSolidBrush(255, 255, 255);
     _brushes["inprogress"] = gfx.CreateSolidBrush(152, 204, 245);
-    _brushes["done"] = gfx.CreateSolidBrush(0xcc, 0xcc, 0xcc);
+    _brushes["done"] = gfx.CreateSolidBrush(0xaa, 0xaa, 0xaa);
     _brushes["darkred"] = gfx.CreateSolidBrush(128, 18, 18);
     _brushes["black"] = gfx.CreateSolidBrush(0, 0, 0);
         

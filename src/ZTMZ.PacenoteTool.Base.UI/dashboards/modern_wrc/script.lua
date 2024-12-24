@@ -24,6 +24,9 @@ function onInit(args)
     _brushes["black"] = gfx.CreateSolidBrush(0, 0, 0);
     _brushes["white"] = gfx.CreateSolidBrush(255, 255, 255);
     _brushes["red"] = gfx.CreateSolidBrush(255, 0, 0, 200);
+    _brushes["rpm_low"] = gfx.CreateSolidBrush(0x60, 0x9d, 0x51);
+    _brushes["rpm_medium"] = gfx.CreateSolidBrush(0xd3, 0xa9, 0x5b);
+    _brushes["rpm_high"] = gfx.CreateSolidBrush(0xb9, 0x57, 0x4a);
     _brushes["grey"] = gfx.CreateSolidBrush(64, 64, 64);
     if (conf.HudChromaKeyMode) then
         _brushes["green"] = gfx.CreateSolidBrush(0, 0, 255);
@@ -248,7 +251,7 @@ function drawHandBrake(gfx, data, helper, x, y, radius, padding)
     end
 end
 
-function drawSpeed(gfx, data, helper, x, y, radius, padding, switchGearNSpeed)
+function drawSpeed(gfx, data, conf, helper, x, y, radius, padding, switchGearNSpeed)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     local telemetryRadius = radius - padding - radius * 0.03;
@@ -262,6 +265,8 @@ function drawSpeed(gfx, data, helper, x, y, radius, padding, switchGearNSpeed)
     else
         speedText = tostring(speed);
     end
+
+    local rpmLevel = getRPMLevel(data, conf);
     
     --ugly code
     if (not bInBlink and switchGearNSpeed and speed < maxGear ) then
@@ -269,9 +274,21 @@ function drawSpeed(gfx, data, helper, x, y, radius, padding, switchGearNSpeed)
     else
         gfx.drawTextWithBackgroundCentered(_fonts["wrc"], speedWeight, _brushes["white"], _brushes["transparent"], x, y - telemetryRadius / 6, speedText);
     end
+
+    if (rpmLevel == 1 and switchGearNSpeed) then
+        gfx.drawTextWithBackgroundCentered(_fonts["wrc"], speedWeight, _brushes["white"], _brushes["rpm_low"], x, y - telemetryRadius / 6, speedText);
+    end
+
+    if (rpmLevel == 2 and switchGearNSpeed) then
+        gfx.drawTextWithBackgroundCentered(_fonts["wrc"], speedWeight, _brushes["white"], _brushes["rpm_medium"], x, y - telemetryRadius / 6, speedText);
+    end
+
+    if (rpmLevel == 3 and switchGearNSpeed) then
+        gfx.drawTextWithBackgroundCentered(_fonts["wrc"], speedWeight, _brushes["white"], _brushes["rpm_high"], x, y - telemetryRadius / 6, speedText);
+    end
 end
 
-function drawGear(gfx, data, helper, x, y, radius, padding, switchGearNSpeed)
+function drawGear(gfx, data, conf, helper, x, y, radius, padding, switchGearNSpeed)
     -- right bottom
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
@@ -285,6 +302,7 @@ function drawGear(gfx, data, helper, x, y, radius, padding, switchGearNSpeed)
         gearText = tostring(gear);
     end
     
+    local rpmLevel = getRPMLevel(data, conf);
     --ugly code
     if (not bInBlink and not switchGearNSpeed and gear < maxGear) then
         gfx.drawTextWithBackgroundCentered(_fonts["wrcGear"], gearWeight, _brushes["white"], _brushes["red"], x + telemetryRadius * 0.55, y + telemetryRadius * 0.55, gearText);
@@ -292,6 +310,17 @@ function drawGear(gfx, data, helper, x, y, radius, padding, switchGearNSpeed)
         gfx.drawTextWithBackgroundCentered(_fonts["wrcGear"], gearWeight, _brushes["white"], _brushes["transparent"], x + telemetryRadius * 0.55, y + telemetryRadius * 0.55, gearText);
     end
     
+    if (rpmLevel == 1 and not switchGearNSpeed) then
+        gfx.drawTextWithBackgroundCentered(_fonts["wrcGear"], gearWeight, _brushes["white"], _brushes["rpm_low"], x + telemetryRadius * 0.55, y + telemetryRadius * 0.55, gearText);
+    end
+
+    if (rpmLevel == 2 and not switchGearNSpeed) then
+        gfx.drawTextWithBackgroundCentered(_fonts["wrcGear"], gearWeight, _brushes["white"], _brushes["rpm_medium"], x + telemetryRadius * 0.55, y + telemetryRadius * 0.55, gearText);
+    end
+
+    if (rpmLevel == 3 and not switchGearNSpeed) then
+        gfx.drawTextWithBackgroundCentered(_fonts["wrcGear"], gearWeight, _brushes["white"], _brushes["rpm_high"], x + telemetryRadius * 0.55, y + telemetryRadius * 0.55, gearText);
+    end
 end
 
 
@@ -320,8 +349,8 @@ function onUpdate(args)
     drawClutch(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding);
     drawHandBrake(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding);
 
-    drawSpeed(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding, switchGearNSpeed);
-    drawGear(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding, switchGearNSpeed);
+    drawSpeed(gfx, data, conf, helper, telemetryCenterX, telemetryCenterY, radius, padding, switchGearNSpeed);
+    drawGear(gfx, data, conf, helper, telemetryCenterX, telemetryCenterY, radius, padding, switchGearNSpeed);
 end
 
 function onExit()

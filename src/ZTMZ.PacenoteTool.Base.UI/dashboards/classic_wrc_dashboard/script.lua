@@ -37,6 +37,9 @@ function onInit(args)
     _brushes["green"] = gfx.CreateSolidBrush(0x31, 0xd2, 0x1b); -- bright green
     _brushes["blue"] = gfx.CreateSolidBrush(0, 0, 255);
     _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
+    _brushes["rpm_low"] = gfx.CreateSolidBrush(0x60, 0x9d, 0x51);
+    _brushes["rpm_medium"] = gfx.CreateSolidBrush(0xd3, 0xa9, 0x5b);
+    _brushes["rpm_high"] = gfx.CreateSolidBrush(0xb9, 0x57, 0x4a);
 
     _brushes["split"] = gfx.CreateSolidBrush(245, 117, 66, 100);
     _brushes["transparent"] = gfx.CreateSolidBrush(0, 0, 0, 0);
@@ -200,7 +203,7 @@ function drawSpeed(gfx, data, helper, x, y, width, height)
     gfx.drawTextWithBackgroundCentered(_fonts["speed"], 1/4 * height * fontFactor, _brushes["black"], _brushes["transparent"], x + 1/2 * width, y + 1/2 * height, "Km/h");
 end
 
-function drawGear(gfx, data, helper, x, y, width, height)
+function drawGear(gfx, data, conf, helper, x, y, width, height)
     -- right bottom
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
@@ -208,7 +211,7 @@ function drawGear(gfx, data, helper, x, y, width, height)
     local maxGear = math.floor(data.MaxGears);
     local gearText = getGear(gear);
 
-
+    local rpmLevel = getRPMLevel(data, conf);
 
     -- if it's max gear, won't blink
     if (not bInBlink and gear < maxGear) then
@@ -217,8 +220,19 @@ function drawGear(gfx, data, helper, x, y, width, height)
         gfx.FillRectangle(_brushes["grey"], x + 2/3 * width, y + 1/8 * height, x + 5/6 * width, y + 3/4 * height);
     end
     
-    gfx.drawTextWithBackgroundCentered(_fonts["label"], 1/6 * width * fontFactor, _brushes["white"], _brushes["transparent"], x + 3/4 * width, y + 7/16 * height, gearText);
+    if (rpmLevel == 1) then
+        gfx.FillRectangle(_brushes["rpm_low"], x + 2/3 * width, y + 1/8 * height, x + 5/6 * width, y + 3/4 * height);
+    end
+
+    if (rpmLevel == 2) then
+        gfx.FillRectangle(_brushes["rpm_medium"], x + 2/3 * width, y + 1/8 * height, x + 5/6 * width, y + 3/4 * height);
+    end
+
+    if (rpmLevel == 3) then
+        gfx.FillRectangle(_brushes["rpm_high"], x + 2/3 * width, y + 1/8 * height, x + 5/6 * width, y + 3/4 * height);
+    end
     
+    gfx.drawTextWithBackgroundCentered(_fonts["label"], 1/6 * width * fontFactor, _brushes["white"], _brushes["transparent"], x + 3/4 * width, y + 7/16 * height, gearText);
 end
 
 
@@ -247,7 +261,7 @@ function onUpdate(args)
     drawHandBrake(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
 
     drawSpeed(gfx, data, helper, telemetryStartX, telemetryStartY, width, height);
-    drawGear(gfx, data, helper, telemetryStartX, telemetryStartY, width, height);
+    drawGear(gfx, data, conf, helper, telemetryStartX, telemetryStartY, width, height);
 
     drawSplitLines(gfx, telemetryStartX, telemetryStartY, width, height);
 end
