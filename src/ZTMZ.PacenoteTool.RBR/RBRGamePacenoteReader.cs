@@ -19,6 +19,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using CsvHelper.Expressions;
+using System.Threading.Tasks;
 
 namespace ZTMZ.PacenoteTool.RBR;
 
@@ -46,6 +47,50 @@ public class RBRGamePacenoteReader : BasePacenoteReader
     public static string BTB_TRACKS_DIR = "RX_CONTENT\\Tracks";
     private bool _hasCustomPacenote = false;
     private string _customPacenoteFolder = "";
+
+    public bool IsUsingCustomPacenote(string traceName) {
+        if (!_hasCustomPacenote) {
+            return false;
+        }
+        // try the txt file inside the folder _customPacenoteFolder, there should be only one txt file.
+        // either _default.txt or _latest.txt or _[CustomPacenoteFilename].txt
+        var customPacenoteFolder = getCustomPacenoteFolder(traceName);
+        var files = Directory.GetFiles(customPacenoteFolder, "*.txt");
+        if (files.Length != 1) {
+            return false;
+        }
+
+        var file = files.First();
+        if (file.EndsWith("_default.txt")) {
+            return false;
+        }
+
+        if (file.EndsWith("_latest.txt")) {
+            // read the latest ini file
+            var latestFile = Directory.GetFiles(customPacenoteFolder, "*.ini").OrderByDescending(f => new FileInfo(f).LastWriteTime).FirstOrDefault();
+            if (latestFile != null) {
+                if (latestFile.EndsWith("_default.ini")) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        // get the custom pacenote filename
+        var customPacenoteFilename = Path.GetFileNameWithoutExtension(file);
+        if (customPacenoteFilename.StartsWith("mypacenote_")) {
+            //
+            customPacenoteFilename = customPacenoteFilename.Substring("mypacenote_".Length);
+            // find the ini file
+            var customPacenoteIniFile = Path.Join(customPacenoteFolder, customPacenoteFilename + ".ini");
+            if (File.Exists(customPacenoteIniFile) && !customPacenoteFilename.EndsWith("_default")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
     public RBRGamePacenoteReader()
     {
         // 1. find RBR Root installation folder
@@ -168,6 +213,30 @@ public class RBRGamePacenoteReader : BasePacenoteReader
         } else {
             // should read pacenote from memory, even custom pacenote is loaded in memory.
             _logger.Info("Reading pacenote from memory for track {0}", track);
+            bool useDefaultDef = false;
+            if (_hasCustomPacenote) {
+                _logger.Info("Custom pacenote could be loaded in memory");
+                var isUsingCustomPacenote = this.IsUsingCustomPacenote(trackName);
+                _logger.Info("Is using custom pacenote: {0}", isUsingCustomPacenote);
+                if (isUsingCustomPacenote) {
+                    // load custom pacenote definition if default pacenote is not used
+                    var pacenoteDef = ((CommonGameConfigs)game.GameConfigurations[CommonGameConfigs.Name])["game.rbr.additional_settings.additional_pacenote_def"].ToString();
+                    if (RBRScriptResource.Instance.DBPath != pacenoteDef) {
+                        Task.Run(() => RBRScriptResource.Instance.LoadData(pacenoteDef)).Wait();
+                    }
+                } else {
+                    useDefaultDef = true;
+                }
+            } else {
+                useDefaultDef = true;
+            }
+            if (useDefaultDef) {
+                _logger.Info("Custom pacenote is not used, load default pacenote definition");
+                var pacenoteDef = AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, "default.zdb"));    // default pacenote
+                if (RBRScriptResource.Instance.DBPath != pacenoteDef) {
+                    Task.Run(() => RBRScriptResource.Instance.LoadData(pacenoteDef)).Wait();
+                }
+            }
             var rbrMemReader = ((RBRGameDataReader)game.GameDataReader).memDataReader;
 
             var sr = rbrMemReader.ReadPacenotesFromMemory();
@@ -382,6 +451,15 @@ public class RBRGamePacenoteReader : BasePacenoteReader
         return null;
     }
 
+    private string getCustomPacenoteFolder(string trackName)
+    {
+        var customPacenoteFolder = Path.Join(_customPacenoteFolder, trackName);
+        if (!Directory.Exists(customPacenoteFolder)) {
+            customPacenoteFolder = Path.Join(_customPacenoteFolder, trackName + " BTB"); // maybe it's a BTB track
+        }
+        return customPacenoteFolder;
+    }
+
     public override string GetScriptFileForReplaying(string profile, IGame game, string track, bool fallbackToDefault = true)
     {
         // 0. try our pacenotes
@@ -396,10 +474,7 @@ public class RBRGamePacenoteReader : BasePacenoteReader
         var trackName = trackInfo.Item2;
         // 1. try custom pacenote file
         if (_hasCustomPacenote) {
-            var customPacenoteFolder = Path.Join(_customPacenoteFolder, trackName);
-            if (!Directory.Exists(customPacenoteFolder)) {
-                customPacenoteFolder = Path.Join(_customPacenoteFolder, trackName + " BTB"); // maybe it's a BTB track
-            }
+            var customPacenoteFolder = getCustomPacenoteFolder(trackName);
 
             if (Directory.Exists(customPacenoteFolder)) {
                 // load the latest file

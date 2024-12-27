@@ -4,10 +4,12 @@
             "description": "The most classic rally simulation game, Rally Sim Fans version.",
             "additional_settings": {
                 "playPacenotesWhenReplaying": "Play the pacenotes during replaying.",
-                "additional_pacenote_def": "RBR pacenote definition file.",
+                "additional_pacenote_def": "Custom RBR pacenote definition.",
+                "autoSwitchPacenoteDef": "Auto switch pacenote definition.",
                 "tooltip": {
                     "playPacenotesWhenReplaying": "Play the pacenotes during replaying finished races.",
-                    "additional_pacenote_def": "Pacenote definition db file, contains mapping from rbr pacenote to ztmz pacenote definitions."
+                    "additional_pacenote_def": "Pacenote definition db file, contains mapping from rbr pacenote to ztmz pacenote definitions.",
+                    "autoSwitchPacenoteDef": "When detected the current track is using the default RBR pacenote, use the default pacenote definition, otherwise, use the definitions in the above pacenote definition file."
                 }
             }
         }

@@ -97,15 +97,18 @@ namespace ZTMZ.PacenoteTool.RBR
             { 
                 PropertyName = new() {
                     { "game.rbr.additional_settings.playPacenotesWhenReplaying", "game.rbr.additional_settings.tooltip.playPacenotesWhenReplaying" },
-                    { "game.rbr.additional_settings.additional_pacenote_def", "game.rbr.additional_settings.tooltip.additional_pacenote_def" }
+                    { "game.rbr.additional_settings.additional_pacenote_def", "game.rbr.additional_settings.tooltip.additional_pacenote_def" },
+                    { "game.rbr.additional_settings.autoSwitchPacenoteDef", "game.rbr.additional_settings.tooltip.autoSwitchPacenoteDef"}
                 },
                 PropertyValue = new() {
                     true,
-                    AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, "jannemod_v3.zdb"))   // default pacenote
+                    AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, "jannemod_v3.zdb")),   // custom pacenote
+                    true,
                 },
                 PropertyType = new() {
                     "bool",
-                    "file:zdb"
+                    "file:zdb",
+                    "bool"
                 }
             }},
         };

@@ -60,6 +60,8 @@ public class RBRScriptResource
     public Dictionary<int, List<RBRPacenote>> PacenotesDict { get; private set; } = new();
     public Dictionary<int, List<int>> PacenoteId2ZTMZIds { get; private set; } = new();
     public Dictionary<int, List<int>> ModiferId2ZTMZids { get; private set; } = new();
+
+    public string DBPath { get; private set; }
     private RBRScriptResource() {
         // DBNAME = AppLevelVariables.Instance.GetConfig("game.rbr.additional_settings.additional_pacenote_def");
     }
@@ -72,8 +74,13 @@ public class RBRScriptResource
             logger.Error("DB file not found: " + dbPath);
             throw new FileNotFoundException("DB file not found: " + dbPath);
         }
+        DBPath = dbPath;
+        if (Connection != null) {
+            await Connection.CloseAsync();
+            await Connection.DisposeAsync();
+        }
         Connection = new SqliteConnection($"Data Source={dbPath}");
-        Connection.Open();
+        await Connection.OpenAsync();
         Connection.EnableExtensions(true);
         Pacenotes = (await Connection.QueryAsync<RBRPacenote>("SELECT * FROM pacenote")).ToList();
         Pacenote2ZTMZs = (await Connection.QueryAsync<RBRPacenote2ZTMZ>("SELECT * FROM pacenote_ztmz")).ToList();
