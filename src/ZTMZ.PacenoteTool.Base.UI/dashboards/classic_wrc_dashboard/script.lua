@@ -2,7 +2,7 @@
 -- 1/4 bottom of the dashboard for clutch, brake, throttle.
 -- 1/8 top of the dashboard for rpm, 1/6 length for RPM text filled with green, and 5/6 length for real RPM filled from green to red with black background and black text on top
 -- in the middle, 2/3 length for speed, black text and white background
--- 1/6 length for gear, white text with grey background, when time to shift, background blink with red
+-- 1/6 length for gear, white text with black background, when time to shift, background blink with red
 -- 1/6 length for handbrake, grey icon with white background, when handbrake is on, icon becomes red
 
 local resources = {};
@@ -217,7 +217,7 @@ function drawGear(gfx, data, conf, helper, x, y, width, height)
     if (not bInBlink and gear < maxGear) then
         gfx.FillRectangle(_brushes["red"], x + 2/3 * width, y + 1/8 * height, x + 5/6 * width, y + 3/4 * height);
     else    
-        gfx.FillRectangle(_brushes["grey"], x + 2/3 * width, y + 1/8 * height, x + 5/6 * width, y + 3/4 * height);
+        gfx.FillRectangle(_brushes["black"], x + 2/3 * width, y + 1/8 * height, x + 5/6 * width, y + 3/4 * height);
     end
     
     if (rpmLevel == 1) then
