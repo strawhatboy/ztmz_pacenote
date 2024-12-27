@@ -31,6 +31,7 @@ public class WatchedProcess {
                 if (!p.MainWindowTitle.ToLower().Contains(WindowName.ToLower()))
                     return false;
             } catch (Exception ex) {
+                return false;
             }
         }
 

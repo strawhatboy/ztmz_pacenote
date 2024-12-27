@@ -44,7 +44,9 @@ public class UpdateConfigSetter
             Config.Instance.SaveUserConfig();
         });
 
-        this._configSetters.Add(new Version("2.99.99.27"), tool => {
+        // this._configSetters.Add(new Version("2.99.99.27"), tool => {
+        // still force for 2.99.99.30 version
+        this._configSetters.Add(new Version("2.99.99.30"), tool => {
             var rbr = tool.Games.FirstOrDefault(a => a.Name == "Richard Burns Rally - RSF");
             if (rbr != null) {
                 // use jannemod_v3.zdb as default pacenote
