@@ -125,36 +125,44 @@ public class ProcessWatcher : IDisposable
                         break;
                     }
                 }
-                var processes = Process.GetProcesses();
-                // loop the processes, to raise new process event and exit event
-                foreach (var p in processes) 
-                {
-                    if (!RunningProcesses.ContainsKey(p.ProcessName.ToLower()))
-                    {
-                        var exp1 = WatchingProcesses.ContainsKey(p.ProcessName.ToLower());
-                        if (exp1 && WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p)) {
-                            onNewProcess?.Invoke(p);
-                        }
-                        // magic code
-                        if (!(exp1 && !WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p))) {
-                            RunningProcesses.AddOrUpdate(p.ProcessName.ToLower(), 1, (k, v) => 1);
-                            _logger.Debug($"ProcessWatcher: new process {p.ProcessName.ToLower()}");
-                        }
-                    }
-                }
+                try {
+                    _logger.Debug("ProcessWatcher: checking processes");
+                    var processes = Process.GetProcesses();
+                    _logger.Debug("ProcessWatcher: got processes");
 
-                // loop the running processes, to raise exit event
-                foreach (var p in RunningProcesses.Keys.ToList())
-                {
-                    if (!processes.Any(x => x.ProcessName.ToLower() == p))
+                    // loop the processes, to raise new process event and exit event
+                    foreach (var p in processes) 
                     {
-                        if (WatchingProcesses.ContainsKey(p)) {
-                            // raise only when watching
-                            onProcessExit?.Invoke(p, null);
+                        if (!RunningProcesses.ContainsKey(p.ProcessName.ToLower()))
+                        {
+                            _logger.Debug($"ProcessWatcher: new process {p.ProcessName.ToLower()}");
+                            var exp1 = WatchingProcesses.ContainsKey(p.ProcessName.ToLower());
+                            if (exp1 && WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p)) {
+                                onNewProcess?.Invoke(p);
+                            }
+                            // magic code
+                            if (!(exp1 && !WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p))) {
+                                RunningProcesses.AddOrUpdate(p.ProcessName.ToLower(), 1, (k, v) => 1);
+                                _logger.Debug($"ProcessWatcher: new process {p.ProcessName.ToLower()}");
+                            }
                         }
-                        RunningProcesses.TryRemove(p, out _);
-                        _logger.Debug($"ProcessWatcher: process exit {p}");
                     }
+
+                    // loop the running processes, to raise exit event
+                    foreach (var p in RunningProcesses.Keys.ToList())
+                    {
+                        if (!processes.Any(x => x.ProcessName.ToLower() == p))
+                        {
+                            if (WatchingProcesses.ContainsKey(p)) {
+                                // raise only when watching
+                                onProcessExit?.Invoke(p, null);
+                            }
+                            RunningProcesses.TryRemove(p, out _);
+                            _logger.Debug($"ProcessWatcher: process exit {p}");
+                        }
+                    }
+                } catch (Exception ex) {
+                    _logger.Error(ex, "ProcessWatcher: error");
                 }
                 Thread.Sleep(this._refreshInterval);
             }
