@@ -260,6 +260,11 @@
     "scriptNotExist": {
       "title": "路书脚本不存在",
       "content": "并不存在自定义的路书脚本，你想要创建一个吗？注意：在当前版本下创建后，将可能无法使用原本rbr路书，想要恢复原本的rbr路书，删除新创建的脚本文件即可"
+    },
+    "closePrompt": {
+      "dontShowAgain": "不再显示该对话框",
+      "ok": "好的",
+      "cancel": "取消",
     }
   },
 
@@ -348,6 +353,10 @@
     "tb_friendlink": "友情链接(SimRallyCN)",
     "btn_playExample": "试听",
     "tb_intercom": "对讲机特效",
+    "showClosePrompt": "显示关闭提示",
+    "closeBehavior": "关闭按钮行为",
+    "closeToMinimize": "最小化到托盘",
+    "closeToExit": "退出程序",
 
 
     "tooltip": {
@@ -393,6 +402,10 @@
 
       "cb_gameNotInstalled": "该游戏未能正确安装，请检查游戏是否安装正确。如果是已经可以运行的RSFRBR 游戏，请使用最小化模式安装游戏来修复注册表，并重启路书工具\n有一种可能是刚刚从steam下载的游戏，从来没有打开过，就打开了本工具，此时请打开一次刚下载的游戏，然后关闭游戏，再以任意顺序打开路书工具和游戏",
       "tb_intercom": "数值越大 效果越强，声音更像是从对讲机中发出",
+      "showClosePrompt": "在点击窗口右上角的关闭按钮时，会弹出提示框，防止误操作",
+      "closeBehavior": "选择点击窗口右上角的关闭按钮时的行为",
+      "closeToMinimize": "在点击窗口右上角的关闭按钮时，会最小化到托盘，而不是直接关闭程序",
+      "closeToExit": "在点击窗口右上角的关闭按钮时，会直接关闭程序，而不是最小化到托盘"
     }
   },
   "misc": {

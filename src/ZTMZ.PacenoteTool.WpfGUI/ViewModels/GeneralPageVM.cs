@@ -44,6 +44,12 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
     [ObservableProperty]
     private int _logLevel = Config.Instance.LogLevel;
 
+    [ObservableProperty]
+    private int _closeBehaviorSelection = Config.Instance.CloseWindowToMinimize ? 1 : 0;
+
+    [ObservableProperty]
+    private bool _showClosePrompt = Config.Instance.ShowClosePrompt;
+
     partial void OnAccentColorRChanged(int value)
     {
         Config.Instance.AccentColorR = value;
@@ -58,6 +64,12 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
     {
         Config.Instance.AccentColorB = value;
         updateAccentColor();
+    }
+
+    partial void OnShowClosePromptChanged(bool value)
+    {
+        Config.Instance.ShowClosePrompt = value;
+        Config.Instance.SaveUserConfig();
     }
 
     private Wpf.Ui.Appearance.ApplicationTheme CurrentTheme = Config.Instance.UseSystemTheme ? Wpf.Ui.Appearance.ApplicationTheme.Unknown : 
@@ -191,5 +203,12 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
 
     public void OnNavigatedFrom()
     {
+    }
+
+    [RelayCommand]
+    public void CloseBehaviorSelectionChanged()
+    {
+        Config.Instance.CloseWindowToMinimize = CloseBehaviorSelection == 1;
+        Config.Instance.SaveUserConfig();
     }
 }

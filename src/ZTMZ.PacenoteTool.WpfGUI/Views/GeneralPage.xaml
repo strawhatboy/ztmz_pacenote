@@ -24,31 +24,32 @@
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center">
                     <ui:SymbolIcon Symbol="DarkTheme20"
                                    FontSize="26"
-                                   Margin="0 0 10 0" />
+                                   Margin="0 0 10 0"/>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
+                            <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.theme}" />
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.theme}"/>
                         <ui:TextBlock Grid.Row="1"
                                       Text="{DynamicResource ResourceKey=settings.tooltip.theme}"
                                       Appearance="Tertiary"
-                                      FontTypography="Caption" />
+                                      FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
-                <ComboBox Grid.Column="1" SelectedIndex="{Binding Path=ViewModel.ThemeSelection, Mode=TwoWay}">
+                <ComboBox Grid.Column="1"
+                          SelectedIndex="{Binding Path=ViewModel.ThemeSelection, Mode=TwoWay}">
                     <ComboBox.Items>
-                        <ComboBoxItem Content="{DynamicResource ResourceKey=settings.lightTheme}" />
-                        <ComboBoxItem Content="{DynamicResource ResourceKey=settings.darkTheme}" />
-                        <ComboBoxItem Content="{DynamicResource ResourceKey=settings.systemTheme}" />
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=settings.lightTheme}"/>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=settings.darkTheme}"/>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=settings.systemTheme}"/>
                     </ComboBox.Items>
                     <b:Interaction.Triggers>
                         <b:EventTrigger EventName="SelectionChanged">
@@ -61,99 +62,126 @@
             </Grid>
         </ui:Card>
         <!-- accent color -->
-        <ui:Card Margin="0 0 0 3" Visibility="{Binding Path=ViewModel.AccentColorPickerVisibility, Mode=OneWay}"
-                Padding="0" >
+        <ui:Card Margin="0 0 0 3"
+                 Visibility="{Binding Path=ViewModel.AccentColorPickerVisibility, Mode=OneWay}"
+                 Padding="0">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
+                    <RowDefinition/>
+                    <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Grid Margin="16">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition Width="160" />
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="160"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal"
                                 VerticalAlignment="Center">
                         <ui:SymbolIcon Symbol="Color20"
-                                        FontSize="26"
-                                        Margin="0 0 10 0" />
+                                       FontSize="26"
+                                       Margin="0 0 10 0"/>
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition />
-                                <RowDefinition />
+                                <RowDefinition/>
+                                <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <ui:TextBlock Text="{DynamicResource ResourceKey=settings.accentColor}" />
+                            <ui:TextBlock Text="{DynamicResource ResourceKey=settings.accentColor}"/>
                             <ui:TextBlock Grid.Row="1"
-                                            Text="{DynamicResource ResourceKey=settings.tooltip.accentColor}"
-                                            Appearance="Tertiary"
-                                            FontTypography="Caption" />
+                                          Text="{DynamicResource ResourceKey=settings.tooltip.accentColor}"
+                                          Appearance="Tertiary"
+                                          FontTypography="Caption"/>
                         </Grid>
                     </StackPanel>
                     <ui:Card HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                Grid.Column="1"
-                                Background="{Binding Path=ViewModel.AccentColor, Mode=OneWay}" />
+                             VerticalAlignment="Stretch"
+                             Grid.Column="1"
+                             Background="{Binding Path=ViewModel.AccentColor, Mode=OneWay}"/>
                 </Grid>
                 <Border Grid.Row="1"
                         BorderThickness="0,1,0,0"
                         BorderBrush="{ui:ThemeResource DividerStrokeColorDefaultBrush}"
-                        Background="Transparent" >
+                        Background="Transparent">
                     <Grid Margin="16">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="60"/>
-                            <ColumnDefinition Width="40" />
-                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="160"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition />
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <ui:TextBlock Grid.Column="1" Text="{DynamicResource ResourceKey=settings.accentColorR}" />
-                        <ui:TextBlock Grid.Column="1" Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.accentColorG}" />
-                        <ui:TextBlock Grid.Column="1" Grid.Row="2"
-                            Text="{DynamicResource ResourceKey=settings.accentColorB}" />
-                        <ui:TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Path=ViewModel.AccentColorR, Mode=OneWay}" />
-                        <ui:TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Path=ViewModel.AccentColorG, Mode=OneWay}" />
-                        <ui:TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Path=ViewModel.AccentColorB, Mode=OneWay}" />
+                        <ui:TextBlock Grid.Column="1"
+                                      Text="{DynamicResource ResourceKey=settings.accentColorR}"/>
+                        <ui:TextBlock Grid.Column="1"
+                                      Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.accentColorG}"/>
+                        <ui:TextBlock Grid.Column="1"
+                                      Grid.Row="2"
+                                      Text="{DynamicResource ResourceKey=settings.accentColorB}"/>
+                        <ui:TextBlock Grid.Row="0"
+                                      Grid.Column="2"
+                                      Text="{Binding Path=ViewModel.AccentColorR, Mode=OneWay}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Grid.Column="2"
+                                      Text="{Binding Path=ViewModel.AccentColorG, Mode=OneWay}"/>
+                        <ui:TextBlock Grid.Row="2"
+                                      Grid.Column="2"
+                                      Text="{Binding Path=ViewModel.AccentColorB, Mode=OneWay}"/>
 
-                        <Slider Grid.Row="0" Grid.Column="3" Maximum="255" Minimum="0" Interval="1" Value="{Binding Path=ViewModel.AccentColorR, Mode=TwoWay}" />
-                        <Slider Grid.Row="1" Grid.Column="3" Maximum="255" Minimum="0" Interval="1" Value="{Binding Path=ViewModel.AccentColorG, Mode=TwoWay}" />
-                        <Slider Grid.Row="2" Grid.Column="3" Maximum="255" Minimum="0" Interval="1" Value="{Binding Path=ViewModel.AccentColorB, Mode=TwoWay}" />
+                        <Slider Grid.Row="0"
+                                Grid.Column="3"
+                                Maximum="255"
+                                Minimum="0"
+                                Interval="1"
+                                Value="{Binding Path=ViewModel.AccentColorR, Mode=TwoWay}"/>
+                        <Slider Grid.Row="1"
+                                Grid.Column="3"
+                                Maximum="255"
+                                Minimum="0"
+                                Interval="1"
+                                Value="{Binding Path=ViewModel.AccentColorG, Mode=TwoWay}"/>
+                        <Slider Grid.Row="2"
+                                Grid.Column="3"
+                                Maximum="255"
+                                Minimum="0"
+                                Interval="1"
+                                Value="{Binding Path=ViewModel.AccentColorB, Mode=TwoWay}"/>
                     </Grid>
                 </Border>
             </Grid>
         </ui:Card>
-        
+
         <!-- language -->
         <ui:Card Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center">
                     <ui:SymbolIcon Symbol="LocalLanguage20"
                                    FontSize="26"
-                                   Margin="0 0 10 0" />
+                                   Margin="0 0 10 0"/>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
+                            <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.language}" />
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.language}"/>
                         <ui:TextBlock Grid.Row="1"
                                       Text="{DynamicResource ResourceKey=settings.tooltip.language}"
                                       Appearance="Tertiary"
-                                      FontTypography="Caption" />
+                                      FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
-                <ComboBox Grid.Column="1" SelectedIndex="{Binding Path=ViewModel.LanguageSelection, Mode=TwoWay}" ItemsSource="{Binding Path=ViewModel.Languages, Mode=OneWay}">
+                <ComboBox Grid.Column="1"
+                          SelectedIndex="{Binding Path=ViewModel.LanguageSelection, Mode=TwoWay}"
+                          ItemsSource="{Binding Path=ViewModel.Languages, Mode=OneWay}">
                 </ComboBox>
             </Grid>
         </ui:Card>
@@ -163,27 +191,29 @@
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center">
                     <ui:SymbolIcon Symbol="PhoneUpdate20"
                                    FontSize="26"
-                                   Margin="0 0 10 0" />
+                                   Margin="0 0 10 0"/>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
+                            <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.checkUpdateWhenStartup}" />
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.checkUpdateWhenStartup}"/>
                         <ui:TextBlock Grid.Row="1"
                                       Text="{DynamicResource ResourceKey=settings.tooltip.checkUpdateWhenStartup}"
                                       Appearance="Tertiary"
-                                      FontTypography="Caption" />
+                                      FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
-                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding Path=ViewModel.IsAutoUpdate, Mode=TwoWay}" />
+                <ui:ToggleSwitch Grid.Column="1"
+                                 HorizontalAlignment="Right"
+                                 IsChecked="{Binding Path=ViewModel.IsAutoUpdate, Mode=TwoWay}"/>
             </Grid>
         </ui:Card>
 
@@ -192,27 +222,29 @@
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center">
                     <ui:SymbolIcon Symbol="PersonRunning20"
                                    FontSize="26"
-                                   Margin="0 0 10 0" />
+                                   Margin="0 0 10 0"/>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
+                            <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.startWithWindows}" />
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.startWithWindows}"/>
                         <ui:TextBlock Grid.Row="1"
                                       Text="{DynamicResource ResourceKey=settings.tooltip.startWithWindows}"
                                       Appearance="Tertiary"
-                                      FontTypography="Caption" />
+                                      FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
-                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding Path=ViewModel.IsStartWithWindows, Mode=TwoWay}" />
+                <ui:ToggleSwitch Grid.Column="1"
+                                 HorizontalAlignment="Right"
+                                 IsChecked="{Binding Path=ViewModel.IsStartWithWindows, Mode=TwoWay}"/>
             </Grid>
         </ui:Card>
 
@@ -224,27 +256,29 @@
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center">
                     <ui:SymbolIcon Symbol="New20"
                                    FontSize="26"
-                                   Margin="0 0 10 0" />
+                                   Margin="0 0 10 0"/>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
+                            <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.optInBetaPlan}" />
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.optInBetaPlan}"/>
                         <ui:TextBlock Grid.Row="1"
                                       Text="{DynamicResource ResourceKey=settings.tooltip.optInBetaPlan}"
                                       Appearance="Tertiary"
-                                      FontTypography="Caption" />
+                                      FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
-                <ui:ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding Path=ViewModel.IsOptInBetaPlan, Mode=TwoWay}" />
+                <ui:ToggleSwitch Grid.Column="1"
+                                 HorizontalAlignment="Right"
+                                 IsChecked="{Binding Path=ViewModel.IsOptInBetaPlan, Mode=TwoWay}"/>
             </Grid>
         </ui:Card>
 
@@ -253,39 +287,120 @@
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
+                    <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition Width="160"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center">
                     <ui:SymbolIcon Symbol="MailError20"
                                    FontSize="26"
-                                   Margin="0 0 10 0" />
+                                   Margin="0 0 10 0"/>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
+                            <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.logLevel}" />
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.logLevel}"/>
                         <ui:TextBlock Grid.Row="1"
                                       Text="{DynamicResource ResourceKey=settings.tooltip.logLevel}"
                                       Appearance="Tertiary"
-                                      FontTypography="Caption" />
+                                      FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
-                <ui:Button Icon="{ui:SymbolIcon FolderMail20}" Grid.Column="1" Command="{Binding ViewModel.ViewLogsCommand}"
-                    Content="{DynamicResource ResourceKey=settings.tooltip.viewLogs}" Margin="0 0 10 0" />
-                <ComboBox Grid.Column="2" SelectedIndex="{Binding Path=ViewModel.LogLevel, Mode=TwoWay}">
+                <ui:Button Icon="{ui:SymbolIcon FolderMail20}"
+                           Grid.Column="1"
+                           Command="{Binding ViewModel.ViewLogsCommand}"
+                           Content="{DynamicResource ResourceKey=settings.tooltip.viewLogs}"
+                           Margin="0 0 10 0"/>
+                <ComboBox Grid.Column="2"
+                          SelectedIndex="{Binding Path=ViewModel.LogLevel, Mode=TwoWay}">
                     <ComboBox.Items>
-                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.trace}" />
-                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.debug}" />
-                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.info}" />
-                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.warn}" />
-                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.error}" />
-                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.fatal}" />
-                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.off}" />
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.trace}"/>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.debug}"/>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.info}"/>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.warn}"/>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.error}"/>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.fatal}"/>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=logLevel.off}"/>
                     </ComboBox.Items>
+                </ComboBox>
+            </Grid>
+        </ui:Card>
+
+        <!-- show close behavior dialog -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Stop20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=ui.showClosePrompt}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=ui.tooltip.showClosePrompt}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1"
+                                 HorizontalAlignment="Right"
+                                 IsChecked="{Binding Path=ViewModel.ShowClosePrompt, Mode=TwoWay}"/>
+            </Grid>
+        </ui:Card>
+
+        <!-- close button behavior -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="ShareScreenStop20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=ui.closeBehavior}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=ui.tooltip.closeBehavior}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <ComboBox Grid.Column="1"
+                          SelectedIndex="{Binding Path=ViewModel.CloseBehaviorSelection, Mode=TwoWay}">
+                    <ComboBox.Items>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=ui.closeToExit}"
+                                ToolTip="{DynamicResource ResourceKey=ui.tooltip.closeToExit}"
+                                ToolTipService.InitialShowDelay="100"/>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=ui.closeToMinimize}"
+                                ToolTip="{DynamicResource ResourceKey=ui.tooltip.closeToMinimize}"
+                                ToolTipService.InitialShowDelay="100"/>
+                    </ComboBox.Items>
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="SelectionChanged">
+                            <b:InvokeCommandAction
+                                CommandParameter="{Binding}"
+                                Command="{Binding ViewModel.CloseBehaviorSelectionChangedCommand}"/>
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
                 </ComboBox>
             </Grid>
         </ui:Card>

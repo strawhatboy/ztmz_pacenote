@@ -347,6 +347,20 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._ProcessWatcherInterval;
         }
 
+        private bool _CloseWindowToMinimize = false;
+        public bool CloseWindowToMinimize
+        {
+            set { this._CloseWindowToMinimize = value; this._userconfig["CloseWindowToMinimize"] = value; }
+            get => this._CloseWindowToMinimize;
+        }
+
+        private bool _ShowClosePrompt = true;
+        public bool ShowClosePrompt
+        {
+            set { this._ShowClosePrompt = value; this._userconfig["ShowClosePrompt"] = value; }
+            get => this._ShowClosePrompt;
+        }
+
         #region HUD
 
         private bool _HudLockFPS = true;

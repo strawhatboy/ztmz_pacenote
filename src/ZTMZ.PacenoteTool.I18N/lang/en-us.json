@@ -260,6 +260,11 @@
     "scriptNotExist": {
       "title": "Script does not exist",
       "content": "There is no custom pacenote script, do you want to create one? Note: After creating, the original rbr game pacenote may not be available. If you want to restore the original rbr pacenote, just delete the newly created script file."
+    },
+    "closePrompt": {
+      "dontShowAgain": "Don't show this dialog next time",
+      "ok": "OK",
+      "cancel": "Cancel",
     }
   },
 
@@ -348,6 +353,10 @@
     "tb_friendlink": "Friend Link(SimRallyCN)",
     "btn_playExample": "Play Example",
     "tb_intercom": "Intercom Effect",
+    "showClosePrompt": "Show close prompt",
+    "closeBehavior": "Close behavior",
+    "closeToMinimize": "Minimize",
+    "closeToExit": "Exit",
 
 
     "tooltip": {
@@ -393,6 +402,11 @@
 
       "cb_gameNotInstalled": "The game is not installed. if it's playable RSFRBR, please install the game with minimum installation to fix the registry issue, and then restart this tool\nIt is possible that the game was just installed from Steam and has not been started yet, please start the game first, and end the game, and then restart this tool and the game",
       "tb_intercom": "The larger the value is, the more the intercom effect will be, and the more the voice will be distorted",
+      
+      "showClosePrompt": "Whether to show the prompt dialog when clicking the window's close button",
+      "closeBehavior": "Close behavior when clicking the window's close button",
+      "closeToMinimize": "Minimize the tool when the window close button is clicked",
+      "closeToExit": "Exit the tool when the window close button is clicked"
     }
   },
   "misc": {

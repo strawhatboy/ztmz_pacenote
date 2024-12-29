@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ using Wpf.Ui;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.WpfGUI.Views.Dialog;
 // using Wpf.Ui.Controls.Window;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.Views
@@ -26,36 +28,71 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
     public partial class MainWindow : FluentWindow, INavigationWindow
     {
         public ViewModels.MainWindowVM ViewModel { get; }
-        public MainWindow(ViewModels.MainWindowVM viewModel, 
-            IPageService pageService, 
+        private IContentDialogService _contentDialogService;
+        public MainWindow(ViewModels.MainWindowVM viewModel,
+            IPageService pageService,
             INavigationService navigationService,
             IContentDialogService contentDialogService)
         {
             ViewModel = viewModel;
             DataContext = this;
-            
+
             InitializeComponent();
 
             SetPageService(pageService);
             contentDialogService.SetContentPresenter(RootContentDialog);
             navigationService.SetNavigationControl(RootNavigation);
+            _contentDialogService = contentDialogService;
 
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             // theme
-            if (Config.Instance.UseSystemTheme) {
+            if (Config.Instance.UseSystemTheme)
+            {
                 Wpf.Ui.Appearance.SystemThemeWatcher.Watch(this);
                 var systemTheme = Wpf.Ui.Appearance.ApplicationThemeManager.GetSystemTheme();
                 Wpf.Ui.Appearance.ApplicationThemeManager.Apply(systemTheme == Wpf.Ui.Appearance.SystemTheme.Dark ? Wpf.Ui.Appearance.ApplicationTheme.Dark : Wpf.Ui.Appearance.ApplicationTheme.Light, WindowBackdropType.Mica, false);
-            } else {
+            }
+            else
+            {
                 Wpf.Ui.Appearance.ApplicationThemeManager.Apply(Config.Instance.IsDarkTheme ? Wpf.Ui.Appearance.ApplicationTheme.Dark : Wpf.Ui.Appearance.ApplicationTheme.Light,
                     WindowBackdropType.Mica,
                     false
                 );
-                Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(ThemeHelper.GetAccentColor(), 
+                Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(ThemeHelper.GetAccentColor(),
                     Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
+            }
+        }
+        public async void MainWindow_Closing(object sender, CancelEventArgs e)
+        {
+            if (Config.Instance.ShowClosePrompt)
+            {
+                e.Cancel = true;
+                ClosePrompt closePrompt = new ClosePrompt(_contentDialogService.GetDialogHost());
+                ContentDialogResult result = await closePrompt.ShowAsync();
+                if (result == ContentDialogResult.None)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+                if (result == ContentDialogResult.Primary)
+                {
+                    Config.Instance.CloseWindowToMinimize = closePrompt.CloseToMinimize;
+                    Config.Instance.SaveUserConfig();
+                }
+            }
+            if (Config.Instance.CloseWindowToMinimize)
+            {
+                e.Cancel = true;
+                Application.Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+                this.WindowState = WindowState.Minimized;
+                Hide();
+            }
+            else
+            {
+                Application.Current.Shutdown();
             }
         }
 
