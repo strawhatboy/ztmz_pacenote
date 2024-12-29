@@ -37,7 +37,11 @@ public class WatchedProcess {
 
         p.Refresh();
         if (MemoryThreshold > 0) {
-            if (p.PrivateMemorySize64 < MemoryThreshold * 1024L) {
+            try {
+                if (p.PrivateMemorySize64 < MemoryThreshold * 1024L) {
+                    return false;
+                }
+            } catch (Exception ex) {
                 return false;
             }
         }
@@ -126,9 +130,9 @@ public class ProcessWatcher : IDisposable
                     }
                 }
                 try {
-                    _logger.Debug("ProcessWatcher: checking processes");
+                    // _logger.Debug("ProcessWatcher: checking processes");
                     var processes = Process.GetProcesses();
-                    _logger.Debug("ProcessWatcher: got processes");
+                    // _logger.Debug("ProcessWatcher: got processes");
 
                     // loop the processes, to raise new process event and exit event
                     foreach (var p in processes) 
@@ -143,7 +147,7 @@ public class ProcessWatcher : IDisposable
                             // magic code
                             if (!(exp1 && !WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p))) {
                                 RunningProcesses.AddOrUpdate(p.ProcessName.ToLower(), 1, (k, v) => 1);
-                                _logger.Debug($"ProcessWatcher: new process {p.ProcessName.ToLower()}");
+                                _logger.Debug($"ProcessWatcher: new process {p.ProcessName.ToLower()} added.");
                             }
                         }
                     }

@@ -130,8 +130,8 @@ public class RBRMemDataReader
             return "";
         }
         var pHandle = _theProcess.Handle;
-        int trackNameAddr = MemoryReader.Read<int>(pHandle, 0x4A1123);
-        if (trackNameAddr != 0x731234 && trackNameAddr != 0)
+        int trackNameAddr = 0x007D1D64; //right here
+        if (trackNameAddr != 0)
         {
             int lpNumberOfBytesRead = 0;
             byte[] array = new byte[2];

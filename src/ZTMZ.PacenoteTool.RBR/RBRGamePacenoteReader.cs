@@ -48,13 +48,25 @@ public class RBRGamePacenoteReader : BasePacenoteReader
     private bool _hasCustomPacenote = false;
     private string _customPacenoteFolder = "";
 
+    private string escapeTraceName(string traceName) {
+        // escape special characters which cannot be used in windows filename/path in traceName
+        traceName = string.Join("_", traceName.Split(Path.GetInvalidFileNameChars()));
+        traceName = traceName.Replace("'", "_").Replace("`", "_");
+        return traceName;
+    }
+
     public bool IsUsingCustomPacenote(string traceName) {
+        traceName = escapeTraceName(traceName);
         if (!_hasCustomPacenote) {
             return false;
         }
         // try the txt file inside the folder _customPacenoteFolder, there should be only one txt file.
         // either _default.txt or _latest.txt or _[CustomPacenoteFilename].txt
         var customPacenoteFolder = getCustomPacenoteFolder(traceName);
+        if (!Directory.Exists(customPacenoteFolder)) {
+            _logger.Warn("Custom pacenote folder {0} not found", customPacenoteFolder);
+            return false;
+        }
         var files = Directory.GetFiles(customPacenoteFolder, "*.txt");
         if (files.Length != 1) {
             return false;
@@ -120,6 +132,30 @@ public class RBRGamePacenoteReader : BasePacenoteReader
 
         // 2. load Tracks.ini
         var parser = new FileIniDataParser();
+
+        var personalDefPath = Path.Join(RBRRootDir, "rallysimfans_personal.ini");
+        var personalDefNoNameMap = new Dictionary<int, string>();
+        if (File.Exists(personalDefPath)) 
+        {
+            var personalDefData = parser.ReadFile(personalDefPath);
+            foreach (SectionData section in personalDefData.Sections)
+            {
+                var mapSectionName = section.SectionName;
+                if (mapSectionName.ToLower().Contains("stage")) 
+                {
+                    var mapNo = getIntegerFromString(mapSectionName);
+                    var mapTrackName = "";  // the path
+
+                    if (section.Keys.ContainsKey("name"))
+                    {
+                        mapTrackName = trimIniValue(section.Keys["name"]);
+                    }
+
+                    personalDefNoNameMap.Add(mapNo, mapTrackName);
+                }
+            }
+        }
+
         IniData data = parser.ReadFile(trackFilePath);
         foreach (SectionData section in data.Sections)
         {
@@ -142,6 +178,11 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             }
 
             TrackNoNameMap.Add(mapNo, mapTrackName);
+            if (personalDefNoNameMap.ContainsKey(mapNo) && mapStageName != personalDefNoNameMap[mapNo]) 
+            {
+                _logger.Warn("Track {0} has different name in Tracks.ini and rallysimfans_personal.ini, using the name {1} in rallysimfans_personal.ini, instead of {2}", mapNo, personalDefNoNameMap[mapNo], mapStageName);
+                mapStageName = personalDefNoNameMap[mapNo];
+            }
             TrackNoStageNameMap.Add(mapNo, mapStageName);
         }
 
