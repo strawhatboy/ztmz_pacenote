@@ -11,6 +11,9 @@
                     "additional_pacenote_def": "路书定义文件，包含了从RBR路书到ZTMZ路书的转换",
                     "autoSwitchPacenoteDef": "当检测到当前赛道使用的是RBR的默认路书时，改用默认路书定义，否则，使用上面的路书定义文件里的定义"
                 }
+            },
+            "message": {
+                "custom_pacenote_not_used": "当前赛道 {0} 使用的是默认路书，虽然可以用，但建议给RBR安装LuppisV3/老王路书mod后再使用本工具。也有可能LuppisV3/老王路书mod中不包含当前赛道的路书脚本"
             }
         }
     }

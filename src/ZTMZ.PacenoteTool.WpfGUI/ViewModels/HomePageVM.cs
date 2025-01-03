@@ -239,11 +239,13 @@ public partial class HomePageVM : ObservableObject {
             IsGameInitialized = true;
             IsGameInitializeInProgress = false;
             IsGameInitializedFailed = false;
+            game.onCustomMessage += this._gameCustomMessage;
         };
         _tool.onGameUninitialized += (game) => {
             IsGameInitialized = false;
             IsGameInitializedFailed = false;
             IsRacing = false; 
+            game.onCustomMessage -= this._gameCustomMessage;
         };
 
         _tool.onGameInitializeFailed += (game, code, parameters) => {
@@ -432,6 +434,14 @@ public partial class HomePageVM : ObservableObject {
             _tool.Init();
             _tool.SetFromConfiguration();
         });
+    }
+
+    private void _gameCustomMessage(int level, string message) {
+        _logger.Info($"Game custom message: {message}");
+        GameInitializeFailureMessage = message;
+        InfoBarIsOpen = true;
+        InfoBarMessage = message;
+        InfoBarSeverity = (InfoBarSeverity)level;
     }
 
     private async Task<bool> forceFixGame(IGame game) {

@@ -11,6 +11,9 @@
                     "additional_pacenote_def": "Pacenote definition db file, contains mapping from rbr pacenote to ztmz pacenote definitions.",
                     "autoSwitchPacenoteDef": "When detected the current track is using the default RBR pacenote, use the default pacenote definition, otherwise, use the definitions in the above pacenote definition file."
                 }
+            },
+            "message": {
+                "custom_pacenote_not_used": "Default pacenote is used for current track {0}. It's ok, but Luppis V3 pacenote is recommended. It's also possible that Luppis V3 pacenote doesn't contain the pacenote script for the current track."
             }
         }
     }

@@ -14,6 +14,8 @@ namespace ZTMZ.PacenoteTool.Codemasters
 
         public static string GameName = "Dirt Rally 1.0";
 
+        public event Action<int, string> onCustomMessage;
+
         public string Description { get; private set; } = "";
 
         public string Executable => "drt";
@@ -40,6 +42,11 @@ namespace ZTMZ.PacenoteTool.Codemasters
         {
             this.Description = I18NLoader.Instance["game.dr1.description"];
             this.GameConfigurations = DefaultGameConfigurations;
+        }
+
+        public void OnCustomMessage(int level, string message)
+        {
+            onCustomMessage?.Invoke(level, message);
         }
     }
 }

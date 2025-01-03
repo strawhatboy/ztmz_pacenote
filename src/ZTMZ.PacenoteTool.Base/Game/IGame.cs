@@ -46,7 +46,8 @@ namespace ZTMZ.PacenoteTool.Base.Game
         Dictionary<string, IGameConfig> GameConfigurations { set; get; }
         Dictionary<string, IGameConfig> DefaultGameConfigurations { get; }
 
-
+        event Action<int, string> onCustomMessage;
+        void OnCustomMessage(int level, string message);
 
         bool IsRunning { set; get; }
 

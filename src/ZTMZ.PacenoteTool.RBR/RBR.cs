@@ -74,6 +74,9 @@ namespace ZTMZ.PacenoteTool.RBR
         public bool IsInitialized { get; set; }
 
         private Dictionary<string, IGameConfig> _gameConfigurations;
+
+        public event Action<int, string> onCustomMessage;
+
         public Dictionary<string, IGameConfig> GameConfigurations { 
             set {
                 _gameConfigurations = value;
@@ -117,6 +120,11 @@ namespace ZTMZ.PacenoteTool.RBR
         {
             this.Description = I18NLoader.Instance["game.rbr.description"];
             GameConfigurations = DefaultGameConfigurations;
+        }
+
+        public void OnCustomMessage(int level, string message)
+        {
+            onCustomMessage?.Invoke(level, message);
         }
     }
 }

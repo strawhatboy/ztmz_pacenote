@@ -13,6 +13,8 @@ namespace ZTMZ.PacenoteTool.Codemasters
         public string Name => GameName;
         public static string GameName = "EA SPORTS™ WRC";
 
+        public event Action<int, string> onCustomMessage;
+
         public string Description { get; private set; } = "";
 
         public string Executable => "WRC";
@@ -40,6 +42,11 @@ namespace ZTMZ.PacenoteTool.Codemasters
         {
             this.Description = I18NLoader.Instance["game.wrc.description"];
             this.GameConfigurations = DefaultGameConfigurations;
+        }
+
+        public void OnCustomMessage(int level, string message)
+        {
+            onCustomMessage?.Invoke(level, message);
         }
     }
 }
