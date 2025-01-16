@@ -356,6 +356,7 @@
     "showClosePrompt": "显示关闭提示",
     "closeBehavior": "关闭按钮行为",
     "closeToMinimize": "最小化到托盘",
+    "showMainUI": "显示主界面",
     "closeToExit": "退出程序",
 
 
@@ -420,7 +421,7 @@
   "exception": {
     "portAlreadyInUse": {
       "title": "端口被占用！",
-      "msg": "端口 {0} 已经被占用，请检查是否有其他程序如 SIMHUB，速魔软件，Dirt Telemetry Tool 正在运行，并尝试使用 SIMHUB 的端口转发功能 配合 本工具中的设置页面里的端口修改功能 解决此问题\n详情参见：https://www.bilibili.com/video/BV1oq4y1u7ua?p=2"
+      "msg": "端口 {0} 已经被占用，请检查是否有其他程序如 SIMHUB，速魔软件，Dirt Telemetry Tool 正在运行"
     },
     "configFileCorrupted": {
       "title": "配置文件损坏",

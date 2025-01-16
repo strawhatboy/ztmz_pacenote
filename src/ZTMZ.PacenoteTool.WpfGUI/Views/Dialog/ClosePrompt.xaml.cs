@@ -10,6 +10,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views.Dialog
     public partial class ClosePrompt : ContentDialog
     {
         public bool CloseToMinimize => rb_closeToMinimize.IsChecked ?? false;
+        public bool DontShowAgain => cb_dontShowAgain.IsChecked ?? false;
         public ClosePrompt(ContentPresenter contentPresenter)
             : base(contentPresenter)
         {

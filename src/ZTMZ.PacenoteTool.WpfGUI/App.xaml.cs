@@ -13,6 +13,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Wpf.Ui.Extensions;
+using Wpf.Ui.Tray;
+
 
 // using Wpf.Ui.Contracts;
 using ZTMZ.PacenoteTool.Base;
@@ -92,6 +94,7 @@ public partial class App : Application
             services.AddSingleton<GameOverlayManager>();
             services.AddSingleton<VRGameOverlayManager>();
             services.AddSingleton<AzureAppInsightsManager>();
+            // services.AddSingleton<INotifyIconService, CustomNotifyIconService>();
 
             services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>();
             services.AddSingleton<UpdateConfigSetter>();

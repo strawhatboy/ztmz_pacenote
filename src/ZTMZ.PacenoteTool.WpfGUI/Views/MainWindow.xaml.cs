@@ -80,6 +80,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
                 if (result == ContentDialogResult.Primary)
                 {
                     Config.Instance.CloseWindowToMinimize = closePrompt.CloseToMinimize;
+                    Config.Instance.ShowClosePrompt = !closePrompt.DontShowAgain;
                     Config.Instance.SaveUserConfig();
                 }
             }

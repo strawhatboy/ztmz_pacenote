@@ -8,6 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.Hosting;
+using Wpf.Ui.Tray;
+
 // using Wpf.Ui.Contracts;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
 
@@ -58,6 +60,14 @@ public class ApplicationHostService : IHostedService
 
             _navigationWindow.Navigate(typeof(Views.HomePage));
         }
+
+        // WPF-UI tray is shit
+        // var notifyIconManager = _serviceProvider.GetService(typeof(INotifyIconService)) as INotifyIconService;
+        // if (!notifyIconManager!.IsRegistered)
+        // {
+        //     notifyIconManager!.SetParentWindow(_navigationWindow as Window);
+        //     notifyIconManager.Register();
+        // }
 
         await Task.CompletedTask;
     }

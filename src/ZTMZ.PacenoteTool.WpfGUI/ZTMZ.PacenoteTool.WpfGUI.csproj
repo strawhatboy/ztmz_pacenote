@@ -25,6 +25,9 @@
     <Resource Include="Assets\app.ico">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Assets\app_tray.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Assets\app.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>

@@ -98,11 +98,15 @@
         <tray:NotifyIcon
             Grid.Row="0"
             FocusOnLeftClick="True"
-            Icon="pack://application:,,,/Assets/app.ico"
+            Icon="pack://application:,,,/Assets/app_tray.ico"
             MenuOnRightClick="True"
-            TooltipText="WPF UI - MVVM Demo">
+            TooltipText="{Binding ViewModel.Title, Mode=OneWay}">
             <tray:NotifyIcon.Menu>
-                <ContextMenu ItemsSource="{Binding ViewModel.TrayMenuItems, Mode=OneWay}" />
+                <ContextMenu>
+                    <!-- <MenuItem Header="{DynamicResource ResourceKey=ui.showMainUI}" Command="{Binding ViewModel.ShowMainUICommand}" />
+                    <Separator />
+                    <MenuItem Header="{DynamicResource ResourceKey=ui.closeToExit}" Command="{Binding ViewModel.ExitCommand}" /> -->
+                </ContextMenu>
             </tray:NotifyIcon.Menu>
         </tray:NotifyIcon>
     </Grid>

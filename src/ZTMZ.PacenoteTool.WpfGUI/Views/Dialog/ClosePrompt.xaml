@@ -5,7 +5,7 @@
                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                   xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
                   xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views.Dialog"
-                  IsFooterVisible="False"
+                  IsFooterVisible="True"
                   PrimaryButtonText="{DynamicResource ResourceKey=dialog.closePrompt.ok}"
                   CloseButtonText="{DynamicResource ResourceKey=dialog.closePrompt.cancel}"
                   mc:Ignorable="d"

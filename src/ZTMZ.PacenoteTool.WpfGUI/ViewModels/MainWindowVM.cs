@@ -194,5 +194,18 @@ public partial class MainWindowVM : ObservableObject
     private async Task BuyMeACoffee() {
         Process.Start("explorer.exe", "https://gitee.com/ztmz/ztmz_pacenote/tree/master/buy_me_a_coffee");
     }
+
+    [RelayCommand]
+    private async Task Exit() {
+        Application.Current.Shutdown();
+    }
+
+    [RelayCommand]
+    private async Task ShowMainUI() {
+        Application.Current.MainWindow.Visibility = Visibility.Visible;
+        Application.Current.MainWindow.WindowState = WindowState.Normal;
+        Application.Current.MainWindow.Activate();
+        Application.Current.MainWindow.Show();
+    }
 }
 
