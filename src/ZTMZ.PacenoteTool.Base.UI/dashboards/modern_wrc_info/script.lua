@@ -73,14 +73,14 @@ function drawStaticFrames(gfx, self, data, helper, x, y, width, height)
     -- draw the static frames
     -- 1. background
     -- print("drawing the background")
-    gfx.FillRectangle(_brushes["background"], x, y, x + width, y + height);
+    gfx.FillRoundedRectangle(_brushes["background"], x, y, x + width, y + height, height / 8);
 
     local geo_path = gfx.CreateGeometry();
-    geo_path.BeginFigure(helper.getPoint(x, y), true);
-    local point_top1 = helper.getPoint(x + height / 2, y);
-    geo_path.AddPoint(point_top1);
-    geo_path.AddPoint(helper.getPoint(x + height / 4, y + height));
-    geo_path.AddPoint(helper.getPoint(x, y + height));
+    geo_path.BeginFigure(helper.getPoint(x + height / 8, y + height / 4), true);
+    geo_path.AddCurveWithArcSegmentArgs(helper.getPoint(x + height / 4, y + height / 8), height / 8, ARCSIZE_SMALL, SWEEPDIRECTION_CLOCKWISE);
+    geo_path.AddPoint(helper.getPoint(x + height * 10 / 16, y + height / 8));
+    geo_path.AddPoint(helper.getPoint(x + height * 6 / 16, y + height - height / 8));
+    geo_path.AddPoint(helper.getPoint(x + height / 8, y + height - height / 8));
     geo_path.EndFigure();
     geo_path.Close();
 
@@ -89,10 +89,10 @@ function drawStaticFrames(gfx, self, data, helper, x, y, width, height)
 
     -- print("drawing the middle frame")
     geo_path = gfx.CreateGeometry();
-    geo_path.BeginFigure(helper.getPoint(x + 9 * height / 16, y), true);
-    geo_path.AddPoint(helper.getPoint(x + 11 * height / 16, y));
-    geo_path.AddPoint(helper.getPoint(x + 7 * height / 16, y + height));
-    geo_path.AddPoint(helper.getPoint(x + 5 * height / 16, y + height));
+    geo_path.BeginFigure(helper.getPoint(x + 13 * height / 16, y + height / 8), true);
+    geo_path.AddPoint(helper.getPoint(x + 15 * height / 16, y + height / 8));
+    geo_path.AddPoint(helper.getPoint(x + 11 * height / 16, y + height - height / 8));
+    geo_path.AddPoint(helper.getPoint(x + 9 * height / 16, y + height - height / 8));
     
     geo_path.EndFigure();
     geo_path.Close();
@@ -101,10 +101,10 @@ function drawStaticFrames(gfx, self, data, helper, x, y, width, height)
 
     -- print("drawing the right frame")
     geo_path = gfx.CreateGeometry();
-    geo_path.BeginFigure(helper.getPoint(x + 7 * width / 10, y), true);
-    geo_path.AddPoint(helper.getPoint(x + width, y));
-    geo_path.AddPoint(helper.getPoint(x + width, y + height));
-    geo_path.AddPoint(helper.getPoint(x + 7 * width / 10 - height / 4, y + height));
+    geo_path.BeginFigure(helper.getPoint(x + 7 * width / 10, y + height / 8), true);
+    geo_path.AddPoint(helper.getPoint(x + width - height / 8, y + height / 8));
+    geo_path.AddPoint(helper.getPoint(x + width - height / 8, y + height - height / 8));
+    geo_path.AddPoint(helper.getPoint(x + 7 * width / 10 - height / 4, y + height - height / 8));
     geo_path.EndFigure();
     geo_path.Close();
     gfx.FillGeometry(geo_path, _brushes["theme"]);
@@ -119,7 +119,7 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
     local driverRegion = "flags@" .. self.GetConfigByKey("dashboards.settings.driverregion");
     local size = gfx.MeasureString(_fonts["wrc"], driverWeight, driverName);
 
-    gfx.DrawText(_fonts["wrc"], driverWeight, _brushes["white"], x + height, y + height / 2 - size.Y / 2, driverName);
+    gfx.DrawText(_fonts["wrc"], driverWeight, _brushes["white"], x + height + 2 * height / 16, y + height / 2 - size.Y / 2, driverName);
 
 
     if (self.ImageResources.ContainsKey(driverRegion)) then
