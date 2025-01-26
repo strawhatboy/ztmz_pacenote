@@ -94,10 +94,33 @@ public partial class HudPageVM : ObservableObject {
             Grid.SetColumn(previewImage, 0);
             Grid.SetRowSpan(previewImage, 2);
 
+            StackPanel spTitleAndVersion = new StackPanel();
+            spTitleAndVersion.Orientation = Orientation.Horizontal;
+            spTitleAndVersion.Margin = new Thickness(0, 0, 10, 0);
+
+
             Wpf.Ui.Controls.TextBlock title = new Wpf.Ui.Controls.TextBlock();
             title.SetResourceReference(Wpf.Ui.Controls.TextBlock.TextProperty, dashboard.Descriptor.Name);
-            Grid.SetRow(title, 0);
-            Grid.SetColumn(title, 1);
+            title.Margin = new Thickness(0, 0, 5, 0);
+            title.FontTypography = FontTypography.Caption;
+
+            Wpf.Ui.Controls.TextBlock version = new Wpf.Ui.Controls.TextBlock();
+            version.Text = dashboard.Descriptor.Version;
+            version.Appearance = TextColor.Secondary;
+            version.Margin = new Thickness(0, 0, 5, 0);
+            version.FontTypography = FontTypography.Caption;
+
+            Wpf.Ui.Controls.TextBlock author = new Wpf.Ui.Controls.TextBlock();
+            author.Text = dashboard.Descriptor.Author;
+            author.Appearance = TextColor.Tertiary;
+            author.Margin = new Thickness(0, 0, 5, 0);
+            author.FontTypography = FontTypography.Caption;
+
+            spTitleAndVersion.Children.Add(title);
+            spTitleAndVersion.Children.Add(version);
+            spTitleAndVersion.Children.Add(author);
+            Grid.SetRow(spTitleAndVersion, 0);
+            Grid.SetColumn(spTitleAndVersion, 1);
 
             Wpf.Ui.Controls.TextBlock description = new Wpf.Ui.Controls.TextBlock();
             description.SetResourceReference(Wpf.Ui.Controls.TextBlock.TextProperty, dashboard.Descriptor.Description);
@@ -120,7 +143,7 @@ public partial class HudPageVM : ObservableObject {
             Grid.SetRowSpan(toggleSwitch, 2);
 
             grid.Children.Add(previewImage);
-            grid.Children.Add(title);
+            grid.Children.Add(spTitleAndVersion);
             grid.Children.Add(description);
             grid.Children.Add(toggleSwitch);
 

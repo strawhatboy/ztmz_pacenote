@@ -142,6 +142,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="380" />
@@ -163,26 +164,30 @@
             <ui:TextBlock Text="子夜(Lw_Ziye)" Margin="10 0 0 0"
                 Grid.Row="2" Grid.Column="1" />
             <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
-                Text="{DynamicResource staff.rnd_staff.initialIdea}" Grid.Row="3" />
-            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                Text="{DynamicResource staff.rnd_staff.pluginDeveloper}" Grid.Row="3" />
+            <ui:TextBlock Text="北欧之尘(AaronFangArt)" Margin="10 0 0 0"
+                Grid.Row="3" Grid.Column="1" />
+            <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
+                Text="{DynamicResource staff.rnd_staff.initialIdea}" Grid.Row="4" />
+            <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
                 <ui:TextBlock Text="7颗豆子(Meeke777)"
                     Margin="10 0 0 0" />
                 <ui:TextBlock Text="幻想最初(Greened U)"
                     Margin="10 0 0 0" />
             </StackPanel>
             <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
-                Text="{DynamicResource staff.rnd_staff.ideaProvider}" Grid.Row="4" />
+                Text="{DynamicResource staff.rnd_staff.ideaProvider}" Grid.Row="5" />
             <ui:TextBlock Text="Bigboxx" Margin="10 0 0 0"
-                Grid.Row="4" Grid.Column="1" />
+                Grid.Row="5" Grid.Column="1" />
             <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
-                Text="{DynamicResource staff.rnd_staff.tester}" Grid.Row="5" />
+                Text="{DynamicResource staff.rnd_staff.tester}" Grid.Row="6" />
             
-            <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
                 <ui:TextBlock Text="Bigboxx" Margin="10 0 0 0"/>
                 <ui:TextBlock Text="DR2车手老王" Margin="10 0 0 0"/>
                 <ui:TextBlock Text="含蓄" Margin="10 0 0 0"/>
             </StackPanel>
-            <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal">
                 <ui:TextBlock Text="沧竹烽" Margin="10 0 0 0"/>
                 <ui:TextBlock Text="年轮" Margin="10 0 0 0"/>
             </StackPanel>
@@ -223,8 +228,12 @@
             </StackPanel>
             <ui:TextBlock TextAlignment="Right" FontTypography="BodyStrong" Margin="0 0 10 0"
                 Text="{DynamicResource staff.club_staff.specialGuest}" Grid.Row="3" />
-            <ui:TextBlock Text="钣金霍" Margin="10 0 0 0"
-                Grid.Row="3" Grid.Column="1" />
+            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                <ui:TextBlock Text="钣金霍"
+                    Margin="10 0 0 0" />
+                <ui:TextBlock Text="无状态选手"
+                    Margin="10 0 0 0" />
+            </StackPanel>
         </Grid>
 
         <!-- all -->

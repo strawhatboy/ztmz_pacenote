@@ -20,6 +20,10 @@
             "progress": {
                 "name": "Modern Progress",
                 "description": "Show modern WRC track progress"
+            },
+            "wrc2025": {
+                "name": "WRC2025",
+                "description": "WRC Broadcasting Dashboard 2025"
             }
         },
         "settings": {

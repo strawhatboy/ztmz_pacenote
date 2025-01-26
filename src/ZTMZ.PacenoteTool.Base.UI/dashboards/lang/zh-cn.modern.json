@@ -20,6 +20,10 @@
             "progress": {
                 "name": "现代版进度条",
                 "description": "显示类似WRC的赛道进度条"
+            },
+            "wrc2025": {
+                "name": "WRC 2025",
+                "description": "WRC 直播仪表盘2025"
             }
         },
         "settings": {

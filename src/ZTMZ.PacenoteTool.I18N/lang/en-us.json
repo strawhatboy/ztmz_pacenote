@@ -478,6 +478,7 @@
     "rnd_staff": {
       "mainProgrammer": "Main Programmer",
       "uiDesigner": "UI Designer",
+      "pluginDeveloper": "Plugin Developer",
       "vrSupport": "VR Support",
       "initialIdea": "Initial Idea",
       "ideaProvider": "Idea Provider",
