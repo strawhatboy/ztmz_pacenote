@@ -331,6 +331,57 @@ function drawGear(gfx, self, data, conf, helper, x, y, width, height, switchGear
     end
 end
 
+function drawSteeringIndicator(gfx, self, data, helper, x, y, width, height)
+    local steeringInput = data.Steering;
+    local indicatorRadius = height * 0.01; -- Adjust the size of the red dot
+    local initY = y + height * 0.3;
+    local centerX = x + width * 0.5;
+    local arcWidth = width * 0.33;
+    local arcHeight = height * 0.03; -- Adjust the height of the arc
+    local centerY = initY - (arcHeight * (1 - (0 * 0))); -- Center position for the arc
+
+    -- Draw the gray dot at the center
+    gfx.FillCircle(resources["brushes"]["grey"], centerX, centerY, indicatorRadius);
+
+    -- Calculate the position of the red dot based on steering input
+    local indicatorX = centerX + (arcWidth * steeringInput);
+    local indicatorY = initY - (arcHeight * (1 - (steeringInput * steeringInput))); -- Quadratic function for arc
+
+    -- Calculate trail parameters based on distance from center
+    local distanceFromCenter = math.abs(steeringInput) -- 0 to 1
+    local baseTrailCount = 24
+    local trailCount = math.floor(baseTrailCount * distanceFromCenter) + 4 -- Minimum 4 trail dots
+    local maxTrailLength = width * 0.15; -- Base maximum trail length
+    local actualTrailLength = maxTrailLength * distanceFromCenter -- Dynamic trail length
+    local baseAlpha = 90;
+    local alphaStep = baseAlpha / trailCount;
+    
+    -- Calculate trail parameters
+    local dirX = indicatorX - centerX;
+    local dirLength = math.abs(dirX);
+    local trailLength = math.min(dirLength, actualTrailLength);
+    local stepRatio = trailLength / (arcWidth * math.abs(steeringInput));
+    
+    -- Draw trails from least opaque to most opaque
+    for i = 1, trailCount do
+        local t = i / trailCount;
+        -- Calculate trail steering input by interpolating back from current position
+        local trailSteeringInput = steeringInput * (1 - t * stepRatio);
+        -- Calculate trail position using the same arc formula
+        local trailX = centerX + (arcWidth * trailSteeringInput);
+        local trailY = initY - (arcHeight * (1 - (trailSteeringInput * trailSteeringInput)));
+        
+        -- Create a temporary brush with calculated alpha
+        local alpha = math.floor(baseAlpha - (alphaStep * i));
+        local tempBrush = gfx.CreateSolidBrush(255, 0, 0, alpha);
+        gfx.FillCircle(tempBrush, trailX, trailY, indicatorRadius * 0.8);
+        tempBrush.Dispose();
+    end
+
+    -- Draw the main red dot
+    gfx.FillCircle(resources["brushes"]["red"], indicatorX, indicatorY, indicatorRadius);
+end
+
 function onUpdate(args)
     local data = args.GameData;
     local gfx = args.Graphics;
@@ -365,6 +416,11 @@ function onUpdate(args)
 
     drawSpeed(gfx, self, data, conf, helper, telemetryStartX, telemetryStartY, width, height, switchGearNSpeed);
     drawGear(gfx, self, data, conf, helper, telemetryStartX, telemetryStartY, width, height, switchGearNSpeed);
+
+    local showSteeringIndicator = self.GetConfigByKey("dashboards.settings.showSteeringIndicator")
+    if (showSteeringIndicator) then
+        drawSteeringIndicator(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
+    end
 end
 
 function onExit()
