@@ -18,6 +18,10 @@ public class DirtGameDataReader : UdpGameDataReader
         {
             var lastGameState = this._gameState;
             this._gameState = value;
+            if (value == GameState.AdHocRaceBegin || value == GameState.RaceBegin)
+            {
+                this._currentCarShiftPercentage = DRHelper.Instance.GetCarShiftPercentage(_game, _currentRawData.IdleRPM, _currentRawData.MaxRPM, _currentRawData.MaxGears);
+            }
             this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState });
         }
         get => this._gameState;
@@ -36,6 +40,8 @@ public class DirtGameDataReader : UdpGameDataReader
 
     private GameData _currentGameData;
     private DirtRawData _currentRawData;
+
+    private float _currentCarShiftPercentage = 0.9f;
 
     private event Action<GameData, GameData> _onNewGameData;
 
@@ -195,6 +201,11 @@ public class DirtGameDataReader : UdpGameDataReader
         gameData.PosY = data.PosY;
         gameData.PosZ = data.PosZ;
         gameData.HandBrakeValid = false;
+
+        gameData.ShiftLightsRPMValid = true;
+        gameData.ShiftLightsRPMEnd = data.MaxRPM * _currentCarShiftPercentage;
+        gameData.ShiftLightsRPMStart = gameData.ShiftLightsRPMEnd - 1000;
+        gameData.ShiftLightsFraction = (data.RPM - gameData.ShiftLightsRPMStart) / (gameData.ShiftLightsRPMEnd - gameData.ShiftLightsRPMStart);
 
         gameData.GameSpecificData = data;
 

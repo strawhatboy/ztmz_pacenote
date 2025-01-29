@@ -59,6 +59,12 @@ namespace ZTMZ.PacenoteTool.Codemasters
         public string track_name { set; get; } = "";
     }
 
+    public class CarNameAndShiftRPMPercentage
+    {
+        public string car_name { set; get; } = "";
+        public float shift_rpm_percentage { set; get; } = 0.0f;
+    }
+
     public class DRHelper
     {
         // not lazy, initialized when loading the assembly
@@ -68,8 +74,8 @@ namespace ZTMZ.PacenoteTool.Codemasters
         
         public Dictionary<string, List<ItineraryProperty>> ItineraryMap_DR2 { set; get; } = new();
 
-        public Dictionary<string, string> CarMap_DR1 { set; get; } = new();
-        public Dictionary<string, string> CarMap_DR2 { set; get; } = new();
+        public Dictionary<string, CarNameAndShiftRPMPercentage> CarMap_DR1 { set; get; } = new();
+        public Dictionary<string, CarNameAndShiftRPMPercentage> CarMap_DR2 { set; get; } = new();
         private DRHelper()
         {
             // load dict from json
@@ -81,13 +87,13 @@ namespace ZTMZ.PacenoteTool.Codemasters
             this.ItineraryMap_DR2 = JsonConvert.DeserializeObject<Dictionary<string, List<ItineraryProperty>>>(jsonContent);
 
             var jsonContent3 = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "car_dict_dr1.json");
-            this.CarMap_DR1 = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonContent3);
+            this.CarMap_DR1 = JsonConvert.DeserializeObject<Dictionary<string, CarNameAndShiftRPMPercentage>>(jsonContent3);
             var jsonContent4 = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "car_dict_dr2.json");
-            this.CarMap_DR2 = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonContent4);
+            this.CarMap_DR2 = JsonConvert.DeserializeObject<Dictionary<string, CarNameAndShiftRPMPercentage>>(jsonContent4);
         }
 
         public string GetCarName(IGame game, float idleRPM, float maxRPM, float maxGears) {
-            Dictionary<string, string> carMap;
+            Dictionary<string, CarNameAndShiftRPMPercentage> carMap;
             if (game is DirtRally) 
             {
                 carMap = this.CarMap_DR1;
@@ -99,13 +105,35 @@ namespace ZTMZ.PacenoteTool.Codemasters
             return GetCarName(carMap, idleRPM, maxRPM, maxGears);
         }
 
-        public string GetCarName(Dictionary<string, string> carMap, float idleRPM, float maxRPM, float maxGears) {
+        public string GetCarName(Dictionary<string, CarNameAndShiftRPMPercentage> carMap, float idleRPM, float maxRPM, float maxGears) {
             var key = $"{idleRPM:00}_{maxRPM:00}_{maxGears:00}";
             if (carMap.ContainsKey(key))
             {
-                return carMap[key];
+                return carMap[key].car_name;
             }
             return "UnknownCar";
+        }
+
+        public float GetCarShiftPercentage(IGame game, float idleRPM, float maxRPM, float maxGears) {
+            Dictionary<string, CarNameAndShiftRPMPercentage> carMap;
+            if (game is DirtRally) 
+            {
+                carMap = this.CarMap_DR1;
+            } else if (game is DirtRally2) {
+                carMap = this.CarMap_DR2;
+            } else {
+                return 0.9f;
+            }
+            return GetCarShiftPercentage(carMap, idleRPM, maxRPM, maxGears);
+        }
+
+        public float GetCarShiftPercentage(Dictionary<string, CarNameAndShiftRPMPercentage> carMap, float idleRPM, float maxRPM, float maxGears) {
+            var key = $"{idleRPM:00}_{maxRPM:00}_{maxGears:00}";
+            if (carMap.ContainsKey(key))
+            {
+                return carMap[key].shift_rpm_percentage;
+            }
+            return 0.9f;
         }
 
         public string GetItinerary(IGame game, string trackLength, float startZ)
