@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Timers;
+using IniParser;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 
@@ -62,7 +63,13 @@ public class RBRGameDataReader : UdpGameDataReader
         }
     }
 
-    public override string CarName => "";
+    public override string CarName {
+        get 
+        {
+            var carDef = readCurrentCarDef();
+            return string.Format("[{0}]{1}", carDef?.RsfID, carDef?.Name ?? "UnknownCar");
+        }
+    }
 
     public static float MEM_REFRESH_INTERVAL = 33.3f; // 33.3ms = 30Hz
     public GameState _gameState;
@@ -84,6 +91,36 @@ public class RBRGameDataReader : UdpGameDataReader
 
     private Dictionary<int, float> _currentGearShiftRPM = new();
     private float _currentRPMLimit = 0;
+
+    private RBRCarDef readCurrentCarDef() {
+        var rbr_root = ((RBRGamePacenoteReader)_game.GamePacenoteReader).RBRRootDir;
+        if (!Directory.Exists(rbr_root)) {
+            return null;
+        }
+
+        var car_def_file = Path.Combine(rbr_root, "Cars\\Cars.ini");
+        if (!RBRHelper.checkIfIniFileValid(car_def_file)) {
+            return null;
+        }
+
+        var carIni = new FileIniDataParser().ReadFile(car_def_file);
+        var carSlotId = _currentMemData.CarModelId;
+        var carSectionName = $"Car{carSlotId:00}";
+        if (!carIni.Sections.ContainsSection(carSectionName)) {
+            return null;
+        }
+
+        var carDef = new RBRCarDef();
+        var carSection = carIni[carSectionName];
+        if (carSection.ContainsKey("CarName")) {
+            carDef.Name = carSection["CarName"];
+        }
+        if (carSection.ContainsKey("RSFCarID")) {
+            carDef.RsfID = int.Parse(carSection["RSFCarID"]);
+        }
+
+        return carDef;
+    }
 
     private void readCurrentRPMInfo() {
         _currentGearShiftRPM.Clear();

@@ -18,6 +18,7 @@ public class ZTMZPacenoteTool {
     private ProfileManager _profileManager;
     private ProcessWatcher _processWatcher;
     private string _trackName;
+    private string _carName;
     private double _scriptTiming = 0;
     private int _playpointAdjust = 0;
     private float _playbackSpd = 1.0f;
@@ -52,7 +53,7 @@ public class ZTMZPacenoteTool {
 
     public event Action<IGame, GameStateChangeEvent> onGameStateChanged;
 
-    public event Action<IGame, string> onTrackNameChanged;
+    public event Action<IGame, string, string> onTrackAndCarNameChanged;
 
     public event Action<IGame, GameData> onNewGameData;
 
@@ -314,8 +315,9 @@ public class ZTMZPacenoteTool {
                     // GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._currentGame.Name + " - " + this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
                 }
                 this._trackName = this._currentGame.GameDataReader.TrackName;
+                this._carName = this._currentGame.GameDataReader.CarName;
                 //TODO: update UI trackname
-                this.onTrackNameChanged?.Invoke(_currentGame, this._trackName);
+                this.onTrackAndCarNameChanged?.Invoke(_currentGame, this._trackName, this._carName);
                 // disable profile switch, replay device selection
                 
                 var worker = Task.Run(() => {

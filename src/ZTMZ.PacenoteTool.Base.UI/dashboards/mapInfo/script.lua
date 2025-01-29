@@ -41,6 +41,7 @@ function onUpdate(args)
     local _brushes = resources["brushes"];
     local infoText = "FPS:\t" .. gfx.FPS .. "\n" ..
         i18n.ResolveByKey("overlay.track") .. "\t" .. ctx.TrackName .. "\n" ..
+        i18n.ResolveByKey("overlay.car") .. "\t" .. ctx.CarName .. "\n" ..
         i18n.ResolveByKey("overlay.audioPackage") .. "\t" .. ctx.AudioPackage .. "\n" ..
         i18n.ResolveByKey("overlay.scriptAuthor") .. "\t" .. ctx.ScriptAuthor;
     local size = gfx.MeasureString(_fonts["wrc"], _fonts["wrc"].FontSize, infoText);

@@ -458,6 +458,7 @@
   },
   "overlay": {
     "track": "Track:",
+    "car": "Car:",
     "audioPackage": "Audio Package:",
     "scriptAuthor": "Script Author:",
     "dyanmic": "Is @dynamic:"

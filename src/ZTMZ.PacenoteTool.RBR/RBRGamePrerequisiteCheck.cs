@@ -50,13 +50,13 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
         }
 
         var iniFilePath = Path.Join(RBRRootDir, "RichardBurnsRally.ini");
-        if (!checkIfIniFileValid(iniFilePath)) 
+        if (!RBRHelper.checkIfIniFileValid(iniFilePath)) 
         {
             return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.CONFIG_FILE_CORRUPTED, IsOK = false, Params = new List<object> { game.Name, iniFilePath } };
         }
 
         var trackFilePath = Path.Join(RBRRootDir, "Maps\\Tracks.ini");
-        if (!checkIfIniFileValid(trackFilePath)) 
+        if (!RBRHelper.checkIfIniFileValid(trackFilePath)) 
         {
             return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.CONFIG_FILE_CORRUPTED, IsOK = false, Params = new List<object> { game.Name, trackFilePath } };
         }
@@ -144,22 +144,6 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
         parser.WriteFile(Path.Join(RBRRootDir, "RichardBurnsRally.ini"), data, System.Text.Encoding.Default);
     }
 
-    private bool checkIfIniFileValid(string iniFilePath)
-    {
-        if (!File.Exists(iniFilePath)) 
-        {
-            // RSF rbr not valid or uninstalled properly.
-            return false;
-        } else {
-            try {
-                var parser = new FileIniDataParser();
-                IniData data = parser.ReadFile(iniFilePath);
-            } catch {
-                // RSF rbr not valid or uninstalled properly.
-                return false;
-            }
-        }
-        return true;
-    }
+
 }
 

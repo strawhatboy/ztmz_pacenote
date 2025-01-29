@@ -457,6 +457,7 @@
   },
   "overlay": {
     "track": "地图：",
+    "car": "车辆：",
     "audioPackage": "语音包：",
     "scriptAuthor": "路书作者：",
     "dyanmic": "路书类型："

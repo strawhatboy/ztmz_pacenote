@@ -21,6 +21,7 @@ public class WRCGameDataReader : DirtGameDataReader
     public override string TrackName => 
         WRCHelper.Instance.GetItinerary(_game, _currentPacket.location_id, _currentPacket.route_id);
 
+    public override string CarName => WRCHelper.Instance.GetCarName(_currentPacket.vehicle_id);
 
     private event Action<CarDamageEvent> _onCarDamaged;
     public override event Action<CarDamageEvent> onCarDamaged

@@ -67,6 +67,9 @@ namespace ZTMZ.PacenoteTool.Codemasters
         public Dictionary<string, List<ItineraryProperty>> ItineraryMap_DR1 { set; get; } = new();
         
         public Dictionary<string, List<ItineraryProperty>> ItineraryMap_DR2 { set; get; } = new();
+
+        public Dictionary<string, string> CarMap_DR1 { set; get; } = new();
+        public Dictionary<string, string> CarMap_DR2 { set; get; } = new();
         private DRHelper()
         {
             // load dict from json
@@ -76,7 +79,35 @@ namespace ZTMZ.PacenoteTool.Codemasters
             // File.ReadAllText(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/track_dict_dr2.json").LocalPath);
             var jsonContent2 = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "track_dict_dr2.json");
             this.ItineraryMap_DR2 = JsonConvert.DeserializeObject<Dictionary<string, List<ItineraryProperty>>>(jsonContent);
+
+            var jsonContent3 = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "car_dict_dr1.json");
+            this.CarMap_DR1 = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonContent3);
+            var jsonContent4 = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "car_dict_dr2.json");
+            this.CarMap_DR2 = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonContent4);
         }
+
+        public string GetCarName(IGame game, float idleRPM, float maxRPM, float maxGears) {
+            Dictionary<string, string> carMap;
+            if (game is DirtRally) 
+            {
+                carMap = this.CarMap_DR1;
+            } else if (game is DirtRally2) {
+                carMap = this.CarMap_DR2;
+            } else {
+                return "UnknownCar";
+            }
+            return GetCarName(carMap, idleRPM, maxRPM, maxGears);
+        }
+
+        public string GetCarName(Dictionary<string, string> carMap, float idleRPM, float maxRPM, float maxGears) {
+            var key = $"{idleRPM:00}_{maxRPM:00}_{maxGears:00}";
+            if (carMap.ContainsKey(key))
+            {
+                return carMap[key];
+            }
+            return "UnknownCar";
+        }
+
         public string GetItinerary(IGame game, string trackLength, float startZ)
         {
             Dictionary<string, List<ItineraryProperty>> itineraryMap;
