@@ -4,8 +4,7 @@
     "Author": "aaronfang",
     "Version": "0.0.2",
     "PreviewImagePath": "preview.png",
-    "ImageResources": {
-    },
+    "ImageResources": {},
     "ImageResourcesInDirectory": {
         "images": {
             "Path": "images",

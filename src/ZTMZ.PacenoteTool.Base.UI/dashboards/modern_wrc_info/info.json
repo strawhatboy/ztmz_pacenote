@@ -1,16 +1,24 @@
 {
-    "Name": "dashboards.modern.wrc_info.name",
-    "Description": "dashboards.modern.wrc_info.description",
-    "Author": "草帽不是猫",
-    "Version": "0.0.1",
+    "Name": "dashboards.modern.wrc2025info.name",
+    "Description": "dashboards.modern.wrc2025info.description",
+    "Author": "aaronfang",
+    "Version": "0.0.2",
     "PreviewImagePath": "preview.png",
-    "ImageResources": {},
+    "ImageResources": {
+    },
     "ImageResourcesInDirectory": {
-        "flags": {
-            "Path": "flags",
+        "images": {
+            "Path": "images",
             "FormatGUID": "6fddc324-4e03-4bfe-b185-3d77768dc917"
         },
-        "manufacturers": null
+        "flags": {
+            "Path": "images/flags",
+            "FormatGUID": "6fddc324-4e03-4bfe-b185-3d77768dc917"
+        },
+        "manufacturers": {
+            "Path": "images/manufacturers",
+            "FormatGUID": "6fddc324-4e03-4bfe-b185-3d77768dc917"
+        }
     },
     "IsEnabled": true,
 }

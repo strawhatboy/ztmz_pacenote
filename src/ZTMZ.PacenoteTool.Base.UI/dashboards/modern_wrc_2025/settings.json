@@ -1,27 +1,45 @@
 {
     "PropertyName": {
-        "dashboards.settings.enabled": "dashboards.settings.tooltip.enabled",
-        "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
-        "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
-        "dashboards.settings.size": "dashboards.settings.tooltip.size",
-        "dashboards.settings.useOffset": "dashboards.settings.tooltip.useOffset",
-        "dashboards.settings.switchGearNSpeed": "dashboards.settings.tooltip.switchGearNSpeed",
-        "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
-        "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV",
-        "dashboards.settings.showSteeringIndicator": "dashboards.settings.tooltip.showSteeringIndicator"
+      "dashboards.settings.enabled": "dashboards.settings.tooltip.enabled",
+      "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
+      "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
+      "dashboards.settings.size": "dashboards.settings.tooltip.size",
+      "dashboards.settings.useOffset": "dashboards.settings.tooltip.useOffset",
+      "dashboards.settings.switchGearNSpeed": "dashboards.settings.tooltip.switchGearNSpeed",
+      "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
+      "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV",
+      "dashboards.settings.showSteeringIndicator": "dashboards.settings.tooltip.showSteeringIndicator"
     },
     "PropertyValue": [
-        true,
-        0,
-        1,
-        0.27,
-        true,
-        false,
-        0.03,
-        0.0,
-        true
+      true,
+      0,
+      1,
+      0.27,
+      true,
+      false,
+      0.03,
+      0.0,
+      true
     ],
     "ValueRange": [
-        [], [], [], [0.1, 1], [], [], [0, 0.5], [0, 0.5], []
-    ]
-}
+      [],
+      [],
+      [],
+      [
+        0.1,
+        1.0
+      ],
+      [],
+      [],
+      [
+        0.0,
+        0.5
+      ],
+      [
+        0.0,
+        0.5
+      ],
+      []
+    ],
+    "PropertyType": []
+  }

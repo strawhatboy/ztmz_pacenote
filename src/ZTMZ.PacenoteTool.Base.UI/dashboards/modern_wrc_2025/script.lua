@@ -79,13 +79,13 @@ function drawStaticFrames(gfx, self, data, helper, x, y, width, height)
     -- 1. background
     -- print("drawing the background")
     
-    local centerX = x + width * 0.471;
-    local centerY = y + height * 0.62;
-    local radius = height * 0.5
-    _brushes["telemetryBackground"].SetCenter(centerX, centerY);
-    _brushes["telemetryBackground"].SetRadius(radius, radius);
-    -- 2. just draw the background (1278x352)
-    gfx.FillCircle(_brushes["telemetryBackground"], centerX, centerY, radius);
+    -- local centerX = x + width * 0.471;
+    -- local centerY = y + height * 0.62;
+    -- local radius = height * 0.5
+    -- _brushes["telemetryBackground"].SetCenter(centerX, centerY);
+    -- _brushes["telemetryBackground"].SetRadius(radius, radius);
+    -- -- 2. just draw the background (1278x352)
+    -- gfx.FillCircle(_brushes["telemetryBackground"], centerX, centerY, radius);
     
     -- Calculate correct dimensions for background image while maintaining aspect ratio
     local imageAspectRatio = 1322 / 768; -- Original image aspect ratio

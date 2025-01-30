@@ -1,0 +1,15 @@
+{
+    "Name": "dashboards.modern.racelogic.name",
+    "Description": "dashboards.modern.racelogic.description",
+    "Author": "aaronfang",
+    "Version": "0.0.1",
+    "PreviewImagePath": "preview.png",
+    "ImageResources": {},
+    "ImageResourcesInDirectory": {
+        "images": {
+            "Path": "images",
+            "FormatGUID": "6fddc324-4e03-4bfe-b185-3d77768dc917"
+        }
+    },
+    "IsEnabled": false
+}

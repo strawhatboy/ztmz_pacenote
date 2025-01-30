@@ -1,0 +1,10 @@
+{
+    "Name": "dashboards.modern.fiesta2.name",
+    "Description": "dashboards.modern.fiesta2.description",
+    "Author": "aaronfang",
+    "Version": "0.0.1",
+    "PreviewImagePath": "preview.png",
+    "ImageResources": {},
+    "ImageResourcesInDirectory": {},
+    "IsEnabled": false
+}
