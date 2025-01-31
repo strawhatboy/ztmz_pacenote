@@ -87,6 +87,6 @@ public class WRCHelper
         {
             return VehicleClasses[Vehicles[carId].Class];
         }
-        return "UnknownClass";
+        return "UnknownCarClass";
     }
 }

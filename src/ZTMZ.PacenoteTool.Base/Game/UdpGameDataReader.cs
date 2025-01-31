@@ -24,6 +24,9 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
     public abstract GameData CurrentGameData { get; set; }
     public abstract string TrackName { get; }
     public abstract string CarName { get; }
+
+    public abstract string CarClass { get; }
+
     private Timer _timer;
     protected int _timerCount = 0;
     private int _timerMessageAvailableCount = 0;

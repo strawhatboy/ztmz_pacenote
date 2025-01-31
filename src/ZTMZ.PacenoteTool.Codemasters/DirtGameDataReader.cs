@@ -22,9 +22,20 @@ public class DirtGameDataReader : UdpGameDataReader
             {
                 this._currentCarShiftPercentage = DRHelper.Instance.GetCarShiftPercentage(_game, _currentRawData.IdleRPM, _currentRawData.MaxRPM, _currentRawData.MaxGears);
             }
-            this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState });
+            if (value != GameState.RaceEnd) {
+                this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState });
+            }
         }
         get => this._gameState;
+    }
+
+    
+    // add parameters like "retired", "finish_time", "retired_reason"
+    private void onGameStateRaceEnd(Dictionary<string, object> Parameters)
+    {
+        var lastGameState = this._gameState;
+        this._gameState = GameState.RaceEnd;
+        this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = GameState.RaceEnd, Parameters = Parameters });
     }
 
     public override GameData LastGameData { get => _lastGameData; set => _lastGameData = value; }
@@ -32,6 +43,7 @@ public class DirtGameDataReader : UdpGameDataReader
     public override string TrackName => DRHelper.Instance.GetItinerary(_game, _currentRawData.TrackLength.ToString("f2", CultureInfo.InvariantCulture), _currentRawData.PosZ );
 
     public override string CarName => DRHelper.Instance.GetCarName(_game, _currentRawData.IdleRPM, _currentRawData.MaxRPM, _currentRawData.MaxGears);
+    public override string CarClass => DRHelper.Instance.GetCarClass(_game, _currentRawData.IdleRPM, _currentRawData.MaxRPM, _currentRawData.MaxGears);
 
     public GameState _gameState;
     private GameData _lastGameData;
@@ -44,6 +56,8 @@ public class DirtGameDataReader : UdpGameDataReader
     private float _currentCarShiftPercentage = 0.9f;
 
     private event Action<GameData, GameData> _onNewGameData;
+
+    private float _lastValidLapTime = 0f;
 
     public override event Action<GameData, GameData> onNewGameData
     {
@@ -116,6 +130,7 @@ public class DirtGameDataReader : UdpGameDataReader
                 } else {
                     this.GameState = GameState.Racing;
                 }
+                this._lastValidLapTime = newGameData.LapTime;
             }
             else if (newGameData.LapTime == 0 && newGameData.LapDistance <= 0)
             {
@@ -128,17 +143,25 @@ public class DirtGameDataReader : UdpGameDataReader
                 //else 
                 if (newGameData.Time == 0 && this.GameState != GameState.RaceEnd)
                 {
-                    this.GameState = GameState.RaceEnd;
+                    // this should be normal race end
+                    // onGameStateRaceEnd(new Dictionary<string, object> { 
+                    //     { GameStateRaceEndProperty.FINISH_TIME, lastMessage.LastLapTime },
+                    //     { GameStateRaceEndProperty.FINISH_STATE, GameStateRaceEnd.Normal }
+                    // });
                 }
                 else if (this.GameState != GameState.RaceBegin)
                 {
                     this.GameState = GameState.RaceBegin;
                 }
+            } 
+            
+            if (message.TotalLaps == message.LapsComplete && this.GameState != GameState.RaceEnd) {
+                // this should be normal, this should be the right way to detect raceend
+                onGameStateRaceEnd(new Dictionary<string, object> { 
+                    { GameStateRaceEndProperty.FINISH_TIME, message.LastLapTime },
+                    { GameStateRaceEndProperty.FINISH_STATE, GameStateRaceEnd.Normal }
+                });
             }
-            //else if (message.LapTime == 0 && this.GameState != GameState.RaceEnd)
-            //{
-            //    this.GameState = GameState.RaceEnd;
-            //}
         }
         else
         {

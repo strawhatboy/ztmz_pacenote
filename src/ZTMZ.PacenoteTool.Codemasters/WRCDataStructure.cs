@@ -100,4 +100,14 @@ public struct WRCDataStructure {
     public bool vehicle_cluster_abs;
 }
 
+public enum WRCStageResultStatus {
+    NOT_FINISHED = 0,
+    FINISHED = 1,
+    TIME_OUT_STAGE = 2,
+    TERMINALLY_DAMAGED = 3,
+    RETIRED = 4,
+    DISQUALIFIED = 5,
+    UNKNOWN = 6
+}
+
 

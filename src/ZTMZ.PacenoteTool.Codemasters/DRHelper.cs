@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using Newtonsoft.Json;
@@ -63,6 +64,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
     {
         public string car_name { set; get; } = "";
         public float shift_rpm_percentage { set; get; } = 0.0f;
+        public string car_class { set; get; } = "";
     }
 
     public class DRHelper
@@ -106,7 +108,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
         }
 
         public string GetCarName(Dictionary<string, CarNameAndShiftRPMPercentage> carMap, float idleRPM, float maxRPM, float maxGears) {
-            var key = $"{idleRPM:00}_{maxRPM:00}_{maxGears:00}";
+            var key = $"{(maxRPM/10).ToString("f2", CultureInfo.InvariantCulture)}_{(idleRPM/10).ToString("f2", CultureInfo.InvariantCulture)}_{maxGears.ToString("f2", CultureInfo.InvariantCulture)}";
             if (carMap.ContainsKey(key))
             {
                 return carMap[key].car_name;
@@ -128,12 +130,34 @@ namespace ZTMZ.PacenoteTool.Codemasters
         }
 
         public float GetCarShiftPercentage(Dictionary<string, CarNameAndShiftRPMPercentage> carMap, float idleRPM, float maxRPM, float maxGears) {
-            var key = $"{idleRPM:00}_{maxRPM:00}_{maxGears:00}";
+            var key = $"{(maxRPM/10).ToString("f2", CultureInfo.InvariantCulture)}_{(idleRPM/10).ToString("f2", CultureInfo.InvariantCulture)}_{maxGears.ToString("f2", CultureInfo.InvariantCulture)}";
             if (carMap.ContainsKey(key))
             {
                 return carMap[key].shift_rpm_percentage;
             }
             return 0.9f;
+        }
+
+        public string GetCarClass(IGame game, float idleRPM, float maxRPM, float maxGears) {
+            Dictionary<string, CarNameAndShiftRPMPercentage> carMap;
+            if (game is DirtRally) 
+            {
+                carMap = this.CarMap_DR1;
+            } else if (game is DirtRally2) {
+                carMap = this.CarMap_DR2;
+            } else {
+                return "UnknownCarClass";
+            }
+            return GetCarClass(carMap, idleRPM, maxRPM, maxGears);
+        }
+
+        public string GetCarClass(Dictionary<string, CarNameAndShiftRPMPercentage> carMap, float idleRPM, float maxRPM, float maxGears) {
+            var key = $"{(maxRPM/10).ToString("f2", CultureInfo.InvariantCulture)}_{(idleRPM/10).ToString("f2", CultureInfo.InvariantCulture)}_{maxGears.ToString("f2", CultureInfo.InvariantCulture)}";
+            if (carMap.ContainsKey(key))
+            {
+                return carMap[key].car_class;
+            }
+            return "UnknownCarClass";
         }
 
         public string GetItinerary(IGame game, string trackLength, float startZ)

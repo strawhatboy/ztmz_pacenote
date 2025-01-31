@@ -8,6 +8,8 @@ using System.Timers;
 using IniParser;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ZTMZ.PacenoteTool.RBR;
 
@@ -31,7 +33,14 @@ public class RBRGameDataReader : UdpGameDataReader
                 // read current car rpm info
                 readCurrentRPMInfo();
             }
-            this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState });
+            if (value == GameState.RaceEnd && !_isReplaySession && _isPostGame) {
+                this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState, Parameters = new Dictionary<string, object> { 
+                    { GameStateRaceEndProperty.FINISH_TIME, _finishTime },
+                    { GameStateRaceEndProperty.FINISH_STATE, GameStateRaceEnd.Normal }
+                } });
+            } else {
+                this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState });
+            }
         }
         get => this._gameState;
     }
@@ -71,6 +80,14 @@ public class RBRGameDataReader : UdpGameDataReader
         }
     }
 
+    public override string CarClass {
+        get
+        {
+            var carDef = readCurrentCarDef();
+            return carDef?.Class ?? "UnknownCarClass";
+        }
+    }
+
     public static float MEM_REFRESH_INTERVAL = 33.3f; // 33.3ms = 30Hz
     public GameState _gameState;
     private GameData _lastGameData;
@@ -91,6 +108,10 @@ public class RBRGameDataReader : UdpGameDataReader
 
     private Dictionary<int, float> _currentGearShiftRPM = new();
     private float _currentRPMLimit = 0;
+
+    private bool _isPostGame = false;
+    private float _finishTime = 0;
+    private bool _isReplaySession = false;
 
     private RBRCarDef readCurrentCarDef() {
         var rbr_root = ((RBRGamePacenoteReader)_game.GamePacenoteReader).RBRRootDir;
@@ -117,6 +138,38 @@ public class RBRGameDataReader : UdpGameDataReader
         }
         if (carSection.ContainsKey("RSFCarID")) {
             carDef.RsfID = int.Parse(carSection["RSFCarID"]);
+        }
+
+        var car_group_map_file = Path.Combine(rbr_root, "rsfdata\\cache\\cars.json");
+        var car_class_file = Path.Combine(rbr_root, "rsfdata\\cache\\cargroups.json");
+        if (!File.Exists(car_group_map_file) || !File.Exists(car_class_file)) {
+            return carDef;
+        }
+
+        using (var reader = new StreamReader(car_group_map_file)) {
+            var car_group_map = JArray.Load(new JsonTextReader(reader));
+            bool found = false;
+            foreach (var car_group in car_group_map) {
+                var car_group_obj = car_group as JObject;
+                if (car_group_obj != null && car_group_obj.ContainsKey("id") && car_group_obj["id"].Value<int>() == carDef.RsfID) {
+                    var group_id = car_group_obj["base_group_id"].Value<int>();
+                    // get car class by group_id
+                    using (var car_class_reader = new StreamReader(car_class_file)) {
+                        var car_class_map = JArray.Load(new JsonTextReader(car_class_reader));
+                        foreach (var car_class in car_class_map) {
+                            var car_class_obj = car_class as JObject;
+                            if (car_class_obj != null && car_class_obj.ContainsKey("id") && car_class_obj["id"].Value<int>() == group_id) {
+                                carDef.Class = car_class_obj["name"].Value<string>();
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (found) {
+                    break;
+                }
+            }
         }
 
         return carDef;
@@ -329,6 +382,7 @@ public class RBRGameDataReader : UdpGameDataReader
             } else {
                 Debug.WriteLine("WTF??: {0}, {1}, {2}", memData.StageStartCountdown, _countdownIndex, GameState);
             }
+            _isPostGame = false;
             return preState;
         }
 
@@ -346,15 +400,29 @@ public class RBRGameDataReader : UdpGameDataReader
         } 
         else if (state == RBRGameState.Racing || playWhenReplay && state == RBRGameState.Replay)
         {
+            if (state == RBRGameState.Replay)
+            {
+                _isReplaySession = true;
+            } else if (state == RBRGameState.Racing)
+            {
+                _isReplaySession = false;
+            }
+
             if ((GameState == GameState.Unknown || GameState == GameState.Paused) && memData.StageStartCountdown < 0 && !_isRacing)
             {
                 // from unknown to racing directly.
                 _isRacing = true;
+                _isPostGame = false;
                 return GameState.AdHocRaceBegin;
             }
             
             this._timerCount = 0; // avoid game state set to unknown.
             _isRacing = true;
+
+            if (!_isPostGame && state == RBRGameState.Racing && _currentGameData.CompletionRate >= 1) {
+                _isPostGame = true;
+                _finishTime = _currentGameData.LapTime;
+            }
             return GameState.Racing;
 
         } else if (state == RBRGameState.Paused)

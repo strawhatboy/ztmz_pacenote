@@ -46,3 +46,18 @@ public enum GameState
     AdHocRaceBegin = 6, // race begin when the tool was opened after the race started.
 }
 
+public enum GameStateRaceEnd {
+    Normal = 1, // normal finish
+    TimeOut = 2,
+    Crashed = 3,
+    Retired = 4,
+    Disqualified = 5,
+    Unknown = 6,
+}
+
+public static class GameStateRaceEndProperty {
+    public static readonly string FINISH_TIME = "finish_time";
+    public static readonly string FINISH_STATE = "finish_state";   // GameStateRaceEnd
+    public static readonly string FINISH_TIME_PANALTY = "finish_time_penalty";
+}
+

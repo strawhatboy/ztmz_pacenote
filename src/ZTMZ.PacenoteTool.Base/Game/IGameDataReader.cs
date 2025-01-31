@@ -10,6 +10,7 @@ namespace ZTMZ.PacenoteTool.Base.Game
 
         string TrackName { get; }
         string CarName { get; }
+        string CarClass { get; }
         event Action<GameData, GameData> onNewGameData;
 
         event Action<bool> onGameDataAvailabilityChanged;

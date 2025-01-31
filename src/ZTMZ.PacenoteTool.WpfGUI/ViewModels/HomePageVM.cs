@@ -369,10 +369,11 @@ public partial class HomePageVM : ObservableObject {
         _tool.onRaceBegined += (game) => {
             _gameOverlayManager.DashboardScriptArguments.GameContext.ScriptAuthor = _tool.CurrentScriptAuthor;
         };
-        _tool.onTrackAndCarNameChanged += (game, trackName, carName) => {
+        _tool.onTrackAndCarChanged += (game, trackName, carName, carClass) => {
             CurrentTrack = trackName;
             _gameOverlayManager.DashboardScriptArguments.GameContext.TrackName = trackName;
             _gameOverlayManager.DashboardScriptArguments.GameContext.CarName = carName;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.CarClass = carClass;
             _gameOverlayManager.DashboardScriptArguments.GameContext.AudioPackage = SelectedCodriver.name;
             _azureAppInsightsManager.TrackEvent("RaceTrackChanged", 
                 new Dictionary<string, string>{ 

@@ -1,266 +1,332 @@
 {
     "1598.55_161.27_6.00": {
         "car_name": "Speedcar Xtrem",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "Crosskart"
     },
     "994.84_188.50_6.00": {
         "car_name": "Volkswagen Polo S1600",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX Super 1600s"
     },
     "968.66_198.97_6.00": {
         "car_name": "Renault Clio RS S1600",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX Super 1600s"
     },
     "994.84_198.97_6.00": {
         "car_name": "Opel Corsa Super 1600",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX Super 1600s"
     },
     "890.12_167.55_5.00": {
         "car_name": "Peugeot 208 R2",
-        "shift_rpm_percentage": 0.92
+        "shift_rpm_percentage": 0.92,
+        "car_class": "R2"
     },
     "942.48_167.55_5.00": {
         "car_name": "Ford RS200 Evolution",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX Group B"
     },
     "837.76_209.44_5.00": {
         "car_name": "Peugeot 205 T16 Evo 2",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX Group B"
     },
     "994.84_115.19_5.00": {
         "car_name": "MG Metro 6R4 RX",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX Group B"
     },
     "837.76_167.55_6.00": {
         "car_name": "Ford Fiesta OMSE SuperCar Lites",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX2"
     },
     "874.41_209.44_6.00": {
         "car_name": "Audi S1 EKS RX Quattro",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX Supercars"
     },
     "837.76_178.02_6.00": {
         "car_name": "Renault Clio R.S. RX",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX Supercars 2019"
     },
     "816.81_172.79_5.00": {
         "car_name": "Renault Megane RS",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX Supercars"
     },
     "811.58_188.50_6.00": {
         "car_name": "Ford Fiesta RX (MK8)",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX Supercars"
     },
     "785.40_172.79_6.00": {
         "car_name": "Ford Fiesta RX (MK7)",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX Supercars"
     },
     "774.93_178.02_6.00": {
         "car_name": "Skoda Fabia Rally",
-        "shift_rpm_percentage": 0.82
+        "shift_rpm_percentage": 0.82,
+        "car_class": "2000cc 4WD"
     },
     "837.76_178.02_5.00": {
         "car_name": "Subaru Impreza WRX STI NR4",
-        "shift_rpm_percentage": 0.67
+        "shift_rpm_percentage": 0.67,
+        "car_class": "NR4/R4"
     },
     "837.76_188.50_6.00": {
         "car_name": "Ford Fiesta RX (Stard)",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX Supercars 2019"
     },
     "785.40_261.80_6.00": {
         "car_name": "Mini Cooper SX1",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX Supercars 2019"
     },
     "785.40_178.02_6.00": {
         "car_name": "Ford Focus RS Rally 2001",
-        "shift_rpm_percentage": 0.86
+        "shift_rpm_percentage": 0.86,
+        "car_class": "2000cc 4WD"
     },
     "733.04_83.78_4.00": {
         "car_name": "Mini Cooper S",
-        "shift_rpm_percentage": 0.92
+        "shift_rpm_percentage": 0.92,
+        "car_class": "H1 FWD"
     },
     "628.32_104.72_4.00": {
         "car_name": "Citroen DS 21",
-        "shift_rpm_percentage": 0.92
+        "shift_rpm_percentage": 0.92,
+        "car_class": "H1 FWD"
     },
     "680.68_99.48_4.00": {
         "car_name": "Lancia Fulvia HF",
-        "shift_rpm_percentage": 0.935
+        "shift_rpm_percentage": 0.935,
+        "car_class": "H1 FWD"
     },
     "785.40_94.25_5.00": {
         "car_name": "Volkswagen Golf GTI 16V",
-        "shift_rpm_percentage": 0.945
+        "shift_rpm_percentage": 0.945,
+        "car_class": "H2 FWD"
     },
     "733.04_125.66_5.00": {
         "car_name": "Peugeot 205 GTI",
-        "shift_rpm_percentage": 0.925
+        "shift_rpm_percentage": 0.925,
+        "car_class": "H2 FWD"
     },
     "994.84_125.66_5.00": {
         "car_name": "Ford Escort Mk II",
-        "shift_rpm_percentage": 0.954
+        "shift_rpm_percentage": 0.954,
+        "car_class": "H2 RWD"
     },
     "837.76_167.55_5.00": {
         "car_name": "Renault Alpine A110 1600 S",
-        "shift_rpm_percentage": 0.89
+        "shift_rpm_percentage": 0.89,
+        "car_class": "H2 RWD"
     },
     "942.48_157.08_5.00": {
         "car_name": "Opel Kadett C GT/E",
-        "shift_rpm_percentage": 0.92
+        "shift_rpm_percentage": 0.92,
+        "car_class": "H2 RWD"
     },
     "932.01_115.19_6.00": {
         "car_name": "BMW E30 Evo Rally",
-        "shift_rpm_percentage": 0.93
+        "shift_rpm_percentage": 0.93,
+        "car_class": "H3 RWD"
     },
     "785.40_136.14_5.00": {
         "car_name": "Opel Ascona 400",
-        "shift_rpm_percentage": 0.935
+        "shift_rpm_percentage": 0.935,
+        "car_class": "H3 RWD"
     },
     "890.12_104.72_5.00": {
         "car_name": "Lancia Stratos",
-        "shift_rpm_percentage": 0.945
+        "shift_rpm_percentage": 0.945,
+        "car_class": "H3 RWD"
     },
     "837.76_151.84_5.00": {
         "car_name": "Renault 5 Turbo",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "H3 RWD"
     },
     "779.74_80.42_5.00": {
         "car_name": "Datsun 240Z",
-        "shift_rpm_percentage": 0.94
+        "shift_rpm_percentage": 0.94,
+        "car_class": "H3 RWD"
     },
     "785.40_115.19_5.00": {
         "car_name": "Ford Sierra Cosworth RS500",
-        "shift_rpm_percentage": 0.895
+        "shift_rpm_percentage": 0.895,
+        "car_class": "H3 RWD"
     },
     "1151.92_198.97_6.00": {
         "car_name": "Peugeot 306 Maxi",
-        "shift_rpm_percentage": 0.925
+        "shift_rpm_percentage": 0.925,
+        "car_class": "F2 Kit Car"
     },
     "942.48_136.14_6.00": {
         "car_name": "Seat Ibiza Kit Car",
-        "shift_rpm_percentage": 0.925
+        "shift_rpm_percentage": 0.925,
+        "car_class": "F2 Kit Car"
     },
     "942.48_125.66_6.00": {
         "car_name": "Volkswagen Golf Kitcar",
-        "shift_rpm_percentage": 0.925
+        "shift_rpm_percentage": 0.925,
+        "car_class": "F2 Kit Car"
     },
     "890.12_125.66_5.00": {
         "car_name": "Lancia 037 Evo 2",
-        "shift_rpm_percentage": 0.925
+        "shift_rpm_percentage": 0.925,
+        "car_class": "Group B RWD"
     },
     "816.81_146.61_5.00": {
         "car_name": "Opel Manta 400",
-        "shift_rpm_percentage": 0.95
+        "shift_rpm_percentage": 0.95,
+        "car_class": "Group B RWD"
     },
     "968.66_157.08_5.00": {
         "car_name": "BMW M1 Procar Rally",
-        "shift_rpm_percentage": 0.96
+        "shift_rpm_percentage": 0.96,
+        "car_class": "Group B RWD"
     },
     "837.76_136.14_5.00": {
         "car_name": "Porsche 911 SC RS",
-        "shift_rpm_percentage": 0.925
+        "shift_rpm_percentage": 0.925,
+        "car_class": "Group B RWD"
     },
     "942.48_136.14_5.00": {
         "car_name": "Audi Sport quattro S1 E2",
-        "shift_rpm_percentage": 0.93
+        "shift_rpm_percentage": 0.93,
+        "car_class": "Group B 4WD"
     },
     "942.48_125.66_5.00": {
         "car_name": "Ford RS200",
-        "shift_rpm_percentage": 0.93
+        "shift_rpm_percentage": 0.93,
+        "car_class": "Group B 4WD"
     },
     "994.84_109.96_5.00": {
         "car_name": "MG Metro 6R4",
-        "shift_rpm_percentage": 0.93
+        "shift_rpm_percentage": 0.93,
+        "car_class": "Group B 4WD"
     },
     "816.81_157.08_5.00": {
         "car_name": "Ford Fiesta R2",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "R2"
     },
     "905.83_178.02_5.00": {
         "car_name": "Opel Adam R2",
-        "shift_rpm_percentage": 0.93
+        "shift_rpm_percentage": 0.93,
+        "car_class": "R2"
     },
     "733.04_146.61_6.00": {
         "car_name": "Mitsubishi Lancer Evo VI",
-        "shift_rpm_percentage": 0.85
+        "shift_rpm_percentage": 0.85,
+        "car_class": "Group A"
     },
     "733.04_115.19_6.00": {
         "car_name": "Subaru Impreza 1995",
-        "shift_rpm_percentage": 0.88
+        "shift_rpm_percentage": 0.88,
+        "car_class": "Group A"
     },
     "785.40_104.72_6.00": {
         "car_name": "Lancia Delta HF Integrale",
-        "shift_rpm_percentage": 0.94
+        "shift_rpm_percentage": 0.94,
+        "car_class": "Group A"
     },
     "733.04_146.61_7.00": {
         "car_name": "Ford Escort RS Cosworth",
-        "shift_rpm_percentage": 0.90
+        "shift_rpm_percentage": 0.90,
+        "car_class": "Group A"
     },
     "791.16_202.42_6.00": {
         "car_name": "Subaru Legacy RS",
-        "shift_rpm_percentage": 0.90
+        "shift_rpm_percentage": 0.90,
+        "car_class": "Group A"
     },
     "785.40_178.02_5.00": {
         "car_name": "Mitsubishi Lancer Evo X",
-        "shift_rpm_percentage": 0.77
+        "shift_rpm_percentage": 0.77,
+        "car_class": "NR4/R4"
     },
     "774.93_188.50_6.00": {
         "car_name": "Citroen C4 Rally",
-        "shift_rpm_percentage": 0.89
+        "shift_rpm_percentage": 0.89,
+        "car_class": "2000cc 4WD"
     },
     "769.69_186.92_5.00": {
         "car_name": "Ford Focus RS Rally 2007",
-        "shift_rpm_percentage": 0.90
+        "shift_rpm_percentage": 0.90,
+        "car_class": "2000cc 4WD"
     },
     "785.40_219.91_6.00": {
         "car_name": "Subaru Impreza 2008",
-        "shift_rpm_percentage": 0.78
+        "shift_rpm_percentage": 0.78,
+        "car_class": "2000cc 4WD"
     },
     "837.76_204.20_6.00": {
         "car_name": "Subaru Impreza 2001",
-        "shift_rpm_percentage": 0.77
+        "shift_rpm_percentage": 0.77,
+        "car_class": "2000cc 4WD"
     },
     "680.68_157.08_5.00": {
         "car_name": "Peugeot 206 Rally",
-        "shift_rpm_percentage": 0.917
+        "shift_rpm_percentage": 0.917,
+        "car_class": "2000cc 4WD"
     },
     "816.81_207.35_6.00": {
         "car_name": "Subaru Impreza S4 Rally",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "2000cc 4WD"
     },
     "774.93_188.50_5.00": {
         "car_name": "Ford Fiesta R5",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "R5"
     },
     "837.76_219.91_5.00": {
         "car_name": "Mitsubishi Space Star R5",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "R5"
     },
     "774.93_178.02_5.00": {
         "car_name": "Volkswagen Polo GTI R5",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "R5"
     },
     "743.51_185.88_5.00": {
         "car_name": "Citroen C3 R5",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "R5"
     },
     "774.93_183.26_5.00": {
         "car_name": "Ford Fiesta R5 MKII",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "R5"
     },
     "942.48_188.50_6.00": {
         "car_name": "Porsche 911 RGT Rally Spec",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "Rally GT"
     },
     "759.22_178.02_6.00": {
         "car_name": "Chevrolet Camaro GT4.R",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "Rally GT"
     },
     "733.04_104.72_6.00": {
         "car_name": "Aston Martin V8 Vantage GT4",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "Rally GT"
     },
     "863.94_146.61_6.00": {
         "car_name": "Ford Mustang GT4 Ford RS200",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "Rally GT"
     }
 }

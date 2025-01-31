@@ -459,6 +459,7 @@
   "overlay": {
     "track": "Track:",
     "car": "Car:",
+    "carclass": "Car Class:",
     "audioPackage": "Audio Package:",
     "scriptAuthor": "Script Author:",
     "dyanmic": "Is @dynamic:"

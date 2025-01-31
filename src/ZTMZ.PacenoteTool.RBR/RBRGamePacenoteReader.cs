@@ -273,7 +273,7 @@ public class RBRGamePacenoteReader : BasePacenoteReader
                 useDefaultDef = true;
             }
             if (useDefaultDef) {
-                game.OnCustomMessage(1, I18NLoader.Instance["game.rbr.message.custom_pacenote_not_used"].format(track));
+                game.OnCustomMessage(1, string.Format(I18NLoader.Instance["game.rbr.message.custom_pacenote_not_used"], track));
                 _logger.Info("Custom pacenote is not used, load default pacenote definition");
                 var pacenoteDef = AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, "default.zdb"));    // default pacenote
                 if (RBRScriptResource.Instance.DBPath != pacenoteDef) {

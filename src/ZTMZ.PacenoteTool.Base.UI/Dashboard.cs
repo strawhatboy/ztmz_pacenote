@@ -17,6 +17,7 @@ public class GameContext {
     public string ScriptAuthor { set; get; } = "";
     public string PacenoteType { set; get; } = "";
     public string CarName { set; get; } = "";
+    public string CarClass { set; get; } = "";
 }
 
 public class DashboardScriptArguments {

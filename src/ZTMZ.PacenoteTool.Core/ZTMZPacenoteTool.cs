@@ -19,6 +19,7 @@ public class ZTMZPacenoteTool {
     private ProcessWatcher _processWatcher;
     private string _trackName;
     private string _carName;
+    private string _carClass;
     private double _scriptTiming = 0;
     private int _playpointAdjust = 0;
     private float _playbackSpd = 1.0f;
@@ -53,7 +54,7 @@ public class ZTMZPacenoteTool {
 
     public event Action<IGame, GameStateChangeEvent> onGameStateChanged;
 
-    public event Action<IGame, string, string> onTrackAndCarNameChanged;
+    public event Action<IGame, string, string, string> onTrackAndCarChanged;
 
     public event Action<IGame, GameData> onNewGameData;
 
@@ -65,6 +66,9 @@ public class ZTMZPacenoteTool {
     public string CurrentScriptAuthor => _profileManager?.CurrentScriptReader?.Author;
 
     public bool IsInitialized { private set; get; } = false;
+
+    public List<ReplayDetailsPerCheckpoint> ReplayDetailsPerCheckpoints { set; get; } = new();
+    public List<ReplayDetailsPerTime> ReplayDetailsPerTimes  { set; get; } = new();
 
     // init the tool, load settings, etc.
     public void Init() {
@@ -300,6 +304,25 @@ public class ZTMZPacenoteTool {
                         // play end sound, as sequential sound, not system sound
                         this._profileManager.PlaySystem(Constants.SYSTEM_END_STAGE, true, false);
                     }
+
+                    if (evt.Parameters.ContainsKey(GameStateRaceEndProperty.FINISH_STATE)) {
+                        // finished with state, check if it's normal finish, if so, save the replay
+                        var finishState = (GameStateRaceEnd)evt.Parameters[GameStateRaceEndProperty.FINISH_STATE];
+                        if (finishState == GameStateRaceEnd.Normal) {
+                            if (Config.Instance.ReplaySave) {
+                                // save replay
+                                var replay = new Replay();
+                                replay.car = this._carName;
+                                replay.track = this._trackName;
+                                replay.checkpoints = Config.Instance.ReplaySaveGranularity;
+                                replay.date = DateTime.Now;
+                                replay.finish_time = (float)evt.Parameters[GameStateRaceEndProperty.FINISH_TIME];
+                                replay.retired = false;
+                                replay.car_class = this._carClass;
+                                ReplayManager.Instance.saveReplay(CurrentGame, replay, this.ReplayDetailsPerTimes, this.ReplayDetailsPerCheckpoints);
+                            }
+                        }
+                    }
                 }
 
                 // disable telemetry hud, show statistics?
@@ -316,8 +339,9 @@ public class ZTMZPacenoteTool {
                 }
                 this._trackName = this._currentGame.GameDataReader.TrackName;
                 this._carName = this._currentGame.GameDataReader.CarName;
+                this._carClass = this._currentGame.GameDataReader.CarClass;
                 //TODO: update UI trackname
-                this.onTrackAndCarNameChanged?.Invoke(_currentGame, this._trackName, this._carName);
+                this.onTrackAndCarChanged?.Invoke(_currentGame, this._trackName, this._carName, this._carClass);
                 // disable profile switch, replay device selection
                 
                 var worker = Task.Run(() => {
@@ -359,6 +383,19 @@ public class ZTMZPacenoteTool {
                 {
                     // just go !
                     this._profileManager.PlaySystem(Constants.SYSTEM_GO, true);
+
+                    // start to record the replay
+                    this.ReplayDetailsPerCheckpoints.Clear();
+                    this.ReplayDetailsPerTimes.Clear();
+                    this.ReplayDetailsPerCheckpoints.Add(new ReplayDetailsPerCheckpoint() {
+                        checkpoint = 0,
+                        time = 0,
+                        distance = 0
+                    });
+                    this.ReplayDetailsPerTimes.Add(new ReplayDetailsPerTime() {
+                        time = 0,
+                        distance = 0
+                    });
                 }
                 if (lastState == GameState.Paused) {
                     // paused to racing, probably adhoc, need to relocate pacenotes
@@ -394,6 +431,7 @@ public class ZTMZPacenoteTool {
             return;
         }
 
+        // play sound
         var worker = Task.Run(() => {
 
             // play in threads. why??? this may cost a lot !!!
@@ -442,6 +480,34 @@ public class ZTMZPacenoteTool {
                 }
             }
         });
+
+        // save replay
+        if (Config.Instance.ReplaySave)
+        {
+            // save ReplayDetailsPerTimes
+            var index = (int)(msg.LapTime * 1000) / Config.Instance.ReplaySaveInterval;
+            if (index >= this.ReplayDetailsPerTimes.Count)
+            {   // 妙啊
+                this.ReplayDetailsPerTimes.Add(new ReplayDetailsPerTime()
+                {
+                    time = msg.LapTime,
+                    distance = msg.LapDistance
+                });
+            }
+
+            // save ReplayDetailsPerCheckpoints
+            float splitLength = msg.TrackLength / Config.Instance.ReplaySaveGranularity;
+            var checkpointIndex = (int)(msg.LapDistance / splitLength);
+            if (checkpointIndex >= this.ReplayDetailsPerCheckpoints.Count && checkpointIndex < Config.Instance.ReplaySaveGranularity)
+            {
+                this.ReplayDetailsPerCheckpoints.Add(new ReplayDetailsPerCheckpoint()
+                {
+                    checkpoint = checkpointIndex,
+                    time = msg.LapTime,
+                    distance = msg.LapDistance
+                });
+            }
+        }
     }
 
     private void carDamagedEventHandler(CarDamageEvent evt)

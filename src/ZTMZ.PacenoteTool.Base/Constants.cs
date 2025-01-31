@@ -16,6 +16,9 @@ namespace ZTMZ.PacenoteTool.Base
         public static string PATH_LANGUAGE = "lang";
         public static string PATH_FONTS = "fonts";
         public static string PATH_DASHBOARDS = "dashboards";
+
+        // sqlite3 database to store replays
+        public static string FILEEXT_REPLAYS = ".replays.zdb";
         public static string FILE_LUA_SCRIPT = "script.lua";
         public static string FILE_SETTINGS = "settings.json";
 

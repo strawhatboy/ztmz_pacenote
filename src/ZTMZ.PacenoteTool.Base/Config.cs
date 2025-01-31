@@ -823,6 +823,33 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._AutoInitializeGame;
         }
 
+        #region Replay
+        // for a race, split the replay to ReplaySaveGranularity checkpoints, with the race time stored.
+        private int _ReplaySaveGranularity = 256;
+        public int ReplaySaveGranularity
+        {
+            set { this._ReplaySaveGranularity = value; this._userconfig["ReplaySaveGranularity"] = value; }
+            get => this._ReplaySaveGranularity;
+        }
+
+        // save the replay every ReplaySaveInterval milliseconds
+        private int _ReplaySaveInterval = 200;
+        public int ReplaySaveInterval
+        {
+            set { this._ReplaySaveInterval = value; this._userconfig["ReplaySaveInterval"] = value; }
+            get => this._ReplaySaveInterval;
+        }
+        
+        // turn on to save the replay
+        private bool _ReplaySave = true;
+        public bool ReplaySave
+        {
+            set { this._ReplaySave = value; this._userconfig["ReplaySave"] = value; }
+            get => this._ReplaySave;
+        }
+
+        #endregion
+
         public void Save(string path)
         {
             lock(_lock) {

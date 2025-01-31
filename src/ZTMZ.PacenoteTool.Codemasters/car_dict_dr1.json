@@ -1,158 +1,197 @@
 {
     "733.04_146.61_4.00": {
         "car_name": "Mini Classic Rallycross",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX"
     },
     "968.66_198.97_6.00": {
         "car_name": "Peugeot 207 S1600",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX"
     },
     "911.06_141.37_6.00": {
         "car_name": "DS Automobiles DS3",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX"
     },
     "785.40_172.79_6.00": {
         "car_name": "Ford Fiesta Rallycross",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX"
     },
     "785.40_261.80_6.00": {
         "car_name": "Volkswagen Polo Rallycross",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX"
     },
     "837.76_188.50_6.00": {
         "car_name": "Mini Countryman Rallycross",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX"
     },
     "785.40_209.44_6.00": {
         "car_name": "Subaru WRX STI",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "RX"
     },
     "733.04_104.72_4.00": {
         "car_name": "Mini Cooper S",
-        "shift_rpm_percentage": 0.92
+        "shift_rpm_percentage": 0.92,
+        "car_class": "1960s"
     },
     "783.30_98.44_4.00": {
         "car_name": "Lancia Fulvia HF",
-        "shift_rpm_percentage": 0.935
+        "shift_rpm_percentage": 0.935,
+        "car_class": "1960s"
     },
     "785.40_167.55_5.00": {
         "car_name": "Renault Alpine A110",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "1960s"
     },
     "869.17_125.66_5.00": {
         "car_name": "Opel Kadett GT/E 16v",
-        "shift_rpm_percentage": 0.92
+        "shift_rpm_percentage": 0.92,
+        "car_class": "1970s"
     },
     "884.88_150.80_5.00": {
         "car_name": "Fiat 131 Abarth",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "1970s"
     },
     "942.48_104.72_5.00": {
         "car_name": "Ford Escort Mk II",
-        "shift_rpm_percentage": 0.954
+        "shift_rpm_percentage": 0.954,
+        "car_class": "1970s"
     },
     "837.76_167.55_5.00": {
         "car_name": "Lancia Stratos",
-        "shift_rpm_percentage": 0.945
+        "shift_rpm_percentage": 0.945,
+        "car_class": "1970s"
     },
     "942.48_125.66_5.00": {
         "car_name": "BMW E30 Evo Rally",
-        "shift_rpm_percentage": 0.93
+        "shift_rpm_percentage": 0.93,
+        "car_class": "1980s"
     },
     "785.40_172.79_5.00": {
         "car_name": "Ford Sierra Cosworth RS500",
-        "shift_rpm_percentage": 0.895
+        "shift_rpm_percentage": 0.895,
+        "car_class": "1980s"
     },
     "806.34_130.90_5.00": {
         "car_name": "Renault 5 Turbo",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "1980s"
     },
     "1099.56_157.08_5.00": {
         "car_name": "MG Metro 6R4",
-        "shift_rpm_percentage": 0.93
+        "shift_rpm_percentage": 0.93,
+        "car_class": "Group B 4WD"
     },
     "733.04_115.19_5.00": {
         "car_name": "Audi Sport Quattro Rallye",
-        "shift_rpm_percentage": 0.93
+        "shift_rpm_percentage": 0.93,
+        "car_class": "Group B 4WD"
     },
     "890.12_125.66_5.00": {
         "car_name": "Lancia 037 Evo 2",
-        "shift_rpm_percentage": 0.925
+        "shift_rpm_percentage": 0.925,
+        "car_class": "Group B RWD"
     },
     "837.76_209.44_5.00": {
         "car_name": "Peugeot 205 T16 Pikes Peak",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "Group B 4WD"
     },
     "890.12_104.72_5.00": {
         "car_name": "Lancia Delta S4",
-        "shift_rpm_percentage": 0.93
+        "shift_rpm_percentage": 0.93,
+        "car_class": "Group B 4WD"
     },
     "785.40_183.26_5.00": {
         "car_name": "Lancia Delta HF Integrale",
-        "shift_rpm_percentage": 0.94
+        "shift_rpm_percentage": 0.94,
+        "car_class": "Group A"
     },
     "785.40_204.20_6.00": {
         "car_name": "Subaru Impreza 1995",
-        "shift_rpm_percentage": 0.88
+        "shift_rpm_percentage": 0.88,
+        "car_class": "Group A"
     },
     "785.40_178.02_7.00": {
         "car_name": "Ford Escort RS Cosworth",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "Group A"
     },
     "942.48_136.14_6.00": {
         "car_name": "Seat Ibiza Kitcar",
-        "shift_rpm_percentage": 0.925
+        "shift_rpm_percentage": 0.925,
+        "car_class": "F2 Kit Car"
     },
     "1151.92_146.61_6.00": {
         "car_name": "Peugeot 306 Maxi",
-        "shift_rpm_percentage": 0.925
+        "shift_rpm_percentage": 0.925,
+        "car_class": "F2 Kit Car"
     },
     "774.93_167.55_6.00": {
         "car_name": "Subaru Impreza WRX STI 2011",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "R4"
     },
     "785.40_178.02_5.00": {
         "car_name": "Mitsubishi Lancer Evolution X",
-        "shift_rpm_percentage": 0.77
+        "shift_rpm_percentage": 0.77,
+        "car_class": "R4"
     },
     "785.40_157.08_6.00": {
         "car_name": "Subaru Impreza 2001",
-        "shift_rpm_percentage": 0.77
+        "shift_rpm_percentage": 0.77,
+        "car_class": "2000s"
     },
     "785.40_178.02_6.00": {
         "car_name": "Ford Focus RS Rally 2001",
-        "shift_rpm_percentage": 0.86
+        "shift_rpm_percentage": 0.86,
+        "car_class": "2000s"
     },
     "733.04_209.44_6.00": {
         "car_name": "Hyundai Rally",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "2010s"
     },
     "785.40_167.55_6.00": {
         "car_name": "Mini Countryman Rally Edition",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "2010s"
     },
     "785.40_146.61_6.00": {
         "car_name": "Ford Fiesta 2010",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "2010s"
     },
     "733.04_198.97_6.00": {
         "car_name": "Volkswagen Polo Rally",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "2010s"
     },
     "837.76_146.61_5.00": {
         "car_name": "Opel Manta 400",
-        "shift_rpm_percentage": 0.95
+        "shift_rpm_percentage": 0.95,
+        "car_class": "Group B RWD"
     },
     "837.76_157.08_6.00": {
         "car_name": "Peugeot 405 T16 Pikes Peak",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "Hillclimb"
     },
     "863.94_141.37_6.00": {
         "car_name": "Audi Sport Quattro S1 PP",
-        "shift_rpm_percentage": 0.93
+        "shift_rpm_percentage": 0.93,
+        "car_class": "Hillclimb"
     },
     "816.81_188.50_6.00": {
         "car_name": "Peugeot 208 T16 Pikes Peak",
-        "shift_rpm_percentage": 0.9
+        "shift_rpm_percentage": 0.9,
+        "car_class": "Hillclimb"
     }
 }

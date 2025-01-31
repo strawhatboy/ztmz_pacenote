@@ -9,7 +9,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.Codemasters;
 
-public class WRCGameDataReader : DirtGameDataReader
+public class WRCGameDataReader : UdpGameDataReader
 {
     // private GameData LastGameData;
     
@@ -22,7 +22,46 @@ public class WRCGameDataReader : DirtGameDataReader
         WRCHelper.Instance.GetItinerary(_game, _currentPacket.location_id, _currentPacket.route_id);
 
     public override string CarName => WRCHelper.Instance.GetCarName(_currentPacket.vehicle_id);
+    
+    public override string CarClass => WRCHelper.Instance.GetCarClass(_currentPacket.vehicle_id);
 
+    public GameState _gameState;
+    private GameData _lastGameData;
+    private GameData _currentGameData;
+    public override GameState GameState
+    {
+        set
+        {
+            var lastGameState = this._gameState;
+            this._gameState = value;
+            if (value == GameState.AdHocRaceBegin || value == GameState.RaceBegin)
+            {
+            }
+            if (value != GameState.RaceEnd) {
+                this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState });
+            }
+        }
+        get => this._gameState;
+    }
+
+    // add parameters like "retired", "finish_time", "retired_reason"
+    private void onGameStateRaceEnd(Dictionary<string, object> Parameters)
+    {
+        var lastGameState = this._gameState;
+        this._gameState = GameState.RaceEnd;
+        this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = GameState.RaceEnd, Parameters = Parameters });
+    }
+
+    public override GameData LastGameData { get => _lastGameData; set => _lastGameData = value; }
+    public override GameData CurrentGameData { get => _currentGameData; set => _currentGameData = value; }
+
+
+    private event Action<GameStateChangeEvent> _onGameStateChanged;
+    public override event Action<GameStateChangeEvent> onGameStateChanged
+    {
+        add { _onGameStateChanged += value; }
+        remove { _onGameStateChanged -= value; }
+    }
     private event Action<CarDamageEvent> _onCarDamaged;
     public override event Action<CarDamageEvent> onCarDamaged
     {
@@ -94,7 +133,26 @@ public class WRCGameDataReader : DirtGameDataReader
             } else if (CurrentGameData.CompletionRate >= 1.0f) {
                 if (this.GameState != GameState.RaceEnd)
                 {
-                    this.GameState = GameState.RaceEnd;
+                    if (_currentPacket.stage_result_status == (byte)WRCStageResultStatus.FINISHED)
+                    {
+                        this.onGameStateRaceEnd(new Dictionary<string, object> { 
+                            { GameStateRaceEndProperty.FINISH_STATE, WRCStageResultStatus.FINISHED },
+                            { GameStateRaceEndProperty.FINISH_TIME, _currentPacket.stage_result_time },
+                            { GameStateRaceEndProperty.FINISH_TIME_PANALTY, _currentPacket.stage_result_time_penalty }
+                        });
+                    }
+                }
+            } else if (_currentPacket.stage_result_status == (byte)WRCStageResultStatus.TIME_OUT_STAGE ||
+                    _currentPacket.stage_result_status == (byte)WRCStageResultStatus.TERMINALLY_DAMAGED ||
+                    _currentPacket.stage_result_status == (byte)WRCStageResultStatus.DISQUALIFIED ||
+                    _currentPacket.stage_result_status == (byte)WRCStageResultStatus.RETIRED) {
+                // raceend with reason
+                if (this.GameState != GameState.RaceEnd) {
+                    this.onGameStateRaceEnd(new Dictionary<string, object> { 
+                        { GameStateRaceEndProperty.FINISH_STATE, (GameStateRaceEnd)_currentPacket.stage_result_status },
+                        { GameStateRaceEndProperty.FINISH_TIME, _currentPacket.stage_result_time },
+                        { GameStateRaceEndProperty.FINISH_TIME_PANALTY, _currentPacket.stage_result_time_penalty }
+                    });
                 }
             } else {
                 if (this.GameState == GameState.Unknown)
