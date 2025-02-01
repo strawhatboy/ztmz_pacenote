@@ -41,11 +41,14 @@ public partial class App : Application
         // patch ZTMZ.PacenoteTool.Base to fix the SevenZipExtractor issue
         ArchiveFilePatch.Patch(harmony);
 
-        var jsonPaths = new List<string>{
-            AppLevelVariables.Instance.GetPath(Constants.PATH_LANGUAGE),
-            AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, Constants.PATH_LANGUAGE)),
-            AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE)),
-        };
+        // search for all folders named exactly Constants.PATH_LANGUAGE in the AppLevelVariables.Instance.AppConfigFolder recursively
+        var jsonPaths = new List<string>();
+        var appConfigFolder = AppLevelVariables.Instance.AppConfigFolder;
+        Directory.EnumerateDirectories(
+                appConfigFolder,
+                Constants.PATH_LANGUAGE,
+                SearchOption.AllDirectories
+            ).Where(dir => Path.GetFileName(dir).Equals("lang", StringComparison.OrdinalIgnoreCase)).ToList().ForEach(jsonPaths.Add);
             
         NLogManager.init(ToolUtils.GetToolVersion());
         _logger.Info("Application started");

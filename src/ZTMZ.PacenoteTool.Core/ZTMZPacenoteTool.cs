@@ -63,12 +63,27 @@ public class ZTMZPacenoteTool {
 
     public event Action<IGame> onRaceEnd;
 
+    /// <summary>
+    /// The event raised when a local replay is loaded.
+    /// </summary>
+    /// <param name="success">Whether the local replay is loaded successfully.</param>
+    public event Action<bool> onLocalReplayLoaded;
+
+    public event Action<bool> onOnlineReplayLoaded;
+
     public string CurrentScriptAuthor => _profileManager?.CurrentScriptReader?.Author;
 
     public bool IsInitialized { private set; get; } = false;
 
     public List<ReplayDetailsPerCheckpoint> ReplayDetailsPerCheckpoints { set; get; } = new();
     public List<ReplayDetailsPerTime> ReplayDetailsPerTimes  { set; get; } = new();
+
+    public Replay BestLocalReplay { set; get; }
+    public List<ReplayDetailsPerCheckpoint> BestLocalReplayDetailsPerCheckpoints { set; get; } = new();
+    public List<ReplayDetailsPerTime> BestLocalReplayDetailsPerTimes { set; get; } = new();
+
+    public Dictionary<string, List<ReplayDetailsPerCheckpoint>> OnlineReplayDetailsPerCheckpoints { set; get; } = new();
+    public Dictionary<string, List<ReplayDetailsPerTime>> OnlineReplayDetailsPerTimes { set; get; } = new();
 
     // init the tool, load settings, etc.
     public void Init() {
@@ -305,24 +320,7 @@ public class ZTMZPacenoteTool {
                         this._profileManager.PlaySystem(Constants.SYSTEM_END_STAGE, true, false);
                     }
 
-                    if (evt.Parameters.ContainsKey(GameStateRaceEndProperty.FINISH_STATE)) {
-                        // finished with state, check if it's normal finish, if so, save the replay
-                        var finishState = (GameStateRaceEnd)evt.Parameters[GameStateRaceEndProperty.FINISH_STATE];
-                        if (finishState == GameStateRaceEnd.Normal) {
-                            if (Config.Instance.ReplaySave) {
-                                // save replay
-                                var replay = new Replay();
-                                replay.car = this._carName;
-                                replay.track = this._trackName;
-                                replay.checkpoints = Config.Instance.ReplaySaveGranularity;
-                                replay.date = DateTime.Now;
-                                replay.finish_time = (float)evt.Parameters[GameStateRaceEndProperty.FINISH_TIME];
-                                replay.retired = false;
-                                replay.car_class = this._carClass;
-                                ReplayManager.Instance.saveReplay(CurrentGame, replay, this.ReplayDetailsPerTimes, this.ReplayDetailsPerCheckpoints);
-                            }
-                        }
-                    }
+                    saveReplay(evt);
                 }
 
                 // disable telemetry hud, show statistics?
@@ -375,7 +373,10 @@ public class ZTMZPacenoteTool {
                     this.onRaceBegined?.Invoke(_currentGame);
                 });
 
-                
+                if (state == GameState.AdHocRaceBegin) {
+                    // also start to record the replay when in AdHocRaceBegin
+                    initReplay();
+                }
 
                 break;
             case GameState.Racing:
@@ -385,17 +386,7 @@ public class ZTMZPacenoteTool {
                     this._profileManager.PlaySystem(Constants.SYSTEM_GO, true);
 
                     // start to record the replay
-                    this.ReplayDetailsPerCheckpoints.Clear();
-                    this.ReplayDetailsPerTimes.Clear();
-                    this.ReplayDetailsPerCheckpoints.Add(new ReplayDetailsPerCheckpoint() {
-                        checkpoint = 0,
-                        time = 0,
-                        distance = 0
-                    });
-                    this.ReplayDetailsPerTimes.Add(new ReplayDetailsPerTime() {
-                        time = 0,
-                        distance = 0
-                    });
+                    initReplay();
                 }
                 if (lastState == GameState.Paused) {
                     // paused to racing, probably adhoc, need to relocate pacenotes
@@ -482,32 +473,7 @@ public class ZTMZPacenoteTool {
         });
 
         // save replay
-        if (Config.Instance.ReplaySave)
-        {
-            // save ReplayDetailsPerTimes
-            var index = (int)(msg.LapTime * 1000) / Config.Instance.ReplaySaveInterval;
-            if (index >= this.ReplayDetailsPerTimes.Count)
-            {   // 妙啊
-                this.ReplayDetailsPerTimes.Add(new ReplayDetailsPerTime()
-                {
-                    time = msg.LapTime,
-                    distance = msg.LapDistance
-                });
-            }
-
-            // save ReplayDetailsPerCheckpoints
-            float splitLength = msg.TrackLength / Config.Instance.ReplaySaveGranularity;
-            var checkpointIndex = (int)(msg.LapDistance / splitLength);
-            if (checkpointIndex >= this.ReplayDetailsPerCheckpoints.Count && checkpointIndex < Config.Instance.ReplaySaveGranularity)
-            {
-                this.ReplayDetailsPerCheckpoints.Add(new ReplayDetailsPerCheckpoint()
-                {
-                    checkpoint = checkpointIndex,
-                    time = msg.LapTime,
-                    distance = msg.LapDistance
-                });
-            }
-        }
+        traceReplay(msg);
     }
 
     private void carDamagedEventHandler(CarDamageEvent evt)
@@ -538,6 +504,100 @@ public class ZTMZPacenoteTool {
         this._profileManager.ReIndex(distance);
     }
 
+#endregion
+
+
+#region Replay
+    private async void initReplay() {
+        this.ReplayDetailsPerCheckpoints.Clear();
+        this.ReplayDetailsPerTimes.Clear();
+        this.ReplayDetailsPerCheckpoints.Add(new ReplayDetailsPerCheckpoint() {
+            checkpoint = 0,
+            time = 0,
+            distance = 0
+        });
+        this.ReplayDetailsPerTimes.Add(new ReplayDetailsPerTime() {
+            time = 0,
+            distance = 0
+        });
+
+        Replay replay = null;
+        // load best local replay
+        if (Config.Instance.ReplayPreferredFilter == 0) {
+            // stage name only
+            replay = await ReplayManager.Instance.getBestReplayByTrack(CurrentGame, this._trackName);
+        } else if (Config.Instance.ReplayPreferredFilter == 1) {
+            // car class only
+            replay = await ReplayManager.Instance.getBestReplayByTrackAndCarClass(CurrentGame, this._trackName, this._carClass);
+        }
+        
+        if (replay != null) {
+            this.BestLocalReplayDetailsPerCheckpoints = await ReplayManager.Instance.getReplayDetailsPerCheckpoint(CurrentGame, replay.id);
+            this.BestLocalReplayDetailsPerTimes = await ReplayManager.Instance.getReplayDetailsPerTime(CurrentGame, replay.id);
+            this.BestLocalReplay = replay;
+            if (this.BestLocalReplayDetailsPerCheckpoints.Count > 0 && this.BestLocalReplayDetailsPerTimes.Count > 0) {
+                this.onLocalReplayLoaded?.Invoke(true);
+                _logger.Info($"Best local replay loaded for {replay.track} - {replay.car_class}");
+                return;
+            }
+        }
+    
+        _logger.Info("No best local replay found.");
+        this.BestLocalReplay = null;
+        this.BestLocalReplayDetailsPerCheckpoints.Clear();
+        this.BestLocalReplayDetailsPerTimes.Clear();
+        this.onLocalReplayLoaded?.Invoke(false);
+    }
+    private void traceReplay(GameData msg) {
+        
+        if (Config.Instance.ReplaySave)
+        {
+            // save ReplayDetailsPerTimes
+            var index = (int)(msg.LapTime * 1000) / Config.Instance.ReplaySaveInterval;
+            if (index >= this.ReplayDetailsPerTimes.Count)
+            {   // 妙啊
+                this.ReplayDetailsPerTimes.Add(new ReplayDetailsPerTime()
+                {
+                    time = msg.LapTime,
+                    distance = msg.LapDistance
+                });
+            }
+
+            // save ReplayDetailsPerCheckpoints
+            float splitLength = msg.TrackLength / Config.Instance.ReplaySaveGranularity;
+            var checkpointIndex = (int)(msg.LapDistance / splitLength);
+            if (checkpointIndex >= this.ReplayDetailsPerCheckpoints.Count && checkpointIndex < Config.Instance.ReplaySaveGranularity)
+            {
+                this.ReplayDetailsPerCheckpoints.Add(new ReplayDetailsPerCheckpoint()
+                {
+                    checkpoint = checkpointIndex,
+                    time = msg.LapTime,
+                    distance = msg.LapDistance
+                });
+            }
+        }
+    }
+
+    private void saveReplay(GameStateChangeEvent evt) {
+        if (evt.Parameters.ContainsKey(GameStateRaceEndProperty.FINISH_STATE)) {
+            // finished with state, check if it's normal finish, if so, save the replay
+            var finishState = (GameStateRaceEnd)evt.Parameters[GameStateRaceEndProperty.FINISH_STATE];
+            if (finishState == GameStateRaceEnd.Normal) {
+                if (Config.Instance.ReplaySave) {
+                    // save replay
+                    var replay = new Replay();
+                    replay.car = this._carName;
+                    replay.track = this._trackName;
+                    replay.checkpoints = Config.Instance.ReplaySaveGranularity;
+                    replay.date = DateTime.Now;
+                    replay.finish_time = (float)evt.Parameters[GameStateRaceEndProperty.FINISH_TIME];
+                    replay.retired = false;
+                    replay.car_class = this._carClass;
+                    ReplayManager.Instance.saveReplay(CurrentGame, replay, this.ReplayDetailsPerTimes, this.ReplayDetailsPerCheckpoints);
+                }
+            }
+        }
+    }
 #endregion
 
     private PrerequisitesCheckResult checkPrerequisite(IGame game)

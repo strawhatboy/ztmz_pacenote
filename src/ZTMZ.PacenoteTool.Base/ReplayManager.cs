@@ -179,7 +179,7 @@ public class ReplayManager {
         var connectionString = getConnectionString(game);
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
-            return (await connection.QueryAsync<ReplayDetailsPerTime>("SELECT * FROM replay_details_per_time WHERE id = @id", new { id })).AsList();
+            return (await connection.QueryAsync<ReplayDetailsPerTime>("SELECT * FROM replay_details_per_time WHERE id = @id ORDER BY time ASC", new { id })).AsList();
         }
     }
 
@@ -187,7 +187,7 @@ public class ReplayManager {
         var connectionString = getConnectionString(game);
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
-            return (await connection.QueryAsync<ReplayDetailsPerCheckpoint>("SELECT * FROM replay_details_per_checkpoint WHERE id = @id", new { id })).AsList();
+            return (await connection.QueryAsync<ReplayDetailsPerCheckpoint>("SELECT * FROM replay_details_per_checkpoint WHERE id = @id ORDER BY checkpoint ASC", new { id })).AsList();
         }
     }
 

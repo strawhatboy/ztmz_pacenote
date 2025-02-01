@@ -848,6 +848,36 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._ReplaySave;
         }
 
+        /// <summary>
+        /// Preferred filter for best replay, used for delta calculation during racing.
+        /// 0: stage name, 1: stage name+car class
+        /// For online and offline replays, and for leaderboard.
+        /// </summary>
+        private int _ReplayPreferredFilter = 0;
+        public int ReplayPreferredFilter
+        {
+            set { this._ReplayPreferredFilter = value; this._userconfig["ReplayPreferredFilter"] = value; }
+            get => this._ReplayPreferredFilter;
+        }
+
+        private bool _OnlineRivalsEnabled = false;
+        public bool OnlineRivalsEnabled
+        {
+            set { this._OnlineRivalsEnabled = value; this._userconfig["OnlineRivalsEnabled"] = value; }
+            get => this._OnlineRivalsEnabled;
+        }
+
+        /// <summary>
+        /// Names of rivals, on racenet
+        /// Prior to a race, players can download rivals' replay data, which is then utilized to display a real-time ghost cursor on the progress bar during their own run. This feature also enables dynamic delta calculations, showcasing the time difference between the player’s current performance and their rivals’ recorded runs.
+        /// </summary>
+        private string _RivalsWatchList = "";
+        public string RivalsWatchList
+        {
+            set { this._RivalsWatchList = value; this._userconfig["RivalsWatchList"] = value; }
+            get => this._RivalsWatchList;
+        }
+
         #endregion
 
         public void Save(string path)

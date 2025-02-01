@@ -8,6 +8,7 @@
         "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
         "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV",
         "dashboards.settings.verticalOrHorizontal": "dashboards.settings.tooltip.verticalOrHorizontal",
+        "dashboards.settings.showLocalBest": "dashboards.settings.tooltip.showLocalBest"
     },
     "PropertyValue": [
         true,
@@ -18,8 +19,9 @@
         0.06,
         0.06,
         true,
+        true
     ],
     "ValueRange": [
-        [], [], [], [0.01, 1], [50, 200], [-0.5, 0.5], [-0.5, 0.5], []
+        [], [], [], [0.01, 1], [50, 200], [-0.5, 0.5], [-0.5, 0.5], [], []
     ]
 }

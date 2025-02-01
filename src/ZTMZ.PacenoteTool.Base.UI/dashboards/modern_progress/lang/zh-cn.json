@@ -1,0 +1,16 @@
+{
+    "dashboards": {
+        "modern": {
+            "progress": {
+                "name": "现代版进度条",
+                "description": "显示类似WRC的赛道进度条"
+            }
+        },
+        "settings": {
+            "verticalOrHorizontal": "垂直还是水平",
+            "tooltip": {
+                "verticalOrHorizontal": "垂直还是水平，显示进度条的方向，选中代表垂直显示，未选中代表水平显示"
+            }
+        }
+    }
+}

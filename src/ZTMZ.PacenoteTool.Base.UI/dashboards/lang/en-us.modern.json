@@ -17,10 +17,6 @@
                 "name": "WRC Style 2",
                 "description": "WRC Broadcasting Dashboard 2023",
             },
-            "progress": {
-                "name": "Modern Progress",
-                "description": "Show modern WRC track progress"
-            },
             "wrc2025": {
                 "name": "WRC2025",
                 "description": "WRC Broadcasting Dashboard 2025"
@@ -45,8 +41,8 @@
             "drivername": "Driver Name",
             "driverregion": "Driver Region",
             "useOffset": "Use horizontal offset",
-            "verticalOrHorizontal": "Vertical or Horizontal",
             "showSteeringIndicator": "Show steering wheel input indicator",
+            "showLocalBest": "Show local best time",
             "tooltip": {
                 "padding": "Padding horizontally and vertically",
                 "marginH": "Margin horizontally, relative to the screen width",
@@ -54,7 +50,8 @@
                 "drivername": "Set the driver's full name to display",
                 "driverregion": "Set the driver's nationality, use country code ISO 3166-1 alpha-2\ne.g. 'fr' for France",
                 "useOffset": "When horizontal position is set to Center, switch on \nto center the circular elements in this dashboard",
-                "showSteeringIndicator": "Show steering wheel input indicator"
+                "showSteeringIndicator": "Show steering wheel input indicator",
+                "showLocalBest": "Show the cursor of the local best time on the progress bar, and the difference to it",
             }
         }
     }

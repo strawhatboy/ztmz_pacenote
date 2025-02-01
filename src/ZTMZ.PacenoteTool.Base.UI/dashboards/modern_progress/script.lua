@@ -31,6 +31,18 @@ function onInit(args)
     resources["brushes"] = _brushes;
 end
 
+function getCursorPoints(telemetryStartX, telemetryEndY, width, height, completionRate, cursorSize) 
+    local progressEndX = telemetryStartX + width * completionRate;
+    local progressEndY = telemetryEndY;
+    local cursorPoints = {}; -- 5 points
+    cursorPoints[1] = { progressEndX, progressEndY + height / 2 + cursorSize / 2 };
+    cursorPoints[2] = { progressEndX + cursorSize / 2, progressEndY + height / 2 + cursorSize };
+    cursorPoints[3] = { progressEndX + cursorSize / 2, progressEndY + height / 2 + 2 * cursorSize };
+    cursorPoints[4] = { progressEndX - cursorSize / 2, progressEndY + height / 2 + 2 * cursorSize };
+    cursorPoints[5] = { progressEndX - cursorSize / 2, progressEndY + height / 2 + cursorSize };
+    return cursorPoints;
+end
+
 function onUpdate(args)
     local data = args.GameData;
     local gfx = args.Graphics;
@@ -89,12 +101,31 @@ function onUpdate(args)
     local progressEndX = telemetryStartX + width * data.CompletionRate;
     local progressEndY = telemetryEndY;
 
-    local cursorPoints = {}; -- 5 points
-    cursorPoints[1] = { progressEndX, progressEndY + height / 2 + cursorSize / 2 };
-    cursorPoints[2] = { progressEndX + cursorSize / 2, progressEndY + height / 2 + cursorSize };
-    cursorPoints[3] = { progressEndX + cursorSize / 2, progressEndY + height / 2 + 2 * cursorSize };
-    cursorPoints[4] = { progressEndX - cursorSize / 2, progressEndY + height / 2 + 2 * cursorSize };
-    cursorPoints[5] = { progressEndX - cursorSize / 2, progressEndY + height / 2 + cursorSize };
+    local cursorPoints = getCursorPoints(telemetryStartX, telemetryEndY, width, height, data.CompletionRate, cursorSize);
+
+    local localBestReplayCompletionRate = 0;
+    local showBestReplay = self.GetConfigByKey("dashboards.settings.showLocalBest") and ctx.LocalReplayValid;
+    local cursorBestPoints = {}; -- 5 points
+    if showBestReplay then
+        -- local best replay cursor
+        -- find the local best replay completion rate based on current data.LapTime
+        -- print("will find local best replay completion rate based on current data.LapTime: " .. data.LapTime);
+        local keys = ctx.LocalReplayDetailsPerTimesDict.Keys:ToList();
+        local values = ctx.LocalReplayDetailsPerTimesDict.Values:ToList();
+        -- print("got keys and values")
+        local index = keys.BinarySearch(data.LapTime);
+        index = index >= 0 and index or -index - 1;
+        -- print("index: " .. index);
+        if index > 0 then
+            local bestDistance = values:ElementAt(index);
+            -- print("local best replay completion rate: " .. bestDistance / data.TrackLength);
+            localBestReplayCompletionRate = bestDistance / data.TrackLength;
+            local bestProgressEndX = telemetryStartX + width * localBestReplayCompletionRate;
+            local bestProgressEndY = telemetryEndY;
+            -- print("getting cursor points for local best replay");
+            cursorBestPoints = getCursorPoints(telemetryStartX, telemetryEndY, width, height, localBestReplayCompletionRate, cursorSize);
+        end
+    end
 
     if (isVertical) then
         -- rotate all the positions according to the center
@@ -127,6 +158,14 @@ function onUpdate(args)
             cursor = getRotatePoint(gfx, helper, centerX, centerY, cursorPoints[i][1], cursorPoints[i][2], -math.pi / 2);
             cursorPoints[i][1] = cursor.X;
             cursorPoints[i][2] = cursor.Y;
+        end
+        if showBestReplay then
+            -- for every point in cursorBestPoints
+            for i = 1, #cursorBestPoints do
+                local cursorBest = getRotatePoint(gfx, helper, centerX, centerY, cursorBestPoints[i][1], cursorBestPoints[i][2], -math.pi / 2);
+                cursorBestPoints[i][1] = cursorBest.X;
+                cursorBestPoints[i][2] = cursorBest.Y;
+            end
         end
         for i = 1, 18 do
             finishFlagStart = getRotatePoint(gfx, helper, centerX, centerY, finishFlagsStartPositions[i][1], finishFlagsStartPositions[i][2], -math.pi / 2);
@@ -189,6 +228,21 @@ function onUpdate(args)
         end
     end
 
+    if showBestReplay then
+        local best_geo_path = gfx.CreateGeometry();
+        best_geo_path.BeginFigure(helper.getPoint(cursorBestPoints[1][1], cursorBestPoints[1][2]), true);
+        best_geo_path.AddPoint(helper.getPoint(cursorBestPoints[2][1], cursorBestPoints[2][2]));
+        best_geo_path.AddPoint(helper.getPoint(cursorBestPoints[3][1], cursorBestPoints[3][2]));
+        best_geo_path.AddPoint(helper.getPoint(cursorBestPoints[4][1], cursorBestPoints[4][2]));
+        best_geo_path.AddPoint(helper.getPoint(cursorBestPoints[5][1], cursorBestPoints[5][2]));
+        best_geo_path.EndFigure();
+        best_geo_path.Close();
+    
+        gfx.FillGeometry(best_geo_path, _brushes["green"]);
+        gfx.DrawGeometry(best_geo_path, _brushes["splitBar"], 2);
+        best_geo_path.Dispose();
+    end
+    
     -- print("drawing the cursor")
     local geo_path = gfx.CreateGeometry();
     geo_path.BeginFigure(helper.getPoint(cursorPoints[1][1], cursorPoints[1][2]), true);
@@ -204,7 +258,6 @@ function onUpdate(args)
 
     -- need manually dispose this object!
     geo_path.Dispose();
-
 end
 
 function onExit()

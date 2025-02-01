@@ -17,10 +17,6 @@
                 "name": "WRC风格2",
                 "description": "WRC 直播仪表盘2023 风格2",
             },
-            "progress": {
-                "name": "现代版进度条",
-                "description": "显示类似WRC的赛道进度条"
-            },
             "wrc2025": {
                 "name": "WRC 2025",
                 "description": "WRC 直播仪表盘2025"
@@ -45,8 +41,8 @@
             "drivername": "车手姓名",
             "driverregion": "车手地区",
             "useOffset": "使用位置偏移",
-            "verticalOrHorizontal": "垂直还是水平",
             "showSteeringIndicator": "显示方向盘输入指示器",
+            "showLocalBest": "显示本地最佳成绩",
             "tooltip": {
                 "padding": "仪表盘距离边缘的占比, 是相对于仪表盘大小的比值",
                 "marginH": "仪表盘水平方向边距占比, 是相对于屏幕宽度的比值",
@@ -54,8 +50,8 @@
                 "drivername": "设置要显示的车手全名",
                 "driverregion": "设置车手国籍（使用国家代码，例如'cn'代表中国）, 遵从ISO 3166-1 alpha-2 标准",
                 "useOffset": "对此仪表使用水平位置偏移，保证在水平方向设置为居中时，圆形仪表的中心在屏幕中心",
-                "verticalOrHorizontal": "垂直还是水平，显示进度条的方向，选中代表垂直显示，未选中代表水平显示",
-                "showSteeringIndicator": "显示方向盘输入指示器"
+                "showSteeringIndicator": "显示方向盘输入指示器",
+                "showLocalBest": "在进度条上显示本地最佳成绩的光标，以及与之的差距",
             }
         }
     }

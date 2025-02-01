@@ -144,7 +144,7 @@ public class DirtGameDataReader : UdpGameDataReader
                 if (newGameData.Time == 0 && this.GameState != GameState.RaceEnd)
                 {
                     // this should be normal race end for DR2
-                    if (_game.Name == DirtRally2.GameName) {
+                    if (_game is DirtRally2) {
                         onGameStateRaceEnd(new Dictionary<string, object> { 
                             { GameStateRaceEndProperty.FINISH_TIME, lastMessage.LastLapTime },
                             { GameStateRaceEndProperty.FINISH_STATE, GameStateRaceEnd.Normal }
@@ -158,7 +158,7 @@ public class DirtGameDataReader : UdpGameDataReader
             } 
             
             // for DR1
-            if (message.TotalLaps == message.LapsComplete && this.GameState != GameState.RaceEnd && _game.Name == DirtRally.GameName) {
+            if (message.TotalLaps == message.LapsComplete && this.GameState != GameState.RaceEnd && _game is DirtRally) {
                 // this should be normal, this should be the right way to detect raceend
                 onGameStateRaceEnd(new Dictionary<string, object> { 
                     { GameStateRaceEndProperty.FINISH_TIME, message.LastLapTime },

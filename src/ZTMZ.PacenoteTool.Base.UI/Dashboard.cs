@@ -18,6 +18,10 @@ public class GameContext {
     public string PacenoteType { set; get; } = "";
     public string CarName { set; get; } = "";
     public string CarClass { set; get; } = "";
+    public bool LocalReplayValid { set; get; } = false;
+    public List<ReplayDetailsPerCheckpoint> LocalReplayDetailsPerCheckpoints { set; get; } = new();
+    public Dictionary<float, float> LocalReplayDetailsPerTimesDict { set; get; } = new();
+    public Replay LocalReplay { set; get; } = new();
 }
 
 public class DashboardScriptArguments {

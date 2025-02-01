@@ -1,0 +1,16 @@
+{
+    "dashboards": {
+        "modern": {
+            "progress": {
+                "name": "Modern Progress",
+                "description": "Show modern WRC track progress"
+            }
+        },
+        "settings": {
+            "verticalOrHorizontal": "Vertical or Horizontal",
+            "tooltip": {
+                "verticalOrHorizontal": "Show the progress bar vertically or horizontally, checked for vertical, unchecked for horizontal"
+            }
+        }
+    }
+}

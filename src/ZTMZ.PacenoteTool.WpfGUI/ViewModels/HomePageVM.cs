@@ -384,6 +384,13 @@ public partial class HomePageVM : ObservableObject {
                 });
         };
 
+        _tool.onLocalReplayLoaded += res => {
+            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayValid = res;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplay = _tool.BestLocalReplay;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayDetailsPerCheckpoints = _tool.BestLocalReplayDetailsPerCheckpoints;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayDetailsPerTimesDict = _tool.BestLocalReplayDetailsPerTimes.ToDictionary(x => x.time, x => x.distance);
+        };
+
         _tool.onNewGameData += (game, data) => {
             if (_isRacing) {
                 // update game data.

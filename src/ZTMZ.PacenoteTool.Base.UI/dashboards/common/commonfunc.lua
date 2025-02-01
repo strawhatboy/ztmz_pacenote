@@ -167,4 +167,38 @@ function getDashboardPositionStart(self, gfx, whRatio)
     return centerX - width / 2, centerY - height / 2, width, height;
 end
 
+function binarySearch(sortedArray, target)
+    local low = 1
+    print("get low: " .. low);
+    local high = #sortedArray
+    print("get high: " .. high);
+    
+    while low <= high do
+        local mid = math.floor((low + high) / 2)
+        local current = sortedArray[mid]
+        
+        if current < target then
+            low = mid + 1
+        elseif current > target then
+            high = mid - 1
+        else
+            -- Found exact match, return 1-based index
+            return mid
+        end
+    end
+    
+    -- Not found, return insert position
+    return low
+end
+
+function getKeysAndValues(t)
+    local keys = {}
+    local values = {}
+    for k, v in pairs(t) do
+        table.insert(keys, k)
+        table.insert(values, v)
+    end
+    return keys, values
+end
+
 
