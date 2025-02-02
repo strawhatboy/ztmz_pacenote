@@ -392,6 +392,8 @@ public partial class HomePageVM : ObservableObject {
             _gameOverlayManager.DashboardScriptArguments.GameContext.GetDelta = _tool.GetDelta;
             _gameOverlayManager.DashboardScriptArguments.GameContext.GetDeltaByDistanceAndTime = _tool.GetDeltaByDistanceAndTime;
             _gameOverlayManager.DashboardScriptArguments.GameContext.GetDeltaByCheckpoint = _tool.GetDeltaByCheckpoint;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.GetTimeByDistance = _tool.GetTimeByDistance;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.GetBestTimeByDistance = _tool.GetBestTimeByDistance;
         };
 
         _tool.onNewGameData += (game, data) => {

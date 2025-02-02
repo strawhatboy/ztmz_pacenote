@@ -616,6 +616,14 @@ public class ZTMZPacenoteTool {
         return time - bestTime;
     }
 
+    public float GetTimeByDistance(float distance) {
+        return getTimeByDistance(this.ReplayDetailsPerTimes, distance);
+    }
+
+    public float GetBestTimeByDistance(float distance) {
+        return getTimeByDistance(this.BestLocalReplayDetailsPerTimes, distance);
+    }
+
     private float getTimeByDistance(List<ReplayDetailsPerTime> details, float distance) {
         float time = 0;
         if (details.Count == 0) {

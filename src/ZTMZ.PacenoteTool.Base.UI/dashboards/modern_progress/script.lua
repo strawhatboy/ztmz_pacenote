@@ -1,4 +1,10 @@
 local resources = {};
+local splitTime = {}; 
+local bestTime = {};
+local timeUsedInSplit = {}
+local timeUsedInSplitBest = {}
+local lastTime = 0;
+local lastDistance = 0;
 
 -- This function is called when the script is loaded
 -- args: dotnet object
@@ -27,6 +33,10 @@ function onInit(args)
     _brushes["done"] = gfx.CreateSolidBrush(0xaa, 0xaa, 0xaa);
     _brushes["darkred"] = gfx.CreateSolidBrush(128, 18, 18);
     _brushes["black"] = gfx.CreateSolidBrush(0, 0, 0);
+    _brushes["darkgreen"] = gfx.CreateSolidBrush(0, 128, 0);
+    -- light green
+    _brushes["done_faster"] = gfx.CreateSolidBrush(100, 230, 100)
+    _brushes["done_slower"] = gfx.CreateSolidBrush(230, 100, 100);
         
     resources["brushes"] = _brushes;
 end
@@ -57,12 +67,21 @@ function onUpdate(args)
     
     local whRatio = self.GetConfigByKey("dashboards.settings.whRatio");
     local isVertical = self.GetConfigByKey("dashboards.settings.verticalOrHorizontal");
+
+    if ctx.GameState == GAMESTATE_RaceBegin or ctx.GameState == GAMESTATE_RaceBegin then
+        -- clear deltas
+        splitTime = {};
+        bestTime = {};
+        -- init splitDistance
+    end
+
     local centerX, centerY, height, width = getDashboardPositionCenter(self, gfx, 1 / whRatio);
 
     local telemetryStartX = centerX - width / 2;
     local telemetryStartY = centerY - height / 2;
 
     local blocksCount = 2 ^ (math.floor(math.log(data.TrackLength / 1000) / math.log(2)));
+    local blockDistance = data.TrackLength / blocksCount;
     local telemetryEndX = telemetryStartX + width;
     local telemetryEndY = telemetryStartY + height;
 
@@ -104,6 +123,8 @@ function onUpdate(args)
     local cursorPoints = getCursorPoints(telemetryStartX, telemetryEndY, width, height, data.CompletionRate, cursorSize);
 
     local localBestReplayCompletionRate = 0;
+    local bestProgressEndX
+    local bestProgressEndY;
     local showBestReplay = self.GetConfigByKey("dashboards.settings.showLocalBest") and ctx.LocalReplayValid;
     local cursorBestPoints = {}; -- 5 points
     if showBestReplay then
@@ -117,13 +138,46 @@ function onUpdate(args)
         index = index >= 0 and index or -index - 1;
         -- print("index: " .. index);
         if index > 0 then
-            local bestDistance = values:ElementAt(index);
+            local bestDistance = data.TrackLength;
+            if index >= values.Count then
+                -- print("WTF out of range.")
+            else
+                bestDistance = values:ElementAt(index);
+            end
             -- print("local best replay completion rate: " .. bestDistance / data.TrackLength);
             localBestReplayCompletionRate = bestDistance / data.TrackLength;
-            local bestProgressEndX = telemetryStartX + width * localBestReplayCompletionRate;
-            local bestProgressEndY = telemetryEndY;
+            bestProgressEndX = telemetryStartX + width * localBestReplayCompletionRate;
+            bestProgressEndY = telemetryEndY;
             -- print("getting cursor points for local best replay");
             cursorBestPoints = getCursorPoints(telemetryStartX, telemetryEndY, width, height, localBestReplayCompletionRate, cursorSize);
+        end
+
+        -- print("trying to get split times")
+        for i = 1, blocksCount do
+            local checkpointIndex = ctx.LocalReplay.checkpoints / blocksCount * i - 1;
+            local distance = blockDistance * i;
+
+            if data.LapDistance >= distance then
+                -- print("trying to init best time")
+                if not bestTime[i] then
+                    bestTime[i] = ctx.GetBestTimeByDistance:Invoke(distance);
+                end
+                
+                -- print("trying to get split time")
+                if not splitTime[i] then
+                    -- this wont work if adhocrace
+                    splitTime[i] = ctx.GetTimeByDistance:Invoke(distance);
+                end
+                
+                timeUsedInSplit[i] = splitTime[i];
+                timeUsedInSplitBest[i] = bestTime[i];
+                if i ~= 1 then
+                    timeUsedInSplit[i] = splitTime[i] - splitTime[i-1];
+                    timeUsedInSplitBest[i] = bestTime[i] - bestTime[i-1];
+                end
+                -- print("time used in split " .. i .. ": " .. timeUsedInSplit[i]);
+                -- print("best time used in split " .. i .. ": " .. timeUsedInSplitBest[i]);
+            end
         end
     end
 
@@ -138,6 +192,11 @@ function onUpdate(args)
         progressEnd = getRotatePoint(gfx, helper, centerX, centerY, progressEndX, progressEndY, -math.pi / 2);
         progressEndX = progressEnd.X;
         progressEndY = progressEnd.Y;
+        if showBestReplay then
+            local bestProgressEnd = getRotatePoint(gfx, helper, centerX, centerY, bestProgressEndX, bestProgressEndY, -math.pi / 2);
+            bestProgressEndX = bestProgressEnd.X;
+            bestProgressEndY = bestProgressEnd.Y;
+        end
         for i = 1, blocksCount do
             barStart = getRotatePoint(gfx, helper, centerX, centerY, barStartPositions[i][1], barStartPositions[i][2], -math.pi / 2);
             barStartPositions[i][1] = barStart.X;
@@ -196,6 +255,13 @@ function onUpdate(args)
                 break;
             else
                 gfx.FillRectangle(_brushes["done"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], barEndPositions[i][2]);
+                if showBestReplay then
+                    if timeUsedInSplit[i] < timeUsedInSplitBest[i] then
+                        gfx.FillRectangle(_brushes["done_faster"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], barEndPositions[i][2]);
+                    else
+                        gfx.FillRectangle(_brushes["done_slower"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], barEndPositions[i][2]);
+                    end
+                end
             end
         else
             -- if progressEndX is greater than barEndPositions[i][1], then fill the bar with _brushes["inprogress"] till progressEndX, and break the loop;
@@ -205,6 +271,13 @@ function onUpdate(args)
                 break;
             else
                 gfx.FillRectangle(_brushes["done"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], barEndPositions[i][2]);
+                if showBestReplay then
+                    if timeUsedInSplit[i] < timeUsedInSplitBest[i] then
+                        gfx.FillRectangle(_brushes["done_faster"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], barEndPositions[i][2]);
+                    else
+                        gfx.FillRectangle(_brushes["done_slower"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], barEndPositions[i][2]);
+                    end
+                end
             end
         end
     end
@@ -238,7 +311,7 @@ function onUpdate(args)
         best_geo_path.EndFigure();
         best_geo_path.Close();
     
-        gfx.FillGeometry(best_geo_path, _brushes["green"]);
+        gfx.FillGeometry(best_geo_path, _brushes["darkgreen"]);
         gfx.DrawGeometry(best_geo_path, _brushes["splitBar"], 2);
         best_geo_path.Dispose();
     end
@@ -258,6 +331,9 @@ function onUpdate(args)
 
     -- need manually dispose this object!
     geo_path.Dispose();
+
+    lastDistance = data.LapDistance;
+    lastTime = data.LapTime;
 end
 
 function onExit()

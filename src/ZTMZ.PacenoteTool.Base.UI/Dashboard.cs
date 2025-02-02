@@ -29,6 +29,8 @@ public class GameContext {
     public Func<float, float> GetDelta { set; get; } = (float distance) => 0;
     public Func<float, float, float> GetDeltaByDistanceAndTime { set; get; } = (float distance, float time) => 0;
     public Func<int, float> GetDeltaByCheckpoint { set; get; } = (int checkpoint) => 0;
+    public Func<float, float> GetTimeByDistance { set; get; } = (float distance) => 0;
+    public Func<float, float> GetBestTimeByDistance { set; get; } = (float distance) => 0;
     public int LastGameState { set; get; }
     public int GameState { set; get; }
     public Dictionary<string, object> GameStateChangedParameters { set; get; } = new();
