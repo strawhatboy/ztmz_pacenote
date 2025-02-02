@@ -536,7 +536,7 @@ public class RBRGameDataReader : UdpGameDataReader
     }
 
     private GameData GetGameDataFromMemory(GameData gameData, RBRMemData data)
-    {
+    { 
         gameData.TimeStamp = DateTime.Now;
         gameData.Clutch = data.Clutch;
         gameData.Brake = data.Brake;

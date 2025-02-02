@@ -40,6 +40,7 @@ function onUpdate(args)
     local _fonts = resources["fonts"];
     local _brushes = resources["brushes"];
     local infoText = "FPS:\t" .. gfx.FPS .. "\n" ..
+        i18n.ResolveByKey("ui.tb_gamestate") .. "\t" .. ctx.GameState .. "\n" ..
         i18n.ResolveByKey("overlay.track") .. "\t" .. ctx.TrackName .. "\n" ..
         i18n.ResolveByKey("overlay.car") .. "\t" .. ctx.CarName .. "\n" ..
         i18n.ResolveByKey("overlay.carclass") .. "\t" .. ctx.CarClass .. "\n" ..

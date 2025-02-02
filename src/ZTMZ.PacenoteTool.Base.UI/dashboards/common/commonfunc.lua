@@ -13,6 +13,14 @@ ARCSIZE_SMALL = 0;
 ARCSIZE_LARGE = 1;
 BLINK_INTERVAL_FRAMES_PERCENTAGE = 0.05;
 
+GAMESTATE_Unknown = 0;
+GAMESTATE_RaceBegin = 1;
+GAMESTATE_CountingDown = 2;
+GAMESTATE_Racing = 3;
+GAMESTATE_Paused = 4;
+GAMESTATE_RaceEnd = 5;
+GAMESTATE_AdHocRaceBegin = 6;
+
 function getRotatePoint(gfx, helper, centerX, centerY, pointX, pointY, angle)
     local point = helper.getPoint(centerX + (pointX - centerX) * math.cos(angle) - (pointY - centerY) * math.sin(angle),
         centerY + (pointX - centerX) * math.sin(angle) + (pointY - centerY) * math.cos(angle));

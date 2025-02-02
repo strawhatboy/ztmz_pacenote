@@ -598,6 +598,81 @@ public class ZTMZPacenoteTool {
             }
         }
     }
+
+    public float GetDelta(float distance) {
+        float time = getTimeByDistance(this.ReplayDetailsPerTimes, distance);
+        float bestTime = getTimeByDistance(this.BestLocalReplayDetailsPerTimes, distance);
+        return time - bestTime;
+    }
+
+    public float GetDeltaByDistanceAndTime(float distance, float time) {
+        float bestTime = getTimeByDistance(this.BestLocalReplayDetailsPerTimes, distance);
+        return time - bestTime;
+    }
+
+    public float GetDeltaByCheckpoint(int checkpoint) {
+        float time = getTimeByCheckpoint(this.ReplayDetailsPerCheckpoints, checkpoint);
+        float bestTime = getTimeByCheckpoint(this.BestLocalReplayDetailsPerCheckpoints, checkpoint);
+        return time - bestTime;
+    }
+
+    private float getTimeByDistance(List<ReplayDetailsPerTime> details, float distance) {
+        float time = 0;
+        if (details.Count == 0) {
+            time = 0;
+        }
+        if (distance <= details[0].distance) {
+            time = 0;
+        }
+        if (distance >= details[details.Count - 1].distance) {
+            time = details[details.Count - 1].time;
+        }
+        var times = details.Select(r => r.time).ToList();
+        var distances = details.Select(r => r.distance).ToList();
+        var index = distances.BinarySearch(distance);
+        if (index >= 0) {
+            time = times[index];
+        } else {
+            index = ~index;
+            if (index == 0) {
+                time = 0;
+            } else if (index == distances.Count) {
+                time = times[times.Count - 1];
+            } else {
+                time = times[index - 1] + (times[index] - times[index - 1]) / (distances[index] - distances[index - 1]) * (distance - distances[index - 1]);
+            }
+        }
+        return time;
+    }
+
+    private float getTimeByCheckpoint(List<ReplayDetailsPerCheckpoint> details, int checkpoint) {
+        float time = 0;
+        if (details.Count == 0) {
+            time = 0;
+        }
+        if (checkpoint <= details[0].checkpoint) {
+            time = 0;
+        }
+        if (checkpoint >= details[details.Count - 1].checkpoint) {
+            time = details[details.Count - 1].time;
+        }
+        var times = details.Select(r => r.time).ToList();
+        var checkpoints = details.Select(r => r.checkpoint).ToList();
+        var index = checkpoints.BinarySearch(checkpoint);
+        if (index >= 0) {
+            time = times[index];
+        } else {
+            index = ~index;
+            if (index == 0) {
+                time = 0;
+            } else if (index == checkpoints.Count) {
+                time = times[times.Count - 1];
+            } else {
+                time = times[index - 1] + (times[index] - times[index - 1]) / (checkpoints[index] - checkpoints[index - 1]) * (checkpoint - checkpoints[index - 1]);
+            }
+        }
+        return time;
+    }
 #endregion
 
     private PrerequisitesCheckResult checkPrerequisite(IGame game)

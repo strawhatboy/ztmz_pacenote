@@ -389,6 +389,9 @@ public partial class HomePageVM : ObservableObject {
             _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplay = _tool.BestLocalReplay;
             _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayDetailsPerCheckpoints = _tool.BestLocalReplayDetailsPerCheckpoints;
             _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayDetailsPerTimesDict = _tool.BestLocalReplayDetailsPerTimes.ToDictionary(x => x.time, x => x.distance);
+            _gameOverlayManager.DashboardScriptArguments.GameContext.GetDelta = _tool.GetDelta;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.GetDeltaByDistanceAndTime = _tool.GetDeltaByDistanceAndTime;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.GetDeltaByCheckpoint = _tool.GetDeltaByCheckpoint;
         };
 
         _tool.onNewGameData += (game, data) => {
@@ -401,6 +404,13 @@ public partial class HomePageVM : ObservableObject {
         _tool.onRaceEnd += (game) => { 
             IsRacing = false;
             _gameOverlayManager.TimeToShowTelemetry = false;
+        };
+
+        _tool.onGameStateChanged += (game, state) => {
+            // set Gamestate to dashboard context.
+            _gameOverlayManager.DashboardScriptArguments.GameContext.LastGameState = (int)state.LastGameState;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.GameState = (int)state.NewGameState;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.GameStateChangedParameters = state.Parameters;
         };
 
         BindingOperations.EnableCollectionSynchronization(Games, _collectionLock);

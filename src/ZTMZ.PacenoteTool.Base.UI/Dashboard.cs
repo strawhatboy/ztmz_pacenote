@@ -22,6 +22,16 @@ public class GameContext {
     public List<ReplayDetailsPerCheckpoint> LocalReplayDetailsPerCheckpoints { set; get; } = new();
     public Dictionary<float, float> LocalReplayDetailsPerTimesDict { set; get; } = new();
     public Replay LocalReplay { set; get; } = new();
+
+    /// <summary>
+    /// Get the delta time between the current time and the given distance
+    /// </summary>
+    public Func<float, float> GetDelta { set; get; } = (float distance) => 0;
+    public Func<float, float, float> GetDeltaByDistanceAndTime { set; get; } = (float distance, float time) => 0;
+    public Func<int, float> GetDeltaByCheckpoint { set; get; } = (int checkpoint) => 0;
+    public int LastGameState { set; get; }
+    public int GameState { set; get; }
+    public Dictionary<string, object> GameStateChangedParameters { set; get; } = new();
 }
 
 public class DashboardScriptArguments {
