@@ -13,6 +13,7 @@
     "dashboard": "Dashboards",
     "game": "Game",
     "vr": "VR",
+    "replay": "Replay",
     "user": "User",
     "about": "About"
   },
@@ -119,7 +120,13 @@
       "udpListenAddress": "127.0.0.1 by default",
       "udpListenPort": "If you want to use this tool along with SIMHUB, changing the default 20777 to 20778 would help",
       "udpListenPort_Warning": "The port is not consistent with the Dirt Rally 2.0 settings {0}, maybe you're using SIMHUB",
-      "memoryRefreshRate": "Change this value to adjust the refresh rate of the memory monitor"
+      "memoryRefreshRate": "Change this value to adjust the refresh rate of the memory monitor",
+      
+      "replaySave": "Enable to save the replay details of the best lap, for display delta time or sector time on the hud",
+      "replayPreferredFilter": "To filter the replay of the best lap, by car or car class, or just the best lap",
+      "replayStoredCountLimit": "For a specific track, the maximum number of stored replays",
+      "replaySaveInterval": "For a specific track, the interval of saving the replay details of the best lap",
+      "onlineRivalsEnabled": "Enable to display the online rivals on the hud, only available for EA Sports WRC game.\nSimilar to the rivals feature during multiplayer in the game"
     },
 
     "autoInitializeGame_on": "Auto Game Selection",
@@ -209,7 +216,16 @@
     "memoryRefreshRate": "Memory Refresh Rate (Hz)",
 
     "staff": "Staff",
-    "gameSettings": "Game Settings"
+    "gameSettings": "Game Settings",
+
+    "replaySave": "Save the replay of the best lap",
+    "replayPreferredFilter": "Preferred filter for the best lap replay",
+    "replayPreferredFilter_none": "No filter",
+    "replayPreferredFilter_car": "Filter by car",
+    "replayPreferredFilter_carclass": "Filter by car class",
+    "replayStoredCountLimit": "The maximum number of stored replays",
+    "replaySaveInterval": "The interval of saving the replay of the best lap",
+    "onlineRivalsEnabled": "Enable online rivals (EA Sports WRC game only)",
   },
 
   "dialog": {

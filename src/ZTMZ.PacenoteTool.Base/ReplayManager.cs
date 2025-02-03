@@ -171,6 +171,22 @@ public class ReplayManager {
                 }
             }
             await transaction.CommitAsync();
+
+            // check if the replay exceeds the limit Config.Instance.ReplayStoredCountLimit by trackname and carname, delete the slowest ones
+            var replays = await getReplays(game);
+            var replayCount = replays.Count(r => r.track == replay.track && r.car == replay.car);
+            if (replayCount > Config.Instance.ReplayStoredCountLimit) {
+                _logger.Info($"Replay count exceeds the limit: {replayCount}");
+                var replayToDelete = replays
+                    .Where(r => r.track == replay.track && r.car == replay.car)
+                    .OrderBy(r => r.finish_time)
+                    .Skip(Config.Instance.ReplayStoredCountLimit)
+                    .ToList();
+                foreach (var r in replayToDelete) {
+                    _logger.Info($"Deleting replay: {r.id} with finish time: {r.finish_time}");
+                    await deleteReplay(game, r.id);
+                }
+            }
         }
         _logger.Info($"Replay saved: {replay.id}");
     }
@@ -220,6 +236,7 @@ public class ReplayManager {
                 await command.ExecuteNonQueryAsync();
                 command.CommandText = "DELETE FROM replay_details_per_checkpoint WHERE id = @id";
                 await command.ExecuteNonQueryAsync();
+                _logger.Info($"Replay deleted: {id}");
             }
         }
     }
@@ -237,6 +254,24 @@ public class ReplayManager {
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
             return await connection.QueryFirstOrDefaultAsync<Replay>("SELECT * FROM replay WHERE track = @track ORDER BY finish_time ASC LIMIT 1", new { track });
+        }
+    }
+
+    public async Task<Replay> getBestReplayByTrackAndCarName(IGame game, string track, string car_name) {
+        var connectionString = getConnectionString(game);
+        using (var connection = new SqliteConnection(connectionString)) {
+            connection.Open();
+            return await connection.QueryFirstOrDefaultAsync<Replay>("SELECT * FROM replay WHERE track = @track AND car = @car_name ORDER BY finish_time ASC LIMIT 1", new { track, car_name });
+        }
+    }
+
+    public async Task<Replay> GetBestReplay(IGame game, string track, string car_class, string car_name) {
+        if (Config.Instance.ReplayPreferredFilter == 0) {
+            return await getBestReplayByTrackAndCarClass(game, track, car_class);
+        } else if (Config.Instance.ReplayPreferredFilter == 1) {
+            return await getBestReplayByTrack(game, track);
+        } else {
+            return await getBestReplayByTrackAndCarName(game, track, car_name);
         }
     }
 }

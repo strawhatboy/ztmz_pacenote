@@ -521,15 +521,7 @@ public class ZTMZPacenoteTool {
             distance = 0
         });
 
-        Replay replay = null;
-        // load best local replay
-        if (Config.Instance.ReplayPreferredFilter == 0) {
-            // stage name only
-            replay = await ReplayManager.Instance.getBestReplayByTrack(CurrentGame, this._trackName);
-        } else if (Config.Instance.ReplayPreferredFilter == 1) {
-            // car class only
-            replay = await ReplayManager.Instance.getBestReplayByTrackAndCarClass(CurrentGame, this._trackName, this._carClass);
-        }
+        Replay replay = await ReplayManager.Instance.GetBestReplay(CurrentGame, this._trackName, this._carClass, this._carName);
         
         if (replay != null) {
             this.BestLocalReplayDetailsPerCheckpoints = await ReplayManager.Instance.getReplayDetailsPerCheckpoint(CurrentGame, replay.id);

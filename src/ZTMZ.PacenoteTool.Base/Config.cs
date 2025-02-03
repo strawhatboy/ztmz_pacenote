@@ -823,7 +823,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._AutoInitializeGame;
         }
 
-        #region Replay
+#region Replay
         // for a race, split the replay to ReplaySaveGranularity checkpoints, with the race time stored.
         private int _ReplaySaveGranularity = 256;
         public int ReplaySaveGranularity
@@ -850,7 +850,7 @@ namespace ZTMZ.PacenoteTool.Base
 
         /// <summary>
         /// Preferred filter for best replay, used for delta calculation during racing.
-        /// 0: stage name, 1: stage name+car class
+        /// 0: stage name, 1: stage name+car class, 2: stage name+car name
         /// For online and offline replays, and for leaderboard.
         /// </summary>
         private int _ReplayPreferredFilter = 0;
@@ -858,6 +858,16 @@ namespace ZTMZ.PacenoteTool.Base
         {
             set { this._ReplayPreferredFilter = value; this._userconfig["ReplayPreferredFilter"] = value; }
             get => this._ReplayPreferredFilter;
+        }
+
+        /// <summary>
+        /// Stored replay count limit per stagename + carname, for offline replay.
+        /// </summary>
+        private int _ReplayStoredCountLimit = 2;
+        public int ReplayStoredCountLimit
+        {
+            set { this._ReplayStoredCountLimit = value; this._userconfig["ReplayStoredCount"] = value; }
+            get => this._ReplayStoredCountLimit;
         }
 
         private bool _OnlineRivalsEnabled = false;
@@ -878,7 +888,7 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._RivalsWatchList;
         }
 
-        #endregion
+#endregion
 
         public void Save(string path)
         {

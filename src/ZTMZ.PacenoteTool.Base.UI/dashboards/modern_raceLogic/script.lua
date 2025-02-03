@@ -37,7 +37,7 @@ function onInit(args)
     _brushes["red"] = gfx.CreateSolidBrush(255, 0, 0);
     _brushes["grey"] = gfx.CreateSolidBrush(64, 64, 64);
     if (conf.HudChromaKeyMode) then
-        _brushes["green"] = gfx.CreateSolidBrush(0, 0, 255);
+        _brushes["green"] = gfx.CreateSolidBrush(0, 255, 0);
         _brushes["blue"] = gfx.CreateSolidBrush(255, 0, 255);
         _brushes["clear"] = gfx.CreateSolidBrush(0, 255, 0);
     else
@@ -56,9 +56,11 @@ function onInit(args)
         helper.getColor(0xfc, 0x4a, 0x01, 200),
         helper.getColor(0xfc, 0x4a, 0x01, 0));
     
+    _brushes["greenLED"] = gfx.CreateSolidBrush(0, 255, 0, 200);
+    
     local _fonts = {};
     _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
-    _fonts["wrc"] = gfx.CreateCustomFont("WRC Clean Roman", 14);
+    _fonts["wrc"] = gfx.CreateCustomFont("WRC Clean", 14);
     _fonts["wrcGear"] = gfx.CreateCustomFont("WRC Clean Roman", 32);
     _fonts["telemetryGear"] = gfx.CreateFont("Consolas", 32);
     _fonts["wrcBold"] = gfx.CreateFont("WRC Clean Bold", 14, "bold");
@@ -71,26 +73,11 @@ function drawRacelogicTelemetry(gfx, self, data, ctx, helper, x, y, width, heigh
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     
-    -- Add offset and scale factors
-    local imageOffsetX = 0  -- Adjust this value to move the image horizontally
-    local imageOffsetY = -0  -- Adjust this value to move the image vertically
-    local imageScaleX = 1  -- Adjust this value to scale the image width
-    local imageScaleY = 1.0  -- Adjust this value to scale the image height
-
-    -- Calculate new dimensions and position
-    local imageWidth = width * imageScaleX
-    local imageHeight = height * imageScaleY
-    local imageX = x + imageOffsetX
-    local imageY = y + imageOffsetY
-
-    -- Draw background image with new position and size
+    -- Draw background image
     gfx.DrawImage(self.ImageResources["images@background"], x, y, x + width, y + height);
     
-    -- Draw background
-    -- gfx.FillRectangle(_brushes["background"], x, y, x + width, y + height);
-
     -- Draw current race time
-    local raceTime = data.LapTime; -- seconds in float
+    local raceTime = data.LapTime;
     local raceTimeStrMinute = math.floor(raceTime / 60);
     local raceTimeStrSecond = math.floor(raceTime % 60);
     local raceTimeMilisecond = math.floor((raceTime - math.floor(raceTime)) * 1000);
@@ -106,31 +93,23 @@ function drawRacelogicTelemetry(gfx, self, data, ctx, helper, x, y, width, heigh
         raceTimeMilisecond = "0" .. raceTimeMilisecond;
     end
     
-    local multiVal = 0.3;
+    -- Adjust the size multiplier based on the background aspect ratio
+    local multiVal = 0.34;
+    local charSpacing = -height * 0.025;
 
     local raceTimeStr = raceTimeStrMinute .. ":" .. raceTimeStrSecond .. "." .. raceTimeMilisecond;
-    local size = gfx.MeasureString(_fonts["wrcBold"], height * multiVal, raceTimeStr); -- Adjusted height proportion
-    -- Adjust character spacing manually
-    local charSpacing = -height * 0.031; -- Adjust this value to change spacing
-    local xPos = x + height * 0.35;
+    local size = gfx.MeasureString(_fonts["wrcBold"], height * multiVal, raceTimeStr);
+    -- Center the time horizontally and vertically
+    local totalWidth = size.X + (charSpacing * (#raceTimeStr - 1));
+    local xPos = x + (width - totalWidth) / 2.75;
+    local yPos = y + (height - size.Y) / 2.16;
+    
     for i = 1, #raceTimeStr do
         local char = raceTimeStr:sub(i, i);
-        gfx.DrawText(_fonts["wrc"], height * multiVal, _brushes["white"], xPos, y + (height - size.Y) / 2, char); -- Adjusted height proportion
+        gfx.DrawText(_fonts["wrc"], height * multiVal, _brushes["white"], xPos, yPos, char);
         local charSize = gfx.MeasureString(_fonts["wrc"], height * multiVal, char);
         xPos = xPos + charSize.X + charSpacing;
     end
-
-    -- Draw track length
-    local trackLength = string.format("%04.1f km", math.floor(data.TrackLength) / 1000);
-    size = gfx.MeasureString(_fonts["wrc"], height * multiVal/2, trackLength);
-    gfx.DrawText(_fonts["wrc"], height * multiVal/5, _brushes["white"], x + width - size.X - height * 0.43, y + height * 0.4, "Leng.");
-    gfx.DrawText(_fonts["wrc"], height * multiVal/3, _brushes["white"], x + width - size.X - height * 0.3, y + height * 0.38, trackLength);
-
-    -- Draw remaining distance
-    local remainingDistance = string.format("%04.1f km", math.floor(data.LapDistance) / 1000);
-    size = gfx.MeasureString(_fonts["wrc"], height * multiVal/2, remainingDistance);
-    gfx.DrawText(_fonts["wrc"], height * multiVal/5, _brushes["white"], x + width - size.X - height * 0.43, y + height * 0.55, "Dist. ");
-    gfx.DrawText(_fonts["wrc"], height * multiVal/3, _brushes["white"], x + width - size.X - height * 0.3, y + height * 0.52, remainingDistance);
 end
 
 function onUpdate(args)
@@ -151,7 +130,7 @@ function onUpdate(args)
     local positionV = self.GetConfigByKey("dashboards.settings.positionV");
     local marginH = self.GetConfigByKey("dashboards.settings.marginH") * gfx.Width;
     local marginV = self.GetConfigByKey("dashboards.settings.marginV") * gfx.Height;
-    local whRatio = 2.62; --self.GetConfigByKey("dashboards.settings.whRatio");
+    local whRatio = 672 / 284; --self.GetConfigByKey("dashboards.settings.whRatio");
 
     local telemetryStartX = 0;
     if (positionH == -1) then
@@ -173,6 +152,98 @@ function onUpdate(args)
     local width = size * whRatio * 1; -- increase width to fit all elements
 
     drawRacelogicTelemetry(gfx, self, data, ctx, helper, telemetryStartX, telemetryStartY, width, size);
+
+    -- Check if best lap comparison is enabled and in racing state
+    local showBestReplay = self.GetConfigByKey("dashboards.settings.showLocalBest") and ctx.LocalReplayValid;
+    local showDeltaTime = self.GetConfigByKey("dashboards.settings.showDeltaTime");
+    local deltaTime = 0;
+    if showBestReplay and ctx.GameState == GAMESTATE_Racing then
+        deltaTime = ctx.GetDeltaByDistanceAndTime:Invoke(data.LapDistance, data.LapTime);
+    end
+
+    -- Draw delta time with styled background
+    if showBestReplay and ctx.GameState == GAMESTATE_Racing and showDeltaTime then
+        -- Format delta time text
+        local deltaText = string.format("%s%.2f", deltaTime >= 0 and "+" or "-", math.abs(deltaTime));
+        
+        -- Create brushes for delta time display
+        local deltaBrush = deltaTime <= 0 
+            and gfx.CreateSolidBrush(0, 128, 0)    -- Green for ahead
+            or gfx.CreateSolidBrush(255, 0, 0);    -- Red for behind
+        
+        -- Calculate text position and size
+        local deltaWeight = size * 0.12;
+        local deltaX = telemetryStartX + width * 0.72;
+        local deltaY = telemetryStartY + size * 0.38;
+        
+        -- Calculate text dimensions for background
+        local textSize = gfx.MeasureString(_fonts["wrc"], deltaWeight, deltaText);
+        local padding = deltaWeight * 0.3;
+        local rectX = deltaX - (textSize.X / 2) - padding;
+        local rectY = deltaY;
+        local rectWidth = textSize.X + (padding * 2);
+        local rectHeight = textSize.Y + (padding / 2);
+        local cornerRadius = rectHeight / 5.5;
+        
+        -- Draw rounded rectangle background
+        gfx.FillRoundedRectangle(deltaBrush, 
+            rectX, 
+            rectY, 
+            rectX + rectWidth,
+            rectY + rectHeight,
+            cornerRadius);
+        
+        -- Draw delta time text
+        gfx.DrawText(_fonts["wrc"], 
+            deltaWeight, 
+            _brushes["white"],
+            rectX + padding,
+            rectY + (padding / 4),
+            deltaText);
+            
+        -- Dispose of temporary brush
+        deltaBrush.Dispose();
+    end
+
+    -- LED display logic
+    local ledSize = size * 0.043
+    local leftLedX = telemetryStartX + width/2 - width*0.11 - ledSize/2
+    local rightLedX = telemetryStartX + width/2 + width*0.096 - ledSize/2
+    local ledY = telemetryStartY + ledSize * 2.43
+
+    -- Create LED brushes based on delta time
+    local ledBrush;
+    if deltaTime <= 0 then
+        -- Ahead (green)
+        ledBrush = gfx.CreateSolidBrush(0, 255, 0, 200);
+    else
+        -- Behind (red)
+        ledBrush = gfx.CreateSolidBrush(255, 0, 0, 200);
+    end
+
+    -- Draw LEDs based on delta time
+    if math.abs(deltaTime) > 0 then
+        -- Draw left LED if delta is between 0 and 1 second
+        gfx.FillEllipse(ledBrush, 
+            leftLedX - (ledSize - ledSize)/2,
+            ledY - (ledSize - ledSize)/2,
+            ledSize,
+            ledSize
+        )
+
+        -- Draw right LED if delta is greater than 1 second
+        if math.abs(deltaTime) >= 1.0 then
+            gfx.FillEllipse(ledBrush, 
+                rightLedX - (ledSize - ledSize)/2,
+                ledY - (ledSize - ledSize)/2,
+                ledSize,
+                ledSize
+            )
+        end
+    end
+    
+    -- Dispose of the temporary brush
+    ledBrush.Dispose();
 end
 
 function onExit()

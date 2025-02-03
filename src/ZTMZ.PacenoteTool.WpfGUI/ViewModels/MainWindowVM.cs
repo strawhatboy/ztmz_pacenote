@@ -120,6 +120,13 @@ public partial class MainWindowVM : ObservableObject
         vr.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.vr");
         items.Add(vr);
 
+        var replay = new NavigationViewItem() {
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Replay20 },
+            TargetPageType = typeof(Views.ReplayPage)
+        };
+        replay.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.replay");
+        items.Add(replay);
+
         NavigationItems = new ObservableCollection<object>();
         BindingOperations.EnableCollectionSynchronization(NavigationItems, _collectionLock);
         items.ForEach(a => NavigationItems.Add(a));

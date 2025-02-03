@@ -199,6 +199,10 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
     {
         // update AutoUpdate settings, since it may be changed in About/Settings page
         IsAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
+
+        // these 2 could be also changed during closing the main window
+        CloseBehaviorSelection = Config.Instance.CloseWindowToMinimize ? 1 : 0;
+        ShowClosePrompt = Config.Instance.ShowClosePrompt;
     }
 
     public void OnNavigatedFrom()

@@ -5,7 +5,9 @@
       "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
       "dashboards.settings.size": "dashboards.settings.tooltip.size",
       "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
-      "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV"
+      "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV",
+      "dashboards.settings.showLocalBest": "dashboards.settings.tooltip.showLocalBest",
+      "dashboards.settings.showDeltaTime": "dashboards.settings.tooltip.showDeltaTime"
     },
     "PropertyValue": [
       true,
@@ -13,7 +15,9 @@
       1,
       0.36,
       0.0,
-      0.24
+      0.24,
+      true,
+      true
     ],
     "ValueRange": [
       [],
@@ -30,7 +34,9 @@
       [
         0.0,
         0.5
-      ]
+      ],
+      [],
+      []
     ],
     "PropertyType": []
   }

@@ -12,6 +12,7 @@
     "hud": "悬浮窗",
     "dashboard": "仪表盘",
     "game": "当前游戏",
+    "replay": "回放",
     "vr": "VR",
     "user": "用户",
     "about": "关于"
@@ -119,7 +120,13 @@
       "udpListenAddress": "默认为127.0.0.1",
       "udpListenPort": "游戏默认的数据端口是20777，如果想和simhub同时使用，可以修改为20778",
       "udpListenPort_Warning": "端口号和游戏的数据端口号{0}不一致，可能你正在使用SIMHUB",
-      "memoryRefreshRate": "修改这个值可以改变内存读取频率"
+      "memoryRefreshRate": "修改这个值可以改变内存读取频率",
+
+      "replaySave": "打开此选项以保存最佳成绩以及成绩过程中的细节，方便在仪表盘上显示当前和最佳成绩之间的差异",
+      "replayPreferredFilter": "通过车辆名称、车辆类别或仅仅通过赛道来决定最佳成绩",
+      "replayStoredCountLimit": "对于某个赛道和车辆的组合，存储最佳成绩记录的上限，上限过大可能会占用更多磁盘空间",
+      "replaySaveInterval": "对于每个最佳成绩，每隔这个间隔时间保存当前里程",
+      "onlineRivalsEnabled": "用于在仪表盘中显示在线对手（Racenet）的情况，类似于联机时显示每个人的进度"
     },
 
     "autoInitializeGame_on": "自动选择游戏",
@@ -209,7 +216,16 @@
     "memoryRefreshRate": "内存刷新频率 (Hz)",
 
     "staff": "制作组（出来挨打？",
-    "gameSettings": "游戏设置"
+    "gameSettings": "游戏设置",
+
+    "replaySave": "保存最佳成绩",
+    "replayPreferredFilter": "过滤最佳成绩方式",
+    "replayPreferredFilter_none": "不过滤",
+    "replayPreferredFilter_car": "按车辆名称过滤",
+    "replayPreferredFilter_carclass": "按车辆类别过滤",
+    "replayStoredCountLimit": "最佳成绩存储数量上限",
+    "replaySaveInterval": "最佳成绩赛道过程保存间隔时间（毫秒）",
+    "onlineRivalsEnabled": "启用在线对手（仅EA WRC支持）"
   },
 
   "dialog": {
