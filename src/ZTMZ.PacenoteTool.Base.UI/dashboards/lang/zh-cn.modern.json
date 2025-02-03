@@ -43,6 +43,8 @@
             "useOffset": "使用位置偏移",
             "showSteeringIndicator": "显示方向盘输入指示器",
             "showLocalBest": "显示本地最佳成绩",
+            "showDeltaTime": "显示时间差文字",
+            "showAdditionalInfo": "显示额外信息",
             "tooltip": {
                 "padding": "仪表盘距离边缘的占比, 是相对于仪表盘大小的比值",
                 "marginH": "仪表盘水平方向边距占比, 是相对于屏幕宽度的比值",
@@ -52,6 +54,8 @@
                 "useOffset": "对此仪表使用水平位置偏移，保证在水平方向设置为居中时，圆形仪表的中心在屏幕中心",
                 "showSteeringIndicator": "显示方向盘输入指示器",
                 "showLocalBest": "在进度条上显示本地最佳成绩的光标，以及与之的差距",
+                "showDeltaTime": "在仪表盘顶部显示与本地最佳成绩的时间差",
+                "showAdditionalInfo": "显示额外信息，例如速度、转速、圈时等"
             }
         }
     }

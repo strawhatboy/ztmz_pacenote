@@ -43,6 +43,8 @@
             "useOffset": "Use horizontal offset",
             "showSteeringIndicator": "Show steering wheel input indicator",
             "showLocalBest": "Show local best time",
+            "showDeltaTime": "Show delta time text",
+            "showAdditionalInfo": "Show additional information",
             "tooltip": {
                 "padding": "Padding horizontally and vertically",
                 "marginH": "Margin horizontally, relative to the screen width",
@@ -52,6 +54,8 @@
                 "useOffset": "When horizontal position is set to Center, switch on \nto center the circular elements in this dashboard",
                 "showSteeringIndicator": "Show steering wheel input indicator",
                 "showLocalBest": "Show the cursor of the local best time on the progress bar, and the difference to it",
+                "showDeltaTime": "Show the time difference to local best time at the top of dashboard",
+                "showAdditionalInfo": "Show additional information such as Speed, RPM, LapTime, etc."
             }
         }
     }
