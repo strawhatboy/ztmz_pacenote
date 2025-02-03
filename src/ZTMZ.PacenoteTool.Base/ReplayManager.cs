@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Data.Sqlite;
@@ -131,13 +132,20 @@ public class ReplayManager {
             detailsPerTime.ForEach(d => d.id = replay.id);
             detailsPerCheckpoint.ForEach(d => d.id = replay.id);
 
-            var transaction = connection.BeginTransaction();
+            // get the first record of each time to avoid duplicate records
+            var uniqueDetailsPerTime = detailsPerTime
+                .GroupBy(d => d.time)
+                .Select(g => g.First())
+                .OrderBy(d => d.time)
+                .ToList();
+
+            var transaction = await connection.BeginTransactionAsync();
             var insertSQL = @"
                 INSERT INTO replay_details_per_time (id, time, distance)
                 VALUES (@id, @time, @distance);
                 ";
-            for (int i = 0; i < detailsPerTime.Count; i++) {
-                var d = detailsPerTime[i];
+            for (int i = 0; i < uniqueDetailsPerTime.Count; i++) {
+                var d = uniqueDetailsPerTime[i];
                 using (var command = connection.CreateCommand()) {
                     command.CommandText = insertSQL;
                     command.Parameters.AddWithValue("@id", d.id);
@@ -162,7 +170,7 @@ public class ReplayManager {
                     await command.ExecuteNonQueryAsync();
                 }
             }
-            transaction.Commit();
+            await transaction.CommitAsync();
         }
         _logger.Info($"Replay saved: {replay.id}");
     }
@@ -179,7 +187,16 @@ public class ReplayManager {
         var connectionString = getConnectionString(game);
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
-            return (await connection.QueryAsync<ReplayDetailsPerTime>("SELECT * FROM replay_details_per_time WHERE id = @id ORDER BY time ASC", new { id })).AsList();
+            // get the first record of each time
+            return (await connection.QueryAsync<ReplayDetailsPerTime>(@"SELECT r.* 
+            FROM replay_details_per_time r
+            INNER JOIN (
+                SELECT MIN(rowid) as rowid 
+                FROM replay_details_per_time 
+                WHERE id = @id 
+                GROUP BY time
+            ) m ON r.rowid = m.rowid
+            ORDER BY time ASC", new { id })).AsList();
         }
     }
 

@@ -1,45 +1,29 @@
 {
     "PropertyName": {
-      "dashboards.settings.enabled": "dashboards.settings.tooltip.enabled",
-      "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
-      "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
-      "dashboards.settings.size": "dashboards.settings.tooltip.size",
-      "dashboards.settings.useOffset": "dashboards.settings.tooltip.useOffset",
-      "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
-      "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV",
-      "dashboards.settings.drivername": "dashboards.settings.tooltip.drivername",
-      "dashboards.settings.driverregion": "dashboards.settings.tooltip.driverregion"
+        "dashboards.settings.enabled": "dashboards.settings.tooltip.enabled",
+        "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
+        "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
+        "dashboards.settings.size": "dashboards.settings.tooltip.size",
+        "dashboards.settings.useOffset": "dashboards.settings.tooltip.useOffset",
+        "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
+        "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV",
+        "dashboards.settings.drivername": "dashboards.settings.tooltip.drivername",
+        "dashboards.settings.driverregion": "dashboards.settings.tooltip.driverregion",
+        "dashboards.settings.showLocalBest": "dashboards.settings.tooltip.showLocalBest"
     },
     "PropertyValue": [
-      true,
-      1,
-      1,
-      0.14,
-      true,
-      0.04,
-      0.02,
-      "AARON FANG",
-      "cn"
+        true,
+        1,
+        1,
+        0.04,
+        true,
+        0.04,
+        0.085,
+        "林臻东",
+        "cn",
+        true
     ],
     "ValueRange": [
-      [],
-      [],
-      [],
-      [
-        0.01,
-        1.0
-      ],
-      [],
-      [
-        0.0,
-        0.5
-      ],
-      [
-        0.0,
-        0.5
-      ],
-      [],
-      []
-    ],
-    "PropertyType": []
-  }
+        [], [], [], [0.01, 1], [], [0.0, 0.5], [0.0, 0.5], [], [], []
+    ]
+}

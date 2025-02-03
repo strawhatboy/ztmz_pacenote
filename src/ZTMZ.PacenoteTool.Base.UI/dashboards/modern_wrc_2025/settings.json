@@ -8,7 +8,8 @@
       "dashboards.settings.switchGearNSpeed": "dashboards.settings.tooltip.switchGearNSpeed",
       "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
       "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV",
-      "dashboards.settings.showSteeringIndicator": "dashboards.settings.tooltip.showSteeringIndicator"
+      "dashboards.settings.showSteeringIndicator": "dashboards.settings.tooltip.showSteeringIndicator",
+      "dashboards.settings.showLocalBest": "dashboards.settings.tooltip.showLocalBest"
     },
     "PropertyValue": [
       true,
@@ -19,6 +20,7 @@
       false,
       0.03,
       0.0,
+      true,
       true
     ],
     "ValueRange": [
@@ -39,6 +41,7 @@
         0.0,
         0.5
       ],
+      [],
       []
     ],
     "PropertyType": []

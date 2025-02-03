@@ -1,7 +1,59 @@
 local resources = {};
+local splitDeltas = {};  -- 新增：用于存储每个split点的时间差
 
-local framesCount = 0;
-local bInBlink = true;
+
+    -- 提取厂商名称并返回对应的图片名称
+local function extractManufacturer(carName)
+    if not carName then return nil end
+    
+    -- 定义厂商名称与图片文件名的映射
+    local manufacturers = {
+        ["Toyota"] = "toyota",
+        ["Hyundai"] = "Hyundai",
+        ["Ford"] = "ford",
+        ["Skoda"] = "skoda",
+        ["Škoda"] = "skoda",
+        ["Volkswagen"] = "vw",
+        ["Citroen"] = "citron",
+        ["Citroën"] = "citron",
+        ["Peugeot"] = "peugeot",
+        ["Subaru"] = "subaru",
+        ["Mitsubishi"] = "Mithubishi",
+        ["Alpine"] = "alpine",
+        ["Audi"] = "adui",
+        ["BMW"] = "bmw",
+        ["Porsche"] = "porsche",
+        ["Lancia"] = "lancia",
+        ["Mini"] = "Mini",
+        ["Abarth"] = "Abarth",
+        ["Fiat"] = "fiat",
+        ["Honda"] = "honda",
+        ["Lada"] = "lada",
+        ["Opel"] = "opel",
+        ["Renault"] = "renault",
+        ["Seat"] = "seat",
+        ["Talbot"] = "talbot",
+        ["Vauxhall"] = "vauxhall",
+        ["MG"] = "MG",
+        ["Hillman"] = "hillman",
+        ["Lotus"] = "lotus",
+        ["Mazda"] = "mazda", 
+        ["Aston Martin"] = "astonMartin",
+        ["Trabant"] = "trabant",
+        ["VW"] = "vw",
+        ["Volvo"] = "volvo",
+        ["Wartburg"] = "wartburg",
+    }
+    
+    -- 遍历所有厂商名称，检查是否在车名中出现
+    for searchName, imageName in pairs(manufacturers) do
+        if carName:lower():match(searchName:lower()) then
+            return imageName
+        end
+    end
+    
+    return nil
+end
 
 -- This function is called when the script is loaded
 -- args: dotnet object
@@ -64,6 +116,10 @@ function onInit(args)
         helper.getColor(252, 74, 1, 200),
         helper.getColor(252, 74, 1, 0));
     
+    -- 添加新的时间差背景色画笔
+    _brushes["delta_ahead"] = gfx.CreateSolidBrush(0, 128, 0);    -- 绿色
+    _brushes["delta_behind"] = gfx.CreateSolidBrush(255, 0, 0);   -- 红色
+    
     local _fonts = {};
     _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
     _fonts["wrc"] = gfx.CreateCustomFont("WRC Clean Roman", 14);
@@ -72,26 +128,29 @@ function onInit(args)
     
     resources["brushes"] = _brushes;
     resources["fonts"] = _fonts;
+    splitDeltas = {}  -- 重置split点时间差记录
+end
+
+
+-- Helper function to draw background images
+local function drawBgImage(gfx, self, imageName, relativeX, relativeY, imgRatio, scale, x, y, width, height)
+    local imgHeight = height * scale
+    local imgWidth = imgHeight * imgRatio
+    local imgX = x + (width * relativeX)
+    local imgY = y + (height * relativeY)
+    gfx.DrawImage(
+        self.ImageResources["images@" .. imageName],
+        imgX, 
+        imgY, 
+        imgX + imgWidth, 
+        imgY + imgHeight
+    )
 end
 
 function drawStaticFrames(gfx, self, data, ctx, helper, x, y, width, height) 
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     
-    -- Helper function to draw background images
-    local function drawBgImage(imageName, relativeX, relativeY, imgRatio, scale)
-        local imgHeight = height * scale
-        local imgWidth = imgHeight * imgRatio
-        local imgX = x + (width * relativeX)
-        local imgY = y + (height * relativeY)
-        gfx.DrawImage(
-            self.ImageResources["images@" .. imageName],
-            imgX, 
-            imgY, 
-            imgX + imgWidth, 
-            imgY + imgHeight
-        )
-    end
 
     -- Define hybrid car id
     local hybridCars = {
@@ -120,7 +179,34 @@ function drawStaticFrames(gfx, self, data, ctx, helper, x, y, width, height)
 
     -- Draw background based on car type
     local backgroundImage = isHybrid and "background" or "background2"
-    drawBgImage(backgroundImage, 0, 0, 941/100, 0.4)
+    drawBgImage(gfx, self, backgroundImage, 0, 0, 941/100, 0.4, x, y, width, height)
+end
+
+-- 分割并绘制驾驶员名字
+local function splitDriverName(fullName)
+    -- 查找最后一个空格的位置
+    local lastSpace = fullName:find("%s[^%s]*$")
+    if lastSpace then
+        -- 分割名和姓
+        local firstName = fullName:sub(1, lastSpace-1)
+        local lastName = fullName:sub(lastSpace+1)
+        return firstName, lastName
+    else
+        -- 如果没有空格，返回完整名字作为姓
+        return "", fullName
+    end
+end
+
+-- 清理赛段名称，移除中括号及其内容
+local function cleanStageName(name)
+    if not isStringEmpty(name) then
+        -- 移除中括号及其内容，保留其他文本
+        local cleaned = name:gsub("%[.-%]", "")
+        -- 移除多余空格并修剪
+        cleaned = cleaned:gsub("%s+", " "):match("^%s*(.-)%s*$")
+        return cleaned
+    end
+    return "Unknown Stage"
 end
 
 function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, height)
@@ -157,21 +243,6 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
         carNameY = 0.4,       -- 车名位置
         manufacturerY = 0.18   -- 厂商logo Y位置（增大这个值会向下移动）
     }
-    
-    -- 分割并绘制驾驶员名字
-    local function splitDriverName(fullName)
-        -- 查找最后一个空格的位置
-        local lastSpace = fullName:find("%s[^%s]*$")
-        if lastSpace then
-            -- 分割名和姓
-            local firstName = fullName:sub(1, lastSpace-1)
-            local lastName = fullName:sub(lastSpace+1)
-            return firstName, lastName
-        else
-            -- 如果没有空格，返回完整名字作为姓
-            return "", fullName
-        end
-    end
 
     -- 绘制驾驶员名字
     local driverWeight = scale.driverName * height;
@@ -225,12 +296,38 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
     end
     
     local stageTimeStr = stageTimeStrMinute .. ":" .. stageTimeStrSecond .. "." .. stageTimeMilisecond;
-    local timeWeight = scale.stageTime * height; -- 使用独立的字体大小变量
+    local timeWeight = scale.stageTime * height;
     size = gfx.MeasureString(_fonts["wrcBold"], timeWeight, stageTimeStr);
     gfx.DrawText(_fonts["wrcBold"], timeWeight, _brushes["white"], 
         x + width * position.timeX, 
         y + height * position.mainContentY - size.Y / 2, 
         stageTimeStr);
+    
+    -- 添加个人最佳成绩差值显示
+    local showBestReplay = self.GetConfigByKey("dashboards.settings.showLocalBest") and ctx.LocalReplayValid;
+    -- 添加检查：只在比赛进行中显示时间差
+    if showBestReplay and ctx.GameState == GAMESTATE_Racing then
+        -- 使用 GetDeltaByDistanceAndTime 获取时间差
+        local deltaTime = ctx.GetDeltaByDistanceAndTime:Invoke(data.LapDistance, data.LapTime)
+        
+        -- 格式化显示时间差（秒）
+        local deltaText = string.format("%s%.3f s", deltaTime >= 0 and "+" or "-", math.abs(deltaTime))
+        
+        -- 选择颜色（超前绿色，落后红色）
+        local deltaBrush = deltaTime <= 0 and _brushes["delta_ahead"] or _brushes["delta_behind"];
+        
+        -- 获取主时间显示的尺寸
+        local timeWeight = scale.stageTime * height;
+        local size = gfx.MeasureString(_fonts["wrcBold"], timeWeight, stageTimeStr);
+        
+        -- 在主时间下方显示时间差值
+        -- gfx.DrawText(_fonts["wrc"], 
+        --     timeWeight * 0.8,  -- 稍小的字体大小
+        --     deltaBrush,
+        --     x + width * position.timeX,
+        --     y + height * position.mainContentY + size.Y * 0.7,  -- 在主时间下方
+        --     deltaText);
+    end
     
     -- 绘制进度条
     local stageProgress = data.CompletionRate;
@@ -265,31 +362,81 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
     
     -- 绘制split点
     for i = 1, splitCount do
-        local splitPosition = i / (splitCount + 1)  -- 平均分配split点
+        local splitPosition = i / (splitCount + 1)
         local splitX = stageProgressX + progressBarWidth * splitPosition
         local splitY = stageProgressY + stageProgressWeight / 2
         
         -- 根据当前进度决定是否为实心
-        if stageProgress >= splitPosition then
-            -- 已经经过的点，绘制实心圆点
+        local hasPassed = stageProgress >= splitPosition
+        if hasPassed then
             gfx.FillCircle(_brushes["white"], splitX, splitY, stageProgressWeight * 1.6)
         else
-            -- 未经过的点，绘制空心圆环
             gfx.DrawCircle(_brushes["white"], splitX, splitY, stageProgressWeight * 1.4, stageProgressWeight * 0.8)
         end
         
-        -- 计算并显示公里数
-        local splitKm = trackLength * splitPosition
-        local kmText = string.format("%.1f", splitKm) .. ""
-        local textSize = gfx.MeasureString(_fonts["wrc"], stageProgressWeight * 1.2, kmText)
+        -- 计算该split点对应的距离
+        local splitDistance = data.TrackLength * splitPosition
         
-        -- 绘制公里数文字
-        gfx.DrawText(_fonts["wrc"], 
-            stageProgressWeight * 7, 
-            _brushes["white"], 
-            splitX - textSize.X - (stageProgressWeight * 4),
-            splitY + stageProgressWeight * 2,
-            kmText)
+        if showBestReplay then
+            -- 如果这个split点刚刚被通过且还没有记录时间差
+            if hasPassed and not splitDeltas[i] and stageProgress < (splitPosition + 1/(splitCount + 1)) then
+                -- 使用 GetDeltaByDistanceAndTime 获取时间差
+                splitDeltas[i] = ctx.GetDeltaByDistanceAndTime:Invoke(splitDistance, data.LapTime)
+            end
+            
+            -- 如果有记录的时间差，显示它
+            if splitDeltas[i] then
+                local deltaTime = splitDeltas[i]
+                local deltaText = string.format("%s%.1f", deltaTime >= 0 and "+" or "-", math.abs(deltaTime))
+                local bgBrush = deltaTime <= 0 and _brushes["delta_ahead"] or _brushes["delta_behind"];
+                
+                -- 计算文本尺寸以确定背景矩形大小
+                local textSize = gfx.MeasureString(_fonts["wrc"], stageProgressWeight * 7, deltaText)
+                local padding = stageProgressWeight * 2
+                local rectX = splitX - (textSize.X / 2) - padding
+                local rectY = splitY + stageProgressWeight * 2
+                local rectWidth = textSize.X + (padding * 2)
+                local rectHeight = textSize.Y + (padding / 2)
+                local cornerRadius = rectHeight / 5.5
+                
+                -- 绘制圆角矩形背景和文本
+                gfx.FillRoundedRectangle(bgBrush, 
+                    rectX, 
+                    rectY, 
+                    rectX + rectWidth,
+                    rectY + rectHeight,
+                    cornerRadius)
+                
+                gfx.DrawText(_fonts["wrc"], 
+                    stageProgressWeight * 7, 
+                    _brushes["white"],
+                    rectX + padding,
+                    rectY + (padding / 4),
+                    deltaText)
+            elseif not hasPassed then
+                -- 如果还未经过该split点，显示公里数
+                local kmText = string.format("%.1f", trackLength * splitPosition)
+                local textSize = gfx.MeasureString(_fonts["wrc"], stageProgressWeight * 1.2, kmText)
+                
+                gfx.DrawText(_fonts["wrc"], 
+                    stageProgressWeight * 7, 
+                    _brushes["white"], 
+                    splitX - textSize.X - (stageProgressWeight * 4),
+                    splitY + stageProgressWeight * 2,
+                    kmText)
+            end
+        else
+            -- 如果未经过或未启用最佳成绩比较，显示公里数
+            local kmText = string.format("%.1f", trackLength * splitPosition)
+            local textSize = gfx.MeasureString(_fonts["wrc"], stageProgressWeight * 1.2, kmText)
+            
+            gfx.DrawText(_fonts["wrc"], 
+                stageProgressWeight * 7, 
+                _brushes["white"], 
+                splitX - textSize.X - (stageProgressWeight * 4),
+                splitY + stageProgressWeight * 2,
+                kmText)
+        end
     end
     
     -- 添加终点标记
@@ -300,6 +447,43 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
     if stageProgress >= 1 then
         -- 已到终点，实心圆点
         gfx.FillCircle(_brushes["white"], finishX, finishY, stageProgressWeight * 1.6)
+        
+        -- 如果启用了最佳成绩比较，显示最终时间差
+        if showBestReplay then
+            -- 获取最佳成绩的完成时间
+            local keys = ctx.LocalReplayDetailsPerTimesDict.Keys:ToList()
+            local bestTime = keys:ElementAt(keys.Count - 1)
+            local deltaTime = data.LapTime - bestTime
+            
+            -- 格式化时间差文本
+            local deltaText = string.format("%s%.1f", deltaTime >= 0 and "+" or "-", math.abs(deltaTime))
+            local bgBrush = deltaTime <= 0 and _brushes["delta_ahead"] or _brushes["delta_behind"];
+            
+            -- 计算文本尺寸以确定背景矩形大小
+            local textSize = gfx.MeasureString(_fonts["wrcBold"], stageProgressWeight * 7, deltaText)
+            local padding = stageProgressWeight * 2  -- 文本周围的内边距
+            local rectX = finishX - (textSize.X / 2) - padding
+            local rectY = finishY + stageProgressWeight * 2
+            local rectWidth = textSize.X + (padding * 2)
+            local rectHeight = textSize.Y + (padding / 2)
+            local cornerRadius = rectHeight / 5.5  -- 圆角半径
+            
+            -- 绘制圆角矩形背景
+            gfx.FillRoundedRectangle(bgBrush, 
+                rectX, 
+                rectY, 
+                rectX + rectWidth,
+                rectY + rectHeight,
+                cornerRadius)
+            
+            -- 绘制白色文本
+            gfx.DrawText(_fonts["wrc"], 
+                stageProgressWeight * 7, 
+                _brushes["white"],
+                rectX + padding,
+                rectY + (padding / 4),
+                deltaText)
+        end
     else
         -- 未到终点，空心圆环
         gfx.DrawCircle(_brushes["white"], finishX, finishY, stageProgressWeight * 1.4, stageProgressWeight * 0.8)
@@ -311,25 +495,28 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
     local numberSize = stageProgressWeight * 7
     local unitSize = numberSize / 3 * 2
     
-    -- 计算文字宽度
-    local numberTextSize = gfx.MeasureString(_fonts["wrc"], numberSize, finishNumber)
-    local unitTextSize = gfx.MeasureString(_fonts["wrc"], unitSize, finishUnit)
-    local totalWidth = numberTextSize.X + unitTextSize.X
-    
-    -- 绘制数字和单位，向左偏移并右对齐
-    gfx.DrawText(_fonts["wrc"], 
-        numberSize, 
-        _brushes["white"], 
-        finishX - totalWidth + (stageProgressWeight * 7),
-        finishY + stageProgressWeight * 2,
-        finishNumber)
+    -- 只在未完成时显示总里程
+    if stageProgress < 1 then
+        -- 计算文字宽度
+        local numberTextSize = gfx.MeasureString(_fonts["wrc"], numberSize, finishNumber)
+        local unitTextSize = gfx.MeasureString(_fonts["wrc"], unitSize, finishUnit)
+        local totalWidth = numberTextSize.X + unitTextSize.X
         
-    gfx.DrawText(_fonts["wrc"], 
-        unitSize, 
-        _brushes["white"], 
-        finishX - unitTextSize.X + (stageProgressWeight * 7),
-        finishY + stageProgressWeight * 4.5,
-        finishUnit)
+        -- 绘制数字和单位，向左偏移并右对齐
+        gfx.DrawText(_fonts["wrc"], 
+            numberSize, 
+            _brushes["white"], 
+            finishX - totalWidth + (stageProgressWeight * 7),
+            finishY + stageProgressWeight * 2,
+            finishNumber)
+            
+        gfx.DrawText(_fonts["wrc"], 
+            unitSize, 
+            _brushes["white"], 
+            finishX - unitTextSize.X + (stageProgressWeight * 7),
+            finishY + stageProgressWeight * 4.5,
+            finishUnit)
+    end
     
     -- 进度条末端的圆点（当前位置指示器）
     local dotCenterX = stageProgressX + progressBarWidth * stageProgress;
@@ -337,71 +524,6 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
     _brushes["themeRG"].SetCenter(dotCenterX, dotCenterY);
     _brushes["themeRG"].SetRadius(stageProgressWeight * 2.8, stageProgressWeight * 3)
     gfx.FillCircle(_brushes["themeRG"], dotCenterX, dotCenterY, stageProgressWeight * 2.5);
-
-    -- 清理赛段名称，移除中括号及其内容
-    local function cleanStageName(name)
-        if name then
-            -- 移除中括号及其内容，保留其他文本
-            local cleaned = name:gsub("%[.-%]", "")
-            -- 移除多余空格并修剪
-            cleaned = cleaned:gsub("%s+", " "):match("^%s*(.-)%s*$")
-            return cleaned
-        end
-        return "Unknown Stage"
-    end
-
-    -- 提取厂商名称并返回对应的图片名称
-    local function extractManufacturer(carName)
-        if not carName then return nil end
-        
-        -- 定义厂商名称与图片文件名的映射
-        local manufacturers = {
-            ["Toyota"] = "toyota",
-            ["Hyundai"] = "Hyundai",
-            ["Ford"] = "ford",
-            ["Skoda"] = "skoda",
-            ["Škoda"] = "skoda",
-            ["Volkswagen"] = "vw",
-            ["Citroen"] = "citron",
-            ["Citroën"] = "citron",
-            ["Peugeot"] = "peugeot",
-            ["Subaru"] = "subaru",
-            ["Mitsubishi"] = "Mithubishi",
-            ["Alpine"] = "alpine",
-            ["Audi"] = "adui",
-            ["BMW"] = "bmw",
-            ["Porsche"] = "porsche",
-            ["Lancia"] = "lancia",
-            ["Mini"] = "Mini",
-            ["Abarth"] = "Abarth",
-            ["Fiat"] = "fiat",
-            ["Honda"] = "honda",
-            ["Lada"] = "lada",
-            ["Opel"] = "opel",
-            ["Renault"] = "renault",
-            ["Seat"] = "seat",
-            ["Talbot"] = "talbot",
-            ["Vauxhall"] = "vauxhall",
-            ["MG"] = "MG",
-            ["Hillman"] = "hillman",
-            ["Lotus"] = "lotus",
-            ["Mazda"] = "mazda", 
-            ["Aston Martin"] = "astonMartin",
-            ["Trabant"] = "trabant",
-            ["VW"] = "vw",
-            ["Volvo"] = "volvo",
-            ["Wartburg"] = "wartburg",
-        }
-        
-        -- 遍历所有厂商名称，检查是否在车名中出现
-        for searchName, imageName in pairs(manufacturers) do
-            if carName:lower():match(searchName:lower()) then
-                return imageName
-            end
-        end
-        
-        return nil
-    end
 
     -- 绘制赛段名称
     local stageName = cleanStageName(ctx.TrackName);
@@ -429,7 +551,7 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
         stageName);
         
     -- 绘制车名和厂商logo
-    if ctx.CarName then
+    if not isStringEmpty(ctx.CarName) then
         -- 绘制车名
         local carNameWeight = scale.carName * height;
         local maxCarNameWidth = width * 0.107;
@@ -502,6 +624,11 @@ function onUpdate(args)
     local i18n = args.I18NLoader;
     local helper = args.GameOverlayDrawingHelper;
     local self = args.Self
+
+    -- Reset splitDeltas when race begins
+    if ctx.GameState == GAMESTATE_RaceBegin or ctx.GameState == GAMESTATE_AdHocRaceBegin then
+        splitDeltas = {}
+    end
 
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];

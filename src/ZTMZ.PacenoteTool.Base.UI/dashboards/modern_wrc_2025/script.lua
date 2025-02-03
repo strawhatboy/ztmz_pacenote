@@ -29,6 +29,8 @@ function onInit(args)
     _brushes["grey"] = gfx.CreateSolidBrush(64, 64, 64);
     _brushes["rpm_low"] = gfx.CreateSolidBrush(0x60, 0x9d, 0x51);
     _brushes["rpm_medium"] = gfx.CreateSolidBrush(0xd3, 0xa9, 0x5b);
+    _brushes["delta_ahead"] = gfx.CreateSolidBrush(0, 128, 0);    -- 绿色
+    _brushes["delta_behind"] = gfx.CreateSolidBrush(255, 0, 0);   -- 红色
     _brushes["rpm_high"] = gfx.CreateSolidBrush(0xb9, 0x57, 0x4a);
     if (conf.HudChromaKeyMode) then
         _brushes["green"] = gfx.CreateSolidBrush(0, 0, 255);
@@ -382,6 +384,56 @@ function drawSteeringIndicator(gfx, self, data, helper, x, y, width, height)
     gfx.FillCircle(resources["brushes"]["red"], indicatorX, indicatorY, indicatorRadius);
 end
 
+function drawDeltaTime(gfx, self, data, ctx, helper, x, y, width, height)
+    local _brushes = resources["brushes"];
+    local _fonts = resources["fonts"];
+    
+    -- 检查是否启用最佳成绩比较且在比赛状态
+    local showBestReplay = self.GetConfigByKey("dashboards.settings.showLocalBest") and ctx.LocalReplayValid;
+    if not showBestReplay or ctx.GameState ~= GAMESTATE_Racing then
+        return
+    end
+    
+    -- 获取时间差
+    local deltaTime = ctx.GetDeltaByDistanceAndTime:Invoke(data.LapDistance, data.LapTime)
+    
+    -- 格式化显示时间差（秒）
+    local deltaText = string.format("%s%.2f", deltaTime >= 0 and "+" or "-", math.abs(deltaTime))
+    
+    -- 选择颜色（超前绿色，落后红色）
+    local deltaBrush = deltaTime <= 0 and _brushes["delta_ahead"] or _brushes["delta_behind"];
+    
+    -- 设置显示位置（在转速表上方）
+    local deltaWeight = height * 0.04;  -- 字体大小
+    local deltaX = x + width * 0.295;     -- 水平居中
+    local deltaY = y + height * 0.475;   -- 在转速表上方
+    
+    -- 计算文本尺寸以确定背景矩形大小
+    local textSize = gfx.MeasureString(_fonts["wrc"], deltaWeight, deltaText)
+    local padding = deltaWeight * 0.3
+    local rectX = deltaX - (textSize.X / 2) - padding
+    local rectY = deltaY
+    local rectWidth = textSize.X + (padding * 2)
+    local rectHeight = textSize.Y + (padding / 2)
+    local cornerRadius = rectHeight / 5.5
+    
+    -- 绘制圆角矩形背景
+    gfx.FillRoundedRectangle(deltaBrush, 
+        rectX, 
+        rectY, 
+        rectX + rectWidth,
+        rectY + rectHeight,
+        cornerRadius)
+    
+    -- 绘制文本
+    gfx.DrawText(_fonts["wrc"], 
+        deltaWeight, 
+        _brushes["white"],
+        rectX + padding,
+        rectY + (padding / 4),
+        deltaText)
+end
+
 function onUpdate(args)
     local data = args.GameData;
     local gfx = args.Graphics;
@@ -413,6 +465,7 @@ function onUpdate(args)
     drawThrottle(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
     drawBrake(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
     drawHandBrake(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
+    drawDeltaTime(gfx, self, data, ctx, helper, telemetryStartX, telemetryStartY, width, height);
 
     drawSpeed(gfx, self, data, conf, helper, telemetryStartX, telemetryStartY, width, height, switchGearNSpeed);
     drawGear(gfx, self, data, conf, helper, telemetryStartX, telemetryStartY, width, height, switchGearNSpeed);
