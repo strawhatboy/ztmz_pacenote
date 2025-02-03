@@ -853,7 +853,7 @@ namespace ZTMZ.PacenoteTool.Base
         /// 0: stage name, 1: stage name+car class, 2: stage name+car name
         /// For online and offline replays, and for leaderboard.
         /// </summary>
-        private int _ReplayPreferredFilter = 0;
+        private int _ReplayPreferredFilter = 1;
         public int ReplayPreferredFilter
         {
             set { this._ReplayPreferredFilter = value; this._userconfig["ReplayPreferredFilter"] = value; }
@@ -866,7 +866,7 @@ namespace ZTMZ.PacenoteTool.Base
         private int _ReplayStoredCountLimit = 2;
         public int ReplayStoredCountLimit
         {
-            set { this._ReplayStoredCountLimit = value; this._userconfig["ReplayStoredCount"] = value; }
+            set { this._ReplayStoredCountLimit = value; this._userconfig["ReplayStoredCountLimit"] = value; }
             get => this._ReplayStoredCountLimit;
         }
 

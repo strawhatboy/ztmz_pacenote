@@ -82,11 +82,11 @@
                         <ComboBoxItem Content="{DynamicResource ResourceKey=settings.replayPreferredFilter_none}"
                                 ToolTip="{DynamicResource ResourceKey=settings.replayPreferredFilter_none}"
                                 ToolTipService.InitialShowDelay="100"/>
-                        <ComboBoxItem Content="{DynamicResource ResourceKey=settings.replayPreferredFilter_car}"
-                                ToolTip="{DynamicResource ResourceKey=settings.replayPreferredFilter_car}"
-                                ToolTipService.InitialShowDelay="100"/>
                         <ComboBoxItem Content="{DynamicResource ResourceKey=settings.replayPreferredFilter_carclass}"
                                 ToolTip="{DynamicResource ResourceKey=settings.replayPreferredFilter_carclass}"
+                                ToolTipService.InitialShowDelay="100"/>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=settings.replayPreferredFilter_car}"
+                                ToolTip="{DynamicResource ResourceKey=settings.replayPreferredFilter_car}"
                                 ToolTipService.InitialShowDelay="100"/>
                     </ComboBox.Items>
                 </ComboBox>
@@ -135,7 +135,7 @@
         </ui:Card>
         
         <!-- _onlineRivalsEnabled -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card Margin="0 0 0 3" Visibility="Collapsed"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>

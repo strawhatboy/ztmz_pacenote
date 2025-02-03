@@ -81,6 +81,12 @@ public class UpdateConfigSetter
                 Config.Instance.SaveGameConfig(rbr);
             }
         });
+
+        this._configSetters.Add(new Version("2.99.99.32"), tool => {
+            // force vr ztmz hud to false
+            Config.Instance.VrUseZTMZHud = false;
+            Config.Instance.SaveUserConfig();
+        });
     }
 
     public void SetConfiguration(ZTMZPacenoteTool tool)

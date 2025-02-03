@@ -108,6 +108,7 @@
 
       "vrUseZTMZHud":"In SteamVR overlay, use ZTMZ Hud to display the game telemetry",
       "vrShowOverlay": "Enable SteamVR Overlay, make sure the SteamVR is running and your vr hmd is connected.",
+      "vrSelectWindow": "Select the window that would be used in the SteamVR Overlay",
       "vrOverlayPositionX": "VR Overlay Position X",
       "vrOverlayPositionY": "VR Overlay Position Y",
       "vrOverlayPositionZ": "VR Overlay Position Z",
@@ -202,6 +203,7 @@
 
     "vrUseZTMZHud": "Use ZTMZ Hud in VR",
     "vrShowOverlay": "Enable SteamVR Overlay",
+    "vrSelectWindow": "Select the window",
     "vrOverlayPositionX": "VR Overlay Position X",
     "vrOverlayPositionY": "VR Overlay Position Y",
     "vrOverlayPositionZ": "VR Overlay Position Z",

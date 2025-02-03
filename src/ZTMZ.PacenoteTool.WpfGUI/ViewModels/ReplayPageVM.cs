@@ -27,10 +27,10 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
     }
 
     [ObservableProperty]
-    private int _replayStoredCountLimit = Config.Instance.ReplayStoredCountLimit;
-    partial void OnReplayStoredCountLimitChanged(int value)
+    private float _replayStoredCountLimit = Config.Instance.ReplayStoredCountLimit;
+    partial void OnReplayStoredCountLimitChanged(float value)
     {
-        Config.Instance.ReplayStoredCountLimit = value;
+        Config.Instance.ReplayStoredCountLimit = Convert.ToInt32(value);
         Config.Instance.SaveUserConfig();
     }
 

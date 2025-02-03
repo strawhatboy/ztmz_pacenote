@@ -108,6 +108,7 @@
 
       "vrUseZTMZHud":"在SteamVR Overlay中使用ZTMZ悬浮窗",
       "vrShowOverlay": "打开SteamVR Overlay, 开启之前请确保SteamVR打开并且头显连接就绪",
+      "vrSelectWindow": "选择要在SteamVR Overlay中显示的窗口",
       "vrOverlayPositionX": "VR图层相对于头显的位置，X轴方向",
       "vrOverlayPositionY": "VR图层相对于头显的位置，Y轴方向",
       "vrOverlayPositionZ": "VR图层相对于头显的位置，Z轴方向",
@@ -202,6 +203,7 @@
 
     "vrUseZTMZHud": "在VR中使用ZTMZ悬浮窗",
     "vrShowOverlay": "打开SteamVR Overlay",
+    "vrSelectWindow": "选择窗口",
     "vrOverlayPositionX": "VR图层相对于头显的位置，X轴方向",
     "vrOverlayPositionY": "VR图层相对于头显的位置，Y轴方向",
     "vrOverlayPositionZ": "VR图层相对于头显的位置，Z轴方向",

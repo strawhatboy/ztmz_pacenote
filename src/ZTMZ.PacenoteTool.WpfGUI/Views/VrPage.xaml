@@ -69,16 +69,16 @@
                                 <RowDefinition />
                                 <RowDefinition />
                             </Grid.RowDefinitions>
-                            <ui:TextBlock Text="{DynamicResource ResourceKey=settings.vrUseZTMZHud}" />
+                            <ui:TextBlock Text="{DynamicResource ResourceKey=settings.vrSelectWindow}" />
                             <ui:TextBlock Grid.Row="1"
-                                            Text="{DynamicResource ResourceKey=settings.tooltip.vrUseZTMZHud}"
+                                            Text="{DynamicResource ResourceKey=settings.tooltip.vrSelectWindow}"
                                             Appearance="Tertiary"
                                             FontTypography="Caption" />
                         </Grid>
                     </StackPanel>
-                    <ui:ToggleSwitch Grid.Column="1"
+                    <!-- <ui:ToggleSwitch Grid.Column="1"
                                     HorizontalAlignment="Right"
-                                    IsChecked="{Binding Path=ViewModel.VrUseZTMZHud, Mode=TwoWay}" />
+                                    IsChecked="{Binding Path=ViewModel.VrUseZTMZHud, Mode=TwoWay}" /> -->
                 </Grid>
                 <Border Grid.Row="1"
                         BorderThickness="0,1,0,0"

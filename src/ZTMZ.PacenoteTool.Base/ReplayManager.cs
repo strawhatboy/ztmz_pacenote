@@ -267,9 +267,9 @@ public class ReplayManager {
 
     public async Task<Replay> GetBestReplay(IGame game, string track, string car_class, string car_name) {
         if (Config.Instance.ReplayPreferredFilter == 0) {
-            return await getBestReplayByTrackAndCarClass(game, track, car_class);
-        } else if (Config.Instance.ReplayPreferredFilter == 1) {
             return await getBestReplayByTrack(game, track);
+        } else if (Config.Instance.ReplayPreferredFilter == 1) {
+            return await getBestReplayByTrackAndCarClass(game, track, car_class);
         } else {
             return await getBestReplayByTrackAndCarName(game, track, car_name);
         }
