@@ -38,6 +38,13 @@ public partial class CommonGameConfigsSettingsPane : IGameConfigSettingsPane
             tb.VerticalAlignment = VerticalAlignment.Center;
             this.grid_Main.Children.Add(tb);
 
+            // this is a fix but not a good one
+            if(index >= _config.PropertyValue.Count || index >= _config.PropertyType.Count)
+            {
+                // out of range
+                break;
+            }
+            
             var value = _config.PropertyValue[index];
             var valueType = _config.PropertyType[index];
             if (value.GetType() == typeof(bool))

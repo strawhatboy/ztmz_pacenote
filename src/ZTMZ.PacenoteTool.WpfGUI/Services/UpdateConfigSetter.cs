@@ -44,6 +44,16 @@ public class UpdateConfigSetter
             Config.Instance.SaveUserConfig();
         });
 
+        this._configSetters.Add(new Version("2.99.99.29"), tool => {
+            // force rbr port to 59986
+            var rbr = tool.Games.FirstOrDefault(a => a.Name == "Richard Burns Rally - RSF");
+            if (rbr != null) {
+                UdpGameConfig cfg = (UdpGameConfig)rbr.GameConfigurations[UdpGameConfig.Name];
+                cfg.Port = 59986;
+                Config.Instance.SaveGameConfig(rbr);
+            }
+        });
+
         // this._configSetters.Add(new Version("2.99.99.27"), tool => {
         // still force for 2.99.99.30 version
         this._configSetters.Add(new Version("2.99.99.30"), tool => {
@@ -68,16 +78,6 @@ public class UpdateConfigSetter
                     cfg.PropertyValue[index] = AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, "jannemod_v3.zdb"));
                 }
 
-                Config.Instance.SaveGameConfig(rbr);
-            }
-        });
-
-        this._configSetters.Add(new Version("2.99.99.29"), tool => {
-            // force rbr port to 59986
-            var rbr = tool.Games.FirstOrDefault(a => a.Name == "Richard Burns Rally - RSF");
-            if (rbr != null) {
-                UdpGameConfig cfg = (UdpGameConfig)rbr.GameConfigurations[UdpGameConfig.Name];
-                cfg.Port = 59986;
                 Config.Instance.SaveGameConfig(rbr);
             }
         });
