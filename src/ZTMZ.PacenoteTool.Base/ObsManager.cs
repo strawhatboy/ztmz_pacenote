@@ -62,24 +62,30 @@ public class ObsManager : IDisposable {
         // Start recording video
         if (await Connect()) {
             _logger.Info("OBS connected. start recording video with OBS");
-            _obs.StartRecord();
+            try {
+                _obs.StartRecord();
+            } catch (Exception ex) {
+                _logger.Error($"Failed to start recording video with OBS because of \n{ex.ToString()}");
+            }
         } else {
             _logger.Error("Failed to connect to OBS");
         }
     }
 
-    public async Task<string> StopRecording() {
+    public string StopRecording() {
         _logger.Info("Stop recording video with OBS");
-        if (await Connect()) {
+        if (_obs != null && _obs.IsConnected) {
             _logger.Info("OBS connected. stop recording video with OBS");
             try {
-                return _obs.StopRecord();
+                var output_path =  _obs.StopRecord();
+                _logger.Info($"Video saved at {output_path}");
+                return output_path;
             } catch (Exception ex) {
                 _logger.Error($"Failed to stop recording video with OBS because of \n{ex.ToString()}");
                 return "";
             }
         } else {
-            _logger.Error("Failed to connect to OBS");
+            _logger.Error("OBS not connected!");
             return "";
         }
     }

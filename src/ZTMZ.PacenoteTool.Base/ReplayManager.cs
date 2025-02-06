@@ -154,8 +154,8 @@ public class ReplayManager {
             connection.Open();
             using (var command = connection.CreateCommand()) {
                 command.CommandText = @"
-                    INSERT INTO replay (track, car, car_class, finish_time, retired, checkpoints, date)
-                    VALUES (@track, @car, @car_class, @finish_time, @retired, @checkpoints, @date);
+                    INSERT INTO replay (track, car, car_class, finish_time, retired, checkpoints, date, comment, video_path)
+                    VALUES (@track, @car, @car_class, @finish_time, @retired, @checkpoints, @date, @comment, @video_path);
                 ";
                 command.Parameters.AddWithValue("@track", replay.track);
                 command.Parameters.AddWithValue("@car", replay.car);
@@ -167,8 +167,8 @@ public class ReplayManager {
                 command.Parameters.AddWithValue("@checkpoints", replay.checkpoints);
                 command.Parameters.AddWithValue("@date", replay.date.ToString("yyyy-MM-dd HH:mm:ss"));
                 command.Parameters.AddWithValue("@comment", replay.comment);
-                await command.ExecuteNonQueryAsync();
                 command.Parameters.AddWithValue("@video_path", replay.video_path);
+                await command.ExecuteNonQueryAsync();
                 command.CommandText = "SELECT last_insert_rowid()";
                 replay.id = Convert.ToInt32(await command.ExecuteScalarAsync());
             }

@@ -20,6 +20,7 @@ public class ZTMZPacenoteTool {
     private string _trackName;
     private string _carName;
     private string _carClass;
+    private float _trackLength;
     private bool _isReplaySession;
     private double _scriptTiming = 0;
     private int _playpointAdjust = 0;
@@ -349,6 +350,7 @@ public class ZTMZPacenoteTool {
                 this._carClass = this._currentGame.GameDataReader.CarClass;
                 //TODO: update UI trackname
                 this.onTrackAndCarChanged?.Invoke(_currentGame, this._trackName, this._carName, this._carClass);
+                this._trackLength = this._currentGame.GameDataReader.CurrentGameData.TrackLength;
                 
                 // check if it is replay
                 if (evt.Parameters.ContainsKey(GameStateRaceBeginProperty.IS_REPLAY))
@@ -627,13 +629,12 @@ public class ZTMZPacenoteTool {
                     replay.checkpoints = Config.Instance.ReplaySaveGranularity;
                     replay.date = DateTime.Now;
                     replay.locked = false;
-                    replay.track_length = this._currentGame.GameDataReader.LastGameData.TrackLength;
+                    replay.track_length = this._trackLength;
                     replay.finish_time = (float)evt.Parameters[GameStateRaceEndProperty.FINISH_TIME];
                     replay.retired = false;
                     replay.car_class = this._carClass;
-                    var stopRecordingTask = ObsManager.Instance.StopRecording();
-                    stopRecordingTask.Wait();
-                    replay.video_path = stopRecordingTask.Result;
+                    replay.comment = "";
+                    replay.video_path = ObsManager.Instance.StopRecording();
                     ReplayManager.Instance.saveReplay(CurrentGame, replay, this.ReplayDetailsPerTimes, this.ReplayDetailsPerCheckpoints);
                 }
             }
