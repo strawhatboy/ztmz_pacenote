@@ -38,6 +38,10 @@ public class RBRGameDataReader : UdpGameDataReader
                     { GameStateRaceEndProperty.FINISH_TIME, _finishTime },
                     { GameStateRaceEndProperty.FINISH_STATE, GameStateRaceEnd.Normal }
                 } });
+            } else if (value == GameState.RaceBegin || value == GameState.AdHocRaceBegin) {
+                this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState, Parameters = new Dictionary<string, object> {
+                    { GameStateRaceBeginProperty.IS_REPLAY, _isReplaySession }
+                } });   // this is a replay!
             } else {
                 this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState });
             }
@@ -351,6 +355,9 @@ public class RBRGameDataReader : UdpGameDataReader
     { 
         bool playWhenReplay = (bool)((CommonGameConfigs)_game.GameConfigurations[CommonGameConfigs.Name]).PropertyValue[0];
         var state = (RBRGameState)memData.GameStateId;
+        if (state == RBRGameState.Replay || state == RBRGameState.ReplayBegin) {
+            _isReplaySession = true;
+        }
 
         if (memData.StageStartCountdown > 0 && state == RBRGameState.Replay && playWhenReplay ||
             state != RBRGameState.Replay && memData.StageStartCountdown > 0)

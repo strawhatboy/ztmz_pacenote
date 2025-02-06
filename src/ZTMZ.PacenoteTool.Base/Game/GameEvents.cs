@@ -23,7 +23,7 @@ public class GameStateChangeEvent : IGameEvent
 {
     public GameState LastGameState { set; get; }
     public GameState NewGameState { set; get; }
-    public Dictionary<string, object> Parameters { set; get; }
+    public Dictionary<string, object> Parameters { set; get; } = new();
 }
 public enum CarDamage 
 {
@@ -53,6 +53,9 @@ public enum GameStateRaceEnd {
     Retired = 4,
     Disqualified = 5,
     Unknown = 6,
+}
+public static class GameStateRaceBeginProperty {
+    public static readonly string IS_REPLAY = "is_replay";
 }
 
 public static class GameStateRaceEndProperty {

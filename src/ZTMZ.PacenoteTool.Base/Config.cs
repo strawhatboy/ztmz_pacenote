@@ -888,6 +888,37 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._RivalsWatchList;
         }
 
+        /// <summary>
+        /// Whether to store the replay video with OBS Studio
+        /// </summary>
+        private bool _ReplayOBSSave = false;
+        public bool ReplayOBSSave
+        {
+            set { this._ReplayOBSSave = value; this._userconfig["ReplayOBSSave"] = value; }
+            get => this._ReplayOBSSave;
+        }
+
+        private string _ReplayOBSWebsocketUrl = "ws://localhost:4455";
+        public string ReplayOBSWebsocketUrl
+        {
+            set { this._ReplayOBSWebsocketUrl = value; this._userconfig["ReplayOBSWebsocketUrl"] = value; }
+            get => this._ReplayOBSWebsocketUrl;
+        }
+
+        private string _ReplayOBSWebsocketPassword = "";
+        public string ReplayOBSWebsocketPassword
+        {
+            set { this._ReplayOBSWebsocketPassword = value; this._userconfig["ReplayOBSWebsocketPassword"] = value; }
+            get => this._ReplayOBSWebsocketPassword;
+        }
+
+        private int _ReplayOBSWebsocketTimeout = 1000;
+        public int ReplayOBSWebsocketTimeout
+        {
+            set { this._ReplayOBSWebsocketTimeout = value; this._userconfig["ReplayOBSWebsocketTimeout"] = value; }
+            get => this._ReplayOBSWebsocketTimeout;
+        }
+
 #endregion
 
         public void Save(string path)
