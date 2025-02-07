@@ -1,0 +1,193 @@
+<Page x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.ReplayPlayingPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:system="clr-namespace:System;assembly=System.Runtime"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:localUI="clr-namespace:ZTMZ.PacenoteTool.Base.UI;assembly=ZTMZ.PacenoteTool.Base.UI"
+      Title="ReplayPlayingPage"
+      FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+      ui:NavigationView.HeaderContent="{Binding ViewModel.HeaderContent}"
+      mc:Ignorable="d">
+  <Page.InputBindings>
+    <KeyBinding Key="Space"
+                Command="{Binding Path=ViewModel.SpaceKeyCommand}"/>
+  </Page.InputBindings>
+  <Page.Resources>
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    <Style TargetType="TextBlock">
+      <Setter Property="VerticalAlignment"
+              Value="Center"></Setter>
+    </Style>
+    <Style TargetType="ui:TextBlock">
+      <Setter Property="VerticalAlignment"
+              Value="Center"></Setter>
+    </Style>
+  </Page.Resources>
+  <StackPanel Orientation="Vertical">
+    <!-- video player -->
+    <!-- <vlc:VideoView x:Name="videoView"  /> -->
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="2*"/>
+        <ColumnDefinition Width="1*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid Grid.Column="0">
+        <MediaElement Stretch="Fill"
+                      Source="{Binding ViewModel.VideoPath}"
+                      Volume="1"
+                      LoadedBehavior="Manual"
+                      UnloadedBehavior="Manual"
+                      x:Name="videoPlayer"/>
+        <!-- slider to control the progress -->
+
+        <Grid VerticalAlignment="Bottom">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="25"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <ui:Button
+            Width="25"
+            Height="25"
+            Padding="0"
+            Command="{Binding Path=ViewModel.SpaceKeyCommand}">
+            <ui:Button.Icon>
+              <ui:SymbolIcon>
+                <ui:SymbolIcon.Style>
+                  <Style TargetType="ui:SymbolIcon">
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding ViewModel.IsPaused}"
+                                   Value="True">
+                        <Setter Property="Symbol"
+                                Value="Play20"/>
+                      </DataTrigger>
+                      <DataTrigger Binding="{Binding ViewModel.IsPaused}"
+                                   Value="False">
+                        <Setter Property="Symbol"
+                                Value="Pause20"/>
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </ui:SymbolIcon.Style>
+              </ui:SymbolIcon>
+            </ui:Button.Icon>
+          </ui:Button>
+          <Slider Grid.Column="1"
+                  Value="{Binding ViewModel.PlayPosition}"
+                  x:Name="sl_video"
+                  Minimum="0"
+                  Maximum="{Binding ViewModel.VideoLength}"
+                  HorizontalAlignment="Stretch"
+                  Thumb.DragStarted="thumb_DragStarted"
+                  Thumb.DragCompleted="thumb_DragCompleted">
+          </Slider>
+        </Grid>
+      </Grid>
+
+      <!-- column1 for time, distance info -->
+      <StackPanel Orientation="Vertical"
+          Margin="20 0 0 0"
+                  Grid.Column="1"
+                  VerticalAlignment="Center">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="120"/>
+            <ColumnDefinition/>
+          </Grid.ColumnDefinitions>
+
+          <!-- trackname -->
+          <ui:TextBlock Text="{DynamicResource ui.tb_currentTrack}"
+                        ToolTip="{DynamicResource ui.tooltip.tb_currentTrack}"
+                        ToolTipService.InitialShowDelay="100"/>
+          <ui:TextBox Grid.Column="1"
+                      IsReadOnly="True"
+                      Text="{Binding Path=ViewModel.Track}"
+                      Background="Transparent"
+                      BorderBrush="Transparent"/>
+
+          <!-- carname -->
+          <ui:TextBlock Grid.Row="1"
+                        Text="{DynamicResource overlay.car}"
+                        ToolTip="{DynamicResource overlay.car}"
+                        ToolTipService.InitialShowDelay="100"/>
+          <ui:TextBox Grid.Row="1"
+                      Grid.Column="1"
+                      IsReadOnly="True"
+                      Text="{Binding Path=ViewModel.Car}"
+                      Background="Transparent"
+                      BorderBrush="Transparent"/>
+
+          <!-- carclass -->
+          <ui:TextBlock Grid.Row="2"
+                        Text="{DynamicResource overlay.carclass}"
+                        ToolTip="{DynamicResource overlay.carclass}"
+                        ToolTipService.InitialShowDelay="100"/>
+          <ui:TextBox Grid.Row="2"
+                      Grid.Column="1"
+                      IsReadOnly="True"
+                      Text="{Binding Path=ViewModel.CarClass}"
+                      Background="Transparent"
+                      BorderBrush="Transparent"/>
+
+          <!-- time offset -->
+          <ui:TextBlock Grid.Row="3"
+                        Text="{DynamicResource settings.replayPositionOffset}"
+                        ToolTip="{DynamicResource settings.tooltip.replayPositionOffset}"
+                        ToolTipService.InitialShowDelay="100"/>
+          <ui:TextBox Grid.Row="3"
+                      Grid.Column="1"
+                      Text="{Binding Path=ViewModel.PlayPositionOffset, Mode=TwoWay}"/>
+
+          <!-- time -->
+          <ui:TextBlock Grid.Row="4"
+                        Text="{DynamicResource ui.tb_lapTime}"
+                        ToolTip="{DynamicResource ui.tooltip.tb_lapTime}"
+                        ToolTipService.InitialShowDelay="100"/>
+          <ui:TextBox Grid.Row="4"
+                      Grid.Column="1"
+                      IsReadOnly="True"
+                      Text="{Binding Path=ViewModel.LapTime, Mode=OneWay}"
+                      Background="Transparent"
+                      BorderBrush="Transparent"/>
+
+
+          <!-- lapDistance writable to change the time correspondingly -->
+          <ui:TextBlock Grid.Row="5"
+                        Text="{DynamicResource settings.replayGotoLapDistance}"
+                        ToolTip="{DynamicResource settings.tooltip.replayGotoLapDistance}"
+                        ToolTipService.InitialShowDelay="100"/>
+          <ui:TextBox Grid.Row="5"
+                      Grid.Column="1"
+                      Text="{Binding Path=ViewModel.GotoLapDistance, Mode=TwoWay}"/>
+
+          <!-- lapDistance -->
+          <ui:TextBlock Grid.Row="6"
+                        Text="{DynamicResource ui.tb_distance}"
+                        ToolTip="{DynamicResource ui.tooltip.tb_distance}"
+                        ToolTipService.InitialShowDelay="100"/>
+          <ui:TextBox Grid.Row="6"
+                      Grid.Column="1"
+                      IsReadOnly="True"
+                      Text="{Binding Path=ViewModel.LapDistance, Mode=OneWay}"
+                      Background="Transparent"
+                      BorderBrush="Transparent"/>
+        </Grid>
+      </StackPanel>
+    </Grid>
+
+  </StackPanel>
+</Page>

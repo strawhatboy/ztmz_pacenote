@@ -839,6 +839,14 @@ namespace ZTMZ.PacenoteTool.Base
             set { this._ReplaySaveInterval = value; this._userconfig["ReplaySaveInterval"] = value; }
             get => this._ReplaySaveInterval;
         }
+
+        // save the replay without interval, save every frame
+        private bool _ReplaySaveWithoutInterval = true;
+        public bool ReplaySaveWithoutInterval
+        {
+            set { this._ReplaySaveWithoutInterval = value; this._userconfig["ReplaySaveWithoutInterval"] = value; }
+            get => this._ReplaySaveWithoutInterval;
+        }
         
         // turn on to save the replay
         private bool _ReplaySave = true;

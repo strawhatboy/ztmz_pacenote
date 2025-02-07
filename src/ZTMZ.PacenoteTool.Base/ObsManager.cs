@@ -27,6 +27,10 @@ public class ObsManager : IDisposable {
     }
 
     public async Task<bool> Connect() {
+        if (!Config.Instance.ReplayOBSSave) {
+            _logger.Info("OBS recording is disabled wont connect to OBS");
+            return false;
+        }
         // Connect to OBS
         if (_obs != null && _obs.IsConnected) {
             return true;
@@ -58,6 +62,11 @@ public class ObsManager : IDisposable {
     }
 
     public async void StartRecording() {
+        if (!Config.Instance.ReplayOBSSave) {
+            _logger.Info("OBS recording is disabled wont start recording video with OBS");
+            return;
+        }
+
         _logger.Info("Start recording video with OBS");
         // Start recording video
         if (await Connect()) {
@@ -73,6 +82,11 @@ public class ObsManager : IDisposable {
     }
 
     public string StopRecording() {
+        if (!Config.Instance.ReplayOBSSave) {
+            _logger.Info("OBS recording is disabled wont start recording video with OBS");
+            return "";
+        }
+        
         _logger.Info("Stop recording video with OBS");
         if (_obs != null && _obs.IsConnected) {
             _logger.Info("OBS connected. stop recording video with OBS");

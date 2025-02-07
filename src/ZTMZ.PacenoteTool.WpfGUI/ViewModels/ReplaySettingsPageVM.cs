@@ -89,9 +89,23 @@ public partial class ReplaySettingsPageVM : ObservableObject, INavigationAware
         Config.Instance.ReplayDeleteRelatedVideo = value;
         Config.Instance.SaveUserConfig();
     }
+
+    [ObservableProperty]
+    private bool _replaySaveWithoutInterval = Config.Instance.ReplaySaveWithoutInterval;
+    partial void OnReplaySaveWithoutIntervalChanged(bool value)
+    {
+        ReplaySaveIntervalVisibility = value ? Visibility.Collapsed : Visibility.Visible;
+        Config.Instance.ReplaySaveWithoutInterval = value;
+        Config.Instance.SaveUserConfig();
+    }
+
+    [ObservableProperty]
+    private Visibility _replaySaveIntervalVisibility = Config.Instance.ReplaySaveWithoutInterval ? Visibility.Collapsed : Visibility.Visible;
     
     public void OnNavigatedFrom()
     {
+        // leaving, try to connect to obs here
+        ObsManager.Instance.Connect();
     }
 
     public void OnNavigatedTo()

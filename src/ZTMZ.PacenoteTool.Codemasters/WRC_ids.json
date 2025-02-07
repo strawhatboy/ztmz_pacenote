@@ -5,8 +5,8 @@
 		"data":
 		{
 			"build": 2,
-			"major": 1,
-			"minor": 0
+			"major": 2,
+			"minor": 1
 		}
 	},
 	"vehicles": [
@@ -632,6 +632,55 @@
 			"manufacturer": 15,
 			"name": "Toyota GR Yaris Rally1 HYBRID",
 			"builder": false
+		},
+		{
+			"id": 128,
+			"class": 8,
+			"manufacturer": 4,
+			"name": "Citroën C2 R2 Max",
+			"builder": false
+		},
+		{
+			"id": 129,
+			"class": 11,
+			"manufacturer": 4,
+			"name": "Citroën Xsara Kit Car",
+			"builder": false
+		},
+		{
+			"id": 130,
+			"class": 17,
+			"manufacturer": 4,
+			"name": "Citroën C3 WRC",
+			"builder": false
+		},
+		{
+			"id": 132,
+			"class": 23,
+			"manufacturer": 4,
+			"name": "Citroën DS3 WRC '12",
+			"builder": false
+		},
+		{
+			"id": 133,
+			"class": 23,
+			"manufacturer": 9,
+			"name": "Volkswagen Polo R WRC 2013",
+			"builder": false
+		},
+		{
+			"id": 134,
+			"class": 23,
+			"manufacturer": 32,
+			"name": "MINI John Cooper Works WRC",
+			"builder": false
+		},
+		{
+			"id": 136,
+			"class": 9,
+			"manufacturer": 7,
+			"name": "Peugeot 206 S1600",
+			"builder": false
 		}
 	],
 	"vehicle_classes": [
@@ -706,6 +755,10 @@
 		{
 			"id": 21,
 			"name": "WRC2"
+		},
+		{
+			"id": 23,
+			"name": "World Rally Car 2012 - 2016"
 		}
 	],
 	"vehicle_manufacturers": [
@@ -1892,6 +1945,54 @@
 		{
 			"id": 403,
 			"name": "Probark"
+		},
+		{
+			"id": 440,
+			"name": "Briançonnet - Entrevaux"
+		},
+		{
+			"id": 441,
+			"name": "Entrevaux - Briançonnet"
+		},
+		{
+			"id": 442,
+			"name": "Les Vénières"
+		},
+		{
+			"id": 443,
+			"name": "Parbiou"
+		},
+		{
+			"id": 444,
+			"name": "Le champ"
+		},
+		{
+			"id": 445,
+			"name": "Pertus"
+		},
+		{
+			"id": 446,
+			"name": "Fafe"
+		},
+		{
+			"id": 447,
+			"name": "Vila Pouca"
+		},
+		{
+			"id": 448,
+			"name": "Barbosa"
+		},
+		{
+			"id": 449,
+			"name": "Passos"
+		},
+		{
+			"id": 450,
+			"name": "Moreira do Rei"
+		},
+		{
+			"id": 451,
+			"name": "Ruivães"
 		}
 	],
 	"vehicle_tyre_state": [

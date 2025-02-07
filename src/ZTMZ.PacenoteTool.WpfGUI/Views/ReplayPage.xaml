@@ -17,6 +17,19 @@
             <Setter Property="Padding" Value="16"></Setter>
             <Setter Property="Margin" Value="0 0 0 5"></Setter>
         </Style> -->
+        
+        <Style x:Key="Body_Content_DataGrid_Centering"
+               TargetType="{x:Type DataGridCell}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGridCell}">
+                        <Grid Background="{TemplateBinding Background}">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Page.Resources>
     <StackPanel Orientation="Vertical">
         <ui:CardAction Margin="0 0 0 3" 
@@ -48,5 +61,80 @@
                 </StackPanel>
             </Grid>
         </ui:CardAction>
+
+        <!-- the datagrid for replays of current game -->
+        <DataGrid Grid.Row="2"
+                     x:Name="lv_Content"
+                     IsReadOnly="True"
+                     ItemsSource="{Binding ViewModel.Replays}"
+                     CellStyle="{StaticResource Body_Content_DataGrid_Centering}"
+                     AutoGenerateColumns="False"
+                     CanUserAddRows="False">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn
+                    Header="actions">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <WrapPanel Orientation="Horizontal">
+                                <ui:Button Margin="0 0 5 0"
+                                    Padding="0"
+                                    x:Name="hl_listen"
+                                    Width="25"
+                                    Height="25"
+                                    Foreground="Green"
+                                    Icon="{ui:SymbolIcon Play20}"
+                                    CommandParameter="{Binding id}"
+                                    Command="{Binding ViewModel.ReplayPlayCommand, RelativeSource={RelativeSource AncestorType=Page}}">
+                                </ui:Button>
+                                <ui:Button Margin="0 0 5 0"
+                                    Padding="0"
+                                    x:Name="hl_edit"
+                                    Width="25"
+                                    Height="25"
+                                    Foreground="Blue"
+                                    Icon="{ui:SymbolIcon Share20}"
+                                    CommandParameter="{Binding id}"
+                                    Command="{Binding ViewModel.ReplayExportCommand, RelativeSource={RelativeSource AncestorType=Page}}">
+                                </ui:Button>
+                                <ui:Button Margin="0 0 0 0"
+                                    Padding="0"
+                                    x:Name="hl_delete"
+                                    Width="25"
+                                    Height="25"
+                                    Foreground="Red"
+                                    Icon="{ui:SymbolIcon Delete20}"
+                                    CommandParameter="{Binding id}"
+                                    Command="{Binding ViewModel.ReplayDeleteCommand, RelativeSource={RelativeSource AncestorType=Page}}">
+                                </ui:Button>
+                            </WrapPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn
+                    Binding="{Binding id}"
+                    Header="ID"/>
+                <DataGridTextColumn
+                    Binding="{Binding track}"
+                    Header="track"/>
+                <DataGridTextColumn
+                    Binding="{Binding car}"
+                    Header="car"/>
+                <DataGridTextColumn
+                    Binding="{Binding car_class}"
+                    Header="car_class"/>
+                <DataGridTextColumn
+                    Binding="{Binding finish_time}"
+                    Header="finish_time"/>
+                <DataGridTextColumn
+                    Binding="{Binding date}"
+                    Header="date"/>
+                <DataGridTextColumn
+                    Binding="{Binding comment}"
+                    Header="comment"/>
+                <DataGridTextColumn
+                    Binding="{Binding video_path}"
+                    Header="video_path"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </StackPanel>
 </Page>

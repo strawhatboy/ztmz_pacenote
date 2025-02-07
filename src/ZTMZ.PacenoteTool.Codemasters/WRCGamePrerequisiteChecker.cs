@@ -111,7 +111,7 @@ public class WRCGamePrerequisiteChecker : IGamePrerequisiteChecker
                     { "packet", "session_update" },
                     { "ip", udpConfig.IPAddress },
                     { "port", udpConfig.Port },
-                    { "frequencyHz", 60 },
+                    { "frequencyHz", 120 },
                     { "bEnabled", true }
                 });
             } else {
@@ -119,7 +119,7 @@ public class WRCGamePrerequisiteChecker : IGamePrerequisiteChecker
                 packet["port"] = udpConfig.Port;
                 packet["ip"] = udpConfig.IPAddress;
                 packet["bEnabled"] = true;
-                packet["frequencyHz"] = 60;
+                packet["frequencyHz"] = 120;
             }
         }
 

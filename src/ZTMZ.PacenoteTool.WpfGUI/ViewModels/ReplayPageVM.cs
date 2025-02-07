@@ -1,19 +1,38 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
+using Microsoft.Win32;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
+using ZTMZ.PacenoteTool.WpfGUI.Views;
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 public partial class ReplayPageVM : ObservableObject, INavigationAware
 {
     private readonly INavigationService navigationService;
+    private readonly ReplayPlayingPageVM replayPlayingPageVM;
+    private readonly ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool;
 
-    public ReplayPageVM(INavigationService navigationService)
+    [ObservableProperty]
+    private IList<object> _replays = new ObservableCollection<object>();
+
+    private object _collectionLock = new();
+
+    public ReplayPageVM(INavigationService navigationService, 
+    ReplayPlayingPageVM replayPlayingPageVM,
+    ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool)
     {
+        
+        BindingOperations.EnableCollectionSynchronization(Replays, _collectionLock);
+        this.tool = tool;
+        this.replayPlayingPageVM = replayPlayingPageVM;
         this.navigationService = navigationService;
     }
 
@@ -23,12 +42,74 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
     {
         _ = navigationService.NavigateWithHierarchy(type);
     }
-    
+
     public void OnNavigatedFrom()
     {
     }
 
-    public void OnNavigatedTo()
+    public async void OnNavigatedTo()
     {
+        // load all replays according to current game
+        var replays = await ReplayManager.Instance.getReplays(this.tool.CurrentGame);
+        _replays.Clear();
+        foreach (var replay in replays)
+        {
+            _replays.Add(new {
+                id = replay.id,
+                track = replay.track,
+                car = replay.car,
+                car_class = replay.car_class,
+                finish_time = replay.finish_time,
+                date = replay.date,
+                comment = replay.comment,
+                video_path = replay.video_path,
+            });
+        }
+    }
+
+    [RelayCommand]
+    private async void ReplayPlay(int id)
+    {
+        this.replayPlayingPageVM.ReplayId = id;
+        // navigate to replay playing page
+        navigationService.NavigateWithHierarchy(typeof(ReplayPlayingPage));
+    }
+
+    [RelayCommand]
+    private async void ReplayExport(int id)
+    {
+        // open folder dialog
+        
+#if NET8_0_OR_GREATER
+
+        OpenFolderDialog openFolderDialog =
+            new()
+            {
+                Multiselect = false,
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+            };
+
+        if (openFolderDialog.ShowDialog() != true)
+        {
+            return;
+        }
+
+        if (openFolderDialog.FolderNames.Length == 0)
+        {
+            return;
+        }
+
+        // export to the foler
+        var game = this.tool.CurrentGame;
+        var replay = await ReplayManager.Instance.getReplay(game, id);
+        await ReplayManager.Instance.ExportReplay(game, replay, openFolderDialog.FolderNames.First());
+#else
+#endif
+    }
+
+    [RelayCommand]
+    private async void ReplayDelete(int id)
+    {
+        await Task.Delay(1000);
     }
 }

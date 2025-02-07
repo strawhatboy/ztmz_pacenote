@@ -355,7 +355,7 @@ public class RBRGameDataReader : UdpGameDataReader
     { 
         bool playWhenReplay = (bool)((CommonGameConfigs)_game.GameConfigurations[CommonGameConfigs.Name]).PropertyValue[0];
         var state = (RBRGameState)memData.GameStateId;
-        if (state == RBRGameState.Replay || state == RBRGameState.ReplayBegin) {
+        if (state == RBRGameState.Replay) {
             _isReplaySession = true;
         }
 

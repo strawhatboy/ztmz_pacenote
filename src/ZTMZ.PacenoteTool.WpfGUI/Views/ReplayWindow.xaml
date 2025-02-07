@@ -1,0 +1,24 @@
+<ui:FluentWindow x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.ReplayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI"
+        mc:Ignorable="d"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:tray="http://schemas.lepo.co/wpfui/2022/xaml/tray"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+        ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+        ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+        ExtendsContentIntoTitleBar="True"
+        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+        WindowBackdropType="Mica"
+        WindowCornerPreference="Round"
+        WindowStartupLocation="CenterScreen"
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+        FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
+        Title="{Binding ViewModel.Title, Mode=OneWay}" Height="760" Width="1180" MinWidth="1180" MinHeight="760">
+      <ui:FluentWindow.Resources>
+          <FontFamily x:Key="noto_serif_sc" >pack://application:,,,/fonts/#Noto Sans SC</FontFamily>
+      </ui:FluentWindow.Resources>
+</ui:FluentWindow>

@@ -273,6 +273,14 @@ public class ReplayManager {
         }
     }
 
+    public async Task<Replay> getReplay(IGame game, int id) {
+        var connectionString = getConnectionString(game);
+        using (var connection = new SqliteConnection(connectionString)) {
+            connection.Open();
+            return await connection.QueryFirstOrDefaultAsync<Replay>("SELECT * FROM replay WHERE id = @id", new { id });
+        }
+    }
+
     public async Task<List<ReplayDetailsPerTime>> getReplayDetailsPerTime(IGame game, int id) {
         var connectionString = getConnectionString(game);
         using (var connection = new SqliteConnection(connectionString)) {
@@ -368,7 +376,7 @@ public class ReplayManager {
         }
     }
 
-    public async void ExportReplay(IGame game, Replay replay, string dirPath) {
+    public async Task ExportReplay(IGame game, Replay replay, string dirPath) {
         var folder = Path.Combine(dirPath, $"{game.Name}_{replay.track}_{replay.car}_{replay.car_class}_{replay.finish_time}");
         _logger.Info($"Exporting replay to: {folder}");
         Directory.CreateDirectory(folder);
@@ -381,6 +389,65 @@ public class ReplayManager {
             await Task.Run(() => File.Copy(replay.video_path, videoPath));
             _logger.Info($"video exported: {videoPath}");
         }
+    }
+
+    
+    public static float getTimeByDistance(List<ReplayDetailsPerTime> details, float distance) {
+        float time = 0;
+        if (details.Count == 0) {
+            return 0;
+        }
+        if (distance <= details[0].distance) {
+            return 0;
+        }
+        if (distance >= details[details.Count - 1].distance) {
+            return details[details.Count - 1].time;
+        }
+        var times = details.Select(r => r.time).ToList();
+        var distances = details.Select(r => r.distance).ToList();
+        var index = distances.BinarySearch(distance);
+        if (index >= 0) {
+            time = times[index];
+        } else {
+            index = ~index;
+            if (index == 0) {
+                time = 0;
+            } else if (index == distances.Count) {
+                time = times[times.Count - 1];
+            } else {
+                time = times[index - 1] + (times[index] - times[index - 1]) / (distances[index] - distances[index - 1]) * (distance - distances[index - 1]);
+            }
+        }
+        return time;
+    }
+
+    public static float getDistanceByTime(List<ReplayDetailsPerTime> details, float time) {
+        float distance = 0;
+        if (details.Count == 0) {
+            return 0;
+        }
+        if (time <= details[0].time) {
+            return 0;
+        }
+        if (time >= details[details.Count - 1].time) {
+            return details[details.Count - 1].distance;
+        }
+        var times = details.Select(r => r.time).ToList();
+        var distances = details.Select(r => r.distance).ToList();
+        var index = times.BinarySearch(time);
+        if (index >= 0) {
+            distance = distances[index];
+        } else {
+            index = ~index;
+            if (index == 0) {
+                distance = 0;
+            } else if (index == times.Count) {
+                distance = distances[distances.Count - 1];
+            } else {
+                distance = distances[index - 1] + (distances[index] - distances[index - 1]) / (times[index] - times[index - 1]) * (time - times[index - 1]);
+            }
+        }
+        return distance;
     }
 }
 

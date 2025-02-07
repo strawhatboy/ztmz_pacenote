@@ -93,6 +93,8 @@ public class UpdateConfigSetter
         this._configSetters.Add(new Version("2.99.99.33"), tool => {
             // alter replay tables to include the new columns
             // locate replay databases 
+            Config.Instance.ReplaySaveWithoutInterval = true;
+            Config.Instance.SaveUserConfig();
             for (int i = 0; i < tool.Games.Count; i++) {
                 var game = tool.Games[i];
                 var replayDbPath = AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, $"{game.Name}{Constants.FILEEXT_REPLAYS}"));

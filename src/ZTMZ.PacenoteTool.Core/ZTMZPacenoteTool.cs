@@ -549,7 +549,8 @@ public class ZTMZPacenoteTool {
         });
         this.ReplayDetailsPerTimes.Add(new ReplayDetailsPerTime() {
             time = 0,
-            distance = 0
+            distance = 0,
+            timestamp = 0,
         });
 
         Replay replay = await ReplayManager.Instance.GetBestReplay(CurrentGame, this._trackName, this._carClass, this._carName);
@@ -577,7 +578,8 @@ public class ZTMZPacenoteTool {
         {
             // save ReplayDetailsPerTimes
             var index = (int)(msg.LapTime * 1000) / Config.Instance.ReplaySaveInterval;
-            if (index >= this.ReplayDetailsPerTimes.Count)
+            // if save without interval, save all
+            if (Config.Instance.ReplaySaveWithoutInterval || index >= this.ReplayDetailsPerTimes.Count)
             {   // 妙啊
                 this.ReplayDetailsPerTimes.Add(new ReplayDetailsPerTime()
                 {
@@ -642,13 +644,13 @@ public class ZTMZPacenoteTool {
     }
 
     public float GetDelta(float distance) {
-        float time = getTimeByDistance(this.ReplayDetailsPerTimes, distance);
-        float bestTime = getTimeByDistance(this.BestLocalReplayDetailsPerTimes, distance);
+        float time = ReplayManager.getTimeByDistance(this.ReplayDetailsPerTimes, distance);
+        float bestTime = ReplayManager.getTimeByDistance(this.BestLocalReplayDetailsPerTimes, distance);
         return time - bestTime;
     }
 
     public float GetDeltaByDistanceAndTime(float distance, float time) {
-        float bestTime = getTimeByDistance(this.BestLocalReplayDetailsPerTimes, distance);
+        float bestTime = ReplayManager.getTimeByDistance(this.BestLocalReplayDetailsPerTimes, distance);
         return time - bestTime;
     }
 
@@ -659,40 +661,11 @@ public class ZTMZPacenoteTool {
     }
 
     public float GetTimeByDistance(float distance) {
-        return getTimeByDistance(this.ReplayDetailsPerTimes, distance);
+        return ReplayManager.getTimeByDistance(this.ReplayDetailsPerTimes, distance);
     }
 
     public float GetBestTimeByDistance(float distance) {
-        return getTimeByDistance(this.BestLocalReplayDetailsPerTimes, distance);
-    }
-
-    private float getTimeByDistance(List<ReplayDetailsPerTime> details, float distance) {
-        float time = 0;
-        if (details.Count == 0) {
-            time = 0;
-        }
-        if (distance <= details[0].distance) {
-            time = 0;
-        }
-        if (distance >= details[details.Count - 1].distance) {
-            time = details[details.Count - 1].time;
-        }
-        var times = details.Select(r => r.time).ToList();
-        var distances = details.Select(r => r.distance).ToList();
-        var index = distances.BinarySearch(distance);
-        if (index >= 0) {
-            time = times[index];
-        } else {
-            index = ~index;
-            if (index == 0) {
-                time = 0;
-            } else if (index == distances.Count) {
-                time = times[times.Count - 1];
-            } else {
-                time = times[index - 1] + (times[index] - times[index - 1]) / (distances[index] - distances[index - 1]) * (distance - distances[index - 1]);
-            }
-        }
-        return time;
+        return ReplayManager.getTimeByDistance(this.BestLocalReplayDetailsPerTimes, distance);
     }
 
     private float getTimeByCheckpoint(List<ReplayDetailsPerCheckpoint> details, int checkpoint) {

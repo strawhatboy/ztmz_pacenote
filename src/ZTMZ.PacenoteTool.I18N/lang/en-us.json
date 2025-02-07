@@ -129,12 +129,15 @@
       "replayPreferredFilter": "To filter the replay of the best lap, by car or car class, or just the best lap",
       "replayStoredCountLimit": "For a specific track, the maximum number of stored replays",
       "replaySaveInterval": "For a specific track, the interval of saving the replay details of the best lap",
+      "replaySaveWithoutInterval": "Turn on this to save every frame without interval, could lead to performance drop and larger replay file",
       "onlineRivalsEnabled": "Enable to display the online rivals on the hud, only available for EA Sports WRC game.\nSimilar to the rivals feature during multiplayer in the game",
       "replayOBSSave": "Enable to save the video replay with OBS, make sure the OBS is running and the websocket is enabled",
       "replayOBSWebsocketUrl": "The websocket URL of OBS, usually ws://<ipaddress>:<port>",
       "replayOBSWebsocketPassword": "The password of the websocket, if you have set it in the OBS settings",
       "replayOBSWebsocketTimeout": "The timeout of the websocket connection, in milliseconds",
-      "replayDeleteRelatedVideo": "Delete the related video when the replay is deleted"
+      "replayDeleteRelatedVideo": "Delete the related video when the replay is deleted",
+      "replayPositionOffset": "The offset of the replay position to align with the video, in seconds",
+      "replayGotoLapDistance": "The distance to jump to the lap, in meters",
     },
 
     "autoInitializeGame_on": "Auto Game Selection",
@@ -234,12 +237,15 @@
     "replayPreferredFilter_carclass": "Filter by car class",
     "replayStoredCountLimit": "The maximum number of stored replays",
     "replaySaveInterval": "The interval of saving the replay of the best lap",
+    "replaySaveWithoutInterval": "Save every frame without interval",
     "onlineRivalsEnabled": "Enable online rivals (EA Sports WRC game only)",
     "replayOBSSave": "Save video replay with OBS",
     "replayOBSWebsocketUrl": "OBS Websocket URL",
     "replayOBSWebsocketPassword": "OBS Websocket Password",
     "replayOBSWebsocketTimeout": "OBS Websocket Timeout (ms)",
     "replayDeleteRelatedVideo": "Delete related video",
+    "replayPositionOffset": "Replay Position Offset (s)",
+    "replayGotoLapDistance": "Goto Lap Distance (m)",
   },
 
   "dialog": {

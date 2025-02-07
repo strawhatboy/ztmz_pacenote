@@ -18,6 +18,7 @@
             <Setter Property="Padding" Value="16"></Setter>
             <Setter Property="Margin" Value="0 0 0 5"></Setter>
         </Style> -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </Page.Resources>
     <StackPanel Orientation="Vertical">
       
@@ -132,6 +133,68 @@
                                     IsSnapToTickEnabled="True"
                                     TickPlacement="Both"
                                     VerticalAlignment="Center"/>
+            </Grid>
+        </ui:Card>
+
+        <!-- ReplaySaveWithoutInterval -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Timeline20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replaySaveWithoutInterval}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replaySaveWithoutInterval}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1"
+                                 HorizontalAlignment="Right"
+                                 IsChecked="{Binding Path=ViewModel.ReplaySaveWithoutInterval, Mode=TwoWay}"/>
+            </Grid>
+        </ui:Card>
+        
+        <!-- _replaySaveInterval -->
+        <ui:Card Margin="0 0 0 3" Visibility="{Binding Path=ViewModel.ReplaySaveIntervalVisibility}"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Timeroff20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replaySaveInterval}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replaySaveInterval}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <ui:NumberBox Grid.Column="1"
+                                 HorizontalAlignment="Right"
+                                 Value="{Binding Path=ViewModel.ReplaySaveInterval, Mode=TwoWay}"/>
             </Grid>
         </ui:Card>
         
