@@ -1,0 +1,324 @@
+<Page x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.ReplaySettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:system="clr-namespace:System;assembly=System.Runtime"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:localUI="clr-namespace:ZTMZ.PacenoteTool.Base.UI;assembly=ZTMZ.PacenoteTool.Base.UI"
+      Title="ReplaySettingsPage"
+      FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
+      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+      mc:Ignorable="d"    
+      ui:NavigationView.HeaderContent="{DynamicResource ResourceKey=settings.subsection.replay}">
+    <Page.Resources>
+        <!-- <Style TargetType="ui:Card">
+            <Setter Property="Padding" Value="16"></Setter>
+            <Setter Property="Margin" Value="0 0 0 5"></Setter>
+        </Style> -->
+    </Page.Resources>
+    <StackPanel Orientation="Vertical">
+      
+        <!-- _replaySave -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Replay20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replaySave}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replaySave}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1"
+                                 HorizontalAlignment="Right"
+                                 IsChecked="{Binding Path=ViewModel.ReplaySave, Mode=TwoWay}"/>
+            </Grid>
+        </ui:Card>
+
+        <!-- _replayPreferredFilter -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Filter20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayPreferredFilter}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayPreferredFilter}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <ComboBox Grid.Column="1"
+                          SelectedIndex="{Binding Path=ViewModel.ReplayPreferredFilter, Mode=TwoWay}">
+                    <ComboBox.Items>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=settings.replayPreferredFilter_none}"
+                                ToolTip="{DynamicResource ResourceKey=settings.replayPreferredFilter_none}"
+                                ToolTipService.InitialShowDelay="100"/>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=settings.replayPreferredFilter_carclass}"
+                                ToolTip="{DynamicResource ResourceKey=settings.replayPreferredFilter_carclass}"
+                                ToolTipService.InitialShowDelay="100"/>
+                        <ComboBoxItem Content="{DynamicResource ResourceKey=settings.replayPreferredFilter_car}"
+                                ToolTip="{DynamicResource ResourceKey=settings.replayPreferredFilter_car}"
+                                ToolTipService.InitialShowDelay="100"/>
+                    </ComboBox.Items>
+                </ComboBox>
+            </Grid>
+        </ui:Card>
+        
+        <!-- _replayStoredCountLimit -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition />
+                  <ColumnDefinition Width="40" />
+                  <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="TextWordCount20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayStoredCountLimit}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayStoredCountLimit}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                
+                <ui:TextBlock
+                Text="{Binding Path=ViewModel.ReplayStoredCountLimit, Mode=OneWay, StringFormat=N0}"
+                Grid.Column="1" VerticalAlignment="Center" />
+                <Slider Grid.Column="2"
+                                    Value="{Binding Path=ViewModel.ReplayStoredCountLimit, Mode=TwoWay}"
+                                    Maximum="10"
+                                    Minimum="2"
+                                    TickFrequency="1"
+                                    IsSnapToTickEnabled="True"
+                                    TickPlacement="Both"
+                                    VerticalAlignment="Center"/>
+            </Grid>
+        </ui:Card>
+        
+        <!-- _onlineRivalsEnabled -->
+        <ui:Card Margin="0 0 0 3" Visibility="Collapsed"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="VirtualNetwork20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.onlineRivalsEnabled}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.onlineRivalsEnabled}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1"
+                                 HorizontalAlignment="Right"
+                                 IsChecked="{Binding Path=ViewModel.OnlineRivalsEnabled, Mode=TwoWay}"/>
+            </Grid>
+        </ui:Card>
+        
+        <!-- _ReplayOBSSave -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="VideoRecording20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayOBSSave}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayOBSSave}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1"
+                                 HorizontalAlignment="Right"
+                                 IsChecked="{Binding Path=ViewModel.ReplayOBSSave, Mode=TwoWay}"/>
+            </Grid>
+        </ui:Card>
+
+        <!-- _ReplayOBSWebsocketUrl -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="320"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Link20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayOBSWebsocketUrl}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayOBSWebsocketUrl}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <ui:TextBox Grid.Column="1"
+                                 HorizontalAlignment="Stretch"
+                                 Text="{Binding Path=ViewModel.ReplayOBSWebsocketUrl, Mode=TwoWay}"/>
+            </Grid>
+        </ui:Card>
+        
+        <!-- ReplayOBSWebsocketPassword -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="320"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Password20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayOBSWebsocketPassword}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayOBSWebsocketPassword}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <ui:PasswordBox Grid.Column="1"
+                                 HorizontalAlignment="Stretch"
+                                 Text="{Binding Path=ViewModel.ReplayOBSWebsocketPassword, Mode=TwoWay}"/>
+            </Grid>
+        </ui:Card>
+
+        <!-- ReplayOBSWebsocketTimeout -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Timeroff20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayOBSWebsocketTimeout}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayOBSWebsocketTimeout}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <ui:NumberBox Grid.Column="1"
+                                 HorizontalAlignment="Right"
+                                 Value="{Binding Path=ViewModel.ReplayOBSWebsocketTimeout, Mode=TwoWay}"/>
+            </Grid>
+        </ui:Card>
+        
+        <!-- ReplayDeleteRelatedVideo -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Delete20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayDeleteRelatedVideo}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayDeleteRelatedVideo}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1"
+                                 HorizontalAlignment="Right"
+                                 IsChecked="{Binding Path=ViewModel.ReplayDeleteRelatedVideo, Mode=TwoWay}"/>
+            </Grid>
+        </ui:Card>
+    </StackPanel>
+</Page>

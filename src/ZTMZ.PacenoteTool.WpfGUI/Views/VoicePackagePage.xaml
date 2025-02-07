@@ -29,6 +29,15 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="{x:Type ListBoxItem}" TargetType="ListBoxItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <ContentPresenter/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>    
     </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -68,17 +77,20 @@
                     Header="试听">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <ListBox ItemsSource="{Binding Files}">
+                            <ListBox ItemsSource="{Binding Files}" Padding="0" Margin="0">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock>
+                                        <!-- <TextBlock> -->
                                                 <ui:Button Margin="0"
+                                                Padding="0"
                                                     x:Name="hl_listen"
+                                                    Width="25"
+                                                    Height="25"
                                                     Content="{Binding Index}"
                                                            CommandParameter="{Binding FilePath}"
                                                            Command="{Binding ViewModel.ListenCommand, RelativeSource={RelativeSource AncestorType=Page}}">
                                                 </ui:Button>
-                                        </TextBlock>
+                                        <!-- </TextBlock> -->
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                                 <ListBox.ItemsPanel>

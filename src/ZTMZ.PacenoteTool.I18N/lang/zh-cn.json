@@ -35,9 +35,11 @@
 
     "subsection": {
       "voicePackage": "领航员设置",
+      "replay": "回放设置",
       "tooltip": {
-        "voicePackage": "领航员设置，包括领航员语音包的开始结束语音开启、预加载、搜索路径等"
-      }
+        "voicePackage": "领航员设置，包括领航员语音包的开始结束语音开启、预加载、搜索路径等",
+        "replay": "回放设置，包括最佳成绩的保存、保存上限、OBS录制等",
+      }      
     },
 
     "restartNeeded": "需要重启工具来生效",
@@ -127,7 +129,12 @@
       "replayPreferredFilter": "通过车辆名称、车辆类别或仅仅通过赛道来决定最佳成绩",
       "replayStoredCountLimit": "对于某个赛道和车辆的组合，存储最佳成绩记录的上限，上限过大可能会占用更多磁盘空间",
       "replaySaveInterval": "对于每个最佳成绩，每隔这个间隔时间保存当前里程",
-      "onlineRivalsEnabled": "用于在仪表盘中显示在线对手（Racenet）的情况，类似于联机时显示每个人的进度"
+      "onlineRivalsEnabled": "用于在仪表盘中显示在线对手（Racenet）的情况，类似于联机时显示每个人的进度",
+      "replayOBSSave": "打开此选项以使用OBS保存回放视频",
+      "replayOBSWebsocketUrl": "OBS的websocket地址，比如 ws://<ipaddress>:<port>",
+      "replayOBSWebsocketPassword": "如果你在OBS中设置了websocket密码，这里需要填写",
+      "replayOBSWebsocketTimeout": "OBS的websocket连接超时时间（毫秒）",
+      "replayDeleteRelatedVideo": "当删除过往成绩时（通常根据记录上限自动删除），是否删除相关的视频文件",
     },
 
     "autoInitializeGame_on": "自动选择游戏",
@@ -227,7 +234,12 @@
     "replayPreferredFilter_carclass": "按车辆类别过滤",
     "replayStoredCountLimit": "最佳成绩存储数量上限",
     "replaySaveInterval": "最佳成绩赛道过程保存间隔时间（毫秒）",
-    "onlineRivalsEnabled": "启用在线对手（仅EA WRC支持）"
+    "onlineRivalsEnabled": "启用在线对手（仅EA WRC支持）",
+    "replayOBSSave": "使用OBS保存回放视频",
+    "replayOBSWebsocketUrl": "OBS Websocket 地址",
+    "replayOBSWebsocketPassword": "OBS Websocket 密码",
+    "replayOBSWebsocketTimeout": "OBS Websocket 超时时间（毫秒）",
+    "replayDeleteRelatedVideo": "删除相关视频",
   },
 
   "dialog": {

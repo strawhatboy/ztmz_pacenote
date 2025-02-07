@@ -19,150 +19,34 @@
         </Style> -->
     </Page.Resources>
     <StackPanel Orientation="Vertical">
-      
-        <!-- _replaySave -->
-        <ui:Card Margin="0 0 0 3"
-                 Padding="16">
+        <ui:CardAction Margin="0 0 0 3" 
+            Command="{Binding ViewModel.NavigateForwardCommand}"
+            CommandParameter="{x:Type local:ReplaySettingsPage}"
+            >
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal"
-                            VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="Replay20"
-                                   FontSize="26"
-                                   Margin="0 0 10 0"/>
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Settings20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
+                            <RowDefinition />
+                            <RowDefinition />
                         </Grid.RowDefinitions>
-                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replaySave}"/>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.subsection.replay}" />
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.replaySave}"
-                                      Appearance="Tertiary"
-                                      FontTypography="Caption"/>
+                            Text="{DynamicResource ResourceKey=settings.subsection.tooltip.replay}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
-                <ui:ToggleSwitch Grid.Column="1"
-                                 HorizontalAlignment="Right"
-                                 IsChecked="{Binding Path=ViewModel.ReplaySave, Mode=TwoWay}"/>
             </Grid>
-        </ui:Card>
-
-        <!-- _replayPreferredFilter -->
-        <ui:Card Margin="0 0 0 3"
-                 Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="160"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                            VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="Filter20"
-                                   FontSize="26"
-                                   Margin="0 0 10 0"/>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayPreferredFilter}"/>
-                        <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayPreferredFilter}"
-                                      Appearance="Tertiary"
-                                      FontTypography="Caption"/>
-                    </Grid>
-                </StackPanel>
-                <ComboBox Grid.Column="1"
-                          SelectedIndex="{Binding Path=ViewModel.ReplayPreferredFilter, Mode=TwoWay}">
-                    <ComboBox.Items>
-                        <ComboBoxItem Content="{DynamicResource ResourceKey=settings.replayPreferredFilter_none}"
-                                ToolTip="{DynamicResource ResourceKey=settings.replayPreferredFilter_none}"
-                                ToolTipService.InitialShowDelay="100"/>
-                        <ComboBoxItem Content="{DynamicResource ResourceKey=settings.replayPreferredFilter_carclass}"
-                                ToolTip="{DynamicResource ResourceKey=settings.replayPreferredFilter_carclass}"
-                                ToolTipService.InitialShowDelay="100"/>
-                        <ComboBoxItem Content="{DynamicResource ResourceKey=settings.replayPreferredFilter_car}"
-                                ToolTip="{DynamicResource ResourceKey=settings.replayPreferredFilter_car}"
-                                ToolTipService.InitialShowDelay="100"/>
-                    </ComboBox.Items>
-                </ComboBox>
-            </Grid>
-        </ui:Card>
-        
-        <!-- _replayStoredCountLimit -->
-        <ui:Card Margin="0 0 0 3"
-                 Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition />
-                  <ColumnDefinition Width="40" />
-                  <ColumnDefinition Width="160" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                            VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="TextWordCount20"
-                                   FontSize="26"
-                                   Margin="0 0 10 0"/>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayStoredCountLimit}"/>
-                        <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayStoredCountLimit}"
-                                      Appearance="Tertiary"
-                                      FontTypography="Caption"/>
-                    </Grid>
-                </StackPanel>
-                
-                <ui:TextBlock
-                Text="{Binding Path=ViewModel.ReplayStoredCountLimit, Mode=OneWay, StringFormat=N0}"
-                Grid.Column="1" VerticalAlignment="Center" />
-                <Slider Grid.Column="2"
-                                    Value="{Binding Path=ViewModel.ReplayStoredCountLimit, Mode=TwoWay}"
-                                    Maximum="10"
-                                    Minimum="2"
-                                    TickFrequency="1"
-                                    IsSnapToTickEnabled="True"
-                                    TickPlacement="Both"
-                                    VerticalAlignment="Center"/>
-            </Grid>
-        </ui:Card>
-        
-        <!-- _onlineRivalsEnabled -->
-        <ui:Card Margin="0 0 0 3" Visibility="Collapsed"
-                 Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="160"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                            VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="VirtualNetwork20"
-                                   FontSize="26"
-                                   Margin="0 0 10 0"/>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.onlineRivalsEnabled}"/>
-                        <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.onlineRivalsEnabled}"
-                                      Appearance="Tertiary"
-                                      FontTypography="Caption"/>
-                    </Grid>
-                </StackPanel>
-                <ui:ToggleSwitch Grid.Column="1"
-                                 HorizontalAlignment="Right"
-                                 IsChecked="{Binding Path=ViewModel.OnlineRivalsEnabled, Mode=TwoWay}"/>
-            </Grid>
-        </ui:Card>
+        </ui:CardAction>
     </StackPanel>
 </Page>

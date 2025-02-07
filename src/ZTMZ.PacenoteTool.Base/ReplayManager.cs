@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 using GoogleAnalyticsTracker.Core;
@@ -44,6 +45,17 @@ public class Replay {
             date TEXT NOT NULL
         );
     ";
+
+    public string ExportToCSV(IGame game) {
+        var sb = new StringBuilder();
+        // write the header, lowercase
+        sb.AppendLine("timestamp,time,distance,completion_rate,speed,clutch,brake,throttle,handbrake,steering,gear,max_gears,rpm,max_rpm,pos_x,pos_y,pos_z");
+        var detailsPerTime = ReplayManager.Instance.getReplayDetailsPerTime(game, id).Result;
+        foreach (var d in detailsPerTime) {
+            sb.AppendLine($"{d.timestamp},{d.time},{d.distance},{d.completion_rate},{d.speed},{d.clutch},{d.brake},{d.throttle},{d.handbrake},{d.steering},{d.gear},{d.max_gears},{d.rpm},{d.max_rpm},{d.pos_x},{d.pos_y},{d.pos_z}");
+        }
+        return sb.ToString();
+    }
 }
 
 // the distance finished at time
@@ -290,6 +302,8 @@ public class ReplayManager {
         var connectionString = getConnectionString(game);
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
+            // read the replay first
+            var replay = await connection.QueryFirstOrDefaultAsync<Replay>("SELECT * FROM replay WHERE id = @id", new { id });
             using (var command = connection.CreateCommand()) {
                 command.CommandText = "DELETE FROM replay WHERE id = @id";
                 command.Parameters.AddWithValue("@id", id);
@@ -299,6 +313,11 @@ public class ReplayManager {
                 command.CommandText = "DELETE FROM replay_details_per_checkpoint WHERE id = @id";
                 await command.ExecuteNonQueryAsync();
                 _logger.Info($"Replay deleted: {id}");
+            }
+            if (Config.Instance.ReplayDeleteRelatedVideo && !string.IsNullOrEmpty(replay.video_path) && File.Exists(replay.video_path)) {
+                // async delete
+                await Task.Run(() => File.Delete(replay.video_path));
+                _logger.Info($"Video deleted: {replay.video_path}");
             }
         }
     }
@@ -346,6 +365,21 @@ public class ReplayManager {
                 command.Parameters.AddWithValue("@id", id);
                 await command.ExecuteNonQueryAsync();
             }
+        }
+    }
+
+    public async void ExportReplay(IGame game, Replay replay, string dirPath) {
+        var folder = Path.Combine(dirPath, $"{game.Name}_{replay.track}_{replay.car}_{replay.car_class}_{replay.finish_time}");
+        _logger.Info($"Exporting replay to: {folder}");
+        Directory.CreateDirectory(folder);
+        var replayPath = Path.Combine(folder, "stage_details.csv");
+        await File.WriteAllTextAsync(replayPath, replay.ExportToCSV(game));
+        _logger.Info($"stage details exported: {replayPath}");
+        if (!string.IsNullOrEmpty(replay.video_path) && File.Exists(replay.video_path)) {
+            var videoPath = Path.Combine(folder, Path.GetFileName(replay.video_path));
+            // async copy
+            await Task.Run(() => File.Copy(replay.video_path, videoPath));
+            _logger.Info($"video exported: {videoPath}");
         }
     }
 }

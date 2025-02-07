@@ -919,6 +919,16 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._ReplayOBSWebsocketTimeout;
         }
 
+        /// <summary>
+        /// Whether to delete the related video when deleting the replay due to the replay count limit.
+        /// </summary>
+        private bool _ReplayDeleteRelatedVideo = true;
+        public bool ReplayDeleteRelatedVideo
+        {
+            set { this._ReplayDeleteRelatedVideo = value; this._userconfig["ReplayDeleteRelatedVideo"] = value; }
+            get => this._ReplayDeleteRelatedVideo;
+        }
+
 #endregion
 
         public void Save(string path)

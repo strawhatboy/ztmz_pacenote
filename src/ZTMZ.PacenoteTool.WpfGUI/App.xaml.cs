@@ -133,6 +133,8 @@ public partial class App : Application
             services.AddScoped<ViewModels.VrPageVM>();
             services.AddScoped<Views.ReplayPage>();
             services.AddScoped<ViewModels.ReplayPageVM>();
+            services.AddScoped<Views.ReplaySettingsPage>();
+            services.AddScoped<ViewModels.ReplaySettingsPageVM>();
 
             // Configuration
             // services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));
