@@ -5,6 +5,12 @@
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
 #define FolderName "ZTMZClub_nextgen"
 
+[Components]
+Name: "ztmz_ngptool"; Description: "ZTMZ Next Generation Pacenote Tool"; Types: full compact custom; Flags: fixed
+
+; selectable components
+Name: "webview2"; Description: "Microsoft Edge WebView2 Runtime"; Types: full custom; ExtraDiskSpaceRequired: 
+
 [Code]
 var
   DownloadPage: TDownloadWizardPage;
@@ -12,6 +18,8 @@ var
   DirPage: TInputDirWizardPage;
   HiddenPage: TInputDirWizardPage;
   HiddenPage2: TInputDirWizardPage;
+  InstallWebView2: Boolean;
+  WebView2InstallerDownloaded: Boolean;
 
 procedure AppendDirBrowseClick(Sender: TObject);
 begin
@@ -99,12 +107,34 @@ begin
   Result:= False;
 end;
 
-function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;
+function IsWebView2Installed(): Boolean;
+var
+  Version: String;
 begin
-  if Progress = ProgressMax then
+  Result := False;
+  // 检查 64 位系统的注册表项
+  if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version) then
   begin
-    Log(Format('Successfully downloaded file to {tmp}: %s', [FileName]));
+    if Version > '0.0.0.0' then
+      Result := True;
+  end
+  else
+  begin
+    // 检查 32 位系统的注册表项
+    if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version) then
+    begin
+      if Version > '0.0.0.0' then
+        Result := True;
+    end;
   end;
+end;
+
+function OnDownloadProgress(const Url, Filename: String; const Progress, ProgressMax: Int64): Boolean;
+begin
+  if ProgressMax <> 0 then
+    Log(Format('  %d of %d bytes done.', [Progress, ProgressMax]))
+  else
+    Log(Format('  %d bytes done.', [Progress]));
   Result := True;
 end;
 
@@ -148,7 +178,6 @@ begin
   ProjectLinkLabel.Anchors := [akLeft, akBottom];
   ProjectLinkLabel.OnLinkClick := @ProjectLinkLabelOnClick;
 
-  NeedToDownload:= (not CheckDotNetInstalled);
   DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), @OnDownloadProgress);
 
   DirPage := CreateInputDirPage(
@@ -186,27 +215,68 @@ function NextButtonClick(CurPageID: Integer): Boolean;
 var
   fullFileName: String;
   ResultCode: Integer;
+  WebView2Installer: String;
 begin
-  if (CurPageID = wpReady) and NeedToDownload then begin
+  if (CurPageID = wpReady) then
+  begin
     DownloadPage.Clear;
-{ download dotnet8 }
-{ DownloadPage.Add('https://download.visualstudio.microsoft.com/download/pr/84ba33d4-4407-4572-9bfa-414d26e7c67c/bb81f8c9e6c9ee1ca547396f6e71b65f/windowsdesktop-runtime-8.0.2-win-x64.exe', 'dotnet8.exe', ''); }
-    DownloadPage.Add('https://gitee.com/ztmz/dotnet-runtimes/releases/download/desktop-8.0.10/windowsdesktop-runtime-8.0.10-win-x64.exe', 'dotnet8.exe', '');
-    DownloadPage.Show;
-    try
-      try
-        DownloadPage.Download;
-        { install it ! }
-        fullFileName:= ExpandConstant('{tmp}\dotnet8.exe');
-        Result := Exec(fullFileName, '/install /passive', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-      except
-        SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbCriticalError, MB_OK, IDOK);
-        Result := False;
-      end;
-    finally
-      DownloadPage.Hide;
+
+    // Check for .NET runtime
+    NeedToDownload := (not CheckDotNetInstalled);
+    if NeedToDownload then
+    begin
+      DownloadPage.Add('https://gitee.com/ztmz/dotnet-runtimes/releases/download/desktop-8.0.10/windowsdesktop-runtime-8.0.10-win-x64.exe', 'dotnet8.exe', '');
     end;
-  end else
+
+    // Check for WebView2
+    InstallWebView2 := WizardIsComponentSelected('webview2') and not IsWebView2Installed();
+    if InstallWebView2 then
+    begin
+      WebView2Installer := ExpandConstant('{tmp}\MicrosoftEdgeWebview2Setup.exe');
+      DownloadPage.Add('https://go.microsoft.com/fwlink/p/?LinkId=2124703', 'MicrosoftEdgeWebview2Setup.exe', '');
+    end;
+
+    if NeedToDownload or InstallWebView2 then
+    begin
+      DownloadPage.Show;
+      try
+        try
+          DownloadPage.Download;
+          WebView2InstallerDownloaded := True; // Add this line
+
+          // Install .NET runtime
+          if NeedToDownload then
+          begin
+            fullFileName := ExpandConstant('{tmp}\dotnet8.exe');
+            Result := Exec(fullFileName, '/install /passive', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+            if not Result then
+            begin
+              RaiseException('Failed to install .NET runtime.');
+            end;
+          end;
+
+          // Install WebView2
+          if InstallWebView2 then
+          begin
+            fullFileName := ExpandConstant('{tmp}\MicrosoftEdgeWebview2Setup.exe');
+            Result := Exec(fullFileName, '/install /silent', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+            if not Result then
+            begin
+              RaiseException('Failed to install WebView2.');
+            end;
+          end;
+        except
+          SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbCriticalError, MB_OK, IDOK);
+          Result := False;
+        end;
+      finally
+        DownloadPage.Hide;
+      end;
+    end
+    else
+      Result := True;
+  end
+  else
     Result := True;
 end;
 
