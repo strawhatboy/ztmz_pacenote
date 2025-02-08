@@ -20,6 +20,9 @@
   "settings": {
     "more": "更多",
     "title": "设置",
+    "export": "导出",
+    "play": "播放",
+    "delete": "删除",
 
     "btn_reset": "恢复默认设置",
 
@@ -138,6 +141,9 @@
       "replayDeleteRelatedVideo": "当删除过往成绩时（通常根据记录上限自动删除），是否删除相关的视频文件",
       "replayPositionOffset": "回放视频的时间偏移，单位为秒，可以用来调整视频和数据的同步",
       "replayGotoLapDistance": "跳转到指定里程，单位为米",
+      "replayExport": "导出回放视频和遥测数据到文件夹中",
+      "replayExportAudio": "导出回放音频和遥测数据到文件夹中\n需要在回放设置中定位ffmpeg的路径",
+      "replayFFmpegPath": "ffmpeg的路径，用于导出回放音频",
     },
 
     "autoInitializeGame_on": "自动选择游戏",
@@ -246,6 +252,9 @@
     "replayDeleteRelatedVideo": "删除相关视频",
     "replayPositionOffset": "回放视频时间偏移",
     "replayGotoLapDistance": "跳转到指定里程",
+    "replayExport": "导出回放",
+    "replayExportAudio": "导出回放（音频）",
+    "replayFFmpegPath": "FFmpeg 路径",
   },
 
   "dialog": {
@@ -253,7 +262,11 @@
       "btn_ok": "可以",
       "btn_cancel": "取消",
       "btn_yes": "好",
-      "btn_no": "不行"
+      "btn_no": "不行",
+      "file_not_found": "文件不存在"
+    },
+    "ffmpeg": {
+      "no_ffmpeg": "未找到ffmpeg，请下载ffmpeg并在回放设置页面配置ffmpeg的路径"
     },
     "portNotOpen": {
       "title": "端口未打开",

@@ -9,7 +9,7 @@
 Name: "ztmz_ngptool"; Description: "ZTMZ Next Generation Pacenote Tool"; Types: full compact custom; Flags: fixed
 
 ; selectable components
-Name: "webview2"; Description: "Microsoft Edge WebView2 Runtime"; Types: full custom; ExtraDiskSpaceRequired: 
+Name: "webview2"; Description: "Microsoft Edge WebView2 Runtime"; Types: full custom; ExtraDiskSpaceRequired: 50000000
 
 [Code]
 var

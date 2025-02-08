@@ -17,7 +17,7 @@
             <Setter Property="Padding" Value="16"></Setter>
             <Setter Property="Margin" Value="0 0 0 5"></Setter>
         </Style> -->
-        
+
         <Style x:Key="Body_Content_DataGrid_Centering"
                TargetType="{x:Type DataGridCell}">
             <Setter Property="Template">
@@ -32,31 +32,30 @@
         </Style>
     </Page.Resources>
     <StackPanel Orientation="Vertical">
-        <ui:CardAction Margin="0 0 0 3" 
-            Command="{Binding ViewModel.NavigateForwardCommand}"
-            CommandParameter="{x:Type local:ReplaySettingsPage}"
-            >
+        <ui:CardAction Margin="0 0 0 3"
+                       Command="{Binding ViewModel.NavigateForwardCommand}"
+                       CommandParameter="{x:Type local:ReplaySettingsPage}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="160" />
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center">
+                            VerticalAlignment="Center">
                     <ui:SymbolIcon Symbol="Settings20"
-                        FontSize="26"
-                        Margin="0 0 10 0" />
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
+                            <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
                         <ui:TextBlock
-                            Text="{DynamicResource ResourceKey=settings.subsection.replay}" />
+                            Text="{DynamicResource ResourceKey=settings.subsection.replay}"/>
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.subsection.tooltip.replay}"
-                            Appearance="Tertiary"
-                            FontTypography="Caption" />
+                                      Text="{DynamicResource ResourceKey=settings.subsection.tooltip.replay}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
             </Grid>
@@ -64,12 +63,12 @@
 
         <!-- the datagrid for replays of current game -->
         <DataGrid Grid.Row="2"
-                     x:Name="lv_Content"
-                     IsReadOnly="True"
-                     ItemsSource="{Binding ViewModel.Replays}"
-                     CellStyle="{StaticResource Body_Content_DataGrid_Centering}"
-                     AutoGenerateColumns="False"
-                     CanUserAddRows="False">
+                  x:Name="lv_Content"
+                  IsReadOnly="True"
+                  ItemsSource="{Binding ViewModel.Replays}"
+                  CellStyle="{StaticResource Body_Content_DataGrid_Centering}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False">
             <DataGrid.Columns>
                 <DataGridTemplateColumn
                     Header="actions">
@@ -77,34 +76,50 @@
                         <DataTemplate>
                             <WrapPanel Orientation="Horizontal">
                                 <ui:Button Margin="0 0 5 0"
-                                    Padding="0"
-                                    x:Name="hl_listen"
-                                    Width="25"
-                                    Height="25"
-                                    Foreground="Green"
-                                    Icon="{ui:SymbolIcon Play20}"
-                                    CommandParameter="{Binding id}"
-                                    Command="{Binding ViewModel.ReplayPlayCommand, RelativeSource={RelativeSource AncestorType=Page}}">
+                                           Padding="0"
+                                           x:Name="hl_listen"
+                                           Width="25"
+                                           Height="25"
+                                           Foreground="Green"
+                                           Icon="{ui:SymbolIcon Play20}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.play}"
+                                           ToolTipService.InitialShowDelay="100"
+                                           CommandParameter="{Binding id}"
+                                           Command="{Binding ViewModel.ReplayPlayCommand, RelativeSource={RelativeSource AncestorType=Page}}">
                                 </ui:Button>
                                 <ui:Button Margin="0 0 5 0"
-                                    Padding="0"
-                                    x:Name="hl_edit"
-                                    Width="25"
-                                    Height="25"
-                                    Foreground="Blue"
-                                    Icon="{ui:SymbolIcon Share20}"
-                                    CommandParameter="{Binding id}"
-                                    Command="{Binding ViewModel.ReplayExportCommand, RelativeSource={RelativeSource AncestorType=Page}}">
+                                           Padding="0"
+                                           x:Name="hl_edit"
+                                           Width="25"
+                                           Height="25"
+                                           Foreground="Blue"
+                                           Icon="{ui:SymbolIcon Share20}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.replayExport}"
+                                           ToolTipService.InitialShowDelay="100"
+                                           CommandParameter="{Binding id}"
+                                           Command="{Binding ViewModel.ReplayExportCommand, RelativeSource={RelativeSource AncestorType=Page}}">
                                 </ui:Button>
+                                <ui:Button Margin="0 0 5 0"
+                                           Padding="0"
+                                           Width="25"
+                                           Height="25"
+                                           Foreground="Blue"
+                                           Icon="{ui:SymbolIcon SoundSource20}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.replayExportAudio}"
+                                           ToolTipService.InitialShowDelay="100"
+                                           CommandParameter="{Binding id}"
+                                           Command="{Binding ViewModel.ReplayExportAudioCommand, RelativeSource={RelativeSource AncestorType=Page}}"/>
                                 <ui:Button Margin="0 0 0 0"
-                                    Padding="0"
-                                    x:Name="hl_delete"
-                                    Width="25"
-                                    Height="25"
-                                    Foreground="Red"
-                                    Icon="{ui:SymbolIcon Delete20}"
-                                    CommandParameter="{Binding id}"
-                                    Command="{Binding ViewModel.ReplayDeleteCommand, RelativeSource={RelativeSource AncestorType=Page}}">
+                                           Padding="0"
+                                           x:Name="hl_delete"
+                                           Width="25"
+                                           Height="25"
+                                           Foreground="Red"
+                                           Icon="{ui:SymbolIcon Delete20}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.delete}"
+                                           ToolTipService.InitialShowDelay="100"
+                                           CommandParameter="{Binding id}"
+                                           Command="{Binding ViewModel.ReplayDeleteCommand, RelativeSource={RelativeSource AncestorType=Page}}">
                                 </ui:Button>
                             </WrapPanel>
                         </DataTemplate>

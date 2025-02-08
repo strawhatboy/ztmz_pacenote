@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using FFMpegCore;
 using GoogleAnalyticsTracker.Core;
 using Microsoft.Data.Sqlite;
 using ZTMZ.PacenoteTool.Base.Game;
@@ -166,8 +167,8 @@ public class ReplayManager {
             connection.Open();
             using (var command = connection.CreateCommand()) {
                 command.CommandText = @"
-                    INSERT INTO replay (track, car, car_class, finish_time, retired, checkpoints, date, comment, video_path)
-                    VALUES (@track, @car, @car_class, @finish_time, @retired, @checkpoints, @date, @comment, @video_path);
+                    INSERT INTO replay (track, car, car_class, finish_time, track_length, retired, checkpoints, date, comment, video_path)
+                    VALUES (@track, @car, @car_class, @finish_time, @track_length, @retired, @checkpoints, @date, @comment, @video_path);
                 ";
                 command.Parameters.AddWithValue("@track", replay.track);
                 command.Parameters.AddWithValue("@car", replay.car);
@@ -376,18 +377,38 @@ public class ReplayManager {
         }
     }
 
-    public async Task ExportReplay(IGame game, Replay replay, string dirPath) {
-        var folder = Path.Combine(dirPath, $"{game.Name}_{replay.track}_{replay.car}_{replay.car_class}_{replay.finish_time}");
+    private async Task<string> ExportStageDetails(IGame game, Replay replay, string dirPath) {
+        var folderName = $"{game.Name}_{replay.track}_{replay.car}_{replay.car_class}_{replay.finish_time}";
+        var folder = Path.Combine(dirPath, folderName);
         _logger.Info($"Exporting replay to: {folder}");
         Directory.CreateDirectory(folder);
         var replayPath = Path.Combine(folder, "stage_details.csv");
         await File.WriteAllTextAsync(replayPath, replay.ExportToCSV(game));
         _logger.Info($"stage details exported: {replayPath}");
+        return folder;
+    }
+
+    public async Task ExportReplay(IGame game, Replay replay, string dirPath) {
+        var folder = await ExportStageDetails(game, replay, dirPath);
         if (!string.IsNullOrEmpty(replay.video_path) && File.Exists(replay.video_path)) {
             var videoPath = Path.Combine(folder, Path.GetFileName(replay.video_path));
             // async copy
             await Task.Run(() => File.Copy(replay.video_path, videoPath));
             _logger.Info($"video exported: {videoPath}");
+        }
+    }
+
+    public async Task ExportReplayWithAudio(IGame game, Replay replay, string dirPath) {
+        var folder = await ExportStageDetails(game, replay, dirPath);
+        if (!string.IsNullOrEmpty(replay.video_path) && File.Exists(replay.video_path)) {
+            var videoPath = Path.Combine(folder, Path.GetFileName(replay.video_path));
+            var audioPath = Path.ChangeExtension(videoPath, ".wav");
+            // async convert
+            await FFMpegArguments
+                .FromFileInput(replay.video_path)
+                .OutputToFile(audioPath)
+                .ProcessAsynchronously();
+            _logger.Info($"audio exported: {audioPath}");
         }
     }
 

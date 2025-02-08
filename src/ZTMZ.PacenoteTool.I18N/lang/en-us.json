@@ -20,6 +20,9 @@
   "settings": {
     "more": "More",
     "title": "Settings",
+    "export": "导出",
+    "play": "播放",
+    "delete": "删除",
 
     "btn_reset": "Restore to default",
 
@@ -138,6 +141,9 @@
       "replayDeleteRelatedVideo": "Delete the related video when the replay is deleted",
       "replayPositionOffset": "The offset of the replay position to align with the video, in seconds",
       "replayGotoLapDistance": "The distance to jump to the lap, in meters",
+      "replayExport": "Export the replay with the video and telemetry data in a folder",
+      "replayExportAudio": "Export the replay with the audio and telemetry data in a folder\nNeed ffmpeg installed and added to the system PATH",
+      "replayFFmpegPath": "The path of the ffmpeg executable",
     },
 
     "autoInitializeGame_on": "Auto Game Selection",
@@ -246,6 +252,9 @@
     "replayDeleteRelatedVideo": "Delete related video",
     "replayPositionOffset": "Replay Position Offset (s)",
     "replayGotoLapDistance": "Goto Lap Distance (m)",
+    "replayExport": "Export Replay",
+    "replayExportAudio": "Export Replay (Audio)",
+    "replayFFmpegPath": "FFmpeg Path",
   },
 
   "dialog": {
@@ -253,7 +262,11 @@
       "btn_ok": "OK",
       "btn_cancel": "Cancel",
       "btn_yes": "Yes",
-      "btn_no": "No"
+      "btn_no": "No",
+      "file_not_found": "File Not Found"
+    },
+    "ffmpeg": {
+      "no_ffmpeg": "ffmpeg not found, please download and install ffmpeg, then configure it in Replay Settings page."
     },
     "portNotOpen": {
       "title": "Port Not Open",

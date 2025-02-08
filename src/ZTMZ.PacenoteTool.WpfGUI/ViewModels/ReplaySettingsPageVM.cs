@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Microsoft.Win32;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
@@ -100,6 +101,14 @@ public partial class ReplaySettingsPageVM : ObservableObject, INavigationAware
     }
 
     [ObservableProperty]
+    private string _replayFFmpegPath = Config.Instance.ReplayFFmpegPath;
+    partial void OnReplayFFmpegPathChanged(string value)
+    {
+        Config.Instance.ReplayFFmpegPath = value;
+        Config.Instance.SaveUserConfig();
+    }
+
+    [ObservableProperty]
     private Visibility _replaySaveIntervalVisibility = Config.Instance.ReplaySaveWithoutInterval ? Visibility.Collapsed : Visibility.Visible;
     
     public void OnNavigatedFrom()
@@ -110,5 +119,15 @@ public partial class ReplaySettingsPageVM : ObservableObject, INavigationAware
 
     public void OnNavigatedTo()
     {
+    }
+
+    [RelayCommand]
+    private async void LocateFFmpeg() {
+        OpenFileDialog openFileDialog = new OpenFileDialog();
+        openFileDialog.Filter = "FFmpeg|ffmpeg.exe";
+        if (openFileDialog.ShowDialog() == true)
+        {
+            ReplayFFmpegPath = Path.GetDirectoryName(openFileDialog.FileName);
+        }
     }
 }

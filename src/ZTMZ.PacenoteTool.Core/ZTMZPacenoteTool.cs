@@ -350,7 +350,6 @@ public class ZTMZPacenoteTool {
                 this._carClass = this._currentGame.GameDataReader.CarClass;
                 //TODO: update UI trackname
                 this.onTrackAndCarChanged?.Invoke(_currentGame, this._trackName, this._carName, this._carClass);
-                this._trackLength = this._currentGame.GameDataReader.CurrentGameData.TrackLength;
                 
                 // check if it is replay
                 if (evt.Parameters.ContainsKey(GameStateRaceBeginProperty.IS_REPLAY))
@@ -418,6 +417,9 @@ public class ZTMZPacenoteTool {
                         // it's not replay session, start to record the video
                         ObsManager.Instance.StartRecording();
                     }
+                    
+                    this._trackLength = this._currentGame.GameDataReader.CurrentGameData.TrackLength;
+                    _logger.Info("Setting Track length when start racing: " + this._trackLength);
                 }
                 if (lastState == GameState.Paused) {
                     // paused to racing, probably adhoc, need to relocate pacenotes

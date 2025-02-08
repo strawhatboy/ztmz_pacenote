@@ -937,6 +937,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._ReplayDeleteRelatedVideo;
         }
 
+        private string _ReplayFFmpegPath = "";
+        public string ReplayFFmpegPath
+        {
+            set { this._ReplayFFmpegPath = value; this._userconfig["ReplayFFmpegPath"] = value; }
+            get => this._ReplayFFmpegPath;
+        }
+
 #endregion
 
         public void Save(string path)

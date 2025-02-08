@@ -383,5 +383,43 @@
                                  IsChecked="{Binding Path=ViewModel.ReplayDeleteRelatedVideo, Mode=TwoWay}"/>
             </Grid>
         </ui:Card>
+        
+        <!-- _replayFFmpegPath -->
+        <ui:Card Margin="0 0 0 3"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="300" />
+                    <ColumnDefinition Width="40" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="GlobeVideo20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.replayFFmpegPath}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.replayFFmpegPath}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:TextBox Grid.Column="1" VerticalAlignment="Center"
+                    Text="{Binding Path=ViewModel.ReplayFFmpegPath, Mode=TwoWay}" />
+                <ui:Button
+                    HorizontalAlignment="Right"
+                    Grid.Column="2"
+                    Icon="{ui:SymbolIcon Folder20}"
+                    Command="{Binding ViewModel.LocateFFmpegCommand}"
+                />
+            </Grid>
+        </ui:Card>
     </StackPanel>
 </Page>

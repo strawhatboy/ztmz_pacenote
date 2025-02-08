@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
+using FFMpegCore;
 using Microsoft.Win32;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
@@ -75,9 +76,8 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
         navigationService.NavigateWithHierarchy(typeof(ReplayPlayingPage));
     }
 
-    [RelayCommand]
-    private async void ReplayExport(int id)
-    {
+    private async Task<string> getExportFolder() {
+        
         // open folder dialog
         
 #if NET8_0_OR_GREATER
@@ -86,25 +86,58 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
             new()
             {
                 Multiselect = false,
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
             };
 
         if (openFolderDialog.ShowDialog() != true)
         {
-            return;
+            return "";
         }
 
         if (openFolderDialog.FolderNames.Length == 0)
         {
+            return "";
+        }
+        return openFolderDialog.FolderNames.First();
+#else
+#endif
+    }
+
+    [RelayCommand]
+    private async void ReplayExport(int id)
+    {
+        var folder = await getExportFolder();
+        if (string.IsNullOrEmpty(folder)) {
             return;
         }
-
         // export to the foler
         var game = this.tool.CurrentGame;
         var replay = await ReplayManager.Instance.getReplay(game, id);
-        await ReplayManager.Instance.ExportReplay(game, replay, openFolderDialog.FolderNames.First());
-#else
-#endif
+        await ReplayManager.Instance.ExportReplay(game, replay, folder);
+    }
+
+    [RelayCommand]
+    private async void ReplayExportAudio(int id) {
+        if (!File.Exists(Path.Combine(Config.Instance.ReplayFFmpegPath, "ffmpeg.exe"))) {
+            // show message box
+            var result = await new Wpf.Ui.Controls.MessageBox
+            {
+                Title = I18NLoader.Instance["dialog.common.file_not_found"],
+                Content = I18NLoader.Instance["dialog.ffmpeg.no_ffmpeg"],
+                // SecondaryButtonText = "Don't Save",
+                CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+            }.ShowDialogAsync();
+            return;
+        }
+
+        GlobalFFOptions.Configure(options => options.BinaryFolder = Config.Instance.ReplayFFmpegPath);
+        var folder = await getExportFolder();
+        if (string.IsNullOrEmpty(folder)) {
+            return;
+        }
+        // export to the foler
+        var game = this.tool.CurrentGame;
+        var replay = await ReplayManager.Instance.getReplay(game, id);
+        await ReplayManager.Instance.ExportReplayWithAudio(game, replay, folder);
     }
 
     [RelayCommand]

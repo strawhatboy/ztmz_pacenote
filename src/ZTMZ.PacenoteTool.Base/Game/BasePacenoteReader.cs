@@ -21,7 +21,8 @@ namespace ZTMZ.PacenoteTool.Base.Game
                     // when replaying, if not exist, create new
                     return GetScriptFileForReplaying(Constants.DEFAULT_PROFILE, game, track, false);
                 } else {
-                    return null;    // not found
+                    // not found, create new
+                    File.Create(filePath).Close();
                 }
             }
 
