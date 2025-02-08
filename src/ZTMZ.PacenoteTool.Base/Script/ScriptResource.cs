@@ -71,6 +71,10 @@ public class ScriptResourceReverseCorners {
     public int replacement_id;
 }
 
+public class ScriptResourcePacenoteView {
+    
+}
+
 public class ScriptResource
 {
     private static ScriptResource _instance;

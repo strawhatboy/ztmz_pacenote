@@ -116,6 +116,18 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             }
+        },
+        {
+            "label": "buildEditorDebug",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build", "-c" , "Debug", "${workspaceFolder}/src/ZTMZ.PacenoteTool.ScriptEditor/ZTMZ.PacenoteTool.ScriptEditor.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "options": {
+                "cwd": "${workspaceFolder}/src/ZTMZ.PacenoteTool.ScriptEditor"
+            }
         }
     ]
 }
