@@ -11,11 +11,11 @@
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica"
         WindowCornerPreference="Default"
-        Title="ZTMZ Club 路书脚本编辑工具v1.4" MinHeight="450" MinWidth="1280">
+        Title="ZTMZ Club 路书脚本编辑工具v1.4" MinHeight="450" MinWidth="640">
     <Window.InputBindings>
         <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}"></KeyBinding>
-        <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveAsCommand}"></KeyBinding>
-        <KeyBinding Key="O" Modifiers="Control" Command="{Binding OpenCommand}"></KeyBinding>
+        <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding ViewModel.SaveAsCommand}"></KeyBinding>
+        <KeyBinding Key="O" Modifiers="Control" Command="{Binding ViewModel.OpenCommand}"></KeyBinding>
         <KeyBinding Key="I" Modifiers="Control" Command="{Binding ImportCommand}"></KeyBinding>
     </Window.InputBindings>
     <Grid>
@@ -24,15 +24,15 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <ui:TitleBar
-            Title="ZTMZ Club 路书脚本编辑工具v2.0"
+            Title="{Binding Title, RelativeSource={RelativeSource AncestorType=ui:FluentWindow}}"
             Grid.Row="0"
             />
         <DockPanel Grid.Row="1" Margin="0" VerticalAlignment="Stretch" LastChildFill="True">
 
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5">
                 <ui:Button Name="btn_save" Click="Btn_save_OnClick" ToolTip="Ctrl+S">保存</ui:Button>
-                <ui:Button Name="btn_saveAs" Click="Btn_saveAs_OnClick" ToolTip="Ctrl+Shift+S">另存为...</ui:Button>
-                <ui:Button Name="btn_open" Click="Btn_open_OnClick" ToolTip="Ctrl+O">打开路书脚本</ui:Button>
+                <ui:Button Name="btn_saveAs" Command="{Binding ViewModel.SaveAsCommand}" ToolTip="Ctrl+Shift+S">另存为...</ui:Button>
+                <ui:Button Name="btn_open" Command="{Binding Path=ViewModel.OpenCommand}" ToolTip="Ctrl+O">打开路书脚本</ui:Button>
                 <ui:Button Name="btn_openFolder" Click="btn_openFolder_Click" ToolTip="Ctrl+O">打开当前路书所在文件夹</ui:Button>
                 <ui:Button Name="btn_importFromCrewChief" Click="Btn_importFromCrewChief_OnClick"
                         ToolTip="Ctrl+I 注意：将会覆盖当前文本编辑器中的内容">
@@ -70,10 +70,9 @@
                         <TextBlock Text="代码" />
                     </TabItem.Header>
                     <ww2:WebView2
-                        x:Name="WebView"
+                        x:Name="webView"
                         Margin="1"
                         HorizontalAlignment="Stretch"
-                        Source="https://www.microsoft.com"
                         VerticalAlignment="Stretch" /> 
                 </TabItem>
                 <TabItem>

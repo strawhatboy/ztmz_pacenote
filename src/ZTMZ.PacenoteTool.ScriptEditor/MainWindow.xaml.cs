@@ -24,6 +24,7 @@ using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
 using Wpf.Ui;
 using Path = System.IO.Path;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace ZTMZ.PacenoteTool.ScriptEditor
 {
@@ -32,7 +33,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
     /// </summary>
     public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
     {
-        // private CompletionWindow _completionWindow;
+        private MonacoController? _monacoController;
         private string _relatedFile;
         private bool _isSaved = true;
         private readonly string PACENOTE_FILTER = "路书文件(*.pacenote) | *.pacenote";
@@ -40,13 +41,52 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
         private ToolTip _toolTip = new ToolTip();
         private int _intellisenseMode = 0;
 
+        public MainWindowViewModel ViewModel { get; set; }
+
         public Dispatcher CurrentDispatcher { set; get; }
 
         public MainWindow()
         {
+            ViewModel = new MainWindowViewModel();
             DataContext = this;
             InitializeComponent();
             CurrentDispatcher = Application.Current.Dispatcher;
+            this._monacoController = new MonacoController(this.webView);
+            ViewModel.SetMonacoController(this._monacoController);
+            this.webView.NavigationCompleted += OnWebViewNavigationCompleted;
+            webView.UseLayoutRounding = true;
+            webView.DefaultBackgroundColor = System.Drawing.Color.Transparent;
+            webView.Source = new Uri(
+                System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, @"Assets\Monaco\index.html")
+            );
+        }
+
+        private DispatcherOperation<TResult> DispatchAsync<TResult>(Func<TResult> callback)
+        {
+            return Application.Current.Dispatcher.InvokeAsync(callback);
+        }
+
+        private void OnWebViewNavigationCompleted(
+        object? sender,
+        Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e
+        )
+        {
+            DispatchAsync(InitializeEditorAsync);
+        }
+
+        private async Task InitializeEditorAsync()
+        {
+            if (_monacoController == null)
+            {
+                return;
+            }
+
+            await _monacoController.CreateAsync();
+            await _monacoController.SetThemeAsync(Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
+            await _monacoController.SetLanguageAsync(MonacoLanguage.Csharp);
+            await _monacoController.SetContentAsync(
+                "// This Source Code Form is subject to the terms of the MIT License.\r\n// If a copy of the MIT was not distributed with this file, You can obtain one at https://opensource.org/licenses/MIT.\r\n// Copyright (C) Leszek Pomianowski and WPF UI Contributors.\r\n// All Rights Reserved.\r\n\r\nnamespace Wpf.Ui.Gallery.Models.Monaco;\r\n\r\n[Serializable]\r\npublic record MonacoTheme\r\n{\r\n    public string Base { get; init; }\r\n\r\n    public bool Inherit { get; init; }\r\n\r\n    public IDictionary<string, string> Rules { get; init; }\r\n\r\n    public IDictionary<string, string> Colors { get; init; }\r\n}\r\n"
+            );
         }
 
         private void Btn_save_OnClick(object sender, RoutedEventArgs e)
@@ -72,18 +112,19 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
         private void Btn_open_OnClick(object sender, RoutedEventArgs e)
         {
-            this.checkFileSaved();
+            // this.checkFileSaved();
 
             // open
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = PACENOTE_FILTER;
-            if (dialog.ShowDialog() == true)
-            {
-                this._relatedFile = dialog.FileName;
-                this._isSaved = true;
-                this.updateTitle();
-                this.tryParsePacenote();
-            }
+            // OpenFileDialog dialog = new OpenFileDialog();
+            // dialog.Filter = PACENOTE_FILTER;
+            // if (dialog.ShowDialog() == true)
+            // {
+            //     this._relatedFile = dialog.FileName;
+            //     this._isSaved = true;
+            //     this.updateTitle();
+            //     this._monacoController.SetContentAsync(File.ReadAllText(this._relatedFile));
+            //     this.tryParsePacenote();
+            // }
         }
 
         private ScriptReader tryParsePacenote()
@@ -103,9 +144,9 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
         public void HandleFileOpen(string file)
         {
-            this.checkFileSaved();
+            // this.checkFileSaved();
 
-            
+
             this._relatedFile = file;
             this._isSaved = true;
             this.updateTitle();
@@ -117,18 +158,6 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             this.Title = this.TITLE + " - " + (!this._isSaved ? "[未保存]" : "") + this._relatedFile;
         }
 
-        private void checkFileSaved()
-        {
-            if (!this._isSaved && !string.IsNullOrEmpty(this._relatedFile))
-            {
-                var result = MessageBox.Show("当前文件尚未保存，是否先保存当前文件？", "保存文件", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (result == MessageBoxResult.Yes)
-                {
-                    Btn_save_OnClick(null, null);
-                    return;
-                }
-            }
-        }
 
         private void Btn_importFromCrewChief_OnClick(object sender, RoutedEventArgs e)
         {
@@ -144,7 +173,7 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
             }
         }
 
-       
+
         private void Btn_adjustDistance_OnClick(object sender, RoutedEventArgs e)
         {
             var reader = this.tryParsePacenote();
@@ -275,7 +304,8 @@ namespace ZTMZ.PacenoteTool.ScriptEditor
 
         public void AppendLine(string line)
         {
-            CurrentDispatcher.Invoke(() => {
+            CurrentDispatcher.Invoke(() =>
+            {
             });
         }
 

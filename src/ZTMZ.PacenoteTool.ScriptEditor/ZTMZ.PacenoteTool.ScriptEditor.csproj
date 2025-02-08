@@ -1,38 +1,47 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <UseWPF>true</UseWPF>
-        <PackageVersion>1.2.0</PackageVersion>
-        <AssemblyVersion>1.3.0.0</AssemblyVersion>
-        <FileVersion>1.3.2.0</FileVersion>
-        <Version>1.3</Version>
-        <TargetFrameworks>net8.0-windows</TargetFrameworks>
-        <Configurations>Debug;Release</Configurations>
-    </PropertyGroup>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <PackageVersion>1.2.0</PackageVersion>
+    <AssemblyVersion>1.3.0.0</AssemblyVersion>
+    <FileVersion>1.3.2.0</FileVersion>
+    <Version>1.3</Version>
+    <TargetFrameworks>net8.0-windows</TargetFrameworks>
+    <Configurations>Debug;Release</Configurations>
+  </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <OutputPath></OutputPath>
-    </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath></OutputPath>
+  </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <OutputPath></OutputPath>
-    </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath></OutputPath>
+  </PropertyGroup>
 
 
-    <ItemGroup>
-      <PackageReference Include="AvalonEdit" Version="6.1.2.30" />
-      <PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
-      <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AvalonEdit" Version="6.1.2.30" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
-      <ProjectReference Include="..\ZTMZ.PacenoteTool.Base.UI\ZTMZ.PacenoteTool.Base.UI.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.Base.UI\ZTMZ.PacenoteTool.Base.UI.csproj" />
+  </ItemGroup>
 
-    <ItemGroup>
-    </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\Monaco\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\Monaco\" />
+  </ItemGroup>
 
 </Project>
