@@ -178,7 +178,7 @@ public class WRCGameDataReader : UdpGameDataReader
 
     private GameData RawData2GameData(WRCDataStructure wrcData) {
         var message = new GameData();
-        message.TimeStamp = DateTime.Now;
+        message.TimeStamp = DateTime.UtcNow;
         message.Time = wrcData.game_total_time;
         message.LapTime = wrcData.stage_current_time;
         message.Speed = wrcData.vehicle_speed * 3.6f; // m/s -> km/h

@@ -143,7 +143,8 @@
       "replayGotoLapDistance": "The distance to jump to the lap, in meters",
       "replayExport": "Export the replay with the video and telemetry data in a folder",
       "replayExportAudio": "Export the replay with the audio and telemetry data in a folder\nNeed ffmpeg installed and added to the system PATH",
-      "replayFFmpegPath": "The path of the ffmpeg executable",
+      "replayFFmpegPath": "The path of the ffmpeg executable, very important for the replay page to work correctly",
+      "replayDownloadFFmpeg": "Go to gitee.com to download the ffmpeg executable, or you can download it by yourself",
     },
 
     "autoInitializeGame_on": "Auto Game Selection",
@@ -254,7 +255,8 @@
     "replayGotoLapDistance": "Goto Lap Distance (m)",
     "replayExport": "Export Replay",
     "replayExportAudio": "Export Replay (Audio)",
-    "replayFFmpegPath": "FFmpeg Path",
+    "replayFFmpegPath": "ffmpeg Path",
+    "replayDownloadFFmpeg": "Download ffmpeg",
   },
 
   "dialog": {

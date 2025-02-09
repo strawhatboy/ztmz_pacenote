@@ -21,7 +21,55 @@
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </Page.Resources>
     <StackPanel Orientation="Vertical">
-      
+              
+        <!-- _replayFFmpegPath -->
+        <ui:Card Margin="0 0 0 3"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="300" />
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="40" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="GlobeVideo20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.replayFFmpegPath}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.replayFFmpegPath}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:TextBox Grid.Column="1" VerticalAlignment="Center"
+                    Text="{Binding Path=ViewModel.ReplayFFmpegPath, Mode=TwoWay}" />
+                <ui:Button
+                    HorizontalAlignment="Right"
+                    Grid.Column="2"
+                    Icon="{ui:SymbolIcon Folder20}"
+                    Command="{Binding ViewModel.LocateFFmpegCommand}"
+                />
+                <ui:Button
+                    HorizontalAlignment="Right"
+                    Grid.Column="3"
+                    Foreground="Green"
+                    Icon="{ui:SymbolIcon ArrowDownload20}"
+                    Command="{Binding ViewModel.DownloadFFmpegCommand}"
+                    ToolTip="{DynamicResource settings.tooltip.replayDownloadFFmpeg}"
+                    ToolTipService.InitialShowDelay="100"
+                />
+            </Grid>
+        </ui:Card>
+
         <!-- _replaySave -->
         <ui:Card Margin="0 0 0 3"
                  Padding="16">
@@ -381,44 +429,6 @@
                 <ui:ToggleSwitch Grid.Column="1"
                                  HorizontalAlignment="Right"
                                  IsChecked="{Binding Path=ViewModel.ReplayDeleteRelatedVideo, Mode=TwoWay}"/>
-            </Grid>
-        </ui:Card>
-        
-        <!-- _replayFFmpegPath -->
-        <ui:Card Margin="0 0 0 3"
-            Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="300" />
-                    <ColumnDefinition Width="40" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="GlobeVideo20"
-                        FontSize="26"
-                        Margin="0 0 10 0" />
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock
-                            Text="{DynamicResource ResourceKey=settings.replayFFmpegPath}" />
-                        <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.replayFFmpegPath}"
-                            Appearance="Tertiary"
-                            FontTypography="Caption" />
-                    </Grid>
-                </StackPanel>
-                <ui:TextBox Grid.Column="1" VerticalAlignment="Center"
-                    Text="{Binding Path=ViewModel.ReplayFFmpegPath, Mode=TwoWay}" />
-                <ui:Button
-                    HorizontalAlignment="Right"
-                    Grid.Column="2"
-                    Icon="{ui:SymbolIcon Folder20}"
-                    Command="{Binding ViewModel.LocateFFmpegCommand}"
-                />
             </Grid>
         </ui:Card>
     </StackPanel>

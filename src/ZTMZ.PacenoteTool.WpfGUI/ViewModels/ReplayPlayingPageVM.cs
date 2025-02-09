@@ -5,12 +5,16 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using System.Diagnostics;
 using System.Collections.Generic;
+using SharpDX.Win32;
+using FFMpegCore;
+using System.Linq;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 {
     private Replay _replay = null;
+    private string tmpAudioPath = "";
     private List<ReplayDetailsPerTime> _replayDetailsPerTime = null;
     private ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool = null;
 
@@ -28,6 +32,9 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
     [ObservableProperty]
     private int _replayId = -1;
+    partial void OnReplayIdChanged(int value) {
+        this.HeaderContent = $"Replay: {value}";
+    }
     [ObservableProperty]
     private string _videoPath = "";
 
@@ -65,14 +72,14 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
     [ObservableProperty]
     private float _gotoLapDistance;
-    partial void OnGotoLapDistanceChanged(float newValue){
+    partial void OnGotoLapDistanceChanged(float value){
         // calculate the time
         if (IsPaused) {
             Dispatcher.CurrentDispatcher.Invoke(() => {
                 this._timer.Stop();
             });
-            var time = ReplayManager.getTimeByDistance(this._replayDetailsPerTime, newValue);
-            var tgtPosition = time - this.PlayPositionOffset;
+            var timestamp = ReplayManager.getTimeStampWithDistance(this._replayDetailsPerTime, value);
+            var tgtPosition = (double)(timestamp - this._replay.video_begin_timestamp) / 10000000 - this.PlayPositionOffset;
             this.PlayPosition = tgtPosition < 0 ? 0 : tgtPosition;
             Dispatcher.CurrentDispatcher.Invoke(() => {
                 this._timer.Start();
@@ -84,7 +91,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     /// this is the offset of the play position. put values in to change the video/data offset
     /// </summary>
     [ObservableProperty]
-    private double _playPositionOffset = 0.2; 
+    private double _playPositionOffset = 0.0; 
     partial void OnPlayPositionOffsetChanged(double newValue){
         // calculate the distance
         UpdateLapTimeAndLapDistance(this.PlayPosition);
@@ -93,16 +100,19 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
     private void UpdateLapTimeAndLapDistance(double newValue) {
         if (this._replayDetailsPerTime != null && this._replayDetailsPerTime.Count > 0) {
-            this.LapTime = newValue + this.PlayPositionOffset;
-            var distance = ReplayManager.getDistanceByTime(this._replayDetailsPerTime, (float)this.LapTime);
-            this.LapDistance = distance;
+            var playTime = newValue + this.PlayPositionOffset;
+            // convert playTime to ticks and plus this._replay.video_begin_timestamp is the key to get the replay details per time
+            var key = (long)(playTime * 10000000) + this._replay.video_begin_timestamp;
+            var rdp = ReplayManager.getReplayDetailsPerTimeWithTimeStamp(this._replayDetailsPerTime, key);
+            this.LapTime = rdp.time;    // the laptime
+            this.LapDistance = rdp.distance;
         }
     }
 
     public ReplayPlayingPageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool) {
         this._tool = tool;
         // triggered every 10 ms
-        this._timer.Interval = new TimeSpan(0, 0, 0, 0, 10);
+        this._timer.Interval = new TimeSpan(0, 0, 0, 0, 1);
         this._timer.Tick += this.Timer_Ticks;
     }
 
@@ -127,7 +137,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         // load replay with ReplayId
         this._replay = await ReplayManager.Instance.getReplay(this.ReplayId);
         this._replayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(this.ReplayId);
-        this.HeaderContent = $"Replay: {this._replay.id} - {this._replay.track} - {this._replay.car} - {this._replay.car_class}";
+
         this.Track = this._replay.track;
         this.Car = this._replay.car;
         this.CarClass = this._replay.car_class;
@@ -144,13 +154,34 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         }
         else
         {
+            _logger.Warn("Video not found, will create an empty audio file.");
+            var duration = (double)(this._replayDetailsPerTime.Last().timestamp - this._replayDetailsPerTime.First(a => a.timestamp > 0).timestamp) / 10000000 + this._replayDetailsPerTime.First(a => a.timestamp > 0).time;
+            // create an empty audio file wth ffmpeg
+            tmpAudioPath = Path.Combine(Path.GetTempPath(), "empty.wav");
+            GlobalFFOptions.Configure(options => options.BinaryFolder = Config.Instance.ReplayFFmpegPath);
+            await FFMpegArguments
+                .FromFileInput("anullsrc=channel_layout=mono:sample_rate=48000", false, options => options.WithCustomArgument($"-f lavfi -t {duration}"))
+                .OutputToFile(tmpAudioPath, true)
+                .ProcessAsynchronously();
+
+            this.VideoPath = tmpAudioPath;
+            this.IsPaused = false;
+            this._replay.video_begin_timestamp = this._replayDetailsPerTime.First(a => a.timestamp > 0).timestamp;
+            
+            Application.Current.Dispatcher.Invoke(() => {
+                this.mediaElement.Play();
+            });
         }
     }
 
     public void OnNavigatedFrom()
     {
         // throw new NotImplementedException();
+        this.mediaElement.Stop();
         this._timer.Stop();
+        if (!string.IsNullOrEmpty(this.tmpAudioPath) && File.Exists(this.tmpAudioPath)) {
+            File.Delete(this.tmpAudioPath);
+        }
     }
 
     [RelayCommand]

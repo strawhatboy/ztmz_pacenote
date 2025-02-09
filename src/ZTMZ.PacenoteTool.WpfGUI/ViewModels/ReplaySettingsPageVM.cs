@@ -130,4 +130,11 @@ public partial class ReplaySettingsPageVM : ObservableObject, INavigationAware
             ReplayFFmpegPath = Path.GetDirectoryName(openFileDialog.FileName);
         }
     }
+
+    [RelayCommand]
+    private async void DownloadFFmpeg() {
+        // download ffmpeg
+        var url = "https://gitee.com/ztmz/opensource_tools/releases/tag/ffmpeg";
+        System.Diagnostics.Process.Start(url);
+    }
 }

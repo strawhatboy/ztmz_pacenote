@@ -15,6 +15,7 @@ namespace ZTMZ.PacenoteTool.Base
         public static string PATH_GAMES = "games";
         public static string PATH_LANGUAGE = "lang";
         public static string PATH_FONTS = "fonts";
+        public static string PATH_UPDATEFLAG = "updateflag";
         public static string PATH_DASHBOARDS = "dashboards";
 
         // sqlite3 database to store replays

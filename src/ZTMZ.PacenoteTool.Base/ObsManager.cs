@@ -3,6 +3,8 @@
 using System;
 using System.Threading.Tasks;
 using OBSWebsocketDotNet;
+using OBSWebsocketDotNet.Types;
+using OBSWebsocketDotNet.Types.Events;
 
 namespace ZTMZ.PacenoteTool.Base;
 
@@ -14,6 +16,9 @@ public class ObsManager : IDisposable {
     private OBSWebsocket _obs;
 
     private ObsManager() { }
+
+    public event Action RecordStarted;
+    public event Action RecordStopped;
 
     public static ObsManager Instance {
         get {
@@ -45,6 +50,7 @@ public class ObsManager : IDisposable {
             _logger.Info("OBS connected!");
             tcs.SetResult(true);
         };
+        _obs.RecordStateChanged += this.RecordStateChanged;
 
         try {
             _obs.ConnectAsync(Config.Instance.ReplayOBSWebsocketUrl, Config.Instance.ReplayOBSWebsocketPassword);
@@ -61,6 +67,15 @@ public class ObsManager : IDisposable {
         }
     }
 
+    private void RecordStateChanged(object sender, RecordStateChangedEventArgs e) {
+        _logger.Info($"OBS record state changed to {e.OutputState}");
+        if (e.OutputState.State == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED) {
+            RecordStarted?.Invoke();
+        } else if (e.OutputState.State == OutputState.OBS_WEBSOCKET_OUTPUT_STOPPED) {
+            RecordStopped?.Invoke();
+        }
+    }
+
     public async void StartRecording() {
         if (!Config.Instance.ReplayOBSSave) {
             _logger.Info("OBS recording is disabled wont start recording video with OBS");
@@ -73,6 +88,7 @@ public class ObsManager : IDisposable {
             _logger.Info("OBS connected. start recording video with OBS");
             try {
                 _obs.StartRecord();
+                _logger.Info("Recording video with OBS started");
             } catch (Exception ex) {
                 _logger.Error($"Failed to start recording video with OBS because of \n{ex.ToString()}");
             }

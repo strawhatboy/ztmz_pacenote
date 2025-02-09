@@ -21,6 +21,8 @@ public class ZTMZPacenoteTool {
     private string _carName;
     private string _carClass;
     private float _trackLength;
+    private Int64 _obsStartTimestamp;
+    private Int64 _obsStopTimestamp;
     private bool _isReplaySession;
     private double _scriptTiming = 0;
     private int _playpointAdjust = 0;
@@ -73,7 +75,7 @@ public class ZTMZPacenoteTool {
 
     public event Action<bool> onOnlineReplayLoaded;
 
-    public string CurrentScriptAuthor => _profileManager?.CurrentScriptReader?.Author;
+    public string CurrentScriptAuthor => _profileManager?.CurrentScriptReader?.Author ?? "???";
 
     public bool IsInitialized { private set; get; } = false;
 
@@ -243,6 +245,14 @@ public class ZTMZPacenoteTool {
     private void initializeObsConnection() {
         // connect to OBS
         ObsManager.Instance.Connect();
+        ObsManager.Instance.RecordStarted += () => {
+            // set timestamp
+            this._obsStartTimestamp = DateTime.UtcNow.Ticks;
+        };
+        ObsManager.Instance.RecordStopped += () => {
+            // set timestamp
+            this._obsStopTimestamp = DateTime.UtcNow.Ticks;
+        };
     }
 
     private void initializeGame(IGame game) 
@@ -602,6 +612,20 @@ public class ZTMZPacenoteTool {
                     pos_x = msg.PosX,
                     pos_y = msg.PosY,
                     pos_z = msg.PosZ,
+                    g_long = msg.G_long,
+                    g_lat = msg.G_lat,
+                    suspension_rear_left = msg.SuspensionRearLeft,
+                    suspension_rear_right = msg.SuspensionRearRight,
+                    suspension_front_left = msg.SuspensionFrontLeft,
+                    suspension_front_right = msg.SuspensionFrontRight,
+                    suspension_speed_rear_left = msg.SuspensionSpeedRearLeft,
+                    suspension_speed_rear_right = msg.SuspensionSpeedRearRight,
+                    suspension_speed_front_left = msg.SuspensionSpeedFrontLeft,
+                    suspension_speed_front_right = msg.SuspensionSpeedFrontRight,
+                    brake_temp_rear_left = msg.BrakeTempRearLeft,
+                    brake_temp_rear_right = msg.BrakeTempRearRight,
+                    brake_temp_front_left = msg.BrakeTempFrontLeft,
+                    brake_temp_front_right = msg.BrakeTempFrontRight
                 });
             }
 
@@ -631,7 +655,7 @@ public class ZTMZPacenoteTool {
                     replay.car = this._carName;
                     replay.track = this._trackName;
                     replay.checkpoints = Config.Instance.ReplaySaveGranularity;
-                    replay.date = DateTime.Now;
+                    replay.date = DateTime.UtcNow;
                     replay.locked = false;
                     replay.track_length = this._trackLength;
                     replay.finish_time = (float)evt.Parameters[GameStateRaceEndProperty.FINISH_TIME];
@@ -639,6 +663,8 @@ public class ZTMZPacenoteTool {
                     replay.car_class = this._carClass;
                     replay.comment = "";
                     replay.video_path = ObsManager.Instance.StopRecording();
+                    replay.video_begin_timestamp = this._obsStartTimestamp;
+                    // replay.video_end_timestamp = this._obsStopTimestamp;
                     ReplayManager.Instance.saveReplay(CurrentGame, replay, this.ReplayDetailsPerTimes, this.ReplayDetailsPerCheckpoints);
                 }
             }

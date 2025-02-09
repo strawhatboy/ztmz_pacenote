@@ -140,6 +140,10 @@ ALTER TABLE replay_details_per_time ADD COLUMN pos_z REAL NOT NULL DEFAULT 0;";
                 }
             }
         });
+
+        this._configSetters.Add(new Version("2.99.99.34"), tool => {
+            // move the replay database to the new location? damn
+        });
     }
 
     public void SetConfiguration(ZTMZPacenoteTool tool)
@@ -147,13 +151,15 @@ ALTER TABLE replay_details_per_time ADD COLUMN pos_z REAL NOT NULL DEFAULT 0;";
         foreach (var item in _configSetters)
         {
             var updateFlagFile = AppLevelVariables.Instance.GetPath(item.Key.ToString());
+            Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(Constants.PATH_UPDATEFLAG));
+            var updateFLagFileNew = AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_UPDATEFLAG, item.Key.ToString()));
             // current version is greater than or equal to the version in the dictionary
             // and the update flag file does not exist, then set the configurations
-            if (currentVersion >= item.Key && !File.Exists(updateFlagFile))
+            if (currentVersion >= item.Key && !File.Exists(updateFlagFile) && !File.Exists(updateFLagFileNew))
             {
                 _logger.Info("[Update] Setting configurations for version {0}", item.Key);
                 item.Value(tool);
-                File.Create(updateFlagFile);
+                File.Create(updateFLagFileNew);
             }
         }
     }

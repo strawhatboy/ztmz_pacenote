@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 using FFMpegCore;
+using FFMpegCore.Enums;
 using GoogleAnalyticsTracker.Core;
 using Microsoft.Data.Sqlite;
 using ZTMZ.PacenoteTool.Base.Game;
@@ -101,6 +102,43 @@ public class ReplayDetailsPerTime {
     public float suspension_speed_rear_right;
     public float suspension_speed_front_left;
     public float suspension_speed_front_right;
+
+    public static ReplayDetailsPerTime linearInterpolation(ReplayDetailsPerTime a, ReplayDetailsPerTime b, Int64 timestamp) {
+        var result = new ReplayDetailsPerTime();
+        var ratio = (float)(timestamp - a.timestamp) / (b.timestamp - a.timestamp);
+        result.time = a.time + (b.time - a.time) * ratio;
+        result.distance = a.distance + (b.distance - a.distance) * ratio;
+        result.timestamp = timestamp;
+        result.completion_rate = a.completion_rate + (b.completion_rate - a.completion_rate) * ratio;
+        result.speed = a.speed + (b.speed - a.speed) * ratio;
+        result.clutch = a.clutch + (b.clutch - a.clutch) * ratio;
+        result.brake = a.brake + (b.brake - a.brake) * ratio;
+        result.throttle = a.throttle + (b.throttle - a.throttle) * ratio;
+        result.handbrake = a.handbrake + (b.handbrake - a.handbrake) * ratio;
+        result.steering = a.steering + (b.steering - a.steering) * ratio;
+        result.gear = a.gear + (b.gear - a.gear) * ratio;
+        result.max_gears = a.max_gears + (b.max_gears - a.max_gears) * ratio;
+        result.rpm = a.rpm + (b.rpm - a.rpm) * ratio;
+        result.max_rpm = a.max_rpm + (b.max_rpm - a.max_rpm) * ratio;
+        result.pos_x = a.pos_x + (b.pos_x - a.pos_x) * ratio;
+        result.pos_y = a.pos_y + (b.pos_y - a.pos_y) * ratio;
+        result.pos_z = a.pos_z + (b.pos_z - a.pos_z) * ratio;
+        result.g_long = a.g_long + (b.g_long - a.g_long) * ratio;
+        result.g_lat = a.g_lat + (b.g_lat - a.g_lat) * ratio;
+        result.brake_temp_rear_left = a.brake_temp_rear_left + (b.brake_temp_rear_left - a.brake_temp_rear_left) * ratio;
+        result.brake_temp_rear_right = a.brake_temp_rear_right + (b.brake_temp_rear_right - a.brake_temp_rear_right) * ratio;
+        result.brake_temp_front_left = a.brake_temp_front_left + (b.brake_temp_front_left - a.brake_temp_front_left) * ratio;
+        result.brake_temp_front_right = a.brake_temp_front_right + (b.brake_temp_front_right - a.brake_temp_front_right) * ratio;
+        result.suspension_rear_left = a.suspension_rear_left + (b.suspension_rear_left - a.suspension_rear_left) * ratio;
+        result.suspension_rear_right = a.suspension_rear_right + (b.suspension_rear_right - a.suspension_rear_right) * ratio;
+        result.suspension_front_left = a.suspension_front_left + (b.suspension_front_left - a.suspension_front_left) * ratio;
+        result.suspension_front_right = a.suspension_front_right + (b.suspension_front_right - a.suspension_front_right) * ratio;
+        result.suspension_speed_rear_left = a.suspension_speed_rear_left + (b.suspension_speed_rear_left - a.suspension_speed_rear_left) * ratio;
+        result.suspension_speed_rear_right = a.suspension_speed_rear_right + (b.suspension_speed_rear_right - a.suspension_speed_rear_right) * ratio;
+        result.suspension_speed_front_left = a.suspension_speed_front_left + (b.suspension_speed_front_left - a.suspension_speed_front_left) * ratio;
+        result.suspension_speed_front_right = a.suspension_speed_front_right + (b.suspension_speed_front_right - a.suspension_speed_front_right) * ratio;
+        return result;
+    }
 
     public static readonly string CREATION_SQL = @"
         CREATE TABLE IF NOT EXISTS replay_details_per_time (
@@ -369,7 +407,7 @@ public class ReplayManager {
                 WHERE id = @id 
                 GROUP BY time
             ) m ON r.rowid = m.rowid
-            ORDER BY time ASC", new { id })).AsList();
+            ORDER BY timestamp ASC", new { id })).AsList();
         }
     }
 
@@ -465,7 +503,8 @@ public class ReplayManager {
     public async Task ExportReplay(IGame game, Replay replay, string dirPath) {
         var folder = await ExportStageDetails(game, replay, dirPath);
         if (!string.IsNullOrEmpty(replay.video_path) && File.Exists(replay.video_path)) {
-            var videoPath = Path.Combine(folder, Path.GetFileName(replay.video_path));
+            // with timestamp as filename
+            var videoPath = Path.Combine(folder, $"{replay.video_begin_timestamp}{Path.GetExtension(replay.video_path)}");
             // async copy
             await Task.Run(() => File.Copy(replay.video_path, videoPath));
             _logger.Info($"video exported: {videoPath}");
@@ -475,18 +514,82 @@ public class ReplayManager {
     public async Task ExportReplayWithAudio(IGame game, Replay replay, string dirPath) {
         var folder = await ExportStageDetails(game, replay, dirPath);
         if (!string.IsNullOrEmpty(replay.video_path) && File.Exists(replay.video_path)) {
-            var videoPath = Path.Combine(folder, Path.GetFileName(replay.video_path));
+            var videoPath = Path.Combine(folder, $"{replay.video_begin_timestamp}{Path.GetExtension(replay.video_path)}");
             var audioPath = Path.ChangeExtension(videoPath, ".wav");
             // async convert
             await FFMpegArguments
                 .FromFileInput(replay.video_path)
-                .OutputToFile(audioPath)
+                .OutputToFile(audioPath, overwrite: true, options => options
+                    .DisableChannel(Channel.Video)
+                    .WithAudioCodec("pcm_s16le")
+                    .WithAudioBitrate(16)
+                    .WithAudioSamplingRate(48000)
+                    .WithCustomArgument("-ac 1") // mono
+                )
                 .ProcessAsynchronously();
             _logger.Info($"audio exported: {audioPath}");
         }
     }
 
-    
+    public static ReplayDetailsPerTime getReplayDetailsPerTimeWithTimeStamp(List<ReplayDetailsPerTime> details, Int64 timestamp) {
+        // binary searchfloat time = 0;
+        if (details.Count == 0) {
+            return null;
+        }
+        if (timestamp <= details[0].timestamp) {
+            return details[0];
+        }
+        if (timestamp >= details[details.Count - 1].timestamp) {
+            return details[details.Count - 1];
+        }
+        var timestamps = details.Select(r => r.timestamp).ToList();
+        var index = timestamps.BinarySearch(timestamp);
+        ReplayDetailsPerTime result = null;
+        if (index >= 0) {
+            result = details[index];
+        } else {
+            index = ~index;
+            if (index == 0) {
+                result = details[0];
+            } else if (index == timestamps.Count) {
+                result = details[details.Count - 1];
+            } else {
+                result = ReplayDetailsPerTime.linearInterpolation(details[index - 1], details[index], timestamp);
+            }
+        }
+        return result;
+    }
+
+    public static Int64 getTimeStampWithDistance(List<ReplayDetailsPerTime> details, float distance) {
+        // binary searchfloat time = 0;
+        if (details.Count == 0) {
+            return 0;
+        }
+        if (distance <= details[0].distance) {
+            return details[0].timestamp;
+        }
+        if (distance >= details[details.Count - 1].distance) {
+            return details[details.Count - 1].timestamp;
+        }
+        var distances = details.Select(r => r.distance).ToList();
+        var index = distances.BinarySearch(distance);
+        ReplayDetailsPerTime result = null;
+        if (index >= 0) {
+            result = details[index];
+        } else {
+            index = ~index;
+            if (index == 0) {
+                result = details[0];
+            } else if (index == distances.Count) {
+                result = details[details.Count - 1];
+            } else {
+                // 这tm还有精度问题，66666，先算出前部分转Int64后再加之前timestamp，不能加完了再转？什么鬼
+                return (Int64)((details[index].timestamp - details[index - 1].timestamp) / (details[index].distance - details[index - 1].distance) * (distance - details[index - 1].distance)) + details[index - 1].timestamp;
+            }
+        }
+        return result.timestamp;
+    }
+
     public static float getTimeByDistance(List<ReplayDetailsPerTime> details, float distance) {
         float time = 0;
         if (details.Count == 0) {

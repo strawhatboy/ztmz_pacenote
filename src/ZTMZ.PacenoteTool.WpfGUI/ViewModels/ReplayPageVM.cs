@@ -71,6 +71,10 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
     [RelayCommand]
     private async void ReplayPlay(int id)
     {
+        if (!await checkFFmepg()) {
+            return;
+        }
+        
         this.replayPlayingPageVM.ReplayId = id;
         // navigate to replay playing page
         navigationService.NavigateWithHierarchy(typeof(ReplayPlayingPage));
@@ -115,8 +119,7 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
         await ReplayManager.Instance.ExportReplay(game, replay, folder);
     }
 
-    [RelayCommand]
-    private async void ReplayExportAudio(int id) {
+    private async Task<bool> checkFFmepg() {
         if (!File.Exists(Path.Combine(Config.Instance.ReplayFFmpegPath, "ffmpeg.exe"))) {
             // show message box
             var result = await new Wpf.Ui.Controls.MessageBox
@@ -126,6 +129,14 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
                 // SecondaryButtonText = "Don't Save",
                 CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
             }.ShowDialogAsync();
+            return false;
+        }
+        return true;
+    }
+
+    [RelayCommand]
+    private async void ReplayExportAudio(int id) {
+        if (!await checkFFmepg()) {
             return;
         }
 

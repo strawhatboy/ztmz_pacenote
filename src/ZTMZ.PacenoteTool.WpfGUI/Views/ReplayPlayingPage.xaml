@@ -38,6 +38,10 @@
       </Grid.ColumnDefinitions>
 
       <Grid Grid.Column="0">
+        <Image Source="pack://application:,,,/ZTMZ.PacenoteTool.Base.UI;component/unknown_dashboard_preview_image.png"
+               Stretch="Fill"
+               HorizontalAlignment="Stretch"
+               VerticalAlignment="Stretch"/>
         <MediaElement Stretch="Fill"
                       Source="{Binding ViewModel.VideoPath}"
                       Volume="1"
@@ -77,7 +81,8 @@
               </ui:SymbolIcon>
             </ui:Button.Icon>
           </ui:Button>
-          <Slider Grid.Column="1"
+          <Slider Margin="5 0 5 0"
+                  Grid.Column="1"
                   Value="{Binding ViewModel.PlayPosition}"
                   x:Name="sl_video"
                   Minimum="0"
@@ -91,103 +96,78 @@
 
       <!-- column1 for time, distance info -->
       <StackPanel Orientation="Vertical"
-          Margin="20 0 0 0"
+                  Margin="20 0 0 0"
                   Grid.Column="1"
-                  VerticalAlignment="Center">
-        <Grid>
-          <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="120"/>
-            <ColumnDefinition/>
-          </Grid.ColumnDefinitions>
+                  VerticalAlignment="Center"
+                  HorizontalAlignment="Left">
 
-          <!-- trackname -->
-          <ui:TextBlock Text="{DynamicResource ui.tb_currentTrack}"
-                        ToolTip="{DynamicResource ui.tooltip.tb_currentTrack}"
-                        ToolTipService.InitialShowDelay="100"/>
-          <ui:TextBox Grid.Column="1"
-                      IsReadOnly="True"
-                      Text="{Binding Path=ViewModel.Track}"
-                      Background="Transparent"
-                      BorderBrush="Transparent"/>
+        <!-- trackname -->
+        <Label Content="{DynamicResource ui.tb_currentTrack}"
+                  ToolTip="{DynamicResource ui.tooltip.tb_currentTrack}"
+                  ToolTipService.InitialShowDelay="100"/>
+        <ui:TextBox x:Name="tb_track"
+          IsReadOnly="True"
+          Text="{Binding Path=ViewModel.Track}"
+          Background="Transparent"
+          BorderBrush="Transparent"/>
 
-          <!-- carname -->
-          <ui:TextBlock Grid.Row="1"
-                        Text="{DynamicResource overlay.car}"
-                        ToolTip="{DynamicResource overlay.car}"
-                        ToolTipService.InitialShowDelay="100"/>
-          <ui:TextBox Grid.Row="1"
-                      Grid.Column="1"
-                      IsReadOnly="True"
-                      Text="{Binding Path=ViewModel.Car}"
-                      Background="Transparent"
-                      BorderBrush="Transparent"/>
+        <!-- carname -->
+        <Label Content="{DynamicResource overlay.car}"
+          ToolTip="{DynamicResource overlay.car}"
+          ToolTipService.InitialShowDelay="100"/>
+        <ui:TextBox x:Name="tb_car"
+          IsReadOnly="True"
+          Text="{Binding Path=ViewModel.Car}"
+          Background="Transparent"
+          BorderBrush="Transparent"/>
 
-          <!-- carclass -->
-          <ui:TextBlock Grid.Row="2"
-                        Text="{DynamicResource overlay.carclass}"
-                        ToolTip="{DynamicResource overlay.carclass}"
-                        ToolTipService.InitialShowDelay="100"/>
-          <ui:TextBox Grid.Row="2"
-                      Grid.Column="1"
-                      IsReadOnly="True"
-                      Text="{Binding Path=ViewModel.CarClass}"
-                      Background="Transparent"
-                      BorderBrush="Transparent"/>
+        <!-- carclass -->
+        <Label Content="{DynamicResource overlay.carclass}"
+          ToolTip="{DynamicResource overlay.carclass}"
+          ToolTipService.InitialShowDelay="100"/>
+        <ui:TextBox
+          IsReadOnly="True"
+          Text="{Binding Path=ViewModel.CarClass}"
+          Background="Transparent"
+          BorderBrush="Transparent"/>
 
-          <!-- time offset -->
-          <ui:TextBlock Grid.Row="3"
-                        Text="{DynamicResource settings.replayPositionOffset}"
-                        ToolTip="{DynamicResource settings.tooltip.replayPositionOffset}"
-                        ToolTipService.InitialShowDelay="100"/>
-          <ui:TextBox Grid.Row="3"
-                      Grid.Column="1"
-                      Text="{Binding Path=ViewModel.PlayPositionOffset, Mode=TwoWay}"/>
+        <!-- time offset -->
+        <!-- <Label Content="{DynamicResource settings.replayPositionOffset}"
+          ToolTip="{DynamicResource settings.tooltip.replayPositionOffset}"
+          ToolTipService.InitialShowDelay="100"/>
+        <ui:TextBox
+          Text="{Binding Path=ViewModel.PlayPositionOffset, Mode=TwoWay}"/> -->
 
-          <!-- time -->
-          <ui:TextBlock Grid.Row="4"
-                        Text="{DynamicResource ui.tb_lapTime}"
-                        ToolTip="{DynamicResource ui.tooltip.tb_lapTime}"
-                        ToolTipService.InitialShowDelay="100"/>
-          <ui:TextBox Grid.Row="4"
-                      Grid.Column="1"
-                      IsReadOnly="True"
-                      Text="{Binding Path=ViewModel.LapTime, Mode=OneWay}"
-                      Background="Transparent"
-                      BorderBrush="Transparent"/>
+        <!-- time -->
+        <Label Content="{DynamicResource ui.tb_lapTime}"
+          ToolTip="{DynamicResource ui.tooltip.tb_lapTime}"
+          ToolTipService.InitialShowDelay="100"/>
+        <ui:TextBox
+          IsReadOnly="True"
+          Text="{Binding Path=ViewModel.LapTime, Mode=OneWay}"
+          Background="Transparent"
+          BorderBrush="Transparent"/>
 
 
-          <!-- lapDistance writable to change the time correspondingly -->
-          <ui:TextBlock Grid.Row="5"
-                        Text="{DynamicResource settings.replayGotoLapDistance}"
-                        ToolTip="{DynamicResource settings.tooltip.replayGotoLapDistance}"
-                        ToolTipService.InitialShowDelay="100"/>
-          <ui:TextBox Grid.Row="5"
-                      Grid.Column="1"
-                      Text="{Binding Path=ViewModel.GotoLapDistance, Mode=TwoWay}"/>
+        <!-- lapDistance writable to change the time correspondingly -->
+        <Label Content="{DynamicResource settings.replayGotoLapDistance}"
+          ToolTip="{DynamicResource settings.tooltip.replayGotoLapDistance}"
+          ToolTipService.InitialShowDelay="100"/>
+        <ui:TextBox
+          Text="{Binding Path=ViewModel.GotoLapDistance, Mode=TwoWay}"/>
 
-          <!-- lapDistance -->
-          <ui:TextBlock Grid.Row="6"
-                        Text="{DynamicResource ui.tb_distance}"
-                        ToolTip="{DynamicResource ui.tooltip.tb_distance}"
-                        ToolTipService.InitialShowDelay="100"/>
-          <ui:TextBox Grid.Row="6"
-                      Grid.Column="1"
-                      IsReadOnly="True"
-                      Text="{Binding Path=ViewModel.LapDistance, Mode=OneWay}"
-                      Background="Transparent"
-                      BorderBrush="Transparent"/>
-        </Grid>
+        <!-- lapDistance -->
+        <Label Content="{DynamicResource ui.tb_distance}"
+          ToolTip="{DynamicResource ui.tooltip.tb_distance}"
+          ToolTipService.InitialShowDelay="100"/>
+        <ui:TextBox
+          IsReadOnly="True"
+          Text="{Binding Path=ViewModel.LapDistance, Mode=OneWay}"
+          Background="Transparent"
+          BorderBrush="Transparent"/>
       </StackPanel>
     </Grid>
 
+    <!-- the diagrams -->
   </StackPanel>
 </Page>

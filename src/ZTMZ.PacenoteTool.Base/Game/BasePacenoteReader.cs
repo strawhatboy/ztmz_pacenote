@@ -7,6 +7,11 @@ namespace ZTMZ.PacenoteTool.Base.Game
     {
         public virtual ScriptReader ReadPacenoteRecord(string profile, IGame game, string track)
         {
+            var scriptFile = GetScriptFileForRecording(profile, game, track);
+            if (string.IsNullOrEmpty(scriptFile))
+            {
+                return new ScriptReader();
+            }
             var script = ScriptReader.ReadFromFile(GetScriptFileForReplaying(profile, game, track));
             return script;
         }
@@ -22,7 +27,7 @@ namespace ZTMZ.PacenoteTool.Base.Game
                     return GetScriptFileForReplaying(Constants.DEFAULT_PROFILE, game, track, false);
                 } else {
                     // not found, create new
-                    File.Create(filePath).Close();
+                    return "";
                 }
             }
 

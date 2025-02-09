@@ -245,7 +245,7 @@ public class DirtGameDataReader : UdpGameDataReader
         {
             return message;
         }
-        message.TimeStamp = DateTime.Now;
+        message.TimeStamp = DateTime.UtcNow;
         message.Time = BitConverter.ToSingle(raw, 0);
         message.LapTime = BitConverter.ToSingle(raw, 4);
         message.LapDistance = BitConverter.ToSingle(raw, 8);
