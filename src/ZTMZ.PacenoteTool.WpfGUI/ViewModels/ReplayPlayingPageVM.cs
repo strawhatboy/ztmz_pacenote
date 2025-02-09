@@ -8,6 +8,12 @@ using System.Collections.Generic;
 using SharpDX.Win32;
 using FFMpegCore;
 using System.Linq;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
+using LiveChartsCore.Defaults;
+using LiveChartsCore.SkiaSharpView.Painting;
+using SkiaSharp;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -137,6 +143,36 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         // load replay with ReplayId
         this._replay = await ReplayManager.Instance.getReplay(this.ReplayId);
         this._replayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(this.ReplayId);
+        this.Series = new List<ISeries> {
+            new LineSeries<ObservablePoint>(new ObservableCollection<ObservablePoint>(this._replayDetailsPerTime.Select(a => new ObservablePoint(a.time, a.throttle)))) {
+                GeometryFill = null,
+                GeometryStroke = null,
+                Stroke = new SolidColorPaint(SKColors.Green) { StrokeThickness = 1 },
+                Fill = null,
+                Name = I18NLoader.Instance["dashboard.throttle"],
+            },
+            new LineSeries<ObservablePoint>(new ObservableCollection<ObservablePoint>(this._replayDetailsPerTime.Select(a => new ObservablePoint(a.time, a.brake)))) {
+                GeometryFill = null,
+                GeometryStroke = null,
+                Stroke = new SolidColorPaint(SKColors.Red) { StrokeThickness = 1 },
+                Fill = null,
+                Name = I18NLoader.Instance["dashboard.brake"],
+            },
+            new LineSeries<ObservablePoint>(new ObservableCollection<ObservablePoint>(this._replayDetailsPerTime.Select(a => new ObservablePoint(a.time, a.clutch)))) {
+                GeometryFill = null,
+                GeometryStroke = null,
+                Stroke = new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1 },
+                Fill = null,
+                Name = I18NLoader.Instance["dashboard.clutch"],
+            },
+            new LineSeries<ObservablePoint>(new ObservableCollection<ObservablePoint>(this._replayDetailsPerTime.Select(a => new ObservablePoint(a.time, a.handbrake)))) {
+                GeometryFill = null,
+                GeometryStroke = null,
+                Stroke = new SolidColorPaint(SKColors.Yellow) { StrokeThickness = 1 },
+                Fill = null,
+                Name = I18NLoader.Instance["dashboard.handbrake"],
+            },
+        };
 
         this.Track = this._replay.track;
         this.Car = this._replay.car;
@@ -242,4 +278,14 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             this.IsPaused = true;
         }
     }
+
+#region Charts
+    [ObservableProperty]
+    private List<ISeries> _series = [
+        new ColumnSeries<int>(3, 4, 2),
+        new ColumnSeries<int>(4, 2, 6),
+        new ColumnSeries<double, DiamondGeometry>(4, 3, 4)
+    ];
+#endregion
+
 }

@@ -6,6 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:system="clr-namespace:System;assembly=System.Runtime"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
       xmlns:localUI="clr-namespace:ZTMZ.PacenoteTool.Base.UI;assembly=ZTMZ.PacenoteTool.Base.UI"
       Title="ReplayPlayingPage"
       FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
@@ -47,6 +48,7 @@
                       Volume="1"
                       LoadedBehavior="Manual"
                       UnloadedBehavior="Manual"
+                      ScrubbingEnabled="True"
                       x:Name="videoPlayer"/>
         <!-- slider to control the progress -->
 
@@ -88,6 +90,7 @@
                   Minimum="0"
                   Maximum="{Binding ViewModel.VideoLength}"
                   HorizontalAlignment="Stretch"
+                  VerticalAlignment="Center"
                   Thumb.DragStarted="thumb_DragStarted"
                   Thumb.DragCompleted="thumb_DragCompleted">
           </Slider>
@@ -168,6 +171,10 @@
       </StackPanel>
     </Grid>
 
+    <Label Content="{DynamicResource dashboard.pedal}" Margin="0 20 0 5" />
     <!-- the diagrams -->
+    <lvc:CartesianChart Height="200" HorizontalAlignment="Stretch" Padding="0"
+        Series="{Binding ViewModel.Series}">
+    </lvc:CartesianChart>
   </StackPanel>
 </Page>

@@ -555,6 +555,7 @@
   },
 
   "dashboard": {
+    "pedal": "踏板状态",
     "speed": "速度",
     "rpm": "转速",
     "gear": "挡位",

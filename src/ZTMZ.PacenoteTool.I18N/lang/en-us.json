@@ -556,6 +556,7 @@
   },
 
   "dashboard": {
+    "pedal": "Pedals",
     "speed": "SPEED",
     "rpm": "RPM",
     "gear": "GEAR",
