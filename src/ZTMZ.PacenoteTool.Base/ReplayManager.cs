@@ -257,8 +257,8 @@ public class ReplayManager {
 
             var transaction = await connection.BeginTransactionAsync();
             var insertSQL = @"
-                INSERT INTO replay_details_per_time (id, time, distance, timestamp, completion_rate, speed, clutch, brake, throttle, handbrake, steering, gear, max_gears, rpm, max_rpm, pos_x, pos_y, pos_z)
-                VALUES (@id, @time, @distance, @timestamp, @completion_rate, @speed, @clutch, @brake, @throttle, @handbrake, @steering, @gear, @max_gears, @rpm, @max_rpm, @pos_x, @pos_y, @pos_z);
+                INSERT INTO replay_details_per_time (id, time, distance, timestamp, completion_rate, speed, clutch, brake, throttle, handbrake, steering, gear, max_gears, rpm, max_rpm, pos_x, pos_y, pos_z, g_long, g_lat, brake_temp_rear_left, brake_temp_rear_right, brake_temp_front_left, brake_temp_front_right, suspension_rear_left, suspension_rear_right, suspension_front_left, suspension_front_right, suspension_speed_rear_left, suspension_speed_rear_right, suspension_speed_front_left, suspension_speed_front_right)
+                VALUES (@id, @time, @distance, @timestamp, @completion_rate, @speed, @clutch, @brake, @throttle, @handbrake, @steering, @gear, @max_gears, @rpm, @max_rpm, @pos_x, @pos_y, @pos_z, @g_long, @g_lat, @brake_temp_rear_left, @brake_temp_rear_right, @brake_temp_front_left, @brake_temp_front_right, @suspension_rear_left, @suspension_rear_right, @suspension_front_left, @suspension_front_right, @suspension_speed_rear_left, @suspension_speed_rear_right, @suspension_speed_front_left, @suspension_speed_front_right);
                 ";
             for (int i = 0; i < uniqueDetailsPerTime.Count; i++) {
                 var d = uniqueDetailsPerTime[i];
@@ -282,6 +282,21 @@ public class ReplayManager {
                     command.Parameters.AddWithValue("@pos_x", d.pos_x);
                     command.Parameters.AddWithValue("@pos_y", d.pos_y);
                     command.Parameters.AddWithValue("@pos_z", d.pos_z);
+                    command.Parameters.AddWithValue("@g_long", d.g_long);
+                    command.Parameters.AddWithValue("@g_lat", d.g_lat);
+                    command.Parameters.AddWithValue("@brake_temp_rear_left", d.brake_temp_rear_left);
+                    command.Parameters.AddWithValue("@brake_temp_rear_right", d.brake_temp_rear_right);
+                    command.Parameters.AddWithValue("@brake_temp_front_left", d.brake_temp_front_left);
+                    command.Parameters.AddWithValue("@brake_temp_front_right", d.brake_temp_front_right);
+                    command.Parameters.AddWithValue("@suspension_rear_left", d.suspension_rear_left);
+                    command.Parameters.AddWithValue("@suspension_rear_right", d.suspension_rear_right);
+                    command.Parameters.AddWithValue("@suspension_front_left", d.suspension_front_left);
+                    command.Parameters.AddWithValue("@suspension_front_right", d.suspension_front_right);
+                    command.Parameters.AddWithValue("@suspension_speed_rear_left", d.suspension_speed_rear_left);
+                    command.Parameters.AddWithValue("@suspension_speed_rear_right", d.suspension_speed_rear_right);
+                    command.Parameters.AddWithValue("@suspension_speed_front_left", d.suspension_speed_front_left);
+                    command.Parameters.AddWithValue("@suspension_speed_front_right", d.suspension_speed_front_right);
+
                     await command.ExecuteNonQueryAsync();
                 }
             }
