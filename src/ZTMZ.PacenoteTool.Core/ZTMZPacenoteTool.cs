@@ -558,8 +558,8 @@ public class ZTMZPacenoteTool {
         Replay replay = await ReplayManager.Instance.GetBestReplay(CurrentGame, this._trackName, this._carClass, this._carName);
         
         if (replay != null) {
-            this.BestLocalReplayDetailsPerCheckpoints = await ReplayManager.Instance.getReplayDetailsPerCheckpoint(CurrentGame, replay.id);
-            this.BestLocalReplayDetailsPerTimes = await ReplayManager.Instance.getReplayDetailsPerTime(CurrentGame, replay.id);
+            this.BestLocalReplayDetailsPerCheckpoints = await ReplayManager.Instance.getReplayDetailsPerCheckpoint(replay.id);
+            this.BestLocalReplayDetailsPerTimes = await ReplayManager.Instance.getReplayDetailsPerTime(replay.id);
             this.BestLocalReplay = replay;
             if (this.BestLocalReplayDetailsPerCheckpoints.Count > 0 && this.BestLocalReplayDetailsPerTimes.Count > 0) {
                 this.onLocalReplayLoaded?.Invoke(true);

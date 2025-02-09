@@ -111,7 +111,7 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
         }
         // export to the foler
         var game = this.tool.CurrentGame;
-        var replay = await ReplayManager.Instance.getReplay(game, id);
+        var replay = await ReplayManager.Instance.getReplay(id);
         await ReplayManager.Instance.ExportReplay(game, replay, folder);
     }
 
@@ -136,7 +136,7 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
         }
         // export to the foler
         var game = this.tool.CurrentGame;
-        var replay = await ReplayManager.Instance.getReplay(game, id);
+        var replay = await ReplayManager.Instance.getReplay(id);
         await ReplayManager.Instance.ExportReplayWithAudio(game, replay, folder);
     }
 

@@ -125,8 +125,8 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     {
         this._timer.Start();
         // load replay with ReplayId
-        this._replay = await ReplayManager.Instance.getReplay(this._tool.CurrentGame, this.ReplayId);
-        this._replayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(this._tool.CurrentGame, this.ReplayId);
+        this._replay = await ReplayManager.Instance.getReplay(this.ReplayId);
+        this._replayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(this.ReplayId);
         this.HeaderContent = $"Replay: {this._replay.id} - {this._replay.track} - {this._replay.car} - {this._replay.car_class}";
         this.Track = this._replay.track;
         this.Car = this._replay.car;

@@ -19,6 +19,7 @@ namespace ZTMZ.PacenoteTool.Base
 
         // sqlite3 database to store replays
         public static string FILEEXT_REPLAYS = ".replays.zdb";
+        public static string FILE_REPLAYS = "replays.zdb";
         public static string FILE_LUA_SCRIPT = "script.lua";
         public static string FILE_SETTINGS = "settings.json";
 

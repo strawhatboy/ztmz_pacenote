@@ -28,30 +28,38 @@ public class Replay {
     public int checkpoints;
     public string comment;
     public string video_path;
+    public Int64 video_begin_timestamp;
+    public Int64 video_end_timestamp;
     public DateTime date;
 
     public static readonly string CREATION_SQL = @"
         CREATE TABLE IF NOT EXISTS replay (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            track TEXT NOT NULL,
-            car TEXT NOT NULL,
-            car_class TEXT NOT NULL,
-            finish_time REAL NOT NULL,
-            track_length REAL NOT NULL,
-            retired INTEGER NOT NULL,
-            locked INTEGER NOT NULL,
-            checkpoints INTEGER NOT NULL,
-            comment TEXT,
-            video_path TEXT,
-            date TEXT NOT NULL
+            id INTEGER PRIMARY KEY AUTOINCREMENT
         );
     ";
+
+    public static readonly List<string> CREATION_ADDITIONAL_COLUMNS_SQL = new List<string> {
+        "ALTER TABLE replay ADD COLUMN game TEXT NOT NULL DEFAULT '';",
+        "ALTER TABLE replay ADD COLUMN track TEXT NOT NULL DEFAULT '';",
+        "ALTER TABLE replay ADD COLUMN car TEXT NOT NULL DEFAULT '';",
+        "ALTER TABLE replay ADD COLUMN car_class TEXT NOT NULL DEFAULT '';",
+        "ALTER TABLE replay ADD COLUMN finish_time REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay ADD COLUMN track_length REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay ADD COLUMN retired INTEGER NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay ADD COLUMN locked INTEGER NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay ADD COLUMN checkpoints INTEGER NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay ADD COLUMN date TEXT NOT NULL DEFAULT '';",
+        "ALTER TABLE replay ADD COLUMN comment TEXT NOT NULL DEFAULT '';",
+        "ALTER TABLE replay ADD COLUMN video_path TEXT NOT NULL DEFAULT '';",
+        "ALTER TABLE replay ADD COLUMN video_begin_timestamp INTEGER NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay ADD COLUMN video_end_timestamp INTEGER NOT NULL DEFAULT 0;"
+    };
 
     public string ExportToCSV(IGame game) {
         var sb = new StringBuilder();
         // write the header, lowercase
         sb.AppendLine("timestamp,time,distance,completion_rate,speed,clutch,brake,throttle,handbrake,steering,gear,max_gears,rpm,max_rpm,pos_x,pos_y,pos_z");
-        var detailsPerTime = ReplayManager.Instance.getReplayDetailsPerTime(game, id).Result;
+        var detailsPerTime = ReplayManager.Instance.getReplayDetailsPerTime(id).Result;
         foreach (var d in detailsPerTime) {
             sb.AppendLine($"{d.timestamp},{d.time},{d.distance},{d.completion_rate},{d.speed},{d.clutch},{d.brake},{d.throttle},{d.handbrake},{d.steering},{d.gear},{d.max_gears},{d.rpm},{d.max_rpm},{d.pos_x},{d.pos_y},{d.pos_z}");
         }
@@ -79,29 +87,59 @@ public class ReplayDetailsPerTime {
     public float pos_x;
     public float pos_y;
     public float pos_z;
+    public float g_long;
+    public float g_lat;
+    public float brake_temp_rear_left;
+    public float brake_temp_rear_right;
+    public float brake_temp_front_left;
+    public float brake_temp_front_right;
+    public float suspension_rear_left;
+    public float suspension_rear_right;
+    public float suspension_front_left;
+    public float suspension_front_right;
+    public float suspension_speed_rear_left;
+    public float suspension_speed_rear_right;
+    public float suspension_speed_front_left;
+    public float suspension_speed_front_right;
 
     public static readonly string CREATION_SQL = @"
         CREATE TABLE IF NOT EXISTS replay_details_per_time (
-            id INTEGER,
-            time REAL NOT NULL,
-            distance REAL NOT NULL,
-            timestamp INTEGER NOT NULL,
-            completion_rate REAL NOT NULL,
-            speed REAL NOT NULL,
-            clutch REAL NOT NULL,
-            brake REAL NOT NULL,
-            throttle REAL NOT NULL,
-            handbrake REAL NOT NULL,
-            steering REAL NOT NULL,
-            gear REAL NOT NULL,
-            max_gears REAL NOT NULL,
-            rpm REAL NOT NULL,
-            max_rpm REAL NOT NULL,
-            pos_x REAL NOT NULL,
-            pos_y REAL NOT NULL,
-            pos_z REAL NOT NULL
+            id INTEGER
         );
     ";
+    public static readonly List<string> CREATION_ADDITIONAL_COLUMNS_SQL = new List<string> {
+        "ALTER TABLE replay_details_per_time ADD COLUMN time REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN distance REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN timestamp INTEGER NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN completion_rate REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN speed REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN clutch REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN brake REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN throttle REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN handbrake REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN steering REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN gear REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN max_gears REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN rpm REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN max_rpm REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN pos_x REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN pos_y REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN pos_z REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN g_long REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN g_lat REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN brake_temp_rear_left REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN brake_temp_rear_right REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN brake_temp_front_left REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN brake_temp_front_right REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN suspension_rear_left REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN suspension_rear_right REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN suspension_front_left REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN suspension_front_right REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN suspension_speed_rear_left REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN suspension_speed_rear_right REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN suspension_speed_front_left REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_time ADD COLUMN suspension_speed_front_right REAL NOT NULL DEFAULT 0;"
+    };
 }
 
 public class ReplayDetailsPerCheckpoint {
@@ -114,12 +152,14 @@ public class ReplayDetailsPerCheckpoint {
 
     public static readonly string CREATION_SQL = @"
         CREATE TABLE IF NOT EXISTS replay_details_per_checkpoint (
-            id INTEGER,
-            checkpoint INTEGER NOT NULL,
-            time REAL NOT NULL,
-            distance REAL NOT NULL
+            id INTEGER
         );
     ";
+    public static readonly List<string> CREATION_ADDITIONAL_COLUMNS_SQL = new List<string> {
+        "ALTER TABLE replay_details_per_checkpoint ADD COLUMN checkpoint INTEGER NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_checkpoint ADD COLUMN time REAL NOT NULL DEFAULT 0;",
+        "ALTER TABLE replay_details_per_checkpoint ADD COLUMN distance REAL NOT NULL DEFAULT 0;"
+    };
 }
 
 public class ReplayManager {
@@ -140,36 +180,52 @@ public class ReplayManager {
     }
 
     private ReplayManager() {
+        // always init db.
+        initDB();
     }
-    
-    private string getConnectionString(IGame game) {
-        var dbpath = AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, $"{game.Name}{Constants.FILEEXT_REPLAYS}"));
-        if (!File.Exists(dbpath)) {
-            // create the database
-            using (var connection = new SqliteConnection("Data Source=" + dbpath)) {
-                connection.Open();
-                using (var command = connection.CreateCommand()) {
-                    command.CommandText = Replay.CREATION_SQL;
-                    command.ExecuteNonQuery();
-                    command.CommandText = ReplayDetailsPerTime.CREATION_SQL;
-                    command.ExecuteNonQuery();
-                    command.CommandText = ReplayDetailsPerCheckpoint.CREATION_SQL;
-                    command.ExecuteNonQuery();
+
+    private void createDataBase(SqliteCommand cmd, string tableSql, List<string> columnsSql) {
+        cmd.CommandText = tableSql;
+        cmd.ExecuteNonQuery();
+        foreach (var columnSql in columnsSql) {
+            cmd.CommandText = columnSql;
+            try {
+                cmd.ExecuteNonQuery();
+            } catch (SqliteException ex) {
+                if (ex.Message.Contains("duplicate column name")) {
+                    // ignore
                 }
             }
         }
+    }
+
+    private void initDB() {
+        var connectionString = getConnectionString();
+        using (var connection = new SqliteConnection(connectionString)) {
+            connection.Open();
+            using (var command = connection.CreateCommand()) {
+                createDataBase(command, Replay.CREATION_SQL, Replay.CREATION_ADDITIONAL_COLUMNS_SQL);
+                createDataBase(command, ReplayDetailsPerTime.CREATION_SQL, ReplayDetailsPerTime.CREATION_ADDITIONAL_COLUMNS_SQL);
+                createDataBase(command, ReplayDetailsPerCheckpoint.CREATION_SQL, ReplayDetailsPerCheckpoint.CREATION_ADDITIONAL_COLUMNS_SQL);
+            }
+        }
+    }
+    
+    private string getConnectionString() {
+        var dbpath = AppLevelVariables.Instance.GetPath(Constants.FILE_REPLAYS);
         return "Data Source=" + dbpath;
     }
     public async Task saveReplay(IGame game, Replay replay, List<ReplayDetailsPerTime> detailsPerTime, List<ReplayDetailsPerCheckpoint> detailsPerCheckpoint) {
         _logger.Info($"Saving replay: {replay.track} {replay.car} {replay.car_class} {replay.finish_time} {replay.retired} {replay.checkpoints} {replay.date}");
-        var connectionString = getConnectionString(game);
+        var connectionString = getConnectionString();
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
             using (var command = connection.CreateCommand()) {
                 command.CommandText = @"
-                    INSERT INTO replay (track, car, car_class, finish_time, track_length, retired, checkpoints, date, comment, video_path)
-                    VALUES (@track, @car, @car_class, @finish_time, @track_length, @retired, @checkpoints, @date, @comment, @video_path);
+                    INSERT INTO replay (game, track, car, car_class, finish_time, track_length, retired, checkpoints, date, comment, video_path, locked, video_begin_timestamp, video_end_timestamp)
+                    VALUES (@game, @track, @car, @car_class, @finish_time, @track_length, @retired, @checkpoints, @date, @comment, @video_path, @locked, @video_begin_timestamp, @video_end_timestamp);
                 ";
+                command.Parameters.AddWithValue("@game", game.Name);
                 command.Parameters.AddWithValue("@track", replay.track);
                 command.Parameters.AddWithValue("@car", replay.car);
                 command.Parameters.AddWithValue("@car_class", replay.car_class);
@@ -181,6 +237,9 @@ public class ReplayManager {
                 command.Parameters.AddWithValue("@date", replay.date.ToString("yyyy-MM-dd HH:mm:ss"));
                 command.Parameters.AddWithValue("@comment", replay.comment);
                 command.Parameters.AddWithValue("@video_path", replay.video_path);
+                command.Parameters.AddWithValue("@video_begin_timestamp", replay.video_begin_timestamp);
+                command.Parameters.AddWithValue("@video_end_timestamp", replay.video_end_timestamp);
+
                 await command.ExecuteNonQueryAsync();
                 command.CommandText = "SELECT last_insert_rowid()";
                 replay.id = Convert.ToInt32(await command.ExecuteScalarAsync());
@@ -259,7 +318,7 @@ public class ReplayManager {
                     .ToList();
                 foreach (var r in replayToDelete) {
                     _logger.Info($"Deleting replay: {r.id} with finish time: {r.finish_time}");
-                    await deleteReplay(game, r.id);
+                    await deleteReplay(r.id);
                 }
             }
         }
@@ -267,23 +326,23 @@ public class ReplayManager {
     }
 
     public async Task<List<Replay>> getReplays(IGame game) {
-        var connectionString = getConnectionString(game);
+        var connectionString = getConnectionString();
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
-            return (await connection.QueryAsync<Replay>("SELECT * FROM replay")).AsList();
+            return (await connection.QueryAsync<Replay>("SELECT * FROM replay WHERE game = @game", new { game=game.Name })).AsList();
         }
     }
 
-    public async Task<Replay> getReplay(IGame game, int id) {
-        var connectionString = getConnectionString(game);
+    public async Task<Replay> getReplay(int id) {
+        var connectionString = getConnectionString();
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
             return await connection.QueryFirstOrDefaultAsync<Replay>("SELECT * FROM replay WHERE id = @id", new { id });
         }
     }
 
-    public async Task<List<ReplayDetailsPerTime>> getReplayDetailsPerTime(IGame game, int id) {
-        var connectionString = getConnectionString(game);
+    public async Task<List<ReplayDetailsPerTime>> getReplayDetailsPerTime(int id) {
+        var connectionString = getConnectionString();
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
             // get the first record of each time
@@ -299,16 +358,16 @@ public class ReplayManager {
         }
     }
 
-    public async Task<List<ReplayDetailsPerCheckpoint>> getReplayDetailsPerCheckpoint(IGame game, int id) {
-        var connectionString = getConnectionString(game);
+    public async Task<List<ReplayDetailsPerCheckpoint>> getReplayDetailsPerCheckpoint(int id) {
+        var connectionString = getConnectionString();
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
             return (await connection.QueryAsync<ReplayDetailsPerCheckpoint>("SELECT * FROM replay_details_per_checkpoint WHERE id = @id ORDER BY checkpoint ASC", new { id })).AsList();
         }
     }
 
-    public async Task deleteReplay(IGame game, int id) {
-        var connectionString = getConnectionString(game);
+    public async Task deleteReplay(int id) {
+        var connectionString = getConnectionString();
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
             // read the replay first
@@ -332,26 +391,26 @@ public class ReplayManager {
     }
 
     public async Task<Replay> getBestReplayByTrackAndCarClass(IGame game, string track, string car_class) {
-        var connectionString = getConnectionString(game);
+        var connectionString = getConnectionString();
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
-            return await connection.QueryFirstOrDefaultAsync<Replay>("SELECT * FROM replay WHERE track = @track AND car_class = @car_class ORDER BY finish_time ASC LIMIT 1", new { track, car_class });
+            return await connection.QueryFirstOrDefaultAsync<Replay>("SELECT * FROM replay WHERE game = @game AND track = @track AND car_class = @car_class ORDER BY finish_time ASC LIMIT 1", new { game=game.Name, track, car_class });
         }
     }
 
     public async Task<Replay> getBestReplayByTrack(IGame game, string track) {
-        var connectionString = getConnectionString(game);
+        var connectionString = getConnectionString();
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
-            return await connection.QueryFirstOrDefaultAsync<Replay>("SELECT * FROM replay WHERE track = @track ORDER BY finish_time ASC LIMIT 1", new { track });
+            return await connection.QueryFirstOrDefaultAsync<Replay>("SELECT * FROM replay WHERE game = @game AND track = @track ORDER BY finish_time ASC LIMIT 1", new { game=game.Name, track });
         }
     }
 
     public async Task<Replay> getBestReplayByTrackAndCarName(IGame game, string track, string car_name) {
-        var connectionString = getConnectionString(game);
+        var connectionString = getConnectionString();
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
-            return await connection.QueryFirstOrDefaultAsync<Replay>("SELECT * FROM replay WHERE track = @track AND car = @car_name ORDER BY finish_time ASC LIMIT 1", new { track, car_name });
+            return await connection.QueryFirstOrDefaultAsync<Replay>("SELECT * FROM replay WHERE game = @game AND track = @track AND car = @car_name ORDER BY finish_time ASC LIMIT 1", new { game=game.Name, track, car_name });
         }
     }
 
@@ -365,8 +424,8 @@ public class ReplayManager {
         }
     }
 
-    public async void LockReplay(IGame game, int id) {
-        var connectionString = getConnectionString(game);
+    public async void LockReplay(int id) {
+        var connectionString = getConnectionString();
         using (var connection = new SqliteConnection(connectionString)) {
             connection.Open();
             using (var command = connection.CreateCommand()) {
