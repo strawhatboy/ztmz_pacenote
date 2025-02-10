@@ -100,6 +100,7 @@ public class ZTMZPacenoteTool {
         // this.initGoogleAnalytics();
         this.initializeProcessWatcher();
         this.initializeObsConnection();
+        this.initializeReplayManager();
 
         this.IsInitialized = true;
         onToolInitialized?.Invoke();
