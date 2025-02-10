@@ -34,19 +34,20 @@
     <!-- <vlc:VideoView x:Name="videoView"  /> -->
     <Grid>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="3*" />
-        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="3*"/>
+        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="2*"/>
       </Grid.ColumnDefinitions>
-      <GridSplitter Grid.Column="1" 
-          HorizontalAlignment="Center" 
-          VerticalAlignment="Stretch"
-          Background="Black" 
-          ShowsPreview="true"
-          Width="5"/>
+      <GridSplitter Grid.Column="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Stretch"
+                    Background="Black"
+                    ShowsPreview="true"
+                    Width="5"/>
 
       <Grid Grid.Column="0">
-        <Image Source="pack://application:,,,/ZTMZ.PacenoteTool.Base.UI;component/unknown_dashboard_preview_image.png" Margin="0 0 10 0"
+        <Image Source="pack://application:,,,/ZTMZ.PacenoteTool.Base.UI;component/unknown_dashboard_preview_image.png"
+            Margin="0 0 10 0"
                Stretch="Fill"
                HorizontalAlignment="Stretch"
                VerticalAlignment="Stretch"/>
@@ -114,28 +115,28 @@
 
         <!-- trackname -->
         <Label Content="{DynamicResource ui.tb_currentTrack}"
-                  ToolTip="{DynamicResource ui.tooltip.tb_currentTrack}"
-                  ToolTipService.InitialShowDelay="100"/>
+               ToolTip="{DynamicResource ui.tooltip.tb_currentTrack}"
+               ToolTipService.InitialShowDelay="100"/>
         <ui:TextBox x:Name="tb_track"
-          IsReadOnly="True"
-          Text="{Binding Path=ViewModel.Track}"
-          Background="Transparent"
-          BorderBrush="Transparent"/>
+                    IsReadOnly="True"
+                    Text="{Binding Path=ViewModel.Track}"
+                    Background="Transparent"
+                    BorderBrush="Transparent"/>
 
         <!-- carname -->
         <Label Content="{DynamicResource overlay.car}"
-          ToolTip="{DynamicResource overlay.car}"
-          ToolTipService.InitialShowDelay="100"/>
+               ToolTip="{DynamicResource overlay.car}"
+               ToolTipService.InitialShowDelay="100"/>
         <ui:TextBox x:Name="tb_car"
-          IsReadOnly="True"
-          Text="{Binding Path=ViewModel.Car}"
-          Background="Transparent"
-          BorderBrush="Transparent"/>
+                    IsReadOnly="True"
+                    Text="{Binding Path=ViewModel.Car}"
+                    Background="Transparent"
+                    BorderBrush="Transparent"/>
 
         <!-- carclass -->
         <Label Content="{DynamicResource overlay.carclass}"
-          ToolTip="{DynamicResource overlay.carclass}"
-          ToolTipService.InitialShowDelay="100"/>
+               ToolTip="{DynamicResource overlay.carclass}"
+               ToolTipService.InitialShowDelay="100"/>
         <ui:TextBox
           IsReadOnly="True"
           Text="{Binding Path=ViewModel.CarClass}"
@@ -151,8 +152,8 @@
 
         <!-- time -->
         <Label Content="{DynamicResource ui.tb_lapTime}"
-          ToolTip="{DynamicResource ui.tooltip.tb_lapTime}"
-          ToolTipService.InitialShowDelay="100"/>
+               ToolTip="{DynamicResource ui.tooltip.tb_lapTime}"
+               ToolTipService.InitialShowDelay="100"/>
         <ui:TextBox
           IsReadOnly="True"
           Text="{Binding Path=ViewModel.LapTime, Mode=OneWay}"
@@ -162,15 +163,15 @@
 
         <!-- lapDistance writable to change the time correspondingly -->
         <Label Content="{DynamicResource settings.replayGotoLapDistance}"
-          ToolTip="{DynamicResource settings.tooltip.replayGotoLapDistance}"
-          ToolTipService.InitialShowDelay="100"/>
+               ToolTip="{DynamicResource settings.tooltip.replayGotoLapDistance}"
+               ToolTipService.InitialShowDelay="100"/>
         <ui:TextBox
           Text="{Binding Path=ViewModel.GotoLapDistance, Mode=TwoWay}"/>
 
         <!-- lapDistance -->
         <Label Content="{DynamicResource ui.tb_distance}"
-          ToolTip="{DynamicResource ui.tooltip.tb_distance}"
-          ToolTipService.InitialShowDelay="100"/>
+               ToolTip="{DynamicResource ui.tooltip.tb_distance}"
+               ToolTipService.InitialShowDelay="100"/>
         <ui:TextBox
           IsReadOnly="True"
           Text="{Binding Path=ViewModel.LapDistance, Mode=OneWay}"
@@ -179,46 +180,104 @@
       </StackPanel>
     </Grid>
 
-    <!-- <ui:ToggleSwitch Visibility="{Binding ViewModel.HasBestReplay, 
-    Converter={StaticResource BooleanToVisibilityConverter}}" Content="{DynamicResource settings.replayShowBestReplay}" IsChecked="{Binding Path=ViewModel.ShowBestReplayComparison, Mode=TwoWay}" Margin="0 15 0 0" /> -->
+    <ui:ToggleSwitch Content="{DynamicResource settings.replayShowDiagrams}" IsChecked="{Binding Path=ViewModel.ReplayShowDiagrams, Mode=TwoWay}" Margin="0 15 0 0" />
 
-    <!-- the diagrams -->
-    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
-        Series="{Binding ViewModel.PedalSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X">
-    </lvc:CartesianChart>
-    <Label Content="{Binding ViewModel.PedalLabel}" />
-    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
-        Series="{Binding ViewModel.SpeedSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X">
-    </lvc:CartesianChart>
-    <Label Content="{Binding ViewModel.SpeedLabel}"  />
-    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
-        Series="{Binding ViewModel.RpmSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X"> 
-    </lvc:CartesianChart>
-    <Label Content="{Binding ViewModel.RpmLabel}"  />
+    <StackPanel Orientation="Vertical" Visibility="{Binding ViewModel.ReplayShowDiagrams, 
+    Converter={StaticResource BooleanToVisibilityConverter}}" >
+      <!-- the diagrams -->
+      <lvc:CartesianChart Height="160"
+          HorizontalAlignment="Stretch"
+          Padding="0"
+          DrawMargin="{Binding ViewModel.DrawMargin}"
+                          Series="{Binding ViewModel.PedalSeries}"
+          XAxes="{Binding ViewModel.PedalXAxis}"
+          Sections="{Binding ViewModel.PedalSections}"
+          EasingFunction="{x:Null}"
+          ZoomMode="X">
+      </lvc:CartesianChart>
+      <Label Content="{Binding ViewModel.PedalLabel}"/>
+      <lvc:CartesianChart Height="160"
+          HorizontalAlignment="Stretch"
+          Padding="0"
+          DrawMargin="{Binding ViewModel.DrawMargin}"
+                          Series="{Binding ViewModel.SpeedSeries}"
+          XAxes="{Binding ViewModel.PedalXAxis}"
+          Sections="{Binding ViewModel.PedalSections}"
+          EasingFunction="{x:Null}"
+          ZoomMode="X">
+      </lvc:CartesianChart>
+      <Label Content="{Binding ViewModel.SpeedLabel}"/>
+      <lvc:CartesianChart Height="160"
+          HorizontalAlignment="Stretch"
+          Padding="0"
+          DrawMargin="{Binding ViewModel.DrawMargin}"
+                          Series="{Binding ViewModel.RpmSeries}"
+          XAxes="{Binding ViewModel.PedalXAxis}"
+          Sections="{Binding ViewModel.PedalSections}"
+          EasingFunction="{x:Null}"
+          ZoomMode="X">
+      </lvc:CartesianChart>
+      <Label Content="{Binding ViewModel.RpmLabel}"/>
 
-    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
-        Series="{Binding ViewModel.GearSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X">
-    </lvc:CartesianChart>
-    <Label Content="{Binding ViewModel.GearLabel}"  />
+      <lvc:CartesianChart Height="160"
+          HorizontalAlignment="Stretch"
+          Padding="0"
+          DrawMargin="{Binding ViewModel.DrawMargin}"
+                          Series="{Binding ViewModel.GearSeries}"
+          XAxes="{Binding ViewModel.PedalXAxis}"
+          Sections="{Binding ViewModel.PedalSections}"
+          EasingFunction="{x:Null}"
+          ZoomMode="X">
+      </lvc:CartesianChart>
+      <Label Content="{Binding ViewModel.GearLabel}"/>
 
-    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
-        Series="{Binding ViewModel.GSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X">
-    </lvc:CartesianChart>
-    <Label Content="{Binding ViewModel.GLabel}"  />
+      <lvc:CartesianChart Height="160"
+          HorizontalAlignment="Stretch"
+          Padding="0"
+          DrawMargin="{Binding ViewModel.DrawMargin}"
+                          Series="{Binding ViewModel.GSeries}"
+          XAxes="{Binding ViewModel.PedalXAxis}"
+          Sections="{Binding ViewModel.PedalSections}"
+          EasingFunction="{x:Null}"
+          ZoomMode="X">
+      </lvc:CartesianChart>
+      <Label Content="{Binding ViewModel.GLabel}"/>
 
-    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
-        Series="{Binding ViewModel.BrakeTempSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X">
-    </lvc:CartesianChart>
-    <Label Content="{Binding ViewModel.BrakeTempLabel}"  />
+      <lvc:CartesianChart Height="160"
+          HorizontalAlignment="Stretch"
+          Padding="0"
+          DrawMargin="{Binding ViewModel.DrawMargin}"
+                          Series="{Binding ViewModel.BrakeTempSeries}"
+          XAxes="{Binding ViewModel.PedalXAxis}"
+          Sections="{Binding ViewModel.PedalSections}"
+          EasingFunction="{x:Null}"
+          ZoomMode="X">
+      </lvc:CartesianChart>
+      <Label Content="{Binding ViewModel.BrakeTempLabel}"/>
 
-    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
-        Series="{Binding ViewModel.SuspensionSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X">
-    </lvc:CartesianChart>
-    <Label Content="{Binding ViewModel.SuspensionLabel}"  />
+      <lvc:CartesianChart Height="160"
+          HorizontalAlignment="Stretch"
+          Padding="0"
+          DrawMargin="{Binding ViewModel.DrawMargin}"
+                          Series="{Binding ViewModel.SuspensionSeries}"
+          XAxes="{Binding ViewModel.PedalXAxis}"
+          Sections="{Binding ViewModel.PedalSections}"
+          EasingFunction="{x:Null}"
+          ZoomMode="X">
+      </lvc:CartesianChart>
+      <Label Content="{Binding ViewModel.SuspensionLabel}"/>
 
-    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
-        Series="{Binding ViewModel.SuspensionSpeedSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X">
-    </lvc:CartesianChart>
-    <Label Content="{Binding ViewModel.SuspensionSpeedLabel}"  />
+      <lvc:CartesianChart Height="160"
+          HorizontalAlignment="Stretch"
+          Padding="0"
+          DrawMargin="{Binding ViewModel.DrawMargin}"
+                          Series="{Binding ViewModel.SuspensionSpeedSeries}"
+          XAxes="{Binding ViewModel.PedalXAxis}"
+          Sections="{Binding ViewModel.PedalSections}"
+          EasingFunction="{x:Null}"
+          ZoomMode="X">
+      </lvc:CartesianChart>
+      <Label Content="{Binding ViewModel.SuspensionSpeedLabel}"/>
+    </StackPanel>
   </StackPanel>
 </Page>

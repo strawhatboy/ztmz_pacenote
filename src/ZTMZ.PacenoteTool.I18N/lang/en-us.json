@@ -145,6 +145,7 @@
       "replayExportAudio": "Export the replay with the audio and telemetry data in a folder\nNeed ffmpeg installed and added to the system PATH",
       "replayFFmpegPath": "The path of the ffmpeg executable, very important for the replay page to work correctly",
       "replayDownloadFFmpeg": "Go to gitee.com to download the ffmpeg executable, or you can download it by yourself",
+      "replayShowDiagrams": "Show the statistical diagrams in the replay playing page.",
     },
 
     "autoInitializeGame_on": "Auto Game Selection",
@@ -258,6 +259,7 @@
     "replayFFmpegPath": "ffmpeg Path",
     "replayDownloadFFmpeg": "Download ffmpeg",
     "replayShowBestReplay": "Show Best Replay Comparison",
+    "replayShowDiagrams": "Show Statistical Diagrams",
   },
 
   "dialog": {

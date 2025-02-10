@@ -954,6 +954,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._ReplayPlayPedalsMode;
         }
 
+        private bool _replayShowDiagrams = false;
+        public bool ReplayShowDiagrams
+        {
+            set { this._replayShowDiagrams = value; this._userconfig["ReplayShowDiagrams"] = value; }
+            get => this._replayShowDiagrams;
+        }
+
 #endregion
 
         public void Save(string path)

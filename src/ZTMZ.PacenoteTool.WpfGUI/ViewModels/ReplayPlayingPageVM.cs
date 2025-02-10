@@ -76,6 +76,18 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     [ObservableProperty]
     private bool _scrubbingEnabled;
 
+    [ObservableProperty]
+    private bool _replayShowDiagrams = Config.Instance.ReplayShowDiagrams;
+    partial void OnReplayShowDiagramsChanged(bool value){
+        Config.Instance.ReplayShowDiagrams = value;
+        Config.Instance.SaveUserConfig();
+        if (value) {
+            setCharts();
+        } else {
+            clearCharts();
+        }
+    }
+
 
 #region right panel
     [ObservableProperty]
@@ -282,7 +294,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         this._timer.Stop();
         this.VideoPath = "";
         if (!string.IsNullOrEmpty(this.tmpAudioPath) && File.Exists(this.tmpAudioPath)) {
-            File.Delete(this.tmpAudioPath);
+            // File.Delete(this.tmpAudioPath); wont delete
         }
     }
 
@@ -404,8 +416,13 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     private ObservableCollection<RectangularSection> _pedalSections = new();
 
     private async Task setCharts() {
-        await setPedals();
-        await setBestCharts();
+        if (Config.Instance.ReplayShowDiagrams) {
+            await setPedals();
+            await setBestCharts();
+        }
+    }
+
+    private async Task clearCharts() {
     }
 
     private LineSeries<ObservablePoint> getLineSeries(List<ObservablePoint> points, SKColor color, string name, LiveChartsCore.Painting.Paint? stroke = null) {

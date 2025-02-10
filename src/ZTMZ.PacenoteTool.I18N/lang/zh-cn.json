@@ -145,6 +145,7 @@
       "replayExportAudio": "导出回放音频和遥测数据到文件夹中\n需要在回放设置中定位ffmpeg的路径",
       "replayFFmpegPath": "ffmpeg的路径，对于正常使用回放页面非常重要，推荐安装并配置",
       "replayDownloadFFmpeg": "前往gitee.com下载绿色版ffmpeg，或者自行前往官网下载",
+      "replayShowDiagrams": "在回放的播放页面显示各种遥测的图表，可能会影响工具性能",
     },
 
     "autoInitializeGame_on": "自动选择游戏",
@@ -258,6 +259,7 @@
     "replayFFmpegPath": "ffmpeg 路径",
     "replayDownloadFFmpeg": "下载ffmpeg",
     "replayShowBestReplay": "显示与最佳成绩的对比",
+    "replayShowDiagrams": "显示遥测图表",
   },
 
   "dialog": {
