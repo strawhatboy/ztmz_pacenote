@@ -8,6 +8,8 @@ using System.IO;
 using Newtonsoft.Json;
 // using System.Windows;
 using Newtonsoft.Json.Linq;
+using Neo.IronLua;
+using System.Linq.Expressions;
 
 namespace ZTMZ.PacenoteTool.Base
 {
@@ -216,6 +218,17 @@ namespace ZTMZ.PacenoteTool.Base
 
         public string ResolveByKey(string idx) {
             return this[idx];
+        }
+
+        public string ResolveByKeyAndCulture(string idx, string culture) {
+            if (IgnoreCase) {
+                idx = idx.lower();
+            }
+            if (Resources.ContainsKey(culture) && Resources[culture].ContainsKey(idx)) {
+                return Resources[culture][idx].ToString();
+            }
+
+            return idx;
         }
     }
 }

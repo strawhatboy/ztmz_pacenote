@@ -14,14 +14,21 @@ using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
+using LiveChartsCore.Kernel.Sketches;
+using System.Threading.Tasks;
+using LiveChartsCore.Measure;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
+
+// public class BindableAxisSection: LiveChartsCore
 
 public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 {
     private Replay _replay = null;
+    private Replay _bestReplay = null;
     private string tmpAudioPath = "";
     private List<ReplayDetailsPerTime> _replayDetailsPerTime = null;
+    private List<ReplayDetailsPerTime> _bestReplayDetailsPerTime = null;
     private ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool = null;
 
     private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
@@ -60,6 +67,9 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     [ObservableProperty]
     private bool _isPausedBecauseOfSliding;
 
+    [ObservableProperty]
+    private bool _scrubbingEnabled;
+
 
 #region right panel
     [ObservableProperty]
@@ -93,6 +103,17 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         }
     }
 
+    [ObservableProperty]
+    private bool _hasBestReplay;
+
+    [ObservableProperty]
+    private bool _showBestReplayComparison;
+    partial void OnShowBestReplayComparisonChanged(bool value){
+        if (value) {
+            
+        }
+    }
+
     /// <summary>
     /// this is the offset of the play position. put values in to change the video/data offset
     /// </summary>
@@ -112,6 +133,15 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             var rdp = ReplayManager.getReplayDetailsPerTimeWithTimeStamp(this._replayDetailsPerTime, key);
             this.LapTime = rdp.time;    // the laptime
             this.LapDistance = rdp.distance;
+            
+            // this.PedalSections.Clear();
+            this.PedalSections.First().Xi = rdp.time;
+            this.PedalSections.First().Xj = rdp.time + this._replayDetailsPerTime.Last().time / 400;
+
+            // update labels
+            this.PedalLabel = $"{I18NLoader.Instance["dashboard.throttle"]}: {rdp.throttle * 100:0.0}%\t{I18NLoader.Instance["dashboard.brake"]}: {rdp.brake * 100:0.0}%\t{I18NLoader.Instance["dashboard.clutch"]}: {rdp.clutch * 100:0.0}%\t{I18NLoader.Instance["dashboard.handbrake"]}: {rdp.handbrake * 100:0.0}%";
+            this.SpeedLabel = $"{I18NLoader.Instance["dashboard.speed"]}: {rdp.speed:0.0} km/h";
+            this.RpmLabel = $"{I18NLoader.Instance["dashboard.rpm"]}: {rdp.rpm:0.0}";
         }
     }
 
@@ -139,47 +169,24 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
     public async void OnNavigatedTo()
     {
-        this._timer.Start();
         // load replay with ReplayId
         this._replay = await ReplayManager.Instance.getReplay(this.ReplayId);
-        this._replayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(this.ReplayId);
-        this.Series = new List<ISeries> {
-            new LineSeries<ObservablePoint>(new ObservableCollection<ObservablePoint>(this._replayDetailsPerTime.Select(a => new ObservablePoint(a.time, a.throttle)))) {
-                GeometryFill = null,
-                GeometryStroke = null,
-                Stroke = new SolidColorPaint(SKColors.Green) { StrokeThickness = 1 },
-                Fill = null,
-                Name = I18NLoader.Instance["dashboard.throttle"],
-            },
-            new LineSeries<ObservablePoint>(new ObservableCollection<ObservablePoint>(this._replayDetailsPerTime.Select(a => new ObservablePoint(a.time, a.brake)))) {
-                GeometryFill = null,
-                GeometryStroke = null,
-                Stroke = new SolidColorPaint(SKColors.Red) { StrokeThickness = 1 },
-                Fill = null,
-                Name = I18NLoader.Instance["dashboard.brake"],
-            },
-            new LineSeries<ObservablePoint>(new ObservableCollection<ObservablePoint>(this._replayDetailsPerTime.Select(a => new ObservablePoint(a.time, a.clutch)))) {
-                GeometryFill = null,
-                GeometryStroke = null,
-                Stroke = new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1 },
-                Fill = null,
-                Name = I18NLoader.Instance["dashboard.clutch"],
-            },
-            new LineSeries<ObservablePoint>(new ObservableCollection<ObservablePoint>(this._replayDetailsPerTime.Select(a => new ObservablePoint(a.time, a.handbrake)))) {
-                GeometryFill = null,
-                GeometryStroke = null,
-                Stroke = new SolidColorPaint(SKColors.Yellow) { StrokeThickness = 1 },
-                Fill = null,
-                Name = I18NLoader.Instance["dashboard.handbrake"],
-            },
-        };
+        this._bestReplay = await ReplayManager.Instance.GetBestReplay(_tool.CurrentGame, _replay.track, _replay.car_class, _replay.car);
+        if (this._bestReplay != null && this._bestReplay.id != this._replay.id) {
+            // got the best replay
+            this.HasBestReplay = true;
+            this._bestReplayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(this._bestReplay.id);
+        }
 
+        this._replayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(this.ReplayId);
+        await setCharts();
         this.Track = this._replay.track;
         this.Car = this._replay.car;
         this.CarClass = this._replay.car_class;
 
         if (!string.IsNullOrEmpty(this._replay.video_path) && File.Exists(this._replay.video_path))
         {
+            this.ScrubbingEnabled = true;
             _logger.Info("Playing video: " + this._replay.video_path);
             // load video
             this.VideoPath = this._replay.video_path;
@@ -190,24 +197,34 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         }
         else
         {
+            // ScrubbingEnabled is only for video, when playing audio, it should be false, or the audio will not be played.
+            this.ScrubbingEnabled = false;
             _logger.Warn("Video not found, will create an empty audio file.");
             var duration = (double)(this._replayDetailsPerTime.Last().timestamp - this._replayDetailsPerTime.First(a => a.timestamp > 0).timestamp) / 10000000 + this._replayDetailsPerTime.First(a => a.timestamp > 0).time;
             // create an empty audio file wth ffmpeg
-            tmpAudioPath = Path.Combine(Path.GetTempPath(), "empty.wav");
+            tmpAudioPath = Path.Combine(Path.GetTempPath(), "empty.mp3");
             GlobalFFOptions.Configure(options => options.BinaryFolder = Config.Instance.ReplayFFmpegPath);
             await FFMpegArguments
-                .FromFileInput("anullsrc=channel_layout=mono:sample_rate=48000", false, options => options.WithCustomArgument($"-f lavfi -t {duration}"))
+                .FromFileInput("anullsrc=channel_layout=stereo:sample_rate=44100", false, options => options.WithCustomArgument($"-f lavfi -t {duration}"))
                 .OutputToFile(tmpAudioPath, true)
                 .ProcessAsynchronously();
+
+            _logger.Info("Created empty audio: " + tmpAudioPath);
 
             this.VideoPath = tmpAudioPath;
             this.IsPaused = false;
             this._replay.video_begin_timestamp = this._replayDetailsPerTime.First(a => a.timestamp > 0).timestamp;
             
+            await Task.Delay(1000);
             Application.Current.Dispatcher.Invoke(() => {
-                this.mediaElement.Play();
+                try {
+                    this.mediaElement.Play();
+                } catch (Exception ex) {
+                    _logger.Error($"Error when playing tmp audio: {ex}");
+                }
             });
         }
+        this._timer.Start();
     }
 
     public void OnNavigatedFrom()
@@ -215,6 +232,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         // throw new NotImplementedException();
         this.mediaElement.Stop();
         this._timer.Stop();
+        this.VideoPath = "";
         if (!string.IsNullOrEmpty(this.tmpAudioPath) && File.Exists(this.tmpAudioPath)) {
             File.Delete(this.tmpAudioPath);
         }
@@ -281,11 +299,134 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
 #region Charts
     [ObservableProperty]
-    private List<ISeries> _series = [
-        new ColumnSeries<int>(3, 4, 2),
-        new ColumnSeries<int>(4, 2, 6),
-        new ColumnSeries<double, DiamondGeometry>(4, 3, 4)
-    ];
+    private string _pedalLabel = "";
+
+    [ObservableProperty]
+    private string _speedLabel = "";
+
+    [ObservableProperty]
+    private string _rpmLabel = "";
+
+    [ObservableProperty]
+    private Margin _drawMargin = new Margin(10);
+
+    [ObservableProperty]
+    private List<ISeries> _pedalSeries = new();
+
+    [ObservableProperty]
+    private List<ISeries> _speedSeries = new();
+
+    [ObservableProperty]
+    private List<ISeries> _RpmSeries = new();
+
+    [ObservableProperty]
+    private List<ICartesianAxis> _pedalXAxis = new();
+
+    [ObservableProperty]
+    private ObservableCollection<RectangularSection> _pedalSections = new();
+
+    private async Task setCharts() {
+        await setPedals();
+    }
+
+    private async Task setPedals() {
+        this.PedalSeries = new List<ISeries>();
+        var throttle = new List<ObservablePoint>();
+        var brake = new List<ObservablePoint>();
+        var clutch = new List<ObservablePoint>();
+        var handbrake = new List<ObservablePoint>();
+        var speed = new List<ObservablePoint>();
+        var rpm = new List<ObservablePoint>();
+        for (int i = 0; i < this._replayDetailsPerTime.Count; i++) {
+            throttle.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].throttle));
+            brake.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].brake));
+            clutch.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].clutch));
+            handbrake.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].handbrake));
+            speed.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].speed));
+            rpm.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].rpm));
+        }
+        var throttleSeries = new LineSeries<ObservablePoint>(throttle) {
+            GeometryFill = null,
+            GeometryStroke = null,
+            Stroke = new SolidColorPaint(SKColors.Green) { StrokeThickness = 1 },
+            Fill = null,
+            Name = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.throttle", "en-us"),
+        };
+        var brakeSeries = new LineSeries<ObservablePoint>(brake) {
+            GeometryFill = null,
+            GeometryStroke = null,
+            Stroke = new SolidColorPaint(SKColors.Red) { StrokeThickness = 1 },
+            Fill = null,
+            Name = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake", "en-us"),
+        };
+        var clutchSeries = new LineSeries<ObservablePoint>(clutch) {
+            GeometryFill = null,
+            GeometryStroke = null,
+            Stroke = new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1 },
+            Fill = null,
+            Name = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.clutch", "en-us"),
+        };
+        var handbrakeSeries = new LineSeries<ObservablePoint>(handbrake) {
+            GeometryFill = null,
+            GeometryStroke = null,
+            Stroke = new SolidColorPaint(SKColors.Yellow) { StrokeThickness = 1 },
+            Fill = null,
+            Name = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.handbrake", "en-us"),
+        };
+        var speedSeries = new LineSeries<ObservablePoint>(speed) {
+            GeometryFill = null,
+            GeometryStroke = null,
+            Stroke = new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1 },
+            Fill = null,
+            Name = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.speed", "en-us"),
+        };
+        var rpmSeries = new LineSeries<ObservablePoint>(rpm) {
+            GeometryFill = null,
+            GeometryStroke = null,
+            Stroke = new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1 },
+            Fill = null,
+            Name = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.rpm", "en-us"),
+        };
+
+        this.PedalSeries.Clear();
+        this.SpeedSeries.Clear();
+        this.RpmSeries.Clear();
+        this.PedalSections.Clear();
+
+        if (Config.Instance.ReplayPlayPedalsMode == 1) {
+            this.PedalSeries.Add(throttleSeries);
+        } else if (Config.Instance.ReplayPlayPedalsMode == 2) {
+            this.PedalSeries.Add(brakeSeries);
+        } else if (Config.Instance.ReplayPlayPedalsMode == 3) {
+            this.PedalSeries.Add(clutchSeries);
+        } else if (Config.Instance.ReplayPlayPedalsMode == 4) {
+            this.PedalSeries.Add(handbrakeSeries);
+        } else {
+            this.PedalSeries.Add(throttleSeries);
+            this.PedalSeries.Add(brakeSeries);
+            this.PedalSeries.Add(clutchSeries);
+            this.PedalSeries.Add(handbrakeSeries);
+        }
+        this.SpeedSeries.Add(speedSeries);
+        this.RpmSeries.Add(rpmSeries);
+
+        this.PedalXAxis = new List<ICartesianAxis> {
+            new Axis{
+                CrosshairLabelsBackground = SKColors.DarkOrange.AsLvcColor(),
+                CrosshairLabelsPaint = new SolidColorPaint(SKColors.DarkRed),
+                CrosshairPaint = new SolidColorPaint(SKColors.DarkOrange, 1),
+                Labeler = value => value.ToString("N2"),
+                Padding = new LiveChartsCore.Drawing.Padding(2),
+            },
+        };
+        
+        this.PedalSections.Add(
+            new RectangularSection {
+                Xi = 0,
+                Xj = this._replayDetailsPerTime.Last().time / 400,
+                Fill = new SolidColorPaint(new SKColor(255, 205, 210))
+            });
+    }
 #endregion
 
 }

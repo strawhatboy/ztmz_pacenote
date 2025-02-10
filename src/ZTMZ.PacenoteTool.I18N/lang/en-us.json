@@ -257,6 +257,7 @@
     "replayExportAudio": "Export Replay (Audio)",
     "replayFFmpegPath": "ffmpeg Path",
     "replayDownloadFFmpeg": "Download ffmpeg",
+    "replayShowBestReplay": "Show Best Replay Comparison",
   },
 
   "dialog": {
@@ -458,7 +459,8 @@
       "showClosePrompt": "Whether to show the prompt dialog when clicking the window's close button",
       "closeBehavior": "Close behavior when clicking the window's close button",
       "closeToMinimize": "Minimize the tool when the window close button is clicked",
-      "closeToExit": "Exit the tool when the window close button is clicked"
+      "closeToExit": "Exit the tool when the window close button is clicked",
+      "tb_currentTrack": "Current Track",
     }
   },
   "misc": {
@@ -556,6 +558,7 @@
   },
 
   "dashboard": {
+    "all": "All",
     "pedal": "Pedals",
     "speed": "SPEED",
     "rpm": "RPM",

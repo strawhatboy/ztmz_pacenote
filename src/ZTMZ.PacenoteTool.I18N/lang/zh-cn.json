@@ -257,6 +257,7 @@
     "replayExportAudio": "导出回放（音频）",
     "replayFFmpegPath": "ffmpeg 路径",
     "replayDownloadFFmpeg": "下载ffmpeg",
+    "replayShowBestReplay": "显示与最佳成绩的对比",
   },
 
   "dialog": {
@@ -457,7 +458,8 @@
       "showClosePrompt": "在点击窗口右上角的关闭按钮时，会弹出提示框，防止误操作",
       "closeBehavior": "选择点击窗口右上角的关闭按钮时的行为",
       "closeToMinimize": "在点击窗口右上角的关闭按钮时，会最小化到托盘，而不是直接关闭程序",
-      "closeToExit": "在点击窗口右上角的关闭按钮时，会直接关闭程序，而不是最小化到托盘"
+      "closeToExit": "在点击窗口右上角的关闭按钮时，会直接关闭程序，而不是最小化到托盘",
+      "tb_currentTrack": "当前赛道",
     }
   },
   "misc": {
@@ -555,6 +557,7 @@
   },
 
   "dashboard": {
+    "all": "全部",
     "pedal": "踏板状态",
     "speed": "速度",
     "rpm": "转速",

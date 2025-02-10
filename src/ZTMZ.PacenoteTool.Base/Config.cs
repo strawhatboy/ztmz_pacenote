@@ -944,6 +944,16 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._ReplayFFmpegPath;
         }
 
+        /// <summary>
+        /// 0: all, 1: throttle, 2: brake, 3: clutch, 4: handbrake
+        /// </summary>
+        private int _ReplayPlayPedalsMode = 0;
+        public int ReplayPlayPedalsMode
+        {
+            set { this._ReplayPlayPedalsMode = value; this._userconfig["ReplayPlayPedalsMode"] = value; }
+            get => this._ReplayPlayPedalsMode;
+        }
+
 #endregion
 
         public void Save(string path)

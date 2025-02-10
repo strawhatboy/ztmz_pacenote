@@ -34,21 +34,29 @@
     <!-- <vlc:VideoView x:Name="videoView"  /> -->
     <Grid>
       <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="3*" />
+        <ColumnDefinition Width="Auto" />
         <ColumnDefinition Width="2*"/>
-        <ColumnDefinition Width="1*"/>
       </Grid.ColumnDefinitions>
+      <GridSplitter Grid.Column="1" 
+          HorizontalAlignment="Center" 
+          VerticalAlignment="Stretch"
+          Background="Black" 
+          ShowsPreview="true"
+          Width="5"/>
 
       <Grid Grid.Column="0">
-        <Image Source="pack://application:,,,/ZTMZ.PacenoteTool.Base.UI;component/unknown_dashboard_preview_image.png"
+        <Image Source="pack://application:,,,/ZTMZ.PacenoteTool.Base.UI;component/unknown_dashboard_preview_image.png" Margin="0 0 10 0"
                Stretch="Fill"
                HorizontalAlignment="Stretch"
                VerticalAlignment="Stretch"/>
         <MediaElement Stretch="Fill"
                       Source="{Binding ViewModel.VideoPath}"
                       Volume="1"
+                      Margin="0 0 10 0"
                       LoadedBehavior="Manual"
                       UnloadedBehavior="Manual"
-                      ScrubbingEnabled="True"
+                      ScrubbingEnabled="{Binding ViewModel.ScrubbingEnabled}"
                       x:Name="videoPlayer"/>
         <!-- slider to control the progress -->
 
@@ -83,7 +91,7 @@
               </ui:SymbolIcon>
             </ui:Button.Icon>
           </ui:Button>
-          <Slider Margin="5 0 5 0"
+          <Slider Margin="5 0 15 0"
                   Grid.Column="1"
                   Value="{Binding ViewModel.PlayPosition}"
                   x:Name="sl_video"
@@ -100,7 +108,7 @@
       <!-- column1 for time, distance info -->
       <StackPanel Orientation="Vertical"
                   Margin="20 0 0 0"
-                  Grid.Column="1"
+                  Grid.Column="2"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Left">
 
@@ -171,10 +179,21 @@
       </StackPanel>
     </Grid>
 
-    <Label Content="{DynamicResource dashboard.pedal}" Margin="0 20 0 5" />
+    <ui:ToggleSwitch Visibility="{Binding ViewModel.HasBestReplay, 
+    Converter={StaticResource BooleanToVisibilityConverter}}" Content="{DynamicResource settings.replayShowBestReplay}" IsChecked="{Binding Path=ViewModel.ShowBestReplayComparison, Mode=TwoWay}" Margin="0 15 0 0" />
+
     <!-- the diagrams -->
-    <lvc:CartesianChart Height="200" HorizontalAlignment="Stretch" Padding="0"
-        Series="{Binding ViewModel.Series}">
+    <lvc:CartesianChart Height="200" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
+        Series="{Binding ViewModel.PedalSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" AnimationsSpeed="00:00:00.150">
     </lvc:CartesianChart>
+    <Label Content="{Binding ViewModel.PedalLabel}" />
+    <lvc:CartesianChart Height="200" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
+        Series="{Binding ViewModel.SpeedSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" AnimationsSpeed="00:00:00.150">
+    </lvc:CartesianChart>
+    <Label Content="{Binding ViewModel.SpeedLabel}"  />
+    <lvc:CartesianChart Height="200" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
+        Series="{Binding ViewModel.RpmSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" AnimationsSpeed="00:00:00.150">
+    </lvc:CartesianChart>
+    <Label Content="{Binding ViewModel.RpmLabel}"  />
   </StackPanel>
 </Page>
