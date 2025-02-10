@@ -18,6 +18,7 @@ using LiveChartsCore.Kernel.Sketches;
 using System.Threading.Tasks;
 using LiveChartsCore.Measure;
 using LiveChartsCore.SkiaSharpView.Painting.Effects;
+using System.Threading;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -35,6 +36,10 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
     private DispatcherTimer _timer = new DispatcherTimer(DispatcherPriority.Send);  // highest priority
+
+    // private System.Timers.Timer _timer; // ms
+
+    private int diagramUpdateCount = 0; // ms
 
     /// <summary>
     /// this is the video player on the UI.
@@ -163,9 +168,13 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             this.LapDistance = rdp.distance;
             
             // this.PedalSections.Clear();
-            // this performance is so bad!
-            // this.PedalSections.First().Xi = rdp.time;
-            // this.PedalSections.First().Xj = rdp.time;
+            // this performance is so bad! okay, we update it not so frequently. no, still bad.
+            // if (this.diagramUpdateCount % 25 == 0) {
+            //     this.PedalSections.First().Xi = rdp.time;
+            //     this.PedalSections.First().Xj = rdp.time;
+            //     this.diagramUpdateCount = 0;
+            // }
+            // this.diagramUpdateCount++;
 
             // update labels
             this.PedalLabel = $"{I18NLoader.Instance["dashboard.throttle"]}: {rdp.throttle * 100:00.0}% | {I18NLoader.Instance["dashboard.brake"]}: {rdp.brake * 100:00.0}% | {I18NLoader.Instance["dashboard.clutch"]}: {rdp.clutch * 100:00.0}% | {I18NLoader.Instance["dashboard.handbrake"]}: {rdp.handbrake * 100:00.0}%";
@@ -184,6 +193,9 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         // triggered every 10 ms
         this._timer.Interval = new TimeSpan(0, 0, 0, 0, 1);
         this._timer.Tick += this.Timer_Ticks;
+
+        // this._timer = new System.Timers.Timer(5); // 5ms
+        // this._timer.Elapsed += this.Timer_Ticks;
     }
 
     private void Timer_Ticks(object? sender, EventArgs args) {
@@ -192,10 +204,13 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         }
 
         try {
-            if (!IsPaused) {
+            
+            // Application.Current.Dispatcher.Invoke(() => {
+            if (!IsPaused && (this.mediaElement.HasAudio || this.mediaElement.HasVideo) && this.mediaElement.NaturalDuration.HasTimeSpan) {
                 this.VideoLength = this.mediaElement.NaturalDuration.TimeSpan.TotalSeconds;
                 this.PlayPosition = this.mediaElement.Position.TotalSeconds;
             }
+            // });
         } catch (Exception ex) {
             _logger.Error(ex);
         }
@@ -530,7 +545,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
                 CrosshairLabelsBackground = SKColors.DarkOrange.AsLvcColor(),
                 CrosshairLabelsPaint = new SolidColorPaint(SKColors.DarkRed),
                 CrosshairPaint = new SolidColorPaint(SKColors.DarkOrange, 1),
-                Labeler = value => value.ToString("N2"),
+                // Labeler = value => value.ToString("N2"),
                 Padding = new LiveChartsCore.Drawing.Padding(2),
             },
         };

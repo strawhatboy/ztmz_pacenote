@@ -183,40 +183,40 @@
     Converter={StaticResource BooleanToVisibilityConverter}}" Content="{DynamicResource settings.replayShowBestReplay}" IsChecked="{Binding Path=ViewModel.ShowBestReplayComparison, Mode=TwoWay}" Margin="0 15 0 0" /> -->
 
     <!-- the diagrams -->
-    <lvc:CartesianChart Height="200" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
+    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
         Series="{Binding ViewModel.PedalSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X">
     </lvc:CartesianChart>
     <Label Content="{Binding ViewModel.PedalLabel}" />
-    <lvc:CartesianChart Height="200" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
+    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
         Series="{Binding ViewModel.SpeedSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X">
     </lvc:CartesianChart>
     <Label Content="{Binding ViewModel.SpeedLabel}"  />
-    <lvc:CartesianChart Height="200" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
+    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
         Series="{Binding ViewModel.RpmSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X"> 
     </lvc:CartesianChart>
     <Label Content="{Binding ViewModel.RpmLabel}"  />
 
-    <lvc:CartesianChart Height="200" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
+    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
         Series="{Binding ViewModel.GearSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X">
     </lvc:CartesianChart>
     <Label Content="{Binding ViewModel.GearLabel}"  />
 
-    <lvc:CartesianChart Height="200" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
+    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
         Series="{Binding ViewModel.GSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X">
     </lvc:CartesianChart>
     <Label Content="{Binding ViewModel.GLabel}"  />
 
-    <lvc:CartesianChart Height="200" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
+    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
         Series="{Binding ViewModel.BrakeTempSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X">
     </lvc:CartesianChart>
     <Label Content="{Binding ViewModel.BrakeTempLabel}"  />
 
-    <lvc:CartesianChart Height="200" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
+    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
         Series="{Binding ViewModel.SuspensionSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X">
     </lvc:CartesianChart>
     <Label Content="{Binding ViewModel.SuspensionLabel}"  />
 
-    <lvc:CartesianChart Height="200" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
+    <lvc:CartesianChart Height="160" HorizontalAlignment="Stretch" Padding="0" DrawMargin="{Binding ViewModel.DrawMargin}"
         Series="{Binding ViewModel.SuspensionSpeedSeries}" XAxes="{Binding ViewModel.PedalXAxis}" Sections="{Binding ViewModel.PedalSections}" EasingFunction="{x:Null}" ZoomMode="X">
     </lvc:CartesianChart>
     <Label Content="{Binding ViewModel.SuspensionSpeedLabel}"  />

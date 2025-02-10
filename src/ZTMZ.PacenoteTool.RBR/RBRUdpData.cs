@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace ZTMZ.PacenoteTool.RBR;
 
+// what if I remove all the LayoutKind.Sequential, Pack = 1
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct RBRUdpData
 {
