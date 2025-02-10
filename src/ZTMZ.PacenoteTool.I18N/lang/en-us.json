@@ -558,6 +558,8 @@
   },
 
   "dashboard": {
+    "current": "CURRENT",
+    "best": "BEST",
     "all": "All",
     "pedal": "Pedals",
     "speed": "SPEED",

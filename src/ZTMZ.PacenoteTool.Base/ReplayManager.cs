@@ -218,7 +218,9 @@ public class ReplayManager {
     }
 
     private ReplayManager() {
-        // always init db.
+    }
+
+    public void Init() {
         initDB();
     }
 

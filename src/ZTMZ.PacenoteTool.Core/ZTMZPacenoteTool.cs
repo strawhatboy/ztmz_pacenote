@@ -100,6 +100,7 @@ public class ZTMZPacenoteTool {
         // this.initGoogleAnalytics();
         this.initializeProcessWatcher();
         this.initializeObsConnection();
+
         this.IsInitialized = true;
         onToolInitialized?.Invoke();
     }
@@ -253,6 +254,12 @@ public class ZTMZPacenoteTool {
             // set timestamp
             this._obsStopTimestamp = DateTime.UtcNow.Ticks;
         };
+        this.onStatusReport?.Invoke("OBS connection initialized.");
+    }
+
+    private void initializeReplayManager() {
+        ReplayManager.Instance.Init();
+        this.onStatusReport?.Invoke("Replay manager initialized.");
     }
 
     private void initializeGame(IGame game) 

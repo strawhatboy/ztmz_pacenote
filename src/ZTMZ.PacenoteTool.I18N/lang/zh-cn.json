@@ -557,6 +557,8 @@
   },
 
   "dashboard": {
+    "current": "当前",
+    "best": "最佳",
     "all": "全部",
     "pedal": "踏板状态",
     "speed": "速度",

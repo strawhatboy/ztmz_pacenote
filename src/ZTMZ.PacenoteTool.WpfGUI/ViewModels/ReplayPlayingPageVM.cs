@@ -17,6 +17,7 @@ using SkiaSharp;
 using LiveChartsCore.Kernel.Sketches;
 using System.Threading.Tasks;
 using LiveChartsCore.Measure;
+using LiveChartsCore.SkiaSharpView.Painting.Effects;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -108,9 +109,26 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
     [ObservableProperty]
     private bool _showBestReplayComparison;
+    private void setVisibilityOfBestReplaySeries(List<ISeries> series, bool visible) {
+        series.ForEach(a => {
+            if (a.Name.Contains(I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.best", "en-us"))) {
+                a.IsVisible = visible ? true : false;
+            }
+        });
+    }
     partial void OnShowBestReplayComparisonChanged(bool value){
         if (value) {
-            
+            // set visibility of best replay
+            // last half of pedal series
+            setVisibilityOfBestReplaySeries(this.PedalSeries, true);
+            setVisibilityOfBestReplaySeries(this.SpeedSeries, true);
+            setVisibilityOfBestReplaySeries(this.RpmSeries, true);
+        } else {
+            // set visibility of best replay
+            // last half of pedal series
+            setVisibilityOfBestReplaySeries(this.PedalSeries, false);
+            setVisibilityOfBestReplaySeries(this.SpeedSeries, false);
+            setVisibilityOfBestReplaySeries(this.RpmSeries, false);
         }
     }
 
@@ -139,7 +157,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             this.PedalSections.First().Xj = rdp.time + this._replayDetailsPerTime.Last().time / 400;
 
             // update labels
-            this.PedalLabel = $"{I18NLoader.Instance["dashboard.throttle"]}: {rdp.throttle * 100:0.0}%\t{I18NLoader.Instance["dashboard.brake"]}: {rdp.brake * 100:0.0}%\t{I18NLoader.Instance["dashboard.clutch"]}: {rdp.clutch * 100:0.0}%\t{I18NLoader.Instance["dashboard.handbrake"]}: {rdp.handbrake * 100:0.0}%";
+            this.PedalLabel = $"{I18NLoader.Instance["dashboard.throttle"]}: {rdp.throttle * 100:00.0}% | {I18NLoader.Instance["dashboard.brake"]}: {rdp.brake * 100:00.0}% | {I18NLoader.Instance["dashboard.clutch"]}: {rdp.clutch * 100:00.0}% | {I18NLoader.Instance["dashboard.handbrake"]}: {rdp.handbrake * 100:00.0}%";
             this.SpeedLabel = $"{I18NLoader.Instance["dashboard.speed"]}: {rdp.speed:0.0} km/h";
             this.RpmLabel = $"{I18NLoader.Instance["dashboard.rpm"]}: {rdp.rpm:0.0}";
         }
@@ -215,7 +233,6 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             this.IsPaused = false;
             this._replay.video_begin_timestamp = this._replayDetailsPerTime.First(a => a.timestamp > 0).timestamp;
             
-            await Task.Delay(1000);
             Application.Current.Dispatcher.Invoke(() => {
                 try {
                     this.mediaElement.Play();
@@ -327,6 +344,17 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
     private async Task setCharts() {
         await setPedals();
+        await setBestCharts();
+    }
+
+    private LineSeries<ObservablePoint> getLineSeries(List<ObservablePoint> points, SKColor color, string name, LiveChartsCore.Painting.Paint? stroke = null) {
+        return new LineSeries<ObservablePoint>(points) {
+            GeometryFill = null,
+            GeometryStroke = null,
+            Stroke = stroke ?? new SolidColorPaint(color) { StrokeThickness = 1 },
+            Fill = null,
+            Name = name
+        };
     }
 
     private async Task setPedals() {
@@ -345,48 +373,13 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             speed.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].speed));
             rpm.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].rpm));
         }
-        var throttleSeries = new LineSeries<ObservablePoint>(throttle) {
-            GeometryFill = null,
-            GeometryStroke = null,
-            Stroke = new SolidColorPaint(SKColors.Green) { StrokeThickness = 1 },
-            Fill = null,
-            Name = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.throttle", "en-us"),
-        };
-        var brakeSeries = new LineSeries<ObservablePoint>(brake) {
-            GeometryFill = null,
-            GeometryStroke = null,
-            Stroke = new SolidColorPaint(SKColors.Red) { StrokeThickness = 1 },
-            Fill = null,
-            Name = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake", "en-us"),
-        };
-        var clutchSeries = new LineSeries<ObservablePoint>(clutch) {
-            GeometryFill = null,
-            GeometryStroke = null,
-            Stroke = new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1 },
-            Fill = null,
-            Name = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.clutch", "en-us"),
-        };
-        var handbrakeSeries = new LineSeries<ObservablePoint>(handbrake) {
-            GeometryFill = null,
-            GeometryStroke = null,
-            Stroke = new SolidColorPaint(SKColors.Yellow) { StrokeThickness = 1 },
-            Fill = null,
-            Name = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.handbrake", "en-us"),
-        };
-        var speedSeries = new LineSeries<ObservablePoint>(speed) {
-            GeometryFill = null,
-            GeometryStroke = null,
-            Stroke = new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1 },
-            Fill = null,
-            Name = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.speed", "en-us"),
-        };
-        var rpmSeries = new LineSeries<ObservablePoint>(rpm) {
-            GeometryFill = null,
-            GeometryStroke = null,
-            Stroke = new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1 },
-            Fill = null,
-            Name = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.rpm", "en-us"),
-        };
+        var current_str = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.current", "en-us");
+        var throttleSeries = getLineSeries(throttle, SKColors.Green, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.throttle", "en-us")}");
+        var brakeSeries = getLineSeries(brake, SKColors.Red, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake", "en-us")}");
+        var clutchSeries = getLineSeries(clutch, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.clutch", "en-us")}");
+        var handbrakeSeries = getLineSeries(handbrake, SKColors.Yellow, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.handbrake", "en-us")}");
+        var speedSeries = getLineSeries(speed, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.speed", "en-us")}");
+        var rpmSeries = getLineSeries(rpm, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.rpm", "en-us")}");
 
         this.PedalSeries.Clear();
         this.SpeedSeries.Clear();
@@ -426,6 +419,53 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
                 Xj = this._replayDetailsPerTime.Last().time / 400,
                 Fill = new SolidColorPaint(new SKColor(255, 205, 210))
             });
+    }
+
+    private void setVisibilityOfLineSeries(LineSeries<ObservablePoint> series, bool visible) {
+        series.IsVisible = visible ? true : false;
+    }
+
+    private async Task setBestCharts() {
+        if (this._bestReplayDetailsPerTime == null || this._bestReplayDetailsPerTime.Count == 0) {
+            return;
+        }
+
+        var throttle = new List<ObservablePoint>();
+        var brake = new List<ObservablePoint>();
+        var clutch = new List<ObservablePoint>();
+        var handbrake = new List<ObservablePoint>();
+        var speed = new List<ObservablePoint>();
+        var rpm = new List<ObservablePoint>();
+        for (int i = 0; i < this._bestReplayDetailsPerTime.Count; i++) {
+            throttle.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].throttle));
+            brake.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].brake));
+            clutch.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].clutch));
+            handbrake.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].handbrake));
+            speed.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].speed));
+            rpm.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].rpm));
+        }
+        var best_str = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.best", "en-us");
+        var dashed_effect = new DashEffect(new float[] { 2, 2 }, 0);
+        var throttleSeries = getLineSeries(throttle, SKColors.Green, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.throttle", "en-us")}", new SolidColorPaint(SKColors.Green) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var brakeSeries = getLineSeries(brake, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake", "en-us")}", new SolidColorPaint(SKColors.Red) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var clutchSeries = getLineSeries(clutch, SKColors.Blue, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.clutch", "en-us")}", new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var handbrakeSeries = getLineSeries(handbrake, SKColors.Yellow, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.handbrake", "en-us")}", new SolidColorPaint(SKColors.Yellow) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var speedSeries = getLineSeries(speed, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.speed", "en-us")}");
+        var rpmSeries = getLineSeries(rpm, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.rpm", "en-us")}");
+
+        setVisibilityOfLineSeries(throttleSeries, false);
+        setVisibilityOfLineSeries(brakeSeries, false);
+        setVisibilityOfLineSeries(clutchSeries, false);
+        setVisibilityOfLineSeries(handbrakeSeries, false);
+        setVisibilityOfLineSeries(speedSeries, false);
+        setVisibilityOfLineSeries(rpmSeries, false);
+
+        this.PedalSeries.Add(throttleSeries);
+        this.PedalSeries.Add(brakeSeries);
+        this.PedalSeries.Add(clutchSeries);
+        this.PedalSeries.Add(handbrakeSeries);
+        this.SpeedSeries.Add(speedSeries);
+        this.RpmSeries.Add(rpmSeries);
     }
 #endregion
 
