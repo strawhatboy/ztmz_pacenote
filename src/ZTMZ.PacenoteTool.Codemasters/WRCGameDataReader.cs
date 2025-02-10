@@ -201,7 +201,7 @@ public class WRCGameDataReader : UdpGameDataReader
         message.HandBrakeValid = true;
 
         message.Steering = wrcData.vehicle_steering;
-        message.Gear = wrcData.vehicle_gear_index;
+        message.Gear = wrcData.vehicle_gear_index == 10 ? -1 : wrcData.vehicle_gear_index;
         message.MaxGears = wrcData.vehicle_gear_maximum;
         message.RPM = wrcData.vehicle_engine_rpm_current;
         message.MaxRPM = wrcData.vehicle_engine_rpm_max;

@@ -565,6 +565,8 @@
     "speed": "SPEED",
     "rpm": "RPM",
     "gear": "GEAR",
+    "g_lat": "G-LAT",
+    "g_long": "G-LONG",
     "gBall": "G-Force",
     "steering": "STEERING",
     "pedals": "PEDALS",
@@ -574,6 +576,18 @@
     "throttle": "THROTTLE",
     "clutch": "CLUTCH",
     "brake": "BRAKE",
-    "handbrake": "HANDBRAKE"
+    "handbrake": "HANDBRAKE",
+    "brake_temp_front_left": "Brake Temp FL",
+    "brake_temp_front_right": "Brake Temp FR",
+    "brake_temp_rear_left": "Brake Temp RL",
+    "brake_temp_rear_right": "Brake Temp RR",
+    "suspension_front_left": "Suspension FL",
+    "suspension_front_right": "Suspension FR",
+    "suspension_rear_left": "Suspension RL",
+    "suspension_rear_right": "Suspension RR",
+    "suspension_speed_front_left": "Suspension Speed FL",
+    "suspension_speed_front_right": "Suspension Speed FR",
+    "suspension_speed_rear_left": "Suspension Speed RL",
+    "suspension_speed_rear_right": "Suspension Speed RR",
   }
 }

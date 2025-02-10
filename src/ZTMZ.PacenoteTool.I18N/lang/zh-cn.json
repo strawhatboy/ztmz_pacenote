@@ -564,6 +564,8 @@
     "speed": "速度",
     "rpm": "转速",
     "gear": "挡位",
+    "g_lat": "G-LAT",
+    "g_long": "G-LONG",
     "gBall": "G力球",
     "steering": "方向盘",
     "pedals": "踏板",
@@ -573,6 +575,18 @@
     "throttle": "油门",
     "clutch": "离合器",
     "brake": "刹车",
-    "handbrake": "手刹"
+    "handbrake": "手刹",
+    "brake_temp_front_left": "刹车温度 FL",
+    "brake_temp_front_right": "刹车温度 FR",
+    "brake_temp_rear_left": "刹车温度 RL",
+    "brake_temp_rear_right": "刹车温度 RR",
+    "suspension_front_left": "悬挂 FL",
+    "suspension_front_right": "悬挂 FR",
+    "suspension_rear_left": "悬挂 RL",
+    "suspension_rear_right": "悬挂 RR",
+    "suspension_speed_front_left": "悬挂速度 FL",
+    "suspension_speed_front_right": "悬挂速度 FR",
+    "suspension_speed_rear_left": "悬挂速度 RL",
+    "suspension_speed_rear_right": "悬挂速度 RR",
   }
 }

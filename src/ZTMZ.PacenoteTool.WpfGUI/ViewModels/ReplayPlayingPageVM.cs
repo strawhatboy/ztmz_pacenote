@@ -123,12 +123,22 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             setVisibilityOfBestReplaySeries(this.PedalSeries, true);
             setVisibilityOfBestReplaySeries(this.SpeedSeries, true);
             setVisibilityOfBestReplaySeries(this.RpmSeries, true);
+            setVisibilityOfBestReplaySeries(this.GSeries, true);
+            setVisibilityOfBestReplaySeries(this.GearSeries, true);
+            setVisibilityOfBestReplaySeries(this.BrakeTempSeries, true);
+            setVisibilityOfBestReplaySeries(this.SuspensionSeries, true);
+            setVisibilityOfBestReplaySeries(this.SuspensionSpeedSeries, true);
         } else {
             // set visibility of best replay
             // last half of pedal series
             setVisibilityOfBestReplaySeries(this.PedalSeries, false);
             setVisibilityOfBestReplaySeries(this.SpeedSeries, false);
             setVisibilityOfBestReplaySeries(this.RpmSeries, false);
+            setVisibilityOfBestReplaySeries(this.GSeries, false);
+            setVisibilityOfBestReplaySeries(this.GearSeries, false);
+            setVisibilityOfBestReplaySeries(this.BrakeTempSeries, false);
+            setVisibilityOfBestReplaySeries(this.SuspensionSeries, false);
+            setVisibilityOfBestReplaySeries(this.SuspensionSpeedSeries, false);
         }
     }
 
@@ -153,13 +163,19 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             this.LapDistance = rdp.distance;
             
             // this.PedalSections.Clear();
-            this.PedalSections.First().Xi = rdp.time;
-            this.PedalSections.First().Xj = rdp.time + this._replayDetailsPerTime.Last().time / 400;
+            // this performance is so bad!
+            // this.PedalSections.First().Xi = rdp.time;
+            // this.PedalSections.First().Xj = rdp.time;
 
             // update labels
             this.PedalLabel = $"{I18NLoader.Instance["dashboard.throttle"]}: {rdp.throttle * 100:00.0}% | {I18NLoader.Instance["dashboard.brake"]}: {rdp.brake * 100:00.0}% | {I18NLoader.Instance["dashboard.clutch"]}: {rdp.clutch * 100:00.0}% | {I18NLoader.Instance["dashboard.handbrake"]}: {rdp.handbrake * 100:00.0}%";
             this.SpeedLabel = $"{I18NLoader.Instance["dashboard.speed"]}: {rdp.speed:0.0} km/h";
             this.RpmLabel = $"{I18NLoader.Instance["dashboard.rpm"]}: {rdp.rpm:0.0}";
+            this.GLabel = $"{I18NLoader.Instance["dashboard.g_lat"]}: {rdp.g_lat:0.0} | {I18NLoader.Instance["dashboard.g_long"]}: {rdp.g_long:0.0}";
+            this.GearLabel = $"{I18NLoader.Instance["dashboard.gear"]}: {rdp.gear}";
+            this.BrakeTempLabel = $"{I18NLoader.Instance["dashboard.brake_temp_front_left"]}: {rdp.brake_temp_front_left:0.0} | {I18NLoader.Instance["dashboard.brake_temp_front_right"]}: {rdp.brake_temp_front_right:0.0} | {I18NLoader.Instance["dashboard.brake_temp_rear_left"]}: {rdp.brake_temp_rear_left:0.0} | {I18NLoader.Instance["dashboard.brake_temp_rear_right"]}: {rdp.brake_temp_rear_right:0.0}";
+            this.SuspensionLabel = $"{I18NLoader.Instance["dashboard.suspension_front_left"]}: {rdp.suspension_front_left:0.0} | {I18NLoader.Instance["dashboard.suspension_front_right"]}: {rdp.suspension_front_right:0.0} | {I18NLoader.Instance["dashboard.suspension_rear_left"]}: {rdp.suspension_rear_left:0.0} | {I18NLoader.Instance["dashboard.suspension_rear_right"]}: {rdp.suspension_rear_right:0.0}";
+            this.SuspensionSpeedLabel = $"{I18NLoader.Instance["dashboard.suspension_speed_front_left"]}: {rdp.suspension_speed_front_left:0.0} | {I18NLoader.Instance["dashboard.suspension_speed_front_right"]}: {rdp.suspension_speed_front_right:0.0} | {I18NLoader.Instance["dashboard.suspension_speed_rear_left"]}: {rdp.suspension_speed_rear_left:0.0} | {I18NLoader.Instance["dashboard.suspension_speed_rear_right"]}: {rdp.suspension_speed_rear_right:0.0}";
         }
     }
 
@@ -325,6 +341,21 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     private string _rpmLabel = "";
 
     [ObservableProperty]
+    private string _gLabel = "";
+
+    [ObservableProperty]
+    private string _gearLabel = "";
+
+    [ObservableProperty]
+    private string _brakeTempLabel = "";
+
+    [ObservableProperty]
+    private string _suspensionLabel = "";
+
+    [ObservableProperty]
+    private string _suspensionSpeedLabel = "";
+
+    [ObservableProperty]
     private Margin _drawMargin = new Margin(10);
 
     [ObservableProperty]
@@ -335,6 +366,21 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
     [ObservableProperty]
     private List<ISeries> _RpmSeries = new();
+
+    [ObservableProperty]
+    private List<ISeries> _gSeries = new();
+
+    [ObservableProperty]
+    private List<ISeries> _gearSeries = new();
+
+    [ObservableProperty]
+    private List<ISeries> _brakeTempSeries = new();
+
+    [ObservableProperty]
+    private List<ISeries> _suspensionSeries = new();
+
+    [ObservableProperty]
+    private List<ISeries> _suspensionSpeedSeries = new();
 
     [ObservableProperty]
     private List<ICartesianAxis> _pedalXAxis = new();
@@ -357,6 +403,17 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         };
     }
 
+    
+    private StepLineSeries<ObservablePoint> getStepLineSeries(List<ObservablePoint> points, SKColor color, string name, LiveChartsCore.Painting.Paint? stroke = null) {
+        return new StepLineSeries<ObservablePoint>(points) {
+            GeometryFill = null,
+            GeometryStroke = null,
+            Stroke = stroke ?? new SolidColorPaint(color) { StrokeThickness = 1 },
+            Fill = null,
+            Name = name
+        };
+    }
+
     private async Task setPedals() {
         this.PedalSeries = new List<ISeries>();
         var throttle = new List<ObservablePoint>();
@@ -365,6 +422,21 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         var handbrake = new List<ObservablePoint>();
         var speed = new List<ObservablePoint>();
         var rpm = new List<ObservablePoint>();
+        var g_lat = new List<ObservablePoint>();
+        var g_long = new List<ObservablePoint>();
+        var gear = new List<ObservablePoint>();
+        var brake_temp_front_left = new List<ObservablePoint>();
+        var brake_temp_front_right = new List<ObservablePoint>();
+        var brake_temp_rear_left = new List<ObservablePoint>();
+        var brake_temp_rear_right = new List<ObservablePoint>();
+        var suspension_front_left = new List<ObservablePoint>();
+        var suspension_front_right = new List<ObservablePoint>();
+        var suspension_rear_left = new List<ObservablePoint>();
+        var suspension_rear_right = new List<ObservablePoint>();
+        var suspension_speed_front_left = new List<ObservablePoint>();
+        var suspension_speed_front_right = new List<ObservablePoint>();
+        var suspension_speed_rear_left = new List<ObservablePoint>();
+        var suspension_speed_rear_right = new List<ObservablePoint>();
         for (int i = 0; i < this._replayDetailsPerTime.Count; i++) {
             throttle.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].throttle));
             brake.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].brake));
@@ -372,19 +444,54 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             handbrake.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].handbrake));
             speed.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].speed));
             rpm.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].rpm));
+            g_lat.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].g_lat));
+            g_long.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].g_long));
+            gear.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].gear));
+            brake_temp_front_left.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].brake_temp_front_left));
+            brake_temp_front_right.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].brake_temp_front_right));
+            brake_temp_rear_left.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].brake_temp_rear_left));
+            brake_temp_rear_right.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].brake_temp_rear_right));
+            suspension_front_left.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_front_left));
+            suspension_front_right.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_front_right));
+            suspension_rear_left.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_rear_left));
+            suspension_rear_right.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_rear_right));
+            suspension_speed_front_left.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_speed_front_left));
+            suspension_speed_front_right.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_speed_front_right));
+            suspension_speed_rear_left.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_speed_rear_left));
+            suspension_speed_rear_right.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_speed_rear_right));
         }
         var current_str = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.current", "en-us");
         var throttleSeries = getLineSeries(throttle, SKColors.Green, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.throttle", "en-us")}");
         var brakeSeries = getLineSeries(brake, SKColors.Red, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake", "en-us")}");
         var clutchSeries = getLineSeries(clutch, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.clutch", "en-us")}");
-        var handbrakeSeries = getLineSeries(handbrake, SKColors.Yellow, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.handbrake", "en-us")}");
+        var handbrakeSeries = getLineSeries(handbrake, SKColors.Orange, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.handbrake", "en-us")}");
         var speedSeries = getLineSeries(speed, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.speed", "en-us")}");
         var rpmSeries = getLineSeries(rpm, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.rpm", "en-us")}");
+        var g_latSeries = getLineSeries(g_lat, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.g_lat", "en-us")}");
+        var g_longSeries = getLineSeries(g_long, SKColors.Red, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.g_long", "en-us")}");
+        var gearSeries = getStepLineSeries(gear, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.gear", "en-us")}");
+        var brake_temp_front_leftSeries = getLineSeries(brake_temp_front_left, SKColors.Green, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_front_left", "en-us")}");
+        var brake_temp_front_rightSeries = getLineSeries(brake_temp_front_right, SKColors.Red, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_front_right", "en-us")}");
+        var brake_temp_rear_leftSeries = getLineSeries(brake_temp_rear_left, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_rear_left", "en-us")}");
+        var brake_temp_rear_rightSeries = getLineSeries(brake_temp_rear_right, SKColors.Orange, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_rear_right", "en-us")}");
+        var suspension_front_leftSeries = getLineSeries(suspension_front_left, SKColors.Green, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_front_left", "en-us")}");
+        var suspension_front_rightSeries = getLineSeries(suspension_front_right, SKColors.Red, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_front_right", "en-us")}");
+        var suspension_rear_leftSeries = getLineSeries(suspension_rear_left, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_rear_left", "en-us")}");
+        var suspension_rear_rightSeries = getLineSeries(suspension_rear_right, SKColors.Orange, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_rear_right", "en-us")}");
+        var suspension_speed_front_leftSeries = getLineSeries(suspension_speed_front_left, SKColors.Green, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_front_left", "en-us")}");
+        var suspension_speed_front_rightSeries = getLineSeries(suspension_speed_front_right, SKColors.Red, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_front_right", "en-us")}");
+        var suspension_speed_rear_leftSeries = getLineSeries(suspension_speed_rear_left, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_rear_left", "en-us")}");
+        var suspension_speed_rear_rightSeries = getLineSeries(suspension_speed_rear_right, SKColors.Orange, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_rear_right", "en-us")}");
 
         this.PedalSeries.Clear();
         this.SpeedSeries.Clear();
         this.RpmSeries.Clear();
         this.PedalSections.Clear();
+        this.GSeries.Clear();
+        this.GearSeries.Clear();
+        this.BrakeTempSeries.Clear();
+        this.SuspensionSeries.Clear();
+        this.SuspensionSpeedSeries.Clear();
 
         if (Config.Instance.ReplayPlayPedalsMode == 1) {
             this.PedalSeries.Add(throttleSeries);
@@ -402,6 +509,21 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         }
         this.SpeedSeries.Add(speedSeries);
         this.RpmSeries.Add(rpmSeries);
+        this.GSeries.Add(g_latSeries);
+        this.GSeries.Add(g_longSeries);
+        this.GearSeries.Add(gearSeries);
+        this.BrakeTempSeries.Add(brake_temp_front_leftSeries);
+        this.BrakeTempSeries.Add(brake_temp_front_rightSeries);
+        this.BrakeTempSeries.Add(brake_temp_rear_leftSeries);
+        this.BrakeTempSeries.Add(brake_temp_rear_rightSeries);
+        this.SuspensionSeries.Add(suspension_front_leftSeries);
+        this.SuspensionSeries.Add(suspension_front_rightSeries);
+        this.SuspensionSeries.Add(suspension_rear_leftSeries);
+        this.SuspensionSeries.Add(suspension_rear_rightSeries);
+        this.SuspensionSpeedSeries.Add(suspension_speed_front_leftSeries);
+        this.SuspensionSpeedSeries.Add(suspension_speed_front_rightSeries);
+        this.SuspensionSpeedSeries.Add(suspension_speed_rear_leftSeries);
+        this.SuspensionSpeedSeries.Add(suspension_speed_rear_rightSeries);
 
         this.PedalXAxis = new List<ICartesianAxis> {
             new Axis{
@@ -413,15 +535,19 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             },
         };
         
-        this.PedalSections.Add(
-            new RectangularSection {
-                Xi = 0,
-                Xj = this._replayDetailsPerTime.Last().time / 400,
-                Fill = new SolidColorPaint(new SKColor(255, 205, 210))
-            });
+        // this.PedalSections.Add(
+        //     new RectangularSection {
+        //         Xi = 0,
+        //         Xj = 0,
+        //         // Fill = new SolidColorPaint(new SKColor(255, 205, 210)),
+        //         Stroke = new SolidColorPaint(new SKColor(255, 205, 210)) { StrokeThickness = 1 },
+        //     });
     }
 
     private void setVisibilityOfLineSeries(LineSeries<ObservablePoint> series, bool visible) {
+        series.IsVisible = visible ? true : false;
+    }
+    private void setVisibilityOfStepLineSeries(StepLineSeries<ObservablePoint> series, bool visible) {
         series.IsVisible = visible ? true : false;
     }
 
@@ -436,6 +562,21 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         var handbrake = new List<ObservablePoint>();
         var speed = new List<ObservablePoint>();
         var rpm = new List<ObservablePoint>();
+        var g_lat = new List<ObservablePoint>();
+        var g_long = new List<ObservablePoint>();
+        var gear = new List<ObservablePoint>();
+        var brake_temp_front_left = new List<ObservablePoint>();
+        var brake_temp_front_right = new List<ObservablePoint>();
+        var brake_temp_rear_left = new List<ObservablePoint>();
+        var brake_temp_rear_right = new List<ObservablePoint>();
+        var suspension_front_left = new List<ObservablePoint>();
+        var suspension_front_right = new List<ObservablePoint>();
+        var suspension_rear_left = new List<ObservablePoint>();
+        var suspension_rear_right = new List<ObservablePoint>();
+        var suspension_speed_front_left = new List<ObservablePoint>();
+        var suspension_speed_front_right = new List<ObservablePoint>();
+        var suspension_speed_rear_left = new List<ObservablePoint>();
+        var suspension_speed_rear_right = new List<ObservablePoint>();
         for (int i = 0; i < this._bestReplayDetailsPerTime.Count; i++) {
             throttle.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].throttle));
             brake.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].brake));
@@ -443,22 +584,67 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             handbrake.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].handbrake));
             speed.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].speed));
             rpm.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].rpm));
+            g_lat.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].g_lat));
+            g_long.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].g_long));
+            gear.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].gear));
+            brake_temp_front_left.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].brake_temp_front_left));
+            brake_temp_front_right.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].brake_temp_front_right));
+            brake_temp_rear_left.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].brake_temp_rear_left));
+            brake_temp_rear_right.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].brake_temp_rear_right));
+            suspension_front_left.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_front_left));
+            suspension_front_right.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_front_right));
+            suspension_rear_left.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_rear_left));
+            suspension_rear_right.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_rear_right));
+            suspension_speed_front_left.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_speed_front_left));
+            suspension_speed_front_right.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_speed_front_right));
+            suspension_speed_rear_left.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_speed_rear_left));
+            suspension_speed_rear_right.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_speed_rear_right));
         }
         var best_str = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.best", "en-us");
         var dashed_effect = new DashEffect(new float[] { 2, 2 }, 0);
         var throttleSeries = getLineSeries(throttle, SKColors.Green, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.throttle", "en-us")}", new SolidColorPaint(SKColors.Green) { StrokeThickness = 1, PathEffect = dashed_effect });
         var brakeSeries = getLineSeries(brake, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake", "en-us")}", new SolidColorPaint(SKColors.Red) { StrokeThickness = 1, PathEffect = dashed_effect });
         var clutchSeries = getLineSeries(clutch, SKColors.Blue, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.clutch", "en-us")}", new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var handbrakeSeries = getLineSeries(handbrake, SKColors.Yellow, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.handbrake", "en-us")}", new SolidColorPaint(SKColors.Yellow) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var handbrakeSeries = getLineSeries(handbrake, SKColors.Orange, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.handbrake", "en-us")}", new SolidColorPaint(SKColors.Orange) { StrokeThickness = 1, PathEffect = dashed_effect });
         var speedSeries = getLineSeries(speed, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.speed", "en-us")}");
         var rpmSeries = getLineSeries(rpm, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.rpm", "en-us")}");
+        var g_latSeries = getLineSeries(g_lat, SKColors.Blue, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.g_lat", "en-us")}", new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var g_longSeries = getLineSeries(g_long, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.g_long", "en-us")}", new SolidColorPaint(SKColors.Red) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var gearSeries = getStepLineSeries(gear, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.gear", "en-us")}");
+        var brake_temp_front_leftSeries = getLineSeries(brake_temp_front_left, SKColors.Green, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_front_left", "en-us")}", new SolidColorPaint(SKColors.Green) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var brake_temp_front_rightSeries = getLineSeries(brake_temp_front_right, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_front_right", "en-us")}", new SolidColorPaint(SKColors.Red) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var brake_temp_rear_leftSeries = getLineSeries(brake_temp_rear_left, SKColors.Blue, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_rear_left", "en-us")}", new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var brake_temp_rear_rightSeries = getLineSeries(brake_temp_rear_right, SKColors.Orange, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_rear_right", "en-us")}", new SolidColorPaint(SKColors.Orange) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var suspension_front_leftSeries = getLineSeries(suspension_front_left, SKColors.Green, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_front_left", "en-us")}", new SolidColorPaint(SKColors.Green) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var suspension_front_rightSeries = getLineSeries(suspension_front_right, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_front_right", "en-us")}", new SolidColorPaint(SKColors.Red) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var suspension_rear_leftSeries = getLineSeries(suspension_rear_left, SKColors.Blue, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_rear_left", "en-us")}", new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var suspension_rear_rightSeries = getLineSeries(suspension_rear_right, SKColors.Orange, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_rear_right", "en-us")}", new SolidColorPaint(SKColors.Orange) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var suspension_speed_front_leftSeries = getLineSeries(suspension_speed_front_left, SKColors.Green, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_front_left", "en-us")}", new SolidColorPaint(SKColors.Green) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var suspension_speed_front_rightSeries = getLineSeries(suspension_speed_front_right, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_front_right", "en-us")}", new SolidColorPaint(SKColors.Red) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var suspension_speed_rear_leftSeries = getLineSeries(suspension_speed_rear_left, SKColors.Blue, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_rear_left", "en-us")}", new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1, PathEffect = dashed_effect });
+        var suspension_speed_rear_rightSeries = getLineSeries(suspension_speed_rear_right, SKColors.Orange, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_rear_right", "en-us")}", new SolidColorPaint(SKColors.Orange) { StrokeThickness = 1, PathEffect = dashed_effect });
 
-        setVisibilityOfLineSeries(throttleSeries, false);
-        setVisibilityOfLineSeries(brakeSeries, false);
-        setVisibilityOfLineSeries(clutchSeries, false);
-        setVisibilityOfLineSeries(handbrakeSeries, false);
-        setVisibilityOfLineSeries(speedSeries, false);
-        setVisibilityOfLineSeries(rpmSeries, false);
+        // setVisibilityOfLineSeries(throttleSeries, true);
+        // setVisibilityOfLineSeries(brakeSeries, true);
+        // setVisibilityOfLineSeries(clutchSeries, true);
+        // setVisibilityOfLineSeries(handbrakeSeries, true);
+        // setVisibilityOfLineSeries(speedSeries, true);
+        // setVisibilityOfLineSeries(rpmSeries, true);
+        // setVisibilityOfLineSeries(g_latSeries, true);
+        // setVisibilityOfLineSeries(g_longSeries, true);
+        // setVisibilityOfStepLineSeries(gearSeries, true);
+        // setVisibilityOfLineSeries(brake_temp_front_leftSeries, true);
+        // setVisibilityOfLineSeries(brake_temp_front_rightSeries, true);
+        // setVisibilityOfLineSeries(brake_temp_rear_leftSeries, true);
+        // setVisibilityOfLineSeries(brake_temp_rear_rightSeries, true);
+        // setVisibilityOfLineSeries(suspension_front_leftSeries, true);
+        // setVisibilityOfLineSeries(suspension_front_rightSeries, true);
+        // setVisibilityOfLineSeries(suspension_rear_leftSeries, true);
+        // setVisibilityOfLineSeries(suspension_rear_rightSeries, true);
+        // setVisibilityOfLineSeries(suspension_speed_front_leftSeries, true);
+        // setVisibilityOfLineSeries(suspension_speed_front_rightSeries, true);
+        // setVisibilityOfLineSeries(suspension_speed_rear_leftSeries, true);
+        // setVisibilityOfLineSeries(suspension_speed_rear_rightSeries, true);
 
         this.PedalSeries.Add(throttleSeries);
         this.PedalSeries.Add(brakeSeries);
@@ -466,6 +652,21 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         this.PedalSeries.Add(handbrakeSeries);
         this.SpeedSeries.Add(speedSeries);
         this.RpmSeries.Add(rpmSeries);
+        this.GSeries.Add(g_latSeries);
+        this.GSeries.Add(g_longSeries);
+        this.GearSeries.Add(gearSeries);
+        this.BrakeTempSeries.Add(brake_temp_front_leftSeries);
+        this.BrakeTempSeries.Add(brake_temp_front_rightSeries);
+        this.BrakeTempSeries.Add(brake_temp_rear_leftSeries);
+        this.BrakeTempSeries.Add(brake_temp_rear_rightSeries);
+        this.SuspensionSeries.Add(suspension_front_leftSeries);
+        this.SuspensionSeries.Add(suspension_front_rightSeries);
+        this.SuspensionSeries.Add(suspension_rear_leftSeries);
+        this.SuspensionSeries.Add(suspension_rear_rightSeries);
+        this.SuspensionSpeedSeries.Add(suspension_speed_front_leftSeries);
+        this.SuspensionSpeedSeries.Add(suspension_speed_front_rightSeries);
+        this.SuspensionSpeedSeries.Add(suspension_speed_rear_leftSeries);
+        this.SuspensionSpeedSeries.Add(suspension_speed_rear_rightSeries);
     }
 #endregion
 
