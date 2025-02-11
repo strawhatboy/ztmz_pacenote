@@ -11,6 +11,7 @@ using Microsoft.Win32;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.WpfGUI.Models;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
@@ -22,7 +23,7 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
     private readonly ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool;
 
     [ObservableProperty]
-    private IList<object> _replays = new ObservableCollection<object>();
+    private IList<ReplayModel> _replays = new ObservableCollection<ReplayModel>();
 
     private object _collectionLock = new();
 
@@ -55,15 +56,16 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
         _replays.Clear();
         foreach (var replay in replays)
         {
-            _replays.Add(new {
-                id = replay.id,
-                track = replay.track,
-                car = replay.car,
-                car_class = replay.car_class,
-                finish_time = replay.finish_time,
-                date = replay.date,
-                comment = replay.comment,
-                video_path = replay.video_path,
+            _replays.Add(new ReplayModel{
+                Id = replay.id,
+                Track = replay.track,
+                Car = replay.car,
+                Car_class = replay.car_class,
+                Finish_time = replay.finish_time,
+                Date = replay.date,
+                Comment = replay.comment,
+                Video_path = replay.video_path,
+                Locked = replay.locked
             });
         }
     }
@@ -152,8 +154,15 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
     }
 
     [RelayCommand]
-    private async void ReplayDelete(int id)
+    private async void ReplayLock(int id)
     {
-        await Task.Delay(1000);
+        this._replays.First(r => r.Id == id).Locked = true;
+        ReplayManager.Instance.LockReplay(id);
+    }
+    [RelayCommand]
+    private async void ReplayUnlock(int id)
+    {
+        this._replays.First(r => r.Id == id).Locked = false;
+        ReplayManager.Instance.UnlockReplay(id);
     }
 }

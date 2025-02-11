@@ -147,6 +147,8 @@
       "replayDownloadFFmpeg": "前往gitee.com下载绿色版ffmpeg，或者自行前往官网下载",
       "replayShowDiagrams": "在回放的播放页面显示各种遥测的图表，可能会影响工具性能",
       "replayCleanUpAbnormalVideo": "开启此选项删除异常录制的视频，一般是未完整完成的一场赛道\n例如中途退赛、计时赛重置、强行关掉游戏（血压拉爆）时\n此选项关闭时，保留异常录制的视频",
+      "replayLock": "点击来锁定回放，以防止回放被自动删除",
+      "replayUnlock": "点击来解锁回放，以便回放可以被自动删除",
     },
 
     "autoInitializeGame_on": "自动选择游戏",

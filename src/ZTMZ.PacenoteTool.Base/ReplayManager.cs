@@ -361,13 +361,12 @@ public class ReplayManager {
             // check if the replay exceeds the limit Config.Instance.ReplayStoredCountLimit by trackname and carname, delete the slowest ones, should always keep the latest one
             var replays = await getReplays(game);
             // remove the latest one from the list to avoid deleting the latest one
-            replays = replays.Where(r => r.id != replay.id).ToList();
+            var replaysDeleteCondidate = replays.Where(r => r.id != replay.id && r.track == replay.track && r.car == replay.car && r.locked == false).ToList();
             
-            var replayCount = replays.Count(r => r.track == replay.track && r.car == replay.car && r.locked == false);  // locked replay should not be deleted
+            var replayCount = replaysDeleteCondidate.Count();  // locked replay should not be deleted
             if (replayCount > Config.Instance.ReplayStoredCountLimit) {
                 _logger.Info($"Replay count exceeds the limit: {replayCount}");
-                var replayToDelete = replays
-                    .Where(r => r.track == replay.track && r.car == replay.car && r.locked == false)    // locked replay should not be deleted
+                var replayToDelete = replaysDeleteCondidate
                     .OrderBy(r => r.finish_time)
                     .Skip(Config.Instance.ReplayStoredCountLimit)
                     .ToList();
@@ -485,6 +484,18 @@ public class ReplayManager {
             connection.Open();
             using (var command = connection.CreateCommand()) {
                 command.CommandText = "UPDATE replay SET locked = 1 WHERE id = @id";
+                command.Parameters.AddWithValue("@id", id);
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+    }
+
+    public async void UnlockReplay(int id) {
+        var connectionString = getConnectionString();
+        using (var connection = new SqliteConnection(connectionString)) {
+            connection.Open();
+            using (var command = connection.CreateCommand()) {
+                command.CommandText = "UPDATE replay SET locked = 0 WHERE id = @id";
                 command.Parameters.AddWithValue("@id", id);
                 await command.ExecuteNonQueryAsync();
             }

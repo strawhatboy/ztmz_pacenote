@@ -147,6 +147,8 @@
       "replayDownloadFFmpeg": "Go to gitee.com to download the ffmpeg executable, or you can download it by yourself",
       "replayShowDiagrams": "Show the statistical diagrams in the replay playing page.",
       "replayCleanUpAbnormalVideo": "Clean up the abnormal video files, such as unfinished race session (restart, retired, etc.)",
+      "replayLock": "Click to lock the replay to prevent the replay from being automatically deleted",
+      "replayUnlock": "Click to unlock the replay to allow the replay to be automatically deleted",
     },
 
     "autoInitializeGame_on": "Auto Game Selection",

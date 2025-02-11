@@ -9,10 +9,14 @@
       xmlns:localUI="clr-namespace:ZTMZ.PacenoteTool.Base.UI;assembly=ZTMZ.PacenoteTool.Base.UI"
       Title="ReplayPage"
       FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
+      xmlns:helper="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       mc:Ignorable="d">
     <Page.Resources>
+
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <helper:BooleanToVisibilityConverterFalse x:Key="BooleanToVisibilityConverterFalse"/>
         <!-- <Style TargetType="ui:Card">
             <Setter Property="Padding" Value="16"></Setter>
             <Setter Property="Margin" Value="0 0 0 5"></Setter>
@@ -78,76 +82,89 @@
                                 <ui:Button Margin="0 0 5 0"
                                            Padding="0"
                                            x:Name="hl_listen"
-                                           Width="25"
-                                           Height="25"
+                                           Width="30"
+                                           Height="30"
                                            Foreground="Green"
                                            Icon="{ui:SymbolIcon Play20}"
                                            ToolTip="{DynamicResource ResourceKey=settings.play}"
                                            ToolTipService.InitialShowDelay="100"
-                                           CommandParameter="{Binding id}"
+                                           CommandParameter="{Binding Id}"
                                            Command="{Binding ViewModel.ReplayPlayCommand, RelativeSource={RelativeSource AncestorType=Page}}">
                                 </ui:Button>
                                 <ui:Button Margin="0 0 5 0"
                                            Padding="0"
                                            x:Name="hl_edit"
-                                           Width="25"
-                                           Height="25"
+                                           Width="30"
+                                           Height="30"
                                            Foreground="Blue"
                                            Icon="{ui:SymbolIcon Share20}"
                                            ToolTip="{DynamicResource ResourceKey=settings.tooltip.replayExport}"
                                            ToolTipService.InitialShowDelay="100"
-                                           CommandParameter="{Binding id}"
+                                           CommandParameter="{Binding Id}"
                                            Command="{Binding ViewModel.ReplayExportCommand, RelativeSource={RelativeSource AncestorType=Page}}">
                                 </ui:Button>
                                 <ui:Button Margin="0 0 5 0"
                                            Padding="0"
-                                           Width="25"
-                                           Height="25"
+                                           Width="30"
+                                           Height="30"
                                            Foreground="Blue"
                                            Icon="{ui:SymbolIcon SoundSource20}"
                                            ToolTip="{DynamicResource ResourceKey=settings.tooltip.replayExportAudio}"
                                            ToolTipService.InitialShowDelay="100"
-                                           CommandParameter="{Binding id}"
+                                           CommandParameter="{Binding Id}"
                                            Command="{Binding ViewModel.ReplayExportAudioCommand, RelativeSource={RelativeSource AncestorType=Page}}"/>
                                 <ui:Button Margin="0 0 0 0"
                                            Padding="0"
-                                           x:Name="hl_delete"
-                                           Width="25"
-                                           Height="25"
-                                           Foreground="Red"
-                                           Icon="{ui:SymbolIcon Delete20}"
-                                           ToolTip="{DynamicResource ResourceKey=settings.delete}"
+                                           x:Name="hl_lock"
+                                           Width="30"
+                                           Height="30"
+                                           Visibility="{Binding Locked, Converter={StaticResource BooleanToVisibilityConverterFalse}}"
+                                           Foreground="Orange"
+                                           Icon="{ui:SymbolIcon LockOpen24}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.replayLock}"
                                            ToolTipService.InitialShowDelay="100"
-                                           CommandParameter="{Binding id}"
-                                           Command="{Binding ViewModel.ReplayDeleteCommand, RelativeSource={RelativeSource AncestorType=Page}}">
-                                </ui:Button>
+                                           CommandParameter="{Binding Id}"
+                                           Command="{Binding ViewModel.ReplayLockCommand, RelativeSource={RelativeSource AncestorType=Page}}"/>
+
+                                <ui:Button Margin="0 0 0 0"
+                                           Padding="0"
+                                           x:Name="hl_unlock"
+                                           Width="30"
+                                           Height="30"
+                                           Visibility="{Binding Locked, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                           Foreground="Red"
+                                           Icon="{ui:SymbolIcon LockClosed24}"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.replayUnlock}"
+                                           ToolTipService.InitialShowDelay="100"
+                                           CommandParameter="{Binding Id}"
+                                           Command="{Binding ViewModel.ReplayUnlockCommand, RelativeSource={RelativeSource AncestorType=Page}}"/>
                             </WrapPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn
-                    Binding="{Binding id}"
+                    Binding="{Binding Id}"
                     Header="ID"/>
                 <DataGridTextColumn
-                    Binding="{Binding track}"
+                    Binding="{Binding Track}"
                     Header="track"/>
                 <DataGridTextColumn
-                    Binding="{Binding car}"
+                    Binding="{Binding Car}"
                     Header="car"/>
                 <DataGridTextColumn
-                    Binding="{Binding car_class}"
+                    Binding="{Binding Car_class}"
                     Header="car_class"/>
                 <DataGridTextColumn
-                    Binding="{Binding finish_time}"
+                    Binding="{Binding Finish_time}"
                     Header="finish_time"/>
                 <DataGridTextColumn
-                    Binding="{Binding date}"
+                    Binding="{Binding Date}"
                     Header="date"/>
                 <DataGridTextColumn
-                    Binding="{Binding comment}"
+                    Binding="{Binding Comment}"
                     Header="comment"/>
                 <DataGridTextColumn
-                    Binding="{Binding video_path}"
+                    Binding="{Binding Video_path}"
                     Header="video_path"/>
             </DataGrid.Columns>
         </DataGrid>
