@@ -106,6 +106,16 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
     [ObservableProperty]
     private float _gotoLapDistance;
+
+    [ObservableProperty]
+    private bool _replayLocked;
+    partial void OnReplayLockedChanged(bool value){
+        if (value) {
+            ReplayManager.Instance.LockReplay(this._replay.id);
+        } else {
+            ReplayManager.Instance.UnlockReplay(this._replay.id);
+        }
+    }
     partial void OnGotoLapDistanceChanged(float value){
         // calculate the time
         if (IsPaused) {
@@ -244,6 +254,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         this.Track = this._replay.track;
         this.Car = this._replay.car;
         this.CarClass = this._replay.car_class;
+        this.ReplayLocked = this._replay.locked;
 
         if (!string.IsNullOrEmpty(this._replay.video_path) && File.Exists(this._replay.video_path))
         {

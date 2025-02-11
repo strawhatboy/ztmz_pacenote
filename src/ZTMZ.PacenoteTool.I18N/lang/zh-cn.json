@@ -149,6 +149,8 @@
       "replayCleanUpAbnormalVideo": "开启此选项删除异常录制的视频，一般是未完整完成的一场赛道\n例如中途退赛、计时赛重置、强行关掉游戏（血压拉爆）时\n此选项关闭时，保留异常录制的视频",
       "replayLock": "点击来锁定回放，以防止回放被自动删除",
       "replayUnlock": "点击来解锁回放，以便回放可以被自动删除",
+      "replayLocked": "这个回放已经被锁定，不会被自动删除",
+      "replayUnlocked": "这个回放已经被解锁，会在未来有新的更好记录时被自动删除",
     },
 
     "autoInitializeGame_on": "自动选择游戏",
@@ -264,6 +266,7 @@
     "replayShowBestReplay": "显示与最佳成绩的对比",
     "replayShowDiagrams": "显示遥测图表",
     "replayCleanUpAbnormalVideo": "清理异常视频",
+    "replayLock": "锁定此回放",
   },
 
   "dialog": {

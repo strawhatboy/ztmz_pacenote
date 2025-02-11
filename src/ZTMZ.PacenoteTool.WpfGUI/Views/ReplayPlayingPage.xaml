@@ -10,6 +10,7 @@
       xmlns:localUI="clr-namespace:ZTMZ.PacenoteTool.Base.UI;assembly=ZTMZ.PacenoteTool.Base.UI"
       Title="ReplayPlayingPage"
       FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
+      xmlns:helper="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       ui:NavigationView.HeaderContent="{Binding ViewModel.HeaderContent}"
@@ -20,6 +21,7 @@
   </Page.InputBindings>
   <Page.Resources>
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    <helper:BooleanToVisibilityConverterFalse x:Key="BooleanToVisibilityConverterFalse"/>
     <Style TargetType="TextBlock">
       <Setter Property="VerticalAlignment"
               Value="Center"></Setter>
@@ -180,7 +182,16 @@
       </StackPanel>
     </Grid>
 
-    <ui:ToggleSwitch Content="{DynamicResource settings.replayShowDiagrams}" IsChecked="{Binding Path=ViewModel.ReplayShowDiagrams, Mode=TwoWay}" Margin="0 15 0 0" />
+    <StackPanel Orientation="Horizontal" Margin="0 15 0 0">
+      <ui:ToggleSwitch Content="{DynamicResource settings.replayShowDiagrams}" IsChecked="{Binding Path=ViewModel.ReplayShowDiagrams, Mode=TwoWay}" />
+      <ui:ToggleSwitch Content="{DynamicResource settings.replayLock}" Margin="15 0 0 0" IsChecked="{Binding Path=ViewModel.ReplayLocked, Mode=TwoWay}" />
+      <ui:SymbolIcon Width="20" Height="20" Symbol="LockOpen24" Margin="0 0 0 0" Visibility="{Binding Path=ViewModel.ReplayLocked, Converter={StaticResource BooleanToVisibilityConverterFalse}}" Foreground="Orange"  
+      ToolTip="{DynamicResource ResourceKey=settings.tooltip.replayUnlocked}"
+      ToolTipService.InitialShowDelay="100" />
+      <ui:SymbolIcon Width="20" Height="20" Symbol="LockClosed24" Margin="0 0 0 0" Visibility="{Binding Path=ViewModel.ReplayLocked, Converter={StaticResource BooleanToVisibilityConverter}}" Foreground="Red" 
+      ToolTip="{DynamicResource ResourceKey=settings.tooltip.replayLocked}"
+      ToolTipService.InitialShowDelay="100"/>
+    </StackPanel>
 
     <StackPanel Orientation="Vertical" Visibility="{Binding ViewModel.ReplayShowDiagrams, 
     Converter={StaticResource BooleanToVisibilityConverter}}" >

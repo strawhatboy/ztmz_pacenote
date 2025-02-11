@@ -149,6 +149,8 @@
       "replayCleanUpAbnormalVideo": "Clean up the abnormal video files, such as unfinished race session (restart, retired, etc.)",
       "replayLock": "Click to lock the replay to prevent the replay from being automatically deleted",
       "replayUnlock": "Click to unlock the replay to allow the replay to be automatically deleted",
+      "replayLocked": "This replay is locked, will not be automatically deleted",
+      "replayUnlocked": "This replay is unlocked, will be automatically deleted if there is new best record in the future",
     },
 
     "autoInitializeGame_on": "Auto Game Selection",
@@ -264,6 +266,7 @@
     "replayShowBestReplay": "Show Best Replay Comparison",
     "replayShowDiagrams": "Show Statistical Diagrams",
     "replayCleanUpAbnormalVideo": "Clean up abnormal video files",
+    "replayLock": "Lock this replay",
   },
 
   "dialog": {
