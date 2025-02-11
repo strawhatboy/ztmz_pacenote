@@ -366,7 +366,7 @@
                 </StackPanel>
                 <ui:PasswordBox Grid.Column="1"
                                  HorizontalAlignment="Stretch"
-                                 Text="{Binding Path=ViewModel.ReplayOBSWebsocketPassword, Mode=TwoWay}"/>
+                                 Password="{Binding Path=ViewModel.ReplayOBSWebsocketPassword, Mode=TwoWay}"/>
             </Grid>
         </ui:Card>
 
@@ -450,16 +450,16 @@
                             <RowDefinition/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayShowDiagrams}"/>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayCleanUpAbnormalVideo}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.r}"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayCleanUpAbnormalVideo}"
                                       Appearance="Tertiary"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
                 <ui:ToggleSwitch Grid.Column="1"
                                  HorizontalAlignment="Right"
-                                 IsChecked="{Binding Path=ViewModel.ReplayShowDiagrams, Mode=TwoWay}"/>
+                                 IsChecked="{Binding Path=ViewModel.ReplayCleanUpAbnormalVideo, Mode=TwoWay}"/>
             </Grid>
         </ui:Card>
     </StackPanel>

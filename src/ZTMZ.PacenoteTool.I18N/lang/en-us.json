@@ -146,6 +146,7 @@
       "replayFFmpegPath": "The path of the ffmpeg executable, very important for the replay page to work correctly",
       "replayDownloadFFmpeg": "Go to gitee.com to download the ffmpeg executable, or you can download it by yourself",
       "replayShowDiagrams": "Show the statistical diagrams in the replay playing page.",
+      "replayCleanUpAbnormalVideo": "Clean up the abnormal video files, such as unfinished race session (restart, retired, etc.)",
     },
 
     "autoInitializeGame_on": "Auto Game Selection",
@@ -260,6 +261,7 @@
     "replayDownloadFFmpeg": "Download ffmpeg",
     "replayShowBestReplay": "Show Best Replay Comparison",
     "replayShowDiagrams": "Show Statistical Diagrams",
+    "replayCleanUpAbnormalVideo": "Clean up abnormal video files",
   },
 
   "dialog": {

@@ -93,6 +93,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             }
             else
             {
+                ObsManager.Instance.AbnormallyStopRecording();
                 Application.Current.Shutdown();
             }
         }
@@ -106,6 +107,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             base.OnClosed(e);
 
             // Make sure that closing this window will begin the process of closing the application.
+            ObsManager.Instance.AbnormallyStopRecording();
             Application.Current.Shutdown();
         }
 

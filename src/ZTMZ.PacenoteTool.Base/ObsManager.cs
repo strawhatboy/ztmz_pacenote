@@ -97,6 +97,19 @@ public class ObsManager : IDisposable {
         }
     }
 
+    public string AbnormallyStopRecording() {
+        var video_path = StopRecording();
+        if (!string.IsNullOrEmpty(video_path) && Config.Instance.ReplayCleanUpAbnormalVideo) {
+            try {
+                System.IO.File.Delete(video_path);
+                _logger.Info($"Deleted video at {video_path} because of abnormal stop");
+            } catch (Exception ex) {
+                _logger.Error($"Failed to delete video at {video_path} because of \n{ex.ToString()}");
+            }
+        }
+        return video_path;
+    }
+
     public string StopRecording() {
         if (!Config.Instance.ReplayOBSSave) {
             _logger.Info("OBS recording is disabled wont start recording video with OBS");

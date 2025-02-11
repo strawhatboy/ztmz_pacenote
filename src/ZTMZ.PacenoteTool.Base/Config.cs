@@ -961,6 +961,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._replayShowDiagrams;
         }
 
+        private bool _replayCleanUpAbnormalVideo = true;
+        public bool ReplayCleanUpAbnormalVideo
+        {
+            set { this._replayCleanUpAbnormalVideo = value; this._userconfig["ReplayCleanUpAbnormalVideo"] = value; }
+            get => this._replayCleanUpAbnormalVideo;
+        }
+
 #endregion
 
         public void Save(string path)

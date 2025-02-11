@@ -110,6 +110,14 @@ public partial class ReplaySettingsPageVM : ObservableObject, INavigationAware
 
     [ObservableProperty]
     private Visibility _replaySaveIntervalVisibility = Config.Instance.ReplaySaveWithoutInterval ? Visibility.Collapsed : Visibility.Visible;
+
+    [ObservableProperty]
+    private bool _replayCleanUpAbnormalVideo = Config.Instance.ReplayCleanUpAbnormalVideo;
+    partial void OnReplayCleanUpAbnormalVideoChanged(bool value)
+    {
+        Config.Instance.ReplayCleanUpAbnormalVideo = value;
+        Config.Instance.SaveUserConfig();
+    }
     
     public void OnNavigatedFrom()
     {

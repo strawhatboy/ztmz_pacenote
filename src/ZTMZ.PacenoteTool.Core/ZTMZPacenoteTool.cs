@@ -318,6 +318,8 @@ public class ZTMZPacenoteTool {
         game.GameDataReader.onCarReset -= carResetHandler;
         game.GameDataReader.Uninitialize(game);
         game.IsInitialized = false;
+        _logger.Info("Stop OBS recording when game uninitialized no matter if it is recording.");
+        ObsManager.Instance.AbnormallyStopRecording();
         this.onGameUninitialized?.Invoke(game);
     }
 
@@ -362,6 +364,9 @@ public class ZTMZPacenoteTool {
                 if (lastState != GameState.Paused)
                 {
                     // GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._currentGame.Name + " - " + this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
+                    // no matter if OBS is recording, we stop recording here.
+                    _logger.Info("Stop recording video with OBS at racebegin in case of the last session ended abnormally.");
+                    ObsManager.Instance.AbnormallyStopRecording();
                 }
                 this._trackName = this._currentGame.GameDataReader.TrackName;
                 this._carName = this._currentGame.GameDataReader.CarName;
@@ -676,6 +681,9 @@ public class ZTMZPacenoteTool {
                     ReplayManager.Instance.saveReplay(CurrentGame, replay, this.ReplayDetailsPerTimes, this.ReplayDetailsPerCheckpoints);
                 }
             }
+        } else {
+            // not normal finish, stop recording
+            ObsManager.Instance.AbnormallyStopRecording();
         }
     }
 
