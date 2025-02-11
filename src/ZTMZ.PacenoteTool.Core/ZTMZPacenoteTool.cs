@@ -523,6 +523,7 @@ public class ZTMZPacenoteTool {
                     {// more speed, more tension
                         this._profileManager.CurrentTension = msg.Speed / 200f;
                     }
+                    _logger.Trace("Play sound at {0} because current point is {1} and calculated play point is {2}", msg.LapDistance, currentPoint, playPoint);
                     this._profileManager.Play();
                 }
             }

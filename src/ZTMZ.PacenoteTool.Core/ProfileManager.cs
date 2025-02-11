@@ -282,6 +282,7 @@ namespace ZTMZ.PacenoteTool.Core
 
         public void StartReplaying(IGame game, string itinerary, int playMode = 1)
         {
+            _logger.Trace("Start playing pacenotes: {0} {1}", game.Name, itinerary);
             // bydefault playMode=1, script mode, only.
             this.CurrentItineraryPath = this.GetRecordingsFolder(game, itinerary);
             // this.CurrentScriptPath = this.GetScriptFile(itinerary);
@@ -345,6 +346,7 @@ namespace ZTMZ.PacenoteTool.Core
                 this.AudioPacenoteCount = audioFiles.Count;
             }
 
+            _logger.Trace("Start to get audios when starting playing pacenotes {0} {1} with {2} pacenotes", game.Name, itinerary, this.AudioPacenoteCount);
             if (playMode == 1 || playMode == 2)
             {
                 // script mode now!
@@ -358,26 +360,36 @@ namespace ZTMZ.PacenoteTool.Core
 
                 for (int i = 0; i < records.Count; i++)
                 {
-                    var record = records[i];
-
-                    // always create new since there's no overlapping issue.
-                    var f = new AudioFile() { Distance = (int)record.Distance };
-
-                    var sound = new AutoResampledCachedSound();
-                    foreach (var note in record.Pacenotes)
+                    try
                     {
-                        sound.Append(this.getSoundByKeyword(note.Note, this.CurrentCoDriverSoundPackagePath));
-                        foreach (var mod in note.Modifiers)
-                        {
-                            sound.Append(this.getSoundByKeyword(mod, this.CurrentCoDriverSoundPackagePath));
-                        }
-                    }
+                        var record = records[i];
+                        _logger.Trace("Processing pacenote record {0}", record.ToString());
 
-                    f.Sound = sound;
-                    audioFiles.Add(f);
-                    this.ScriptPacenoteCount++;
+                        // always create new since there's no overlapping issue.
+                        var f = new AudioFile() { Distance = (int)record.Distance };
+
+                        var sound = new AutoResampledCachedSound();
+                        foreach (var note in record.Pacenotes)
+                        {
+                            sound.Append(this.getSoundByKeyword(note.Note, this.CurrentCoDriverSoundPackagePath));
+                            foreach (var mod in note.Modifiers)
+                            {
+                                sound.Append(this.getSoundByKeyword(mod, this.CurrentCoDriverSoundPackagePath));
+                            }
+                        }
+
+                        f.Sound = sound;
+                        audioFiles.Add(f);
+                        this.ScriptPacenoteCount++;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error("Error when processing pacenote record {0} {1} {2} {3}", i, game.Name, itinerary, ex.ToString());
+                    }
                 }
             }
+
+            _logger.Trace("Got {0} pacenotes from script", this.ScriptPacenoteCount);
 
 
             var sortedAudioFiles = from audioFile in audioFiles
@@ -385,6 +397,7 @@ namespace ZTMZ.PacenoteTool.Core
                                    select audioFile;
 
             this.AudioFiles = sortedAudioFiles.ToList();
+            _logger.Trace("Got {0} audio files", this.AudioFiles.Count);
 
             //this.Players = from audiofile in sortedAudioFiles
             //    select new Mp3FileReader(audiofile.FilePath);
@@ -405,10 +418,13 @@ namespace ZTMZ.PacenoteTool.Core
                 {
                     this.CurrentPlayIndex = i;
                     break;
-                } else {
+                }
+                else
+                {
                     // pre stage audios
                 }
             }
+            _logger.Trace("Start replaying {0} {1} with {2} pacenotes", game.Name, itinerary, this.AudioFiles.Count);
         }
         //private AutoResampledCachedSound getSoundByKeywordTryTmp(string keyword)
         //{
@@ -422,6 +438,11 @@ namespace ZTMZ.PacenoteTool.Core
         // already cut sound
         private AutoResampledCachedSound getSoundByKeyword(string keyword, string codriverPackage, bool isFinal = false)
         {
+            if (string.IsNullOrEmpty(keyword))
+            {
+                return new AutoResampledCachedSound();
+            }
+            _logger.Trace("Getting sound by keyword {0} {1}", keyword, codriverPackage);
             // keyword is the filename used to find the correct audio file, in new sqlite3 based pacenote structure,
             // we first use this keyword to find the corresponding pacenote id (integer), then random select an audio file
             // related to the pacenote id
@@ -430,7 +451,8 @@ namespace ZTMZ.PacenoteTool.Core
             if (Base.Script.ScriptResource.Instance.FilenameToIdDict.ContainsKey(keyword))
             {
                 id = Base.Script.ScriptResource.Instance.FilenameToIdDict[keyword];
-                if (Config.Instance.UseReversePacenote) {
+                if (Config.Instance.UseReversePacenote)
+                {
                     // try to find the reverse pacenote
                     if (Base.Script.ScriptResource.Instance.ReverseCorners.Any(r => r.id == id))
                     {
@@ -441,7 +463,9 @@ namespace ZTMZ.PacenoteTool.Core
                         }
                     }
                 }
-            } else {
+            }
+            else
+            {
                 // unknown keyword, try to use the tokensPath
                 if (Config.Instance.PreloadSounds && package.tokens.ContainsKey(keyword))
                 {
@@ -482,14 +506,16 @@ namespace ZTMZ.PacenoteTool.Core
         /// 1. We fallback into the default codriver package, no more fallback, isFinal=true
         /// 2. We encounter a </param>
         /// <returns>The sound</returns>
-        private AutoResampledCachedSound getSoundById(int id, CoDriverPackage package, HashSet<int> visitedIds, bool isFinal=false) {
+        private AutoResampledCachedSound getSoundById(int id, CoDriverPackage package, HashSet<int> visitedIds, bool isFinal = false)
+        {
             if (id == -1)
             {   // wtf?
                 return new AutoResampledCachedSound();
             }
 
             // ugly, if we have into, onto, and, we should remove them when flag is set
-            if (Config.Instance.RemoveIntoAndOnto) {
+            if (Config.Instance.RemoveIntoAndOnto)
+            {
                 if (id == Constants.PACENOTE_INTO || id == Constants.PACENOTE_ONTO || id == Constants.PACENOTE_AND)
                 {
                     return new AutoResampledCachedSound();
@@ -499,7 +525,8 @@ namespace ZTMZ.PacenoteTool.Core
             if (Config.Instance.PreloadSounds && package.id2tokens.ContainsKey(id))
             {
                 var tokens = package.id2tokens[id];
-                if (tokens.Count > 0) {
+                if (tokens.Count > 0)
+                {
                     if (Config.Instance.AudioProcessType == (int)AudioProcessType.CutHeadAndTail)
                     {
                         return new AutoResampledCachedSound(tokens.ElementAt(this._random.Next(0, tokens.Count)).CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
@@ -524,7 +551,7 @@ namespace ZTMZ.PacenoteTool.Core
                 var fallbacks = ZTMZ.PacenoteTool.Base.Script.ScriptResource.Instance.FallbackDict[id];
                 AutoResampledCachedSound sound = new AutoResampledCachedSound();
                 var soundCount = 0;
-                foreach(var fallback in fallbacks)
+                foreach (var fallback in fallbacks)
                 {
                     if (visitedIds.Contains(fallback))
                     {
@@ -558,7 +585,7 @@ namespace ZTMZ.PacenoteTool.Core
             sound.Amplification = this.CurrentPlayAmplification;
             sound.Tension = this.CurrentTension;
             this.PlaySound(sound, Config.Instance.UseSequentialMixerToHandleAudioConflict);
-            Debug.WriteLine("Playing {0}", this.CurrentPlayIndex);
+            _logger.Trace("Playing {0}", this.CurrentPlayIndex);
         }
 
         // need to be run in a non-UI thread
@@ -585,8 +612,10 @@ namespace ZTMZ.PacenoteTool.Core
                         sound.Amplification = this.CurrentPlayAmplification;
                         sound.Tension = this.CurrentTension;
                         this.PlaySound(sound, true, true);  // play it as sequential system sound, followed by start stage sound
-                        Debug.WriteLine("Playing {0}", this.CurrentPlayIndex);
-                    } else {
+                        _logger.Trace("Playing {0}", this.CurrentPlayIndex);
+                    }
+                    else
+                    {
                         break;
                     }
                 }
@@ -595,7 +624,7 @@ namespace ZTMZ.PacenoteTool.Core
 
         public void PlaySystem(string sound, bool isSequential = false, bool isSystem = false)
         {
-            Debug.WriteLine(string.Format("Playing system sound : {0}", sound));
+            _logger.Trace(string.Format("Playing system sound : {0}", sound));
             var audio = this.getSoundByKeyword(sound, this.CurrentCoDriverSoundPackagePath);
             audio.PlaySpeed = this.CurrentPlaySpeed;
             audio.Amplification = this.CurrentPlayAmplification;

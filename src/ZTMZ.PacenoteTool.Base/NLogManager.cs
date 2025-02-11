@@ -30,7 +30,11 @@ namespace ZTMZ.PacenoteTool.Base
 #else
             if (toolVersion == ToolVersion.TEST) 
             {
-                theRule.SetLoggingLevels(LogLevel.Debug, LogLevel.Fatal);
+                if (LogLevel.FromOrdinal(Config.Instance.LogLevel) >= LogLevel.Debug) {
+                    theRule.SetLoggingLevels(LogLevel.Debug, LogLevel.Fatal);
+                } else {
+                    theRule.SetLoggingLevels(LogLevel.FromOrdinal(Config.Instance.LogLevel), LogLevel.Fatal);
+                }
             } else {
                 theRule.SetLoggingLevels(LogLevel.FromOrdinal(Config.Instance.LogLevel), LogLevel.Fatal);
             }
