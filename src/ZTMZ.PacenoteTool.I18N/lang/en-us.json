@@ -62,6 +62,8 @@
       "warnIfPortMismatch": "Show warning dialog if the game UDP port mismatch with the tool UDP port",
 
       "hudFPS": "Lock FPS of the in-game hud, high FPS may bring negative influence to the performance of \nsome screen recording softwares like OBS",
+      
+      "importAudioPackage": "Import the audio package, the audio package should be a *.zpak file",
       "playStartAndEndSound": "Play special start/end stage voice",
       "playGoSound": "Just after the count down, there will be something like 'Go' played if this option was checked",
       "useReversePacenote": "A common practice in Chinese rallies is to read the pacenote in reverse order. The smaller the number, the gentler the curve, and the larger the number, the sharper the curve.",
@@ -175,6 +177,8 @@
     "warnIfPortMismatch": "Show warning dialog if port mismatch",
 
     "hudFPS": "In-game Hud FPS",
+    
+    "importAudioPackage": "Import Audio Package",
     "playStartAndEndSound": "Play special start/end stage voice",
     "playGoSound": "Play special voice when the race started",
     "useReversePacenote": "Use Reverse Pacenote",
@@ -479,7 +483,9 @@
     "download": "Download",
     "downloading": "Downloading...",
     "installing": "Installing...",
-    "update": "Update"
+    "update": "Update",
+    "export": "Export",
+    "import": "Import",
   },
   "exception": {
     "portAlreadyInUse": {

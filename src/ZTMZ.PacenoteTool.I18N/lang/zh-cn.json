@@ -62,6 +62,8 @@
       "warnIfPortMismatch": "当游戏的UDP端口和本工具的UDP端口不一致时，弹出提示框警告",
 
       "hudFPS": "锁定悬浮窗的帧率，不至于因为悬浮窗的内容更新频繁影响了系统性能",
+
+      "importAudioPackage": "导入ztmz语音包，格式为zpak文件（其实是7z压缩包",
       "playStartAndEndSound": "在赛道开始和赛道结束时，播放对应的语音（通常是骚话），可以通过此选项关闭",
       "playGoSound": "当倒计时刚好结束时，播放出发语音",
       "useReversePacenote": "中国拉力赛中常见的逆序路书习惯，数字越小代表弯道越缓，数字越大弯道越急",
@@ -175,6 +177,8 @@
     "warnIfPortMismatch": "端口不匹配时展示警告对话框",
 
     "hudFPS": "悬浮窗锁定帧率",
+
+    "importAudioPackage": "导入语音包",
     "playStartAndEndSound": "播放开始/结束语音",
     "playGoSound": "播放出发语音",
     "useReversePacenote": "使用逆序路书",
@@ -478,7 +482,9 @@
     "download": "下载",
     "downloading": "正在下载...",
     "installing": "正在安装...",
-    "update": "更新"
+    "update": "更新",
+    "export": "导出",
+    "import": "导入",
   },
   "exception": {
     "portAlreadyInUse": {

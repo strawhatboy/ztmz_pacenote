@@ -57,6 +57,11 @@
         <ui:HyperlinkButton Content="[Apache-2.0] NeoLua" NavigateUri="https://github.com/neolithos/neolua" />
         <ui:HyperlinkButton Content="[MIT] SevenZipExtractor" NavigateUri="https://github.com/adoconnection/SevenZipExtractor" />
         <ui:HyperlinkButton Content="[MIT] Lib.Harmony" NavigateUri="https://github.com/pardeike/Harmony" />
+        <ui:HyperlinkButton Content="[Apache-2.0] Dapper" NavigateUri="https://github.com/DapperLib/Dapper" />
+        <ui:HyperlinkButton Content="[MIT] FFMpegCore" NavigateUri="https://github.com/rosenbjerg/FFMpegCore?tab=MIT-1-ov-file#readme" />
+        <ui:HyperlinkButton Content="[MIT] obs-websocket-dotnet" NavigateUri="https://github.com/BarRaider/obs-websocket-dotnet" />
+        <ui:HyperlinkButton Content="[MIT] LiveCharts2" NavigateUri="https://github.com/beto-rodriguez/LiveCharts2" />
+        <ui:HyperlinkButton Content="[LPGL-3.0] SharpSevenZip" NavigateUri="https://github.com/JeremyAnsel/SharpSevenZip" />
         
         <ui:TextBlock Margin="0 16 0 0" HorizontalAlignment="Center" FontTypography="Subtitle"
             Text="{DynamicResource ui.opensoftware_reference}" />

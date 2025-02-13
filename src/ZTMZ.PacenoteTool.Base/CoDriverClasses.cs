@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System.IO.Compression;
 using System.Threading.Tasks;
 using System.Linq;
+using SharpSevenZip;
 
 namespace ZTMZ.PacenoteTool.Base
 {
@@ -83,21 +84,6 @@ namespace ZTMZ.PacenoteTool.Base
         public ConcurrentDictionary<string, ConcurrentBag<string>> tokensPath { private set; get; } = new();
 
         public ConcurrentDictionary<string, ConcurrentBag<AutoResampledCachedSound>> tokens { private set; get; } = new();
-
-        public async void Export(string path)
-        {
-            // zip the folder and save it to the path
-            if (!Directory.Exists(Info.Path)) {
-                return;
-            }
-
-            var zipPath = Path.Combine(path, Info.name + ".zip");
-            if (File.Exists(zipPath)) {
-                await Task.Run(() => File.Delete(zipPath));
-            }
-
-            await Task.Run(() => ZipFile.CreateFromDirectory(Info.Path, zipPath, CompressionLevel.SmallestSize, false));
-        }
 
         public async static Task<CoDriverPackage> Load(string codriverPath) {
             CoDriverPackage package = new CoDriverPackage();
@@ -259,23 +245,49 @@ namespace ZTMZ.PacenoteTool.Base
 
             _logger.Info($"calculated integrity for pkg: {package.Info.name} - simple {package.Info.integrity_simple}, normal {package.Info.integrity_normal}, complex {package.Info.integrity_complex}");
         }
+
+#region Import&Export
+
+        public async Task Export(string zipPath)
+        {
+            // 7zip the folder and save it to the path
+            if (!Directory.Exists(Info.Path)) {
+                return;
+            }
+
+            if (File.Exists(zipPath)) {
+                await Task.Run(() => File.Delete(zipPath));
+            }
+
+            var sevenZipCompressor = new SharpSevenZipCompressor() { CompressionLevel = SharpSevenZip.CompressionLevel.Ultra, PreserveDirectoryRoot = true };
+            await sevenZipCompressor.CompressDirectoryAsync(Info.Path, zipPath);
+        }
         
         public async static Task<CoDriverPackage> Import(string path)
         {
-            // import a codriver package from a zip file
+            // import a codriver package from a 7zip file
             if (!File.Exists(path)) {
                 return null;
             }
 
             var zipPath = path;
-            var extractPath = Path.Combine(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS), Path.GetFileNameWithoutExtension(zipPath));
-            if (Directory.Exists(extractPath)) {
-                await Task.Run(() => Directory.Delete(extractPath, true));
+            var pathes = Directory.GetDirectories(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS));
+            // if (Directory.Exists(extractPath)) {
+            //     await Task.Run(() => Directory.Delete(extractPath, true));
+            // }
+
+            var sevenZipExtractor = new SharpSevenZipExtractor(zipPath) { PreserveDirectoryStructure = true };
+            await sevenZipExtractor.ExtractArchiveAsync(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS));
+            var new_pathes = Directory.GetDirectories(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS));
+            var new_path = new_pathes.Except(pathes).FirstOrDefault();
+            if (new_path != null) {
+                var pkg = await Load(new_path);
+                return pkg;
             }
-
-            await Task.Run(() => ZipFile.ExtractToDirectory(zipPath, extractPath));
-
-            return await Load(extractPath);
+            
+            return null;
         }
     }
+
+#endregion
 }

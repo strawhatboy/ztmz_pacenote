@@ -50,6 +50,35 @@
                 </StackPanel>
             </Grid>
         </ui:CardAction>
+        <!-- import audio package -->
+        <ui:CardAction Margin="0 0 0 3" 
+            Command="{Binding ViewModel.ImportAudioPackageCommand}"
+            >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="ArrowImport20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.importAudioPackage}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.importAudioPackage}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+            </Grid>
+        </ui:CardAction>
         
         <ui:TextBlock
             Text="{DynamicResource ResourceKey=tabs.voices}"
@@ -197,6 +226,15 @@
                                 IsEnabled="{Binding NeedDownload, 
                                 Converter={StaticResource BooleanToVisibilityConverter}}"
                                 Appearance="Primary" />
+
+
+                                <ui:Button Grid.Column="2" Icon="{ui:SymbolIcon Share20}" Content="{DynamicResource misc.export}" Margin="10" Command="{Binding DataContext.ViewModel.ExportCodriverPkgCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" CommandParameter="{Binding Id}"
+                                Visibility="{Binding IsAvailable, 
+                                Converter={StaticResource BooleanToVisibilityConverter}}"
+                                IsEnabled="{Binding IsAvailable, 
+                                Converter={StaticResource BooleanToVisibilityConverter}}"
+                                 />
+                                
 
                                 <ProgressBar Grid.Row="1" Grid.ColumnSpan="3" Value="{Binding DownloadProgress}" Maximum="1" Minimum="0" Visibility="{Binding IsDownloading, Converter={StaticResource BooleanToVisibilityConverter}}" />
 

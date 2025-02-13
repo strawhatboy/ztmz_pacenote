@@ -114,6 +114,7 @@ public partial class VoicePageVM : ObservableObject {
             pkg.IsInstalling = true;
             // install, unzip to the voice package folder
             await Task.Run(() => {
+                var pathes = Directory.GetDirectories(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS));
                 if (Directory.Exists(pkg.Path)) {
                     try {
                         Directory.Delete(pkg.Path, true);  // delete if exists
@@ -125,17 +126,77 @@ public partial class VoicePageVM : ObservableObject {
                 using (ArchiveFile f = new(downloadedFile)) {
                     f.Extract(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS), true);
                 }
+                var new_pathes = Directory.GetDirectories(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS));
+                var new_path = new_pathes.Except(pathes).FirstOrDefault();
+                if (new_path != null) {
+                    pkg.Path = new_path;
+                }
             });
             pkg.IsInstalling = false;
             pkg.IsAvailable = true;
 
-            lock (_updateQueue) {
-                _updateQueue.Dequeue();
-                if (_updateQueue.Count == 0) {
-                    // update the tool's voice packages list? when this is the last updating one
-                    this.tool.RefreshCodrivers();
-                }
+            await refreshCodrivers();
+        }
+    }
+
+    private async Task refreshCodrivers() {
+        lock (_updateQueue) {
+            _updateQueue.Dequeue();
+            if (_updateQueue.Count == 0) {
+                // update the tool's voice packages list? when this is the last updating one
+                this.tool.RefreshCodrivers();
             }
+        }
+    }
+
+    [RelayCommand]
+    private async void ExportCodriverPkg(string id) {
+        var pkg = VoicePackages.FirstOrDefault(p => p.id == id);
+        if (pkg == null) {
+            return;
+        }
+        var pkgLocal = tool.CoDriverPackages.FirstOrDefault(p => p.Info.id == id);
+        if (pkgLocal == null) {
+            return;
+        }
+        // save file dialog
+        SaveFileDialog saveFileDialog = new();
+        saveFileDialog.Filter = "zpak files (*.zpak)|*.zpak";
+        saveFileDialog.FilterIndex = 1;
+        saveFileDialog.RestoreDirectory = true;
+        saveFileDialog.FileName = $"{pkg.Name}.zpak";
+
+        if (saveFileDialog.ShowDialog() == true) {
+            pkg.IsExporting = true;
+            await pkgLocal.Export(saveFileDialog.FileName);
+            pkg.IsExporting = false;
+        }
+    }
+
+    [RelayCommand]
+    private async void ImportAudioPackage() {
+        // open file dialog
+        OpenFileDialog openFileDialog = new();
+        openFileDialog.Filter = "zpak files (*.zpak)|*.zpak";
+        openFileDialog.FilterIndex = 1;
+        openFileDialog.RestoreDirectory = true;
+        openFileDialog.Multiselect = false;
+
+        if (openFileDialog.ShowDialog() == true) {
+            // unzip to the voice package folder
+            var path = openFileDialog.FileName;
+            var pkgLocal = await CoDriverPackage.Import(path);
+            var pkg = new CodriverPackageUpdateFile(pkgLocal.Info);
+            if (pkg == null) {
+                return;
+            }
+            lock (_updateQueue) {
+                _updateQueue.Enqueue(pkg);
+            }
+            pkg.IsAvailable = true;
+            VoicePackages.Add(pkg);
+
+            await refreshCodrivers();
         }
     }
 }
