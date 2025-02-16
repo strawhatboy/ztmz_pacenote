@@ -412,18 +412,19 @@ namespace ZTMZ.PacenoteTool.Core
 
             // index to the 1st non-zero distance for now.
             //TODO: play pacenotes with distance less than 0 before start
-            for (int i = 0; i < this.AudioFiles.Count; i++)
-            {
-                if (this.AudioFiles[i].Distance > 0)
-                {
-                    this.CurrentPlayIndex = i;
-                    break;
-                }
-                else
-                {
-                    // pre stage audios
-                }
-            }
+            // for (int i = 0; i < this.AudioFiles.Count; i++)
+            // {
+            //     if (this.AudioFiles[i].Distance > 0)
+            //     {
+            //         this.CurrentPlayIndex = i;
+            //         break;
+            //     }
+            //     else
+            //     {
+            //         // pre stage audios
+            //     }
+            // }
+            this.CurrentPlayIndex = 0;
             _logger.Trace("Start replaying {0} {1} with {2} pacenotes", game.Name, itinerary, this.AudioFiles.Count);
         }
         //private AutoResampledCachedSound getSoundByKeywordTryTmp(string keyword)
@@ -600,11 +601,11 @@ namespace ZTMZ.PacenoteTool.Core
 
         public void PlayMinusScript()
         {
-            if (this.CurrentPlayIndex > 0)
+            if (this.CurrentPlayIndex >= 0)
             {
                 for (int i = 0; i < this.AudioFiles.Count; i++)
                 {
-                    if (this.AudioFiles[i].Distance <= 0)
+                    if (this.AudioFiles[i].Distance < 0)
                     {   // play it!
                         // try to amplify the sound.
                         var sound = this.AudioFiles[this.CurrentPlayIndex++].Sound;

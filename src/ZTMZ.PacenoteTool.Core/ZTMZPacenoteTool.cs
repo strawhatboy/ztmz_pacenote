@@ -497,7 +497,7 @@ public class ZTMZPacenoteTool {
                     currentPoint += spdMperS * Config.Instance.ScriptMode_PlaySecondsAdvanced;
                 }
 
-                if (currentPoint >= playPoint)
+                if (currentPoint >= playPoint && this._currentGame != null && this._currentGame.GameDataReader.GameState == GameState.Racing)
                 {
                     // set spd to 1.0
                     this._profileManager.CurrentPlaySpeed = 1.0f;
