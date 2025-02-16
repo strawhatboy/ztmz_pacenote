@@ -330,6 +330,12 @@
       "dontShowAgain": "不再显示该对话框",
       "ok": "好的",
       "cancel": "取消",
+    },
+    "voicePkgExist": {
+      "title": "语音包已存在",
+      "content": "语音包 {0} 已存在，是否覆盖？",
+      "ok": "覆盖",
+      "cancel": "取消"
     }
   },
 
@@ -348,6 +354,9 @@
     "raise_issue": "问题反馈",
     "contactUs_QQ": "QQ",
     "donate": "给草帽买杯咖啡（请确认前往的网站是gitee.com）",
+    "data_folder_size": "数据文件夹大小：",
+    "openDataFolder": "打开数据文件夹",
+    "moveDataFolder": "移动数据文件夹",
 
     "rb_record": "录制模式",
     "rb_replay": "播放模式",

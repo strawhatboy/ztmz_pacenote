@@ -330,6 +330,12 @@
       "dontShowAgain": "Don't show this dialog next time",
       "ok": "OK",
       "cancel": "Cancel",
+    },
+    "voicePkgExist": {
+      "title": "Voice Package Exists",
+      "content": "The voice package {0} already exists, do you want to overwrite it?",
+      "ok": "Overwrite",
+      "cancel": "Cancel"
     }
   },
 
@@ -348,6 +354,9 @@
     "raise_issue": "Issue Report",
     "contactUs_QQ": "QQ",
     "donate": "Buy me a coffee (Please make sure this links to gitee.com)",
+    "data_folder_size": "Data Folder Size: ",
+    "openDataFolder": "Open Data Folder",
+    "moveDataFolder": "Move Data Folder",
 
     "rb_record": "Record Mode",
     "rb_replay": "Replay mode",

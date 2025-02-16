@@ -6,8 +6,9 @@ cd /D "%~dp0"
 
 call .\buildWithoutLaunch.bat
 
-cd /D "%~dp0"
-call .\launchWpfUIRelease.bat
+call .\publish.bat
+
+call .\package_signed.bat
 
 cd /D "%currentDir%"
 

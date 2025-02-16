@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -143,6 +144,6 @@ public partial class ReplaySettingsPageVM : ObservableObject, INavigationAware
     private async void DownloadFFmpeg() {
         // download ffmpeg
         var url = "https://gitee.com/ztmz/opensource_tools/releases/tag/ffmpeg";
-        System.Diagnostics.Process.Start(url);
+        Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
     }
 }

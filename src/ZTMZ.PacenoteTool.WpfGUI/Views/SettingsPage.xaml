@@ -36,6 +36,17 @@
                 OffContent="{DynamicResource settings.checkUpdateWhenStartup_Off}"
                 IsChecked="{Binding ViewModel.IsAutoUpdate, Mode=TwoWay}" />
         </StackPanel>
+        
+        <!-- data folder related -->
+        <StackPanel Margin="0,20,0,0" Orientation="Horizontal" HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+            <ui:TextBlock FontTypography="Caption" Text="{DynamicResource ui.data_folder_size}"
+                Margin="0 0 10 0" VerticalAlignment="Center" />
+            <ui:TextBlock FontTypography="Caption" Text="{Binding ViewModel.DataFolderSize}"
+                Margin="0 0 10 0" VerticalAlignment="Center" />
+            <ui:Button Icon="{ui:SymbolIcon AppFolder20}" Content="{DynamicResource ui.openDataFolder}" Command="{Binding ViewModel.OpenDataFolderCommand}" />
+            <ui:Button Icon="{ui:SymbolIcon FolderSwap20}" Content="{DynamicResource ui.moveDataFolder}" Command="{Binding ViewModel.MoveDataFolderCommand}" />
+        </StackPanel>
 
         <Border Padding="0" Margin="0,20,0,0" Width="500">
             <StackPanel>

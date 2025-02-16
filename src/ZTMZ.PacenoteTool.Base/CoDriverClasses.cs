@@ -262,6 +262,26 @@ namespace ZTMZ.PacenoteTool.Base
             var sevenZipCompressor = new SharpSevenZipCompressor() { CompressionLevel = SharpSevenZip.CompressionLevel.Ultra, PreserveDirectoryRoot = true };
             await sevenZipCompressor.CompressDirectoryAsync(Info.Path, zipPath);
         }
+
+        public static string ProbePkgFolderName(string pkgPath) {
+            if (!File.Exists(pkgPath)) {
+                return null;
+            }
+
+            var sevenZipExtractor = new SharpSevenZipExtractor(pkgPath) { PreserveDirectoryStructure = true };
+            var fileNamesInside = sevenZipExtractor.ArchiveFileNames;
+
+            // get the first folder
+            var firstPath = fileNamesInside.First();
+            while (true)
+            {
+                string temp = Path.GetDirectoryName(firstPath);
+                if (string.IsNullOrEmpty(temp))
+                    break;
+                firstPath = temp;
+            }
+            return firstPath;
+        }
         
         public async static Task<CoDriverPackage> Import(string path)
         {
@@ -271,21 +291,17 @@ namespace ZTMZ.PacenoteTool.Base
             }
 
             var zipPath = path;
-            var pathes = Directory.GetDirectories(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS));
-            // if (Directory.Exists(extractPath)) {
-            //     await Task.Run(() => Directory.Delete(extractPath, true));
-            // }
+            var extractFolderName = ProbePkgFolderName(path);
+            var extractPath = Path.Combine(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS), extractFolderName);
+            if (Directory.Exists(extractPath)) {
+                await Task.Run(() => Directory.Delete(extractPath, true));
+            }
 
             var sevenZipExtractor = new SharpSevenZipExtractor(zipPath) { PreserveDirectoryStructure = true };
+
             await sevenZipExtractor.ExtractArchiveAsync(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS));
-            var new_pathes = Directory.GetDirectories(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS));
-            var new_path = new_pathes.Except(pathes).FirstOrDefault();
-            if (new_path != null) {
-                var pkg = await Load(new_path);
-                return pkg;
-            }
             
-            return null;
+            return await Load(extractPath);
         }
     }
 

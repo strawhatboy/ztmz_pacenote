@@ -17,6 +17,7 @@ using System.Text;
 using SevenZipExtractor;
 using NLog;
 using System.Runtime.CompilerServices;
+using Neo.IronLua;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -185,6 +186,21 @@ public partial class VoicePageVM : ObservableObject {
         if (openFileDialog.ShowDialog() == true) {
             // unzip to the voice package folder
             var path = openFileDialog.FileName;
+            var pkgLocalPath = Path.Combine(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS), CoDriverPackage.ProbePkgFolderName(path));
+            if (Directory.Exists(pkgLocalPath)) {
+                // already exists, try asking if overwrite or cancel
+                var result = await new Wpf.Ui.Controls.MessageBox {
+                    Title = I18NLoader.Instance["dialog.voicePkgExist.title"],
+                    Content = string.Format(I18NLoader.Instance["dialog.voicePkgExist.content"], pkgLocalPath),
+                    PrimaryButtonText = I18NLoader.Instance["dialog.voicePkgExist.ok"],
+                    CloseButtonText = I18NLoader.Instance["dialog.voicePkgExist.cancel"]
+                }.ShowDialogAsync();
+
+                if (result != Wpf.Ui.Controls.MessageBoxResult.Primary) {
+                    return;
+                }
+            }
+
             var pkgLocal = await CoDriverPackage.Import(path);
             var pkg = new CodriverPackageUpdateFile(pkgLocal.Info);
             if (pkg == null) {
