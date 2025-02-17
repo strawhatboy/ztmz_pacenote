@@ -169,8 +169,8 @@ public partial class MainWindowVM : ObservableObject
         if (!_tool.IsInitialized) {
             await _startupDialog.ShowAsync();
         }
-        if (Config.Instance.CheckUpdateWhenStartup || ToolUtils.GetToolVersion() == ToolVersion.TEST) {
-            // force update if it is Test version
+        if (Config.Instance.CheckUpdateWhenStartup || ToolUtils.GetToolVersion() != ToolVersion.STANDARD) {
+            // force update if it is not standard version
             try {
                 var updateFile = await _updateService.CheckUpdate();
                 _azureAppInsightsManager.TrackEvent("CheckUpdate", new Dictionary<string, string>{ {"Result", updateFile == null ? "NoUpdate" : "UpdateAvailable" }});

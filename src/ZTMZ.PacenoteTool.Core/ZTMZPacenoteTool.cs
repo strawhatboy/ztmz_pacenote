@@ -677,7 +677,7 @@ public class ZTMZPacenoteTool {
                     replay.car_class = this._carClass;
                     replay.comment = "";
                     replay.video_path = ObsManager.Instance.StopRecording();
-                    replay.video_begin_timestamp = this._obsStartTimestamp;
+                    replay.video_begin_timestamp = Config.Instance.ReplayOBSSave ? this._obsStartTimestamp : 0;
                     // replay.video_end_timestamp = this._obsStopTimestamp;
                     ReplayManager.Instance.saveReplay(CurrentGame, replay, this.ReplayDetailsPerTimes, this.ReplayDetailsPerCheckpoints);
                 }

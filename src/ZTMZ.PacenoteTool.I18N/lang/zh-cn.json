@@ -134,7 +134,7 @@
       "replayPreferredFilter": "通过车辆名称、车辆类别或仅仅通过赛道来决定最佳成绩",
       "replayStoredCountLimit": "对于某个赛道和车辆的组合，存储最佳成绩记录的上限，上限过大可能会占用更多磁盘空间",
       "replaySaveInterval": "对于每个最佳成绩，每隔这个间隔时间保存当前里程",
-      "replaySaveWithoutInterval": "无视保存间隔时间，每一帧都保存，可能会引起一定的性能下降和磁盘空间增加",
+      "replaySaveWithoutInterval": "无视保存间隔时间，每一个数据帧都保存到回放中，能够提供更加精确的delta时间计算\n但可能会引起一定的性能下降和磁盘空间增加",
       "onlineRivalsEnabled": "用于在仪表盘中显示在线对手（Racenet）的情况，类似于联机时显示每个人的进度",
       "replayOBSSave": "打开此选项以使用OBS保存回放视频",
       "replayOBSWebsocketUrl": "OBS的websocket地址，比如 ws://<ipaddress>:<port>",

@@ -17,9 +17,9 @@ namespace ZTMZ.PacenoteTool.Base;
 
 public class Replay {
     public int id;
-    public string track;
-    public string car;
-    public string car_class;
+    public string track = "";
+    public string car = "";
+    public string car_class = "";
     public float finish_time;
     public float track_length;
     public bool retired;
@@ -27,8 +27,8 @@ public class Replay {
     public bool locked;
     // how many checkpoints in this replay, 256? 128? or just 4?
     public int checkpoints;
-    public string comment;
-    public string video_path;
+    public string comment = "";
+    public string video_path = "";
     public Int64 video_begin_timestamp;
     public Int64 video_end_timestamp;
     public DateTime date;

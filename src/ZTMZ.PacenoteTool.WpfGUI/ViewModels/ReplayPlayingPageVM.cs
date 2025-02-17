@@ -26,6 +26,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 {
+    private bool hasTimestamp = true;   // backward capability for 2.99.99.32, damn, no timestamp
     private Replay _replay = null;
     private Replay _bestReplay = null;
     private string tmpAudioPath = "";
@@ -122,9 +123,14 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             Dispatcher.CurrentDispatcher.Invoke(() => {
                 this._timer.Stop();
             });
-            var timestamp = ReplayManager.getTimeStampWithDistance(this._replayDetailsPerTime, value);
-            var tgtPosition = (double)(timestamp - this._replay.video_begin_timestamp) / 10000000 - this.PlayPositionOffset;
-            this.PlayPosition = tgtPosition < 0 ? 0 : tgtPosition;
+            if (this.hasTimestamp) {
+                var timestamp = ReplayManager.getTimeStampWithDistance(this._replayDetailsPerTime, value);
+                var tgtPosition = (double)(timestamp - this._replay.video_begin_timestamp) / 10000000 - this.PlayPositionOffset;
+                this.PlayPosition = tgtPosition < 0 ? 0 : tgtPosition;
+            } else {
+                var time = ReplayManager.getTimeByDistance(this._replayDetailsPerTime, value);
+                this.PlayPosition = time - this.PlayPositionOffset;
+            }
             Dispatcher.CurrentDispatcher.Invoke(() => {
                 this._timer.Start();
             });
@@ -185,7 +191,13 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             var playTime = newValue + this.PlayPositionOffset;
             // convert playTime to ticks and plus this._replay.video_begin_timestamp is the key to get the replay details per time
             var key = (long)(playTime * 10000000) + this._replay.video_begin_timestamp;
-            var rdp = ReplayManager.getReplayDetailsPerTimeWithTimeStamp(this._replayDetailsPerTime, key);
+            ReplayDetailsPerTime rdp = null;
+            if (this.hasTimestamp) {
+                rdp = ReplayManager.getReplayDetailsPerTimeWithTimeStamp(this._replayDetailsPerTime, key);
+            } else {
+                var dis = ReplayManager.getDistanceByTime(this._replayDetailsPerTime, (float)playTime);
+                rdp = new ReplayDetailsPerTime() { time = (float)playTime, distance = dis };
+            }
             this.LapTime = rdp.time;    // the laptime
             this.LapDistance = rdp.distance;
             
@@ -255,6 +267,15 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         this.Car = this._replay.car;
         this.CarClass = this._replay.car_class;
         this.ReplayLocked = this._replay.locked;
+        
+        var first = this._replayDetailsPerTime.FirstOrDefault(a => a.timestamp > 0);
+        this.hasTimestamp = first != null;
+        if (this._replay.video_begin_timestamp == 0) {
+            _logger.Warn("Video begin timestamp is 0, will set it to the first timestamp.");
+            if (this.hasTimestamp) {
+                this._replay.video_begin_timestamp = first.timestamp;
+            }
+        }
 
         if (!string.IsNullOrEmpty(this._replay.video_path) && File.Exists(this._replay.video_path))
         {
@@ -272,7 +293,12 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             // ScrubbingEnabled is only for video, when playing audio, it should be false, or the audio will not be played.
             this.ScrubbingEnabled = false;
             _logger.Warn("Video not found, will create an empty audio file.");
-            var duration = (double)(this._replayDetailsPerTime.Last().timestamp - this._replayDetailsPerTime.First(a => a.timestamp > 0).timestamp) / 10000000 + this._replayDetailsPerTime.First(a => a.timestamp > 0).time;
+            var duration = 0d;
+            if (this.hasTimestamp) {
+                duration = (double)(this._replayDetailsPerTime.Last().timestamp - this._replayDetailsPerTime.First(a => a.timestamp > 0).timestamp) / 10000000 + this._replayDetailsPerTime.First(a => a.timestamp > 0).time;
+            } else {
+                duration = (double)(this._replayDetailsPerTime.Last().time - this._replayDetailsPerTime.First().time);
+            }
             // create an empty audio file wth ffmpeg
             tmpAudioPath = Path.Combine(Path.GetTempPath(), "empty.mp3");
             GlobalFFOptions.Configure(options => options.BinaryFolder = Config.Instance.ReplayFFmpegPath);
@@ -285,7 +311,6 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
             this.VideoPath = tmpAudioPath;
             this.IsPaused = false;
-            this._replay.video_begin_timestamp = this._replayDetailsPerTime.First(a => a.timestamp > 0).timestamp;
             
             Application.Current.Dispatcher.Invoke(() => {
                 try {

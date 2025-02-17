@@ -1,8 +1,6 @@
-
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Mail;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using ZTMZ.PacenoteTool.Base;
@@ -211,6 +209,7 @@ ALTER TABLE replay_details_per_time ADD COLUMN pos_z REAL NOT NULL DEFAULT 0;";
                 _logger.Info("[Update] Setting configurations for version {0}", item.Key);
                 try {
                     item.Value(tool);
+                    _logger.Info("[Update] Set configurations for version {0}", item.Key);
                 } catch (System.Exception ex) {
                     _logger.Error(ex, "Failed to set configurations for version {0}", item.Key);
                 }

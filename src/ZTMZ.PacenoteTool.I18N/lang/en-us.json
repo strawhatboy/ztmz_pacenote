@@ -134,7 +134,7 @@
       "replayPreferredFilter": "To filter the replay of the best lap, by car or car class, or just the best lap",
       "replayStoredCountLimit": "For a specific track, the maximum number of stored replays",
       "replaySaveInterval": "For a specific track, the interval of saving the replay details of the best lap",
-      "replaySaveWithoutInterval": "Turn on this to save every frame without interval, could lead to performance drop and larger replay file",
+      "replaySaveWithoutInterval": "Turn on this to save every data frame without interval for more accurate delta time calcuation\nThis could lead to performance drop and larger replay file",
       "onlineRivalsEnabled": "Enable to display the online rivals on the hud, only available for EA Sports WRC game.\nSimilar to the rivals feature during multiplayer in the game",
       "replayOBSSave": "Enable to save the video replay with OBS, make sure the OBS is running and the websocket is enabled",
       "replayOBSWebsocketUrl": "The websocket URL of OBS, usually ws://<ipaddress>:<port>",
