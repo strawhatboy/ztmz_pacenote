@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Mail;
+using Dapper;
 using Microsoft.Data.Sqlite;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
@@ -142,7 +143,57 @@ ALTER TABLE replay_details_per_time ADD COLUMN pos_z REAL NOT NULL DEFAULT 0;";
         });
 
         this._configSetters.Add(new Version("2.99.99.34"), tool => {
+            Config.Instance.ReplaySaveWithoutInterval = false;  // for the performance
+            Config.Instance.SaveUserConfig();
             // move the replay database to the new location? damn
+            Dictionary<string, Dictionary<int, List<ReplayDetailsPerTime>>> replayDetailsPerTimesPerGame = new();
+            Dictionary<string, Dictionary<int, List<ReplayDetailsPerCheckpoint>>> replayDetailsPerCheckpointsPerGame = new();
+            Dictionary<string, List<Replay>> replaysPerGame = new();
+            for (int i = 0; i < tool.Games.Count; i++) {
+                Dictionary<int, List<ReplayDetailsPerTime>> replayDetailsPerTimes = new();
+                Dictionary<int, List<ReplayDetailsPerCheckpoint>> replayDetailsPerCheckpoints = new();
+                List<Replay> replays = new();
+                var game = tool.Games[i];
+                var replayDbPath = AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, $"{game.Name}{Constants.FILEEXT_REPLAYS}"));
+                if (File.Exists(replayDbPath)) {
+                    // read all data from the old database
+                    using (var connection = new SqliteConnection($"Data Source={replayDbPath}")) {
+                        // read replays
+                        connection.Open();
+                        connection.QueryAsync<Replay>("SELECT * FROM replay").Result.ToList().ForEach(a => replays.Add(a));
+
+                        // read replay details per time
+                        connection.QueryAsync<ReplayDetailsPerTime>("SELECT * FROM replay_details_per_time").Result.ToList().ForEach(a => {
+                            if (!replayDetailsPerTimes.ContainsKey(a.id)) {
+                                replayDetailsPerTimes.Add(a.id, new List<ReplayDetailsPerTime>());
+                            }
+                            replayDetailsPerTimes[a.id].Add(a);
+                        });
+
+                        // read replay details per checkpoint
+                        connection.QueryAsync<ReplayDetailsPerCheckpoint>("SELECT * FROM replay_details_per_checkpoint").Result.ToList().ForEach(a => {
+                            if (!replayDetailsPerCheckpoints.ContainsKey(a.id)) {
+                                replayDetailsPerCheckpoints.Add(a.id, new List<ReplayDetailsPerCheckpoint>());
+                            }
+                            replayDetailsPerCheckpoints[a.id].Add(a);
+                        });
+                    }
+                }
+                replayDetailsPerTimesPerGame.Add(game.Name, replayDetailsPerTimes);
+                replayDetailsPerCheckpointsPerGame.Add(game.Name, replayDetailsPerCheckpoints);
+                replaysPerGame.Add(game.Name, replays);
+            }
+
+            // write to the new database
+            for (int i = 0; i < tool.Games.Count; i++) {
+                var game = tool.Games[i];
+                for (int j = 0; j < replaysPerGame[game.Name].Count; j++) {
+                    var replay = replaysPerGame[game.Name][j];
+                    var replayDetailsPerTimes = replayDetailsPerTimesPerGame[game.Name][replay.id];
+                    var replayDetailsPerCheckpoints = replayDetailsPerCheckpointsPerGame[game.Name][replay.id];
+                    ReplayManager.Instance.saveReplay(game, replay, replayDetailsPerTimes, replayDetailsPerCheckpoints).Wait();
+                }
+            }
         });
     }
 
@@ -158,7 +209,11 @@ ALTER TABLE replay_details_per_time ADD COLUMN pos_z REAL NOT NULL DEFAULT 0;";
             if (currentVersion >= item.Key && !File.Exists(updateFlagFile) && !File.Exists(updateFLagFileNew))
             {
                 _logger.Info("[Update] Setting configurations for version {0}", item.Key);
-                item.Value(tool);
+                try {
+                    item.Value(tool);
+                } catch (System.Exception ex) {
+                    _logger.Error(ex, "Failed to set configurations for version {0}", item.Key);
+                }
                 File.Create(updateFLagFileNew);
             }
         }
