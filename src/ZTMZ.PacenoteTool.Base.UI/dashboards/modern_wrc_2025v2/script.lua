@@ -90,7 +90,7 @@ function drawStaticFrames(gfx, self, data, helper, x, y, width, height)
     -- gfx.FillCircle(_brushes["telemetryBackground"], centerX, centerY, radius);
     
     -- Calculate correct dimensions for background image while maintaining aspect ratio
-    local imageAspectRatio = 1322 / 768; -- Original image aspect ratio
+    local imageAspectRatio = 2308 / 768; -- Original image aspect ratio
     local targetAspectRatio = width / height;
     local drawX, drawY, drawWidth, drawHeight = x, y, width, height;
     
@@ -113,12 +113,12 @@ function drawRPM(gfx, self, data, conf, helper, x, y, width, height)
     local maxRPM = data.MaxRPM;
     local showRPMBlink = self.GetConfigByKey("dashboards.settings.showRPMBlink")
     local imageAspectRatio = 768 / 51;
-    local targetWidth = width * 0.68; 
+    local targetWidth = width * 0.5; 
     local targetHeight = targetWidth / imageAspectRatio;
     
     -- Calculate position to center the RPM gauge
-    local centerX = x + width * 0.5;
-    local centerY = y + height * 0.365;
+    local centerX = x + width * 0.436;
+    local centerY = y + height * 0.384;
     local rpmStartX = centerX - targetWidth * 0.5;
     local rpmStartY = centerY - targetHeight * 0.5;
     
@@ -152,13 +152,13 @@ end
 
 function drawThrottle(gfx, self, data, helper, x, y, width, height)
     local throttle = data.Throttle;
-    local imageAspectRatio = 768 / 296;
-    local targetWidth = width * 0.384;
+    local imageAspectRatio = 891 / 256;
+    local targetWidth = width * 0.385;
     local targetHeight = targetWidth / imageAspectRatio;
     
     -- Calculate position
-    local widthEnd = x + width * 0.862;
-    local heightStart = y + height * 0.843;
+    local widthEnd = x + width * 0.876;
+    local heightStart = y + height * 0.87;
     
     -- Calculate clip region based on throttle value
     local throttleClipWidth = targetWidth * (1-throttle);
@@ -173,13 +173,13 @@ end
 
 function drawBrake(gfx, self, data, helper, x, y, width, height)
     local brake = data.Brake;
-    local imageAspectRatio = 768 / 296;
-    local targetWidth = width * 0.384;
+    local imageAspectRatio = 891 / 256;
+    local targetWidth = width * 0.385;
     local targetHeight = targetWidth / imageAspectRatio;
     
     -- Calculate position
-    local widthStart = x + width * 0.141;
-    local heightEnd = y + height * 0.843;
+    local widthStart = x + width * 0.1245;
+    local heightEnd = y + height * 0.87;
     
     -- Calculate clip region based on brake value
     local brakeClipWidth = targetWidth * (1-brake);
@@ -195,12 +195,12 @@ end
 function drawHandBrake(gfx, self, data, helper, x, y, width, height)
     local handBrake = data.HandBrake;
     -- Original image size is 40x33
-    local imageAspectRatio = 118 / 128;
-    local targetWidth = width * 0.128;  -- Adjust size as needed
+    local imageAspectRatio = 146 / 156;
+    local targetWidth = width * 0.062;  -- Adjust size as needed
     local targetHeight = targetWidth / imageAspectRatio;
     
     -- Calculate position
-    local iconX = x + width * 0.137;  -- Adjust position as needed
+    local iconX = x + width * 0.324;  -- Adjust position as needed
     local iconY = y + height * 0.39;   -- Adjust position as needed
     
     -- Only draw the icon when handbrake is active
@@ -301,8 +301,8 @@ function drawGear(gfx, self, data, conf, helper, x, y, width, height, switchGear
         gearText = getGear(gear);
     end
 
-    local gearX = x + width * 0.785;
-    local gearY = y + height * 0.51;
+    local gearX = x + width * 0.635;
+    local gearY = y + height * 0.495;
 
     -- 只在显示档位时才显示前后档
     if not switchGearNSpeed then
@@ -420,8 +420,8 @@ function drawDeltaTime(gfx, self, data, ctx, helper, x, y, width, height)
     
     -- 设置显示位置（在转速表上方）
     local deltaWeight = height * 0.04;  -- 字体大小
-    local deltaX = x + width * 0.295;     -- 水平居中
-    local deltaY = y + height * 0.475;   -- 在转速表上方
+    local deltaX = x + width * 0.290;     -- 水平居中
+    local deltaY = y + height * 0.46;   -- 在转速表上方
     
     -- 计算文本尺寸以确定背景矩形大小
     local textSize = gfx.MeasureString(_fonts["wrc"], deltaWeight, deltaText)
@@ -466,7 +466,7 @@ function onUpdate(args)
     -- calculate the margin, padding, pos of each element
     ---- print("calculating the margin, padding, pos of each element"); 
 
-    local whRatio = 1322.0 / 768.0;
+    local whRatio = 2308.0 / 768.0;
     local switchGearNSpeed = self.GetConfigByKey("dashboards.settings.switchGearNSpeed")
     local telemetryStartX, telemetryStartY, width, height = getDashboardPositionStart(self, gfx, whRatio);
 

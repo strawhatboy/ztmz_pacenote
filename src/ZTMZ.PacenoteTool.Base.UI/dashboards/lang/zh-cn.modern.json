@@ -21,6 +21,10 @@
                 "name": "WRC 2025",
                 "description": "WRC 直播仪表盘2025"
             },
+            "wrc2025v2": {
+                "name": "WRC 2025v2",
+                "description": "WRC 直播仪表盘2025 加大版本"
+            },
             "wrc2025info": {
                 "name": "WRC 2025 信息仪表盘",
                 "description": "现代WRC 2025风格信息仪表盘，显示车手姓名、赛段进度和计时"
@@ -45,6 +49,7 @@
             "showLocalBest": "显示本地最佳成绩",
             "showDeltaTime": "显示时间差文字",
             "showAdditionalInfo": "显示额外信息",
+            "showRPMBlink": "显示转速闪烁效果",
             "tooltip": {
                 "padding": "仪表盘距离边缘的占比, 是相对于仪表盘大小的比值",
                 "marginH": "仪表盘水平方向边距占比, 是相对于屏幕宽度的比值",
@@ -55,7 +60,8 @@
                 "showSteeringIndicator": "显示方向盘输入指示器",
                 "showLocalBest": "在进度条上显示本地最佳成绩的光标，以及与之的差距",
                 "showDeltaTime": "在仪表盘顶部显示与本地最佳成绩的时间差",
-                "showAdditionalInfo": "显示额外信息，例如速度、转速、圈时等"
+                "showAdditionalInfo": "显示额外信息，例如速度、转速、圈时等",
+                "showRPMBlink": "在转速表上显示转速闪烁效果"
             }
         }
     }

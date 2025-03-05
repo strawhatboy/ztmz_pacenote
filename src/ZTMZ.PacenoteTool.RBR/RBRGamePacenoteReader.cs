@@ -450,6 +450,10 @@ public class RBRGamePacenoteReader : BasePacenoteReader
     private static string getModifiersFromFlag(int flag)
     {
         var modifiers = new List<string>();
+        if (flag >= 32768) {
+            // too big, unknown flag
+            return "";
+        }
         foreach (var kv in RBRScriptResource.Instance.ModiferId2ZTMZids)
         {
             if ((flag & kv.Key) == kv.Key)

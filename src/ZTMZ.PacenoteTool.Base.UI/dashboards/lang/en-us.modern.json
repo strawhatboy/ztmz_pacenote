@@ -21,6 +21,10 @@
                 "name": "WRC2025",
                 "description": "WRC Broadcasting Dashboard 2025"
             },
+            "wrc2025v2": {
+                "name": "WRC2025v2",
+                "description": "WRC Broadcasting Dashboard 2025 large version"
+            },
             "wrc2025info": {
                 "name": "WRC 2025 Info Dashboard",
                 "description": "Modern WRC 2025-style info dashboard showing driver name, stage progress, and timing"
@@ -45,6 +49,7 @@
             "showLocalBest": "Show local best time",
             "showDeltaTime": "Show delta time text",
             "showAdditionalInfo": "Show additional information",
+            "showRPMBlink": "Show RPM blink effect",
             "tooltip": {
                 "padding": "Padding horizontally and vertically",
                 "marginH": "Margin horizontally, relative to the screen width",
@@ -55,7 +60,8 @@
                 "showSteeringIndicator": "Show steering wheel input indicator",
                 "showLocalBest": "Show the cursor of the local best time on the progress bar, and the difference to it",
                 "showDeltaTime": "Show the time difference to local best time at the top of dashboard",
-                "showAdditionalInfo": "Show additional information such as Speed, RPM, LapTime, etc."
+                "showAdditionalInfo": "Show additional information such as Speed, RPM, LapTime, etc.",
+                "showRPMBlink": "Show RPM blink effect"
             }
         }
     }
