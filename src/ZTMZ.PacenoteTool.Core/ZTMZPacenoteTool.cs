@@ -423,10 +423,12 @@ public class ZTMZPacenoteTool {
 
                 break;
             case GameState.Racing:
-                if ((lastState == GameState.RaceBegin || lastState == GameState.CountingDown) && Config.Instance.PlayGoSound)
+                if (lastState == GameState.RaceBegin || lastState == GameState.CountingDown)
                 {
-                    // just go !
-                    this._profileManager.PlaySystem(Constants.SYSTEM_GO, true);
+                    if (Config.Instance.PlayGoSound) {
+                        // just go !
+                        this._profileManager.PlaySystem(Constants.SYSTEM_GO, true);
+                    }
 
                     // start to record the replay
                     initReplay();
