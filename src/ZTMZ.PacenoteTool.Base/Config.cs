@@ -762,7 +762,7 @@ namespace ZTMZ.PacenoteTool.Base
         private bool _ConnectCloseDistanceCallToNextPacenote = true;
         public bool ConnectCloseDistanceCallToNextPacenote
         {
-            set { this._ConnectCloseDistanceCallToNextPacenote = value; this._userconfig["ConnectDistanceCallToNextPacenote"] = value; }
+            set { this._ConnectCloseDistanceCallToNextPacenote = value; this._userconfig["ConnectCloseDistanceCallToNextPacenote"] = value; }
             get => this._ConnectCloseDistanceCallToNextPacenote;
         }
 
