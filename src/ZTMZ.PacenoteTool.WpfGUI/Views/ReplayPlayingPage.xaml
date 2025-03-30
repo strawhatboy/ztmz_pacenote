@@ -14,10 +14,15 @@
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       ui:NavigationView.HeaderContent="{Binding ViewModel.HeaderContent}"
+      KeyboardNavigation.ControlTabNavigation="None"
       mc:Ignorable="d">
   <Page.InputBindings>
     <KeyBinding Key="Space"
                 Command="{Binding Path=ViewModel.SpaceKeyCommand}"/>
+    <KeyBinding Key="Left"
+                Command="{Binding Path=ViewModel.LeftKeyCommand}"/>
+    <KeyBinding Key="Right"
+                Command="{Binding Path=ViewModel.RightKeyCommand}"/>
   </Page.InputBindings>
   <Page.Resources>
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -55,7 +60,7 @@
                VerticalAlignment="Stretch"/>
         <MediaElement Stretch="Fill"
                       Source="{Binding ViewModel.VideoPath}"
-                      Volume="1"
+                      Volume="{Binding ViewModel.Volume}"
                       Margin="0 0 10 0"
                       LoadedBehavior="Manual"
                       UnloadedBehavior="Manual"
@@ -64,11 +69,17 @@
         <!-- slider to control the progress -->
 
         <Grid VerticalAlignment="Bottom">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="25"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <ui:Button
+            Grid.Row="1"
             Width="25"
             Height="25"
             Padding="0"
@@ -94,14 +105,41 @@
               </ui:SymbolIcon>
             </ui:Button.Icon>
           </ui:Button>
-          <Slider Margin="5 0 15 0"
+          <Slider Margin="5 0 0 0"
+                  Grid.Row="1"
                   Grid.Column="1"
+                  Value="{Binding ViewModel.Volume, Mode=TwoWay}"
+                  x:Name="sl_video_volume"
+                  Minimum="0"
+                  Maximum="1"
+                  TickFrequency="0.1"
+                  IsSnapToTickEnabled="True"
+                  HorizontalAlignment="Stretch"
+                  Focusable="False"
+                  VerticalAlignment="Center">
+          </Slider>
+          <Slider Margin="5 0 15 0"
+                  Grid.Row="1"
+                  Grid.Column="2"
+                  Value="{Binding ViewModel.PlaySpeed, Mode=TwoWay}"
+                  x:Name="sl_video_speed"
+                  Minimum="0.1"
+                  Maximum="2"
+                  TickFrequency="0.1"
+                  IsSnapToTickEnabled="True"
+                  HorizontalAlignment="Stretch"
+                  Focusable="False"
+                  VerticalAlignment="Center">
+          </Slider>
+          <Slider Margin="5 0 15 0"
+                  Grid.ColumnSpan="3"
                   Value="{Binding ViewModel.PlayPosition}"
                   x:Name="sl_video"
                   Minimum="0"
                   Maximum="{Binding ViewModel.VideoLength}"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Center"
+                  Focusable="False"
                   Thumb.DragStarted="thumb_DragStarted"
                   Thumb.DragCompleted="thumb_DragCompleted">
           </Slider>

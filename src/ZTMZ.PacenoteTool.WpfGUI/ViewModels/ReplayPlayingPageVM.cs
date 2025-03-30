@@ -61,6 +61,12 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     [ObservableProperty]
     private double _playPosition;
 
+    [ObservableProperty]
+    private double _volume = 1;
+
+    [ObservableProperty]
+    private double _playSpeed = 1;
+
     partial void OnPlayPositionChanged(double newValue){
         // calculate the distance
         UpdateLapTimeAndLapDistance(newValue);
@@ -87,6 +93,10 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         } else {
             clearCharts();
         }
+    }
+
+    partial void OnPlaySpeedChanged(double value) {
+        mediaElement.SpeedRatio = value;
     }
 
 
@@ -390,6 +400,38 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
                 this.mediaElement.Pause();
             });
             this.IsPaused = true;
+        }
+    }
+
+    [RelayCommand]
+    private async void LeftKey() {
+        // left key pressed. should go back 5 second
+        if (this.PlayPosition > 5) {
+            Application.Current.Dispatcher.Invoke(() => {
+                this.mediaElement.Position = TimeSpan.FromSeconds(this.PlayPosition - 5);
+            });
+            this.PlayPosition -= 5;
+        } else {
+            Application.Current.Dispatcher.Invoke(() => {
+                this.mediaElement.Position = TimeSpan.FromSeconds(0);
+            });
+            this.PlayPosition = 0;
+        }
+    }
+
+    [RelayCommand]
+    private async void RightKey() {
+        // right key pressed. should go forward 5 second
+        if (this.PlayPosition + 5 < this.VideoLength) {
+            Application.Current.Dispatcher.Invoke(() => {
+                this.mediaElement.Position = TimeSpan.FromSeconds(this.PlayPosition + 5);
+            });
+            this.PlayPosition += 5;
+        } else {
+            Application.Current.Dispatcher.Invoke(() => {
+                this.mediaElement.Position = TimeSpan.FromSeconds(this.VideoLength);
+            });
+            this.PlayPosition = this.VideoLength;
         }
     }
 
