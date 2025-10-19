@@ -5,7 +5,7 @@
 		"data":
 		{
 			"build": 2,
-			"major": 2,
+			"major": 3,
 			"minor": 1
 		}
 	},
@@ -613,6 +613,20 @@
 			"builder": false
 		},
 		{
+			"id": 122,
+			"class": 22,
+			"manufacturer": 17,
+			"name": "Renault Clio Rally3",
+			"builder": false
+		},
+		{
+			"id": 123,
+			"class": 22,
+			"manufacturer": 5,
+			"name": "Ford Fiesta Rally3",
+			"builder": false
+		},
+		{
 			"id": 124,
 			"class": 19,
 			"manufacturer": 5,
@@ -655,6 +669,13 @@
 			"builder": false
 		},
 		{
+			"id": 131,
+			"class": 3,
+			"manufacturer": 5,
+			"name": "Ford Escort RS 1600 MK1",
+			"builder": false
+		},
+		{
 			"id": 132,
 			"class": 23,
 			"manufacturer": 4,
@@ -676,10 +697,38 @@
 			"builder": false
 		},
 		{
+			"id": 135,
+			"class": 8,
+			"manufacturer": 20,
+			"name": "Opel Corsa Rally4",
+			"builder": false
+		},
+		{
 			"id": 136,
 			"class": 9,
 			"manufacturer": 7,
 			"name": "Peugeot 206 S1600",
+			"builder": false
+		},
+		{
+			"id": 137,
+			"class": 8,
+			"manufacturer": 17,
+			"name": "Renault Clio Rally4",
+			"builder": false
+		},
+		{
+			"id": 138,
+			"class": 13,
+			"manufacturer": 5,
+			"name": "Ford Focus WRC '99",
+			"builder": false
+		},
+		{
+			"id": 139,
+			"class": 17,
+			"manufacturer": 6,
+			"name": "Hyundai i20 Coupe WRC '21",
 			"builder": false
 		}
 	],
@@ -755,6 +804,10 @@
 		{
 			"id": 21,
 			"name": "WRC2"
+		},
+		{
+			"id": 22,
+			"name": "Rally3"
 		},
 		{
 			"id": 23,
@@ -1444,11 +1497,11 @@
 		},
 		{
 			"id": 263,
-			"name": "Saint-Léger-les-Mélèzes - La Bâtie-Neuve"
+			"name": "Saint-Léger-les-Mélèzes"
 		},
 		{
 			"id": 264,
-			"name": "La Bâtie-Neuve - Saint-Léger-les-Mélèzes"
+			"name": "La Bâtie-Neuve"
 		},
 		{
 			"id": 265,
@@ -1947,6 +2000,30 @@
 			"name": "Probark"
 		},
 		{
+			"id": 422,
+			"name": "Harvati"
+		},
+		{
+			"id": 423,
+			"name": "Pisia"
+		},
+		{
+			"id": 424,
+			"name": "Drosopigi - Aghia Triada"
+		},
+		{
+			"id": 425,
+			"name": "Perachora"
+		},
+		{
+			"id": 426,
+			"name": "Irini - Schinos"
+		},
+		{
+			"id": 427,
+			"name": "Posidonia"
+		},
+		{
 			"id": 440,
 			"name": "Briançonnet - Entrevaux"
 		},
@@ -1993,6 +2070,30 @@
 		{
 			"id": 451,
 			"name": "Ruivães"
+		},
+		{
+			"id": 458,
+			"name": "Umeå"
+		},
+		{
+			"id": 459,
+			"name": "Sandbacka"
+		},
+		{
+			"id": 460,
+			"name": "Ersmark"
+		},
+		{
+			"id": 461,
+			"name": "Ersboda"
+		},
+		{
+			"id": 462,
+			"name": "Umeå Sprint"
+		},
+		{
+			"id": 463,
+			"name": "Haga"
 		}
 	],
 	"vehicle_tyre_state": [
