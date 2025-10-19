@@ -110,6 +110,13 @@
       "hudTelemetrySteeringDegree": "方向盘从一侧限位转向另一侧限位所经过的角度",
       "hudTelemetryShowSuspensionBars": "轮速（绿色）、刹车温度（红色），悬挂位置（白色）和悬挂速度（蓝色）",
       "hudShowDebugTelemetry": "在游戏画面左侧显示出所有遥测数据以供调试和问题诊断",
+      "webDashboardEnabled": "启用基于网页的仪表盘服务器，可通过移动设备访问",
+      "webDashboardPort": "网页仪表盘服务器的端口号（修改后需重启生效）",
+      "webDashboardTitle": "网页仪表盘",
+      "webDashboardSubtitle": "从移动设备访问仪表盘",
+      "webDashboardPortLabel": "端口：",
+      "webDashboardInstructions": "通过浏览器访问：http://<电脑IP>:{0}\n示例：http://192.168.1.100:8080\n⚠️ 修改设置后需要重启",
+      
       "enableOnlineAnalytics": "使用Google Analytics/Azure Insights收集你的一些“使用信息”来帮助我们改善程序，这些信息全部是以匿名形式发送到\n谷歌/微软服务器用作统计使用，你可以随时在设置中允许或禁止我们对这些信息的收集。这些信息包括且仅限于：\n\t- 程序异常/崩溃事件(用以修复bug)\n\t- 操作系统版本\n\t- 打开本程序事件\n\t- 打开本程序内的各个窗口事件\n\t- 各个配置项的修改事件\n\t- 主界面配置项的修改事件\n\t- 使用具体语音包进行比赛的事件(用以统计语音包偏好)",
       "optInBetaPlan": "打开此选项以获取测试版的更新和新功能，测试版的更新频率会高于正式版",
 

@@ -149,6 +149,45 @@
             </Grid>
         </ui:CardAction>
 
+        <!-- Web Dashboard -->
+        <ui:Card Margin="0 0 0 3" Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Globe20" FontSize="26" Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Grid.Row="0" Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardTitle}" FontTypography="BodyStrong" />
+                        <ui:TextBlock Grid.Row="1" Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardSubtitle}" Appearance="Tertiary" FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ToggleButton Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding Path=ViewModel.WebDashboardEnabled, Mode=TwoWay}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardEnabled}" />
+                
+                <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="36 10 0 0" Visibility="{Binding Path=ViewModel.WebDashboardEnabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="120" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock Grid.Column="0" Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardPortLabel}" VerticalAlignment="Center" Margin="0 0 10 0" />
+                        <ui:NumberBox Grid.Column="1" Value="{Binding Path=ViewModel.WebDashboardPort, Mode=TwoWay}" Min="1024" Max="65535" ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardPort}" />
+                    </Grid>
+                    <ui:TextBlock Margin="0 8 0 0" TextWrapping="Wrap" Appearance="Tertiary" FontTypography="Caption" Text="{Binding Path=ViewModel.WebDashboardInstructions, Mode=OneWay}" />
+                </StackPanel>
+            </Grid>
+        </ui:Card>
+
         <ui:TextBlock
             Text="{DynamicResource ResourceKey=tabs.dashboard}"
             Margin="0 0 0 5"

@@ -110,7 +110,15 @@
       "hudTelemetrySteeringDegree": "The angle through which the steering wheel passes from one side limit to the other side limit",
       "hudTelemetryShowSuspensionBars": "Wheel speed (green), brake temperature (red), suspension position (white) and suspension speed (blue)",
       "hudShowDebugTelemetry": "Displays all telemetry data on the left side of the game screen for debugging and problem diagnosis",
-      "enableOnlineAnalytics": "Use Google Analytics/Azure AppInsights to collect some of your \"usage information\" to help us improve \nthe program. All of this information is sent to Google/Microsoft servers in an anonymous form for statistical use. \nYou can allow or prohibit this in the settings at any time. This information includes and is limited to:\n\t- Application crash/exception (for bug fixing)\n\t- Operating system version\n\t- Opening this program event\n\t- Opening each window event in this program\n\t- Each configuration item modification event\n \t- The modification event of the main interface configuration item\n\t- The event of using a specific voice package to play the game (to count the voice package preference)",
+      
+      "webDashboardEnabled": "Enable web-based dashboard server for mobile device access",
+      "webDashboardPort": "Port number for the web dashboard server (requires restart to take effect)",
+      "webDashboardTitle": "Web Dashboard",
+      "webDashboardSubtitle": "Access dashboards from mobile devices",
+      "webDashboardPortLabel": "Port:",
+      "webDashboardInstructions": "Access from browser: http://<PC-IP>:{0}\nExample: http://192.168.1.100:8080\n⚠️ Restart required after changing settings",
+      
+      "enableOnlineAnalytics": "Use Google Analytics/Azure AppInsights to collect some of your \"usage information\" to help us improve \nthe program. All of this information is sent to Google/Microsoft servers in an anonymous form for statistical use. \nYou can allow or prohibit this in the settings at any time. This information includes and is limited to:\n\t- Application crash/exception (for bug fixing)\n\t- Operating system version\n\t- Opening this program event\n\t- Opening each window event in this program\n\t- Each configuration item modification event\n \t- The modification event of the main interface configuration item\n\t- The event of using a specific voice package to play the game (to stat the voice package preference)",
       "optInBetaPlan": "Turn on this option to recieve updates and new features in the beta version",
 
       "vrUseZTMZHud":"In SteamVR overlay, use ZTMZ Hud to display the game telemetry",

@@ -51,6 +51,28 @@ public partial class HudPageVM : ObservableObject {
     }
 
     [ObservableProperty]
+    private bool _webDashboardEnabled = Config.Instance.WebDashboardEnabled;
+
+    partial void OnWebDashboardEnabledChanged(bool value)
+    {
+        Config.Instance.WebDashboardEnabled = value;
+        Config.Instance.SaveUserConfig();
+    }
+
+    [ObservableProperty]
+    private int _webDashboardPort = Config.Instance.WebDashboardPort;
+
+    partial void OnWebDashboardPortChanged(int value)
+    {
+        Config.Instance.WebDashboardPort = value;
+        Config.Instance.SaveUserConfig();
+        OnPropertyChanged(nameof(WebDashboardInstructions));
+    }
+
+    public string WebDashboardInstructions =>
+        string.Format(I18NLoader.Instance["settings.tooltip.webDashboardInstructions"], WebDashboardPort);
+
+    [ObservableProperty]
     private ObservableCollection<object> _dashboardItems = new();
 
     [RelayCommand]

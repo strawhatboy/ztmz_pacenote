@@ -16,6 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
     <ProjectReference Include="..\GameOverlay\GameOverlay.csproj" />
     <ProjectReference Include="..\VRGameOverlay\VRGameOverlay.csproj" />
@@ -44,6 +48,13 @@
 
   <ItemGroup>
     <None Include="fonts\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Copy wwwroot static files for web dashboard -->
+    <None Update="wwwroot\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

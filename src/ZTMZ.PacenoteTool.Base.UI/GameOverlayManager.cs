@@ -123,6 +123,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         private bool _hudShowInSeparateWindow = false;
 
+        private WebDashboardServer? _webDashboardServer = null;
+
         public event Action<bool> OnGameOverlayInitializingStateChanged;
 
         public GameOverlayManager() {
@@ -216,6 +218,24 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     UninitializeOverlayInSeparateWindow();
                 }
             };
+
+            // Initialize WebDashboard server if enabled
+            if (Config.Instance.WebDashboardEnabled)
+            {
+                try
+                {
+                    _webDashboardServer = new WebDashboardServer();
+                    _webDashboardServer.Port = Config.Instance.WebDashboardPort;
+                    _webDashboardServer.Initialize(Dashboards);
+                    _webDashboardServer.Start();
+                    _logger.Info($"WebDashboard server started on port {_webDashboardServer.Port}");
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Failed to start WebDashboard server");
+                    _webDashboardServer = null;
+                }
+            }
         }
 
         public void InitializeOverlayInSeparateWindow() {
@@ -444,6 +464,15 @@ namespace ZTMZ.PacenoteTool.Base.UI
                             DashboardLoaded[i] = false;
                         }
                     }
+                }
+
+                // Broadcast game data to web dashboard clients
+                if (_webDashboardServer != null && _webDashboardServer.IsRunning && _webDashboardServer.ClientCount > 0)
+                {
+                    _ = _webDashboardServer.BroadcastGameData(
+                        DashboardScriptArguments.GameData,
+                        DashboardScriptArguments.GameContext
+                    );
                 }
             }
         }
@@ -1075,6 +1104,15 @@ namespace ZTMZ.PacenoteTool.Base.UI
             if (!disposedValue)
             {
                 _window?.Dispose();
+
+                // Stop and dispose WebDashboard server
+                if (_webDashboardServer != null)
+                {
+                    _webDashboardServer.Stop();
+                    _webDashboardServer.Dispose();
+                    _webDashboardServer = null;
+                    _logger.Info("WebDashboard server stopped and disposed");
+                }
 
                 disposedValue = true;
             }

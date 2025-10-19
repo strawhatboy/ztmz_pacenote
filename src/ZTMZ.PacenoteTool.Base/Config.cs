@@ -537,6 +537,20 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._UI_SelectedHudIndex;
         }
 
+        private bool _WebDashboardEnabled = false;
+        public bool WebDashboardEnabled
+        {
+            set { this._WebDashboardEnabled = value; this._userconfig["WebDashboardEnabled"] = value; }
+            get => this._WebDashboardEnabled;
+        }
+
+        private int _WebDashboardPort = 8080;
+        public int WebDashboardPort
+        {
+            set { this._WebDashboardPort = value; this._userconfig["WebDashboardPort"] = value; }
+            get => this._WebDashboardPort;
+        }
+
         #endregion
 
         #region VrOverlay

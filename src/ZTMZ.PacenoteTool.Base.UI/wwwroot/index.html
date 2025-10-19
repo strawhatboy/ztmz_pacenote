@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ZTMZ Pacenote Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            overflow: hidden;
+            touch-action: none;
+        }
+        
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            z-index: 9999;
+        }
+        
+        #loading h1 {
+            margin-bottom: 20px;
+            color: #00ff88;
+        }
+        
+        #loading p {
+            color: #888;
+            margin: 5px 0;
+        }
+        
+        #loading .spinner {
+            border: 3px solid #333;
+            border-top: 3px solid #00ff88;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px 0;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        #dashboard-selector {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            overflow-y: auto;
+            z-index: 9998;
+            padding: 20px;
+        }
+        
+        #dashboard-selector.active {
+            display: block;
+        }
+        
+        #dashboard-selector h2 {
+            color: #00ff88;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .dashboard-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-card {
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .dashboard-card:hover {
+            border-color: #00ff88;
+            background: #252525;
+        }
+        
+        .dashboard-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .dashboard-card h3 {
+            color: #00ff88;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .dashboard-card p {
+            color: #aaa;
+            font-size: 12px;
+            margin: 4px 0;
+        }
+        
+        .dashboard-card .preview {
+            width: 100%;
+            height: 120px;
+            background: #000;
+            margin-top: 10px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+        
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+        
+        #canvas-container.active {
+            display: block;
+        }
+        
+        #dashboard-canvas {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+        }
+        
+        #menu-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 44px;
+            height: 44px;
+            background: rgba(0, 255, 136, 0.3);
+            border: 2px solid #00ff88;
+            border-radius: 50%;
+            color: #00ff88;
+            font-size: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9997;
+            touch-action: manipulation;
+        }
+        
+        #menu-button.active {
+            display: flex;
+        }
+        
+        #menu-button:active {
+            background: rgba(0, 255, 136, 0.5);
+        }
+        
+        #connection-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 9997;
+            display: none;
+        }
+        
+        #connection-status.active {
+            display: block;
+        }
+        
+        #connection-status.connected {
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+        
+        #connection-status.disconnected {
+            border-color: #ff3333;
+            color: #ff3333;
+        }
+        
+        #error-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 51, 51, 0.9);
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+            z-index: 9999;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        #error-message.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading">
+        <h1>ZTMZ Pacenote Dashboard</h1>
+        <div class="spinner"></div>
+        <p id="loading-text">Initializing...</p>
+    </div>
+    
+    <!-- Dashboard Selector -->
+    <div id="dashboard-selector">
+        <h2>Select Dashboard</h2>
+        <div class="dashboard-list" id="dashboard-list"></div>
+    </div>
+    
+    <!-- Canvas Container -->
+    <div id="canvas-container">
+        <canvas id="dashboard-canvas"></canvas>
+    </div>
+    
+    <!-- Menu Button -->
+    <button id="menu-button" title="Back to Dashboard Selection">☰</button>
+    
+    <!-- Connection Status -->
+    <div id="connection-status"></div>
+    
+    <!-- Error Message -->
+    <div id="error-message"></div>
+    
+    <!-- Fengari Lua Interpreter -->
+    <script src="https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.js"></script>
+    
+    <!-- Dashboard Client -->
+    <script src="dashboard-client.js"></script>
+</body>
+</html>
