@@ -1,7 +1,11 @@
 /**
  * ZTMZ Pacenote Dashboard - Web Client
- * Executes Lua dashboards client-side using Fengari
+ * Receives drawing commands from server and renders them on canvas
+ * Server executes Lua dashboards and sends rendered commands
+ * VERSION: 2025-10-19-v2 (transparent fix)
  */
+
+console.log('Dashboard Client VERSION: 2025-10-19-v2 (transparent fix)');
 
 // ============================================================================
 // Global State
@@ -9,14 +13,8 @@
 const state = {
     ws: null,
     dashboards: [],
-    currentDashboard: null,
-    luaEnv: null,
-    gameData: null,
-    gameContext: null,
     imageCache: {},
-    fontCache: {},
     isRunning: false,
-    lastFrameTime: 0,
     canvas: null,
     ctx: null
 };
@@ -25,30 +23,16 @@ const state = {
 // Initialization
 // ============================================================================
 window.addEventListener('DOMContentLoaded', async () => {
-    updateLoadingText('Loading Fengari Lua interpreter...');
-    
-    // Wait for Fengari to load
-    await waitForFengari();
+    updateLoadingText('Initializing canvas...');
+    showCanvas();
     
     updateLoadingText('Fetching dashboard list...');
     await loadDashboardList();
     
     hideLoading();
-    showDashboardSelector();
+    updateLoadingText('Connecting to server...');
+    connectWebSocket();
 });
-
-function waitForFengari() {
-    return new Promise((resolve) => {
-        const check = () => {
-            if (window.fengari) {
-                resolve();
-            } else {
-                setTimeout(check, 100);
-            }
-        };
-        check();
-    });
-}
 
 // ============================================================================
 // Dashboard Loading
@@ -60,6 +44,9 @@ async function loadDashboardList() {
         
         state.dashboards = await response.json();
         renderDashboardList();
+        
+        // Preload images for all enabled dashboards
+        await loadDashboardImages();
     } catch (error) {
         showError('Failed to load dashboard list: ' + error.message);
         console.error(error);
@@ -70,343 +57,292 @@ function renderDashboardList() {
     const listContainer = document.getElementById('dashboard-list');
     listContainer.innerHTML = '';
     
-    state.dashboards.forEach((dashboard, index) => {
-        const card = document.createElement('div');
-        card.className = 'dashboard-card' + (dashboard.enabled ? '' : ' disabled');
-        
-        const html = `
-            <h3>${dashboard.name}</h3>
-            <p><strong>Author:</strong> ${dashboard.author || 'Unknown'}</p>
-            <p><strong>Version:</strong> ${dashboard.version || 'N/A'}</p>
-            <p>${dashboard.description || ''}</p>
-            ${dashboard.previewImage ? `<img class="preview" src="${dashboard.previewImage}" alt="Preview">` : ''}
-        `;
-        card.innerHTML = html;
-        
-        if (dashboard.enabled) {
-            card.addEventListener('click', () => selectDashboard(dashboard.id));
-        }
-        
-        listContainer.appendChild(card);
-    });
+    const enabledCount = state.dashboards.filter(d => d.enabled).length;
+    const card = document.createElement('div');
+    card.className = 'dashboard-card';
+    card.innerHTML = `
+        <h3>Web Dashboard View</h3>
+        <p><strong>${enabledCount} dashboard(s) enabled</strong></p>
+        <p>Dashboards are rendered server-side and streamed to your browser.</p>
+        <p>The server will automatically render all enabled dashboards.</p>
+    `;
+    listContainer.appendChild(card);
 }
 
-async function selectDashboard(id) {
-    updateLoadingText('Loading dashboard...');
-    showLoading();
-    
-    try {
-        const response = await fetch(`/api/dashboard/${id}`);
-        if (!response.ok) throw new Error('Failed to fetch dashboard');
-        
-        const dashboard = await response.json();
-        
-        updateLoadingText('Loading resources...');
-        await loadDashboardResources(dashboard);
-        
-        updateLoadingText('Initializing Lua environment...');
-        await initializeLuaEnvironment(dashboard);
-        
-        state.currentDashboard = dashboard;
-        
-        hideDashboardSelector();
-        hideLoading();
-        showCanvas();
-        
-        updateLoadingText('Connecting to server...');
-        connectWebSocket();
-        
-    } catch (error) {
-        hideLoading();
-        showError('Failed to load dashboard: ' + error.message);
-        console.error(error);
-    }
-}
-
-async function loadDashboardResources(dashboard) {
-    // Preload all images
-    const imagePromises = Object.entries(dashboard.imageResources).map(([key, url]) => {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => {
-                state.imageCache[key] = img;
-                resolve();
-            };
-            img.onerror = () => {
-                console.warn(`Failed to load image: ${key} from ${url}`);
-                resolve(); // Continue even if image fails
-            };
-            img.src = url;
-        });
-    });
-    
-    await Promise.all(imagePromises);
-}
-
-// ============================================================================
-// Lua Environment Setup
-// ============================================================================
-async function initializeLuaEnvironment(dashboard) {
-    const fengari = window.fengari;
-    const lua = fengari.lua;
-    const lauxlib = fengari.lauxlib;
-    const lualib = fengari.lualib;
-    
-    // Create new Lua state
-    const L = lauxlib.luaL_newstate();
-    lualib.luaL_openlibs(L);
-    
-    // Create Graphics bridge
-    const graphicsBridge = createGraphicsBridge();
-    
-    // Inject global variables
-    injectLuaGlobals(L, graphicsBridge, dashboard);
-    
-    // Load common Lua scripts
-    for (const commonScript of dashboard.commonScripts) {
-        if (lauxlib.luaL_dostring(L, fengari.to_luastring(commonScript)) !== lua.LUA_OK) {
-            const error = lua.lua_tojsstring(L, -1);
-            console.error('Error loading common Lua script:', error);
-            throw new Error('Lua common script error: ' + error);
+async function loadDashboardImages() {
+    // Load all dashboard images for all enabled dashboards
+    for (const dashboardInfo of state.dashboards.filter(d => d.enabled)) {
+        try {
+            const response = await fetch(`/api/dashboard/${dashboardInfo.id}`);
+            if (!response.ok) continue;
+            
+            const dashboard = await response.json();
+            
+            // Preload all images
+            const imagePromises = Object.entries(dashboard.imageResources).map(([key, url]) => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        state.imageCache[key] = img;
+                        console.log('Loaded image:', key, 'from', url);
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        console.warn(`Failed to load image: ${key} from ${url}`);
+                        resolve();
+                    };
+                    img.src = url;
+                });
+            });
+            
+            await Promise.all(imagePromises);
+        } catch (error) {
+            console.error(`Failed to load images for dashboard ${dashboardInfo.name}:`, error);
         }
     }
-    
-    // Load main dashboard script
-    if (lauxlib.luaL_dostring(L, fengari.to_luastring(dashboard.luaScript)) !== lua.LUA_OK) {
-        const error = lua.lua_tojsstring(L, -1);
-        console.error('Error loading dashboard Lua script:', error);
-        throw new Error('Lua script error: ' + error);
-    }
-    
-    state.luaEnv = L;
-    state.graphicsBridge = graphicsBridge;
-    
-    // Call onInit if exists
-    lua.lua_getglobal(L, fengari.to_luastring('onInit'));
-    if (lua.lua_isfunction(L, -1)) {
-        if (lua.lua_pcall(L, 0, 0, 0) !== lua.LUA_OK) {
-            const error = lua.lua_tojsstring(L, -1);
-            console.error('Error in onInit:', error);
-        }
-    } else {
-        lua.lua_pop(L, 1);
-    }
-}
-
-function injectLuaGlobals(L, graphicsBridge, dashboard) {
-    const fengari = window.fengari;
-    const lua = fengari.lua;
-    const lauxlib = fengari.lauxlib;
-    
-    // Graphics object
-    lua.lua_newtable(L);
-    for (const [funcName, func] of Object.entries(graphicsBridge)) {
-        lua.lua_pushstring(L, fengari.to_luastring(funcName));
-        lua.lua_pushjsfunction(L, func);
-        lua.lua_settable(L, -3);
-    }
-    lua.lua_setglobal(L, fengari.to_luastring('Graphics'));
-    
-    // GameData (will be updated each frame)
-    lua.lua_newtable(L);
-    lua.lua_setglobal(L, fengari.to_luastring('GameData'));
-    
-    // Config object
-    lua.lua_newtable(L);
-    for (const [key, value] of Object.entries(dashboard.settings)) {
-        lua.lua_pushstring(L, fengari.to_luastring(key));
-        pushLuaValue(L, value);
-        lua.lua_settable(L, -3);
-    }
-    lua.lua_setglobal(L, fengari.to_luastring('Config'));
-    
-    // Width/Height
-    lua.lua_pushnumber(L, state.canvas.width);
-    lua.lua_setglobal(L, fengari.to_luastring('Width'));
-    lua.lua_pushnumber(L, state.canvas.height);
-    lua.lua_setglobal(L, fengari.to_luastring('Height'));
-}
-
-function pushLuaValue(L, value) {
-    const fengari = window.fengari;
-    const lua = fengari.lua;
-    
-    if (typeof value === 'number') {
-        lua.lua_pushnumber(L, value);
-    } else if (typeof value === 'string') {
-        lua.lua_pushstring(L, fengari.to_luastring(value));
-    } else if (typeof value === 'boolean') {
-        lua.lua_pushboolean(L, value);
-    } else if (value === null || value === undefined) {
-        lua.lua_pushnil(L);
-    } else {
-        lua.lua_pushstring(L, fengari.to_luastring(String(value)));
-    }
 }
 
 // ============================================================================
-// Graphics Bridge (Canvas API wrapper for Lua)
+// Drawing Command Player
 // ============================================================================
-function createGraphicsBridge() {
+
+/**
+ * Execute a single drawing command on the canvas
+ */
+function executeDrawingCommand(cmd) {
     const ctx = state.ctx;
     
-    return {
-        // Drawing primitives
-        DrawLine: (x1, y1, x2, y2, thickness, color) => {
+    try {
+        switch (cmd.type) {
+        case 'clear':
+            const clearAlpha = cmd.color ? (cmd.color >> 24) & 0xFF : 0;
+            if (cmd.color) {
+                ctx.fillStyle = colorToCSS(cmd.color);
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            break;
+            
+        case 'drawLine':
             ctx.save();
-            ctx.strokeStyle = colorToCSS(color);
-            ctx.lineWidth = thickness || 1;
+            ctx.strokeStyle = colorToCSS(cmd.color);
+            ctx.lineWidth = cmd.thickness;
             ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
+            ctx.moveTo(cmd.x1, cmd.y1);
+            ctx.lineTo(cmd.x2, cmd.y2);
             ctx.stroke();
             ctx.restore();
-        },
-        
-        DrawRectangle: (x, y, width, height, thickness, color) => {
+            break;
+            
+        case 'drawRectangle':
             ctx.save();
-            ctx.strokeStyle = colorToCSS(color);
-            ctx.lineWidth = thickness || 1;
-            ctx.strokeRect(x, y, width, height);
+            ctx.strokeStyle = colorToCSS(cmd.color);
+            ctx.lineWidth = cmd.thickness;
+            ctx.strokeRect(cmd.x, cmd.y, cmd.width, cmd.height);
             ctx.restore();
-        },
-        
-        FillRectangle: (x, y, width, height, color) => {
-            ctx.save();
-            ctx.fillStyle = colorToCSS(color);
-            ctx.fillRect(x, y, width, height);
+            break;
+            
+        case 'fillRect':
+            if (cmd.gradient) {
+                // Create gradient based on type
+                let gradient;
+                if (cmd.gradient.type === 'linear') {
+                    gradient = ctx.createLinearGradient(
+                        cmd.gradient.x0, cmd.gradient.y0,
+                        cmd.gradient.x1, cmd.gradient.y1
+                    );
+                } else if (cmd.gradient.type === 'radial') {
+                    gradient = ctx.createRadialGradient(
+                        cmd.gradient.x0, cmd.gradient.y0, cmd.gradient.r0,
+                        cmd.gradient.x1, cmd.gradient.y1, cmd.gradient.r1
+                    );
+                }
+                
+                if (gradient && cmd.gradient.colors && cmd.gradient.colors.length > 0) {
+                    // Add color stops
+                    const colorCount = cmd.gradient.colors.length;
+                    for (let i = 0; i < colorCount; i++) {
+                        const position = colorCount > 1 ? i / (colorCount - 1) : 0;
+                        gradient.addColorStop(position, colorToCSS(cmd.gradient.colors[i]));
+                    }
+                    ctx.fillStyle = gradient;
+                } else {
+                    ctx.fillStyle = colorToCSS(cmd.color);
+                }
+                ctx.fillRect(cmd.x, cmd.y, cmd.width, cmd.height);
+            } else {
+                // Skip fully transparent fills (they clear underlying content)
+                const alpha = (cmd.color >> 24) & 0xFF;
+                if (alpha > 0) {
+                    ctx.fillStyle = colorToCSS(cmd.color);
+                    ctx.fillRect(cmd.x, cmd.y, cmd.width, cmd.height);
+                }
+            }
             ctx.restore();
-        },
-        
-        DrawCircle: (x, y, radius, thickness, color) => {
+            break;
+            
+        case 'drawCircle':
             ctx.save();
-            ctx.strokeStyle = colorToCSS(color);
-            ctx.lineWidth = thickness || 1;
+            ctx.strokeStyle = colorToCSS(cmd.color);
+            ctx.lineWidth = cmd.thickness;
             ctx.beginPath();
-            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.arc(cmd.x, cmd.y, cmd.radius, 0, Math.PI * 2);
             ctx.stroke();
             ctx.restore();
-        },
-        
-        FillCircle: (x, y, radius, color) => {
+            break;
+            
+        case 'fillCircle':
             ctx.save();
-            ctx.fillStyle = colorToCSS(color);
+            ctx.fillStyle = colorToCSS(cmd.color);
             ctx.beginPath();
-            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.arc(cmd.x, cmd.y, cmd.radius, 0, Math.PI * 2);
             ctx.fill();
             ctx.restore();
-        },
-        
-        // Text rendering
-        DrawText: (x, y, text, fontSize, color, fontName) => {
-            ctx.save();
-            ctx.fillStyle = colorToCSS(color);
-            ctx.font = `${fontSize}px ${fontName || 'Arial'}`;
-            ctx.textBaseline = 'top';
-            ctx.fillText(text, x, y);
-            ctx.restore();
-        },
-        
-        DrawTextWithBackground: (x, y, text, fontSize, color, bgColor, fontName) => {
-            ctx.save();
-            ctx.font = `${fontSize}px ${fontName || 'Arial'}`;
-            const metrics = ctx.measureText(text);
-            const textWidth = metrics.width;
-            const textHeight = fontSize * 1.2;
+            break;
             
-            // Draw background
-            ctx.fillStyle = colorToCSS(bgColor);
-            ctx.fillRect(x, y, textWidth, textHeight);
+        case 'drawText':
+            ctx.fillStyle = colorToCSS(cmd.color);
             
-            // Draw text
-            ctx.fillStyle = colorToCSS(color);
-            ctx.textBaseline = 'top';
-            ctx.fillText(text, x, y);
-            ctx.restore();
-        },
-        
-        MeasureString: (text, fontSize, fontName) => {
+        case 'drawTextWithBackground':
             ctx.save();
-            ctx.font = `${fontSize}px ${fontName || 'Arial'}`;
-            const metrics = ctx.measureText(text);
+            ctx.font = `${cmd.fontSize}px ${cmd.fontName}`;
+            
+            // Handle multi-line text
+            const bgLines = cmd.text.split('\n');
+            const lineHeight = cmd.fontSize * 1.2;
+            
+            // Calculate total text dimensions
+            let maxWidth = 0;
+            for (const line of bgLines) {
+                const metrics = ctx.measureText(line);
+                maxWidth = Math.max(maxWidth, metrics.width);
+            }
+            const totalHeight = bgLines.length * lineHeight;
+            
+            // Draw background (skip if fully transparent)
+            const bgAlpha = ((cmd.bgColor >> 24) & 0xFF);
+            if (bgAlpha > 0) {
+                ctx.fillStyle = colorToCSS(cmd.bgColor);
+                ctx.fillRect(cmd.x, cmd.y, maxWidth, totalHeight);
+            }
+            
+            // Draw text lines
+            ctx.fillStyle = colorToCSS(cmd.color);
+            ctx.textBaseline = 'top';
+            for (let i = 0; i < bgLines.length; i++) {
+                ctx.fillText(bgLines[i], cmd.x, cmd.y + (i * lineHeight));
+            }
+            
             ctx.restore();
-            return metrics.width;
-        },
-        
-        // Image rendering
-        DrawImage: (imageKey, x, y, width, height) => {
-            const img = state.imageCache[imageKey];
+            break;
+            
+        case 'drawImage':
+            const img = state.imageCache[cmd.imageKey];
             if (img) {
-                if (width && height) {
-                    ctx.drawImage(img, x, y, width, height);
+                if (cmd.width && cmd.height) {
+                    ctx.drawImage(img, cmd.x, cmd.y, cmd.width, cmd.height);
                 } else {
-                    ctx.drawImage(img, x, y);
+                    ctx.drawImage(img, cmd.x, cmd.y);
                 }
             } else {
-                console.warn(`Image not found: ${imageKey}`);
+                console.warn('DrawImage: Image not found in cache:', cmd.imageKey);
             }
-        },
-        
-        DrawImageRegion: (imageKey, srcX, srcY, srcWidth, srcHeight, destX, destY, destWidth, destHeight) => {
-            const img = state.imageCache[imageKey];
-            if (img) {
-                ctx.drawImage(img, srcX, srcY, srcWidth, srcHeight, destX, destY, destWidth, destHeight);
+            break;
+            
+        case 'drawImageRegion':
+            const imgRegion = state.imageCache[cmd.imageKey];
+            if (imgRegion) {
+                ctx.drawImage(imgRegion, 
+                    cmd.srcX, cmd.srcY, cmd.srcWidth, cmd.srcHeight,
+                    cmd.destX, cmd.destY, cmd.destWidth, cmd.destHeight);
             }
-        },
-        
-        // Transformations
-        ResetTransform: () => {
+            break;
+            
+        case 'rotate':
+            ctx.rotate(cmd.angle);
+            break;
+            
+        case 'rotateAt':
+            ctx.translate(cmd.centerX, cmd.centerY);
+            ctx.rotate(cmd.angle);
+            ctx.translate(-cmd.centerX, -cmd.centerY);
+            break;
+            
+        case 'translate':
+            ctx.translate(cmd.x, cmd.y);
+            break;
+            
+        case 'scale':
+            ctx.scale(cmd.x, cmd.y);
+            break;
+            
+        case 'resetTransform':
             ctx.setTransform(1, 0, 0, 1, 0, 0);
-        },
-        
-        Rotate: (angle) => {
-            ctx.rotate(angle);
-        },
-        
-        RotateAt: (angle, centerX, centerY) => {
-            ctx.translate(centerX, centerY);
-            ctx.rotate(angle);
-            ctx.translate(-centerX, -centerY);
-        },
-        
-        Translate: (x, y) => {
-            ctx.translate(x, y);
-        },
-        
-        Scale: (x, y) => {
-            ctx.scale(x, y);
-        },
-        
-        // State management
-        Save: () => {
+            break;
+            
+        case 'save':
             ctx.save();
-        },
-        
-        Restore: () => {
+            break;
+            
+        case 'restore':
             ctx.restore();
-        },
-        
-        Clear: (color) => {
-            if (color) {
-                ctx.fillStyle = colorToCSS(color);
-                ctx.fillRect(0, 0, state.canvas.width, state.canvas.height);
-            } else {
-                ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
-            }
-        },
-        
-        // Advanced
-        SetClip: (x, y, width, height) => {
+            break;
+            
+        case 'setClip':
             ctx.save();
             ctx.beginPath();
-            ctx.rect(x, y, width, height);
+            ctx.rect(cmd.x, cmd.y, cmd.width, cmd.height);
             ctx.clip();
-        },
-        
-        ReleaseClip: () => {
+            break;
+            
+        case 'releaseClip':
             ctx.restore();
+            break;
+        
+        case 'fillGeometry':
+            if (cmd.points && cmd.points.length > 0) {
+                ctx.save();
+                ctx.fillStyle = colorToCSS(cmd.color);
+                ctx.beginPath();
+                // Points are flattened: [x1, y1, x2, y2, ...]
+                ctx.moveTo(cmd.points[0], cmd.points[1]);
+                for (let i = 2; i < cmd.points.length; i += 2) {
+                    ctx.lineTo(cmd.points[i], cmd.points[i + 1]);
+                }
+                // Don't call closePath() - the geometry is already closed by the arc points
+                // ctx.closePath();  
+                ctx.fill();
+                ctx.restore();
+            } else {
+                console.warn('fillGeometry: No points or empty points array!');
+            }
+            break;
+        
+        case 'drawGeometry':
+            if (cmd.points && cmd.points.length > 0) {
+                ctx.save();
+                ctx.strokeStyle = colorToCSS(cmd.color);
+                ctx.lineWidth = cmd.thickness;
+                ctx.beginPath();
+                // Points are flattened: [x1, y1, x2, y2, ...]
+                ctx.moveTo(cmd.points[0], cmd.points[1]);
+                for (let i = 2; i < cmd.points.length; i += 2) {
+                    ctx.lineTo(cmd.points[i], cmd.points[i + 1]);
+                }
+                ctx.closePath();
+                ctx.stroke();
+                ctx.restore();
+            }
+            break;
+        
+        default:
+            console.warn('Unknown command type:', cmd.type, cmd);
+            break;
         }
-    };
+    } catch (error) {
+        console.error('Error executing command:', cmd.type, cmd, error);
+    }
 }
 
 function colorToCSS(color) {
@@ -433,15 +369,22 @@ function connectWebSocket() {
         console.log('WebSocket connected');
         updateConnectionStatus('Connected', true);
         state.isRunning = true;
-        requestAnimationFrame(renderLoop);
+        // No render loop needed - commands come via WebSocket messages
     };
     
     state.ws.onmessage = (event) => {
         try {
             const message = JSON.parse(event.data);
-            if (message.type === 'gameData') {
-                state.gameData = message.data;
-                state.gameContext = message.context;
+            
+            if (message.type === 'drawCommands') {
+                // Received drawing commands from server - render them immediately
+                const commands = message.commands;
+                
+                for (const cmd of commands) {
+                    executeDrawingCommand(cmd);
+                }
+            } else {
+                // Ignore unknown message types
             }
         } catch (error) {
             console.error('WebSocket message error:', error);
@@ -460,64 +403,11 @@ function connectWebSocket() {
         
         // Auto-reconnect after 3 seconds
         setTimeout(() => {
-            if (state.currentDashboard && !state.ws || state.ws.readyState === WebSocket.CLOSED) {
+            if (!state.ws || state.ws.readyState === WebSocket.CLOSED) {
                 connectWebSocket();
             }
         }, 3000);
     };
-}
-
-// ============================================================================
-// Render Loop
-// ============================================================================
-function renderLoop(timestamp) {
-    if (!state.isRunning) return;
-    
-    const deltaTime = timestamp - state.lastFrameTime;
-    state.lastFrameTime = timestamp;
-    
-    // Clear canvas
-    state.ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
-    
-    // Update GameData in Lua
-    if (state.gameData) {
-        updateLuaGameData(state.gameData);
-    }
-    
-    // Call Lua onUpdate
-    const fengari = window.fengari;
-    const lua = fengari.lua;
-    const L = state.luaEnv;
-    
-    lua.lua_getglobal(L, fengari.to_luastring('onUpdate'));
-    if (lua.lua_isfunction(L, -1)) {
-        lua.lua_pushnumber(L, deltaTime / 1000); // Convert to seconds
-        if (lua.lua_pcall(L, 1, 0, 0) !== lua.LUA_OK) {
-            const error = lua.lua_tojsstring(L, -1);
-            console.error('Error in onUpdate:', error);
-            lua.lua_pop(L, 1);
-        }
-    } else {
-        lua.lua_pop(L, 1);
-    }
-    
-    requestAnimationFrame(renderLoop);
-}
-
-function updateLuaGameData(data) {
-    const fengari = window.fengari;
-    const lua = fengari.lua;
-    const L = state.luaEnv;
-    
-    lua.lua_getglobal(L, fengari.to_luastring('GameData'));
-    if (lua.lua_istable(L, -1)) {
-        for (const [key, value] of Object.entries(data)) {
-            lua.lua_pushstring(L, fengari.to_luastring(key));
-            pushLuaValue(L, value);
-            lua.lua_settable(L, -3);
-        }
-    }
-    lua.lua_pop(L, 1);
 }
 
 // ============================================================================
@@ -549,15 +439,32 @@ function showCanvas() {
     const container = document.getElementById('canvas-container');
     const canvas = document.getElementById('dashboard-canvas');
     
-    // Set canvas size to match screen
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    // Set canvas RENDERING size to match server (1920x1080)
+    // This is the actual pixel resolution for drawing
+    canvas.width = 1920;
+    canvas.height = 1080;
+    
+    // Scale canvas to fit browser window using CSS
+    // Calculate aspect-ratio preserving scaling
+    const windowAspect = window.innerWidth / window.innerHeight;
+    const canvasAspect = 1920 / 1080;
+    
+    if (windowAspect > canvasAspect) {
+        // Window is wider - fit to height
+        canvas.style.height = '100%';
+        canvas.style.width = 'auto';
+    } else {
+        // Window is taller - fit to width
+        canvas.style.width = '100%';
+        canvas.style.height = 'auto';
+    }
+    
+    console.log(`Canvas rendering size: ${canvas.width}x${canvas.height}, display size: ${canvas.clientWidth}x${canvas.clientHeight}`);
     
     state.canvas = canvas;
     state.ctx = canvas.getContext('2d');
     
     container.classList.add('active');
-    document.getElementById('menu-button').classList.add('active');
     document.getElementById('connection-status').classList.add('active');
 }
 
@@ -577,51 +484,19 @@ function showError(message) {
     }, 5000);
 }
 
-// Menu button - back to dashboard selection
-document.getElementById('menu-button').addEventListener('click', () => {
-    if (state.ws) {
-        state.ws.close();
-        state.ws = null;
-    }
-    
-    state.isRunning = false;
-    state.currentDashboard = null;
-    
-    // Call Lua onExit
-    if (state.luaEnv) {
-        const fengari = window.fengari;
-        const lua = fengari.lua;
-        const L = state.luaEnv;
-        
-        lua.lua_getglobal(L, fengari.to_luastring('onExit'));
-        if (lua.lua_isfunction(L, -1)) {
-            lua.lua_pcall(L, 0, 0, 0);
-        }
-        
-        lua.lua_close(L);
-        state.luaEnv = null;
-    }
-    
-    document.getElementById('canvas-container').classList.remove('active');
-    showDashboardSelector();
-});
-
 // Handle window resize
 window.addEventListener('resize', () => {
     if (state.canvas) {
-        state.canvas.width = window.innerWidth;
-        state.canvas.height = window.innerHeight;
+        // Keep rendering size fixed at 1920x1080, just rescale CSS
+        const windowAspect = window.innerWidth / window.innerHeight;
+        const canvasAspect = 1920 / 1080;
         
-        // Update Lua globals
-        if (state.luaEnv) {
-            const fengari = window.fengari;
-            const lua = fengari.lua;
-            const L = state.luaEnv;
-            
-            lua.lua_pushnumber(L, state.canvas.width);
-            lua.lua_setglobal(L, fengari.to_luastring('Width'));
-            lua.lua_pushnumber(L, state.canvas.height);
-            lua.lua_setglobal(L, fengari.to_luastring('Height'));
+        if (windowAspect > canvasAspect) {
+            state.canvas.style.height = '100%';
+            state.canvas.style.width = 'auto';
+        } else {
+            state.canvas.style.width = '100%';
+            state.canvas.style.height = 'auto';
         }
     }
 });

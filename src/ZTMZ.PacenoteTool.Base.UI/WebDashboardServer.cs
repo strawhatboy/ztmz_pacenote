@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
@@ -75,6 +76,13 @@ public class WebDashboardServer : IDisposable
             var wwwrootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
             if (Directory.Exists(wwwrootPath))
             {
+                // Enable default files (index.html) support
+                _app.UseDefaultFiles(new DefaultFilesOptions
+                {
+                    FileProvider = new PhysicalFileProvider(wwwrootPath),
+                    RequestPath = ""
+                });
+                
                 _app.UseStaticFiles(new StaticFileOptions
                 {
                     FileProvider = new PhysicalFileProvider(wwwrootPath),
@@ -273,13 +281,30 @@ public class WebDashboardServer : IDisposable
     }
     
     /// <summary>
-    /// Broadcast game data to all connected clients
+    /// Broadcast game data and drawing commands to all connected clients
     /// Called every frame (60+ times per second)
     /// </summary>
-    public async Task BroadcastGameData(GameData data, GameContext context)
+    public async Task BroadcastGameData(GameData data, GameContext context, List<DrawingCommand> commands = null)
     {
         if (_connectedClients.Count == 0) return;
         
+        // If we have drawing commands, send them instead of just game data
+        if (commands != null && commands.Count > 0)
+        {
+            var commandsJson = JsonConvert.SerializeObject(new
+            {
+                type = "drawCommands",
+                commands = commands
+            });
+            
+            var commandsBytes = Encoding.UTF8.GetBytes(commandsJson);
+            var commandsSegment = new ArraySegment<byte>(commandsBytes);
+            
+            await SendToAllClients(commandsSegment);
+            return;
+        }
+        
+        // Fallback: send game data only (legacy support)
         var json = JsonConvert.SerializeObject(new
         {
             type = "gameData",
@@ -350,32 +375,52 @@ public class WebDashboardServer : IDisposable
         var bytes = Encoding.UTF8.GetBytes(json);
         var segment = new ArraySegment<byte>(bytes);
         
+        await SendToAllClients(segment);
+    }
+    
+    /// <summary>
+    /// Send data to all connected WebSocket clients
+    /// </summary>
+    private async Task SendToAllClients(ArraySegment<byte> segment)
+    {
         List<WebSocket> clientsToRemove = new();
+        List<WebSocket> clientsToSend;
         
+        // Copy clients list inside lock
         lock (_clientsLock)
         {
-            foreach (var client in _connectedClients)
+            clientsToSend = new List<WebSocket>(_connectedClients);
+        }
+        
+        // Send messages outside of lock
+        foreach (var client in clientsToSend)
+        {
+            if (client.State == WebSocketState.Open)
             {
-                if (client.State == WebSocketState.Open)
+                try
                 {
-                    try
-                    {
-                        await client.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
-                    }
-                    catch
-                    {
-                        clientsToRemove.Add(client);
-                    }
+                    await client.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
                 }
-                else
+                catch
                 {
                     clientsToRemove.Add(client);
                 }
             }
-            
-            foreach (var client in clientsToRemove)
+            else
             {
-                _connectedClients.Remove(client);
+                clientsToRemove.Add(client);
+            }
+        }
+        
+        // Remove failed clients inside lock
+        if (clientsToRemove.Count > 0)
+        {
+            lock (_clientsLock)
+            {
+                foreach (var client in clientsToRemove)
+                {
+                    _connectedClients.Remove(client);
+                }
             }
         }
     }

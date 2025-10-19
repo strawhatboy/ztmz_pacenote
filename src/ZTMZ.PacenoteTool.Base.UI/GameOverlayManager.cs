@@ -124,6 +124,11 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private bool _hudShowInSeparateWindow = false;
 
         private WebDashboardServer? _webDashboardServer = null;
+        
+        // Web dashboard rendering support
+        private DrawingCommandCapture? _webCommandCapture = null;
+        private GraphicsCommandProxy? _webGraphicsProxy = null;
+        private DashboardScriptArguments? _webDashboardArgs = null;
 
         public event Action<bool> OnGameOverlayInitializingStateChanged;
 
@@ -466,14 +471,108 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     }
                 }
 
-                // Broadcast game data to web dashboard clients
-                if (_webDashboardServer != null && _webDashboardServer.IsRunning && _webDashboardServer.ClientCount > 0)
+                // Capture and broadcast dashboard commands to web clients
+                if (_webDashboardServer != null)
                 {
-                    _ = _webDashboardServer.BroadcastGameData(
-                        DashboardScriptArguments.GameData,
-                        DashboardScriptArguments.GameContext
-                    );
+                    if (_webDashboardServer.IsRunning && _webDashboardServer.ClientCount > 0)
+                    {
+                        var commands = CaptureWebDashboardCommands();
+                        _ = _webDashboardServer.BroadcastGameData(
+                            DashboardScriptArguments.GameData,
+                            DashboardScriptArguments.GameContext,
+                            commands
+                        );
+                    }
                 }
+            }
+        }
+        
+        /// <summary>
+        /// Render dashboards using command capture for web clients
+        /// This creates a separate rendering pass that doesn't affect the game overlay
+        /// </summary>
+        private List<DrawingCommand> CaptureWebDashboardCommands()
+        {
+            try
+            {
+                // Initialize web rendering components if needed
+                if (_webCommandCapture == null)
+                {
+                    _webCommandCapture = new DrawingCommandCapture
+                    {
+                        Width = _window?.Width ?? 1920,
+                        Height = _window?.Height ?? 1080
+                    };
+                    _webGraphicsProxy = new GraphicsCommandProxy(_webCommandCapture);
+                    
+                    // Register all dashboard images with the command capture
+                    foreach (var dashboard in Dashboards)
+                    {
+                        if (dashboard.ImageResources != null)
+                        {
+                            foreach (var kvp in dashboard.ImageResources)
+                            {
+                                _webCommandCapture.RegisterImage(kvp.Key, kvp.Value);
+                            }
+                        }
+                    }
+                    
+                    // Create separate dashboard arguments for web rendering
+                    _webDashboardArgs = new DashboardScriptArguments
+                    {
+                        Graphics = _webGraphicsProxy, // Now we can assign directly since Graphics is object type
+                        Config = DashboardScriptArguments.Config,
+                        I18NLoader = DashboardScriptArguments.I18NLoader,
+                        GameData = DashboardScriptArguments.GameData,
+                        GameContext = DashboardScriptArguments.GameContext,
+                        GameOverlayDrawingHelper = DashboardScriptArguments.GameOverlayDrawingHelper
+                    };
+                    
+                    _logger.Info($"Web rendering initialized - proxy has {_webGraphicsProxy.Width}x{_webGraphicsProxy.Height}");
+                }
+                
+                // Update game data references
+                _webDashboardArgs.GameData = DashboardScriptArguments.GameData;
+                _webDashboardArgs.GameContext = DashboardScriptArguments.GameContext;
+                
+                // Render all enabled dashboards using the proxy
+                for (var i = 0; i < Dashboards.Count; i++)
+                {
+                    var dashboard = Dashboards[i];
+                    if (dashboard.Descriptor.IsEnabled && DashboardLoaded[i])
+                    {
+                        try
+                        {
+                            _webCommandCapture.ClearCommands(); // Clear before each dashboard
+                            _webDashboardArgs.Self = dashboard;
+                            
+                            try
+                            {
+                                dashboard.Render(_webDashboardArgs);
+                            }
+                            catch (Exception renderEx)
+                            {
+                                _logger.Error(renderEx, $"Error during Lua execution for {dashboard.Descriptor.Name}: {renderEx.Message}");
+                                if (renderEx.InnerException != null)
+                                {
+                                    _logger.Error($"Inner exception: {renderEx.InnerException.Message}");
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error(ex, $"Error capturing web dashboard commands: {dashboard.Descriptor.Name}");
+                        }
+                    }
+                }
+                
+                // Return captured commands
+                return _webCommandCapture.GetCommands();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error in CaptureWebDashboardCommands");
+                return new List<DrawingCommand>();
             }
         }
 
@@ -1226,7 +1325,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             return new Color(r, g, b, a);
         }
 
-        public Point drawSector(Graphics gfx, 
+        public Point drawSector(object gfx, 
             string unit,
             float x, 
             float y, 
@@ -1234,10 +1333,10 @@ namespace ZTMZ.PacenoteTool.Base.UI
             float height, 
             float value, 
             float maxValue, 
-            IBrush bgBrush,
-            IBrush valueBrush,
-            IBrush emptyBrush,
-            Font textFont,
+            object bgBrush,
+            object valueBrush,
+            object emptyBrush,
+            object textFont,
             float thicknessRatio=0.2f)
         {
             if (value > maxValue)
@@ -1248,12 +1347,19 @@ namespace ZTMZ.PacenoteTool.Base.UI
             {
                 value = 0;
             }
+            // Use dynamic to support both real Graphics and GraphicsCommandProxy
+            dynamic g = gfx;
+            dynamic empty = emptyBrush;
+            dynamic bg = bgBrush;
+            dynamic val = valueBrush;
+            dynamic font = textFont;
+            
             var centerX = x + 0.5f * width;
             var centerY = y + 0.5f * height;
             var radiusOuter = MathF.Min(width, height) * 0.5f;
             var radiusInner = radiusOuter * (1 - thicknessRatio);
             // draw backgroud geometry
-            var geo_bg = gfx.CreateGeometry();
+            var geo_bg = g.CreateGeometry();
             var pointOuterStart = new Point(
                 centerX + radiusOuter * MathF.Cos(MathF.PI * 1.25f), 
                 centerY - radiusOuter * MathF.Sin(MathF.PI * 1.25f)
@@ -1288,8 +1394,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
             );
             geo_bg.EndFigure();
             geo_bg.Close();
-            gfx.FillGeometry(geo_bg, emptyBrush);
-            gfx.DrawGeometry(geo_bg, bgBrush, 1);
+            g.FillGeometry(geo_bg, empty);
+            g.DrawGeometry(geo_bg, bg, 1);
             geo_bg.Dispose();
             
             // draw value
@@ -1297,7 +1403,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             var arcSize = value / maxValue * 270f >= 180f ? ArcSize.Large : ArcSize.Small;
             radiusOuter -= 1;
             radiusInner += 1;
-            geo_bg = gfx.CreateGeometry();
+            geo_bg = g.CreateGeometry();
             geo_bg.BeginFigure(
                 new Point(
                     centerX + radiusOuter * MathF.Cos(MathF.PI * 1.25f), 
@@ -1328,20 +1434,20 @@ namespace ZTMZ.PacenoteTool.Base.UI
             );
             geo_bg.EndFigure();
             geo_bg.Close();
-            gfx.FillGeometry(geo_bg, valueBrush);
+            g.FillGeometry(geo_bg, val);
             geo_bg.Dispose();
 
-            gfx.drawTextWithBackgroundCentered(textFont,
+            g.drawTextWithBackgroundCentered(font,
                 0.2f * radiusOuter,
-                valueBrush,
-                bgBrush,
+                val,
+                bg,
                 centerX,
                 centerY + radiusInner,
                 unit);
-            gfx.drawTextWithBackgroundCentered(textFont,
+            g.drawTextWithBackgroundCentered(font,
                 0.45f * radiusOuter,
-                valueBrush,
-                bgBrush,
+                val,
+                bg,
                 centerX,
                 centerY,
                 Convert.ToInt32(value).ToString());

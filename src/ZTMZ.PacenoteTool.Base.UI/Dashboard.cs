@@ -37,7 +37,8 @@ public class GameContext {
 }
 
 public class DashboardScriptArguments {
-    public Graphics Graphics { get; set; }
+    // Changed from Graphics to object to support both real Graphics and GraphicsCommandProxy
+    public object Graphics { get; set; }
     public Config Config { get; set; }
     public I18NLoader I18NLoader { get; set; }
     public GameData GameData { get; set; }
@@ -129,7 +130,8 @@ public class Dashboard {
         this.ImageResources = new Dictionary<string, Image>();
         foreach (var imageResource in Descriptor.ImageResources) {
             imageResource.Value.Path = Path.Combine(Descriptor.Path, imageResource.Value.Path);
-            this.ImageResources.Add(imageResource.Key, imageResource.Value.GetImage(args.Graphics));
+            // Cast to Graphics for image loading (only used during initialization with real Graphics)
+            this.ImageResources.Add(imageResource.Key, imageResource.Value.GetImage(args.Graphics as Graphics));
         }
 
         foreach (var imageResourceDirectory in Descriptor.ImageResourcesInDirectory) {
@@ -147,24 +149,22 @@ public class Dashboard {
                     Path = file,
                     FormatGUID = imageResourceDirectory.Value.FormatGUID
                 };
-                this.ImageResources.Add(imageResourceDirectory.Key + "@" + Path.GetFileNameWithoutExtension(file), imageDescriptor.GetImage(args.Graphics));
+                // Cast to Graphics for image loading (only used during initialization with real Graphics)
+                this.ImageResources.Add(imageResourceDirectory.Key + "@" + Path.GetFileNameWithoutExtension(file), imageDescriptor.GetImage(args.Graphics as Graphics));
             }
         }
     }
 
     public void Load(DashboardScriptArguments args, bool forceReload = false) {
-        _logger.Debug("Loading dashboard {0}", Descriptor.Name);
         // check if resources loaded, if loaded, just load the script,
         // NO !! YOU CANNOT JUST LOAD THE SCRIPT, YOU NEED TO RELOAD THE RESOURCES!!!
         // THE GRPAHICS DEVICE IS RECREATED when the game process ends and then starts, 
         // THE RESOURCES NEED TO BE RELOADED!!! because the factory used to create the image is different!!
         // AND if factories are different, Error 0x88990012 | D2DERR_WRONG_FACTORY will be thrown !!!
         if (forceReload || this.ImageResources == null) {
-            _logger.Debug("Loading resources for dashboard {0}", Descriptor.Name);
             loadImageResources(args);
         }
 
-        _logger.Debug("Loading lua script for dashboard {0}", Descriptor.Name);
         // load lua script
         _lua = new Lua();
         LuaG = _lua.CreateEnvironment();
@@ -174,7 +174,6 @@ public class Dashboard {
             
         };
         foreach (var commonLuaScript in Directory.GetFiles(AppLevelVariables.Instance.GetPath(Path.Join(Constants.PATH_DASHBOARDS, "common")), "*.lua")) {
-            _logger.Debug("Loading common lua script {0}", commonLuaScript);
             LuaG.DoChunk(File.ReadAllText(commonLuaScript), $"{Guid.NewGuid()}.lua");
         }
         try {
@@ -187,7 +186,6 @@ public class Dashboard {
         }
         args.Self = this;
 
-        _logger.Debug("Calling onInit for dashboard {0}", Descriptor.Name);
         try {
             LuaG.CallMember("onInit", args);
         } catch (Exception e) {
