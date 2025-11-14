@@ -63,7 +63,7 @@ namespace ZTMZ.PacenoteTool.Base.Game
     /// Provides thread-safe reading of structured data from memory-mapped files
     /// </summary>
     /// <typeparam name="T">The type of data to read. Must be a struct with StructLayout attribute</typeparam>
-    public class SharedMemoryReader<T> : IDisposable where T : struct
+    public class SharedMemoryReader<T> : IConnectable, IDisposable where T : struct
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly string _mappingName;

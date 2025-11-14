@@ -19,13 +19,16 @@ public class ACRally : IGame
 
     public IGamePacenoteReader GamePacenoteReader => throw new NotImplementedException();
 
-    public IGameDataReader GameDataReader => new ACRGameDataReader();
+    public IGameDataReader GameDataReader { get; } = new ACRGameDataReader();
 
-    public IGamePrerequisiteChecker GamePrerequisiteChecker => throw new NotImplementedException();
+    public IGamePrerequisiteChecker GamePrerequisiteChecker { get; } = new ACRGamePrerequisiteChecker();
 
     public Dictionary<string, IGameConfig> GameConfigurations { set; get; } = new Dictionary<string, IGameConfig>();
 
-    public Dictionary<string, IGameConfig> DefaultGameConfigurations { get; } = new Dictionary<string, IGameConfig>();
+    public Dictionary<string, IGameConfig> DefaultGameConfigurations { get; } = new Dictionary<string, IGameConfig>
+    {
+        { MemoryGameConfig.Name, new MemoryGameConfig() { RefreshRate = ACRGameDataReader.TARGET_FPS } }
+    };
 
     public bool IsRunning { get; set; }
     public bool IsInitialized { get; set; }
@@ -33,7 +36,7 @@ public class ACRally : IGame
     public int Order => 4000;
 
 
-    public event Action<int, string> onCustomMessage;
+    public event Action<int, string>? onCustomMessage;
 
     public void OnCustomMessage(int level, string message)
     {

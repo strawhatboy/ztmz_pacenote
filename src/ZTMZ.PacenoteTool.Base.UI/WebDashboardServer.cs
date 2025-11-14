@@ -369,7 +369,20 @@ public class WebDashboardServer : IDisposable
                 PosY = data.PosY,
                 PosZ = data.PosZ
             },
-            context = context
+            context = new
+            {
+                // Only serialize data properties, not delegates/functions
+                TrackName = context.TrackName,
+                AudioPackage = context.AudioPackage,
+                ScriptAuthor = context.ScriptAuthor,
+                PacenoteType = context.PacenoteType,
+                CarName = context.CarName,
+                CarClass = context.CarClass,
+                LocalReplayValid = context.LocalReplayValid,
+                LastGameState = context.LastGameState,
+                GameState = context.GameState,
+                GameStateChangedParameters = context.GameStateChangedParameters
+            }
         });
         
         var bytes = Encoding.UTF8.GetBytes(json);
