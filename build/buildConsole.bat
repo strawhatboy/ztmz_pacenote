@@ -17,6 +17,10 @@ cd ZTMZ.PacenoteTool.RBR
 dotnet build -c Release
 cd ..
 
+cd ZTMZ.PacenoteTool.AC
+dotnet build -c Release
+cd ..
+
 cd ZTMZ.PacenoteTool.Console
 dotnet build -c Release
 cd ..
@@ -25,6 +29,7 @@ echo copying built games to target folder
 
 xcopy ZTMZ.PacenoteTool.Codemasters\bin\Release\net8.0-windows\ ZTMZ.PacenoteTool.Console\bin\Release\net8.0-windows\games\ /Y /V /S /Q
 xcopy ZTMZ.PacenoteTool.RBR\bin\Release\net8.0-windows\ ZTMZ.PacenoteTool.Console\bin\Release\net8.0-windows\games\ /Y /V /S /Q
+xcopy ZTMZ.PacenoteTool.AC\bin\Release\net8.0-windows\ ZTMZ.PacenoteTool.Console\bin\Release\net8.0-windows\games\ /Y /V /S /Q
 
 echo copying i18n files to target folder
 xcopy ZTMZ.PacenoteTool.I18N\lang\ "%userprofile%\Documents\My Games\ZTMZClub_nextgen\lang\" /Y /V /S /Q

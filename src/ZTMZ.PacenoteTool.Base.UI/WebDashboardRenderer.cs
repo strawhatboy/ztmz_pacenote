@@ -26,7 +26,7 @@ public static class GraphicsCaptureExtensions
     /// </summary>
     public static void CaptureDrawLine(this DrawingCommandCapture capture, SolidBrush brush, float startX, float startY, float endX, float endY, float stroke)
     {
-        capture.DrawLine(brush, startX, startY, endX, endY, stroke);
+        capture.DrawLine(startX, startY, endX, endY, brush, stroke);
     }
     
     /// <summary>

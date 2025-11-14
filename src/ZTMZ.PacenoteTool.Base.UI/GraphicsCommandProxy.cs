@@ -125,7 +125,7 @@ public class GraphicsCommandProxy
     {
         try
         {
-            _capture.DrawLine(brush, x1, y1, x2, y2, thickness);
+            _capture.DrawLine(x1, y1, x2, y2, brush, thickness);
         }
         catch (Exception ex)
         {
