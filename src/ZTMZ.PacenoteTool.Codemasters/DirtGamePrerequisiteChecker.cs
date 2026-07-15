@@ -1,254 +1,299 @@
-
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Xml;
 using System.Xml.Linq;
-using ZTMZ.PacenoteTool.Base.Game;
-using System.Xml.XPath;
 using ZTMZ.PacenoteTool.Base;
-using System.Collections.Generic;
-using System.Windows.Forms;
+using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.Codemasters;
 
 public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
 {
-    private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-    private string _dr1settingsFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games/DiRT Rally/hardwaresettings/hardware_settings_config.xml");
-    private string _dr1settingsVRFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games/DiRT Rally/hardwaresettings/hardware_settings_config_vr.xml");
-    private string _dr2settingsFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games/DiRT Rally 2.0/hardwaresettings/hardware_settings_config.xml");
-    private string _dr2settingsVRFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games/DiRT Rally 2.0/hardwaresettings/hardware_settings_config_vr.xml");
-    public bool IsPassed { set; get; } = false;
-    private XDocument? _xmlFile;
-    private IEnumerable<XElement>? _udpNode;
+    private const int XmlLoadAttempts = 3;
+    private const int XmlLoadRetryDelayMilliseconds = 100;
 
-    private string configPort = "59996";
-    private string configIP = "127.0.0.1";
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+    private readonly string _dr1SettingsFile = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+        "My Games",
+        "DiRT Rally",
+        "hardwaresettings",
+        "hardware_settings_config.xml");
+    private readonly string _dr1SettingsVrFile = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+        "My Games",
+        "DiRT Rally",
+        "hardwaresettings",
+        "hardware_settings_config_vr.xml");
+    private readonly string _dr2SettingsFile = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+        "My Games",
+        "DiRT Rally 2.0",
+        "hardwaresettings",
+        "hardware_settings_config.xml");
+    private readonly string _dr2SettingsVrFile = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+        "My Games",
+        "DiRT Rally 2.0",
+        "hardwaresettings",
+        "hardware_settings_config_vr.xml");
+
     public PrerequisitesCheckResult CheckPrerequisites(IGame game)
     {
-        var settingsFile = "";
-        var settingsVRFile = "";
-        if (game.Name.Equals(DirtRally.GameName))
+        ArgumentNullException.ThrowIfNull(game);
+
+        if (!TryGetSettingsFiles(game, out var settingsFile, out var settingsVrFile))
         {
-            settingsFile = _dr1settingsFile;
-            settingsVRFile = _dr1settingsVRFile;
-        }
-        else if (game.Name.Equals(DirtRally2.GameName))
-        {
-            settingsFile = _dr2settingsFile;
-            settingsVRFile = _dr2settingsVRFile;
-        }
-        else
-        {
-            return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.UNKNOWN };
+            return Failure(PrerequisitesCheckResultCode.UNKNOWN);
         }
 
-        if (!(File.Exists(settingsFile) || File.Exists(settingsVRFile)))
+        var existingSettingsFiles = new[] { settingsFile, settingsVrFile }
+            .Where(File.Exists)
+            .ToList();
+
+        if (existingSettingsFiles.Count == 0)
         {
-            // none of these 2 files exist, so the game was not installed
-            return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.GAME_NOT_INSTALLED };
+            return Failure(PrerequisitesCheckResultCode.GAME_NOT_INSTALLED);
         }
 
-        PrerequisitesCheckResult b1 = new PrerequisitesCheckResult();
-        PrerequisitesCheckResult b2 = new PrerequisitesCheckResult();
-
-        if (File.Exists(settingsFile))
+        foreach (var file in existingSettingsFiles)
         {
-            try {
-                b1 = this.Check(game, settingsFile);
-            } catch (Exception e) {
-                _logger.Error(e, "Error while checking prerequisites for {0} at {1}", game.Name, settingsFile);
-                b1 = new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.UNKNOWN, IsOK = false };
+            try
+            {
+                var result = Check(game, file);
+                if (!result.IsOK)
+                {
+                    return result;
+                }
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception, "Error while checking prerequisites for {0} at {1}", game.Name, file);
+                return Failure(PrerequisitesCheckResultCode.UNKNOWN, game.Name, file);
             }
         }
-        if (File.Exists(settingsVRFile))
-        {
-            try {
-                b2 = this.Check(game, settingsVRFile);
-            } catch (Exception e) {
-                _logger.Error(e, "Error while checking prerequisites for {0} at {1}", game.Name, settingsVRFile);
-                b2 = new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.UNKNOWN, IsOK = false };
-            }
-        }
-        if (b1.IsOK && b2.IsOK)
-        {
-            return b1;
-        }
-        if (!b1.IsOK)
-        {
-            return b1;
-        }
-        if (!b2.IsOK)
-        {
-            return b2;
-        }
-        return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.UNKNOWN };
+
+        return Success();
     }
+
     public void ForceFix(IGame game)
     {
-        var settingsFile = "";
-        var settingsVRFile = "";
-        if (game.Name.Equals(DirtRally.GameName))
-        {
-            settingsFile = _dr1settingsFile;
-            settingsVRFile = _dr1settingsVRFile;
-        }
-        else if (game.Name.Equals(DirtRally2.GameName))
-        {
-            settingsFile = _dr2settingsFile;
-            settingsVRFile = _dr2settingsVRFile;
-        }
-        else
+        ArgumentNullException.ThrowIfNull(game);
+
+        if (!TryGetSettingsFiles(game, out var settingsFile, out var settingsVrFile))
         {
             return;
         }
-        if (File.Exists(settingsFile))
-        {
-            this.Write(settingsFile);
-        }
-        if (File.Exists(settingsVRFile))
-        {
-            this.Write(settingsVRFile);
-        }
-    }
 
-    private XDocument loadXml(string file)
-    {
-        try {
-            return XDocument.Load(file);
-        } catch (Exception e) {
-            _logger.Error(e, "Error while loading xml file {0}", file);
-            return null;
+        if (!TryGetUdpConfig(game, out var udpConfig))
+        {
+            throw new InvalidOperationException($"Game {game.Name} has no valid UDP configuration.");
+        }
+
+        foreach (var file in new[] { settingsFile, settingsVrFile }.Where(File.Exists))
+        {
+            Write(file, udpConfig);
         }
     }
 
     public PrerequisitesCheckResult Check(IGame game, string file)
     {
-        configPort = ((UdpGameConfig)game.GameConfigurations[UdpGameConfig.Name]).Port.ToString();
-        configIP = ((UdpGameConfig)game.GameConfigurations[UdpGameConfig.Name]).IPAddress;
-        this._xmlFile = this.loadXml(file);
-        if (this._xmlFile == null) {
-            return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.CONFIG_FILE_CORRUPTED, IsOK = false, Params = new List<object> { game.Name, file } };
+        ArgumentNullException.ThrowIfNull(game);
+
+        if (!TryGetUdpConfig(game, out var udpConfig))
+        {
+            Logger.Error("Game {0} has no valid UDP configuration.", game.Name);
+            return Failure(PrerequisitesCheckResultCode.UNKNOWN, game.Name, file);
         }
 
-        // duplicate entries check
-        var motion_platform_node = this._xmlFile.Root.XPathSelectElement("./motion_platform");
-        bool isAbnormal = false;
-        if (motion_platform_node != null)
+        var xmlFile = LoadXml(file);
+        if (xmlFile == null)
         {
-            isAbnormal = this.CheckIfThereisDuplicateEntries(motion_platform_node);
-        }
-        if (isAbnormal)
-        {
-            return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.CONFIG_FILE_ABNORMAL, IsOK = false, Params = new List<object> { game.Name, file } };
-        }
-        
-        this._udpNode = this._xmlFile.Root.XPathSelectElements("./motion_platform/udp");
-
-        foreach (var node in this._udpNode)
-        {
-            if (this.CheckUdpNode(node))
-            {
-                this.IsPassed = true;
-                return new PrerequisitesCheckResult()
-                {
-                    IsOK = true,
-                    Msg = "",
-                    Code = PrerequisitesCheckResultCode.OK,
-                };
-            }
+            return Failure(PrerequisitesCheckResultCode.CONFIG_FILE_CORRUPTED, game.Name, file);
         }
 
-        return new PrerequisitesCheckResult()
+        var motionPlatformNode = FindMotionPlatformNode(xmlFile);
+        if (motionPlatformNode == null)
         {
-            IsOK = false,
-            Msg = "",
-            Code = PrerequisitesCheckResultCode.PORT_NOT_OPEN,
-            Params = new List<object> { 
-                game.Name,
-                file
-            }
-        };
+            return Failure(PrerequisitesCheckResultCode.PORT_NOT_OPEN, game.Name, file);
+        }
+
+        var matchingNodes = GetUdpNodes(motionPlatformNode)
+            .Where(node => MatchesUdpConfiguration(node, udpConfig))
+            .ToList();
+
+        if (matchingNodes.Count > 1)
+        {
+            Logger.Warn(
+                "Found {0} matching UDP entries in {1}. Continuing because DiRT supports multiple UDP targets.",
+                matchingNodes.Count,
+                file);
+        }
+
+        return matchingNodes.Count > 0
+            ? Success()
+            : Failure(PrerequisitesCheckResultCode.PORT_NOT_OPEN, game.Name, file);
     }
 
-    private bool CheckUdpNode(XElement node) {
-        if (node.Attribute("enabled").Value != "true" || node.Attribute("extradata").Value != "3")
+    private bool TryGetSettingsFiles(IGame game, out string settingsFile, out string settingsVrFile)
+    {
+        if (string.Equals(game.Name, DirtRally.GameName, StringComparison.Ordinal))
         {
-            return false;
+            settingsFile = _dr1SettingsFile;
+            settingsVrFile = _dr1SettingsVrFile;
+            return true;
         }
 
-        if (!node.Attribute("port").Value.Equals(configPort))
+        if (string.Equals(game.Name, DirtRally2.GameName, StringComparison.Ordinal))
         {
-            return false;
+            settingsFile = _dr2SettingsFile;
+            settingsVrFile = _dr2SettingsVrFile;
+            return true;
         }
 
-        return true;
-    }
-
-    private bool CheckIfThereisDuplicateEntries(XElement node) {
-        // the node is motion_platform
-        var udpNodes = node.XPathSelectElements("./udp");
-        HashSet<string> udpNodeSet = new HashSet<string>();
-        foreach (var udpNode in udpNodes)
-        {
-            string udpNodeStr = udpNode.ToString();
-            if (udpNodeSet.Contains(udpNodeStr))
-            {
-                return true;
-            }
-            udpNodeSet.Add(udpNodeStr);
-        }
+        settingsFile = string.Empty;
+        settingsVrFile = string.Empty;
         return false;
     }
 
-    public void Write(string file)
+    private static bool TryGetUdpConfig(IGame game, out UdpGameConfig udpConfig)
     {
-        this._xmlFile = this.loadXml(file);
-        if (this._xmlFile == null) {
-            _logger.Error("Error while loading xml file {0} when force fixing the game configuration", file);
-            throw new Exception(string.Format("Error while loading xml file {0}", file));
-        }
-        var motionPlatformNode = this._xmlFile.Root.XPathSelectElement("./motion_platform");
-        if (motionPlatformNode != null)
+        if (game.GameConfigurations != null &&
+            game.GameConfigurations.TryGetValue(UdpGameConfig.Name, out var configuration) &&
+            configuration is UdpGameConfig configuredUdp)
         {
-            // check if there is already a udp node with the same enabled, extradata, ip, port and delay,
-            // if not, add a new udp node
-            // motion_platform can have multiple udp nodes
-            var udpNodes = motionPlatformNode.XPathSelectElements("./udp");
-            // check duplicate udp nodes
-            HashSet<string> udpNodeSet = new HashSet<string>();
-            foreach (var node in udpNodes)
-            {
-                string nodeStr = node.ToString();
-                if (udpNodeSet.Contains(nodeStr))
-                {
-                    // remove duplicate udp nodes, to avoid multicasting the same data
-                    node.Remove();
-                    _logger.Info("Removed duplicate udp node: {0}", nodeStr);
-                    continue;
-                }
-                udpNodeSet.Add(nodeStr);
-            }
-
-            // check if udp node already exists
-            foreach (var node in udpNodes)
-            {
-                if (this.CheckUdpNode(node))
-                {
-                    // udp node already exists, no need to add a new one
-                    _logger.Warn("udp node already exists in {0}, won't add a new one", file);
-                    return;
-                }
-            }
-
-            var udpNode = new XElement("udp");
-            udpNode.SetAttributeValue("enabled", "true");
-            udpNode.SetAttributeValue("extradata", "3");
-            udpNode.SetAttributeValue("ip", configIP);
-            udpNode.SetAttributeValue("port", configPort);
-            udpNode.SetAttributeValue("delay", "1");
-            motionPlatformNode.Add(udpNode);
+            udpConfig = configuredUdp;
+            return true;
         }
-        this._xmlFile.Save(file);
+
+        udpConfig = null!;
+        return false;
+    }
+
+    private XDocument? LoadXml(string file)
+    {
+        Exception? lastException = null;
+
+        for (var attempt = 0; attempt < XmlLoadAttempts; attempt++)
+        {
+            try
+            {
+                using var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                return XDocument.Load(stream, LoadOptions.PreserveWhitespace);
+            }
+            catch (Exception exception) when (exception is IOException or XmlException)
+            {
+                lastException = exception;
+                if (attempt + 1 < XmlLoadAttempts)
+                {
+                    Thread.Sleep(XmlLoadRetryDelayMilliseconds);
+                }
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception, "Error while loading XML file {0}", file);
+                return null;
+            }
+        }
+
+        Logger.Error(lastException!, "Error while loading XML file {0}", file);
+        return null;
+    }
+
+    private static XElement? FindMotionPlatformNode(XDocument document)
+    {
+        return document.Root?.Elements().FirstOrDefault(node => IsElementNamed(node, "motion_platform"));
+    }
+
+    private static IEnumerable<XElement> GetUdpNodes(XElement motionPlatformNode)
+    {
+        return motionPlatformNode.Elements().Where(node => IsElementNamed(node, "udp"));
+    }
+
+    private static bool MatchesUdpConfiguration(XElement node, UdpGameConfig udpConfig)
+    {
+        var portValue = GetAttributeValue(node, "port");
+        return IsEnabled(node) &&
+               string.Equals(GetAttributeValue(node, "extradata")?.Trim(), "3", StringComparison.Ordinal) &&
+               int.TryParse(portValue?.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var port) &&
+               port == udpConfig.Port;
+    }
+
+    private static bool IsEnabled(XElement node)
+    {
+        var value = GetAttributeValue(node, "enabled")?.Trim();
+        return bool.TryParse(value, out var enabled)
+            ? enabled
+            : string.Equals(value, "1", StringComparison.Ordinal);
+    }
+
+    private static string? GetAttributeValue(XElement node, string name)
+    {
+        return node.Attributes()
+            .FirstOrDefault(attribute => string.Equals(attribute.Name.LocalName, name, StringComparison.Ordinal))
+            ?.Value;
+    }
+
+    private static bool IsElementNamed(XElement node, string name)
+    {
+        return string.Equals(node.Name.LocalName, name, StringComparison.Ordinal);
+    }
+
+    private void Write(string file, UdpGameConfig udpConfig)
+    {
+        var xmlFile = LoadXml(file);
+        if (xmlFile?.Root == null)
+        {
+            Logger.Error("Error while loading XML file {0} when force fixing the game configuration", file);
+            throw new InvalidOperationException($"Error while loading XML file {file}");
+        }
+
+        var motionPlatformNode = FindMotionPlatformNode(xmlFile);
+        if (motionPlatformNode == null)
+        {
+            motionPlatformNode = new XElement(xmlFile.Root.Name.Namespace + "motion_platform");
+            xmlFile.Root.Add(motionPlatformNode);
+        }
+
+        if (GetUdpNodes(motionPlatformNode).Any(node => MatchesUdpConfiguration(node, udpConfig)))
+        {
+            Logger.Info("A matching UDP entry already exists in {0}; no configuration change was made.", file);
+            return;
+        }
+
+        motionPlatformNode.Add(
+            new XElement(
+                motionPlatformNode.Name.Namespace + "udp",
+                new XAttribute("enabled", "true"),
+                new XAttribute("extradata", "3"),
+                new XAttribute("ip", udpConfig.IPAddress),
+                new XAttribute("port", udpConfig.Port.ToString(CultureInfo.InvariantCulture)),
+                new XAttribute("delay", "1")));
+
+        xmlFile.Save(file, SaveOptions.DisableFormatting);
+    }
+
+    private static PrerequisitesCheckResult Success()
+    {
+        return new PrerequisitesCheckResult
+        {
+            Code = PrerequisitesCheckResultCode.OK,
+            IsOK = true
+        };
+    }
+
+    private static PrerequisitesCheckResult Failure(PrerequisitesCheckResultCode code, params object[] parameters)
+    {
+        return new PrerequisitesCheckResult
+        {
+            Code = code,
+            IsOK = false,
+            Params = parameters.Length > 0 ? new List<object>(parameters) : new List<object>()
+        };
     }
 }
