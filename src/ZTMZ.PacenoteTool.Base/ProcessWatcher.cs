@@ -183,7 +183,7 @@ public class ProcessWatcher : IDisposable
 
     public void Dispose()
     {
-        _worker?.Dispose();
+        // Task instances do not require disposal; the worker exits after observing this flag.
+        StopWatching();
     }
 }
-
