@@ -1,19 +1,12 @@
 // This is the page for each voice package, including the list of tokens
-using System.Collections.Generic;
-using ZTMZ.PacenoteTool.Base;
-using ZTMZ.PacenoteTool.Base.Game;
-using System.Windows.Data;
-using System.Threading.Tasks;
-using ZTMZ.PacenoteTool.Base.UI.Game;
-using Wpf.Ui.Controls;
 using System.Linq;
-using System.Reflection;
-using System.Windows.Controls;
-using Microsoft.Win32;
-using ZTMZ.PacenoteTool.Core;
-using ZTMZ.PacenoteTool.WpfGUI.Models;
-using ZTMZ.PacenoteTool.Base.Script;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Threading;
+using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Core;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -31,23 +24,26 @@ public partial class VoicePackagePageVM : ObservableObject, INavigationAware
     partial void OnVoicePackagePathChanged(string value)
     {
         CodriverPackage = tool.CoDriverPackages.FirstOrDefault(p => p.Info.Path == VoicePackagePath);
-        HeaderContent = CodriverPackage.Info.DisplayText;
+        HeaderContent = CodriverPackage?.Info.DisplayText ?? string.Empty;
     }
 
     [ObservableProperty]
-    private IList<object> _dataContent = new ObservableCollection<object>(); // data content for the DataGrid
-
-    private object _collectionLock = new object();
+    private ObservableCollection<object> _dataContent = new();
 
     [ObservableProperty]
     private string _headerContent;
+
+    [ObservableProperty]
+    private bool _isLoading;
+
+    private int _contentLoadVersion;
 
     [RelayCommand]
     private void Listen(string filePath)
     {
         tool.PlaySound(filePath);
     }
-    private string bool2str(bool b)
+    private static string bool2str(bool b)
     {
         return b ? "✅" : "❌";
     }
@@ -55,59 +51,105 @@ public partial class VoicePackagePageVM : ObservableObject, INavigationAware
     public VoicePackagePageVM(ZTMZPacenoteTool tool)
     {
         this.tool = tool;
-        BindingOperations.EnableCollectionSynchronization(DataContent, _collectionLock);
     }
 
-    public Task OnNavigatedToAsync()
+    public async Task OnNavigatedToAsync()
     {
-        DataContent.Clear();
-        // update the view model
-        if (CodriverPackage == null)
+        var loadVersion = Interlocked.Increment(ref _contentLoadVersion);
+        var codriverPackage = CodriverPackage;
+        var dataContent = new ObservableCollection<object>();
+        DataContent = dataContent;
+        IsLoading = codriverPackage != null;
+
+        if (codriverPackage == null)
         {
-            return Task.CompletedTask;
+            return;
         }
 
-        // Task.Run(() => {
-
-        // update the view
-        foreach (var pacenoteDef in Base.Script.ScriptResource.Instance.Pacenotes)
+        try
         {
-            if (CodriverPackage.id2tokensPath.TryGetValue(pacenoteDef.id, out var tokensPath))
+            // Let the new page paint before any package work starts.
+            await Dispatcher.Yield(DispatcherPriority.Background);
+
+            var items = await Task.Run(() => BuildDataContent(codriverPackage));
+            if (loadVersion == Volatile.Read(ref _contentLoadVersion))
             {
-                if (tokensPath.Count > 0)
-                {
-                    var item = new
-                    {
-                        id = pacenoteDef.id,
-                        Token = Base.Script.ScriptResource.Instance.FilenameDict[pacenoteDef.id].First(),
-                        TokenDescription = pacenoteDef.description,
-                        IsAvailable = bool2str(true),
-                        Type = Base.Script.ScriptResource.Instance.TypeDict[pacenoteDef.type].name,
-                        FilesCount = tokensPath.Count,
-                        Files = tokensPath.Select((s, index) =>
-                        new { Index = index + 1, FilePath = s }),
-                    };
-                    DataContent.Add(item);
-                }
-            }
-            else
-            {
-                // missing token in the voice package
-                var item = new
-                {
-                    id = pacenoteDef.id,
-                    Token = Base.Script.ScriptResource.Instance.FilenameDict[pacenoteDef.id].First(),
-                    TokenDescription = pacenoteDef.description,
-                    IsAvailable = bool2str(false),
-                    Type = Base.Script.ScriptResource.Instance.TypeDict[pacenoteDef.type].name,
-                    FilesCount = 0,
-                    Files = new List<object>()
-                };
-                DataContent.Add(item);
+                await AddItemsInBatchesAsync(dataContent, items, loadVersion);
             }
         }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Failed to load co-driver package details for {0}", codriverPackage.Info.Path);
+            if (loadVersion == Volatile.Read(ref _contentLoadVersion))
+            {
+                dataContent.Clear();
+            }
+        }
+        finally
+        {
+            if (loadVersion == Volatile.Read(ref _contentLoadVersion))
+            {
+                IsLoading = false;
+            }
+        }
+    }
+
+    public Task OnNavigatedFromAsync()
+    {
+        Interlocked.Increment(ref _contentLoadVersion);
+        IsLoading = false;
         return Task.CompletedTask;
     }
 
-    public Task OnNavigatedFromAsync() => Task.CompletedTask;
+    private async Task AddItemsInBatchesAsync(
+        ObservableCollection<object> dataContent,
+        IReadOnlyList<object> items,
+        int loadVersion)
+    {
+        const int batchSize = 16;
+
+        for (var offset = 0; offset < items.Count; offset += batchSize)
+        {
+            if (loadVersion != Volatile.Read(ref _contentLoadVersion))
+            {
+                return;
+            }
+
+            var end = Math.Min(offset + batchSize, items.Count);
+            for (var index = offset; index < end; index++)
+            {
+                dataContent.Add(items[index]);
+            }
+
+            // Queue the next batch behind rendering and input processing.
+            await Dispatcher.Yield(DispatcherPriority.Background);
+        }
+    }
+
+    private static List<object> BuildDataContent(CoDriverPackage codriverPackage)
+    {
+        var scriptResource = Base.Script.ScriptResource.Instance;
+        var dataContent = new List<object>();
+
+        foreach (var pacenoteDef in scriptResource.Pacenotes)
+        {
+            var isAvailable = codriverPackage.id2tokensPath.TryGetValue(pacenoteDef.id, out var tokensPath)
+                && tokensPath.Count > 0;
+            var files = isAvailable
+                ? tokensPath.Select((path, index) => new { Index = index + 1, FilePath = path }).Cast<object>().ToList()
+                : new List<object>();
+            dataContent.Add(new
+            {
+                id = pacenoteDef.id,
+                Token = scriptResource.FilenameDict[pacenoteDef.id].First(),
+                TokenDescription = pacenoteDef.description,
+                IsAvailable = bool2str(isAvailable),
+                Type = scriptResource.TypeDict[pacenoteDef.type].name,
+                FilesCount = files.Count,
+                Files = files
+            });
+        }
+
+        return dataContent;
+    }
 }

@@ -13,6 +13,7 @@
       FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
       ui:NavigationView.HeaderContent="{Binding ViewModel.HeaderContent}">
     <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <!-- <Style TargetType="ui:Card">
             <Setter Property="Padding" Value="16"></Setter>
             <Setter Property="Margin" Value="0 0 0 5"></Setter>
@@ -47,13 +48,19 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <DataGrid Grid.Row="2"
+        <Grid Grid.Row="1">
+        <DataGrid
                      x:Name="lv_Content"
                      IsReadOnly="True"
                      ItemsSource="{Binding ViewModel.DataContent}"
                      CellStyle="{StaticResource Body_Content_DataGrid_Centering}"
                      AutoGenerateColumns="False"
-                     CanUserAddRows="False">
+                     CanUserAddRows="False"
+                     EnableRowVirtualization="True"
+                     EnableColumnVirtualization="True"
+                     VirtualizingPanel.IsVirtualizing="True"
+                     VirtualizingPanel.VirtualizationMode="Recycling"
+                     ScrollViewer.CanContentScroll="True">
             <DataGrid.Columns>
                 <DataGridTextColumn
                     Binding="{Binding id}"
@@ -104,5 +111,13 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
+        <ui:ProgressRing IsIndeterminate="True"
+                         Width="32"
+                         Height="32"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         IsHitTestVisible="False"
+                         Visibility="{Binding ViewModel.IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        </Grid>
     </Grid>
 </Page>
