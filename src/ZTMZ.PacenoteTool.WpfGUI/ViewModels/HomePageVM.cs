@@ -74,6 +74,9 @@ public partial class HomePageVM : ObservableObject {
     [ObservableProperty]
     private IList<object> _currentGameSettings = new ObservableCollection<object>();
 
+    [ObservableProperty]
+    private bool _isGameSettingsUnlocked;
+
     private IDictionary<IGame, IList<object>> _gameConfigSettingsPanes = new Dictionary<IGame, IList<object>>(); 
 
     private List<Type>? _gameConfigSettingsPaneTypes = null;
@@ -493,6 +496,7 @@ public partial class HomePageVM : ObservableObject {
     [RelayCommand]
     private async void GameSelectionChanged() {
         var game = SelectedGame;
+        IsGameSettingsUnlocked = false;
         Config.Instance.UI_SelectedGame = Games.IndexOf(game);
         Config.Instance.SaveUserConfig();
         Task.Run(async () => {
@@ -540,6 +544,28 @@ public partial class HomePageVM : ObservableObject {
         // TODO: UGLY CODE
         // for EAWRC, localization part
         ShowWRCLocalization = game.Game.Name == "EA SPORTS™ WRC";
+    }
+
+    [RelayCommand]
+    private async Task UnlockGameSettings()
+    {
+        if (IsGameSettingsUnlocked)
+        {
+            return;
+        }
+
+        var result = await new Wpf.Ui.Controls.MessageBox
+        {
+            Title = I18NLoader.Instance["settings.gameSettingsUnlockDialogTitle"],
+            Content = I18NLoader.Instance["settings.gameSettingsUnlockDialogMessage"],
+            PrimaryButtonText = I18NLoader.Instance["settings.gameSettingsUnlockConfirm"],
+            CloseButtonText = I18NLoader.Instance["dialog.common.btn_cancel"]
+        }.ShowDialogAsync();
+
+        if (result == Wpf.Ui.Controls.MessageBoxResult.Primary)
+        {
+            IsGameSettingsUnlocked = true;
+        }
     }
 
     [RelayCommand]

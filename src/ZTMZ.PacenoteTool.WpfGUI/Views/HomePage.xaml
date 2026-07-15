@@ -195,14 +195,40 @@
                         </Grid>
                     </StackPanel>
                 </ui:CardExpander.Header>
-                <!-- game settings -->
-                <ItemsControl ItemsSource="{Binding Path=ViewModel.CurrentGameSettings, Mode=OneWay}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+                <StackPanel>
+                    <StackPanel Margin="0 0 0 12">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ViewModel.IsGameSettingsUnlocked}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <ui:InfoBar IsOpen="True"
+                                    IsClosable="False"
+                                    Severity="Warning"
+                                    Title="{DynamicResource ResourceKey=settings.gameSettingsLockedTitle}"
+                                    Message="{DynamicResource ResourceKey=settings.gameSettingsLockedMessage}"/>
+                        <ui:Button Appearance="Secondary"
+                                   HorizontalAlignment="Left"
+                                   Margin="0 8 0 0"
+                                   Icon="{ui:SymbolIcon LockClosed20}"
+                                   Content="{DynamicResource ResourceKey=settings.unlockGameSettings}"
+                                   Command="{Binding ViewModel.UnlockGameSettingsCommand}"/>
+                    </StackPanel>
+                    <!-- game settings -->
+                    <ItemsControl IsEnabled="{Binding Path=ViewModel.IsGameSettingsUnlocked, Mode=OneWay}"
+                                  ItemsSource="{Binding Path=ViewModel.CurrentGameSettings, Mode=OneWay}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </StackPanel>
             </ui:CardExpander>
             <!-- hud -->
             <ui:CardExpander Margin="0 20 0 0"

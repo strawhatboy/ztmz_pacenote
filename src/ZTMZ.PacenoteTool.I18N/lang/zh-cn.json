@@ -253,6 +253,12 @@
 
     "staff": "制作组（出来挨打？",
     "gameSettings": "游戏设置",
+    "gameSettingsLockedTitle": "游戏设置已保护",
+    "gameSettingsLockedMessage": "这些设置已针对当前游戏进行配置。仅在明确知道用途时修改；错误的设置可能导致遥测或路书无法工作。",
+    "unlockGameSettings": "解锁游戏设置",
+    "gameSettingsUnlockDialogTitle": "要解锁游戏设置吗？",
+    "gameSettingsUnlockDialogMessage": "错误的设置可能导致当前游戏无法接收遥测或播放路书。请仅在明确知道用途时继续。",
+    "gameSettingsUnlockConfirm": "解锁",
 
     "replaySave": "保存最佳成绩",
     "replayPreferredFilter": "过滤最佳成绩方式",

@@ -254,6 +254,12 @@
 
     "staff": "Staff",
     "gameSettings": "Game Settings",
+    "gameSettingsLockedTitle": "Game settings are protected",
+    "gameSettingsLockedMessage": "These values are configured for the selected game. Change them only when you know why; an incorrect value can stop telemetry and pacenotes from working.",
+    "unlockGameSettings": "Unlock game settings",
+    "gameSettingsUnlockDialogTitle": "Unlock game settings?",
+    "gameSettingsUnlockDialogMessage": "Incorrect settings can stop telemetry or pacenotes from working with the selected game. Continue only when you know why you need to change them.",
+    "gameSettingsUnlockConfirm": "Unlock",
 
     "replaySave": "Save the replay of the best lap",
     "replayPreferredFilter": "Preferred filter for the best lap replay",
