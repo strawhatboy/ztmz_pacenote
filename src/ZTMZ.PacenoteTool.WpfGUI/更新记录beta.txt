@@ -1,3 +1,17 @@
+v2.99.99.37-3.0-rc10
+------
+[English]
+* Updated active projects to .NET 10, WPF-UI 4.3, and current compatible dependencies.
+* Improved UDP receiver reliability when a game is sending packets but the tool intermittently receives none.
+* Fixed audio playback losing the first token after the output device has been idle, and restored co-driver package file previews.
+* Moved the main window's help, feedback, and support actions beside the caption buttons.
+
+[简体中文]
+* 已将当前使用的项目升级至 .NET 10、WPF-UI 4.3 及兼容的最新依赖版本。
+* 改进 UDP 接收器可靠性，修复游戏已发送数据包但工具偶发收不到数据的问题。
+* 修复输出设备空闲后播放语音时首个词被吞掉的问题，并恢复语音包详情中文件试听功能。
+* 将主窗口的疑难解答、问题反馈和支持按钮移动至窗口控制按钮旁。
+
 v2.99.99.36-3.0-rc9
 ------
 * 增加了由大佬 花腩居士 录制和校准的12条新赛道路书，以及感谢老王的4090语音识别
