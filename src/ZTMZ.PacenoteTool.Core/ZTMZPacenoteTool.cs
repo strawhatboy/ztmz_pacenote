@@ -129,9 +129,10 @@ public class ZTMZPacenoteTool {
         this.onStatusReport?.Invoke("Loading games...");
         this._games.Clear();
         try {
-            foreach (var file in Directory.EnumerateFiles(Constants.PATH_GAMES, "*.dll")) 
+            var gamesDirectory = Path.Combine(AppContext.BaseDirectory, Constants.PATH_GAMES);
+            foreach (var file in Directory.EnumerateFiles(gamesDirectory, "*.dll"))
             {
-                var assembly = Assembly.LoadFrom(System.IO.Path.GetFullPath(file));
+                var assembly = Assembly.LoadFrom(file);
                 if (assembly.GetName().Name.Equals("ZTMZ.PacenoteTool.Base")) 
                 {
                     continue;
@@ -864,4 +865,3 @@ public static class Extensions {
         }
     }
 }
-

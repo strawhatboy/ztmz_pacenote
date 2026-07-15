@@ -18,11 +18,18 @@ namespace ZTMZ.PacenoteTool.Base
                 if (string.IsNullOrEmpty(_appConfigFolder))
                 {
                     // read from registry HKCU\Software\ZTMZ Next Generation Pacenote Tool\ZTMZHome
-                    var key = Registry.CurrentUser.OpenSubKey(@"Software\ZTMZ Next Generation Pacenote Tool");
-                    if (key != null)
+                    using var key = Registry.CurrentUser.OpenSubKey(@"Software\ZTMZ Next Generation Pacenote Tool");
+                    _appConfigFolder = key?.GetValue("ZTMZHome") as string;
+
+                    if (string.IsNullOrWhiteSpace(_appConfigFolder))
                     {
-                        _appConfigFolder = key.GetValue("ZTMZHome") as string;
+                        _appConfigFolder = Path.Combine(
+                            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                            "My Games",
+                            "ZTMZClub_nextgen");
                     }
+
+                    Directory.CreateDirectory(_appConfigFolder);
                 }
 
                 return _appConfigFolder;
