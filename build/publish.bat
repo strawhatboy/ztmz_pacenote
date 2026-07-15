@@ -35,9 +35,9 @@ xcopy target\bin\ZTMZ.PacenoteTool.Codemasters\release_win-x64\lang\ target\publ
 xcopy target\bin\ZTMZ.PacenoteTool.RBR\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
 
 rem put default codriver package in place
-xcopy ..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\codrivers\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\codrivers\ /Y /S /V /Q
+xcopy ..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\codrivers\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\codrivers\ /Y /S /V /Q
 rem put profiles
-xcopy ..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\profiles\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\profiles\ /Y /S /V /Q
+xcopy ..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\profiles\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\profiles\ /Y /S /V /Q
 
 cd /D "%currentDir%"
 

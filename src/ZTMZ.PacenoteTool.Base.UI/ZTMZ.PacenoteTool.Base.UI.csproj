@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0-windows</TargetFrameworks>
+    <TargetFrameworks>net10.0-windows</TargetFrameworks>
 	  <UseWPF>true</UseWPF>
 	  <Configurations>Debug;Release;Release_Portable</Configurations>
   </PropertyGroup>

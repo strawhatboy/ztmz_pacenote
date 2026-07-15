@@ -27,9 +27,9 @@ cd ..
 
 echo copying built games to target folder
 
-xcopy ZTMZ.PacenoteTool.Codemasters\bin\Release\net8.0-windows\ ZTMZ.PacenoteTool.Console\bin\Release\net8.0-windows\games\ /Y /V /S /Q
-xcopy ZTMZ.PacenoteTool.RBR\bin\Release\net8.0-windows\ ZTMZ.PacenoteTool.Console\bin\Release\net8.0-windows\games\ /Y /V /S /Q
-xcopy ZTMZ.PacenoteTool.AC\bin\Release\net8.0-windows\ ZTMZ.PacenoteTool.Console\bin\Release\net8.0-windows\games\ /Y /V /S /Q
+xcopy ZTMZ.PacenoteTool.Codemasters\bin\Release\net10.0-windows\ ZTMZ.PacenoteTool.Console\bin\Release\net10.0-windows\games\ /Y /V /S /Q
+xcopy ZTMZ.PacenoteTool.RBR\bin\Release\net10.0-windows\ ZTMZ.PacenoteTool.Console\bin\Release\net10.0-windows\games\ /Y /V /S /Q
+xcopy ZTMZ.PacenoteTool.AC\bin\Release\net10.0-windows\ ZTMZ.PacenoteTool.Console\bin\Release\net10.0-windows\games\ /Y /V /S /Q
 
 echo copying i18n files to target folder
 xcopy ZTMZ.PacenoteTool.I18N\lang\ "%userprofile%\Documents\My Games\ZTMZClub_nextgen\lang\" /Y /V /S /Q
@@ -42,7 +42,7 @@ xcopy ZTMZ.PacenoteTool.Base.UI\fonts\ "%userprofile%\Documents\My Games\ZTMZClu
 
 echo copying pacenote definitions to target folder
 xcopy ZTMZ.PacenoteTool.ScriptEditor\*.csv "%userprofile%\Documents\My Games\ZTMZClub_nextgen\" /Y /V /Q
-xcopy ZTMZ.PacenoteTool.ScriptEditor\*.csv ZTMZ.PacenoteTool.WpfGUI\bin\Release\net8.0-windows\ /Y /V /Q
+xcopy ZTMZ.PacenoteTool.ScriptEditor\*.csv ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\ /Y /V /Q
 
 cd /D "%currentDir%"
 

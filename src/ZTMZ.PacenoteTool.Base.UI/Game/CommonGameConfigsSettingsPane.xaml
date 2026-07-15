@@ -11,7 +11,5 @@
                         <ColumnDefinition />
                         <ColumnDefinition Width="160" />
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                </Grid.RowDefinitions>
         </Grid>
 </local:IGameConfigSettingsPane>
