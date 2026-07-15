@@ -1,6 +1,4 @@
 
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights;
 using NLog;
 
 namespace ZTMZ.PacenoteTool.Base

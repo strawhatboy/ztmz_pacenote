@@ -30,7 +30,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
         public ViewModels.MainWindowVM ViewModel { get; }
         private IContentDialogService _contentDialogService;
         public MainWindow(ViewModels.MainWindowVM viewModel,
-            IPageService pageService,
+            INavigationViewPageProvider pageService,
             INavigationService navigationService,
             IContentDialogService contentDialogService)
         {
@@ -40,7 +40,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             InitializeComponent();
 
             SetPageService(pageService);
-            contentDialogService.SetContentPresenter(RootContentDialog);
+            contentDialogService.SetDialogHost(RootContentDialog);
             navigationService.SetNavigationControl(RootNavigation);
             _contentDialogService = contentDialogService;
 
@@ -70,7 +70,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             if (Config.Instance.ShowClosePrompt)
             {
                 e.Cancel = true;
-                ClosePrompt closePrompt = new ClosePrompt(_contentDialogService.GetDialogHost());
+                ClosePrompt closePrompt = new ClosePrompt(_contentDialogService.GetDialogHostEx()!);
                 ContentDialogResult result = await closePrompt.ShowAsync();
                 if (result == ContentDialogResult.None)
                 {
@@ -121,9 +121,9 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             return this.RootNavigation.Navigate(pageType);
         }
 
-        public void SetPageService(IPageService pageService)
+        public void SetPageService(INavigationViewPageProvider pageService)
         {
-            this.RootNavigation.SetPageService(pageService);
+            this.RootNavigation.SetPageProviderService(pageService);
         }
 
         public void SetServiceProvider(IServiceProvider serviceProvider)

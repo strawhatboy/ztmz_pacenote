@@ -42,7 +42,7 @@ public partial class SettingsVM : ObservableObject, INavigationAware
     }
 
 
-    public void OnNavigatedTo()
+    public Task OnNavigatedToAsync()
     {
         // update AutoUpdate settings, since it may be changed in General page
         IsAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
@@ -53,6 +53,7 @@ public partial class SettingsVM : ObservableObject, INavigationAware
         // calculate the data folder size.
         var dataFolder = AppLevelVariables.Instance.AppConfigFolder;
         CalculateDataFolderSize(dataFolder);
+        return Task.CompletedTask;
     }
 
     private void CalculateDataFolderSize(string folderPath)
@@ -93,9 +94,7 @@ public partial class SettingsVM : ObservableObject, INavigationAware
         return string.Format("{0:n1} {1}", number, suffixes[counter]);
     }
 
-    public void OnNavigatedFrom()
-    {
-    }
+    public Task OnNavigatedFromAsync() => Task.CompletedTask;
 
     private void InitializeViewModel()
     {

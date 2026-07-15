@@ -195,7 +195,7 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
     }
 
     
-    public void OnNavigatedTo()
+    public Task OnNavigatedToAsync()
     {
         // update AutoUpdate settings, since it may be changed in About/Settings page
         IsAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
@@ -203,11 +203,10 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
         // these 2 could be also changed during closing the main window
         CloseBehaviorSelection = Config.Instance.CloseWindowToMinimize ? 1 : 0;
         ShowClosePrompt = Config.Instance.ShowClosePrompt;
+        return Task.CompletedTask;
     }
 
-    public void OnNavigatedFrom()
-    {
-    }
+    public Task OnNavigatedFromAsync() => Task.CompletedTask;
 
     [RelayCommand]
     public void CloseBehaviorSelectionChanged()

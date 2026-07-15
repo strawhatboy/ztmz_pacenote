@@ -14,7 +14,7 @@ public class ProcessWatcherTest
     }
 
     [Fact]
-    public async void TestEventRaised()
+    public async Task TestEventRaised()
     {
         ProcessWatcher watcher = new();
         watcher.onNewProcess += process => {

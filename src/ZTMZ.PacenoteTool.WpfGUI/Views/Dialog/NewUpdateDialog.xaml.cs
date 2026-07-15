@@ -22,7 +22,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views.Dialog
     public partial class NewUpdateDialog : ContentDialog
     {
         private string _newVersion;
-        public NewUpdateDialog(ContentPresenter contentPresenter, string newVersion, string currentVersion, string changelogUrl) : base(contentPresenter)
+        public NewUpdateDialog(ContentDialogHost dialogHost, string newVersion, string currentVersion, string changelogUrl) : base(dialogHost)
         {
             _newVersion = newVersion;
             InitializeComponent();

@@ -119,7 +119,7 @@ public class UpdateService {
             {
                 // need update
                 // show new update dialog
-                NewUpdateDialog nud = new NewUpdateDialog(_contentDialogService.GetContentPresenter(), versionFile.version, CurrentVersion, versionFile.changelog);
+                NewUpdateDialog nud = new NewUpdateDialog(_contentDialogService.GetDialogHostEx()!, versionFile.version, CurrentVersion, versionFile.changelog);
 
                 ContentDialogResult dres = await nud.ShowAsync();
                 if (dres == ContentDialogResult.Primary)
@@ -137,7 +137,7 @@ public class UpdateService {
 
     public async Task Update(UpdateFile f)
     {
-        DownloadFileDialog dfd = new DownloadFileDialog(_contentDialogService.GetContentPresenter(), f);
+        DownloadFileDialog dfd = new DownloadFileDialog(_contentDialogService.GetDialogHostEx()!, f);
         dfd.DownloadComplete += Dfd_DownloadComplete;
         dfd.DownloadFiles(new List<string> { f.url });
         await dfd.ShowAsync();
@@ -153,4 +153,3 @@ public class UpdateService {
         }
     }
 }
-

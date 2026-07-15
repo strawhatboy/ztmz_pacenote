@@ -79,7 +79,7 @@ public partial class App : Application
             services.AddHostedService<ApplicationHostService>();
 
             // Page resolver service
-            services.AddSingleton<IPageService, PageService>();
+            services.AddSingleton<INavigationViewPageProvider, PageService>();
 
             // Theme manipulation
             services.AddSingleton<IThemeService, ThemeService>();

@@ -1,4 +1,3 @@
-using System.Windows.Controls;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
 
@@ -11,8 +10,8 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views.Dialog
     {
         public bool CloseToMinimize => rb_closeToMinimize.IsChecked ?? false;
         public bool DontShowAgain => cb_dontShowAgain.IsChecked ?? false;
-        public ClosePrompt(ContentPresenter contentPresenter)
-            : base(contentPresenter)
+        public ClosePrompt(ContentDialogHost dialogHost)
+            : base(dialogHost)
         {
             InitializeComponent();
 

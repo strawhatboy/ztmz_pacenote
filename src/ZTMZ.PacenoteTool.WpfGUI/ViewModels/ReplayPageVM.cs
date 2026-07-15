@@ -45,11 +45,9 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
         _ = navigationService.NavigateWithHierarchy(type);
     }
 
-    public void OnNavigatedFrom()
-    {
-    }
+    public Task OnNavigatedFromAsync() => Task.CompletedTask;
 
-    public async void OnNavigatedTo()
+    public async Task OnNavigatedToAsync()
     {
         // load all replays according to current game
         var replays = await ReplayManager.Instance.getReplays(this.tool.CurrentGame);

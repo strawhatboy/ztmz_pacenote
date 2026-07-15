@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using ZTMZ.PacenoteTool.Base;
 
-// using Wpf.Ui.Controls;
+using ContentDialogHost = Wpf.Ui.Controls.ContentDialogHost;
 using System.ComponentModel;
 using Wpf.Ui;
 
@@ -25,7 +25,7 @@ namespace ZTMZ.PacenoteTool.Base.UI.Dialog
     public partial class BaseDialog : Wpf.Ui.Controls.ContentDialog
     {
         public MessageBoxResult Result { get; set; }
-        public BaseDialog(ContentPresenter contentPresenter, string title_id, string msg_id, object[] args, MessageBoxButton button, MessageBoxImage image) : base(contentPresenter) {
+        public BaseDialog(ContentDialogHost dialogHost, string title_id, string msg_id, object[] args, MessageBoxButton button, MessageBoxImage image) : base(dialogHost) {
             
             InitializeComponent();
             args = args == null ? new object[] { } : args;

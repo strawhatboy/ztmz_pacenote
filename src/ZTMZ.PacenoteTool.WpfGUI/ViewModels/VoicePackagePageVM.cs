@@ -58,13 +58,13 @@ public partial class VoicePackagePageVM : ObservableObject, INavigationAware
         BindingOperations.EnableCollectionSynchronization(DataContent, _collectionLock);
     }
 
-    public async void OnNavigatedTo()
+    public Task OnNavigatedToAsync()
     {
         DataContent.Clear();
         // update the view model
         if (CodriverPackage == null)
         {
-            return;
+            return Task.CompletedTask;
         }
 
         // Task.Run(() => {
@@ -106,10 +106,8 @@ public partial class VoicePackagePageVM : ObservableObject, INavigationAware
                 DataContent.Add(item);
             }
         }
+        return Task.CompletedTask;
     }
 
-    public async void OnNavigatedFrom()
-    {
-        // throw new NotImplementedException();
-    }
+    public Task OnNavigatedFromAsync() => Task.CompletedTask;
 }

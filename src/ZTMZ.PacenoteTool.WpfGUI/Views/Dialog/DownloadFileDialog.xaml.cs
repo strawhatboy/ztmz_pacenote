@@ -34,7 +34,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views.Dialog
         private bool _urlRedirected;
 
         public event Action<IDictionary<string, string>> DownloadComplete;
-        public DownloadFileDialog(ContentPresenter contentPresenter, UpdateFile f) : base(contentPresenter)
+        public DownloadFileDialog(ContentDialogHost dialogHost, UpdateFile f) : base(dialogHost)
         {
             InitializeComponent();
             _urlRedirected = f.urlRedirected;

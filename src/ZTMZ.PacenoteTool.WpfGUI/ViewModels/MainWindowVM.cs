@@ -165,7 +165,7 @@ public partial class MainWindowVM : ObservableObject
 
     [RelayCommand]
     private async Task OnShowStartupDialog() {
-        _startupDialog = new StartupDialog(_contentDialogService.GetContentPresenter(), _tool);
+        _startupDialog = new StartupDialog(_contentDialogService.GetDialogHostEx()!, _tool);
         if (!_tool.IsInitialized) {
             await _startupDialog.ShowAsync();
         }
@@ -215,4 +215,3 @@ public partial class MainWindowVM : ObservableObject
         Application.Current.MainWindow.Show();
     }
 }
-

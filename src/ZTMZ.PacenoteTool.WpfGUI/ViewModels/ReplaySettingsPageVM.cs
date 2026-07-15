@@ -120,15 +120,14 @@ public partial class ReplaySettingsPageVM : ObservableObject, INavigationAware
         Config.Instance.SaveUserConfig();
     }
     
-    public void OnNavigatedFrom()
+    public Task OnNavigatedFromAsync()
     {
         // leaving, try to connect to obs here
         ObsManager.Instance.Connect();
+        return Task.CompletedTask;
     }
 
-    public void OnNavigatedTo()
-    {
-    }
+    public Task OnNavigatedToAsync() => Task.CompletedTask;
 
     [RelayCommand]
     private async void LocateFFmpeg() {

@@ -260,7 +260,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         }
     }
 
-    public async void OnNavigatedTo()
+    public async Task OnNavigatedToAsync()
     {
         // load replay with ReplayId
         this._replay = await ReplayManager.Instance.getReplay(this.ReplayId);
@@ -333,7 +333,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         this._timer.Start();
     }
 
-    public void OnNavigatedFrom()
+    public Task OnNavigatedFromAsync()
     {
         // throw new NotImplementedException();
         this.mediaElement.Stop();
@@ -342,6 +342,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         if (!string.IsNullOrEmpty(this.tmpAudioPath) && File.Exists(this.tmpAudioPath)) {
             // File.Delete(this.tmpAudioPath); wont delete
         }
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
