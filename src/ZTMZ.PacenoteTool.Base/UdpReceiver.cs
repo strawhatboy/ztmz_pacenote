@@ -1,147 +1,227 @@
 using System;
-using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Timers;
-// using MaterialDesignThemes.Wpf;
-using ZTMZ.PacenoteTool.Base;
+using System.Threading;
+using System.Threading.Tasks;
 using ZTMZ.PacenoteTool.Base.Game;
 
-namespace ZTMZ.PacenoteTool.Base
+namespace ZTMZ.PacenoteTool.Base;
+
+public class UdpReceiver : IDisposable
 {
-    
+    private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private readonly object lifecycleLock = new();
 
-    public delegate void NewUDPMessageDelegate(GameData msg);
+    private UdpClient client;
+    private CancellationTokenSource receiveCancellation;
+    private bool isInitialized;
+    private byte[] lastMessage;
 
-    public delegate void GameStateChangedDelegate(GameState lastGameState, GameState newGameState);
+    public event Action<byte[], byte[]> onNewMessage;
+    public event Action ListenStarted;
 
-    public struct UdpState
+    public bool[] WheelAbnormalDetectedReported = { false, false, false, false };
+    public int[] WheelAbnormalDetectedCounter = { 0, 0, 0, 0 };
+
+    public GameData LastMessage { get; private set; }
+
+    public void ResetWheelStatus()
     {
-        public UdpClient u;
-        public IPEndPoint e;
+        WheelAbnormalDetectedReported = new[] { false, false, false, false };
+        WheelAbnormalDetectedCounter = new[] { 0, 0, 0, 0 };
     }
 
-    public class UdpReceiver : IDisposable
+    public void StartListening(int port)
     {
-        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        private UdpClient client;
-        private IPEndPoint any;
-        public event Action<byte[], byte[]> onNewMessage;
-        public bool[] WheelAbnormalDetectedReported = new bool[] { false, false, false, false };
-        public int[] WheelAbnormalDetectedCounter = new int[] { 0, 0, 0, 0 };
+        StartListening(IPAddress.Loopback, port);
+    }
 
-        private bool isRunning = false;
-        private bool isInitialized = false;
-        private GameState _gameState = GameState.Unknown;
-        public event Action ListenStarted;
-        private byte[] lastMessage;
+    public void StartListening(IPAddress ipAddress, int port)
+    {
+        ArgumentNullException.ThrowIfNull(ipAddress);
 
-        public void ResetWheelStatus()
+        lock (lifecycleLock)
         {
-            WheelAbnormalDetectedReported = new bool[] { false, false, false, false };
-            WheelAbnormalDetectedCounter = new int[] { 0, 0, 0, 0 };
-        }
-
-        public UdpReceiver()
-        {
-            // initUDPClient();
-        }
-
-        public GameData LastMessage { get; private set; }
-
-        private void initUDPClient(IPAddress ipAddress, int port)
-        {
-            logger.Info("Start to get UDP traffic from {0}:{1}", ipAddress, port);
-            // check if port in use
-            bool alreadyinuse = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().GetActiveUdpListeners().Any(p => p.Port == port);
-            if (alreadyinuse)
+            if (isInitialized)
             {
-                throw new PortAlreadyInUseException(string.Format("Port {0} already in use when starting to get UDP traffic.", port), port);
+                return;
             }
-            any = new IPEndPoint(ipAddress, port);
-            client = new UdpClient();
-            // client.Client.SetSocketOption(SocketOptionLevel.Udp, , true);
-            // client.ExclusiveAddressUse = false;
-            client.Client.Bind(any);
-            UdpState s;
-            s.e = any;
-            s.u = client;
-            this.isRunning = true;
-            client?.BeginReceive(this.receiveMessage, s);
-            this.isInitialized = true;
-            this.ListenStarted?.Invoke();
-            logger.Info("UDP traffic listening started.");
-        }
 
-        public void StartListening(int port) 
-        {
-            StartListening(IPAddress.Loopback, port);
-        }
-        public void StartListening(IPAddress ipAddress, int port)
-        {
-            if (!this.isInitialized) {
-                initUDPClient(ipAddress, port);
-            }
-        }
+            var endpoint = new IPEndPoint(ipAddress, port);
+            var udpClient = new UdpClient(ipAddress.AddressFamily);
+            udpClient.Client.ExclusiveAddressUse = true;
 
-        public void StopListening()
-        {
-            this.isRunning = false;
-            if (this.client != null && this.client.Client != null && this.client.Client.Connected) 
-            {
-                this.client.Client.Disconnect(true);
-                this.client.Close();
-            }
-            this.isInitialized = false;
-        }
-
-        private void receiveMessage(IAsyncResult result)
-        {
+            logger.Info("Trying to listen for UDP traffic on {0}", endpoint);
             try
             {
-                if (result.AsyncState == null && !this.isRunning)
+                udpClient.Client.Bind(endpoint);
+            }
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.AddressAlreadyInUse)
+            {
+                udpClient.Dispose();
+                throw new PortAlreadyInUseException(
+                    $"Port {port} on {ipAddress} is already in use when starting the UDP receiver.",
+                    port);
+            }
+            catch
+            {
+                udpClient.Dispose();
+                throw;
+            }
+
+            var cancellation = new CancellationTokenSource();
+            client = udpClient;
+            receiveCancellation = cancellation;
+            lastMessage = null;
+            isInitialized = true;
+            _ = ReceiveLoopAsync(udpClient, endpoint, cancellation.Token);
+            logger.Info("UDP traffic listening started on {0}.", endpoint);
+        }
+
+        InvokeListenStartedHandlers();
+    }
+
+    public void StopListening()
+    {
+        UdpClient udpClient;
+        CancellationTokenSource cancellation;
+
+        lock (lifecycleLock)
+        {
+            if (!isInitialized && client == null)
+            {
+                return;
+            }
+
+            isInitialized = false;
+            udpClient = client;
+            cancellation = receiveCancellation;
+            client = null;
+            receiveCancellation = null;
+            lastMessage = null;
+        }
+
+        cancellation?.Cancel();
+        udpClient?.Dispose();
+        cancellation?.Dispose();
+        logger.Info("UDP traffic listening stopped.");
+    }
+
+    private async Task ReceiveLoopAsync(UdpClient udpClient, IPEndPoint localEndpoint, CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            UdpReceiveResult result;
+            try
+            {
+                result = await udpClient.ReceiveAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            catch (ObjectDisposedException) when (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+            catch (SocketException ex)
+            {
+                if (cancellationToken.IsCancellationRequested)
                 {
                     return;
                 }
 
-                UdpClient u = ((UdpState)(result.AsyncState)).u;
-                IPEndPoint e = ((UdpState)(result.AsyncState)).e;
-                byte[] rawData;
-                if (u == null || u.Client == null || e == null)
+                logger.Error(ex,
+                    "UDP receive failed on {0} with socket error {1}; the receiver will retry.",
+                    localEndpoint,
+                    ex.SocketErrorCode);
+
+                try
+                {
+                    await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
                 {
                     return;
                 }
 
-                rawData = u.EndReceive(result, ref e);
-                if (rawData.Length > 0)
-                {
-                    this.onNewMessage?.Invoke(lastMessage, rawData);
-                    lastMessage = rawData;
-                }
-
-                if (this.isRunning)
-                {
-                    u.BeginReceive(this.receiveMessage, result.AsyncState);
-                }
+                continue;
             }
             catch (Exception ex)
             {
-                if (ex is ObjectDisposedException || ex is SocketException)
+                logger.Error(ex, "Unexpected UDP receive failure on {0}; the receiver will retry.", localEndpoint);
+
+                try
                 {
-                    Debug.WriteLine("Socket is closed");
+                    await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
                     return;
                 }
-                throw;
+
+                continue;
             }
+
+            if (result.Buffer.Length == 0)
+            {
+                continue;
+            }
+
+            var previousMessage = lastMessage;
+            lastMessage = result.Buffer;
+            InvokeMessageHandlers(previousMessage, result.Buffer, result.RemoteEndPoint);
+        }
+    }
+
+    private void InvokeMessageHandlers(byte[] previousMessage, byte[] message, IPEndPoint remoteEndpoint)
+    {
+        var handlers = onNewMessage;
+        if (handlers == null)
+        {
+            return;
         }
 
-        public void Dispose()
+        foreach (Action<byte[], byte[]> handler in handlers.GetInvocationList())
         {
-            this.StopListening();
-            if (client != null)
-                client.Dispose();
+            try
+            {
+                handler(previousMessage, message);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex,
+                    "A UDP packet handler failed for a {0}-byte datagram from {1}; reception will continue.",
+                    message.Length,
+                    remoteEndpoint);
+            }
         }
+    }
+
+    private void InvokeListenStartedHandlers()
+    {
+        var handlers = ListenStarted;
+        if (handlers == null)
+        {
+            return;
+        }
+
+        foreach (Action handler in handlers.GetInvocationList())
+        {
+            try
+            {
+                handler();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "A UDP ListenStarted handler failed.");
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        StopListening();
+        GC.SuppressFinalize(this);
     }
 }

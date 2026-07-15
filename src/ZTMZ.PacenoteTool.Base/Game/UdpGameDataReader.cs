@@ -33,62 +33,71 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
 
     public virtual bool Initialize(IGame game)
     {
-        if (isInitialized) 
+        if (isInitialized)
             return false;
+
+        ArgumentNullException.ThrowIfNull(game);
         _game = game;
-        Debug.Assert(game.GameConfigurations.ContainsKey(UdpGameConfig.Name));
 
-        var udpConfig = game.GameConfigurations[UdpGameConfig.Name] as UdpGameConfig;
-
-        Debug.Assert(udpConfig != null);
-
-        _udpReceiver = new UdpReceiver();
-        _udpReceiver.onNewMessage += onNewUdpMessage;
-        _udpReceiver.onNewMessage += (o, n) => _timerMessageAvailableCount = 0;
-
-        IPAddress iPAddress;
-        if (IPAddress.TryParse(udpConfig.IPAddress, out iPAddress))
+        if (!game.GameConfigurations.TryGetValue(UdpGameConfig.Name, out var config) ||
+            config is not UdpGameConfig udpConfig)
         {
-            _udpReceiver.StartListening(iPAddress, udpConfig.Port);
-        } else {
-            _logger.Error("Failed to start listening UDP on address {0} and port {1}", udpConfig.IPAddress, udpConfig.Port);
+            _logger.Error("Failed to initialize UDP reader because game {0} has no UDP configuration.", game.Name);
+            return false;
         }
 
-        
-        this._timer = new Timer();
-        this._timer.Interval = 1000;
-        this._timer.Elapsed += (sender, args) =>
+        if (!IPAddress.TryParse(udpConfig.IPAddress, out var ipAddress))
         {
-            if (this.GameState != GameState.Paused && this.GameState != GameState.RaceBegin)
-            {
-                if (this._timerCount >= 10)
-                {
-                    // no gamestate change for 20s and the game is not paused.
-                    // TODO: new mechanism to get the unkown game state.
-                    this.GameState = GameState.Unknown;
-                    this._timerCount = 0;
-                }
-                else
-                {
-                    this._timerCount++;
-                    // _logger.Trace("timerTick: Game state is {0}, timer count is {1}", this.GameState, this._timerCount);
-                }
-            }
+            _logger.Error("Failed to initialize UDP reader because {0} is not a valid IP address.", udpConfig.IPAddress);
+            return false;
+        }
 
-            this._timerMessageAvailableCount++;
-            if (this._timerMessageAvailableCount >= 10)
+        var udpReceiver = new UdpReceiver();
+        udpReceiver.onNewMessage += onNewUdpMessage;
+        udpReceiver.onNewMessage += OnUdpMessageReceived;
+
+        try
+        {
+            udpReceiver.StartListening(ipAddress, udpConfig.Port);
+        }
+        catch
+        {
+            udpReceiver.Dispose();
+            throw;
+        }
+
+        System.Threading.Interlocked.Exchange(ref _timerMessageAvailableCount, 10);
+        _udpReceiver = udpReceiver;
+        _timer = new Timer(1000);
+        _timer.Elapsed += OnTimerElapsed;
+        isInitialized = true;
+        _timer.Start();
+        _logger.Debug("UdpGameDataReader initialized");
+        return true;
+    }
+
+    private void OnUdpMessageReceived(byte[] oldMessage, byte[] newMessage)
+    {
+        System.Threading.Interlocked.Exchange(ref _timerMessageAvailableCount, 0);
+    }
+
+    private void OnTimerElapsed(object sender, ElapsedEventArgs args)
+    {
+        if (GameState != GameState.Paused && GameState != GameState.RaceBegin)
+        {
+            if (_timerCount >= 10)
             {
-                this.onGameDataAvailabilityChanged?.Invoke(false);
+                GameState = GameState.Unknown;
+                _timerCount = 0;
             }
             else
             {
-                this.onGameDataAvailabilityChanged?.Invoke(true);
+                _timerCount++;
             }
-        };
-        this._timer.Start();
-        isInitialized = true;
-        _logger.Debug("UdpGameDataReader initialized");
-        return isInitialized;
+        }
+
+        var secondsWithoutMessage = System.Threading.Interlocked.Increment(ref _timerMessageAvailableCount);
+        onGameDataAvailabilityChanged?.Invoke(secondsWithoutMessage < 10);
     }
 
     public virtual void onNewUdpMessage(byte[] oldMsg, byte[] newMsg)
@@ -99,26 +108,37 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
 
     public virtual void Uninitialize(IGame game)
     {
-        if (!isInitialized) { 
+        if (!isInitialized)
+        {
             _logger.Warn("UdpGameDataReader is not initialized when uninitializing");
-            return;
         }
 
-        if (_udpReceiver == null) {
-            _logger.Warn("UdpGameDataReader is not initialized when uninitializing");
-            return;
-        }
-
-        _udpReceiver.StopListening();
-        _udpReceiver.Dispose();
-        _udpReceiver = null;
         isInitialized = false;
+
+        var timer = _timer;
+        _timer = null;
+        if (timer != null)
+        {
+            timer.Stop();
+            timer.Elapsed -= OnTimerElapsed;
+            timer.Dispose();
+        }
+
+        var udpReceiver = _udpReceiver;
+        _udpReceiver = null;
+        if (udpReceiver != null)
+        {
+            udpReceiver.onNewMessage -= onNewUdpMessage;
+            udpReceiver.onNewMessage -= OnUdpMessageReceived;
+            udpReceiver.Dispose();
+        }
+
         _logger.Debug("UdpGameDataReader uninitialized");
     }
 
     public void Dispose()
     {
-        if (_udpReceiver != null)
-            _udpReceiver.Dispose();
+        Uninitialize(_game);
+        GC.SuppressFinalize(this);
     }
 }

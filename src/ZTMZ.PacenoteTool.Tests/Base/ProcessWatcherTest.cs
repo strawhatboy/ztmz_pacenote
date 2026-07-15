@@ -17,8 +17,8 @@ public class ProcessWatcherTest
     public async void TestEventRaised()
     {
         ProcessWatcher watcher = new();
-        watcher.onNewProcess += (exe, arg) => {
-            Assert.Equal("notepad", exe);
+        watcher.onNewProcess += process => {
+            Assert.Equal("notepad", process.ProcessName);
             _testOutputHelper.WriteLine("'new' Event Triggered.");
         };
         watcher.onProcessExit += (exe, arg) => {
