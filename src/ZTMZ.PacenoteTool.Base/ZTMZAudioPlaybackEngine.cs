@@ -8,49 +8,34 @@ namespace ZTMZ.PacenoteTool.Base
 {
     public class ZTMZAudioPlaybackEngine : IDisposable
     {
-        private readonly WaveOutEvent outputDeviceMixer;
-        private readonly WaveOutEvent outputDeviceSequential;
-
-        // for sequential system sound
-        private readonly WaveOutEvent outputDeviceSequential2;
+        private readonly WaveOutEvent outputDevice;
         private readonly MixingSampleProvider mixer;
         private readonly SequentialSampleProvider sequential;
         private readonly SequentialSampleProvider sequential2;
-        private readonly bool _isSequential;
 
 
         public ZTMZAudioPlaybackEngine(int deviceID = -1, bool isSequential = true, int desiredLatency = 50,
             int sampleRate = 44100, int channelCount = 2)
         {
-            outputDeviceMixer = new WaveOutEvent();
-            outputDeviceSequential = new WaveOutEvent();
-            outputDeviceSequential2 = new WaveOutEvent();
+            outputDevice = new WaveOutEvent
+            {
+                DeviceNumber = deviceID,
+                DesiredLatency = desiredLatency
+            };
 
             var ieeeFloatWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channelCount);
-            mixer = new MixingSampleProvider(ieeeFloatWaveFormat);
-            mixer.ReadFully = true;
-            sequential = new SequentialSampleProvider(ieeeFloatWaveFormat);
-            sequential.ReadFully = true;
-            sequential2 = new SequentialSampleProvider(ieeeFloatWaveFormat);
-            sequential2.ReadFully = true;
+            mixer = new MixingSampleProvider(ieeeFloatWaveFormat) { ReadFully = true };
+            sequential = new SequentialSampleProvider(ieeeFloatWaveFormat) { ReadFully = true };
+            sequential2 = new SequentialSampleProvider(ieeeFloatWaveFormat) { ReadFully = true };
 
-            outputDeviceMixer.DeviceNumber = deviceID;
-            outputDeviceMixer.DesiredLatency = desiredLatency;
-            outputDeviceSequential.DeviceNumber = deviceID;
-            outputDeviceSequential.DesiredLatency = desiredLatency;
-            outputDeviceSequential2.DeviceNumber = deviceID;
-            outputDeviceSequential2.DesiredLatency = desiredLatency;
+            // Keep one device alive and mix independent logical lanes into it. This avoids
+            // separate WaveOut streams competing for the same device during a new callout.
+            mixer.AddMixerInput(sequential);
+            mixer.AddMixerInput(sequential2);
+            mixer.AddMixerInput(new AudioKeepAliveSampleProvider(ieeeFloatWaveFormat));
 
-            _isSequential = isSequential;
-
-            outputDeviceMixer.Init(mixer);
-            outputDeviceMixer.Play();
-
-            outputDeviceSequential.Init(sequential);
-            outputDeviceSequential.Play();
-
-            outputDeviceSequential2.Init(sequential2);
-            outputDeviceSequential2.Play();
+            outputDevice.Init(mixer);
+            outputDevice.Play();
         }
 
         public void PlaySound(string fileName, bool isSequential = true, bool isSystem = false)
@@ -111,9 +96,7 @@ namespace ZTMZ.PacenoteTool.Base
 
         public void Dispose()
         {
-            outputDeviceMixer.Dispose();
-            outputDeviceSequential.Dispose();
-            outputDeviceSequential2.Dispose();
+            outputDevice.Dispose();
         }
 
         public float PlaybackRate { set; get; } = Config.Instance.UI_PlaybackSpeed;

@@ -845,7 +845,7 @@ public class ZTMZPacenoteTool {
 
     public void PlaySound(string path) {
         this._profileManager.CurrentPlaySpeed = this._playbackSpd;
-        this._profileManager.PlaySound(new AutoResampledCachedSound(path), true);
+        this._profileManager.PlaySound(new AutoResampledCachedSound(path), isSequential: false);
     }
 }
 
@@ -864,5 +864,4 @@ public static class Extensions {
         }
     }
 }
-
 

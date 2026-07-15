@@ -12,7 +12,6 @@ namespace ZTMZ.PacenoteTool.Base
     {
         private readonly Queue<ISampleProvider> sources;
         private const int MaxInputs = 1024; // protect ourselves against doing something silly
-        private float[] sourceBuffer;
         public WaveFormat WaveFormat { get; private set; }
         public bool ReadFully { get; set; }
 
@@ -27,6 +26,14 @@ namespace ZTMZ.PacenoteTool.Base
         }
         public void AddSequentialInput(ISampleProvider sequentialInput)
         {
+            ArgumentNullException.ThrowIfNull(sequentialInput);
+
+            if (WaveFormat.SampleRate != sequentialInput.WaveFormat.SampleRate ||
+                WaveFormat.Channels != sequentialInput.WaveFormat.Channels)
+            {
+                throw new ArgumentException("All sequential inputs must have the same WaveFormat");
+            }
+
             // we'll just call the lock around add since we are protecting against an AddSequentialInput at
             // the same time as a Read, rather than two AddSequentialInput calls at the same time
             lock (sources)
@@ -37,40 +44,24 @@ namespace ZTMZ.PacenoteTool.Base
                 }
                 sources.Enqueue(sequentialInput);
             }
-            if (WaveFormat == null)
-            {
-                WaveFormat = sequentialInput.WaveFormat;
-            }
-            else
-            {
-                if (WaveFormat.SampleRate != sequentialInput.WaveFormat.SampleRate ||
-                    WaveFormat.Channels != sequentialInput.WaveFormat.Channels)
-                {
-                    throw new ArgumentException("All sequential inputs must have the same WaveFormat");
-                }
-            }
         }
 
         public int Read(float[] buffer, int offset, int count)
         {
             int outputSamples = 0;
-            sourceBuffer = BufferHelpers.Ensure(sourceBuffer, count);
             lock (sources)
             {
                 while (outputSamples < count && sources.Count > 0)
                 {
                     var source = sources.Peek();
-                    int samplesRead = source.Read(sourceBuffer, 0, count);
-                    int outIndex = offset;
-                    for (int n = 0; n < samplesRead; n++)
+                    int samplesRead = source.Read(buffer, offset + outputSamples, count - outputSamples);
+                    if (samplesRead > 0)
                     {
-                        buffer[outIndex++] = sourceBuffer[n];
+                        outputSamples += samplesRead;
+                        continue;
                     }
-                    outputSamples = Math.Max(samplesRead, outputSamples);
-                    if (samplesRead < count)
-                    {
-                        sources.Dequeue();
-                    }
+
+                    sources.Dequeue();
                 }
             }
             // optionally ensure we return a full buffer

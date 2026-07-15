@@ -596,7 +596,7 @@ namespace ZTMZ.PacenoteTool.Core
             this.initExampleAudio();
             this._exampleAudio.Amplification = this.CurrentPlayAmplification;
             this._exampleAudio.PlaySpeed = this.CurrentPlaySpeed;
-            this.PlaySound(this._exampleAudio, true);
+            this.PlaySound(this._exampleAudio, isSequential: false);
         }
 
         public void PlayMinusScript()

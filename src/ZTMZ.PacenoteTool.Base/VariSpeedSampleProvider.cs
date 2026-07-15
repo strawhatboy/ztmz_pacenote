@@ -15,6 +15,7 @@ namespace ZTMZ.PacenoteTool.Base
         private float playbackRate = 1.0f;
         private SoundTouchProcessor currentSoundTouchProcessor;
         private bool repositionRequested;
+        private bool sourceEnded;
 
         public VariSpeedSampleProvider(ISampleProvider sourceProvider, int readDurationMilliseconds,
             float playbackRate = 1.0f, bool useTempo = true)
@@ -52,39 +53,42 @@ namespace ZTMZ.PacenoteTool.Base
             {
                 currentSoundTouchProcessor.Clear();
                 repositionRequested = false;
+                sourceEnded = false;
             }
 
             int samplesRead = 0;
-            bool reachedEndOfSource = false;
             while (samplesRead < count)
             {
-                if (currentSoundTouchProcessor.AvailableSamples == 0)
-                {
-                    var readFromSource = sourceProvider.Read(sourceReadBuffer, 0, sourceReadBuffer.Length);
-                    if (readFromSource > 0)
-                    {
-                        currentSoundTouchProcessor.PutSamples(sourceReadBuffer, readFromSource / channelCount);
-                    }
-                    else
-                    {
-                        reachedEndOfSource = true;
-                        // we've reached the end, tell SoundTouch we're done
-                        currentSoundTouchProcessor.Flush();
-                        break; // samplesRead instead of 0 to keep the integrity
-                    }
-                }
-
                 var desiredSampleFrames = (count - samplesRead) / channelCount;
+                if (desiredSampleFrames == 0)
+                {
+                    break;
+                }
 
                 var received = currentSoundTouchProcessor.ReceiveSamples(soundTouchReadBuffer, desiredSampleFrames) *
                                channelCount;
-                // use loop instead of Array.Copy due to WaveBuffer
-                for (int n = 0; n < received; n++)
+                if (received > 0)
                 {
-                    buffer[offset + samplesRead++] = soundTouchReadBuffer[n];
+                    Array.Copy(soundTouchReadBuffer, 0, buffer, offset + samplesRead, received);
+                    samplesRead += received;
+                    continue;
                 }
 
-                if (received == 0 && reachedEndOfSource) break;
+                if (sourceEnded)
+                {
+                    break;
+                }
+
+                var readFromSource = sourceProvider.Read(sourceReadBuffer, 0, sourceReadBuffer.Length);
+                if (readFromSource > 0)
+                {
+                    currentSoundTouchProcessor.PutSamples(sourceReadBuffer, readFromSource / channelCount);
+                }
+                else
+                {
+                    sourceEnded = true;
+                    currentSoundTouchProcessor.Flush();
+                }
             }
 
             return samplesRead;

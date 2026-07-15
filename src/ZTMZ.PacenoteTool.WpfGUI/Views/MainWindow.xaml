@@ -43,8 +43,8 @@
             <ui:TitleBar.Icon>
                 <ui:ImageIcon Source="pack://application:,,,/Assets/app.ico" />
             </ui:TitleBar.Icon>
-            <ui:TitleBar.Header>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+            <ui:TitleBar.TrailingContent>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <ui:Button Icon="{ui:SymbolIcon ChatHelp20}" Command="{Binding ViewModel.ShowHelpCommand}"      ToolTip="{DynamicResource ResourceKey=ui.tb_qanda}" FontSize="16"
                     SnapsToDevicePixels="True"
                     Background="Transparent"
@@ -68,7 +68,7 @@
                     ToolTipService.InitialShowDelay="100"
                     />
                 </StackPanel>
-            </ui:TitleBar.Header>
+            </ui:TitleBar.TrailingContent>
         </ui:TitleBar>
         <ui:NavigationView
             x:Name="RootNavigation"
