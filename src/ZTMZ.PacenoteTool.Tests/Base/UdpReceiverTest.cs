@@ -60,6 +60,26 @@ public class UdpReceiverTest
         Assert.Equal(port, exception.Port);
     }
 
+    [Fact]
+    public void FindsPortUsableByReceiver()
+    {
+        var port = UdpPortFinder.FindAvailablePort(IPAddress.Loopback);
+        using var receiver = new UdpReceiver();
+
+        receiver.StartListening(IPAddress.Loopback, port);
+    }
+
+    [Fact]
+    public void ReportsAvailablePortAsBindable()
+    {
+        var port = GetAvailablePort();
+
+        var canBind = UdpPortFinder.CanBind(IPAddress.Loopback, port, out var socketError);
+
+        Assert.True(canBind);
+        Assert.Equal(SocketError.Success, socketError);
+    }
+
     private static int GetAvailablePort()
     {
         using var socket = new UdpClient(new IPEndPoint(IPAddress.Loopback, 0));

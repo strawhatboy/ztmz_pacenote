@@ -56,6 +56,7 @@ public partial class HudPageVM : ObservableObject {
     partial void OnWebDashboardEnabledChanged(bool value)
     {
         Config.Instance.WebDashboardEnabled = value;
+        _gameOverlayManager.ConfigureWebDashboard(value, WebDashboardPort);
         Config.Instance.SaveUserConfig();
     }
 
@@ -65,6 +66,10 @@ public partial class HudPageVM : ObservableObject {
     partial void OnWebDashboardPortChanged(int value)
     {
         Config.Instance.WebDashboardPort = value;
+        if (WebDashboardEnabled)
+        {
+            _gameOverlayManager.ConfigureWebDashboard(true, value);
+        }
         Config.Instance.SaveUserConfig();
         OnPropertyChanged(nameof(WebDashboardInstructions));
     }

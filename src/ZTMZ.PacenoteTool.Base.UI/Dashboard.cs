@@ -118,27 +118,30 @@ public class Dashboard {
     }
 
     public BitmapImage PreviewImage { get; set; }   // use wpf compatible image
-    public Dictionary<string, Image> ImageResources { get; set; }
+    public Dictionary<string, object> ImageResources { get; set; }
 
     private LuaGlobal LuaG { get; set; }
 
     private Lua _lua;
 
+    public bool IsLoaded => LuaG != null;
+
     private void loadImageResources(DashboardScriptArguments args) {
         // load resources
 
-        this.ImageResources = new Dictionary<string, Image>();
+        this.ImageResources = new Dictionary<string, object>();
         foreach (var imageResource in Descriptor.ImageResources) {
-            imageResource.Value.Path = Path.Combine(Descriptor.Path, imageResource.Value.Path);
-            // Cast to Graphics for image loading (only used during initialization with real Graphics)
-            this.ImageResources.Add(imageResource.Key, imageResource.Value.GetImage(args.Graphics as Graphics));
+            var resourcePath = GetResourcePath(imageResource.Value.Path);
+            this.ImageResources.Add(
+                imageResource.Key,
+                imageResource.Value.GetImage(args.Graphics, imageResource.Key, resourcePath));
         }
 
         foreach (var imageResourceDirectory in Descriptor.ImageResourcesInDirectory) {
             // imageResourceDirectory.Value is the ImageDescriptor contains the path of images and formatGUID
             if (imageResourceDirectory.Value == null) continue;
 
-            var directory = Path.Combine(Descriptor.Path, imageResourceDirectory.Value.Path);
+            var directory = GetResourcePath(imageResourceDirectory.Value.Path);
             if (!Directory.Exists(directory)) continue;
             foreach (var file in Directory.GetFiles(directory, "*.*").Where(
                 s => s.ToLower().EndsWith(".png") || s.ToLower().EndsWith(".jpg") || s.ToLower().EndsWith(".jpeg") || s.ToLower().EndsWith(".bmp") || s.ToLower().EndsWith(".gif") 
@@ -149,10 +152,16 @@ public class Dashboard {
                     Path = file,
                     FormatGUID = imageResourceDirectory.Value.FormatGUID
                 };
-                // Cast to Graphics for image loading (only used during initialization with real Graphics)
-                this.ImageResources.Add(imageResourceDirectory.Key + "@" + Path.GetFileNameWithoutExtension(file), imageDescriptor.GetImage(args.Graphics as Graphics));
+                var resourceKey = imageResourceDirectory.Key + "@" + Path.GetFileNameWithoutExtension(file);
+                this.ImageResources.Add(resourceKey, imageDescriptor.GetImage(args.Graphics, resourceKey, file));
             }
         }
+    }
+
+    private string GetResourcePath(string resourcePath) {
+        return Path.IsPathRooted(resourcePath)
+            ? resourcePath
+            : Path.Combine(Descriptor.Path, resourcePath);
     }
 
     public void Load(DashboardScriptArguments args, bool forceReload = false) {
@@ -161,6 +170,10 @@ public class Dashboard {
         // THE GRPAHICS DEVICE IS RECREATED when the game process ends and then starts, 
         // THE RESOURCES NEED TO BE RELOADED!!! because the factory used to create the image is different!!
         // AND if factories are different, Error 0x88990012 | D2DERR_WRONG_FACTORY will be thrown !!!
+        if (IsLoaded) {
+            Unload();
+        }
+
         if (forceReload || this.ImageResources == null) {
             loadImageResources(args);
         }
@@ -197,6 +210,10 @@ public class Dashboard {
     }
 
     public void Render(DashboardScriptArguments args) {
+        if (!IsLoaded) {
+            return;
+        }
+
         args.Self = this;
         // render lua script
         try {
@@ -209,6 +226,10 @@ public class Dashboard {
     }
 
     public void Unload() {
+        if (!IsLoaded) {
+            return;
+        }
+
         try {
             LuaG.CallMember("onExit");
         } catch (Exception e) {
@@ -218,6 +239,7 @@ public class Dashboard {
         }
         _logger.Info($"Dashboard {I18NLoader.Instance[Descriptor.Name]} unloaded");
         LuaG.Clear();
+        LuaG = null;
         _lua?.Dispose();
         _lua = null;
     }
@@ -237,12 +259,20 @@ public class DashboardResourceImageDescriptor {
     public string Path {set;get;}
     public string FormatGUID {set;get;}
 
-    public Image GetImage(Graphics graphics) {
-        if (!string.IsNullOrEmpty(FormatGUID)) {
-            return new Image(graphics, Path, new Guid[] {Guid.Parse(FormatGUID)});
-        } else {
-            return new Image(graphics, Path);
+    public object GetImage(object graphics, string resourceKey, string resourcePath) {
+        if (graphics is Graphics nativeGraphics) {
+            if (!string.IsNullOrEmpty(FormatGUID)) {
+                return new Image(nativeGraphics, resourcePath, new Guid[] {Guid.Parse(FormatGUID)});
+            }
+
+            return new Image(nativeGraphics, resourcePath);
         }
+
+        if (graphics is GraphicsCommandProxy webGraphics) {
+            return webGraphics.CreateImage(resourceKey, resourcePath);
+        }
+
+        throw new InvalidOperationException("Dashboard resources require a supported graphics context.");
     }
 }
 
@@ -258,4 +288,3 @@ public class DashboardDescriptor {
     public string Path { get; set; }
     public bool IsEnabled { get; set; } = true;
 }
-

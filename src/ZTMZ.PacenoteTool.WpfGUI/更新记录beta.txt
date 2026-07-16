@@ -3,10 +3,14 @@ v2.99.99.37-3.0-rc10
 [English]
 * Updated active projects to .NET 10, WPF-UI 4.3, and current compatible dependencies.
 * Improved UDP receiver reliability when a game is sending packets but the tool intermittently receives none.
+* Changed the default telemetry ports to DR1/DR2 `30000`, RBR `30001`, and EA WRC `30002`; reserved Windows ports are now detected when a game is selected and can be repaired with a safe port.
+* Updated NeoLua to fix dashboard initialization on .NET 10.
 * Fixed audio playback losing the first token after the output device has been idle, and restored co-driver package file previews.
 * Moved the main window's help, feedback, and support actions beside the caption buttons.
 
 [简体中文]
+* 将默认遥测端口调整为 DR1/DR2 `30000`、RBR `30001`、EA WRC `30002`；选择游戏时会检测被 Windows 保留的端口，并可一键修复为安全端口。
+* 更新 NeoLua，修复 .NET 10 下仪表盘初始化失败的问题。
 * 已将当前使用的项目升级至 .NET 10、WPF-UI 4.3 及兼容的最新依赖版本。
 * 改进 UDP 接收器可靠性，修复游戏已发送数据包但工具偶发收不到数据的问题。
 * 修复输出设备空闲后播放语音时首个词被吞掉的问题，并恢复语音包详情中文件试听功能。

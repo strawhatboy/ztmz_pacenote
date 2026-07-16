@@ -16,6 +16,7 @@ public enum PrerequisitesCheckResultCode
     PORT_NOT_OPEN = 400,
     PORT_NOT_MATCH = 401,
     PORT_ALREADY_IN_USE = 402,
+    PORT_ACCESS_DENIED = 403,
     CONFIG_FILE_CORRUPTED = 500,
     CONFIG_FILE_ABNORMAL = 501, // e.g. duplicate entries
     UNKNOWN = 800,
@@ -27,4 +28,3 @@ public class PrerequisitesCheckResult
     public string Msg { set; get; } = "";
     public List<object> Params { set; get; }
 }
-

@@ -112,11 +112,11 @@
       "hudShowDebugTelemetry": "Displays all telemetry data on the left side of the game screen for debugging and problem diagnosis",
       
       "webDashboardEnabled": "Enable web-based dashboard server for mobile device access",
-      "webDashboardPort": "Port number for the web dashboard server (requires restart to take effect)",
+      "webDashboardPort": "Port number for the web dashboard server (applies immediately)",
       "webDashboardTitle": "Web Dashboard",
       "webDashboardSubtitle": "Access dashboards from mobile devices",
       "webDashboardPortLabel": "Port:",
-      "webDashboardInstructions": "Access from browser: http://<PC-IP>:{0}\nExample: http://192.168.1.100:8080\n⚠️ Restart required after changing settings",
+      "webDashboardInstructions": "Access from browser: http://<PC-IP>:{0}\nExample: http://192.168.1.100:8080",
       
       "enableOnlineAnalytics": "Use Google Analytics/Azure AppInsights to collect some of your \"usage information\" to help us improve \nthe program. All of this information is sent to Google/Microsoft servers in an anonymous form for statistical use. \nYou can allow or prohibit this in the settings at any time. This information includes and is limited to:\n\t- Application crash/exception (for bug fixing)\n\t- Operating system version\n\t- Opening this program event\n\t- Opening each window event in this program\n\t- Each configuration item modification event\n \t- The modification event of the main interface configuration item\n\t- The event of using a specific voice package to play the game (to stat the voice package preference)",
       "optInBetaPlan": "Turn on this option to recieve updates and new features in the beta version",
@@ -514,6 +514,12 @@
     "portAlreadyInUse": {
       "title": "Port Already In Use",
       "msg": "Port {0} is IN USE，please check if there's any program like SIMHUB，速魔软件，Dirt Telemetry Tool running."
+    },
+    "portAccessDenied": {
+      "title": "UDP Port Reserved by Windows",
+      "msg": "Windows denied access to UDP port {0}; the port is reserved by the system. Running as administrator does not change this. Use a safe port to add a new PacenoteTool target, then restart the game.",
+      "btn_useSafePort": "Use a Safe Port",
+      "fixed": "PacenoteTool was configured to use UDP port {0}. Restart the game."
     },
     "configFileCorrupted": {
       "title": "Configuration file corrupted.",

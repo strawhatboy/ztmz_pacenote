@@ -22,14 +22,14 @@ public class UpdateConfigSetter
     public UpdateConfigSetter(ZTMZPacenoteTool tool)
     {
         this._configSetters.Add(new Version("2.99.99.20"), tool => {
-            // set default udp port to 59996 for Dirt Rally 1.0/2.0
+            // Keep DiRT Rally telemetry below the Windows dynamic port range.
             var dr1 = tool.Games.FirstOrDefault(a => a.Name == "Dirt Rally 1.0");
             var dr2 = tool.Games.FirstOrDefault(a => a.Name == "Dirt Rally 2.0");
 
             var setGamePort = (IGame game) => {
                 if (game != null) {
                     UdpGameConfig cfg = (UdpGameConfig)game.GameConfigurations[UdpGameConfig.Name];
-                    cfg.Port = 59996;
+                    cfg.Port = 30000;
                     Config.Instance.SaveGameConfig(game);
                 }
             };
@@ -46,11 +46,11 @@ public class UpdateConfigSetter
         });
 
         this._configSetters.Add(new Version("2.99.99.29"), tool => {
-            // force rbr port to 59986
+            // Keep RBR telemetry below the Windows dynamic port range.
             var rbr = tool.Games.FirstOrDefault(a => a.Name == "Richard Burns Rally - RSF");
             if (rbr != null) {
                 UdpGameConfig cfg = (UdpGameConfig)rbr.GameConfigurations[UdpGameConfig.Name];
-                cfg.Port = 59986;
+                cfg.Port = 30001;
                 Config.Instance.SaveGameConfig(rbr);
             }
         });
@@ -219,4 +219,3 @@ ALTER TABLE replay_details_per_time ADD COLUMN pos_z REAL NOT NULL DEFAULT 0;";
     }
     
 }
-

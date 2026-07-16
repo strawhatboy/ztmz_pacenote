@@ -144,40 +144,19 @@ function executeDrawingCommand(cmd) {
             break;
             
         case 'fillRect':
-            if (cmd.gradient) {
-                // Create gradient based on type
-                let gradient;
-                if (cmd.gradient.type === 'linear') {
-                    gradient = ctx.createLinearGradient(
-                        cmd.gradient.x0, cmd.gradient.y0,
-                        cmd.gradient.x1, cmd.gradient.y1
-                    );
-                } else if (cmd.gradient.type === 'radial') {
-                    gradient = ctx.createRadialGradient(
-                        cmd.gradient.x0, cmd.gradient.y0, cmd.gradient.r0,
-                        cmd.gradient.x1, cmd.gradient.y1, cmd.gradient.r1
-                    );
-                }
-                
-                if (gradient && cmd.gradient.colors && cmd.gradient.colors.length > 0) {
-                    // Add color stops
-                    const colorCount = cmd.gradient.colors.length;
-                    for (let i = 0; i < colorCount; i++) {
-                        const position = colorCount > 1 ? i / (colorCount - 1) : 0;
-                        gradient.addColorStop(position, colorToCSS(cmd.gradient.colors[i]));
-                    }
-                    ctx.fillStyle = gradient;
-                } else {
-                    ctx.fillStyle = colorToCSS(cmd.color);
-                }
+        case 'fillRectangle':
+            ctx.save();
+            if (applyFillStyle(ctx, cmd)) {
                 ctx.fillRect(cmd.x, cmd.y, cmd.width, cmd.height);
-            } else {
-                // Skip fully transparent fills (they clear underlying content)
-                const alpha = (cmd.color >> 24) & 0xFF;
-                if (alpha > 0) {
-                    ctx.fillStyle = colorToCSS(cmd.color);
-                    ctx.fillRect(cmd.x, cmd.y, cmd.width, cmd.height);
-                }
+            }
+            ctx.restore();
+            break;
+
+        case 'fillRoundedRectangle':
+            ctx.save();
+            if (applyFillStyle(ctx, cmd)) {
+                addRoundedRectanglePath(ctx, cmd.x, cmd.y, cmd.width, cmd.height, cmd.radius);
+                ctx.fill();
             }
             ctx.restore();
             break;
@@ -197,6 +176,15 @@ function executeDrawingCommand(cmd) {
             ctx.fillStyle = colorToCSS(cmd.color);
             ctx.beginPath();
             ctx.arc(cmd.x, cmd.y, cmd.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            break;
+
+        case 'fillEllipse':
+            ctx.save();
+            ctx.fillStyle = colorToCSS(cmd.color);
+            ctx.beginPath();
+            ctx.ellipse(cmd.x, cmd.y, cmd.radiusX, cmd.radiusY, 0, 0, Math.PI * 2);
             ctx.fill();
             ctx.restore();
             break;
@@ -343,6 +331,56 @@ function executeDrawingCommand(cmd) {
     } catch (error) {
         console.error('Error executing command:', cmd.type, cmd, error);
     }
+}
+
+function applyFillStyle(ctx, cmd) {
+    const alpha = (cmd.color >> 24) & 0xFF;
+    if (cmd.gradient) {
+        let gradient;
+        if (cmd.gradient.type === 'linear') {
+            gradient = ctx.createLinearGradient(
+                cmd.gradient.x0, cmd.gradient.y0,
+                cmd.gradient.x1, cmd.gradient.y1
+            );
+        } else if (cmd.gradient.type === 'radial') {
+            gradient = ctx.createRadialGradient(
+                cmd.gradient.x0, cmd.gradient.y0, cmd.gradient.r0,
+                cmd.gradient.x1, cmd.gradient.y1, cmd.gradient.r1
+            );
+        }
+
+        if (gradient && cmd.gradient.colors && cmd.gradient.colors.length > 0) {
+            const colorCount = cmd.gradient.colors.length;
+            for (let i = 0; i < colorCount; i++) {
+                const position = colorCount > 1 ? i / (colorCount - 1) : 0;
+                gradient.addColorStop(position, colorToCSS(cmd.gradient.colors[i]));
+            }
+            ctx.fillStyle = gradient;
+            return true;
+        }
+    }
+
+    if (alpha === 0) {
+        return false;
+    }
+
+    ctx.fillStyle = colorToCSS(cmd.color);
+    return true;
+}
+
+function addRoundedRectanglePath(ctx, x, y, width, height, radius) {
+    const safeRadius = Math.max(0, Math.min(radius || 0, Math.abs(width) / 2, Math.abs(height) / 2));
+    ctx.beginPath();
+    ctx.moveTo(x + safeRadius, y);
+    ctx.lineTo(x + width - safeRadius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + safeRadius);
+    ctx.lineTo(x + width, y + height - safeRadius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - safeRadius, y + height);
+    ctx.lineTo(x + safeRadius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - safeRadius);
+    ctx.lineTo(x, y + safeRadius);
+    ctx.quadraticCurveTo(x, y, x + safeRadius, y);
+    ctx.closePath();
 }
 
 function colorToCSS(color) {

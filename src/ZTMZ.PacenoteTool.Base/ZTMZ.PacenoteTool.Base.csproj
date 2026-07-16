@@ -22,7 +22,7 @@
     <PackageReference Include="obs-websocket-dotnet" Version="5.0.1" />
     <PackageReference Include="SharpSevenZip" Version="2.0.109" />
     <PackageReference Include="SoundTouch.Net" Version="2.3.2" />
-    <PackageReference Include="NeoLua" Version="1.3.19" />
+    <PackageReference Include="NeoLua" Version="1.3.20-beta.1" />
     <PackageReference Include="SevenZipExtractor" Version="1.0.19" />
     <PackageReference Include="Lib.Harmony" Version="2.4.2" />
   </ItemGroup>

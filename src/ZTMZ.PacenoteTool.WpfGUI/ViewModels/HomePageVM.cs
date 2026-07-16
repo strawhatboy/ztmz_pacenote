@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using System.Net;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using System.Windows.Data;
@@ -349,6 +350,35 @@ public partial class HomePageVM : ObservableObject {
                     }.ShowDialogAsync();
                 });
                 showToast = true;
+            } else if (code == PrerequisitesCheckResultCode.PORT_ACCESS_DENIED) {
+                var blockedPort = parameters?[0] ?? 0;
+                message = string.Format(I18NLoader.Instance["exception.portAccessDenied.msg"], blockedPort);
+                _ = Application.Current.Dispatcher.Invoke(async () =>
+                {
+                    var result = await new Wpf.Ui.Controls.MessageBox
+                    {
+                        Title = I18NLoader.Instance["exception.portAccessDenied.title"],
+                        Content = message,
+                        PrimaryButtonText = I18NLoader.Instance["exception.portAccessDenied.btn_useSafePort"],
+                        CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+                    }.ShowDialogAsync();
+
+                    if (result == Wpf.Ui.Controls.MessageBoxResult.Primary)
+                    {
+                        var safePort = await configureSafeUdpPort(game);
+                        if (safePort.HasValue)
+                        {
+                            var repairedMessage = string.Format(
+                                I18NLoader.Instance["exception.portAccessDenied.fixed"],
+                                safePort.Value);
+                            GameInitializeFailureMessage = repairedMessage;
+                            InfoBarIsOpen = true;
+                            InfoBarMessage = repairedMessage;
+                            InfoBarSeverity = InfoBarSeverity.Informational;
+                        }
+                    }
+                });
+                showToast = true;
             } else if (code == PrerequisitesCheckResultCode.GAME_NOT_INSTALLED) {
                 message = I18NLoader.Instance["ui.tooltip.cb_gameNotInstalled"];
                 showToast = true;
@@ -481,6 +511,48 @@ public partial class HomePageVM : ObservableObject {
                 CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
             }.ShowDialogAsync();
             return false;
+        }
+    }
+
+    private async Task<int?> configureSafeUdpPort(IGame game)
+    {
+        if (!game.GameConfigurations.TryGetValue(UdpGameConfig.Name, out var configuration) ||
+            configuration is not UdpGameConfig udpConfig ||
+            !IPAddress.TryParse(udpConfig.IPAddress, out var ipAddress))
+        {
+            _logger.Error("Cannot select a safe UDP port because game {0} has no valid UDP configuration.", game.Name);
+            return null;
+        }
+
+        var previousPort = udpConfig.Port;
+        try
+        {
+            var safePort = UdpPortFinder.FindAvailablePort(ipAddress);
+            udpConfig.Port = safePort;
+
+            if (!await forceFixGame(game))
+            {
+                udpConfig.Port = previousPort;
+                return null;
+            }
+
+            Config.Instance.SaveGameConfig(game);
+            _logger.Info("Configured game {0} to use safe UDP port {1}.", game.Name, safePort);
+            IsGameInitializeInProgress = true;
+            IsGameRunning = await Tool.SetGame(game);
+            return safePort;
+        }
+        catch (Exception exception)
+        {
+            udpConfig.Port = previousPort;
+            _logger.Error(exception, "Failed to configure a safe UDP port for game {0}.", game.Name);
+            await new Wpf.Ui.Controls.MessageBox
+            {
+                Title = I18NLoader.Instance["exception.forceFixError.title"],
+                Content = I18NLoader.Instance["exception.forceFixError.msg"] + exception.Message,
+                CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+            }.ShowDialogAsync();
+            return null;
         }
     }
 

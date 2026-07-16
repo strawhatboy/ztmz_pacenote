@@ -47,7 +47,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private readonly Dictionary<string, Font> _fonts = new();
         private readonly Dictionary<string, Image> _images = new();
         private BackgroundWorker _bgw;
-        private bool _isRunning;
+        private volatile bool _isRunning;
         
 
         private Random _random;
@@ -124,6 +124,11 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private bool _hudShowInSeparateWindow = false;
 
         private WebDashboardServer? _webDashboardServer = null;
+        private readonly object _webDashboardLock = new();
+        private readonly object _dashboardRenderLock = new();
+        private Timer? _webDashboardRenderTimer = null;
+        private int _webDashboardRenderInProgress = 0;
+        private bool _webDashboardUsesProxyResources = false;
         
         // Web dashboard rendering support
         private DrawingCommandCapture? _webCommandCapture = null;
@@ -224,23 +229,158 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 }
             };
 
-            // Initialize WebDashboard server if enabled
             if (Config.Instance.WebDashboardEnabled)
             {
-                try
+                ConfigureWebDashboard(true, Config.Instance.WebDashboardPort);
+            }
+        }
+
+        /// <summary>
+        /// Starts or stops only the Web HUD server. It deliberately does not create,
+        /// show, or re-parent the native overlay window.
+        /// </summary>
+        public void ConfigureWebDashboard(bool enabled, int port)
+        {
+            if (!enabled)
+            {
+                StopWebDashboard();
+                return;
+            }
+
+            if (port is < 1024 or > 65535)
+            {
+                _logger.Warn("WebDashboard port is outside the allowed range: {0}", port);
+                return;
+            }
+
+            StartWebDashboard(port);
+        }
+
+        private void StartWebDashboard(int port)
+        {
+            WebDashboardServer? previousServer;
+            Timer? previousTimer;
+
+            lock (_webDashboardLock)
+            {
+                if (_webDashboardServer != null && _webDashboardServer.IsRunning && _webDashboardServer.Port == port)
                 {
-                    _webDashboardServer = new WebDashboardServer();
-                    _webDashboardServer.Port = Config.Instance.WebDashboardPort;
-                    _webDashboardServer.Initialize(Dashboards);
-                    _webDashboardServer.Start();
-                    _logger.Info($"WebDashboard server started on port {_webDashboardServer.Port}");
+                    return;
                 }
-                catch (Exception ex)
+
+                previousServer = _webDashboardServer;
+                previousTimer = _webDashboardRenderTimer;
+                _webDashboardServer = null;
+                _webDashboardRenderTimer = null;
+            }
+
+            previousTimer?.Dispose();
+            previousServer?.Dispose();
+
+            WebDashboardServer? server = null;
+            try
+            {
+                server = new WebDashboardServer { Port = port };
+                server.Initialize(Dashboards);
+                server.Start();
+
+                lock (_webDashboardLock)
                 {
-                    _logger.Error(ex, "Failed to start WebDashboard server");
-                    _webDashboardServer = null;
+                    _webDashboardServer = server;
+                    _webDashboardRenderTimer = new Timer(
+                        RenderWebDashboard,
+                        null,
+                        TimeSpan.Zero,
+                        TimeSpan.FromMilliseconds(33));
+                }
+
+                _logger.Info("WebDashboard server started on port {0}", port);
+            }
+            catch (Exception ex)
+            {
+                server?.Dispose();
+                _logger.Error(ex, "Failed to start WebDashboard server");
+            }
+        }
+
+        private void StopWebDashboard()
+        {
+            WebDashboardServer? server;
+            Timer? timer;
+
+            lock (_webDashboardLock)
+            {
+                server = _webDashboardServer;
+                timer = _webDashboardRenderTimer;
+                _webDashboardServer = null;
+                _webDashboardRenderTimer = null;
+            }
+
+            timer?.Dispose();
+            if (server != null)
+            {
+                server.Dispose();
+                _logger.Info("WebDashboard server stopped");
+            }
+        }
+
+        private void RenderWebDashboard(object? state)
+        {
+            if (_isRunning || !TimeToShowTelemetry)
+            {
+                return;
+            }
+
+            if (Interlocked.CompareExchange(ref _webDashboardRenderInProgress, 1, 0) != 0)
+            {
+                return;
+            }
+
+            try
+            {
+                lock (_dashboardRenderLock)
+                {
+                    if (_isRunning || !TimeToShowTelemetry)
+                    {
+                        return;
+                    }
+
+                    BroadcastWebDashboardFrame(true);
                 }
             }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to render WebDashboard frame");
+            }
+            finally
+            {
+                Volatile.Write(ref _webDashboardRenderInProgress, 0);
+            }
+        }
+
+        private void BroadcastWebDashboardFrame(bool useWebProxy)
+        {
+            WebDashboardServer? server;
+            lock (_webDashboardLock)
+            {
+                server = _webDashboardServer;
+            }
+
+            if (server == null || !server.IsRunning || server.ClientCount == 0)
+            {
+                return;
+            }
+
+            var commands = CaptureWebDashboardCommands(useWebProxy);
+            if (commands.Count == 0)
+            {
+                return;
+            }
+
+            _ = server.BroadcastGameData(
+                DashboardScriptArguments.GameData,
+                DashboardScriptArguments.GameContext,
+                commands);
         }
 
         public void InitializeOverlayInSeparateWindow() {
@@ -394,179 +534,155 @@ namespace ZTMZ.PacenoteTool.Base.UI
         }
 
         private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e) {
-            _isRunning = true;
-            var gfx = e.Graphics;
-            
-            if (e.RecreateResources) {
-                foreach (var pair in _brushes) pair.Value.Dispose();
-                foreach (var pair in _fonts) pair.Value.Dispose();
-                foreach (var pair in _images) pair.Value.Dispose();
-            }
+            lock (_dashboardRenderLock) {
+                _isRunning = true;
+                _webDashboardUsesProxyResources = false;
+                var gfx = e.Graphics;
 
-            // _logger.Debug("Setting up graphics..., the factory is: {0}, factory in LuaArgs is {1}", gfx.GetFactory().NativePointer, DashboardScriptArguments.Graphics.GetFactory().NativePointer);
-            // _logger.Debug("Setting up graphics..., the fontFactory is: {0}, fontfactory in LuaArgs is {1}", gfx.GetFontFactory().NativePointer, DashboardScriptArguments.Graphics.GetFontFactory().NativePointer);
-            // load custom fonts
-            gfx.LoadCustomFont(AppLevelVariables.Instance.GetPath(Constants.PATH_FONTS));
-            _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
-            for (int i = 0; i < Dashboards.Count; i++) {
-                var dashboard = Dashboards[i];
-                DashboardErrorEncountered[i] = false;
-                if (dashboard.Descriptor.IsEnabled) {
+                if (e.RecreateResources) {
+                    foreach (var pair in _brushes) pair.Value.Dispose();
+                    foreach (var pair in _fonts) pair.Value.Dispose();
+                    foreach (var pair in _images) pair.Value.Dispose();
+                }
 
-                    while (dashboardLoadRetryCount < dashboardLoadRetryMax)
-                    {
-                        try
+                // _logger.Debug("Setting up graphics..., the factory is: {0}, factory in LuaArgs is {1}", gfx.GetFactory().NativePointer, DashboardScriptArguments.Graphics.GetFactory().NativePointer);
+                // _logger.Debug("Setting up graphics..., the fontFactory is: {0}, fontfactory in LuaArgs is {1}", gfx.GetFontFactory().NativePointer, DashboardScriptArguments.Graphics.GetFontFactory().NativePointer);
+                // load custom fonts
+                gfx.LoadCustomFont(AppLevelVariables.Instance.GetPath(Constants.PATH_FONTS));
+                _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
+                for (int i = 0; i < Dashboards.Count; i++) {
+                    var dashboard = Dashboards[i];
+                    DashboardErrorEncountered[i] = false;
+                    if (dashboard.Descriptor.IsEnabled) {
+
+                        while (dashboardLoadRetryCount < dashboardLoadRetryMax)
                         {
-                            dashboard.Load(DashboardScriptArguments, true); // force reload resources
-                            DashboardLoaded[i] = true;
-                            dashboardLoadRetryCount = 0;
-                            break;
+                            try
+                            {
+                                dashboard.Load(DashboardScriptArguments, true); // force reload resources
+                                DashboardLoaded[i] = true;
+                                dashboardLoadRetryCount = 0;
+                                break;
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.Error(ex, "Failed to load dashboard: {0}, retrying...", dashboard.Descriptor.Name);
+                                dashboardLoadRetryCount++;
+                                Thread.Sleep(dashboardLoadRetryInterval);
+                            }
                         }
-                        catch (Exception ex)
+                        if (dashboardLoadRetryCount >= dashboardLoadRetryMax)
                         {
-                            _logger.Error(ex, "Failed to load dashboard: {0}, retrying...", dashboard.Descriptor.Name);
-                            dashboardLoadRetryCount++;
-                            Thread.Sleep(dashboardLoadRetryInterval);
+                            _logger.Error("Failed to load dashboard: {0}, retry count: {1}", dashboard.Descriptor.Name, dashboardLoadRetryCount);
+                            DashboardLoaded[i] = false;
+                            dashboard.SetIsEnable(false);   // disable it
                         }
-                    }
-                    if (dashboardLoadRetryCount >= dashboardLoadRetryMax)
-                    {
-                        _logger.Error("Failed to load dashboard: {0}, retry count: {1}", dashboard.Descriptor.Name, dashboardLoadRetryCount);
+                        dashboardLoadRetryCount = 0;
+                    } else {
+                        if (DashboardLoaded[i]) {
+                            dashboard.Unload();
+                        }
                         DashboardLoaded[i] = false;
-                        dashboard.SetIsEnable(false);   // disable it
                     }
-                    dashboardLoadRetryCount = 0;
-                } else {
-                    DashboardLoaded[i] = false;
                 }
             }
         }
 
         private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e) {
-            var gfx = e.Graphics;
-            gfx.ClearScene(_brushes["clear"]);
-            if (Config.Instance.UI_ShowHud && TimeToShowTelemetry) {
-                for (var i = 0; i < Dashboards.Count; i++) {
-                    var dashboard = Dashboards[i];
-                    if (dashboard.Descriptor.IsEnabled) {
-                        if (DashboardLoaded[i]) {
-                            try {
-                                dashboard.Render(DashboardScriptArguments);
-                            } catch (Exception ex) {
-                                // log error for the first time for this dashboard
-                                if (!DashboardErrorEncountered[i]) {
-                                    _logger.Error(ex, "Error when rendering dashboard: {0}", dashboard.Descriptor.Name);
-                                    DashboardErrorEncountered[i] = true;
+            lock (_dashboardRenderLock) {
+                var gfx = e.Graphics;
+                gfx.ClearScene(_brushes["clear"]);
+
+                var renderNativeHud = Config.Instance.UI_ShowHud;
+                var renderWebHud = HasActiveWebDashboardClients();
+                if (TimeToShowTelemetry && (renderNativeHud || renderWebHud)) {
+                    for (var i = 0; i < Dashboards.Count; i++) {
+                        var dashboard = Dashboards[i];
+                        if (dashboard.Descriptor.IsEnabled) {
+                            if (!DashboardLoaded[i]) {
+                                dashboard.Load(DashboardScriptArguments);
+                                DashboardLoaded[i] = true;
+                            }
+
+                            if (renderNativeHud) {
+                                try {
+                                    dashboard.Render(DashboardScriptArguments);
+                                } catch (Exception ex) {
+                                    // log error for the first time for this dashboard
+                                    if (!DashboardErrorEncountered[i]) {
+                                        _logger.Error(ex, "Error when rendering dashboard: {0}", dashboard.Descriptor.Name);
+                                        DashboardErrorEncountered[i] = true;
+                                    }
                                 }
                             }
-                        } else {
-                            dashboard.Load(DashboardScriptArguments);
-                            DashboardLoaded[i] = true;
-                        }
-                    } else {
-                        if (DashboardLoaded[i]) {
+                        } else if (DashboardLoaded[i]) {
                             dashboard.Unload();
                             DashboardLoaded[i] = false;
                         }
                     }
                 }
 
-                // Capture and broadcast dashboard commands to web clients
-                if (_webDashboardServer != null)
-                {
-                    if (_webDashboardServer.IsRunning && _webDashboardServer.ClientCount > 0)
-                    {
-                        var commands = CaptureWebDashboardCommands();
-                        _ = _webDashboardServer.BroadcastGameData(
-                            DashboardScriptArguments.GameData,
-                            DashboardScriptArguments.GameContext,
-                            commands
-                        );
-                    }
+                if (TimeToShowTelemetry) {
+                    BroadcastWebDashboardFrame(false);
                 }
             }
         }
         
+        private bool HasActiveWebDashboardClients()
+        {
+            lock (_webDashboardLock)
+            {
+                return _webDashboardServer != null
+                    && _webDashboardServer.IsRunning
+                    && _webDashboardServer.ClientCount > 0;
+            }
+        }
+
         /// <summary>
-        /// Render dashboards using command capture for web clients
-        /// This creates a separate rendering pass that doesn't affect the game overlay
+        /// Render dashboards using command capture for web clients. When no native
+        /// overlay exists, the dashboards are loaded against the command proxy.
         /// </summary>
-        private List<DrawingCommand> CaptureWebDashboardCommands()
+        private List<DrawingCommand> CaptureWebDashboardCommands(bool useWebProxy)
         {
             try
             {
-                // Initialize web rendering components if needed
-                if (_webCommandCapture == null)
-                {
-                    _webCommandCapture = new DrawingCommandCapture
-                    {
-                        Width = _window?.Width ?? 1920,
-                        Height = _window?.Height ?? 1080
-                    };
-                    _webGraphicsProxy = new GraphicsCommandProxy(_webCommandCapture);
-                    
-                    // Register all dashboard images with the command capture
-                    foreach (var dashboard in Dashboards)
-                    {
-                        if (dashboard.ImageResources != null)
-                        {
-                            foreach (var kvp in dashboard.ImageResources)
-                            {
-                                _webCommandCapture.RegisterImage(kvp.Key, kvp.Value);
-                            }
-                        }
-                    }
-                    
-                    // Create separate dashboard arguments for web rendering
-                    _webDashboardArgs = new DashboardScriptArguments
-                    {
-                        Graphics = _webGraphicsProxy, // Now we can assign directly since Graphics is object type
-                        Config = DashboardScriptArguments.Config,
-                        I18NLoader = DashboardScriptArguments.I18NLoader,
-                        GameData = DashboardScriptArguments.GameData,
-                        GameContext = DashboardScriptArguments.GameContext,
-                        GameOverlayDrawingHelper = DashboardScriptArguments.GameOverlayDrawingHelper
-                    };
-                    
-                    _logger.Info($"Web rendering initialized - proxy has {_webGraphicsProxy.Width}x{_webGraphicsProxy.Height}");
+                InitializeWebDashboardRenderer();
+                if (useWebProxy) {
+                    EnsureWebDashboardProxyResources();
                 }
                 
-                // Update game data references
                 _webDashboardArgs.GameData = DashboardScriptArguments.GameData;
                 _webDashboardArgs.GameContext = DashboardScriptArguments.GameContext;
-                
-                // Render all enabled dashboards using the proxy
-                for (var i = 0; i < Dashboards.Count; i++)
-                {
+
+                _webCommandCapture.ClearRegisteredImages();
+                foreach (var dashboard in Dashboards) {
+                    if (dashboard.ImageResources == null) {
+                        continue;
+                    }
+
+                    foreach (var imageResource in dashboard.ImageResources) {
+                        _webCommandCapture.RegisterImage(imageResource.Key, imageResource.Value);
+                    }
+                }
+
+                _webCommandCapture.ClearCommands();
+                _webGraphicsProxy.ClearScene();
+
+                for (var i = 0; i < Dashboards.Count; i++) {
                     var dashboard = Dashboards[i];
-                    if (dashboard.Descriptor.IsEnabled && DashboardLoaded[i])
-                    {
-                        try
-                        {
-                            _webCommandCapture.ClearCommands(); // Clear before each dashboard
-                            _webDashboardArgs.Self = dashboard;
-                            
-                            try
-                            {
-                                dashboard.Render(_webDashboardArgs);
-                            }
-                            catch (Exception renderEx)
-                            {
-                                _logger.Error(renderEx, $"Error during Lua execution for {dashboard.Descriptor.Name}: {renderEx.Message}");
-                                if (renderEx.InnerException != null)
-                                {
-                                    _logger.Error($"Inner exception: {renderEx.InnerException.Message}");
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.Error(ex, $"Error capturing web dashboard commands: {dashboard.Descriptor.Name}");
-                        }
+                    if (!dashboard.Descriptor.IsEnabled || !DashboardLoaded[i]) {
+                        continue;
+                    }
+
+                    try {
+                        _webDashboardArgs.Self = dashboard;
+                        dashboard.Render(_webDashboardArgs);
+                    }
+                    catch (Exception ex) {
+                        _logger.Error(ex, "Error capturing WebDashboard commands: {0}", dashboard.Descriptor.Name);
                     }
                 }
                 
-                // Return captured commands
                 return _webCommandCapture.GetCommands();
             }
             catch (Exception ex)
@@ -574,6 +690,58 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 _logger.Error(ex, "Error in CaptureWebDashboardCommands");
                 return new List<DrawingCommand>();
             }
+        }
+
+        private void InitializeWebDashboardRenderer()
+        {
+            if (_webCommandCapture != null) {
+                return;
+            }
+
+            _webCommandCapture = new DrawingCommandCapture {
+                Width = 1920,
+                Height = 1080
+            };
+            _webGraphicsProxy = new GraphicsCommandProxy(_webCommandCapture);
+            _webDashboardArgs = new DashboardScriptArguments {
+                Graphics = _webGraphicsProxy,
+                Config = DashboardScriptArguments.Config,
+                I18NLoader = DashboardScriptArguments.I18NLoader,
+                GameData = DashboardScriptArguments.GameData,
+                GameContext = DashboardScriptArguments.GameContext,
+                GameOverlayDrawingHelper = DashboardScriptArguments.GameOverlayDrawingHelper
+            };
+
+            _logger.Info("Web rendering initialized - proxy has {0}x{1}", _webGraphicsProxy.Width, _webGraphicsProxy.Height);
+        }
+
+        private void EnsureWebDashboardProxyResources()
+        {
+            for (var i = 0; i < Dashboards.Count; i++) {
+                var dashboard = Dashboards[i];
+                if (!dashboard.Descriptor.IsEnabled) {
+                    if (DashboardLoaded[i]) {
+                        dashboard.Unload();
+                    }
+                    DashboardLoaded[i] = false;
+                    continue;
+                }
+
+                if (_webDashboardUsesProxyResources && DashboardLoaded[i]) {
+                    continue;
+                }
+
+                try {
+                    dashboard.Load(_webDashboardArgs, true);
+                    DashboardLoaded[i] = true;
+                }
+                catch (Exception ex) {
+                    DashboardLoaded[i] = false;
+                    _logger.Error(ex, "Failed to load dashboard for WebDashboard: {0}", dashboard.Descriptor.Name);
+                }
+            }
+
+            _webDashboardUsesProxyResources = true;
         }
 
         // private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e)
@@ -621,17 +789,20 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         private void _window_DestroyGraphics(object sender, DestroyGraphicsEventArgs e)
         {
-            foreach (var pair in _brushes) pair.Value.Dispose();
-            foreach (var pair in _fonts) pair.Value.Dispose();
-            foreach (var pair in _images) pair.Value.Dispose();
-            for (int i = 0; i < Dashboards.Count; i++) {
-                var dashboard = Dashboards[i];
-                if (dashboard.Descriptor.IsEnabled) {
+            lock (_dashboardRenderLock) {
+                foreach (var pair in _brushes) pair.Value.Dispose();
+                foreach (var pair in _fonts) pair.Value.Dispose();
+                foreach (var pair in _images) pair.Value.Dispose();
+                for (int i = 0; i < Dashboards.Count; i++) {
+                    var dashboard = Dashboards[i];
                     if (DashboardLoaded[i]) {
                         dashboard.Unload();
                         DashboardLoaded[i] = false;
                     }
                 }
+
+                _webDashboardUsesProxyResources = false;
+                _isRunning = false;
             }
         }
 
@@ -1202,16 +1373,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
         {
             if (!disposedValue)
             {
+                StopWebDashboard();
                 _window?.Dispose();
-
-                // Stop and dispose WebDashboard server
-                if (_webDashboardServer != null)
-                {
-                    _webDashboardServer.Stop();
-                    _webDashboardServer.Dispose();
-                    _webDashboardServer = null;
-                    _logger.Info("WebDashboard server stopped and disposed");
-                }
 
                 disposedValue = true;
             }
@@ -1456,5 +1619,3 @@ namespace ZTMZ.PacenoteTool.Base.UI
         }
     }
 }
-
-

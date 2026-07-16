@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Net;
+using System.Net.Sockets;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using System.Threading.Tasks;
@@ -276,35 +278,91 @@ public class ZTMZPacenoteTool {
         {
             // raise Game not install
             this.onGameInitializeFailed?.Invoke(game, code, null);
-        } else {
-            try {
-                if (game.GameDataReader.Initialize(game))
-                {
-                    // inform the Overlay, game is ready to go.
-                    game.GameDataReader.onCarDamaged += carDamagedEventHandler;
-                    game.GameDataReader.onNewGameData += newGameDataEventHander;
-                    game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
-                    game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
-                    game.GameDataReader.onCarReset += carResetHandler;
-                    _logger.Info("Game {0} initialized.", game.Name);
-                    game.IsInitialized = true;
-                    this.onGameInitialized?.Invoke(game);
-                    // initialize obs
-                    ObsManager.Instance.Connect();
-                } else {
-                    this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.UNKNOWN, null);
-                }
-            } catch (Exception e) {
-                if (e is PortAlreadyInUseException ex) 
-                {
-                    // raise port already in use
-                    this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.PORT_ALREADY_IN_USE, new List<object>{ex.Port});
-                }
+            return;
+        }
+
+        if (TryGetUdpPortFailure(game, out var port, out var socketError))
+        {
+            var failureCode = socketError == SocketError.AddressAlreadyInUse
+                ? PrerequisitesCheckResultCode.PORT_ALREADY_IN_USE
+                : socketError == SocketError.AccessDenied
+                    ? PrerequisitesCheckResultCode.PORT_ACCESS_DENIED
+                    : PrerequisitesCheckResultCode.UNKNOWN;
+
+            _logger.Warn(
+                "UDP port {0} cannot be bound for {1}. Socket error: {2}.",
+                port,
+                game.Name,
+                socketError);
+            this.onGameInitializeFailed?.Invoke(game, failureCode, new List<object> { port });
+            return;
+        }
+
+        try
+        {
+            if (!game.GameDataReader.Initialize(game))
+            {
+                this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.UNKNOWN, null);
+                return;
             }
-            
-            // raise UI game state.
+
+            // Inform the overlay that game data can now be received.
+            game.GameDataReader.onCarDamaged += carDamagedEventHandler;
+            game.GameDataReader.onNewGameData += newGameDataEventHander;
+            game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
+            game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
+            game.GameDataReader.onCarReset += carResetHandler;
+            _logger.Info("Game {0} initialized.", game.Name);
+            game.IsInitialized = true;
+            this.onGameInitialized?.Invoke(game);
+            ObsManager.Instance.Connect();
+        }
+        catch (PortAlreadyInUseException exception)
+        {
+            _logger.Warn(exception, "UDP port {0} is already in use while initializing {1}.", exception.Port, game.Name);
+            this.onGameInitializeFailed?.Invoke(
+                game,
+                PrerequisitesCheckResultCode.PORT_ALREADY_IN_USE,
+                new List<object> { exception.Port });
+            return;
+        }
+        catch (PortAccessDeniedException exception)
+        {
+            _logger.Warn(exception, "Windows denied access to UDP port {0} while initializing {1}.", exception.Port, game.Name);
+            this.onGameInitializeFailed?.Invoke(
+                game,
+                PrerequisitesCheckResultCode.PORT_ACCESS_DENIED,
+                new List<object> { exception.Port });
+            return;
+        }
+        catch (Exception exception)
+        {
+            _logger.Error(exception, "Failed to initialize game {0}.", game.Name);
+            this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.UNKNOWN, null);
+            return;
+        }
+
+        if (code != PrerequisitesCheckResultCode.OK)
+        {
+            // The reader is ready, but the game configuration still needs user attention.
             this.onGameInitializeFailed?.Invoke(game, code, res.Params);
         }
+    }
+
+    private static bool TryGetUdpPortFailure(IGame game, out int port, out SocketError socketError)
+    {
+        port = 0;
+        socketError = SocketError.Success;
+
+        if (!game.GameConfigurations.TryGetValue(UdpGameConfig.Name, out var configuration) ||
+            configuration is not UdpGameConfig udpConfig ||
+            !IPAddress.TryParse(udpConfig.IPAddress, out var ipAddress))
+        {
+            return false;
+        }
+
+        port = udpConfig.Port;
+        return !UdpPortFinder.CanBind(ipAddress, port, out socketError);
     }
 
     private void uninitializeGame(IGame game)

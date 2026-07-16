@@ -63,6 +63,15 @@ public class UdpReceiver : IDisposable
                     $"Port {port} on {ipAddress} is already in use when starting the UDP receiver.",
                     port);
             }
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.AccessDenied)
+            {
+                udpClient.Dispose();
+                throw new PortAccessDeniedException(
+                    $"Windows denied access to UDP port {port} on {ipAddress} when starting the UDP receiver.",
+                    port,
+                    ex.SocketErrorCode,
+                    ex);
+            }
             catch
             {
                 udpClient.Dispose();

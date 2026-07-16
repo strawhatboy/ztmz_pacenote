@@ -18,8 +18,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 namespace ZTMZ.PacenoteTool.Base.UI;
 
 /// <summary>
-/// Web server that streams dashboard data to browser clients
-/// Serves Lua scripts and resources, clients execute Lua client-side
+/// Web server that streams server-rendered dashboard commands and resources to browser clients
 /// </summary>
 public class WebDashboardServer : IDisposable
 {

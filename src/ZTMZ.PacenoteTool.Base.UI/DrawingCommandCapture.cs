@@ -27,6 +27,11 @@ public class DrawingCommandCapture
             _imageKeyMap[image] = key;
         }
     }
+
+    public void ClearRegisteredImages()
+    {
+        _imageKeyMap.Clear();
+    }
     
     /// <summary>
     /// Get the key for an image object
@@ -110,6 +115,73 @@ public class DrawingCommandCapture
         if (brush == null) return null;
         
         var typeName = brush.GetType().Name;
+
+        if (typeName == "ProxyLinearGradientBrush")
+        {
+            try
+            {
+                dynamic gradient = brush;
+                var info = new GradientInfo
+                {
+                    Type = "linear",
+                    X0 = gradient.StartX,
+                    Y0 = gradient.StartY,
+                    X1 = gradient.EndX,
+                    Y1 = gradient.EndY
+                };
+
+                foreach (var color in gradient.Colors)
+                {
+                    dynamic c = color;
+                    uint argb = (uint)(c.A << 24 | c.R << 16 | c.G << 8 | c.B);
+                    info.Colors.Add(argb);
+                }
+
+                return info.Colors.Count > 0 ? info : null;
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn($"Error getting proxy linear gradient info: {ex.Message}");
+                return null;
+            }
+        }
+
+        if (typeName == "ProxyRadialGradientBrush")
+        {
+            try
+            {
+                dynamic gradient = brush;
+                var info = new GradientInfo
+                {
+                    Type = "radial",
+                    X0 = gradient.CenterX,
+                    Y0 = gradient.CenterY,
+                    R0 = 0,
+                    X1 = gradient.CenterX,
+                    Y1 = gradient.CenterY,
+                    R1 = Math.Max(gradient.RadiusX, gradient.RadiusY)
+                };
+
+                foreach (var color in gradient.Colors)
+                {
+                    dynamic c = color;
+                    uint argb = (uint)(c.A << 24 | c.R << 16 | c.G << 8 | c.B);
+                    info.Colors.Add(argb);
+                }
+
+                return info.Colors.Count > 0 ? info : null;
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn($"Error getting proxy radial gradient info: {ex.Message}");
+                return null;
+            }
+        }
+
+        if (typeName.StartsWith("Proxy", StringComparison.Ordinal))
+        {
+            return null;
+        }
         
         // Handle real LinearGradientBrush from GameOverlay.Drawing
         if (brush is LinearGradientBrush linearBrush)
@@ -186,72 +258,6 @@ public class DrawingCommandCapture
             catch (Exception ex)
             {
                 _logger.Warn($"Error getting real radial gradient info: {ex.Message}");
-                return null;
-            }
-        }
-        
-        // Check for ProxyLinearGradientBrush
-        if (typeName == "ProxyLinearGradientBrush")
-        {
-            try
-            {
-                dynamic gradient = brush;
-                var info = new GradientInfo
-                {
-                    Type = "linear",
-                    X0 = gradient.StartX,
-                    Y0 = gradient.StartY,
-                    X1 = gradient.EndX,
-                    Y1 = gradient.EndY
-                };
-                
-                // Convert colors
-                foreach (var color in gradient.Colors)
-                {
-                    dynamic c = color;
-                    uint argb = (uint)(c.A << 24 | c.R << 16 | c.G << 8 | c.B);
-                    info.Colors.Add(argb);
-                }
-                
-                return info.Colors.Count > 0 ? info : null;
-            }
-            catch (Exception ex)
-            {
-                _logger.Warn($"Error getting proxy linear gradient info: {ex.Message}");
-                return null;
-            }
-        }
-        
-        // Check for ProxyRadialGradientBrush
-        if (typeName == "ProxyRadialGradientBrush")
-        {
-            try
-            {
-                dynamic gradient = brush;
-                var info = new GradientInfo
-                {
-                    Type = "radial",
-                    X0 = gradient.CenterX,
-                    Y0 = gradient.CenterY,
-                    R0 = 0,
-                    X1 = gradient.CenterX,
-                    Y1 = gradient.CenterY,
-                    R1 = Math.Max(gradient.RadiusX, gradient.RadiusY)
-                };
-                
-                // Convert colors
-                foreach (var color in gradient.Colors)
-                {
-                    dynamic c = color;
-                    uint argb = (uint)(c.A << 24 | c.R << 16 | c.G << 8 | c.B);
-                    info.Colors.Add(argb);
-                }
-                
-                return info.Colors.Count > 0 ? info : null;
-            }
-            catch (Exception ex)
-            {
-                _logger.Warn($"Error getting proxy radial gradient info: {ex.Message}");
                 return null;
             }
         }
@@ -355,6 +361,20 @@ public class DrawingCommandCapture
     {
         FillRectangle(brush, rect.Left, rect.Top, rect.Right, rect.Bottom);
     }
+
+    public void FillRoundedRectangle(object brush, float left, float top, float right, float bottom, float radius)
+    {
+        _commands.Add(new FillRoundedRectangleCommand
+        {
+            X = left,
+            Y = top,
+            Width = right - left,
+            Height = bottom - top,
+            Radius = radius,
+            Color = GetBrushColor(brush),
+            Gradient = GetGradientInfo(brush)
+        });
+    }
     
     public void DrawCircle(object brush, float x, float y, float radius, float stroke)
     {
@@ -375,6 +395,18 @@ public class DrawingCommandCapture
             X = x,
             Y = y,
             Radius = radius,
+            Color = GetBrushColor(brush)
+        });
+    }
+
+    public void FillEllipse(object brush, float x, float y, float radiusX, float radiusY)
+    {
+        _commands.Add(new FillEllipseCommand
+        {
+            X = x,
+            Y = y,
+            RadiusX = radiusX,
+            RadiusY = radiusY,
             Color = GetBrushColor(brush)
         });
     }

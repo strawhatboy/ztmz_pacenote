@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using GameOverlay.Drawing;
 
 namespace ZTMZ.PacenoteTool.Base.UI;
@@ -111,6 +112,11 @@ public class GraphicsCommandProxy
     {
         return new ProxyGeometry();
     }
+
+    public ProxyImage CreateImage(string key, string path)
+    {
+        return new ProxyImage(key, path);
+    }
     
     // ============================================================================
     // Drawing Commands
@@ -170,6 +176,16 @@ public class GraphicsCommandProxy
     {
         var rect = ExtractRectangle(rectangle);
         FillRectangle(brush, rect.Left, rect.Top, rect.Right, rect.Bottom);
+    }
+
+    public void FillRoundedRectangle(object brush, float left, float top, float right, float bottom, float radius)
+    {
+        _capture.FillRoundedRectangle(brush, left, top, right, bottom, radius);
+    }
+
+    public void FillEllipse(object brush, float x, float y, float radiusX, float radiusY)
+    {
+        _capture.FillEllipse(brush, x, y, radiusX, radiusY);
     }
     
     public void DrawCircle(object brush, float x, float y, float radius, float stroke)
@@ -271,6 +287,16 @@ public class GraphicsCommandProxy
     }
     
     public void ReleaseClip()
+    {
+        _capture.ReleaseClip();
+    }
+
+    public void ClipRegionStart(float left, float top, float right, float bottom)
+    {
+        _capture.SetClip(left, top, right - left, bottom - top);
+    }
+
+    public void ClipRegionEnd()
     {
         _capture.ReleaseClip();
     }
@@ -386,6 +412,8 @@ public class GraphicsCommandProxy
         public int G { get; set; }
         public int B { get; set; }
         public int A { get; set; }
+
+        public void Dispose() { }
     }
     
     public class ProxyColor
@@ -440,5 +468,59 @@ public class GraphicsCommandProxy
         public float Size { get; set; }
         public bool Bold { get; set; }
         public bool Italic { get; set; }
+
+        public void Dispose() { }
+    }
+
+    public class ProxyImage
+    {
+        public string Key { get; }
+        public string Path { get; }
+        public float Width { get; }
+        public float Height { get; }
+
+        public ProxyImage(string key, string path)
+        {
+            Key = key;
+            Path = path;
+            (Width, Height) = ReadDimensions(path);
+        }
+
+        public void Dispose() { }
+
+        private static (float Width, float Height) ReadDimensions(string path)
+        {
+            try
+            {
+                using var stream = File.OpenRead(path);
+                var header = new byte[26];
+                stream.ReadExactly(header);
+
+                if (header[0] == 0x89 && header[1] == 0x50 && header[2] == 0x4E && header[3] == 0x47)
+                {
+                    return (
+                        (header[16] << 24) | (header[17] << 16) | (header[18] << 8) | header[19],
+                        (header[20] << 24) | (header[21] << 16) | (header[22] << 8) | header[23]);
+                }
+
+                if (header[0] == 'G' && header[1] == 'I' && header[2] == 'F')
+                {
+                    return (header[6] | (header[7] << 8), header[8] | (header[9] << 8));
+                }
+
+                if (header[0] == 'B' && header[1] == 'M')
+                {
+                    return (
+                        header[18] | (header[19] << 8) | (header[20] << 16) | (header[21] << 24),
+                        header[22] | (header[23] << 8) | (header[24] << 16) | (header[25] << 24));
+                }
+            }
+            catch (Exception)
+            {
+                // Image dimensions are optional for command capture.
+            }
+
+            return (0, 0);
+        }
     }
 }

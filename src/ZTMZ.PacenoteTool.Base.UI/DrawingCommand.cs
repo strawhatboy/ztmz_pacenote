@@ -131,6 +131,35 @@ public class FillRectangleCommand : DrawingCommand
 }
 
 /// <summary>
+/// Fill a rounded rectangle
+/// </summary>
+public class FillRoundedRectangleCommand : DrawingCommand
+{
+    public override string Type => "fillRoundedRectangle";
+
+    [JsonProperty("x")]
+    public float X { get; set; }
+
+    [JsonProperty("y")]
+    public float Y { get; set; }
+
+    [JsonProperty("width")]
+    public float Width { get; set; }
+
+    [JsonProperty("height")]
+    public float Height { get; set; }
+
+    [JsonProperty("radius")]
+    public float Radius { get; set; }
+
+    [JsonProperty("color")]
+    public uint Color { get; set; }
+
+    [JsonProperty("gradient")]
+    public GradientInfo Gradient { get; set; }
+}
+
+/// <summary>
 /// Draw a circle outline
 /// </summary>
 public class DrawCircleCommand : DrawingCommand
@@ -169,6 +198,29 @@ public class FillCircleCommand : DrawingCommand
     [JsonProperty("radius")]
     public float Radius { get; set; }
     
+    [JsonProperty("color")]
+    public uint Color { get; set; }
+}
+
+/// <summary>
+/// Fill an ellipse
+/// </summary>
+public class FillEllipseCommand : DrawingCommand
+{
+    public override string Type => "fillEllipse";
+
+    [JsonProperty("x")]
+    public float X { get; set; }
+
+    [JsonProperty("y")]
+    public float Y { get; set; }
+
+    [JsonProperty("radiusX")]
+    public float RadiusX { get; set; }
+
+    [JsonProperty("radiusY")]
+    public float RadiusY { get; set; }
+
     [JsonProperty("color")]
     public uint Color { get; set; }
 }
