@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using System.Windows.Data;
@@ -15,6 +16,8 @@ using System.Windows.Media;
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 public partial class HudPageVM : ObservableObject {
+
+    private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
     [ObservableProperty]
     private float _hudFPS = Config.Instance.HudFPS;
@@ -58,6 +61,7 @@ public partial class HudPageVM : ObservableObject {
         Config.Instance.WebDashboardEnabled = value;
         _gameOverlayManager.ConfigureWebDashboard(value, WebDashboardPort);
         Config.Instance.SaveUserConfig();
+        RefreshWebDashboardStatus();
     }
 
     [ObservableProperty]
@@ -71,11 +75,89 @@ public partial class HudPageVM : ObservableObject {
             _gameOverlayManager.ConfigureWebDashboard(true, value);
         }
         Config.Instance.SaveUserConfig();
-        OnPropertyChanged(nameof(WebDashboardInstructions));
+        RefreshWebDashboardStatus();
     }
 
-    public string WebDashboardInstructions =>
-        string.Format(I18NLoader.Instance["settings.tooltip.webDashboardInstructions"], WebDashboardPort);
+    [ObservableProperty]
+    private bool _isWebDashboardRunning;
+
+    [ObservableProperty]
+    private string _webDashboardStatus = string.Empty;
+
+    [ObservableProperty]
+    private string _webDashboardUrl = string.Empty;
+
+    [ObservableProperty]
+    private string _webDashboardAddressesTooltip = string.Empty;
+
+    [ObservableProperty]
+    private Brush _webDashboardStatusBrush = Brushes.Gray;
+
+    [RelayCommand(CanExecute = nameof(CanOpenWebDashboard))]
+    private void OpenWebDashboard()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(WebDashboardUrl) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Failed to open WebDashboard URL: {0}", WebDashboardUrl);
+        }
+    }
+
+    private bool CanOpenWebDashboard()
+    {
+        return IsWebDashboardRunning && Uri.TryCreate(WebDashboardUrl, UriKind.Absolute, out _);
+    }
+
+    private void RefreshWebDashboardStatus()
+    {
+        if (!WebDashboardEnabled)
+        {
+            IsWebDashboardRunning = false;
+            WebDashboardStatus = I18NLoader.Instance["settings.tooltip.webDashboardStatusStopped"];
+            WebDashboardStatusBrush = Brushes.Gray;
+            UpdateWebDashboardUrls();
+            OpenWebDashboardCommand.NotifyCanExecuteChanged();
+            return;
+        }
+
+        var status = _gameOverlayManager.WebDashboardStatus;
+        IsWebDashboardRunning = status.IsRunning;
+        WebDashboardStatusBrush = status.State switch
+        {
+            WebDashboardServerState.Running => Brushes.ForestGreen,
+            WebDashboardServerState.PortUnavailable or WebDashboardServerState.Error => Brushes.IndianRed,
+            _ => Brushes.Gray
+        };
+        WebDashboardStatus = status.State switch
+        {
+            WebDashboardServerState.Running => I18NLoader.Instance["settings.tooltip.webDashboardStatusRunning"],
+            WebDashboardServerState.PortUnavailable => I18NLoader.Instance["settings.tooltip.webDashboardStatusPortUnavailable"],
+            WebDashboardServerState.Error => string.Format(
+                I18NLoader.Instance["settings.tooltip.webDashboardStatusError"],
+                status.ErrorMessage),
+            _ => I18NLoader.Instance["settings.tooltip.webDashboardStatusStopped"]
+        };
+        UpdateWebDashboardUrls(
+            status.Port == WebDashboardPort && !string.IsNullOrWhiteSpace(status.Url)
+                ? status.Url
+                : string.Empty);
+        OpenWebDashboardCommand.NotifyCanExecuteChanged();
+    }
+
+    private void UpdateWebDashboardUrls(string preferredUrl = "")
+    {
+        var urls = WebDashboardServer.GetDashboardUrls(WebDashboardPort);
+        WebDashboardUrl = !string.IsNullOrWhiteSpace(preferredUrl)
+            ? preferredUrl
+            : urls.FirstOrDefault() ?? string.Empty;
+        WebDashboardAddressesTooltip = string.Join(
+            Environment.NewLine,
+            I18NLoader.Instance["settings.tooltip.webDashboardAvailableAddresses"],
+            string.Join(Environment.NewLine, urls));
+    }
 
     [ObservableProperty]
     private ObservableCollection<object> _dashboardItems = new();
@@ -96,6 +178,7 @@ public partial class HudPageVM : ObservableObject {
         _gameOverlayManager.OnGameOverlayInitializingStateChanged += (isInitializing) => {
             IsHudInitializing = isInitializing;
         };
+        RefreshWebDashboardStatus();
 
         // maybe we should create a custom control for this, but it's working for now
         foreach (var dashboard in _gameOverlayManager.Dashboards) {

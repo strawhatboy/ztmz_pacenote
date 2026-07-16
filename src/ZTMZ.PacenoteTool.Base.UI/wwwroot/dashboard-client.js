@@ -16,7 +16,10 @@ const state = {
     imageCache: {},
     isRunning: false,
     canvas: null,
-    ctx: null
+    ctx: null,
+    orientation: 'landscape',
+    controlsTimer: null,
+    controlsFadeTimer: null
 };
 
 // ============================================================================
@@ -25,6 +28,7 @@ const state = {
 window.addEventListener('DOMContentLoaded', async () => {
     updateLoadingText('Initializing canvas...');
     showCanvas();
+    initializeDashboardControls();
     
     updateLoadingText('Fetching dashboard list...');
     await loadDashboardList();
@@ -118,9 +122,9 @@ function executeDrawingCommand(cmd) {
             const clearAlpha = cmd.color ? (cmd.color >> 24) & 0xFF : 0;
             if (cmd.color) {
                 ctx.fillStyle = colorToCSS(cmd.color);
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, state.canvas.width, state.canvas.height);
             } else {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
             }
             break;
             
@@ -477,33 +481,125 @@ function showCanvas() {
     const container = document.getElementById('canvas-container');
     const canvas = document.getElementById('dashboard-canvas');
     
-    // Set canvas RENDERING size to match server (1920x1080)
-    // This is the actual pixel resolution for drawing
+    // Keep the server drawing coordinate system fixed at 1920x1080.
     canvas.width = 1920;
     canvas.height = 1080;
-    
-    // Scale canvas to fit browser window using CSS
-    // Calculate aspect-ratio preserving scaling
-    const windowAspect = window.innerWidth / window.innerHeight;
-    const canvasAspect = 1920 / 1080;
-    
-    if (windowAspect > canvasAspect) {
-        // Window is wider - fit to height
-        canvas.style.height = '100%';
-        canvas.style.width = 'auto';
-    } else {
-        // Window is taller - fit to width
-        canvas.style.width = '100%';
-        canvas.style.height = 'auto';
-    }
-    
-    console.log(`Canvas rendering size: ${canvas.width}x${canvas.height}, display size: ${canvas.clientWidth}x${canvas.clientHeight}`);
-    
     state.canvas = canvas;
     state.ctx = canvas.getContext('2d');
     
     container.classList.add('active');
     document.getElementById('connection-status').classList.add('active');
+    applyCanvasLayout();
+}
+
+function initializeDashboardControls() {
+    const container = document.getElementById('canvas-container');
+    const controls = document.getElementById('dashboard-controls');
+    const fullscreenButton = document.getElementById('fullscreen-button');
+    const orientationButton = document.getElementById('orientation-button');
+
+    container.addEventListener('pointerup', (event) => {
+        if (event.target.closest('#dashboard-controls')) {
+            return;
+        }
+
+        showDashboardControls();
+    });
+
+    fullscreenButton.addEventListener('click', async (event) => {
+        event.stopPropagation();
+        await toggleFullscreen();
+        showDashboardControls();
+    });
+
+    orientationButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        state.orientation = state.orientation === 'landscape' ? 'portrait' : 'landscape';
+        applyCanvasLayout();
+        showDashboardControls();
+    });
+
+    document.addEventListener('fullscreenchange', updateFullscreenControl);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenControl);
+    controls.setAttribute('aria-hidden', 'true');
+    updateFullscreenControl();
+    updateOrientationControl();
+}
+
+function showDashboardControls() {
+    const controls = document.getElementById('dashboard-controls');
+    controls.classList.add('active');
+    controls.setAttribute('aria-hidden', 'false');
+
+    window.clearTimeout(state.controlsTimer);
+    window.clearTimeout(state.controlsFadeTimer);
+    state.controlsTimer = window.setTimeout(() => {
+        controls.classList.remove('active');
+        state.controlsFadeTimer = window.setTimeout(() => {
+            if (!controls.classList.contains('active')) {
+                controls.setAttribute('aria-hidden', 'true');
+            }
+        }, 250);
+    }, 4500);
+}
+
+async function toggleFullscreen() {
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+    const root = document.documentElement;
+
+    try {
+        if (fullscreenElement) {
+            const exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen;
+            if (exitFullscreen) {
+                await exitFullscreen.call(document);
+            }
+        } else {
+            const requestFullscreen = root.requestFullscreen || root.webkitRequestFullscreen;
+            if (!requestFullscreen) {
+                showError('Fullscreen is not available in this browser.');
+                return;
+            }
+            await requestFullscreen.call(root);
+        }
+    } catch (error) {
+        console.error('Fullscreen toggle failed:', error);
+        showError('Fullscreen could not be changed.');
+    }
+}
+
+function updateFullscreenControl() {
+    const button = document.getElementById('fullscreen-button');
+    const isFullscreen = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+    button.innerHTML = isFullscreen ? '&#x2922;' : '&#x26F6;';
+    button.title = isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen';
+    button.setAttribute('aria-label', button.title);
+}
+
+function applyCanvasLayout() {
+    if (!state.canvas) {
+        return;
+    }
+
+    const renderWidth = state.canvas.width;
+    const renderHeight = state.canvas.height;
+    const isPortrait = state.orientation === 'portrait';
+    const layoutWidth = isPortrait ? renderHeight : renderWidth;
+    const layoutHeight = isPortrait ? renderWidth : renderHeight;
+    const scale = Math.min(window.innerWidth / layoutWidth, window.innerHeight / layoutHeight);
+
+    state.canvas.style.width = `${Math.max(1, Math.floor(renderWidth * scale))}px`;
+    state.canvas.style.height = `${Math.max(1, Math.floor(renderHeight * scale))}px`;
+    state.canvas.style.transform = isPortrait ? 'rotate(90deg)' : 'none';
+    state.canvas.style.transformOrigin = 'center center';
+    updateOrientationControl();
+}
+
+function updateOrientationControl() {
+    const button = document.getElementById('orientation-button');
+    const isPortrait = state.orientation === 'portrait';
+    button.title = isPortrait ? 'Switch to landscape layout' : 'Switch to portrait layout';
+    button.setAttribute('aria-label', button.title);
+    button.setAttribute('aria-pressed', isPortrait ? 'true' : 'false');
 }
 
 function updateConnectionStatus(text, connected) {
@@ -524,19 +620,7 @@ function showError(message) {
 
 // Handle window resize
 window.addEventListener('resize', () => {
-    if (state.canvas) {
-        // Keep rendering size fixed at 1920x1080, just rescale CSS
-        const windowAspect = window.innerWidth / window.innerHeight;
-        const canvasAspect = 1920 / 1080;
-        
-        if (windowAspect > canvasAspect) {
-            state.canvas.style.height = '100%';
-            state.canvas.style.width = 'auto';
-        } else {
-            state.canvas.style.width = '100%';
-            state.canvas.style.height = 'auto';
-        }
-    }
+    applyCanvasLayout();
 });
 
 // Prevent context menu on long press (mobile)

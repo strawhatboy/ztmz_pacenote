@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -33,7 +36,67 @@ public class WebDashboardServer : IDisposable
     
     public int Port { get; set; } = 8080;
     public bool IsRunning { get; private set; }
-    public int ClientCount => _connectedClients.Count;
+    public int ClientCount
+    {
+        get
+        {
+            lock (_clientsLock)
+            {
+                return _connectedClients.Count;
+            }
+        }
+    }
+
+    public static string GetDashboardUrl(int port)
+    {
+        return GetDashboardUrls(port).FirstOrDefault() ?? string.Empty;
+    }
+
+    public static IReadOnlyList<string> GetDashboardUrls(int port)
+    {
+        if (port is < 1 or > 65535)
+        {
+            return Array.Empty<string>();
+        }
+
+        var urls = new List<string>();
+        try
+        {
+            var addresses = NetworkInterface.GetAllNetworkInterfaces()
+                .Where(networkInterface =>
+                    networkInterface.OperationalStatus == OperationalStatus.Up
+                    && networkInterface.NetworkInterfaceType != NetworkInterfaceType.Loopback
+                    && networkInterface.NetworkInterfaceType != NetworkInterfaceType.Tunnel)
+                .OrderByDescending(networkInterface => networkInterface.GetIPProperties().GatewayAddresses.Any(
+                    gateway => gateway.Address.AddressFamily == AddressFamily.InterNetwork
+                        && !IPAddress.Any.Equals(gateway.Address)))
+                .SelectMany(networkInterface => networkInterface.GetIPProperties().UnicastAddresses)
+                .Select(unicastAddress => unicastAddress.Address)
+                .Where(IsUsableIpv4Address)
+                .Distinct()
+                .ToList();
+
+            urls.AddRange(addresses.Select(address => $"http://{address}:{port}"));
+        }
+        catch
+        {
+            // localhost remains a usable address when network discovery is unavailable.
+        }
+
+        urls.Add($"http://localhost:{port}");
+        return urls.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private static bool IsUsableIpv4Address(IPAddress address)
+    {
+        if (address.AddressFamily != AddressFamily.InterNetwork || IPAddress.IsLoopback(address))
+        {
+            return false;
+        }
+
+        var bytes = address.GetAddressBytes();
+        return bytes[0] != 169 || bytes[1] != 254;
+    }
     
     /// <summary>
     /// Initialize the server with dashboard data
@@ -221,15 +284,23 @@ public class WebDashboardServer : IDisposable
                 return Results.Json(package);
             });
             
-            // Start server in background
-            _ = _app.RunAsync();
-            
+            // StartAsync completes only after Kestrel has bound the configured port.
+            _app.StartAsync().GetAwaiter().GetResult();
             IsRunning = true;
-            _logger.Info($"WebDashboard server started at http://localhost:{Port}");
-            _logger.Info($"Access from mobile: http://<PC-IP>:{Port}");
+            _logger.Info("WebDashboard server started at {0}", GetDashboardUrl(Port));
         }
         catch (Exception ex)
         {
+            IsRunning = false;
+            try
+            {
+                _app?.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            }
+            catch
+            {
+                // Preserve the startup exception as the actionable failure.
+            }
+            _app = null;
             _logger.Error(ex, "Failed to start WebDashboard server");
             throw;
         }

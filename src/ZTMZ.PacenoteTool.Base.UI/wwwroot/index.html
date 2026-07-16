@@ -147,8 +147,47 @@
         
         #dashboard-canvas {
             background: transparent;
-            max-width: 100%;
-            max-height: 100%;
+            max-width: none;
+            max-height: none;
+        }
+
+        #dashboard-controls {
+            position: fixed;
+            left: 50%;
+            bottom: max(24px, env(safe-area-inset-bottom));
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 9997;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 250ms ease, visibility 0s linear 250ms;
+        }
+
+        #dashboard-controls.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition-delay: 0s;
+        }
+
+        .dashboard-control {
+            width: 64px;
+            height: 64px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            background: rgba(20, 24, 28, 0.9);
+            color: #fff;
+            font-size: 30px;
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: background 150ms ease, transform 150ms ease;
+        }
+
+        .dashboard-control:active {
+            background: rgba(0, 255, 136, 0.45);
+            transform: scale(0.94);
         }
         
         #menu-button {
@@ -243,6 +282,12 @@
     <!-- Canvas Container -->
     <div id="canvas-container">
         <canvas id="dashboard-canvas"></canvas>
+    </div>
+
+    <!-- Dashboard Controls -->
+    <div id="dashboard-controls" aria-hidden="true">
+        <button id="fullscreen-button" class="dashboard-control" type="button" title="Enter fullscreen" aria-label="Enter fullscreen">&#x26F6;</button>
+        <button id="orientation-button" class="dashboard-control" type="button" title="Switch to portrait layout" aria-label="Switch to portrait layout" aria-pressed="false">&#x21C4;</button>
     </div>
     
     <!-- Menu Button -->

@@ -116,7 +116,12 @@
       "webDashboardTitle": "Web Dashboard",
       "webDashboardSubtitle": "Access dashboards from mobile devices",
       "webDashboardPortLabel": "Port:",
-      "webDashboardInstructions": "Access from browser: http://<PC-IP>:{0}\nExample: http://192.168.1.100:8080",
+      "webDashboardOpen": "Open dashboard in browser",
+      "webDashboardAvailableAddresses": "Available dashboard addresses:",
+      "webDashboardStatusRunning": "Server is running",
+      "webDashboardStatusStopped": "Server is stopped",
+      "webDashboardStatusPortUnavailable": "This port is unavailable. Choose another port.",
+      "webDashboardStatusError": "Server could not start: {0}",
       
       "enableOnlineAnalytics": "Use Google Analytics/Azure AppInsights to collect some of your \"usage information\" to help us improve \nthe program. All of this information is sent to Google/Microsoft servers in an anonymous form for statistical use. \nYou can allow or prohibit this in the settings at any time. This information includes and is limited to:\n\t- Application crash/exception (for bug fixing)\n\t- Operating system version\n\t- Opening this program event\n\t- Opening each window event in this program\n\t- Each configuration item modification event\n \t- The modification event of the main interface configuration item\n\t- The event of using a specific voice package to play the game (to stat the voice package preference)",
       "optInBetaPlan": "Turn on this option to recieve updates and new features in the beta version",

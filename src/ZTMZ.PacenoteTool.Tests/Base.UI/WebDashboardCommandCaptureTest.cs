@@ -7,6 +7,19 @@ namespace ZTMZ.PacenoteTool.Tests.Base.UI;
 public class WebDashboardCommandCaptureTest
 {
     [Fact]
+    public void DashboardUrlsIncludeLocalhostAndUseTheConfiguredPort()
+    {
+        const int port = 18080;
+
+        var urls = WebDashboardServer.GetDashboardUrls(port);
+
+        Assert.NotEmpty(urls);
+        Assert.Contains($"http://localhost:{port}", urls);
+        Assert.All(urls, url => Assert.EndsWith($":{port}", url));
+        Assert.Equal(urls[0], WebDashboardServer.GetDashboardUrl(port));
+    }
+
+    [Fact]
     public async Task ServerStartsWithoutCreatingANativeOverlay()
     {
         var port = GetAvailablePort();
@@ -17,9 +30,12 @@ public class WebDashboardCommandCaptureTest
         using var client = new HttpClient();
         var endpoint = $"http://127.0.0.1:{port}/api/dashboards";
         var response = await GetWhenReady(client, endpoint);
+        var page = await GetWhenReady(client, $"http://127.0.0.1:{port}/");
 
         Assert.True(server.IsRunning);
         Assert.Equal("[]", response);
+        Assert.Contains("fullscreen-button", page);
+        Assert.Contains("orientation-button", page);
     }
 
     [Fact]

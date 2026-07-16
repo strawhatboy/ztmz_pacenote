@@ -1,3 +1,15 @@
+v2.99.99.38-3.0-rc11
+------
+[English]
+* Fixed native dashboard overlays sometimes falling behind a focused game window.
+* Improved Web Dashboard setup with confirmed server status, usable local-network addresses, the real configured URL, and a browser-open action.
+* Added large touch controls to the Web Dashboard for fullscreen and portrait/landscape layout; the controls fade away after inactivity.
+
+[简体中文]
+* 修复本地仪表盘悬浮窗在游戏窗口重新获得焦点后可能被遮挡的问题。
+* 改进网页仪表盘设置：显示确认后的服务状态、可用局域网地址和实际配置 URL，并可一键在默认浏览器中打开。
+* 网页仪表盘新增大尺寸触控按钮，可切换全屏和横竖屏布局；无操作时按钮会自动淡出。
+
 v2.99.99.37-3.0-rc10
 ------
 [English]

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Xps.Serialization;
@@ -120,11 +121,16 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private Window _gameOverlaySeparateWindow = new SeparateWindowForOverlay();
 
         private Process _gameProcess = null;
+        private IntPtr _lastKnownGameWindowHandle = IntPtr.Zero;
 
         private bool _hudShowInSeparateWindow = false;
 
         private WebDashboardServer? _webDashboardServer = null;
         private readonly object _webDashboardLock = new();
+        private WebDashboardServerStatus _webDashboardStatus = new(
+            WebDashboardServerState.Stopped,
+            0,
+            string.Empty);
         private readonly object _dashboardRenderLock = new();
         private Timer? _webDashboardRenderTimer = null;
         private int _webDashboardRenderInProgress = 0;
@@ -136,6 +142,17 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private DashboardScriptArguments? _webDashboardArgs = null;
 
         public event Action<bool> OnGameOverlayInitializingStateChanged;
+
+        public WebDashboardServerStatus WebDashboardStatus
+        {
+            get
+            {
+                lock (_webDashboardLock)
+                {
+                    return _webDashboardStatus;
+                }
+            }
+        }
 
         public GameOverlayManager() {
             var dashboardsPath = AppLevelVariables.Instance.GetPath(Constants.PATH_DASHBOARDS);
@@ -216,15 +233,13 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 (sender as Window)?.Hide();
                 args.Cancel = true;
 
-                // game window is running? show in game window instead
-                if (_gameProcess != null && !_gameProcess.HasExited) {
-                    try {
-                        _window.ParentWindowHandle = _gameProcess.MainWindowHandle;
-                    } catch {
-                        _logger.Error("Failed to set game window as parent window, game window may not be ready yet.");
-                        UninitializeOverlayInSeparateWindow();
-                    }
+                // Restore the actual game window after closing the preview. MainWindowHandle
+                // may temporarily be zero for a full-screen game, so keep the last valid handle.
+                if (_window != null && TryGetGameWindowHandle(out var gameWindowHandle)) {
+                    _window.ParentWindowHandle = gameWindowHandle;
+                    RefreshOverlayLayering(placeAbove: true);
                 } else {
+                    _logger.Warn("Unable to restore the game window as the overlay parent.");
                     UninitializeOverlayInSeparateWindow();
                 }
             };
@@ -243,13 +258,17 @@ namespace ZTMZ.PacenoteTool.Base.UI
         {
             if (!enabled)
             {
-                StopWebDashboard();
+                StopWebDashboard(port);
                 return;
             }
 
             if (port is < 1024 or > 65535)
             {
                 _logger.Warn("WebDashboard port is outside the allowed range: {0}", port);
+                UpdateWebDashboardStatus(
+                    WebDashboardServerState.PortUnavailable,
+                    port,
+                    "Port must be between 1024 and 65535.");
                 return;
             }
 
@@ -258,20 +277,29 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         private void StartWebDashboard(int port)
         {
-            WebDashboardServer? previousServer;
-            Timer? previousTimer;
+            WebDashboardServer? previousServer = null;
+            Timer? previousTimer = null;
+            var alreadyRunning = false;
 
             lock (_webDashboardLock)
             {
                 if (_webDashboardServer != null && _webDashboardServer.IsRunning && _webDashboardServer.Port == port)
                 {
-                    return;
+                    alreadyRunning = true;
                 }
+                else
+                {
+                    previousServer = _webDashboardServer;
+                    previousTimer = _webDashboardRenderTimer;
+                    _webDashboardServer = null;
+                    _webDashboardRenderTimer = null;
+                }
+            }
 
-                previousServer = _webDashboardServer;
-                previousTimer = _webDashboardRenderTimer;
-                _webDashboardServer = null;
-                _webDashboardRenderTimer = null;
+            if (alreadyRunning)
+            {
+                UpdateWebDashboardStatus(WebDashboardServerState.Running, port);
+                return;
             }
 
             previousTimer?.Dispose();
@@ -295,18 +323,21 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 }
 
                 _logger.Info("WebDashboard server started on port {0}", port);
+                UpdateWebDashboardStatus(WebDashboardServerState.Running, port);
             }
             catch (Exception ex)
             {
                 server?.Dispose();
                 _logger.Error(ex, "Failed to start WebDashboard server");
+                UpdateWebDashboardStatus(GetWebDashboardStartFailureState(ex), port, ex.Message);
             }
         }
 
-        private void StopWebDashboard()
+        private void StopWebDashboard(int port = 0)
         {
             WebDashboardServer? server;
             Timer? timer;
+            var statusPort = port;
 
             lock (_webDashboardLock)
             {
@@ -314,6 +345,10 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 timer = _webDashboardRenderTimer;
                 _webDashboardServer = null;
                 _webDashboardRenderTimer = null;
+                if (statusPort == 0)
+                {
+                    statusPort = server?.Port ?? _webDashboardStatus.Port;
+                }
             }
 
             timer?.Dispose();
@@ -322,6 +357,39 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 server.Dispose();
                 _logger.Info("WebDashboard server stopped");
             }
+
+            UpdateWebDashboardStatus(WebDashboardServerState.Stopped, statusPort);
+        }
+
+        private void UpdateWebDashboardStatus(
+            WebDashboardServerState state,
+            int port,
+            string errorMessage = "")
+        {
+            var status = new WebDashboardServerStatus(
+                state,
+                port,
+                WebDashboardServer.GetDashboardUrl(port),
+                errorMessage);
+
+            lock (_webDashboardLock)
+            {
+                _webDashboardStatus = status;
+            }
+        }
+
+        private static WebDashboardServerState GetWebDashboardStartFailureState(Exception exception)
+        {
+            for (var current = exception; current != null; current = current.InnerException)
+            {
+                if (current is SocketException socketException
+                    && socketException.SocketErrorCode is SocketError.AddressAlreadyInUse or SocketError.AccessDenied)
+                {
+                    return WebDashboardServerState.PortUnavailable;
+                }
+            }
+
+            return WebDashboardServerState.Error;
         }
 
         private void RenderWebDashboard(object? state)
@@ -396,7 +464,9 @@ namespace ZTMZ.PacenoteTool.Base.UI
             _gameOverlaySeparateWindow.Height = 720;
             _gameOverlaySeparateWindow.Show();
             if (_isRunning && _window != null) {
+                RememberGameWindowHandle(_window.ParentWindowHandle);
                 _window.ParentWindowHandle = new WindowInteropHelper(_gameOverlaySeparateWindow).Handle;
+                RefreshOverlayLayering(placeAbove: true);
             } else {
                 InitializeOverlay(new WindowInteropHelper(_gameOverlaySeparateWindow).Handle);
             }
@@ -454,7 +524,10 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     try
                     {
                         Thread.Sleep(initializeRetryInterval);
-                        _window = new StickyWindow(p.MainWindowHandle, gfx);
+                        p.Refresh();
+                        var gameWindowHandle = p.MainWindowHandle;
+                        _window = new StickyWindow(gameWindowHandle, gfx);
+                        RememberGameWindowHandle(gameWindowHandle);
                         initializeRetryCount = 0;
                         break;
                     }
@@ -484,13 +557,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 _window.FPS = 0;    // no limit
             }
             _window.AttachToClientArea = true;
-            if (Config.Instance.HudTopMost) 
-            {
-                _window.IsTopmost = Config.Instance.HudTopMost;
-            } else 
-            {
-                _window.BypassTopmost = true;
-            }
+            RefreshOverlayLayering();
             _window.IsVisible = true;
 
 
@@ -499,6 +566,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             _window.SetupGraphics += _window_SetupGraphics;
 
             this.Run();
+            RefreshOverlayLayering(placeAbove: true);
             _logger.Info("GameOverlay initialized.!");
             OnGameOverlayInitializingStateChanged?.Invoke(false);
         }
@@ -529,8 +597,84 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         public void SetTopMost(bool topMost)
         {
-            if (_window != null)
-                _window.IsTopmost = topMost;
+            ApplyOverlayLayering(topMost || IsGameWindowForeground(), placeAbove: true);
+        }
+
+        private void RefreshOverlayLayering(bool placeAbove = false)
+        {
+            var shouldBeTopmost = Config.Instance.HudTopMost || IsGameWindowForeground();
+            ApplyOverlayLayering(shouldBeTopmost, placeAbove);
+        }
+
+        private void ApplyOverlayLayering(bool topMost, bool placeAbove)
+        {
+            var window = _window;
+            if (window == null) {
+                return;
+            }
+
+            var bypassTopmost = !topMost;
+            var layeringChanged = window.BypassTopmost != bypassTopmost || window.IsTopmost != topMost;
+            if (window.BypassTopmost != bypassTopmost) {
+                window.BypassTopmost = bypassTopmost;
+            }
+            if (window.IsTopmost != topMost) {
+                window.IsTopmost = topMost;
+            }
+
+            if (!topMost && (placeAbove || layeringChanged) && window.IsInitialized && window.ParentWindowHandle != IntPtr.Zero) {
+                window.PlaceAbove(window.ParentWindowHandle);
+            }
+        }
+
+        private bool IsGameWindowForeground()
+        {
+            if (_hudShowInSeparateWindow || _gameProcess == null) {
+                return false;
+            }
+
+            try {
+                if (_gameProcess.HasExited) {
+                    return false;
+                }
+
+                var foregroundWindow = WindowHelper.GetForegroundWindow();
+                return (_lastKnownGameWindowHandle != IntPtr.Zero
+                        && foregroundWindow == _lastKnownGameWindowHandle)
+                    || (foregroundWindow != IntPtr.Zero
+                        && WindowHelper.GetProcessIdFromWindow(foregroundWindow) == _gameProcess.Id);
+            } catch (Exception ex) {
+                _logger.Debug(ex, "Failed to inspect the foreground game window.");
+                return false;
+            }
+        }
+
+        private void RememberGameWindowHandle(IntPtr windowHandle)
+        {
+            if (windowHandle != IntPtr.Zero && WindowHelper.IsWindow(windowHandle)) {
+                _lastKnownGameWindowHandle = windowHandle;
+            }
+        }
+
+        private bool TryGetGameWindowHandle(out IntPtr gameWindowHandle)
+        {
+            gameWindowHandle = IntPtr.Zero;
+
+            try {
+                if (_gameProcess != null && !_gameProcess.HasExited) {
+                    _gameProcess.Refresh();
+                    RememberGameWindowHandle(_gameProcess.MainWindowHandle);
+                }
+            } catch (Exception ex) {
+                _logger.Debug(ex, "Failed to refresh the game window handle.");
+            }
+
+            if (_lastKnownGameWindowHandle == IntPtr.Zero || !WindowHelper.IsWindow(_lastKnownGameWindowHandle)) {
+                return false;
+            }
+
+            gameWindowHandle = _lastKnownGameWindowHandle;
+            return true;
         }
 
         private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e) {
@@ -589,6 +733,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
         }
 
         private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e) {
+            RefreshOverlayLayering();
+
             lock (_dashboardRenderLock) {
                 var gfx = e.Graphics;
                 gfx.ClearScene(_brushes["clear"]);

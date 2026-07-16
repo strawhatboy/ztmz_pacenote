@@ -5,10 +5,10 @@
     <TargetFramework>net10.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>2.99.99.37</AssemblyVersion>
-    <PackageVersion>2.99.99.37</PackageVersion>
-    <Version>2.99.99.37</Version>
-    <FileVersion>2.99.99.37</FileVersion>
+    <AssemblyVersion>2.99.99.38</AssemblyVersion>
+    <PackageVersion>2.99.99.38</PackageVersion>
+    <Version>2.99.99.38</Version>
+    <FileVersion>2.99.99.38</FileVersion>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 
