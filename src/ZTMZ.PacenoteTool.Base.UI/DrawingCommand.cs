@@ -76,6 +76,7 @@ public class DrawLineCommand : DrawingCommand
     
     [JsonProperty("color")]
     public uint Color { get; set; }
+
 }
 
 /// <summary>
@@ -200,6 +201,9 @@ public class FillCircleCommand : DrawingCommand
     
     [JsonProperty("color")]
     public uint Color { get; set; }
+
+    [JsonProperty("gradient")]
+    public GradientInfo Gradient { get; set; }
 }
 
 /// <summary>
@@ -223,6 +227,9 @@ public class FillEllipseCommand : DrawingCommand
 
     [JsonProperty("color")]
     public uint Color { get; set; }
+
+    [JsonProperty("gradient")]
+    public GradientInfo Gradient { get; set; }
 }
 
 /// <summary>
@@ -289,6 +296,11 @@ public class DrawImageCommand : DrawingCommand
     
     [JsonProperty("imageKey")]
     public string ImageKey { get; set; } = "";
+
+    // Lets a client recover an image that was not preloaded, such as after a
+    // dashboard is enabled while the web page is already connected.
+    [JsonProperty("imageUrl", NullValueHandling = NullValueHandling.Ignore)]
+    public string ImageUrl { get; set; }
     
     [JsonProperty("x")]
     public float X { get; set; }
@@ -312,6 +324,9 @@ public class DrawImageRegionCommand : DrawingCommand
     
     [JsonProperty("imageKey")]
     public string ImageKey { get; set; } = "";
+
+    [JsonProperty("imageUrl", NullValueHandling = NullValueHandling.Ignore)]
+    public string ImageUrl { get; set; }
     
     [JsonProperty("srcX")]
     public float SrcX { get; set; }
@@ -458,6 +473,9 @@ public class FillGeometryCommand : DrawingCommand
     
     [JsonProperty("color")]
     public uint Color { get; set; }
+
+    [JsonProperty("gradient")]
+    public GradientInfo Gradient { get; set; }
 }
 
 /// <summary>

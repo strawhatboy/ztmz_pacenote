@@ -551,6 +551,80 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._WebDashboardPort;
         }
 
+        public const int WebDashboardFrameRateMinimum = 5;
+        public const int WebDashboardFrameRateMaximum = 240;
+        public const int WebDashboardFrameRateDefault = 60;
+
+        private int _WebDashboardFrameRate = WebDashboardFrameRateDefault;
+        public int WebDashboardFrameRate
+        {
+            set
+            {
+                _WebDashboardFrameRate = Math.Clamp(
+                    value,
+                    WebDashboardFrameRateMinimum,
+                    WebDashboardFrameRateMaximum);
+                _userconfig["WebDashboardFrameRate"] = _WebDashboardFrameRate;
+            }
+            get => _WebDashboardFrameRate;
+        }
+
+        private Dictionary<string, DashboardOutputTarget> _dashboardOutputTargets =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        public Dictionary<string, DashboardOutputTarget> DashboardOutputTargets
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return new Dictionary<string, DashboardOutputTarget>(
+                        _dashboardOutputTargets,
+                        StringComparer.OrdinalIgnoreCase);
+                }
+            }
+            set
+            {
+                lock (_lock)
+                {
+                    _dashboardOutputTargets = value == null
+                        ? new Dictionary<string, DashboardOutputTarget>(StringComparer.OrdinalIgnoreCase)
+                        : new Dictionary<string, DashboardOutputTarget>(value, StringComparer.OrdinalIgnoreCase);
+                    _userconfig[nameof(DashboardOutputTargets)] = _dashboardOutputTargets;
+                }
+            }
+        }
+
+        public DashboardOutputTarget GetDashboardOutputTarget(string dashboardId, bool legacyEnabled)
+        {
+            lock (_lock)
+            {
+                return DashboardOutputTargetResolver.Resolve(
+                    _dashboardOutputTargets,
+                    dashboardId,
+                    legacyEnabled);
+            }
+        }
+
+        public void SetDashboardOutputTarget(string dashboardId, DashboardOutputTarget target)
+        {
+            if (string.IsNullOrWhiteSpace(dashboardId))
+            {
+                throw new ArgumentException("Dashboard id is required.", nameof(dashboardId));
+            }
+
+            if (!target.IsValid())
+            {
+                throw new ArgumentOutOfRangeException(nameof(target));
+            }
+
+            lock (_lock)
+            {
+                _dashboardOutputTargets[dashboardId] = target;
+                _userconfig[nameof(DashboardOutputTargets)] = _dashboardOutputTargets;
+            }
+        }
+
         #endregion
 
         #region VrOverlay
@@ -993,8 +1067,8 @@ namespace ZTMZ.PacenoteTool.Base
 
         public void SaveUserConfig()
         {
-            var content = System.Text.Json.JsonSerializer.Serialize(this._userconfig);
             lock(_lock) {
+                var content = System.Text.Json.JsonSerializer.Serialize(this._userconfig);
                 File.WriteAllText(USER_CONFIG_FILE, content);
             }
         }

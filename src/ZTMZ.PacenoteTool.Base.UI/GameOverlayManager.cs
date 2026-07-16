@@ -107,6 +107,10 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         public List<Dashboard> Dashboards { set; get; } = new List<Dashboard>();
         public List<bool> DashboardLoaded { set; get; } = new List<bool>();
+        private readonly List<bool> _dashboardNativeLoadFailed = new();
+
+        private readonly List<Dashboard> _webDashboards = new();
+        private readonly List<bool> _webDashboardLoaded = new();
 
         public List<bool> DashboardErrorEncountered { set; get; } = new List<bool>();
 
@@ -127,6 +131,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         private WebDashboardServer? _webDashboardServer = null;
         private readonly object _webDashboardLock = new();
+        private readonly object _webDashboardCaptureLock = new();
         private WebDashboardServerStatus _webDashboardStatus = new(
             WebDashboardServerState.Stopped,
             0,
@@ -134,7 +139,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private readonly object _dashboardRenderLock = new();
         private Timer? _webDashboardRenderTimer = null;
         private int _webDashboardRenderInProgress = 0;
-        private bool _webDashboardUsesProxyResources = false;
+        private int _webDashboardFrameRate = Config.WebDashboardFrameRateDefault;
+        private long _webDashboardLastFrameTimestamp = 0;
         
         // Web dashboard rendering support
         private DrawingCommandCapture? _webCommandCapture = null;
@@ -142,6 +148,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private DashboardScriptArguments? _webDashboardArgs = null;
 
         public event Action<bool> OnGameOverlayInitializingStateChanged;
+        public event Action<WebDashboardServerStatus> OnWebDashboardStatusChanged;
 
         public WebDashboardServerStatus WebDashboardStatus
         {
@@ -152,6 +159,44 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     return _webDashboardStatus;
                 }
             }
+        }
+
+        public DashboardOutputTarget GetDashboardOutputTarget(Dashboard dashboard)
+        {
+            var dashboardId = GetDashboardOutputTargetId(dashboard);
+            return Config.Instance.GetDashboardOutputTarget(dashboardId, dashboard.Descriptor.IsEnabled);
+        }
+
+        public void SetDashboardOutputTarget(Dashboard dashboard, DashboardOutputTarget target)
+        {
+            var dashboardId = GetDashboardOutputTargetId(dashboard);
+            Config.Instance.SetDashboardOutputTarget(dashboardId, target);
+            Config.Instance.SaveUserConfig();
+        }
+
+        public bool IsDashboardEnabledForOverlay(Dashboard dashboard)
+        {
+            return GetDashboardOutputTarget(dashboard).Includes(DashboardOutputTarget.Overlay);
+        }
+
+        public bool IsDashboardEnabledForWeb(Dashboard dashboard)
+        {
+            return GetDashboardOutputTarget(dashboard).Includes(DashboardOutputTarget.Web);
+        }
+
+        private static string GetDashboardOutputTargetId(Dashboard dashboard)
+        {
+            var path = dashboard.Descriptor.Path;
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                var folderName = Path.GetFileName(Path.TrimEndingDirectorySeparator(path));
+                if (!string.IsNullOrWhiteSpace(folderName))
+                {
+                    return folderName;
+                }
+            }
+
+            return dashboard.Descriptor.Name ?? string.Empty;
         }
 
         public GameOverlayManager() {
@@ -166,9 +211,15 @@ namespace ZTMZ.PacenoteTool.Base.UI
                         _logger.Warn("Dashboard info.json not exists: {0}", dashboardPath);
                         continue;
                     }
-                    var dashboard = new Dashboard(System.IO.Path.Combine(dashboardPath, Constants.DASHBOARD_INFO_FILE_NAME));
-                    // dashboard.Descriptor.Path = dashboardPath;
+                    var dashboardInfoPath = System.IO.Path.Combine(dashboardPath, Constants.DASHBOARD_INFO_FILE_NAME);
+                    var dashboard = new Dashboard(dashboardInfoPath);
+                    var webDashboard = new Dashboard(dashboardInfoPath)
+                    {
+                        DashboardConfigurations = dashboard.DashboardConfigurations
+                    };
+                    webDashboard.Descriptor.IsEnabled = dashboard.Descriptor.IsEnabled;
                     Dashboards.Add(dashboard);
+                    _webDashboards.Add(webDashboard);
                 }
             }
             else
@@ -177,7 +228,9 @@ namespace ZTMZ.PacenoteTool.Base.UI
             }
 
             DashboardLoaded.AddRange(Enumerable.Repeat(false, Dashboards.Count));
+            _dashboardNativeLoadFailed.AddRange(Enumerable.Repeat(false, Dashboards.Count));
             DashboardErrorEncountered.AddRange(Enumerable.Repeat(false, Dashboards.Count));
+            _webDashboardLoaded.AddRange(Enumerable.Repeat(false, _webDashboards.Count));
             _logger.Info($"Loaded {Dashboards.Count} Dashboards.");
             
 #if DEV
@@ -246,7 +299,10 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
             if (Config.Instance.WebDashboardEnabled)
             {
-                ConfigureWebDashboard(true, Config.Instance.WebDashboardPort);
+                ConfigureWebDashboard(
+                    true,
+                    Config.Instance.WebDashboardPort,
+                    Config.Instance.WebDashboardFrameRate);
             }
         }
 
@@ -255,6 +311,11 @@ namespace ZTMZ.PacenoteTool.Base.UI
         /// show, or re-parent the native overlay window.
         /// </summary>
         public void ConfigureWebDashboard(bool enabled, int port)
+        {
+            ConfigureWebDashboard(enabled, port, Config.Instance.WebDashboardFrameRate);
+        }
+
+        public void ConfigureWebDashboard(bool enabled, int port, int frameRate)
         {
             if (!enabled)
             {
@@ -272,20 +333,27 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 return;
             }
 
-            StartWebDashboard(port);
+            StartWebDashboard(port, frameRate);
         }
 
-        private void StartWebDashboard(int port)
+        private void StartWebDashboard(int port, int frameRate)
         {
             WebDashboardServer? previousServer = null;
             Timer? previousTimer = null;
+            Timer? activeTimer = null;
             var alreadyRunning = false;
+            var normalizedFrameRate = NormalizeWebDashboardFrameRate(frameRate);
+            var renderInterval = GetWebDashboardRenderInterval(normalizedFrameRate);
 
             lock (_webDashboardLock)
             {
-                if (_webDashboardServer != null && _webDashboardServer.IsRunning && _webDashboardServer.Port == port)
+                if (_webDashboardServer != null
+                    && _webDashboardServer.IsRunning
+                    && _webDashboardServer.Port == port
+                    && _webDashboardRenderTimer != null)
                 {
                     alreadyRunning = true;
+                    activeTimer = _webDashboardRenderTimer;
                 }
                 else
                 {
@@ -298,6 +366,10 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
             if (alreadyRunning)
             {
+                Volatile.Write(ref _webDashboardFrameRate, normalizedFrameRate);
+                Interlocked.Exchange(ref _webDashboardLastFrameTimestamp, 0);
+                activeTimer!.Change(TimeSpan.Zero, renderInterval);
+                _logger.Info("WebDashboard frame rate changed to {0} FPS", normalizedFrameRate);
                 UpdateWebDashboardStatus(WebDashboardServerState.Running, port);
                 return;
             }
@@ -309,20 +381,22 @@ namespace ZTMZ.PacenoteTool.Base.UI
             try
             {
                 server = new WebDashboardServer { Port = port };
-                server.Initialize(Dashboards);
+                server.Initialize(Dashboards, GetDashboardOutputTarget);
                 server.Start();
 
                 lock (_webDashboardLock)
                 {
                     _webDashboardServer = server;
+                    Volatile.Write(ref _webDashboardFrameRate, normalizedFrameRate);
+                    Interlocked.Exchange(ref _webDashboardLastFrameTimestamp, 0);
                     _webDashboardRenderTimer = new Timer(
                         RenderWebDashboard,
                         null,
                         TimeSpan.Zero,
-                        TimeSpan.FromMilliseconds(33));
+                        renderInterval);
                 }
 
-                _logger.Info("WebDashboard server started on port {0}", port);
+                _logger.Info("WebDashboard server started on port {0} at {1} FPS", port, normalizedFrameRate);
                 UpdateWebDashboardStatus(WebDashboardServerState.Running, port);
             }
             catch (Exception ex)
@@ -331,6 +405,19 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 _logger.Error(ex, "Failed to start WebDashboard server");
                 UpdateWebDashboardStatus(GetWebDashboardStartFailureState(ex), port, ex.Message);
             }
+        }
+
+        private static TimeSpan GetWebDashboardRenderInterval(int frameRate)
+        {
+            return TimeSpan.FromSeconds(1d / NormalizeWebDashboardFrameRate(frameRate));
+        }
+
+        private static int NormalizeWebDashboardFrameRate(int frameRate)
+        {
+            return Math.Clamp(
+                frameRate,
+                Config.WebDashboardFrameRateMinimum,
+                Config.WebDashboardFrameRateMaximum);
         }
 
         private void StopWebDashboard(int port = 0)
@@ -352,6 +439,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             }
 
             timer?.Dispose();
+            Interlocked.Exchange(ref _webDashboardLastFrameTimestamp, 0);
             if (server != null)
             {
                 server.Dispose();
@@ -376,6 +464,15 @@ namespace ZTMZ.PacenoteTool.Base.UI
             {
                 _webDashboardStatus = status;
             }
+
+            try
+            {
+                OnWebDashboardStatusChanged?.Invoke(status);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "WebDashboard status listener failed");
+            }
         }
 
         private static WebDashboardServerState GetWebDashboardStartFailureState(Exception exception)
@@ -394,39 +491,22 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         private void RenderWebDashboard(object? state)
         {
-            if (_isRunning || !TimeToShowTelemetry)
-            {
-                return;
-            }
-
-            if (Interlocked.CompareExchange(ref _webDashboardRenderInProgress, 1, 0) != 0)
+            if (!TimeToShowTelemetry)
             {
                 return;
             }
 
             try
             {
-                lock (_dashboardRenderLock)
-                {
-                    if (_isRunning || !TimeToShowTelemetry)
-                    {
-                        return;
-                    }
-
-                    BroadcastWebDashboardFrame(true);
-                }
+                BroadcastWebDashboardFrame();
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Failed to render WebDashboard frame");
             }
-            finally
-            {
-                Volatile.Write(ref _webDashboardRenderInProgress, 0);
-            }
         }
 
-        private void BroadcastWebDashboardFrame(bool useWebProxy)
+        private void BroadcastWebDashboardFrame()
         {
             WebDashboardServer? server;
             lock (_webDashboardLock)
@@ -439,16 +519,95 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 return;
             }
 
-            var commands = CaptureWebDashboardCommands(useWebProxy);
-            if (commands.Count == 0)
+            if (!TryBeginWebDashboardFrame())
             {
                 return;
             }
 
-            _ = server.BroadcastGameData(
-                DashboardScriptArguments.GameData,
-                DashboardScriptArguments.GameContext,
-                commands);
+            var startedSend = false;
+            try
+            {
+                List<DrawingCommand> commands;
+                lock (_webDashboardCaptureLock)
+                {
+                    if (!TimeToShowTelemetry)
+                    {
+                        return;
+                    }
+
+                    commands = CaptureWebDashboardCommands();
+                }
+
+                if (commands.Count == 0)
+                {
+                    return;
+                }
+
+                _ = SendWebDashboardFrameAsync(server, commands);
+                startedSend = true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to capture WebDashboard frame");
+            }
+            finally
+            {
+                if (!startedSend)
+                {
+                    Volatile.Write(ref _webDashboardRenderInProgress, 0);
+                }
+            }
+        }
+
+        private bool TryBeginWebDashboardFrame()
+        {
+            if (Interlocked.CompareExchange(ref _webDashboardRenderInProgress, 1, 0) != 0)
+            {
+                return false;
+            }
+
+            var frameRate = Volatile.Read(ref _webDashboardFrameRate);
+            var minimumFrameInterval = Stopwatch.Frequency / (double)frameRate;
+            var timestamp = Stopwatch.GetTimestamp();
+
+            while (true)
+            {
+                var previousTimestamp = Volatile.Read(ref _webDashboardLastFrameTimestamp);
+                if (previousTimestamp != 0 && timestamp - previousTimestamp < minimumFrameInterval)
+                {
+                    Volatile.Write(ref _webDashboardRenderInProgress, 0);
+                    return false;
+                }
+
+                if (Interlocked.CompareExchange(
+                        ref _webDashboardLastFrameTimestamp,
+                        timestamp,
+                        previousTimestamp) == previousTimestamp)
+                {
+                    return true;
+                }
+            }
+        }
+
+        private async Task SendWebDashboardFrameAsync(
+            WebDashboardServer server,
+            List<DrawingCommand> commands)
+        {
+            try
+            {
+                await server.BroadcastGameData(
+                    DashboardScriptArguments.GameData,
+                    DashboardScriptArguments.GameContext,
+                    commands);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to broadcast WebDashboard frame");
+            }
+            finally
+            {
+                Volatile.Write(ref _webDashboardRenderInProgress, 0);
+            }
         }
 
         public void InitializeOverlayInSeparateWindow() {
@@ -680,7 +839,6 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e) {
             lock (_dashboardRenderLock) {
                 _isRunning = true;
-                _webDashboardUsesProxyResources = false;
                 var gfx = e.Graphics;
 
                 if (e.RecreateResources) {
@@ -697,7 +855,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 for (int i = 0; i < Dashboards.Count; i++) {
                     var dashboard = Dashboards[i];
                     DashboardErrorEncountered[i] = false;
-                    if (dashboard.Descriptor.IsEnabled) {
+                    _dashboardNativeLoadFailed[i] = false;
+                    if (IsDashboardEnabledForOverlay(dashboard)) {
 
                         while (dashboardLoadRetryCount < dashboardLoadRetryMax)
                         {
@@ -719,7 +878,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                         {
                             _logger.Error("Failed to load dashboard: {0}, retry count: {1}", dashboard.Descriptor.Name, dashboardLoadRetryCount);
                             DashboardLoaded[i] = false;
-                            dashboard.SetIsEnable(false);   // disable it
+                            _dashboardNativeLoadFailed[i] = true;
                         }
                         dashboardLoadRetryCount = 0;
                     } else {
@@ -740,83 +899,86 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 gfx.ClearScene(_brushes["clear"]);
 
                 var renderNativeHud = Config.Instance.UI_ShowHud;
-                var renderWebHud = HasActiveWebDashboardClients();
-                if (TimeToShowTelemetry && (renderNativeHud || renderWebHud)) {
+                if (TimeToShowTelemetry) {
                     for (var i = 0; i < Dashboards.Count; i++) {
                         var dashboard = Dashboards[i];
-                        if (dashboard.Descriptor.IsEnabled) {
-                            if (!DashboardLoaded[i]) {
+                        if (!IsDashboardEnabledForOverlay(dashboard)) {
+                            if (DashboardLoaded[i]) {
+                                dashboard.Unload();
+                                DashboardLoaded[i] = false;
+                            }
+                            continue;
+                        }
+
+                        if (!DashboardLoaded[i] && !_dashboardNativeLoadFailed[i]) {
+                            try {
                                 dashboard.Load(DashboardScriptArguments);
                                 DashboardLoaded[i] = true;
+                            } catch (Exception ex) {
+                                _dashboardNativeLoadFailed[i] = true;
+                                _logger.Error(ex, "Failed to load dashboard for native overlay: {0}", dashboard.Descriptor.Name);
+                                continue;
                             }
+                        }
 
-                            if (renderNativeHud) {
-                                try {
-                                    dashboard.Render(DashboardScriptArguments);
-                                } catch (Exception ex) {
-                                    // log error for the first time for this dashboard
-                                    if (!DashboardErrorEncountered[i]) {
-                                        _logger.Error(ex, "Error when rendering dashboard: {0}", dashboard.Descriptor.Name);
-                                        DashboardErrorEncountered[i] = true;
-                                    }
+                        if (renderNativeHud && DashboardLoaded[i]) {
+                            try {
+                                dashboard.Render(DashboardScriptArguments);
+                            } catch (Exception ex) {
+                                // log error for the first time for this dashboard
+                                if (!DashboardErrorEncountered[i]) {
+                                    _logger.Error(ex, "Error when rendering dashboard: {0}", dashboard.Descriptor.Name);
+                                    DashboardErrorEncountered[i] = true;
                                 }
                             }
-                        } else if (DashboardLoaded[i]) {
-                            dashboard.Unload();
-                            DashboardLoaded[i] = false;
                         }
                     }
                 }
 
-                if (TimeToShowTelemetry) {
-                    BroadcastWebDashboardFrame(false);
-                }
             }
         }
         
-        private bool HasActiveWebDashboardClients()
-        {
-            lock (_webDashboardLock)
-            {
-                return _webDashboardServer != null
-                    && _webDashboardServer.IsRunning
-                    && _webDashboardServer.ClientCount > 0;
-            }
-        }
-
         /// <summary>
-        /// Render dashboards using command capture for web clients. When no native
-        /// overlay exists, the dashboards are loaded against the command proxy.
+        /// Render dashboards using command-proxy-only dashboard instances so Web
+        /// rendering does not access the native Direct2D render thread or resources.
         /// </summary>
-        private List<DrawingCommand> CaptureWebDashboardCommands(bool useWebProxy)
+        private List<DrawingCommand> CaptureWebDashboardCommands()
         {
             try
             {
                 InitializeWebDashboardRenderer();
-                if (useWebProxy) {
-                    EnsureWebDashboardProxyResources();
-                }
+                _webGraphicsProxy.FPS = Volatile.Read(ref _webDashboardFrameRate);
+                EnsureWebDashboardProxyResources();
                 
                 _webDashboardArgs.GameData = DashboardScriptArguments.GameData;
                 _webDashboardArgs.GameContext = DashboardScriptArguments.GameContext;
 
                 _webCommandCapture.ClearRegisteredImages();
-                foreach (var dashboard in Dashboards) {
-                    if (dashboard.ImageResources == null) {
+                for (var i = 0; i < _webDashboards.Count; i++) {
+                    var dashboard = _webDashboards[i];
+                    if (!dashboard.Descriptor.IsEnabled
+                        || !_webDashboardLoaded[i]
+                        || dashboard.ImageResources == null) {
                         continue;
                     }
 
                     foreach (var imageResource in dashboard.ImageResources) {
-                        _webCommandCapture.RegisterImage(imageResource.Key, imageResource.Value);
+                        var imageUrl = imageResource.Value is GraphicsCommandProxy.ProxyImage image
+                            ? WebDashboardServer.GetDashboardImageUrl(image.Path)
+                            : null;
+                        _webCommandCapture.RegisterImage(
+                            WebDashboardServer.GetDashboardImageCacheKey(i, imageResource.Key),
+                            imageResource.Value,
+                            imageUrl);
                     }
                 }
 
                 _webCommandCapture.ClearCommands();
                 _webGraphicsProxy.ClearScene();
 
-                for (var i = 0; i < Dashboards.Count; i++) {
-                    var dashboard = Dashboards[i];
-                    if (!dashboard.Descriptor.IsEnabled || !DashboardLoaded[i]) {
+                for (var i = 0; i < _webDashboards.Count; i++) {
+                    var dashboard = _webDashboards[i];
+                    if (!dashboard.Descriptor.IsEnabled || !_webDashboardLoaded[i]) {
                         continue;
                     }
 
@@ -863,31 +1025,33 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         private void EnsureWebDashboardProxyResources()
         {
-            for (var i = 0; i < Dashboards.Count; i++) {
-                var dashboard = Dashboards[i];
+            for (var i = 0; i < _webDashboards.Count; i++) {
+                var dashboard = _webDashboards[i];
+                var nativeDashboard = Dashboards[i];
+                dashboard.DashboardConfigurations = nativeDashboard.DashboardConfigurations;
+                dashboard.Descriptor.IsEnabled = IsDashboardEnabledForWeb(nativeDashboard);
+
                 if (!dashboard.Descriptor.IsEnabled) {
-                    if (DashboardLoaded[i]) {
+                    if (_webDashboardLoaded[i]) {
                         dashboard.Unload();
                     }
-                    DashboardLoaded[i] = false;
+                    _webDashboardLoaded[i] = false;
                     continue;
                 }
 
-                if (_webDashboardUsesProxyResources && DashboardLoaded[i]) {
+                if (_webDashboardLoaded[i]) {
                     continue;
                 }
 
                 try {
                     dashboard.Load(_webDashboardArgs, true);
-                    DashboardLoaded[i] = true;
+                    _webDashboardLoaded[i] = true;
                 }
                 catch (Exception ex) {
-                    DashboardLoaded[i] = false;
+                    _webDashboardLoaded[i] = false;
                     _logger.Error(ex, "Failed to load dashboard for WebDashboard: {0}", dashboard.Descriptor.Name);
                 }
             }
-
-            _webDashboardUsesProxyResources = true;
         }
 
         // private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e)
@@ -947,7 +1111,6 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     }
                 }
 
-                _webDashboardUsesProxyResources = false;
                 _isRunning = false;
             }
         }
@@ -1520,6 +1683,13 @@ namespace ZTMZ.PacenoteTool.Base.UI
             if (!disposedValue)
             {
                 StopWebDashboard();
+                lock (_webDashboardCaptureLock)
+                {
+                    foreach (var dashboard in _webDashboards)
+                    {
+                        dashboard.Unload();
+                    }
+                }
                 _window?.Dispose();
 
                 disposedValue = true;

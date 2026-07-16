@@ -176,12 +176,20 @@
                 
                 <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="36 10 0 0" Visibility="{Binding Path=ViewModel.WebDashboardEnabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                     <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="180" />
+                            <ColumnDefinition Width="40" />
+                            <ColumnDefinition Width="160" />
                         </Grid.ColumnDefinitions>
                         <ui:TextBlock Grid.Column="0" Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardPortLabel}" VerticalAlignment="Center" Margin="0 0 10 0" />
-                        <ui:NumberBox Grid.Column="1" Value="{Binding Path=ViewModel.WebDashboardPort, Mode=TwoWay}" Minimum="1024" Maximum="65535" ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardPort}" />
+                        <ui:NumberBox Grid.Column="1" Grid.ColumnSpan="2" Width="160" HorizontalAlignment="Left" Value="{Binding Path=ViewModel.WebDashboardPort, Mode=TwoWay}" Minimum="1024" Maximum="65535" ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardPort}" />
+                        <ui:TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardFrameRateLabel}" VerticalAlignment="Center" Margin="0 8 10 0" />
+                        <ui:TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=ViewModel.WebDashboardFrameRate, Mode=OneWay, StringFormat=N0}" VerticalAlignment="Center" Margin="0 8 0 0" />
+                        <Slider Grid.Row="1" Grid.Column="2" Maximum="240" Minimum="5" IsSnapToTickEnabled="True" SmallChange="5" LargeChange="5" TickFrequency="5" TickPlacement="Both" Value="{Binding Path=ViewModel.WebDashboardFrameRate, Mode=TwoWay}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardFrameRate}" VerticalAlignment="Center" Margin="0 8 0 0" />
                     </Grid>
                     <StackPanel Orientation="Horizontal" Margin="0 8 0 0" ToolTip="{Binding Path=ViewModel.WebDashboardStatus, Mode=OneWay}">
                         <Ellipse Width="8" Height="8" Fill="{Binding Path=ViewModel.WebDashboardStatusBrush, Mode=OneWay}" VerticalAlignment="Center" Margin="0 0 7 0" />

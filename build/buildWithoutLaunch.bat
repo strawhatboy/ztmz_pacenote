@@ -7,18 +7,22 @@ cd ../src
 
 cd ZTMZ.PacenoteTool.Codemasters
 dotnet build -c Release --property WarningLevel=0
+if errorlevel 1 goto :build_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.RBR
 dotnet build -c Release --property WarningLevel=0
+if errorlevel 1 goto :build_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.AC
 dotnet build -c Release --property WarningLevel=0
+if errorlevel 1 goto :build_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.WpfGUI
 dotnet build -c Release --property WarningLevel=0
+if errorlevel 1 goto :build_failed
 cd ..
 
 rem copy built games to target folder
@@ -44,3 +48,9 @@ xcopy ZTMZ.PacenoteTool.RBR\*.zdb "%userprofile%\Documents\My Games\ZTMZClub_nex
 cd /D "%currentDir%"
 
 echo done.
+exit /b 0
+
+:build_failed
+echo Build failed. No files were copied.
+cd /D "%currentDir%"
+exit /b 1

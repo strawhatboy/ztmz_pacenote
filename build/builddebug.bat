@@ -6,18 +6,22 @@ cd /D "%~dp0"
 cd ../src
 cd ZTMZ.PacenoteTool.Codemasters
 dotnet build -c Debug --property WarningLevel=0
+if errorlevel 1 goto :build_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.RBR
 dotnet build -c Debug --property WarningLevel=0
+if errorlevel 1 goto :build_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.AC
 dotnet build -c Debug --property WarningLevel=0
+if errorlevel 1 goto :build_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.WpfGUI
 dotnet build -c Debug --property WarningLevel=0
+if errorlevel 1 goto :build_failed
 cd ..
 
 rem copy built games to target folder
@@ -43,3 +47,9 @@ xcopy ZTMZ.PacenoteTool.ScriptEditor\*.csv ZTMZ.PacenoteTool.WpfGUI\bin\Debug\ne
 cd /D "%currentDir%"
 
 echo done.
+exit /b 0
+
+:build_failed
+echo Build failed. No files were copied.
+cd /D "%currentDir%"
+exit /b 1

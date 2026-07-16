@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using GameOverlay.Drawing;
+using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.Base.UI;
 
@@ -18,7 +19,7 @@ public class GraphicsCommandProxy
     
     public int Width => _capture.Width;
     public int Height => _capture.Height;
-    public float FPS => 60; // Web rendering target FPS
+    public float FPS { get; set; } = Config.WebDashboardFrameRateDefault;
     
     public GraphicsCommandProxy(DrawingCommandCapture capture)
     {
@@ -413,6 +414,18 @@ public class GraphicsCommandProxy
         public int B { get; set; }
         public int A { get; set; }
 
+        public Color Color
+        {
+            get => new Color(R, G, B, A);
+            set
+            {
+                R = (int)Math.Round(value.R * 255);
+                G = (int)Math.Round(value.G * 255);
+                B = (int)Math.Round(value.B * 255);
+                A = (int)Math.Round(value.A * 255);
+            }
+        }
+
         public void Dispose() { }
     }
     
@@ -458,6 +471,18 @@ public class GraphicsCommandProxy
             RadiusX = radiusX;
             RadiusY = radiusY;
         }
+
+        public void SetCenter(float centerX, float centerY)
+        {
+            CenterX = centerX;
+            CenterY = centerY;
+        }
+
+        public void SetRadius(float radiusX, float radiusY)
+        {
+            RadiusX = radiusX;
+            RadiusY = radiusY;
+        }
         
         public void Dispose() { }  // No-op for proxy
     }
@@ -466,6 +491,7 @@ public class GraphicsCommandProxy
     {
         public string Name { get; set; }
         public float Size { get; set; }
+        public float FontSize => Size;
         public bool Bold { get; set; }
         public bool Italic { get; set; }
 

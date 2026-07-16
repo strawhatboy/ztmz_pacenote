@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
-using System.Windows.Data;
 using System.Threading.Tasks;
 using ZTMZ.PacenoteTool.Base.UI.Game;
 using Wpf.Ui.Controls;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using ZTMZ.PacenoteTool.Base.UI;
 using System.Windows.Media;
 
@@ -59,7 +59,7 @@ public partial class HudPageVM : ObservableObject {
     partial void OnWebDashboardEnabledChanged(bool value)
     {
         Config.Instance.WebDashboardEnabled = value;
-        _gameOverlayManager.ConfigureWebDashboard(value, WebDashboardPort);
+        _gameOverlayManager.ConfigureWebDashboard(value, WebDashboardPort, WebDashboardFrameRate);
         Config.Instance.SaveUserConfig();
         RefreshWebDashboardStatus();
     }
@@ -72,10 +72,30 @@ public partial class HudPageVM : ObservableObject {
         Config.Instance.WebDashboardPort = value;
         if (WebDashboardEnabled)
         {
-            _gameOverlayManager.ConfigureWebDashboard(true, value);
+            _gameOverlayManager.ConfigureWebDashboard(true, value, WebDashboardFrameRate);
         }
         Config.Instance.SaveUserConfig();
         RefreshWebDashboardStatus();
+    }
+
+    [ObservableProperty]
+    private int _webDashboardFrameRate = Config.Instance.WebDashboardFrameRate;
+
+    partial void OnWebDashboardFrameRateChanged(int value)
+    {
+        Config.Instance.WebDashboardFrameRate = value;
+        var configuredFrameRate = Config.Instance.WebDashboardFrameRate;
+        if (configuredFrameRate != value)
+        {
+            WebDashboardFrameRate = configuredFrameRate;
+            return;
+        }
+
+        if (WebDashboardEnabled)
+        {
+            _gameOverlayManager.ConfigureWebDashboard(true, WebDashboardPort, configuredFrameRate);
+        }
+        Config.Instance.SaveUserConfig();
     }
 
     [ObservableProperty]
@@ -239,23 +259,15 @@ public partial class HudPageVM : ObservableObject {
             Grid.SetRow(description, 1);
             Grid.SetColumn(description, 1);
 
-            // toggle button in 2nd column
-            ToggleSwitch toggleSwitch = new ToggleSwitch();
-            toggleSwitch.SetBinding(ToggleSwitch.IsCheckedProperty, new Binding("IsEnabled") { Source = dashboard.Descriptor });
-            // toggle event
-            toggleSwitch.Click += (sender, args) => {
-                dashboard.SetIsEnable((bool)toggleSwitch.IsChecked);
-                dashboard.SaveConfig();
-            };
-            toggleSwitch.Margin = new Thickness(0, 0, 10, 0);
-
-            Grid.SetColumn(toggleSwitch, 2);
-            Grid.SetRowSpan(toggleSwitch, 2);
+            var outputTargetSelector = CreateDashboardOutputTargetSelector(dashboard);
+            outputTargetSelector.Margin = new Thickness(0, 0, 10, 0);
+            Grid.SetColumn(outputTargetSelector, 2);
+            Grid.SetRowSpan(outputTargetSelector, 2);
 
             grid.Children.Add(previewImage);
             grid.Children.Add(spTitleAndVersion);
             grid.Children.Add(description);
-            grid.Children.Add(toggleSwitch);
+            grid.Children.Add(outputTargetSelector);
 
             cardExpander.Header = grid;
             cardExpander.Margin = new Thickness(0, 0, 0, 3);
@@ -423,5 +435,58 @@ public partial class HudPageVM : ObservableObject {
 
             DashboardItems.Add(cardExpander);
         }
+    }
+
+    private Grid CreateDashboardOutputTargetSelector(Dashboard dashboard)
+    {
+        var selector = new Grid
+        {
+            Width = 128,
+            Height = 32,
+            VerticalAlignment = VerticalAlignment.Center,
+            ToolTip = I18NLoader.Instance["dashboards.settings.tooltip.outputTarget"]
+        };
+
+        var options = new[]
+        {
+            (DashboardOutputTarget.None, SymbolRegular.EyeOff20, "dashboards.settings.tooltip.outputTargetOff"),
+            (DashboardOutputTarget.Overlay, SymbolRegular.Desktop20, "dashboards.settings.tooltip.outputTargetOverlay"),
+            (DashboardOutputTarget.Web, SymbolRegular.Globe20, "dashboards.settings.tooltip.outputTargetWeb"),
+            (DashboardOutputTarget.Both, SymbolRegular.WindowMultiple20, "dashboards.settings.tooltip.outputTargetBoth")
+        };
+        var selectedTarget = _gameOverlayManager.GetDashboardOutputTarget(dashboard);
+        var buttons = new Dictionary<DashboardOutputTarget, ToggleButton>();
+
+        for (var i = 0; i < options.Length; i++)
+        {
+            var option = options[i];
+            selector.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32) });
+
+            var button = new ToggleButton
+            {
+                Width = 32,
+                Height = 32,
+                Padding = new Thickness(0),
+                Margin = new Thickness(i == 0 ? 0 : -1, 0, 0, 0),
+                IsChecked = selectedTarget == option.Item1,
+                ToolTip = I18NLoader.Instance[option.Item3],
+                Content = new SymbolIcon { Symbol = option.Item2 }
+            };
+            ToolTipService.SetInitialShowDelay(button, 200);
+            buttons.Add(option.Item1, button);
+            button.Click += (_, _) =>
+            {
+                _gameOverlayManager.SetDashboardOutputTarget(dashboard, option.Item1);
+                foreach (var targetButton in buttons)
+                {
+                    targetButton.Value.IsChecked = targetButton.Key == option.Item1;
+                }
+            };
+
+            Grid.SetColumn(button, i);
+            selector.Children.Add(button);
+        }
+
+        return selector;
     }
 }

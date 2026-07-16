@@ -14,6 +14,12 @@ namespace GameOverlay.Drawing
     {
         private SharpDXGradientBrush _brush;
         private GradientStopCollection _stopCollection;
+        private Color[] _gradientColors;
+
+        /// <summary>
+        /// Gets the colors used to create this gradient.
+        /// </summary>
+        public Color[] GradientColors => _gradientColors;
 
         /// <summary>
         /// Gets or sets the underlying Brush.
@@ -44,6 +50,9 @@ namespace GameOverlay.Drawing
             if (device == null) throw new ArgumentNullException(nameof(device));
             if (colors == null || colors.Length == 0) throw new ArgumentNullException(nameof(colors));
 
+            _gradientColors = new Color[colors.Length];
+            Array.Copy(colors, _gradientColors, colors.Length);
+
             float position = 0.0f;
             float stepSize = 1.0f / colors.Length;
 
@@ -58,7 +67,7 @@ namespace GameOverlay.Drawing
             {
                 gradientStops[i] = new GradientStop()
                 {
-                    Color = colors[i],
+                    Color = _gradientColors[i],
                     Position = position
                 };
 

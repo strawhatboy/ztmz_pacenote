@@ -34,10 +34,29 @@ mkdir target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang
 xcopy target\bin\ZTMZ.PacenoteTool.Codemasters\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
 xcopy target\bin\ZTMZ.PacenoteTool.RBR\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
 
-rem put default codriver package in place
-xcopy ..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\codrivers\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\codrivers\ /Y /S /V /Q
-rem put profiles
-xcopy ..\src\ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\profiles\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\profiles\ /Y /S /V /Q
+rem stage only release defaults from the configured application-data directory
+if not defined ZTMZ_PACKAGE_DATA_HOME (
+    for /f "usebackq delims=" %%H in (`powershell -NoProfile -Command "$config = Get-ItemProperty -Path 'HKCU:\Software\ZTMZ Next Generation Pacenote Tool' -ErrorAction SilentlyContinue; if ($config -and $config.ZTMZHome) { [Console]::Write($config.ZTMZHome) }"`) do set "ZTMZ_PACKAGE_DATA_HOME=%%H"
+)
+if not defined ZTMZ_PACKAGE_DATA_HOME set "ZTMZ_PACKAGE_DATA_HOME=%USERPROFILE%\Documents\My Games\ZTMZClub_nextgen"
+
+set "RELEASE_DATA_ROOT=target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64"
+set "DEFAULT_CODRIVER_SOURCE=%ZTMZ_PACKAGE_DATA_HOME%\codrivers\default"
+
+if not exist "%DEFAULT_CODRIVER_SOURCE%\info.json" (
+    echo Default co-driver package was not found: "%DEFAULT_CODRIVER_SOURCE%"
+    exit /b 1
+)
+
+mkdir "%RELEASE_DATA_ROOT%\codrivers\default"
+xcopy "%DEFAULT_CODRIVER_SOURCE%\*" "%RELEASE_DATA_ROOT%\codrivers\default\" /E /I /Y /V /Q >nul
+if errorlevel 1 exit /b %errorlevel%
+
+if exist "%ZTMZ_PACKAGE_DATA_HOME%\profiles\default\" (
+    mkdir "%RELEASE_DATA_ROOT%\profiles\default"
+    xcopy "%ZTMZ_PACKAGE_DATA_HOME%\profiles\default\*" "%RELEASE_DATA_ROOT%\profiles\default\" /E /I /Y /V /Q >nul
+    if errorlevel 1 exit /b %errorlevel%
+)
 
 cd /D "%currentDir%"
 

@@ -5,6 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>ZTMZ Pacenote Dashboard</title>
     <style>
+        @font-face {
+            font-family: 'WRC Clean Roman';
+            src: url('/fonts/WRCCleanRoman.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'WRC Clean';
+            src: url('/fonts/WRCCleanRoman.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'WRC Clean Bold';
+            src: url('/fonts/WRCCleanBold.ttf') format('truetype');
+            font-display: swap;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -217,33 +235,88 @@
             background: rgba(0, 255, 136, 0.5);
         }
         
+        #frame-rate,
         #connection-status {
             position: fixed;
             top: 10px;
-            right: 10px;
             padding: 8px 12px;
             background: rgba(0, 0, 0, 0.8);
             border: 1px solid #333;
             border-radius: 4px;
             font-size: 12px;
             z-index: 9997;
-            display: none;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 250ms ease, visibility 0s linear 250ms;
         }
-        
-        #connection-status.active {
+
+        #frame-rate {
+            left: 10px;
             display: block;
         }
-        
+
+        #frame-rate.active {
+            opacity: 1;
+            visibility: visible;
+            transition-delay: 0s;
+        }
+
+        #connection-status {
+            right: 10px;
+            align-items: center;
+            gap: 8px;
+            display: flex;
+        }
+
+        #connection-status.active {
+            opacity: 1;
+            visibility: visible;
+            transition-delay: 0s;
+        }
+
+        .connection-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #8a8a8a;
+            flex: 0 0 auto;
+        }
+
         #connection-status.connected {
             border-color: #00ff88;
             color: #00ff88;
         }
-        
+
+        #connection-status.connected .connection-indicator {
+            background: #00d26a;
+            box-shadow: 0 0 7px rgba(0, 210, 106, 0.75);
+        }
+
+        #connection-status.connecting {
+            border-color: #f5c542;
+            color: #f5c542;
+        }
+
+        #connection-status.connecting .connection-indicator {
+            background: #f5c542;
+            animation: connection-pulse 1s ease-in-out infinite;
+        }
+
         #connection-status.disconnected {
             border-color: #ff3333;
             color: #ff3333;
         }
-        
+
+        #connection-status.disconnected .connection-indicator {
+            background: #ff4d4d;
+        }
+
+        @keyframes connection-pulse {
+            0%, 100% { opacity: 0.35; transform: scale(0.82); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
         #error-message {
             position: fixed;
             bottom: 20px;
@@ -284,6 +357,8 @@
         <canvas id="dashboard-canvas"></canvas>
     </div>
 
+    <div id="frame-rate" aria-live="polite">0 FPS</div>
+
     <!-- Dashboard Controls -->
     <div id="dashboard-controls" aria-hidden="true">
         <button id="fullscreen-button" class="dashboard-control" type="button" title="Enter fullscreen" aria-label="Enter fullscreen">&#x26F6;</button>
@@ -294,15 +369,15 @@
     <button id="menu-button" title="Back to Dashboard Selection">☰</button>
     
     <!-- Connection Status -->
-    <div id="connection-status"></div>
+    <div id="connection-status" role="status" aria-live="polite">
+        <span class="connection-indicator" aria-hidden="true"></span>
+        <span id="connection-status-text">Connecting...</span>
+    </div>
     
     <!-- Error Message -->
     <div id="error-message"></div>
     
-    <!-- Fengari Lua Interpreter -->
-    <script src="https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.js"></script>
-    
     <!-- Dashboard Client -->
-    <script src="dashboard-client.js"></script>
+    <script src="dashboard-client.js?v=1"></script>
 </body>
 </html>

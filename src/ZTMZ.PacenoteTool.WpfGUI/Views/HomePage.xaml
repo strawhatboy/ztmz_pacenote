@@ -238,6 +238,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal"
                                     VerticalAlignment="Center">
@@ -245,16 +246,34 @@
                                            FontSize="26"
                                            Margin="0 0 10 0"
                                            VerticalAlignment="Center"/>
-                            <ui:TextBlock Text="{DynamicResource ResourceKey=tabs.hud}"
-                                          FontTypography="BodyStrong"
+                            <ui:TextBlock Text="{DynamicResource ResourceKey=settings.overlayHudTitle}"
+                                           FontTypography="BodyStrong"
+                                           VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center"
+                                    Margin="0 0 14 0"
+                                    ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardHomeStatus}">
+                            <Ellipse Width="8"
+                                     Height="8"
+                                     Margin="0 0 6 0"
+                                     Fill="{Binding Path=ViewModel.WebDashboardHomeStatusBrush, Mode=OneWay}"
+                                     VerticalAlignment="Center"/>
+                            <ui:TextBlock Text="{Binding Path=ViewModel.WebDashboardHomeStatus, Mode=OneWay}"
+                                          FontTypography="Caption"
+                                          Appearance="Tertiary"
+                                          TextWrapping="NoWrap"
+                                          TextTrimming="CharacterEllipsis"
+                                          MaxWidth="145"
                                           VerticalAlignment="Center"/>
                         </StackPanel>
-                        <ui:ToggleSwitch Grid.Column="1"
-                                         Name="tb_hud"
-                                         IsChecked="{Binding Path=ViewModel.IsHudEnabled, Mode=TwoWay}"
-                                         ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_showHud}"
-                                         ToolTipService.InitialShowDelay="100"
-                                         Margin="0 0 10 0"/>
+                        <ui:ToggleSwitch Grid.Column="2"
+                                          Name="tb_hud"
+                                          IsChecked="{Binding Path=ViewModel.IsHudEnabled, Mode=TwoWay}"
+                                          ToolTip="{DynamicResource ResourceKey=settings.tooltip.overlayHudEnabled}"
+                                          ToolTipService.InitialShowDelay="100"
+                                          Margin="0 0 10 0"/>
                     </Grid>
                 </ui:CardExpander.Header>
                 <ui:CardAction Command="{Binding ViewModel.MoreHudSettingsCommand}"

@@ -14,13 +14,21 @@ const state = {
     ws: null,
     dashboards: [],
     imageCache: {},
+    imageLoads: {},
     isRunning: false,
     canvas: null,
     ctx: null,
     orientation: 'landscape',
     controlsTimer: null,
-    controlsFadeTimer: null
+    controlsFadeTimer: null,
+    connectionState: 'connecting',
+    receivedFrameCount: 0,
+    frameRateWindowStartedAt: 0,
+    pendingFrameData: null,
+    renderFrameScheduled: false
 };
+
+const colorCssCache = new Map();
 
 // ============================================================================
 // Initialization
@@ -29,6 +37,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     updateLoadingText('Initializing canvas...');
     showCanvas();
     initializeDashboardControls();
+    initializeDashboardIndicators();
     
     updateLoadingText('Fetching dashboard list...');
     await loadDashboardList();
@@ -49,7 +58,8 @@ async function loadDashboardList() {
         state.dashboards = await response.json();
         renderDashboardList();
         
-        // Preload images for all enabled dashboards
+        // Preload enabled dashboards. A newly enabled dashboard is loaded on
+        // demand from its draw commands without requiring a browser refresh.
         await loadDashboardImages();
     } catch (error) {
         showError('Failed to load dashboard list: ' + error.message);
@@ -61,49 +71,68 @@ function renderDashboardList() {
     const listContainer = document.getElementById('dashboard-list');
     listContainer.innerHTML = '';
     
-    const enabledCount = state.dashboards.filter(d => d.enabled).length;
+    const webEnabledCount = state.dashboards.filter(d => d.webEnabled ?? d.enabled).length;
     const card = document.createElement('div');
     card.className = 'dashboard-card';
     card.innerHTML = `
         <h3>Web Dashboard View</h3>
-        <p><strong>${enabledCount} dashboard(s) enabled</strong></p>
+        <p><strong>${webEnabledCount} dashboard(s) routed to Web</strong></p>
         <p>Dashboards are rendered server-side and streamed to your browser.</p>
-        <p>The server will automatically render all enabled dashboards.</p>
+        <p>The server will automatically render dashboards routed to Web.</p>
     `;
     listContainer.appendChild(card);
 }
 
 async function loadDashboardImages() {
-    // Load all dashboard images for all enabled dashboards
-    for (const dashboardInfo of state.dashboards.filter(d => d.enabled)) {
+    for (const dashboardInfo of state.dashboards.filter(d => d.webEnabled ?? d.enabled)) {
         try {
             const response = await fetch(`/api/dashboard/${dashboardInfo.id}`);
             if (!response.ok) continue;
-            
+
             const dashboard = await response.json();
             
             // Preload all images
-            const imagePromises = Object.entries(dashboard.imageResources).map(([key, url]) => {
-                return new Promise((resolve) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        state.imageCache[key] = img;
-                        console.log('Loaded image:', key, 'from', url);
-                        resolve();
-                    };
-                    img.onerror = () => {
-                        console.warn(`Failed to load image: ${key} from ${url}`);
-                        resolve();
-                    };
-                    img.src = url;
-                });
-            });
+            const imagePromises = Object.entries(dashboard.imageResources || {})
+                .map(([key, url]) => loadImageResource(key, url));
             
             await Promise.all(imagePromises);
         } catch (error) {
             console.error(`Failed to load images for dashboard ${dashboardInfo.name}:`, error);
         }
     }
+}
+
+function loadImageResource(key, url) {
+    if (!key || !url) {
+        return Promise.resolve(null);
+    }
+
+    if (state.imageCache[key]) {
+        return Promise.resolve(state.imageCache[key]);
+    }
+
+    if (state.imageLoads[key]) {
+        return state.imageLoads[key];
+    }
+
+    const imageLoad = new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            state.imageCache[key] = img;
+            delete state.imageLoads[key];
+            console.log('Loaded image:', key, 'from', url);
+            resolve(img);
+        };
+        img.onerror = () => {
+            delete state.imageLoads[key];
+            console.warn(`Failed to load image: ${key} from ${url}`);
+            resolve(null);
+        };
+        img.src = url;
+    });
+
+    state.imageLoads[key] = imageLoad;
+    return imageLoad;
 }
 
 // ============================================================================
@@ -177,19 +206,21 @@ function executeDrawingCommand(cmd) {
             
         case 'fillCircle':
             ctx.save();
-            ctx.fillStyle = colorToCSS(cmd.color);
-            ctx.beginPath();
-            ctx.arc(cmd.x, cmd.y, cmd.radius, 0, Math.PI * 2);
-            ctx.fill();
+            if (applyFillStyle(ctx, cmd)) {
+                ctx.beginPath();
+                ctx.arc(cmd.x, cmd.y, cmd.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
             ctx.restore();
             break;
 
         case 'fillEllipse':
             ctx.save();
-            ctx.fillStyle = colorToCSS(cmd.color);
-            ctx.beginPath();
-            ctx.ellipse(cmd.x, cmd.y, cmd.radiusX, cmd.radiusY, 0, 0, Math.PI * 2);
-            ctx.fill();
+            if (applyFillStyle(ctx, cmd)) {
+                ctx.beginPath();
+                ctx.ellipse(cmd.x, cmd.y, cmd.radiusX, cmd.radiusY, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
             ctx.restore();
             break;
             
@@ -198,7 +229,7 @@ function executeDrawingCommand(cmd) {
             
         case 'drawTextWithBackground':
             ctx.save();
-            ctx.font = `${cmd.fontSize}px ${cmd.fontName}`;
+            ctx.font = `${cmd.fontSize}px "${cmd.fontName || 'Arial'}", Arial, sans-serif`;
             
             // Handle multi-line text
             const bgLines = cmd.text.split('\n');
@@ -238,7 +269,7 @@ function executeDrawingCommand(cmd) {
                     ctx.drawImage(img, cmd.x, cmd.y);
                 }
             } else {
-                console.warn('DrawImage: Image not found in cache:', cmd.imageKey);
+                loadImageResource(cmd.imageKey, cmd.imageUrl);
             }
             break;
             
@@ -248,6 +279,8 @@ function executeDrawingCommand(cmd) {
                 ctx.drawImage(imgRegion, 
                     cmd.srcX, cmd.srcY, cmd.srcWidth, cmd.srcHeight,
                     cmd.destX, cmd.destY, cmd.destWidth, cmd.destHeight);
+            } else {
+                loadImageResource(cmd.imageKey, cmd.imageUrl);
             }
             break;
             
@@ -295,16 +328,16 @@ function executeDrawingCommand(cmd) {
         case 'fillGeometry':
             if (cmd.points && cmd.points.length > 0) {
                 ctx.save();
-                ctx.fillStyle = colorToCSS(cmd.color);
-                ctx.beginPath();
-                // Points are flattened: [x1, y1, x2, y2, ...]
-                ctx.moveTo(cmd.points[0], cmd.points[1]);
-                for (let i = 2; i < cmd.points.length; i += 2) {
-                    ctx.lineTo(cmd.points[i], cmd.points[i + 1]);
+                if (applyFillStyle(ctx, cmd)) {
+                    ctx.beginPath();
+                    // Points are flattened: [x1, y1, x2, y2, ...]
+                    ctx.moveTo(cmd.points[0], cmd.points[1]);
+                    for (let i = 2; i < cmd.points.length; i += 2) {
+                        ctx.lineTo(cmd.points[i], cmd.points[i + 1]);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
                 }
-                // Don't call closePath() - the geometry is already closed by the arc points
-                // ctx.closePath();  
-                ctx.fill();
                 ctx.restore();
             } else {
                 console.warn('fillGeometry: No points or empty points array!');
@@ -388,12 +421,24 @@ function addRoundedRectanglePath(ctx, x, y, width, height, radius) {
 }
 
 function colorToCSS(color) {
+    const cacheKey = color >>> 0;
+    const cachedColor = colorCssCache.get(cacheKey);
+    if (cachedColor !== undefined) {
+        return cachedColor;
+    }
+
     // Convert integer ARGB to CSS rgba
     const a = ((color >> 24) & 0xFF) / 255;
     const r = (color >> 16) & 0xFF;
     const g = (color >> 8) & 0xFF;
     const b = color & 0xFF;
-    return `rgba(${r}, ${g}, ${b}, ${a})`;
+    const cssColor = `rgba(${r}, ${g}, ${b}, ${a})`;
+
+    if (colorCssCache.size < 256) {
+        colorCssCache.set(cacheKey, cssColor);
+    }
+
+    return cssColor;
 }
 
 // ============================================================================
@@ -403,44 +448,35 @@ function connectWebSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/ws`;
     
-    updateConnectionStatus('Connecting...', false);
+    updateConnectionStatus('Connecting...', 'connecting');
     
     state.ws = new WebSocket(wsUrl);
     
     state.ws.onopen = () => {
         console.log('WebSocket connected');
-        updateConnectionStatus('Connected', true);
+        updateConnectionStatus('Connected', 'connected');
+        resetDashboardFrameRate();
         state.isRunning = true;
         // No render loop needed - commands come via WebSocket messages
     };
     
     state.ws.onmessage = (event) => {
-        try {
-            const message = JSON.parse(event.data);
-            
-            if (message.type === 'drawCommands') {
-                // Received drawing commands from server - render them immediately
-                const commands = message.commands;
-                
-                for (const cmd of commands) {
-                    executeDrawingCommand(cmd);
-                }
-            } else {
-                // Ignore unknown message types
-            }
-        } catch (error) {
-            console.error('WebSocket message error:', error);
+        state.pendingFrameData = event.data;
+        if (!state.renderFrameScheduled) {
+            state.renderFrameScheduled = true;
+            requestAnimationFrame(renderLatestDashboardFrame);
         }
     };
     
     state.ws.onerror = (error) => {
         console.error('WebSocket error:', error);
-        updateConnectionStatus('Error', false);
+        updateConnectionStatus('Connection error', 'disconnected');
     };
     
     state.ws.onclose = () => {
         console.log('WebSocket closed');
-        updateConnectionStatus('Disconnected', false);
+        updateConnectionStatus('Disconnected', 'disconnected');
+        resetDashboardFrameRate();
         state.isRunning = false;
         
         // Auto-reconnect after 3 seconds
@@ -450,6 +486,32 @@ function connectWebSocket() {
             }
         }, 3000);
     };
+}
+
+function renderLatestDashboardFrame() {
+    state.renderFrameScheduled = false;
+    const frameData = state.pendingFrameData;
+    state.pendingFrameData = null;
+
+    if (!frameData) {
+        return;
+    }
+
+    // Every message is a complete frame, so stale frames can be discarded when
+    // the browser cannot paint as fast as the configured stream rate.
+    try {
+        const message = JSON.parse(frameData);
+        if (message.type !== 'drawCommands') {
+            return;
+        }
+
+        for (const cmd of message.commands) {
+            executeDrawingCommand(cmd);
+        }
+        recordReceivedDashboardFrame();
+    } catch (error) {
+        console.error('WebSocket message error:', error);
+    }
 }
 
 // ============================================================================
@@ -471,6 +533,7 @@ function showDashboardSelector() {
     document.getElementById('dashboard-selector').classList.add('active');
     document.getElementById('menu-button').classList.remove('active');
     document.getElementById('connection-status').classList.remove('active');
+    document.getElementById('frame-rate').classList.remove('active');
 }
 
 function hideDashboardSelector() {
@@ -488,7 +551,6 @@ function showCanvas() {
     state.ctx = canvas.getContext('2d');
     
     container.classList.add('active');
-    document.getElementById('connection-status').classList.add('active');
     applyCanvasLayout();
 }
 
@@ -528,19 +590,32 @@ function initializeDashboardControls() {
 
 function showDashboardControls() {
     const controls = document.getElementById('dashboard-controls');
+    const frameRate = document.getElementById('frame-rate');
+    const connectionStatus = document.getElementById('connection-status');
     controls.classList.add('active');
     controls.setAttribute('aria-hidden', 'false');
+    frameRate.classList.add('active');
+    connectionStatus.classList.add('active');
 
     window.clearTimeout(state.controlsTimer);
     window.clearTimeout(state.controlsFadeTimer);
     state.controlsTimer = window.setTimeout(() => {
-        controls.classList.remove('active');
+        hideDashboardControls();
         state.controlsFadeTimer = window.setTimeout(() => {
             if (!controls.classList.contains('active')) {
                 controls.setAttribute('aria-hidden', 'true');
             }
         }, 250);
     }, 4500);
+}
+
+function hideDashboardControls() {
+    document.getElementById('dashboard-controls').classList.remove('active');
+    document.getElementById('frame-rate').classList.remove('active');
+
+    if (state.connectionState === 'connected') {
+        document.getElementById('connection-status').classList.remove('active');
+    }
 }
 
 async function toggleFullscreen() {
@@ -602,10 +677,54 @@ function updateOrientationControl() {
     button.setAttribute('aria-pressed', isPortrait ? 'true' : 'false');
 }
 
-function updateConnectionStatus(text, connected) {
+function initializeDashboardIndicators() {
+    resetDashboardFrameRate();
+    window.setInterval(updateMeasuredFrameRate, 500);
+}
+
+function recordReceivedDashboardFrame() {
+    state.receivedFrameCount++;
+    updateMeasuredFrameRate();
+}
+
+function resetDashboardFrameRate() {
+    state.receivedFrameCount = 0;
+    state.frameRateWindowStartedAt = performance.now();
+    updateDashboardFrameRate(0);
+}
+
+function updateMeasuredFrameRate() {
+    if (!state.frameRateWindowStartedAt) {
+        resetDashboardFrameRate();
+        return;
+    }
+
+    const elapsed = performance.now() - state.frameRateWindowStartedAt;
+    if (elapsed < 1000) {
+        return;
+    }
+
+    updateDashboardFrameRate(Math.round(state.receivedFrameCount * 1000 / elapsed));
+    state.receivedFrameCount = 0;
+    state.frameRateWindowStartedAt = performance.now();
+}
+
+function updateDashboardFrameRate(frameRate) {
+    document.getElementById('frame-rate').textContent = `${frameRate} FPS`;
+}
+
+function updateConnectionStatus(text, connectionState) {
     const status = document.getElementById('connection-status');
-    status.textContent = text;
-    status.className = connected ? 'active connected' : 'active disconnected';
+    state.connectionState = connectionState;
+    document.getElementById('connection-status-text').textContent = text;
+    status.classList.remove('connecting', 'connected', 'disconnected');
+    status.classList.add(connectionState);
+
+    if (connectionState === 'connected') {
+        showDashboardControls();
+    } else {
+        status.classList.add('active');
+    }
 }
 
 function showError(message) {

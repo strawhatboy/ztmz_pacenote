@@ -2588,6 +2588,11 @@
             Represents a linear gradient brush used with a Graphics surface.
             </summary>
         </member>
+        <member name="P:GameOverlay.Drawing.LinearGradientBrush.GradientColors">
+            <summary>
+            Gets the colors used to create this gradient.
+            </summary>
+        </member>
         <member name="P:GameOverlay.Drawing.LinearGradientBrush.Brush">
             <summary>
             Gets or sets the underlying Brush.
@@ -2687,6 +2692,11 @@
             <summary>
             Represents a radial gradient brush used with a Graphics surface.
             check https://learn.microsoft.com/en-us/windows/winui/api/microsoft.ui.xaml.media.radialgradientbrush?view=winui-2.8
+            </summary>
+        </member>
+        <member name="P:GameOverlay.Drawing.RadialGradientBrush.GradientColors">
+            <summary>
+            Gets the colors used to create this gradient.
             </summary>
         </member>
         <member name="M:GameOverlay.Drawing.RadialGradientBrush.Dispose(System.Boolean)">

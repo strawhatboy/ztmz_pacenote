@@ -7,6 +7,9 @@ namespace ZTMZ.PacenoteTool.Base.UI.Game;
 public abstract class IGameConfigSettingsPane: UserControl
 {
     public abstract void InitializeWithGame(IGame game);
+    public virtual void RefreshFromConfiguration()
+    {
+    }
     public Action RestartNeeded;
 }
 

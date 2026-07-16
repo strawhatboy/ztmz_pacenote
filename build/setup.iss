@@ -1,5 +1,9 @@
 ﻿#define MyAppName "ZTMZ Next Generation Pacenote Tool"
-#define MyAppVersion "2.99.99.36"
+#define MyAppPublishPath AddBackslash(SourcePath) + "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\ZTMZ.PacenoteTool.WpfGUI.exe"
+#if !FileExists(MyAppPublishPath)
+  #error "Published WPF executable was not found. Run build\publish.bat before packaging."
+#endif
+#define MyAppVersion GetVersionNumbersString(MyAppPublishPath)
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
@@ -327,7 +331,7 @@ Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\default";
 ; Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\*.json"; Excludes:"config.json,userconfig.json,*.deps.json,*.runtimeconfig.json"; DestDir: "{code:GetZTMZHome}"; Flags: ignoreversion
 ; Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\*.csv"; DestDir: "{code:GetZTMZHome}"; Flags: ignoreversion
 Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\codrivers\*"; DestDir: "{code:GetZTMZHome}\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\profiles\*"; DestDir: "{code:GetZTMZHome}\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\profiles\*"; DestDir: "{code:GetZTMZHome}\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\lang\*"; DestDir: "{code:GetZTMZHome}\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\*"; Excludes:"*.json"; DestDir: "{code:GetInstallDir}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\*.json"; Excludes:"*.deps.json"; DestDir: "{code:GetZTMZHome}\games"; Flags: ignoreversion recursesubdirs createallsubdirs

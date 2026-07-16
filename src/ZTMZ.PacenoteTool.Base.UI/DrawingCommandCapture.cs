@@ -12,7 +12,7 @@ public class DrawingCommandCapture
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     private readonly List<DrawingCommand> _commands = new();
-    private readonly Dictionary<object, string> _imageKeyMap = new();
+    private readonly Dictionary<object, ImageRegistration> _imageKeyMap = new();
     
     public int Width { get; set; }
     public int Height { get; set; }
@@ -20,11 +20,11 @@ public class DrawingCommandCapture
     /// <summary>
     /// Register an image object with its key for later lookup
     /// </summary>
-    public void RegisterImage(string key, object image)
+    public void RegisterImage(string key, object image, string imageUrl = null)
     {
         if (image != null && !_imageKeyMap.ContainsKey(image))
         {
-            _imageKeyMap[image] = key;
+            _imageKeyMap[image] = new ImageRegistration(key, imageUrl);
         }
     }
 
@@ -34,12 +34,24 @@ public class DrawingCommandCapture
     }
     
     /// <summary>
-    /// Get the key for an image object
+    /// Get the web resource details for an image object.
     /// </summary>
-    private string GetImageKey(object image)
+    private ImageRegistration GetImageRegistration(object image)
     {
         if (image == null) return null;
-        return _imageKeyMap.TryGetValue(image, out var key) ? key : null;
+        return _imageKeyMap.TryGetValue(image, out var registration) ? registration : null;
+    }
+
+    private sealed class ImageRegistration
+    {
+        public ImageRegistration(string key, string imageUrl)
+        {
+            Key = key;
+            ImageUrl = imageUrl;
+        }
+
+        public string Key { get; }
+        public string ImageUrl { get; }
     }
     
     /// <summary>
@@ -113,6 +125,40 @@ public class DrawingCommandCapture
     private GradientInfo GetGradientInfo(object brush)
     {
         if (brush == null) return null;
+
+        if (brush is LinearGradientBrush linearGradient)
+        {
+            var info = new GradientInfo
+            {
+                Type = "linear",
+                X0 = linearGradient.Start.X,
+                Y0 = linearGradient.Start.Y,
+                X1 = linearGradient.End.X,
+                Y1 = linearGradient.End.Y
+            };
+
+            AddGradientColors(info, linearGradient.GradientColors);
+            return info.Colors.Count > 0 ? info : null;
+        }
+
+        if (brush is RadialGradientBrush radialGradient)
+        {
+            var center = radialGradient.Center;
+            var originOffset = radialGradient.GradientOriginOffset;
+            var info = new GradientInfo
+            {
+                Type = "radial",
+                X0 = center.X + originOffset.X,
+                Y0 = center.Y + originOffset.Y,
+                R0 = 0,
+                X1 = center.X,
+                Y1 = center.Y,
+                R1 = Math.Max(radialGradient.RadiusX, radialGradient.RadiusY)
+            };
+
+            AddGradientColors(info, radialGradient.GradientColors);
+            return info.Colors.Count > 0 ? info : null;
+        }
         
         var typeName = brush.GetType().Name;
 
@@ -183,86 +229,20 @@ public class DrawingCommandCapture
             return null;
         }
         
-        // Handle real LinearGradientBrush from GameOverlay.Drawing
-        if (brush is LinearGradientBrush linearBrush)
-        {
-            try
-            {
-                var info = new GradientInfo
-                {
-                    Type = "linear",
-                    X0 = linearBrush.Start.X,
-                    Y0 = linearBrush.Start.Y,
-                    X1 = linearBrush.End.X,
-                    Y1 = linearBrush.End.Y
-                };
-                
-                // Try to get gradient stops using reflection or direct access
-                try
-                {
-                    // Access through the public Brush property which returns SharpDX brush
-                    dynamic sharpBrush = linearBrush.Brush;
-                    var stopCollection = sharpBrush.GradientStopCollection;
-                    
-                    // Get gradient stop count
-                    int count = (int)stopCollection.GradientStopCount;
-                    for (int i = 0; i < count; i++)
-                    {
-                        var stop = stopCollection.GetGradientStops()[i];
-                        uint argb = ((uint)(stop.Color.A * 255) << 24) |
-                                   ((uint)(stop.Color.R * 255) << 16) |
-                                   ((uint)(stop.Color.G * 255) << 8) |
-                                   (uint)(stop.Color.B * 255);
-                        info.Colors.Add(argb);
-                    }
-                }
-                catch
-                {
-                    // If that fails, use placeholder colors for green→yellow→red gradient
-                    info.Colors.Add(0xFF1CD21B); // Green (from script)
-                    info.Colors.Add(0xFFD3EC46); // Yellow (from script)
-                    info.Colors.Add(0xFFFB210D); // Red (from script)
-                }
-                
-                return info.Colors.Count > 0 ? info : null;
-            }
-            catch (Exception ex)
-            {
-                _logger.Warn($"Error getting real linear gradient info: {ex.Message}");
-                return null;
-            }
-        }
-        
-        // Handle real RadialGradientBrush from GameOverlay.Drawing
-        if (brush is RadialGradientBrush radialBrush)
-        {
-            try
-            {
-                // RadialGradientBrush doesn't expose center/radius easily
-                // We'll need to make assumptions
-                var info = new GradientInfo
-                {
-                    Type = "radial",
-                    X0 = 0,
-                    Y0 = 0,
-                    R0 = 0,
-                    X1 = 0,
-                    Y1 = 0,
-                    R1 = 100
-                };
-                
-                info.Colors.Add(0xFF2C333C); // Default color
-                
-                return info;
-            }
-            catch (Exception ex)
-            {
-                _logger.Warn($"Error getting real radial gradient info: {ex.Message}");
-                return null;
-            }
-        }
-        
         return null;
+    }
+
+    private static void AddGradientColors(GradientInfo gradient, Color[] colors)
+    {
+        if (colors == null)
+        {
+            return;
+        }
+
+        foreach (var color in colors)
+        {
+            gradient.Colors.Add(unchecked((uint)color.ToARGB()));
+        }
     }
     
     /// <summary>
@@ -395,7 +375,8 @@ public class DrawingCommandCapture
             X = x,
             Y = y,
             Radius = radius,
-            Color = GetBrushColor(brush)
+            Color = GetBrushColor(brush),
+            Gradient = GetGradientInfo(brush)
         });
     }
 
@@ -407,7 +388,8 @@ public class DrawingCommandCapture
             Y = y,
             RadiusX = radiusX,
             RadiusY = radiusY,
-            Color = GetBrushColor(brush)
+            Color = GetBrushColor(brush),
+            Gradient = GetGradientInfo(brush)
         });
     }
     
@@ -471,12 +453,13 @@ public class DrawingCommandCapture
     
     public void DrawImage(object image, float left, float top, float right, float bottom)
     {
-        var imageKey = GetImageKey(image);
-        if (imageKey != null)
+        var imageRegistration = GetImageRegistration(image);
+        if (imageRegistration != null)
         {
             _commands.Add(new DrawImageCommand
             {
-                ImageKey = imageKey,
+                ImageKey = imageRegistration.Key,
+                ImageUrl = imageRegistration.ImageUrl,
                 X = left,
                 Y = top,
                 Width = right - left,
@@ -491,12 +474,13 @@ public class DrawingCommandCapture
     
     public void DrawImage(object image, float x, float y)
     {
-        var imageKey = GetImageKey(image);
-        if (imageKey != null)
+        var imageRegistration = GetImageRegistration(image);
+        if (imageRegistration != null)
         {
             _commands.Add(new DrawImageCommand
             {
-                ImageKey = imageKey,
+                ImageKey = imageRegistration.Key,
+                ImageUrl = imageRegistration.ImageUrl,
                 X = x,
                 Y = y
             });
@@ -597,7 +581,8 @@ public class DrawingCommandCapture
             _commands.Add(new FillGeometryCommand
             {
                 Points = points,
-                Color = GetBrushColor(brush)
+                Color = GetBrushColor(brush),
+                Gradient = GetGradientInfo(brush)
             });
         }
     }

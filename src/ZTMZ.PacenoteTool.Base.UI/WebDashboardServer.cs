@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -26,6 +27,10 @@ namespace ZTMZ.PacenoteTool.Base.UI;
 public class WebDashboardServer : IDisposable
 {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+    private static readonly JsonSerializerSettings _webDashboardJsonSettings = new()
+    {
+        NullValueHandling = NullValueHandling.Ignore
+    };
     
     private WebApplication? _app;
     private List<WebSocket> _connectedClients = new();
@@ -33,6 +38,10 @@ public class WebDashboardServer : IDisposable
     
     private List<Dashboard>? _dashboards;
     private string? _dashboardsPath;
+    private Func<Dashboard, DashboardOutputTarget> _dashboardOutputTargetResolver =
+        dashboard => dashboard.Descriptor.IsEnabled
+            ? DashboardOutputTarget.Both
+            : DashboardOutputTarget.None;
     
     public int Port { get; set; } = 8080;
     public bool IsRunning { get; private set; }
@@ -50,6 +59,45 @@ public class WebDashboardServer : IDisposable
     public static string GetDashboardUrl(int port)
     {
         return GetDashboardUrls(port).FirstOrDefault() ?? string.Empty;
+    }
+
+    public static string GetDashboardImageCacheKey(int dashboardId, string imageKey)
+    {
+        return $"{dashboardId}:{imageKey}";
+    }
+
+    public static string GetDashboardImageUrl(string imagePath)
+    {
+        if (string.IsNullOrWhiteSpace(imagePath))
+        {
+            return null;
+        }
+
+        try
+        {
+            var dashboardsPath = Path.GetFullPath(
+                AppLevelVariables.Instance.GetPath(Constants.PATH_DASHBOARDS));
+            var relativePath = Path.GetRelativePath(dashboardsPath, Path.GetFullPath(imagePath));
+            if (Path.IsPathRooted(relativePath)
+                || relativePath.Equals("..", StringComparison.Ordinal)
+                || relativePath.StartsWith($"..{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                || relativePath.StartsWith($"..{Path.AltDirectorySeparatorChar}", StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            var encodedPath = string.Join(
+                "/",
+                relativePath.Split(
+                    new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar },
+                    StringSplitOptions.RemoveEmptyEntries)
+                    .Select(Uri.EscapeDataString));
+            return $"/dashboards/{encodedPath}";
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public static IReadOnlyList<string> GetDashboardUrls(int port)
@@ -101,9 +149,15 @@ public class WebDashboardServer : IDisposable
     /// <summary>
     /// Initialize the server with dashboard data
     /// </summary>
-    public void Initialize(List<Dashboard> dashboards)
+    public void Initialize(
+        List<Dashboard> dashboards,
+        Func<Dashboard, DashboardOutputTarget> dashboardOutputTargetResolver = null)
     {
         _dashboards = dashboards;
+        _dashboardOutputTargetResolver = dashboardOutputTargetResolver ??
+            (dashboard => dashboard.Descriptor.IsEnabled
+                ? DashboardOutputTarget.Both
+                : DashboardOutputTarget.None);
         _dashboardsPath = AppLevelVariables.Instance.GetPath(Constants.PATH_DASHBOARDS);
         _logger.Info($"WebDashboard server initialized with {dashboards.Count} dashboards");
     }
@@ -148,12 +202,31 @@ public class WebDashboardServer : IDisposable
                 _app.UseStaticFiles(new StaticFileOptions
                 {
                     FileProvider = new PhysicalFileProvider(wwwrootPath),
-                    RequestPath = ""
+                    RequestPath = "",
+                    OnPrepareResponse = DisableWebDashboardClientCaching
                 });
             }
             else
             {
                 _logger.Warn($"wwwroot folder not found at: {wwwrootPath}");
+            }
+
+            var fontsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "fonts");
+            if (Directory.Exists(fontsPath))
+            {
+                var fontContentTypes = new FileExtensionContentTypeProvider();
+                fontContentTypes.Mappings[".ttf"] = "font/ttf";
+                _app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(fontsPath),
+                    RequestPath = "/fonts",
+                    ContentTypeProvider = fontContentTypes,
+                    OnPrepareResponse = DisableWebDashboardClientCaching
+                });
+            }
+            else
+            {
+                _logger.Warn($"Dashboard fonts folder not found at: {fontsPath}");
             }
             
             // Serve dashboard resources as static files
@@ -169,7 +242,10 @@ public class WebDashboardServer : IDisposable
             }
             
             // WebSocket endpoint for real-time game data
-            _app.UseWebSockets();
+            _app.UseWebSockets(new WebSocketOptions
+            {
+                KeepAliveInterval = TimeSpan.FromSeconds(30)
+            });
             _app.Use(async (context, next) =>
             {
                 if (context.Request.Path == "/ws")
@@ -190,25 +266,34 @@ public class WebDashboardServer : IDisposable
             });
             
             // API: List available dashboards
-            _app.MapGet("/api/dashboards", () =>
+            _app.MapGet("/api/dashboards", (HttpResponse response) =>
             {
-                return _dashboards!.Select((d, index) => new
+                DisableWebDashboardClientCaching(response);
+                return _dashboards!.Select((d, index) =>
                 {
-                    id = index,
-                    name = d.Descriptor.Name,
-                    description = d.Descriptor.Description,
-                    author = d.Descriptor.Author,
-                    version = d.Descriptor.Version,
-                    enabled = d.Descriptor.IsEnabled,
-                    previewImage = d.Descriptor.PreviewImagePath != null 
-                        ? $"/dashboards/{Path.GetFileName(d.Descriptor.Path)}/{d.Descriptor.PreviewImagePath}"
-                        : null
+                    var outputTarget = ResolveOutputTarget(d);
+                    return new
+                    {
+                        id = index,
+                        name = d.Descriptor.Name,
+                        description = d.Descriptor.Description,
+                        author = d.Descriptor.Author,
+                        version = d.Descriptor.Version,
+                        enabled = outputTarget != DashboardOutputTarget.None,
+                        overlayEnabled = outputTarget.Includes(DashboardOutputTarget.Overlay),
+                        webEnabled = outputTarget.Includes(DashboardOutputTarget.Web),
+                        outputTarget = GetOutputTargetName(outputTarget),
+                        previewImage = d.Descriptor.PreviewImagePath != null
+                            ? $"/dashboards/{Path.GetFileName(d.Descriptor.Path)}/{d.Descriptor.PreviewImagePath}"
+                            : null
+                    };
                 }).ToList();
             });
             
             // API: Get specific dashboard package
-            _app.MapGet("/api/dashboard/{id}", (int id) =>
+            _app.MapGet("/api/dashboard/{id}", (HttpResponse response, int id) =>
             {
+                DisableWebDashboardClientCaching(response);
                 if (id < 0 || id >= _dashboards!.Count)
                 {
                     return Results.NotFound();
@@ -238,17 +323,18 @@ public class WebDashboardServer : IDisposable
                 // Single images
                 foreach (var img in dashboard.Descriptor.ImageResources)
                 {
-                    imageResources[img.Key] = $"/dashboards/{dashboardFolder}/{img.Value.Path}";
+                    imageResources[GetDashboardImageCacheKey(id, img.Key)] =
+                        $"/dashboards/{dashboardFolder}/{img.Value.Path}";
                 }
                 
                 // Image directories
                 foreach (var imgDir in dashboard.Descriptor.ImageResourcesInDirectory)
                 {
                     if (imgDir.Value == null) continue;
-                    
+
                     var dirPath = Path.Combine(dashboard.Descriptor.Path, imgDir.Value.Path);
                     if (!Directory.Exists(dirPath)) continue;
-                    
+
                     foreach (var file in Directory.GetFiles(dirPath))
                     {
                         var ext = Path.GetExtension(file).ToLower();
@@ -257,7 +343,8 @@ public class WebDashboardServer : IDisposable
                             var fileName = Path.GetFileNameWithoutExtension(file);
                             var key = $"{imgDir.Key}@{fileName}";
                             var relativePath = Path.GetRelativePath(dashboard.Descriptor.Path, file).Replace('\\', '/');
-                            imageResources[key] = $"/dashboards/{dashboardFolder}/{relativePath}";
+                            imageResources[GetDashboardImageCacheKey(id, key)] =
+                                $"/dashboards/{dashboardFolder}/{relativePath}";
                         }
                     }
                 }
@@ -305,13 +392,53 @@ public class WebDashboardServer : IDisposable
             throw;
         }
     }
+
+    private DashboardOutputTarget ResolveOutputTarget(Dashboard dashboard)
+    {
+        var outputTarget = _dashboardOutputTargetResolver(dashboard);
+        return outputTarget.IsValid()
+            ? outputTarget
+            : dashboard.Descriptor.IsEnabled
+                ? DashboardOutputTarget.Both
+                : DashboardOutputTarget.None;
+    }
+
+    private static string GetOutputTargetName(DashboardOutputTarget outputTarget)
+    {
+        return outputTarget switch
+        {
+            DashboardOutputTarget.Overlay => "overlay",
+            DashboardOutputTarget.Web => "web",
+            DashboardOutputTarget.Both => "both",
+            _ => "off"
+        };
+    }
+
+    private static void DisableWebDashboardClientCaching(StaticFileResponseContext context)
+    {
+        DisableWebDashboardClientCaching(context.Context.Response);
+    }
+
+    private static void DisableWebDashboardClientCaching(HttpResponse response)
+    {
+        // The dashboard client changes with the desktop application, so always
+        // fetch its static assets and dynamic dashboard metadata on an ordinary refresh.
+        response.Headers["Cache-Control"] = "no-store, no-cache, max-age=0, must-revalidate";
+        response.Headers["Pragma"] = "no-cache";
+        response.Headers["Expires"] = "0";
+    }
     
     /// <summary>
     /// Handle WebSocket connection for real-time data streaming
     /// </summary>
     private async Task HandleWebSocket(HttpContext context)
     {
-        var ws = await context.WebSockets.AcceptWebSocketAsync();
+        var ws = await context.WebSockets.AcceptWebSocketAsync(new WebSocketAcceptContext
+        {
+            // Dashboard frames are repetitive telemetry commands and contain no
+            // authentication secrets, so per-message compression is appropriate.
+            DangerousEnableCompression = true
+        });
         
         lock (_clientsLock)
         {
@@ -356,16 +483,18 @@ public class WebDashboardServer : IDisposable
     /// </summary>
     public async Task BroadcastGameData(GameData data, GameContext context, List<DrawingCommand> commands = null)
     {
-        if (_connectedClients.Count == 0) return;
+        if (ClientCount == 0) return;
         
         // If we have drawing commands, send them instead of just game data
         if (commands != null && commands.Count > 0)
         {
-            var commandsJson = JsonConvert.SerializeObject(new
-            {
-                type = "drawCommands",
-                commands = commands
-            });
+            var commandsJson = JsonConvert.SerializeObject(
+                new
+                {
+                    type = "drawCommands",
+                    commands = commands
+                },
+                _webDashboardJsonSettings);
             
             var commandsBytes = Encoding.UTF8.GetBytes(commandsJson);
             var commandsSegment = new ArraySegment<byte>(commandsBytes);
@@ -375,85 +504,87 @@ public class WebDashboardServer : IDisposable
         }
         
         // Fallback: send game data only (legacy support)
-        var json = JsonConvert.SerializeObject(new
-        {
-            type = "gameData",
-            data = new
+        var json = JsonConvert.SerializeObject(
+            new
             {
-                // Telemetry data
-                Time = data.Time,
-                LapTime = data.LapTime,
-                LapDistance = data.LapDistance,
-                CompletionRate = data.CompletionRate,
-                Speed = data.Speed,
-                TrackLength = data.TrackLength,
-                
-                // Wheel speeds
-                SpeedRearLeft = data.SpeedRearLeft,
-                SpeedRearRight = data.SpeedRearRight,
-                SpeedFrontLeft = data.SpeedFrontLeft,
-                SpeedFrontRight = data.SpeedFrontRight,
-                
-                // Controls
-                Clutch = data.Clutch,
-                Brake = data.Brake,
-                Throttle = data.Throttle,
-                HandBrake = data.HandBrake,
-                HandBrakeValid = data.HandBrakeValid,
-                Steering = data.Steering,
-                
-                // Engine
-                Gear = data.Gear,
-                MaxGears = data.MaxGears,
-                RPM = data.RPM,
-                MaxRPM = data.MaxRPM,
-                IdleRPM = data.IdleRPM,
-                ShiftLightsFraction = data.ShiftLightsFraction,
-                ShiftLightsRPMStart = data.ShiftLightsRPMStart,
-                ShiftLightsRPMEnd = data.ShiftLightsRPMEnd,
-                ShiftLightsRPMValid = data.ShiftLightsRPMValid,
-                
-                // Forces
-                G_long = data.G_long,
-                G_lat = data.G_lat,
-                
-                // Temperatures
-                BrakeTempRearLeft = data.BrakeTempRearLeft,
-                BrakeTempRearRight = data.BrakeTempRearRight,
-                BrakeTempFrontLeft = data.BrakeTempFrontLeft,
-                BrakeTempFrontRight = data.BrakeTempFrontRight,
-                
-                // Suspension
-                SuspensionRearLeft = data.SuspensionRearLeft,
-                SuspensionRearRight = data.SuspensionRearRight,
-                SuspensionFrontLeft = data.SuspensionFrontLeft,
-                SuspensionFrontRight = data.SuspensionFrontRight,
-                SuspensionSpeedRearLeft = data.SuspensionSpeedRearLeft,
-                SuspensionSpeedRearRight = data.SuspensionSpeedRearRight,
-                SuspensionSpeedFrontLeft = data.SuspensionSpeedFrontLeft,
-                SuspensionSpeedFrontRight = data.SuspensionSpeedFrontRight,
-                
-                // Position
-                CarPos = data.CarPos,
-                PosX = data.PosX,
-                PosY = data.PosY,
-                PosZ = data.PosZ
+                type = "gameData",
+                data = new
+                {
+                    // Telemetry data
+                    Time = data.Time,
+                    LapTime = data.LapTime,
+                    LapDistance = data.LapDistance,
+                    CompletionRate = data.CompletionRate,
+                    Speed = data.Speed,
+                    TrackLength = data.TrackLength,
+
+                    // Wheel speeds
+                    SpeedRearLeft = data.SpeedRearLeft,
+                    SpeedRearRight = data.SpeedRearRight,
+                    SpeedFrontLeft = data.SpeedFrontLeft,
+                    SpeedFrontRight = data.SpeedFrontRight,
+
+                    // Controls
+                    Clutch = data.Clutch,
+                    Brake = data.Brake,
+                    Throttle = data.Throttle,
+                    HandBrake = data.HandBrake,
+                    HandBrakeValid = data.HandBrakeValid,
+                    Steering = data.Steering,
+
+                    // Engine
+                    Gear = data.Gear,
+                    MaxGears = data.MaxGears,
+                    RPM = data.RPM,
+                    MaxRPM = data.MaxRPM,
+                    IdleRPM = data.IdleRPM,
+                    ShiftLightsFraction = data.ShiftLightsFraction,
+                    ShiftLightsRPMStart = data.ShiftLightsRPMStart,
+                    ShiftLightsRPMEnd = data.ShiftLightsRPMEnd,
+                    ShiftLightsRPMValid = data.ShiftLightsRPMValid,
+
+                    // Forces
+                    G_long = data.G_long,
+                    G_lat = data.G_lat,
+
+                    // Temperatures
+                    BrakeTempRearLeft = data.BrakeTempRearLeft,
+                    BrakeTempRearRight = data.BrakeTempRearRight,
+                    BrakeTempFrontLeft = data.BrakeTempFrontLeft,
+                    BrakeTempFrontRight = data.BrakeTempFrontRight,
+
+                    // Suspension
+                    SuspensionRearLeft = data.SuspensionRearLeft,
+                    SuspensionRearRight = data.SuspensionRearRight,
+                    SuspensionFrontLeft = data.SuspensionFrontLeft,
+                    SuspensionFrontRight = data.SuspensionFrontRight,
+                    SuspensionSpeedRearLeft = data.SuspensionSpeedRearLeft,
+                    SuspensionSpeedRearRight = data.SuspensionSpeedRearRight,
+                    SuspensionSpeedFrontLeft = data.SuspensionSpeedFrontLeft,
+                    SuspensionSpeedFrontRight = data.SuspensionSpeedFrontRight,
+
+                    // Position
+                    CarPos = data.CarPos,
+                    PosX = data.PosX,
+                    PosY = data.PosY,
+                    PosZ = data.PosZ
+                },
+                context = new
+                {
+                    // Only serialize data properties, not delegates/functions
+                    TrackName = context.TrackName,
+                    AudioPackage = context.AudioPackage,
+                    ScriptAuthor = context.ScriptAuthor,
+                    PacenoteType = context.PacenoteType,
+                    CarName = context.CarName,
+                    CarClass = context.CarClass,
+                    LocalReplayValid = context.LocalReplayValid,
+                    LastGameState = context.LastGameState,
+                    GameState = context.GameState,
+                    GameStateChangedParameters = context.GameStateChangedParameters
+                }
             },
-            context = new
-            {
-                // Only serialize data properties, not delegates/functions
-                TrackName = context.TrackName,
-                AudioPackage = context.AudioPackage,
-                ScriptAuthor = context.ScriptAuthor,
-                PacenoteType = context.PacenoteType,
-                CarName = context.CarName,
-                CarClass = context.CarClass,
-                LocalReplayValid = context.LocalReplayValid,
-                LastGameState = context.LastGameState,
-                GameState = context.GameState,
-                GameStateChangedParameters = context.GameStateChangedParameters
-            }
-        });
+            _webDashboardJsonSettings);
         
         var bytes = Encoding.UTF8.GetBytes(json);
         var segment = new ArraySegment<byte>(bytes);
@@ -466,7 +597,6 @@ public class WebDashboardServer : IDisposable
     /// </summary>
     private async Task SendToAllClients(ArraySegment<byte> segment)
     {
-        List<WebSocket> clientsToRemove = new();
         List<WebSocket> clientsToSend;
         
         // Copy clients list inside lock
@@ -475,25 +605,14 @@ public class WebDashboardServer : IDisposable
             clientsToSend = new List<WebSocket>(_connectedClients);
         }
         
-        // Send messages outside of lock
-        foreach (var client in clientsToSend)
-        {
-            if (client.State == WebSocketState.Open)
-            {
-                try
-                {
-                    await client.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
-                }
-                catch
-                {
-                    clientsToRemove.Add(client);
-                }
-            }
-            else
-            {
-                clientsToRemove.Add(client);
-            }
-        }
+        // Independent clients send in parallel so a slow device does not hold
+        // up every other dashboard viewer.
+        var sendTasks = clientsToSend
+            .Select(client => SendToClientAsync(client, segment))
+            .ToArray();
+        var clientsToRemove = (await Task.WhenAll(sendTasks))
+            .Where(client => client != null)
+            .ToList();
         
         // Remove failed clients inside lock
         if (clientsToRemove.Count > 0)
@@ -505,6 +624,26 @@ public class WebDashboardServer : IDisposable
                     _connectedClients.Remove(client);
                 }
             }
+        }
+    }
+
+    private static async Task<WebSocket> SendToClientAsync(
+        WebSocket client,
+        ArraySegment<byte> segment)
+    {
+        if (client.State != WebSocketState.Open)
+        {
+            return client;
+        }
+
+        try
+        {
+            await client.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
+            return null;
+        }
+        catch
+        {
+            return client;
         }
     }
     

@@ -23,6 +23,7 @@
     "export": "导出",
     "play": "播放",
     "delete": "删除",
+    "overlayHudTitle": "Overlay HUD",
 
     "btn_reset": "Restore to default",
 
@@ -42,7 +43,7 @@
       "tooltip": {
         "voicePackage": "CoDrivers Audio Package Settings, including play start/end sound, collision sound, wheel puncture sound, etc.",
         "replay": "Replay Settings, including replay save, replay limits, OBS settings, etc."
-      },
+      }
     },
 
     "restartNeeded": "Need to restart the tool to take effect",
@@ -116,12 +117,20 @@
       "webDashboardTitle": "Web Dashboard",
       "webDashboardSubtitle": "Access dashboards from mobile devices",
       "webDashboardPortLabel": "Port:",
+      "webDashboardFrameRateLabel": "FPS:",
+      "webDashboardFrameRate": "Maximum Web Dashboard frame rate (5-60 FPS, applies immediately)",
       "webDashboardOpen": "Open dashboard in browser",
       "webDashboardAvailableAddresses": "Available dashboard addresses:",
       "webDashboardStatusRunning": "Server is running",
       "webDashboardStatusStopped": "Server is stopped",
       "webDashboardStatusPortUnavailable": "This port is unavailable. Choose another port.",
       "webDashboardStatusError": "Server could not start: {0}",
+      "overlayHudEnabled": "Show the native dashboard over the game window. This does not start or stop the Web Dashboard.",
+      "webDashboardHomeStatus": "Web Dashboard is independent of the Overlay HUD switch. Open HUD settings to configure it.",
+      "webDashboardHomeStatusRunning": "Web Dashboard: Running",
+      "webDashboardHomeStatusStopped": "Web Dashboard: Off",
+      "webDashboardHomeStatusPortUnavailable": "Web Dashboard: Port unavailable",
+      "webDashboardHomeStatusError": "Web Dashboard: Error",
       
       "enableOnlineAnalytics": "Use Google Analytics/Azure AppInsights to collect some of your \"usage information\" to help us improve \nthe program. All of this information is sent to Google/Microsoft servers in an anonymous form for statistical use. \nYou can allow or prohibit this in the settings at any time. This information includes and is limited to:\n\t- Application crash/exception (for bug fixing)\n\t- Operating system version\n\t- Opening this program event\n\t- Opening each window event in this program\n\t- Each configuration item modification event\n \t- The modification event of the main interface configuration item\n\t- The event of using a specific voice package to play the game (to stat the voice package preference)",
       "optInBetaPlan": "Turn on this option to recieve updates and new features in the beta version",
@@ -165,7 +174,7 @@
       "replayLock": "Click to lock the replay to prevent the replay from being automatically deleted",
       "replayUnlock": "Click to unlock the replay to allow the replay to be automatically deleted",
       "replayLocked": "This replay is locked, will not be automatically deleted",
-      "replayUnlocked": "This replay is unlocked, will be automatically deleted if there is new best record in the future",
+      "replayUnlocked": "This replay is unlocked, will be automatically deleted if there is new best record in the future"
     },
 
     "autoInitializeGame_on": "Auto Game Selection",
@@ -289,7 +298,7 @@
     "replayShowBestReplay": "Show Best Replay Comparison",
     "replayShowDiagrams": "Show Statistical Diagrams",
     "replayCleanUpAbnormalVideo": "Clean up abnormal video files",
-    "replayLock": "Lock this replay",
+    "replayLock": "Lock this replay"
   },
 
   "dialog": {
@@ -348,7 +357,7 @@
     "closePrompt": {
       "dontShowAgain": "Don't show this dialog next time",
       "ok": "OK",
-      "cancel": "Cancel",
+      "cancel": "Cancel"
     },
     "voicePkgExist": {
       "title": "Voice Package Exists",
@@ -501,7 +510,7 @@
       "closeBehavior": "Close behavior when clicking the window's close button",
       "closeToMinimize": "Minimize the tool when the window close button is clicked",
       "closeToExit": "Exit the tool when the window close button is clicked",
-      "tb_currentTrack": "Current Track",
+      "tb_currentTrack": "Current Track"
     }
   },
   "misc": {
@@ -513,7 +522,7 @@
     "installing": "Installing...",
     "update": "Update",
     "export": "Export",
-    "import": "Import",
+    "import": "Import"
   },
   "exception": {
     "portAlreadyInUse": {
@@ -586,14 +595,14 @@
       "vrSupport": "VR Support",
       "initialIdea": "Initial Idea",
       "ideaProvider": "Idea Provider",
-      "tester": "Tester",
+      "tester": "Tester"
     },
     "club": "Club",
     "club_staff": {
       "clubLeader": "Club Leader",
       "eventOrganizer": "Event Organizer",
       "toolOrganizer": "Tool making Organizer",
-      "specialGuest": "Special Guest",
+      "specialGuest": "Special Guest"
     },
     "audioPkg": "Audio Package",
     "script": "Pacenote Script",
@@ -637,6 +646,6 @@
     "suspension_speed_front_left": "Suspension Speed FL",
     "suspension_speed_front_right": "Suspension Speed FR",
     "suspension_speed_rear_left": "Suspension Speed RL",
-    "suspension_speed_rear_right": "Suspension Speed RR",
+    "suspension_speed_rear_right": "Suspension Speed RR"
   }
 }

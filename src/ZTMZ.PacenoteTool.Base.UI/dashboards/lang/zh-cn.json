@@ -28,6 +28,11 @@
         },
         "settings": {
             "enabled": "启用",
+            "outputTarget": "显示位置",
+            "outputTargetOff": "关闭",
+            "outputTargetOverlay": "悬浮窗",
+            "outputTargetWeb": "网页",
+            "outputTargetBoth": "悬浮窗和网页",
             "positionH": "水平位置",
             "positionV": "垂直位置",
             "top": "顶部",
@@ -60,6 +65,11 @@
 
             "tooltip": {
                 "enabled": "启用/禁用仪表盘",
+                "outputTarget": "选择此仪表盘的显示位置。游戏悬浮窗和网页仪表盘开关仍是全局总开关。",
+                "outputTargetOff": "不显示此仪表盘",
+                "outputTargetOverlay": "仅在原生悬浮窗和独立预览窗口显示",
+                "outputTargetWeb": "仅在网页仪表盘显示",
+                "outputTargetBoth": "同时在原生悬浮窗和网页仪表盘显示",
                 "positionH": "仪表盘水平位置",
                 "positionV": "仪表盘垂直位置",
                 "size": "仪表盘大小",

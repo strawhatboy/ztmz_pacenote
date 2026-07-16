@@ -18,6 +18,7 @@ using VRGameOverlay.VROverlayWindow;
 using System.CodeDom;
 using Wpf.Ui.Extensions;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
+using System.Windows.Media;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -89,6 +90,48 @@ public partial class HomePageVM : ObservableObject {
     {
         Config.Instance.UI_ShowHud = value;
         Config.Instance.SaveUserConfig();
+    }
+
+    [ObservableProperty]
+    private string _webDashboardHomeStatus = string.Empty;
+
+    [ObservableProperty]
+    private Brush _webDashboardHomeStatusBrush = Brushes.Gray;
+
+    private void RefreshWebDashboardHomeStatus()
+    {
+        var status = _gameOverlayManager.WebDashboardStatus;
+        if (!Config.Instance.WebDashboardEnabled)
+        {
+            WebDashboardHomeStatus = I18NLoader.Instance["settings.tooltip.webDashboardHomeStatusStopped"];
+            WebDashboardHomeStatusBrush = Brushes.Gray;
+            return;
+        }
+
+        WebDashboardHomeStatusBrush = status.State switch
+        {
+            WebDashboardServerState.Running => Brushes.ForestGreen,
+            WebDashboardServerState.PortUnavailable or WebDashboardServerState.Error => Brushes.IndianRed,
+            _ => Brushes.Gray
+        };
+        WebDashboardHomeStatus = status.State switch
+        {
+            WebDashboardServerState.Running => I18NLoader.Instance["settings.tooltip.webDashboardHomeStatusRunning"],
+            WebDashboardServerState.PortUnavailable => I18NLoader.Instance["settings.tooltip.webDashboardHomeStatusPortUnavailable"],
+            WebDashboardServerState.Error => I18NLoader.Instance["settings.tooltip.webDashboardHomeStatusError"],
+            _ => I18NLoader.Instance["settings.tooltip.webDashboardHomeStatusStopped"]
+        };
+    }
+
+    private void RefreshWebDashboardHomeStatusOnUiThread()
+    {
+        if (Application.Current?.Dispatcher == null || Application.Current.Dispatcher.CheckAccess())
+        {
+            RefreshWebDashboardHomeStatus();
+            return;
+        }
+
+        Application.Current.Dispatcher.BeginInvoke(RefreshWebDashboardHomeStatus);
     }
 
     #region QuickSettings
@@ -204,6 +247,8 @@ public partial class HomePageVM : ObservableObject {
         _updateConfigSetter = updateConfigSetter;
         var contentDialogService = serviceProvider.GetService(typeof(IContentDialogService)) as IContentDialogService;
         Tool = _tool;
+        _gameOverlayManager.OnWebDashboardStatusChanged += _ => RefreshWebDashboardHomeStatusOnUiThread();
+        RefreshWebDashboardHomeStatus();
         _tool.onGameStarted += (game, p) => {
             if (!Config.Instance.AutoInitializeGame && SelectedGame.Game != game) {
                 _logger.Info("Game started. in Home Page. AutoInitializeGame is false. Do nothing because current selected game is not the started game.");
@@ -537,6 +582,7 @@ public partial class HomePageVM : ObservableObject {
             }
 
             Config.Instance.SaveGameConfig(game);
+            RefreshGameSettingsFromConfiguration(game);
             _logger.Info("Configured game {0} to use safe UDP port {1}.", game.Name, safePort);
             IsGameInitializeInProgress = true;
             IsGameRunning = await Tool.SetGame(game);
@@ -553,6 +599,19 @@ public partial class HomePageVM : ObservableObject {
                 CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
             }.ShowDialogAsync();
             return null;
+        }
+    }
+
+    private void RefreshGameSettingsFromConfiguration(IGame game)
+    {
+        if (!_gameConfigSettingsPanes.TryGetValue(game, out var panes))
+        {
+            return;
+        }
+
+        foreach (var pane in panes.OfType<IGameConfigSettingsPane>())
+        {
+            pane.RefreshFromConfiguration();
         }
     }
 

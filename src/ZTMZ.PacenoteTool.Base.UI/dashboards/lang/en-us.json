@@ -28,6 +28,11 @@
         },
         "settings": {
             "enabled": "Enabled",
+            "outputTarget": "Display target",
+            "outputTargetOff": "Off",
+            "outputTargetOverlay": "Overlay",
+            "outputTargetWeb": "Web",
+            "outputTargetBoth": "Overlay and Web",
             "positionH": "Horizontal position",
             "positionV": "Vertical position",
             "top": "Top",
@@ -60,6 +65,11 @@
 
             "tooltip": {
                 "enabled": "Enable or disable the dashboard",
+                "outputTarget": "Choose where this dashboard is rendered. The Overlay HUD and Web Dashboard switches remain the global masters.",
+                "outputTargetOff": "Do not render this dashboard",
+                "outputTargetOverlay": "Render only in the native overlay and separate preview window",
+                "outputTargetWeb": "Render only in the Web Dashboard",
+                "outputTargetBoth": "Render in both the native overlay and Web Dashboard",
                 "positionH": "Horizontal position of the dashboard",
                 "positionV": "Vertical position of the dashboard",
                 "size": "Size of the dashboard, relative to the screen size",
