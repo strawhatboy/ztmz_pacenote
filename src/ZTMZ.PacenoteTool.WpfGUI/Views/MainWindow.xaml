@@ -44,7 +44,7 @@
                 <ui:ImageIcon Source="pack://application:,,,/Assets/app.ico" />
             </ui:TitleBar.Icon>
             <ui:TitleBar.TrailingContent>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
                     <ui:Button Icon="{ui:SymbolIcon ChatHelp20}" Command="{Binding ViewModel.ShowHelpCommand}"      ToolTip="{DynamicResource ResourceKey=ui.tb_qanda}" FontSize="16"
                     SnapsToDevicePixels="True"
                     Background="Transparent"
