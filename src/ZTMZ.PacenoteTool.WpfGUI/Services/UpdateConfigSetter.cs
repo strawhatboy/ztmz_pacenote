@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Dapper;
-using Microsoft.Data.Sqlite;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Core;
@@ -90,108 +88,17 @@ public class UpdateConfigSetter
         });
 
         this._configSetters.Add(new Version("2.99.99.33"), tool => {
-            // alter replay tables to include the new columns
-            // locate replay databases 
             Config.Instance.ReplaySaveWithoutInterval = true;
+            Config.Instance.ReplaySaveInterval = Config.Instance.ReplaySaveInterval;
+            Config.Instance.ReplaySaveGranularity = Config.Instance.ReplaySaveGranularity;
             Config.Instance.SaveUserConfig();
-            for (int i = 0; i < tool.Games.Count; i++) {
-                var game = tool.Games[i];
-                var replayDbPath = AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, $"{game.Name}{Constants.FILEEXT_REPLAYS}"));
-                if (File.Exists(replayDbPath)) {
-                    // alter tables
-                    using (var connection = new SqliteConnection($"Data Source={replayDbPath}")) {
-                        connection.Open();
-                        using (var command = connection.CreateCommand()) {
-                            try {
-                                // alter replay table
-                                var sql = @"-- new columns
-ALTER TABLE replay ADD COLUMN track_length REAL NOT NULL DEFAULT 0;
-ALTER TABLE replay ADD COLUMN locked INTEGER NOT NULL DEFAULT 0;
-ALTER TABLE replay ADD COLUMN comment TEXT DEFAULT NULL;
-ALTER TABLE replay ADD COLUMN video_path TEXT DEFAULT NULL;";
-                                command.CommandText = sql;
-                                command.ExecuteNonQuery();
-
-                                // alter replay_details_per_time table
-                                sql = @"-- new columns
-ALTER TABLE replay_details_per_time ADD COLUMN timestamp INTEGER NOT NULL DEFAULT 0;
-ALTER TABLE replay_details_per_time ADD COLUMN completion_rate REAL NOT NULL DEFAULT 0;
-ALTER TABLE replay_details_per_time ADD COLUMN speed REAL NOT NULL DEFAULT 0;
-ALTER TABLE replay_details_per_time ADD COLUMN clutch REAL NOT NULL DEFAULT 0;
-ALTER TABLE replay_details_per_time ADD COLUMN brake REAL NOT NULL DEFAULT 0;
-ALTER TABLE replay_details_per_time ADD COLUMN throttle REAL NOT NULL DEFAULT 0;
-ALTER TABLE replay_details_per_time ADD COLUMN handbrake REAL NOT NULL DEFAULT 0;
-ALTER TABLE replay_details_per_time ADD COLUMN steering REAL NOT NULL DEFAULT 0;
-ALTER TABLE replay_details_per_time ADD COLUMN gear REAL NOT NULL DEFAULT 0;
-ALTER TABLE replay_details_per_time ADD COLUMN max_gears REAL NOT NULL DEFAULT 0;
-ALTER TABLE replay_details_per_time ADD COLUMN rpm REAL NOT NULL DEFAULT 0;
-ALTER TABLE replay_details_per_time ADD COLUMN max_rpm REAL NOT NULL DEFAULT 0;
-ALTER TABLE replay_details_per_time ADD COLUMN pos_x REAL NOT NULL DEFAULT 0;
-ALTER TABLE replay_details_per_time ADD COLUMN pos_y REAL NOT NULL DEFAULT 0;
-ALTER TABLE replay_details_per_time ADD COLUMN pos_z REAL NOT NULL DEFAULT 0;";
-                                command.CommandText = sql;
-                                command.ExecuteNonQuery();
-                            } catch (SqliteException ex) {
-                                _logger.Error(ex, "Failed to alter tables with new columns defined in 2.99.99.33 for {0}", game.Name);
-                            }
-                        }
-                    }
-                }
-            }
         });
 
         this._configSetters.Add(new Version("2.99.99.34"), tool => {
             Config.Instance.ReplaySaveWithoutInterval = false;  // for the performance
+            Config.Instance.ReplaySaveInterval = Config.Instance.ReplaySaveInterval;
+            Config.Instance.ReplaySaveGranularity = Config.Instance.ReplaySaveGranularity;
             Config.Instance.SaveUserConfig();
-            // move the replay database to the new location? damn
-            Dictionary<string, Dictionary<int, List<ReplayDetailsPerTime>>> replayDetailsPerTimesPerGame = new();
-            Dictionary<string, Dictionary<int, List<ReplayDetailsPerCheckpoint>>> replayDetailsPerCheckpointsPerGame = new();
-            Dictionary<string, List<Replay>> replaysPerGame = new();
-            for (int i = 0; i < tool.Games.Count; i++) {
-                Dictionary<int, List<ReplayDetailsPerTime>> replayDetailsPerTimes = new();
-                Dictionary<int, List<ReplayDetailsPerCheckpoint>> replayDetailsPerCheckpoints = new();
-                List<Replay> replays = new();
-                var game = tool.Games[i];
-                var replayDbPath = AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, $"{game.Name}{Constants.FILEEXT_REPLAYS}"));
-                if (File.Exists(replayDbPath)) {
-                    // read all data from the old database
-                    using (var connection = new SqliteConnection($"Data Source={replayDbPath}")) {
-                        // read replays
-                        connection.Open();
-                        connection.QueryAsync<Replay>("SELECT * FROM replay").Result.ToList().ForEach(a => replays.Add(a));
-
-                        // read replay details per time
-                        connection.QueryAsync<ReplayDetailsPerTime>("SELECT * FROM replay_details_per_time").Result.ToList().ForEach(a => {
-                            if (!replayDetailsPerTimes.ContainsKey(a.id)) {
-                                replayDetailsPerTimes.Add(a.id, new List<ReplayDetailsPerTime>());
-                            }
-                            replayDetailsPerTimes[a.id].Add(a);
-                        });
-
-                        // read replay details per checkpoint
-                        connection.QueryAsync<ReplayDetailsPerCheckpoint>("SELECT * FROM replay_details_per_checkpoint").Result.ToList().ForEach(a => {
-                            if (!replayDetailsPerCheckpoints.ContainsKey(a.id)) {
-                                replayDetailsPerCheckpoints.Add(a.id, new List<ReplayDetailsPerCheckpoint>());
-                            }
-                            replayDetailsPerCheckpoints[a.id].Add(a);
-                        });
-                    }
-                }
-                replayDetailsPerTimesPerGame.Add(game.Name, replayDetailsPerTimes);
-                replayDetailsPerCheckpointsPerGame.Add(game.Name, replayDetailsPerCheckpoints);
-                replaysPerGame.Add(game.Name, replays);
-            }
-
-            // write to the new database
-            for (int i = 0; i < tool.Games.Count; i++) {
-                var game = tool.Games[i];
-                for (int j = 0; j < replaysPerGame[game.Name].Count; j++) {
-                    var replay = replaysPerGame[game.Name][j];
-                    var replayDetailsPerTimes = replayDetailsPerTimesPerGame[game.Name][replay.id];
-                    var replayDetailsPerCheckpoints = replayDetailsPerCheckpointsPerGame[game.Name][replay.id];
-                    ReplayManager.Instance.saveReplay(game, replay, replayDetailsPerTimes, replayDetailsPerCheckpoints).Wait();
-                }
-            }
         });
     }
 

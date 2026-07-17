@@ -1,6 +1,7 @@
 v2.99.99.38-3.0-rc11
 ------
 [English]
+* Hardened replay saving, legacy replay import, playback, export, and dashboard comparison. Legacy per-game replay databases are preserved, incomplete records remain visible but unavailable, and replay timing now stays available for dashboards even when replay persistence is disabled.
 * Fixed native dashboard overlays sometimes falling behind a focused game window.
 * Improved Web Dashboard setup with confirmed server status, usable local-network addresses, the real configured URL, and a browser-open action.
 * Added large touch controls to the Web Dashboard for fullscreen and portrait/landscape layout; the controls fade away after inactivity.
@@ -17,6 +18,9 @@ v2.99.99.38-3.0-rc11
 * Restored functional system-tray controls, including reliable Show and Exit actions.
 * Refined the Home-page game selector, status lighting, and title-bar action alignment.
 * Matched Web Dashboard text output more closely to native overlays: preserve bold and italic styles, load matching WRC font faces, and use DirectWrite layout metrics for baselines and placement.
+
+[简体中文]
+* 加固回放保存、旧版回放导入、回放播放、导出和仪表盘对比逻辑。旧版单游戏回放数据库会保留不变，不完整记录会继续显示但标记为不可用，即使关闭回放持久化，仪表盘也会保留当前赛段计时用于对比。
 
 [简体中文]
 * 新增“恶作剧：随机漏报路书”设置，可按设定百分比随机跳过普通路书语音；默认 0%，不影响试听和系统提示音。

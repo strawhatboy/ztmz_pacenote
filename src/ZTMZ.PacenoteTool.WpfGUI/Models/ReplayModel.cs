@@ -28,6 +28,8 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Models
 
         [ObservableProperty]
         private bool _locked;
+
+        [ObservableProperty]
+        private bool _available = true;
     }
 }
-

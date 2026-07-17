@@ -40,7 +40,14 @@ public partial class ReplaySettingsPageVM : ObservableObject, INavigationAware
     private int _replaySaveInterval = Config.Instance.ReplaySaveInterval;
     partial void OnReplaySaveIntervalChanged(int value)
     {
-        Config.Instance.ReplaySaveInterval = value;
+        var normalized = Math.Max(1, value);
+        if (normalized != value)
+        {
+            ReplaySaveInterval = normalized;
+            return;
+        }
+
+        Config.Instance.ReplaySaveInterval = normalized;
         Config.Instance.SaveUserConfig();
     }
 

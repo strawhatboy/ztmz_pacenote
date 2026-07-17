@@ -20,8 +20,10 @@ public class GameContext {
     public string CarClass { set; get; } = "";
     public bool LocalReplayValid { set; get; } = false;
     public List<ReplayDetailsPerCheckpoint> LocalReplayDetailsPerCheckpoints { set; get; } = new();
+    public List<ReplayDetailsPerTime> LocalReplayDetailsPerTimes { set; get; } = new();
     public Dictionary<float, float> LocalReplayDetailsPerTimesDict { set; get; } = new();
     public Replay LocalReplay { set; get; } = new();
+    public float LocalReplayFinishTime { set; get; }
 
     /// <summary>
     /// Get the delta time between the current time and the given distance
@@ -31,6 +33,7 @@ public class GameContext {
     public Func<int, float> GetDeltaByCheckpoint { set; get; } = (int checkpoint) => 0;
     public Func<float, float> GetTimeByDistance { set; get; } = (float distance) => 0;
     public Func<float, float> GetBestTimeByDistance { set; get; } = (float distance) => 0;
+    public Func<float, float> GetBestDistanceByTime { set; get; } = (float time) => 0;
     public int LastGameState { set; get; }
     public int GameState { set; get; }
     public Dictionary<string, object> GameStateChangedParameters { set; get; } = new();

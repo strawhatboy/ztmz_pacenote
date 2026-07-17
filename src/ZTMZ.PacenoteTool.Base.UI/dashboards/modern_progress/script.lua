@@ -131,20 +131,8 @@ function onUpdate(args)
         -- local best replay cursor
         -- find the local best replay completion rate based on current data.LapTime
         -- print("will find local best replay completion rate based on current data.LapTime: " .. data.LapTime);
-        local keys = ctx.LocalReplayDetailsPerTimesDict.Keys:ToList();
-        local values = ctx.LocalReplayDetailsPerTimesDict.Values:ToList();
-        -- print("got keys and values")
-        local index = keys.BinarySearch(data.LapTime);
-        index = index >= 0 and index or -index - 1;
-        -- print("index: " .. index);
-        if index > 0 then
-            local bestDistance = data.TrackLength;
-            if index >= values.Count then
-                -- print("WTF out of range.")
-            else
-                bestDistance = values:ElementAt(index);
-            end
-            -- print("local best replay completion rate: " .. bestDistance / data.TrackLength);
+        local bestDistance = ctx.GetBestDistanceByTime:Invoke(data.LapTime);
+        if bestDistance > 0 and data.TrackLength > 0 then
             localBestReplayCompletionRate = bestDistance / data.TrackLength;
             bestProgressEndX = telemetryStartX + width * localBestReplayCompletionRate;
             bestProgressEndY = telemetryEndY;

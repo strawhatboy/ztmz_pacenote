@@ -496,12 +496,17 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayValid = res;
             _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplay = _tool.BestLocalReplay;
             _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayDetailsPerCheckpoints = _tool.BestLocalReplayDetailsPerCheckpoints;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayDetailsPerTimesDict = _tool.BestLocalReplayDetailsPerTimes.ToDictionary(x => x.time, x => x.distance);
+            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayDetailsPerTimes = _tool.BestLocalReplayDetailsPerTimes;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayDetailsPerTimesDict = _tool.BestLocalReplayDetailsPerTimes
+                .GroupBy(x => x.time)
+                .ToDictionary(x => x.Key, x => x.First().distance);
+            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayFinishTime = _tool.BestLocalReplay?.finish_time ?? 0;
             _gameOverlayManager.DashboardScriptArguments.GameContext.GetDelta = _tool.GetDelta;
             _gameOverlayManager.DashboardScriptArguments.GameContext.GetDeltaByDistanceAndTime = _tool.GetDeltaByDistanceAndTime;
             _gameOverlayManager.DashboardScriptArguments.GameContext.GetDeltaByCheckpoint = _tool.GetDeltaByCheckpoint;
             _gameOverlayManager.DashboardScriptArguments.GameContext.GetTimeByDistance = _tool.GetTimeByDistance;
             _gameOverlayManager.DashboardScriptArguments.GameContext.GetBestTimeByDistance = _tool.GetBestTimeByDistance;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.GetBestDistanceByTime = _tool.GetBestDistanceByTime;
         };
 
         _tool.onNewGameData += (game, data) => {
@@ -673,7 +678,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         IsGameSettingsUnlocked = false;
         Config.Instance.UI_SelectedGame = Games.IndexOf(game);
         Config.Instance.SaveUserConfig();
-        Task.Run(async () => {
+        _ = Task.Run(async () => {
             IsGameInitializeInProgress = true;
             IsGameRunning = await Tool.SetGame(game.Game);
         });

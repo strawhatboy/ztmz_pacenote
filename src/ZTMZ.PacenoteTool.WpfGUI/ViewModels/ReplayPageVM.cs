@@ -51,10 +51,10 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
     {
         // load all replays according to current game
         var replays = await ReplayManager.Instance.getReplays(this.tool.CurrentGame);
-        _replays.Clear();
+        Replays.Clear();
         foreach (var replay in replays)
         {
-            _replays.Add(new ReplayModel{
+            Replays.Add(new ReplayModel{
                 Id = replay.id,
                 Track = replay.track,
                 Car = replay.car,
@@ -63,14 +63,19 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
                 Date = replay.date,
                 Comment = replay.comment,
                 Video_path = replay.video_path,
-                Locked = replay.locked
+                Locked = replay.locked,
+                Available = replay.available
             });
         }
     }
 
     [RelayCommand]
-    private async void ReplayPlay(int id)
+    private async Task ReplayPlay(int id)
     {
+        if (Replays.FirstOrDefault(r => r.Id == id)?.Available != true) {
+            return;
+        }
+
         if (!await checkFFmepg()) {
             return;
         }
@@ -107,16 +112,24 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
     }
 
     [RelayCommand]
-    private async void ReplayExport(int id)
+    private async Task ReplayExport(int id)
     {
+        if (Replays.FirstOrDefault(r => r.Id == id)?.Available != true) {
+            return;
+        }
+
         var folder = await getExportFolder();
         if (string.IsNullOrEmpty(folder)) {
             return;
         }
-        // export to the foler
-        var game = this.tool.CurrentGame;
-        var replay = await ReplayManager.Instance.getReplay(id);
-        await ReplayManager.Instance.ExportReplay(game, replay, folder);
+
+        try {
+            var game = this.tool.CurrentGame;
+            var replay = await ReplayManager.Instance.getReplay(id);
+            await ReplayManager.Instance.ExportReplay(game, replay, folder);
+        } catch (Exception ex) {
+            await showReplayActionError(ex);
+        }
     }
 
     private async Task<bool> checkFFmepg() {
@@ -135,7 +148,11 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
     }
 
     [RelayCommand]
-    private async void ReplayExportAudio(int id) {
+    private async Task ReplayExportAudio(int id) {
+        if (Replays.FirstOrDefault(r => r.Id == id)?.Available != true) {
+            return;
+        }
+
         if (!await checkFFmepg()) {
             return;
         }
@@ -145,22 +162,54 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
         if (string.IsNullOrEmpty(folder)) {
             return;
         }
-        // export to the foler
-        var game = this.tool.CurrentGame;
-        var replay = await ReplayManager.Instance.getReplay(id);
-        await ReplayManager.Instance.ExportReplayWithAudio(game, replay, folder);
+        try {
+            var game = this.tool.CurrentGame;
+            var replay = await ReplayManager.Instance.getReplay(id);
+            await ReplayManager.Instance.ExportReplayWithAudio(game, replay, folder);
+        } catch (Exception ex) {
+            await showReplayActionError(ex);
+        }
     }
 
     [RelayCommand]
-    private async void ReplayLock(int id)
+    private async Task ReplayLock(int id)
     {
-        this._replays.First(r => r.Id == id).Locked = true;
-        ReplayManager.Instance.LockReplay(id);
+        var replay = this.Replays.FirstOrDefault(r => r.Id == id);
+        if (replay == null) {
+            return;
+        }
+
+        replay.Locked = true;
+        try {
+            await ReplayManager.Instance.LockReplayAsync(id);
+        } catch (Exception ex) {
+            replay.Locked = false;
+            await showReplayActionError(ex);
+        }
     }
     [RelayCommand]
-    private async void ReplayUnlock(int id)
+    private async Task ReplayUnlock(int id)
     {
-        this._replays.First(r => r.Id == id).Locked = false;
-        ReplayManager.Instance.UnlockReplay(id);
+        var replay = this.Replays.FirstOrDefault(r => r.Id == id);
+        if (replay == null) {
+            return;
+        }
+
+        replay.Locked = false;
+        try {
+            await ReplayManager.Instance.UnlockReplayAsync(id);
+        } catch (Exception ex) {
+            replay.Locked = true;
+            await showReplayActionError(ex);
+        }
+    }
+
+    private async Task showReplayActionError(Exception ex) {
+        await new Wpf.Ui.Controls.MessageBox
+        {
+            Title = "Replay action failed",
+            Content = ex.Message,
+            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+        }.ShowDialogAsync();
     }
 }

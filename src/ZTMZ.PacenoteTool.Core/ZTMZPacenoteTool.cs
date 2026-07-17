@@ -88,6 +88,10 @@ public class ZTMZPacenoteTool {
     public Replay BestLocalReplay { set; get; }
     public List<ReplayDetailsPerCheckpoint> BestLocalReplayDetailsPerCheckpoints { set; get; } = new();
     public List<ReplayDetailsPerTime> BestLocalReplayDetailsPerTimes { set; get; } = new();
+    private ReplayTimelineLookup _currentReplayLookup;
+    private int _currentReplayLookupCount = -1;
+    private ReplayTimelineLookup _bestLocalReplayLookup;
+    private int _bestLocalReplayLookupCount = -1;
 
     public Dictionary<string, List<ReplayDetailsPerCheckpoint>> OnlineReplayDetailsPerCheckpoints { set; get; } = new();
     public Dictionary<string, List<ReplayDetailsPerTime>> OnlineReplayDetailsPerTimes { set; get; } = new();
@@ -264,6 +268,11 @@ public class ZTMZPacenoteTool {
 
     private void initializeReplayManager() {
         ReplayManager.Instance.Init();
+        try {
+            ReplayManager.Instance.ImportLegacyReplaysAsync(this.Games).GetAwaiter().GetResult();
+        } catch (Exception ex) {
+            _logger.Error(ex, "Failed to import legacy replay databases.");
+        }
         this.onStatusReport?.Invoke("Replay manager initialized.");
     }
 
@@ -642,6 +651,7 @@ public class ZTMZPacenoteTool {
             distance = 0,
             timestamp = 0,
         });
+        InvalidateCurrentReplayLookup();
 
         Replay replay = await ReplayManager.Instance.GetBestReplay(CurrentGame, this._trackName, this._carClass, this._carName);
         
@@ -649,6 +659,7 @@ public class ZTMZPacenoteTool {
             this.BestLocalReplayDetailsPerCheckpoints = await ReplayManager.Instance.getReplayDetailsPerCheckpoint(replay.id);
             this.BestLocalReplayDetailsPerTimes = await ReplayManager.Instance.getReplayDetailsPerTime(replay.id);
             this.BestLocalReplay = replay;
+            InvalidateBestLocalReplayLookup();
             if (this.BestLocalReplayDetailsPerCheckpoints.Count > 0 && this.BestLocalReplayDetailsPerTimes.Count > 0) {
                 this.onLocalReplayLoaded?.Invoke(true);
                 _logger.Info($"Best local replay loaded for {replay.track} - {replay.car_class}");
@@ -660,9 +671,13 @@ public class ZTMZPacenoteTool {
         this.BestLocalReplay = null;
         this.BestLocalReplayDetailsPerCheckpoints.Clear();
         this.BestLocalReplayDetailsPerTimes.Clear();
+        InvalidateBestLocalReplayLookup();
         this.onLocalReplayLoaded?.Invoke(false);
     }
     private void traceReplay(GameData msg) {
+        if (TraceReplaySample(msg)) {
+            return;
+        }
         
         if (Config.Instance.ReplaySave)
         {
@@ -722,6 +737,82 @@ public class ZTMZPacenoteTool {
         }
     }
 
+    private bool TraceReplaySample(GameData msg) {
+        var replaySaveInterval = Math.Max(1, Config.Instance.ReplaySaveInterval);
+        var replaySaveGranularity = Math.Max(1, Config.Instance.ReplaySaveGranularity);
+
+        var index = (int)(msg.LapTime * 1000) / replaySaveInterval;
+        if (Config.Instance.ReplaySaveWithoutInterval || index >= this.ReplayDetailsPerTimes.Count)
+        {
+            this.ReplayDetailsPerTimes.Add(CreateReplayDetailsPerTime(msg, Config.Instance.ReplaySave));
+            InvalidateCurrentReplayLookup();
+        }
+
+        if (Config.Instance.ReplaySave)
+        {
+            float splitLength = msg.TrackLength / replaySaveGranularity;
+            if (splitLength <= 0) {
+                return true;
+            }
+
+            var checkpointIndex = (int)(msg.LapDistance / splitLength);
+            if (checkpointIndex >= this.ReplayDetailsPerCheckpoints.Count && checkpointIndex < replaySaveGranularity)
+            {
+                this.ReplayDetailsPerCheckpoints.Add(new ReplayDetailsPerCheckpoint()
+                {
+                    checkpoint = checkpointIndex,
+                    time = msg.LapTime,
+                    distance = msg.LapDistance
+                });
+            }
+        }
+
+        return true;
+    }
+
+    private ReplayDetailsPerTime CreateReplayDetailsPerTime(GameData msg, bool includeTelemetry) {
+        var detail = new ReplayDetailsPerTime()
+        {
+            time = msg.LapTime,
+            distance = msg.LapDistance,
+            timestamp = msg.TimeStamp.Ticks
+        };
+
+        if (!includeTelemetry) {
+            return detail;
+        }
+
+        detail.speed = msg.Speed;
+        detail.rpm = msg.RPM;
+        detail.gear = msg.Gear;
+        detail.throttle = msg.Throttle;
+        detail.brake = msg.Brake;
+        detail.clutch = msg.Clutch;
+        detail.handbrake = msg.HandBrake;
+        detail.completion_rate = msg.CompletionRate;
+        detail.steering = msg.Steering;
+        detail.max_gears = msg.MaxGears;
+        detail.max_rpm = msg.MaxRPM;
+        detail.pos_x = msg.PosX;
+        detail.pos_y = msg.PosY;
+        detail.pos_z = msg.PosZ;
+        detail.g_long = msg.G_long;
+        detail.g_lat = msg.G_lat;
+        detail.suspension_rear_left = msg.SuspensionRearLeft;
+        detail.suspension_rear_right = msg.SuspensionRearRight;
+        detail.suspension_front_left = msg.SuspensionFrontLeft;
+        detail.suspension_front_right = msg.SuspensionFrontRight;
+        detail.suspension_speed_rear_left = msg.SuspensionSpeedRearLeft;
+        detail.suspension_speed_rear_right = msg.SuspensionSpeedRearRight;
+        detail.suspension_speed_front_left = msg.SuspensionSpeedFrontLeft;
+        detail.suspension_speed_front_right = msg.SuspensionSpeedFrontRight;
+        detail.brake_temp_rear_left = msg.BrakeTempRearLeft;
+        detail.brake_temp_rear_right = msg.BrakeTempRearRight;
+        detail.brake_temp_front_left = msg.BrakeTempFrontLeft;
+        detail.brake_temp_front_right = msg.BrakeTempFrontRight;
+        return detail;
+    }
+
     private void saveReplay(GameStateChangeEvent evt) {
         if (evt.Parameters.ContainsKey(GameStateRaceEndProperty.FINISH_STATE)) {
             // finished with state, check if it's normal finish, if so, save the replay
@@ -732,7 +823,7 @@ public class ZTMZPacenoteTool {
                     var replay = new Replay();
                     replay.car = this._carName;
                     replay.track = this._trackName;
-                    replay.checkpoints = Config.Instance.ReplaySaveGranularity;
+                    replay.checkpoints = Math.Max(1, Config.Instance.ReplaySaveGranularity);
                     replay.date = DateTime.UtcNow;
                     replay.locked = false;
                     replay.track_length = this._trackLength;
@@ -743,7 +834,7 @@ public class ZTMZPacenoteTool {
                     replay.video_path = ObsManager.Instance.StopRecording();
                     replay.video_begin_timestamp = Config.Instance.ReplayOBSSave ? this._obsStartTimestamp : 0;
                     // replay.video_end_timestamp = this._obsStopTimestamp;
-                    ReplayManager.Instance.saveReplay(CurrentGame, replay, this.ReplayDetailsPerTimes, this.ReplayDetailsPerCheckpoints);
+                    _ = ReplayManager.Instance.SaveReplayAsync(CurrentGame, replay, this.ReplayDetailsPerTimes, this.ReplayDetailsPerCheckpoints);
                 }
             }
         } else {
@@ -753,13 +844,13 @@ public class ZTMZPacenoteTool {
     }
 
     public float GetDelta(float distance) {
-        float time = ReplayManager.getTimeByDistance(this.ReplayDetailsPerTimes, distance);
-        float bestTime = ReplayManager.getTimeByDistance(this.BestLocalReplayDetailsPerTimes, distance);
+        float time = GetCurrentReplayLookup().GetTimeByDistance(distance);
+        float bestTime = GetBestLocalReplayLookup().GetTimeByDistance(distance);
         return time - bestTime;
     }
 
     public float GetDeltaByDistanceAndTime(float distance, float time) {
-        float bestTime = ReplayManager.getTimeByDistance(this.BestLocalReplayDetailsPerTimes, distance);
+        float bestTime = GetBestLocalReplayLookup().GetTimeByDistance(distance);
         return time - bestTime;
     }
 
@@ -770,11 +861,41 @@ public class ZTMZPacenoteTool {
     }
 
     public float GetTimeByDistance(float distance) {
-        return ReplayManager.getTimeByDistance(this.ReplayDetailsPerTimes, distance);
+        return GetCurrentReplayLookup().GetTimeByDistance(distance);
     }
 
     public float GetBestTimeByDistance(float distance) {
-        return ReplayManager.getTimeByDistance(this.BestLocalReplayDetailsPerTimes, distance);
+        return GetBestLocalReplayLookup().GetTimeByDistance(distance);
+    }
+
+    public float GetBestDistanceByTime(float time) {
+        return GetBestLocalReplayLookup().GetDistanceByTime(time);
+    }
+
+    private void InvalidateCurrentReplayLookup() {
+        _currentReplayLookupCount = -1;
+    }
+
+    private void InvalidateBestLocalReplayLookup() {
+        _bestLocalReplayLookupCount = -1;
+    }
+
+    private ReplayTimelineLookup GetCurrentReplayLookup() {
+        if (_currentReplayLookup == null || _currentReplayLookupCount != this.ReplayDetailsPerTimes.Count) {
+            _currentReplayLookup = ReplayTimelineLookup.From(this.ReplayDetailsPerTimes);
+            _currentReplayLookupCount = this.ReplayDetailsPerTimes.Count;
+        }
+
+        return _currentReplayLookup;
+    }
+
+    private ReplayTimelineLookup GetBestLocalReplayLookup() {
+        if (_bestLocalReplayLookup == null || _bestLocalReplayLookupCount != this.BestLocalReplayDetailsPerTimes.Count) {
+            _bestLocalReplayLookup = ReplayTimelineLookup.From(this.BestLocalReplayDetailsPerTimes);
+            _bestLocalReplayLookupCount = this.BestLocalReplayDetailsPerTimes.Count;
+        }
+
+        return _bestLocalReplayLookup;
     }
 
     private float getTimeByCheckpoint(List<ReplayDetailsPerCheckpoint> details, int checkpoint) {
@@ -860,9 +981,9 @@ public class ZTMZPacenoteTool {
 
     public void SetGame(int gameIndex) {
         if (gameIndex < this.Games.Count)
-            this.SetGame(this.Games[gameIndex]);
+            _ = this.SetGame(this.Games[gameIndex]);
         else
-            this.SetGame(this.Games.First());
+            _ = this.SetGame(this.Games.First());
     }
 
     public void SetProfile(int profileIndex) {

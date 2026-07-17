@@ -88,6 +88,7 @@
                                            Icon="{ui:SymbolIcon Play20}"
                                            ToolTip="{DynamicResource ResourceKey=settings.play}"
                                            ToolTipService.InitialShowDelay="100"
+                                           IsEnabled="{Binding Available}"
                                            CommandParameter="{Binding Id}"
                                            Command="{Binding ViewModel.ReplayPlayCommand, RelativeSource={RelativeSource AncestorType=Page}}">
                                 </ui:Button>
@@ -100,6 +101,7 @@
                                            Icon="{ui:SymbolIcon Share20}"
                                            ToolTip="{DynamicResource ResourceKey=settings.tooltip.replayExport}"
                                            ToolTipService.InitialShowDelay="100"
+                                           IsEnabled="{Binding Available}"
                                            CommandParameter="{Binding Id}"
                                            Command="{Binding ViewModel.ReplayExportCommand, RelativeSource={RelativeSource AncestorType=Page}}">
                                 </ui:Button>
@@ -111,6 +113,7 @@
                                            Icon="{ui:SymbolIcon SoundSource20}"
                                            ToolTip="{DynamicResource ResourceKey=settings.tooltip.replayExportAudio}"
                                            ToolTipService.InitialShowDelay="100"
+                                           IsEnabled="{Binding Available}"
                                            CommandParameter="{Binding Id}"
                                            Command="{Binding ViewModel.ReplayExportAudioCommand, RelativeSource={RelativeSource AncestorType=Page}}"/>
                                 <ui:Button Margin="0 0 0 0"
@@ -157,6 +160,9 @@
                 <DataGridTextColumn
                     Binding="{Binding Finish_time}"
                     Header="finish_time"/>
+                <DataGridCheckBoxColumn
+                    Binding="{Binding Available}"
+                    Header="available"/>
                 <DataGridTextColumn
                     Binding="{Binding Date}"
                     Header="date"/>

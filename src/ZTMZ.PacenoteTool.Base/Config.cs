@@ -927,7 +927,7 @@ namespace ZTMZ.PacenoteTool.Base
         private int _ReplaySaveGranularity = 256;
         public int ReplaySaveGranularity
         {
-            set { this._ReplaySaveGranularity = value; this._userconfig["ReplaySaveGranularity"] = value; }
+            set { this._ReplaySaveGranularity = Math.Max(1, value); this._userconfig["ReplaySaveGranularity"] = this._ReplaySaveGranularity; }
             get => this._ReplaySaveGranularity;
         }
 
@@ -935,7 +935,7 @@ namespace ZTMZ.PacenoteTool.Base
         private int _ReplaySaveInterval = 200;
         public int ReplaySaveInterval
         {
-            set { this._ReplaySaveInterval = value; this._userconfig["ReplaySaveInterval"] = value; }
+            set { this._ReplaySaveInterval = Math.Max(1, value); this._userconfig["ReplaySaveInterval"] = this._ReplaySaveInterval; }
             get => this._ReplaySaveInterval;
         }
 

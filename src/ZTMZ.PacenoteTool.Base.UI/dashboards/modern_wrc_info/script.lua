@@ -451,8 +451,10 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
         -- 如果启用了最佳成绩比较，显示最终时间差
         if showBestReplay then
             -- 获取最佳成绩的完成时间
-            local keys = ctx.LocalReplayDetailsPerTimesDict.Keys:ToList()
-            local bestTime = keys:ElementAt(keys.Count - 1)
+            local bestTime = ctx.LocalReplayFinishTime
+            if bestTime <= 0 then
+                bestTime = ctx.GetBestTimeByDistance:Invoke(data.TrackLength)
+            end
             local deltaTime = data.LapTime - bestTime
             
             -- 格式化时间差文本

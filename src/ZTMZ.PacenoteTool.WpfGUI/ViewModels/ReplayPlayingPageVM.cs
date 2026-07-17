@@ -1,3 +1,4 @@
+using System;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
 using System.IO;
@@ -32,11 +33,14 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     private string tmpAudioPath = "";
     private List<ReplayDetailsPerTime> _replayDetailsPerTime = null;
     private List<ReplayDetailsPerTime> _bestReplayDetailsPerTime = null;
+    private ReplayTimelineLookup _replayTimelineLookup = null;
+    private ReplayTimelineLookup _bestReplayTimelineLookup = null;
     private ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool = null;
+    private bool _isApplyingReplayLocked;
 
     private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private DispatcherTimer _timer = new DispatcherTimer(DispatcherPriority.Send);  // highest priority
+    private DispatcherTimer _timer = new DispatcherTimer(DispatcherPriority.Background);
 
     // private System.Timers.Timer _timer; // ms
 
@@ -67,9 +71,9 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     [ObservableProperty]
     private double _playSpeed = 1;
 
-    partial void OnPlayPositionChanged(double newValue){
+    partial void OnPlayPositionChanged(double value){
         // calculate the distance
-        UpdateLapTimeAndLapDistance(newValue);
+        UpdateLapTimeAndLapDistance(value);
     }
     [ObservableProperty]
     private double _videoLength;
@@ -89,9 +93,9 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         Config.Instance.ReplayShowDiagrams = value;
         Config.Instance.SaveUserConfig();
         if (value) {
-            setCharts();
+            _ = setCharts();
         } else {
-            clearCharts();
+            ClearChartData();
         }
     }
 
@@ -121,24 +125,39 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     [ObservableProperty]
     private bool _replayLocked;
     partial void OnReplayLockedChanged(bool value){
-        if (value) {
-            ReplayManager.Instance.LockReplay(this._replay.id);
-        } else {
-            ReplayManager.Instance.UnlockReplay(this._replay.id);
+        if (_isApplyingReplayLocked || this._replay == null) {
+            return;
+        }
+
+        _ = SetReplayLockedFromUiAsync(value);
+    }
+
+    private async Task SetReplayLockedFromUiAsync(bool value) {
+        try {
+            await ReplayManager.Instance.SetReplayLockedAsync(this._replay.id, value);
+        } catch (Exception ex) {
+            _logger.Error(ex, "Failed to update replay lock state.");
+            _isApplyingReplayLocked = true;
+            ReplayLocked = !value;
+            _isApplyingReplayLocked = false;
         }
     }
     partial void OnGotoLapDistanceChanged(float value){
+        if (this._replayTimelineLookup == null) {
+            return;
+        }
+
         // calculate the time
         if (IsPaused) {
             Dispatcher.CurrentDispatcher.Invoke(() => {
                 this._timer.Stop();
             });
             if (this.hasTimestamp) {
-                var timestamp = ReplayManager.getTimeStampWithDistance(this._replayDetailsPerTime, value);
+                var timestamp = this._replayTimelineLookup.GetTimestampByDistance(value);
                 var tgtPosition = (double)(timestamp - this._replay.video_begin_timestamp) / 10000000 - this.PlayPositionOffset;
                 this.PlayPosition = tgtPosition < 0 ? 0 : tgtPosition;
             } else {
-                var time = ReplayManager.getTimeByDistance(this._replayDetailsPerTime, value);
+                var time = this._replayTimelineLookup.GetTimeByDistance(value);
                 this.PlayPosition = time - this.PlayPositionOffset;
             }
             Dispatcher.CurrentDispatcher.Invoke(() => {
@@ -190,22 +209,22 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     /// </summary>
     [ObservableProperty]
     private double _playPositionOffset = 0.0; 
-    partial void OnPlayPositionOffsetChanged(double newValue){
+    partial void OnPlayPositionOffsetChanged(double value){
         // calculate the distance
         UpdateLapTimeAndLapDistance(this.PlayPosition);
     }
 #endregion
 
     private void UpdateLapTimeAndLapDistance(double newValue) {
-        if (this._replayDetailsPerTime != null && this._replayDetailsPerTime.Count > 0) {
+        if (this._replayTimelineLookup != null && this._replayDetailsPerTime != null && this._replayDetailsPerTime.Count > 0) {
             var playTime = newValue + this.PlayPositionOffset;
             // convert playTime to ticks and plus this._replay.video_begin_timestamp is the key to get the replay details per time
             var key = (long)(playTime * 10000000) + this._replay.video_begin_timestamp;
             ReplayDetailsPerTime rdp = null;
             if (this.hasTimestamp) {
-                rdp = ReplayManager.getReplayDetailsPerTimeWithTimeStamp(this._replayDetailsPerTime, key);
+                rdp = this._replayTimelineLookup.GetByTimestamp(key);
             } else {
-                var dis = ReplayManager.getDistanceByTime(this._replayDetailsPerTime, (float)playTime);
+                var dis = this._replayTimelineLookup.GetDistanceByTime((float)playTime);
                 rdp = new ReplayDetailsPerTime() { time = (float)playTime, distance = dis };
             }
             this.LapTime = rdp.time;    // the laptime
@@ -234,8 +253,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
     public ReplayPlayingPageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool) {
         this._tool = tool;
-        // triggered every 10 ms
-        this._timer.Interval = new TimeSpan(0, 0, 0, 0, 1);
+        this._timer.Interval = TimeSpan.FromMilliseconds(33);
         this._timer.Tick += this.Timer_Ticks;
 
         // this._timer = new System.Timers.Timer(5); // 5ms
@@ -262,21 +280,36 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
     public async Task OnNavigatedToAsync()
     {
+        ResetPlaybackState();
+
         // load replay with ReplayId
         this._replay = await ReplayManager.Instance.getReplay(this.ReplayId);
+        if (this._replay == null || !this._replay.available) {
+            this.HeaderContent = $"Replay: {this.ReplayId}";
+            return;
+        }
+
         this._bestReplay = await ReplayManager.Instance.GetBestReplay(_tool.CurrentGame, _replay.track, _replay.car_class, _replay.car);
-        if (this._bestReplay != null && this._bestReplay.id != this._replay.id) {
+        if (this._bestReplay != null && this._bestReplay.available && this._bestReplay.id != this._replay.id) {
             // got the best replay
             this.HasBestReplay = true;
             this._bestReplayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(this._bestReplay.id);
+            this._bestReplayTimelineLookup = ReplayTimelineLookup.From(this._bestReplayDetailsPerTime);
         }
 
         this._replayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(this.ReplayId);
+        if (this._replayDetailsPerTime.Count == 0) {
+            return;
+        }
+
+        this._replayTimelineLookup = ReplayTimelineLookup.From(this._replayDetailsPerTime);
         await setCharts();
         this.Track = this._replay.track;
         this.Car = this._replay.car;
         this.CarClass = this._replay.car_class;
+        _isApplyingReplayLocked = true;
         this.ReplayLocked = this._replay.locked;
+        _isApplyingReplayLocked = false;
         
         var first = this._replayDetailsPerTime.FirstOrDefault(a => a.timestamp > 0);
         this.hasTimestamp = first != null;
@@ -310,7 +343,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
                 duration = (double)(this._replayDetailsPerTime.Last().time - this._replayDetailsPerTime.First().time);
             }
             // create an empty audio file wth ffmpeg
-            tmpAudioPath = Path.Combine(Path.GetTempPath(), "empty.mp3");
+            tmpAudioPath = Path.Combine(Path.GetTempPath(), $"ztmz-replay-empty-{Guid.NewGuid():N}.mp3");
             GlobalFFOptions.Configure(options => options.BinaryFolder = Config.Instance.ReplayFFmpegPath);
             await FFMpegArguments
                 .FromFileInput("anullsrc=channel_layout=stereo:sample_rate=44100", false, options => options.WithCustomArgument($"-f lavfi -t {duration}"))
@@ -335,14 +368,45 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
     public Task OnNavigatedFromAsync()
     {
-        // throw new NotImplementedException();
-        this.mediaElement.Stop();
+        ResetPlaybackState();
+        return Task.CompletedTask;
+    }
+
+    private void ResetPlaybackState() {
         this._timer.Stop();
+        try {
+            this.mediaElement?.Stop();
+        } catch (Exception ex) {
+            _logger.Warn(ex, "Failed to stop replay media element during reset.");
+        }
+
         this.VideoPath = "";
         if (!string.IsNullOrEmpty(this.tmpAudioPath) && File.Exists(this.tmpAudioPath)) {
-            // File.Delete(this.tmpAudioPath); wont delete
+            try {
+                File.Delete(this.tmpAudioPath);
+            } catch (Exception ex) {
+                _logger.Warn(ex, "Failed to delete temporary replay audio: {0}", this.tmpAudioPath);
+            }
         }
-        return Task.CompletedTask;
+
+        this.tmpAudioPath = "";
+        this._replay = null;
+        this._bestReplay = null;
+        this._replayDetailsPerTime = null;
+        this._bestReplayDetailsPerTime = null;
+        this._replayTimelineLookup = null;
+        this._bestReplayTimelineLookup = null;
+        this.HasBestReplay = false;
+        this.ScrubbingEnabled = false;
+        this.IsPaused = true;
+        this.IsPausedBecauseOfSliding = false;
+        this.PlayPosition = 0;
+        this.VideoLength = 0;
+        this.LapTime = 0;
+        this.LapDistance = 0;
+        this.GotoLapDistance = 0;
+        this.PlayPositionOffset = 0;
+        ClearChartData();
     }
 
     [RelayCommand]
@@ -501,7 +565,21 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         }
     }
 
-    private async Task clearCharts() {
+    private Task clearCharts() {
+        ClearChartData();
+        return Task.CompletedTask;
+    }
+
+    private void ClearChartData() {
+        this.PedalSeries = new List<ISeries>();
+        this.SpeedSeries = new List<ISeries>();
+        this.RpmSeries = new List<ISeries>();
+        this.GSeries = new List<ISeries>();
+        this.GearSeries = new List<ISeries>();
+        this.BrakeTempSeries = new List<ISeries>();
+        this.SuspensionSeries = new List<ISeries>();
+        this.SuspensionSpeedSeries = new List<ISeries>();
+        this.PedalSections.Clear();
     }
 
     private LineSeries<ObservablePoint> getLineSeries(List<ObservablePoint> points, SKColor color, string name, LiveChartsCore.Painting.Paint? stroke = null) {

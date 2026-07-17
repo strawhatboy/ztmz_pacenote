@@ -168,6 +168,12 @@ public partial class App : Application
     /// </summary>
     private async void OnExit(object sender, ExitEventArgs e)
     {
+        try {
+            await ReplayManager.Instance.FlushPendingSavesAsync();
+        } catch (Exception ex) {
+            _logger.Error(ex, "Failed to flush pending replay saves during shutdown.");
+        }
+
         await _host.StopAsync();
 
         _host.Dispose();
