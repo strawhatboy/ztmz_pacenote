@@ -11,19 +11,29 @@ namespace ZTMZ.PacenoteTool.Base.UI;
 /// but captures drawing commands instead of actually drawing
 /// This allows us to record what dashboards are rendering without needing the real Graphics object
 /// </summary>
-public class GraphicsCommandProxy
+public class GraphicsCommandProxy : IDisposable
 {
     private readonly DrawingCommandCapture _capture;
     private readonly Dictionary<object, SolidBrush> _brushRegistry = new();
     private readonly Dictionary<object, Font> _fontRegistry = new();
+    private readonly WebDashboardTextMetrics _textMetrics;
     
     public int Width => _capture.Width;
     public int Height => _capture.Height;
     public float FPS { get; set; } = Config.WebDashboardFrameRateDefault;
     
-    public GraphicsCommandProxy(DrawingCommandCapture capture)
+    public GraphicsCommandProxy(DrawingCommandCapture capture, string customFontDirectory = null)
     {
         _capture = capture;
+        try
+        {
+            _textMetrics = new WebDashboardTextMetrics(customFontDirectory);
+            _capture.TextMetrics = _textMetrics;
+        }
+        catch
+        {
+            _textMetrics = null;
+        }
     }
     
     // ============================================================================
@@ -95,14 +105,26 @@ public class GraphicsCommandProxy
     
     public object CreateFont(string fontName, float fontSize, bool bold = false, bool italic = false)
     {
-        var font = new ProxyFont { Name = fontName, Size = fontSize, Bold = bold, Italic = italic };
+        return CreateProxyFont(fontName, fontSize, bold, italic, false);
+    }
+
+    private object CreateProxyFont(string fontName, float fontSize, bool bold, bool italic, bool useCustomFont)
+    {
+        var font = new ProxyFont
+        {
+            Name = fontName,
+            Size = fontSize,
+            Bold = bold,
+            Italic = italic,
+            UseCustomFont = useCustomFont
+        };
         _fontRegistry[font] = null;
         return font;
     }
     
     public object CreateCustomFont(string fontName, float fontSize, bool bold = false, bool italic = false)
     {
-        return CreateFont(fontName, fontSize, bold, italic);
+        return CreateProxyFont(fontName, fontSize, bold, italic, true);
     }
     
     // ============================================================================
@@ -494,8 +516,15 @@ public class GraphicsCommandProxy
         public float FontSize => Size;
         public bool Bold { get; set; }
         public bool Italic { get; set; }
+        internal bool UseCustomFont { get; set; }
 
         public void Dispose() { }
+    }
+
+    public void Dispose()
+    {
+        _textMetrics?.Dispose();
+        _capture.TextMetrics = null;
     }
 
     public class ProxyImage

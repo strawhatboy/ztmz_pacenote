@@ -29,6 +29,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
     {
         public ViewModels.MainWindowVM ViewModel { get; }
         private IContentDialogService _contentDialogService;
+        private bool _isTrayExitRequested;
         public MainWindow(ViewModels.MainWindowVM viewModel,
             INavigationViewPageProvider pageService,
             INavigationService navigationService,
@@ -39,6 +40,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
 
             InitializeComponent();
 
+            SetupTrayMenuEvents();
             SetPageService(pageService);
             contentDialogService.SetDialogHost(RootContentDialog);
             navigationService.SetNavigationControl(RootNavigation);
@@ -65,8 +67,48 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
                     Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
             }
         }
+
+        private void SetupTrayMenuEvents()
+        {
+            foreach (var menuItem in ViewModel.TrayMenuItems)
+            {
+                if (menuItem is Wpf.Ui.Controls.MenuItem item)
+                    item.Click += OnTrayMenuItemClick;
+            }
+        }
+
+        private void OnTrayMenuItemClick(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Wpf.Ui.Controls.MenuItem menuItem)
+                return;
+
+            switch (menuItem.Tag?.ToString())
+            {
+                case "tray_home":
+                    ShowAndActivateWindow();
+                    break;
+                case "tray_close":
+                    _isTrayExitRequested = true;
+                    Close();
+                    break;
+            }
+        }
+
+        private void ShowAndActivateWindow()
+        {
+            if (WindowState == WindowState.Minimized)
+                SetCurrentValue(WindowStateProperty, WindowState.Normal);
+
+            Show();
+            _ = Activate();
+            _ = Focus();
+        }
+
         public async void MainWindow_Closing(object sender, CancelEventArgs e)
         {
+            if (_isTrayExitRequested)
+                return;
+
             if (Config.Instance.ShowClosePrompt)
             {
                 e.Cancel = true;

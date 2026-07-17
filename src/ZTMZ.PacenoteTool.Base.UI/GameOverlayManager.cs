@@ -1039,7 +1039,9 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 Width = 1920,
                 Height = 1080
             };
-            _webGraphicsProxy = new GraphicsCommandProxy(_webCommandCapture);
+            _webGraphicsProxy = new GraphicsCommandProxy(
+                _webCommandCapture,
+                AppLevelVariables.Instance.GetPath(Constants.PATH_FONTS));
             _webDashboardArgs = new DashboardScriptArguments {
                 Graphics = _webGraphicsProxy,
                 Config = DashboardScriptArguments.Config,
@@ -1718,6 +1720,11 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     {
                         dashboard.Unload();
                     }
+
+                    _webGraphicsProxy?.Dispose();
+                    _webGraphicsProxy = null;
+                    _webCommandCapture = null;
+                    _webDashboardArgs = null;
                 }
                 _window?.Dispose();
 

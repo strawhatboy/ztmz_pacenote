@@ -253,6 +253,24 @@ public class DrawTextCommand : DrawingCommand
     
     [JsonProperty("fontSize")]
     public float FontSize { get; set; } = 14;
+
+    [JsonProperty("fontWeight")]
+    public int FontWeight { get; set; } = 400;
+
+    [JsonProperty("fontStyle")]
+    public string FontStyle { get; set; } = "normal";
+
+    [JsonProperty("textWidth")]
+    public float TextWidth { get; set; }
+
+    [JsonProperty("textHeight")]
+    public float TextHeight { get; set; }
+
+    [JsonProperty("baseline")]
+    public float Baseline { get; set; }
+
+    [JsonProperty("lineHeight")]
+    public float LineHeight { get; set; }
     
     [JsonProperty("color")]
     public uint Color { get; set; }
@@ -279,6 +297,24 @@ public class DrawTextWithBackgroundCommand : DrawingCommand
     
     [JsonProperty("fontSize")]
     public float FontSize { get; set; } = 14;
+
+    [JsonProperty("fontWeight")]
+    public int FontWeight { get; set; } = 400;
+
+    [JsonProperty("fontStyle")]
+    public string FontStyle { get; set; } = "normal";
+
+    [JsonProperty("textWidth")]
+    public float TextWidth { get; set; }
+
+    [JsonProperty("textHeight")]
+    public float TextHeight { get; set; }
+
+    [JsonProperty("baseline")]
+    public float Baseline { get; set; }
+
+    [JsonProperty("lineHeight")]
+    public float LineHeight { get; set; }
     
     [JsonProperty("color")]
     public uint Color { get; set; }

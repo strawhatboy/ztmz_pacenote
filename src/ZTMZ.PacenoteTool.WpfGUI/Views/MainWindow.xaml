@@ -93,8 +93,6 @@
             </ui:NavigationView.Header> -->
         </ui:NavigationView>
 
-        <ui:ContentDialogHost x:Name="RootContentDialog" Grid.Row="0" Grid.RowSpan="2"/>
-
         <tray:NotifyIcon
             Grid.Row="0"
             FocusOnLeftClick="True"
@@ -102,12 +100,11 @@
             MenuOnRightClick="True"
             TooltipText="{Binding ViewModel.Title, Mode=OneWay}">
             <tray:NotifyIcon.Menu>
-                <ContextMenu>
-                    <!-- <MenuItem Header="{DynamicResource ResourceKey=ui.showMainUI}" Command="{Binding ViewModel.ShowMainUICommand}" />
-                    <Separator />
-                    <MenuItem Header="{DynamicResource ResourceKey=ui.closeToExit}" Command="{Binding ViewModel.ExitCommand}" /> -->
-                </ContextMenu>
+                <ContextMenu DataContext="{Binding DataContext, Source={x:Reference RootNavigation}}"
+                             ItemsSource="{Binding ViewModel.TrayMenuItems, Mode=OneWay}" />
             </tray:NotifyIcon.Menu>
         </tray:NotifyIcon>
+
+        <ui:ContentDialogHost x:Name="RootContentDialog" Grid.Row="0" Grid.RowSpan="2"/>
     </Grid>
 </ui:FluentWindow>

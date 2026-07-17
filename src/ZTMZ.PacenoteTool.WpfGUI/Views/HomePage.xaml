@@ -69,10 +69,10 @@
                                 <DataTrigger Binding="{Binding ViewModel.IsRacing}" Value="True">
                                     <Setter Property="Effect">
                                         <Setter.Value>
-                                            <DropShadowEffect BlurRadius="16"
+                                            <DropShadowEffect BlurRadius="28"
                                                               Color="#67C26D"
                                                               ShadowDepth="0"
-                                                              Opacity="0.75" />
+                                                              Opacity="0.95" />
                                         </Setter.Value>
                                     </Setter>
                                 </DataTrigger>
@@ -135,10 +135,10 @@
                                         <DataTrigger Binding="{Binding ViewModel.IsGameRunning}" Value="True">
                                             <Setter Property="Effect">
                                                 <Setter.Value>
-                                                    <DropShadowEffect BlurRadius="12"
+                                                    <DropShadowEffect BlurRadius="22"
                                                                       Color="#67C26D"
                                                                       ShadowDepth="0"
-                                                                      Opacity="0.6" />
+                                                                      Opacity="0.85" />
                                                 </Setter.Value>
                                             </Setter>
                                         </DataTrigger>

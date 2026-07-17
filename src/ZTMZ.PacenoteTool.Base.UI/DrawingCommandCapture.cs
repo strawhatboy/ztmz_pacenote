@@ -13,9 +13,19 @@ public class DrawingCommandCapture
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     private readonly List<DrawingCommand> _commands = new();
     private readonly Dictionary<object, ImageRegistration> _imageKeyMap = new();
+
+    private readonly record struct FontInfo(
+        string Name,
+        float Size,
+        int Weight,
+        string Style,
+        WebDashboardTextLayout Layout);
+
+    private readonly record struct TextLayoutBounds(float Width, float Height);
     
     public int Width { get; set; }
     public int Height { get; set; }
+    internal WebDashboardTextMetrics TextMetrics { get; set; }
     
     /// <summary>
     /// Register an image object with its key for later lookup
@@ -245,37 +255,131 @@ public class DrawingCommandCapture
         }
     }
     
-    /// <summary>
-    /// Get font info
-    /// </summary>
-    private (string name, float size) GetFontInfo(Font font)
+    private FontInfo GetFontInfo(
+        object font,
+        float fontSize,
+        string text,
+        float? layoutWidth = null,
+        float? layoutHeight = null)
     {
-        if (font == null) return ("Arial", 14);
-        return (font.FontFamilyName, font.FontSize);
-    }
+        var width = layoutWidth ?? Width;
+        var height = layoutHeight ?? Height;
 
-    /// <summary>
-    /// Get font info from object (handles ProxyFont via duck typing)
-    /// </summary>
-    private (string name, float size) GetFontInfo(object font)
-    {
-        if (font == null) return ("Arial", 14);
-        
+        if (font is GraphicsCommandProxy.ProxyFont proxyFont)
+        {
+            var layout = TextMetrics?.Measure(
+                proxyFont.Name,
+                fontSize,
+                proxyFont.Bold,
+                proxyFont.Italic,
+                proxyFont.UseCustomFont,
+                text,
+                width,
+                height) ?? CreateFallbackLayout(text, fontSize);
+            return new FontInfo(
+                proxyFont.Name,
+                fontSize,
+                proxyFont.Bold ? 700 : 400,
+                proxyFont.Italic ? "italic" : "normal",
+                layout);
+        }
+
         if (font is Font realFont)
-            return GetFontInfo(realFont);
-        
-        // Handle ProxyFont via dynamic (duck typing)
+        {
+            return CreateFallbackFontInfo(
+                realFont.FontFamilyName,
+                fontSize,
+                realFont.Bold,
+                realFont.Italic,
+                text);
+        }
+
         try
         {
             dynamic proxy = font;
-            string name = proxy.Name;
-            float size = proxy.Size;
-            return (name, size);
+            return CreateFallbackFontInfo(
+                (string)proxy.Name,
+                fontSize,
+                (bool)proxy.Bold,
+                (bool)proxy.Italic,
+                text);
         }
         catch
         {
-            return ("Arial", 14); // Fallback
+            return CreateFallbackFontInfo("Arial", fontSize, false, false, text);
         }
+    }
+
+    private static FontInfo CreateFallbackFontInfo(
+        string name,
+        float fontSize,
+        bool bold,
+        bool italic,
+        string text)
+    {
+        return new FontInfo(
+            name,
+            fontSize,
+            bold ? 700 : 400,
+            italic ? "italic" : "normal",
+            CreateFallbackLayout(text, fontSize));
+    }
+
+    private static WebDashboardTextLayout CreateFallbackLayout(string text, float fontSize)
+    {
+        var lines = text.Split('\n');
+        var maximumWidth = 0f;
+        foreach (var line in lines)
+        {
+            maximumWidth = Math.Max(maximumWidth, line.Length * fontSize * 0.6f);
+        }
+
+        return new WebDashboardTextLayout(
+            maximumWidth,
+            lines.Length * fontSize * 1.2f,
+            fontSize * 0.8f,
+            fontSize * 1.2f);
+    }
+
+    private static float GetFontSize(object font)
+    {
+        if (font is GraphicsCommandProxy.ProxyFont proxyFont)
+        {
+            return proxyFont.Size;
+        }
+
+        if (font is Font realFont)
+        {
+            return realFont.FontSize;
+        }
+
+        try
+        {
+            dynamic proxy = font;
+            return (float)proxy.Size;
+        }
+        catch
+        {
+            return 14;
+        }
+    }
+
+    private TextLayoutBounds GetDrawingLayoutBounds(float fontSize, float x, float y)
+    {
+        var clippedWidth = x < 0 ? Width + x : Width - x;
+        var clippedHeight = y < 0 ? Height + y : Height - y;
+
+        if (clippedWidth <= fontSize)
+        {
+            clippedWidth = Width;
+        }
+
+        if (clippedHeight <= fontSize)
+        {
+            clippedHeight = Height;
+        }
+
+        return new TextLayoutBounds(clippedWidth, clippedHeight);
     }
     
     // ======================================================================
@@ -395,42 +499,68 @@ public class DrawingCommandCapture
     
     public void DrawText(object font, object brush, float x, float y, string text)
     {
-        var fontInfo = GetFontInfo(font);
+        var normalizedText = text ?? "";
+        var fontSize = GetFontSize(font);
+        var bounds = GetDrawingLayoutBounds(fontSize, x, y);
+        var fontInfo = GetFontInfo(font, fontSize, normalizedText, bounds.Width, bounds.Height);
         _commands.Add(new DrawTextCommand
         {
             X = x,
             Y = y,
-            Text = text ?? "",
-            FontName = fontInfo.name,
-            FontSize = fontInfo.size,
+            Text = normalizedText,
+            FontName = fontInfo.Name,
+            FontSize = fontInfo.Size,
+            FontWeight = fontInfo.Weight,
+            FontStyle = fontInfo.Style,
+            TextWidth = fontInfo.Layout.Width,
+            TextHeight = fontInfo.Layout.Height,
+            Baseline = fontInfo.Layout.Baseline,
+            LineHeight = fontInfo.Layout.LineHeight,
             Color = GetBrushColor(brush)
         });
     }
     
     public void DrawText(object font, float fontSize, object brush, float x, float y, string text)
     {
-        var fontInfo = GetFontInfo(font);
+        var normalizedText = text ?? "";
+        var bounds = GetDrawingLayoutBounds(fontSize, x, y);
+        var fontInfo = GetFontInfo(font, fontSize, normalizedText, bounds.Width, bounds.Height);
         _commands.Add(new DrawTextCommand
         {
             X = x,
             Y = y,
-            Text = text ?? "",
-            FontName = fontInfo.name,
-            FontSize = fontSize, // Use the provided fontSize instead of font's default
+            Text = normalizedText,
+            FontName = fontInfo.Name,
+            FontSize = fontInfo.Size,
+            FontWeight = fontInfo.Weight,
+            FontStyle = fontInfo.Style,
+            TextWidth = fontInfo.Layout.Width,
+            TextHeight = fontInfo.Layout.Height,
+            Baseline = fontInfo.Layout.Baseline,
+            LineHeight = fontInfo.Layout.LineHeight,
             Color = GetBrushColor(brush)
         });
     }
     
     public void DrawTextWithBackground(object font, object brush, object background, float x, float y, string text)
     {
-        var fontInfo = GetFontInfo(font);
+        var normalizedText = text ?? "";
+        var fontSize = GetFontSize(font);
+        var bounds = GetDrawingLayoutBounds(fontSize, x, y);
+        var fontInfo = GetFontInfo(font, fontSize, normalizedText, bounds.Width, bounds.Height);
         _commands.Add(new DrawTextWithBackgroundCommand
         {
             X = x,
             Y = y,
-            Text = text ?? "",
-            FontName = fontInfo.name,
-            FontSize = fontInfo.size,
+            Text = normalizedText,
+            FontName = fontInfo.Name,
+            FontSize = fontInfo.Size,
+            FontWeight = fontInfo.Weight,
+            FontStyle = fontInfo.Style,
+            TextWidth = fontInfo.Layout.Width,
+            TextHeight = fontInfo.Layout.Height,
+            Baseline = fontInfo.Layout.Baseline,
+            LineHeight = fontInfo.Layout.LineHeight,
             Color = GetBrushColor(brush),
             BgColor = GetBrushColor(background)
         });
@@ -438,14 +568,22 @@ public class DrawingCommandCapture
     
     public void DrawTextWithBackground(object font, float fontSize, object brush, object background, float x, float y, string text)
     {
-        var fontInfo = GetFontInfo(font);
+        var normalizedText = text ?? "";
+        var bounds = GetDrawingLayoutBounds(fontSize, x, y);
+        var fontInfo = GetFontInfo(font, fontSize, normalizedText, bounds.Width, bounds.Height);
         _commands.Add(new DrawTextWithBackgroundCommand
         {
             X = x,
             Y = y,
-            Text = text ?? "",
-            FontName = fontInfo.name,
-            FontSize = fontSize, // Use the provided fontSize instead of font's default
+            Text = normalizedText,
+            FontName = fontInfo.Name,
+            FontSize = fontInfo.Size,
+            FontWeight = fontInfo.Weight,
+            FontStyle = fontInfo.Style,
+            TextWidth = fontInfo.Layout.Width,
+            TextHeight = fontInfo.Layout.Height,
+            Baseline = fontInfo.Layout.Baseline,
+            LineHeight = fontInfo.Layout.LineHeight,
             Color = GetBrushColor(brush),
             BgColor = GetBrushColor(background)
         });
@@ -614,34 +752,17 @@ public class DrawingCommandCapture
     
     public object MeasureString(object font, float fontSize, string text)
     {
-        // For web client, we need to approximate text size
-        // We'll use a simple heuristic: average character width * length
-        // Real measurement would require the browser's font metrics
-        
-        if (string.IsNullOrEmpty(text)) return new ProxyPoint { X = 0, Y = 0 };
-        
-        // Rough approximation: fontSize * 0.6 for average character width
-        // fontSize * 1.2 for line height
-        float charWidth = fontSize * 0.6f;
-        float lineHeight = fontSize * 1.2f;
-        
-        // Handle multi-line text
-        var lines = text.Split('\n');
-        float maxWidth = 0;
-        foreach (var line in lines)
+        if (string.IsNullOrEmpty(text))
         {
-            float lineWidth = line.Length * charWidth;
-            if (lineWidth > maxWidth) maxWidth = lineWidth;
+            return new ProxyPoint { X = 0, Y = 0 };
         }
-        
-        float totalHeight = lines.Length * lineHeight;
-        
-        return new ProxyPoint { X = maxWidth, Y = totalHeight };
+
+        var fontInfo = GetFontInfo(font, fontSize, text);
+        return new ProxyPoint { X = fontInfo.Layout.Width, Y = fontInfo.Layout.Height };
     }
     
     public object MeasureString(object font, string text)
     {
-        var fontInfo = GetFontInfo(font);
-        return MeasureString(font, fontInfo.size, text);
+        return MeasureString(font, GetFontSize(font), text);
     }
 }

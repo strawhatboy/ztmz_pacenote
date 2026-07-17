@@ -153,11 +153,21 @@ public partial class MainWindowVM : ObservableObject
 
         items = new List<object>
         {
-            new MenuItem { Header = "Home", Tag = "tray_home" },
-            new MenuItem { Header = "Close", Tag = "tray_close" }
+            new MenuItem
+            {
+                Header = I18NLoader.Instance["ui.showMainUI"],
+                Icon = new SymbolIcon { Symbol = SymbolRegular.Home20 },
+                Tag = "tray_home"
+            },
+            new System.Windows.Controls.Separator(),
+            new MenuItem
+            {
+                Header = I18NLoader.Instance["ui.closeToExit"],
+                Icon = new SymbolIcon { Symbol = SymbolRegular.ClosedCaption16 },
+                Tag = "tray_close"
+            }
         };
 
-        //TODO: Tray menu items not working now on WPF-UI/Preview-8
         TrayMenuItems = new ObservableCollection<object>();
         BindingOperations.EnableCollectionSynchronization(TrayMenuItems, _collectionLock);
         items.ForEach(a => TrayMenuItems.Add(a));
@@ -202,16 +212,4 @@ public partial class MainWindowVM : ObservableObject
         Process.Start("explorer.exe", "https://gitee.com/ztmz/ztmz_pacenote/tree/master/buy_me_a_coffee");
     }
 
-    [RelayCommand]
-    private async Task Exit() {
-        Application.Current.Shutdown();
-    }
-
-    [RelayCommand]
-    private async Task ShowMainUI() {
-        Application.Current.MainWindow.Visibility = Visibility.Visible;
-        Application.Current.MainWindow.WindowState = WindowState.Normal;
-        Application.Current.MainWindow.Activate();
-        Application.Current.MainWindow.Show();
-    }
 }

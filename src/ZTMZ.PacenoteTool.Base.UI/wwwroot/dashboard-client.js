@@ -2,10 +2,10 @@
  * ZTMZ Pacenote Dashboard - Web Client
  * Receives drawing commands from server and renders them on canvas
  * Server executes Lua dashboards and sends rendered commands
- * VERSION: 2025-10-19-v2 (transparent fix)
+ * VERSION: 2026-07-17-text-layout
  */
 
-console.log('Dashboard Client VERSION: 2025-10-19-v2 (transparent fix)');
+console.log('Dashboard Client VERSION: 2026-07-17-text-layout');
 
 // ============================================================================
 // Global State
@@ -34,6 +34,9 @@ const colorCssCache = new Map();
 // Initialization
 // ============================================================================
 window.addEventListener('DOMContentLoaded', async () => {
+    updateLoadingText('Loading dashboard fonts...');
+    await loadDashboardFonts();
+
     updateLoadingText('Initializing canvas...');
     showCanvas();
     initializeDashboardControls();
@@ -225,39 +228,8 @@ function executeDrawingCommand(cmd) {
             break;
             
         case 'drawText':
-            ctx.fillStyle = colorToCSS(cmd.color);
-            
         case 'drawTextWithBackground':
-            ctx.save();
-            ctx.font = `${cmd.fontSize}px "${cmd.fontName || 'Arial'}", Arial, sans-serif`;
-            
-            // Handle multi-line text
-            const bgLines = cmd.text.split('\n');
-            const lineHeight = cmd.fontSize * 1.2;
-            
-            // Calculate total text dimensions
-            let maxWidth = 0;
-            for (const line of bgLines) {
-                const metrics = ctx.measureText(line);
-                maxWidth = Math.max(maxWidth, metrics.width);
-            }
-            const totalHeight = bgLines.length * lineHeight;
-            
-            // Draw background (skip if fully transparent)
-            const bgAlpha = ((cmd.bgColor >> 24) & 0xFF);
-            if (bgAlpha > 0) {
-                ctx.fillStyle = colorToCSS(cmd.bgColor);
-                ctx.fillRect(cmd.x, cmd.y, maxWidth, totalHeight);
-            }
-            
-            // Draw text lines
-            ctx.fillStyle = colorToCSS(cmd.color);
-            ctx.textBaseline = 'top';
-            for (let i = 0; i < bgLines.length; i++) {
-                ctx.fillText(bgLines[i], cmd.x, cmd.y + (i * lineHeight));
-            }
-            
-            ctx.restore();
+            drawTextCommand(ctx, cmd);
             break;
             
         case 'drawImage':
@@ -368,6 +340,86 @@ function executeDrawingCommand(cmd) {
     } catch (error) {
         console.error('Error executing command:', cmd.type, cmd, error);
     }
+}
+
+async function loadDashboardFonts() {
+    if (!document.fonts || !document.fonts.load) {
+        return;
+    }
+
+    const fonts = [
+        '400 14px "WRC Clean Roman"',
+        '700 14px "WRC Clean Roman"',
+        '400 14px "WRC Clean"',
+        '700 14px "WRC Clean"',
+        '400 14px "WRC Clean Bold"',
+        '700 14px "WRC Clean Bold"'
+    ];
+    await Promise.all(fonts.map(font => document.fonts.load(font).catch(() => [])));
+    await document.fonts.ready;
+}
+
+function drawTextCommand(ctx, cmd) {
+    const fontSize = positiveNumber(cmd.fontSize, 14);
+    const text = String(cmd.text ?? '');
+    if (!text) {
+        return;
+    }
+
+    ctx.save();
+    ctx.font = getCanvasFont(cmd, fontSize);
+    ctx.textBaseline = 'alphabetic';
+
+    const lines = text.split('\n');
+    const fontMetrics = ctx.measureText('Mg');
+    const fallbackAscent = positiveNumber(
+        fontMetrics.fontBoundingBoxAscent,
+        positiveNumber(fontMetrics.actualBoundingBoxAscent, fontSize * 0.8));
+    const fallbackDescent = positiveNumber(
+        fontMetrics.fontBoundingBoxDescent,
+        positiveNumber(fontMetrics.actualBoundingBoxDescent, fontSize * 0.2));
+    const lineHeight = positiveNumber(cmd.lineHeight, fallbackAscent + fallbackDescent);
+    const baseline = positiveNumber(cmd.baseline, fallbackAscent);
+
+    let browserWidth = 0;
+    for (const line of lines) {
+        browserWidth = Math.max(browserWidth, ctx.measureText(line).width);
+    }
+
+    const textWidth = positiveNumber(cmd.textWidth, browserWidth);
+    const textHeight = positiveNumber(cmd.textHeight, lines.length * lineHeight);
+
+    if (cmd.type === 'drawTextWithBackground' && ((cmd.bgColor >>> 24) & 0xFF) > 0) {
+        const padding = fontSize * 0.25;
+        ctx.fillStyle = colorToCSS(cmd.bgColor);
+        ctx.fillRect(
+            cmd.x - padding,
+            cmd.y - padding,
+            textWidth + (padding * 2),
+            textHeight + (padding * 2));
+    }
+
+    ctx.fillStyle = colorToCSS(cmd.color);
+    for (let index = 0; index < lines.length; index++) {
+        ctx.fillText(lines[index], cmd.x, cmd.y + baseline + (index * lineHeight));
+    }
+
+    ctx.restore();
+}
+
+function getCanvasFont(cmd, fontSize) {
+    const weight = Number.isFinite(cmd.fontWeight)
+        ? Math.max(100, Math.min(900, Math.round(cmd.fontWeight)))
+        : 400;
+    const style = cmd.fontStyle === 'italic' ? 'italic' : 'normal';
+    const fontName = String(cmd.fontName || 'Arial')
+        .replace(/\\/g, '\\\\')
+        .replace(/"/g, '\\"');
+    return `${style} ${weight} ${fontSize}px "${fontName}", Arial, sans-serif`;
+}
+
+function positiveNumber(value, fallback) {
+    return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
 function applyFillStyle(ctx, cmd) {

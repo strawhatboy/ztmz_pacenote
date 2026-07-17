@@ -14,6 +14,9 @@ v2.99.99.38-3.0-rc11
 * Added a diagnostics view with live UDP, audio, Web Dashboard, and game prerequisite status, plus a local support bundle containing a sanitized snapshot and recent log tails.
 * Added built-in beta interface packs for German, French, Italian, Russian, Spanish, Brazilian Portuguese, Japanese, and Korean. Less-used legacy descriptions fall back to English while they await native-speaker review.
 * Prepared the localization system for additional languages with per-key English fallback, automatic language-resource staging, and validation that translated resource keys exist in English.
+* Restored functional system-tray controls, including reliable Show and Exit actions.
+* Refined the Home-page game selector, status lighting, and title-bar action alignment.
+* Matched Web Dashboard text output more closely to native overlays: preserve bold and italic styles, load matching WRC font faces, and use DirectWrite layout metrics for baselines and placement.
 
 [简体中文]
 * 新增“恶作剧：随机漏报路书”设置，可按设定百分比随机跳过普通路书语音；默认 0%，不影响试听和系统提示音。
@@ -29,6 +32,9 @@ v2.99.99.38-3.0-rc11
 * 网页和原生仪表盘改为独立加载，原生悬浮窗加载失败不会再禁用网页仪表盘输出。
 * 选择安全 UDP 端口后立即更新游戏设置界面，显示端口始终与当前监听器及已修复的游戏配置一致。
 * 改进发布打包流程：只打包默认发布资源，安装包版本自动与程序一致，并支持更新后的本地签名证书。
+* 恢复系统托盘菜单功能，显示主窗口和退出操作均可正常使用。
+* 优化主页游戏选择器、状态光晕和标题栏快捷操作的对齐效果。
+* 改进网页仪表盘文本渲染：保留粗体和斜体样式、加载对应的 WRC 字体，并使用 DirectWrite 布局指标对齐文字基线和位置。
 
 v2.99.99.37-3.0-rc10
 ------

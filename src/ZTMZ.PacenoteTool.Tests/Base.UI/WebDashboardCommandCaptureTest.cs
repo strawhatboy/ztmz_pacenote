@@ -37,11 +37,14 @@ public class WebDashboardCommandCaptureTest
         var response = await GetWhenReady(client, endpoint);
         using var dashboardListResponse = await client.GetAsync(endpoint);
         using var pageResponse = await client.GetAsync($"http://127.0.0.1:{port}/");
+        using var clientScriptResponse = await client.GetAsync($"http://127.0.0.1:{port}/dashboard-client.js");
         using var fontResponse = await client.GetAsync($"http://127.0.0.1:{port}/fonts/WRCCleanRoman.ttf");
         dashboardListResponse.EnsureSuccessStatusCode();
         pageResponse.EnsureSuccessStatusCode();
+        clientScriptResponse.EnsureSuccessStatusCode();
         fontResponse.EnsureSuccessStatusCode();
         var page = await pageResponse.Content.ReadAsStringAsync();
+        var clientScript = await clientScriptResponse.Content.ReadAsStringAsync();
 
         Assert.True(server.IsRunning);
         Assert.Equal("[]", response);
@@ -50,7 +53,10 @@ public class WebDashboardCommandCaptureTest
         Assert.Contains("frame-rate", page);
         Assert.Contains("connection-status-text", page);
         Assert.Contains("WRCCleanRoman.ttf", page);
+        Assert.Contains("font-weight: 700", page);
         Assert.Contains("dashboard-client.js?v=1", page);
+        Assert.Contains("cmd.fontWeight", clientScript);
+        Assert.Contains("cmd.baseline", clientScript);
         Assert.DoesNotContain("fengari", page.ToLowerInvariant());
         Assert.True(dashboardListResponse.Headers.TryGetValues("Cache-Control", out var dashboardCacheControlValues));
         Assert.Contains("no-store", string.Join(",", dashboardCacheControlValues));
@@ -253,6 +259,25 @@ public class WebDashboardCommandCaptureTest
 
         Assert.Equal(14f, (float)font.FontSize);
         Assert.IsType<ProxyPoint>(size);
+    }
+
+    [Fact]
+    public void ProxyCapturesFontStyleAndDirectWriteLayoutMetrics()
+    {
+        var capture = new DrawingCommandCapture { Width = 1920, Height = 1080 };
+        using var graphics = new GraphicsCommandProxy(capture);
+        var brush = graphics.CreateSolidBrush(255, 255, 255);
+        var font = graphics.CreateCustomFont("WRC Clean Roman", 32, bold: true, italic: true);
+
+        graphics.DrawText(font, brush, 100, 200, "123");
+
+        var command = Assert.IsType<DrawTextCommand>(Assert.Single(capture.GetCommands()));
+        Assert.Equal(700, command.FontWeight);
+        Assert.Equal("italic", command.FontStyle);
+        Assert.True(command.TextWidth > 0);
+        Assert.True(command.TextHeight > 0);
+        Assert.True(command.Baseline > 0);
+        Assert.True(command.LineHeight > 0);
     }
 
     [Fact]
