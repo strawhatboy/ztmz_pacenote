@@ -174,48 +174,79 @@
                 </StackPanel>
                 <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding Path=ViewModel.WebDashboardEnabled, Mode=TwoWay}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardEnabled}" HorizontalAlignment="Right" />
                 
-                <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="36 10 0 0" Visibility="{Binding Path=ViewModel.WebDashboardEnabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="40" />
-                            <ColumnDefinition Width="160" />
-                        </Grid.ColumnDefinitions>
-                        <ui:TextBlock Grid.Column="0" Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardPortLabel}" VerticalAlignment="Center" Margin="0 0 10 0" />
-                        <ui:NumberBox Grid.Column="1" Grid.ColumnSpan="2" Width="160" HorizontalAlignment="Left" Value="{Binding Path=ViewModel.WebDashboardPort, Mode=TwoWay}" Minimum="1024" Maximum="65535" ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardPort}" />
-                        <ui:TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardFrameRateLabel}" VerticalAlignment="Center" Margin="0 8 10 0" />
-                        <ui:TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=ViewModel.WebDashboardFrameRate, Mode=OneWay, StringFormat=N0}" VerticalAlignment="Center" Margin="0 8 0 0" />
-                        <Slider Grid.Row="1" Grid.Column="2" Maximum="240" Minimum="5" IsSnapToTickEnabled="True" SmallChange="5" LargeChange="5" TickFrequency="5" TickPlacement="Both" Value="{Binding Path=ViewModel.WebDashboardFrameRate, Mode=TwoWay}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardFrameRate}" VerticalAlignment="Center" Margin="0 8 0 0" />
-                    </Grid>
-                    <StackPanel Orientation="Horizontal" Margin="0 8 0 0" ToolTip="{Binding Path=ViewModel.WebDashboardStatus, Mode=OneWay}">
-                        <Ellipse Width="8" Height="8" Fill="{Binding Path=ViewModel.WebDashboardStatusBrush, Mode=OneWay}" VerticalAlignment="Center" Margin="0 0 7 0" />
-                        <ui:TextBlock Text="{Binding Path=ViewModel.WebDashboardStatus, Mode=OneWay}" Appearance="Tertiary" FontTypography="Caption" />
-                    </StackPanel>
-                    <Grid Margin="0 8 0 0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ui:Button Grid.Column="0"
-                                   HorizontalAlignment="Left"
-                                   MaxWidth="440"
-                                   Icon="{ui:SymbolIcon Open20}"
-                                   Content="{Binding Path=ViewModel.WebDashboardUrl, Mode=OneWay}"
-                                   Command="{Binding Path=ViewModel.OpenWebDashboardCommand}"
-                                   ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardOpen}" />
-                        <ui:SymbolIcon Grid.Column="1"
-                                       Symbol="QuestionCircle20"
-                                       FontSize="18"
-                                       Margin="8 0 0 0"
-                                       VerticalAlignment="Center"
-                                       ToolTip="{Binding Path=ViewModel.WebDashboardAddressesTooltip, Mode=OneWay}"
-                                       ToolTipService.InitialShowDelay="100" />
-                    </Grid>
-                </StackPanel>
+                <Grid Grid.Row="1"
+                      Grid.ColumnSpan="2"
+                      Margin="36 10 0 0"
+                      VerticalAlignment="Center"
+                      Visibility="{Binding Path=ViewModel.WebDashboardEnabled, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="168" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="36" />
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBlock Grid.Column="0"
+                                  Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardPortLabel}"
+                                  VerticalAlignment="Center"
+                                  Margin="0 0 8 0" />
+                    <ui:NumberBox Grid.Column="1"
+                                  Width="168"
+                                  Value="{Binding Path=ViewModel.WebDashboardPort, Mode=TwoWay}"
+                                  Minimum="1024"
+                                  Maximum="65535"
+                                  ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardPort}" />
+                    <ui:TextBlock Grid.Column="2"
+                                  Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardFrameRateLabel}"
+                                  VerticalAlignment="Center"
+                                  Margin="12 0 8 0" />
+                    <ui:TextBlock Grid.Column="3"
+                                  Text="{Binding Path=ViewModel.WebDashboardFrameRate, Mode=OneWay, StringFormat=N0}"
+                                  VerticalAlignment="Center"
+                                  HorizontalAlignment="Center"
+                                  Margin="0 0 8 0" />
+                    <Slider Grid.Column="4"
+                            Maximum="240"
+                            Minimum="5"
+                            IsSnapToTickEnabled="True"
+                            SmallChange="5"
+                            LargeChange="5"
+                            TickFrequency="5"
+                            TickPlacement="Both"
+                            Value="{Binding Path=ViewModel.WebDashboardFrameRate, Mode=TwoWay}"
+                            ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardFrameRate}"
+                            VerticalAlignment="Center"
+                            Margin="0 0 16 0" />
+                    <Ellipse Grid.Column="5"
+                             Width="8"
+                             Height="8"
+                             Fill="{Binding Path=ViewModel.WebDashboardStatusBrush, Mode=OneWay}"
+                             VerticalAlignment="Center"
+                             Margin="0 0 7 0"
+                             ToolTip="{Binding Path=ViewModel.WebDashboardStatus, Mode=OneWay}"
+                             ToolTipService.InitialShowDelay="100" />
+                    <ui:Button Grid.Column="6"
+                               MaxWidth="260"
+                               HorizontalAlignment="Left"
+                               HorizontalContentAlignment="Stretch"
+                               Icon="{ui:SymbolIcon Open20}"
+                               Command="{Binding Path=ViewModel.OpenWebDashboardCommand}"
+                               ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardOpen}">
+                        <ui:TextBlock Text="{Binding Path=ViewModel.WebDashboardUrl, Mode=OneWay}"
+                                      TextWrapping="NoWrap"
+                                      TextTrimming="CharacterEllipsis" />
+                    </ui:Button>
+                    <ui:SymbolIcon Grid.Column="7"
+                                   Symbol="QuestionCircle20"
+                                   FontSize="18"
+                                   Margin="8 0 0 0"
+                                   VerticalAlignment="Center"
+                                   ToolTip="{Binding Path=ViewModel.WebDashboardAddressesTooltip, Mode=OneWay}"
+                                   ToolTipService.InitialShowDelay="100" />
+                </Grid>
             </Grid>
         </ui:Card>
 

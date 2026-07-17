@@ -29,6 +29,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="480"/>
@@ -56,21 +57,6 @@
                 </Grid.ColumnDefinitions>
 
 
-                <Border Grid.Row="0"
-                        Grid.Column="0"
-                        Background="White"
-                        CornerRadius="8"
-                        Height="130"
-                        Visibility="{Binding ViewModel.IsRacing, 
-                                Converter={StaticResource BooleanToVisibilityConverter}}">
-
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="40"
-                                          Color="LightGreen"
-                                          ShadowDepth="0"
-                                          Opacity="1"/>
-                    </Border.Effect>
-                </Border>
                 <ui:Image CornerRadius="10"
                           Height="130"
                           Width="130"
@@ -86,40 +72,27 @@
                         <DropShadowEffect BlurRadius="40" Color="Red" ShadowDepth="0" Opacity="1" />
                     </Border.Effect>
                 </Border> -->
-                <Border Grid.Row="0"
-                        Grid.Column="2"
-                        Background="White"
-                        CornerRadius="8"
-                        Height="150"
-                        Visibility="{Binding ViewModel.IsGameRunning, 
-                                Converter={StaticResource BooleanToVisibilityConverter}}">
-
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="40"
-                                          Color="LightGreen"
-                                          ShadowDepth="0"
-                                          Opacity="1"/>
-                    </Border.Effect>
-                </Border>
                 <ComboBox Grid.Row="0"
                           Grid.Column="2"
-                          Height="150"
+                          Height="130"
+                          Padding="0"
                           ItemsSource="{Binding Path=ViewModel.Games, Mode=OneWay}"
                           SelectedItem="{Binding Path=ViewModel.SelectedGame, Mode=TwoWay}"
                           ToolTip="{Binding Path=ViewModel.SelectedGame.Game.Description}"
                           ToolTipService.InitialShowDelay="100"
+                          HorizontalContentAlignment="Center"
+                          VerticalContentAlignment="Center"
                           VerticalAlignment="Center">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <!-- <StackPanel ToolTip="{Binding Path=Game.Description}"> -->
                             <ui:Image Source="{Binding Path=Image}"
-                                      ToolTip="{Binding Path=Game.Description}"
-                                      Width="214"
-                                      Height="100"
-                                      Stretch="UniformToFill"
-                                      RenderOptions.BitmapScalingMode="HighQuality"/>
-                            <!-- <ui:TextBlock Text="{Binding Path=Game.Name}" HorizontalAlignment="Center" />
-                            </StackPanel> -->
+                                       ToolTip="{Binding Path=Game.Description}"
+                                       Width="190"
+                                       Height="108"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Stretch="Uniform"
+                                       RenderOptions.BitmapScalingMode="HighQuality"/>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                     <b:Interaction.Triggers>
@@ -134,32 +107,21 @@
                 <Border Grid.Row="0"
                         Grid.Column="1"
                         Background="#FFFF8888"
+                        CornerRadius="2"
                         Height="4"
                         Visibility="{Binding ViewModel.IsGameInitializedFailed, 
                                 Converter={StaticResource BooleanToVisibilityConverter}}"
                         ToolTip="{Binding ViewModel.GameInitializeFailureMessage}"
                         ToolTipService.InitialShowDelay="100">
 
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="40"
-                                          Color="Red"
-                                          ShadowDepth="0"
-                                          Opacity="1"/>
-                    </Border.Effect>
                 </Border>
                 <Border Grid.Row="0"
                         Grid.Column="1"
                         Background="LightGreen"
+                        CornerRadius="2"
                         Height="4"
                         Visibility="{Binding ViewModel.IsGameInitialized, 
                                 Converter={StaticResource BooleanToVisibilityConverter}}">
-
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="40"
-                                          Color="LightGreen"
-                                          ShadowDepth="0"
-                                          Opacity="1"/>
-                    </Border.Effect>
                 </Border>
                 <ProgressBar Grid.Row="0"
                     Grid.Column="1"
@@ -727,5 +689,108 @@
                 
             </ui:CardExpander> -->
         </StackPanel>
+        <Border Grid.Row="2"
+                Grid.ColumnSpan="2"
+                Margin="0 12 0 0"
+                Padding="12 8"
+                BorderBrush="{ui:ThemeResource DividerStrokeColorDefaultBrush}"
+                BorderThickness="1 0 0 0"
+                Cursor="Hand"
+                ToolTip="{DynamicResource diagnostics.title}"
+                ToolTipService.InitialShowDelay="100"
+                MouseLeftButtonUp="DiagnosticsStatusBar_OnMouseLeftButtonUp">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.35*" />
+                    <ColumnDefinition Width="1.2*" />
+                    <ColumnDefinition Width="1.1*" />
+                    <ColumnDefinition Width="1.25*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0"
+                            Margin="0 0 14 0"
+                            ToolTip="{Binding ViewModel.Diagnostics.PrerequisiteStatus}">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="7"
+                                 Height="7"
+                                 Margin="0 6 6 0"
+                                 Fill="{Binding ViewModel.Diagnostics.GameStatusBrush}" />
+                        <ui:TextBlock Text="{DynamicResource diagnostics.game}"
+                                      FontTypography="Caption"
+                                      Appearance="Tertiary" />
+                    </StackPanel>
+                    <ui:TextBlock Text="{Binding ViewModel.Diagnostics.GameStatus}"
+                                  TextWrapping="NoWrap"
+                                  TextTrimming="CharacterEllipsis" />
+                    <ui:TextBlock Text="{Binding ViewModel.Diagnostics.PrerequisiteStatus}"
+                                  FontTypography="Caption"
+                                  Appearance="Tertiary"
+                                  TextWrapping="NoWrap"
+                                  TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <StackPanel Grid.Column="1"
+                            Margin="0 0 14 0"
+                            ToolTip="{Binding ViewModel.Diagnostics.UdpActivity}">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="7"
+                                 Height="7"
+                                 Margin="0 6 6 0"
+                                 Fill="{Binding ViewModel.Diagnostics.UdpStatusBrush}" />
+                        <ui:TextBlock Text="{DynamicResource diagnostics.udp}"
+                                      FontTypography="Caption"
+                                      Appearance="Tertiary" />
+                    </StackPanel>
+                    <ui:TextBlock Text="{Binding ViewModel.Diagnostics.UdpStatus}"
+                                  TextWrapping="NoWrap"
+                                  TextTrimming="CharacterEllipsis" />
+                    <ui:TextBlock Text="{Binding ViewModel.Diagnostics.UdpActivity}"
+                                  FontTypography="Caption"
+                                  Appearance="Tertiary"
+                                  TextWrapping="NoWrap"
+                                  TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <StackPanel Grid.Column="2"
+                            Margin="0 0 14 0"
+                            ToolTip="{Binding ViewModel.Diagnostics.AudioActivity}">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="7"
+                                 Height="7"
+                                 Margin="0 6 6 0"
+                                 Fill="{Binding ViewModel.Diagnostics.AudioStatusBrush}" />
+                        <ui:TextBlock Text="{DynamicResource diagnostics.audio}"
+                                      FontTypography="Caption"
+                                      Appearance="Tertiary" />
+                    </StackPanel>
+                    <ui:TextBlock Text="{Binding ViewModel.Diagnostics.AudioStatus}"
+                                  TextWrapping="NoWrap"
+                                  TextTrimming="CharacterEllipsis" />
+                    <ui:TextBlock Text="{Binding ViewModel.Diagnostics.AudioActivity}"
+                                  FontTypography="Caption"
+                                  Appearance="Tertiary"
+                                  TextWrapping="NoWrap"
+                                  TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <StackPanel Grid.Column="3"
+                            Margin="0 0 14 0"
+                            ToolTip="{Binding ViewModel.Diagnostics.WebDashboardActivity}">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="7"
+                                 Height="7"
+                                 Margin="0 6 6 0"
+                                 Fill="{Binding ViewModel.Diagnostics.WebDashboardStatusBrush}" />
+                        <ui:TextBlock Text="{DynamicResource diagnostics.webDashboard}"
+                                      FontTypography="Caption"
+                                      Appearance="Tertiary" />
+                    </StackPanel>
+                    <ui:TextBlock Text="{Binding ViewModel.Diagnostics.WebDashboardStatus}"
+                                  TextWrapping="NoWrap"
+                                  TextTrimming="CharacterEllipsis" />
+                    <ui:TextBlock Text="{Binding ViewModel.Diagnostics.WebDashboardActivity}"
+                                  FontTypography="Caption"
+                                  Appearance="Tertiary"
+                                  TextWrapping="NoWrap"
+                                  TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Page>

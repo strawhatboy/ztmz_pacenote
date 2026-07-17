@@ -141,6 +141,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private int _webDashboardRenderInProgress = 0;
         private int _webDashboardFrameRate = Config.WebDashboardFrameRateDefault;
         private long _webDashboardLastFrameTimestamp = 0;
+        private long _webDashboardRenderedFrameCount = 0;
+        private long _webDashboardLastRenderedFrameUtcTicks = 0;
         
         // Web dashboard rendering support
         private DrawingCommandCapture? _webCommandCapture = null;
@@ -157,6 +159,22 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 lock (_webDashboardLock)
                 {
                     return _webDashboardStatus;
+                }
+            }
+        }
+
+        public WebDashboardRuntimeDiagnostics WebDashboardDiagnostics
+        {
+            get
+            {
+                lock (_webDashboardLock)
+                {
+                    return new WebDashboardRuntimeDiagnostics(
+                        _webDashboardStatus,
+                        _webDashboardServer?.ClientCount ?? 0,
+                        Volatile.Read(ref _webDashboardFrameRate),
+                        Interlocked.Read(ref _webDashboardRenderedFrameCount),
+                        ToUtcDateTimeOffset(Interlocked.Read(ref _webDashboardLastRenderedFrameUtcTicks)));
                 }
             }
         }
@@ -389,6 +407,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     _webDashboardServer = server;
                     Volatile.Write(ref _webDashboardFrameRate, normalizedFrameRate);
                     Interlocked.Exchange(ref _webDashboardLastFrameTimestamp, 0);
+                    Interlocked.Exchange(ref _webDashboardRenderedFrameCount, 0);
+                    Interlocked.Exchange(ref _webDashboardLastRenderedFrameUtcTicks, 0);
                     _webDashboardRenderTimer = new Timer(
                         RenderWebDashboard,
                         null,
@@ -599,6 +619,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     DashboardScriptArguments.GameData,
                     DashboardScriptArguments.GameContext,
                     commands);
+                Interlocked.Increment(ref _webDashboardRenderedFrameCount);
+                Interlocked.Exchange(ref _webDashboardLastRenderedFrameUtcTicks, DateTime.UtcNow.Ticks);
             }
             catch (Exception ex)
             {
@@ -608,6 +630,13 @@ namespace ZTMZ.PacenoteTool.Base.UI
             {
                 Volatile.Write(ref _webDashboardRenderInProgress, 0);
             }
+        }
+
+        private static DateTimeOffset? ToUtcDateTimeOffset(long ticks)
+        {
+            return ticks == 0
+                ? null
+                : new DateTimeOffset(new DateTime(ticks, DateTimeKind.Utc));
         }
 
         public void InitializeOverlayInSeparateWindow() {

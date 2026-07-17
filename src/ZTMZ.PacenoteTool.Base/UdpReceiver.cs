@@ -16,6 +16,13 @@ public class UdpReceiver : IDisposable
     private CancellationTokenSource receiveCancellation;
     private bool isInitialized;
     private byte[] lastMessage;
+    private string listenAddress = string.Empty;
+    private int listenPort;
+    private string lastError = string.Empty;
+    private long packetCount;
+    private long lastPacketUtcTicks;
+    private long lastErrorUtcTicks;
+    private int lastPacketSize;
 
     public event Action<byte[], byte[]> onNewMessage;
     public event Action ListenStarted;
@@ -24,6 +31,25 @@ public class UdpReceiver : IDisposable
     public int[] WheelAbnormalDetectedCounter = { 0, 0, 0, 0 };
 
     public GameData LastMessage { get; private set; }
+
+    public UdpReceiverStatus Status
+    {
+        get
+        {
+            lock (lifecycleLock)
+            {
+                return new UdpReceiverStatus(
+                    isInitialized,
+                    listenAddress,
+                    listenPort,
+                    Interlocked.Read(ref packetCount),
+                    ToUtcDateTimeOffset(Interlocked.Read(ref lastPacketUtcTicks)),
+                    Volatile.Read(ref lastPacketSize),
+                    ToUtcDateTimeOffset(Interlocked.Read(ref lastErrorUtcTicks)),
+                    lastError);
+            }
+        }
+    }
 
     public void ResetWheelStatus()
     {
@@ -78,13 +104,21 @@ public class UdpReceiver : IDisposable
                 throw;
             }
 
+            var boundEndpoint = udpClient.Client.LocalEndPoint as IPEndPoint ?? endpoint;
             var cancellation = new CancellationTokenSource();
             client = udpClient;
             receiveCancellation = cancellation;
             lastMessage = null;
+            listenAddress = boundEndpoint.Address.ToString();
+            listenPort = boundEndpoint.Port;
+            lastError = string.Empty;
+            Interlocked.Exchange(ref packetCount, 0);
+            Interlocked.Exchange(ref lastPacketUtcTicks, 0);
+            Interlocked.Exchange(ref lastErrorUtcTicks, 0);
+            Interlocked.Exchange(ref lastPacketSize, 0);
             isInitialized = true;
-            _ = ReceiveLoopAsync(udpClient, endpoint, cancellation.Token);
-            logger.Info("UDP traffic listening started on {0}.", endpoint);
+            _ = ReceiveLoopAsync(udpClient, boundEndpoint, cancellation.Token);
+            logger.Info("UDP traffic listening started on {0}.", boundEndpoint);
         }
 
         InvokeListenStartedHandlers();
@@ -140,6 +174,7 @@ public class UdpReceiver : IDisposable
                     return;
                 }
 
+                RecordError(ex);
                 logger.Error(ex,
                     "UDP receive failed on {0} with socket error {1}; the receiver will retry.",
                     localEndpoint,
@@ -158,6 +193,7 @@ public class UdpReceiver : IDisposable
             }
             catch (Exception ex)
             {
+                RecordError(ex);
                 logger.Error(ex, "Unexpected UDP receive failure on {0}; the receiver will retry.", localEndpoint);
 
                 try
@@ -179,8 +215,27 @@ public class UdpReceiver : IDisposable
 
             var previousMessage = lastMessage;
             lastMessage = result.Buffer;
+            Interlocked.Increment(ref packetCount);
+            Interlocked.Exchange(ref lastPacketUtcTicks, DateTime.UtcNow.Ticks);
+            Interlocked.Exchange(ref lastPacketSize, result.Buffer.Length);
             InvokeMessageHandlers(previousMessage, result.Buffer, result.RemoteEndPoint);
         }
+    }
+
+    private void RecordError(Exception exception)
+    {
+        lock (lifecycleLock)
+        {
+            lastError = $"{exception.GetType().Name}: {exception.Message}";
+            Interlocked.Exchange(ref lastErrorUtcTicks, DateTime.UtcNow.Ticks);
+        }
+    }
+
+    private static DateTimeOffset? ToUtcDateTimeOffset(long ticks)
+    {
+        return ticks == 0
+            ? null
+            : new DateTimeOffset(new DateTime(ticks, DateTimeKind.Utc));
     }
 
     private void InvokeMessageHandlers(byte[] previousMessage, byte[] message, IPEndPoint remoteEndpoint)

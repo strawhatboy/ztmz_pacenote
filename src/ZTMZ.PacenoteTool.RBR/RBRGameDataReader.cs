@@ -17,6 +17,8 @@ public class RBRGameDataReader : UdpGameDataReader
 {
     private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     public static float G = 9.8f;
+    public override bool IsUdpTelemetryOptional => true;
+
     public override GameState GameState
     {
         set

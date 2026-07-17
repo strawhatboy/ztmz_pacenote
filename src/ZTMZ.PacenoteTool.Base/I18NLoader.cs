@@ -16,6 +16,8 @@ namespace ZTMZ.PacenoteTool.Base
     // Singleton
     public class I18NLoader
     {
+        public const string FallbackCultureName = "en-us";
+
         //public static string I18NPath = "lang";
 
         private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
@@ -27,6 +29,7 @@ namespace ZTMZ.PacenoteTool.Base
 
         public string CurrentCultureName { set; get; }
         public IDictionary<string, string> CurrentCulture { set; get; }
+        private IDictionary<string, string> FallbackCulture { set; get; }
 
         // public ResourceDictionary CurrentDict { get; private set; }
 
@@ -53,18 +56,18 @@ namespace ZTMZ.PacenoteTool.Base
 
         public void Initialize(IList<string> i18nPaths)
         {
-            Resources = new Dictionary<string, Dictionary<string, string>>();
+            Resources = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
             cultures = new List<string>(); 
             culturesFullname = new List<string>();
             CultureInfo[] cinfo = CultureInfo.GetCultures(CultureTypes.AllCultures);
-            var cultureDict = cinfo.ToDictionary(a => a.Name.ToLower(), a => a.DisplayName);
+            var cultureDict = cinfo.ToDictionary(a => a.Name.ToLowerInvariant(), a => a.DisplayName, StringComparer.OrdinalIgnoreCase);
 
             if (cultureDict.ContainsKey("zh-hans-cn"))
             {
                 cultureDict["zh-cn"] = cultureDict["zh-hans-cn"];
             }
             // shit, dotnet6 has no zh-cn
-            CurrentCultureName = CultureInfo.CurrentCulture.Name.ToLower();
+            CurrentCultureName = CultureInfo.CurrentCulture.Name.ToLowerInvariant();
 
             var jsonFiles = new List<string>();
             foreach (var path in i18nPaths)
@@ -79,12 +82,12 @@ namespace ZTMZ.PacenoteTool.Base
             {
                 // load all files like "en-us.json" or "en-us.codemasters.json"
                 var jsonFileWithoutDir = Path.GetFileName(jsonFile);
-                var fileNameWithoutExtension = jsonFileWithoutDir.Substring(0, jsonFileWithoutDir.IndexOf('.')).ToLower();
-                if (cultureDict.ContainsKey(fileNameWithoutExtension))
+                var fileNameWithoutExtension = jsonFileWithoutDir.Substring(0, jsonFileWithoutDir.IndexOf('.')).ToLowerInvariant();
+                if (cultureDict.TryGetValue(fileNameWithoutExtension, out var cultureFullname))
                 {
                     if (!cultures.Contains(fileNameWithoutExtension)) {
                         cultures.Add(fileNameWithoutExtension);
-                        culturesFullname.Add(cultureDict[fileNameWithoutExtension]);
+                        culturesFullname.Add(cultureFullname);
                         Resources.Add(fileNameWithoutExtension, new Dictionary<string, string>());
                     }
                 }
@@ -102,6 +105,13 @@ namespace ZTMZ.PacenoteTool.Base
                 readJson(fileNameWithoutExtension, jObj);
             }
 
+            Resources.TryGetValue(FallbackCultureName, out var fallbackCulture);
+            FallbackCulture = fallbackCulture;
+            if (FallbackCulture == null)
+            {
+                _logger.Warn("Fallback localization culture {0} was not loaded.", FallbackCultureName);
+            }
+
             SetCulture(CurrentCultureName);
         }
 
@@ -110,13 +120,15 @@ namespace ZTMZ.PacenoteTool.Base
         // or use I18NLoader.Instance[] to get the value of the key
         public void SetCulture(string culture)
         {
-            culture = culture.ToLower();
-            if (Resources.ContainsKey(culture))
+            culture = culture?.ToLowerInvariant() ?? string.Empty;
+            if (TryResolveCulture(culture, out var resolvedCulture, out var resources))
             {
-                CurrentCulture = Resources[culture];
+                CurrentCultureName = resolvedCulture;
+                CurrentCulture = CreateEffectiveCulture(resources);
             } else
             {
-                SetCulture("en-us");
+                CurrentCultureName = FallbackCultureName;
+                CurrentCulture = CreateEffectiveCulture(null);
             }
 
             // List<ResourceDictionary> resources = new List<ResourceDictionary>();
@@ -129,6 +141,63 @@ namespace ZTMZ.PacenoteTool.Base
             //     CurrentDict.Add(key, I18NLoader.Instance.CurrentCulture[key]);
             // }
             // Application.Current.Resources.MergedDictionaries.Add(CurrentDict);
+        }
+
+        private bool TryResolveCulture(
+            string culture,
+            out string resolvedCulture,
+            out Dictionary<string, string> resources)
+        {
+            if (Resources.TryGetValue(culture, out resources))
+            {
+                resolvedCulture = culture;
+                return true;
+            }
+
+            if (culture.Equals("zh-hans-cn", StringComparison.OrdinalIgnoreCase)
+                && Resources.TryGetValue("zh-cn", out resources))
+            {
+                resolvedCulture = "zh-cn";
+                return true;
+            }
+
+            if (!culture.StartsWith("zh-hant", StringComparison.OrdinalIgnoreCase))
+            {
+                var languagePrefix = culture.Split('-')[0];
+                var regionalFallback = cultures.FirstOrDefault(candidate =>
+                    candidate.StartsWith(languagePrefix + "-", StringComparison.OrdinalIgnoreCase));
+                if (regionalFallback != null && Resources.TryGetValue(regionalFallback, out resources))
+                {
+                    resolvedCulture = regionalFallback;
+                    return true;
+                }
+            }
+
+            resolvedCulture = string.Empty;
+            resources = null;
+            return false;
+        }
+
+        private IDictionary<string, string> CreateEffectiveCulture(IDictionary<string, string> culture)
+        {
+            var effectiveCulture = new Dictionary<string, string>();
+            if (FallbackCulture != null)
+            {
+                foreach (var resource in FallbackCulture)
+                {
+                    effectiveCulture[resource.Key] = resource.Value;
+                }
+            }
+
+            if (culture != null)
+            {
+                foreach (var resource in culture)
+                {
+                    effectiveCulture[resource.Key] = resource.Value;
+                }
+            }
+
+            return effectiveCulture;
         }
 
         private void readJson(string culture, JObject root) {
@@ -212,6 +281,11 @@ namespace ZTMZ.PacenoteTool.Base
                     return this.CurrentCulture[idx].ToString();
                 }
 
+                if (FallbackCulture != null && FallbackCulture.ContainsKey(idx))
+                {
+                    return FallbackCulture[idx].ToString();
+                }
+
                 return idx;
             }
         }
@@ -222,10 +296,14 @@ namespace ZTMZ.PacenoteTool.Base
 
         public string ResolveByKeyAndCulture(string idx, string culture) {
             if (IgnoreCase) {
-                idx = idx.lower();
+                idx = idx.ToLowerInvariant();
             }
-            if (Resources.ContainsKey(culture) && Resources[culture].ContainsKey(idx)) {
-                return Resources[culture][idx].ToString();
+            culture = culture?.ToLowerInvariant() ?? string.Empty;
+            if (Resources.TryGetValue(culture, out var resources) && resources.ContainsKey(idx)) {
+                return resources[idx].ToString();
+            }
+            if (FallbackCulture != null && FallbackCulture.ContainsKey(idx)) {
+                return FallbackCulture[idx].ToString();
             }
 
             return idx;

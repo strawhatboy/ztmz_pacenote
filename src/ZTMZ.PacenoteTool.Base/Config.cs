@@ -261,6 +261,17 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._PlayGoSound;
         }
 
+        private int _PacenoteDropoutPercentage = 0;
+        public int PacenoteDropoutPercentage
+        {
+            set
+            {
+                this._PacenoteDropoutPercentage = Math.Clamp(value, 0, 100);
+                this._userconfig["PacenoteDropoutPercentage"] = this._PacenoteDropoutPercentage;
+            }
+            get => this._PacenoteDropoutPercentage;
+        }
+
         private bool _PlayCollisionSound = false;
         public bool PlayCollisionSound
         {

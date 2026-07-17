@@ -1,0 +1,546 @@
+{
+  "application": {
+    "title": "ZTMZ Club Pacenote Tool",
+    "title_dev": "ZTMZ Club Pacenote Tool (Développement)",
+    "title_test": "ZTMZ Club Pacenote Tool (Test)"
+  },
+  "tabs": {
+    "home": "Accueil",
+    "general": "Général",
+    "voices": "Voix",
+    "playback": "Lecture",
+    "hud": "HUD",
+    "dashboard": "Tableaux de bord",
+    "game": "Jeu",
+    "vr": "VR",
+    "replay": "Relecture",
+    "user": "Utilisateur",
+    "about": "À propos"
+  },
+  "settings": {
+    "more": "Plus",
+    "title": "Paramètres",
+    "export": "Exporter",
+    "play": "Lire",
+    "delete": "Supprimer",
+    "overlayHudTitle": "HUD superposé",
+    "btn_reset": "Rétablir les valeurs par défaut",
+    "section": {
+      "general": "Général",
+      "voicePackage": "Voix",
+      "misc": "Divers",
+      "playback": "Lecture",
+      "hud": "HUD",
+      "game": "Jeu",
+      "vr": "VR"
+    },
+    "subsection": {
+      "voicePackage": "Paramètres",
+      "replay": "Paramètres",
+      "tooltip": {
+        "voicePackage": "Paramètres des packs audio de copilote, y compris les sons de départ/arrivée, de collision et de crevaison.",
+        "replay": "Paramètres de relecture, y compris l'enregistrement, les limites et les paramètres OBS."
+      }
+    },
+    "restartNeeded": "Redémarrez l'outil pour appliquer les changements",
+    "tooltip": {
+      "language": "Langue affichée",
+      "theme": "Thème clair/sombre ou thème du système Windows",
+      "accentColor": "Couleur de tous les contrôles de l'interface",
+      "checkUpdateWhenStartup": "Vérifier les mises à jour au démarrage de l'outil",
+      "startWithWindows": "Démarrer l'outil avec Windows",
+      "logLevel": "Définir le niveau de journalisation. Les niveaux les plus élevés affichent moins d'informations.",
+      "viewLogs": "Afficher les journaux",
+      "pacenoteDropoutPercentage": "Pour le plaisir uniquement. Chaque annonce de pacenote normale peut être ignorée avec cette probabilité. 0 % désactive cette fonction; les aperçus et sons système ne sont pas concernés.",
+      "webDashboardEnabled": "Activer le serveur de tableau de bord web pour les appareils mobiles",
+      "webDashboardPort": "Numéro de port du serveur de tableau de bord web (appliqué immédiatement)",
+      "webDashboardFrameRate": "Fréquence d'images maximale du tableau de bord web (appliquée immédiatement)",
+      "webDashboardOpen": "Ouvrir le tableau de bord dans le navigateur",
+      "overlayHudEnabled": "Afficher le tableau de bord natif sur la fenêtre de jeu. Cette option ne démarre ni n'arrête le tableau de bord web.",
+      "webDashboardHomeStatus": "Le tableau de bord web est indépendant de l'interrupteur HUD superposé. Configurez-le dans les paramètres HUD.",
+      "udpListenAddress": "127.0.0.1 par défaut",
+      "udpListenPort": "Pour utiliser cet outil avec SIMHUB, remplacer le port 20777 par 20778 peut aider.",
+      "udpListenPort_Warning": "Le port ne correspond pas au réglage Dirt Rally 2.0 {0}; vous utilisez peut-être SIMHUB."
+    },
+    "autoInitializeGame_on": "Sélection automatique du jeu",
+    "autoInitializeGame_off": "Sélection manuelle du jeu",
+    "language": "Langue",
+    "isDarkTheme": "Thème sombre",
+    "theme": "Thème",
+    "accentColor": "Couleur d'accentuation",
+    "accentColorR": "Rouge",
+    "accentColorG": "Vert",
+    "accentColorB": "Bleu",
+    "darkTheme": "Sombre",
+    "lightTheme": "Clair",
+    "systemTheme": "Suivre le thème système (redémarrage requis)",
+    "playbackDeviceDesiredLatency": "Latence souhaitée du périphérique de lecture",
+    "logLevel": "Niveau de journalisation",
+    "checkUpdateWhenStartup": "Vérifier les mises à jour au démarrage",
+    "checkUpdateWhenStartup_On": "Mise à jour automatique (activée)",
+    "checkUpdateWhenStartup_Off": "Mise à jour automatique (désactivée)",
+    "startWithWindows": "Démarrer avec Windows",
+    "warnIfPortMismatch": "Avertir en cas de port différent",
+    "hudFPS": "IPS du HUD en jeu",
+    "importAudioPackage": "Importer un pack audio",
+    "playStartAndEndSound": "Lire le son spécial de départ/arrivée",
+    "playGoSound": "Lire un son spécial au départ de la course",
+    "pacenoteDropoutPercentage": "Espièglerie : omissions aléatoires de pacenotes",
+    "useReversePacenote": "Utiliser les pacenotes inversées",
+    "playCollisionSound": "Lire le son spécial de collision",
+    "collision_slight": "Seuil de collision légère (m/s²)",
+    "collision_medium": "Seuil de collision moyenne (m/s²)",
+    "collision_severe": "Seuil de collision grave (m/s²)",
+    "playWheelAbnormalSound": "[Expérimental] Lire un son spécial en cas de crevaison",
+    "useDefaultSoundPackageByDefault": "Ignorer le pack de voix IA par défaut",
+    "useDefaultSoundPackageForFallback": "Utiliser le pack de voix par défaut comme secours",
+    "preloadSounds": "Précharger les packs de voix (déconseillé avec peu de RAM)",
+    "additionalCoDriverPackagesSearchPath": "Dossier de recherche supplémentaire des packs de voix",
+    "additionalPacenotesDefinitionSearchPath": "Dossier de recherche supplémentaire des définitions de pacenotes",
+    "removeIntoAndOnto": "Supprimer les mots de liaison 'into', 'and' et 'onto'",
+    "useSequentialMixerToHandleAudioConflict": "Utiliser le mixeur séquentiel",
+    "useDynamicPlaybackSpeed": "Utiliser une vitesse de parole dynamique",
+    "useTempoInsteadOfRate": "Utiliser le tempo plutôt que le taux pour ajuster la vitesse",
+    "dynamicPlaybackMaxSpeed": "Vitesse de parole dynamique maximale",
+    "useDynamicVolume": "Utiliser l'amélioration dynamique de tension vocale",
+    "dynamicVolumePerturbationFrequency": "Fréquence de l'onde de tension vocale (Hz)",
+    "dynamicVolumePerturbationAmplitude": "Amplitude de l'onde de tension vocale (0~1)",
+    "factorToRemoveSpaceFromAudioFiles": "Compacité des voix",
+    "connectCloseDistanceCallToNextPacenote": "Relier l'appel de distance proche à la pacenote suivante (pacenote dynamique uniquement)",
+    "connectNumericDistanceCallToPreviousPacenote": "Relier l'appel de distance numérique à la pacenote précédente (pacenote dynamique uniquement)",
+    "examplePacenoteString": "Pacenote d'exemple",
+    "hudTopMost": "Toujours afficher au-dessus de toutes les fenêtres",
+    "hudChromaKeyMode": "Utiliser le mode incrustation chromatique (enregistrement ou diffusion en plein écran)",
+    "hudShowTelemetry": "Afficher le tableau de bord de télémétrie",
+    "hudShowInSeparateWindow": "Afficher le HUD dans une fenêtre séparée",
+    "hudSizePercentage": "Tableau de bord - Taille",
+    "hudPaddingH": "Tableau de bord - marge intérieure horizontale",
+    "hudPaddingV": "Tableau de bord - marge intérieure verticale",
+    "hudElementSpacing": "Tableau de bord - espacement des éléments",
+    "hudSectorThicknessRatio": "Tableau de bord - largeur des secteurs",
+    "hudBackgroundOpacity": "Tableau de bord - transparence d'arrière-plan",
+    "hudTelemetryShowGBall": "Tableau de bord - afficher la boule G",
+    "hudTelemetryShowSpdSector": "Tableau de bord - afficher le compteur de vitesse",
+    "hudTelemetryShowRPMSector": "Tableau de bord - afficher le compte-tours",
+    "hudTelemetryShowPedals": "Tableau de bord - afficher l'état des pédales",
+    "hudTelemetryShowGear": "Tableau de bord - afficher le rapport",
+    "hudTelemetryShowSteering": "Tableau de bord - afficher l'état du volant",
+    "hudTelemetrySteeringDegree": "Tableau de bord - angle de direction",
+    "hudTelemetryShowSuspensionBars": "Tableau de bord - afficher pneus et suspension",
+    "hudShowDebugTelemetry": "Afficher la télémétrie de débogage",
+    "enableOnlineAnalytics": "Activer l'analyse en ligne",
+    "optInBetaPlan": "Participer au programme bêta",
+    "vrUseZTMZHud": "Utiliser le HUD ZTMZ en VR",
+    "vrShowOverlay": "Activer la superposition SteamVR",
+    "vrSelectWindow": "Sélectionner la fenêtre",
+    "vrOverlayPositionX": "Position X de la superposition VR",
+    "vrOverlayPositionY": "Position Y de la superposition VR",
+    "vrOverlayPositionZ": "Position Z de la superposition VR",
+    "vrOverlayRotationX": "Rotation X de la superposition VR",
+    "vrOverlayRotationY": "Rotation Y de la superposition VR",
+    "vrOverlayRotationZ": "Rotation Z de la superposition VR",
+    "vrOverlayScale": "Échelle de la superposition VR",
+    "vrOverlayParamSave": "Enregistrer les paramètres de superposition VR",
+    "udpListenAddress": "Adresse d'écoute UDP de télémétrie",
+    "udpListenPort": "Port UDP de télémétrie",
+    "memoryRefreshRate": "Taux de rafraîchissement mémoire (Hz)",
+    "staff": "Équipe",
+    "gameSettings": "Paramètres du jeu",
+    "gameSettingsLockedTitle": "Les paramètres du jeu sont protégés",
+    "gameSettingsLockedMessage": "Ces valeurs sont configurées pour le jeu sélectionné. Ne les modifiez que si vous en connaissez la raison ; une valeur incorrecte peut empêcher la télémétrie et les pacenotes de fonctionner.",
+    "unlockGameSettings": "Déverrouiller les paramètres du jeu",
+    "gameSettingsUnlockDialogTitle": "Déverrouiller les paramètres du jeu ?",
+    "gameSettingsUnlockDialogMessage": "Des paramètres incorrects peuvent empêcher la télémétrie ou les pacenotes de fonctionner avec le jeu sélectionné. Continuez seulement si vous savez pourquoi vous devez les modifier.",
+    "gameSettingsUnlockConfirm": "Déverrouiller",
+    "replaySave": "Enregistrer la relecture du meilleur tour",
+    "replayPreferredFilter": "Filtre préféré pour le meilleur tour",
+    "replayPreferredFilter_none": "Aucun filtre",
+    "replayPreferredFilter_car": "Filtrer par voiture",
+    "replayPreferredFilter_carclass": "Filtrer par catégorie de voiture",
+    "replayStoredCountLimit": "Nombre maximal de relectures enregistrées",
+    "replaySaveInterval": "Intervalle d'enregistrement du meilleur tour",
+    "replaySaveWithoutInterval": "Enregistrer chaque image sans intervalle",
+    "onlineRivalsEnabled": "Activer les rivaux en ligne (EA Sports WRC uniquement)",
+    "replayOBSSave": "Enregistrer la vidéo de relecture avec OBS",
+    "replayOBSWebsocketUrl": "URL WebSocket OBS",
+    "replayOBSWebsocketPassword": "Mot de passe WebSocket OBS",
+    "replayOBSWebsocketTimeout": "Délai WebSocket OBS (ms)",
+    "replayDeleteRelatedVideo": "Supprimer la vidéo associée",
+    "replayPositionOffset": "Décalage de position de relecture (s)",
+    "replayGotoLapDistance": "Distance de saut du tour (m)",
+    "replayExport": "Exporter la relecture",
+    "replayExportAudio": "Exporter la relecture (audio)",
+    "replayFFmpegPath": "Chemin de ffmpeg",
+    "replayDownloadFFmpeg": "Télécharger ffmpeg",
+    "replayShowBestReplay": "Afficher la comparaison avec la meilleure relecture",
+    "replayShowDiagrams": "Afficher les graphiques statistiques",
+    "replayCleanUpAbnormalVideo": "Nettoyer les fichiers vidéo anormaux",
+    "replayLock": "Verrouiller cette relecture"
+  },
+  "dialog": {
+    "common": {
+      "btn_ok": "OK",
+      "btn_cancel": "Annuler",
+      "btn_yes": "Oui",
+      "btn_no": "Non",
+      "file_not_found": "Fichier introuvable"
+    },
+    "ffmpeg": {
+      "no_ffmpeg": "ffmpeg est introuvable. Téléchargez et installez ffmpeg, puis configurez-le dans les paramètres de relecture."
+    },
+    "portNotOpen": {
+      "title": "Port non ouvert",
+      "btn_ok": "OUVRIR",
+      "btn_cancel": "Annuler",
+      "content": "Le port UDP détecté dans les paramètres de \"{0}\" situés dans {1} n'est pas activé. Il est nécessaire au fonctionnement de l'outil. Cliquez sur \"OUVRIR\" pour l'activer, puis redémarrez le jeu. Cliquez sur \"Annuler\" pour quitter l'outil."
+    },
+    "portMismatch": {
+      "title": "Port non correspondant",
+      "btn_ok": "OK",
+      "btn_FORCE": "FORCER LA RÉPARATION",
+      "ckbox_show": "Ne plus afficher cette boîte de dialogue"
+    },
+    "resetConfig": {
+      "title": "Réinitialiser toute la configuration",
+      "btn_ok": "OK",
+      "btn_cancel": "Annuler"
+    },
+    "downloadFile": {
+      "title": "Téléchargement...",
+      "file": "Fichier {0} : {1}",
+      "btn_cancel": "Annuler"
+    },
+    "newUpdate": {
+      "title": "Nouvelle mise à jour",
+      "btn_cancel": "Annuler",
+      "btn_ok": "OK",
+      "chkbox_skip": "Ignorer cette version"
+    },
+    "enableOnlineAnalytics": {
+      "title": "Améliorer l'expérience utilisateur",
+      "btn_cancel": "Refuser",
+      "btn_ok": "Accepter"
+    },
+    "scriptNotExist": {
+      "title": "Le script n'existe pas"
+    },
+    "closePrompt": {
+      "dontShowAgain": "Ne plus afficher cette boîte de dialogue",
+      "ok": "OK",
+      "cancel": "Annuler"
+    },
+    "voicePkgExist": {
+      "title": "Le pack de voix existe déjà",
+      "ok": "Écraser",
+      "cancel": "Annuler"
+    }
+  },
+  "ui": {
+    "eula": "CLUF",
+    "license": "Licences open source",
+    "opensoftware": "Logiciels open source",
+    "opensoftware_dependency": "Logiciels open source (dépendances)",
+    "opensoftware_notdependent_anymore": "(Plus une dépendance)",
+    "opensoftware_reference": "Logiciels open source (référence)",
+    "opensoftware_notopen": "(Logiciel non libre)",
+    "contactUs": "Nous contacter",
+    "raise_issue": "Signaler un problème",
+    "donate": "M'offrir un café (veuillez vous assurer que le lien pointe vers gitee.com)",
+    "data_folder_size": "Taille du dossier de données : ",
+    "openDataFolder": "Ouvrir le dossier de données",
+    "moveDataFolder": "Déplacer le dossier de données",
+    "rb_record": "Mode enregistrement",
+    "rb_replay": "Mode relecture",
+    "tb_gameState": "État du jeu :",
+    "tb_time": "Temps :",
+    "tb_lapTime": "Temps au tour :",
+    "tb_distance": "Distance du tour :",
+    "tb_speed": "Vitesse :",
+    "tb_length": "Longueur de la spéciale :",
+    "tb_progress": "Progression :",
+    "tb_currentProfile": "Profil actuel",
+    "tb_currentGame": "Jeu",
+    "tb_currentGameSettings": "Paramètres du jeu",
+    "tb_codriverLink": "Page d'accueil",
+    "tb_version": "Version",
+    "tb_description": "Description",
+    "tb_quickSettings": "Réglages rapides",
+    "tab_pureAudio": "Mode audio seul",
+    "tab_pa_codriver": "Copilote",
+    "tab_pa_isRecording": "Enregistrement actif",
+    "tab_pa_recordingQuality": "Qualité d'enregistrement",
+    "tab_pa_recordingDevice": "Périphérique d'enregistrement",
+    "cb_rq_low": "Faible",
+    "cb_rq_medium": "Moyenne",
+    "cb_rq_high": "Élevée",
+    "tab_script": "Mode script",
+    "tab_s_audioPackage": "Copilote",
+    "tab_s_isDynamic": "Dynamique :",
+    "tab_s_author": "Auteur du script :",
+    "tab_s_listenDevice": "Enregistrement automatique de script :",
+    "tab_s_audioSettings": "Paramètres audio",
+    "tb_currentTrack": "Spéciale actuelle",
+    "tb_replayDevice": "Périphérique de lecture",
+    "tb_playVolume": "Volume de lecture",
+    "tb_prePlay": "Temps de prélecture",
+    "tb_replayMode": "Mode de lecture",
+    "tb_playbackSpd": "Vitesse de parole",
+    "cb_pureAudioMode": "Mode audio seul",
+    "cb_scriptMode": "Mode script",
+    "cb_mixMode": "Mode mixte",
+    "tb_recordMode": "Mode enregistrement",
+    "tb_autoScriptRecordMode": "Mode script automatique",
+    "tb_showHud": "Afficher le HUD en jeu",
+    "db_tools": "Outils associés",
+    "btn_scriptTool": "Éditeur de scripts",
+    "btn_audioTool": "Processeur audio par lots",
+    "btn_audioPkgMgr": "Gestionnaire de packs audio",
+    "tb_about": "À propos de cet outil",
+    "tb_pacenotes": "Pacenotes",
+    "tb_qanda": "Questions et réponses",
+    "tb_reportBug": "Signaler un bug / avis",
+    "tb_updates": "Journal des mises à jour",
+    "tb_friendlink": "Lien partenaire (SimRallyCN)",
+    "btn_playExample": "Lire l'exemple",
+    "tb_intercom": "Effet radio",
+    "showClosePrompt": "Afficher la confirmation de fermeture",
+    "closeBehavior": "Comportement à la fermeture",
+    "closeToMinimize": "Réduire",
+    "showMainUI": "Afficher l'interface principale",
+    "closeToExit": "Quitter"
+  },
+  "misc": {
+    "gender_male": "Homme",
+    "gender_female": "Femme",
+    "gender_unknown": "Inconnu",
+    "download": "Télécharger",
+    "downloading": "Téléchargement...",
+    "installing": "Installation...",
+    "update": "Mettre à jour",
+    "export": "Exporter",
+    "import": "Importer"
+  },
+  "exception": {
+    "portAlreadyInUse": {
+      "title": "Port déjà utilisé",
+      "msg": "Le port {0} est utilisé. Vérifiez si un programme tel que SIMHUB, le logiciel Simagic ou Dirt Telemetry Tool est en cours d'exécution."
+    },
+    "portAccessDenied": {
+      "title": "Port UDP réservé par Windows",
+      "msg": "Windows a refusé l'accès au port UDP {0} ; le port est réservé par le système. L'exécution en administrateur ne change rien. Utilisez un port sûr pour ajouter une nouvelle cible PacenoteTool, puis redémarrez le jeu.",
+      "btn_useSafePort": "Utiliser un port sûr",
+      "fixed": "PacenoteTool a été configuré pour utiliser le port UDP {0}. Redémarrez le jeu."
+    },
+    "configFileCorrupted": {
+      "title": "Fichier de configuration corrompu."
+    },
+    "unknown": {
+      "title": "Erreur inconnue"
+    },
+    "forceFixError": {
+      "title": "Erreur de réparation forcée",
+      "msg": "Une erreur est survenue lors de la réparation. Consultez le fichier journal pour plus de détails."
+    },
+    "configFileAbnormal": {
+      "title": "Fichier de configuration anormal",
+      "btn_ok": "Forcer la réparation",
+      "btn_cancel": "Annuler"
+    }
+  },
+  "logLevel": {
+    "off": "Désactivé",
+    "trace": "Trace",
+    "debug": "Débogage",
+    "info": "Info",
+    "warn": "Avertissement",
+    "error": "Erreur",
+    "fatal": "Fatale"
+  },
+  "integrityLevel": {
+    "simple": "Simple",
+    "normal": "Normal",
+    "complex": "Complexe"
+  },
+  "overlay": {
+    "track": "Spéciale :",
+    "car": "Voiture :",
+    "carclass": "Catégorie :",
+    "audioPackage": "Pack audio :",
+    "scriptAuthor": "Auteur du script :",
+    "dyanmic": "Est @dynamic :"
+  },
+  "dashboard": {
+    "current": "ACTUEL",
+    "best": "MEILLEUR",
+    "all": "Tous",
+    "pedal": "Pédales",
+    "speed": "VITESSE",
+    "rpm": "TR/MIN",
+    "gear": "RAPPORT",
+    "g_lat": "G-LAT",
+    "g_long": "G-LONG",
+    "gBall": "Force G",
+    "steering": "DIRECTION",
+    "pedals": "PÉDALES",
+    "suspension": "SUSPENSION",
+    "tyre": "PNEU",
+    "Temp": "TEMP.",
+    "throttle": "ACCÉL.",
+    "clutch": "EMBRAYAGE",
+    "brake": "FREIN",
+    "handbrake": "FREIN À MAIN",
+    "brake_temp_front_left": "Temp. frein AVG",
+    "brake_temp_front_right": "Temp. frein AVD",
+    "brake_temp_rear_left": "Temp. frein ARG",
+    "brake_temp_rear_right": "Temp. frein ARD",
+    "suspension_front_left": "Suspension AVG",
+    "suspension_front_right": "Suspension AVD",
+    "suspension_rear_left": "Suspension ARG",
+    "suspension_rear_right": "Suspension ARD",
+    "suspension_speed_front_left": "Vitesse susp. AVG",
+    "suspension_speed_front_right": "Vitesse susp. AVD",
+    "suspension_speed_rear_left": "Vitesse susp. ARG",
+    "suspension_speed_rear_right": "Vitesse susp. ARD"
+  },
+  "game": {
+    "dr1": {
+      "description": "Dirt Rally 1.0, par Codemasters"
+    },
+    "dr2": {
+      "description": "Dirt Rally 2.0, par Codemasters"
+    },
+    "wrc": {
+      "description": "EA Sports WRC, par EA Sports"
+    },
+    "rbr": {
+      "description": "Le simulateur de rallye classique, version Rally Sim Fans.",
+      "additional_settings": {
+        "playPacenotesWhenReplaying": "Lire les pacenotes pendant la relecture.",
+        "additional_pacenote_def": "Définition de pacenotes RBR personnalisée.",
+        "autoSwitchPacenoteDef": "Changer automatiquement la définition de pacenotes."
+      }
+    },
+    "acr": {
+      "description": "Assetto Corsa Rally, développé par Supernova Games Studios et publié par 505 Games"
+    }
+  },
+  "dashboards": {
+    "classic": {
+      "debug": {
+        "name": "Débogage",
+        "description": "Afficher les informations de débogage (coin supérieur gauche)"
+      },
+      "mapInfo": {
+        "name": "Infos carte",
+        "description": "Afficher les informations de la carte dans le jeu (coin supérieur droit)."
+      },
+      "progress": {
+        "name": "Progression",
+        "description": "Afficher la progression classique de la spéciale"
+      },
+      "classicDashboard": {
+        "name": "Tableau de bord classique",
+        "description": "Afficher le tableau de bord classique"
+      },
+      "pedals_statistics": {
+        "name": "Statistiques des pédales",
+        "description": "Afficher les statistiques des pédales"
+      },
+      "wrcDashboard": {
+        "name": "Tableau de bord WRC classique",
+        "description": "Tableau de diffusion WRC classique"
+      }
+    },
+    "modern": {
+      "wrc": {
+        "name": "WRC",
+        "description": "Tableau de diffusion WRC 2023"
+      },
+      "fiesta": {
+        "name": "Fiesta",
+        "description": "Tableau de bord Ford Fiesta WRC"
+      },
+      "wrc_info": {
+        "name": "Panneau d'information WRC",
+        "description": "Panneau WRC affichant pilote, spéciale, progression et temps"
+      },
+      "wrc2": {
+        "name": "Style WRC 2",
+        "description": "Tableau de diffusion WRC 2023"
+      },
+      "wrc2025": {
+        "name": "WRC2025",
+        "description": "Tableau de diffusion WRC 2025"
+      },
+      "wrc2025v2": {
+        "name": "WRC2025v2",
+        "description": "Grande version du tableau de diffusion WRC 2025"
+      },
+      "wrc2025info": {
+        "name": "Tableau d'information WRC 2025",
+        "description": "Tableau WRC 2025 moderne avec pilote, progression de spéciale et chronométrage"
+      },
+      "racelogic": {
+        "name": "Affichage Racelogic",
+        "description": "Affichage classique Racelogic VBox pour temps et distance"
+      },
+      "fiesta2": {
+        "name": "Tableau Fiesta moderne 2",
+        "description": "Tableau de course moderne avec voyants de régime, rapport et télémétrie"
+      },
+      "progress": {
+        "name": "Progression moderne",
+        "description": "Afficher la progression moderne WRC"
+      }
+    },
+    "settings": {
+      "enabled": "Activé",
+      "outputTarget": "Cible d'affichage",
+      "outputTargetOff": "Désactivé",
+      "outputTargetOverlay": "Superposition",
+      "outputTargetWeb": "Web",
+      "outputTargetBoth": "Superposition et Web",
+      "positionH": "Position horizontale",
+      "positionV": "Position verticale",
+      "top": "Haut",
+      "bottom": "Bas",
+      "left": "Gauche",
+      "right": "Droite",
+      "center": "Centre",
+      "size": "Taille",
+      "paddingH": "Marge intérieure horizontale",
+      "paddingV": "Marge intérieure verticale",
+      "elementSpacing": "Espacement des éléments",
+      "sectorThicknessRatio": "Ratio d'épaisseur des secteurs",
+      "backgroundOpacity": "Opacité d'arrière-plan",
+      "whRatio": "Ratio largeur/hauteur",
+      "showGBall": "Afficher la boule G",
+      "showSpdSector": "Afficher le secteur de vitesse",
+      "showRpmSector": "Afficher le secteur de régime",
+      "showGear": "Afficher le rapport",
+      "showPedals": "Afficher les pédales",
+      "showSteering": "Afficher la direction",
+      "steeringDegree": "Angle de direction",
+      "switchGearNSpeed": "Inverser rapport et vitesse",
+      "recordedFrames": "Images enregistrées",
+      "lineWeight": "Épaisseur de ligne",
+      "showThrottlePedal": "Afficher l'accélérateur",
+      "showBrakePedal": "Afficher le frein",
+      "showClutchPedal": "Afficher l'embrayage",
+      "showHandBrakePedal": "Afficher le frein à main",
+      "showGameSpecificData": "Afficher les données propres au jeu",
+      "padding": "Marge intérieure",
+      "marginH": "Marge horizontale",
+      "marginV": "Marge verticale",
+      "drivername": "Nom du pilote",
+      "driverregion": "Région du pilote",
+      "useOffset": "Utiliser le décalage horizontal",
+      "showSteeringIndicator": "Afficher l'indicateur de direction",
+      "showLocalBest": "Afficher le meilleur temps local",
+      "showDeltaTime": "Afficher le delta de temps",
+      "showAdditionalInfo": "Afficher des informations supplémentaires",
+      "showRPMBlink": "Afficher le clignotement de régime",
+      "verticalOrHorizontal": "Vertical ou horizontal"
+    }
+  }
+}

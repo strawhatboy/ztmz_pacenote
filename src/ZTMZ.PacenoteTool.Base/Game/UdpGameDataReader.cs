@@ -31,6 +31,14 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
     protected int _timerCount = 0;
     private int _timerMessageAvailableCount = 0;
 
+    public UdpReceiverStatus UdpStatus => _udpReceiver?.Status ?? UdpReceiverStatus.NotListening;
+
+    public virtual bool IsUdpTelemetryOptional => false;
+
+    public int SecondsWithoutUdpMessage => Math.Max(
+        0,
+        System.Threading.Interlocked.CompareExchange(ref _timerMessageAvailableCount, 0, 0));
+
     public virtual bool Initialize(IGame game)
     {
         if (isInitialized)

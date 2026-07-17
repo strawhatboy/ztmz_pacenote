@@ -82,6 +82,50 @@
             </Grid>
         </ui:Card>
 
+        <!-- pacenoteDropoutPercentage -->
+        <ui:Card Margin="0 0 0 3"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="56" />
+                    <ColumnDefinition Width="160" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Warning20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.pacenoteDropoutPercentage}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.pacenoteDropoutPercentage}"
+                            Appearance="Tertiary"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:TextBlock Grid.Column="1"
+                    Text="{Binding Path=ViewModel.PacenoteDropoutPercentage, Mode=OneWay, StringFormat={}{0}%}"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Right" />
+                <Slider Grid.Column="2"
+                    Minimum="0"
+                    Maximum="100"
+                    SmallChange="1"
+                    LargeChange="5"
+                    TickFrequency="5"
+                    TickPlacement="BottomRight"
+                    IsSnapToTickEnabled="True"
+                    Value="{Binding Path=ViewModel.PacenoteDropoutPercentage, Mode=TwoWay}"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </ui:Card>
+
         <!-- RemoveIntoAndOnto -->
         <ui:Card Margin="0 0 0 3"
             Padding="16">

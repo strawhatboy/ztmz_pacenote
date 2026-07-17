@@ -34,6 +34,31 @@ public class UdpReceiverTest
     }
 
     [Fact]
+    public async Task ReportsRuntimeStatusAfterReceivingAPacket()
+    {
+        var port = GetAvailablePort();
+        using var receiver = new UdpReceiver();
+        using var sender = new UdpClient();
+        var messageReceived = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var message = new byte[] { 1, 2, 3 };
+
+        receiver.onNewMessage += (_, _) => messageReceived.TrySetResult();
+        receiver.StartListening(IPAddress.Loopback, port);
+
+        await sender.SendAsync(message, new IPEndPoint(IPAddress.Loopback, port));
+        await messageReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
+
+        var status = receiver.Status;
+        Assert.True(status.IsListening);
+        Assert.Equal(IPAddress.Loopback.ToString(), status.ListenAddress);
+        Assert.Equal(port, status.Port);
+        Assert.True(status.PacketCount >= 1);
+        Assert.Equal(message.Length, status.LastPacketSize);
+        Assert.NotNull(status.LastPacketUtc);
+        Assert.True(string.IsNullOrEmpty(status.LastError));
+    }
+
+    [Fact]
     public void StopListeningReleasesThePort()
     {
         var port = GetAvailablePort();

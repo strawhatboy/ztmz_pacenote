@@ -1,0 +1,546 @@
+{
+  "application": {
+    "title": "ZTMZ Club Pacenote Tool",
+    "title_dev": "ZTMZ Club Pacenote Tool (разработка)",
+    "title_test": "ZTMZ Club Pacenote Tool (тестовая версия)"
+  },
+  "tabs": {
+    "home": "Главная",
+    "general": "Общие",
+    "voices": "Голоса",
+    "playback": "Воспроизведение",
+    "hud": "HUD",
+    "dashboard": "Панели",
+    "game": "Игра",
+    "vr": "VR",
+    "replay": "Повтор",
+    "user": "Пользователь",
+    "about": "О программе"
+  },
+  "settings": {
+    "more": "Дополнительно",
+    "title": "Настройки",
+    "export": "Экспорт",
+    "play": "Воспроизвести",
+    "delete": "Удалить",
+    "overlayHudTitle": "HUD поверх игры",
+    "btn_reset": "Восстановить значения по умолчанию",
+    "section": {
+      "general": "Общие",
+      "voicePackage": "Голоса",
+      "misc": "Разное",
+      "playback": "Воспроизведение",
+      "hud": "HUD",
+      "game": "Игра",
+      "vr": "VR"
+    },
+    "subsection": {
+      "voicePackage": "Настройки",
+      "replay": "Настройки",
+      "tooltip": {
+        "voicePackage": "Настройки аудиопакетов штурмана: звуки старта/финиша, столкновения, прокола колеса и другие.",
+        "replay": "Настройки повтора: сохранение, ограничения и параметры OBS."
+      }
+    },
+    "restartNeeded": "Чтобы изменения вступили в силу, перезапустите программу",
+    "tooltip": {
+      "language": "Отображаемый язык",
+      "theme": "Светлая/темная тема или системная тема Windows",
+      "accentColor": "Цвет всех элементов интерфейса",
+      "checkUpdateWhenStartup": "Проверять обновления при запуске программы",
+      "startWithWindows": "Запускать программу вместе с Windows",
+      "logLevel": "Задайте уровень журнала. На более строгих уровнях выводится меньше информации.",
+      "viewLogs": "Открыть журналы",
+      "pacenoteDropoutPercentage": "Только ради забавы. Каждая обычная команда пейснота может быть пропущена с такой вероятностью. 0 % отключает функцию; предпрослушивание и системные звуки не затрагиваются.",
+      "webDashboardEnabled": "Включить сервер веб-панели для мобильных устройств",
+      "webDashboardPort": "Номер порта сервера веб-панели (применяется сразу)",
+      "webDashboardFrameRate": "Максимальная частота кадров веб-панели (применяется сразу)",
+      "webDashboardOpen": "Открыть панель в браузере",
+      "overlayHudEnabled": "Показывать нативную панель поверх окна игры. Эта настройка не запускает и не останавливает веб-панель.",
+      "webDashboardHomeStatus": "Веб-панель не зависит от переключателя HUD поверх игры. Настройте ее в параметрах HUD.",
+      "udpListenAddress": "По умолчанию 127.0.0.1",
+      "udpListenPort": "Для одновременного использования с SIMHUB может помочь смена стандартного порта 20777 на 20778.",
+      "udpListenPort_Warning": "Порт не совпадает с настройкой Dirt Rally 2.0 {0}; возможно, используется SIMHUB."
+    },
+    "autoInitializeGame_on": "Автоматический выбор игры",
+    "autoInitializeGame_off": "Ручной выбор игры",
+    "language": "Язык",
+    "isDarkTheme": "Темная тема",
+    "theme": "Тема",
+    "accentColor": "Акцентный цвет",
+    "accentColorR": "Красный",
+    "accentColorG": "Зеленый",
+    "accentColorB": "Синий",
+    "darkTheme": "Темная",
+    "lightTheme": "Светлая",
+    "systemTheme": "Использовать системную тему (требуется перезапуск)",
+    "playbackDeviceDesiredLatency": "Желаемая задержка устройства воспроизведения",
+    "logLevel": "Уровень журнала",
+    "checkUpdateWhenStartup": "Проверять обновления при запуске",
+    "checkUpdateWhenStartup_On": "Автообновление (вкл.)",
+    "checkUpdateWhenStartup_Off": "Автообновление (выкл.)",
+    "startWithWindows": "Запускать с Windows",
+    "warnIfPortMismatch": "Предупреждать при несовпадении порта",
+    "hudFPS": "FPS HUD в игре",
+    "importAudioPackage": "Импортировать аудиопакет",
+    "playStartAndEndSound": "Воспроизводить специальный звук старта/финиша",
+    "playGoSound": "Воспроизводить специальный звук при старте гонки",
+    "pacenoteDropoutPercentage": "Шалость: случайный пропуск пейснотов",
+    "useReversePacenote": "Использовать обратный порядок пейснотов",
+    "playCollisionSound": "Воспроизводить специальный звук столкновения",
+    "collision_slight": "Порог легкого столкновения (м/с²)",
+    "collision_medium": "Порог среднего столкновения (м/с²)",
+    "collision_severe": "Порог сильного столкновения (м/с²)",
+    "playWheelAbnormalSound": "[Экспериментально] Воспроизводить звук при проколе колеса",
+    "useDefaultSoundPackageByDefault": "Игнорировать стандартный пакет голосов ИИ",
+    "useDefaultSoundPackageForFallback": "Использовать стандартный пакет голосов как запасной",
+    "preloadSounds": "Предзагружать пакеты голосов (не рекомендуется при малом объеме ОЗУ)",
+    "additionalCoDriverPackagesSearchPath": "Дополнительная папка поиска пакетов голосов",
+    "additionalPacenotesDefinitionSearchPath": "Дополнительная папка поиска определений пейснотов",
+    "removeIntoAndOnto": "Удалять связующие слова 'into', 'and' и 'onto'",
+    "useSequentialMixerToHandleAudioConflict": "Использовать последовательный микшер",
+    "useDynamicPlaybackSpeed": "Использовать динамическую скорость речи",
+    "useTempoInsteadOfRate": "Использовать темп вместо rate для регулировки скорости",
+    "dynamicPlaybackMaxSpeed": "Максимальная динамическая скорость речи",
+    "useDynamicVolume": "Использовать динамическое усиление напряженности голоса",
+    "dynamicVolumePerturbationFrequency": "Частота волны напряженности голоса (Гц)",
+    "dynamicVolumePerturbationAmplitude": "Амплитуда волны напряженности голоса (0~1)",
+    "factorToRemoveSpaceFromAudioFiles": "Плотность голосов",
+    "connectCloseDistanceCallToNextPacenote": "Связывать близкий вызов дистанции со следующим пейснотом (только динамические пейсноты)",
+    "connectNumericDistanceCallToPreviousPacenote": "Связывать числовой вызов дистанции с предыдущим пейснотом (только динамические пейсноты)",
+    "examplePacenoteString": "Пример пейснота",
+    "hudTopMost": "Всегда поверх всех окон",
+    "hudChromaKeyMode": "Использовать режим хромакея (для записи или трансляции в полноэкранном режиме)",
+    "hudShowTelemetry": "Показывать телеметрическую панель",
+    "hudShowInSeparateWindow": "Показывать HUD в отдельном окне",
+    "hudSizePercentage": "Панель - размер",
+    "hudPaddingH": "Панель - горизонтальный внутренний отступ",
+    "hudPaddingV": "Панель - вертикальный внутренний отступ",
+    "hudElementSpacing": "Панель - расстояние между элементами",
+    "hudSectorThicknessRatio": "Панель - ширина секторов",
+    "hudBackgroundOpacity": "Панель - прозрачность фона",
+    "hudTelemetryShowGBall": "Панель - показывать шар перегрузки",
+    "hudTelemetryShowSpdSector": "Панель - показывать спидометр",
+    "hudTelemetryShowRPMSector": "Панель - показывать тахометр",
+    "hudTelemetryShowPedals": "Панель - показывать состояние педалей",
+    "hudTelemetryShowGear": "Панель - показывать передачу",
+    "hudTelemetryShowSteering": "Панель - показывать состояние руля",
+    "hudTelemetrySteeringDegree": "Панель - угол поворота руля",
+    "hudTelemetryShowSuspensionBars": "Панель - показывать шины и подвеску",
+    "hudShowDebugTelemetry": "Показывать отладочную телеметрию",
+    "enableOnlineAnalytics": "Включить онлайн-аналитику",
+    "optInBetaPlan": "Участвовать в бета-программе",
+    "vrUseZTMZHud": "Использовать HUD ZTMZ в VR",
+    "vrShowOverlay": "Включить оверлей SteamVR",
+    "vrSelectWindow": "Выбрать окно",
+    "vrOverlayPositionX": "Положение оверлея VR по X",
+    "vrOverlayPositionY": "Положение оверлея VR по Y",
+    "vrOverlayPositionZ": "Положение оверлея VR по Z",
+    "vrOverlayRotationX": "Поворот оверлея VR по X",
+    "vrOverlayRotationY": "Поворот оверлея VR по Y",
+    "vrOverlayRotationZ": "Поворот оверлея VR по Z",
+    "vrOverlayScale": "Масштаб оверлея VR",
+    "vrOverlayParamSave": "Сохранить параметры оверлея VR",
+    "udpListenAddress": "Адрес приема UDP-телеметрии",
+    "udpListenPort": "Порт UDP-телеметрии",
+    "memoryRefreshRate": "Частота обновления памяти (Гц)",
+    "staff": "Участники",
+    "gameSettings": "Настройки игры",
+    "gameSettingsLockedTitle": "Настройки игры защищены",
+    "gameSettingsLockedMessage": "Эти значения настроены для выбранной игры. Изменяйте их только если понимаете причину: неверное значение может отключить телеметрию и пейсноты.",
+    "unlockGameSettings": "Разблокировать настройки игры",
+    "gameSettingsUnlockDialogTitle": "Разблокировать настройки игры?",
+    "gameSettingsUnlockDialogMessage": "Неверные настройки могут помешать работе телеметрии или пейснотов в выбранной игре. Продолжайте, только если знаете, зачем нужно изменить эти значения.",
+    "gameSettingsUnlockConfirm": "Разблокировать",
+    "replaySave": "Сохранять повтор лучшего круга",
+    "replayPreferredFilter": "Предпочтительный фильтр лучшего круга",
+    "replayPreferredFilter_none": "Без фильтра",
+    "replayPreferredFilter_car": "Фильтровать по автомобилю",
+    "replayPreferredFilter_carclass": "Фильтровать по классу автомобиля",
+    "replayStoredCountLimit": "Максимальное число сохраненных повторов",
+    "replaySaveInterval": "Интервал сохранения лучшего круга",
+    "replaySaveWithoutInterval": "Сохранять каждый кадр без интервала",
+    "onlineRivalsEnabled": "Включить онлайн-соперников (только EA Sports WRC)",
+    "replayOBSSave": "Сохранять видеоповтор через OBS",
+    "replayOBSWebsocketUrl": "URL OBS WebSocket",
+    "replayOBSWebsocketPassword": "Пароль OBS WebSocket",
+    "replayOBSWebsocketTimeout": "Тайм-аут OBS WebSocket (мс)",
+    "replayDeleteRelatedVideo": "Удалять связанное видео",
+    "replayPositionOffset": "Смещение позиции повтора (с)",
+    "replayGotoLapDistance": "Дистанция перехода по кругу (м)",
+    "replayExport": "Экспортировать повтор",
+    "replayExportAudio": "Экспортировать повтор (аудио)",
+    "replayFFmpegPath": "Путь к ffmpeg",
+    "replayDownloadFFmpeg": "Скачать ffmpeg",
+    "replayShowBestReplay": "Показывать сравнение с лучшим повтором",
+    "replayShowDiagrams": "Показывать статистические диаграммы",
+    "replayCleanUpAbnormalVideo": "Очищать поврежденные видеофайлы",
+    "replayLock": "Заблокировать этот повтор"
+  },
+  "dialog": {
+    "common": {
+      "btn_ok": "ОК",
+      "btn_cancel": "Отмена",
+      "btn_yes": "Да",
+      "btn_no": "Нет",
+      "file_not_found": "Файл не найден"
+    },
+    "ffmpeg": {
+      "no_ffmpeg": "ffmpeg не найден. Скачайте и установите ffmpeg, затем укажите его в настройках повтора."
+    },
+    "portNotOpen": {
+      "title": "Порт не открыт",
+      "btn_ok": "ОТКРЫТЬ",
+      "btn_cancel": "Отмена",
+      "content": "Обнаруженный UDP-порт в настройках игры \"{0}\" по адресу {1} не включен. Он необходим для работы программы. Нажмите \"ОТКРЫТЬ\", чтобы включить его, затем перезапустите игру. Нажмите \"Отмена\", чтобы выйти из программы."
+    },
+    "portMismatch": {
+      "title": "Несовпадение порта",
+      "btn_ok": "ОК",
+      "btn_FORCE": "ПРИНУДИТЕЛЬНО ИСПРАВИТЬ",
+      "ckbox_show": "Больше не показывать это окно"
+    },
+    "resetConfig": {
+      "title": "Сбросить все настройки",
+      "btn_ok": "ОК",
+      "btn_cancel": "Отмена"
+    },
+    "downloadFile": {
+      "title": "Загрузка...",
+      "file": "Файл {0}: {1}",
+      "btn_cancel": "Отмена"
+    },
+    "newUpdate": {
+      "title": "Новое обновление",
+      "btn_cancel": "Отмена",
+      "btn_ok": "ОК",
+      "chkbox_skip": "Пропустить эту версию"
+    },
+    "enableOnlineAnalytics": {
+      "title": "Улучшить работу программы",
+      "btn_cancel": "Отказаться",
+      "btn_ok": "Принять"
+    },
+    "scriptNotExist": {
+      "title": "Скрипт не существует"
+    },
+    "closePrompt": {
+      "dontShowAgain": "Больше не показывать это окно",
+      "ok": "ОК",
+      "cancel": "Отмена"
+    },
+    "voicePkgExist": {
+      "title": "Пакет голосов уже существует",
+      "ok": "Перезаписать",
+      "cancel": "Отмена"
+    }
+  },
+  "ui": {
+    "eula": "Лицензионное соглашение",
+    "license": "Лицензии открытого ПО",
+    "opensoftware": "Открытое ПО",
+    "opensoftware_dependency": "Открытое ПО (зависимости)",
+    "opensoftware_notdependent_anymore": "(Больше не используется)",
+    "opensoftware_reference": "Открытое ПО (справочное)",
+    "opensoftware_notopen": "(Закрытое ПО)",
+    "contactUs": "Связаться с нами",
+    "raise_issue": "Сообщить о проблеме",
+    "donate": "Угостить кофе (убедитесь, что ссылка ведет на gitee.com)",
+    "data_folder_size": "Размер папки данных: ",
+    "openDataFolder": "Открыть папку данных",
+    "moveDataFolder": "Переместить папку данных",
+    "rb_record": "Режим записи",
+    "rb_replay": "Режим повтора",
+    "tb_gameState": "Состояние игры:",
+    "tb_time": "Время:",
+    "tb_lapTime": "Время круга:",
+    "tb_distance": "Дистанция круга:",
+    "tb_speed": "Скорость:",
+    "tb_length": "Длина спецучастка:",
+    "tb_progress": "Прогресс:",
+    "tb_currentProfile": "Текущий профиль",
+    "tb_currentGame": "Игра",
+    "tb_currentGameSettings": "Настройки игры",
+    "tb_codriverLink": "Домашняя страница",
+    "tb_version": "Версия",
+    "tb_description": "Описание",
+    "tb_quickSettings": "Быстрые настройки",
+    "tab_pureAudio": "Только аудио",
+    "tab_pa_codriver": "Штурман",
+    "tab_pa_isRecording": "Идет запись",
+    "tab_pa_recordingQuality": "Качество записи",
+    "tab_pa_recordingDevice": "Устройство записи",
+    "cb_rq_low": "Низкое",
+    "cb_rq_medium": "Среднее",
+    "cb_rq_high": "Высокое",
+    "tab_script": "Режим скрипта",
+    "tab_s_audioPackage": "Штурман",
+    "tab_s_isDynamic": "Динамический:",
+    "tab_s_author": "Автор скрипта:",
+    "tab_s_listenDevice": "Автоматическая запись скрипта:",
+    "tab_s_audioSettings": "Настройки аудио",
+    "tb_currentTrack": "Текущий спецучасток",
+    "tb_replayDevice": "Устройство воспроизведения",
+    "tb_playVolume": "Громкость воспроизведения",
+    "tb_prePlay": "Время предварительного воспроизведения",
+    "tb_replayMode": "Режим воспроизведения",
+    "tb_playbackSpd": "Скорость речи",
+    "cb_pureAudioMode": "Только аудио",
+    "cb_scriptMode": "Режим скрипта",
+    "cb_mixMode": "Смешанный режим",
+    "tb_recordMode": "Режим записи",
+    "tb_autoScriptRecordMode": "Автоматический режим скрипта",
+    "tb_showHud": "Показывать HUD в игре",
+    "db_tools": "Связанные инструменты",
+    "btn_scriptTool": "Редактор скриптов",
+    "btn_audioTool": "Пакетный аудиообработчик",
+    "btn_audioPkgMgr": "Менеджер аудиопакетов",
+    "tb_about": "О программе",
+    "tb_pacenotes": "Пейсноты",
+    "tb_qanda": "Вопросы и ответы",
+    "tb_reportBug": "Сообщить об ошибке / отзыв",
+    "tb_updates": "Журнал обновлений",
+    "tb_friendlink": "Партнерская ссылка (SimRallyCN)",
+    "btn_playExample": "Прослушать пример",
+    "tb_intercom": "Эффект рации",
+    "showClosePrompt": "Показывать запрос при закрытии",
+    "closeBehavior": "Действие при закрытии",
+    "closeToMinimize": "Свернуть",
+    "showMainUI": "Показать главное окно",
+    "closeToExit": "Выйти"
+  },
+  "misc": {
+    "gender_male": "Мужской",
+    "gender_female": "Женский",
+    "gender_unknown": "Неизвестно",
+    "download": "Скачать",
+    "downloading": "Загрузка...",
+    "installing": "Установка...",
+    "update": "Обновить",
+    "export": "Экспорт",
+    "import": "Импорт"
+  },
+  "exception": {
+    "portAlreadyInUse": {
+      "title": "Порт уже используется",
+      "msg": "Порт {0} уже используется. Проверьте, не запущена ли программа SIMHUB, ПО Simagic или Dirt Telemetry Tool."
+    },
+    "portAccessDenied": {
+      "title": "UDP-порт зарезервирован Windows",
+      "msg": "Windows отказала в доступе к UDP-порту {0}; порт зарезервирован системой. Запуск от имени администратора не поможет. Используйте безопасный порт, чтобы добавить новую цель PacenoteTool, затем перезапустите игру.",
+      "btn_useSafePort": "Использовать безопасный порт",
+      "fixed": "PacenoteTool настроен на UDP-порт {0}. Перезапустите игру."
+    },
+    "configFileCorrupted": {
+      "title": "Файл конфигурации поврежден."
+    },
+    "unknown": {
+      "title": "Неизвестная ошибка"
+    },
+    "forceFixError": {
+      "title": "Ошибка принудительного исправления",
+      "msg": "При попытке исправления возникла ошибка. Подробности смотрите в файле журнала."
+    },
+    "configFileAbnormal": {
+      "title": "Некорректный файл конфигурации",
+      "btn_ok": "Исправить принудительно",
+      "btn_cancel": "Отмена"
+    }
+  },
+  "logLevel": {
+    "off": "Выкл.",
+    "trace": "Трассировка",
+    "debug": "Отладка",
+    "info": "Инфо",
+    "warn": "Предупреждение",
+    "error": "Ошибка",
+    "fatal": "Критическая"
+  },
+  "integrityLevel": {
+    "simple": "Простой",
+    "normal": "Обычный",
+    "complex": "Сложный"
+  },
+  "overlay": {
+    "track": "Спецучасток:",
+    "car": "Автомобиль:",
+    "carclass": "Класс автомобиля:",
+    "audioPackage": "Аудиопакет:",
+    "scriptAuthor": "Автор скрипта:",
+    "dyanmic": "@dynamic:"
+  },
+  "dashboard": {
+    "current": "ТЕКУЩЕЕ",
+    "best": "ЛУЧШЕЕ",
+    "all": "Все",
+    "pedal": "Педали",
+    "speed": "СКОРОСТЬ",
+    "rpm": "ОБ/МИН",
+    "gear": "ПЕРЕДАЧА",
+    "g_lat": "G-ПОПЕР.",
+    "g_long": "G-ПРОДОЛ.",
+    "gBall": "Перегрузка",
+    "steering": "РУЛЬ",
+    "pedals": "ПЕДАЛИ",
+    "suspension": "ПОДВЕСКА",
+    "tyre": "ШИНЫ",
+    "Temp": "ТЕМП.",
+    "throttle": "ГАЗ",
+    "clutch": "СЦЕПЛЕНИЕ",
+    "brake": "ТОРМОЗ",
+    "handbrake": "РУЧНИК",
+    "brake_temp_front_left": "Темп. торм. ПЛ",
+    "brake_temp_front_right": "Темп. торм. ПП",
+    "brake_temp_rear_left": "Темп. торм. ЗЛ",
+    "brake_temp_rear_right": "Темп. торм. ЗП",
+    "suspension_front_left": "Подвеска ПЛ",
+    "suspension_front_right": "Подвеска ПП",
+    "suspension_rear_left": "Подвеска ЗЛ",
+    "suspension_rear_right": "Подвеска ЗП",
+    "suspension_speed_front_left": "Скорость подв. ПЛ",
+    "suspension_speed_front_right": "Скорость подв. ПП",
+    "suspension_speed_rear_left": "Скорость подв. ЗЛ",
+    "suspension_speed_rear_right": "Скорость подв. ЗП"
+  },
+  "game": {
+    "dr1": {
+      "description": "Dirt Rally 1.0 от Codemasters"
+    },
+    "dr2": {
+      "description": "Dirt Rally 2.0 от Codemasters"
+    },
+    "wrc": {
+      "description": "EA Sports WRC от EA Sports"
+    },
+    "rbr": {
+      "description": "Классический симулятор ралли, версия Rally Sim Fans.",
+      "additional_settings": {
+        "playPacenotesWhenReplaying": "Воспроизводить пейсноты во время повтора.",
+        "additional_pacenote_def": "Пользовательское определение пейснотов RBR.",
+        "autoSwitchPacenoteDef": "Автоматически переключать определение пейснотов."
+      }
+    },
+    "acr": {
+      "description": "Assetto Corsa Rally, разработана Supernova Games Studios и издана 505 Games"
+    }
+  },
+  "dashboards": {
+    "classic": {
+      "debug": {
+        "name": "Отладка",
+        "description": "Показывать отладочную информацию (вверху слева)"
+      },
+      "mapInfo": {
+        "name": "Информация карты",
+        "description": "Показывать информацию о карте в игре (вверху справа)."
+      },
+      "progress": {
+        "name": "Прогресс",
+        "description": "Показывать классический прогресс спецучастка"
+      },
+      "classicDashboard": {
+        "name": "Классическая панель",
+        "description": "Показывать классическую панель"
+      },
+      "pedals_statistics": {
+        "name": "Статистика педалей",
+        "description": "Показывать статистику педалей"
+      },
+      "wrcDashboard": {
+        "name": "Классическая панель WRC",
+        "description": "Классическая трансляционная панель WRC"
+      }
+    },
+    "modern": {
+      "wrc": {
+        "name": "WRC",
+        "description": "Трансляционная панель WRC 2023"
+      },
+      "fiesta": {
+        "name": "Fiesta",
+        "description": "Панель Ford Fiesta WRC"
+      },
+      "wrc_info": {
+        "name": "Информационная панель WRC",
+        "description": "Панель WRC с водителем, спецучастком, прогрессом и временем"
+      },
+      "wrc2": {
+        "name": "Стиль WRC 2",
+        "description": "Трансляционная панель WRC 2023"
+      },
+      "wrc2025": {
+        "name": "WRC2025",
+        "description": "Трансляционная панель WRC 2025"
+      },
+      "wrc2025v2": {
+        "name": "WRC2025v2",
+        "description": "Большая версия трансляционной панели WRC 2025"
+      },
+      "wrc2025info": {
+        "name": "Информационная панель WRC 2025",
+        "description": "Современная панель WRC 2025 с водителем, прогрессом спецучастка и временем"
+      },
+      "racelogic": {
+        "name": "Дисплей Racelogic",
+        "description": "Классический дисплей Racelogic VBox для времени и дистанции"
+      },
+      "fiesta2": {
+        "name": "Современная панель Fiesta 2",
+        "description": "Современная гоночная панель с индикаторами оборотов, передачей и телеметрией"
+      },
+      "progress": {
+        "name": "Современный прогресс",
+        "description": "Показывать современный прогресс WRC"
+      }
+    },
+    "settings": {
+      "enabled": "Включено",
+      "outputTarget": "Место отображения",
+      "outputTargetOff": "Выкл.",
+      "outputTargetOverlay": "Оверлей",
+      "outputTargetWeb": "Веб",
+      "outputTargetBoth": "Оверлей и веб",
+      "positionH": "Горизонтальное положение",
+      "positionV": "Вертикальное положение",
+      "top": "Верх",
+      "bottom": "Низ",
+      "left": "Слева",
+      "right": "Справа",
+      "center": "Центр",
+      "size": "Размер",
+      "paddingH": "Горизонтальный внутренний отступ",
+      "paddingV": "Вертикальный внутренний отступ",
+      "elementSpacing": "Расстояние между элементами",
+      "sectorThicknessRatio": "Отношение толщины секторов",
+      "backgroundOpacity": "Непрозрачность фона",
+      "whRatio": "Отношение ширины к высоте",
+      "showGBall": "Показывать шар перегрузки",
+      "showSpdSector": "Показывать сектор скорости",
+      "showRpmSector": "Показывать сектор оборотов",
+      "showGear": "Показывать передачу",
+      "showPedals": "Показывать педали",
+      "showSteering": "Показывать руль",
+      "steeringDegree": "Угол поворота руля",
+      "switchGearNSpeed": "Поменять местами передачу и скорость",
+      "recordedFrames": "Записанные кадры",
+      "lineWeight": "Толщина линии",
+      "showThrottlePedal": "Показывать педаль газа",
+      "showBrakePedal": "Показывать педаль тормоза",
+      "showClutchPedal": "Показывать педаль сцепления",
+      "showHandBrakePedal": "Показывать ручной тормоз",
+      "showGameSpecificData": "Показывать данные конкретной игры",
+      "padding": "Внутренний отступ",
+      "marginH": "Горизонтальный внешний отступ",
+      "marginV": "Вертикальный внешний отступ",
+      "drivername": "Имя водителя",
+      "driverregion": "Регион водителя",
+      "useOffset": "Использовать горизонтальное смещение",
+      "showSteeringIndicator": "Показывать индикатор руля",
+      "showLocalBest": "Показывать локальное лучшее время",
+      "showDeltaTime": "Показывать дельту времени",
+      "showAdditionalInfo": "Показывать дополнительную информацию",
+      "showRPMBlink": "Показывать мигание оборотов",
+      "verticalOrHorizontal": "Вертикально или горизонтально"
+    }
+  }
+}

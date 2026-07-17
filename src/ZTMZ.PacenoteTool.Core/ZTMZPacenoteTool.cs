@@ -33,6 +33,7 @@ public class ZTMZPacenoteTool {
     private IGame _currentGame;
 
     public IGame CurrentGame => _currentGame;
+    public ProfileManager ProfileManager => _profileManager;
     private List<IGame> _games = new();
 
     public List<IGame> Games => _games;
@@ -281,7 +282,9 @@ public class ZTMZPacenoteTool {
             return;
         }
 
-        if (TryGetUdpPortFailure(game, out var port, out var socketError))
+        var udpTelemetryIsOptional = game.GameDataReader is UdpGameDataReader udpReader
+            && udpReader.IsUdpTelemetryOptional;
+        if (!udpTelemetryIsOptional && TryGetUdpPortFailure(game, out var port, out var socketError))
         {
             var failureCode = socketError == SocketError.AddressAlreadyInUse
                 ? PrerequisitesCheckResultCode.PORT_ALREADY_IN_USE

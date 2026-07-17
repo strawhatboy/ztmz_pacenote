@@ -581,7 +581,16 @@ namespace ZTMZ.PacenoteTool.Core
         public void Play()
         {
             // try to amplify the sound.
-            var sound = this.AudioFiles[this.CurrentPlayIndex++].Sound;
+            var audioFile = this.AudioFiles[this.CurrentPlayIndex++];
+            if (PacenoteDropoutPolicy.ShouldDrop(
+                Config.Instance.PacenoteDropoutPercentage,
+                Random.Shared.Next(100)))
+            {
+                _logger.Debug("Mischief mode skipped pacenote at {0}m", audioFile.Distance);
+                return;
+            }
+
+            var sound = audioFile.Sound;
             sound.PlaySpeed = this.CurrentPlaySpeed;
             sound.Amplification = this.CurrentPlayAmplification;
             sound.Tension = this.CurrentTension;

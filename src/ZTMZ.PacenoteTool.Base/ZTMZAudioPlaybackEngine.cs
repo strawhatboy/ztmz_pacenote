@@ -2,6 +2,7 @@
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
+using System.Threading;
 using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.Base
@@ -12,11 +13,21 @@ namespace ZTMZ.PacenoteTool.Base
         private readonly MixingSampleProvider mixer;
         private readonly SequentialSampleProvider sequential;
         private readonly SequentialSampleProvider sequential2;
+        private readonly object diagnosticsLock = new();
+        private readonly int deviceId;
+        private readonly int desiredLatency;
+        private string lastError = string.Empty;
+        private long queuedSoundCount;
+        private long lastSoundQueuedUtcTicks;
+        private long lastErrorUtcTicks;
+        private int isDisposed;
 
 
         public ZTMZAudioPlaybackEngine(int deviceID = -1, bool isSequential = true, int desiredLatency = 50,
             int sampleRate = 44100, int channelCount = 2)
         {
+            this.deviceId = deviceID;
+            this.desiredLatency = desiredLatency;
             outputDevice = new WaveOutEvent
             {
                 DeviceNumber = deviceID,
@@ -36,6 +47,24 @@ namespace ZTMZ.PacenoteTool.Base
 
             outputDevice.Init(mixer);
             outputDevice.Play();
+        }
+
+        public AudioPlaybackStatus Status
+        {
+            get
+            {
+                lock (diagnosticsLock)
+                {
+                    return new AudioPlaybackStatus(
+                        Volatile.Read(ref isDisposed) == 0,
+                        deviceId,
+                        desiredLatency,
+                        Interlocked.Read(ref queuedSoundCount),
+                        ToUtcDateTimeOffset(Interlocked.Read(ref lastSoundQueuedUtcTicks)),
+                        ToUtcDateTimeOffset(Interlocked.Read(ref lastErrorUtcTicks)),
+                        lastError);
+                }
+            }
         }
 
         public void PlaySound(string fileName, bool isSequential = true, bool isSystem = false)
@@ -62,14 +91,24 @@ namespace ZTMZ.PacenoteTool.Base
 
         public void PlaySound(AutoResampledCachedSound sound, bool isSequential = true, bool isSystem = false)
         {
-            AddMixerInput(
-                new InterComEffectSampleProvider(
-                    new VariSpeedSampleProvider(
-                        new AutoResampledCachedSoundSampleProvider(sound), 
-                        500, 
-                        this.PlaybackRate, Config.Instance.UseTempoInsteadOfRate), 
-                    Config.Instance.IntercomEffect),
-                    isSequential, isSystem);
+            try
+            {
+                AddMixerInput(
+                    new InterComEffectSampleProvider(
+                        new VariSpeedSampleProvider(
+                            new AutoResampledCachedSoundSampleProvider(sound),
+                            500,
+                            this.PlaybackRate, Config.Instance.UseTempoInsteadOfRate),
+                        Config.Instance.IntercomEffect),
+                        isSequential, isSystem);
+                Interlocked.Increment(ref queuedSoundCount);
+                Interlocked.Exchange(ref lastSoundQueuedUtcTicks, DateTime.UtcNow.Ticks);
+            }
+            catch (Exception exception)
+            {
+                RecordError(exception);
+                throw;
+            }
             // AddMixerInput(
             //         new AutoResampledCachedSoundSampleProvider(sound), 
             //     isSequential);
@@ -96,7 +135,36 @@ namespace ZTMZ.PacenoteTool.Base
 
         public void Dispose()
         {
-            outputDevice.Dispose();
+            if (Interlocked.Exchange(ref isDisposed, 1) != 0)
+            {
+                return;
+            }
+
+            try
+            {
+                outputDevice.Dispose();
+            }
+            catch (Exception exception)
+            {
+                RecordError(exception);
+                throw;
+            }
+        }
+
+        private void RecordError(Exception exception)
+        {
+            lock (diagnosticsLock)
+            {
+                lastError = $"{exception.GetType().Name}: {exception.Message}";
+                Interlocked.Exchange(ref lastErrorUtcTicks, DateTime.UtcNow.Ticks);
+            }
+        }
+
+        private static DateTimeOffset? ToUtcDateTimeOffset(long ticks)
+        {
+            return ticks == 0
+                ? null
+                : new DateTimeOffset(new DateTime(ticks, DateTimeKind.Utc));
         }
 
         public float PlaybackRate { set; get; } = Config.Instance.UI_PlaybackSpeed;

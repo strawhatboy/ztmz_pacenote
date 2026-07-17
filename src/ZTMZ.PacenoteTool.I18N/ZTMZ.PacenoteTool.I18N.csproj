@@ -9,10 +9,7 @@
 
   <ItemGroup>
   
-    <None Update="lang\en-us.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="lang\zh-cn.json">
+    <None Update="lang\*.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

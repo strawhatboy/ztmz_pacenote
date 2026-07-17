@@ -34,6 +34,15 @@ public partial class VoiceSettingsPageVM : ObservableObject {
     }
 
     [ObservableProperty]
+    private int _pacenoteDropoutPercentage = Config.Instance.PacenoteDropoutPercentage;
+
+    partial void OnPacenoteDropoutPercentageChanged(int value)
+    {
+        Config.Instance.PacenoteDropoutPercentage = value;
+        Config.Instance.SaveUserConfig();
+    }
+
+    [ObservableProperty]
     private bool _removeIntoAndOnto = Config.Instance.RemoveIntoAndOnto;
     partial void OnRemoveIntoAndOntoChanged(bool value)
     {

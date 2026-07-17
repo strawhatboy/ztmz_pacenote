@@ -227,7 +227,7 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader
             SpeedRearRight = rawData.PhysicsData.WheelAngularVelocity?[3] ?? 0,
 
             // Pedals
-            Clutch = rawData.PhysicsData.ClutchPosition,
+            Clutch = 1 - rawData.PhysicsData.ClutchPosition,    // reversed
             Brake = rawData.PhysicsData.BrakeInput,
             Throttle = rawData.PhysicsData.ThrottleInput,
             HandBrake = 0, // AC doesn't provide handbrake in shared memory
@@ -235,10 +235,10 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader
 
             // Steering and transmission
             Steering = rawData.PhysicsData.SteeringAngle,
-            Gear = rawData.PhysicsData.CurrentGear,
+            Gear = rawData.PhysicsData.CurrentGear - 1, // Convert to 0-based index
             MaxGears = 6, // AC doesn't provide max gears directly
             RPM = rawData.PhysicsData.EngineRPM,
-            MaxRPM = rawData.StaticInfo.EngineRPMMax,
+            MaxRPM = 8000,
             IdleRPM = 1000, // Approximate idle RPM
             ShiftLightsFraction = 0,
             ShiftLightsRPMStart = 0,

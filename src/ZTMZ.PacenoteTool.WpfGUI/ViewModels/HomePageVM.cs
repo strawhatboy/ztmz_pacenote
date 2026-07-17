@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections.Generic;
 using System.Net;
 using ZTMZ.PacenoteTool.Base;
@@ -19,10 +20,11 @@ using System.CodeDom;
 using Wpf.Ui.Extensions;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
-public partial class HomePageVM : ObservableObject {
+public partial class HomePageVM : ObservableObject, INavigationAware {
 
     private ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool Tool { get; }
 
@@ -128,10 +130,15 @@ public partial class HomePageVM : ObservableObject {
         if (Application.Current?.Dispatcher == null || Application.Current.Dispatcher.CheckAccess())
         {
             RefreshWebDashboardHomeStatus();
+            ScheduleDiagnosticsRefresh(includePrerequisiteCheck: false);
             return;
         }
 
-        Application.Current.Dispatcher.BeginInvoke(RefreshWebDashboardHomeStatus);
+        Application.Current.Dispatcher.BeginInvoke(() =>
+        {
+            RefreshWebDashboardHomeStatus();
+            ScheduleDiagnosticsRefresh(includePrerequisiteCheck: false);
+        });
     }
 
     #region QuickSettings
@@ -226,6 +233,16 @@ public partial class HomePageVM : ObservableObject {
 
     private readonly IServiceProvider _serviceProvider;
 
+    private readonly IContentDialogService _contentDialogService;
+
+    private readonly DiagnosticsView _diagnosticsView;
+
+    private readonly DispatcherTimer _diagnosticsTimer;
+
+    private readonly SemaphoreSlim _diagnosticsRefreshLock = new(1, 1);
+
+    public DiagnosticsViewVM Diagnostics => _diagnosticsView.ViewModel;
+
     private GameOverlayManager _gameOverlayManager;
 
     private VRGameOverlayManager _vrGameOverlayManager;
@@ -239,15 +256,26 @@ public partial class HomePageVM : ObservableObject {
         GameOverlayManager gameOverlayManager, 
         VRGameOverlayManager vRGameOverlayManager,
         AzureAppInsightsManager azureAppInsightsManager,
-        UpdateConfigSetter updateConfigSetter) {
+        UpdateConfigSetter updateConfigSetter,
+        IContentDialogService contentDialogService,
+        DiagnosticsView diagnosticsView) {
         _gameOverlayManager = gameOverlayManager;
         _vrGameOverlayManager = vRGameOverlayManager;
         _serviceProvider = serviceProvider;
         _azureAppInsightsManager = azureAppInsightsManager;
         _updateConfigSetter = updateConfigSetter;
-        var contentDialogService = serviceProvider.GetService(typeof(IContentDialogService)) as IContentDialogService;
+        _contentDialogService = contentDialogService;
+        _diagnosticsView = diagnosticsView;
+        _diagnosticsTimer = new DispatcherTimer(DispatcherPriority.Background)
+        {
+            Interval = TimeSpan.FromSeconds(1)
+        };
+        _diagnosticsTimer.Tick += DiagnosticsTimerTick;
         Tool = _tool;
-        _gameOverlayManager.OnWebDashboardStatusChanged += _ => RefreshWebDashboardHomeStatusOnUiThread();
+        _gameOverlayManager.OnWebDashboardStatusChanged += _ =>
+        {
+            RefreshWebDashboardHomeStatusOnUiThread();
+        };
         RefreshWebDashboardHomeStatus();
         _tool.onGameStarted += (game, p) => {
             if (!Config.Instance.AutoInitializeGame && SelectedGame.Game != game) {
@@ -289,12 +317,14 @@ public partial class HomePageVM : ObservableObject {
             IsGameInitializeInProgress = false;
             IsGameInitializedFailed = false;
             game.onCustomMessage += this._gameCustomMessage;
+            ScheduleDiagnosticsRefresh(includePrerequisiteCheck: true);
         };
         _tool.onGameUninitialized += (game) => {
             IsGameInitialized = false;
             IsGameInitializedFailed = false;
             IsRacing = false; 
             game.onCustomMessage -= this._gameCustomMessage;
+            ScheduleDiagnosticsRefresh(includePrerequisiteCheck: false);
         };
 
         _tool.onGameInitializeFailed += (game, code, parameters) => {
@@ -536,6 +566,19 @@ public partial class HomePageVM : ObservableObject {
         });
     }
 
+    public Task OnNavigatedToAsync()
+    {
+        _diagnosticsTimer.Start();
+        ScheduleDiagnosticsRefresh(includePrerequisiteCheck: true);
+        return Task.CompletedTask;
+    }
+
+    public Task OnNavigatedFromAsync()
+    {
+        _diagnosticsTimer.Stop();
+        return Task.CompletedTask;
+    }
+
     private void _gameCustomMessage(int level, string message) {
         _logger.Info($"Game custom message: {message}");
         GameInitializeFailureMessage = message;
@@ -672,6 +715,8 @@ public partial class HomePageVM : ObservableObject {
             }
         }
 
+        ScheduleDiagnosticsRefresh(includePrerequisiteCheck: true);
+
         // TODO: UGLY CODE
         // for EAWRC, localization part
         ShowWRCLocalization = game.Game.Name == "EA SPORTS™ WRC";
@@ -747,6 +792,71 @@ public partial class HomePageVM : ObservableObject {
     private void MorePlaySettings() {
         var _navigationWindow = (_serviceProvider.GetService(typeof(INavigationWindow)) as INavigationWindow)!;
         _navigationWindow.Navigate(typeof(PlayPage));
+    }
+
+    [RelayCommand]
+    private Task RefreshDiagnostics()
+    {
+        return RefreshDiagnosticsAsync(includePrerequisiteCheck: true);
+    }
+
+    [RelayCommand]
+    private async Task OpenDiagnosticsDialog()
+    {
+        await RefreshDiagnosticsAsync(includePrerequisiteCheck: true);
+        await _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions()
+        {
+            Title = I18NLoader.Instance["diagnostics.title"],
+            Content = _diagnosticsView,
+            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+        });
+    }
+
+    private async void DiagnosticsTimerTick(object sender, EventArgs e)
+    {
+        await RefreshDiagnosticsAsync(includePrerequisiteCheck: false);
+    }
+
+    private void ScheduleDiagnosticsRefresh(bool includePrerequisiteCheck)
+    {
+        if (Application.Current?.Dispatcher == null || Application.Current.Dispatcher.CheckAccess())
+        {
+            _ = RefreshDiagnosticsAsync(includePrerequisiteCheck);
+            return;
+        }
+
+        Application.Current.Dispatcher.BeginInvoke(() =>
+        {
+            _ = RefreshDiagnosticsAsync(includePrerequisiteCheck);
+        });
+    }
+
+    private async Task RefreshDiagnosticsAsync(bool includePrerequisiteCheck)
+    {
+        if (includePrerequisiteCheck)
+        {
+            await _diagnosticsRefreshLock.WaitAsync();
+        }
+        else if (!await _diagnosticsRefreshLock.WaitAsync(0))
+        {
+            return;
+        }
+
+        try
+        {
+            if (includePrerequisiteCheck)
+            {
+                await Diagnostics.RefreshAsync();
+            }
+            else
+            {
+                await Diagnostics.RefreshRuntimeAsync();
+            }
+        }
+        finally
+        {
+            _diagnosticsRefreshLock.Release();
+        }
     }
 
     // TODO: UGLY CODE

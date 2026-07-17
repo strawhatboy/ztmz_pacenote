@@ -10,8 +10,16 @@ v2.99.99.38-3.0-rc11
 * Separated Web and native dashboard loading so a native overlay failure does not disable Web Dashboard output.
 * Updated Game Settings immediately after selecting a safe UDP port, so the displayed port always matches the active listener and repaired game configuration.
 * Made release packaging reliable: stage only default release assets, derive the installer version from the application build, and support renewed local signing certificates.
+* Added an opt-in Mischief setting that randomly skips normal pacenote callouts by the configured percentage; it defaults to 0% and does not affect previews or system sounds.
+* Added a diagnostics view with live UDP, audio, Web Dashboard, and game prerequisite status, plus a local support bundle containing a sanitized snapshot and recent log tails.
+* Added built-in beta interface packs for German, French, Italian, Russian, Spanish, Brazilian Portuguese, Japanese, and Korean. Less-used legacy descriptions fall back to English while they await native-speaker review.
+* Prepared the localization system for additional languages with per-key English fallback, automatic language-resource staging, and validation that translated resource keys exist in English.
 
 [简体中文]
+* 新增“恶作剧：随机漏报路书”设置，可按设定百分比随机跳过普通路书语音；默认 0%，不影响试听和系统提示音。
+* 新增诊断界面：显示 UDP、音频、网页仪表盘和游戏前置检查状态，并可在本地创建包含脱敏运行快照及近期日志尾部的支持包。
+* 新增德语、法语、意大利语、俄语、西班牙语、巴西葡萄牙语、日语和韩语内置测试版界面语言包；少量低频旧说明暂时自动回退英文，等待母语审核。
+* 完善多语言基础设施：缺失条目自动回退英文，语言资源自动随程序打包，并校验翻译条目是否存在于英文资源中。
 * 修复本地仪表盘悬浮窗在游戏窗口重新获得焦点后可能被遮挡的问题。
 * 改进网页仪表盘设置：显示确认后的服务状态、可用局域网地址和实际配置 URL，并可一键在默认浏览器中打开。
 * 网页仪表盘新增大尺寸触控按钮，可切换全屏和横竖屏布局；无操作时按钮会自动淡出。

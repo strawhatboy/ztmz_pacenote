@@ -67,6 +67,7 @@
       "importAudioPackage": "导入ztmz语音包，格式为zpak文件（其实是7z压缩包",
       "playStartAndEndSound": "在赛道开始和赛道结束时，播放对应的语音（通常是骚话），可以通过此选项关闭",
       "playGoSound": "当倒计时刚好结束时，播放出发语音",
+      "pacenoteDropoutPercentage": "仅供娱乐。每条普通路书语音都有此概率被跳过；0% 为关闭，不影响试听和系统提示音。",
       "useReversePacenote": "中国拉力赛中常见的逆序路书习惯，数字越小代表弯道越缓，数字越大弯道越急",
       "playCollisionSound": "当车辆发生碰撞时，播放撞车语音",
       "collision_slight": "当碰撞时的反向加速度为这么多时，播放撞车语音（轻微）",
@@ -202,6 +203,7 @@
     "importAudioPackage": "导入语音包",
     "playStartAndEndSound": "播放开始/结束语音",
     "playGoSound": "播放出发语音",
+    "pacenoteDropoutPercentage": "恶作剧：随机漏报路书",
     "useReversePacenote": "使用逆序路书",
     "playCollisionSound": "播放撞车语音",
     "collision_slight": "撞车语音（轻微）阈值（米/秒²）",
@@ -645,5 +647,31 @@
     "suspension_speed_front_right": "悬挂速度 FR",
     "suspension_speed_rear_left": "悬挂速度 RL",
     "suspension_speed_rear_right": "悬挂速度 RR"
+  },
+
+  "diagnostics": {
+    "title": "诊断",
+    "application": "应用程序",
+    "game": "游戏与配置",
+    "prerequisite": "前置检查",
+    "udp": "UDP 遥测",
+    "audio": "音频播放",
+    "webDashboard": "网页仪表盘",
+    "activity": "活动状态",
+    "refresh": "刷新",
+    "createBundle": "创建支持包",
+    "openSupportFolder": "打开支持包文件夹",
+    "notSelected": "未选择游戏",
+    "notApplicable": "当前游戏不使用此功能",
+    "waitingForGame": "等待游戏启动",
+    "optional": "可选",
+    "listening": "正在监听",
+    "stopped": "已停止",
+    "active": "活动",
+    "inactive": "未活动",
+    "none": "尚无活动",
+    "bundleCreated": "支持包已创建：{0}",
+    "bundleFailed": "创建支持包失败：{0}",
+    "refreshFailed": "刷新诊断信息失败：{0}"
   }
 }

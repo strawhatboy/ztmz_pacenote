@@ -97,6 +97,7 @@ public partial class App : Application
             services.AddSingleton<GameOverlayManager>();
             services.AddSingleton<VRGameOverlayManager>();
             services.AddSingleton<AzureAppInsightsManager>();
+            services.AddSingleton<SupportDiagnosticsService>();
             // services.AddSingleton<INotifyIconService, CustomNotifyIconService>();
 
             services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>();
@@ -113,6 +114,8 @@ public partial class App : Application
             // services.AddScoped<ViewModels.DataViewModel>();
             services.AddScoped<Views.SettingsPage>();
             services.AddScoped<ViewModels.SettingsVM>();
+            services.AddScoped<Views.DiagnosticsView>();
+            services.AddScoped<ViewModels.DiagnosticsViewVM>();
             services.AddScoped<Views.HomePage>();
             services.AddScoped<ViewModels.HomePageVM>();
             services.AddScoped<Views.GeneralPage>();
