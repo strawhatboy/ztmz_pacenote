@@ -70,6 +70,7 @@ namespace ZTMZ.PacenoteTool.Core
                 this.Player = new ZTMZAudioPlaybackEngine(this._currentPlayDeviceId,
                     Config.Instance.UseSequentialMixerToHandleAudioConflict,
                     Config.Instance.PlaybackDeviceDesiredLatency);
+                this.Player.SetMuted(Config.Instance.UI_Mute);
             }
             get => this._currentPlayDeviceId;
         }
@@ -122,6 +123,11 @@ namespace ZTMZ.PacenoteTool.Core
         //public IList<WaveOutEvent> Players { set; get; } = new List<WaveOutEvent>();
 
         public ZTMZAudioPlaybackEngine Player { set; get; }
+
+        public void SetMuted(bool muted)
+        {
+            this.Player?.SetMuted(muted);
+        }
 
 
         public AudioFile CurrentAudioFile => this.AudioFiles != null && this.CurrentPlayIndex >= 0 && this.CurrentPlayIndex < this.AudioFiles.Count()

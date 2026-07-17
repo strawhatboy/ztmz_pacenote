@@ -2,6 +2,9 @@ v2.99.99.38-3.0-rc11
 ------
 [English]
 * Hardened replay saving, legacy replay import, playback, export, and dashboard comparison. Legacy per-game replay databases are preserved, incomplete records remain visible but unavailable, and replay timing now stays available for dashboards even when replay persistence is disabled.
+* Redesigned replay browsing and playback: a focused live telemetry overview is now separate from lazy, distance-aligned deep analysis, with best-run comparison on demand.
+* Expanded the system tray with quick co-driver selection, example playback, immediate mute, native HUD, and Web Dashboard controls; stage-sensitive audio changes are disabled while racing.
+* Fixed system-tray registration so the icon remains available with the expanded quick-control menu.
 * Fixed native dashboard overlays sometimes falling behind a focused game window.
 * Improved Web Dashboard setup with confirmed server status, usable local-network addresses, the real configured URL, and a browser-open action.
 * Added large touch controls to the Web Dashboard for fullscreen and portrait/landscape layout; the controls fade away after inactivity.
@@ -21,6 +24,9 @@ v2.99.99.38-3.0-rc11
 
 [简体中文]
 * 加固回放保存、旧版回放导入、回放播放、导出和仪表盘对比逻辑。旧版单游戏回放数据库会保留不变，不完整记录会继续显示但标记为不可用，即使关闭回放持久化，仪表盘也会保留当前赛段计时用于对比。
+* 重做了回放浏览和播放界面：轻量实时遥测概览与按需加载、按赛段里程对齐的深度分析分离；最佳回放对比仅在分析视图中显示。
+* 扩展系统托盘快捷控制：可快速切换领航员、试听、即时静音、开关原生悬浮仪表盘和网页仪表盘；赛段进行中会禁用可能干扰路书的音频操作。
+* 修复扩展快捷控制菜单启用后系统托盘图标可能不显示的问题，确保托盘图标稳定注册并可用。
 
 [简体中文]
 * 新增“恶作剧：随机漏报路书”设置，可按设定百分比随机跳过普通路书语音；默认 0%，不影响试听和系统提示音。

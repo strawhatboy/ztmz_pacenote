@@ -53,7 +53,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     private GameWithImage _selectedGame;
 
     [ObservableProperty]
-    private CoDriverPackageInfo _selectedCodriver;
+    private CoDriverPackageInfo? _selectedCodriver;
 
     [ObservableProperty]
     private IList<string> _outputDevices = new ObservableCollection<string>();
@@ -90,8 +90,10 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
     partial void OnIsHudEnabledChanged(bool value)
     {
-        Config.Instance.UI_ShowHud = value;
-        Config.Instance.SaveUserConfig();
+        if (!_isApplyingRuntimeControls)
+        {
+            _runtimeControls.SetNativeHudVisible(value);
+        }
     }
 
     [ObservableProperty]
@@ -251,6 +253,10 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
     private UpdateConfigSetter _updateConfigSetter;
 
+    private RuntimeControlsService _runtimeControls;
+
+    private bool _isApplyingRuntimeControls;
+
     public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool, 
         IServiceProvider serviceProvider, 
         GameOverlayManager gameOverlayManager, 
@@ -258,7 +264,8 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         AzureAppInsightsManager azureAppInsightsManager,
         UpdateConfigSetter updateConfigSetter,
         IContentDialogService contentDialogService,
-        DiagnosticsView diagnosticsView) {
+        DiagnosticsView diagnosticsView,
+        RuntimeControlsService runtimeControls) {
         _gameOverlayManager = gameOverlayManager;
         _vrGameOverlayManager = vRGameOverlayManager;
         _serviceProvider = serviceProvider;
@@ -266,6 +273,8 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         _updateConfigSetter = updateConfigSetter;
         _contentDialogService = contentDialogService;
         _diagnosticsView = diagnosticsView;
+        _runtimeControls = runtimeControls;
+        _runtimeControls.StateChanged += OnRuntimeControlsStateChanged;
         _diagnosticsTimer = new DispatcherTimer(DispatcherPriority.Background)
         {
             Interval = TimeSpan.FromSeconds(1)
@@ -482,11 +491,12 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             _gameOverlayManager.DashboardScriptArguments.GameContext.TrackName = trackName;
             _gameOverlayManager.DashboardScriptArguments.GameContext.CarName = carName;
             _gameOverlayManager.DashboardScriptArguments.GameContext.CarClass = carClass;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.AudioPackage = SelectedCodriver.name;
+            var selectedCodriver = _runtimeControls.GetSnapshot().SelectedCodriver;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.AudioPackage = selectedCodriver?.name ?? string.Empty;
             _azureAppInsightsManager.TrackEvent("RaceTrackChanged", 
                 new Dictionary<string, string>{ 
                     {"Game", game.Name },
-                    {"SelectedCodriver", SelectedCodriver.name},
+                    {"SelectedCodriver", selectedCodriver?.name ?? string.Empty},
                     {"TrackName", trackName },
                     {"CarName", carName }
                 });
@@ -534,7 +544,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         BindingOperations.EnableCollectionSynchronization(CurrentGameSettings, _collectionLock);
 
         _tool.onCodriversRefreshed += () => {
-            loadCodrivers();
+            RunOnUiThread(loadCodrivers);
         };
 
         _tool.onToolInitialized += () => {
@@ -573,6 +583,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
     public Task OnNavigatedToAsync()
     {
+        ApplyRuntimeControls();
         _diagnosticsTimer.Start();
         ScheduleDiagnosticsRefresh(includePrerequisiteCheck: true);
         return Task.CompletedTask;
@@ -668,8 +679,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         foreach (var codriverPackage in Tool.CoDriverPackages) {
             CodriverPackageInfos.Add(codriverPackage.Info);
         }
-        var theCodriverPackage = CodriverPackageInfos[(Config.Instance.UI_SelectedAudioPackage < 0 || Config.Instance.UI_SelectedAudioPackage >= CodriverPackageInfos.Count) ? 0 : Config.Instance.UI_SelectedAudioPackage];
-        SelectedCodriver = theCodriverPackage;
+        ApplyRuntimeControls();
     }
 
     [RelayCommand]
@@ -751,13 +761,12 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
     [RelayCommand]
     private void CodriverPackageSelectionChanged() {
-        if (SelectedCodriver == null) return;
+        if (_isApplyingRuntimeControls || SelectedCodriver == null) return;
         var codriverPackage = SelectedCodriver;
-        Config.Instance.UI_SelectedAudioPackage = CodriverPackageInfos.IndexOf(codriverPackage);
-        Config.Instance.SaveUserConfig();
-        Tool.SetCodriver(Config.Instance.UI_SelectedAudioPackage);
-        _azureAppInsightsManager.TrackEvent("CodriverPackageSelectionChanged", 
-            new Dictionary<string, string>{ {"SelectedCodriver", codriverPackage.name }});
+        if (!_runtimeControls.TrySelectCodriver(CoDriverSelectionIdentity.Create(codriverPackage)))
+        {
+            ApplyRuntimeControls();
+        }
     }
 
     [RelayCommand]
@@ -770,15 +779,62 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
     [RelayCommand]
     private void PlayExample() {
-        // Application.Current.Dispatcher.Invoke(() => {
-        Tool.PlayExample();
-        // });
+        _runtimeControls.TryPlayExample();
     }
 
     [RelayCommand]
     private void OpenCodriverFolder() {
+        if (SelectedCodriver == null || string.IsNullOrWhiteSpace(SelectedCodriver.Path))
+        {
+            return;
+        }
+
         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe",
                     System.IO.Path.GetFullPath(SelectedCodriver.Path)));
+    }
+
+    private void OnRuntimeControlsStateChanged(object? sender, EventArgs eventArgs)
+    {
+        RunOnUiThread(ApplyRuntimeControls);
+    }
+
+    private void RunOnUiThread(Action action)
+    {
+        var dispatcher = System.Windows.Application.Current?.Dispatcher;
+        if (dispatcher == null || dispatcher.CheckAccess())
+        {
+            action();
+            return;
+        }
+
+        _ = dispatcher.BeginInvoke(action);
+    }
+
+    private void ApplyRuntimeControls()
+    {
+        var snapshot = _runtimeControls.GetSnapshot();
+        _isApplyingRuntimeControls = true;
+        try
+        {
+            IsHudEnabled = snapshot.IsNativeHudVisible;
+            if (snapshot.SelectedCodriver == null)
+            {
+                SelectedCodriver = null;
+                return;
+            }
+
+            var selectedIdentity = CoDriverSelectionIdentity.Create(snapshot.SelectedCodriver);
+            SelectedCodriver = CodriverPackageInfos.FirstOrDefault(package =>
+                                  string.Equals(
+                                      CoDriverSelectionIdentity.Create(package),
+                                      selectedIdentity,
+                                      StringComparison.OrdinalIgnoreCase))
+                              ?? snapshot.SelectedCodriver;
+        }
+        finally
+        {
+            _isApplyingRuntimeControls = false;
+        }
     }
 
     [RelayCommand]

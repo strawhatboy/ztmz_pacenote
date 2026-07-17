@@ -4,175 +4,145 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:system="clr-namespace:System;assembly=System.Runtime"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      xmlns:localUI="clr-namespace:ZTMZ.PacenoteTool.Base.UI;assembly=ZTMZ.PacenoteTool.Base.UI"
+      xmlns:helper="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
       Title="ReplayPage"
       FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
-      xmlns:helper="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
-      xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       mc:Ignorable="d">
-    <Page.Resources>
+  <Page.Resources>
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    <helper:BooleanToVisibilityConverterFalse x:Key="BooleanToVisibilityConverterFalse" />
+    <Style x:Key="CenteredCell" TargetType="DataGridCell">
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="ReplayStatus" TargetType="TextBlock">
+      <Setter Property="Text" Value="{DynamicResource replay.unavailable}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorTertiaryBrush}" />
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding Available}" Value="True">
+          <Setter Property="Text" Value="{DynamicResource replay.ready}" />
+          <Setter Property="Foreground" Value="Green" />
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+  </Page.Resources>
 
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <helper:BooleanToVisibilityConverterFalse x:Key="BooleanToVisibilityConverterFalse"/>
-        <!-- <Style TargetType="ui:Card">
-            <Setter Property="Padding" Value="16"></Setter>
-            <Setter Property="Margin" Value="0 0 0 5"></Setter>
-        </Style> -->
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
 
-        <Style x:Key="Body_Content_DataGrid_Centering"
-               TargetType="{x:Type DataGridCell}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type DataGridCell}">
-                        <Grid Background="{TemplateBinding Background}">
-                            <ContentPresenter VerticalAlignment="Center"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Page.Resources>
-    <StackPanel Orientation="Vertical">
-        <ui:CardAction Margin="0 0 0 3"
-                       Command="{Binding ViewModel.NavigateForwardCommand}"
-                       CommandParameter="{x:Type local:ReplaySettingsPage}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="160"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                            VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="Settings20"
-                                   FontSize="26"
-                                   Margin="0 0 10 0"/>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-                        <ui:TextBlock
-                            Text="{DynamicResource ResourceKey=settings.subsection.replay}"/>
-                        <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.subsection.tooltip.replay}"
-                                      Appearance="Tertiary"
-                                      FontTypography="Caption"/>
-                    </Grid>
-                </StackPanel>
-            </Grid>
-        </ui:CardAction>
+    <Grid Margin="0 0 0 12">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="280" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <StackPanel>
+        <TextBlock Text="{DynamicResource replay.title}" FontSize="20" FontWeight="SemiBold" />
+        <TextBlock Text="{DynamicResource replay.browserSubtitle}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+      </StackPanel>
+      <TextBox Grid.Column="1"
+               Text="{Binding ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+               ToolTip="{DynamicResource replay.searchTooltip}"
+               VerticalContentAlignment="Center" />
+      <ui:Button Grid.Column="2"
+                 Margin="10 0 0 0"
+                 MinWidth="132"
+                 Height="36"
+                 Padding="12 0"
+                 Appearance="Secondary"
+                 FontWeight="SemiBold"
+                 Icon="{ui:SymbolIcon Settings20}"
+                 Content="{DynamicResource settings.subsection.replay}"
+                 ToolTip="{DynamicResource settings.subsection.tooltip.replay}"
+                 Command="{Binding ViewModel.NavigateForwardCommand}"
+                 CommandParameter="{x:Type local:ReplaySettingsPage}" />
+    </Grid>
 
-        <!-- the datagrid for replays of current game -->
-        <DataGrid Grid.Row="2"
-                  x:Name="lv_Content"
-                  IsReadOnly="True"
-                  ItemsSource="{Binding ViewModel.Replays}"
-                  CellStyle="{StaticResource Body_Content_DataGrid_Centering}"
-                  AutoGenerateColumns="False"
-                  CanUserAddRows="False">
-            <DataGrid.Columns>
-                <DataGridTemplateColumn
-                    Header="actions">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <WrapPanel Orientation="Horizontal">
-                                <ui:Button Margin="0 0 5 0"
-                                           Padding="0"
-                                           x:Name="hl_listen"
-                                           Width="30"
-                                           Height="30"
-                                           Foreground="Green"
-                                           Icon="{ui:SymbolIcon Play20}"
-                                           ToolTip="{DynamicResource ResourceKey=settings.play}"
-                                           ToolTipService.InitialShowDelay="100"
-                                           IsEnabled="{Binding Available}"
-                                           CommandParameter="{Binding Id}"
-                                           Command="{Binding ViewModel.ReplayPlayCommand, RelativeSource={RelativeSource AncestorType=Page}}">
-                                </ui:Button>
-                                <ui:Button Margin="0 0 5 0"
-                                           Padding="0"
-                                           x:Name="hl_edit"
-                                           Width="30"
-                                           Height="30"
-                                           Foreground="Blue"
-                                           Icon="{ui:SymbolIcon Share20}"
-                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.replayExport}"
-                                           ToolTipService.InitialShowDelay="100"
-                                           IsEnabled="{Binding Available}"
-                                           CommandParameter="{Binding Id}"
-                                           Command="{Binding ViewModel.ReplayExportCommand, RelativeSource={RelativeSource AncestorType=Page}}">
-                                </ui:Button>
-                                <ui:Button Margin="0 0 5 0"
-                                           Padding="0"
-                                           Width="30"
-                                           Height="30"
-                                           Foreground="Blue"
-                                           Icon="{ui:SymbolIcon SoundSource20}"
-                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.replayExportAudio}"
-                                           ToolTipService.InitialShowDelay="100"
-                                           IsEnabled="{Binding Available}"
-                                           CommandParameter="{Binding Id}"
-                                           Command="{Binding ViewModel.ReplayExportAudioCommand, RelativeSource={RelativeSource AncestorType=Page}}"/>
-                                <ui:Button Margin="0 0 0 0"
-                                           Padding="0"
-                                           x:Name="hl_lock"
-                                           Width="30"
-                                           Height="30"
-                                           Visibility="{Binding Locked, Converter={StaticResource BooleanToVisibilityConverterFalse}}"
-                                           Foreground="Orange"
-                                           Icon="{ui:SymbolIcon LockOpen24}"
-                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.replayLock}"
-                                           ToolTipService.InitialShowDelay="100"
-                                           CommandParameter="{Binding Id}"
-                                           Command="{Binding ViewModel.ReplayLockCommand, RelativeSource={RelativeSource AncestorType=Page}}"/>
-
-                                <ui:Button Margin="0 0 0 0"
-                                           Padding="0"
-                                           x:Name="hl_unlock"
-                                           Width="30"
-                                           Height="30"
-                                           Visibility="{Binding Locked, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                           Foreground="Red"
-                                           Icon="{ui:SymbolIcon LockClosed24}"
-                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.replayUnlock}"
-                                           ToolTipService.InitialShowDelay="100"
-                                           CommandParameter="{Binding Id}"
-                                           Command="{Binding ViewModel.ReplayUnlockCommand, RelativeSource={RelativeSource AncestorType=Page}}"/>
-                            </WrapPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTextColumn
-                    Binding="{Binding Id}"
-                    Header="ID"/>
-                <DataGridTextColumn
-                    Binding="{Binding Track}"
-                    Header="track"/>
-                <DataGridTextColumn
-                    Binding="{Binding Car}"
-                    Header="car"/>
-                <DataGridTextColumn
-                    Binding="{Binding Car_class}"
-                    Header="car_class"/>
-                <DataGridTextColumn
-                    Binding="{Binding Finish_time}"
-                    Header="finish_time"/>
-                <DataGridCheckBoxColumn
-                    Binding="{Binding Available}"
-                    Header="available"/>
-                <DataGridTextColumn
-                    Binding="{Binding Date}"
-                    Header="date"/>
-                <DataGridTextColumn
-                    Binding="{Binding Comment}"
-                    Header="comment"/>
-                <DataGridTextColumn
-                    Binding="{Binding Video_path}"
-                    Header="video_path"/>
-            </DataGrid.Columns>
-        </DataGrid>
-    </StackPanel>
+    <DataGrid Grid.Row="1"
+              ItemsSource="{Binding ViewModel.ReplaysView}"
+              AutoGenerateColumns="False"
+              CanUserAddRows="False"
+              CanUserSortColumns="True"
+              CanUserReorderColumns="True"
+              HeadersVisibility="Column"
+              CellStyle="{StaticResource CenteredCell}"
+              EnableRowVirtualization="True"
+              EnableColumnVirtualization="True"
+              VirtualizingPanel.IsVirtualizing="True"
+              VirtualizingPanel.VirtualizationMode="Recycling">
+      <DataGrid.Columns>
+        <DataGridTemplateColumn Header="{DynamicResource replay.status}" Width="90" SortMemberPath="Available">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <TextBlock Style="{StaticResource ReplayStatus}" />
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Header="{DynamicResource replay.stage}" Binding="{Binding Track}" Width="2*" MinWidth="170" />
+        <DataGridTextColumn Header="{DynamicResource replay.car}" Binding="{Binding Car}" Width="*" MinWidth="130" />
+        <DataGridTextColumn Header="{DynamicResource replay.class}" Binding="{Binding Car_class}" Width="*" MinWidth="110" />
+        <DataGridTextColumn Header="{DynamicResource replay.finishTime}" Binding="{Binding FinishTimeDisplay}" Width="110" SortMemberPath="Finish_time" />
+        <DataGridTextColumn Header="{DynamicResource replay.recorded}" Binding="{Binding RecordedDisplay}" Width="145" SortMemberPath="Date" />
+        <DataGridTextColumn Header="{DynamicResource replay.note}" Binding="{Binding Comment}" Width="*" MinWidth="150" />
+        <DataGridTemplateColumn Header="{DynamicResource replay.actions}" Width="180" CanUserSort="False">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MinWidth="135">
+                <ui:Button Margin="0 0 5 0"
+                           Padding="0"
+                           Width="30"
+                           Height="30"
+                           Foreground="Green"
+                           Icon="{ui:SymbolIcon Play20}"
+                           ToolTip="{DynamicResource settings.play}"
+                           IsEnabled="{Binding Available}"
+                           CommandParameter="{Binding Id}"
+                           Command="{Binding ViewModel.ReplayPlayCommand, RelativeSource={RelativeSource AncestorType=Page}}" />
+                <ui:Button Margin="0 0 5 0"
+                           Padding="0"
+                           Width="30"
+                           Height="30"
+                           Icon="{ui:SymbolIcon Share20}"
+                           ToolTip="{DynamicResource settings.replayExport}"
+                           IsEnabled="{Binding Available}"
+                           CommandParameter="{Binding Id}"
+                           Command="{Binding ViewModel.ReplayExportCommand, RelativeSource={RelativeSource AncestorType=Page}}" />
+                <ui:Button Margin="0 0 5 0"
+                           Padding="0"
+                           Width="30"
+                           Height="30"
+                           Icon="{ui:SymbolIcon SoundSource20}"
+                           ToolTip="{DynamicResource settings.replayExportAudio}"
+                           IsEnabled="{Binding Available}"
+                           CommandParameter="{Binding Id}"
+                           Command="{Binding ViewModel.ReplayExportAudioCommand, RelativeSource={RelativeSource AncestorType=Page}}" />
+                <ui:Button Padding="0"
+                           Width="30"
+                           Height="30"
+                           Visibility="{Binding Locked, Converter={StaticResource BooleanToVisibilityConverterFalse}}"
+                           Foreground="Orange"
+                           Icon="{ui:SymbolIcon LockOpen24}"
+                           ToolTip="{DynamicResource settings.tooltip.replayLock}"
+                           CommandParameter="{Binding Id}"
+                           Command="{Binding ViewModel.ReplayLockCommand, RelativeSource={RelativeSource AncestorType=Page}}" />
+                <ui:Button Padding="0"
+                           Width="30"
+                           Height="30"
+                           Visibility="{Binding Locked, Converter={StaticResource BooleanToVisibilityConverter}}"
+                           Foreground="Red"
+                           Icon="{ui:SymbolIcon LockClosed24}"
+                           ToolTip="{DynamicResource settings.tooltip.replayUnlock}"
+                           CommandParameter="{Binding Id}"
+                           Command="{Binding ViewModel.ReplayUnlockCommand, RelativeSource={RelativeSource AncestorType=Page}}" />
+              </StackPanel>
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
 </Page>

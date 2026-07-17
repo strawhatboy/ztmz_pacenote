@@ -1,85 +1,121 @@
 using System;
-using Wpf.Ui.Controls;
-using ZTMZ.PacenoteTool.Base;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using System.Diagnostics;
-using System.Collections.Generic;
-using SharpDX.Win32;
 using FFMpegCore;
-using System.Linq;
 using LiveChartsCore;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Drawing.Geometries;
 using LiveChartsCore.Defaults;
-using LiveChartsCore.SkiaSharpView.Painting;
-using SkiaSharp;
 using LiveChartsCore.Kernel.Sketches;
-using System.Threading.Tasks;
-using LiveChartsCore.Measure;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
 using LiveChartsCore.SkiaSharpView.Painting.Effects;
-using System.Threading;
+using SkiaSharp;
+using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
-// public class BindableAxisSection: LiveChartsCore
+public enum ReplayAnalysisMetric
+{
+    Inputs,
+    Speed,
+    Engine,
+    Gear,
+    GForce,
+    BrakeTemperatures,
+    SuspensionTravel,
+    SuspensionVelocity,
+    Position
+}
+
+public sealed class ReplayAnalysisMetricOption
+{
+    public ReplayAnalysisMetricOption(ReplayAnalysisMetric metric, string label)
+    {
+        Metric = metric;
+        Label = label;
+    }
+
+    public ReplayAnalysisMetric Metric { get; }
+    public string Label { get; }
+}
 
 public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 {
-    private bool hasTimestamp = true;   // backward capability for 2.99.99.32, damn, no timestamp
-    private Replay _replay = null;
-    private Replay _bestReplay = null;
-    private string tmpAudioPath = "";
-    private List<ReplayDetailsPerTime> _replayDetailsPerTime = null;
-    private List<ReplayDetailsPerTime> _bestReplayDetailsPerTime = null;
-    private ReplayTimelineLookup _replayTimelineLookup = null;
-    private ReplayTimelineLookup _bestReplayTimelineLookup = null;
-    private ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool = null;
+    private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+    private readonly DispatcherTimer _timer = new(DispatcherPriority.Background);
+    private readonly ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool;
+    private readonly Dictionary<ReplayAnalysisMetric, ReplayAnalysisPlotData> _analysisCache = new();
+
+    private Replay? _replay;
+    private Replay? _bestReplay;
+    private List<ReplayDetailsPerTime>? _replayDetailsPerTime;
+    private List<ReplayDetailsPerTime>? _bestReplayDetailsPerTime;
+    private ReplayTimelineLookup? _replayTimelineLookup;
+    private ReplayTimelineLookup? _bestReplayTimelineLookup;
+    private CancellationTokenSource? _analysisCancellation;
+    private CancellationTokenSource? _overviewCancellation;
+    private string _temporaryAudioPath = string.Empty;
+    private bool _hasTimestamp;
     private bool _isApplyingReplayLocked;
+    private bool _isResetting;
+    private int _analysisGeneration;
 
-    private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-
-    private DispatcherTimer _timer = new DispatcherTimer(DispatcherPriority.Background);
-
-    // private System.Timers.Timer _timer; // ms
-
-    private int diagramUpdateCount = 0; // ms
-
-    /// <summary>
-    /// this is the video player on the UI.
-    /// </summary>
-    public MediaElement mediaElement = null;
+    public MediaElement? mediaElement;
 
     [ObservableProperty]
-    private string _headerContent = "";
+    private string _headerContent = string.Empty;
 
     [ObservableProperty]
     private int _replayId = -1;
-    partial void OnReplayIdChanged(int value) {
-        this.HeaderContent = $"Replay: {value}";
+
+    partial void OnReplayIdChanged(int value)
+    {
+        HeaderContent = $"Replay: {value}";
     }
+
     [ObservableProperty]
-    private string _videoPath = "";
+    private string _videoPath = string.Empty;
 
     [ObservableProperty]
     private double _playPosition;
 
-    [ObservableProperty]
-    private double _volume = 1;
-
-    [ObservableProperty]
-    private double _playSpeed = 1;
-
-    partial void OnPlayPositionChanged(double value){
-        // calculate the distance
-        UpdateLapTimeAndLapDistance(value);
+    partial void OnPlayPositionChanged(double value)
+    {
+        UpdatePlaybackTelemetry(value);
     }
+
     [ObservableProperty]
     private double _videoLength;
 
     [ObservableProperty]
-    private bool _isPaused;
+    private double _volume = 1;
+
+    partial void OnVolumeChanged(double value)
+    {
+        if (mediaElement != null)
+        {
+            mediaElement.Volume = value;
+        }
+    }
+
+    [ObservableProperty]
+    private double _playSpeed = 1;
+
+    partial void OnPlaySpeedChanged(double value)
+    {
+        if (mediaElement != null)
+        {
+            mediaElement.SpeedRatio = value;
+        }
+    }
+
+    [ObservableProperty]
+    private bool _isPaused = true;
 
     [ObservableProperty]
     private bool _isPausedBecauseOfSliding;
@@ -88,31 +124,17 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     private bool _scrubbingEnabled;
 
     [ObservableProperty]
-    private bool _replayShowDiagrams = Config.Instance.ReplayShowDiagrams;
-    partial void OnReplayShowDiagramsChanged(bool value){
-        Config.Instance.ReplayShowDiagrams = value;
-        Config.Instance.SaveUserConfig();
-        if (value) {
-            _ = setCharts();
-        } else {
-            ClearChartData();
-        }
-    }
-
-    partial void OnPlaySpeedChanged(double value) {
-        mediaElement.SpeedRatio = value;
-    }
-
-
-#region right panel
-    [ObservableProperty]
-    private string _track;
+    private string _track = string.Empty;
 
     [ObservableProperty]
-    private string _car;
+    private string _car = string.Empty;
 
     [ObservableProperty]
-    private string _carClass;
+    private string _carClass = string.Empty;
+
+    [ObservableProperty]
+    private float _finishTime;
+
     [ObservableProperty]
     private double _lapTime;
 
@@ -122,48 +144,55 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     [ObservableProperty]
     private float _gotoLapDistance;
 
+    partial void OnGotoLapDistanceChanged(float value)
+    {
+        if (_isResetting || _replayTimelineLookup == null || !IsPaused)
+        {
+            return;
+        }
+
+        var targetPosition = GetPlaybackPositionForDistance(value);
+        SeekTo(targetPosition, false);
+    }
+
+    [ObservableProperty]
+    private float _currentSpeed;
+
+    [ObservableProperty]
+    private float _currentGear;
+
+    [ObservableProperty]
+    private float _currentThrottlePercent;
+
+    [ObservableProperty]
+    private float _currentBrakePercent;
+
+    [ObservableProperty]
+    private IReadOnlyList<ReplayPlotPoint> _overviewThrottlePoints = Array.Empty<ReplayPlotPoint>();
+
+    [ObservableProperty]
+    private IReadOnlyList<ReplayPlotPoint> _overviewBrakePoints = Array.Empty<ReplayPlotPoint>();
+
+    [ObservableProperty]
+    private IReadOnlyList<ReplayPlotPoint> _overviewSpeedPoints = Array.Empty<ReplayPlotPoint>();
+
+    [ObservableProperty]
+    private float _overviewCursorDistance;
+
+    [ObservableProperty]
+    private float _overviewMaximumDistance;
+
     [ObservableProperty]
     private bool _replayLocked;
-    partial void OnReplayLockedChanged(bool value){
-        if (_isApplyingReplayLocked || this._replay == null) {
+
+    partial void OnReplayLockedChanged(bool value)
+    {
+        if (_isApplyingReplayLocked || _replay == null)
+        {
             return;
         }
 
         _ = SetReplayLockedFromUiAsync(value);
-    }
-
-    private async Task SetReplayLockedFromUiAsync(bool value) {
-        try {
-            await ReplayManager.Instance.SetReplayLockedAsync(this._replay.id, value);
-        } catch (Exception ex) {
-            _logger.Error(ex, "Failed to update replay lock state.");
-            _isApplyingReplayLocked = true;
-            ReplayLocked = !value;
-            _isApplyingReplayLocked = false;
-        }
-    }
-    partial void OnGotoLapDistanceChanged(float value){
-        if (this._replayTimelineLookup == null) {
-            return;
-        }
-
-        // calculate the time
-        if (IsPaused) {
-            Dispatcher.CurrentDispatcher.Invoke(() => {
-                this._timer.Stop();
-            });
-            if (this.hasTimestamp) {
-                var timestamp = this._replayTimelineLookup.GetTimestampByDistance(value);
-                var tgtPosition = (double)(timestamp - this._replay.video_begin_timestamp) / 10000000 - this.PlayPositionOffset;
-                this.PlayPosition = tgtPosition < 0 ? 0 : tgtPosition;
-            } else {
-                var time = this._replayTimelineLookup.GetTimeByDistance(value);
-                this.PlayPosition = time - this.PlayPositionOffset;
-            }
-            Dispatcher.CurrentDispatcher.Invoke(() => {
-                this._timer.Start();
-            });
-        }
     }
 
     [ObservableProperty]
@@ -171,199 +200,107 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
     [ObservableProperty]
     private bool _showBestReplayComparison;
-    private void setVisibilityOfBestReplaySeries(List<ISeries> series, bool visible) {
-        series.ForEach(a => {
-            if (a.Name.Contains(I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.best", "en-us"))) {
-                a.IsVisible = visible ? true : false;
-            }
-        });
-    }
-    partial void OnShowBestReplayComparisonChanged(bool value){
-        if (value) {
-            // set visibility of best replay
-            // last half of pedal series
-            setVisibilityOfBestReplaySeries(this.PedalSeries, true);
-            setVisibilityOfBestReplaySeries(this.SpeedSeries, true);
-            setVisibilityOfBestReplaySeries(this.RpmSeries, true);
-            setVisibilityOfBestReplaySeries(this.GSeries, true);
-            setVisibilityOfBestReplaySeries(this.GearSeries, true);
-            setVisibilityOfBestReplaySeries(this.BrakeTempSeries, true);
-            setVisibilityOfBestReplaySeries(this.SuspensionSeries, true);
-            setVisibilityOfBestReplaySeries(this.SuspensionSpeedSeries, true);
-        } else {
-            // set visibility of best replay
-            // last half of pedal series
-            setVisibilityOfBestReplaySeries(this.PedalSeries, false);
-            setVisibilityOfBestReplaySeries(this.SpeedSeries, false);
-            setVisibilityOfBestReplaySeries(this.RpmSeries, false);
-            setVisibilityOfBestReplaySeries(this.GSeries, false);
-            setVisibilityOfBestReplaySeries(this.GearSeries, false);
-            setVisibilityOfBestReplaySeries(this.BrakeTempSeries, false);
-            setVisibilityOfBestReplaySeries(this.SuspensionSeries, false);
-            setVisibilityOfBestReplaySeries(this.SuspensionSpeedSeries, false);
+
+    partial void OnShowBestReplayComparisonChanged(bool value)
+    {
+        if (SelectedViewIndex == 1)
+        {
+            _ = EnsureAnalysisChartAsync();
         }
     }
 
-    /// <summary>
-    /// this is the offset of the play position. put values in to change the video/data offset
-    /// </summary>
     [ObservableProperty]
-    private double _playPositionOffset = 0.0; 
-    partial void OnPlayPositionOffsetChanged(double value){
-        // calculate the distance
-        UpdateLapTimeAndLapDistance(this.PlayPosition);
-    }
-#endregion
+    private int _selectedViewIndex = Config.Instance.ReplayShowDiagrams ? 1 : 0;
 
-    private void UpdateLapTimeAndLapDistance(double newValue) {
-        if (this._replayTimelineLookup != null && this._replayDetailsPerTime != null && this._replayDetailsPerTime.Count > 0) {
-            var playTime = newValue + this.PlayPositionOffset;
-            // convert playTime to ticks and plus this._replay.video_begin_timestamp is the key to get the replay details per time
-            var key = (long)(playTime * 10000000) + this._replay.video_begin_timestamp;
-            ReplayDetailsPerTime rdp = null;
-            if (this.hasTimestamp) {
-                rdp = this._replayTimelineLookup.GetByTimestamp(key);
-            } else {
-                var dis = this._replayTimelineLookup.GetDistanceByTime((float)playTime);
-                rdp = new ReplayDetailsPerTime() { time = (float)playTime, distance = dis };
-            }
-            this.LapTime = rdp.time;    // the laptime
-            this.LapDistance = rdp.distance;
-            
-            // this.PedalSections.Clear();
-            // this performance is so bad! okay, we update it not so frequently. no, still bad.
-            // if (this.diagramUpdateCount % 25 == 0) {
-            //     this.PedalSections.First().Xi = rdp.time;
-            //     this.PedalSections.First().Xj = rdp.time;
-            //     this.diagramUpdateCount = 0;
-            // }
-            // this.diagramUpdateCount++;
-
-            // update labels
-            this.PedalLabel = $"{I18NLoader.Instance["dashboard.throttle"]}: {rdp.throttle * 100:00.0}% | {I18NLoader.Instance["dashboard.brake"]}: {rdp.brake * 100:00.0}% | {I18NLoader.Instance["dashboard.clutch"]}: {rdp.clutch * 100:00.0}% | {I18NLoader.Instance["dashboard.handbrake"]}: {rdp.handbrake * 100:00.0}%";
-            this.SpeedLabel = $"{I18NLoader.Instance["dashboard.speed"]}: {rdp.speed:0.0} km/h";
-            this.RpmLabel = $"{I18NLoader.Instance["dashboard.rpm"]}: {rdp.rpm:0.0}";
-            this.GLabel = $"{I18NLoader.Instance["dashboard.g_lat"]}: {rdp.g_lat:0.0} | {I18NLoader.Instance["dashboard.g_long"]}: {rdp.g_long:0.0}";
-            this.GearLabel = $"{I18NLoader.Instance["dashboard.gear"]}: {rdp.gear}";
-            this.BrakeTempLabel = $"{I18NLoader.Instance["dashboard.brake_temp_front_left"]}: {rdp.brake_temp_front_left:0.0} | {I18NLoader.Instance["dashboard.brake_temp_front_right"]}: {rdp.brake_temp_front_right:0.0} | {I18NLoader.Instance["dashboard.brake_temp_rear_left"]}: {rdp.brake_temp_rear_left:0.0} | {I18NLoader.Instance["dashboard.brake_temp_rear_right"]}: {rdp.brake_temp_rear_right:0.0}";
-            this.SuspensionLabel = $"{I18NLoader.Instance["dashboard.suspension_front_left"]}: {rdp.suspension_front_left:0.0} | {I18NLoader.Instance["dashboard.suspension_front_right"]}: {rdp.suspension_front_right:0.0} | {I18NLoader.Instance["dashboard.suspension_rear_left"]}: {rdp.suspension_rear_left:0.0} | {I18NLoader.Instance["dashboard.suspension_rear_right"]}: {rdp.suspension_rear_right:0.0}";
-            this.SuspensionSpeedLabel = $"{I18NLoader.Instance["dashboard.suspension_speed_front_left"]}: {rdp.suspension_speed_front_left:0.0} | {I18NLoader.Instance["dashboard.suspension_speed_front_right"]}: {rdp.suspension_speed_front_right:0.0} | {I18NLoader.Instance["dashboard.suspension_speed_rear_left"]}: {rdp.suspension_speed_rear_left:0.0} | {I18NLoader.Instance["dashboard.suspension_speed_rear_right"]}: {rdp.suspension_speed_rear_right:0.0}";
-        }
-    }
-
-    public ReplayPlayingPageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool) {
-        this._tool = tool;
-        this._timer.Interval = TimeSpan.FromMilliseconds(33);
-        this._timer.Tick += this.Timer_Ticks;
-
-        // this._timer = new System.Timers.Timer(5); // 5ms
-        // this._timer.Elapsed += this.Timer_Ticks;
-    }
-
-    private void Timer_Ticks(object? sender, EventArgs args) {
-        if (this.mediaElement == null) {
+    partial void OnSelectedViewIndexChanged(int value)
+    {
+        if (_isResetting)
+        {
             return;
         }
 
-        try {
-            
-            // Application.Current.Dispatcher.Invoke(() => {
-            if (!IsPaused && (this.mediaElement.HasAudio || this.mediaElement.HasVideo) && this.mediaElement.NaturalDuration.HasTimeSpan) {
-                this.VideoLength = this.mediaElement.NaturalDuration.TimeSpan.TotalSeconds;
-                this.PlayPosition = this.mediaElement.Position.TotalSeconds;
-            }
-            // });
-        } catch (Exception ex) {
-            _logger.Error(ex);
+        var showAnalysis = value == 1;
+        Config.Instance.ReplayShowDiagrams = showAnalysis;
+        Config.Instance.SaveUserConfig();
+        if (showAnalysis)
+        {
+            _ = EnsureAnalysisChartAsync();
         }
+        else
+        {
+            ClearAnalysisChart();
+        }
+    }
+
+    public ObservableCollection<ReplayAnalysisMetricOption> AnalysisMetrics { get; } = new();
+
+    [ObservableProperty]
+    private ReplayAnalysisMetricOption? _selectedAnalysisMetric;
+
+    partial void OnSelectedAnalysisMetricChanged(ReplayAnalysisMetricOption? value)
+    {
+        if (value != null && SelectedViewIndex == 1)
+        {
+            _ = EnsureAnalysisChartAsync();
+        }
+    }
+
+    [ObservableProperty]
+    private IReadOnlyList<ISeries> _analysisSeries = Array.Empty<ISeries>();
+
+    [ObservableProperty]
+    private IReadOnlyList<ICartesianAxis> _analysisXAxis = Array.Empty<ICartesianAxis>();
+
+    [ObservableProperty]
+    private IReadOnlyList<ICartesianAxis> _analysisYAxis = Array.Empty<ICartesianAxis>();
+
+    public ReplayPlayingPageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool)
+    {
+        _tool = tool;
+        _timer.Interval = TimeSpan.FromMilliseconds(33);
+        _timer.Tick += TimerTicks;
+
+        AnalysisMetrics.Add(new ReplayAnalysisMetricOption(ReplayAnalysisMetric.Inputs, I18NLoader.Instance["replay.analysisInputs"]));
+        AnalysisMetrics.Add(new ReplayAnalysisMetricOption(ReplayAnalysisMetric.Speed, I18NLoader.Instance["replay.analysisSpeed"]));
+        AnalysisMetrics.Add(new ReplayAnalysisMetricOption(ReplayAnalysisMetric.Engine, I18NLoader.Instance["replay.analysisEngine"]));
+        AnalysisMetrics.Add(new ReplayAnalysisMetricOption(ReplayAnalysisMetric.Gear, I18NLoader.Instance["replay.analysisGear"]));
+        AnalysisMetrics.Add(new ReplayAnalysisMetricOption(ReplayAnalysisMetric.GForce, I18NLoader.Instance["replay.analysisGForce"]));
+        AnalysisMetrics.Add(new ReplayAnalysisMetricOption(ReplayAnalysisMetric.BrakeTemperatures, I18NLoader.Instance["replay.analysisBrakeTemperatures"]));
+        AnalysisMetrics.Add(new ReplayAnalysisMetricOption(ReplayAnalysisMetric.SuspensionTravel, I18NLoader.Instance["replay.analysisSuspensionTravel"]));
+        AnalysisMetrics.Add(new ReplayAnalysisMetricOption(ReplayAnalysisMetric.SuspensionVelocity, I18NLoader.Instance["replay.analysisSuspensionVelocity"]));
+        AnalysisMetrics.Add(new ReplayAnalysisMetricOption(ReplayAnalysisMetric.Position, I18NLoader.Instance["replay.analysisPosition"]));
+        SelectedAnalysisMetric = AnalysisMetrics.First();
     }
 
     public async Task OnNavigatedToAsync()
     {
         ResetPlaybackState();
 
-        // load replay with ReplayId
-        this._replay = await ReplayManager.Instance.getReplay(this.ReplayId);
-        if (this._replay == null || !this._replay.available) {
-            this.HeaderContent = $"Replay: {this.ReplayId}";
+        _replay = await ReplayManager.Instance.getReplay(ReplayId);
+        if (_replay == null || !_replay.available)
+        {
+            HeaderContent = $"Replay: {ReplayId}";
             return;
         }
 
-        this._bestReplay = await ReplayManager.Instance.GetBestReplay(_tool.CurrentGame, _replay.track, _replay.car_class, _replay.car);
-        if (this._bestReplay != null && this._bestReplay.available && this._bestReplay.id != this._replay.id) {
-            // got the best replay
-            this.HasBestReplay = true;
-            this._bestReplayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(this._bestReplay.id);
-            this._bestReplayTimelineLookup = ReplayTimelineLookup.From(this._bestReplayDetailsPerTime);
-        }
-
-        this._replayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(this.ReplayId);
-        if (this._replayDetailsPerTime.Count == 0) {
+        _replayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(ReplayId);
+        if (_replayDetailsPerTime.Count == 0)
+        {
             return;
         }
 
-        this._replayTimelineLookup = ReplayTimelineLookup.From(this._replayDetailsPerTime);
-        await setCharts();
-        this.Track = this._replay.track;
-        this.Car = this._replay.car;
-        this.CarClass = this._replay.car_class;
-        _isApplyingReplayLocked = true;
-        this.ReplayLocked = this._replay.locked;
-        _isApplyingReplayLocked = false;
-        
-        var first = this._replayDetailsPerTime.FirstOrDefault(a => a.timestamp > 0);
-        this.hasTimestamp = first != null;
-        if (this._replay.video_begin_timestamp == 0) {
-            _logger.Warn("Video begin timestamp is 0, will set it to the first timestamp.");
-            if (this.hasTimestamp) {
-                this._replay.video_begin_timestamp = first.timestamp;
-            }
-        }
+        _replayTimelineLookup = ReplayTimelineLookup.From(_replayDetailsPerTime);
+        await LoadBestReplayAsync();
+        InitializeReplayMetadata();
+        await PrepareOverviewDataAsync();
 
-        if (!string.IsNullOrEmpty(this._replay.video_path) && File.Exists(this._replay.video_path))
+        if (SelectedViewIndex == 1)
         {
-            this.ScrubbingEnabled = true;
-            _logger.Info("Playing video: " + this._replay.video_path);
-            // load video
-            this.VideoPath = this._replay.video_path;
-            this.IsPaused = false;
-            Application.Current.Dispatcher.Invoke(() => {
-                this.mediaElement.Play();
-            });
+            await EnsureAnalysisChartAsync();
         }
-        else
-        {
-            // ScrubbingEnabled is only for video, when playing audio, it should be false, or the audio will not be played.
-            this.ScrubbingEnabled = false;
-            _logger.Warn("Video not found, will create an empty audio file.");
-            var duration = 0d;
-            if (this.hasTimestamp) {
-                duration = (double)(this._replayDetailsPerTime.Last().timestamp - this._replayDetailsPerTime.First(a => a.timestamp > 0).timestamp) / 10000000 + this._replayDetailsPerTime.First(a => a.timestamp > 0).time;
-            } else {
-                duration = (double)(this._replayDetailsPerTime.Last().time - this._replayDetailsPerTime.First().time);
-            }
-            // create an empty audio file wth ffmpeg
-            tmpAudioPath = Path.Combine(Path.GetTempPath(), $"ztmz-replay-empty-{Guid.NewGuid():N}.mp3");
-            GlobalFFOptions.Configure(options => options.BinaryFolder = Config.Instance.ReplayFFmpegPath);
-            await FFMpegArguments
-                .FromFileInput("anullsrc=channel_layout=stereo:sample_rate=44100", false, options => options.WithCustomArgument($"-f lavfi -t {duration}"))
-                .OutputToFile(tmpAudioPath, true)
-                .ProcessAsynchronously();
 
-            _logger.Info("Created empty audio: " + tmpAudioPath);
-
-            this.VideoPath = tmpAudioPath;
-            this.IsPaused = false;
-            
-            Application.Current.Dispatcher.Invoke(() => {
-                try {
-                    this.mediaElement.Play();
-                } catch (Exception ex) {
-                    _logger.Error($"Error when playing tmp audio: {ex}");
-                }
-            });
-        }
-        this._timer.Start();
+        await StartMediaAsync();
+        _timer.Start();
     }
 
     public Task OnNavigatedFromAsync()
@@ -372,491 +309,650 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         return Task.CompletedTask;
     }
 
-    private void ResetPlaybackState() {
-        this._timer.Stop();
-        try {
-            this.mediaElement?.Stop();
-        } catch (Exception ex) {
-            _logger.Warn(ex, "Failed to stop replay media element during reset.");
-        }
-
-        this.VideoPath = "";
-        if (!string.IsNullOrEmpty(this.tmpAudioPath) && File.Exists(this.tmpAudioPath)) {
-            try {
-                File.Delete(this.tmpAudioPath);
-            } catch (Exception ex) {
-                _logger.Warn(ex, "Failed to delete temporary replay audio: {0}", this.tmpAudioPath);
-            }
-        }
-
-        this.tmpAudioPath = "";
-        this._replay = null;
-        this._bestReplay = null;
-        this._replayDetailsPerTime = null;
-        this._bestReplayDetailsPerTime = null;
-        this._replayTimelineLookup = null;
-        this._bestReplayTimelineLookup = null;
-        this.HasBestReplay = false;
-        this.ScrubbingEnabled = false;
-        this.IsPaused = true;
-        this.IsPausedBecauseOfSliding = false;
-        this.PlayPosition = 0;
-        this.VideoLength = 0;
-        this.LapTime = 0;
-        this.LapDistance = 0;
-        this.GotoLapDistance = 0;
-        this.PlayPositionOffset = 0;
-        ClearChartData();
-    }
-
-    [RelayCommand]
-    private async void SlideStarted() {
-        Application.Current.Dispatcher.Invoke(() => {
-            // always stop the timer.
-            this._timer.Stop();
-        });
-        // pause the playing and wait for the slide end
-        if (!this.IsPaused) {
-            _logger.Trace("Slide started, pausing the video.");
-            Application.Current.Dispatcher.Invoke(() => {
-                _logger.Trace("Pausing the video and timer.");
-                this.mediaElement.Pause();
-            });
-            this.IsPausedBecauseOfSliding = true;
-        } else {
-            this.IsPausedBecauseOfSliding = false;
-        }
-    }
-
-    [RelayCommand]
-    private async void SlideEnded(double endPosition) {
-        Application.Current.Dispatcher.Invoke(() => {
-            // always change the position. no matter paused or not
-            this.mediaElement.Position = TimeSpan.FromSeconds(endPosition);
-            this._timer.Start();
-        });
-        if (this.IsPausedBecauseOfSliding) {
-            _logger.Trace("Slide ended, resuming the video.");
-            Application.Current.Dispatcher.Invoke(() => {
-                _logger.Trace("Resuming the video and timer.");
-                this.mediaElement.Play();
-            });
-        } else {
-            
-            Application.Current.Dispatcher.Invoke(() => {
-                // quick play and pause to locate
-                this.mediaElement.Play();
-                this.mediaElement.Pause();
-            });
-        }
-    }
-
-    [RelayCommand]
-    private async void SpaceKey() {
-        if (this.IsPaused) {
-            Application.Current.Dispatcher.Invoke(() => {
-                this.mediaElement.Position = TimeSpan.FromSeconds(this.PlayPosition);
-                this.mediaElement.Play();
-            });
-            this.IsPaused = false;
-        } else {
-            // space key pressed. should pause the video
-            Application.Current.Dispatcher.Invoke(() => {
-                this.mediaElement.Pause();
-            });
-            this.IsPaused = true;
-        }
-    }
-
-    [RelayCommand]
-    private async void LeftKey() {
-        // left key pressed. should go back 5 second
-        if (this.PlayPosition > 5) {
-            Application.Current.Dispatcher.Invoke(() => {
-                this.mediaElement.Position = TimeSpan.FromSeconds(this.PlayPosition - 5);
-            });
-            this.PlayPosition -= 5;
-        } else {
-            Application.Current.Dispatcher.Invoke(() => {
-                this.mediaElement.Position = TimeSpan.FromSeconds(0);
-            });
-            this.PlayPosition = 0;
-        }
-    }
-
-    [RelayCommand]
-    private async void RightKey() {
-        // right key pressed. should go forward 5 second
-        if (this.PlayPosition + 5 < this.VideoLength) {
-            Application.Current.Dispatcher.Invoke(() => {
-                this.mediaElement.Position = TimeSpan.FromSeconds(this.PlayPosition + 5);
-            });
-            this.PlayPosition += 5;
-        } else {
-            Application.Current.Dispatcher.Invoke(() => {
-                this.mediaElement.Position = TimeSpan.FromSeconds(this.VideoLength);
-            });
-            this.PlayPosition = this.VideoLength;
-        }
-    }
-
-#region Charts
-    [ObservableProperty]
-    private string _pedalLabel = "";
-
-    [ObservableProperty]
-    private string _speedLabel = "";
-
-    [ObservableProperty]
-    private string _rpmLabel = "";
-
-    [ObservableProperty]
-    private string _gLabel = "";
-
-    [ObservableProperty]
-    private string _gearLabel = "";
-
-    [ObservableProperty]
-    private string _brakeTempLabel = "";
-
-    [ObservableProperty]
-    private string _suspensionLabel = "";
-
-    [ObservableProperty]
-    private string _suspensionSpeedLabel = "";
-
-    [ObservableProperty]
-    private Margin _drawMargin = new Margin(10);
-
-    [ObservableProperty]
-    private List<ISeries> _pedalSeries = new();
-
-    [ObservableProperty]
-    private List<ISeries> _speedSeries = new();
-
-    [ObservableProperty]
-    private List<ISeries> _RpmSeries = new();
-
-    [ObservableProperty]
-    private List<ISeries> _gSeries = new();
-
-    [ObservableProperty]
-    private List<ISeries> _gearSeries = new();
-
-    [ObservableProperty]
-    private List<ISeries> _brakeTempSeries = new();
-
-    [ObservableProperty]
-    private List<ISeries> _suspensionSeries = new();
-
-    [ObservableProperty]
-    private List<ISeries> _suspensionSpeedSeries = new();
-
-    [ObservableProperty]
-    private List<ICartesianAxis> _pedalXAxis = new();
-
-    [ObservableProperty]
-    private ObservableCollection<RectangularSection> _pedalSections = new();
-
-    private async Task setCharts() {
-        if (Config.Instance.ReplayShowDiagrams) {
-            await setPedals();
-            await setBestCharts();
-        }
-    }
-
-    private Task clearCharts() {
-        ClearChartData();
-        return Task.CompletedTask;
-    }
-
-    private void ClearChartData() {
-        this.PedalSeries = new List<ISeries>();
-        this.SpeedSeries = new List<ISeries>();
-        this.RpmSeries = new List<ISeries>();
-        this.GSeries = new List<ISeries>();
-        this.GearSeries = new List<ISeries>();
-        this.BrakeTempSeries = new List<ISeries>();
-        this.SuspensionSeries = new List<ISeries>();
-        this.SuspensionSpeedSeries = new List<ISeries>();
-        this.PedalSections.Clear();
-    }
-
-    private LineSeries<ObservablePoint> getLineSeries(List<ObservablePoint> points, SKColor color, string name, LiveChartsCore.Painting.Paint? stroke = null) {
-        return new LineSeries<ObservablePoint>(points) {
-            GeometryFill = null,
-            GeometryStroke = null,
-            Stroke = stroke ?? new SolidColorPaint(color) { StrokeThickness = 1 },
-            Fill = null,
-            Name = name
-        };
-    }
-
-    
-    private StepLineSeries<ObservablePoint> getStepLineSeries(List<ObservablePoint> points, SKColor color, string name, LiveChartsCore.Painting.Paint? stroke = null) {
-        return new StepLineSeries<ObservablePoint>(points) {
-            GeometryFill = null,
-            GeometryStroke = null,
-            Stroke = stroke ?? new SolidColorPaint(color) { StrokeThickness = 1 },
-            Fill = null,
-            Name = name
-        };
-    }
-
-    private async Task setPedals() {
-        this.PedalSeries = new List<ISeries>();
-        var throttle = new List<ObservablePoint>();
-        var brake = new List<ObservablePoint>();
-        var clutch = new List<ObservablePoint>();
-        var handbrake = new List<ObservablePoint>();
-        var speed = new List<ObservablePoint>();
-        var rpm = new List<ObservablePoint>();
-        var g_lat = new List<ObservablePoint>();
-        var g_long = new List<ObservablePoint>();
-        var gear = new List<ObservablePoint>();
-        var brake_temp_front_left = new List<ObservablePoint>();
-        var brake_temp_front_right = new List<ObservablePoint>();
-        var brake_temp_rear_left = new List<ObservablePoint>();
-        var brake_temp_rear_right = new List<ObservablePoint>();
-        var suspension_front_left = new List<ObservablePoint>();
-        var suspension_front_right = new List<ObservablePoint>();
-        var suspension_rear_left = new List<ObservablePoint>();
-        var suspension_rear_right = new List<ObservablePoint>();
-        var suspension_speed_front_left = new List<ObservablePoint>();
-        var suspension_speed_front_right = new List<ObservablePoint>();
-        var suspension_speed_rear_left = new List<ObservablePoint>();
-        var suspension_speed_rear_right = new List<ObservablePoint>();
-        for (int i = 0; i < this._replayDetailsPerTime.Count; i++) {
-            throttle.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].throttle));
-            brake.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].brake));
-            clutch.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].clutch));
-            handbrake.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].handbrake));
-            speed.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].speed));
-            rpm.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].rpm));
-            g_lat.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].g_lat));
-            g_long.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].g_long));
-            gear.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].gear));
-            brake_temp_front_left.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].brake_temp_front_left));
-            brake_temp_front_right.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].brake_temp_front_right));
-            brake_temp_rear_left.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].brake_temp_rear_left));
-            brake_temp_rear_right.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].brake_temp_rear_right));
-            suspension_front_left.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_front_left));
-            suspension_front_right.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_front_right));
-            suspension_rear_left.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_rear_left));
-            suspension_rear_right.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_rear_right));
-            suspension_speed_front_left.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_speed_front_left));
-            suspension_speed_front_right.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_speed_front_right));
-            suspension_speed_rear_left.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_speed_rear_left));
-            suspension_speed_rear_right.Add(new ObservablePoint(this._replayDetailsPerTime[i].time, this._replayDetailsPerTime[i].suspension_speed_rear_right));
-        }
-        var current_str = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.current", "en-us");
-        var throttleSeries = getLineSeries(throttle, SKColors.Green, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.throttle", "en-us")}");
-        var brakeSeries = getLineSeries(brake, SKColors.Red, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake", "en-us")}");
-        var clutchSeries = getLineSeries(clutch, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.clutch", "en-us")}");
-        var handbrakeSeries = getLineSeries(handbrake, SKColors.Orange, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.handbrake", "en-us")}");
-        var speedSeries = getLineSeries(speed, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.speed", "en-us")}");
-        var rpmSeries = getLineSeries(rpm, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.rpm", "en-us")}");
-        var g_latSeries = getLineSeries(g_lat, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.g_lat", "en-us")}");
-        var g_longSeries = getLineSeries(g_long, SKColors.Red, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.g_long", "en-us")}");
-        var gearSeries = getStepLineSeries(gear, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.gear", "en-us")}");
-        var brake_temp_front_leftSeries = getLineSeries(brake_temp_front_left, SKColors.Green, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_front_left", "en-us")}");
-        var brake_temp_front_rightSeries = getLineSeries(brake_temp_front_right, SKColors.Red, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_front_right", "en-us")}");
-        var brake_temp_rear_leftSeries = getLineSeries(brake_temp_rear_left, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_rear_left", "en-us")}");
-        var brake_temp_rear_rightSeries = getLineSeries(brake_temp_rear_right, SKColors.Orange, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_rear_right", "en-us")}");
-        var suspension_front_leftSeries = getLineSeries(suspension_front_left, SKColors.Green, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_front_left", "en-us")}");
-        var suspension_front_rightSeries = getLineSeries(suspension_front_right, SKColors.Red, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_front_right", "en-us")}");
-        var suspension_rear_leftSeries = getLineSeries(suspension_rear_left, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_rear_left", "en-us")}");
-        var suspension_rear_rightSeries = getLineSeries(suspension_rear_right, SKColors.Orange, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_rear_right", "en-us")}");
-        var suspension_speed_front_leftSeries = getLineSeries(suspension_speed_front_left, SKColors.Green, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_front_left", "en-us")}");
-        var suspension_speed_front_rightSeries = getLineSeries(suspension_speed_front_right, SKColors.Red, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_front_right", "en-us")}");
-        var suspension_speed_rear_leftSeries = getLineSeries(suspension_speed_rear_left, SKColors.Blue, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_rear_left", "en-us")}");
-        var suspension_speed_rear_rightSeries = getLineSeries(suspension_speed_rear_right, SKColors.Orange, $"{current_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_rear_right", "en-us")}");
-
-        this.PedalSeries.Clear();
-        this.SpeedSeries.Clear();
-        this.RpmSeries.Clear();
-        this.PedalSections.Clear();
-        this.GSeries.Clear();
-        this.GearSeries.Clear();
-        this.BrakeTempSeries.Clear();
-        this.SuspensionSeries.Clear();
-        this.SuspensionSpeedSeries.Clear();
-
-        if (Config.Instance.ReplayPlayPedalsMode == 1) {
-            this.PedalSeries.Add(throttleSeries);
-        } else if (Config.Instance.ReplayPlayPedalsMode == 2) {
-            this.PedalSeries.Add(brakeSeries);
-        } else if (Config.Instance.ReplayPlayPedalsMode == 3) {
-            this.PedalSeries.Add(clutchSeries);
-        } else if (Config.Instance.ReplayPlayPedalsMode == 4) {
-            this.PedalSeries.Add(handbrakeSeries);
-        } else {
-            this.PedalSeries.Add(throttleSeries);
-            this.PedalSeries.Add(brakeSeries);
-            this.PedalSeries.Add(clutchSeries);
-            this.PedalSeries.Add(handbrakeSeries);
-        }
-        this.SpeedSeries.Add(speedSeries);
-        this.RpmSeries.Add(rpmSeries);
-        this.GSeries.Add(g_latSeries);
-        this.GSeries.Add(g_longSeries);
-        this.GearSeries.Add(gearSeries);
-        this.BrakeTempSeries.Add(brake_temp_front_leftSeries);
-        this.BrakeTempSeries.Add(brake_temp_front_rightSeries);
-        this.BrakeTempSeries.Add(brake_temp_rear_leftSeries);
-        this.BrakeTempSeries.Add(brake_temp_rear_rightSeries);
-        this.SuspensionSeries.Add(suspension_front_leftSeries);
-        this.SuspensionSeries.Add(suspension_front_rightSeries);
-        this.SuspensionSeries.Add(suspension_rear_leftSeries);
-        this.SuspensionSeries.Add(suspension_rear_rightSeries);
-        this.SuspensionSpeedSeries.Add(suspension_speed_front_leftSeries);
-        this.SuspensionSpeedSeries.Add(suspension_speed_front_rightSeries);
-        this.SuspensionSpeedSeries.Add(suspension_speed_rear_leftSeries);
-        this.SuspensionSpeedSeries.Add(suspension_speed_rear_rightSeries);
-
-        this.PedalXAxis = new List<ICartesianAxis> {
-            new Axis{
-                CrosshairLabelsBackground = SKColors.DarkOrange.AsLvcColor(),
-                CrosshairLabelsPaint = new SolidColorPaint(SKColors.DarkRed),
-                CrosshairPaint = new SolidColorPaint(SKColors.DarkOrange, 1),
-                // Labeler = value => value.ToString("N2"),
-                Padding = new LiveChartsCore.Drawing.Padding(2),
-            },
-        };
-        
-        // this.PedalSections.Add(
-        //     new RectangularSection {
-        //         Xi = 0,
-        //         Xj = 0,
-        //         // Fill = new SolidColorPaint(new SKColor(255, 205, 210)),
-        //         Stroke = new SolidColorPaint(new SKColor(255, 205, 210)) { StrokeThickness = 1 },
-        //     });
-    }
-
-    private void setVisibilityOfLineSeries(LineSeries<ObservablePoint> series, bool visible) {
-        series.IsVisible = visible ? true : false;
-    }
-    private void setVisibilityOfStepLineSeries(StepLineSeries<ObservablePoint> series, bool visible) {
-        series.IsVisible = visible ? true : false;
-    }
-
-    private async Task setBestCharts() {
-        if (this._bestReplayDetailsPerTime == null || this._bestReplayDetailsPerTime.Count == 0) {
+    private async Task LoadBestReplayAsync()
+    {
+        if (_replay == null)
+        {
             return;
         }
 
-        var throttle = new List<ObservablePoint>();
-        var brake = new List<ObservablePoint>();
-        var clutch = new List<ObservablePoint>();
-        var handbrake = new List<ObservablePoint>();
-        var speed = new List<ObservablePoint>();
-        var rpm = new List<ObservablePoint>();
-        var g_lat = new List<ObservablePoint>();
-        var g_long = new List<ObservablePoint>();
-        var gear = new List<ObservablePoint>();
-        var brake_temp_front_left = new List<ObservablePoint>();
-        var brake_temp_front_right = new List<ObservablePoint>();
-        var brake_temp_rear_left = new List<ObservablePoint>();
-        var brake_temp_rear_right = new List<ObservablePoint>();
-        var suspension_front_left = new List<ObservablePoint>();
-        var suspension_front_right = new List<ObservablePoint>();
-        var suspension_rear_left = new List<ObservablePoint>();
-        var suspension_rear_right = new List<ObservablePoint>();
-        var suspension_speed_front_left = new List<ObservablePoint>();
-        var suspension_speed_front_right = new List<ObservablePoint>();
-        var suspension_speed_rear_left = new List<ObservablePoint>();
-        var suspension_speed_rear_right = new List<ObservablePoint>();
-        for (int i = 0; i < this._bestReplayDetailsPerTime.Count; i++) {
-            throttle.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].throttle));
-            brake.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].brake));
-            clutch.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].clutch));
-            handbrake.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].handbrake));
-            speed.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].speed));
-            rpm.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].rpm));
-            g_lat.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].g_lat));
-            g_long.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].g_long));
-            gear.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].gear));
-            brake_temp_front_left.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].brake_temp_front_left));
-            brake_temp_front_right.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].brake_temp_front_right));
-            brake_temp_rear_left.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].brake_temp_rear_left));
-            brake_temp_rear_right.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].brake_temp_rear_right));
-            suspension_front_left.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_front_left));
-            suspension_front_right.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_front_right));
-            suspension_rear_left.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_rear_left));
-            suspension_rear_right.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_rear_right));
-            suspension_speed_front_left.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_speed_front_left));
-            suspension_speed_front_right.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_speed_front_right));
-            suspension_speed_rear_left.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_speed_rear_left));
-            suspension_speed_rear_right.Add(new ObservablePoint(this._bestReplayDetailsPerTime[i].time, this._bestReplayDetailsPerTime[i].suspension_speed_rear_right));
+        _bestReplay = await ReplayManager.Instance.GetBestReplay(_tool.CurrentGame, _replay.track, _replay.car_class, _replay.car);
+        if (_bestReplay == null || !_bestReplay.available || _bestReplay.id == _replay.id)
+        {
+            return;
         }
-        var best_str = I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.best", "en-us");
-        var dashed_effect = new DashEffect(new float[] { 2, 2 }, 0);
-        var throttleSeries = getLineSeries(throttle, SKColors.Green, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.throttle", "en-us")}", new SolidColorPaint(SKColors.Green) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var brakeSeries = getLineSeries(brake, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake", "en-us")}", new SolidColorPaint(SKColors.Red) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var clutchSeries = getLineSeries(clutch, SKColors.Blue, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.clutch", "en-us")}", new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var handbrakeSeries = getLineSeries(handbrake, SKColors.Orange, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.handbrake", "en-us")}", new SolidColorPaint(SKColors.Orange) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var speedSeries = getLineSeries(speed, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.speed", "en-us")}");
-        var rpmSeries = getLineSeries(rpm, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.rpm", "en-us")}");
-        var g_latSeries = getLineSeries(g_lat, SKColors.Blue, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.g_lat", "en-us")}", new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var g_longSeries = getLineSeries(g_long, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.g_long", "en-us")}", new SolidColorPaint(SKColors.Red) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var gearSeries = getStepLineSeries(gear, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.gear", "en-us")}");
-        var brake_temp_front_leftSeries = getLineSeries(brake_temp_front_left, SKColors.Green, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_front_left", "en-us")}", new SolidColorPaint(SKColors.Green) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var brake_temp_front_rightSeries = getLineSeries(brake_temp_front_right, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_front_right", "en-us")}", new SolidColorPaint(SKColors.Red) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var brake_temp_rear_leftSeries = getLineSeries(brake_temp_rear_left, SKColors.Blue, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_rear_left", "en-us")}", new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var brake_temp_rear_rightSeries = getLineSeries(brake_temp_rear_right, SKColors.Orange, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.brake_temp_rear_right", "en-us")}", new SolidColorPaint(SKColors.Orange) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var suspension_front_leftSeries = getLineSeries(suspension_front_left, SKColors.Green, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_front_left", "en-us")}", new SolidColorPaint(SKColors.Green) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var suspension_front_rightSeries = getLineSeries(suspension_front_right, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_front_right", "en-us")}", new SolidColorPaint(SKColors.Red) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var suspension_rear_leftSeries = getLineSeries(suspension_rear_left, SKColors.Blue, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_rear_left", "en-us")}", new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var suspension_rear_rightSeries = getLineSeries(suspension_rear_right, SKColors.Orange, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_rear_right", "en-us")}", new SolidColorPaint(SKColors.Orange) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var suspension_speed_front_leftSeries = getLineSeries(suspension_speed_front_left, SKColors.Green, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_front_left", "en-us")}", new SolidColorPaint(SKColors.Green) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var suspension_speed_front_rightSeries = getLineSeries(suspension_speed_front_right, SKColors.Red, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_front_right", "en-us")}", new SolidColorPaint(SKColors.Red) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var suspension_speed_rear_leftSeries = getLineSeries(suspension_speed_rear_left, SKColors.Blue, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_rear_left", "en-us")}", new SolidColorPaint(SKColors.Blue) { StrokeThickness = 1, PathEffect = dashed_effect });
-        var suspension_speed_rear_rightSeries = getLineSeries(suspension_speed_rear_right, SKColors.Orange, $"{best_str}-{I18NLoader.Instance.ResolveByKeyAndCulture("dashboard.suspension_speed_rear_right", "en-us")}", new SolidColorPaint(SKColors.Orange) { StrokeThickness = 1, PathEffect = dashed_effect });
 
-        // setVisibilityOfLineSeries(throttleSeries, true);
-        // setVisibilityOfLineSeries(brakeSeries, true);
-        // setVisibilityOfLineSeries(clutchSeries, true);
-        // setVisibilityOfLineSeries(handbrakeSeries, true);
-        // setVisibilityOfLineSeries(speedSeries, true);
-        // setVisibilityOfLineSeries(rpmSeries, true);
-        // setVisibilityOfLineSeries(g_latSeries, true);
-        // setVisibilityOfLineSeries(g_longSeries, true);
-        // setVisibilityOfStepLineSeries(gearSeries, true);
-        // setVisibilityOfLineSeries(brake_temp_front_leftSeries, true);
-        // setVisibilityOfLineSeries(brake_temp_front_rightSeries, true);
-        // setVisibilityOfLineSeries(brake_temp_rear_leftSeries, true);
-        // setVisibilityOfLineSeries(brake_temp_rear_rightSeries, true);
-        // setVisibilityOfLineSeries(suspension_front_leftSeries, true);
-        // setVisibilityOfLineSeries(suspension_front_rightSeries, true);
-        // setVisibilityOfLineSeries(suspension_rear_leftSeries, true);
-        // setVisibilityOfLineSeries(suspension_rear_rightSeries, true);
-        // setVisibilityOfLineSeries(suspension_speed_front_leftSeries, true);
-        // setVisibilityOfLineSeries(suspension_speed_front_rightSeries, true);
-        // setVisibilityOfLineSeries(suspension_speed_rear_leftSeries, true);
-        // setVisibilityOfLineSeries(suspension_speed_rear_rightSeries, true);
+        _bestReplayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(_bestReplay.id);
+        if (_bestReplayDetailsPerTime.Count == 0)
+        {
+            return;
+        }
 
-        this.PedalSeries.Add(throttleSeries);
-        this.PedalSeries.Add(brakeSeries);
-        this.PedalSeries.Add(clutchSeries);
-        this.PedalSeries.Add(handbrakeSeries);
-        this.SpeedSeries.Add(speedSeries);
-        this.RpmSeries.Add(rpmSeries);
-        this.GSeries.Add(g_latSeries);
-        this.GSeries.Add(g_longSeries);
-        this.GearSeries.Add(gearSeries);
-        this.BrakeTempSeries.Add(brake_temp_front_leftSeries);
-        this.BrakeTempSeries.Add(brake_temp_front_rightSeries);
-        this.BrakeTempSeries.Add(brake_temp_rear_leftSeries);
-        this.BrakeTempSeries.Add(brake_temp_rear_rightSeries);
-        this.SuspensionSeries.Add(suspension_front_leftSeries);
-        this.SuspensionSeries.Add(suspension_front_rightSeries);
-        this.SuspensionSeries.Add(suspension_rear_leftSeries);
-        this.SuspensionSeries.Add(suspension_rear_rightSeries);
-        this.SuspensionSpeedSeries.Add(suspension_speed_front_leftSeries);
-        this.SuspensionSpeedSeries.Add(suspension_speed_front_rightSeries);
-        this.SuspensionSpeedSeries.Add(suspension_speed_rear_leftSeries);
-        this.SuspensionSpeedSeries.Add(suspension_speed_rear_rightSeries);
+        _bestReplayTimelineLookup = ReplayTimelineLookup.From(_bestReplayDetailsPerTime);
+        HasBestReplay = true;
     }
-#endregion
 
+    private void InitializeReplayMetadata()
+    {
+        if (_replay == null || _replayDetailsPerTime == null)
+        {
+            return;
+        }
+
+        Track = _replay.track;
+        Car = _replay.car;
+        CarClass = _replay.car_class;
+        FinishTime = _replay.finish_time;
+        HeaderContent = $"{Track} - {Car}";
+
+        _isApplyingReplayLocked = true;
+        ReplayLocked = _replay.locked;
+        _isApplyingReplayLocked = false;
+
+        var firstTimestamped = _replayDetailsPerTime.FirstOrDefault(detail => detail.timestamp > 0);
+        _hasTimestamp = firstTimestamped != null;
+        if (_hasTimestamp && _replay.video_begin_timestamp == 0)
+        {
+            _replay.video_begin_timestamp = firstTimestamped!.timestamp;
+        }
+    }
+
+    private async Task PrepareOverviewDataAsync()
+    {
+        if (_replayTimelineLookup == null)
+        {
+            return;
+        }
+
+        _overviewCancellation?.Cancel();
+        _overviewCancellation?.Dispose();
+        _overviewCancellation = new CancellationTokenSource();
+        var cancellationToken = _overviewCancellation.Token;
+        var details = _replayTimelineLookup.OrderedByDistance.ToList();
+        var maximumDistance = Math.Max(_replay?.track_length ?? 0, details.LastOrDefault()?.distance ?? 0);
+
+        ReplayOverviewData overview;
+        try
+        {
+            overview = await Task.Run(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                return new ReplayOverviewData(
+                    ReplayPlotSampler.DownsampleByDistance(details, detail => detail.throttle),
+                    ReplayPlotSampler.DownsampleByDistance(details, detail => detail.brake),
+                    ReplayPlotSampler.DownsampleByDistance(details, detail => detail.speed),
+                    maximumDistance);
+            }, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+
+        if (cancellationToken.IsCancellationRequested)
+        {
+            return;
+        }
+
+        OverviewThrottlePoints = overview.Throttle;
+        OverviewBrakePoints = overview.Brake;
+        OverviewSpeedPoints = overview.Speed;
+        OverviewMaximumDistance = overview.MaximumDistance;
+    }
+
+    private async Task StartMediaAsync()
+    {
+        if (_replay == null || _replayDetailsPerTime == null)
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(_replay.video_path) && File.Exists(_replay.video_path))
+        {
+            ScrubbingEnabled = true;
+            VideoPath = _replay.video_path;
+        }
+        else
+        {
+            ScrubbingEnabled = false;
+            var duration = GetReplayDuration();
+            _temporaryAudioPath = Path.Combine(Path.GetTempPath(), $"ztmz-replay-empty-{Guid.NewGuid():N}.mp3");
+            GlobalFFOptions.Configure(options => options.BinaryFolder = Config.Instance.ReplayFFmpegPath);
+            await FFMpegArguments
+                .FromFileInput("anullsrc=channel_layout=stereo:sample_rate=44100", false, options => options.WithCustomArgument($"-f lavfi -t {duration}"))
+                .OutputToFile(_temporaryAudioPath, true)
+                .ProcessAsynchronously();
+            VideoPath = _temporaryAudioPath;
+        }
+
+        if (mediaElement != null)
+        {
+            mediaElement.SpeedRatio = PlaySpeed;
+            mediaElement.Volume = Volume;
+            mediaElement.Play();
+            IsPaused = false;
+        }
+    }
+
+    private double GetReplayDuration()
+    {
+        if (_replayDetailsPerTime == null || _replayDetailsPerTime.Count == 0)
+        {
+            return 0;
+        }
+
+        if (_hasTimestamp)
+        {
+            var first = _replayDetailsPerTime.First(detail => detail.timestamp > 0);
+            var last = _replayDetailsPerTime.Last();
+            return Math.Max(0, (last.timestamp - first.timestamp) / 10_000_000d + first.time);
+        }
+
+        return Math.Max(0, _replayDetailsPerTime.Last().time - _replayDetailsPerTime.First().time);
+    }
+
+    private void TimerTicks(object? sender, EventArgs args)
+    {
+        if (mediaElement == null || IsPaused)
+        {
+            return;
+        }
+
+        try
+        {
+            if (mediaElement.NaturalDuration.HasTimeSpan && VideoLength <= 0)
+            {
+                VideoLength = mediaElement.NaturalDuration.TimeSpan.TotalSeconds;
+            }
+
+            if (mediaElement.HasAudio || mediaElement.HasVideo)
+            {
+                PlayPosition = mediaElement.Position.TotalSeconds;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Failed to update replay position.");
+        }
+    }
+
+    private void UpdatePlaybackTelemetry(double position)
+    {
+        if (_replayTimelineLookup == null || _replay == null)
+        {
+            return;
+        }
+
+        var replayTime = (float)Math.Max(0, position);
+        ReplayDetailsPerTime? detail;
+        if (_hasTimestamp)
+        {
+            var timestamp = (long)(replayTime * 10_000_000) + _replay.video_begin_timestamp;
+            detail = _replayTimelineLookup.GetByTimestamp(timestamp);
+        }
+        else
+        {
+            detail = _replayTimelineLookup.GetByTime(replayTime);
+        }
+
+        if (detail == null)
+        {
+            return;
+        }
+
+        LapTime = detail.time;
+        LapDistance = detail.distance;
+        CurrentSpeed = detail.speed;
+        CurrentGear = detail.gear;
+        CurrentThrottlePercent = Math.Clamp(detail.throttle * 100, 0, 100);
+        CurrentBrakePercent = Math.Clamp(detail.brake * 100, 0, 100);
+        OverviewCursorDistance = detail.distance;
+    }
+
+    private double GetPlaybackPositionForDistance(float distance)
+    {
+        if (_replayTimelineLookup == null || _replay == null)
+        {
+            return 0;
+        }
+
+        if (_hasTimestamp)
+        {
+            var timestamp = _replayTimelineLookup.GetTimestampByDistance(distance);
+            return Math.Max(0, (timestamp - _replay.video_begin_timestamp) / 10_000_000d);
+        }
+
+        return Math.Max(0, _replayTimelineLookup.GetTimeByDistance(distance));
+    }
+
+    [RelayCommand]
+    private Task SlideStarted()
+    {
+        _timer.Stop();
+        if (mediaElement != null && !IsPaused)
+        {
+            mediaElement.Pause();
+            IsPausedBecauseOfSliding = true;
+        }
+        else
+        {
+            IsPausedBecauseOfSliding = false;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private Task SlideEnded(double endPosition)
+    {
+        SeekTo(endPosition, IsPausedBecauseOfSliding);
+        IsPausedBecauseOfSliding = false;
+        _timer.Start();
+        return Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private Task SpaceKey()
+    {
+        if (mediaElement == null)
+        {
+            return Task.CompletedTask;
+        }
+
+        if (IsPaused)
+        {
+            mediaElement.Position = TimeSpan.FromSeconds(PlayPosition);
+            mediaElement.Play();
+            IsPaused = false;
+        }
+        else
+        {
+            mediaElement.Pause();
+            IsPaused = true;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private Task LeftKey()
+    {
+        SeekTo(Math.Max(0, PlayPosition - 5), false);
+        return Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private Task RightKey()
+    {
+        SeekTo(Math.Min(VideoLength, PlayPosition + 5), false);
+        return Task.CompletedTask;
+    }
+
+    private void SeekTo(double position, bool resume)
+    {
+        var target = Math.Max(0, position);
+        if (VideoLength > 0)
+        {
+            target = Math.Min(target, VideoLength);
+        }
+
+        if (mediaElement != null)
+        {
+            mediaElement.Position = TimeSpan.FromSeconds(target);
+            if (resume)
+            {
+                mediaElement.Play();
+                IsPaused = false;
+            }
+            else if (IsPaused)
+            {
+                mediaElement.Play();
+                mediaElement.Pause();
+            }
+        }
+
+        PlayPosition = target;
+    }
+
+    private async Task SetReplayLockedFromUiAsync(bool value)
+    {
+        if (_replay == null)
+        {
+            return;
+        }
+
+        try
+        {
+            await ReplayManager.Instance.SetReplayLockedAsync(_replay.id, value);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Failed to update replay lock state.");
+            _isApplyingReplayLocked = true;
+            ReplayLocked = !value;
+            _isApplyingReplayLocked = false;
+        }
+    }
+
+    private async Task EnsureAnalysisChartAsync()
+    {
+        if (SelectedViewIndex != 1 || SelectedAnalysisMetric == null || _replayTimelineLookup == null)
+        {
+            return;
+        }
+
+        var metric = SelectedAnalysisMetric.Metric;
+        if (!_analysisCache.TryGetValue(metric, out var plotData))
+        {
+            _analysisCancellation?.Cancel();
+            _analysisCancellation?.Dispose();
+            _analysisCancellation = new CancellationTokenSource();
+            var cancellationToken = _analysisCancellation.Token;
+            var generation = ++_analysisGeneration;
+            var traces = GetAnalysisTraces(metric).ToList();
+            var currentDetails = _replayTimelineLookup.OrderedByDistance.ToList();
+            var bestDetails = _bestReplayTimelineLookup?.OrderedByDistance.ToList();
+
+            try
+            {
+                plotData = await Task.Run(
+                    () => CreateAnalysisPlotData(traces, currentDetails, bestDetails, cancellationToken),
+                    cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+
+            if (cancellationToken.IsCancellationRequested || generation != _analysisGeneration || SelectedViewIndex != 1 || SelectedAnalysisMetric?.Metric != metric)
+            {
+                return;
+            }
+
+            _analysisCache[metric] = plotData;
+        }
+
+        ApplyAnalysisChart(plotData);
+    }
+
+    private static ReplayAnalysisPlotData CreateAnalysisPlotData(
+        IReadOnlyList<ReplayAnalysisTrace> traces,
+        IReadOnlyList<ReplayDetailsPerTime> currentDetails,
+        IReadOnlyList<ReplayDetailsPerTime>? bestDetails,
+        CancellationToken cancellationToken)
+    {
+        var plots = new List<ReplayAnalysisTraceData>(traces.Count);
+        foreach (var trace in traces)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var current = ReplayPlotSampler.DownsampleByDistance(currentDetails, trace.ValueSelector);
+            var best = bestDetails == null
+                ? Array.Empty<ReplayPlotPoint>()
+                : ReplayPlotSampler.DownsampleByDistance(bestDetails, trace.ValueSelector);
+            plots.Add(new ReplayAnalysisTraceData(trace, current, best));
+        }
+
+        return new ReplayAnalysisPlotData(plots);
+    }
+
+    private void ApplyAnalysisChart(ReplayAnalysisPlotData plotData)
+    {
+        if (SelectedAnalysisMetric == null)
+        {
+            return;
+        }
+
+        var series = new List<ISeries>();
+        foreach (var traceData in plotData.Traces)
+        {
+            if (traceData.Current.Count > 0)
+            {
+                series.Add(CreateSeries(traceData.Current, traceData.Trace, I18NLoader.Instance["dashboard.current"], false));
+            }
+
+            if (ShowBestReplayComparison && HasBestReplay && traceData.Best.Count > 0)
+            {
+                series.Add(CreateSeries(traceData.Best, traceData.Trace, I18NLoader.Instance["dashboard.best"], true));
+            }
+        }
+
+        AnalysisSeries = series;
+        AnalysisXAxis = new[]
+        {
+            new Axis
+            {
+                Name = I18NLoader.Instance["replay.distance"],
+                Labeler = value => $"{value:0} m",
+                Padding = new LiveChartsCore.Drawing.Padding(4)
+            }
+        };
+        AnalysisYAxis = new[]
+        {
+            new Axis
+            {
+                MinLimit = SelectedAnalysisMetric.Metric == ReplayAnalysisMetric.Inputs ? -1 : null,
+                MaxLimit = SelectedAnalysisMetric.Metric == ReplayAnalysisMetric.Inputs ? 1 : null,
+                Padding = new LiveChartsCore.Drawing.Padding(4)
+            }
+        };
+    }
+
+    private static ISeries CreateSeries(
+        IReadOnlyList<ReplayPlotPoint> points,
+        ReplayAnalysisTrace trace,
+        string sourceLabel,
+        bool isBest)
+    {
+        var values = points.Select(point => new ObservablePoint(point.Distance, point.Value)).ToList();
+        var paint = new SolidColorPaint(trace.Color)
+        {
+            StrokeThickness = 1.25f,
+            PathEffect = isBest ? new DashEffect(new[] { 4f, 3f }, 0) : null
+        };
+
+        if (trace.IsStep)
+        {
+            return new StepLineSeries<ObservablePoint>(values)
+            {
+                GeometryFill = null,
+                GeometryStroke = null,
+                Stroke = paint,
+                Fill = null,
+                Name = $"{sourceLabel} - {trace.Label}"
+            };
+        }
+
+        return new LineSeries<ObservablePoint>(values)
+        {
+            GeometryFill = null,
+            GeometryStroke = null,
+            Stroke = paint,
+            Fill = null,
+            Name = $"{sourceLabel} - {trace.Label}"
+        };
+    }
+
+    private IEnumerable<ReplayAnalysisTrace> GetAnalysisTraces(ReplayAnalysisMetric metric)
+    {
+        var green = SKColors.LimeGreen;
+        var red = SKColors.OrangeRed;
+        var blue = SKColors.DeepSkyBlue;
+        var orange = SKColors.Orange;
+        var purple = SKColors.MediumPurple;
+
+        switch (metric)
+        {
+            case ReplayAnalysisMetric.Inputs:
+                var inputs = new List<ReplayAnalysisTrace>
+                {
+                    new(detail => detail.throttle, green, I18NLoader.Instance["dashboard.throttle"]),
+                    new(detail => detail.brake, red, I18NLoader.Instance["dashboard.brake"]),
+                    new(detail => detail.clutch, blue, I18NLoader.Instance["dashboard.clutch"]),
+                    new(detail => detail.handbrake, orange, I18NLoader.Instance["dashboard.handbrake"]),
+                    new(detail => detail.steering, purple, I18NLoader.Instance["dashboard.steering"])
+                };
+                return FilterConfiguredInputs(inputs);
+            case ReplayAnalysisMetric.Speed:
+                return new[] { new ReplayAnalysisTrace(detail => detail.speed, blue, I18NLoader.Instance["dashboard.speed"]) };
+            case ReplayAnalysisMetric.Engine:
+                return new[]
+                {
+                    new ReplayAnalysisTrace(detail => detail.rpm, red, I18NLoader.Instance["dashboard.rpm"]),
+                    new ReplayAnalysisTrace(detail => detail.max_rpm, new SKColor(130, 130, 130), I18NLoader.Instance["replay.maximumRpm"])
+                };
+            case ReplayAnalysisMetric.Gear:
+                return new[]
+                {
+                    new ReplayAnalysisTrace(detail => detail.gear, blue, I18NLoader.Instance["dashboard.gear"], true),
+                    new ReplayAnalysisTrace(detail => detail.max_gears, new SKColor(130, 130, 130), I18NLoader.Instance["replay.maximumGear"], true)
+                };
+            case ReplayAnalysisMetric.GForce:
+                return new[]
+                {
+                    new ReplayAnalysisTrace(detail => detail.g_lat, blue, I18NLoader.Instance["dashboard.g_lat"]),
+                    new ReplayAnalysisTrace(detail => detail.g_long, red, I18NLoader.Instance["dashboard.g_long"])
+                };
+            case ReplayAnalysisMetric.BrakeTemperatures:
+                return new[]
+                {
+                    new ReplayAnalysisTrace(detail => detail.brake_temp_front_left, green, I18NLoader.Instance["dashboard.brake_temp_front_left"]),
+                    new ReplayAnalysisTrace(detail => detail.brake_temp_front_right, red, I18NLoader.Instance["dashboard.brake_temp_front_right"]),
+                    new ReplayAnalysisTrace(detail => detail.brake_temp_rear_left, blue, I18NLoader.Instance["dashboard.brake_temp_rear_left"]),
+                    new ReplayAnalysisTrace(detail => detail.brake_temp_rear_right, orange, I18NLoader.Instance["dashboard.brake_temp_rear_right"])
+                };
+            case ReplayAnalysisMetric.SuspensionTravel:
+                return new[]
+                {
+                    new ReplayAnalysisTrace(detail => detail.suspension_front_left, green, I18NLoader.Instance["dashboard.suspension_front_left"]),
+                    new ReplayAnalysisTrace(detail => detail.suspension_front_right, red, I18NLoader.Instance["dashboard.suspension_front_right"]),
+                    new ReplayAnalysisTrace(detail => detail.suspension_rear_left, blue, I18NLoader.Instance["dashboard.suspension_rear_left"]),
+                    new ReplayAnalysisTrace(detail => detail.suspension_rear_right, orange, I18NLoader.Instance["dashboard.suspension_rear_right"])
+                };
+            case ReplayAnalysisMetric.SuspensionVelocity:
+                return new[]
+                {
+                    new ReplayAnalysisTrace(detail => detail.suspension_speed_front_left, green, I18NLoader.Instance["dashboard.suspension_speed_front_left"]),
+                    new ReplayAnalysisTrace(detail => detail.suspension_speed_front_right, red, I18NLoader.Instance["dashboard.suspension_speed_front_right"]),
+                    new ReplayAnalysisTrace(detail => detail.suspension_speed_rear_left, blue, I18NLoader.Instance["dashboard.suspension_speed_rear_left"]),
+                    new ReplayAnalysisTrace(detail => detail.suspension_speed_rear_right, orange, I18NLoader.Instance["dashboard.suspension_speed_rear_right"])
+                };
+            case ReplayAnalysisMetric.Position:
+                return new[]
+                {
+                    new ReplayAnalysisTrace(detail => detail.pos_x, red, I18NLoader.Instance["replay.positionX"]),
+                    new ReplayAnalysisTrace(detail => detail.pos_y, green, I18NLoader.Instance["replay.positionY"]),
+                    new ReplayAnalysisTrace(detail => detail.pos_z, blue, I18NLoader.Instance["replay.positionZ"])
+                };
+            default:
+                return Array.Empty<ReplayAnalysisTrace>();
+        }
+    }
+
+    private static IEnumerable<ReplayAnalysisTrace> FilterConfiguredInputs(IReadOnlyList<ReplayAnalysisTrace> inputs)
+    {
+        return Config.Instance.ReplayPlayPedalsMode switch
+        {
+            1 => new[] { inputs[0] },
+            2 => new[] { inputs[1] },
+            3 => new[] { inputs[2] },
+            4 => new[] { inputs[3] },
+            _ => inputs
+        };
+    }
+
+    private void ClearAnalysisChart()
+    {
+        AnalysisSeries = Array.Empty<ISeries>();
+        AnalysisXAxis = Array.Empty<ICartesianAxis>();
+        AnalysisYAxis = Array.Empty<ICartesianAxis>();
+    }
+
+    private void ResetPlaybackState()
+    {
+        _isResetting = true;
+        _timer.Stop();
+        _analysisCancellation?.Cancel();
+        _analysisCancellation?.Dispose();
+        _analysisCancellation = null;
+        _overviewCancellation?.Cancel();
+        _overviewCancellation?.Dispose();
+        _overviewCancellation = null;
+        _analysisGeneration++;
+        _analysisCache.Clear();
+
+        try
+        {
+            mediaElement?.Stop();
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn(ex, "Failed to stop replay media element during reset.");
+        }
+
+        VideoPath = string.Empty;
+        if (!string.IsNullOrEmpty(_temporaryAudioPath) && File.Exists(_temporaryAudioPath))
+        {
+            try
+            {
+                File.Delete(_temporaryAudioPath);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn(ex, "Failed to delete temporary replay audio: {0}", _temporaryAudioPath);
+            }
+        }
+
+        _temporaryAudioPath = string.Empty;
+        _replay = null;
+        _bestReplay = null;
+        _replayDetailsPerTime = null;
+        _bestReplayDetailsPerTime = null;
+        _replayTimelineLookup = null;
+        _bestReplayTimelineLookup = null;
+        _hasTimestamp = false;
+        HasBestReplay = false;
+        ShowBestReplayComparison = false;
+        ScrubbingEnabled = false;
+        IsPaused = true;
+        IsPausedBecauseOfSliding = false;
+        PlayPosition = 0;
+        VideoLength = 0;
+        LapTime = 0;
+        LapDistance = 0;
+        GotoLapDistance = 0;
+        Track = string.Empty;
+        Car = string.Empty;
+        CarClass = string.Empty;
+        FinishTime = 0;
+        CurrentSpeed = 0;
+        CurrentGear = 0;
+        CurrentThrottlePercent = 0;
+        CurrentBrakePercent = 0;
+        OverviewThrottlePoints = Array.Empty<ReplayPlotPoint>();
+        OverviewBrakePoints = Array.Empty<ReplayPlotPoint>();
+        OverviewSpeedPoints = Array.Empty<ReplayPlotPoint>();
+        OverviewCursorDistance = 0;
+        OverviewMaximumDistance = 0;
+        ClearAnalysisChart();
+        _isResetting = false;
+    }
+
+    private sealed record ReplayAnalysisTrace(
+        Func<ReplayDetailsPerTime, float> ValueSelector,
+        SKColor Color,
+        string Label,
+        bool IsStep = false);
+
+    private sealed record ReplayAnalysisTraceData(
+        ReplayAnalysisTrace Trace,
+        IReadOnlyList<ReplayPlotPoint> Current,
+        IReadOnlyList<ReplayPlotPoint> Best);
+
+    private sealed record ReplayAnalysisPlotData(IReadOnlyList<ReplayAnalysisTraceData> Traces);
+
+    private sealed record ReplayOverviewData(
+        IReadOnlyList<ReplayPlotPoint> Throttle,
+        IReadOnlyList<ReplayPlotPoint> Brake,
+        IReadOnlyList<ReplayPlotPoint> Speed,
+        float MaximumDistance);
 }

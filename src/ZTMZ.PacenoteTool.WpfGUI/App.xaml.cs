@@ -99,6 +99,7 @@ public partial class App : Application
             services.AddSingleton<SupportDiagnosticsService>();
             services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>();
             services.AddSingleton<UpdateConfigSetter>();
+            services.AddSingleton<RuntimeControlsService>();
 
             // Main window with navigation
             services.AddScoped<INavigationWindow, Views.MainWindow>();

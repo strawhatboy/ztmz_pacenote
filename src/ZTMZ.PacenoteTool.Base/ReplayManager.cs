@@ -281,6 +281,7 @@ public sealed class ReplayTimelineLookup {
     private readonly List<ReplayDetailsPerTime> _byDistance;
 
     public IReadOnlyList<ReplayDetailsPerTime> OrderedByTime => _byTime;
+    public IReadOnlyList<ReplayDetailsPerTime> OrderedByDistance => _byDistance;
 
     public ReplayTimelineLookup(IEnumerable<ReplayDetailsPerTime> details) {
         var raw = details?
@@ -301,6 +302,14 @@ public sealed class ReplayTimelineLookup {
         return InterpolateBy(_byTimestamp, timestamp, d => d.timestamp, (a, b, ratio) => {
             var result = ReplayDetailsPerTime.Interpolate(a, b, ratio);
             result.timestamp = timestamp;
+            return result;
+        });
+    }
+
+    public ReplayDetailsPerTime GetByTime(float time) {
+        return InterpolateBy(_byTime, time, d => d.time, (a, b, ratio) => {
+            var result = ReplayDetailsPerTime.Interpolate(a, b, ratio);
+            result.time = time;
             return result;
         });
     }

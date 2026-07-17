@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Collections.Concurrent;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Globalization;
@@ -31,7 +32,7 @@ namespace ZTMZ.PacenoteTool.Base
         }
         private static Config _instance;
 
-        private Dictionary<string, dynamic> _userconfig = new();
+        private ConcurrentDictionary<string, dynamic> _userconfig = new();
         public IList<string> SupportedAudioTypes { set; get; }
 
         private float _ScriptMode_MinDistanceForMerge = 30f;
@@ -183,6 +184,17 @@ namespace ZTMZ.PacenoteTool.Base
         {
             set { this._UI_SelectedAudioPackage = value; this._userconfig["UI_SelectedAudioPackage"] = value; }
             get => this._UI_SelectedAudioPackage;
+        }
+
+        private string _UI_SelectedAudioPackageIdentity = "";
+        public string UI_SelectedAudioPackageIdentity
+        {
+            set
+            {
+                this._UI_SelectedAudioPackageIdentity = value ?? "";
+                this._userconfig["UI_SelectedAudioPackageIdentity"] = this._UI_SelectedAudioPackageIdentity;
+            }
+            get => this._UI_SelectedAudioPackageIdentity;
         }
 
         private double _UI_PlaybackVolume = 0;
@@ -1079,9 +1091,14 @@ namespace ZTMZ.PacenoteTool.Base
         public void SaveUserConfig()
         {
             lock(_lock) {
-                var content = System.Text.Json.JsonSerializer.Serialize(this._userconfig);
-                File.WriteAllText(USER_CONFIG_FILE, content);
+                File.WriteAllText(USER_CONFIG_FILE, SerializeUserConfigSnapshot());
             }
+        }
+
+        private string SerializeUserConfigSnapshot()
+        {
+            var snapshot = this._userconfig.ToDictionary(entry => entry.Key, entry => entry.Value);
+            return System.Text.Json.JsonSerializer.Serialize(snapshot);
         }
 
         public void SaveGameConfig(IGame game)
@@ -1200,7 +1217,7 @@ namespace ZTMZ.PacenoteTool.Base
 
         public void MergeFromUserConfig(Dictionary<string, dynamic> userConfig)
         {
-            this._userconfig = userConfig;
+            this._userconfig = new ConcurrentDictionary<string, dynamic>(userConfig);
             var properties = typeof(Config).GetProperties();
             foreach (var p in properties)
             {

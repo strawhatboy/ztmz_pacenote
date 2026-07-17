@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 
 // using Wpf.Ui.Common;
@@ -22,14 +23,31 @@ using ZTMZ.PacenoteTool.WpfGUI.Views.Dialog;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
+public enum TrayWindowAction
+{
+    ShowMainUi,
+    ManageCodrivers,
+    Exit
+}
+
 public partial class MainWindowVM : ObservableObject
 {
     private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     bool _isInitialized = false;
 
     public event Action OnInitialized;
-    public MainWindowVM(ZTMZPacenoteTool tool, IContentDialogService contentDialogService, UpdateService updateService, AzureAppInsightsManager azureAppInsightsManager)
+    internal event Action<TrayWindowAction>? TrayWindowActionRequested;
+
+    public MainWindowVM(
+        ZTMZPacenoteTool tool,
+        IContentDialogService contentDialogService,
+        UpdateService updateService,
+        AzureAppInsightsManager azureAppInsightsManager,
+        RuntimeControlsService runtimeControls)
     {
+        _runtimeControls = runtimeControls;
+        _runtimeControls.StateChanged += OnRuntimeControlsStateChanged;
+
         if (!_isInitialized) {
             _tool = tool;
             _contentDialogService = contentDialogService;
@@ -58,6 +76,7 @@ public partial class MainWindowVM : ObservableObject
     [ObservableProperty]
     private ObservableCollection<object> _trayMenuItems;
     private ZTMZPacenoteTool _tool;
+    private RuntimeControlsService _runtimeControls;
 
     private object _collectionLock = new object();
 
@@ -151,26 +170,209 @@ public partial class MainWindowVM : ObservableObject
         BindingOperations.EnableCollectionSynchronization(NavigationFooter, _collectionLock);
         items.ForEach(a => NavigationFooter.Add(a));
 
-        items = new List<object>
-        {
-            new MenuItem
-            {
-                Header = I18NLoader.Instance["ui.showMainUI"],
-                Icon = new SymbolIcon { Symbol = SymbolRegular.Home20 },
-                Tag = "tray_home"
-            },
-            new System.Windows.Controls.Separator(),
-            new MenuItem
-            {
-                Header = I18NLoader.Instance["ui.closeToExit"],
-                Icon = new SymbolIcon { Symbol = SymbolRegular.ClosedCaption16 },
-                Tag = "tray_close"
-            }
-        };
-
         TrayMenuItems = new ObservableCollection<object>();
         BindingOperations.EnableCollectionSynchronization(TrayMenuItems, _collectionLock);
-        items.ForEach(a => TrayMenuItems.Add(a));
+    }
+
+    public void RefreshTrayMenu()
+    {
+        if (TrayMenuItems == null)
+        {
+            return;
+        }
+
+        try
+        {
+            RefreshTrayMenuCore();
+        }
+        catch (Exception exception)
+        {
+            _logger.Error(exception, "Failed to refresh the tray menu.");
+        }
+    }
+
+    private void RefreshTrayMenuCore()
+    {
+        var snapshot = _runtimeControls.GetSnapshot();
+        var state = snapshot.ToTrayMenuState();
+        var menuItems = new List<object>();
+
+        var selectedDisplayName = state.SelectedCodriver?.Package.DisplayText ?? I18NLoader.Instance["tray.noCodrivers"];
+        var codriverMenu = new MenuItem
+        {
+            Header = string.Format(I18NLoader.Instance["tray.codriver"], selectedDisplayName),
+            Icon = new SymbolIcon { Symbol = SymbolRegular.PersonVoice20 }
+        };
+
+        if (state.Codrivers.Count == 0)
+        {
+            codriverMenu.Items.Add(new MenuItem
+            {
+                Header = I18NLoader.Instance["tray.noCodrivers"],
+                IsEnabled = false
+            });
+        }
+        else
+        {
+            foreach (var option in state.Codrivers)
+            {
+                var packageItem = new MenuItem
+                {
+                    Header = option.Package.DisplayText,
+                    ToolTip = state.CanSelectCodriver
+                        ? option.Package.description
+                        : I18NLoader.Instance["tray.unavailableDuringStage"],
+                    IsCheckable = true,
+                    IsChecked = option.IsSelected,
+                    IsEnabled = state.CanSelectCodriver,
+                    Command = SelectTrayCodriverCommand,
+                    CommandParameter = option.Identity
+                };
+                System.Windows.Controls.ToolTipService.SetShowOnDisabled(packageItem, true);
+                codriverMenu.Items.Add(packageItem);
+            }
+        }
+
+        codriverMenu.Items.Add(new System.Windows.Controls.Separator());
+        codriverMenu.Items.Add(new MenuItem
+        {
+            Header = I18NLoader.Instance["tray.manageCodrivers"],
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Settings20 },
+            Command = RequestTrayWindowActionCommand,
+            CommandParameter = TrayWindowAction.ManageCodrivers
+        });
+        menuItems.Add(codriverMenu);
+
+        var playExampleTooltip = state.CanPlayExample
+            ? I18NLoader.Instance["ui.tooltip.btn_playExample"]
+            : snapshot.IsStageActive
+                ? I18NLoader.Instance["tray.unavailableDuringStage"]
+                : state.IsMuted
+                    ? I18NLoader.Instance["tray.unmuteToPlayExample"]
+                    : I18NLoader.Instance["tray.noCodrivers"];
+        var playExampleItem = new MenuItem
+        {
+            Header = I18NLoader.Instance["ui.btn_playExample"],
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Play20 },
+            ToolTip = playExampleTooltip,
+            IsEnabled = state.CanPlayExample,
+            Command = PlayTrayExampleCommand
+        };
+        System.Windows.Controls.ToolTipService.SetShowOnDisabled(playExampleItem, true);
+        menuItems.Add(playExampleItem);
+
+        menuItems.Add(new MenuItem
+        {
+            Header = I18NLoader.Instance["tray.muteAudio"],
+            Icon = new SymbolIcon { Symbol = state.IsMuted ? SymbolRegular.SpeakerMute20 : SymbolRegular.Speaker120 },
+            IsCheckable = true,
+            IsChecked = state.IsMuted,
+            Command = ToggleTrayMuteCommand
+        });
+
+        menuItems.Add(new System.Windows.Controls.Separator());
+        menuItems.Add(new MenuItem
+        {
+            Header = I18NLoader.Instance["tray.overlayHud"],
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Gauge20 },
+            IsCheckable = true,
+            IsChecked = state.IsNativeHudVisible,
+            Command = ToggleTrayHudCommand
+        });
+        menuItems.Add(new MenuItem
+        {
+            Header = I18NLoader.Instance["tray.webDashboard"],
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Globe20 },
+            ToolTip = GetWebDashboardTooltip(snapshot),
+            IsCheckable = true,
+            IsChecked = state.IsWebDashboardEnabled,
+            Command = ToggleTrayWebDashboardCommand
+        });
+
+        menuItems.Add(new System.Windows.Controls.Separator());
+        menuItems.Add(new MenuItem
+        {
+            Header = I18NLoader.Instance["ui.showMainUI"],
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Home20 },
+            Command = RequestTrayWindowActionCommand,
+            CommandParameter = TrayWindowAction.ShowMainUi
+        });
+        menuItems.Add(new MenuItem
+        {
+            Header = I18NLoader.Instance["ui.closeToExit"],
+            Icon = new SymbolIcon { Symbol = SymbolRegular.ClosedCaption16 },
+            Command = RequestTrayWindowActionCommand,
+            CommandParameter = TrayWindowAction.Exit
+        });
+
+        TrayMenuItems.Clear();
+        menuItems.ForEach(TrayMenuItems.Add);
+    }
+
+    [RelayCommand]
+    private void SelectTrayCodriver(string identity)
+    {
+        _runtimeControls.TrySelectCodriver(identity);
+    }
+
+    [RelayCommand]
+    private void PlayTrayExample()
+    {
+        _runtimeControls.TryPlayExample();
+    }
+
+    [RelayCommand]
+    private void ToggleTrayMute()
+    {
+        _runtimeControls.SetMuted(!Config.Instance.UI_Mute);
+    }
+
+    [RelayCommand]
+    private void ToggleTrayHud()
+    {
+        _runtimeControls.SetNativeHudVisible(!Config.Instance.UI_ShowHud);
+    }
+
+    [RelayCommand]
+    private void ToggleTrayWebDashboard()
+    {
+        _runtimeControls.SetWebDashboardEnabled(!Config.Instance.WebDashboardEnabled);
+    }
+
+    [RelayCommand]
+    private void RequestTrayWindowAction(TrayWindowAction action)
+    {
+        TrayWindowActionRequested?.Invoke(action);
+    }
+
+    private void OnRuntimeControlsStateChanged(object? sender, EventArgs eventArgs)
+    {
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher == null)
+        {
+            return;
+        }
+
+        _ = dispatcher.BeginInvoke(RefreshTrayMenu);
+    }
+
+    private static string GetWebDashboardTooltip(RuntimeControlsSnapshot snapshot)
+    {
+        if (!snapshot.IsWebDashboardEnabled)
+        {
+            return I18NLoader.Instance["tray.webDashboardStopped"];
+        }
+
+        if (snapshot.WebDashboardStatus.IsRunning)
+        {
+            return I18NLoader.Instance["tray.webDashboardRunning"];
+        }
+
+        return string.IsNullOrWhiteSpace(snapshot.WebDashboardStatus.ErrorMessage)
+            ? I18NLoader.Instance["tray.webDashboardStarting"]
+            : string.Format(
+                I18NLoader.Instance["tray.webDashboardError"],
+                snapshot.WebDashboardStatus.ErrorMessage);
     }
 
     [RelayCommand]

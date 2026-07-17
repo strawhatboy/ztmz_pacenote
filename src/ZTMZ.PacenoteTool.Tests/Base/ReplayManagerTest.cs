@@ -34,6 +34,7 @@ public class ReplayManagerTest
         Assert.Equal(100, lookup.GetDistanceByTime(1));
         Assert.Equal(200, lookup.GetTimestampByDistance(100));
         Assert.Equal(3, lookup.GetByTimestamp(400).time);
+        Assert.Equal(90, lookup.GetByTime(2).distance);
     }
 
     [Fact]

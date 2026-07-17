@@ -13,8 +13,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
+using Wpf.Ui.Tray;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.WpfGUI.Views.Dialog;
@@ -27,9 +29,14 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
     /// </summary>
     public partial class MainWindow : FluentWindow, INavigationWindow
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         public ViewModels.MainWindowVM ViewModel { get; }
         private IContentDialogService _contentDialogService;
+        private readonly ContextMenu _trayContextMenu;
+        private readonly NotifyIconService _trayIconService;
         private bool _isTrayExitRequested;
+        private bool _isClosed;
+        private int _trayRegistrationAttempts;
         public MainWindow(ViewModels.MainWindowVM viewModel,
             INavigationViewPageProvider pageService,
             INavigationService navigationService,
@@ -40,12 +47,59 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
 
             InitializeComponent();
 
-            SetupTrayMenuEvents();
+            _trayContextMenu = new ContextMenu
+            {
+                DataContext = ViewModel,
+                ItemsSource = ViewModel.TrayMenuItems
+            };
+            _trayIconService = new MainWindowTrayIconService(ShowAndActivateWindow)
+            {
+                TooltipText = ViewModel.Title,
+                Icon = CreateTrayIcon(),
+                ContextMenu = _trayContextMenu
+            };
+            ViewModel.TrayWindowActionRequested += OnTrayWindowActionRequested;
             SetPageService(pageService);
             contentDialogService.SetDialogHost(RootContentDialog);
             navigationService.SetNavigationControl(RootNavigation);
             _contentDialogService = contentDialogService;
 
+        }
+
+        private void RegisterTrayIcon()
+        {
+            if (_isClosed || _trayIconService.IsRegistered)
+            {
+                return;
+            }
+
+            _trayRegistrationAttempts++;
+            var isRegistered = _trayIconService.Register();
+            Logger.Info("Tray icon registration attempt {0} state: {1}", _trayRegistrationAttempts, isRegistered);
+
+            if (isRegistered || _trayRegistrationAttempts >= 3)
+            {
+                if (!isRegistered)
+                {
+                    Logger.Error("Failed to register the system tray icon after {0} attempts.", _trayRegistrationAttempts);
+                }
+
+                return;
+            }
+
+            _ = Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(RegisterTrayIcon));
+        }
+
+        private static BitmapImage CreateTrayIcon()
+        {
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.UriSource = new Uri("pack://application:,,,/Assets/app.png", UriKind.Absolute);
+            image.DecodePixelWidth = 32;
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.EndInit();
+            image.Freeze();
+            return image;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -66,28 +120,23 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
                 Wpf.Ui.Appearance.ApplicationAccentColorManager.Apply(ThemeHelper.GetAccentColor(),
                     Wpf.Ui.Appearance.ApplicationThemeManager.GetAppTheme());
             }
+
+            RegisterTrayIcon();
+            ViewModel.RefreshTrayMenu();
         }
 
-        private void SetupTrayMenuEvents()
+        private void OnTrayWindowActionRequested(ViewModels.TrayWindowAction action)
         {
-            foreach (var menuItem in ViewModel.TrayMenuItems)
+            switch (action)
             {
-                if (menuItem is Wpf.Ui.Controls.MenuItem item)
-                    item.Click += OnTrayMenuItemClick;
-            }
-        }
-
-        private void OnTrayMenuItemClick(object sender, RoutedEventArgs e)
-        {
-            if (sender is not Wpf.Ui.Controls.MenuItem menuItem)
-                return;
-
-            switch (menuItem.Tag?.ToString())
-            {
-                case "tray_home":
+                case ViewModels.TrayWindowAction.ShowMainUi:
                     ShowAndActivateWindow();
                     break;
-                case "tray_close":
+                case ViewModels.TrayWindowAction.ManageCodrivers:
+                    ShowAndActivateWindow();
+                    Navigate(typeof(VoicePage));
+                    break;
+                case ViewModels.TrayWindowAction.Exit:
                     _isTrayExitRequested = true;
                     Close();
                     break;
@@ -146,11 +195,29 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
         }
         protected override void OnClosed(EventArgs e)
         {
+            _isClosed = true;
+            ViewModel.TrayWindowActionRequested -= OnTrayWindowActionRequested;
+            _trayIconService.Unregister();
             base.OnClosed(e);
 
             // Make sure that closing this window will begin the process of closing the application.
             ObsManager.Instance.AbnormallyStopRecording();
             Application.Current.Shutdown();
+        }
+
+        private sealed class MainWindowTrayIconService : NotifyIconService
+        {
+            private readonly Action _showMainWindow;
+
+            public MainWindowTrayIconService(Action showMainWindow)
+            {
+                _showMainWindow = showMainWindow;
+            }
+
+            protected override void OnLeftClick()
+            {
+                _showMainWindow();
+            }
         }
 
         public INavigationView GetNavigation()
@@ -175,6 +242,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
 
         public void ShowWindow()
         {
+            Application.Current.MainWindow = this;
             this.Show();
         }
 

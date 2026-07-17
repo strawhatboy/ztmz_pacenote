@@ -975,7 +975,36 @@ public class ZTMZPacenoteTool {
     public void SetFromConfiguration() {
         this.SetProfile(Config.Instance.UI_SelectedProfile);
         this.SetOutputDevice(Config.Instance.UI_SelectedPlaybackDevice);
-        this.SetCodriver(Config.Instance.UI_SelectedAudioPackage);
+        var codriverInfos = this.CoDriverPackages.Select(package => package.Info).ToList();
+        var codriverIndex = CoDriverSelectionIdentity.ResolveIndex(
+            codriverInfos,
+            Config.Instance.UI_SelectedAudioPackageIdentity,
+            Config.Instance.UI_SelectedAudioPackage);
+
+        if (codriverIndex < 0 && codriverInfos.Count > 0)
+        {
+            codriverIndex = 0;
+        }
+
+        if (codriverIndex >= 0)
+        {
+            this.SetCodriver(codriverIndex);
+            var selectedIdentity = CoDriverSelectionIdentity.Create(codriverInfos[codriverIndex]);
+            var needsMigration = Config.Instance.UI_SelectedAudioPackage != codriverIndex ||
+                                 !string.Equals(
+                                     Config.Instance.UI_SelectedAudioPackageIdentity,
+                                     selectedIdentity,
+                                     StringComparison.OrdinalIgnoreCase);
+
+            if (needsMigration)
+            {
+                Config.Instance.UI_SelectedAudioPackage = codriverIndex;
+                Config.Instance.UI_SelectedAudioPackageIdentity = selectedIdentity;
+                Config.Instance.SaveUserConfig();
+            }
+        }
+
+        this.SetMuted(Config.Instance.UI_Mute);
         // this.SetGame(Config.Instance.UI_SelectedGame);
     }
 
@@ -1000,11 +1029,33 @@ public class ZTMZPacenoteTool {
             this._profileManager.CurrentPlayDeviceId = 0;
     }
 
+    public bool TrySetCodriver(string selectionIdentity)
+    {
+        var codriverIndex = CoDriverSelectionIdentity.ResolveIndex(
+            this.CoDriverPackages.Select(package => package.Info).ToList(),
+            selectionIdentity,
+            -1);
+
+        if (codriverIndex < 0)
+        {
+            return false;
+        }
+
+        this.SetCodriver(codriverIndex);
+        return true;
+    }
+
     public void SetCodriver(int codriverIndex) {
-        if (codriverIndex < this.CoDriverPackages.Count && codriverIndex >= 0)
-            this._profileManager.CurrentCoDriverSoundPackagePath = this.CoDriverPackages[codriverIndex].Info.Path;
-        else
-            this._profileManager.CurrentCoDriverSoundPackagePath = this.CoDriverPackages.First().Info.Path;
+        if (this.CoDriverPackages.Count == 0)
+        {
+            _logger.Warn("No codriver packages are available for selection.");
+            return;
+        }
+
+        var selectedIndex = codriverIndex < this.CoDriverPackages.Count && codriverIndex >= 0
+            ? codriverIndex
+            : 0;
+        this._profileManager.CurrentCoDriverSoundPackagePath = this.CoDriverPackages[selectedIndex].Info.Path;
     }
 
     public void SetPlayBackSpeed(float speed) {
@@ -1017,6 +1068,11 @@ public class ZTMZPacenoteTool {
 
     public void SetPlaybackVolume(int volume) {
         this._profileManager.CurrentPlayAmplification = volume;
+    }
+
+    public void SetMuted(bool muted)
+    {
+        this._profileManager?.SetMuted(muted);
     }
 
 #endregion

@@ -12,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using ZTMZ.PacenoteTool.Base.UI;
 using System.Windows.Media;
+using ZTMZ.PacenoteTool.WpfGUI.Services;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -58,10 +59,15 @@ public partial class HudPageVM : ObservableObject {
 
     partial void OnWebDashboardEnabledChanged(bool value)
     {
-        Config.Instance.WebDashboardEnabled = value;
-        _gameOverlayManager.ConfigureWebDashboard(value, WebDashboardPort, WebDashboardFrameRate);
-        Config.Instance.SaveUserConfig();
-        RefreshWebDashboardStatus();
+        if (_isApplyingRuntimeControls)
+        {
+            return;
+        }
+
+        if (!_runtimeControls.SetWebDashboardEnabled(value))
+        {
+            ApplyRuntimeControls();
+        }
     }
 
     [ObservableProperty]
@@ -179,6 +185,34 @@ public partial class HudPageVM : ObservableObject {
             string.Join(Environment.NewLine, urls));
     }
 
+    private void OnRuntimeControlsStateChanged(object? sender, EventArgs eventArgs)
+    {
+        var dispatcher = System.Windows.Application.Current?.Dispatcher;
+        if (dispatcher == null || dispatcher.CheckAccess())
+        {
+            ApplyRuntimeControls();
+            return;
+        }
+
+        _ = dispatcher.BeginInvoke(ApplyRuntimeControls);
+    }
+
+    private void ApplyRuntimeControls()
+    {
+        var snapshot = _runtimeControls.GetSnapshot();
+        _isApplyingRuntimeControls = true;
+        try
+        {
+            WebDashboardEnabled = snapshot.IsWebDashboardEnabled;
+        }
+        finally
+        {
+            _isApplyingRuntimeControls = false;
+        }
+
+        RefreshWebDashboardStatus();
+    }
+
     [ObservableProperty]
     private ObservableCollection<object> _dashboardItems = new();
 
@@ -190,14 +224,21 @@ public partial class HudPageVM : ObservableObject {
     
     private GameOverlayManager _gameOverlayManager;
 
+    private RuntimeControlsService _runtimeControls;
+
+    private bool _isApplyingRuntimeControls;
+
     [ObservableProperty]
     private bool _isHudInitializing = false;
 
-    public HudPageVM(GameOverlayManager gameOverlayManager) {
+    public HudPageVM(GameOverlayManager gameOverlayManager, RuntimeControlsService runtimeControls) {
         _gameOverlayManager = gameOverlayManager;
+        _runtimeControls = runtimeControls;
+        _runtimeControls.StateChanged += OnRuntimeControlsStateChanged;
         _gameOverlayManager.OnGameOverlayInitializingStateChanged += (isInitializing) => {
             IsHudInitializing = isInitializing;
         };
+        ApplyRuntimeControls();
         RefreshWebDashboardStatus();
 
         // maybe we should create a custom control for this, but it's working for now

@@ -1,60 +1,74 @@
-using System.Collections.Generic;
+using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Media;
 using FFMpegCore;
 using Microsoft.Win32;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.WpfGUI.Models;
-using ZTMZ.PacenoteTool.WpfGUI.Services;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
+
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 public partial class ReplayPageVM : ObservableObject, INavigationAware
 {
-    private readonly INavigationService navigationService;
-    private readonly ReplayPlayingPageVM replayPlayingPageVM;
-    private readonly ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool;
+    private readonly INavigationService _navigationService;
+    private readonly ReplayPlayingPageVM _replayPlayingPageVM;
+    private readonly ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool;
+    private readonly object _collectionLock = new();
 
     [ObservableProperty]
-    private IList<ReplayModel> _replays = new ObservableCollection<ReplayModel>();
+    private ObservableCollection<ReplayModel> _replays = new();
 
-    private object _collectionLock = new();
+    [ObservableProperty]
+    private string _searchText = string.Empty;
 
-    public ReplayPageVM(INavigationService navigationService, 
-    ReplayPlayingPageVM replayPlayingPageVM,
-    ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool)
+    public ICollectionView ReplaysView { get; }
+
+    public ReplayPageVM(
+        INavigationService navigationService,
+        ReplayPlayingPageVM replayPlayingPageVM,
+        ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool)
     {
-        
+        _navigationService = navigationService;
+        _replayPlayingPageVM = replayPlayingPageVM;
+        _tool = tool;
+
         BindingOperations.EnableCollectionSynchronization(Replays, _collectionLock);
-        this.tool = tool;
-        this.replayPlayingPageVM = replayPlayingPageVM;
-        this.navigationService = navigationService;
+        ReplaysView = CollectionViewSource.GetDefaultView(Replays);
+        ReplaysView.Filter = MatchesSearch;
+        ReplaysView.SortDescriptions.Add(new SortDescription(nameof(ReplayModel.Date), ListSortDirection.Descending));
     }
 
+    partial void OnSearchTextChanged(string value)
+    {
+        ReplaysView.Refresh();
+    }
 
     [RelayCommand]
     private void NavigateForward(Type type)
     {
-        _ = navigationService.NavigateWithHierarchy(type);
+        _ = _navigationService.NavigateWithHierarchy(type);
     }
 
-    public Task OnNavigatedFromAsync() => Task.CompletedTask;
+    public Task OnNavigatedFromAsync()
+    {
+        return Task.CompletedTask;
+    }
 
     public async Task OnNavigatedToAsync()
     {
-        // load all replays according to current game
-        var replays = await ReplayManager.Instance.getReplays(this.tool.CurrentGame);
+        var replays = await ReplayManager.Instance.getReplays(_tool.CurrentGame);
         Replays.Clear();
-        foreach (var replay in replays)
+        foreach (var replay in replays.OrderByDescending(replay => replay.date))
         {
-            Replays.Add(new ReplayModel{
+            Replays.Add(new ReplayModel
+            {
                 Id = replay.id,
                 Track = replay.track,
                 Car = replay.car,
@@ -64,150 +78,168 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
                 Comment = replay.comment,
                 Video_path = replay.video_path,
                 Locked = replay.locked,
-                Available = replay.available
+                Available = replay.available,
+                HasVideo = !string.IsNullOrWhiteSpace(replay.video_path) && File.Exists(replay.video_path)
             });
         }
+
+        ReplaysView.Refresh();
     }
 
     [RelayCommand]
     private async Task ReplayPlay(int id)
     {
-        if (Replays.FirstOrDefault(r => r.Id == id)?.Available != true) {
+        var replay = Replays.FirstOrDefault(item => item.Id == id);
+        if (replay?.Available != true)
+        {
             return;
         }
 
-        if (!await checkFFmepg()) {
+        if (!replay.HasVideo && !await CheckFfmpegAsync())
+        {
             return;
         }
-        
-        this.replayPlayingPageVM.ReplayId = id;
-        // navigate to replay playing page
-        navigationService.NavigateWithHierarchy(typeof(ReplayPlayingPage));
-    }
 
-    private async Task<string> getExportFolder() {
-        
-        // open folder dialog
-        
-#if NET8_0_OR_GREATER
-
-        OpenFolderDialog openFolderDialog =
-            new()
-            {
-                Multiselect = false,
-            };
-
-        if (openFolderDialog.ShowDialog() != true)
-        {
-            return "";
-        }
-
-        if (openFolderDialog.FolderNames.Length == 0)
-        {
-            return "";
-        }
-        return openFolderDialog.FolderNames.First();
-#else
-#endif
+        _replayPlayingPageVM.ReplayId = id;
+        _navigationService.NavigateWithHierarchy(typeof(ReplayPlayingPage));
     }
 
     [RelayCommand]
     private async Task ReplayExport(int id)
     {
-        if (Replays.FirstOrDefault(r => r.Id == id)?.Available != true) {
+        if (Replays.FirstOrDefault(replay => replay.Id == id)?.Available != true)
+        {
             return;
         }
 
-        var folder = await getExportFolder();
-        if (string.IsNullOrEmpty(folder)) {
+        var folder = GetExportFolder();
+        if (string.IsNullOrEmpty(folder))
+        {
             return;
         }
 
-        try {
-            var game = this.tool.CurrentGame;
+        try
+        {
             var replay = await ReplayManager.Instance.getReplay(id);
-            await ReplayManager.Instance.ExportReplay(game, replay, folder);
-        } catch (Exception ex) {
-            await showReplayActionError(ex);
+            await ReplayManager.Instance.ExportReplay(_tool.CurrentGame, replay, folder);
         }
-    }
-
-    private async Task<bool> checkFFmepg() {
-        if (!File.Exists(Path.Combine(Config.Instance.ReplayFFmpegPath, "ffmpeg.exe"))) {
-            // show message box
-            var result = await new Wpf.Ui.Controls.MessageBox
-            {
-                Title = I18NLoader.Instance["dialog.common.file_not_found"],
-                Content = I18NLoader.Instance["dialog.ffmpeg.no_ffmpeg"],
-                // SecondaryButtonText = "Don't Save",
-                CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
-            }.ShowDialogAsync();
-            return false;
+        catch (Exception ex)
+        {
+            await ShowReplayActionErrorAsync(ex);
         }
-        return true;
     }
 
     [RelayCommand]
-    private async Task ReplayExportAudio(int id) {
-        if (Replays.FirstOrDefault(r => r.Id == id)?.Available != true) {
-            return;
-        }
-
-        if (!await checkFFmepg()) {
+    private async Task ReplayExportAudio(int id)
+    {
+        if (Replays.FirstOrDefault(replay => replay.Id == id)?.Available != true || !await CheckFfmpegAsync())
+        {
             return;
         }
 
         GlobalFFOptions.Configure(options => options.BinaryFolder = Config.Instance.ReplayFFmpegPath);
-        var folder = await getExportFolder();
-        if (string.IsNullOrEmpty(folder)) {
+        var folder = GetExportFolder();
+        if (string.IsNullOrEmpty(folder))
+        {
             return;
         }
-        try {
-            var game = this.tool.CurrentGame;
+
+        try
+        {
             var replay = await ReplayManager.Instance.getReplay(id);
-            await ReplayManager.Instance.ExportReplayWithAudio(game, replay, folder);
-        } catch (Exception ex) {
-            await showReplayActionError(ex);
+            await ReplayManager.Instance.ExportReplayWithAudio(_tool.CurrentGame, replay, folder);
+        }
+        catch (Exception ex)
+        {
+            await ShowReplayActionErrorAsync(ex);
         }
     }
 
     [RelayCommand]
     private async Task ReplayLock(int id)
     {
-        var replay = this.Replays.FirstOrDefault(r => r.Id == id);
-        if (replay == null) {
+        var replay = Replays.FirstOrDefault(item => item.Id == id);
+        if (replay == null)
+        {
             return;
         }
 
         replay.Locked = true;
-        try {
+        try
+        {
             await ReplayManager.Instance.LockReplayAsync(id);
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             replay.Locked = false;
-            await showReplayActionError(ex);
+            await ShowReplayActionErrorAsync(ex);
         }
     }
+
     [RelayCommand]
     private async Task ReplayUnlock(int id)
     {
-        var replay = this.Replays.FirstOrDefault(r => r.Id == id);
-        if (replay == null) {
+        var replay = Replays.FirstOrDefault(item => item.Id == id);
+        if (replay == null)
+        {
             return;
         }
 
         replay.Locked = false;
-        try {
+        try
+        {
             await ReplayManager.Instance.UnlockReplayAsync(id);
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             replay.Locked = true;
-            await showReplayActionError(ex);
+            await ShowReplayActionErrorAsync(ex);
         }
     }
 
-    private async Task showReplayActionError(Exception ex) {
+    private bool MatchesSearch(object item)
+    {
+        if (item is not ReplayModel replay || string.IsNullOrWhiteSpace(SearchText))
+        {
+            return item is ReplayModel;
+        }
+
+        return replay.SearchText.Contains(SearchText.Trim(), StringComparison.CurrentCultureIgnoreCase);
+    }
+
+    private static string GetExportFolder()
+    {
+#if NET8_0_OR_GREATER
+        var dialog = new OpenFolderDialog { Multiselect = false };
+        return dialog.ShowDialog() == true && dialog.FolderNames.Length > 0
+            ? dialog.FolderNames.First()
+            : string.Empty;
+#else
+        return string.Empty;
+#endif
+    }
+
+    private async Task<bool> CheckFfmpegAsync()
+    {
+        if (File.Exists(Path.Combine(Config.Instance.ReplayFFmpegPath, "ffmpeg.exe")))
+        {
+            return true;
+        }
+
         await new Wpf.Ui.Controls.MessageBox
         {
-            Title = "Replay action failed",
+            Title = I18NLoader.Instance["dialog.common.file_not_found"],
+            Content = I18NLoader.Instance["dialog.ffmpeg.no_ffmpeg"],
+            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+        }.ShowDialogAsync();
+        return false;
+    }
+
+    private async Task ShowReplayActionErrorAsync(Exception ex)
+    {
+        await new Wpf.Ui.Controls.MessageBox
+        {
+            Title = I18NLoader.Instance["replay.actionFailed"],
             Content = ex.Message,
             CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
         }.ShowDialogAsync();

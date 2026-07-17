@@ -11,6 +11,7 @@ namespace ZTMZ.PacenoteTool.Base
     {
         private readonly WaveOutEvent outputDevice;
         private readonly MixingSampleProvider mixer;
+        private readonly VolumeSampleProvider outputVolume;
         private readonly SequentialSampleProvider sequential;
         private readonly SequentialSampleProvider sequential2;
         private readonly object diagnosticsLock = new();
@@ -36,6 +37,7 @@ namespace ZTMZ.PacenoteTool.Base
 
             var ieeeFloatWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channelCount);
             mixer = new MixingSampleProvider(ieeeFloatWaveFormat) { ReadFully = true };
+            outputVolume = new VolumeSampleProvider(mixer);
             sequential = new SequentialSampleProvider(ieeeFloatWaveFormat) { ReadFully = true };
             sequential2 = new SequentialSampleProvider(ieeeFloatWaveFormat) { ReadFully = true };
 
@@ -45,8 +47,17 @@ namespace ZTMZ.PacenoteTool.Base
             mixer.AddMixerInput(sequential2);
             mixer.AddMixerInput(new AudioKeepAliveSampleProvider(ieeeFloatWaveFormat));
 
-            outputDevice.Init(mixer);
+            SetMuted(Config.Instance.UI_Mute);
+            outputDevice.Init(outputVolume);
             outputDevice.Play();
+        }
+
+        public bool IsMuted { get; private set; }
+
+        public void SetMuted(bool muted)
+        {
+            IsMuted = muted;
+            outputVolume.Volume = muted ? 0f : 1f;
         }
 
         public AudioPlaybackStatus Status

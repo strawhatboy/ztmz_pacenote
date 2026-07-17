@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI"
         mc:Ignorable="d"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-        xmlns:tray="http://schemas.lepo.co/wpfui/2022/xaml/tray"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
         ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
@@ -92,18 +91,6 @@
                     FontWeight="DemiBold" />
             </ui:NavigationView.Header> -->
         </ui:NavigationView>
-
-        <tray:NotifyIcon
-            Grid.Row="0"
-            FocusOnLeftClick="True"
-            Icon="pack://application:,,,/Assets/app_tray.ico"
-            MenuOnRightClick="True"
-            TooltipText="{Binding ViewModel.Title, Mode=OneWay}">
-            <tray:NotifyIcon.Menu>
-                <ContextMenu DataContext="{Binding DataContext, Source={x:Reference RootNavigation}}"
-                             ItemsSource="{Binding ViewModel.TrayMenuItems, Mode=OneWay}" />
-            </tray:NotifyIcon.Menu>
-        </tray:NotifyIcon>
 
         <ui:ContentDialogHost x:Name="RootContentDialog" Grid.Row="0" Grid.RowSpan="2"/>
     </Grid>
