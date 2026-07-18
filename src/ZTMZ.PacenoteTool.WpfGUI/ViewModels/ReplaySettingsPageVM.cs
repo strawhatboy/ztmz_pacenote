@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Win32;
@@ -12,6 +13,15 @@ namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 public partial class ReplaySettingsPageVM : ObservableObject, INavigationAware
 {
+    private readonly ObsManager _obsManager;
+
+    public ReplaySettingsPageVM()
+    {
+        _obsManager = ObsManager.Instance;
+        _obsManager.ConnectionStatusChanged += OnObsConnectionStatusChanged;
+        ApplyObsConnectionStatus(_obsManager.ConnectionStatus);
+    }
+
     [ObservableProperty]
     private bool _replaySave = Config.Instance.ReplaySave;
     partial void OnReplaySaveChanged(bool value)
@@ -65,6 +75,30 @@ public partial class ReplaySettingsPageVM : ObservableObject, INavigationAware
     {
         Config.Instance.ReplayOBSSave = value;
         Config.Instance.SaveUserConfig();
+        _obsManager.RefreshConnectionStatus();
+        UpdateObsConnectionRefreshAvailability();
+
+        if (value)
+        {
+            _ = RefreshObsConnection();
+        }
+    }
+
+    [ObservableProperty]
+    private string _obsConnectionStatus = string.Empty;
+
+    [ObservableProperty]
+    private Brush _obsConnectionStatusBrush = Brushes.Gray;
+
+    [ObservableProperty]
+    private bool _isRefreshingObsConnection;
+
+    [ObservableProperty]
+    private bool _canRefreshObsConnection = Config.Instance.ReplayOBSSave;
+
+    partial void OnIsRefreshingObsConnectionChanged(bool value)
+    {
+        UpdateObsConnectionRefreshAvailability();
     }
 
     [ObservableProperty]
@@ -127,14 +161,81 @@ public partial class ReplaySettingsPageVM : ObservableObject, INavigationAware
         Config.Instance.SaveUserConfig();
     }
     
-    public Task OnNavigatedFromAsync()
+    public Task OnNavigatedFromAsync() => Task.CompletedTask;
+
+    public Task OnNavigatedToAsync()
     {
-        // leaving, try to connect to obs here
-        ObsManager.Instance.Connect();
+        ApplyObsConnectionStatus(_obsManager.ConnectionStatus);
+        if (ReplayOBSSave)
+        {
+            _ = RefreshObsConnection();
+        }
+
         return Task.CompletedTask;
     }
 
-    public Task OnNavigatedToAsync() => Task.CompletedTask;
+    [RelayCommand]
+    private async Task RefreshObsConnection()
+    {
+        if (IsRefreshingObsConnection)
+        {
+            return;
+        }
+
+        IsRefreshingObsConnection = true;
+        try
+        {
+            await _obsManager.Connect();
+        }
+        finally
+        {
+            IsRefreshingObsConnection = false;
+            ApplyObsConnectionStatus(_obsManager.ConnectionStatus);
+        }
+    }
+
+    private void OnObsConnectionStatusChanged(ObsConnectionStatus status)
+    {
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher == null || dispatcher.HasShutdownStarted)
+        {
+            return;
+        }
+
+        if (!dispatcher.CheckAccess())
+        {
+            _ = dispatcher.BeginInvoke(() => ApplyObsConnectionStatus(status));
+            return;
+        }
+
+        ApplyObsConnectionStatus(status);
+    }
+
+    private void ApplyObsConnectionStatus(ObsConnectionStatus status)
+    {
+        ObsConnectionStatus = status.State switch
+        {
+            ObsConnectionState.Disabled => I18NLoader.Instance["settings.obsConnectionDisabled"],
+            ObsConnectionState.Connecting => I18NLoader.Instance["settings.obsConnectionConnecting"],
+            ObsConnectionState.Connected => I18NLoader.Instance["settings.obsConnectionConnected"],
+            ObsConnectionState.Failed => string.Format(
+                I18NLoader.Instance["settings.obsConnectionFailed"],
+                status.ErrorMessage),
+            _ => I18NLoader.Instance["settings.obsConnectionDisconnected"]
+        };
+        ObsConnectionStatusBrush = status.State switch
+        {
+            ObsConnectionState.Connected => Brushes.ForestGreen,
+            ObsConnectionState.Connecting => Brushes.DodgerBlue,
+            ObsConnectionState.Failed => Brushes.IndianRed,
+            _ => Brushes.Gray
+        };
+    }
+
+    private void UpdateObsConnectionRefreshAvailability()
+    {
+        CanRefreshObsConnection = ReplayOBSSave && !IsRefreshingObsConnection;
+    }
 
     [RelayCommand]
     private async void LocateFFmpeg() {

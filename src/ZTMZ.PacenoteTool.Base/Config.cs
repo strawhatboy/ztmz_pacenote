@@ -384,6 +384,20 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._ShowClosePrompt;
         }
 
+        private bool _StartMinimizedToTray = false;
+        public bool StartMinimizedToTray
+        {
+            set { this._StartMinimizedToTray = value; this._userconfig["StartMinimizedToTray"] = value; }
+            get => this._StartMinimizedToTray;
+        }
+
+        private bool _EnableWindowsNotifications = false;
+        public bool EnableWindowsNotifications
+        {
+            set { this._EnableWindowsNotifications = value; this._userconfig["EnableWindowsNotifications"] = value; }
+            get => this._EnableWindowsNotifications;
+        }
+
         #region HUD
 
         private bool _HudLockFPS = true;

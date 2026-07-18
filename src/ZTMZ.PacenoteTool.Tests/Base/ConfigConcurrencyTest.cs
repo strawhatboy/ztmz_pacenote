@@ -33,4 +33,25 @@ public class ConfigConcurrencyTest
             Assert.True(savedValues.ContainsKey(nameof(Config.UI_Mute)));
         }
     }
+
+    [Fact]
+    public void SerializeUserConfigSnapshotIncludesTrayStartupAndNotificationPreferences()
+    {
+        var config = (Config)Activator.CreateInstance(typeof(Config), nonPublic: true)!;
+        var serializeSnapshot = typeof(Config).GetMethod(
+            "SerializeUserConfigSnapshot",
+            BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+        Assert.False(config.StartMinimizedToTray);
+        Assert.False(config.EnableWindowsNotifications);
+
+        config.StartMinimizedToTray = true;
+        config.EnableWindowsNotifications = true;
+
+        var serializedSnapshot = (string)serializeSnapshot.Invoke(config, null)!;
+        var savedValues = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(serializedSnapshot)!;
+
+        Assert.True(savedValues[nameof(Config.StartMinimizedToTray)].GetBoolean());
+        Assert.True(savedValues[nameof(Config.EnableWindowsNotifications)].GetBoolean());
+    }
 }

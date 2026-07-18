@@ -113,6 +113,8 @@
       "accentColor": "工具上各种组件的主要颜色",
       "checkUpdateWhenStartup": "是否在工具启动时，自动检查更新",
       "startWithWindows": "是否在Windows启动时，自动启动本工具",
+      "startMinimizedToTray": "启动时隐藏主窗口，仅保留系统托盘图标。下次启动时生效。",
+      "windowsNotifications": "在检测到游戏、赛段开始或结束时显示 Windows 原生弹窗通知。",
 
       "warnIfPortMismatch": "当游戏的UDP端口和本工具的UDP端口不一致时，弹出提示框警告",
 
@@ -249,6 +251,9 @@
     "checkUpdateWhenStartup_On": "自动更新 (已开启)",
     "checkUpdateWhenStartup_Off": "自动更新 (已关闭)",
     "startWithWindows": "开机自动启动",
+    "startMinimizedToTray": "启动时最小化到托盘",
+    "windowsNotifications": "Windows 事件通知",
+    "testWindowsNotification": "发送测试通知",
 
     "warnIfPortMismatch": "端口不匹配时展示警告对话框",
 
@@ -343,6 +348,13 @@
     "replayOBSWebsocketUrl": "OBS Websocket 地址",
     "replayOBSWebsocketPassword": "OBS Websocket 密码",
     "replayOBSWebsocketTimeout": "OBS Websocket 超时时间（毫秒）",
+    "obsConnectionStatus": "OBS WebSocket",
+    "obsConnectionDisabled": "已关闭",
+    "obsConnectionConnecting": "正在连接...",
+    "obsConnectionConnected": "已连接",
+    "obsConnectionDisconnected": "未连接",
+    "obsConnectionFailed": "连接失败：{0}",
+    "obsConnectionRetry": "测试 OBS WebSocket 连接",
     "replayDeleteRelatedVideo": "删除相关视频",
     "replayPositionOffset": "回放视频时间偏移",
     "replayGotoLapDistance": "跳转到指定里程",
@@ -566,6 +578,14 @@
       "closeToExit": "在点击窗口右上角的关闭按钮时，会直接关闭程序，而不是最小化到托盘",
       "tb_currentTrack": "当前赛道"
     }
+  },
+  "notification": {
+    "title": "ZTMZ 路书工具",
+    "gameStarted": "已检测到 {0}。",
+    "gameEnded": "{0} 已关闭。",
+    "stageStarted": "赛段开始：{0}。",
+    "stageFinished": "赛段结束：{0}。",
+    "test": "Windows 事件通知工作正常。"
   },
   "misc": {
     "gender_male": "男",

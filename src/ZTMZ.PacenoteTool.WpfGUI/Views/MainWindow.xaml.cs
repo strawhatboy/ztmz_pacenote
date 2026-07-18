@@ -19,6 +19,7 @@ using Wpf.Ui.Controls;
 using Wpf.Ui.Tray;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.WpfGUI.Services;
 using ZTMZ.PacenoteTool.WpfGUI.Views.Dialog;
 // using Wpf.Ui.Controls.Window;
 
@@ -34,13 +35,16 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
         private IContentDialogService _contentDialogService;
         private readonly ContextMenu _trayContextMenu;
         private readonly NotifyIconService _trayIconService;
+        private readonly SystemNotificationService _systemNotificationService;
+        private readonly bool _startMinimizedToTray = Config.Instance.StartMinimizedToTray;
         private bool _isTrayExitRequested;
         private bool _isClosed;
         private int _trayRegistrationAttempts;
         public MainWindow(ViewModels.MainWindowVM viewModel,
             INavigationViewPageProvider pageService,
             INavigationService navigationService,
-            IContentDialogService contentDialogService)
+            IContentDialogService contentDialogService,
+            SystemNotificationService systemNotificationService)
         {
             ViewModel = viewModel;
             DataContext = this;
@@ -58,6 +62,8 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
                 Icon = CreateTrayIcon(),
                 ContextMenu = _trayContextMenu
             };
+            _systemNotificationService = systemNotificationService;
+            _systemNotificationService.NotificationRequested += OnSystemNotificationRequested;
             ViewModel.TrayWindowActionRequested += OnTrayWindowActionRequested;
             SetPageService(pageService);
             contentDialogService.SetDialogHost(RootContentDialog);
@@ -82,6 +88,10 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
                 if (!isRegistered)
                 {
                     Logger.Error("Failed to register the system tray icon after {0} attempts.", _trayRegistrationAttempts);
+                }
+                else if (_startMinimizedToTray)
+                {
+                    HideOnStartup();
                 }
 
                 return;
@@ -125,6 +135,18 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             ViewModel.RefreshTrayMenu();
         }
 
+        private void HideOnStartup()
+        {
+            if (_isClosed || !_startMinimizedToTray || !_trayIconService.IsRegistered)
+            {
+                return;
+            }
+
+            Application.Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            SetCurrentValue(WindowStateProperty, WindowState.Minimized);
+            Hide();
+        }
+
         private void OnTrayWindowActionRequested(ViewModels.TrayWindowAction action)
         {
             switch (action)
@@ -145,12 +167,59 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
 
         private void ShowAndActivateWindow()
         {
-            if (WindowState == WindowState.Minimized)
-                SetCurrentValue(WindowStateProperty, WindowState.Normal);
+            if (!Dispatcher.CheckAccess())
+            {
+                _ = Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(ShowAndActivateWindow));
+                return;
+            }
 
+            ShowInTaskbar = true;
             Show();
+
+            // A hidden minimized WPF window must be shown before its state is restored.
+            // Restoring it first can leave its taskbar button marked as minimized.
+            if (WindowState == WindowState.Minimized)
+            {
+                SetCurrentValue(WindowStateProperty, WindowState.Normal);
+            }
+
             _ = Activate();
             _ = Focus();
+        }
+
+        private void OnSystemNotificationRequested(SystemNotificationMessage notification)
+        {
+            if (_isClosed)
+            {
+                return;
+            }
+
+            try
+            {
+                _ = Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+                {
+                    try
+                    {
+                        if (_isClosed || !_trayIconService.IsRegistered)
+                        {
+                            return;
+                        }
+
+                        if (!WindowsTrayNotification.TryShow(_trayIconService, notification))
+                        {
+                            Logger.Debug("Windows tray notification was not shown.");
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        Logger.Error(exception, "Failed to dispatch a Windows tray notification.");
+                    }
+                }));
+            }
+            catch (InvalidOperationException)
+            {
+                // The dispatcher has already shut down.
+            }
         }
 
         public async void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -197,6 +266,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
         {
             _isClosed = true;
             ViewModel.TrayWindowActionRequested -= OnTrayWindowActionRequested;
+            _systemNotificationService.NotificationRequested -= OnSystemNotificationRequested;
             _trayIconService.Unregister();
             base.OnClosed(e);
 
@@ -243,7 +313,12 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
         public void ShowWindow()
         {
             Application.Current.MainWindow = this;
-            this.Show();
+            if (_startMinimizedToTray)
+            {
+                SetCurrentValue(WindowStateProperty, WindowState.Minimized);
+            }
+
+            Show();
         }
 
         // Remove navigation header when in Home page.

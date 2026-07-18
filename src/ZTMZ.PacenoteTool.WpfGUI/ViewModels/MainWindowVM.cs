@@ -377,6 +377,11 @@ public partial class MainWindowVM : ObservableObject
 
     [RelayCommand]
     private async Task OnShowStartupDialog() {
+        // A tray-only start should not be interrupted by startup or update dialogs.
+        if (Config.Instance.StartMinimizedToTray) {
+            return;
+        }
+
         _startupDialog = new StartupDialog(_contentDialogService.GetDialogHostEx()!, _tool);
         if (!_tool.IsInitialized) {
             await _startupDialog.ShowAsync();

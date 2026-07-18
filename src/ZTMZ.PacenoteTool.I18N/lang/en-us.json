@@ -113,6 +113,8 @@
       "accentColor": "Color for every control in the UI",
       "checkUpdateWhenStartup": "Whether to check for update when the tool starts",
       "startWithWindows": "Whether to start the tool when Windows starts",
+      "startMinimizedToTray": "Start hidden and leave the tool available from its system-tray icon. Takes effect next launch.",
+      "windowsNotifications": "Show native Windows popups for game detection and stage start or finish events.",
 
       "warnIfPortMismatch": "Show warning dialog if the game UDP port mismatch with the tool UDP port",
 
@@ -250,6 +252,9 @@
     "checkUpdateWhenStartup_On": "Auto Update (On)",
     "checkUpdateWhenStartup_Off": "Auto Update (Off)",
     "startWithWindows": "Start with Windows",
+    "startMinimizedToTray": "Start minimized to tray",
+    "windowsNotifications": "Windows event notifications",
+    "testWindowsNotification": "Send a test notification",
 
     "warnIfPortMismatch": "Show warning dialog if port mismatch",
 
@@ -344,6 +349,13 @@
     "replayOBSWebsocketUrl": "OBS Websocket URL",
     "replayOBSWebsocketPassword": "OBS Websocket Password",
     "replayOBSWebsocketTimeout": "OBS Websocket Timeout (ms)",
+    "obsConnectionStatus": "OBS WebSocket",
+    "obsConnectionDisabled": "Disabled",
+    "obsConnectionConnecting": "Connecting...",
+    "obsConnectionConnected": "Connected",
+    "obsConnectionDisconnected": "Not connected",
+    "obsConnectionFailed": "Connection failed: {0}",
+    "obsConnectionRetry": "Test OBS WebSocket connection",
     "replayDeleteRelatedVideo": "Delete related video",
     "replayPositionOffset": "Replay Position Offset (s)",
     "replayGotoLapDistance": "Goto Lap Distance (m)",
@@ -568,6 +580,14 @@
       "closeToExit": "Exit the tool when the window close button is clicked",
       "tb_currentTrack": "Current Track"
     }
+  },
+  "notification": {
+    "title": "ZTMZ Pacenote Tool",
+    "gameStarted": "Detected {0}.",
+    "gameEnded": "{0} has closed.",
+    "stageStarted": "Stage started: {0}.",
+    "stageFinished": "Stage finished: {0}.",
+    "test": "Windows event notifications are working."
   },
   "misc": {
     "gender_male": "Male",

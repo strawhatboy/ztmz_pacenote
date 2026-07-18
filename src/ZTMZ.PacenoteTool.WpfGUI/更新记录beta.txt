@@ -21,12 +21,18 @@ v2.99.99.38-3.0-rc11
 * Restored functional system-tray controls, including reliable Show and Exit actions.
 * Refined the Home-page game selector, status lighting, and title-bar action alignment.
 * Matched Web Dashboard text output more closely to native overlays: preserve bold and italic styles, load matching WRC font faces, and use DirectWrite layout metrics for baselines and placement.
+* Added optional Windows notifications for game and stage events, with a test action in General Settings.
+* Added an option to start directly in the system tray; restoring the app from the tray now restores its taskbar state correctly.
+* Added OBS WebSocket connection status and retry controls to Replay Settings, with serialized connection attempts and clearer failure feedback.
 
 [简体中文]
 * 加固回放保存、旧版回放导入、回放播放、导出和仪表盘对比逻辑。旧版单游戏回放数据库会保留不变，不完整记录会继续显示但标记为不可用，即使关闭回放持久化，仪表盘也会保留当前赛段计时用于对比。
 * 重做了回放浏览和播放界面：轻量实时遥测概览与按需加载、按赛段里程对齐的深度分析分离；最佳回放对比仅在分析视图中显示。
 * 扩展系统托盘快捷控制：可快速切换领航员、试听、即时静音、开关原生悬浮仪表盘和网页仪表盘；赛段进行中会禁用可能干扰路书的音频操作。
 * 修复扩展快捷控制菜单启用后系统托盘图标可能不显示的问题，确保托盘图标稳定注册并可用。
+* 新增可选的 Windows 通知，可提示游戏和赛段事件，并可在常规设置中发送测试通知。
+* 新增“启动时最小化到系统托盘”选项；从托盘恢复程序时会同步恢复任务栏状态。
+* 回放设置新增 OBS WebSocket 连接状态和重试操作；连接尝试会串行执行，并提供更清晰的失败提示。
 
 [简体中文]
 * 新增“恶作剧：随机漏报路书”设置，可按设定百分比随机跳过普通路书语音；默认 0%，不影响试听和系统提示音。

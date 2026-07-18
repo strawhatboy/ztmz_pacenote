@@ -281,11 +281,16 @@
         <ui:Card Margin="0 0 0 3"
                  Padding="16">
             <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="160"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
+                <StackPanel Grid.Row="0"
+                            Orientation="Horizontal"
                             VerticalAlignment="Center">
                     <ui:SymbolIcon Symbol="VideoRecording20"
                                    FontSize="26"
@@ -302,9 +307,39 @@
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
-                <ui:ToggleSwitch Grid.Column="1"
+                <ui:ToggleSwitch Grid.Row="0"
+                                 Grid.Column="1"
                                  HorizontalAlignment="Right"
                                  IsChecked="{Binding Path=ViewModel.ReplayOBSSave, Mode=TwoWay}"/>
+                <Grid Grid.Row="1"
+                      Grid.ColumnSpan="2"
+                      Margin="36,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Symbol="Link20"
+                                   Foreground="{Binding Path=ViewModel.ObsConnectionStatusBrush, Mode=OneWay}"
+                                   VerticalAlignment="Center"/>
+                    <ui:TextBlock Grid.Column="1"
+                                  Text="{DynamicResource ResourceKey=settings.obsConnectionStatus}"
+                                  Appearance="Tertiary"
+                                  Margin="8,0,8,0"
+                                  VerticalAlignment="Center"/>
+                    <ui:TextBlock Grid.Column="2"
+                                  Text="{Binding Path=ViewModel.ObsConnectionStatus, Mode=OneWay}"
+                                  Foreground="{Binding Path=ViewModel.ObsConnectionStatusBrush, Mode=OneWay}"
+                                  TextWrapping="Wrap"
+                                  VerticalAlignment="Center"/>
+                    <ui:Button Grid.Column="3"
+                               Icon="{ui:SymbolIcon ArrowClockwise20}"
+                               ToolTip="{DynamicResource ResourceKey=settings.obsConnectionRetry}"
+                               Command="{Binding Path=ViewModel.RefreshObsConnectionCommand}"
+                               IsEnabled="{Binding Path=ViewModel.CanRefreshObsConnection, Mode=OneWay}"
+                               Margin="12,0,0,0"/>
+                </Grid>
             </Grid>
         </ui:Card>
 

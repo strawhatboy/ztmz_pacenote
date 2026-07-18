@@ -251,6 +251,74 @@
         <!-- <localUI:CommonSettingsItem Icon="{ui:SymbolIcon PersonRunning20}" Label="{DynamicResource ResourceKey=settings.startWithWindows}" 
             Description="{DynamicResource ResourceKey=settings.tooltip.startWithWindows}" SettingsPropertyName="StartWithWindows" /> -->
 
+        <!-- start minimized to tray -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="ArrowMinimize20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.startMinimizedToTray}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.startMinimizedToTray}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1"
+                                 HorizontalAlignment="Right"
+                                 IsChecked="{Binding Path=ViewModel.IsStartMinimizedToTray, Mode=TwoWay}"/>
+            </Grid>
+        </ui:Card>
+
+        <!-- Windows event notifications -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Alert20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.windowsNotifications}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.windowsNotifications}"
+                                      Appearance="Tertiary"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <Grid Grid.Column="1">
+                    <ui:Button Icon="{ui:SymbolIcon Play20}"
+                               Command="{Binding ViewModel.SendTestWindowsNotificationCommand}"
+                               HorizontalAlignment="Left"
+                               ToolTip="{DynamicResource ResourceKey=settings.testWindowsNotification}"
+                               ToolTipService.InitialShowDelay="100"/>
+                    <ui:ToggleSwitch HorizontalAlignment="Right"
+                                     IsChecked="{Binding Path=ViewModel.IsWindowsNotificationsEnabled, Mode=TwoWay}"/>
+                </Grid>
+            </Grid>
+        </ui:Card>
+
         <!-- OptInBetaPlan -->
         <ui:Card Margin="0 0 0 3"
                  Padding="16">

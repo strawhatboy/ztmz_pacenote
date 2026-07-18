@@ -39,6 +39,13 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
     private bool _isStartWithWindows = Config.Instance.StartWithWindows;
 
     [ObservableProperty]
+    private bool _isStartMinimizedToTray = Config.Instance.StartMinimizedToTray;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SendTestWindowsNotificationCommand))]
+    private bool _isWindowsNotificationsEnabled = Config.Instance.EnableWindowsNotifications;
+
+    [ObservableProperty]
     private bool _isOptInBetaPlan = Config.Instance.OptInBetaPlan;
 
     [ObservableProperty]
@@ -88,9 +95,13 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
     }
 
     private readonly StartupService _startupService;
+    private readonly SystemNotificationService _systemNotificationService;
 
-    public GeneralPageVM(StartupService startupService) {
+    public GeneralPageVM(
+        StartupService startupService,
+        SystemNotificationService systemNotificationService) {
         _startupService = startupService;
+        _systemNotificationService = systemNotificationService;
         foreach (var c in I18NLoader.Instance.culturesFullname)
         {
             Languages.Add(c);
@@ -171,6 +182,18 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
         }
     }
 
+    partial void OnIsStartMinimizedToTrayChanged(bool value)
+    {
+        Config.Instance.StartMinimizedToTray = value;
+        Config.Instance.SaveUserConfig();
+    }
+
+    partial void OnIsWindowsNotificationsEnabledChanged(bool value)
+    {
+        Config.Instance.EnableWindowsNotifications = value;
+        Config.Instance.SaveUserConfig();
+    }
+
     partial void OnIsOptInBetaPlanChanged(bool value)
     {
         Config.Instance.OptInBetaPlan = value;
@@ -203,6 +226,8 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
         // these 2 could be also changed during closing the main window
         CloseBehaviorSelection = Config.Instance.CloseWindowToMinimize ? 1 : 0;
         ShowClosePrompt = Config.Instance.ShowClosePrompt;
+        IsStartMinimizedToTray = Config.Instance.StartMinimizedToTray;
+        IsWindowsNotificationsEnabled = Config.Instance.EnableWindowsNotifications;
         return Task.CompletedTask;
     }
 
@@ -213,5 +238,16 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
     {
         Config.Instance.CloseWindowToMinimize = CloseBehaviorSelection == 1;
         Config.Instance.SaveUserConfig();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanSendTestWindowsNotification))]
+    private void SendTestWindowsNotification()
+    {
+        _systemNotificationService.ShowTestNotification();
+    }
+
+    private bool CanSendTestWindowsNotification()
+    {
+        return IsWindowsNotificationsEnabled;
     }
 }

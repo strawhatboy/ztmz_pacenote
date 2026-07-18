@@ -100,6 +100,8 @@ public partial class App : Application
             services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>();
             services.AddSingleton<UpdateConfigSetter>();
             services.AddSingleton<RuntimeControlsService>();
+            services.AddSingleton<SystemNotificationService>();
+            services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<SystemNotificationService>());
 
             // Main window with navigation
             services.AddScoped<INavigationWindow, Views.MainWindow>();
