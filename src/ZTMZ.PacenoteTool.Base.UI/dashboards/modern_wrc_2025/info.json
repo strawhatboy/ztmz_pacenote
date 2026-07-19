@@ -3,6 +3,7 @@
     "Description": "dashboards.modern.wrc2025.description",
     "Author": "aaronfang",
     "Version": "0.0.2",
+    "SupportsNativeStaticImageCache": true,
     "PreviewImagePath": "preview.png",
     "ImageResources": {},
     "ImageResourcesInDirectory": {

@@ -63,6 +63,24 @@ public class DashboardScriptArguments {
     /// server reuses the previous static canvas layer otherwise.
     /// </summary>
     public bool WebDashboardStaticLayerDirty { get; set; }
+
+    /// <summary>
+    /// A native dashboard can skip its static artwork when the overlay has a valid
+    /// cached bitmap for it.
+    /// </summary>
+    public bool NativeStaticLayerEnabled { get; set; }
+
+    /// <summary>
+    /// Requests only the dashboard's native static artwork. Built-in dashboards
+    /// use NativeStaticLayerGraphics for this isolated rendering pass.
+    /// </summary>
+    public bool NativeStaticLayerRenderOnly { get; set; }
+
+    /// <summary>
+    /// An offscreen graphics surface used only while rebuilding a native static
+    /// image layer. It is null during normal dashboard rendering.
+    /// </summary>
+    public object NativeStaticLayerGraphics { get; set; }
 }
 
 public class DashboardConfigs : CommonGameConfigs {
@@ -139,6 +157,7 @@ public class Dashboard {
 
     public BitmapImage PreviewImage { get; set; }   // use wpf compatible image
     public Dictionary<string, object> ImageResources { get; set; }
+    public Dictionary<string, DashboardImageResourceSource> ImageResourceSources { get; private set; }
 
     private LuaGlobal LuaG { get; set; }
 
@@ -150,11 +169,15 @@ public class Dashboard {
         // load resources
 
         this.ImageResources = new Dictionary<string, object>();
+        this.ImageResourceSources = new Dictionary<string, DashboardImageResourceSource>();
         foreach (var imageResource in Descriptor.ImageResources) {
             var resourcePath = GetResourcePath(imageResource.Value.Path);
             this.ImageResources.Add(
                 imageResource.Key,
                 imageResource.Value.GetImage(args.Graphics, imageResource.Key, resourcePath));
+            this.ImageResourceSources.Add(
+                imageResource.Key,
+                new DashboardImageResourceSource(resourcePath, imageResource.Value.FormatGUID));
         }
 
         foreach (var imageResourceDirectory in Descriptor.ImageResourcesInDirectory) {
@@ -174,6 +197,9 @@ public class Dashboard {
                 };
                 var resourceKey = imageResourceDirectory.Key + "@" + Path.GetFileNameWithoutExtension(file);
                 this.ImageResources.Add(resourceKey, imageDescriptor.GetImage(args.Graphics, resourceKey, file));
+                this.ImageResourceSources.Add(
+                    resourceKey,
+                    new DashboardImageResourceSource(file, imageDescriptor.FormatGUID));
             }
         }
     }
@@ -297,6 +323,8 @@ public class DashboardResourceImageDescriptor {
     }
 }
 
+public sealed record DashboardImageResourceSource(string Path, string FormatGuid);
+
 public class DashboardDescriptor {
     public string Name { get; set; }
     public string Description { get; set; }
@@ -306,6 +334,7 @@ public class DashboardDescriptor {
     public Dictionary<string, DashboardResourceImageDescriptor> ImageResources { get; set; }
 
     public Dictionary<string, DashboardResourceImageDescriptor> ImageResourcesInDirectory { get; set; }
+    public bool SupportsNativeStaticImageCache { get; set; }
     public string Path { get; set; }
     public bool IsEnabled { get; set; } = true;
 }

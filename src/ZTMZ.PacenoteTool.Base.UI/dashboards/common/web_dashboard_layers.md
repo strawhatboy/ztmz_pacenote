@@ -1,6 +1,6 @@
 # Web Dashboard Static Layers
 
-Lua dashboards can retain artwork that does not change with telemetry in a WebDashboard canvas layer. Native overlays continue to render the same script normally.
+Lua dashboards can retain artwork that does not change with telemetry in a WebDashboard canvas layer. Native overlays continue to render the same script normally unless a dashboard explicitly opts into native static image caching.
 
 ```lua
 if args.IsWebDashboard then

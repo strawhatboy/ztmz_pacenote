@@ -475,10 +475,16 @@ function onUpdate(args)
         telemetryStartX = telemetryStartX + 0.029 * width;  -- center the dashboard?
     end
 
+    if args.NativeStaticLayerRenderOnly then
+        drawStaticFrames(args.NativeStaticLayerGraphics, self, data, helper, telemetryStartX, telemetryStartY, width, height);
+        return
+    end
+
     if args.IsWebDashboard then
         gfx.BeginStaticLayer();
     end
-    if not args.IsWebDashboard or args.WebDashboardStaticLayerDirty then
+    if (not args.IsWebDashboard and not args.NativeStaticLayerEnabled)
+        or (args.IsWebDashboard and args.WebDashboardStaticLayerDirty) then
         drawStaticFrames(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
     end
     if args.IsWebDashboard then

@@ -149,10 +149,19 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private GraphicsCommandProxy? _webGraphicsProxy = null;
         private DashboardScriptArguments? _webDashboardArgs = null;
         private readonly Dictionary<int, WebDashboardStaticRenderState> _webDashboardStaticRenderStates = new();
+        private readonly Dictionary<int, NativeStaticImageLayer> _nativeStaticImageLayers = new();
+        private readonly Dictionary<int, NativeStaticImageLayerState> _nativeStaticImageLayerStates = new();
+        private readonly Dictionary<int, NativeStaticImageLayerState> _nativeStaticImageLayerFailures = new();
 
         private readonly record struct WebDashboardStaticRenderState(
             long ConfigurationRevision,
             string ContextSignature);
+
+        private readonly record struct NativeStaticImageLayerState(
+            long ConfigurationRevision,
+            string ContextSignature,
+            int Width,
+            int Height);
 
         public event Action<bool> OnGameOverlayInitializingStateChanged;
         public event Action<WebDashboardServerStatus> OnWebDashboardStatusChanged;
@@ -873,6 +882,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             lock (_dashboardRenderLock) {
                 _isRunning = true;
                 var gfx = e.Graphics;
+                DisposeNativeStaticImageLayers();
 
                 if (e.RecreateResources) {
                     foreach (var pair in _brushes) pair.Value.Dispose();
@@ -930,12 +940,16 @@ namespace ZTMZ.PacenoteTool.Base.UI
             lock (_dashboardRenderLock) {
                 var gfx = e.Graphics;
                 gfx.ClearScene(_brushes["clear"]);
+                DashboardScriptArguments.NativeStaticLayerEnabled = false;
+                DashboardScriptArguments.NativeStaticLayerRenderOnly = false;
+                DashboardScriptArguments.NativeStaticLayerGraphics = null;
 
                 var renderNativeHud = Config.Instance.UI_ShowHud;
                 if (TimeToShowTelemetry) {
                     for (var i = 0; i < Dashboards.Count; i++) {
                         var dashboard = Dashboards[i];
                         if (!IsDashboardEnabledForOverlay(dashboard)) {
+                            DisposeNativeStaticImageLayer(i);
                             if (DashboardLoaded[i]) {
                                 dashboard.Unload();
                                 DashboardLoaded[i] = false;
@@ -944,6 +958,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                         }
 
                         if (!DashboardLoaded[i] && !_dashboardNativeLoadFailed[i]) {
+                            DisposeNativeStaticImageLayer(i);
                             try {
                                 dashboard.Load(DashboardScriptArguments);
                                 DashboardLoaded[i] = true;
@@ -956,7 +971,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
                         if (renderNativeHud && DashboardLoaded[i]) {
                             try {
-                                dashboard.Render(DashboardScriptArguments);
+                                RenderNativeDashboard(i, dashboard, gfx);
                             } catch (Exception ex) {
                                 // log error for the first time for this dashboard
                                 if (!DashboardErrorEncountered[i]) {
@@ -969,6 +984,144 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 }
 
             }
+        }
+
+        private void RenderNativeDashboard(int dashboardIndex, Dashboard dashboard, Graphics graphics)
+        {
+            var useCachedStaticLayer = TryDrawNativeStaticImageLayer(dashboardIndex, dashboard, graphics);
+            var previousStaticLayerEnabled = DashboardScriptArguments.NativeStaticLayerEnabled;
+            var previousStaticLayerRenderOnly = DashboardScriptArguments.NativeStaticLayerRenderOnly;
+            var previousStaticLayerGraphics = DashboardScriptArguments.NativeStaticLayerGraphics;
+            DashboardScriptArguments.NativeStaticLayerEnabled = useCachedStaticLayer;
+            DashboardScriptArguments.NativeStaticLayerRenderOnly = false;
+            DashboardScriptArguments.NativeStaticLayerGraphics = null;
+
+            try
+            {
+                dashboard.Render(DashboardScriptArguments);
+            }
+            finally
+            {
+                DashboardScriptArguments.NativeStaticLayerEnabled = previousStaticLayerEnabled;
+                DashboardScriptArguments.NativeStaticLayerRenderOnly = previousStaticLayerRenderOnly;
+                DashboardScriptArguments.NativeStaticLayerGraphics = previousStaticLayerGraphics;
+            }
+        }
+
+        private bool TryDrawNativeStaticImageLayer(int dashboardIndex, Dashboard dashboard, Graphics graphics)
+        {
+            if (!dashboard.Descriptor.SupportsNativeStaticImageCache)
+            {
+                return false;
+            }
+
+            var state = new NativeStaticImageLayerState(
+                dashboard.ConfigurationRevision,
+                GetDashboardStaticContextSignature(DashboardScriptArguments.GameContext),
+                graphics.Width,
+                graphics.Height);
+            if (_nativeStaticImageLayerFailures.TryGetValue(dashboardIndex, out var failedState)
+                && failedState == state)
+            {
+                return false;
+            }
+
+            if (!_nativeStaticImageLayers.TryGetValue(dashboardIndex, out var staticLayer)
+                || !_nativeStaticImageLayerStates.TryGetValue(dashboardIndex, out var cachedState)
+                || cachedState != state)
+            {
+                DisposeNativeStaticImageLayer(dashboardIndex);
+                staticLayer = new NativeStaticImageLayer();
+                try
+                {
+                    if (!staticLayer.TryBuild(
+                        graphics,
+                        dashboard,
+                        staticGraphics => RenderNativeStaticLayerOnly(dashboard, staticGraphics)))
+                    {
+                        staticLayer.Dispose();
+                        _nativeStaticImageLayerFailures[dashboardIndex] = state;
+                        _logger.Warn(
+                            "Native static image cache is unavailable for dashboard {0}; using full-frame rendering.",
+                            dashboard.Descriptor.Name);
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    staticLayer.Dispose();
+                    _nativeStaticImageLayerFailures[dashboardIndex] = state;
+                    _logger.Warn(
+                        ex,
+                        "Failed to build native static image cache for dashboard {0}; using full-frame rendering.",
+                        dashboard.Descriptor.Name);
+                    return false;
+                }
+
+                _nativeStaticImageLayers[dashboardIndex] = staticLayer;
+                _nativeStaticImageLayerStates[dashboardIndex] = state;
+                _nativeStaticImageLayerFailures.Remove(dashboardIndex);
+                _logger.Debug("Built native static image cache for dashboard {0}.", dashboard.Descriptor.Name);
+            }
+
+            if (staticLayer.TryDraw(graphics))
+            {
+                return true;
+            }
+
+            DisposeNativeStaticImageLayer(dashboardIndex, clearFailure: false);
+            _nativeStaticImageLayerFailures[dashboardIndex] = state;
+            _logger.Warn(
+                "Failed to draw native static image cache for dashboard {0}; using full-frame rendering.",
+                dashboard.Descriptor.Name);
+            return false;
+        }
+
+        private void RenderNativeStaticLayerOnly(Dashboard dashboard, object staticGraphics)
+        {
+            var previousStaticLayerEnabled = DashboardScriptArguments.NativeStaticLayerEnabled;
+            var previousStaticLayerRenderOnly = DashboardScriptArguments.NativeStaticLayerRenderOnly;
+            var previousStaticLayerGraphics = DashboardScriptArguments.NativeStaticLayerGraphics;
+            DashboardScriptArguments.NativeStaticLayerEnabled = false;
+            DashboardScriptArguments.NativeStaticLayerRenderOnly = true;
+            DashboardScriptArguments.NativeStaticLayerGraphics = staticGraphics;
+
+            try
+            {
+                dashboard.Render(DashboardScriptArguments);
+            }
+            finally
+            {
+                DashboardScriptArguments.NativeStaticLayerEnabled = previousStaticLayerEnabled;
+                DashboardScriptArguments.NativeStaticLayerRenderOnly = previousStaticLayerRenderOnly;
+                DashboardScriptArguments.NativeStaticLayerGraphics = previousStaticLayerGraphics;
+            }
+        }
+
+        private void DisposeNativeStaticImageLayer(int dashboardIndex, bool clearFailure = true)
+        {
+            if (_nativeStaticImageLayers.Remove(dashboardIndex, out var staticLayer))
+            {
+                staticLayer.Dispose();
+            }
+
+            _nativeStaticImageLayerStates.Remove(dashboardIndex);
+            if (clearFailure)
+            {
+                _nativeStaticImageLayerFailures.Remove(dashboardIndex);
+            }
+        }
+
+        private void DisposeNativeStaticImageLayers()
+        {
+            foreach (var staticLayer in _nativeStaticImageLayers.Values)
+            {
+                staticLayer.Dispose();
+            }
+
+            _nativeStaticImageLayers.Clear();
+            _nativeStaticImageLayerStates.Clear();
+            _nativeStaticImageLayerFailures.Clear();
         }
         
         /// <summary>
@@ -1018,7 +1171,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     var nativeDashboard = Dashboards[i];
                     var staticRenderState = new WebDashboardStaticRenderState(
                         nativeDashboard.ConfigurationRevision,
-                        GetWebDashboardStaticContextSignature(_webDashboardArgs.GameContext));
+                        GetDashboardStaticContextSignature(_webDashboardArgs.GameContext));
                     var staticLayerRefreshRequired = !_webDashboardStaticRenderStates.TryGetValue(
                         i,
                         out var renderedStaticState)
@@ -1121,7 +1274,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             }
         }
 
-        private static string GetWebDashboardStaticContextSignature(GameContext context)
+        private static string GetDashboardStaticContextSignature(GameContext context)
         {
             if (context == null)
             {
@@ -1185,6 +1338,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private void _window_DestroyGraphics(object sender, DestroyGraphicsEventArgs e)
         {
             lock (_dashboardRenderLock) {
+                DisposeNativeStaticImageLayers();
                 foreach (var pair in _brushes) pair.Value.Dispose();
                 foreach (var pair in _fonts) pair.Value.Dispose();
                 foreach (var pair in _images) pair.Value.Dispose();
