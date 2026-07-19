@@ -335,6 +335,7 @@ public class DashboardDescriptor {
 
     public Dictionary<string, DashboardResourceImageDescriptor> ImageResourcesInDirectory { get; set; }
     public bool SupportsNativeStaticImageCache { get; set; }
+    public bool SupportsWebDashboardClientLua { get; set; }
     public string Path { get; set; }
     public bool IsEnabled { get; set; } = true;
 }

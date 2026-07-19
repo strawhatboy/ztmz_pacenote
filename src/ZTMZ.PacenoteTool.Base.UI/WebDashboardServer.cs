@@ -36,11 +36,16 @@ public class WebDashboardServer : IDisposable
     private List<WebSocket> _connectedClients = new();
     private readonly object _clientsLock = new();
     private readonly Dictionary<WebSocket, long> _layeredSceneRevisionByClient = new();
+    private readonly Dictionary<WebSocket, bool> _browserLuaSupportedByClient = new();
+    private readonly Dictionary<WebSocket, long> _browserLuaSceneRevisionByClient = new();
     private readonly object _layeredFrameLock = new();
+    private readonly object _browserLuaSceneLock = new();
     private readonly Dictionary<string, IReadOnlyList<DrawingCommand>> _staticLayerCommands = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _staticLayerSignatures = new(StringComparer.Ordinal);
     private LayeredScene? _layeredScene;
     private long _nextLayeredSceneRevision;
+    private BrowserLuaScene _browserLuaScene;
+    private long _nextBrowserLuaSceneRevision;
     
     private List<Dashboard>? _dashboards;
     private string? _dashboardsPath;
@@ -80,6 +85,47 @@ public class WebDashboardServer : IDisposable
 
         public WebSocket FailedClient { get; }
     }
+
+    private sealed class BrowserLuaScene
+    {
+        public BrowserLuaScene(long revision, string signature, WebDashboardBrowserLuaScene scene)
+        {
+            Revision = revision;
+            Signature = signature;
+            Scene = scene;
+        }
+
+        public long Revision { get; }
+
+        public string Signature { get; }
+
+        public WebDashboardBrowserLuaScene Scene { get; }
+    }
+
+    private sealed class BrowserLuaSendResult
+    {
+        public BrowserLuaSendResult(WebSocket client, bool wasSnapshot, WebSocket failedClient)
+        {
+            Client = client;
+            WasSnapshot = wasSnapshot;
+            FailedClient = failedClient;
+        }
+
+        public WebSocket Client { get; }
+
+        public bool WasSnapshot { get; }
+
+        public WebSocket FailedClient { get; }
+    }
+
+    private sealed class BrowserLuaClientControlMessage
+    {
+        public string Type { get; set; } = string.Empty;
+
+        public bool? Supported { get; set; }
+
+        public string Reason { get; set; } = string.Empty;
+    }
     
     public int Port { get; set; } = 8080;
     public bool IsRunning { get; private set; }
@@ -90,6 +136,24 @@ public class WebDashboardServer : IDisposable
             lock (_clientsLock)
             {
                 return _connectedClients.Count;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Browser-side Lua is used only when every connected client has explicitly
+    /// advertised support. This keeps an older client on the established command
+    /// stream instead of leaving it with an empty dashboard.
+    /// </summary>
+    public bool CanExecuteBrowserLuaDashboards
+    {
+        get
+        {
+            lock (_clientsLock)
+            {
+                return _connectedClients.Count > 0
+                    && _connectedClients.All(client => _browserLuaSupportedByClient.TryGetValue(client, out var supported)
+                        && supported);
             }
         }
     }
@@ -321,6 +385,7 @@ public class WebDashboardServer : IDisposable
                         overlayEnabled = outputTarget.Includes(DashboardOutputTarget.Overlay),
                         webEnabled = outputTarget.Includes(DashboardOutputTarget.Web),
                         outputTarget = GetOutputTargetName(outputTarget),
+                        supportsWebDashboardClientLua = d.Descriptor.SupportsWebDashboardClientLua,
                         previewImage = d.Descriptor.PreviewImagePath != null
                             ? $"/dashboards/{Path.GetFileName(d.Descriptor.Path)}/{d.Descriptor.PreviewImagePath}"
                             : null
@@ -394,6 +459,7 @@ public class WebDashboardServer : IDisposable
                     description = dashboard.Descriptor.Description,
                     author = dashboard.Descriptor.Author,
                     version = dashboard.Descriptor.Version,
+                    supportsWebDashboardClientLua = dashboard.Descriptor.SupportsWebDashboardClientLua,
                     luaScript = luaScript,
                     commonScripts = commonScripts,
                     imageResources = imageResources,
@@ -482,6 +548,8 @@ public class WebDashboardServer : IDisposable
         {
             _connectedClients.Add(ws);
             _layeredSceneRevisionByClient[ws] = 0;
+            _browserLuaSupportedByClient[ws] = false;
+            _browserLuaSceneRevisionByClient[ws] = 0;
         }
         
         var clientId = ws.GetHashCode();
@@ -506,16 +574,7 @@ public class WebDashboardServer : IDisposable
                     && result.Count > 0)
                 {
                     var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                    if (message.Contains("\"requestSceneSnapshot\"", StringComparison.Ordinal))
-                    {
-                        lock (_clientsLock)
-                        {
-                            if (_layeredSceneRevisionByClient.ContainsKey(ws))
-                            {
-                                _layeredSceneRevisionByClient[ws] = 0;
-                            }
-                        }
-                    }
+                    HandleClientControlMessage(ws, message);
                 }
             }
         }
@@ -529,9 +588,83 @@ public class WebDashboardServer : IDisposable
             {
                 _connectedClients.Remove(ws);
                 _layeredSceneRevisionByClient.Remove(ws);
+                _browserLuaSupportedByClient.Remove(ws);
+                _browserLuaSceneRevisionByClient.Remove(ws);
             }
-            _logger.Info($"Client {clientId} disconnected. Total clients: {_connectedClients.Count}");
+            _logger.Info(
+                $"Client {clientId} disconnected. Total clients: {_connectedClients.Count}. "
+                + $"State: {ws.State}; Close status: {ws.CloseStatus}; Description: {ws.CloseStatusDescription}");
         }
+    }
+
+    private void HandleClientControlMessage(WebSocket client, string message)
+    {
+        BrowserLuaClientControlMessage controlMessage;
+        try
+        {
+            controlMessage = JsonConvert.DeserializeObject<BrowserLuaClientControlMessage>(message);
+        }
+        catch (JsonException)
+        {
+            return;
+        }
+
+        if (controlMessage == null)
+        {
+            return;
+        }
+
+        lock (_clientsLock)
+        {
+            switch (controlMessage.Type)
+            {
+                case "requestSceneSnapshot":
+                    if (_layeredSceneRevisionByClient.ContainsKey(client))
+                    {
+                        _layeredSceneRevisionByClient[client] = 0;
+                    }
+                    break;
+                case "requestBrowserLuaScene":
+                    if (_browserLuaSceneRevisionByClient.ContainsKey(client))
+                    {
+                        _browserLuaSceneRevisionByClient[client] = 0;
+                    }
+                    break;
+                case "browserLuaCapabilities":
+                    if (_browserLuaSupportedByClient.ContainsKey(client))
+                    {
+                        _browserLuaSupportedByClient[client] = controlMessage.Supported == true;
+                        _browserLuaSceneRevisionByClient[client] = 0;
+                        _logger.Info(
+                            $"Browser Lua capability from client {client.GetHashCode()}: {controlMessage.Supported == true}");
+                    }
+                    break;
+                case "browserLuaFallback":
+                    if (_browserLuaSupportedByClient.ContainsKey(client))
+                    {
+                        _browserLuaSupportedByClient[client] = false;
+                        _browserLuaSceneRevisionByClient[client] = 0;
+                        _logger.Warn(
+                            $"Browser Lua client {client.GetHashCode()} requested compatibility fallback: "
+                            + FormatBrowserLuaFallbackReason(controlMessage.Reason));
+                    }
+                    break;
+            }
+        }
+    }
+
+    private static string FormatBrowserLuaFallbackReason(string reason)
+    {
+        var normalized = (reason ?? string.Empty)
+            .Replace('\r', ' ')
+            .Replace('\n', ' ')
+            .Trim();
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            return "No reason supplied.";
+        }
+
+        return normalized.Length <= 256 ? normalized : normalized[..256];
     }
     
     /// <summary>
@@ -546,6 +679,7 @@ public class WebDashboardServer : IDisposable
         if (commands != null && commands.Count > 0)
         {
             InvalidateLayeredClientRevisions();
+            InvalidateBrowserLuaClientRevisions();
             await BroadcastCommandListAsync(commands);
             return;
         }
@@ -635,24 +769,44 @@ public class WebDashboardServer : IDisposable
         
         var bytes = Encoding.UTF8.GetBytes(json);
         var segment = new ArraySegment<byte>(bytes);
-        
+
+        InvalidateBrowserLuaClientRevisions();
         await SendToAllClients(segment);
     }
 
     /// <summary>
     /// Broadcasts a captured command frame. Dashboards with explicit static-layer
     /// markers use retained canvases; every other dashboard keeps the established
-    /// complete-frame protocol.
+    /// complete-frame protocol. Browser-Lua dashboard IDs identify canvases which
+    /// are rendered locally alongside the retained command layers.
     /// </summary>
-    public async Task BroadcastDrawFrameAsync(WebDashboardDrawFrame frame)
+    public async Task BroadcastDrawFrameAsync(
+        WebDashboardDrawFrame frame,
+        IReadOnlyCollection<int> browserLuaDashboardIds = null)
     {
         if (frame == null || ClientCount == 0)
         {
             return;
         }
 
+        var normalizedBrowserLuaDashboardIds = browserLuaDashboardIds?
+            .Where(id => id >= 0)
+            .Distinct()
+            .OrderBy(id => id)
+            .ToArray()
+            ?? Array.Empty<int>();
+        var isHybridFrame = normalizedBrowserLuaDashboardIds.Length > 0;
+
+        // A browser-Lua client stops its local runtime when compatibility commands
+        // arrive. Make its next browser-Lua frame a complete scene snapshot.
+        if (!isHybridFrame)
+        {
+            InvalidateBrowserLuaClientRevisions();
+        }
+
         if (!CanUseLayeredRendering(frame))
         {
+            InvalidateBrowserLuaClientRevisions();
             InvalidateLayeredClientRevisions();
             await BroadcastCommandListAsync(frame.LegacyCommands);
             return;
@@ -663,12 +817,14 @@ public class WebDashboardServer : IDisposable
         {
             type = "layeredDrawCommands",
             sceneRevision = scene.Revision,
+            browserLuaDashboardIds = normalizedBrowserLuaDashboardIds,
             layers = scene.Layers.Select(CreateLayerPayload).ToList()
         });
         var deltaSegment = SerializeMessage(new
         {
             type = "layeredDrawCommands",
             sceneRevision = scene.Revision,
+            browserLuaDashboardIds = normalizedBrowserLuaDashboardIds,
             dynamicLayers = scene.Layers
                 .Where(layer => layer.Kind == WebDashboardDrawLayerKind.Dynamic)
                 .Select(CreateLayerPayload)
@@ -676,6 +832,274 @@ public class WebDashboardServer : IDisposable
         });
 
         await SendLayeredFrameToAllClients(scene.Revision, snapshotSegment, deltaSegment);
+    }
+
+    /// <summary>
+    /// Sends a compact telemetry frame for dashboards whose Lua script is executed
+    /// by the browser. The dashboard package and settings are included only when a
+    /// client needs a new scene snapshot.
+    /// </summary>
+    public async Task BroadcastBrowserLuaTelemetryAsync(
+        WebDashboardBrowserLuaScene requestedScene,
+        GameData data,
+        GameContext context,
+        bool isHybrid = false)
+    {
+        if (requestedScene == null || ClientCount == 0)
+        {
+            return;
+        }
+
+        var scene = BuildBrowserLuaScene(requestedScene);
+        var telemetry = CreateBrowserLuaTelemetry(data);
+        var telemetryContext = CreateBrowserLuaTelemetryContext(data, context);
+        var snapshotTelemetryContext = CreateBrowserLuaTelemetryContext(
+            data,
+            context,
+            includeReplayTimeline: true);
+        var snapshotSegment = SerializeMessage(new
+        {
+            type = "browserLuaTelemetry",
+            sceneRevision = scene.Revision,
+            hybrid = isHybrid,
+            dashboards = scene.Scene.Dashboards.Select(CreateBrowserLuaDashboardPayload).ToList(),
+            config = scene.Scene.Config,
+            data = telemetry,
+            context = snapshotTelemetryContext
+        });
+        var deltaSegment = SerializeMessage(new
+        {
+            type = "browserLuaTelemetry",
+            sceneRevision = scene.Revision,
+            hybrid = isHybrid,
+            data = telemetry,
+            context = telemetryContext
+        });
+
+        await SendBrowserLuaTelemetryToAllClients(scene.Revision, snapshotSegment, deltaSegment);
+    }
+
+    private BrowserLuaScene BuildBrowserLuaScene(WebDashboardBrowserLuaScene requestedScene)
+    {
+        var signature = JsonConvert.SerializeObject(
+            new
+            {
+                requestedScene.Config,
+                dashboards = requestedScene.Dashboards
+                    .OrderBy(dashboard => dashboard.Order)
+                    .ThenBy(dashboard => dashboard.Id)
+                    .Select(CreateBrowserLuaDashboardPayload)
+                    .ToList()
+            },
+            _webDashboardJsonSettings);
+        lock (_browserLuaSceneLock)
+        {
+            if (_browserLuaScene == null
+                || !string.Equals(_browserLuaScene.Signature, signature, StringComparison.Ordinal))
+            {
+                _browserLuaScene = new BrowserLuaScene(
+                    ++_nextBrowserLuaSceneRevision,
+                    signature,
+                    requestedScene);
+            }
+
+            return _browserLuaScene;
+        }
+    }
+
+    private static object CreateBrowserLuaTelemetry(GameData data)
+    {
+        return new
+        {
+            Brake = FiniteTelemetryValue(data.Brake),
+            Clutch = FiniteTelemetryValue(data.Clutch),
+            CompletionRate = FiniteTelemetryValue(data.CompletionRate),
+            Gear = FiniteTelemetryValue(data.Gear),
+            G_lat = FiniteTelemetryValue(data.G_lat),
+            G_long = FiniteTelemetryValue(data.G_long),
+            HandBrake = FiniteTelemetryValue(data.HandBrake),
+            data.HandBrakeValid,
+            LapDistance = FiniteTelemetryValue(data.LapDistance),
+            LapTime = FiniteTelemetryValue(data.LapTime),
+            MaxGears = FiniteTelemetryValue(data.MaxGears),
+            MaxRPM = FiniteTelemetryValue(data.MaxRPM),
+            RPM = FiniteTelemetryValue(data.RPM),
+            ShiftLightsRPMEnd = FiniteTelemetryValue(data.ShiftLightsRPMEnd),
+            ShiftLightsRPMStart = FiniteTelemetryValue(data.ShiftLightsRPMStart),
+            data.ShiftLightsRPMValid,
+            Speed = FiniteTelemetryValue(data.Speed),
+            Steering = FiniteTelemetryValue(data.Steering),
+            Throttle = FiniteTelemetryValue(data.Throttle),
+            TrackLength = FiniteTelemetryValue(data.TrackLength),
+            Time = FiniteTelemetryValue(data.Time),
+            GameDataText = data.ToString(),
+            GameSpecificDataText = data.GameSpecificDataToString()
+        };
+    }
+
+    private static float FiniteTelemetryValue(float value)
+    {
+        return float.IsFinite(value) ? value : 0.0f;
+    }
+
+    private static object CreateBrowserLuaDashboardPayload(WebDashboardBrowserLuaDashboard dashboard)
+    {
+        var orderedSettings = dashboard.Settings
+            .OrderBy(setting => setting.Key, StringComparer.Ordinal)
+            .ToDictionary(setting => setting.Key, setting => setting.Value, StringComparer.Ordinal);
+        return new
+        {
+            id = dashboard.Id,
+            order = dashboard.Order,
+            configurationRevision = dashboard.ConfigurationRevision,
+            settings = orderedSettings
+        };
+    }
+
+    private static object CreateBrowserLuaTelemetryContext(
+        GameData data,
+        GameContext context,
+        bool includeReplayTimeline = false)
+    {
+        var localReplayValid = context?.LocalReplayValid == true;
+        var localReplayDelta = 0.0f;
+        if (localReplayValid)
+        {
+            try
+            {
+                localReplayDelta = context.GetDeltaByDistanceAndTime(data.LapDistance, data.LapTime);
+            }
+            catch
+            {
+                localReplayDelta = 0.0f;
+            }
+        }
+
+        if (!float.IsFinite(localReplayDelta))
+        {
+            localReplayDelta = 0.0f;
+        }
+
+        if (!includeReplayTimeline)
+        {
+            return new
+            {
+                TrackName = context?.TrackName,
+                AudioPackage = context?.AudioPackage,
+                ScriptAuthor = context?.ScriptAuthor,
+                PacenoteType = context?.PacenoteType,
+                CarName = context?.CarName,
+                CarClass = context?.CarClass,
+                LocalReplayValid = localReplayValid,
+                LocalReplayFinishTime = FiniteTelemetryValue(context?.LocalReplayFinishTime ?? 0.0f),
+                LocalReplay = new { checkpoints = context?.LocalReplay?.checkpoints ?? 0 },
+                GameState = context?.GameState ?? 0,
+                LocalReplayDelta = localReplayDelta
+            };
+        }
+
+        return new
+        {
+            TrackName = context?.TrackName,
+            AudioPackage = context?.AudioPackage,
+            ScriptAuthor = context?.ScriptAuthor,
+            PacenoteType = context?.PacenoteType,
+            CarName = context?.CarName,
+            CarClass = context?.CarClass,
+            LocalReplayValid = localReplayValid,
+            LocalReplayFinishTime = FiniteTelemetryValue(context?.LocalReplayFinishTime ?? 0.0f),
+            LocalReplay = new { checkpoints = context?.LocalReplay?.checkpoints ?? 0 },
+            GameState = context?.GameState ?? 0,
+            LocalReplayDelta = localReplayDelta,
+            BestReplayTimeline = CreateBrowserLuaReplayTimeline(context, localReplayValid)
+        };
+    }
+
+    private static IReadOnlyList<object> CreateBrowserLuaReplayTimeline(
+        GameContext context,
+        bool localReplayValid)
+    {
+        if (!localReplayValid || context?.LocalReplayDetailsPerTimes == null)
+        {
+            return Array.Empty<object>();
+        }
+
+        const int maximumSampleCount = 512;
+        var orderedSamples = context.LocalReplayDetailsPerTimes
+            .Where(sample => float.IsFinite(sample.time) && float.IsFinite(sample.distance))
+            .OrderBy(sample => sample.time)
+            .ThenBy(sample => sample.distance)
+            .ToList();
+        if (orderedSamples.Count == 0)
+        {
+            return Array.Empty<object>();
+        }
+
+        if (orderedSamples.Count <= maximumSampleCount)
+        {
+            return orderedSamples
+                .Select(sample => (object)new { Time = sample.time, Distance = sample.distance })
+                .ToList();
+        }
+
+        var sampledTimeline = new List<object>(maximumSampleCount);
+        for (var index = 0; index < maximumSampleCount; index++)
+        {
+            var sourceIndex = (int)Math.Round(
+                index * (orderedSamples.Count - 1) / (double)(maximumSampleCount - 1));
+            var sample = orderedSamples[sourceIndex];
+            sampledTimeline.Add(new { Time = sample.time, Distance = sample.distance });
+        }
+
+        return sampledTimeline;
+    }
+
+    private async Task SendBrowserLuaTelemetryToAllClients(
+        long sceneRevision,
+        ArraySegment<byte> snapshotSegment,
+        ArraySegment<byte> deltaSegment)
+    {
+        List<(WebSocket Client, bool NeedsSnapshot)> clientsToSend;
+        lock (_clientsLock)
+        {
+            clientsToSend = _connectedClients
+                .Where(client => _browserLuaSupportedByClient.TryGetValue(client, out var supported) && supported)
+                .Select(client => (
+                    Client: client,
+                    NeedsSnapshot: !_browserLuaSceneRevisionByClient.TryGetValue(client, out var clientRevision)
+                        || clientRevision != sceneRevision))
+                .ToList();
+        }
+
+        var sendTasks = clientsToSend
+            .Select(async client => new BrowserLuaSendResult(
+                client.Client,
+                client.NeedsSnapshot,
+                await SendToClientAsync(
+                    client.Client,
+                    client.NeedsSnapshot ? snapshotSegment : deltaSegment)))
+            .ToArray();
+        var results = await Task.WhenAll(sendTasks);
+
+        lock (_clientsLock)
+        {
+            foreach (var result in results)
+            {
+                if (result.FailedClient != null)
+                {
+                    _connectedClients.Remove(result.FailedClient);
+                    _layeredSceneRevisionByClient.Remove(result.FailedClient);
+                    _browserLuaSupportedByClient.Remove(result.FailedClient);
+                    _browserLuaSceneRevisionByClient.Remove(result.FailedClient);
+                    continue;
+                }
+
+                if (result.WasSnapshot && _browserLuaSceneRevisionByClient.ContainsKey(result.Client))
+                {
+                    _browserLuaSceneRevisionByClient[result.Client] = sceneRevision;
+                }
+            }
+        }
     }
 
     private async Task BroadcastCommandListAsync(IReadOnlyList<DrawingCommand> commands)
@@ -709,7 +1133,7 @@ public class WebDashboardServer : IDisposable
         return new ArraySegment<byte>(Encoding.UTF8.GetBytes(json));
     }
 
-    private static bool CanUseLayeredRendering(WebDashboardDrawFrame frame)
+    public static bool CanUseLayeredRendering(WebDashboardDrawFrame frame)
     {
         if (!frame.CanUseLayeredRendering)
         {
@@ -864,6 +1288,8 @@ public class WebDashboardServer : IDisposable
                 {
                     _connectedClients.Remove(result.FailedClient);
                     _layeredSceneRevisionByClient.Remove(result.FailedClient);
+                    _browserLuaSupportedByClient.Remove(result.FailedClient);
+                    _browserLuaSceneRevisionByClient.Remove(result.FailedClient);
                     continue;
                 }
 
@@ -882,6 +1308,17 @@ public class WebDashboardServer : IDisposable
             foreach (var client in _connectedClients)
             {
                 _layeredSceneRevisionByClient[client] = 0;
+            }
+        }
+    }
+
+    private void InvalidateBrowserLuaClientRevisions()
+    {
+        lock (_clientsLock)
+        {
+            foreach (var client in _connectedClients)
+            {
+                _browserLuaSceneRevisionByClient[client] = 0;
             }
         }
     }
@@ -916,6 +1353,9 @@ public class WebDashboardServer : IDisposable
                 foreach (var client in clientsToRemove)
                 {
                     _connectedClients.Remove(client);
+                    _layeredSceneRevisionByClient.Remove(client);
+                    _browserLuaSupportedByClient.Remove(client);
+                    _browserLuaSceneRevisionByClient.Remove(client);
                 }
             }
         }
@@ -957,6 +1397,8 @@ public class WebDashboardServer : IDisposable
             {
                 _connectedClients.Clear();
                 _layeredSceneRevisionByClient.Clear();
+                _browserLuaSupportedByClient.Clear();
+                _browserLuaSceneRevisionByClient.Clear();
             }
 
             lock (_layeredFrameLock)
@@ -966,7 +1408,13 @@ public class WebDashboardServer : IDisposable
                 _layeredScene = null;
                 _nextLayeredSceneRevision = 0;
             }
-            
+
+            lock (_browserLuaSceneLock)
+            {
+                _browserLuaScene = null;
+                _nextBrowserLuaSceneRevision = 0;
+            }
+
             IsRunning = false;
             _logger.Info("WebDashboard server stopped");
         }

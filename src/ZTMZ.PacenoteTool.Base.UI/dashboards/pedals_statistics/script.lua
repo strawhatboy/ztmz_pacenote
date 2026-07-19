@@ -58,7 +58,7 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
     -- resize the recordedData array according to the recordedDataLength
     if (recordedDataLength > #recordedData) then
         for i = #recordedData + 1, recordedDataLength do
-            recordedData[i] = { 0, 0, 0 };
+            recordedData[i] = { 0, 0, 0, 0 };
         end
     elseif (recordedDataLength < #recordedData) then
         for i = #recordedData, recordedDataLength + 1, -1 do

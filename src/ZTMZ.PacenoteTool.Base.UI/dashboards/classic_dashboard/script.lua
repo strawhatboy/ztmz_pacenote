@@ -1,4 +1,5 @@
 local resources = {};
+local maxSpeed = 0;
 
 -- This function is called when the script is loaded
 -- args: dotnet object
@@ -66,7 +67,7 @@ end
 function drawSpdSector(gfx, conf, self, data, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
-    local maxSpeed = math.max(maxSpeed, data.Speed); 
+    maxSpeed = math.max(maxSpeed, data.Speed);
     helper.drawSector(gfx, "SPD (KM/h)", x, y, width, height, data.Speed, maxSpeed, _brushes["black"], _brushes["white"], _brushes["grey"], _fonts["wrc"], self.GetConfigByKey("dashboards.settings.sectorThicknessRatio"));
 end
 

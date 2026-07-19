@@ -3,6 +3,7 @@
     "Description": "dashboards.classic.wrcDashboard.description",
     "Author": "草帽不是猫",
     "Version": "0.0.1",
+    "SupportsWebDashboardClientLua": true,
     "PreviewImagePath": "preview.png",
     "ImageResources": {},
     "ImageResourcesInDirectory": {

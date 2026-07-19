@@ -4,6 +4,7 @@
     "Author": "aaronfang",
     "Version": "0.0.2",
     "SupportsNativeStaticImageCache": true,
+    "SupportsWebDashboardClientLua": true,
     "PreviewImagePath": "preview.png",
     "ImageResources": {},
     "ImageResourcesInDirectory": {

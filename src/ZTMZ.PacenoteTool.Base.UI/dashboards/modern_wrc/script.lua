@@ -336,11 +336,11 @@ function onUpdate(args)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
     
-    local padding = size * self.GetConfigByKey("dashboards.settings.padding")
     local switchGearNSpeed = self.GetConfigByKey("dashboards.settings.switchGearNSpeed")
 
     local telemetryCenterX, telemetryCenterY, width, height = getDashboardPositionCenter(self, gfx, 1.0);
     local radius = height / 2;
+    local padding = height * self.GetConfigByKey("dashboards.settings.padding")
 
     if args.IsWebDashboard then
         gfx.BeginStaticLayer();

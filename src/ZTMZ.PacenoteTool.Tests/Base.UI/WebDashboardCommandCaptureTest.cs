@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json;
 using GameOverlay.Drawing;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
@@ -38,13 +39,21 @@ public class WebDashboardCommandCaptureTest
         using var dashboardListResponse = await client.GetAsync(endpoint);
         using var pageResponse = await client.GetAsync($"http://127.0.0.1:{port}/");
         using var clientScriptResponse = await client.GetAsync($"http://127.0.0.1:{port}/dashboard-client.js");
+        using var browserLuaScriptResponse = await client.GetAsync($"http://127.0.0.1:{port}/browser-lua-dashboard.js");
+        using var fengariResponse = await client.GetAsync($"http://127.0.0.1:{port}/vendor/fengari-web.js");
         using var fontResponse = await client.GetAsync($"http://127.0.0.1:{port}/fonts/WRCCleanRoman.ttf");
+        using var boldFontResponse = await client.GetAsync($"http://127.0.0.1:{port}/fonts/WRCCleanBold.ttf");
         dashboardListResponse.EnsureSuccessStatusCode();
         pageResponse.EnsureSuccessStatusCode();
         clientScriptResponse.EnsureSuccessStatusCode();
+        browserLuaScriptResponse.EnsureSuccessStatusCode();
+        fengariResponse.EnsureSuccessStatusCode();
         fontResponse.EnsureSuccessStatusCode();
+        boldFontResponse.EnsureSuccessStatusCode();
         var page = await pageResponse.Content.ReadAsStringAsync();
         var clientScript = await clientScriptResponse.Content.ReadAsStringAsync();
+        var browserLuaScript = await browserLuaScriptResponse.Content.ReadAsStringAsync();
+        var fengariScript = await fengariResponse.Content.ReadAsStringAsync();
 
         Assert.True(server.IsRunning);
         Assert.Equal("[]", response);
@@ -54,17 +63,32 @@ public class WebDashboardCommandCaptureTest
         Assert.Contains("connection-status-text", page);
         Assert.Contains("WRCCleanRoman.ttf", page);
         Assert.Contains("font-weight: 700", page);
-        Assert.Contains("dashboard-client.js?v=2", page);
+        var normalizedPage = page.Replace("\r\n", "\n");
+        Assert.Contains(
+            "font-family: 'WRC Clean';\n            src: url('/fonts/WRCCleanBold.ttf') format('truetype');\n            font-weight: 400;",
+            normalizedPage);
+        Assert.Contains(
+            "font-family: 'WRC Clean Roman';\n            src: url('/fonts/WRCCleanRoman.ttf') format('truetype');\n            font-weight: 400;",
+            normalizedPage);
+        Assert.Contains("vendor/fengari-web.js?v=0.1.4", page);
+        Assert.Contains("browser-lua-dashboard.js?v=5", page);
+        Assert.Contains("dashboard-client.js?v=5", page);
         Assert.Contains("cmd.fontWeight", clientScript);
         Assert.Contains("cmd.baseline", clientScript);
         Assert.Contains("layeredDrawCommands", clientScript);
+        Assert.Contains("browserLuaTelemetry", clientScript);
+        Assert.Contains("browserLuaDashboardIds", clientScript);
+        Assert.Contains("DASHBOARD_LAYER_Z_INDEX_STRIDE", clientScript);
+        Assert.Contains("ZtmzBrowserLuaDashboardManager", browserLuaScript);
+        Assert.Contains("DASHBOARD_LAYER_Z_INDEX_STRIDE", browserLuaScript);
+        Assert.Contains("t.fengari=e()", fengariScript);
         Assert.Contains("dashboard-layer-stack", page);
-        Assert.DoesNotContain("fengari", page.ToLowerInvariant());
         Assert.True(dashboardListResponse.Headers.TryGetValues("Cache-Control", out var dashboardCacheControlValues));
         Assert.Contains("no-store", string.Join(",", dashboardCacheControlValues));
         Assert.True(pageResponse.Headers.TryGetValues("Cache-Control", out var cacheControlValues));
         Assert.Contains("no-store", string.Join(",", cacheControlValues));
         Assert.Equal("font/ttf", fontResponse.Content.Headers.ContentType?.MediaType);
+        Assert.Equal("font/ttf", boldFontResponse.Content.Headers.ContentType?.MediaType);
     }
 
     [Fact]
@@ -315,6 +339,207 @@ public class WebDashboardCommandCaptureTest
         Assert.Contains("\"dynamicLayers\"", firstDelta);
         Assert.Contains("\"layers\"", secondSnapshot);
         Assert.Contains("\"sceneRevision\":1", secondSnapshot);
+    }
+
+    [Fact]
+    public async Task BrowserLuaTelemetryUsesCapabilityHandshakeSnapshotsAndDeltas()
+    {
+        var port = GetAvailablePort();
+        using var server = new WebDashboardServer { Port = port };
+        server.Initialize(new List<Dashboard>());
+        server.Start();
+
+        using var socket = new ClientWebSocket();
+        await socket.ConnectAsync(new Uri($"ws://127.0.0.1:{port}/ws"), CancellationToken.None);
+        await WaitForClient(server);
+        Assert.False(server.CanExecuteBrowserLuaDashboards);
+
+        await SendClientControlMessage(socket, """{"type":"browserLuaCapabilities","supported":true}""");
+        await WaitForBrowserLuaCapability(server, expected: true);
+
+        var scene = new WebDashboardBrowserLuaScene(
+            new List<WebDashboardBrowserLuaDashboard>
+            {
+                new(
+                    id: 4,
+                    order: 2,
+                    configurationRevision: 7,
+                    settings: new Dictionary<string, object>
+                    {
+                        ["dashboards.settings.size"] = 0.27,
+                        ["dashboards.settings.enabled"] = true
+                    })
+            },
+            new WebDashboardBrowserLuaConfig(
+                hudChromaKeyMode: false,
+                hudShiftGreenZone: 0.6f,
+                hudShiftYellowZone: 0.75f,
+                hudShiftRedZone: 0.9f,
+                frameRate: 75));
+        var context = new GameContext
+        {
+            TrackName = "Stage",
+            CarName = "Car",
+            CarClass = "RC1",
+            AudioPackage = "Package",
+            PacenoteType = "Default",
+            ScriptAuthor = "Author",
+            LocalReplayValid = true,
+            LocalReplayFinishTime = 98.5f,
+            LocalReplay = new Replay { checkpoints = 10 },
+            LocalReplayDetailsPerTimes = new List<ReplayDetailsPerTime>
+            {
+                new() { time = 0, distance = 0 },
+                new() { time = 10, distance = 100 }
+            },
+            GameState = 3,
+            GetDeltaByDistanceAndTime = (_, _) => -0.5f
+        };
+        var initialData = new GameData
+        {
+            Brake = 0.25f,
+            Clutch = 0.1f,
+            CompletionRate = 0.3f,
+            Gear = 3,
+            HandBrakeValid = true,
+            LapDistance = 100,
+            LapTime = float.NaN,
+            MaxGears = 6,
+            MaxRPM = 7000,
+            RPM = 5200,
+            ShiftLightsRPMStart = 6000,
+            ShiftLightsRPMEnd = 6800,
+            ShiftLightsRPMValid = true,
+            Speed = float.PositiveInfinity,
+            Steering = 0.2f,
+            Throttle = 0.8f,
+            TrackLength = float.NegativeInfinity
+        };
+
+        var snapshotTask = ReceiveTextAsync(socket);
+        await server.BroadcastBrowserLuaTelemetryAsync(scene, initialData, context);
+        var snapshot = await snapshotTask.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Contains("\"type\":\"browserLuaTelemetry\"", snapshot);
+        Assert.Contains("\"sceneRevision\":1", snapshot);
+        Assert.Contains("\"dashboards\"", snapshot);
+        Assert.Contains("\"id\":4", snapshot);
+        Assert.Contains("\"configurationRevision\":7", snapshot);
+        Assert.Contains("\"TrackName\":\"Stage\"", snapshot);
+        Assert.Contains("\"ShiftLightsRPMValid\":true", snapshot);
+        Assert.Contains("\"Clutch\":0.1", snapshot);
+        Assert.Contains("\"CompletionRate\":0.3", snapshot);
+        Assert.Contains("\"BestReplayTimeline\":[{\"Time\":0.0,\"Distance\":0.0}", snapshot);
+        Assert.Contains("\"LocalReplayFinishTime\":98.5", snapshot);
+        Assert.Contains("\"checkpoints\":10", snapshot);
+        Assert.Contains("\"LocalReplayDelta\":-0.5", snapshot);
+        Assert.Contains("\"FrameRate\":75", snapshot);
+        Assert.DoesNotContain("\"Id\":4", snapshot);
+        using (var snapshotDocument = JsonDocument.Parse(snapshot))
+        {
+            var snapshotTelemetry = snapshotDocument.RootElement.GetProperty("data");
+            Assert.Equal(0.0f, snapshotTelemetry.GetProperty("LapTime").GetSingle());
+            Assert.Equal(0.0f, snapshotTelemetry.GetProperty("Speed").GetSingle());
+            Assert.Equal(0.0f, snapshotTelemetry.GetProperty("TrackLength").GetSingle());
+        }
+
+        var deltaTask = ReceiveTextAsync(socket);
+        initialData.Speed = 92;
+        await server.BroadcastBrowserLuaTelemetryAsync(scene, initialData, context);
+        var delta = await deltaTask.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Contains("\"type\":\"browserLuaTelemetry\"", delta);
+        Assert.Contains("\"sceneRevision\":1", delta);
+        Assert.Contains("\"Speed\":92", delta);
+        Assert.Contains("\"TrackName\":\"Stage\"", delta);
+        Assert.DoesNotContain("\"dashboards\"", delta);
+        Assert.DoesNotContain("\"BestReplayTimeline\"", delta);
+
+        var compatibilityTask = ReceiveTextAsync(socket);
+        await server.BroadcastDrawFrameAsync(new WebDashboardDrawFrame(
+            Array.Empty<WebDashboardDrawLayer>(),
+            new DrawingCommand[] { new ClearCommand() },
+            hasExplicitStaticLayers: false));
+        var compatibilityFrame = await compatibilityTask.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.Contains("\"type\":\"drawCommands\"", compatibilityFrame);
+
+        var resumedSnapshotTask = ReceiveTextAsync(socket);
+        initialData.Speed = 94;
+        await server.BroadcastBrowserLuaTelemetryAsync(scene, initialData, context);
+        var resumedSnapshot = await resumedSnapshotTask.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.Contains("\"dashboards\"", resumedSnapshot);
+        Assert.Contains("\"Speed\":94", resumedSnapshot);
+
+        await SendClientControlMessage(socket, """{"type":"browserLuaFallback","reason":"test fallback"}""");
+        await WaitForBrowserLuaCapability(server, expected: false);
+    }
+
+    [Fact]
+    public async Task HybridLayeredFramesKeepTheBrowserLuaSceneUntilCompatibilityFallback()
+    {
+        var port = GetAvailablePort();
+        using var server = new WebDashboardServer { Port = port };
+        server.Initialize(new List<Dashboard>());
+        server.Start();
+
+        using var socket = new ClientWebSocket();
+        await socket.ConnectAsync(new Uri($"ws://127.0.0.1:{port}/ws"), CancellationToken.None);
+        await WaitForClient(server);
+        await SendClientControlMessage(socket, """{"type":"browserLuaCapabilities","supported":true}""");
+        await WaitForBrowserLuaCapability(server, expected: true);
+
+        var browserLuaScene = new WebDashboardBrowserLuaScene(
+            new List<WebDashboardBrowserLuaDashboard>
+            {
+                new(
+                    id: 4,
+                    order: 4,
+                    configurationRevision: 1,
+                    settings: new Dictionary<string, object>())
+            },
+            new WebDashboardBrowserLuaConfig(
+                hudChromaKeyMode: false,
+                hudShiftGreenZone: 0.6f,
+                hudShiftYellowZone: 0.75f,
+                hudShiftRedZone: 0.9f));
+        var data = new GameData { Speed = 85 };
+        var context = new GameContext { GameState = 3 };
+
+        var initialBrowserSnapshotTask = ReceiveTextAsync(socket);
+        await server.BroadcastBrowserLuaTelemetryAsync(browserLuaScene, data, context);
+        var initialBrowserSnapshot = await initialBrowserSnapshotTask.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.Contains("\"dashboards\"", initialBrowserSnapshot);
+        Assert.Contains("\"hybrid\":false", initialBrowserSnapshot);
+
+        var hybridCommandTask = ReceiveTextAsync(socket);
+        await server.BroadcastDrawFrameAsync(
+            CreateLayeredFrame(staticContentProvided: true, staticColor: 0xFF102030, dynamicValue: 10),
+            new[] { 4 });
+        var hybridCommand = await hybridCommandTask.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.Contains("\"type\":\"layeredDrawCommands\"", hybridCommand);
+        Assert.Contains("\"browserLuaDashboardIds\":[4]", hybridCommand);
+
+        var hybridBrowserDeltaTask = ReceiveTextAsync(socket);
+        data.Speed = 90;
+        await server.BroadcastBrowserLuaTelemetryAsync(browserLuaScene, data, context, isHybrid: true);
+        var hybridBrowserDelta = await hybridBrowserDeltaTask.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.Contains("\"hybrid\":true", hybridBrowserDelta);
+        Assert.Contains("\"Speed\":90", hybridBrowserDelta);
+        Assert.DoesNotContain("\"dashboards\"", hybridBrowserDelta);
+
+        var compatibilityCommandTask = ReceiveTextAsync(socket);
+        await server.BroadcastDrawFrameAsync(
+            CreateLayeredFrame(staticContentProvided: false, staticColor: 0, dynamicValue: 20));
+        var compatibilityCommand = await compatibilityCommandTask.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.Contains("\"browserLuaDashboardIds\":[]", compatibilityCommand);
+
+        var resumedBrowserSnapshotTask = ReceiveTextAsync(socket);
+        data.Speed = 95;
+        await server.BroadcastBrowserLuaTelemetryAsync(browserLuaScene, data, context);
+        var resumedBrowserSnapshot = await resumedBrowserSnapshotTask.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.Contains("\"hybrid\":false", resumedBrowserSnapshot);
+        Assert.Contains("\"dashboards\"", resumedBrowserSnapshot);
+        Assert.Contains("\"Speed\":95", resumedBrowserSnapshot);
     }
 
     [Fact]
@@ -596,6 +821,32 @@ public class WebDashboardCommandCaptureTest
         } while (!result.EndOfMessage);
 
         return Encoding.UTF8.GetString(stream.ToArray());
+    }
+
+    private static Task SendClientControlMessage(ClientWebSocket socket, string message)
+    {
+        var bytes = Encoding.UTF8.GetBytes(message);
+        return socket.SendAsync(
+            new ArraySegment<byte>(bytes),
+            WebSocketMessageType.Text,
+            endOfMessage: true,
+            CancellationToken.None);
+    }
+
+    private static async Task WaitForBrowserLuaCapability(WebDashboardServer server, bool expected)
+    {
+        for (var attempt = 0; attempt < 20; attempt++)
+        {
+            if (server.CanExecuteBrowserLuaDashboards == expected)
+            {
+                return;
+            }
+
+            await Task.Delay(25);
+        }
+
+        throw new InvalidOperationException(
+            $"WebDashboard browser Lua capability did not become {expected}.");
     }
 
     private static int GetAvailablePort()

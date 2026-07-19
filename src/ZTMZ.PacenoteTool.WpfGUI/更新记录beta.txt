@@ -10,6 +10,8 @@ v2.99.99.39-3.0-rc11
 * Added large touch controls to the Web Dashboard for fullscreen and portrait/landscape layout; the controls fade away after inactivity.
 * Improved Web Dashboard rendering compatibility and performance: corrected dashboard asset/background selection and gradient rendering, restored map information, added configurable refresh rates up to 240 FPS (default 60), and reduced stale browser frames.
 * Added retained static/dynamic Web Dashboard rendering for built-in dashboards. Static artwork is kept in the browser while later frames carry only live drawing commands; third-party and unsafe layers automatically use the full-frame compatibility path, and settings or stage-context changes refresh the static artwork.
+* Added browser-side Lua execution for all built-in Web Dashboard packages. Compatible clients receive compact telemetry, render dashboards locally with retained static/dynamic canvases, and automatically revert to the command-stream path if needed.
+* Improved browser-Lua reliability and visual parity: batch incoming telemetry to browser frames, protect replay and steering edge cases, and match embedded WRC normal/bold font families and multiline text layout.
 * Optimized native WRC 2025 and WRC 2025 v2 overlays by caching their static background at final dashboard size. Live telemetry keeps rendering in the existing overlay window; cache failures automatically fall back to full-frame rendering.
 * Added Web Dashboard FPS and connection indicators; a normal browser refresh now receives current client assets without requiring a forced cache refresh.
 * Added per-dashboard output routing: choose Off, Overlay, Web, or Both without changing dashboard package settings. Existing enabled dashboards continue to use both outputs by default.
@@ -46,6 +48,8 @@ v2.99.99.39-3.0-rc11
 * 网页仪表盘新增大尺寸触控按钮，可切换全屏和横竖屏布局；无操作时按钮会自动淡出。
 * 改进网页仪表盘的渲染兼容性和性能：修复仪表盘图片/背景串用和渐变渲染问题，恢复地图信息，新增最高 240 FPS（默认 60）的可调帧率，并减少浏览器显示旧帧。
 * 网页仪表盘新增静态/动态分层渲染：内置仪表盘会在浏览器中保留静态画面，后续帧仅传输实时绘制命令；第三方仪表盘及不安全图层会自动回退为完整帧渲染，修改设置或赛段上下文时会刷新静态画面。
+* 新增内置网页仪表盘的浏览器端 Lua 执行：兼容客户端只接收紧凑遥测数据，在本地通过静态/动态画布渲染；发生不兼容或错误时会自动回退到绘制命令流。
+* 提高浏览器 Lua 的稳定性和视觉一致性：按浏览器帧合并高频遥测，修复回放和转向边界情况，并匹配内嵌 WRC 常规/粗体字体及多行文字布局。
 * 优化原生 WRC 2025 和 WRC 2025 v2 仪表盘：静态背景会按最终仪表盘尺寸缓存，实时遥测仍在原有悬浮窗中绘制；缓存失败会自动回退为完整帧渲染。
 * 新增网页仪表盘的帧率和连接状态指示；普通浏览器刷新即可获得最新页面文件，无需强制刷新缓存。
 * 新增单个仪表盘的输出位置选择：可选择关闭、悬浮窗、网页或两者；不会修改仪表盘包设置，现有已启用仪表盘默认继续同时显示在两端。

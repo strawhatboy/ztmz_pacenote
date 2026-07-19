@@ -1,11 +1,12 @@
 /**
  * ZTMZ Pacenote Dashboard - Web Client
- * Receives drawing commands from server and renders them on canvas
- * Server executes Lua dashboards and sends rendered commands
- * VERSION: 2026-07-19-layered-rendering
+ * Receives drawing commands from the server and renders them on canvas.
+ * Compatible dashboards can instead execute their Lua package locally from a
+ * compact telemetry stream; the server-rendered command path remains available.
+ * VERSION: 2026-07-19-browser-lua
  */
 
-console.log('Dashboard Client VERSION: 2026-07-19-layered-rendering');
+console.log('Dashboard Client VERSION: 2026-07-19-browser-lua');
 
 // ============================================================================
 // Global State
@@ -13,6 +14,8 @@ console.log('Dashboard Client VERSION: 2026-07-19-layered-rendering');
 const state = {
     ws: null,
     dashboards: [],
+    dashboardPackages: new Map(),
+    dashboardPackageLoads: new Map(),
     imageCache: {},
     imageLoads: {},
     isRunning: false,
@@ -30,10 +33,16 @@ const state = {
     frameRateWindowStartedAt: 0,
     pendingFrameData: null,
     pendingSnapshotData: null,
-    renderFrameScheduled: false
+    renderFrameScheduled: false,
+    pendingBrowserLuaSnapshotData: null,
+    pendingBrowserLuaFrameData: null,
+    browserLuaRenderScheduled: false,
+    browserLuaManager: null,
+    browserLuaHybrid: false
 };
 
 const colorCssCache = new Map();
+const DASHBOARD_LAYER_Z_INDEX_STRIDE = 1000;
 
 // ============================================================================
 // Initialization
@@ -44,6 +53,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     updateLoadingText('Initializing canvas...');
     showCanvas();
+    initializeBrowserLuaDashboardManager();
     initializeDashboardControls();
     initializeDashboardIndicators();
     
@@ -85,8 +95,8 @@ function renderDashboardList() {
     card.innerHTML = `
         <h3>Web Dashboard View</h3>
         <p><strong>${webEnabledCount} dashboard(s) routed to Web</strong></p>
-        <p>Dashboards are rendered server-side and streamed to your browser.</p>
-        <p>The server will automatically render dashboards routed to Web.</p>
+        <p>Live dashboard data is streamed to your browser.</p>
+        <p>Configured dashboards render automatically.</p>
     `;
     listContainer.appendChild(card);
 }
@@ -94,10 +104,7 @@ function renderDashboardList() {
 async function loadDashboardImages() {
     for (const dashboardInfo of state.dashboards.filter(d => d.webEnabled ?? d.enabled)) {
         try {
-            const response = await fetch(`/api/dashboard/${dashboardInfo.id}`);
-            if (!response.ok) continue;
-
-            const dashboard = await response.json();
+            const dashboard = await fetchDashboardPackage(dashboardInfo.id);
             
             // Preload all images
             const imagePromises = Object.entries(dashboard.imageResources || {})
@@ -108,6 +115,38 @@ async function loadDashboardImages() {
             console.error(`Failed to load images for dashboard ${dashboardInfo.name}:`, error);
         }
     }
+}
+
+async function fetchDashboardPackage(id) {
+    const dashboardId = Number(id);
+    if (!Number.isInteger(dashboardId) || dashboardId < 0) {
+        throw new Error('Invalid dashboard package identifier.');
+    }
+
+    const cachedPackage = state.dashboardPackages.get(dashboardId);
+    if (cachedPackage) {
+        return cachedPackage;
+    }
+
+    const pendingLoad = state.dashboardPackageLoads.get(dashboardId);
+    if (pendingLoad) {
+        return pendingLoad;
+    }
+
+    const load = fetch(`/api/dashboard/${dashboardId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to fetch dashboard package ${dashboardId}.`);
+            }
+            return response.json();
+        })
+        .then(dashboardPackage => {
+            state.dashboardPackages.set(dashboardId, dashboardPackage);
+            return dashboardPackage;
+        })
+        .finally(() => state.dashboardPackageLoads.delete(dashboardId));
+    state.dashboardPackageLoads.set(dashboardId, load);
+    return load;
 }
 
 function loadImageResource(key, url) {
@@ -142,6 +181,27 @@ function loadImageResource(key, url) {
 
     state.imageLoads[key] = imageLoad;
     return imageLoad;
+}
+
+function initializeBrowserLuaDashboardManager() {
+    const BrowserLuaDashboardManager = window.ZtmzBrowserLuaDashboardManager;
+    if (typeof BrowserLuaDashboardManager !== 'function') {
+        return;
+    }
+
+    state.browserLuaManager = new BrowserLuaDashboardManager({
+        layerStack: () => state.layerStack,
+        fetchPackage: fetchDashboardPackage,
+        loadImage: loadImageResource,
+        getImage: imageKey => state.imageCache[imageKey],
+        requestScene: requestBrowserLuaScene,
+        onFrameRendered: recordReceivedDashboardFrame,
+        onError: error => {
+            console.error('Browser Lua dashboard error:', error);
+            showError('Dashboard renderer switched to compatibility mode.');
+        },
+        onFallback: sendBrowserLuaFallback
+    });
 }
 
 // ============================================================================
@@ -513,15 +573,37 @@ function connectWebSocket() {
         updateConnectionStatus('Connected', 'connected');
         resetDashboardFrameRate();
         state.isRunning = true;
-        // No render loop needed - commands come via WebSocket messages
+        announceBrowserLuaCapability();
     };
     
     state.ws.onmessage = (event) => {
-        const isLayeredSnapshot = typeof event.data === 'string'
-            && event.data.includes('"type":"layeredDrawCommands"')
+        const isBrowserLuaTelemetry = typeof event.data === 'string'
+            && event.data.includes('"type":"browserLuaTelemetry"');
+        if (isBrowserLuaTelemetry) {
+            queueBrowserLuaTelemetry(event.data);
+            return;
+        }
+
+        const isLayeredFrame = typeof event.data === 'string'
+            && event.data.includes('"type":"layeredDrawCommands"');
+        const isLayeredSnapshot = isLayeredFrame
             && event.data.includes('"layers":');
         const isLegacyFrame = typeof event.data === 'string'
             && event.data.includes('"type":"drawCommands"');
+        const isHybridCommandFrame = isLayeredFrame
+            && event.data.includes('"browserLuaDashboardIds":[')
+            && !event.data.includes('"browserLuaDashboardIds":[]');
+
+        if (isHybridCommandFrame) {
+            state.browserLuaHybrid = true;
+        } else {
+            // A normal server command frame means the server selected the
+            // compatibility renderer. Stop local Lua immediately so a scheduled
+            // browser frame cannot paint after the command frame has arrived.
+            state.browserLuaHybrid = false;
+            clearPendingBrowserLuaTelemetry();
+            state.browserLuaManager?.suspend();
+        }
 
         if (isLayeredSnapshot) {
             state.pendingSnapshotData = event.data;
@@ -543,11 +625,14 @@ function connectWebSocket() {
         updateConnectionStatus('Connection error', 'disconnected');
     };
     
-    state.ws.onclose = () => {
-        console.log('WebSocket closed');
+    state.ws.onclose = (event) => {
+        console.warn('WebSocket closed:', event.code, event.reason || '(no reason)');
         updateConnectionStatus('Disconnected', 'disconnected');
         resetDashboardFrameRate();
         state.isRunning = false;
+        state.browserLuaHybrid = false;
+        clearPendingBrowserLuaTelemetry();
+        state.browserLuaManager?.suspend();
         
         // Auto-reconnect after 3 seconds
         setTimeout(() => {
@@ -556,6 +641,102 @@ function connectWebSocket() {
             }
         }, 3000);
     };
+}
+
+function announceBrowserLuaCapability() {
+    if (!state.ws || state.ws.readyState !== WebSocket.OPEN) {
+        return;
+    }
+
+    state.ws.send(JSON.stringify({
+        type: 'browserLuaCapabilities',
+        supported: Boolean(state.browserLuaManager?.canAdvertiseSupport)
+    }));
+}
+
+function requestBrowserLuaScene() {
+    if (!state.ws || state.ws.readyState !== WebSocket.OPEN) {
+        return;
+    }
+
+    state.ws.send(JSON.stringify({ type: 'requestBrowserLuaScene' }));
+}
+
+function sendBrowserLuaFallback(reason) {
+    clearPendingBrowserLuaTelemetry();
+    if (!state.ws || state.ws.readyState !== WebSocket.OPEN) {
+        return;
+    }
+
+    console.warn('Requesting browser Lua compatibility fallback:', reason);
+    state.ws.send(JSON.stringify({
+        type: 'browserLuaFallback',
+        reason: String(reason || '').slice(0, 256)
+    }));
+}
+
+function queueBrowserLuaTelemetry(serializedMessage) {
+    const isSceneSnapshot = serializedMessage.includes('"dashboards":');
+    if (isSceneSnapshot) {
+        // A snapshot supersedes any delta from the preceding scene revision.
+        state.pendingBrowserLuaSnapshotData = serializedMessage;
+        state.pendingBrowserLuaFrameData = null;
+    } else {
+        state.pendingBrowserLuaFrameData = serializedMessage;
+    }
+
+    if (!state.browserLuaRenderScheduled) {
+        state.browserLuaRenderScheduled = true;
+        requestAnimationFrame(renderLatestBrowserLuaTelemetry);
+    }
+}
+
+function renderLatestBrowserLuaTelemetry() {
+    state.browserLuaRenderScheduled = false;
+    const snapshotData = state.pendingBrowserLuaSnapshotData;
+    const frameData = state.pendingBrowserLuaFrameData;
+    state.pendingBrowserLuaSnapshotData = null;
+    state.pendingBrowserLuaFrameData = null;
+
+    if (snapshotData) {
+        handleBrowserLuaTelemetry(snapshotData);
+    }
+    if (frameData) {
+        handleBrowserLuaTelemetry(frameData);
+    }
+}
+
+function clearPendingBrowserLuaTelemetry() {
+    state.pendingBrowserLuaSnapshotData = null;
+    state.pendingBrowserLuaFrameData = null;
+}
+
+function handleBrowserLuaTelemetry(serializedMessage) {
+    if (!state.browserLuaManager) {
+        sendBrowserLuaFallback('The browser Lua runtime is unavailable.');
+        return;
+    }
+
+    try {
+        const message = JSON.parse(serializedMessage);
+        const wasHybrid = state.browserLuaHybrid;
+        state.browserLuaHybrid = message.hybrid === true;
+        if (Array.isArray(message.dashboards)) {
+            if (!state.browserLuaHybrid) {
+                // Discard queued compatibility frames before enabling a pure
+                // browser-Lua scene. In hybrid mode they are the other dashboards.
+                state.pendingSnapshotData = null;
+                state.pendingFrameData = null;
+                clearCommandRenderLayers();
+            }
+        } else if (wasHybrid && !state.browserLuaHybrid) {
+            clearCommandRenderLayers();
+        }
+        state.browserLuaManager.handleTelemetry(message);
+    } catch (error) {
+        console.error('Browser Lua telemetry message error:', error);
+        sendBrowserLuaFallback(error instanceof Error ? error.message : String(error));
+    }
 }
 
 function renderLatestDashboardFrame() {
@@ -578,7 +759,9 @@ function renderLatestDashboardFrame() {
         if (frameData) {
             renderDashboardMessage(JSON.parse(frameData));
         }
-        recordReceivedDashboardFrame();
+        if (!state.browserLuaHybrid) {
+            recordReceivedDashboardFrame();
+        }
     } catch (error) {
         console.error('WebSocket message error:', error);
     }
@@ -587,12 +770,23 @@ function renderLatestDashboardFrame() {
 function renderDashboardMessage(message) {
     switch (message.type) {
     case 'drawCommands':
+        state.browserLuaHybrid = false;
+        state.browserLuaManager?.suspend();
         renderLegacyDrawCommands(message);
         break;
     case 'layeredDrawCommands':
+        state.browserLuaHybrid = hasBrowserLuaDashboardLayers(message);
+        if (!state.browserLuaHybrid) {
+            state.browserLuaManager?.suspend();
+        }
         renderLayeredDrawCommands(message);
         break;
     }
+}
+
+function hasBrowserLuaDashboardLayers(message) {
+    return Array.isArray(message?.browserLuaDashboardIds)
+        && message.browserLuaDashboardIds.some(id => Number.isInteger(Number(id)) && Number(id) >= 0);
 }
 
 function renderLegacyDrawCommands(message) {
@@ -706,6 +900,7 @@ function createRenderLayer(id, kind) {
     canvas.width = state.renderWidth;
     canvas.height = state.renderHeight;
     canvas.dataset.dashboardLayer = id;
+    canvas.style.zIndex = String(getDashboardLayerZIndex(id));
     return {
         id,
         kind,
@@ -713,6 +908,29 @@ function createRenderLayer(id, kind) {
         ctx: canvas.getContext('2d'),
         commands: []
     };
+}
+
+function getDashboardLayerZIndex(id) {
+    if (typeof id !== 'string') {
+        return 0;
+    }
+
+    if (id.startsWith('scene:')) {
+        return -DASHBOARD_LAYER_Z_INDEX_STRIDE;
+    }
+
+    const match = /^dashboard-(\d+):(static|dynamic):(\d+)$/.exec(id);
+    if (!match) {
+        return 0;
+    }
+
+    const dashboardOrder = Number(match[1]);
+    const segment = Number(match[3]);
+    if (!Number.isInteger(dashboardOrder) || !Number.isInteger(segment)) {
+        return 0;
+    }
+
+    return (dashboardOrder * DASHBOARD_LAYER_Z_INDEX_STRIDE) + segment;
 }
 
 function redrawLayer(layer) {
@@ -744,6 +962,7 @@ function requestLayeredSceneSnapshot() {
 }
 
 function requestImageLayerRefresh(imageKey) {
+    state.browserLuaManager?.requestImageRefresh(imageKey);
     requestAnimationFrame(() => {
         for (const layer of state.layers.values()) {
             if (layer.commands.some(command => command.imageKey === imageKey)) {
@@ -751,6 +970,15 @@ function requestImageLayerRefresh(imageKey) {
             }
         }
     });
+}
+
+function clearCommandRenderLayers() {
+    for (const layer of state.layers.values()) {
+        layer.canvas.remove();
+    }
+    state.layers.clear();
+    state.renderMode = 'browser-lua';
+    state.sceneRevision = 0;
 }
 
 // ============================================================================

@@ -168,7 +168,7 @@ function drawAdditionalInfo(gfx, data, conf, helper, x, y, width, height)
     gfx.DrawText(_fonts["wrc"], height * multiVal / 2.6, _brushes["white"], x + width / 2.5, y + height / 1.2, LapDistanceText);
 
     -- Current Time in the top right
-    local currentTime = os.date("%H:%M:%S")
+    local currentTime = data.BrowserTimeText or os.date("%H:%M:%S")
     gfx.DrawText(_fonts["wrc"], height * multiVal / 3, _brushes["white"], x + width / 2.35, y + height / 1.27, currentTime);
 end
 

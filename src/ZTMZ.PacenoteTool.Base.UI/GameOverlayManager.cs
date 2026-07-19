@@ -563,7 +563,10 @@ namespace ZTMZ.PacenoteTool.Base.UI
             var startedSend = false;
             try
             {
-                WebDashboardDrawFrame frame;
+                WebDashboardDrawFrame frame = null;
+                WebDashboardBrowserLuaScene browserLuaScene = null;
+                GameData? browserLuaGameData = null;
+                GameContext browserLuaGameContext = null;
                 lock (_webDashboardCaptureLock)
                 {
                     if (!TimeToShowTelemetry)
@@ -571,10 +574,55 @@ namespace ZTMZ.PacenoteTool.Base.UI
                         return;
                     }
 
-                    frame = CaptureWebDashboardCommands();
+                    if (TryCreateBrowserLuaScene(server, out var scene))
+                    {
+                        browserLuaScene = scene;
+                        browserLuaGameData = DashboardScriptArguments.GameData;
+                        browserLuaGameContext = DashboardScriptArguments.GameContext;
+                        var browserLuaDashboardIds = scene.Dashboards
+                            .Select(dashboard => dashboard.Id)
+                            .ToHashSet();
+                        frame = CaptureWebDashboardCommands(browserLuaDashboardIds);
+
+                        if (HasCapturedWebDashboardLayers(frame)
+                            && !WebDashboardServer.CanUseLayeredRendering(frame))
+                        {
+                            // The browser and server can share only retained layers.
+                            // Re-capture every dashboard when a remaining server layer
+                            // requires the established complete-frame renderer.
+                            browserLuaScene = null;
+                            browserLuaGameData = null;
+                            browserLuaGameContext = null;
+                            frame = CaptureWebDashboardCommands();
+                        }
+                    }
+                    else
+                    {
+                        frame = CaptureWebDashboardCommands();
+                    }
                 }
 
-                if (frame.LegacyCommands.Count == 0)
+                if (browserLuaScene != null
+                    && browserLuaGameData != null
+                    && browserLuaGameContext != null)
+                {
+                    _ = HasCapturedWebDashboardLayers(frame)
+                        ? SendWebDashboardHybridFrameAsync(
+                            server,
+                            frame,
+                            browserLuaScene,
+                            browserLuaGameData.Value,
+                            browserLuaGameContext)
+                        : SendWebDashboardBrowserLuaFrameAsync(
+                            server,
+                            browserLuaScene,
+                            browserLuaGameData.Value,
+                            browserLuaGameContext);
+                    startedSend = true;
+                    return;
+                }
+
+                if (frame == null || frame.LegacyCommands.Count == 0)
                 {
                     return;
                 }
@@ -593,6 +641,83 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     Volatile.Write(ref _webDashboardRenderInProgress, 0);
                 }
             }
+        }
+
+        private bool TryCreateBrowserLuaScene(
+            WebDashboardServer server,
+            out WebDashboardBrowserLuaScene scene)
+        {
+            scene = null;
+            if (!server.CanExecuteBrowserLuaDashboards)
+            {
+                return false;
+            }
+
+            var browserLuaDashboards = new List<WebDashboardBrowserLuaDashboard>();
+            for (var i = 0; i < Dashboards.Count; i++)
+            {
+                var dashboard = Dashboards[i];
+                if (!IsDashboardEnabledForWeb(dashboard))
+                {
+                    continue;
+                }
+
+                if (!dashboard.Descriptor.SupportsWebDashboardClientLua)
+                {
+                    continue;
+                }
+
+                browserLuaDashboards.Add(new WebDashboardBrowserLuaDashboard(
+                    i,
+                    i,
+                    dashboard.ConfigurationRevision,
+                    GetBrowserLuaSettings(dashboard)));
+            }
+
+            if (browserLuaDashboards.Count == 0)
+            {
+                return false;
+            }
+
+            scene = new WebDashboardBrowserLuaScene(
+                browserLuaDashboards,
+                new WebDashboardBrowserLuaConfig(
+                    Config.Instance.HudChromaKeyMode,
+                    Config.Instance.HudShiftGreenZone,
+                    Config.Instance.HudShiftYellowZone,
+                    Config.Instance.HudShiftRedZone,
+                    Volatile.Read(ref _webDashboardFrameRate)));
+            return true;
+        }
+
+        private static bool HasCapturedWebDashboardLayers(WebDashboardDrawFrame frame)
+        {
+            return frame != null
+                && frame.Layers.Any(layer => layer.Id.StartsWith("dashboard-", StringComparison.Ordinal));
+        }
+
+        private static IReadOnlyDictionary<string, object> GetBrowserLuaSettings(Dashboard dashboard)
+        {
+            var settings = new SortedDictionary<string, object>(StringComparer.Ordinal);
+            var configurations = dashboard.DashboardConfigurations;
+            if (configurations == null)
+            {
+                return settings;
+            }
+
+            var index = 0;
+            foreach (var configuration in configurations.PropertyName)
+            {
+                if (index >= configurations.PropertyValue.Count)
+                {
+                    break;
+                }
+
+                settings[configuration.Key] = configurations.PropertyValue[index];
+                index++;
+            }
+
+            return settings;
         }
 
         private bool TryBeginWebDashboardFrame()
@@ -638,6 +763,59 @@ namespace ZTMZ.PacenoteTool.Base.UI
             catch (Exception ex)
             {
                 _logger.Error(ex, "Failed to broadcast WebDashboard frame");
+            }
+            finally
+            {
+                Volatile.Write(ref _webDashboardRenderInProgress, 0);
+            }
+        }
+
+        private async Task SendWebDashboardBrowserLuaFrameAsync(
+            WebDashboardServer server,
+            WebDashboardBrowserLuaScene scene,
+            GameData gameData,
+            GameContext gameContext)
+        {
+            try
+            {
+                await server.BroadcastBrowserLuaTelemetryAsync(scene, gameData, gameContext);
+                Interlocked.Increment(ref _webDashboardRenderedFrameCount);
+                Interlocked.Exchange(ref _webDashboardLastRenderedFrameUtcTicks, DateTime.UtcNow.Ticks);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to broadcast browser-Lua WebDashboard frame");
+            }
+            finally
+            {
+                Volatile.Write(ref _webDashboardRenderInProgress, 0);
+            }
+        }
+
+        private async Task SendWebDashboardHybridFrameAsync(
+            WebDashboardServer server,
+            WebDashboardDrawFrame commandFrame,
+            WebDashboardBrowserLuaScene browserLuaScene,
+            GameData gameData,
+            GameContext gameContext)
+        {
+            try
+            {
+                var browserLuaDashboardIds = browserLuaScene.Dashboards
+                    .Select(dashboard => dashboard.Id)
+                    .ToArray();
+                await server.BroadcastDrawFrameAsync(commandFrame, browserLuaDashboardIds);
+                await server.BroadcastBrowserLuaTelemetryAsync(
+                    browserLuaScene,
+                    gameData,
+                    gameContext,
+                    isHybrid: true);
+                Interlocked.Increment(ref _webDashboardRenderedFrameCount);
+                Interlocked.Exchange(ref _webDashboardLastRenderedFrameUtcTicks, DateTime.UtcNow.Ticks);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to broadcast hybrid WebDashboard frame");
             }
             finally
             {
@@ -1128,7 +1306,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
         /// Render dashboards using command-proxy-only dashboard instances so Web
         /// rendering does not access the native Direct2D render thread or resources.
         /// </summary>
-        private WebDashboardDrawFrame CaptureWebDashboardCommands()
+        private WebDashboardDrawFrame CaptureWebDashboardCommands(
+            ISet<int> excludedDashboardIndexes = null)
         {
             try
             {
@@ -1142,7 +1321,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 _webCommandCapture.ClearRegisteredImages();
                 for (var i = 0; i < _webDashboards.Count; i++) {
                     var dashboard = _webDashboards[i];
-                    if (!dashboard.Descriptor.IsEnabled
+                    if ((excludedDashboardIndexes != null && excludedDashboardIndexes.Contains(i))
+                        || !dashboard.Descriptor.IsEnabled
                         || !_webDashboardLoaded[i]
                         || dashboard.ImageResources == null) {
                         continue;
@@ -1164,6 +1344,14 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
                 for (var i = 0; i < _webDashboards.Count; i++) {
                     var dashboard = _webDashboards[i];
+                    if (excludedDashboardIndexes != null && excludedDashboardIndexes.Contains(i))
+                    {
+                        // The retained server scene no longer owns this dashboard.
+                        // A later compatibility fallback must redraw its static layer.
+                        _webDashboardStaticRenderStates.Remove(i);
+                        continue;
+                    }
+
                     if (!dashboard.Descriptor.IsEnabled || !_webDashboardLoaded[i]) {
                         continue;
                     }

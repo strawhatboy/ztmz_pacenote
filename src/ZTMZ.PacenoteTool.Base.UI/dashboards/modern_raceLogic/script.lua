@@ -55,8 +55,11 @@ function onInit(args)
         helper.getColor(0xfc, 0x4a, 0x01, 255),
         helper.getColor(0xfc, 0x4a, 0x01, 200),
         helper.getColor(0xfc, 0x4a, 0x01, 0));
-    
+
+    _brushes["deltaAhead"] = gfx.CreateSolidBrush(0, 128, 0);
+    _brushes["deltaBehind"] = gfx.CreateSolidBrush(255, 0, 0);
     _brushes["greenLED"] = gfx.CreateSolidBrush(0, 255, 0, 200);
+    _brushes["redLED"] = gfx.CreateSolidBrush(255, 0, 0, 200);
     
     local _fonts = {};
     _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
@@ -166,10 +169,9 @@ function onUpdate(args)
         -- Format delta time text
         local deltaText = string.format("%s%.2f", deltaTime >= 0 and "+" or "-", math.abs(deltaTime));
         
-        -- Create brushes for delta time display
         local deltaBrush = deltaTime <= 0 
-            and gfx.CreateSolidBrush(0, 128, 0)    -- Green for ahead
-            or gfx.CreateSolidBrush(255, 0, 0);    -- Red for behind
+            and _brushes["deltaAhead"]
+            or _brushes["deltaBehind"];
         
         -- Calculate text position and size
         local deltaWeight = size * 0.12;
@@ -201,8 +203,6 @@ function onUpdate(args)
             rectY + (padding / 4),
             deltaText);
             
-        -- Dispose of temporary brush
-        deltaBrush.Dispose();
     end
 
     -- LED display logic
@@ -211,15 +211,7 @@ function onUpdate(args)
     local rightLedX = telemetryStartX + width/2 + width*0.096 - ledSize/2
     local ledY = telemetryStartY + ledSize * 2.43
 
-    -- Create LED brushes based on delta time
-    local ledBrush;
-    if deltaTime <= 0 then
-        -- Ahead (green)
-        ledBrush = gfx.CreateSolidBrush(0, 255, 0, 200);
-    else
-        -- Behind (red)
-        ledBrush = gfx.CreateSolidBrush(255, 0, 0, 200);
-    end
+    local ledBrush = deltaTime <= 0 and _brushes["greenLED"] or _brushes["redLED"];
 
     -- Draw LEDs based on delta time
     if math.abs(deltaTime) > 0 then
@@ -242,15 +234,13 @@ function onUpdate(args)
         end
     end
     
-    -- Dispose of the temporary brush
-    ledBrush.Dispose();
 end
 
 function onExit()
-    for k,v in ipairs(resources["brushes"]) do
+    for k,v in pairs(resources["brushes"]) do
         v.Dispose();
     end
-    for k,v in ipairs(resources["fonts"]) do
+    for k,v in pairs(resources["fonts"]) do
         v.Dispose();
     end
 end

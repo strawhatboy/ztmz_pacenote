@@ -70,6 +70,7 @@ function onInit(args)
     _fonts["telemetryGear"] = gfx.CreateFont("Consolas", 32);
     
     resources["brushes"] = _brushes;
+    resources["trailBrushes"] = {};
     resources["fonts"] = _fonts;
 end
 
@@ -377,7 +378,8 @@ function drawSteeringIndicator(gfx, self, data, helper, x, y, width, height)
     local dirX = indicatorX - centerX;
     local dirLength = math.abs(dirX);
     local trailLength = math.min(dirLength, actualTrailLength);
-    local stepRatio = trailLength / (arcWidth * math.abs(steeringInput));
+    local steeringSpan = arcWidth * distanceFromCenter;
+    local stepRatio = steeringSpan > 0.000001 and trailLength / steeringSpan or 0;
     
     -- Draw trails from least opaque to most opaque
     for i = 1, trailCount do
@@ -388,11 +390,13 @@ function drawSteeringIndicator(gfx, self, data, helper, x, y, width, height)
         local trailX = centerX + (arcWidth * trailSteeringInput);
         local trailY = initY - (arcHeight * (1 - (trailSteeringInput * trailSteeringInput)));
         
-        -- Create a temporary brush with calculated alpha
         local alpha = math.floor(baseAlpha - (alphaStep * i));
-        local tempBrush = gfx.CreateSolidBrush(255, 0, 0, alpha);
-        gfx.FillCircle(tempBrush, trailX, trailY, indicatorRadius * 0.8);
-        tempBrush.Dispose();
+        local trailBrush = resources["trailBrushes"][alpha];
+        if not trailBrush then
+            trailBrush = gfx.CreateSolidBrush(255, 0, 0, alpha);
+            resources["trailBrushes"][alpha] = trailBrush;
+        end
+        gfx.FillCircle(trailBrush, trailX, trailY, indicatorRadius * 0.8);
     end
 
     -- Draw the main red dot
@@ -506,10 +510,13 @@ function onUpdate(args)
 end
 
 function onExit()
-    for k,v in ipairs(resources["brushes"]) do
+    for k,v in pairs(resources["brushes"]) do
         v.Dispose();
     end
-    for k,v in ipairs(resources["fonts"]) do
+    for k,v in pairs(resources["trailBrushes"]) do
+        v.Dispose();
+    end
+    for k,v in pairs(resources["fonts"]) do
         v.Dispose();
     end
 end

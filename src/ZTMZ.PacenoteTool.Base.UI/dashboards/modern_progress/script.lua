@@ -132,12 +132,16 @@ function onUpdate(args)
         -- find the local best replay completion rate based on current data.LapTime
         -- print("will find local best replay completion rate based on current data.LapTime: " .. data.LapTime);
         local bestDistance = ctx.GetBestDistanceByTime:Invoke(data.LapTime);
-        if bestDistance > 0 and data.TrackLength > 0 then
+        if bestDistance and bestDistance > 0 and data.TrackLength > 0 then
             localBestReplayCompletionRate = bestDistance / data.TrackLength;
             bestProgressEndX = telemetryStartX + width * localBestReplayCompletionRate;
             bestProgressEndY = telemetryEndY;
             -- print("getting cursor points for local best replay");
             cursorBestPoints = getCursorPoints(telemetryStartX, telemetryEndY, width, height, localBestReplayCompletionRate, cursorSize);
+        else
+            -- A replay can be marked valid before its browser timeline provides a
+            -- position for this time. Do not rotate or draw an uninitialized cursor.
+            showBestReplay = false;
         end
 
         -- print("trying to get split times")

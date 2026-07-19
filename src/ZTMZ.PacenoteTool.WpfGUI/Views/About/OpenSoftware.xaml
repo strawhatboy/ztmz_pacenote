@@ -52,6 +52,7 @@
         <ui:HyperlinkButton Content="[MIT] CommunityToolkit.Mvvm" NavigateUri="https://github.com/CommunityToolkit/dotnet" />
         <ui:HyperlinkButton Content="[MIT] Microsoft.Xaml.Behaviors.Wpf " NavigateUri="https://github.com/microsoft/XamlBehaviorsWpf" />
         <ui:HyperlinkButton Content="[MIT] WPF-UI" NavigateUri="https://github.com/lepoco/wpfui" />
+        <ui:HyperlinkButton Content="[MIT] Fengari Web" NavigateUri="https://github.com/fengari-lua/fengari-web" />
         <ui:HyperlinkButton Content="[MS-PL, Apache-2.0] CsvHelper" NavigateUri="https://github.com/JoshClose/CsvHelper" />
         <ui:HyperlinkButton Content="[LGPL-2.1] SoundTouch.Net" NavigateUri="https://github.com/owoudenberg/soundtouch.net" />
         <ui:HyperlinkButton Content="[Apache-2.0] NeoLua" NavigateUri="https://github.com/neolithos/neolua" />

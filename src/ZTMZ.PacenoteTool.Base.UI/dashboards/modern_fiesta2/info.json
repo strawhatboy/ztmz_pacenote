@@ -3,6 +3,7 @@
     "Description": "dashboards.modern.fiesta2.description",
     "Author": "aaronfang",
     "Version": "0.0.1",
+    "SupportsWebDashboardClientLua": true,
     "PreviewImagePath": "preview.png",
     "ImageResources": {},
     "ImageResourcesInDirectory": {},
