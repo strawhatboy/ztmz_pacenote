@@ -645,7 +645,15 @@ function onUpdate(args)
         telemetryStartY = telemetryStartY + 0.0 *height;
     end
 
-    drawStaticFrames(gfx, self, data, ctx, helper, telemetryStartX, telemetryStartY, width, height);
+    if args.IsWebDashboard then
+        gfx.BeginStaticLayer();
+    end
+    if not args.IsWebDashboard or args.WebDashboardStaticLayerDirty then
+        drawStaticFrames(gfx, self, data, ctx, helper, telemetryStartX, telemetryStartY, width, height);
+    end
+    if args.IsWebDashboard then
+        gfx.EndStaticLayer();
+    end
     drawDriverNameAndRegion(gfx, self, data, ctx, helper, telemetryStartX, telemetryStartY, width, height);
     
 end

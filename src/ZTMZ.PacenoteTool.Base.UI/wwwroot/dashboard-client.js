@@ -2,10 +2,10 @@
  * ZTMZ Pacenote Dashboard - Web Client
  * Receives drawing commands from server and renders them on canvas
  * Server executes Lua dashboards and sends rendered commands
- * VERSION: 2026-07-17-text-layout
+ * VERSION: 2026-07-19-layered-rendering
  */
 
-console.log('Dashboard Client VERSION: 2026-07-17-text-layout');
+console.log('Dashboard Client VERSION: 2026-07-19-layered-rendering');
 
 // ============================================================================
 // Global State
@@ -16,8 +16,12 @@ const state = {
     imageCache: {},
     imageLoads: {},
     isRunning: false,
-    canvas: null,
-    ctx: null,
+    layerStack: null,
+    layers: new Map(),
+    renderWidth: 1920,
+    renderHeight: 1080,
+    renderMode: 'legacy',
+    sceneRevision: 0,
     orientation: 'landscape',
     controlsTimer: null,
     controlsFadeTimer: null,
@@ -25,6 +29,7 @@ const state = {
     receivedFrameCount: 0,
     frameRateWindowStartedAt: 0,
     pendingFrameData: null,
+    pendingSnapshotData: null,
     renderFrameScheduled: false
 };
 
@@ -124,6 +129,7 @@ function loadImageResource(key, url) {
             state.imageCache[key] = img;
             delete state.imageLoads[key];
             console.log('Loaded image:', key, 'from', url);
+            requestImageLayerRefresh(key);
             resolve(img);
         };
         img.onerror = () => {
@@ -145,18 +151,16 @@ function loadImageResource(key, url) {
 /**
  * Execute a single drawing command on the canvas
  */
-function executeDrawingCommand(cmd) {
-    const ctx = state.ctx;
+function executeDrawingCommand(ctx, canvas, cmd) {
     
     try {
         switch (cmd.type) {
         case 'clear':
-            const clearAlpha = cmd.color ? (cmd.color >> 24) & 0xFF : 0;
             if (cmd.color) {
                 ctx.fillStyle = colorToCSS(cmd.color);
-                ctx.fillRect(0, 0, state.canvas.width, state.canvas.height);
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
             } else {
-                ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
             break;
             
@@ -513,7 +517,21 @@ function connectWebSocket() {
     };
     
     state.ws.onmessage = (event) => {
-        state.pendingFrameData = event.data;
+        const isLayeredSnapshot = typeof event.data === 'string'
+            && event.data.includes('"type":"layeredDrawCommands"')
+            && event.data.includes('"layers":');
+        const isLegacyFrame = typeof event.data === 'string'
+            && event.data.includes('"type":"drawCommands"');
+
+        if (isLayeredSnapshot) {
+            state.pendingSnapshotData = event.data;
+        } else {
+            state.pendingFrameData = event.data;
+            if (isLegacyFrame) {
+                state.pendingSnapshotData = null;
+            }
+        }
+
         if (!state.renderFrameScheduled) {
             state.renderFrameScheduled = true;
             requestAnimationFrame(renderLatestDashboardFrame);
@@ -542,28 +560,197 @@ function connectWebSocket() {
 
 function renderLatestDashboardFrame() {
     state.renderFrameScheduled = false;
+    const snapshotData = state.pendingSnapshotData;
     const frameData = state.pendingFrameData;
+    state.pendingSnapshotData = null;
     state.pendingFrameData = null;
 
-    if (!frameData) {
+    if (!snapshotData && !frameData) {
         return;
     }
 
-    // Every message is a complete frame, so stale frames can be discarded when
-    // the browser cannot paint as fast as the configured stream rate.
+    // The latest complete state wins. This coalesces high-rate WebSocket messages
+    // into one browser paint while preserving retained static canvas layers.
     try {
-        const message = JSON.parse(frameData);
-        if (message.type !== 'drawCommands') {
-            return;
+        if (snapshotData) {
+            renderDashboardMessage(JSON.parse(snapshotData));
         }
-
-        for (const cmd of message.commands) {
-            executeDrawingCommand(cmd);
+        if (frameData) {
+            renderDashboardMessage(JSON.parse(frameData));
         }
         recordReceivedDashboardFrame();
     } catch (error) {
         console.error('WebSocket message error:', error);
     }
+}
+
+function renderDashboardMessage(message) {
+    switch (message.type) {
+    case 'drawCommands':
+        renderLegacyDrawCommands(message);
+        break;
+    case 'layeredDrawCommands':
+        renderLayeredDrawCommands(message);
+        break;
+    }
+}
+
+function renderLegacyDrawCommands(message) {
+    const commands = Array.isArray(message.commands) ? message.commands : [];
+    const layer = resetToLegacyLayer();
+    layer.commands = commands;
+    redrawLayer(layer);
+}
+
+function renderLayeredDrawCommands(message) {
+    const sceneRevision = Number(message.sceneRevision);
+    if (!Number.isFinite(sceneRevision) || sceneRevision <= 0) {
+        return;
+    }
+
+    if (Array.isArray(message.layers)) {
+        if (sceneRevision < state.sceneRevision) {
+            return;
+        }
+
+        applyLayerSnapshot(sceneRevision, message.layers);
+        return;
+    }
+
+    if (sceneRevision !== state.sceneRevision || state.renderMode !== 'layered') {
+        requestLayeredSceneSnapshot();
+        return;
+    }
+
+    const dynamicLayers = Array.isArray(message.dynamicLayers) ? message.dynamicLayers : [];
+    for (const descriptor of dynamicLayers) {
+        const id = typeof descriptor.id === 'string' ? descriptor.id : '';
+        const layer = state.layers.get(id);
+        if (!layer || layer.kind !== 'dynamic') {
+            requestLayeredSceneSnapshot();
+            return;
+        }
+
+        layer.commands = Array.isArray(descriptor.commands) ? descriptor.commands : [];
+        redrawLayer(layer);
+    }
+}
+
+function applyLayerSnapshot(sceneRevision, descriptors) {
+    const nextLayerIds = new Set();
+    const orderedLayers = [];
+
+    for (const descriptor of descriptors) {
+        const id = typeof descriptor.id === 'string' ? descriptor.id : '';
+        const kind = descriptor.kind === 'static' ? 'static' : 'dynamic';
+        if (!id || nextLayerIds.has(id)) {
+            continue;
+        }
+
+        let layer = state.layers.get(id);
+        if (!layer || layer.kind !== kind) {
+            if (layer) {
+                layer.canvas.remove();
+            }
+            layer = createRenderLayer(id, kind);
+            state.layers.set(id, layer);
+        }
+
+        layer.commands = Array.isArray(descriptor.commands) ? descriptor.commands : [];
+        redrawLayer(layer);
+        orderedLayers.push(layer);
+        nextLayerIds.add(id);
+    }
+
+    for (const [id, layer] of state.layers) {
+        if (!nextLayerIds.has(id)) {
+            layer.canvas.remove();
+            state.layers.delete(id);
+        }
+    }
+
+    for (const layer of orderedLayers) {
+        // Appending an existing node moves it, preserving the server's original draw order.
+        state.layerStack.appendChild(layer.canvas);
+    }
+
+    state.renderMode = 'layered';
+    state.sceneRevision = sceneRevision;
+}
+
+function resetToLegacyLayer() {
+    const legacyId = 'legacy:full';
+    let legacyLayer = state.layers.get(legacyId);
+
+    for (const [id, layer] of state.layers) {
+        if (id !== legacyId) {
+            layer.canvas.remove();
+            state.layers.delete(id);
+        }
+    }
+
+    if (!legacyLayer) {
+        legacyLayer = createRenderLayer(legacyId, 'legacy');
+        state.layers.set(legacyId, legacyLayer);
+    }
+
+    state.layerStack.appendChild(legacyLayer.canvas);
+    state.renderMode = 'legacy';
+    state.sceneRevision = 0;
+    return legacyLayer;
+}
+
+function createRenderLayer(id, kind) {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'dashboard-render-layer';
+    canvas.width = state.renderWidth;
+    canvas.height = state.renderHeight;
+    canvas.dataset.dashboardLayer = id;
+    return {
+        id,
+        kind,
+        canvas,
+        ctx: canvas.getContext('2d'),
+        commands: []
+    };
+}
+
+function redrawLayer(layer) {
+    resetLayerContext(layer);
+    for (const command of layer.commands) {
+        executeDrawingCommand(layer.ctx, layer.canvas, command);
+    }
+}
+
+function resetLayerContext(layer) {
+    if (typeof layer.ctx.reset === 'function') {
+        layer.ctx.reset();
+        return;
+    }
+
+    // Resizing resets the drawing state, including any clip left by an invalid
+    // third-party command stream. This fallback is only used by older browsers.
+    layer.canvas.width = state.renderWidth;
+    layer.canvas.height = state.renderHeight;
+    layer.ctx = layer.canvas.getContext('2d');
+}
+
+function requestLayeredSceneSnapshot() {
+    if (!state.ws || state.ws.readyState !== WebSocket.OPEN) {
+        return;
+    }
+
+    state.ws.send(JSON.stringify({ type: 'requestSceneSnapshot' }));
+}
+
+function requestImageLayerRefresh(imageKey) {
+    requestAnimationFrame(() => {
+        for (const layer of state.layers.values()) {
+            if (layer.commands.some(command => command.imageKey === imageKey)) {
+                redrawLayer(layer);
+            }
+        }
+    });
 }
 
 // ============================================================================
@@ -594,13 +781,12 @@ function hideDashboardSelector() {
 
 function showCanvas() {
     const container = document.getElementById('canvas-container');
-    const canvas = document.getElementById('dashboard-canvas');
+    const layerStack = document.getElementById('dashboard-layer-stack');
     
     // Keep the server drawing coordinate system fixed at 1920x1080.
-    canvas.width = 1920;
-    canvas.height = 1080;
-    state.canvas = canvas;
-    state.ctx = canvas.getContext('2d');
+    state.layerStack = layerStack;
+    state.layerStack.style.width = `${state.renderWidth}px`;
+    state.layerStack.style.height = `${state.renderHeight}px`;
     
     container.classList.add('active');
     applyCanvasLayout();
@@ -703,21 +889,21 @@ function updateFullscreenControl() {
 }
 
 function applyCanvasLayout() {
-    if (!state.canvas) {
+    if (!state.layerStack) {
         return;
     }
 
-    const renderWidth = state.canvas.width;
-    const renderHeight = state.canvas.height;
+    const renderWidth = state.renderWidth;
+    const renderHeight = state.renderHeight;
     const isPortrait = state.orientation === 'portrait';
     const layoutWidth = isPortrait ? renderHeight : renderWidth;
     const layoutHeight = isPortrait ? renderWidth : renderHeight;
     const scale = Math.min(window.innerWidth / layoutWidth, window.innerHeight / layoutHeight);
 
-    state.canvas.style.width = `${Math.max(1, Math.floor(renderWidth * scale))}px`;
-    state.canvas.style.height = `${Math.max(1, Math.floor(renderHeight * scale))}px`;
-    state.canvas.style.transform = isPortrait ? 'rotate(90deg)' : 'none';
-    state.canvas.style.transformOrigin = 'center center';
+    state.layerStack.style.width = `${Math.max(1, Math.floor(renderWidth * scale))}px`;
+    state.layerStack.style.height = `${Math.max(1, Math.floor(renderHeight * scale))}px`;
+    state.layerStack.style.transform = isPortrait ? 'rotate(90deg)' : 'none';
+    state.layerStack.style.transformOrigin = 'center center';
     updateOrientationControl();
 }
 

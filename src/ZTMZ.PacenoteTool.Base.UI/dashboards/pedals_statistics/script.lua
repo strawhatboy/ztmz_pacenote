@@ -224,7 +224,15 @@ function onUpdate(args)
     local telemetryStartX, telemetryStartY, width, height = getDashboardPositionStart(self, gfx, whRatio);
     
 
-    drawStaticFrames(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
+    if args.IsWebDashboard then
+        gfx.BeginStaticLayer();
+    end
+    if not args.IsWebDashboard or args.WebDashboardStaticLayerDirty then
+        drawStaticFrames(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
+    end
+    if args.IsWebDashboard then
+        gfx.EndStaticLayer();
+    end
     drawLines(gfx, self, data, helper, telemetryStartX + width * paddingH, telemetryStartY + height * paddingV, width * (1 - 2 * paddingH), height * (1 - 2 * paddingV));
 end
 

@@ -54,9 +54,11 @@ public class WebDashboardCommandCaptureTest
         Assert.Contains("connection-status-text", page);
         Assert.Contains("WRCCleanRoman.ttf", page);
         Assert.Contains("font-weight: 700", page);
-        Assert.Contains("dashboard-client.js?v=1", page);
+        Assert.Contains("dashboard-client.js?v=2", page);
         Assert.Contains("cmd.fontWeight", clientScript);
         Assert.Contains("cmd.baseline", clientScript);
+        Assert.Contains("layeredDrawCommands", clientScript);
+        Assert.Contains("dashboard-layer-stack", page);
         Assert.DoesNotContain("fengari", page.ToLowerInvariant());
         Assert.True(dashboardListResponse.Headers.TryGetValues("Cache-Control", out var dashboardCacheControlValues));
         Assert.Contains("no-store", string.Join(",", dashboardCacheControlValues));
@@ -188,6 +190,168 @@ public class WebDashboardCommandCaptureTest
             "Sec-WebSocket-Extensions",
             out var extensionValues));
         Assert.Contains("permessage-deflate", string.Join(",", extensionValues));
+    }
+
+    [Fact]
+    public void CaptureBuildsOrderedStaticAndDynamicLayers()
+    {
+        var capture = new DrawingCommandCapture { Width = 1920, Height = 1080 };
+        var graphics = new GraphicsCommandProxy(capture);
+        var brush = graphics.CreateSolidBrush(10, 20, 30, 255);
+
+        graphics.ClearScene();
+        capture.BeginDashboardCapture("dashboard-0", staticLayerRefreshRequested: true);
+        graphics.BeginStaticLayer();
+        graphics.FillRectangle(brush, 10, 20, 110, 120);
+        graphics.EndStaticLayer();
+        graphics.FillCircle(brush, 40, 50, 20);
+        capture.EndDashboardCapture();
+
+        var frame = capture.GetWebDashboardDrawFrame();
+
+        Assert.True(frame.CanUseLayeredRendering);
+        Assert.Collection(
+            frame.Layers,
+            layer =>
+            {
+                Assert.Equal("scene:static:0", layer.Id);
+                Assert.Equal(WebDashboardDrawLayerKind.Static, layer.Kind);
+                Assert.IsType<ClearCommand>(Assert.Single(layer.Commands));
+            },
+            layer =>
+            {
+                Assert.Equal("dashboard-0:static:1", layer.Id);
+                Assert.Equal(WebDashboardDrawLayerKind.Static, layer.Kind);
+                Assert.True(layer.StaticContentProvided);
+                Assert.IsType<FillRectangleCommand>(Assert.Single(layer.Commands));
+            },
+            layer =>
+            {
+                Assert.Equal("dashboard-0:dynamic:2", layer.Id);
+                Assert.Equal(WebDashboardDrawLayerKind.Dynamic, layer.Kind);
+                Assert.IsType<FillCircleCommand>(Assert.Single(layer.Commands));
+            });
+    }
+
+    [Fact]
+    public async Task LayeredFramesSendSnapshotsForNewScenesAndDeltasForDynamicUpdates()
+    {
+        var port = GetAvailablePort();
+        using var server = new WebDashboardServer { Port = port };
+        server.Initialize(new List<Dashboard>());
+        server.Start();
+
+        using var socket = new ClientWebSocket();
+        await socket.ConnectAsync(new Uri($"ws://127.0.0.1:{port}/ws"), CancellationToken.None);
+        await WaitForClient(server);
+
+        var initialFrame = CreateLayeredFrame(
+            staticContentProvided: true,
+            staticColor: 0xFF102030,
+            dynamicValue: 10);
+        var initialMessageTask = ReceiveTextAsync(socket);
+        await server.BroadcastDrawFrameAsync(initialFrame);
+        var initialMessage = await initialMessageTask.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Contains("\"type\":\"layeredDrawCommands\"", initialMessage);
+        Assert.Contains("\"sceneRevision\":1", initialMessage);
+        Assert.Contains("\"layers\"", initialMessage);
+        Assert.Contains("\"kind\":\"static\"", initialMessage);
+        Assert.Contains("\"kind\":\"dynamic\"", initialMessage);
+
+        var dynamicFrame = CreateLayeredFrame(
+            staticContentProvided: false,
+            staticColor: 0,
+            dynamicValue: 20);
+        var dynamicMessageTask = ReceiveTextAsync(socket);
+        await server.BroadcastDrawFrameAsync(dynamicFrame);
+        var dynamicMessage = await dynamicMessageTask.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Contains("\"sceneRevision\":1", dynamicMessage);
+        Assert.Contains("\"dynamicLayers\"", dynamicMessage);
+        Assert.DoesNotContain("\"layers\"", dynamicMessage);
+        Assert.Contains("\"text\":\"20\"", dynamicMessage);
+
+        var changedStaticFrame = CreateLayeredFrame(
+            staticContentProvided: true,
+            staticColor: 0xFF405060,
+            dynamicValue: 30);
+        var changedStaticMessageTask = ReceiveTextAsync(socket);
+        await server.BroadcastDrawFrameAsync(changedStaticFrame);
+        var changedStaticMessage = await changedStaticMessageTask.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Contains("\"sceneRevision\":2", changedStaticMessage);
+        Assert.Contains("\"layers\"", changedStaticMessage);
+        Assert.Contains("\"color\":4282404960", changedStaticMessage);
+    }
+
+    [Fact]
+    public async Task LayeredFrameSendsSnapshotToClientThatConnectsAfterTheSceneExists()
+    {
+        var port = GetAvailablePort();
+        using var server = new WebDashboardServer { Port = port };
+        server.Initialize(new List<Dashboard>());
+        server.Start();
+
+        using var firstSocket = new ClientWebSocket();
+        await firstSocket.ConnectAsync(new Uri($"ws://127.0.0.1:{port}/ws"), CancellationToken.None);
+        await WaitForClient(server);
+
+        var initialMessageTask = ReceiveTextAsync(firstSocket);
+        await server.BroadcastDrawFrameAsync(CreateLayeredFrame(true, 0xFF102030, 10));
+        await initialMessageTask.WaitAsync(TimeSpan.FromSeconds(5));
+
+        using var secondSocket = new ClientWebSocket();
+        await secondSocket.ConnectAsync(new Uri($"ws://127.0.0.1:{port}/ws"), CancellationToken.None);
+        await WaitForClientCount(server, 2);
+
+        var firstDeltaTask = ReceiveTextAsync(firstSocket);
+        var secondSnapshotTask = ReceiveTextAsync(secondSocket);
+        await server.BroadcastDrawFrameAsync(CreateLayeredFrame(false, 0, 20));
+
+        var firstDelta = await firstDeltaTask.WaitAsync(TimeSpan.FromSeconds(5));
+        var secondSnapshot = await secondSnapshotTask.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Contains("\"dynamicLayers\"", firstDelta);
+        Assert.Contains("\"layers\"", secondSnapshot);
+        Assert.Contains("\"sceneRevision\":1", secondSnapshot);
+    }
+
+    [Fact]
+    public async Task UnsafeStaticLayerFallsBackToCompleteFrameProtocol()
+    {
+        var port = GetAvailablePort();
+        using var server = new WebDashboardServer { Port = port };
+        server.Initialize(new List<Dashboard>());
+        server.Start();
+
+        using var socket = new ClientWebSocket();
+        await socket.ConnectAsync(new Uri($"ws://127.0.0.1:{port}/ws"), CancellationToken.None);
+        await WaitForClient(server);
+
+        var frame = CreateLayeredFrame(true, 0xFF102030, 10);
+        var unsafeStaticLayer = new WebDashboardDrawLayer(
+            "dashboard-0:static:1",
+            WebDashboardDrawLayerKind.Static,
+            new DrawingCommand[] { new RotateCommand { Angle = 1 } },
+            staticContentProvided: true);
+        var unsafeFrame = new WebDashboardDrawFrame(
+            new[] { frame.Layers[0], unsafeStaticLayer, frame.Layers[2] },
+            new DrawingCommand[]
+            {
+                new ClearCommand(),
+                new RotateCommand { Angle = 1 },
+                new DrawTextCommand { Text = "10", Color = 0xFFFFFFFF }
+            },
+            hasExplicitStaticLayers: true);
+
+        var messageTask = ReceiveTextAsync(socket);
+        await server.BroadcastDrawFrameAsync(unsafeFrame);
+        var message = await messageTask.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Contains("\"type\":\"drawCommands\"", message);
+        Assert.DoesNotContain("\"type\":\"layeredDrawCommands\"", message);
+        Assert.Contains("\"type\":\"rotate\"", message);
     }
 
     [Fact]
@@ -348,6 +512,73 @@ public class WebDashboardCommandCaptureTest
         }
 
         throw new InvalidOperationException("WebDashboard client did not connect.");
+    }
+
+    private static async Task WaitForClientCount(WebDashboardServer server, int expectedCount)
+    {
+        for (var attempt = 0; attempt < 20; attempt++)
+        {
+            if (server.ClientCount == expectedCount)
+            {
+                return;
+            }
+
+            await Task.Delay(25);
+        }
+
+        throw new InvalidOperationException($"WebDashboard did not reach {expectedCount} clients.");
+    }
+
+    private static WebDashboardDrawFrame CreateLayeredFrame(
+        bool staticContentProvided,
+        uint staticColor,
+        int dynamicValue)
+    {
+        var staticCommands = staticContentProvided
+            ? new DrawingCommand[]
+            {
+                new FillRectangleCommand
+                {
+                    X = 0,
+                    Y = 0,
+                    Width = 100,
+                    Height = 100,
+                    Color = staticColor
+                }
+            }
+            : Array.Empty<DrawingCommand>();
+        var dynamicCommands = new DrawingCommand[]
+        {
+            new DrawTextCommand
+            {
+                X = 10,
+                Y = 20,
+                Text = dynamicValue.ToString(),
+                Color = 0xFFFFFFFF
+            }
+        };
+        var layers = new WebDashboardDrawLayer[]
+        {
+            new(
+                "scene:static:0",
+                WebDashboardDrawLayerKind.Static,
+                new DrawingCommand[] { new ClearCommand() },
+                staticContentProvided: true),
+            new(
+                "dashboard-0:static:1",
+                WebDashboardDrawLayerKind.Static,
+                staticCommands,
+                staticContentProvided),
+            new(
+                "dashboard-0:dynamic:2",
+                WebDashboardDrawLayerKind.Dynamic,
+                dynamicCommands)
+        };
+
+        return new WebDashboardDrawFrame(
+            layers,
+            layers.SelectMany(layer => layer.Commands).ToList(),
+            hasExplicitStaticLayers: true);
     }
 
     private static async Task<string> ReceiveTextAsync(ClientWebSocket socket)

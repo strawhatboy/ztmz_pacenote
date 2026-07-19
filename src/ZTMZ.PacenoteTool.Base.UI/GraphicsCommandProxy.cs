@@ -149,6 +149,30 @@ public class GraphicsCommandProxy : IDisposable
     {
         _capture.Clear(brush);
     }
+
+    /// <summary>
+    /// Starts a web-only retained drawing layer. Lua dashboards call this only when
+    /// DashboardScriptArguments.IsWebDashboard is true, so native overlays are unchanged.
+    /// </summary>
+    public void BeginStaticLayer()
+    {
+        _capture.BeginStaticLayer();
+    }
+
+    public void EndStaticLayer()
+    {
+        _capture.EndStaticLayer();
+    }
+
+    internal void BeginDashboardCapture(string dashboardId, bool staticLayerRefreshRequested)
+    {
+        _capture.BeginDashboardCapture(dashboardId, staticLayerRefreshRequested);
+    }
+
+    internal void EndDashboardCapture()
+    {
+        _capture.EndDashboardCapture();
+    }
     
     public void DrawLine(object brush, float x1, float y1, float x2, float y2, float thickness)
     {

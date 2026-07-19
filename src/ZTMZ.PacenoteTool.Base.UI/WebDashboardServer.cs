@@ -35,6 +35,12 @@ public class WebDashboardServer : IDisposable
     private WebApplication? _app;
     private List<WebSocket> _connectedClients = new();
     private readonly object _clientsLock = new();
+    private readonly Dictionary<WebSocket, long> _layeredSceneRevisionByClient = new();
+    private readonly object _layeredFrameLock = new();
+    private readonly Dictionary<string, IReadOnlyList<DrawingCommand>> _staticLayerCommands = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _staticLayerSignatures = new(StringComparer.Ordinal);
+    private LayeredScene? _layeredScene;
+    private long _nextLayeredSceneRevision;
     
     private List<Dashboard>? _dashboards;
     private string? _dashboardsPath;
@@ -42,6 +48,38 @@ public class WebDashboardServer : IDisposable
         dashboard => dashboard.Descriptor.IsEnabled
             ? DashboardOutputTarget.Both
             : DashboardOutputTarget.None;
+
+    private sealed class LayeredScene
+    {
+        public LayeredScene(long revision, string layoutSignature, IReadOnlyList<WebDashboardDrawLayer> layers)
+        {
+            Revision = revision;
+            LayoutSignature = layoutSignature;
+            Layers = layers;
+        }
+
+        public long Revision { get; }
+
+        public string LayoutSignature { get; }
+
+        public IReadOnlyList<WebDashboardDrawLayer> Layers { get; }
+    }
+
+    private sealed class LayeredSendResult
+    {
+        public LayeredSendResult(WebSocket client, bool wasSnapshot, WebSocket failedClient)
+        {
+            Client = client;
+            WasSnapshot = wasSnapshot;
+            FailedClient = failedClient;
+        }
+
+        public WebSocket Client { get; }
+
+        public bool WasSnapshot { get; }
+
+        public WebSocket FailedClient { get; }
+    }
     
     public int Port { get; set; } = 8080;
     public bool IsRunning { get; private set; }
@@ -443,6 +481,7 @@ public class WebDashboardServer : IDisposable
         lock (_clientsLock)
         {
             _connectedClients.Add(ws);
+            _layeredSceneRevisionByClient[ws] = 0;
         }
         
         var clientId = ws.GetHashCode();
@@ -461,6 +500,23 @@ public class WebDashboardServer : IDisposable
                     await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
                     break;
                 }
+
+                if (result.MessageType == WebSocketMessageType.Text
+                    && result.EndOfMessage
+                    && result.Count > 0)
+                {
+                    var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                    if (message.Contains("\"requestSceneSnapshot\"", StringComparison.Ordinal))
+                    {
+                        lock (_clientsLock)
+                        {
+                            if (_layeredSceneRevisionByClient.ContainsKey(ws))
+                            {
+                                _layeredSceneRevisionByClient[ws] = 0;
+                            }
+                        }
+                    }
+                }
             }
         }
         catch (Exception ex)
@@ -472,6 +528,7 @@ public class WebDashboardServer : IDisposable
             lock (_clientsLock)
             {
                 _connectedClients.Remove(ws);
+                _layeredSceneRevisionByClient.Remove(ws);
             }
             _logger.Info($"Client {clientId} disconnected. Total clients: {_connectedClients.Count}");
         }
@@ -488,18 +545,8 @@ public class WebDashboardServer : IDisposable
         // If we have drawing commands, send them instead of just game data
         if (commands != null && commands.Count > 0)
         {
-            var commandsJson = JsonConvert.SerializeObject(
-                new
-                {
-                    type = "drawCommands",
-                    commands = commands
-                },
-                _webDashboardJsonSettings);
-            
-            var commandsBytes = Encoding.UTF8.GetBytes(commandsJson);
-            var commandsSegment = new ArraySegment<byte>(commandsBytes);
-            
-            await SendToAllClients(commandsSegment);
+            InvalidateLayeredClientRevisions();
+            await BroadcastCommandListAsync(commands);
             return;
         }
         
@@ -591,7 +638,254 @@ public class WebDashboardServer : IDisposable
         
         await SendToAllClients(segment);
     }
-    
+
+    /// <summary>
+    /// Broadcasts a captured command frame. Dashboards with explicit static-layer
+    /// markers use retained canvases; every other dashboard keeps the established
+    /// complete-frame protocol.
+    /// </summary>
+    public async Task BroadcastDrawFrameAsync(WebDashboardDrawFrame frame)
+    {
+        if (frame == null || ClientCount == 0)
+        {
+            return;
+        }
+
+        if (!CanUseLayeredRendering(frame))
+        {
+            InvalidateLayeredClientRevisions();
+            await BroadcastCommandListAsync(frame.LegacyCommands);
+            return;
+        }
+
+        var scene = BuildLayeredScene(frame);
+        var snapshotSegment = SerializeMessage(new
+        {
+            type = "layeredDrawCommands",
+            sceneRevision = scene.Revision,
+            layers = scene.Layers.Select(CreateLayerPayload).ToList()
+        });
+        var deltaSegment = SerializeMessage(new
+        {
+            type = "layeredDrawCommands",
+            sceneRevision = scene.Revision,
+            dynamicLayers = scene.Layers
+                .Where(layer => layer.Kind == WebDashboardDrawLayerKind.Dynamic)
+                .Select(CreateLayerPayload)
+                .ToList()
+        });
+
+        await SendLayeredFrameToAllClients(scene.Revision, snapshotSegment, deltaSegment);
+    }
+
+    private async Task BroadcastCommandListAsync(IReadOnlyList<DrawingCommand> commands)
+    {
+        if (commands == null || commands.Count == 0)
+        {
+            return;
+        }
+
+        var commandsSegment = SerializeMessage(new
+        {
+            type = "drawCommands",
+            commands = commands
+        });
+        await SendToAllClients(commandsSegment);
+    }
+
+    private static object CreateLayerPayload(WebDashboardDrawLayer layer)
+    {
+        return new
+        {
+            id = layer.Id,
+            kind = layer.Kind == WebDashboardDrawLayerKind.Static ? "static" : "dynamic",
+            commands = layer.Commands
+        };
+    }
+
+    private static ArraySegment<byte> SerializeMessage(object message)
+    {
+        var json = JsonConvert.SerializeObject(message, _webDashboardJsonSettings);
+        return new ArraySegment<byte>(Encoding.UTF8.GetBytes(json));
+    }
+
+    private static bool CanUseLayeredRendering(WebDashboardDrawFrame frame)
+    {
+        if (!frame.CanUseLayeredRendering)
+        {
+            return false;
+        }
+
+        foreach (var layer in frame.Layers)
+        {
+            if (layer.Kind == WebDashboardDrawLayerKind.Dynamic
+                && layer.Commands.Any(command => command is ClearCommand))
+            {
+                // A clear in a dynamic layer historically clears the whole canvas,
+                // which cannot be represented safely by an isolated retained layer.
+                return false;
+            }
+
+            if (layer.Kind == WebDashboardDrawLayerKind.Static
+                && !IsSelfContainedStaticLayer(layer))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool IsSelfContainedStaticLayer(WebDashboardDrawLayer layer)
+    {
+        var savedStateDepth = 0;
+        foreach (var command in layer.Commands)
+        {
+            switch (command)
+            {
+                case RotateCommand:
+                case RotateAtCommand:
+                case TranslateCommand:
+                case ScaleCommand:
+                case ResetTransformCommand:
+                    // A retained canvas cannot safely pass transforms to the dynamic
+                    // layer, so this stays on the complete-frame compatibility path.
+                    return false;
+                case SaveCommand:
+                case SetClipCommand:
+                    savedStateDepth++;
+                    break;
+                case RestoreCommand:
+                case ReleaseClipCommand:
+                    savedStateDepth--;
+                    if (savedStateDepth < 0)
+                    {
+                        return false;
+                    }
+                    break;
+            }
+        }
+
+        return savedStateDepth == 0;
+    }
+
+    private LayeredScene BuildLayeredScene(WebDashboardDrawFrame frame)
+    {
+        lock (_layeredFrameLock)
+        {
+            var layoutSignature = string.Join(
+                "|",
+                frame.Layers.Select(layer => $"{layer.Id}:{(int)layer.Kind}"));
+            var layoutChanged = _layeredScene == null
+                || !string.Equals(_layeredScene.LayoutSignature, layoutSignature, StringComparison.Ordinal);
+            var staticLayerIds = frame.Layers
+                .Where(layer => layer.Kind == WebDashboardDrawLayerKind.Static)
+                .Select(layer => layer.Id)
+                .ToHashSet(StringComparer.Ordinal);
+            var staticChanged = layoutChanged;
+
+            foreach (var layer in frame.Layers.Where(layer => layer.Kind == WebDashboardDrawLayerKind.Static))
+            {
+                if (!layer.StaticContentProvided && _staticLayerCommands.ContainsKey(layer.Id))
+                {
+                    continue;
+                }
+
+                var signature = JsonConvert.SerializeObject(layer.Commands, _webDashboardJsonSettings);
+                if (!_staticLayerSignatures.TryGetValue(layer.Id, out var currentSignature)
+                    || !string.Equals(currentSignature, signature, StringComparison.Ordinal))
+                {
+                    _staticLayerSignatures[layer.Id] = signature;
+                    _staticLayerCommands[layer.Id] = layer.Commands.ToList();
+                    staticChanged = true;
+                }
+            }
+
+            if (layoutChanged)
+            {
+                foreach (var staleLayerId in _staticLayerCommands.Keys
+                    .Where(layerId => !staticLayerIds.Contains(layerId))
+                    .ToList())
+                {
+                    _staticLayerCommands.Remove(staleLayerId);
+                    _staticLayerSignatures.Remove(staleLayerId);
+                }
+            }
+
+            var sceneLayers = frame.Layers
+                .Select(layer => layer.Kind == WebDashboardDrawLayerKind.Static
+                    ? new WebDashboardDrawLayer(
+                        layer.Id,
+                        layer.Kind,
+                        _staticLayerCommands.TryGetValue(layer.Id, out var commands)
+                            ? commands
+                            : Array.Empty<DrawingCommand>())
+                    : new WebDashboardDrawLayer(layer.Id, layer.Kind, layer.Commands))
+                .ToList();
+            var revision = staticChanged || _layeredScene == null
+                ? ++_nextLayeredSceneRevision
+                : _layeredScene.Revision;
+            _layeredScene = new LayeredScene(revision, layoutSignature, sceneLayers);
+            return _layeredScene;
+        }
+    }
+
+    private async Task SendLayeredFrameToAllClients(
+        long sceneRevision,
+        ArraySegment<byte> snapshotSegment,
+        ArraySegment<byte> deltaSegment)
+    {
+        List<(WebSocket Client, bool NeedsSnapshot)> clientsToSend;
+        lock (_clientsLock)
+        {
+            clientsToSend = _connectedClients
+                .Select(client => (
+                    Client: client,
+                    NeedsSnapshot: !_layeredSceneRevisionByClient.TryGetValue(client, out var clientRevision)
+                        || clientRevision != sceneRevision))
+                .ToList();
+        }
+
+        var sendTasks = clientsToSend
+            .Select(async client => new LayeredSendResult(
+                client.Client,
+                client.NeedsSnapshot,
+                await SendToClientAsync(
+                    client.Client,
+                    client.NeedsSnapshot ? snapshotSegment : deltaSegment)))
+            .ToArray();
+        var results = await Task.WhenAll(sendTasks);
+
+        lock (_clientsLock)
+        {
+            foreach (var result in results)
+            {
+                if (result.FailedClient != null)
+                {
+                    _connectedClients.Remove(result.FailedClient);
+                    _layeredSceneRevisionByClient.Remove(result.FailedClient);
+                    continue;
+                }
+
+                if (result.WasSnapshot && _layeredSceneRevisionByClient.ContainsKey(result.Client))
+                {
+                    _layeredSceneRevisionByClient[result.Client] = sceneRevision;
+                }
+            }
+        }
+    }
+
+    private void InvalidateLayeredClientRevisions()
+    {
+        lock (_clientsLock)
+        {
+            foreach (var client in _connectedClients)
+            {
+                _layeredSceneRevisionByClient[client] = 0;
+            }
+        }
+    }
+
     /// <summary>
     /// Send data to all connected WebSocket clients
     /// </summary>
@@ -662,6 +956,15 @@ public class WebDashboardServer : IDisposable
             lock (_clientsLock)
             {
                 _connectedClients.Clear();
+                _layeredSceneRevisionByClient.Clear();
+            }
+
+            lock (_layeredFrameLock)
+            {
+                _staticLayerCommands.Clear();
+                _staticLayerSignatures.Clear();
+                _layeredScene = null;
+                _nextLayeredSceneRevision = 0;
             }
             
             IsRunning = false;

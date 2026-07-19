@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using GameOverlay.Drawing;
 
 namespace ZTMZ.PacenoteTool.Base.UI;
@@ -13,6 +14,58 @@ public class DrawingCommandCapture
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     private readonly List<DrawingCommand> _commands = new();
     private readonly Dictionary<object, ImageRegistration> _imageKeyMap = new();
+
+    private abstract class CaptureControlCommand : DrawingCommand
+    {
+    }
+
+    private sealed class DashboardScopeCommand : CaptureControlCommand
+    {
+        public DashboardScopeCommand(string dashboardId, bool staticLayerRefreshRequested, bool isBegin)
+        {
+            DashboardId = dashboardId;
+            StaticLayerRefreshRequested = staticLayerRefreshRequested;
+            IsBegin = isBegin;
+        }
+
+        public override string Type => "__dashboardScope";
+
+        public string DashboardId { get; }
+
+        public bool StaticLayerRefreshRequested { get; }
+
+        public bool IsBegin { get; }
+    }
+
+    private sealed class StaticLayerBoundaryCommand : CaptureControlCommand
+    {
+        public StaticLayerBoundaryCommand(bool isBegin)
+        {
+            IsBegin = isBegin;
+        }
+
+        public override string Type => "__staticLayer";
+
+        public bool IsBegin { get; }
+    }
+
+    private sealed class CapturedLayerBuilder
+    {
+        public CapturedLayerBuilder(string id, WebDashboardDrawLayerKind kind, bool staticContentProvided)
+        {
+            Id = id;
+            Kind = kind;
+            StaticContentProvided = staticContentProvided;
+        }
+
+        public string Id { get; }
+
+        public WebDashboardDrawLayerKind Kind { get; }
+
+        public List<DrawingCommand> Commands { get; } = new();
+
+        public bool StaticContentProvided { get; set; }
+    }
 
     private readonly record struct FontInfo(
         string Name,
@@ -67,16 +120,130 @@ public class DrawingCommandCapture
     /// <summary>
     /// Get the count of captured commands without clearing
     /// </summary>
-    public int CommandCount => _commands.Count;
+    public int CommandCount => _commands.Count(command => command is not CaptureControlCommand);
     
     /// <summary>
     /// Get all captured commands and clear the list
     /// </summary>
     public List<DrawingCommand> GetCommands()
     {
-        var commands = new List<DrawingCommand>(_commands);
+        var commands = _commands
+            .Where(command => command is not CaptureControlCommand)
+            .ToList();
         _commands.Clear();
         return commands;
+    }
+
+    /// <summary>
+    /// Marks the command stream emitted by one dashboard. These markers are not exposed to
+    /// legacy clients and let the web client retain each dashboard's original z-order.
+    /// </summary>
+    public void BeginDashboardCapture(string dashboardId, bool staticLayerRefreshRequested)
+    {
+        _commands.Add(new DashboardScopeCommand(dashboardId, staticLayerRefreshRequested, true));
+    }
+
+    public void EndDashboardCapture()
+    {
+        _commands.Add(new DashboardScopeCommand(string.Empty, false, false));
+    }
+
+    /// <summary>
+    /// Starts a dashboard-authored static layer. The surrounding dashboard scope decides
+    /// whether an empty static layer means "unchanged" or "clear the cached layer".
+    /// </summary>
+    public void BeginStaticLayer()
+    {
+        _commands.Add(new StaticLayerBoundaryCommand(true));
+    }
+
+    public void EndStaticLayer()
+    {
+        _commands.Add(new StaticLayerBoundaryCommand(false));
+    }
+
+    /// <summary>
+    /// Returns a layered frame when a dashboard has opted in with BeginStaticLayer/EndStaticLayer.
+    /// The flattened command list remains available for legacy fallback rendering.
+    /// </summary>
+    public WebDashboardDrawFrame GetWebDashboardDrawFrame()
+    {
+        var legacyCommands = _commands
+            .Where(command => command is not CaptureControlCommand)
+            .ToList();
+        var layers = new List<CapturedLayerBuilder>();
+        var currentDashboardId = "scene";
+        var currentKind = WebDashboardDrawLayerKind.Static;
+        var currentSegment = 0;
+        var staticLayerRefreshRequested = true;
+        var hasExplicitStaticLayers = false;
+
+        CapturedLayerBuilder GetCurrentLayer(bool ensureLayer)
+        {
+            var id = $"{currentDashboardId}:{currentKind.ToString().ToLowerInvariant()}:{currentSegment}";
+            var existing = layers.LastOrDefault(layer => layer.Id == id);
+            if (existing != null || !ensureLayer)
+            {
+                return existing;
+            }
+
+            var staticContentProvided = currentKind == WebDashboardDrawLayerKind.Static
+                && staticLayerRefreshRequested;
+            var created = new CapturedLayerBuilder(id, currentKind, staticContentProvided);
+            layers.Add(created);
+            return created;
+        }
+
+        foreach (var command in _commands)
+        {
+            switch (command)
+            {
+                case DashboardScopeCommand scope when scope.IsBegin:
+                    currentDashboardId = scope.DashboardId;
+                    currentKind = WebDashboardDrawLayerKind.Dynamic;
+                    currentSegment = 0;
+                    staticLayerRefreshRequested = scope.StaticLayerRefreshRequested;
+                    break;
+                case DashboardScopeCommand:
+                    currentDashboardId = "scene";
+                    currentKind = WebDashboardDrawLayerKind.Static;
+                    currentSegment = 0;
+                    staticLayerRefreshRequested = true;
+                    break;
+                case StaticLayerBoundaryCommand boundary when boundary.IsBegin:
+                    currentKind = WebDashboardDrawLayerKind.Static;
+                    currentSegment++;
+                    hasExplicitStaticLayers = true;
+                    GetCurrentLayer(true);
+                    break;
+                case StaticLayerBoundaryCommand:
+                    currentKind = WebDashboardDrawLayerKind.Dynamic;
+                    currentSegment++;
+                    break;
+                case CaptureControlCommand:
+                    break;
+                default:
+                    var layer = GetCurrentLayer(true);
+                    layer.Commands.Add(command);
+                    if (layer.Kind == WebDashboardDrawLayerKind.Static)
+                    {
+                        // An opt-in dashboard that still redraws its static content every
+                        // frame remains correct; the server can compare and retain it.
+                        layer.StaticContentProvided = true;
+                    }
+                    break;
+            }
+        }
+
+        _commands.Clear();
+        var frameLayers = layers
+            .Select(layer => new WebDashboardDrawLayer(
+                layer.Id,
+                layer.Kind,
+                layer.Commands,
+                layer.StaticContentProvided))
+            .ToList();
+        return new WebDashboardDrawFrame(frameLayers, legacyCommands, hasExplicitStaticLayers);
     }
     
     /// <summary>

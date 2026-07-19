@@ -225,7 +225,15 @@ function onUpdate(args)
 
     local showAdditionalInfo = self.GetConfigByKey("dashboards.settings.showAdditionalInfo");
 
-    drawStaticFrames(gfx, data, conf, helper, telemetryStartX, telemetryStartY, size * whRatio, size);
+    if args.IsWebDashboard then
+        gfx.BeginStaticLayer();
+    end
+    if not args.IsWebDashboard or args.WebDashboardStaticLayerDirty then
+        drawStaticFrames(gfx, data, conf, helper, telemetryStartX, telemetryStartY, size * whRatio, size);
+    end
+    if args.IsWebDashboard then
+        gfx.EndStaticLayer();
+    end
     drawRPM(gfx, data, conf, helper, telemetryStartX, telemetryStartY, size * whRatio, size);
     drawGear(gfx, data, conf, helper, telemetryStartX, telemetryStartY, size * whRatio, size, showAdditionalInfo);
     

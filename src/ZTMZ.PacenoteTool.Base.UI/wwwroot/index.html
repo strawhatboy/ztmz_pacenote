@@ -193,10 +193,20 @@
             display: flex;
         }
         
-        #dashboard-canvas {
+        #dashboard-layer-stack {
+            position: relative;
             background: transparent;
             max-width: none;
             max-height: none;
+            flex: 0 0 auto;
+        }
+
+        .dashboard-render-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
         }
 
         #dashboard-controls {
@@ -384,7 +394,7 @@
     
     <!-- Canvas Container -->
     <div id="canvas-container">
-        <canvas id="dashboard-canvas"></canvas>
+        <div id="dashboard-layer-stack" aria-label="Dashboard display"></div>
     </div>
 
     <div id="frame-rate" aria-live="polite">0 FPS</div>
@@ -408,6 +418,6 @@
     <div id="error-message"></div>
     
     <!-- Dashboard Client -->
-    <script src="dashboard-client.js?v=1"></script>
+    <script src="dashboard-client.js?v=2"></script>
 </body>
 </html>

@@ -148,6 +148,11 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private DrawingCommandCapture? _webCommandCapture = null;
         private GraphicsCommandProxy? _webGraphicsProxy = null;
         private DashboardScriptArguments? _webDashboardArgs = null;
+        private readonly Dictionary<int, WebDashboardStaticRenderState> _webDashboardStaticRenderStates = new();
+
+        private readonly record struct WebDashboardStaticRenderState(
+            long ConfigurationRevision,
+            string ContextSignature);
 
         public event Action<bool> OnGameOverlayInitializingStateChanged;
         public event Action<WebDashboardServerStatus> OnWebDashboardStatusChanged;
@@ -394,6 +399,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
             previousTimer?.Dispose();
             previousServer?.Dispose();
+            InvalidateWebDashboardStaticLayers();
 
             WebDashboardServer? server = null;
             try
@@ -460,6 +466,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
             timer?.Dispose();
             Interlocked.Exchange(ref _webDashboardLastFrameTimestamp, 0);
+            InvalidateWebDashboardStaticLayers();
             if (server != null)
             {
                 server.Dispose();
@@ -547,7 +554,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             var startedSend = false;
             try
             {
-                List<DrawingCommand> commands;
+                WebDashboardDrawFrame frame;
                 lock (_webDashboardCaptureLock)
                 {
                     if (!TimeToShowTelemetry)
@@ -555,15 +562,15 @@ namespace ZTMZ.PacenoteTool.Base.UI
                         return;
                     }
 
-                    commands = CaptureWebDashboardCommands();
+                    frame = CaptureWebDashboardCommands();
                 }
 
-                if (commands.Count == 0)
+                if (frame.LegacyCommands.Count == 0)
                 {
                     return;
                 }
 
-                _ = SendWebDashboardFrameAsync(server, commands);
+                _ = SendWebDashboardFrameAsync(server, frame);
                 startedSend = true;
             }
             catch (Exception ex)
@@ -611,14 +618,11 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         private async Task SendWebDashboardFrameAsync(
             WebDashboardServer server,
-            List<DrawingCommand> commands)
+            WebDashboardDrawFrame frame)
         {
             try
             {
-                await server.BroadcastGameData(
-                    DashboardScriptArguments.GameData,
-                    DashboardScriptArguments.GameContext,
-                    commands);
+                await server.BroadcastDrawFrameAsync(frame);
                 Interlocked.Increment(ref _webDashboardRenderedFrameCount);
                 Interlocked.Exchange(ref _webDashboardLastRenderedFrameUtcTicks, DateTime.UtcNow.Ticks);
             }
@@ -971,7 +975,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
         /// Render dashboards using command-proxy-only dashboard instances so Web
         /// rendering does not access the native Direct2D render thread or resources.
         /// </summary>
-        private List<DrawingCommand> CaptureWebDashboardCommands()
+        private WebDashboardDrawFrame CaptureWebDashboardCommands()
         {
             try
             {
@@ -1011,21 +1015,42 @@ namespace ZTMZ.PacenoteTool.Base.UI
                         continue;
                     }
 
+                    var nativeDashboard = Dashboards[i];
+                    var staticRenderState = new WebDashboardStaticRenderState(
+                        nativeDashboard.ConfigurationRevision,
+                        GetWebDashboardStaticContextSignature(_webDashboardArgs.GameContext));
+                    var staticLayerRefreshRequired = !_webDashboardStaticRenderStates.TryGetValue(
+                        i,
+                        out var renderedStaticState)
+                        || renderedStaticState != staticRenderState;
                     try {
                         _webDashboardArgs.Self = dashboard;
+                        _webDashboardArgs.WebDashboardStaticLayerDirty = staticLayerRefreshRequired;
+                        _webGraphicsProxy.BeginDashboardCapture($"dashboard-{i}", staticLayerRefreshRequired);
                         dashboard.Render(_webDashboardArgs);
+                        if (staticLayerRefreshRequired)
+                        {
+                            _webDashboardStaticRenderStates[i] = staticRenderState;
+                        }
                     }
                     catch (Exception ex) {
                         _logger.Error(ex, "Error capturing WebDashboard commands: {0}", dashboard.Descriptor.Name);
                     }
+                    finally
+                    {
+                        _webGraphicsProxy.EndDashboardCapture();
+                    }
                 }
                 
-                return _webCommandCapture.GetCommands();
+                return _webCommandCapture.GetWebDashboardDrawFrame();
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error in CaptureWebDashboardCommands");
-                return new List<DrawingCommand>();
+                return new WebDashboardDrawFrame(
+                    Array.Empty<WebDashboardDrawLayer>(),
+                    Array.Empty<DrawingCommand>(),
+                    false);
             }
         }
 
@@ -1048,7 +1073,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 I18NLoader = DashboardScriptArguments.I18NLoader,
                 GameData = DashboardScriptArguments.GameData,
                 GameContext = DashboardScriptArguments.GameContext,
-                GameOverlayDrawingHelper = DashboardScriptArguments.GameOverlayDrawingHelper
+                GameOverlayDrawingHelper = DashboardScriptArguments.GameOverlayDrawingHelper,
+                IsWebDashboard = true
             };
 
             _logger.Info("Web rendering initialized - proxy has {0}x{1}", _webGraphicsProxy.Width, _webGraphicsProxy.Height);
@@ -1067,6 +1093,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                         dashboard.Unload();
                     }
                     _webDashboardLoaded[i] = false;
+                    _webDashboardStaticRenderStates.Remove(i);
                     continue;
                 }
 
@@ -1077,12 +1104,39 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 try {
                     dashboard.Load(_webDashboardArgs, true);
                     _webDashboardLoaded[i] = true;
+                    _webDashboardStaticRenderStates.Remove(i);
                 }
                 catch (Exception ex) {
                     _webDashboardLoaded[i] = false;
                     _logger.Error(ex, "Failed to load dashboard for WebDashboard: {0}", dashboard.Descriptor.Name);
                 }
             }
+        }
+
+        private void InvalidateWebDashboardStaticLayers()
+        {
+            lock (_webDashboardCaptureLock)
+            {
+                _webDashboardStaticRenderStates.Clear();
+            }
+        }
+
+        private static string GetWebDashboardStaticContextSignature(GameContext context)
+        {
+            if (context == null)
+            {
+                return string.Empty;
+            }
+
+            return string.Join(
+                "\u001f",
+                context.TrackName ?? string.Empty,
+                context.CarName ?? string.Empty,
+                context.CarClass ?? string.Empty,
+                context.AudioPackage ?? string.Empty,
+                context.PacenoteType ?? string.Empty,
+                context.ScriptAuthor ?? string.Empty,
+                context.GameState.ToString());
         }
 
         // private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e)

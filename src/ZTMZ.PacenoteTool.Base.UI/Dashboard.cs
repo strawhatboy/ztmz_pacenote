@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Media.Imaging;
 using GameOverlay.Drawing;
 using Neo.IronLua;
@@ -50,6 +51,18 @@ public class DashboardScriptArguments {
     public Dashboard Self { get; set; }
 
     public GameOverlayDrawingHelper GameOverlayDrawingHelper { get; set; }
+
+    /// <summary>
+    /// Lets shared Lua dashboards opt into web-only rendering behavior without
+    /// changing their native overlay path.
+    /// </summary>
+    public bool IsWebDashboard { get; set; }
+
+    /// <summary>
+    /// Static WebDashboard artwork must be emitted for this render tick. The
+    /// server reuses the previous static canvas layer otherwise.
+    /// </summary>
+    public bool WebDashboardStaticLayerDirty { get; set; }
 }
 
 public class DashboardConfigs : CommonGameConfigs {
@@ -75,6 +88,7 @@ public class DashboardConfigs : CommonGameConfigs {
 public class Dashboard {
     
     private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+    private long _configurationRevision;
 
     public DashboardDescriptor Descriptor { get; set; }
 
@@ -118,7 +132,10 @@ public class Dashboard {
     public void SetIsEnable(bool value) {
         Descriptor.IsEnabled = value;
         DashboardConfigurations["dashboards.settings.enabled"] = value;
+        Interlocked.Increment(ref _configurationRevision);
     }
+
+    public long ConfigurationRevision => Interlocked.Read(ref _configurationRevision);
 
     public BitmapImage PreviewImage { get; set; }   // use wpf compatible image
     public Dictionary<string, object> ImageResources { get; set; }
@@ -255,6 +272,7 @@ public class Dashboard {
 
     public void SaveConfig() {
         File.WriteAllText(Path.Combine(Descriptor.Path, Constants.FILE_USER_SETTINGS), JsonConvert.SerializeObject(DashboardConfigurations, Formatting.Indented));
+        Interlocked.Increment(ref _configurationRevision);
     }
 }
 

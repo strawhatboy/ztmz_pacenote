@@ -342,7 +342,15 @@ function onUpdate(args)
     local telemetryCenterX, telemetryCenterY, width, height = getDashboardPositionCenter(self, gfx, 1.0);
     local radius = height / 2;
 
-    drawStaticFrames(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding);
+    if args.IsWebDashboard then
+        gfx.BeginStaticLayer();
+    end
+    if not args.IsWebDashboard or args.WebDashboardStaticLayerDirty then
+        drawStaticFrames(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding);
+    end
+    if args.IsWebDashboard then
+        gfx.EndStaticLayer();
+    end
     drawRPM(gfx, data, conf, helper, telemetryCenterX, telemetryCenterY, radius, padding);
     drawThrottle(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding);
     drawBrake(gfx, data, helper, telemetryCenterX, telemetryCenterY, radius, padding);

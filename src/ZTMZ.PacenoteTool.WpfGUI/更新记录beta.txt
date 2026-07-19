@@ -1,4 +1,4 @@
-v2.99.99.38-3.0-rc11
+v2.99.99.39-3.0-rc11
 ------
 [English]
 * Hardened replay saving, legacy replay import, playback, export, and dashboard comparison. Legacy per-game replay databases are preserved, incomplete records remain visible but unavailable, and replay timing now stays available for dashboards even when replay persistence is disabled.
@@ -9,6 +9,7 @@ v2.99.99.38-3.0-rc11
 * Improved Web Dashboard setup with confirmed server status, usable local-network addresses, the real configured URL, and a browser-open action.
 * Added large touch controls to the Web Dashboard for fullscreen and portrait/landscape layout; the controls fade away after inactivity.
 * Improved Web Dashboard rendering compatibility and performance: corrected dashboard asset/background selection and gradient rendering, restored map information, added configurable refresh rates up to 240 FPS (default 60), and reduced stale browser frames.
+* Added retained static/dynamic Web Dashboard rendering for built-in dashboards. Static artwork is kept in the browser while later frames carry only live drawing commands; third-party and unsafe layers automatically use the full-frame compatibility path, and settings or stage-context changes refresh the static artwork.
 * Added Web Dashboard FPS and connection indicators; a normal browser refresh now receives current client assets without requiring a forced cache refresh.
 * Added per-dashboard output routing: choose Off, Overlay, Web, or Both without changing dashboard package settings. Existing enabled dashboards continue to use both outputs by default.
 * Separated Web and native dashboard loading so a native overlay failure does not disable Web Dashboard output.
@@ -43,6 +44,7 @@ v2.99.99.38-3.0-rc11
 * 改进网页仪表盘设置：显示确认后的服务状态、可用局域网地址和实际配置 URL，并可一键在默认浏览器中打开。
 * 网页仪表盘新增大尺寸触控按钮，可切换全屏和横竖屏布局；无操作时按钮会自动淡出。
 * 改进网页仪表盘的渲染兼容性和性能：修复仪表盘图片/背景串用和渐变渲染问题，恢复地图信息，新增最高 240 FPS（默认 60）的可调帧率，并减少浏览器显示旧帧。
+* 网页仪表盘新增静态/动态分层渲染：内置仪表盘会在浏览器中保留静态画面，后续帧仅传输实时绘制命令；第三方仪表盘及不安全图层会自动回退为完整帧渲染，修改设置或赛段上下文时会刷新静态画面。
 * 新增网页仪表盘的帧率和连接状态指示；普通浏览器刷新即可获得最新页面文件，无需强制刷新缓存。
 * 新增单个仪表盘的输出位置选择：可选择关闭、悬浮窗、网页或两者；不会修改仪表盘包设置，现有已启用仪表盘默认继续同时显示在两端。
 * 网页和原生仪表盘改为独立加载，原生悬浮窗加载失败不会再禁用网页仪表盘输出。
@@ -52,7 +54,7 @@ v2.99.99.38-3.0-rc11
 * 优化主页游戏选择器、状态光晕和标题栏快捷操作的对齐效果。
 * 改进网页仪表盘文本渲染：保留粗体和斜体样式、加载对应的 WRC 字体，并使用 DirectWrite 布局指标对齐文字基线和位置。
 
-v2.99.99.37-3.0-rc10
+v2.99.99.38-3.0-rc10
 ------
 [English]
 * Updated active projects to .NET 10, WPF-UI 4.3, and current compatible dependencies.

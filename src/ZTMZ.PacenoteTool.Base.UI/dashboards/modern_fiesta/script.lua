@@ -134,7 +134,15 @@ function onUpdate(args)
     local whRatio = self.GetConfigByKey("dashboards.settings.whRatio");
     local telemetryStartX, telemetryStartY, width, height = getDashboardPositionStart(self, gfx, whRatio);
 
-    drawStaticFrames(gfx, data, conf, helper, telemetryStartX, telemetryStartY, width, height);
+    if args.IsWebDashboard then
+        gfx.BeginStaticLayer();
+    end
+    if not args.IsWebDashboard or args.WebDashboardStaticLayerDirty then
+        drawStaticFrames(gfx, data, conf, helper, telemetryStartX, telemetryStartY, width, height);
+    end
+    if args.IsWebDashboard then
+        gfx.EndStaticLayer();
+    end
     drawRPM(gfx, data, conf, helper, telemetryStartX, telemetryStartY, width, height);
     drawGear(gfx, data, conf, helper, telemetryStartX, telemetryStartY, width, height);
 end

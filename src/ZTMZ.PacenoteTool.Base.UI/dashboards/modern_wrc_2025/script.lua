@@ -475,7 +475,15 @@ function onUpdate(args)
         telemetryStartX = telemetryStartX + 0.029 * width;  -- center the dashboard?
     end
 
-    drawStaticFrames(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
+    if args.IsWebDashboard then
+        gfx.BeginStaticLayer();
+    end
+    if not args.IsWebDashboard or args.WebDashboardStaticLayerDirty then
+        drawStaticFrames(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
+    end
+    if args.IsWebDashboard then
+        gfx.EndStaticLayer();
+    end
     drawRPM(gfx, self, data, conf, helper, telemetryStartX, telemetryStartY, width, height);
     drawThrottle(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
     drawBrake(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
