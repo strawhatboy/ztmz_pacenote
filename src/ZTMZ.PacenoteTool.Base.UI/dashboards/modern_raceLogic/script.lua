@@ -159,13 +159,15 @@ function onUpdate(args)
     -- Check if best lap comparison is enabled and in racing state
     local showBestReplay = self.GetConfigByKey("dashboards.settings.showLocalBest") and ctx.LocalReplayValid;
     local showDeltaTime = self.GetConfigByKey("dashboards.settings.showDeltaTime");
+    local comparison = ctx.LocalReplayComparison;
+    local hasLiveComparison = showBestReplay and comparison and comparison.Valid and ctx.GameState == GAMESTATE_Racing;
     local deltaTime = 0;
-    if showBestReplay and ctx.GameState == GAMESTATE_Racing then
-        deltaTime = ctx.GetDeltaByDistanceAndTime:Invoke(data.LapDistance, data.LapTime);
+    if hasLiveComparison then
+        deltaTime = comparison.DeltaAtCurrentProgress;
     end
 
     -- Draw delta time with styled background
-    if showBestReplay and ctx.GameState == GAMESTATE_Racing and showDeltaTime then
+    if hasLiveComparison and showDeltaTime then
         -- Format delta time text
         local deltaText = string.format("%s%.2f", deltaTime >= 0 and "+" or "-", math.abs(deltaTime));
         
@@ -214,7 +216,7 @@ function onUpdate(args)
     local ledBrush = deltaTime <= 0 and _brushes["greenLED"] or _brushes["redLED"];
 
     -- Draw LEDs based on delta time
-    if math.abs(deltaTime) > 0 then
+    if hasLiveComparison and math.abs(deltaTime) > 0 then
         -- Draw left LED if delta is between 0 and 1 second
         gfx.FillEllipse(ledBrush, 
             leftLedX - (ledSize - ledSize)/2,

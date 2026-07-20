@@ -175,9 +175,17 @@ const telemetryContext = {
     CarClass: 'RC1',
     LocalReplayValid: true,
     LocalReplayFinishTime: 98,
-    LocalReplay: { checkpoints: 12 },
+    LocalReplay: { checkpoints: 12, trackLength: 10000 },
     GameState: 3,
     LocalReplayDelta: -0.4,
+    LocalReplayComparison: {
+        Valid: true,
+        CurrentCompletionRate: 0.66,
+        BestTimeAtCurrentProgress: 65.4,
+        DeltaAtCurrentProgress: -0.4,
+        BestCompletionRateAtCurrentTime: 0.67,
+        BestDistanceAtCurrentTime: 6700
+    },
     BestReplayTimeline: Array.from(
         { length: 101 },
         (_, index) => ({ Time: index, Distance: index * 100 }))

@@ -962,8 +962,14 @@ public class WebDashboardServer : IDisposable
         bool includeReplayTimeline = false)
     {
         var localReplayValid = context?.LocalReplayValid == true;
+        var comparison = context?.LocalReplayComparison ?? ReplayComparisonSnapshot.Unavailable;
+        var comparisonValid = localReplayValid && comparison.Valid;
         var localReplayDelta = 0.0f;
-        if (localReplayValid)
+        if (comparisonValid)
+        {
+            localReplayDelta = comparison.DeltaAtCurrentProgress;
+        }
+        else if (localReplayValid)
         {
             try
             {
@@ -980,6 +986,18 @@ public class WebDashboardServer : IDisposable
             localReplayDelta = 0.0f;
         }
 
+        var comparisonPayload = new
+        {
+            Valid = comparisonValid,
+            CurrentCompletionRate = FiniteTelemetryValue(comparison.CurrentCompletionRate),
+            BestTimeAtCurrentProgress = FiniteTelemetryValue(comparison.BestTimeAtCurrentProgress),
+            DeltaAtCurrentProgress = comparisonValid
+                ? FiniteTelemetryValue(comparison.DeltaAtCurrentProgress)
+                : 0.0f,
+            BestCompletionRateAtCurrentTime = FiniteTelemetryValue(comparison.BestCompletionRateAtCurrentTime),
+            BestDistanceAtCurrentTime = FiniteTelemetryValue(comparison.BestDistanceAtCurrentTime)
+        };
+
         if (!includeReplayTimeline)
         {
             return new
@@ -992,7 +1010,12 @@ public class WebDashboardServer : IDisposable
                 CarClass = context?.CarClass,
                 LocalReplayValid = localReplayValid,
                 LocalReplayFinishTime = FiniteTelemetryValue(context?.LocalReplayFinishTime ?? 0.0f),
-                LocalReplay = new { checkpoints = context?.LocalReplay?.checkpoints ?? 0 },
+                LocalReplay = new
+                {
+                    checkpoints = context?.LocalReplay?.checkpoints ?? 0,
+                    trackLength = FiniteTelemetryValue(context?.LocalReplay?.track_length ?? 0.0f)
+                },
+                LocalReplayComparison = comparisonPayload,
                 GameState = context?.GameState ?? 0,
                 LocalReplayDelta = localReplayDelta
             };
@@ -1008,7 +1031,12 @@ public class WebDashboardServer : IDisposable
             CarClass = context?.CarClass,
             LocalReplayValid = localReplayValid,
             LocalReplayFinishTime = FiniteTelemetryValue(context?.LocalReplayFinishTime ?? 0.0f),
-            LocalReplay = new { checkpoints = context?.LocalReplay?.checkpoints ?? 0 },
+            LocalReplay = new
+            {
+                checkpoints = context?.LocalReplay?.checkpoints ?? 0,
+                trackLength = FiniteTelemetryValue(context?.LocalReplay?.track_length ?? 0.0f)
+            },
+            LocalReplayComparison = comparisonPayload,
             GameState = context?.GameState ?? 0,
             LocalReplayDelta = localReplayDelta,
             BestReplayTimeline = CreateBrowserLuaReplayTimeline(context, localReplayValid)
@@ -1025,10 +1053,11 @@ public class WebDashboardServer : IDisposable
         }
 
         const int maximumSampleCount = 512;
-        var orderedSamples = context.LocalReplayDetailsPerTimes
+        var referenceTimeline = ReplayTimelineLookup.From(
+            context.LocalReplayDetailsPerTimes,
+            ReplayComparisonCalculator.CreateTerminalSample(context.LocalReplay));
+        var orderedSamples = referenceTimeline.OrderedByTime
             .Where(sample => float.IsFinite(sample.time) && float.IsFinite(sample.distance))
-            .OrderBy(sample => sample.time)
-            .ThenBy(sample => sample.distance)
             .ToList();
         if (orderedSamples.Count == 0)
         {

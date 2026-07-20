@@ -409,12 +409,13 @@ function drawDeltaTime(gfx, self, data, ctx, helper, x, y, width, height)
     
     -- 检查是否启用最佳成绩比较且在比赛状态
     local showBestReplay = self.GetConfigByKey("dashboards.settings.showLocalBest") and ctx.LocalReplayValid;
-    if not showBestReplay or ctx.GameState ~= GAMESTATE_Racing then
+    local comparison = ctx.LocalReplayComparison;
+    if not showBestReplay or not comparison or not comparison.Valid or ctx.GameState ~= GAMESTATE_Racing then
         return
     end
     
     -- 获取时间差
-    local deltaTime = ctx.GetDeltaByDistanceAndTime:Invoke(data.LapDistance, data.LapTime)
+    local deltaTime = comparison.DeltaAtCurrentProgress
     
     -- 格式化显示时间差（秒）
     local deltaText = string.format("%s%.2f", deltaTime >= 0 and "+" or "-", math.abs(deltaTime))

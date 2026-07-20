@@ -126,24 +126,23 @@ function onUpdate(args)
     local bestProgressEndX
     local bestProgressEndY;
     local showBestReplay = self.GetConfigByKey("dashboards.settings.showLocalBest") and ctx.LocalReplayValid;
+    local comparison = ctx.LocalReplayComparison;
     local cursorBestPoints = {}; -- 5 points
-    if showBestReplay then
-        -- local best replay cursor
-        -- find the local best replay completion rate based on current data.LapTime
-        -- print("will find local best replay completion rate based on current data.LapTime: " .. data.LapTime);
-        local bestDistance = ctx.GetBestDistanceByTime:Invoke(data.LapTime);
-        if bestDistance and bestDistance > 0 and data.TrackLength > 0 then
-            localBestReplayCompletionRate = bestDistance / data.TrackLength;
+    if showBestReplay and comparison and comparison.Valid then
+        localBestReplayCompletionRate = comparison.BestCompletionRateAtCurrentTime;
+        if localBestReplayCompletionRate and localBestReplayCompletionRate >= 0 then
             bestProgressEndX = telemetryStartX + width * localBestReplayCompletionRate;
             bestProgressEndY = telemetryEndY;
-            -- print("getting cursor points for local best replay");
             cursorBestPoints = getCursorPoints(telemetryStartX, telemetryEndY, width, height, localBestReplayCompletionRate, cursorSize);
         else
-            -- A replay can be marked valid before its browser timeline provides a
-            -- position for this time. Do not rotate or draw an uninitialized cursor.
             showBestReplay = false;
         end
 
+    else
+        showBestReplay = false;
+    end
+
+    if showBestReplay then
         -- print("trying to get split times")
         for i = 1, blocksCount do
             local checkpointIndex = ctx.LocalReplay.checkpoints / blocksCount * i - 1;

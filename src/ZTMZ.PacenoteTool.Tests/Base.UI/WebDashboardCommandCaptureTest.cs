@@ -386,13 +386,20 @@ public class WebDashboardCommandCaptureTest
             ScriptAuthor = "Author",
             LocalReplayValid = true,
             LocalReplayFinishTime = 98.5f,
-            LocalReplay = new Replay { checkpoints = 10 },
+            LocalReplay = new Replay { checkpoints = 10, track_length = 1000 },
             LocalReplayDetailsPerTimes = new List<ReplayDetailsPerTime>
             {
                 new() { time = 0, distance = 0 },
                 new() { time = 10, distance = 100 }
             },
             GameState = 3,
+            LocalReplayComparison = new ReplayComparisonSnapshot(
+                valid: true,
+                currentCompletionRate: 0.3f,
+                bestTimeAtCurrentProgress: 29.5f,
+                deltaAtCurrentProgress: -0.5f,
+                bestCompletionRateAtCurrentTime: 0.31f,
+                bestDistanceAtCurrentTime: 310),
             GetDeltaByDistanceAndTime = (_, _) => -0.5f
         };
         var initialData = new GameData
@@ -441,6 +448,13 @@ public class WebDashboardCommandCaptureTest
             Assert.Equal(0.0f, snapshotTelemetry.GetProperty("LapTime").GetSingle());
             Assert.Equal(0.0f, snapshotTelemetry.GetProperty("Speed").GetSingle());
             Assert.Equal(0.0f, snapshotTelemetry.GetProperty("TrackLength").GetSingle());
+            var comparison = snapshotDocument.RootElement
+                .GetProperty("context")
+                .GetProperty("LocalReplayComparison");
+            Assert.True(comparison.GetProperty("Valid").GetBoolean());
+            Assert.InRange(comparison.GetProperty("CurrentCompletionRate").GetSingle(), 0.299f, 0.301f);
+            Assert.InRange(comparison.GetProperty("DeltaAtCurrentProgress").GetSingle(), -0.501f, -0.499f);
+            Assert.InRange(comparison.GetProperty("BestCompletionRateAtCurrentTime").GetSingle(), 0.309f, 0.311f);
         }
 
         var deltaTask = ReceiveTextAsync(socket);

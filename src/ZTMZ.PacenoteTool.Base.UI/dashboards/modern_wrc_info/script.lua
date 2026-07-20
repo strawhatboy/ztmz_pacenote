@@ -306,9 +306,10 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
     -- 添加个人最佳成绩差值显示
     local showBestReplay = self.GetConfigByKey("dashboards.settings.showLocalBest") and ctx.LocalReplayValid;
     -- 添加检查：只在比赛进行中显示时间差
-    if showBestReplay and ctx.GameState == GAMESTATE_Racing then
+    local comparison = ctx.LocalReplayComparison;
+    if showBestReplay and comparison and comparison.Valid and ctx.GameState == GAMESTATE_Racing then
         -- 使用 GetDeltaByDistanceAndTime 获取时间差
-        local deltaTime = ctx.GetDeltaByDistanceAndTime:Invoke(data.LapDistance, data.LapTime)
+        local deltaTime = comparison.DeltaAtCurrentProgress
         
         -- 格式化显示时间差（秒）
         local deltaText = string.format("%s%.3f s", deltaTime >= 0 and "+" or "-", math.abs(deltaTime))
@@ -381,7 +382,7 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
             -- 如果这个split点刚刚被通过且还没有记录时间差
             if hasPassed and not splitDeltas[i] and stageProgress < (splitPosition + 1/(splitCount + 1)) then
                 -- 使用 GetDeltaByDistanceAndTime 获取时间差
-                splitDeltas[i] = ctx.GetDeltaByDistanceAndTime:Invoke(splitDistance, data.LapTime)
+                splitDeltas[i] = ctx.GetDelta:Invoke(splitDistance)
             end
             
             -- 如果有记录的时间差，显示它
@@ -389,7 +390,7 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
                 local deltaTime = splitDeltas[i]
                 local deltaText = string.format("%s%.1f", deltaTime >= 0 and "+" or "-", math.abs(deltaTime))
                 local bgBrush = deltaTime <= 0 and _brushes["delta_ahead"] or _brushes["delta_behind"];
-                
+
                 -- 计算文本尺寸以确定背景矩形大小
                 local textSize = gfx.MeasureString(_fonts["wrc"], stageProgressWeight * 7, deltaText)
                 local padding = stageProgressWeight * 2
@@ -398,17 +399,17 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
                 local rectWidth = textSize.X + (padding * 2)
                 local rectHeight = textSize.Y + (padding / 2)
                 local cornerRadius = rectHeight / 5.5
-                
+
                 -- 绘制圆角矩形背景和文本
-                gfx.FillRoundedRectangle(bgBrush, 
-                    rectX, 
-                    rectY, 
+                gfx.FillRoundedRectangle(bgBrush,
+                    rectX,
+                    rectY,
                     rectX + rectWidth,
                     rectY + rectHeight,
                     cornerRadius)
-                
-                gfx.DrawText(_fonts["wrc"], 
-                    stageProgressWeight * 7, 
+
+                gfx.DrawText(_fonts["wrc"],
+                    stageProgressWeight * 7,
                     _brushes["white"],
                     rectX + padding,
                     rectY + (padding / 4),
@@ -450,41 +451,37 @@ function drawDriverNameAndRegion(gfx, self, data, ctx, helper, x, y, width, heig
         
         -- 如果启用了最佳成绩比较，显示最终时间差
         if showBestReplay then
-            -- 获取最佳成绩的完成时间
-            local bestTime = ctx.LocalReplayFinishTime
-            if bestTime <= 0 then
-                bestTime = ctx.GetBestTimeByDistance:Invoke(data.TrackLength)
+            local comparison = ctx.LocalReplayComparison
+            local deltaTime = nil
+            if comparison and comparison.Valid then
+                deltaTime = comparison.DeltaAtCurrentProgress
+            elseif ctx.LocalReplayFinishTime and ctx.LocalReplayFinishTime > 0 then
+                local bestTime = ctx.LocalReplayFinishTime
+                deltaTime = data.LapTime - bestTime
             end
-            local deltaTime = data.LapTime - bestTime
-            
-            -- 格式化时间差文本
-            local deltaText = string.format("%s%.1f", deltaTime >= 0 and "+" or "-", math.abs(deltaTime))
-            local bgBrush = deltaTime <= 0 and _brushes["delta_ahead"] or _brushes["delta_behind"];
-            
-            -- 计算文本尺寸以确定背景矩形大小
-            local textSize = gfx.MeasureString(_fonts["wrcBold"], stageProgressWeight * 7, deltaText)
-            local padding = stageProgressWeight * 2  -- 文本周围的内边距
-            local rectX = finishX - (textSize.X / 2) - padding
-            local rectY = finishY + stageProgressWeight * 2
-            local rectWidth = textSize.X + (padding * 2)
-            local rectHeight = textSize.Y + (padding / 2)
-            local cornerRadius = rectHeight / 5.5  -- 圆角半径
-            
-            -- 绘制圆角矩形背景
-            gfx.FillRoundedRectangle(bgBrush, 
-                rectX, 
-                rectY, 
-                rectX + rectWidth,
-                rectY + rectHeight,
-                cornerRadius)
-            
-            -- 绘制白色文本
-            gfx.DrawText(_fonts["wrc"], 
-                stageProgressWeight * 7, 
-                _brushes["white"],
-                rectX + padding,
-                rectY + (padding / 4),
-                deltaText)
+            if deltaTime then
+                local deltaText = string.format("%s%.1f", deltaTime >= 0 and "+" or "-", math.abs(deltaTime))
+                local bgBrush = deltaTime <= 0 and _brushes["delta_ahead"] or _brushes["delta_behind"];
+                local textSize = gfx.MeasureString(_fonts["wrcBold"], stageProgressWeight * 7, deltaText)
+                local padding = stageProgressWeight * 2
+                local rectX = finishX - (textSize.X / 2) - padding
+                local rectY = finishY + stageProgressWeight * 2
+                local rectWidth = textSize.X + (padding * 2)
+                local rectHeight = textSize.Y + (padding / 2)
+                local cornerRadius = rectHeight / 5.5
+                gfx.FillRoundedRectangle(bgBrush,
+                    rectX,
+                    rectY,
+                    rectX + rectWidth,
+                    rectY + rectHeight,
+                    cornerRadius)
+                gfx.DrawText(_fonts["wrc"],
+                    stageProgressWeight * 7,
+                    _brushes["white"],
+                    rectX + padding,
+                    rectY + (padding / 4),
+                    deltaText)
+            end
         end
     else
         -- 未到终点，空心圆环

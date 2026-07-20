@@ -282,20 +282,31 @@ public sealed class ReplayTimelineLookup {
 
     public IReadOnlyList<ReplayDetailsPerTime> OrderedByTime => _byTime;
     public IReadOnlyList<ReplayDetailsPerTime> OrderedByDistance => _byDistance;
+    public bool HasSamples => _byTime.Count > 0 && _byDistance.Count > 0;
+    public float MaximumTime => _byTime.Count == 0 ? 0 : _byTime[^1].time;
+    public float MaximumDistance => _byDistance.Count == 0 ? 0 : _byDistance[^1].distance;
 
-    public ReplayTimelineLookup(IEnumerable<ReplayDetailsPerTime> details) {
+    public ReplayTimelineLookup(
+        IEnumerable<ReplayDetailsPerTime> details,
+        ReplayDetailsPerTime terminalSample = null) {
         var raw = details?
             .Where(d => d != null)
             .Select(ReplayDetailsPerTime.Clone)
             .ToList() ?? new List<ReplayDetailsPerTime>();
+
+        if (ShouldAppendTerminalSample(raw, terminalSample)) {
+            raw.Add(ReplayDetailsPerTime.Clone(terminalSample));
+        }
 
         _byTimestamp = BuildMonotonic(raw, d => d.timestamp, d => d.timestamp > 0);
         _byTime = BuildMonotonic(raw, d => d.time, d => !float.IsNaN(d.time));
         _byDistance = BuildMonotonic(raw, d => d.distance, d => !float.IsNaN(d.distance));
     }
 
-    public static ReplayTimelineLookup From(IEnumerable<ReplayDetailsPerTime> details) {
-        return new ReplayTimelineLookup(details);
+    public static ReplayTimelineLookup From(
+        IEnumerable<ReplayDetailsPerTime> details,
+        ReplayDetailsPerTime terminalSample = null) {
+        return new ReplayTimelineLookup(details, terminalSample);
     }
 
     public ReplayDetailsPerTime GetByTimestamp(long timestamp) {
@@ -365,6 +376,35 @@ public sealed class ReplayTimelineLookup {
         return result;
     }
 
+    private static bool ShouldAppendTerminalSample(
+        IReadOnlyCollection<ReplayDetailsPerTime> details,
+        ReplayDetailsPerTime terminalSample) {
+        if (details == null || details.Count == 0 || terminalSample == null
+            || !float.IsFinite(terminalSample.time)
+            || !float.IsFinite(terminalSample.distance)
+            || terminalSample.time < 0
+            || terminalSample.distance < 0) {
+            return false;
+        }
+
+        var validDetails = details
+            .Where(detail => detail != null
+                && float.IsFinite(detail.time)
+                && float.IsFinite(detail.distance))
+            .ToList();
+        if (validDetails.Count == 0) {
+            return false;
+        }
+
+        var maximumTime = validDetails.Max(detail => detail.time);
+        var maximumDistance = validDetails.Max(detail => detail.distance);
+        const float tolerance = 0.001f;
+        return terminalSample.time >= maximumTime - tolerance
+               && terminalSample.distance >= maximumDistance - tolerance
+               && (terminalSample.time > maximumTime + tolerance
+                   || terminalSample.distance > maximumDistance + tolerance);
+    }
+
     private static ReplayDetailsPerTime InterpolateBy<T>(
         IReadOnlyList<ReplayDetailsPerTime> details,
         T value,
@@ -409,6 +449,164 @@ public sealed class ReplayTimelineLookup {
 
         var ratio = (Convert.ToDouble(value, CultureInfo.InvariantCulture) - lowerValue) / (upperValue - lowerValue);
         return interpolate(details[lower], details[upper], ratio);
+    }
+}
+
+/// <summary>
+/// Immutable comparison values for one live telemetry sample against the selected replay.
+/// All positions are normalized to stage completion rate so replay metadata from a stage
+/// length correction cannot shift the comparison along the route.
+/// </summary>
+public sealed class ReplayComparisonSnapshot {
+    public static ReplayComparisonSnapshot Unavailable { get; } = new(
+        valid: false,
+        currentCompletionRate: 0,
+        bestTimeAtCurrentProgress: 0,
+        deltaAtCurrentProgress: 0,
+        bestCompletionRateAtCurrentTime: 0,
+        bestDistanceAtCurrentTime: 0);
+
+    public ReplayComparisonSnapshot(
+        bool valid,
+        float currentCompletionRate,
+        float bestTimeAtCurrentProgress,
+        float deltaAtCurrentProgress,
+        float bestCompletionRateAtCurrentTime,
+        float bestDistanceAtCurrentTime) {
+        Valid = valid;
+        CurrentCompletionRate = currentCompletionRate;
+        BestTimeAtCurrentProgress = bestTimeAtCurrentProgress;
+        DeltaAtCurrentProgress = deltaAtCurrentProgress;
+        BestCompletionRateAtCurrentTime = bestCompletionRateAtCurrentTime;
+        BestDistanceAtCurrentTime = bestDistanceAtCurrentTime;
+    }
+
+    public bool Valid { get; }
+    public float CurrentCompletionRate { get; }
+    public float BestTimeAtCurrentProgress { get; }
+    public float DeltaAtCurrentProgress { get; }
+    public float BestCompletionRateAtCurrentTime { get; }
+    public float BestDistanceAtCurrentTime { get; }
+}
+
+public static class ReplayComparisonCalculator {
+    private const float MinimumTrackLength = 0.01f;
+
+    public static ReplayComparisonSnapshot Create(
+        GameData currentData,
+        Replay referenceReplay,
+        ReplayTimelineLookup referenceTimeline) {
+        if (referenceReplay == null || referenceTimeline == null || !referenceTimeline.HasSamples
+            || !float.IsFinite(currentData.LapTime)
+            || currentData.LapTime < 0) {
+            return ReplayComparisonSnapshot.Unavailable;
+        }
+
+        var referenceTrackLength = GetReferenceTrackLength(referenceReplay, referenceTimeline);
+        if (referenceTrackLength < MinimumTrackLength) {
+            return ReplayComparisonSnapshot.Unavailable;
+        }
+
+        var currentCompletionRate = GetCurrentCompletionRate(currentData);
+        var referenceDistanceAtCurrentProgress = currentCompletionRate * referenceTrackLength;
+        var bestTimeAtCurrentProgress = referenceTimeline.GetTimeByDistance(referenceDistanceAtCurrentProgress);
+        var bestReferenceDistanceAtCurrentTime = referenceTimeline.GetDistanceByTime(currentData.LapTime);
+        var bestCompletionRateAtCurrentTime = ClampCompletionRate(
+            bestReferenceDistanceAtCurrentTime / referenceTrackLength);
+        var bestDistanceAtCurrentTime = MapReferenceDistanceToCurrentDistance(
+            bestReferenceDistanceAtCurrentTime,
+            currentData.TrackLength,
+            referenceTrackLength);
+
+        if (!float.IsFinite(bestTimeAtCurrentProgress)
+            || !float.IsFinite(bestCompletionRateAtCurrentTime)
+            || !float.IsFinite(bestDistanceAtCurrentTime)) {
+            return ReplayComparisonSnapshot.Unavailable;
+        }
+
+        return new ReplayComparisonSnapshot(
+            valid: true,
+            currentCompletionRate,
+            bestTimeAtCurrentProgress,
+            currentData.LapTime - bestTimeAtCurrentProgress,
+            bestCompletionRateAtCurrentTime,
+            bestDistanceAtCurrentTime);
+    }
+
+    public static ReplayDetailsPerTime CreateTerminalSample(Replay replay) {
+        if (replay == null
+            || !float.IsFinite(replay.finish_time)
+            || !float.IsFinite(replay.track_length)
+            || replay.finish_time < 0
+            || replay.track_length < MinimumTrackLength) {
+            return null;
+        }
+
+        return new ReplayDetailsPerTime {
+            time = replay.finish_time,
+            distance = replay.track_length
+        };
+    }
+
+    public static float GetCurrentCompletionRate(GameData data) {
+        if (float.IsFinite(data.CompletionRate)
+            && data.CompletionRate >= 0
+            && data.CompletionRate <= 1
+            && (data.CompletionRate > 0 || Math.Abs(data.LapDistance) < MinimumTrackLength)) {
+            return ClampCompletionRate(data.CompletionRate);
+        }
+
+        if (!float.IsFinite(data.LapDistance)
+            || !float.IsFinite(data.TrackLength)
+            || data.TrackLength < MinimumTrackLength) {
+            return 0;
+        }
+
+        return ClampCompletionRate(data.LapDistance / data.TrackLength);
+    }
+
+    public static float GetReferenceTrackLength(Replay replay, ReplayTimelineLookup timeline) {
+        if (replay != null && float.IsFinite(replay.track_length) && replay.track_length >= MinimumTrackLength) {
+            return replay.track_length;
+        }
+
+        return timeline?.MaximumDistance >= MinimumTrackLength
+            ? timeline.MaximumDistance
+            : 0;
+    }
+
+    public static float MapCurrentDistanceToReferenceDistance(
+        float currentDistance,
+        float currentTrackLength,
+        float referenceTrackLength) {
+        if (!float.IsFinite(currentDistance)
+            || !float.IsFinite(currentTrackLength)
+            || !float.IsFinite(referenceTrackLength)
+            || currentTrackLength < MinimumTrackLength
+            || referenceTrackLength < MinimumTrackLength) {
+            return float.IsFinite(currentDistance) ? currentDistance : 0;
+        }
+
+        return ClampCompletionRate(currentDistance / currentTrackLength) * referenceTrackLength;
+    }
+
+    public static float MapReferenceDistanceToCurrentDistance(
+        float referenceDistance,
+        float currentTrackLength,
+        float referenceTrackLength) {
+        if (!float.IsFinite(referenceDistance)
+            || !float.IsFinite(currentTrackLength)
+            || !float.IsFinite(referenceTrackLength)
+            || currentTrackLength < MinimumTrackLength
+            || referenceTrackLength < MinimumTrackLength) {
+            return float.IsFinite(referenceDistance) ? referenceDistance : 0;
+        }
+
+        return ClampCompletionRate(referenceDistance / referenceTrackLength) * currentTrackLength;
+    }
+
+    private static float ClampCompletionRate(float value) {
+        return float.IsFinite(value) ? Math.Clamp(value, 0, 1) : 0;
     }
 }
 

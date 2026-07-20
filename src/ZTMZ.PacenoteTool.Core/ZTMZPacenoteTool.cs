@@ -23,6 +23,7 @@ public class ZTMZPacenoteTool {
     private string _carName;
     private string _carClass;
     private float _trackLength;
+    private float _currentReplayTrackLength;
     private Int64 _obsStartTimestamp;
     private Int64 _obsStopTimestamp;
     private bool _isReplaySession;
@@ -543,9 +544,21 @@ public class ZTMZPacenoteTool {
 
     private void newGameDataEventHander(GameData oldData, GameData msg)
     {
-        //TODO: update UI and Overlay telemetry data
+        if (float.IsFinite(msg.TrackLength) && msg.TrackLength > 0)
+        {
+            _currentReplayTrackLength = msg.TrackLength;
+        }
+
+        var isRacing = _currentGame.GameDataReader.GameState == GameState.Racing;
+        if (isRacing)
+        {
+            // Keep the current-run lookup in sync before dashboards consume this packet.
+            traceReplay(msg);
+        }
+
+        // TODO: update UI and Overlay telemetry data
         this.onNewGameData?.Invoke(_currentGame, msg);
-        if (_currentGame.GameDataReader.GameState != GameState.Racing) 
+        if (!isRacing)
         {
             // wont play if it's not in racing state
             return;
@@ -601,9 +614,6 @@ public class ZTMZPacenoteTool {
                 }
             }
         });
-
-        // save replay
-        traceReplay(msg);
     }
 
     private void carDamagedEventHandler(CarDamageEvent evt)
@@ -639,6 +649,7 @@ public class ZTMZPacenoteTool {
 
 #region Replay
     private async void initReplay() {
+        _currentReplayTrackLength = 0;
         this.ReplayDetailsPerCheckpoints.Clear();
         this.ReplayDetailsPerTimes.Clear();
         this.ReplayDetailsPerCheckpoints.Add(new ReplayDetailsPerCheckpoint() {
@@ -845,12 +856,12 @@ public class ZTMZPacenoteTool {
 
     public float GetDelta(float distance) {
         float time = GetCurrentReplayLookup().GetTimeByDistance(distance);
-        float bestTime = GetBestLocalReplayLookup().GetTimeByDistance(distance);
+        float bestTime = GetBestTimeByDistance(distance);
         return time - bestTime;
     }
 
     public float GetDeltaByDistanceAndTime(float distance, float time) {
-        float bestTime = GetBestLocalReplayLookup().GetTimeByDistance(distance);
+        float bestTime = GetBestTimeByDistance(distance);
         return time - bestTime;
     }
 
@@ -865,11 +876,34 @@ public class ZTMZPacenoteTool {
     }
 
     public float GetBestTimeByDistance(float distance) {
-        return GetBestLocalReplayLookup().GetTimeByDistance(distance);
+        var bestLookup = GetBestLocalReplayLookup();
+        var bestTrackLength = ReplayComparisonCalculator.GetReferenceTrackLength(this.BestLocalReplay, bestLookup);
+        var bestDistance = ReplayComparisonCalculator.MapCurrentDistanceToReferenceDistance(
+            distance,
+            GetCurrentReplayTrackLength(),
+            bestTrackLength);
+        return bestLookup.GetTimeByDistance(bestDistance);
     }
 
     public float GetBestDistanceByTime(float time) {
-        return GetBestLocalReplayLookup().GetDistanceByTime(time);
+        var bestLookup = GetBestLocalReplayLookup();
+        var bestTrackLength = ReplayComparisonCalculator.GetReferenceTrackLength(this.BestLocalReplay, bestLookup);
+        var bestDistance = bestLookup.GetDistanceByTime(time);
+        return ReplayComparisonCalculator.MapReferenceDistanceToCurrentDistance(
+            bestDistance,
+            GetCurrentReplayTrackLength(),
+            bestTrackLength);
+    }
+
+    public ReplayComparisonSnapshot GetReplayComparison(GameData currentData) {
+        if (this.BestLocalReplay == null || this.BestLocalReplayDetailsPerTimes.Count == 0) {
+            return ReplayComparisonSnapshot.Unavailable;
+        }
+
+        return ReplayComparisonCalculator.Create(
+            currentData,
+            this.BestLocalReplay,
+            GetBestLocalReplayLookup());
     }
 
     private void InvalidateCurrentReplayLookup() {
@@ -891,11 +925,21 @@ public class ZTMZPacenoteTool {
 
     private ReplayTimelineLookup GetBestLocalReplayLookup() {
         if (_bestLocalReplayLookup == null || _bestLocalReplayLookupCount != this.BestLocalReplayDetailsPerTimes.Count) {
-            _bestLocalReplayLookup = ReplayTimelineLookup.From(this.BestLocalReplayDetailsPerTimes);
+            _bestLocalReplayLookup = ReplayTimelineLookup.From(
+                this.BestLocalReplayDetailsPerTimes,
+                ReplayComparisonCalculator.CreateTerminalSample(this.BestLocalReplay));
             _bestLocalReplayLookupCount = this.BestLocalReplayDetailsPerTimes.Count;
         }
 
         return _bestLocalReplayLookup;
+    }
+
+    private float GetCurrentReplayTrackLength() {
+        if (float.IsFinite(_currentReplayTrackLength) && _currentReplayTrackLength > 0) {
+            return _currentReplayTrackLength;
+        }
+
+        return float.IsFinite(_trackLength) && _trackLength > 0 ? _trackLength : 0;
     }
 
     private float getTimeByCheckpoint(List<ReplayDetailsPerCheckpoint> details, int checkpoint) {

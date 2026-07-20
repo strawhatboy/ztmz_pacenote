@@ -38,6 +38,93 @@ public class ReplayManagerTest
     }
 
     [Fact]
+    public void ReplayComparisonNormalizesProgressAndUsesTheRecordedFinish()
+    {
+        var replay = new Replay
+        {
+            finish_time = 100,
+            track_length = 1000
+        };
+        var lookup = ReplayTimelineLookup.From(
+            new List<ReplayDetailsPerTime>
+            {
+                new() { time = 0, distance = 0 },
+                new() { time = 50, distance = 500 },
+                new() { time = 90, distance = 900 }
+            },
+            ReplayComparisonCalculator.CreateTerminalSample(replay));
+        var current = new GameData
+        {
+            LapTime = 52,
+            LapDistance = 400,
+            CompletionRate = 0.5f,
+            TrackLength = 800
+        };
+
+        var comparison = ReplayComparisonCalculator.Create(current, replay, lookup);
+
+        Assert.True(comparison.Valid);
+        Assert.InRange(comparison.CurrentCompletionRate, 0.499f, 0.501f);
+        Assert.InRange(comparison.BestTimeAtCurrentProgress, 49.999f, 50.001f);
+        Assert.InRange(comparison.DeltaAtCurrentProgress, 1.999f, 2.001f);
+        Assert.InRange(comparison.BestCompletionRateAtCurrentTime, 0.519f, 0.521f);
+        Assert.InRange(comparison.BestDistanceAtCurrentTime, 415.9f, 416.1f);
+        Assert.InRange(lookup.GetTimeByDistance(1000), 99.999f, 100.001f);
+    }
+
+    [Fact]
+    public void ReplayComparisonFallsBackToDistanceWhenProgressIsNotReported()
+    {
+        var replay = new Replay
+        {
+            finish_time = 100,
+            track_length = 1000
+        };
+        var lookup = ReplayTimelineLookup.From(
+            new List<ReplayDetailsPerTime>
+            {
+                new() { time = 0, distance = 0 },
+                new() { time = 100, distance = 1000 }
+            });
+        var current = new GameData
+        {
+            LapTime = 55,
+            LapDistance = 400,
+            CompletionRate = 0,
+            TrackLength = 800
+        };
+
+        var comparison = ReplayComparisonCalculator.Create(current, replay, lookup);
+
+        Assert.True(comparison.Valid);
+        Assert.InRange(comparison.CurrentCompletionRate, 0.499f, 0.501f);
+        Assert.InRange(comparison.BestTimeAtCurrentProgress, 49.999f, 50.001f);
+        Assert.InRange(comparison.DeltaAtCurrentProgress, 4.999f, 5.001f);
+    }
+
+    [Fact]
+    public void TimelineLookupAddsTheRecordedFinishWhenTelemetryContainsNonFiniteValues()
+    {
+        var replay = new Replay
+        {
+            finish_time = 100,
+            track_length = 1000
+        };
+
+        var lookup = ReplayTimelineLookup.From(
+            new List<ReplayDetailsPerTime>
+            {
+                new() { time = 0, distance = 0 },
+                new() { time = float.NaN, distance = float.NaN },
+                new() { time = 90, distance = 900 }
+            },
+            ReplayComparisonCalculator.CreateTerminalSample(replay));
+
+        Assert.InRange(lookup.GetTimeByDistance(1000), 99.999f, 100.001f);
+        Assert.InRange(lookup.GetDistanceByTime(100), 999.999f, 1000.001f);
+    }
+
+    [Fact]
     public async Task SaveReplayAsyncPersistsDuplicateTimeSamples()
     {
         var databasePath = GetTempDatabasePath();

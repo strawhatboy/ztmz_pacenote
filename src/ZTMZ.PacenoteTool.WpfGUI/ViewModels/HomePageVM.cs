@@ -482,6 +482,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         _tool.onRaceBegin += (game) => { 
             IsRacing = true; 
             _gameOverlayManager.TimeToShowTelemetry = true;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison = ReplayComparisonSnapshot.Unavailable;
         };
         _tool.onRaceBegined += (game) => {
             _gameOverlayManager.DashboardScriptArguments.GameContext.ScriptAuthor = _tool.CurrentScriptAuthor;
@@ -517,18 +518,22 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             _gameOverlayManager.DashboardScriptArguments.GameContext.GetTimeByDistance = _tool.GetTimeByDistance;
             _gameOverlayManager.DashboardScriptArguments.GameContext.GetBestTimeByDistance = _tool.GetBestTimeByDistance;
             _gameOverlayManager.DashboardScriptArguments.GameContext.GetBestDistanceByTime = _tool.GetBestDistanceByTime;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison = ReplayComparisonSnapshot.Unavailable;
         };
 
         _tool.onNewGameData += (game, data) => {
             if (_isRacing) {
                 // update game data.
                 _gameOverlayManager.DashboardScriptArguments.GameData = data;
+                _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison =
+                    _tool.GetReplayComparison(data);
             }
         };
 
         _tool.onRaceEnd += (game) => { 
             IsRacing = false;
             _gameOverlayManager.TimeToShowTelemetry = false;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison = ReplayComparisonSnapshot.Unavailable;
         };
 
         _tool.onGameStateChanged += (game, state) => {

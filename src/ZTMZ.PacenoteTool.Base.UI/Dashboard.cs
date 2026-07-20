@@ -25,6 +25,11 @@ public class GameContext {
     public Dictionary<float, float> LocalReplayDetailsPerTimesDict { set; get; } = new();
     public Replay LocalReplay { set; get; } = new();
     public float LocalReplayFinishTime { set; get; }
+    /// <summary>
+    /// One immutable, core-calculated comparison for the current telemetry packet.
+    /// Dashboards should prefer this over replay lookup delegates for live values.
+    /// </summary>
+    public ReplayComparisonSnapshot LocalReplayComparison { set; get; } = ReplayComparisonSnapshot.Unavailable;
 
     /// <summary>
     /// Get the delta time between the current time and the given distance

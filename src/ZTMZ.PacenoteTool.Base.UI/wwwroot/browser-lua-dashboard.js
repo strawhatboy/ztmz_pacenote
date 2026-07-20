@@ -327,28 +327,74 @@
             const runtime = this;
             const context = {
                 LocalReplayValid: false,
-                LocalReplay: { checkpoints: 0 },
+                LocalReplay: { checkpoints: 0, trackLength: 0 },
                 LocalReplayFinishTime: 0,
                 GameState: 0,
                 LocalReplayDelta: 0,
+                LocalReplayComparison: {
+                    Valid: false,
+                    CurrentCompletionRate: 0,
+                    BestTimeAtCurrentProgress: 0,
+                    DeltaAtCurrentProgress: 0,
+                    BestCompletionRateAtCurrentTime: 0,
+                    BestDistanceAtCurrentTime: 0
+                },
+                GetDelta: {
+                    Invoke: luaMethod(distance => {
+                        const currentData = runtime.host?.args?.GameData || {};
+                        const requestedDistance = finiteNumber(distance, 0);
+                        const comparison = context.LocalReplayComparison || {};
+                        if (Math.abs(requestedDistance - finiteNumber(currentData.LapDistance, 0)) < 0.01
+                            && comparison.Valid) {
+                            return finiteNumber(comparison.DeltaAtCurrentProgress, 0);
+                        }
+
+                        const referenceDistance = mapCurrentDistanceToReferenceDistance(
+                            requestedDistance,
+                            currentData.TrackLength,
+                            getReferenceTrackLength(context, runtime.bestReplayLookup));
+                        return runtime.manager.currentReplayLookup.getTimeByDistance(requestedDistance)
+                            - runtime.bestReplayLookup.getTimeByDistance(referenceDistance);
+                    })
+                },
                 GetDeltaByDistanceAndTime: {
                     Invoke: luaMethod((distance, time) => {
                         const currentData = runtime.host?.args?.GameData || {};
                         const requestedDistance = finiteNumber(distance, 0);
                         const requestedTime = finiteNumber(time, 0);
+                        const comparison = context.LocalReplayComparison || {};
                         if (Math.abs(requestedDistance - finiteNumber(currentData.LapDistance, 0)) < 0.01
                             && Math.abs(requestedTime - finiteNumber(currentData.LapTime, 0)) < 0.01) {
-                            return finiteNumber(context.LocalReplayDelta, 0);
+                            return comparison.Valid
+                                ? finiteNumber(comparison.DeltaAtCurrentProgress, 0)
+                                : finiteNumber(context.LocalReplayDelta, 0);
                         }
 
-                        return requestedTime - runtime.bestReplayLookup.getTimeByDistance(requestedDistance);
+                        const referenceDistance = mapCurrentDistanceToReferenceDistance(
+                            requestedDistance,
+                            currentData.TrackLength,
+                            getReferenceTrackLength(context, runtime.bestReplayLookup));
+                        return requestedTime - runtime.bestReplayLookup.getTimeByDistance(referenceDistance);
                     })
                 },
                 GetBestTimeByDistance: {
-                    Invoke: luaMethod(distance => runtime.bestReplayLookup.getTimeByDistance(distance))
+                    Invoke: luaMethod(distance => {
+                        const currentData = runtime.host?.args?.GameData || {};
+                        return runtime.bestReplayLookup.getTimeByDistance(
+                            mapCurrentDistanceToReferenceDistance(
+                                finiteNumber(distance, 0),
+                                currentData.TrackLength,
+                                getReferenceTrackLength(context, runtime.bestReplayLookup)));
+                    })
                 },
                 GetBestDistanceByTime: {
-                    Invoke: luaMethod(time => runtime.bestReplayLookup.getDistanceByTime(time))
+                    Invoke: luaMethod(time => {
+                        const currentData = runtime.host?.args?.GameData || {};
+                        return mapReferenceDistanceToCurrentDistance(
+                            runtime.bestReplayLookup.getDistanceByTime(time),
+                            currentData.TrackLength,
+                            getReferenceTrackLength(context, runtime.bestReplayLookup));
+                    })
                 },
                 GetTimeByDistance: {
                     Invoke: luaMethod(distance => runtime.manager.currentReplayLookup.getTimeByDistance(distance))
@@ -453,6 +499,7 @@
             this.host.args.GameData.BrowserTimeText = browserClockText();
             this.host.args.BrowserTimeText = this.host.args.GameData.BrowserTimeText;
             Object.assign(this.host.args.GameContext, frame.context, {
+                GetDelta: this.host.args.GameContext.GetDelta,
                 GetDeltaByDistanceAndTime: this.host.args.GameContext.GetDeltaByDistanceAndTime,
                 GetBestTimeByDistance: this.host.args.GameContext.GetBestTimeByDistance,
                 GetBestDistanceByTime: this.host.args.GameContext.GetBestDistanceByTime,
@@ -1648,6 +1695,40 @@
     function finiteNumber(value, fallback) {
         const number = Number(value);
         return Number.isFinite(number) ? number : fallback;
+    }
+
+    function getReferenceTrackLength(context, replayLookup) {
+        const configuredLength = finiteNumber(
+            context?.LocalReplay?.trackLength ?? context?.LocalReplay?.TrackLength,
+            0);
+        if (configuredLength > 0.01) {
+            return configuredLength;
+        }
+
+        const samples = replayLookup?.getByDistance?.() || [];
+        return samples.length > 0 ? finiteNumber(samples[samples.length - 1].distance, 0) : 0;
+    }
+
+    function mapCurrentDistanceToReferenceDistance(distance, currentTrackLength, referenceTrackLength) {
+        const currentDistance = finiteNumber(distance, 0);
+        const currentLength = finiteNumber(currentTrackLength, 0);
+        const referenceLength = finiteNumber(referenceTrackLength, 0);
+        if (currentLength <= 0.01 || referenceLength <= 0.01) {
+            return currentDistance;
+        }
+
+        return Math.max(0, Math.min(1, currentDistance / currentLength)) * referenceLength;
+    }
+
+    function mapReferenceDistanceToCurrentDistance(distance, currentTrackLength, referenceTrackLength) {
+        const referenceDistance = finiteNumber(distance, 0);
+        const currentLength = finiteNumber(currentTrackLength, 0);
+        const referenceLength = finiteNumber(referenceTrackLength, 0);
+        if (currentLength <= 0.01 || referenceLength <= 0.01) {
+            return referenceDistance;
+        }
+
+        return Math.max(0, Math.min(1, referenceDistance / referenceLength)) * currentLength;
     }
 
     // Fengari passes the first Lua function argument as JavaScript `this`.
