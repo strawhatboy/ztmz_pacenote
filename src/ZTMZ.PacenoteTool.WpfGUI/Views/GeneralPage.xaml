@@ -39,8 +39,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.theme}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.theme}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.theme}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -87,8 +86,7 @@
                             </Grid.RowDefinitions>
                             <ui:TextBlock Text="{DynamicResource ResourceKey=settings.accentColor}"/>
                             <ui:TextBlock Grid.Row="1"
-                                          Text="{DynamicResource ResourceKey=settings.tooltip.accentColor}"
-                                          Appearance="Tertiary"
+                                          Text="{DynamicResource ResourceKey=settings.tooltip.accentColor}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                           FontTypography="Caption"/>
                         </Grid>
                     </StackPanel>
@@ -174,8 +172,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.language}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.language}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.language}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -206,8 +203,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.checkUpdateWhenStartup}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.checkUpdateWhenStartup}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.checkUpdateWhenStartup}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -237,8 +233,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.startWithWindows}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.startWithWindows}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.startWithWindows}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -271,8 +266,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.startMinimizedToTray}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.startMinimizedToTray}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.startMinimizedToTray}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -302,8 +296,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.windowsNotifications}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.windowsNotifications}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.windowsNotifications}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -339,8 +332,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.optInBetaPlan}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.optInBetaPlan}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.optInBetaPlan}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -371,8 +363,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.logLevel}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.logLevel}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.logLevel}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -416,8 +407,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=ui.showClosePrompt}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=ui.tooltip.showClosePrompt}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=ui.tooltip.showClosePrompt}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -447,8 +437,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=ui.closeBehavior}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=ui.tooltip.closeBehavior}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=ui.tooltip.closeBehavior}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>

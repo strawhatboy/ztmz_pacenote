@@ -71,6 +71,16 @@ public partial class HudPageVM : ObservableObject {
     }
 
     [ObservableProperty]
+    private bool _webDashboardBrowserLuaEnabled = Config.Instance.WebDashboardBrowserLuaEnabled;
+
+    partial void OnWebDashboardBrowserLuaEnabledChanged(bool value)
+    {
+        Config.Instance.WebDashboardBrowserLuaEnabled = value;
+        _gameOverlayManager.SetWebDashboardBrowserLuaEnabled(value);
+        Config.Instance.SaveUserConfig();
+    }
+
+    [ObservableProperty]
     private int _webDashboardPort = Config.Instance.WebDashboardPort;
 
     partial void OnWebDashboardPortChanged(int value)
@@ -277,13 +287,13 @@ public partial class HudPageVM : ObservableObject {
 
             Wpf.Ui.Controls.TextBlock version = new Wpf.Ui.Controls.TextBlock();
             version.Text = dashboard.Descriptor.Version;
-            version.Appearance = TextColor.Secondary;
+            SetThemeForeground(version, "TextFillColorSecondaryBrush");
             version.Margin = new Thickness(0, 0, 5, 0);
             version.FontTypography = FontTypography.Caption;
 
             Wpf.Ui.Controls.TextBlock author = new Wpf.Ui.Controls.TextBlock();
             author.Text = dashboard.Descriptor.Author;
-            author.Appearance = TextColor.Tertiary;
+            SetThemeForeground(author, "TextFillColorTertiaryBrush");
             author.Margin = new Thickness(0, 0, 5, 0);
             author.FontTypography = FontTypography.Caption;
 
@@ -295,7 +305,7 @@ public partial class HudPageVM : ObservableObject {
 
             Wpf.Ui.Controls.TextBlock description = new Wpf.Ui.Controls.TextBlock();
             description.SetResourceReference(Wpf.Ui.Controls.TextBlock.TextProperty, dashboard.Descriptor.Description);
-            description.Appearance = TextColor.Tertiary;
+            SetThemeForeground(description, "TextFillColorTertiaryBrush");
             description.FontTypography = FontTypography.Caption;
             Grid.SetRow(description, 1);
             Grid.SetColumn(description, 1);
@@ -347,7 +357,7 @@ public partial class HudPageVM : ObservableObject {
                 configName.HorizontalAlignment = HorizontalAlignment.Left;
                 var configTooltipText = new Wpf.Ui.Controls.TextBlock();
                 configTooltipText.SetResourceReference(Wpf.Ui.Controls.TextBlock.TextProperty, configTooltip);
-                configTooltipText.Appearance = TextColor.Tertiary;
+                SetThemeForeground(configTooltipText, "TextFillColorTertiaryBrush");
                 configTooltipText.FontTypography = FontTypography.Caption;
                 configNameStackPanel.Children.Add(configName);
                 configNameStackPanel.Children.Add(configTooltipText);
@@ -476,6 +486,15 @@ public partial class HudPageVM : ObservableObject {
 
             DashboardItems.Add(cardExpander);
         }
+    }
+
+    private static void SetThemeForeground(
+        Wpf.Ui.Controls.TextBlock textBlock,
+        string resourceKey)
+    {
+        textBlock.SetResourceReference(
+            System.Windows.Controls.TextBlock.ForegroundProperty,
+            resourceKey);
     }
 
     private Grid CreateDashboardOutputTargetSelector(Dashboard dashboard)

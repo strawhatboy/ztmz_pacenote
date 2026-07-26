@@ -41,8 +41,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.playStartAndEndSound}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.playStartAndEndSound}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.playStartAndEndSound}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -72,8 +71,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.playGoSound}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.playGoSound}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.playGoSound}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -104,8 +102,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.pacenoteDropoutPercentage}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.pacenoteDropoutPercentage}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.pacenoteDropoutPercentage}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -147,8 +144,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.removeIntoAndOnto}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.removeIntoAndOnto}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.removeIntoAndOnto}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -178,8 +174,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.useReversePacenote}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.useReversePacenote}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.useReversePacenote}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -209,8 +204,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.playCollisionSound}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.playCollisionSound}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.playCollisionSound}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -240,8 +234,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.collision_slight}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.collision_slight}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.collision_slight}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -271,8 +264,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.collision_medium}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.collision_medium}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.collision_medium}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -302,8 +294,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.collision_severe}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.collision_severe}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.collision_severe}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -333,8 +324,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.useDefaultSoundPackageByDefault}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.useDefaultSoundPackageByDefault}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.useDefaultSoundPackageByDefault}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -364,8 +354,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.useDefaultSoundPackageForFallback}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.useDefaultSoundPackageForFallback}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.useDefaultSoundPackageForFallback}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -395,8 +384,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.preloadSounds}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.preloadSounds}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.preloadSounds}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -427,8 +415,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.additionalCoDriverPackagesSearchPath}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.additionalCoDriverPackagesSearchPath}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.additionalCoDriverPackagesSearchPath}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -465,8 +452,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.additionalPacenotesDefinitionSearchPath}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.additionalPacenotesDefinitionSearchPath}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.additionalPacenotesDefinitionSearchPath}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>

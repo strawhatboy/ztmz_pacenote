@@ -489,6 +489,76 @@ public class WebDashboardCommandCaptureTest
     }
 
     [Fact]
+    public async Task BrowserLuaExecutionSwitchForcesCompatibilityFramesAndSuppressesTelemetry()
+    {
+        var port = GetAvailablePort();
+        using var server = new WebDashboardServer
+        {
+            Port = port,
+            BrowserLuaExecutionEnabled = false
+        };
+        server.Initialize(new List<Dashboard>());
+        server.Start();
+
+        using var socket = new ClientWebSocket();
+        await socket.ConnectAsync(new Uri($"ws://127.0.0.1:{port}/ws"), CancellationToken.None);
+        await WaitForClient(server);
+        await SendClientControlMessage(socket, """{"type":"browserLuaCapabilities","supported":true}""");
+        await WaitForBrowserLuaCapability(server, expected: false);
+
+        var scene = new WebDashboardBrowserLuaScene(
+            new List<WebDashboardBrowserLuaDashboard>
+            {
+                new(
+                    id: 4,
+                    order: 4,
+                    configurationRevision: 1,
+                    settings: new Dictionary<string, object>())
+            },
+            new WebDashboardBrowserLuaConfig(
+                hudChromaKeyMode: false,
+                hudShiftGreenZone: 0.6f,
+                hudShiftYellowZone: 0.75f,
+                hudShiftRedZone: 0.9f));
+        var data = new GameData { Speed = 85 };
+        var context = new GameContext { GameState = 3 };
+
+        var compatibilityFrameTask = ReceiveTextAsync(socket);
+        await server.BroadcastBrowserLuaTelemetryAsync(scene, data, context);
+        await server.BroadcastDrawFrameAsync(
+            CreateLayeredFrame(staticContentProvided: true, staticColor: 0xFF102030, dynamicValue: 10),
+            new[] { 4 });
+        var compatibilityFrame = await compatibilityFrameTask.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Contains("\"type\":\"layeredDrawCommands\"", compatibilityFrame);
+        Assert.Contains("\"browserLuaDashboardIds\":[]", compatibilityFrame);
+        Assert.DoesNotContain("\"type\":\"browserLuaTelemetry\"", compatibilityFrame);
+
+        server.BrowserLuaExecutionEnabled = true;
+        await WaitForBrowserLuaCapability(server, expected: true);
+
+        var browserLuaSnapshotTask = ReceiveTextAsync(socket);
+        await server.BroadcastBrowserLuaTelemetryAsync(scene, data, context);
+        var browserLuaSnapshot = await browserLuaSnapshotTask.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Contains("\"type\":\"browserLuaTelemetry\"", browserLuaSnapshot);
+        Assert.Contains("\"dashboards\"", browserLuaSnapshot);
+
+        server.BrowserLuaExecutionEnabled = false;
+        Assert.False(server.CanExecuteBrowserLuaDashboards);
+
+        var resumedCompatibilityFrameTask = ReceiveTextAsync(socket);
+        await server.BroadcastDrawFrameAsync(
+            CreateLayeredFrame(staticContentProvided: false, staticColor: 0, dynamicValue: 20),
+            new[] { 4 });
+        var resumedCompatibilityFrame = await resumedCompatibilityFrameTask.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.Contains("\"layers\"", resumedCompatibilityFrame);
+        Assert.DoesNotContain("\"dynamicLayers\"", resumedCompatibilityFrame);
+        Assert.Contains("\"browserLuaDashboardIds\":[]", resumedCompatibilityFrame);
+    }
+
+    [Fact]
     public async Task HybridLayeredFramesKeepTheBrowserLuaSceneUntilCompatibilityFallback()
     {
         var port = GetAvailablePort();

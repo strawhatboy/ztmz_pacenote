@@ -581,6 +581,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._WebDashboardEnabled;
         }
 
+        private bool _WebDashboardBrowserLuaEnabled = true;
+        public bool WebDashboardBrowserLuaEnabled
+        {
+            set { this._WebDashboardBrowserLuaEnabled = value; this._userconfig["WebDashboardBrowserLuaEnabled"] = value; }
+            get => this._WebDashboardBrowserLuaEnabled;
+        }
+
         private int _WebDashboardPort = 8080;
         public int WebDashboardPort
         {

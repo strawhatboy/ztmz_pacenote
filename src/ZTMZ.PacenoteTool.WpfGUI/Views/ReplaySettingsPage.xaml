@@ -45,8 +45,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.replayFFmpegPath}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.replayFFmpegPath}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.replayFFmpegPath}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -90,8 +89,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replaySave}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.replaySave}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replaySave}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -121,8 +119,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayPreferredFilter}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayPreferredFilter}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayPreferredFilter}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -164,8 +161,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayStoredCountLimit}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayStoredCountLimit}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayStoredCountLimit}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -204,8 +200,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replaySaveWithoutInterval}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.replaySaveWithoutInterval}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replaySaveWithoutInterval}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -235,8 +230,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replaySaveInterval}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.replaySaveInterval}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replaySaveInterval}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -266,8 +260,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.onlineRivalsEnabled}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.onlineRivalsEnabled}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.onlineRivalsEnabled}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -302,8 +295,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayOBSSave}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayOBSSave}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayOBSSave}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -324,8 +316,7 @@
                                    Foreground="{Binding Path=ViewModel.ObsConnectionStatusBrush, Mode=OneWay}"
                                    VerticalAlignment="Center"/>
                     <ui:TextBlock Grid.Column="1"
-                                  Text="{DynamicResource ResourceKey=settings.obsConnectionStatus}"
-                                  Appearance="Tertiary"
+                                  Text="{DynamicResource ResourceKey=settings.obsConnectionStatus}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                   Margin="8,0,8,0"
                                   VerticalAlignment="Center"/>
                     <ui:TextBlock Grid.Column="2"
@@ -363,8 +354,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayOBSWebsocketUrl}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayOBSWebsocketUrl}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayOBSWebsocketUrl}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -394,8 +384,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayOBSWebsocketPassword}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayOBSWebsocketPassword}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayOBSWebsocketPassword}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -425,8 +414,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayOBSWebsocketTimeout}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayOBSWebsocketTimeout}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayOBSWebsocketTimeout}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -456,8 +444,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayDeleteRelatedVideo}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayDeleteRelatedVideo}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayDeleteRelatedVideo}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -487,8 +474,7 @@
                         </Grid.RowDefinitions>
                         <ui:TextBlock Text="{DynamicResource ResourceKey=settings.replayCleanUpAbnormalVideo}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayCleanUpAbnormalVideo}"
-                                      Appearance="Tertiary"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.replayCleanUpAbnormalVideo}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>

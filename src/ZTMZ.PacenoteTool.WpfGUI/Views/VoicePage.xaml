@@ -43,8 +43,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.subsection.voicePackage}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.subsection.tooltip.voicePackage}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.subsection.tooltip.voicePackage}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -72,8 +71,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.importAudioPackage}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.importAudioPackage}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.importAudioPackage}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -149,14 +147,12 @@
                                                 VerticalAlignment="Center"/>
                                             <ui:TextBlock
                                                 Padding="5 0 0 0"
-                                                Text="{Binding Language}"
-                                                Appearance="Secondary"
+                                                Text="{Binding Language}" Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                                 FontTypography="Caption" 
                                                 VerticalAlignment="Center"/>
                                             <ui:TextBlock
                                                 Padding="5 0 0 0"
-                                                Text="{Binding OriginalVersion}"
-                                                Appearance="Tertiary"
+                                                Text="{Binding OriginalVersion}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                                 TextDecorations="Strikethrough"
                                                 Visibility="{Binding NeedUpdate, 
                                 Converter={StaticResource BooleanToVisibilityConverter}}"
@@ -164,8 +160,7 @@
                                                 VerticalAlignment="Center"/>
                                             <ui:TextBlock
                                                 Padding="5 0 0 0"
-                                                Text="{Binding Version}"
-                                                Appearance="Tertiary"
+                                                Text="{Binding Version}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                                 FontTypography="Caption"
                                                 VerticalAlignment="Center" />
                                             <!-- integrity level -->
@@ -192,8 +187,7 @@
                                             </Border>
                                         </StackPanel>
                                         <ui:TextBlock Grid.Row="1"
-                                            Text="{Binding Description}"
-                                            Appearance="Tertiary"
+                                            Text="{Binding Description}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                             FontTypography="Caption" />
                                     </Grid>
                                 </StackPanel>

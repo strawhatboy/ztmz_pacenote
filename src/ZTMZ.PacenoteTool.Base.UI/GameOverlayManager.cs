@@ -368,6 +368,24 @@ namespace ZTMZ.PacenoteTool.Base.UI
             StartWebDashboard(port, frameRate);
         }
 
+        /// <summary>
+        /// Switches Web Dashboard browser-Lua execution without restarting the
+        /// server or disconnecting dashboard clients.
+        /// </summary>
+        public void SetWebDashboardBrowserLuaEnabled(bool enabled)
+        {
+            WebDashboardServer? server;
+            lock (_webDashboardLock)
+            {
+                server = _webDashboardServer;
+            }
+
+            if (server != null)
+            {
+                server.BrowserLuaExecutionEnabled = enabled;
+            }
+        }
+
         private void StartWebDashboard(int port, int frameRate)
         {
             WebDashboardServer? previousServer = null;
@@ -413,7 +431,11 @@ namespace ZTMZ.PacenoteTool.Base.UI
             WebDashboardServer? server = null;
             try
             {
-                server = new WebDashboardServer { Port = port };
+                server = new WebDashboardServer
+                {
+                    Port = port,
+                    BrowserLuaExecutionEnabled = Config.Instance.WebDashboardBrowserLuaEnabled
+                };
                 server.Initialize(Dashboards, GetDashboardOutputTarget);
                 server.Start();
 

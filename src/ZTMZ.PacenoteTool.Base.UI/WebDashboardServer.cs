@@ -46,6 +46,7 @@ public class WebDashboardServer : IDisposable
     private long _nextLayeredSceneRevision;
     private BrowserLuaScene _browserLuaScene;
     private long _nextBrowserLuaSceneRevision;
+    private int _browserLuaExecutionEnabled = 1;
     
     private List<Dashboard>? _dashboards;
     private string? _dashboardsPath;
@@ -129,6 +130,34 @@ public class WebDashboardServer : IDisposable
     
     public int Port { get; set; } = 8080;
     public bool IsRunning { get; private set; }
+
+    /// <summary>
+    /// Controls whether this server may execute dashboard Lua in connected browsers.
+    /// Disabling it leaves client capabilities intact so a later re-enable can resume
+    /// with a fresh browser-Lua scene snapshot.
+    /// </summary>
+    public bool BrowserLuaExecutionEnabled
+    {
+        get => Volatile.Read(ref _browserLuaExecutionEnabled) != 0;
+        set
+        {
+            var enabled = value ? 1 : 0;
+            if (Interlocked.Exchange(ref _browserLuaExecutionEnabled, enabled) == enabled)
+            {
+                return;
+            }
+
+            // A pure browser-Lua scene clears command canvases in the client. The
+            // next compatibility frame must therefore be a complete retained-layer
+            // snapshot rather than a dynamic-only command delta.
+            InvalidateLayeredClientRevisions();
+            InvalidateBrowserLuaClientRevisions();
+            _logger.Info(
+                "WebDashboard browser Lua execution {0}",
+                value ? "enabled" : "disabled");
+        }
+    }
+
     public int ClientCount
     {
         get
@@ -149,6 +178,11 @@ public class WebDashboardServer : IDisposable
     {
         get
         {
+            if (!BrowserLuaExecutionEnabled)
+            {
+                return false;
+            }
+
             lock (_clientsLock)
             {
                 return _connectedClients.Count > 0
@@ -789,12 +823,14 @@ public class WebDashboardServer : IDisposable
             return;
         }
 
-        var normalizedBrowserLuaDashboardIds = browserLuaDashboardIds?
-            .Where(id => id >= 0)
-            .Distinct()
-            .OrderBy(id => id)
-            .ToArray()
-            ?? Array.Empty<int>();
+        var normalizedBrowserLuaDashboardIds = BrowserLuaExecutionEnabled
+            ? browserLuaDashboardIds?
+                .Where(id => id >= 0)
+                .Distinct()
+                .OrderBy(id => id)
+                .ToArray()
+                ?? Array.Empty<int>()
+            : Array.Empty<int>();
         var isHybridFrame = normalizedBrowserLuaDashboardIds.Length > 0;
 
         // A browser-Lua client stops its local runtime when compatibility commands
@@ -845,7 +881,7 @@ public class WebDashboardServer : IDisposable
         GameContext context,
         bool isHybrid = false)
     {
-        if (requestedScene == null || ClientCount == 0)
+        if (!BrowserLuaExecutionEnabled || requestedScene == null || ClientCount == 0)
         {
             return;
         }

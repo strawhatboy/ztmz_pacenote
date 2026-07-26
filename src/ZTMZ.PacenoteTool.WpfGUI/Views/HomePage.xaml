@@ -268,8 +268,7 @@
                                      Fill="{Binding Path=ViewModel.WebDashboardHomeStatusBrush, Mode=OneWay}"
                                      VerticalAlignment="Center"/>
                             <ui:TextBlock Text="{Binding Path=ViewModel.WebDashboardHomeStatus, Mode=OneWay}"
-                                          FontTypography="Caption"
-                                          Appearance="Tertiary"
+                                          FontTypography="Caption" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                           TextWrapping="NoWrap"
                                           TextTrimming="CharacterEllipsis"
                                           MaxWidth="145"
@@ -405,13 +404,11 @@
                                         <StackPanel Grid.Row="1"
                                                     Grid.Column="1"
                                                     Orientation="Horizontal">
-                                            <ui:TextBlock Text="{Binding Path=language}"
-                                                          Appearance="Tertiary"
+                                            <ui:TextBlock Text="{Binding Path=language}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                                           FontTypography="Caption"
                                                           Margin="0 0 10 0"
                                                           HorizontalAlignment="Left"/>
-                                            <ui:TextBlock Text="{Binding Path=version}"
-                                                          Appearance="Tertiary"
+                                            <ui:TextBlock Text="{Binding Path=version}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                                           FontTypography="Caption"
                                                           Margin="0 0 10 0"
                                                           HorizontalAlignment="Left"/>
@@ -760,15 +757,13 @@
                                  Margin="0 6 6 0"
                                  Fill="{Binding ViewModel.Diagnostics.GameStatusBrush}" />
                         <ui:TextBlock Text="{DynamicResource diagnostics.game}"
-                                      FontTypography="Caption"
-                                      Appearance="Tertiary" />
+                                      FontTypography="Caption" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
                     </StackPanel>
                     <ui:TextBlock Text="{Binding ViewModel.Diagnostics.GameStatus}"
                                   TextWrapping="NoWrap"
                                   TextTrimming="CharacterEllipsis" />
                     <ui:TextBlock Text="{Binding ViewModel.Diagnostics.PrerequisiteStatus}"
-                                  FontTypography="Caption"
-                                  Appearance="Tertiary"
+                                  FontTypography="Caption" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                   TextWrapping="NoWrap"
                                   TextTrimming="CharacterEllipsis" />
                 </StackPanel>
@@ -781,15 +776,13 @@
                                  Margin="0 6 6 0"
                                  Fill="{Binding ViewModel.Diagnostics.UdpStatusBrush}" />
                         <ui:TextBlock Text="{DynamicResource diagnostics.udp}"
-                                      FontTypography="Caption"
-                                      Appearance="Tertiary" />
+                                      FontTypography="Caption" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
                     </StackPanel>
                     <ui:TextBlock Text="{Binding ViewModel.Diagnostics.UdpStatus}"
                                   TextWrapping="NoWrap"
                                   TextTrimming="CharacterEllipsis" />
                     <ui:TextBlock Text="{Binding ViewModel.Diagnostics.UdpActivity}"
-                                  FontTypography="Caption"
-                                  Appearance="Tertiary"
+                                  FontTypography="Caption" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                   TextWrapping="NoWrap"
                                   TextTrimming="CharacterEllipsis" />
                 </StackPanel>
@@ -802,15 +795,13 @@
                                  Margin="0 6 6 0"
                                  Fill="{Binding ViewModel.Diagnostics.AudioStatusBrush}" />
                         <ui:TextBlock Text="{DynamicResource diagnostics.audio}"
-                                      FontTypography="Caption"
-                                      Appearance="Tertiary" />
+                                      FontTypography="Caption" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
                     </StackPanel>
                     <ui:TextBlock Text="{Binding ViewModel.Diagnostics.AudioStatus}"
                                   TextWrapping="NoWrap"
                                   TextTrimming="CharacterEllipsis" />
                     <ui:TextBlock Text="{Binding ViewModel.Diagnostics.AudioActivity}"
-                                  FontTypography="Caption"
-                                  Appearance="Tertiary"
+                                  FontTypography="Caption" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                   TextWrapping="NoWrap"
                                   TextTrimming="CharacterEllipsis" />
                 </StackPanel>
@@ -823,15 +814,13 @@
                                  Margin="0 6 6 0"
                                  Fill="{Binding ViewModel.Diagnostics.WebDashboardStatusBrush}" />
                         <ui:TextBlock Text="{DynamicResource diagnostics.webDashboard}"
-                                      FontTypography="Caption"
-                                      Appearance="Tertiary" />
+                                      FontTypography="Caption" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
                     </StackPanel>
                     <ui:TextBlock Text="{Binding ViewModel.Diagnostics.WebDashboardStatus}"
                                   TextWrapping="NoWrap"
                                   TextTrimming="CharacterEllipsis" />
                     <ui:TextBlock Text="{Binding ViewModel.Diagnostics.WebDashboardActivity}"
-                                  FontTypography="Caption"
-                                  Appearance="Tertiary"
+                                  FontTypography="Caption" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                   TextWrapping="NoWrap"
                                   TextTrimming="CharacterEllipsis" />
                 </StackPanel>

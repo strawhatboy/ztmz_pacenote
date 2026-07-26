@@ -36,8 +36,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.vrShowOverlay}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.vrShowOverlay}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrShowOverlay}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -71,8 +70,7 @@
                             </Grid.RowDefinitions>
                             <ui:TextBlock Text="{DynamicResource ResourceKey=settings.vrSelectWindow}" />
                             <ui:TextBlock Grid.Row="1"
-                                            Text="{DynamicResource ResourceKey=settings.tooltip.vrSelectWindow}"
-                                            Appearance="Tertiary"
+                                            Text="{DynamicResource ResourceKey=settings.tooltip.vrSelectWindow}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                             FontTypography="Caption" />
                         </Grid>
                     </StackPanel>
@@ -137,8 +135,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.vrOverlayPositionX}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionX}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionX}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -174,8 +171,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.vrOverlayPositionY}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionY}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionY}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -211,8 +207,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.vrOverlayPositionZ}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionZ}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayPositionZ}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -248,8 +243,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.vrOverlayRotationX}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationX}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationX}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -285,8 +279,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.vrOverlayRotationY}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationY}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationY}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -322,8 +315,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.vrOverlayRotationZ}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationZ}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayRotationZ}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -359,8 +351,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.vrOverlayScale}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayScale}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayScale}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -398,8 +389,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.vrOverlayParamSave}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayParamSave}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.vrOverlayParamSave}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>

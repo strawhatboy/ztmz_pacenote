@@ -39,8 +39,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.useSequentialMixerToHandleAudioConflict}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.useSequentialMixerToHandleAudioConflict}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.useSequentialMixerToHandleAudioConflict}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -70,8 +69,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.useDynamicPlaybackSpeed}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.useDynamicPlaybackSpeed}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.useDynamicPlaybackSpeed}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -101,8 +99,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.useTempoInsteadOfRate}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.useTempoInsteadOfRate}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.useTempoInsteadOfRate}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -133,8 +130,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.dynamicPlaybackMaxSpeed}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.dynamicPlaybackMaxSpeed}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.dynamicPlaybackMaxSpeed}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -171,8 +167,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.useDynamicVolume}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.useDynamicVolume}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.useDynamicVolume}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -202,8 +197,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.dynamicVolumePerturbationFrequency}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.dynamicVolumePerturbationFrequency}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.dynamicVolumePerturbationFrequency}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -234,8 +228,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.dynamicVolumePerturbationAmplitude}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.dynamicVolumePerturbationAmplitude}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.dynamicVolumePerturbationAmplitude}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -272,8 +265,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.playbackDeviceDesiredLatency}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.playbackDeviceDesiredLatency}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.playbackDeviceDesiredLatency}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -303,8 +295,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.connectCloseDistanceCallToNextPacenote}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.connectCloseDistanceCallToNextPacenote}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.connectCloseDistanceCallToNextPacenote}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -334,8 +325,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.connectNumericDistanceCallToPreviousPacenote}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.connectNumericDistanceCallToPreviousPacenote}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.connectNumericDistanceCallToPreviousPacenote}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -365,8 +355,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.examplePacenoteString}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.examplePacenoteString}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.examplePacenoteString}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>

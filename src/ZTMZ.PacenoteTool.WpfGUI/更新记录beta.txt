@@ -18,6 +18,8 @@ v2.99.99.39-3.0-rc11
 * Added per-dashboard output routing: choose Off, Overlay, Web, or Both without changing dashboard package settings. Existing enabled dashboards continue to use both outputs by default.
 * Separated Web and native dashboard loading so a native overlay failure does not disable Web Dashboard output.
 * Updated Game Settings immediately after selecting a safe UDP port, so the displayed port always matches the active listener and repaired game configuration.
+* Added a global Browser Lua execution switch for Web Dashboard. It defaults to enabled; disabling it forces every browser client onto the reliable draw-command compatibility renderer.
+* Refined Web Dashboard settings: usable-address help now sits beside Open in Browser, Browser Lua shares the configuration row, and setting descriptions now update correctly when the light/dark theme changes.
 * Made release packaging reliable: stage only default release assets, derive the installer version from the application build, and support renewed local signing certificates.
 * Added an opt-in Mischief setting that randomly skips normal pacenote callouts by the configured percentage; it defaults to 0% and does not affect previews or system sounds.
 * Added a diagnostics view with live UDP, audio, Web Dashboard, and game prerequisite status, plus a local support bundle containing a sanitized snapshot and recent log tails.
@@ -33,6 +35,8 @@ v2.99.99.39-3.0-rc11
 [简体中文]
 * 加固回放保存、旧版回放导入、回放播放、导出和仪表盘对比逻辑。旧版单游戏回放数据库会保留不变，不完整记录会继续显示但标记为不可用，即使关闭回放持久化，仪表盘也会保留当前赛段计时用于对比。
 * 修正最佳回放仪表盘计时对比：按赛段完成进度归一化，采样数据提前结束时使用记录的完赛时间，并由核心向原生及网页仪表盘 Lua 直接提供实时差值和最佳车位。
+* 为网页仪表盘新增全局“浏览器 Lua 执行”开关，默认启用；关闭后会强制所有浏览器客户端使用稳定的绘制命令兼容渲染路径。
+* 优化网页仪表盘设置：可用地址提示移至“在浏览器中打开”按钮旁，浏览器 Lua 开关与端口/帧率配置同一行；修复各设置项说明文字在浅色/深色主题切换后颜色不更新的问题。
 * 重做了回放浏览和播放界面：轻量实时遥测概览与按需加载、按赛段里程对齐的深度分析分离；最佳回放对比仅在分析视图中显示。
 * 扩展系统托盘快捷控制：可快速切换领航员、试听、即时静音、开关原生悬浮仪表盘和网页仪表盘；赛段进行中会禁用可能干扰路书的音频操作。
 * 修复扩展快捷控制菜单启用后系统托盘图标可能不显示的问题，确保托盘图标稳定注册并可用。

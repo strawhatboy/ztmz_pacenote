@@ -13,8 +13,7 @@
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <ui:TextBlock Text="{Binding ViewModel.CapturedAt}"
-                              Appearance="Tertiary"
+                <ui:TextBlock Text="{Binding ViewModel.CapturedAt}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                               VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <ui:Button Icon="{ui:SymbolIcon ArrowClockwise20}"
@@ -41,8 +40,8 @@
                     <Grid.RowDefinitions><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <ui:TextBlock Text="{DynamicResource diagnostics.game}" FontTypography="BodyStrong" />
                     <ui:TextBlock Grid.Column="1" Text="{Binding ViewModel.GameStatus}" TextWrapping="Wrap" />
-                    <ui:TextBlock Grid.Row="1" Text="{DynamicResource diagnostics.prerequisite}" Appearance="Tertiary" />
-                    <ui:TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ViewModel.PrerequisiteStatus}" TextWrapping="Wrap" Appearance="Tertiary" />
+                    <ui:TextBlock Grid.Row="1" Text="{DynamicResource diagnostics.prerequisite}" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                    <ui:TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ViewModel.PrerequisiteStatus}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
                 </Grid>
             </ui:Card>
 
@@ -52,8 +51,8 @@
                     <Grid.RowDefinitions><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <ui:TextBlock Text="{DynamicResource diagnostics.udp}" FontTypography="BodyStrong" />
                     <ui:TextBlock Grid.Column="1" Text="{Binding ViewModel.UdpStatus}" TextWrapping="Wrap" />
-                    <ui:TextBlock Grid.Row="1" Text="{DynamicResource diagnostics.activity}" Appearance="Tertiary" />
-                    <ui:TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ViewModel.UdpActivity}" TextWrapping="Wrap" Appearance="Tertiary" />
+                    <ui:TextBlock Grid.Row="1" Text="{DynamicResource diagnostics.activity}" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                    <ui:TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ViewModel.UdpActivity}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
                 </Grid>
             </ui:Card>
 
@@ -63,8 +62,8 @@
                     <Grid.RowDefinitions><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <ui:TextBlock Text="{DynamicResource diagnostics.audio}" FontTypography="BodyStrong" />
                     <ui:TextBlock Grid.Column="1" Text="{Binding ViewModel.AudioStatus}" TextWrapping="Wrap" />
-                    <ui:TextBlock Grid.Row="1" Text="{DynamicResource diagnostics.activity}" Appearance="Tertiary" />
-                    <ui:TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ViewModel.AudioActivity}" TextWrapping="Wrap" Appearance="Tertiary" />
+                    <ui:TextBlock Grid.Row="1" Text="{DynamicResource diagnostics.activity}" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                    <ui:TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ViewModel.AudioActivity}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
                 </Grid>
             </ui:Card>
 
@@ -74,8 +73,8 @@
                     <Grid.RowDefinitions><RowDefinition /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <ui:TextBlock Text="{DynamicResource diagnostics.webDashboard}" FontTypography="BodyStrong" />
                     <ui:TextBlock Grid.Column="1" Text="{Binding ViewModel.WebDashboardStatus}" TextWrapping="Wrap" />
-                    <ui:TextBlock Grid.Row="1" Text="{DynamicResource diagnostics.activity}" Appearance="Tertiary" />
-                    <ui:TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ViewModel.WebDashboardActivity}" TextWrapping="Wrap" Appearance="Tertiary" />
+                    <ui:TextBlock Grid.Row="1" Text="{DynamicResource diagnostics.activity}" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                    <ui:TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ViewModel.WebDashboardActivity}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
                 </Grid>
             </ui:Card>
 

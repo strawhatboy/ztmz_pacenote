@@ -169,6 +169,8 @@
       "hudTelemetryShowSuspensionBars": "轮速（绿色）、刹车温度（红色），悬挂位置（白色）和悬挂速度（蓝色）",
       "hudShowDebugTelemetry": "在游戏画面左侧显示出所有遥测数据以供调试和问题诊断",
       "webDashboardEnabled": "启用基于网页的仪表盘服务器，可通过移动设备访问",
+      "webDashboardBrowserLuaLabel": "浏览器 Lua 渲染：",
+      "webDashboardBrowserLuaEnabled": "在浏览器客户端运行仪表盘 Lua 脚本。关闭后，所有已连接客户端将使用服务器的兼容绘制命令渲染器（立即生效）。",
       "webDashboardPort": "网页仪表盘服务器的端口号（修改后立即生效）",
       "webDashboardTitle": "网页仪表盘",
       "webDashboardSubtitle": "从移动设备访问仪表盘",

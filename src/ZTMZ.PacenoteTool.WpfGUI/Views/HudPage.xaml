@@ -51,8 +51,7 @@
                             <ui:TextBlock
                                 Text="{DynamicResource ResourceKey=settings.hudFPS}" />
                             <ui:TextBlock Grid.Row="1"
-                                Text="{DynamicResource ResourceKey=settings.tooltip.hudFPS}"
-                                Appearance="Tertiary"
+                                Text="{DynamicResource ResourceKey=settings.tooltip.hudFPS}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                 FontTypography="Caption" />
                         </Grid>
                     </StackPanel>
@@ -108,8 +107,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.hudTopMost}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.hudTopMost}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.hudTopMost}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -138,8 +136,7 @@
                         <ui:TextBlock
                             Text="{DynamicResource ResourceKey=settings.hudShowInSeparateWindow}" />
                         <ui:TextBlock Grid.Row="1"
-                            Text="{DynamicResource ResourceKey=settings.tooltip.hudShowInSeparateWindow}"
-                            Appearance="Tertiary"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.hudShowInSeparateWindow}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                             FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
@@ -157,8 +154,8 @@
                     <ColumnDefinition Width="160" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -169,7 +166,7 @@
                             <RowDefinition />
                         </Grid.RowDefinitions>
                         <ui:TextBlock Grid.Row="0" Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardTitle}" FontTypography="BodyStrong" />
-                        <ui:TextBlock Grid.Row="1" Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardSubtitle}" Appearance="Tertiary" FontTypography="Caption" />
+                        <ui:TextBlock Grid.Row="1" Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardSubtitle}" Foreground="{DynamicResource TextFillColorTertiaryBrush}" FontTypography="Caption" />
                     </Grid>
                 </StackPanel>
                 <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding Path=ViewModel.WebDashboardEnabled, Mode=TwoWay}" ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardEnabled}" HorizontalAlignment="Right" />
@@ -186,9 +183,11 @@
                         <ColumnDefinition Width="36" />
                         <ColumnDefinition Width="180" />
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
                     <ui:TextBlock Grid.Column="0"
                                   Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardPortLabel}"
                                   VerticalAlignment="Center"
@@ -220,32 +219,44 @@
                             ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardFrameRate}"
                             VerticalAlignment="Center"
                             Margin="0 0 16 0" />
-                    <Ellipse Grid.Column="5"
-                             Width="8"
+                    <StackPanel Grid.Column="5"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardBrowserLuaLabel}"
+                                      VerticalAlignment="Center"
+                                      Margin="0 0 8 0" />
+                        <ui:ToggleSwitch IsChecked="{Binding Path=ViewModel.WebDashboardBrowserLuaEnabled, Mode=TwoWay}"
+                                         VerticalAlignment="Center"
+                                         ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardBrowserLuaEnabled}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1"
+                                Grid.ColumnSpan="6"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Margin="0 8 0 0">
+                        <Ellipse Width="8"
                              Height="8"
                              Fill="{Binding Path=ViewModel.WebDashboardStatusBrush, Mode=OneWay}"
                              VerticalAlignment="Center"
                              Margin="0 0 7 0"
                              ToolTip="{Binding Path=ViewModel.WebDashboardStatus, Mode=OneWay}"
                              ToolTipService.InitialShowDelay="100" />
-                    <ui:Button Grid.Column="6"
-                               MaxWidth="260"
-                               HorizontalAlignment="Left"
-                               HorizontalContentAlignment="Stretch"
-                               Icon="{ui:SymbolIcon Open20}"
-                               Command="{Binding Path=ViewModel.OpenWebDashboardCommand}"
-                               ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardOpen}">
-                        <ui:TextBlock Text="{Binding Path=ViewModel.WebDashboardUrl, Mode=OneWay}"
-                                      TextWrapping="NoWrap"
-                                      TextTrimming="CharacterEllipsis" />
-                    </ui:Button>
-                    <ui:SymbolIcon Grid.Column="7"
-                                   Symbol="QuestionCircle20"
-                                   FontSize="18"
-                                   Margin="8 0 0 0"
-                                   VerticalAlignment="Center"
-                                   ToolTip="{Binding Path=ViewModel.WebDashboardAddressesTooltip, Mode=OneWay}"
-                                   ToolTipService.InitialShowDelay="100" />
+                        <ui:Button MaxWidth="260"
+                                   HorizontalContentAlignment="Stretch"
+                                   Icon="{ui:SymbolIcon Open20}"
+                                   Command="{Binding Path=ViewModel.OpenWebDashboardCommand}"
+                                   ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardOpen}">
+                            <ui:TextBlock Text="{Binding Path=ViewModel.WebDashboardUrl, Mode=OneWay}"
+                                          TextWrapping="NoWrap"
+                                          TextTrimming="CharacterEllipsis" />
+                        </ui:Button>
+                        <ui:SymbolIcon Symbol="QuestionCircle20"
+                                       FontSize="18"
+                                       Margin="8 0 0 0"
+                                       VerticalAlignment="Center"
+                                       ToolTip="{Binding Path=ViewModel.WebDashboardAddressesTooltip, Mode=OneWay}"
+                                       ToolTipService.InitialShowDelay="100" />
+                    </StackPanel>
                 </Grid>
             </Grid>
         </ui:Card>

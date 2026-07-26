@@ -170,6 +170,8 @@
       "hudShowDebugTelemetry": "Displays all telemetry data on the left side of the game screen for debugging and problem diagnosis",
       
       "webDashboardEnabled": "Enable web-based dashboard server for mobile device access",
+      "webDashboardBrowserLuaLabel": "Browser Lua rendering:",
+      "webDashboardBrowserLuaEnabled": "Run dashboard Lua scripts in browser clients. Turn this off to force every connected client to use the server draw-command compatibility renderer (applies immediately).",
       "webDashboardPort": "Port number for the web dashboard server (applies immediately)",
       "webDashboardTitle": "Web Dashboard",
       "webDashboardSubtitle": "Access dashboards from mobile devices",
