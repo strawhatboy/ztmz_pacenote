@@ -170,7 +170,7 @@
       "hudShowDebugTelemetry": "在游戏画面左侧显示出所有遥测数据以供调试和问题诊断",
       "webDashboardEnabled": "启用基于网页的仪表盘服务器，可通过移动设备访问",
       "webDashboardBrowserLuaLabel": "浏览器 Lua 渲染：",
-      "webDashboardBrowserLuaEnabled": "在浏览器客户端运行仪表盘 Lua 脚本。关闭后，所有已连接客户端将使用服务器的兼容绘制命令渲染器（立即生效）。",
+      "webDashboardBrowserLuaEnabled": "建议开启。开启后：兼容仪表盘的 Lua 脚本和绘制计算在浏览器中运行；ZTMZ 服务器初始化后只发送遥测数据，以 60 FPS 为例每个客户端通常约 50 KB/s。\n关闭后：ZTMZ 服务器运行脚本并为每帧生成完整绘制命令；同样的帧率下，复杂仪表盘每个客户端可能约 3 MB/s。\n不支持的仪表盘或浏览器 Lua 报错时会自动使用兼容渲染器。",
       "webDashboardPort": "网页仪表盘服务器的端口号（修改后立即生效）",
       "webDashboardTitle": "网页仪表盘",
       "webDashboardSubtitle": "从移动设备访问仪表盘",

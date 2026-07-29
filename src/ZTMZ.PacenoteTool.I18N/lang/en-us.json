@@ -171,7 +171,7 @@
       
       "webDashboardEnabled": "Enable web-based dashboard server for mobile device access",
       "webDashboardBrowserLuaLabel": "Browser Lua rendering:",
-      "webDashboardBrowserLuaEnabled": "Run dashboard Lua scripts in browser clients. Turn this off to force every connected client to use the server draw-command compatibility renderer (applies immediately).",
+      "webDashboardBrowserLuaEnabled": "Recommended. Enabled: compatible dashboard Lua scripts and drawing calculations run in the browser; the ZTMZ server sends telemetry only after setup, typically about 50 KB/s per client at 60 FPS.\nDisabled: the ZTMZ server runs the scripts and creates full drawing commands for every frame; complex dashboards can use about 3 MB/s per client at the same rate.\nUnsupported dashboards or browser Lua errors automatically use the compatibility renderer.",
       "webDashboardPort": "Port number for the web dashboard server (applies immediately)",
       "webDashboardTitle": "Web Dashboard",
       "webDashboardSubtitle": "Access dashboards from mobile devices",
