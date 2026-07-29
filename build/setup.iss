@@ -95,11 +95,10 @@ begin
   begin
     Lines := TStringList.Create;
     Lines.Text := ExecStdout;
-    { find dotnet6 desktop }
+    { Find the .NET 10 Windows Desktop runtime required by this release. }
     for i:= 0 to Lines.Count-1 do
     begin
-{ Force version 8.* }
-      if StartsText('Microsoft.WindowsDesktop.App 8', Lines[i]) then
+      if StartsText('Microsoft.WindowsDesktop.App 10.', Lines[i]) then
       begin
         { found }
         Result:= True;
@@ -229,7 +228,7 @@ begin
     NeedToDownload := (not CheckDotNetInstalled);
     if NeedToDownload then
     begin
-      DownloadPage.Add('https://gitee.com/ztmz/dotnet-runtimes/releases/download/desktop-8.0.10/windowsdesktop-runtime-8.0.10-win-x64.exe', 'dotnet8.exe', '');
+      DownloadPage.Add('https://aka.ms/dotnet/10.0/windowsdesktop-runtime-win-x64.exe', 'dotnet10.exe', '');
     end;
 
     // Check for WebView2
@@ -251,7 +250,7 @@ begin
           // Install .NET runtime
           if NeedToDownload then
           begin
-            fullFileName := ExpandConstant('{tmp}\dotnet8.exe');
+            fullFileName := ExpandConstant('{tmp}\dotnet10.exe');
             Result := Exec(fullFileName, '/install /passive', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
             if not Result then
             begin
@@ -294,6 +293,8 @@ end;
 AppId={{9EF39FA9-58C6-40E7-B957-75EAC73369E7}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
+; .NET 10 does not support Windows 7 or Windows 8.1.
+MinVersion=10.0
 ;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}

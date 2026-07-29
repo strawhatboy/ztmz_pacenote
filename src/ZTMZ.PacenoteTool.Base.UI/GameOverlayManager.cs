@@ -1,5 +1,4 @@
 
-#define DEV
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -35,13 +34,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
     public class GameOverlayManager
     {
         private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-#if DEV
-        public static string GAME_PROCESS = "notepad";
-        public static string GAME_WIN_TITLE = "Dirt Rally 2.0";
-#else
         public static string GAME_PROCESS = "dirtrally2";
         public static string GAME_WIN_TITLE = "Dirt Rally 2.0";
-#endif
         private StickyWindow _window;
 
         private readonly Dictionary<string, SolidBrush> _brushes = new();
@@ -61,26 +55,45 @@ namespace ZTMZ.PacenoteTool.Base.UI
             GameOverlayDrawingHelper = new GameOverlayDrawingHelper()
         };
 
-        private bool _TimeToShowTelemetry = false;
+        private volatile bool _timeToShowTelemetry = false;
+        private readonly object _nativeOverlayStatusLock = new();
+        private NativeOverlayStatus _nativeOverlayStatus = new(NativeOverlayState.Unavailable, false);
 
         public bool TimeToShowTelemetry
         {
             set
             {
-                _TimeToShowTelemetry = value;
-                maxSpeed = MAX_SPEED;
-                maxWheelSpeed = MAX_WHEEL_SPEED;
-                maxWheelTemp = MAX_WHEEL_TEMP;
-                maxGForce = MAX_G_FORCE;
-                maxSuspension = MAX_SUSPENSION;
-                minSuspension = MIN_SUSPENSION;
-                maxSuspensionSpd = MAX_SUSPENSION_SPD;
-                minSuspensionSpd = MIN_SUSPENSION_SPD;
+                SetStageActive(value);
             }
             get
             {
-                return _TimeToShowTelemetry;
+                return _timeToShowTelemetry;
             }
+        }
+
+        public NativeOverlayStatus CurrentNativeOverlayStatus
+        {
+            get
+            {
+                lock (_nativeOverlayStatusLock)
+                {
+                    return _nativeOverlayStatus;
+                }
+            }
+        }
+
+        public void SetStageActive(bool isStageActive)
+        {
+            _timeToShowTelemetry = isStageActive;
+            maxSpeed = MAX_SPEED;
+            maxWheelSpeed = MAX_WHEEL_SPEED;
+            maxWheelTemp = MAX_WHEEL_TEMP;
+            maxGForce = MAX_G_FORCE;
+            maxSuspension = MAX_SUSPENSION;
+            minSuspension = MIN_SUSPENSION;
+            maxSuspensionSpd = MAX_SUSPENSION_SPD;
+            minSuspensionSpd = MIN_SUSPENSION_SPD;
+            RefreshNativeOverlayVisibility();
         }
 
         public bool TimeToShowStatistics { set; get; }
@@ -165,6 +178,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         public event Action<bool> OnGameOverlayInitializingStateChanged;
         public event Action<WebDashboardServerStatus> OnWebDashboardStatusChanged;
+        public event Action<NativeOverlayStatus> OnNativeOverlayStatusChanged;
 
         public WebDashboardServerStatus WebDashboardStatus
         {
@@ -204,6 +218,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             var dashboardId = GetDashboardOutputTargetId(dashboard);
             Config.Instance.SetDashboardOutputTarget(dashboardId, target);
             Config.Instance.SaveUserConfig();
+            RefreshNativeOverlayVisibility();
         }
 
         public bool IsDashboardEnabledForOverlay(Dashboard dashboard)
@@ -265,53 +280,6 @@ namespace ZTMZ.PacenoteTool.Base.UI
             _webDashboardLoaded.AddRange(Enumerable.Repeat(false, _webDashboards.Count));
             _logger.Info($"Loaded {Dashboards.Count} Dashboards.");
             
-#if DEV
-            DashboardScriptArguments.GameData = new GameData()
-            {
-                Brake = 0.7f,
-                Throttle = 0.5f,
-                Clutch = 0.3f,
-                HandBrake = 0.7f,
-                HandBrakeValid = true,
-                RPM = 6800f,
-                MaxRPM = 9000f,
-                IdleRPM = 1000f,
-                Speed = 130f,
-                Gear = 6,
-                MaxGears = 6,
-                G_lat = 0.5f,
-                G_long = 0.2f,
-                SpeedFrontLeft = 190f,
-                SpeedRearLeft = 28f,
-                SpeedFrontRight = 181f,
-                SpeedRearRight = 59f,
-                BrakeTempFrontLeft = 99,
-                BrakeTempFrontRight = 98,
-                BrakeTempRearLeft = 90,
-                BrakeTempRearRight = 91,
-                SuspensionFrontLeft = 0.8f,
-                SuspensionFrontRight = 0.7f,
-                SuspensionRearLeft = 0.75f,
-                SuspensionRearRight = 0.71f,
-                CompletionRate = 0.658f,
-                Steering = 0.9f,
-                SuspensionSpeedFrontLeft = 20,
-                SuspensionSpeedFrontRight = 23,
-                SuspensionSpeedRearLeft = 35,
-                SuspensionSpeedRearRight = 46,
-                Time = 20,
-                CarPos = 30,
-                LapDistance = 200,
-                LapTime = 20,
-                PosX = 245,
-                PosY = 425,
-                PosZ = 5356,
-                TimeStamp = DateTime.Now,
-                TrackLength = 8667
-            };
-            TimeToShowTelemetry = true;
-#endif
-
             _gameOverlaySeparateWindow.Closing += (sender, args) => {
                 _hudShowInSeparateWindow = false;
                 // UninitializeOverlayInSeparateWindow();
@@ -322,11 +290,13 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 // may temporarily be zero for a full-screen game, so keep the last valid handle.
                 if (_window != null && TryGetGameWindowHandle(out var gameWindowHandle)) {
                     _window.ParentWindowHandle = gameWindowHandle;
-                    RefreshOverlayLayering(placeAbove: true);
                 } else {
                     _logger.Warn("Unable to restore the game window as the overlay parent.");
                     UninitializeOverlayInSeparateWindow();
+                    return;
                 }
+
+                RefreshNativeOverlayVisibility();
             };
 
             if (Config.Instance.WebDashboardEnabled)
@@ -336,6 +306,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     Config.Instance.WebDashboardPort,
                     Config.Instance.WebDashboardFrameRate);
             }
+
+            RefreshNativeOverlayVisibility();
         }
 
         /// <summary>
@@ -867,7 +839,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             if (_isRunning && _window != null) {
                 RememberGameWindowHandle(_window.ParentWindowHandle);
                 _window.ParentWindowHandle = new WindowInteropHelper(_gameOverlaySeparateWindow).Handle;
-                RefreshOverlayLayering(placeAbove: true);
+                RefreshNativeOverlayVisibility();
             } else {
                 InitializeOverlay(new WindowInteropHelper(_gameOverlaySeparateWindow).Handle);
             }
@@ -890,6 +862,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 _window = new StickyWindow(windowHandle, gfx);
             } catch (Exception ex) {
                 _logger.Error(ex, "Failed to initialize overlay using window handle");
+                RefreshNativeOverlayVisibility();
                 return;
             }
             if (_window != null) {
@@ -904,6 +877,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
             if (_hudShowInSeparateWindow) {
                 // do nothing
                 _logger.Warn("Hud is already shown in separate window, do nothing.");
+                RefreshNativeOverlayVisibility();
                 return;
             }
             _logger.Info("Initializing overlay for process: {0}", p.ProcessName);
@@ -958,8 +932,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 _window.FPS = 0;    // no limit
             }
             _window.AttachToClientArea = true;
-            RefreshOverlayLayering();
-            _window.IsVisible = true;
+            _window.IsVisible = false;
 
 
             _window.DestroyGraphics += _window_DestroyGraphics;
@@ -967,26 +940,32 @@ namespace ZTMZ.PacenoteTool.Base.UI
             _window.SetupGraphics += _window_SetupGraphics;
 
             this.Run();
-            RefreshOverlayLayering(placeAbove: true);
+            RefreshNativeOverlayVisibility();
             _logger.Info("GameOverlay initialized.!");
             OnGameOverlayInitializingStateChanged?.Invoke(false);
         }
 
         public void UninitializeOverlay()
         {
+            SetStageActive(false);
             if (_hudShowInSeparateWindow) {
                 // do nothing
                 return;
             }
             _isRunning = false;
             _window?.Dispose();
+            _window = null;
+            RefreshNativeOverlayVisibility();
             _logger.Info("GameOverlay uninitialized.!");
         }
 
         public void UninitializeOverlayInSeparateWindow() {
+            SetStageActive(false);
             _isRunning = false;
             _hudShowInSeparateWindow = false;
             _window?.Dispose();
+            _window = null;
+            RefreshNativeOverlayVisibility();
             _logger.Info("GameOverlay uninitialized in separate window.!");
         }
 
@@ -994,6 +973,82 @@ namespace ZTMZ.PacenoteTool.Base.UI
         {
             if (_window != null)
                 _window.FPS = fps;  
+        }
+
+        public void RefreshNativeOverlayVisibility()
+        {
+            var window = _window;
+            var status = NativeOverlayVisibilityPolicy.Resolve(
+                isOverlayReady: _isRunning && window?.IsInitialized == true,
+                isPreviewActive: _hudShowInSeparateWindow,
+                isNativeHudEnabled: Config.Instance.UI_ShowHud,
+                isStageActive: TimeToShowTelemetry,
+                hasNativeDashboard: HasNativeOverlayDashboard());
+
+            if (window != null && window.IsInitialized)
+            {
+                try
+                {
+                    if (status.IsVisible)
+                    {
+                        if (!window.IsVisible)
+                        {
+                            window.IsVisible = true;
+                        }
+
+                        RefreshOverlayLayering(placeAbove: true);
+                    }
+                    else if (window.IsVisible)
+                    {
+                        window.IsVisible = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warn(ex, "Failed to update native overlay visibility.");
+                    status = new NativeOverlayStatus(NativeOverlayState.Unavailable, false);
+                }
+            }
+
+            UpdateNativeOverlayStatus(status);
+        }
+
+        private bool HasNativeOverlayDashboard()
+        {
+            return Dashboards.Any(IsDashboardEnabledForOverlay);
+        }
+
+        private void UpdateNativeOverlayStatus(NativeOverlayStatus status)
+        {
+            Action<NativeOverlayStatus> handler;
+            NativeOverlayStatus previousStatus;
+
+            lock (_nativeOverlayStatusLock)
+            {
+                previousStatus = _nativeOverlayStatus;
+                if (previousStatus == status)
+                {
+                    return;
+                }
+
+                _nativeOverlayStatus = status;
+                handler = OnNativeOverlayStatusChanged;
+            }
+
+            _logger.Debug(
+                "Native overlay status changed from {0} to {1}; visible: {2}",
+                previousStatus.State,
+                status.State,
+                status.IsVisible);
+
+            try
+            {
+                handler?.Invoke(status);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Native overlay status listener failed.");
+            }
         }
 
         public void SetTopMost(bool topMost)
@@ -1010,7 +1065,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private void ApplyOverlayLayering(bool topMost, bool placeAbove)
         {
             var window = _window;
-            if (window == null) {
+            if (window == null || !window.IsInitialized || !window.IsVisible) {
                 return;
             }
 
@@ -1132,6 +1187,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     }
                 }
             }
+
+            RefreshNativeOverlayVisibility();
         }
 
         private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e) {
@@ -1144,8 +1201,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 DashboardScriptArguments.NativeStaticLayerRenderOnly = false;
                 DashboardScriptArguments.NativeStaticLayerGraphics = null;
 
-                var renderNativeHud = Config.Instance.UI_ShowHud;
-                if (TimeToShowTelemetry) {
+                var renderNativeHud = Config.Instance.UI_ShowHud || _hudShowInSeparateWindow;
+                if (TimeToShowTelemetry || _hudShowInSeparateWindow) {
                     for (var i = 0; i < Dashboards.Count; i++) {
                         var dashboard = Dashboards[i];
                         if (!IsDashboardEnabledForOverlay(dashboard)) {
@@ -1562,6 +1619,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
                 _isRunning = false;
             }
+
+            RefreshNativeOverlayVisibility();
         }
 
         // private void _window_DrawGraphics(object sender, DrawGraphicsEventArgs e)
@@ -2114,7 +2173,6 @@ namespace ZTMZ.PacenoteTool.Base.UI
         public void Run()
         {
             _window.Create();
-            _window.Show();
             // _window.Join();
         }
 
@@ -2145,6 +2203,9 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     _webDashboardArgs = null;
                 }
                 _window?.Dispose();
+                _window = null;
+                _isRunning = false;
+                UpdateNativeOverlayStatus(new NativeOverlayStatus(NativeOverlayState.Unavailable, false));
 
                 disposedValue = true;
             }

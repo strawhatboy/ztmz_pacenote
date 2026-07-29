@@ -1,12 +1,14 @@
 v2.99.99.39-3.0-rc11
 ------
 [English]
+CAUTION: This release requires Windows 10 or later. Windows 7 and Windows 8.1 are no longer supported because the application now runs on .NET 10.
 * Hardened replay saving, legacy replay import, playback, export, and dashboard comparison. Legacy per-game replay databases are preserved, incomplete records remain visible but unavailable, and replay timing now stays available for dashboards even when replay persistence is disabled.
 * Corrected best-replay dashboard timing to compare normalized stage progress, use the recorded finish when sample data ends early, and provide core-calculated live delta and rival position to native and Web Dashboard Lua rendering.
 * Redesigned replay browsing and playback: a focused live telemetry overview is now separate from lazy, distance-aligned deep analysis, with best-run comparison on demand.
 * Expanded the system tray with quick co-driver selection, example playback, immediate mute, native HUD, and Web Dashboard controls; stage-sensitive audio changes are disabled while racing.
 * Fixed system-tray registration so the icon remains available with the expanded quick-control menu.
 * Fixed native dashboard overlays sometimes falling behind a focused game window.
+* Native overlays now follow the game lifecycle: they remain hidden before and after a stage, appear only during active racing, and can still be shown explicitly in the separate preview window. The Home page now shows this native-overlay state beside its switch.
 * Improved Web Dashboard setup with confirmed server status, usable local-network addresses, the real configured URL, and a browser-open action.
 * Added large touch controls to the Web Dashboard for fullscreen and portrait/landscape layout; the controls fade away after inactivity.
 * Improved Web Dashboard rendering compatibility and performance: corrected dashboard asset/background selection and gradient rendering, restored map information, added configurable refresh rates up to 240 FPS (default 60), and reduced stale browser frames.
@@ -33,6 +35,7 @@ v2.99.99.39-3.0-rc11
 * Added OBS WebSocket connection status and retry controls to Replay Settings, with serialized connection attempts and clearer failure feedback.
 
 [简体中文]
+注意：本版本需要 Windows 10 或更高版本。由于程序现已使用 .NET 10，Windows 7 和 Windows 8.1 不再受支持。
 * 加固回放保存、旧版回放导入、回放播放、导出和仪表盘对比逻辑。旧版单游戏回放数据库会保留不变，不完整记录会继续显示但标记为不可用，即使关闭回放持久化，仪表盘也会保留当前赛段计时用于对比。
 * 修正最佳回放仪表盘计时对比：按赛段完成进度归一化，采样数据提前结束时使用记录的完赛时间，并由核心向原生及网页仪表盘 Lua 直接提供实时差值和最佳车位。
 * 为网页仪表盘新增全局“浏览器 Lua 执行”开关，默认启用；关闭后会强制所有浏览器客户端使用稳定的绘制命令兼容渲染路径。
@@ -50,6 +53,7 @@ v2.99.99.39-3.0-rc11
 * 新增德语、法语、意大利语、俄语、西班牙语、巴西葡萄牙语、日语和韩语内置测试版界面语言包；少量低频旧说明暂时自动回退英文，等待母语审核。
 * 完善多语言基础设施：缺失条目自动回退英文，语言资源自动随程序打包，并校验翻译条目是否存在于英文资源中。
 * 修复本地仪表盘悬浮窗在游戏窗口重新获得焦点后可能被遮挡的问题。
+* 原生悬浮仪表盘现遵循游戏生命周期：赛段开始前和结束后保持隐藏，仅在赛段进行时显示；单独预览窗口仍可随时显示。主页开关旁现显示原生悬浮仪表盘状态。
 * 改进网页仪表盘设置：显示确认后的服务状态、可用局域网地址和实际配置 URL，并可一键在默认浏览器中打开。
 * 网页仪表盘新增大尺寸触控按钮，可切换全屏和横竖屏布局；无操作时按钮会自动淡出。
 * 改进网页仪表盘的渲染兼容性和性能：修复仪表盘图片/背景串用和渐变渲染问题，恢复地图信息，新增最高 240 FPS（默认 60）的可调帧率，并减少浏览器显示旧帧。

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.Core;
 
@@ -57,6 +58,13 @@ public sealed class RuntimeControlsService
         _tool.onRaceEnd += _ => SetStageActive(false);
         _tool.onGameEnded += _ => SetStageActive(false);
         _tool.onGameUninitialized += _ => SetStageActive(false);
+        _tool.onGameStateChanged += (_, state) =>
+        {
+            if (state.NewGameState is GameState.RaceEnd or GameState.Unknown)
+            {
+                SetStageActive(false);
+            }
+        };
         _gameOverlayManager.OnWebDashboardStatusChanged += _ => RaiseStateChanged();
     }
 
@@ -195,6 +203,7 @@ public sealed class RuntimeControlsService
         var previousValue = Config.Instance.UI_ShowHud;
         if (previousValue == visible)
         {
+            _gameOverlayManager.RefreshNativeOverlayVisibility();
             return true;
         }
 
@@ -207,9 +216,11 @@ public sealed class RuntimeControlsService
         {
             Logger.Error(exception, "Failed to persist the native HUD setting.");
             Config.Instance.UI_ShowHud = previousValue;
+            _gameOverlayManager.RefreshNativeOverlayVisibility();
             return false;
         }
 
+        _gameOverlayManager.RefreshNativeOverlayVisibility();
         RaiseStateChanged();
         return true;
     }

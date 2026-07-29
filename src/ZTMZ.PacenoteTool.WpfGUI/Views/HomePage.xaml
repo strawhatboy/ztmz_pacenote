@@ -258,21 +258,21 @@
                                            VerticalAlignment="Center"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1"
-                                    Orientation="Horizontal"
-                                    VerticalAlignment="Center"
-                                    Margin="0 0 14 0"
-                                    ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardHomeStatus}">
+                                     Orientation="Horizontal"
+                                     VerticalAlignment="Center"
+                                     Margin="0 0 14 0"
+                                    ToolTip="{DynamicResource ResourceKey=settings.tooltip.overlayHudHomeStatus}">
                             <Ellipse Width="8"
                                      Height="8"
                                      Margin="0 0 6 0"
-                                     Fill="{Binding Path=ViewModel.WebDashboardHomeStatusBrush, Mode=OneWay}"
+                                     Fill="{Binding Path=ViewModel.NativeOverlayHomeStatusBrush, Mode=OneWay}"
                                      VerticalAlignment="Center"/>
-                            <ui:TextBlock Text="{Binding Path=ViewModel.WebDashboardHomeStatus, Mode=OneWay}"
-                                          FontTypography="Caption" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                          TextWrapping="NoWrap"
-                                          TextTrimming="CharacterEllipsis"
-                                          MaxWidth="145"
-                                          VerticalAlignment="Center"/>
+                            <ui:TextBlock Text="{Binding Path=ViewModel.NativeOverlayHomeStatus, Mode=OneWay}"
+                                           FontTypography="Caption" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                           TextWrapping="NoWrap"
+                                           TextTrimming="CharacterEllipsis"
+                                           MaxWidth="160"
+                                           VerticalAlignment="Center"/>
                         </StackPanel>
                         <ui:ToggleSwitch Grid.Column="2"
                                           Name="tb_hud"

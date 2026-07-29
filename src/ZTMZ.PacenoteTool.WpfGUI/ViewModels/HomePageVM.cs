@@ -97,49 +97,43 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     }
 
     [ObservableProperty]
-    private string _webDashboardHomeStatus = string.Empty;
+    private string _nativeOverlayHomeStatus = string.Empty;
 
     [ObservableProperty]
-    private Brush _webDashboardHomeStatusBrush = Brushes.Gray;
+    private Brush _nativeOverlayHomeStatusBrush = Brushes.Gray;
 
-    private void RefreshWebDashboardHomeStatus()
+    private void RefreshNativeOverlayHomeStatus()
     {
-        var status = _gameOverlayManager.WebDashboardStatus;
-        if (!Config.Instance.WebDashboardEnabled)
+        var status = _gameOverlayManager.CurrentNativeOverlayStatus;
+        NativeOverlayHomeStatusBrush = status.State switch
         {
-            WebDashboardHomeStatus = I18NLoader.Instance["settings.tooltip.webDashboardHomeStatusStopped"];
-            WebDashboardHomeStatusBrush = Brushes.Gray;
-            return;
-        }
-
-        WebDashboardHomeStatusBrush = status.State switch
-        {
-            WebDashboardServerState.Running => Brushes.ForestGreen,
-            WebDashboardServerState.PortUnavailable or WebDashboardServerState.Error => Brushes.IndianRed,
+            NativeOverlayState.Active => Brushes.ForestGreen,
+            NativeOverlayState.Preview => Brushes.SteelBlue,
+            NativeOverlayState.NoDashboard => Brushes.DarkGoldenrod,
             _ => Brushes.Gray
         };
-        WebDashboardHomeStatus = status.State switch
+        NativeOverlayHomeStatus = status.State switch
         {
-            WebDashboardServerState.Running => I18NLoader.Instance["settings.tooltip.webDashboardHomeStatusRunning"],
-            WebDashboardServerState.PortUnavailable => I18NLoader.Instance["settings.tooltip.webDashboardHomeStatusPortUnavailable"],
-            WebDashboardServerState.Error => I18NLoader.Instance["settings.tooltip.webDashboardHomeStatusError"],
-            _ => I18NLoader.Instance["settings.tooltip.webDashboardHomeStatusStopped"]
+            NativeOverlayState.Disabled => I18NLoader.Instance["settings.tooltip.overlayHudHomeStatusDisabled"],
+            NativeOverlayState.NoDashboard => I18NLoader.Instance["settings.tooltip.overlayHudHomeStatusNoDashboard"],
+            NativeOverlayState.Ready => I18NLoader.Instance["settings.tooltip.overlayHudHomeStatusReady"],
+            NativeOverlayState.Active => I18NLoader.Instance["settings.tooltip.overlayHudHomeStatusActive"],
+            NativeOverlayState.Preview => I18NLoader.Instance["settings.tooltip.overlayHudHomeStatusPreview"],
+            _ => I18NLoader.Instance["settings.tooltip.overlayHudHomeStatusUnavailable"]
         };
     }
 
-    private void RefreshWebDashboardHomeStatusOnUiThread()
+    private void RefreshNativeOverlayHomeStatusOnUiThread()
     {
         if (Application.Current?.Dispatcher == null || Application.Current.Dispatcher.CheckAccess())
         {
-            RefreshWebDashboardHomeStatus();
-            ScheduleDiagnosticsRefresh(includePrerequisiteCheck: false);
+            RefreshNativeOverlayHomeStatus();
             return;
         }
 
         Application.Current.Dispatcher.BeginInvoke(() =>
         {
-            RefreshWebDashboardHomeStatus();
-            ScheduleDiagnosticsRefresh(includePrerequisiteCheck: false);
+            RefreshNativeOverlayHomeStatus();
         });
     }
 
@@ -281,11 +275,11 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         };
         _diagnosticsTimer.Tick += DiagnosticsTimerTick;
         Tool = _tool;
-        _gameOverlayManager.OnWebDashboardStatusChanged += _ =>
+        _gameOverlayManager.OnNativeOverlayStatusChanged += _ =>
         {
-            RefreshWebDashboardHomeStatusOnUiThread();
+            RefreshNativeOverlayHomeStatusOnUiThread();
         };
-        RefreshWebDashboardHomeStatus();
+        RefreshNativeOverlayHomeStatus();
         _tool.onGameStarted += (game, p) => {
             if (!Config.Instance.AutoInitializeGame && SelectedGame.Game != game) {
                 _logger.Info("Game started. in Home Page. AutoInitializeGame is false. Do nothing because current selected game is not the started game.");
@@ -296,6 +290,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
                 return;
             }
             IsGameRunning = true;
+            _gameOverlayManager.SetStageActive(false);
             // GameOverlay
             _logger.Info("Game started. in Home Page. Initializing GameOverlay.");
             Task.Run(() => {
@@ -317,7 +312,8 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             IsGameRunning = false;
             IsGameInitialized = false;
             IsRacing = false; 
-            
+
+            _gameOverlayManager.SetStageActive(false);
             _gameOverlayManager.UninitializeOverlay();
         };
 
@@ -332,6 +328,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             IsGameInitialized = false;
             IsGameInitializedFailed = false;
             IsRacing = false; 
+            _gameOverlayManager.SetStageActive(false);
             game.onCustomMessage -= this._gameCustomMessage;
             ScheduleDiagnosticsRefresh(includePrerequisiteCheck: false);
         };
@@ -481,7 +478,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         };
         _tool.onRaceBegin += (game) => { 
             IsRacing = true; 
-            _gameOverlayManager.TimeToShowTelemetry = true;
+            _gameOverlayManager.SetStageActive(true);
             _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison = ReplayComparisonSnapshot.Unavailable;
         };
         _tool.onRaceBegined += (game) => {
@@ -532,7 +529,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
         _tool.onRaceEnd += (game) => { 
             IsRacing = false;
-            _gameOverlayManager.TimeToShowTelemetry = false;
+            _gameOverlayManager.SetStageActive(false);
             _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison = ReplayComparisonSnapshot.Unavailable;
         };
 
@@ -541,6 +538,10 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             _gameOverlayManager.DashboardScriptArguments.GameContext.LastGameState = (int)state.LastGameState;
             _gameOverlayManager.DashboardScriptArguments.GameContext.GameState = (int)state.NewGameState;
             _gameOverlayManager.DashboardScriptArguments.GameContext.GameStateChangedParameters = state.Parameters;
+            if (state.NewGameState is GameState.RaceEnd or GameState.Unknown)
+            {
+                _gameOverlayManager.SetStageActive(false);
+            }
         };
 
         BindingOperations.EnableCollectionSynchronization(Games, _collectionLock);
