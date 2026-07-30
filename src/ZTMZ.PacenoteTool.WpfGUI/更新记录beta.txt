@@ -1,94 +1,26 @@
-v2.99.99.39-3.0-rc11
+v2.99.99.40-3.0-rc12
 ------
 [English]
-CAUTION: This release requires Windows 10 or later. Windows 7 and Windows 8.1 are no longer supported because the application now runs on .NET 10.
-* Hardened replay saving, legacy replay import, playback, export, and dashboard comparison. Legacy per-game replay databases are preserved, incomplete records remain visible but unavailable, and replay timing now stays available for dashboards even when replay persistence is disabled.
-* Corrected best-replay dashboard timing to compare normalized stage progress, use the recorded finish when sample data ends early, and provide core-calculated live delta and rival position to native and Web Dashboard Lua rendering.
-* Redesigned replay browsing and playback: a focused live telemetry overview is now separate from lazy, distance-aligned deep analysis, with best-run comparison on demand.
-* Expanded the system tray with quick co-driver selection, example playback, immediate mute, native HUD, and Web Dashboard controls; stage-sensitive audio changes are disabled while racing.
-* Fixed system-tray registration so the icon remains available with the expanded quick-control menu.
-* Fixed native dashboard overlays sometimes falling behind a focused game window.
-* Native overlays now follow the game lifecycle: they remain hidden before and after a stage, appear only during active racing, and can still be shown explicitly in the separate preview window. The Home page now shows this native-overlay state beside its switch.
-* Improved Web Dashboard setup with confirmed server status, usable local-network addresses, the real configured URL, and a browser-open action.
-* Added large touch controls to the Web Dashboard for fullscreen and portrait/landscape layout; the controls fade away after inactivity.
-* Improved Web Dashboard rendering compatibility and performance: corrected dashboard asset/background selection and gradient rendering, restored map information, added configurable refresh rates up to 240 FPS (default 60), and reduced stale browser frames.
-* Added retained static/dynamic Web Dashboard rendering for built-in dashboards. Static artwork is kept in the browser while later frames carry only live drawing commands; third-party and unsafe layers automatically use the full-frame compatibility path, and settings or stage-context changes refresh the static artwork.
-* Added browser-side Lua execution for all built-in Web Dashboard packages. Compatible clients receive compact telemetry, render dashboards locally with retained static/dynamic canvases, and automatically revert to the command-stream path if needed.
-* Improved browser-Lua reliability and visual parity: batch incoming telemetry to browser frames, protect replay and steering edge cases, and match embedded WRC normal/bold font families and multiline text layout.
-* Optimized native WRC 2025 and WRC 2025 v2 overlays by caching their static background at final dashboard size. Live telemetry keeps rendering in the existing overlay window; cache failures automatically fall back to full-frame rendering.
-* Added Web Dashboard FPS and connection indicators; a normal browser refresh now receives current client assets without requiring a forced cache refresh.
-* Added per-dashboard output routing: choose Off, Overlay, Web, or Both without changing dashboard package settings. Existing enabled dashboards continue to use both outputs by default.
-* Separated Web and native dashboard loading so a native overlay failure does not disable Web Dashboard output.
-* Updated Game Settings immediately after selecting a safe UDP port, so the displayed port always matches the active listener and repaired game configuration.
-* Added a global Browser Lua execution switch for Web Dashboard. It defaults to enabled; disabling it forces every browser client onto the reliable draw-command compatibility renderer.
-* Refined Web Dashboard settings: usable-address help now sits beside Open in Browser, Browser Lua shares the configuration row, and its tooltip explains that compatible dashboard computation moves to the browser, with typical per-client 60 FPS traffic of about 50 KB/s telemetry-only versus about 3 MB/s full draw commands. Setting descriptions now update correctly when the light/dark theme changes.
-* Made release packaging reliable: stage only default release assets, derive the installer version from the application build, and support renewed local signing certificates.
-* Added an opt-in Mischief setting that randomly skips normal pacenote callouts by the configured percentage; it defaults to 0% and does not affect previews or system sounds.
-* Added a diagnostics view with live UDP, audio, Web Dashboard, and game prerequisite status, plus a local support bundle containing a sanitized snapshot and recent log tails.
-* Added built-in beta interface packs for German, French, Italian, Russian, Spanish, Brazilian Portuguese, Japanese, and Korean. Less-used legacy descriptions fall back to English while they await native-speaker review.
-* Prepared the localization system for additional languages with per-key English fallback, automatic language-resource staging, and validation that translated resource keys exist in English.
-* Restored functional system-tray controls, including reliable Show and Exit actions.
-* Refined the Home-page game selector, status lighting, and title-bar action alignment.
-* Matched Web Dashboard text output more closely to native overlays: preserve bold and italic styles, load matching WRC font faces, and use DirectWrite layout metrics for baselines and placement.
-* Added optional Windows notifications for game and stage events, with a test action in General Settings.
-* Added an option to start directly in the system tray; restoring the app from the tray now restores its taskbar state correctly.
-* Added OBS WebSocket connection status and retry controls to Replay Settings, with serialized connection attempts and clearer failure feedback.
+CAUTION: This public release requires Windows 10 or later. Windows 7 and Windows 8.1 are no longer supported because the application now runs on .NET 10.
+* Consolidates improvements since v2.99.99.36-rc9: the .NET 10 and WPF-UI update, safer game telemetry ports, and more reliable UDP and audio handling.
+* Reworked replay recording, import, browsing, comparison, playback, export, and OBS integration. Existing legacy replay databases are preserved.
+* Improved native and Web Dashboard reliability, performance, and visual fidelity. Built-in dashboards can run Lua in the browser with a compatibility fallback, retained rendering, output routing, and configurable refresh rates up to 240 FPS.
+* Added practical dashboard and system-tray controls, including Web Dashboard status, fullscreen and orientation touch controls, quick co-driver actions, instant mute, and native HUD controls.
+* Native overlays now follow the game stage lifecycle and stay above the active game; Web Dashboard setup now exposes confirmed status and usable local-network addresses.
+* Added diagnostics and support-bundle generation, optional Windows game and stage notifications, start-minimized-to-tray, beta UI packs for eight additional languages, and a configurable Mischief pacenote option.
+* Release packaging now stages only default release assets, derives the installer version from the application build, and supports renewed local signing certificates.
 
 [简体中文]
-注意：本版本需要 Windows 10 或更高版本。由于程序现已使用 .NET 10，Windows 7 和 Windows 8.1 不再受支持。
-* 加固回放保存、旧版回放导入、回放播放、导出和仪表盘对比逻辑。旧版单游戏回放数据库会保留不变，不完整记录会继续显示但标记为不可用，即使关闭回放持久化，仪表盘也会保留当前赛段计时用于对比。
-* 修正最佳回放仪表盘计时对比：按赛段完成进度归一化，采样数据提前结束时使用记录的完赛时间，并由核心向原生及网页仪表盘 Lua 直接提供实时差值和最佳车位。
-* 为网页仪表盘新增全局“浏览器 Lua 执行”开关，默认启用；关闭后会强制所有浏览器客户端使用稳定的绘制命令兼容渲染路径。
-* 优化网页仪表盘设置：可用地址提示移至“在浏览器中打开”按钮旁，浏览器 Lua 开关与端口/帧率配置同一行；其提示说明兼容仪表盘的计算会移至浏览器，以及在 60 FPS 下每个客户端的典型流量差异：仅遥测约 50 KB/s，完整绘制命令约 3 MB/s；修复各设置项说明文字在浅色/深色主题切换后颜色不更新的问题。
-* 重做了回放浏览和播放界面：轻量实时遥测概览与按需加载、按赛段里程对齐的深度分析分离；最佳回放对比仅在分析视图中显示。
-* 扩展系统托盘快捷控制：可快速切换领航员、试听、即时静音、开关原生悬浮仪表盘和网页仪表盘；赛段进行中会禁用可能干扰路书的音频操作。
-* 修复扩展快捷控制菜单启用后系统托盘图标可能不显示的问题，确保托盘图标稳定注册并可用。
-* 新增可选的 Windows 通知，可提示游戏和赛段事件，并可在常规设置中发送测试通知。
-* 新增“启动时最小化到系统托盘”选项；从托盘恢复程序时会同步恢复任务栏状态。
-* 回放设置新增 OBS WebSocket 连接状态和重试操作；连接尝试会串行执行，并提供更清晰的失败提示。
+注意：此公开版本需要 Windows 10 或更高版本。由于程序已升级到 .NET 10，Windows 7 和 Windows 8.1 不再受支持。
+* 汇总 v2.99.99.36-rc9 之后的改进：升级到 .NET 10 和 WPF-UI，调整并可安全修复游戏遥测端口，同时提高 UDP 接收和音频播放稳定性。
+* 重做回放保存、导入、浏览、对比、播放、导出和 OBS 集成；保留既有的旧版回放数据库。
+* 提升原生和网页仪表盘的稳定性、性能和视觉一致性。内置仪表盘支持在浏览器中执行 Lua，并提供兼容回退、静态/动态分层渲染、单仪表输出位置和最高 240 FPS 刷新率。
+* 增加更实用的仪表盘与系统托盘控制，包括网页仪表盘状态、全屏和横竖屏触控按钮、快速切换领航员、即时静音及原生 HUD 控制。
+* 原生悬浮仪表盘现在随赛段生命周期显示，并保持在活动游戏窗口上方；网页仪表盘设置会显示已确认的服务状态和可用局域网地址。
+* 增加诊断页面和支持包生成、可选的 Windows 游戏和赛段通知、启动时最小化到托盘、八种新增语言的测试界面包，以及可配置的“恶作剧”路书跳过选项。
+* 发布打包现在只包含默认发布资源，安装包版本自动读取程序版本，并支持更新后的本地签名证书。
 
-[简体中文]
-* 新增“恶作剧：随机漏报路书”设置，可按设定百分比随机跳过普通路书语音；默认 0%，不影响试听和系统提示音。
-* 新增诊断界面：显示 UDP、音频、网页仪表盘和游戏前置检查状态，并可在本地创建包含脱敏运行快照及近期日志尾部的支持包。
-* 新增德语、法语、意大利语、俄语、西班牙语、巴西葡萄牙语、日语和韩语内置测试版界面语言包；少量低频旧说明暂时自动回退英文，等待母语审核。
-* 完善多语言基础设施：缺失条目自动回退英文，语言资源自动随程序打包，并校验翻译条目是否存在于英文资源中。
-* 修复本地仪表盘悬浮窗在游戏窗口重新获得焦点后可能被遮挡的问题。
-* 原生悬浮仪表盘现遵循游戏生命周期：赛段开始前和结束后保持隐藏，仅在赛段进行时显示；单独预览窗口仍可随时显示。主页开关旁现显示原生悬浮仪表盘状态。
-* 改进网页仪表盘设置：显示确认后的服务状态、可用局域网地址和实际配置 URL，并可一键在默认浏览器中打开。
-* 网页仪表盘新增大尺寸触控按钮，可切换全屏和横竖屏布局；无操作时按钮会自动淡出。
-* 改进网页仪表盘的渲染兼容性和性能：修复仪表盘图片/背景串用和渐变渲染问题，恢复地图信息，新增最高 240 FPS（默认 60）的可调帧率，并减少浏览器显示旧帧。
-* 网页仪表盘新增静态/动态分层渲染：内置仪表盘会在浏览器中保留静态画面，后续帧仅传输实时绘制命令；第三方仪表盘及不安全图层会自动回退为完整帧渲染，修改设置或赛段上下文时会刷新静态画面。
-* 新增内置网页仪表盘的浏览器端 Lua 执行：兼容客户端只接收紧凑遥测数据，在本地通过静态/动态画布渲染；发生不兼容或错误时会自动回退到绘制命令流。
-* 提高浏览器 Lua 的稳定性和视觉一致性：按浏览器帧合并高频遥测，修复回放和转向边界情况，并匹配内嵌 WRC 常规/粗体字体及多行文字布局。
-* 优化原生 WRC 2025 和 WRC 2025 v2 仪表盘：静态背景会按最终仪表盘尺寸缓存，实时遥测仍在原有悬浮窗中绘制；缓存失败会自动回退为完整帧渲染。
-* 新增网页仪表盘的帧率和连接状态指示；普通浏览器刷新即可获得最新页面文件，无需强制刷新缓存。
-* 新增单个仪表盘的输出位置选择：可选择关闭、悬浮窗、网页或两者；不会修改仪表盘包设置，现有已启用仪表盘默认继续同时显示在两端。
-* 网页和原生仪表盘改为独立加载，原生悬浮窗加载失败不会再禁用网页仪表盘输出。
-* 选择安全 UDP 端口后立即更新游戏设置界面，显示端口始终与当前监听器及已修复的游戏配置一致。
-* 改进发布打包流程：只打包默认发布资源，安装包版本自动与程序一致，并支持更新后的本地签名证书。
-* 恢复系统托盘菜单功能，显示主窗口和退出操作均可正常使用。
-* 优化主页游戏选择器、状态光晕和标题栏快捷操作的对齐效果。
-* 改进网页仪表盘文本渲染：保留粗体和斜体样式、加载对应的 WRC 字体，并使用 DirectWrite 布局指标对齐文字基线和位置。
-
-v2.99.99.38-3.0-rc10
-------
-[English]
-* Updated active projects to .NET 10, WPF-UI 4.3, and current compatible dependencies.
-* Improved UDP receiver reliability when a game is sending packets but the tool intermittently receives none.
-* Changed the default telemetry ports to DR1/DR2 `30000`, RBR `30001`, and EA WRC `30002`; reserved Windows ports are now detected when a game is selected and can be repaired with a safe port.
-* Updated NeoLua to fix dashboard initialization on .NET 10.
-* Fixed audio playback losing the first token after the output device has been idle, and restored co-driver package file previews.
-* Moved the main window's help, feedback, and support actions beside the caption buttons.
-
-[简体中文]
-* 将默认遥测端口调整为 DR1/DR2 `30000`、RBR `30001`、EA WRC `30002`；选择游戏时会检测被 Windows 保留的端口，并可一键修复为安全端口。
-* 更新 NeoLua，修复 .NET 10 下仪表盘初始化失败的问题。
-* 已将当前使用的项目升级至 .NET 10、WPF-UI 4.3 及兼容的最新依赖版本。
-* 改进 UDP 接收器可靠性，修复游戏已发送数据包但工具偶发收不到数据的问题。
-* 修复输出设备空闲后播放语音时首个词被吞掉的问题，并恢复语音包详情中文件试听功能。
-* 将主窗口的疑难解答、问题反馈和支持按钮移动至窗口控制按钮旁。
-
-v2.99.99.36-3.0-rc9
++v2.99.99.36-3.0-rc9
 ------
 * 增加了由大佬 花腩居士 录制和校准的12条新赛道路书，以及感谢老王的4090语音识别
 * 修复了界面上修改ConnectCloseDistanceCallToNextPacenote 设置不生效的问题
@@ -701,4 +633,4 @@ v2.0
 v1.0.1
 ======
 * 修复了在播放模式校准路书时，路书音频文件被占用而无法修改的问题
-* 调整了界面上关键信息的字体大小
+* 调整了界面上

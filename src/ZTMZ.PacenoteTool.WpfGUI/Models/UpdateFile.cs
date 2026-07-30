@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.Models;
@@ -5,11 +8,41 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Models;
 
 public class UpdateFile
 {
-    public string version { set; get; }
-    public string url { set; get; }
+    public string version { set; get; } = string.Empty;
+    public string url { set; get; } = string.Empty;
     public bool urlRedirected { set; get; } = false;
-    public string changelog { set; get; }
-    public string minVersionSupported { set; get; }
+    // Kept for older clients and as the fallback when a culture has no dedicated notes.
+    public string changelog { set; get; } = string.Empty;
+    public Dictionary<string, string>? changelogs { set; get; }
+    public string minVersionSupported { set; get; } = string.Empty;
+
+    public string ResolveChangelogUrl(string? cultureName)
+    {
+        if (changelogs == null || changelogs.Count == 0 || string.IsNullOrWhiteSpace(cultureName))
+        {
+            return changelog;
+        }
+
+        var requestedCulture = cultureName.Trim().Replace('_', '-');
+        var exactMatch = changelogs.FirstOrDefault(entry =>
+            string.Equals(entry.Key, requestedCulture, StringComparison.OrdinalIgnoreCase));
+        if (!string.IsNullOrWhiteSpace(exactMatch.Value))
+        {
+            return exactMatch.Value;
+        }
+
+        var requestedLanguage = GetLanguageCode(requestedCulture);
+        var languageMatch = changelogs.FirstOrDefault(entry =>
+            string.Equals(GetLanguageCode(entry.Key), requestedLanguage, StringComparison.OrdinalIgnoreCase));
+
+        return string.IsNullOrWhiteSpace(languageMatch.Value) ? changelog : languageMatch.Value;
+    }
+
+    private static string GetLanguageCode(string cultureName)
+    {
+        var separatorIndex = cultureName.IndexOf('-');
+        return separatorIndex < 0 ? cultureName : cultureName[..separatorIndex];
+    }
 }
 
 public partial class CodriverPackageUpdateFile: ObservableObject {

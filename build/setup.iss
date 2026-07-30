@@ -4,6 +4,7 @@
   #error "Published WPF executable was not found. Run build\publish.bat before packaging."
 #endif
 #define MyAppVersion GetVersionNumbersString(MyAppPublishPath)
+#define MyAppReleaseSuffix "-rc12"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
@@ -77,6 +78,25 @@ begin
   Result:= False;
   if (index = 1) then
     Result:= True;
+end;
+
+function GetDotNetRuntimeDownloadUrl: String;
+var
+  TimeZoneKeyName: String;
+begin
+  if RegQueryStringValue(HKEY_LOCAL_MACHINE,
+    'SYSTEM\CurrentControlSet\Control\TimeZoneInformation',
+    'TimeZoneKeyName', TimeZoneKeyName) and
+    (CompareText(TimeZoneKeyName, 'China Standard Time') = 0) then
+  begin
+    Log('Using the Gitee .NET runtime mirror for China Standard Time.');
+    Result := 'https://gitee.com/ztmz/dotnet-runtimes/releases/download/desktop-10.0.10/windowsdesktop-runtime-10.0.10-win-x64.exe';
+  end
+  else
+  begin
+    Log('Using the Microsoft .NET runtime download.');
+    Result := 'https://aka.ms/dotnet/10.0/windowsdesktop-runtime-win-x64.exe';
+  end;
 end;
 
 function CheckDotNetInstalled: Boolean;
@@ -228,7 +248,7 @@ begin
     NeedToDownload := (not CheckDotNetInstalled);
     if NeedToDownload then
     begin
-      DownloadPage.Add('https://aka.ms/dotnet/10.0/windowsdesktop-runtime-win-x64.exe', 'dotnet10.exe', '');
+      DownloadPage.Add(GetDotNetRuntimeDownloadUrl(), 'dotnet10.exe', '');
     end;
 
     // Check for WebView2

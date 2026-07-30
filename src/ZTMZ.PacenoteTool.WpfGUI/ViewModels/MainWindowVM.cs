@@ -17,6 +17,7 @@ using Wpf.Ui.Extensions;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.Core;
+using ZTMZ.PacenoteTool.WpfGUI.Models;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
 using ZTMZ.PacenoteTool.WpfGUI.Views.Dialog;
@@ -26,6 +27,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 public enum TrayWindowAction
 {
     ShowMainUi,
+    ShowUpdate,
     ManageCodrivers,
     Exit
 }
@@ -37,6 +39,7 @@ public partial class MainWindowVM : ObservableObject
 
     public event Action OnInitialized;
     internal event Action<TrayWindowAction>? TrayWindowActionRequested;
+    internal event Action<string>? UpdateAvailableInTray;
 
     public MainWindowVM(
         ZTMZPacenoteTool tool,
@@ -62,6 +65,8 @@ public partial class MainWindowVM : ObservableObject
     private readonly UpdateService _updateService;
 
     private StartupDialog _startupDialog;
+    private UpdateFile? _pendingUpdate;
+    private bool _isShowingPendingUpdate;
 
     private AzureAppInsightsManager _azureAppInsightsManager;
 
@@ -271,6 +276,16 @@ public partial class MainWindowVM : ObservableObject
         });
 
         menuItems.Add(new System.Windows.Controls.Separator());
+        if (_pendingUpdate != null)
+        {
+            menuItems.Add(new MenuItem
+            {
+                Header = string.Format("{0} ({1})", I18NLoader.Instance["dialog.newUpdate.title"], _pendingUpdate.version),
+                Icon = new SymbolIcon { Symbol = SymbolRegular.Info20 },
+                Command = RequestTrayWindowActionCommand,
+                CommandParameter = TrayWindowAction.ShowUpdate
+            });
+        }
         menuItems.Add(new MenuItem
         {
             Header = I18NLoader.Instance["tray.overlayHud"],
@@ -377,8 +392,16 @@ public partial class MainWindowVM : ObservableObject
 
     [RelayCommand]
     private async Task OnShowStartupDialog() {
-        // A tray-only start should not be interrupted by startup or update dialogs.
+        var shouldCheckForUpdate = Config.Instance.CheckUpdateWhenStartup || ToolUtils.GetToolVersion() != ToolVersion.STANDARD;
+
+        // A tray-only start should not be interrupted by startup dialogs. It still checks for
+        // updates so the tray icon can notify the user and offer the update from its menu.
         if (Config.Instance.StartMinimizedToTray) {
+            if (shouldCheckForUpdate)
+            {
+                await CheckForUpdateInTrayAsync();
+            }
+
             return;
         }
 
@@ -386,7 +409,7 @@ public partial class MainWindowVM : ObservableObject
         if (!_tool.IsInitialized) {
             await _startupDialog.ShowAsync();
         }
-        if (Config.Instance.CheckUpdateWhenStartup || ToolUtils.GetToolVersion() != ToolVersion.STANDARD) {
+        if (shouldCheckForUpdate) {
             // force update if it is not standard version
             try {
                 var updateFile = await _updateService.CheckUpdate();
@@ -395,6 +418,61 @@ public partial class MainWindowVM : ObservableObject
                 _azureAppInsightsManager.TrackException(ex, new Dictionary<string, string>{ {"CheckUpdate", "Failed" }});
                 _logger.Error(ex, "CheckUpdate failed");
             }
+        }
+    }
+
+    internal async Task ShowPendingUpdateDialogAsync()
+    {
+        var pendingUpdate = _pendingUpdate;
+        if (pendingUpdate == null || _isShowingPendingUpdate)
+        {
+            return;
+        }
+
+        _isShowingPendingUpdate = true;
+        try
+        {
+            var accepted = await _updateService.ShowUpdateDialogAsync(pendingUpdate);
+            if (accepted || string.Equals(Config.Instance.SkippedVersion, pendingUpdate.version, StringComparison.OrdinalIgnoreCase))
+            {
+                _pendingUpdate = null;
+                RefreshTrayMenu();
+            }
+        }
+        catch (Exception ex)
+        {
+            _azureAppInsightsManager.TrackException(ex, new Dictionary<string, string> { { "CheckUpdate", "ShowPendingDialogFailed" } });
+            _logger.Error(ex, "Failed to show the pending update dialog.");
+        }
+        finally
+        {
+            _isShowingPendingUpdate = false;
+        }
+    }
+
+    private async Task CheckForUpdateInTrayAsync()
+    {
+        try
+        {
+            var updateFile = await _updateService.CheckForUpdate();
+            _azureAppInsightsManager.TrackEvent("CheckUpdate", new Dictionary<string, string>
+            {
+                { "Result", updateFile == null ? "NoUpdate" : "UpdateAvailable" }
+            });
+
+            if (updateFile == null)
+            {
+                return;
+            }
+
+            _pendingUpdate = updateFile;
+            RefreshTrayMenu();
+            UpdateAvailableInTray?.Invoke(updateFile.version);
+        }
+        catch (Exception ex)
+        {
+            _azureAppInsightsManager.TrackException(ex, new Dictionary<string, string> { { "CheckUpdate", "Failed" } });
+            _logger.Error(ex, "CheckUpdate failed");
         }
     }
 

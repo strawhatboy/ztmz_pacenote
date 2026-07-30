@@ -1,0 +1,5 @@
+v2.99.99.40-3.0-rc12
+
+* Consolidates improvements since v2.99.99.36-rc9: the .NET 10 and WPF-UI update, safer game telemetry ports, and more reliable UDP and audio handling.
+* Adds a China-friendly .NET desktop-runtime download mirror for the installer when Windows is configured for China Standard Time.
+* Improves update delivery when the application starts minimized: an available update is announced through the tray icon and remains available from the tray menu.

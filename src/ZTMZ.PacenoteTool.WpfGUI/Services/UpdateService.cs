@@ -35,17 +35,32 @@ public class UpdateService {
 
     public UpdateFile UpdateFile { private set; get; }
 
-    public async Task<UpdateFile> CheckUpdate() 
+    public async Task<UpdateFile?> CheckUpdate()
     {
-        var updateFile = await CheckUpdate(updateURL);
-        if (updateFile == null && Config.Instance.OptInBetaPlan || ToolUtils.GetToolVersion() == ToolVersion.TEST) 
+        var updateFile = await CheckForUpdate();
+        if (updateFile == null)
         {
-            // when there's no new stable version and user opt in beta plan, 
-            // or it is beta version running now, we will check beta update
-            updateFile = await CheckUpdate(betaUpdateURL);
+            return null;
         }
 
-        return updateFile;
+        return await ShowUpdateDialogAsync(updateFile) ? updateFile : null;
+    }
+
+    public async Task<UpdateFile?> CheckForUpdate()
+    {
+        var updateFile = await CheckUpdateDefinition(updateURL);
+        if (updateFile != null)
+        {
+            return updateFile;
+        }
+
+        if (Config.Instance.OptInBetaPlan || ToolUtils.GetToolVersion() == ToolVersion.TEST)
+        {
+            // When there is no stable update, beta users and test builds also check the beta channel.
+            return await CheckUpdateDefinition(betaUpdateURL);
+        }
+
+        return null;
     }
 
     public async Task<List<CodriverPackageUpdateFile>> CheckCodriverPackagesUpdate(List<CoDriverPackageInfo> packages) {
@@ -86,7 +101,25 @@ public class UpdateService {
         }
     }
 
-    public async Task<UpdateFile> CheckUpdate(string url)
+    public async Task<bool> ShowUpdateDialogAsync(UpdateFile updateFile)
+    {
+        var changelogUrl = updateFile.ResolveChangelogUrl(Config.Instance.Language);
+        var dialog = new NewUpdateDialog(
+            _contentDialogService.GetDialogHostEx()!,
+            updateFile.version,
+            CurrentVersion,
+            changelogUrl);
+
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+        {
+            return false;
+        }
+
+        await Update(updateFile);
+        return true;
+    }
+
+    private async Task<UpdateFile?> CheckUpdateDefinition(string url)
     {
         using (HttpClient w = new HttpClient())
         {
@@ -97,6 +130,11 @@ public class UpdateService {
             }
 
             var versionFile = JsonConvert.DeserializeObject<UpdateFile>(json);
+            if (versionFile == null)
+            {
+                return null;
+            }
+
             this.UpdateFile = versionFile;
             // compare version
             var newVersion = new Version(versionFile.version);
@@ -117,18 +155,7 @@ public class UpdateService {
 
             if (myVersion.CompareTo(newVersion) < 0)
             {
-                // need update
-                // show new update dialog
-                NewUpdateDialog nud = new NewUpdateDialog(_contentDialogService.GetDialogHostEx()!, versionFile.version, CurrentVersion, versionFile.changelog);
-
-                ContentDialogResult dres = await nud.ShowAsync();
-                if (dres == ContentDialogResult.Primary)
-                {
-                    // update
-                    await this.Update(versionFile);
-                    return versionFile;
-                } else {
-                }
+                return versionFile;
             }
 
             return null;

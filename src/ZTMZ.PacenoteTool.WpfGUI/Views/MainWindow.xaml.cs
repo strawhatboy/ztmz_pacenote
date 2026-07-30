@@ -40,6 +40,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
         private bool _isTrayExitRequested;
         private bool _isClosed;
         private int _trayRegistrationAttempts;
+        private SystemNotificationMessage? _pendingUpdateNotification;
         public MainWindow(ViewModels.MainWindowVM viewModel,
             INavigationViewPageProvider pageService,
             INavigationService navigationService,
@@ -65,6 +66,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             _systemNotificationService = systemNotificationService;
             _systemNotificationService.NotificationRequested += OnSystemNotificationRequested;
             ViewModel.TrayWindowActionRequested += OnTrayWindowActionRequested;
+            ViewModel.UpdateAvailableInTray += OnUpdateAvailableInTray;
             SetPageService(pageService);
             contentDialogService.SetDialogHost(RootContentDialog);
             navigationService.SetNavigationControl(RootNavigation);
@@ -93,6 +95,8 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
                 {
                     HideOnStartup();
                 }
+
+                ShowPendingUpdateNotification();
 
                 return;
             }
@@ -153,6 +157,12 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             {
                 case ViewModels.TrayWindowAction.ShowMainUi:
                     ShowAndActivateWindow();
+                    break;
+                case ViewModels.TrayWindowAction.ShowUpdate:
+                    ShowAndActivateWindow();
+                    _ = Dispatcher.BeginInvoke(
+                        DispatcherPriority.ContextIdle,
+                        new Action(() => _ = ViewModel.ShowPendingUpdateDialogAsync()));
                     break;
                 case ViewModels.TrayWindowAction.ManageCodrivers:
                     ShowAndActivateWindow();
@@ -222,6 +232,39 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             }
         }
 
+        private void OnUpdateAvailableInTray(string version)
+        {
+            if (_isClosed)
+            {
+                return;
+            }
+
+            if (!Dispatcher.CheckAccess())
+            {
+                _ = Dispatcher.BeginInvoke(
+                    DispatcherPriority.Background,
+                    new Action(() => OnUpdateAvailableInTray(version)));
+                return;
+            }
+
+            _pendingUpdateNotification = new SystemNotificationMessage(
+                I18NLoader.Instance["dialog.newUpdate.title"],
+                string.Format(I18NLoader.Instance["dialog.newUpdate.content"], version, UpdateService.CurrentVersion));
+            ShowPendingUpdateNotification();
+        }
+
+        private void ShowPendingUpdateNotification()
+        {
+            if (_pendingUpdateNotification == null || !_trayIconService.IsRegistered)
+            {
+                return;
+            }
+
+            var notification = _pendingUpdateNotification;
+            _pendingUpdateNotification = null;
+            OnSystemNotificationRequested(notification);
+        }
+
         public async void MainWindow_Closing(object sender, CancelEventArgs e)
         {
             if (_isTrayExitRequested)
@@ -266,6 +309,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
         {
             _isClosed = true;
             ViewModel.TrayWindowActionRequested -= OnTrayWindowActionRequested;
+            ViewModel.UpdateAvailableInTray -= OnUpdateAvailableInTray;
             _systemNotificationService.NotificationRequested -= OnSystemNotificationRequested;
             _trayIconService.Unregister();
             base.OnClosed(e);
