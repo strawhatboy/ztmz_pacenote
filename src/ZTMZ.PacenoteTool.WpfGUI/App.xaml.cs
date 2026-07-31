@@ -25,7 +25,22 @@ namespace ZTMZ.PacenoteTool.WpfGUI;
 
 public partial class App : Application
 {
+    private readonly DataFolderMigrationRequest? _dataFolderMigrationRequest;
+
+    internal static bool IsDataFolderMigrationShutdownRequested { get; private set; }
+
+    internal static void RequestDataFolderMigrationShutdown()
+    {
+        IsDataFolderMigrationShutdownRequested = true;
+    }
+
     public App() {
+
+        if (DataFolderMigrationLauncher.TryParseRequest(Environment.GetCommandLineArgs(), out var migrationRequest))
+        {
+            _dataFolderMigrationRequest = migrationRequest;
+            return;
+        }
 
         // Ensure only one instance of the application is running
         if (!mutex.WaitOne(TimeSpan.FromMilliseconds(500), true))
@@ -162,6 +177,15 @@ public partial class App : Application
     /// </summary>
     private async void OnStartup(object sender, StartupEventArgs e)
     {
+        if (_dataFolderMigrationRequest != null)
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            var migrationWindow = new Views.DataFolderMigrationWindow(_dataFolderMigrationRequest);
+            MainWindow = migrationWindow;
+            migrationWindow.Show();
+            return;
+        }
+
         SetupExceptionHandling();
         await _host.StartAsync();
     }
@@ -171,6 +195,11 @@ public partial class App : Application
     /// </summary>
     private async void OnExit(object sender, ExitEventArgs e)
     {
+        if (_dataFolderMigrationRequest != null)
+        {
+            return;
+        }
+
         try {
             await ReplayManager.Instance.FlushPendingSavesAsync();
         } catch (Exception ex) {
@@ -187,6 +216,14 @@ public partial class App : Application
     /// </summary>
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
+        if (_dataFolderMigrationRequest != null)
+        {
+            System.Windows.MessageBox.Show(e.Exception.ToString(), "Data Folder Migration");
+            e.Handled = true;
+            Shutdown();
+            return;
+        }
+
         _logger.Error(e.Exception, "Unhandled exception occurred.");
         // For more info see https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.dispatcherunhandledexception?view=windowsdesktop-6.0
         GetService<AzureAppInsightsManager>().TrackException(e.Exception);

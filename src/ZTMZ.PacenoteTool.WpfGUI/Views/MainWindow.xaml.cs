@@ -267,7 +267,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
 
         public async void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            if (_isTrayExitRequested)
+            if (_isTrayExitRequested || App.IsDataFolderMigrationShutdownRequested)
                 return;
 
             if (Config.Instance.ShowClosePrompt)

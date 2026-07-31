@@ -335,10 +335,10 @@ public class RBRGameDataReader : UdpGameDataReader
 
     public override void Uninitialize(IGame game)
     {
-        base.Uninitialize(game);
-        memDataReader.CloseProgress();
-        _timer.Elapsed -= MemDataPullHandler;
         _timer.Stop();
+        _timer.Elapsed -= MemDataPullHandler;
+        memDataReader.CloseProgress();
+        base.Uninitialize(game);
     }
 
     private void MemDataPullHandler(object? sender, ElapsedEventArgs e) 

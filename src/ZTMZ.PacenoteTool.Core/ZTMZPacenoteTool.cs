@@ -232,9 +232,16 @@ public class ZTMZPacenoteTool {
             if (_currentGame == g) 
             {
                 // raise game UI exit effect
-                this.onGameEnded?.Invoke(_currentGame);
+                try
+                {
+                    this.onGameEnded?.Invoke(_currentGame);
+                }
+                catch (Exception exception)
+                {
+                    _logger.Error(exception, "Game ended handler failed for {0}.", g.Name);
+                }
             }
-            if (_currentGame.Name.Equals(g.Name))
+            if (_currentGame?.Name.Equals(g.Name) == true)
             {
                 // turn off the light, current game is exiting.
                 uninitializeGame(_currentGame);
@@ -384,15 +391,42 @@ public class ZTMZPacenoteTool {
             return;
 
         _logger.Info("Trying to uninitialize game: " + game.Name);
-        game.GameDataReader.onCarDamaged -= carDamagedEventHandler;
-        game.GameDataReader.onNewGameData -= newGameDataEventHander;
-        game.GameDataReader.onGameStateChanged -= this.gamestateChangedHandler;
-        game.GameDataReader.onCarReset -= carResetHandler;
-        game.GameDataReader.Uninitialize(game);
-        game.IsInitialized = false;
-        _logger.Info("Stop OBS recording when game uninitialized no matter if it is recording.");
-        ObsManager.Instance.AbnormallyStopRecording();
-        this.onGameUninitialized?.Invoke(game);
+        try
+        {
+            game.GameDataReader.onCarDamaged -= carDamagedEventHandler;
+            game.GameDataReader.onNewGameData -= newGameDataEventHander;
+            game.GameDataReader.onGameStateChanged -= this.gamestateChangedHandler;
+            game.GameDataReader.onGameDataAvailabilityChanged -= gameDataAvailabilityChangedHandler;
+            game.GameDataReader.onCarReset -= carResetHandler;
+            game.GameDataReader.Uninitialize(game);
+        }
+        catch (Exception exception)
+        {
+            _logger.Error(exception, "Failed to uninitialize game {0}.", game.Name);
+        }
+        finally
+        {
+            game.IsInitialized = false;
+            _logger.Info("Stop OBS recording when game uninitialized no matter if it is recording.");
+
+            try
+            {
+                ObsManager.Instance.AbnormallyStopRecording();
+            }
+            catch (Exception exception)
+            {
+                _logger.Error(exception, "Failed to stop OBS recording while uninitializing {0}.", game.Name);
+            }
+
+            try
+            {
+                this.onGameUninitialized?.Invoke(game);
+            }
+            catch (Exception exception)
+            {
+                _logger.Error(exception, "Game uninitialized handler failed for {0}.", game.Name);
+            }
+        }
     }
 
 #region EventHandlers

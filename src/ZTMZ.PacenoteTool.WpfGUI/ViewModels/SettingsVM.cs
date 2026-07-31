@@ -5,12 +5,15 @@
 
 using System.IO;
 using System.Reflection;
+using System.Windows;
 using System.Windows.Controls;
 using Wpf.Ui.Controls;
 using Wpf.Ui.Extensions;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.Core;
+using ZTMZ.PacenoteTool.WpfGUI.Services;
+using ZTMZ.PacenoteTool.WpfGUI.Views.Dialog;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -28,7 +31,11 @@ public partial class SettingsVM : ObservableObject, INavigationAware
     [ObservableProperty]
     private string _dataFolderSize = String.Empty;
 
+    [ObservableProperty]
+    private bool _isMovingDataFolder;
+
     private readonly IContentDialogService _contentDialogService;
+    private readonly DataFolderMigrationService _dataFolderMigrationService = new();
 
     public SettingsVM(IContentDialogService contentDialogService)
     {
@@ -221,8 +228,103 @@ public partial class SettingsVM : ObservableObject, INavigationAware
         }
     }
 
-    [RelayCommand]
-    private async void MoveDataFolder() {
-        // open folder dialog to get the new folder, and start another process to move the folder and modify the registry, while shutting down the current app to release file lock
+    partial void OnIsMovingDataFolderChanged(bool value)
+    {
+        MoveDataFolderCommand.NotifyCanExecuteChanged();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanMoveDataFolder))]
+    private async Task MoveDataFolder()
+    {
+        if (AppLevelVariables.Instance.IsPortableVersion())
+        {
+            await ShowMigrationMessageAsync(
+                I18NLoader.Instance["dataFolderMigration.title"],
+                I18NLoader.Instance["dataFolderMigration.portableNotSupported"]);
+            return;
+        }
+
+        var sourcePath = AppLevelVariables.Instance.AppConfigFolder;
+        var destinationPath = SelectDestinationFolder(sourcePath);
+        if (string.IsNullOrWhiteSpace(destinationPath))
+        {
+            return;
+        }
+
+        IsMovingDataFolder = true;
+        try
+        {
+            var plan = await Task.Run(() => _dataFolderMigrationService.CreatePlan(sourcePath, destinationPath));
+            var confirmation = new DataFolderMoveConfirmationDialog(
+                _contentDialogService.GetDialogHostEx()!,
+                plan,
+                FormatSize(plan.TotalBytes),
+                FormatSize(plan.RequiredFreeSpaceBytes),
+                FormatSize(plan.AvailableFreeSpaceBytes));
+            if (await confirmation.ShowAsync() != ContentDialogResult.Primary)
+            {
+                return;
+            }
+
+            Config.Instance.SaveUserConfig();
+            await ReplayManager.Instance.FlushPendingSavesAsync();
+            DataFolderMigrationLauncher.Start(new DataFolderMigrationRequest(
+                sourcePath,
+                destinationPath,
+                Environment.ProcessId,
+                Config.Instance.Language));
+            App.RequestDataFolderMigrationShutdown();
+            Application.Current.Shutdown();
+        }
+        catch (InsufficientDataFolderMigrationSpaceException exception)
+        {
+            await ShowMigrationMessageAsync(
+                I18NLoader.Instance["dataFolderMigration.title"],
+                string.Format(
+                    I18NLoader.Instance["dataFolderMigration.insufficientSpace"],
+                    FormatSize(exception.RequiredBytes),
+                    FormatSize(exception.AvailableBytes)));
+        }
+        catch (Exception exception)
+        {
+            _logger.Error(exception, "Failed to start data-folder migration.");
+            await ShowMigrationMessageAsync(
+                I18NLoader.Instance["dataFolderMigration.title"],
+                string.Format(I18NLoader.Instance["dataFolderMigration.failed"], exception.Message));
+        }
+        finally
+        {
+            IsMovingDataFolder = false;
+        }
+    }
+
+    private bool CanMoveDataFolder()
+    {
+        return !IsMovingDataFolder;
+    }
+
+    private string? SelectDestinationFolder(string sourcePath)
+    {
+        using var dialog = new System.Windows.Forms.FolderBrowserDialog
+        {
+            Description = I18NLoader.Instance["dataFolderMigration.selectDestination"],
+            InitialDirectory = Path.GetDirectoryName(sourcePath) ?? sourcePath,
+            ShowNewFolderButton = true,
+            UseDescriptionForTitle = true
+        };
+
+        return dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK
+            ? dialog.SelectedPath
+            : null;
+    }
+
+    private async Task ShowMigrationMessageAsync(string title, string content)
+    {
+        await _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions
+        {
+            Title = title,
+            Content = content,
+            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+        });
     }
 }

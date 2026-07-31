@@ -4,7 +4,7 @@
   #error "Published WPF executable was not found. Run build\publish.bat before packaging."
 #endif
 #define MyAppVersion GetVersionNumbersString(MyAppPublishPath)
-#define MyAppReleaseSuffix "-rc12"
+#define MyAppReleaseSuffix "-rc13"
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"

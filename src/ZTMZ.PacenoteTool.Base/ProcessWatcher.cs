@@ -157,12 +157,22 @@ public class ProcessWatcher : IDisposable
                     {
                         if (!processes.Any(x => x.ProcessName.ToLower() == p))
                         {
-                            if (WatchingProcesses.ContainsKey(p)) {
-                                // raise only when watching
-                                onProcessExit?.Invoke(p, null);
+                            try
+                            {
+                                if (WatchingProcesses.ContainsKey(p)) {
+                                    // Raise only when watching. A consumer failure must not leave this process stuck.
+                                    onProcessExit?.Invoke(p, null);
+                                }
                             }
-                            RunningProcesses.TryRemove(p, out _);
-                            _logger.Debug($"ProcessWatcher: process exit {p}");
+                            catch (Exception ex)
+                            {
+                                _logger.Error(ex, "ProcessWatcher: process exit handler failed for {0}", p);
+                            }
+                            finally
+                            {
+                                RunningProcesses.TryRemove(p, out _);
+                                _logger.Debug($"ProcessWatcher: process exit {p}");
+                            }
                         }
                     }
                 } catch (Exception ex) {

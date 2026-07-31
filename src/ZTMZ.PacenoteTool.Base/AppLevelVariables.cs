@@ -11,6 +11,9 @@ namespace ZTMZ.PacenoteTool.Base
 
     public class AppLevelVariables
     {
+        private const string AppRegistryPath = @"Software\ZTMZ Next Generation Pacenote Tool";
+        private const string AppConfigFolderRegistryValueName = "ZTMZHome";
+
         private string _appConfigFolder;
         public string AppConfigFolder {
             get {
@@ -18,8 +21,8 @@ namespace ZTMZ.PacenoteTool.Base
                 if (string.IsNullOrEmpty(_appConfigFolder))
                 {
                     // read from registry HKCU\Software\ZTMZ Next Generation Pacenote Tool\ZTMZHome
-                    using var key = Registry.CurrentUser.OpenSubKey(@"Software\ZTMZ Next Generation Pacenote Tool");
-                    _appConfigFolder = key?.GetValue("ZTMZHome") as string;
+                    using var key = Registry.CurrentUser.OpenSubKey(AppRegistryPath);
+                    _appConfigFolder = key?.GetValue(AppConfigFolderRegistryValueName) as string;
 
                     if (string.IsNullOrWhiteSpace(_appConfigFolder))
                     {
@@ -70,6 +73,28 @@ namespace ZTMZ.PacenoteTool.Base
 #else
             return false;
 #endif
+        }
+
+        public void SetAppConfigFolderForNextLaunch(string folderPath)
+        {
+            if (string.IsNullOrWhiteSpace(folderPath))
+            {
+                throw new ArgumentException("A data-folder path is required.", nameof(folderPath));
+            }
+
+            var normalizedPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(folderPath));
+            if (!Directory.Exists(normalizedPath))
+            {
+                throw new DirectoryNotFoundException($"The data folder does not exist: {normalizedPath}");
+            }
+
+            using var key = Registry.CurrentUser.CreateSubKey(AppRegistryPath);
+            if (key == null)
+            {
+                throw new InvalidOperationException("The application registry key could not be opened.");
+            }
+
+            key.SetValue(AppConfigFolderRegistryValueName, normalizedPath, RegistryValueKind.String);
         }
     }
 }
