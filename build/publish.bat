@@ -29,10 +29,12 @@ rem copy built games to target folder
 
 echo copying built games to target folder
 rem all the dlls
+if exist "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games" rmdir /S /Q "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games"
 mkdir target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games
 xcopy target\bin\ZTMZ.PacenoteTool.Codemasters\release_win-x64\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ /Y /V /Q  
 xcopy target\bin\ZTMZ.PacenoteTool.RBR\release_win-x64\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ /Y /V /Q
-xcopy target\bin\ZTMZ.PacenoteTool.BeamNG\release_win-x64\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ /E /I /Y /V /Q
+copy /Y "target\bin\ZTMZ.PacenoteTool.BeamNG\release_win-x64\ZTMZ.PacenoteTool.BeamNG.dll" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\" >nul
+xcopy "target\bin\ZTMZ.PacenoteTool.BeamNG\release_win-x64\BeamNGMod\*" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\BeamNGMod\" /E /I /Y /V /Q
 
 rem the i18n
 mkdir target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang

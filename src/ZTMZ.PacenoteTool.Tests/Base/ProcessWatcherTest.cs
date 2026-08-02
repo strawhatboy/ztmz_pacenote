@@ -96,6 +96,48 @@ public class ProcessWatcherTest
     }
 
     [Fact]
+    public async Task ExistingWatchedProcessWaitsForItsWindowTitle()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var processName = $"ztmzpww{Guid.NewGuid():N}"[..15];
+        var processPath = Path.Combine(Path.GetTempPath(), $"{processName}.exe");
+        var processStarted = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var watcher = new ProcessWatcher(refreshInterval: 50);
+        Process? process = null;
+
+        try
+        {
+            File.Copy(Path.Combine(Environment.SystemDirectory, "ping.exe"), processPath);
+            process = StartPing(processPath);
+
+            watcher.onNewProcess += observedProcess =>
+            {
+                if (observedProcess.Id == process.Id)
+                {
+                    processStarted.TrySetResult(observedProcess.Id);
+                }
+            };
+            watcher.AddToWatch(processName, "window title that does not exist");
+            watcher.StartWatching();
+
+            await Task.Delay(300);
+
+            Assert.False(processStarted.Task.IsCompleted);
+            Assert.False(watcher.RunningProcesses.ContainsKey(processName));
+        }
+        finally
+        {
+            watcher.StopWatching();
+            await StopProcessAsync(process);
+            File.Delete(processPath);
+        }
+    }
+
+    [Fact]
     public async Task ProcessExitHandlerFailureDoesNotBlockRestartDetection()
     {
         if (!OperatingSystem.IsWindows())

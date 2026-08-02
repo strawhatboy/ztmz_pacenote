@@ -138,16 +138,9 @@ public class ZTMZPacenoteTool {
         this._games.Clear();
         try {
             var gamesDirectory = Path.Combine(AppContext.BaseDirectory, Constants.PATH_GAMES);
-            foreach (var file in Directory.EnumerateFiles(gamesDirectory, "*.dll"))
-            {
-                var assembly = Assembly.LoadFrom(file);
-                if (assembly.GetName().Name.Equals("ZTMZ.PacenoteTool.Base")) 
-                {
-                    continue;
-                }
-                var games = assembly.GetLoadableTypes().Where(t => typeof(IGame).IsAssignableFrom(t)).Select(i => (IGame)Activator.CreateInstance(i));
-                this._games.AddRange(games);
-            }
+            this._games.AddRange(GamePluginLoader.Load(
+                Directory.EnumerateFiles(gamesDirectory, "*.dll"),
+                _logger));
             this._games.Sort((g1, g2) => g1.Order.CompareTo(g2.Order));
             this._games.ForEach(g => g.GameConfigurations = Config.Instance.LoadGameConfig(g));
         } catch (Exception ex) {

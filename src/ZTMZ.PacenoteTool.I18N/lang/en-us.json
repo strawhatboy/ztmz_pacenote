@@ -400,6 +400,29 @@
     "replayCleanUpAbnormalVideo": "Clean up abnormal video files",
     "replayLock": "Lock this replay"
   },
+  "game": {
+    "acr": {
+      "description": "Assetto Corsa Rally, developed by Supernova Games Studios and published by 505 Games"
+    },
+    "beamng": {
+      "description": "BeamNG.drive built-in Rally Mode. Uses OutGauge for dashboard telemetry and the local Rally bridge for stage and pacenote data.",
+      "bridge": {
+        "userFolder": "BeamNG user folder",
+        "browseUserFolder": "Select the BeamNG.drive user folder",
+        "install": "Install / repair Rally bridge",
+        "installTooltip": "Install or update the Rally bridge mod in the selected BeamNG user folder",
+        "installed": "The Rally bridge was installed to:\n{0}\n\nRestart BeamNG if it is running. In BeamNG, enable OutGauge at 127.0.0.1:44444 and bind the ZTMZ Rally bridge action under Controls.",
+        "installFailed": "Rally bridge installation failed",
+        "statusUserFolderRequired": "Select the BeamNG.drive user folder.",
+        "statusNotInstalled": "Rally bridge is not installed.",
+        "statusInstalled": "Rally bridge installed.",
+        "statusPortUnavailable": "Rally bridge port {0} is unavailable.",
+        "setupRequiredTitle": "BeamNG setup required",
+        "setupBridgeRequired": "Install the Rally bridge before using BeamNG.drive Rally Mode with Pacenote Tool.",
+        "setupUserFolderRequired": "Select a valid BeamNG.drive user folder before the Rally bridge can be installed."
+      }
+    }
+  },
 
   "dialog": {
     "common": {

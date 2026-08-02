@@ -13,6 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="beamng.jpg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
     <None Update="lang\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

@@ -9,5 +9,7 @@ folder. It does not replace or edit BeamNG Rally Mode files.
 3. Start a Rally Mode stage and use that action once to begin the local bridge.
 
 The bridge sends Rally state and built-in pacenote metadata only to
-`127.0.0.1:44445`. It does not control the stage, timer, vehicle, or BeamNG
-audio.
+`127.0.0.1:44445`. This default is below Windows' normal dynamic UDP range,
+but the desktop tool still checks for an actual local port conflict before it
+initializes BeamNG. It does not control the stage, timer,
+vehicle, or BeamNG audio.

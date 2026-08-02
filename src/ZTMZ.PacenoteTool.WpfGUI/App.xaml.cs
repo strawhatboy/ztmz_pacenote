@@ -55,14 +55,13 @@ public partial class App : Application
         // patch ZTMZ.PacenoteTool.Base to fix the SevenZipExtractor issue
         ArchiveFilePatch.Patch(harmony);
 
-        // search for all folders named exactly Constants.PATH_LANGUAGE in the AppLevelVariables.Instance.AppConfigFolder recursively
+        // Provider language files live beside provider DLLs, while user-installed language
+        // overrides live in the data folder. Load both so a moved data folder cannot hide
+        // packaged provider descriptions and settings.
         var jsonPaths = new List<string>();
-        var appConfigFolder = AppLevelVariables.Instance.AppConfigFolder;
-        Directory.EnumerateDirectories(
-                appConfigFolder,
-                Constants.PATH_LANGUAGE,
-                SearchOption.AllDirectories
-            ).Where(dir => Path.GetFileName(dir).Equals("lang", StringComparison.OrdinalIgnoreCase)).ToList().ForEach(jsonPaths.Add);
+        var seenLanguagePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        AddLanguageDirectories(AppContext.BaseDirectory, jsonPaths, seenLanguagePaths);
+        AddLanguageDirectories(AppLevelVariables.Instance.AppConfigFolder, jsonPaths, seenLanguagePaths);
             
         NLogManager.init(ToolUtils.GetToolVersion());
         _logger.Info("Application started");
@@ -78,6 +77,31 @@ public partial class App : Application
     }
 
     private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
+    private static void AddLanguageDirectories(
+        string rootDirectory,
+        ICollection<string> target,
+        ISet<string> seenPaths)
+    {
+        if (string.IsNullOrWhiteSpace(rootDirectory) || !Directory.Exists(rootDirectory))
+        {
+            return;
+        }
+
+        foreach (var directory in Directory.EnumerateDirectories(
+                     rootDirectory,
+                     Constants.PATH_LANGUAGE,
+                     SearchOption.AllDirectories)
+                 .Where(directory => Path.GetFileName(directory)
+                     .Equals(Constants.PATH_LANGUAGE, StringComparison.OrdinalIgnoreCase)))
+        {
+            var normalizedDirectory = Path.GetFullPath(directory);
+            if (seenPaths.Add(normalizedDirectory))
+            {
+                target.Add(normalizedDirectory);
+            }
+        }
+    }
 
     private static Mutex mutex = new Mutex(true, "{F1D4A3D4-6D1A-4D3A-8D1A-4D1A6D1A4D3A}"); // unique id
     

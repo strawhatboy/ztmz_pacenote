@@ -3,5 +3,5 @@
   "version_string": "1.0.0",
   "author": "ZTMZ Club",
   "type": "mod",
-  "description": "Optional local UDP bridge for BeamNG.drive Rally Mode telemetry and pacenote inspection."
+  "description": "Local UDP bridge for BeamNG.drive Rally Mode telemetry and pacenote playback."
 }

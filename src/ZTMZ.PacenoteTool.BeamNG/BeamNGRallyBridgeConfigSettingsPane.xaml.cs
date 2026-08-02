@@ -20,13 +20,22 @@ public partial class BeamNGRallyBridgeConfigSettingsPane : IGameConfigSettingsPa
         _isInitializing = true;
         InitializeComponent();
         UserFolderPathTextBox.Text = _config.UserFolderPath;
-        ExternalPacenotesToggle.IsChecked = _config.EnableExternalPacenotes;
         _isInitializing = false;
+        RefreshBridgeStatus();
     }
 
     public override void InitializeWithGame(IGame game)
     {
         _game = game;
+        RefreshBridgeStatus();
+    }
+
+    public override void RefreshFromConfiguration()
+    {
+        _isInitializing = true;
+        UserFolderPathTextBox.Text = _config.UserFolderPath;
+        _isInitializing = false;
+        RefreshBridgeStatus();
     }
 
     private void UserFolderPathTextBox_OnTextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
@@ -38,17 +47,7 @@ public partial class BeamNGRallyBridgeConfigSettingsPane : IGameConfigSettingsPa
 
         _config.UserFolderPath = UserFolderPathTextBox.Text.Trim();
         PersistConfiguration();
-    }
-
-    private void ExternalPacenotesToggle_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (_isInitializing)
-        {
-            return;
-        }
-
-        _config.EnableExternalPacenotes = ExternalPacenotesToggle.IsChecked == true;
-        PersistConfiguration();
+        RefreshBridgeStatus();
     }
 
     private void BrowseUserFolderButton_OnClick(object sender, RoutedEventArgs e)
@@ -76,6 +75,8 @@ public partial class BeamNGRallyBridgeConfigSettingsPane : IGameConfigSettingsPa
         try
         {
             var installedPath = BeamNGBridgeInstaller.Install(_config);
+            PersistConfiguration();
+            RefreshBridgeStatus();
             await new Wpf.Ui.Controls.MessageBox
             {
                 Title = I18NLoader.Instance["game.beamng.bridge.install"],
@@ -85,6 +86,7 @@ public partial class BeamNGRallyBridgeConfigSettingsPane : IGameConfigSettingsPa
         }
         catch (Exception exception)
         {
+            RefreshBridgeStatus();
             await new Wpf.Ui.Controls.MessageBox
             {
                 Title = I18NLoader.Instance["game.beamng.bridge.installFailed"],
@@ -103,5 +105,32 @@ public partial class BeamNGRallyBridgeConfigSettingsPane : IGameConfigSettingsPa
 
         Config.Instance.SaveGameConfig(_game);
         RestartNeeded?.Invoke();
+    }
+
+    private void RefreshBridgeStatus()
+    {
+        if (!BeamNGUserFolderLocator.IsValidUserFolder(_config.UserFolderPath))
+        {
+            BridgeStatusTextBlock.Text = I18NLoader.Instance["game.beamng.bridge.statusUserFolderRequired"];
+            return;
+        }
+
+        if (!BeamNGBridgeInstaller.IsInstalled(_config))
+        {
+            BridgeStatusTextBlock.Text = I18NLoader.Instance["game.beamng.bridge.statusNotInstalled"];
+            return;
+        }
+
+        if (_game?.IsInitialized == true &&
+            _game.GameDataReader is BeamNGGameDataReader reader &&
+            !reader.IsBridgeListening)
+        {
+            BridgeStatusTextBlock.Text = string.Format(
+                I18NLoader.Instance["game.beamng.bridge.statusPortUnavailable"],
+                BeamNGRallyBridgeConfig.DefaultPort);
+            return;
+        }
+
+        BridgeStatusTextBlock.Text = I18NLoader.Instance["game.beamng.bridge.statusInstalled"];
     }
 }

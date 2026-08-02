@@ -5,7 +5,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.BeamNG;
 
-public sealed class BeamNGRally : IGame, IGamePacenotePlaybackControl
+public sealed class BeamNGRally : IGame
 {
     public const string GameName = "BeamNG.drive Rally Mode";
 
@@ -15,8 +15,7 @@ public sealed class BeamNGRally : IGame, IGamePacenotePlaybackControl
 
     public string Description { get; } = I18NLoader.Instance["game.beamng.description"];
 
-    // The main application icon is used until a dedicated BeamNG thumbnail is available.
-    public string ImageUri { get; } = "pack://application:,,,/ZTMZ.PacenoteTool.WpfGUI;component/Assets/app.png";
+    public string ImageUri { get; } = "pack://application:,,,/ZTMZ.PacenoteTool.BeamNG;component/beamng.jpg";
 
     public string Executable => "BeamNG.drive.x64";
 
@@ -45,16 +44,6 @@ public sealed class BeamNGRally : IGame, IGamePacenotePlaybackControl
     public bool IsInitialized { get; set; }
 
     public int Order => 4000;
-
-    public bool EnableExternalPacenotes
-    {
-        get
-        {
-            return GameConfigurations.TryGetValue(BeamNGRallyBridgeConfig.Name, out var config) &&
-                   config is BeamNGRallyBridgeConfig bridgeConfig &&
-                   bridgeConfig.EnableExternalPacenotes;
-        }
-    }
 
     public BeamNGRally()
     {

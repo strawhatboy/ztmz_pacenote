@@ -99,11 +99,13 @@ public class BeamNGProtocolTest
     }
 
     [Fact]
-    public void BeamNGRally_DefaultsToBuiltInPacenoteAudio()
+    public void BeamNGRally_UsesPacenoteToolAudioByDefault()
     {
         var game = new BeamNGRally();
 
-        Assert.False(game.EnableExternalPacenotes);
+        Assert.DoesNotContain(
+            typeof(IGamePacenotePlaybackControl),
+            typeof(BeamNGRally).GetInterfaces());
         var udpConfig = Assert.IsType<UdpGameConfig>(game.DefaultGameConfigurations[UdpGameConfig.Name]);
         Assert.Equal(BeamNGGameDataReader.DefaultOutGaugePort, udpConfig.Port);
     }

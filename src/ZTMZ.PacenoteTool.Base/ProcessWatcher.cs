@@ -110,15 +110,24 @@ public class ProcessWatcher : IDisposable
         _worker = Task.Run(() => {
             
             Thread.Sleep(this._refreshInterval);
-            // current processes
+            // Apply the same validation to processes already running when the watcher starts.
+            // A game that has created its process but not its main window remains pending and
+            // is retried by the regular polling loop below.
             foreach (var p in Process.GetProcesses()) 
             {
-                if (WatchingProcesses.ContainsKey(p.ProcessName.ToLower()))
+                var processName = p.ProcessName.ToLower();
+                var isWatched = WatchingProcesses.TryGetValue(processName, out var watchedProcess);
+                var isValidWatchedProcess = isWatched && watchedProcess.MatchProcess(p);
+
+                if (isWatched && isValidWatchedProcess)
                 {
                     onNewProcess?.Invoke(p);
                 }
 
-                RunningProcesses.AddOrUpdate(p.ProcessName.ToLower(), 1, (k, v) => 1);
+                if (!isWatched || isValidWatchedProcess)
+                {
+                    RunningProcesses.AddOrUpdate(processName, 1, (k, v) => 1);
+                }
             }
 
             while (true) {
@@ -140,12 +149,12 @@ public class ProcessWatcher : IDisposable
                         if (!RunningProcesses.ContainsKey(p.ProcessName.ToLower()))
                         {
                             _logger.Debug($"ProcessWatcher: new process {p.ProcessName.ToLower()}");
-                            var exp1 = WatchingProcesses.ContainsKey(p.ProcessName.ToLower());
-                            if (exp1 && WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p)) {
+                            var isWatched = WatchingProcesses.TryGetValue(p.ProcessName.ToLower(), out var watchedProcess);
+                            var isValidWatchedProcess = isWatched && watchedProcess.MatchProcess(p);
+                            if (isValidWatchedProcess) {
                                 onNewProcess?.Invoke(p);
                             }
-                            // magic code
-                            if (!(exp1 && !WatchingProcesses[p.ProcessName.ToLower()].MatchProcess(p))) {
+                            if (!isWatched || isValidWatchedProcess) {
                                 RunningProcesses.AddOrUpdate(p.ProcessName.ToLower(), 1, (k, v) => 1);
                                 _logger.Debug($"ProcessWatcher: new process {p.ProcessName.ToLower()} added.");
                             }

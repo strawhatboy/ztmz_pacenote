@@ -1,4 +1,4 @@
--- Optional, read-only bridge for BeamNG.drive Rally Mode.
+-- Read-only bridge for BeamNG.drive Rally Mode.
 -- The desktop application validates the magic value and protocol version before use.
 
 local M = {}

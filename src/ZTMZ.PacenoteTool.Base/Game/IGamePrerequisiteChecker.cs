@@ -12,6 +12,7 @@ public interface IGamePrerequisiteChecker
 public enum PrerequisitesCheckResultCode
 {
     OK = 100,
+    SETUP_REQUIRED = 200,
     GAME_NOT_INSTALLED = 300,
     PORT_NOT_OPEN = 400,
     PORT_NOT_MATCH = 401,

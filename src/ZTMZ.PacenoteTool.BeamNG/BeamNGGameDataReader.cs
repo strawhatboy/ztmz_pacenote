@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Sockets;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 
@@ -20,6 +21,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
     private readonly object _sync = new();
 
     private UdpReceiver? _bridgeReceiver;
+    private SocketError? _bridgeListenerSocketError;
     private GameState _gameState;
     private GameData _lastGameData;
     private GameData _currentGameData;
@@ -54,6 +56,28 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
             }
         }
         set => PublishGameStateChange(value);
+    }
+
+    public bool IsBridgeListening
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return _bridgeReceiver is not null;
+            }
+        }
+    }
+
+    public SocketError? BridgeListenerSocketError
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return _bridgeListenerSocketError;
+            }
+        }
     }
 
     public override GameData LastGameData
@@ -142,6 +166,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
         }
 
         UdpReceiver? bridgeReceiver = null;
+        SocketError? bridgeListenerSocketError = null;
         try
         {
             bridgeReceiver = new UdpReceiver();
@@ -157,14 +182,24 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
             }
 
             bridgeReceiver = null;
+            bridgeListenerSocketError = exception switch
+            {
+                PortAlreadyInUseException => SocketError.AddressAlreadyInUse,
+                PortAccessDeniedException => SocketError.AccessDenied,
+                SocketException socketException => socketException.SocketErrorCode,
+                _ => null
+            };
             Logger.Warn(exception,
-                "BeamNG Rally bridge listener could not start on UDP port {0}; OutGauge telemetry will remain available.",
+                "BeamNG Rally bridge listener could not start on UDP port {0}; BeamNG initialization is aborted.",
                 BeamNGRallyBridgeConfig.DefaultPort);
+            base.Uninitialize(game);
+            throw;
         }
 
         lock (_sync)
         {
             _bridgeReceiver = bridgeReceiver;
+            _bridgeListenerSocketError = bridgeListenerSocketError;
             _gameState = GameState.Unknown;
             _lastGameData = default;
             _currentGameData = default;
@@ -187,6 +222,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
         {
             bridgeReceiver = _bridgeReceiver;
             _bridgeReceiver = null;
+            _bridgeListenerSocketError = null;
         }
 
         if (bridgeReceiver is not null)

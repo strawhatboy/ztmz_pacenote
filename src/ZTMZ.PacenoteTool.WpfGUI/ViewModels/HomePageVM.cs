@@ -418,6 +418,35 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
                         Config.Instance.SaveUserConfig();
                     }
                 });
+            } else if (code == PrerequisitesCheckResultCode.SETUP_REQUIRED) {
+                var setupReason = parameters?.FirstOrDefault()?.ToString();
+                message = string.Equals(
+                    setupReason,
+                    "missing-user-folder",
+                    StringComparison.Ordinal)
+                    ? I18NLoader.Instance["game.beamng.bridge.setupUserFolderRequired"]
+                    : I18NLoader.Instance["game.beamng.bridge.setupBridgeRequired"];
+
+                _ = Application.Current.Dispatcher.Invoke(async () =>
+                {
+                    var result = await new Wpf.Ui.Controls.MessageBox
+                    {
+                        Title = I18NLoader.Instance["game.beamng.bridge.setupRequiredTitle"],
+                        Content = message,
+                        PrimaryButtonText = I18NLoader.Instance["game.beamng.bridge.install"],
+                        CloseButtonText = I18NLoader.Instance["dialog.common.btn_cancel"]
+                    }.ShowDialogAsync();
+
+                    if (result == Wpf.Ui.Controls.MessageBoxResult.Primary)
+                    {
+                        var isFixed = await forceFixGame(game);
+                        if (isFixed)
+                        {
+                            message = I18NLoader.Instance["settings.restartNeeded"];
+                        }
+                    }
+                });
+                showToast = true;
             } else if (code == PrerequisitesCheckResultCode.PORT_ALREADY_IN_USE) {
                 message = string.Format(I18NLoader.Instance["exception.portAlreadyInUse.msg"], parameters[0]);
                 // show port already in use dialog
@@ -568,10 +597,30 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
                 }
             // });
             _logger.Info("Tool Initialized. in Home Page.");
-            var theGame = Games[Config.Instance.UI_SelectedGame];
-            // Application.Current.Dispatcher.Invoke(() => {      
-            SelectedGame = theGame;
-            SelectedOutputDevice = OutputDevices[(Config.Instance.UI_SelectedPlaybackDevice < 0 || Config.Instance.UI_SelectedPlaybackDevice >= OutputDevices.Count) ? 0 : Config.Instance.UI_SelectedPlaybackDevice];
+            if (Games.Count == 0)
+            {
+                _logger.Error("No game providers were loaded. Skipping game selection.");
+            }
+            else
+            {
+                var selectedGameIndex = Config.Instance.UI_SelectedGame;
+                if (selectedGameIndex < 0 || selectedGameIndex >= Games.Count)
+                {
+                    _logger.Warn("Saved selected-game index {0} is unavailable; using the first loaded game.", selectedGameIndex);
+                    selectedGameIndex = 0;
+                }
+
+                SelectedGame = Games[selectedGameIndex];
+            }
+
+            if (OutputDevices.Count == 0)
+            {
+                _logger.Warn("No audio output devices were loaded.");
+            }
+            else
+            {
+                SelectedOutputDevice = OutputDevices[(Config.Instance.UI_SelectedPlaybackDevice < 0 || Config.Instance.UI_SelectedPlaybackDevice >= OutputDevices.Count) ? 0 : Config.Instance.UI_SelectedPlaybackDevice];
+            }
             loadCodrivers();
             FactorToRemoveSpaceFromAudioFiles = _factorToIndex[Config.Instance.FactorToRemoveSpaceFromAudioFiles];
             PlaybackVolume = (float)(Config.Instance.UI_PlaybackVolume + 1000f) / 20f;  // [-1000, 1000] to [0, 100]
@@ -612,6 +661,8 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     private async Task<bool> forceFixGame(IGame game) {
         try {
             game.GamePrerequisiteChecker.ForceFix(game);
+            Config.Instance.SaveGameConfig(game);
+            RefreshGameSettingsFromConfiguration(game);
             return true;
         } catch (Exception e) {
             _logger.Error(e, "Force fix failed.");

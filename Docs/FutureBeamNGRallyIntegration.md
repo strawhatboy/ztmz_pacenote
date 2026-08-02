@@ -3,12 +3,12 @@
 ## Status
 
 An initial BeamNG.drive provider is implemented in source. It combines standard
-OutGauge dashboard telemetry with an opt-in, read-only Rally Mode companion
+OutGauge dashboard telemetry with a required, read-only Rally Mode companion
 bridge. The bridge still needs in-game validation against the BeamNG.drive
 version used for the next release because Rally Mode's Lua model is not a
 documented stable external API.
 
-No BeamNG game installation is overwritten. The optional bridge is installed
+No BeamNG game installation is overwritten. The bridge is installed
 as a ZIP mod in the selected BeamNG user folder.
 
 ## Implemented Scope
@@ -16,8 +16,10 @@ as a ZIP mod in the selected BeamNG user folder.
 - OutGauge is received on `127.0.0.1:44444` by default. It supplies speed,
   RPM, gear, throttle, brake, clutch, fuel, temperatures, turbo, and dashboard
   light data for the existing telemetry UI.
-- The companion bridge listens on `127.0.0.1:44445`. It sends versioned JSON
-  only from the local computer and is ignored unless it has the
+- The companion bridge listens on `127.0.0.1:44445`. That default is below
+  Windows' normal dynamic UDP range, avoiding ordinary ephemeral-port
+  allocation; the tool still reports a real local bind conflict. It sends
+  versioned JSON only from the local computer and is ignored unless it has the
   `ZTMZ_BNG_RALLY` protocol marker.
 - While built-in Rally Mode is active, the bridge attempts to expose stage ID,
   stage name, countdown/active/finished state, time, route distance, total
@@ -26,11 +28,10 @@ as a ZIP mod in the selected BeamNG user folder.
   under `games\\beamng\\rally-stages` in Pacenote Tool's data folder. The
   exported JSON keeps BeamNG's original IDs, text, visual data, and distance
   call values.
-- BeamNG's own Rally Mode co-driver audio remains authoritative by default.
-  Pacenote Tool's external script/audio output is disabled for BeamNG until the
-  user explicitly enables it in the BeamNG settings pane.
-- If the bridge port cannot be opened or the mod is not enabled, the provider
-  continues in OutGauge-only dashboard mode.
+- Pacenote Tool plays BeamNG Rally Mode pacenotes through the companion bridge.
+  The bridge is required for every BeamNG provider initialization.
+- If the bridge port cannot be opened or the mod is not installed, the provider
+  reports the missing setup and exposes an install/repair action.
 
 MotionSim is not consumed by this initial provider. It can be added later if
 world position or motion is needed beyond OutGauge.
@@ -41,7 +42,7 @@ world position or motion is needed beyond OutGauge.
 2. Select the BeamNG.drive user folder. The usual default is under
    `%LOCALAPPDATA%\\BeamNG.drive\\current`, but a custom user folder selected in
    the BeamNG launcher must be selected here instead.
-3. Choose **Install Rally bridge**. This writes
+3. Choose **Install / repair Rally bridge**. This writes
    `mods\\ztmz_pacenote_rally_bridge.zip` below that user folder.
 4. In BeamNG, enable OutGauge and point it to `127.0.0.1:44444` for dashboard
    telemetry.

@@ -31,9 +31,13 @@ cd ..
 
 echo copying built games to target folder
 
+if exist "ZTMZ.PacenoteTool.Console\bin\Release\net10.0-windows\games" rmdir /S /Q "ZTMZ.PacenoteTool.Console\bin\Release\net10.0-windows\games"
+mkdir "ZTMZ.PacenoteTool.Console\bin\Release\net10.0-windows\games"
 xcopy ZTMZ.PacenoteTool.Codemasters\bin\Release\net10.0-windows\ ZTMZ.PacenoteTool.Console\bin\Release\net10.0-windows\games\ /Y /V /S /Q
 xcopy ZTMZ.PacenoteTool.RBR\bin\Release\net10.0-windows\ ZTMZ.PacenoteTool.Console\bin\Release\net10.0-windows\games\ /Y /V /S /Q
-xcopy ZTMZ.PacenoteTool.BeamNG\bin\Release\net10.0-windows\ ZTMZ.PacenoteTool.Console\bin\Release\net10.0-windows\games\ /Y /V /S /Q
+copy /Y "ZTMZ.PacenoteTool.BeamNG\bin\Release\net10.0-windows\ZTMZ.PacenoteTool.BeamNG.dll" "ZTMZ.PacenoteTool.Console\bin\Release\net10.0-windows\games\" >nul
+xcopy "ZTMZ.PacenoteTool.BeamNG\bin\Release\net10.0-windows\BeamNGMod\*" "ZTMZ.PacenoteTool.Console\bin\Release\net10.0-windows\games\BeamNGMod\" /E /I /Y /V /Q
+xcopy "ZTMZ.PacenoteTool.BeamNG\bin\Release\net10.0-windows\lang\*" "ZTMZ.PacenoteTool.Console\bin\Release\net10.0-windows\games\lang\" /E /I /Y /V /Q
 xcopy ZTMZ.PacenoteTool.AC\bin\Release\net10.0-windows\ ZTMZ.PacenoteTool.Console\bin\Release\net10.0-windows\games\ /Y /V /S /Q
 
 echo copying i18n files to target folder
