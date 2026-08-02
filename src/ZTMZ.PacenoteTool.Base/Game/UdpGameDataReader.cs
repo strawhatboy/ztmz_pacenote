@@ -91,7 +91,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
 
     private void OnTimerElapsed(object sender, ElapsedEventArgs args)
     {
-        if (GameState != GameState.Paused && GameState != GameState.RaceBegin)
+        if (!IsUdpTelemetryOptional && GameState != GameState.Paused && GameState != GameState.RaceBegin)
         {
             if (_timerCount >= 10)
             {
@@ -105,7 +105,7 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
         }
 
         var secondsWithoutMessage = System.Threading.Interlocked.Increment(ref _timerMessageAvailableCount);
-        onGameDataAvailabilityChanged?.Invoke(secondsWithoutMessage < 10);
+        onGameDataAvailabilityChanged?.Invoke(IsUdpTelemetryOptional || secondsWithoutMessage < 10);
     }
 
     public virtual void onNewUdpMessage(byte[] oldMsg, byte[] newMsg)

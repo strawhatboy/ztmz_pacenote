@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Timers;
 using IniParser;
@@ -21,40 +22,57 @@ public class RBRGameDataReader : UdpGameDataReader
 
     public override GameState GameState
     {
-        set
-        {
-            var lastGameState = this._gameState;
-            if (lastGameState == value) 
-            {
-                // GameState not changed
-                return;
-            }
-            this._gameState = value;
-            if (value == GameState.RaceBegin || value == GameState.AdHocRaceBegin)
-            {
-                // read current car rpm info
-                readCurrentRPMInfo();
-            }
-            if (value == GameState.RaceEnd && !_isReplaySession && _isPostGame) {
-                this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState, Parameters = new Dictionary<string, object> { 
-                    { GameStateRaceEndProperty.FINISH_TIME, _finishTime },
-                    { GameStateRaceEndProperty.FINISH_STATE, GameStateRaceEnd.Normal }
-                } });
-            } else if (value == GameState.RaceBegin || value == GameState.AdHocRaceBegin) {
-                this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState, Parameters = new Dictionary<string, object> {
-                    { GameStateRaceBeginProperty.IS_REPLAY, _isReplaySession }
-                } });   // this is a replay!
-            } else {
-                this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = this._gameState });
-            }
-        }
+        set => SetGameState(value);
         get => this._gameState;
     }
 
-    private GameState raiseCountDownEvent(int number)
+    private void SetGameState(
+        GameState value,
+        Dictionary<string, object>? parameters = null,
+        bool forceEvent = false)
     {
-        this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = this._gameState, NewGameState = GameState.CountingDown, Parameters = new Dictionary<string, object> { { "number", number } } });
-        return GameState.CountingDown;
+        var lastGameState = this._gameState;
+        if (!forceEvent && lastGameState == value)
+        {
+            return;
+        }
+
+        this._gameState = value;
+        if (value == GameState.RaceBegin || value == GameState.AdHocRaceBegin)
+        {
+            TryReadCurrentRPMInfo();
+            parameters ??= new Dictionary<string, object>
+            {
+                { GameStateRaceBeginProperty.IS_REPLAY, _stateDetector.IsReplaySession }
+            };
+        }
+        else if (value == GameState.RaceEnd &&
+                 !_stateDetector.IsReplaySession &&
+                 _stateDetector.IsPostGame)
+        {
+            parameters ??= new Dictionary<string, object>
+            {
+                { GameStateRaceEndProperty.FINISH_TIME, _stateDetector.FinishTime },
+                { GameStateRaceEndProperty.FINISH_STATE, GameStateRaceEnd.Normal }
+            };
+        }
+
+        if (value == GameState.RaceEnd)
+        {
+            _logger.Debug(
+                "RBR race end: normal={0}, replay={1}, raceEnded={2}, falseStart={3}",
+                _stateDetector.IsPostGame && !_stateDetector.IsReplaySession,
+                _stateDetector.IsReplaySession,
+                _stateDetector.SawRaceEnded,
+                _stateDetector.SawFalseStart);
+        }
+
+        this._onGameStateChanged?.Invoke(new GameStateChangeEvent
+        {
+            LastGameState = lastGameState,
+            NewGameState = this._gameState,
+            Parameters = parameters ?? new Dictionary<string, object>()
+        });
     }
 
     public override GameData LastGameData { get => _lastGameData; set => _lastGameData = value; }
@@ -107,17 +125,13 @@ public class RBRGameDataReader : UdpGameDataReader
 
     private event Action<GameData, GameData> _onNewGameData;
 
-    private List<float> _countdownList = new();
-    private int _countdownIndex = 0;
-
-    private bool _isRacing = false;
+    private readonly RBRGameStateDetector _stateDetector = new();
+    private RBRGameState? _lastLoggedRawGameState;
+    private bool _memoryReaderInitialized;
+    private int _isUninitializing;
 
     private Dictionary<int, float> _currentGearShiftRPM = new();
     private float _currentRPMLimit = 0;
-
-    private bool _isPostGame = false;
-    private float _finishTime = 0;
-    private bool _isReplaySession = false;
 
     private RBRCarDef readCurrentCarDef() {
         var rbr_root = ((RBRGamePacenoteReader)_game.GamePacenoteReader).RBRRootDir;
@@ -143,7 +157,14 @@ public class RBRGameDataReader : UdpGameDataReader
             carDef.Name = carSection["CarName"];
         }
         if (carSection.ContainsKey("RSFCarID")) {
-            carDef.RsfID = int.Parse(carSection["RSFCarID"]);
+            if (int.TryParse(carSection["RSFCarID"], NumberStyles.Integer, CultureInfo.InvariantCulture, out var rsfId))
+            {
+                carDef.RsfID = rsfId;
+            }
+            else
+            {
+                _logger.Warn("Unable to parse RSFCarID for RBR car slot {0}.", carSlotId);
+            }
         }
 
         var car_group_map_file = Path.Combine(rbr_root, "rsfdata\\cache\\cars.json");
@@ -223,10 +244,24 @@ public class RBRGameDataReader : UdpGameDataReader
             var key = slines[0];
             var value = slines[1];
             if (key == "RPMLimit") {
-                _currentRPMLimit = float.Parse(value);
+                if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var rpmLimit))
+                {
+                    _currentRPMLimit = rpmLimit;
+                }
+                else
+                {
+                    _logger.Warn("Unable to parse RBR RPM limit value '{0}'.", value);
+                }
             } else if (key.StartsWith("Gear") && key.EndsWith("Upshift")) {
-                var fake_gear = int.Parse(key.Substring(4, 1));
-                gearUpShift[fake_gear-1] = float.Parse(value);
+                if (key.Length <= 4 ||
+                    !int.TryParse(key.Substring(4, 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out var fakeGear) ||
+                    !float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var upshiftRpm))
+                {
+                    _logger.Warn("Unable to parse RBR upshift value '{0}={1}'.", key, value);
+                    continue;
+                }
+
+                gearUpShift[fakeGear - 1] = upshiftRpm;
             }
         }
 
@@ -246,6 +281,18 @@ public class RBRGameDataReader : UdpGameDataReader
         _currentGearShiftRPM = gearUpShift;
 
         _logger.Info("Read current RPM info: {0}, {1}, {2}", _currentRPMLimit, maxGear, string.Join(", ", gearUpShift));
+    }
+
+    private void TryReadCurrentRPMInfo()
+    {
+        try
+        {
+            readCurrentRPMInfo();
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn(ex, "Failed to read RBR RPM information at stage start.");
+        }
     }
 
     public override event Action<GameData, GameData> onNewGameData
@@ -278,26 +325,44 @@ public class RBRGameDataReader : UdpGameDataReader
     public override bool Initialize(IGame game)
     {
         _logger.Info("Initializing RBRGameDataReader");
+        if (_memoryReaderInitialized || isInitialized)
+        {
+            _logger.Warn("RBRGameDataReader is already initialized.");
+            return false;
+        }
+
+        _stateDetector.Reset();
+        _lastLoggedRawGameState = null;
+        _gameState = GameState.Unknown;
+        System.Threading.Interlocked.Exchange(ref _isUninitializing, 0);
+
         // We use udp data for RBR, but only optional.
-        try {
+        try
+        {
             var udpInitResult = base.Initialize(game);
-            if (!udpInitResult) 
+            if (!udpInitResult)
             {
-                _logger.Warn("Failed to initialize UDPGameDataReader, could because it was already initialized. But we don't care so much for RBR.");
-                // return udpInitResult;
+                _logger.Warn("UDP telemetry was not initialized for RBR; memory telemetry will be used.");
             }
-        } catch (PortAlreadyInUseException ex) {
-            _logger.Warn("Udp initalized failed for RBR, port already used. we don't care, not important.");
-        } catch (Exception ex) {
+        }
+        catch (PortAlreadyInUseException)
+        {
+            _logger.Warn("UDP telemetry was not initialized for RBR because the port is already in use; memory telemetry will be used.");
+        }
+        catch (Exception ex)
+        {
             _logger.Error(ex, "Failed to initialize UDPGameDataReader");
         }
-        
+
         Debug.Assert(game.GameConfigurations.ContainsKey(MemoryGameConfig.Name));
         var memConfig = game.GameConfigurations[MemoryGameConfig.Name] as MemoryGameConfig;
-        if (memConfig == null)
+        if (memConfig == null || memConfig.RefreshRate <= 0)
         {
-            _logger.Error("Failed to get MemoryGameConfig from game.GameConfigurations");
-            base.Uninitialize(game);
+            _logger.Error("Failed to get a valid MemoryGameConfig from game.GameConfigurations");
+            if (isInitialized)
+            {
+                base.Uninitialize(game);
+            }
             return false;
         }
 
@@ -321,12 +386,19 @@ public class RBRGameDataReader : UdpGameDataReader
         }
         if (!success) {
             _logger.Error("Failed to open memory reader.");
-            base.Uninitialize(game);
+            if (isInitialized)
+            {
+                base.Uninitialize(game);
+            }
             return false;
-        };
+        }
 
+        _timer.Stop();
+        _timer.Elapsed -= MemDataPullHandler;
+        _timer.AutoReset = false;
         _timer.Elapsed += MemDataPullHandler;
         _timer.Interval = MEM_REFRESH_INTERVAL;
+        _memoryReaderInitialized = true;
         _timer.Start();
 
         _logger.Info("RBRGameDataReader initialized.");
@@ -335,122 +407,101 @@ public class RBRGameDataReader : UdpGameDataReader
 
     public override void Uninitialize(IGame game)
     {
+        System.Threading.Interlocked.Exchange(ref _isUninitializing, 1);
+        _memoryReaderInitialized = false;
         _timer.Stop();
         _timer.Elapsed -= MemDataPullHandler;
         memDataReader.CloseProgress();
-        base.Uninitialize(game);
+        _stateDetector.Reset();
+        _lastLoggedRawGameState = null;
+        _gameState = GameState.Unknown;
+
+        if (isInitialized)
+        {
+            base.Uninitialize(game);
+        }
     }
 
-    private void MemDataPullHandler(object? sender, ElapsedEventArgs e) 
+    private void MemDataPullHandler(object? sender, ElapsedEventArgs e)
     {
-        var memData = memDataReader.ReadMemData(_game);
-        
-        _lastGameData = _currentGameData;
-        _currentGameData = GetGameDataFromMemory(_currentGameData, memData);
-        _currentMemData = memData;
-        _onNewGameData?.Invoke(_lastGameData, _currentGameData);
+        try
+        {
+            if (System.Threading.Volatile.Read(ref _isUninitializing) != 0 || !_memoryReaderInitialized)
+            {
+                return;
+            }
 
-        this.GameState = getGameStateFromMemory(memData);
+            var memData = memDataReader.ReadMemData(_game);
+            if (System.Threading.Volatile.Read(ref _isUninitializing) != 0)
+            {
+                return;
+            }
+
+            _lastGameData = _currentGameData;
+            _currentGameData = GetGameDataFromMemory(_currentGameData, memData);
+            _currentMemData = memData;
+            _onNewGameData?.Invoke(_lastGameData, _currentGameData);
+
+            UpdateGameStateFromMemory(memData);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Failed to poll RBR memory data.");
+        }
+        finally
+        {
+            if (System.Threading.Volatile.Read(ref _isUninitializing) == 0 && _memoryReaderInitialized)
+            {
+                _timer.Start();
+            }
+        }
     }
 
-    private GameState getGameStateFromMemory(RBRMemData memData)
-    { 
-        bool playWhenReplay = (bool)((CommonGameConfigs)_game.GameConfigurations[CommonGameConfigs.Name]).PropertyValue[0];
-        var state = (RBRGameState)memData.GameStateId;
-        if (state == RBRGameState.Replay) {
-            _isReplaySession = true;
+    private void UpdateGameStateFromMemory(RBRMemData memData)
+    {
+        var rawState = (RBRGameState)memData.GameStateId;
+        if (_lastLoggedRawGameState != rawState)
+        {
+            _logger.Debug(
+                "RBR raw game state changed to {0} ({1}); countdown={2:F3}, raceEnded={3}, falseStart={4}",
+                rawState,
+                memData.GameStateId,
+                memData.StageStartCountdown,
+                memData.RaceEnded,
+                memData.FalseStart);
+            _lastLoggedRawGameState = rawState;
         }
 
-        if (memData.StageStartCountdown > 0 && state == RBRGameState.Replay && playWhenReplay ||
-            state != RBRGameState.Replay && memData.StageStartCountdown > 0)
+        var detection = _stateDetector.Detect(
+            memData,
+            GetPlayWhenReplay(),
+            GameState,
+            _currentGameData.CompletionRate,
+            _currentGameData.LapTime);
+
+        if (detection.CountdownNumber.HasValue)
         {
-            var preState = GameState.RaceBegin;
-            if (_countdownList.Count == 0)
-            {   
-                _countdownList.Add(5);
-                _countdownList.Add(4);
-                _countdownList.Add(3);
-                _countdownList.Add(2);
-                _countdownList.Add(1);
-            }
-
-            if (_countdownIndex >= 0 && _countdownIndex < _countdownList.Count && memData.StageStartCountdown < _countdownList[_countdownIndex])
-            {
-                preState = raiseCountDownEvent((int)_countdownList[_countdownIndex]);
-                _countdownIndex++;
-                return preState;
-            }
-            
-            var res = this._countdownList.BinarySearch(memData.StageStartCountdown, Comparer<float>.Create((a, b) => b.CompareTo(a)));
-            _countdownIndex = res < 0 ? ~res : res;
-
-            if (GameState == GameState.CountingDown)
-            {
-                // already in counting down state, do nothing
-                preState = GameState.CountingDown;
-            } else {
-                Debug.WriteLine("WTF??: {0}, {1}, {2}", memData.StageStartCountdown, _countdownIndex, GameState);
-            }
-            _isPostGame = false;
-            return preState;
+            SetGameState(
+                detection.State,
+                new Dictionary<string, object> { { "number", detection.CountdownNumber.Value } },
+                forceEvent: true);
+            return;
         }
 
-        if (state == RBRGameState.Unknown0 || 
-            state == RBRGameState.Unknown1 || 
-            state == RBRGameState.Unknown2 ||
-            state == RBRGameState.Unknown3 ||
-            state == RBRGameState.Unknown4)
-        {
-            _countdownList.Clear();
-            return GameState.Unknown;
-        // } else if (state == RBRGameState.RaceBegin || playWhenReplay && state == RBRGameState.ReplayBegin)
-        // {
-        //     return GameState.RaceBegin;
-        } 
-        else if (state == RBRGameState.Racing || playWhenReplay && state == RBRGameState.Replay)
-        {
-            if (state == RBRGameState.Replay)
-            {
-                _isReplaySession = true;
-            } else if (state == RBRGameState.Racing)
-            {
-                _isReplaySession = false;
-            }
+        GameState = detection.State;
+    }
 
-            if ((GameState == GameState.Unknown || GameState == GameState.Paused) && memData.StageStartCountdown < 0 && !_isRacing)
-            {
-                // from unknown to racing directly.
-                _isRacing = true;
-                _isPostGame = false;
-                return GameState.AdHocRaceBegin;
-            }
-            
-            this._timerCount = 0; // avoid game state set to unknown.
-            _isRacing = true;
-
-            if (!_isPostGame && state == RBRGameState.Racing && _currentGameData.CompletionRate >= 1) {
-                _isPostGame = true;
-                _finishTime = _currentGameData.LapTime;
-            }
-            return GameState.Racing;
-
-        } else if (state == RBRGameState.Paused)
+    private bool GetPlayWhenReplay()
+    {
+        if (_game.GameConfigurations.TryGetValue(CommonGameConfigs.Name, out var config) &&
+            config is CommonGameConfigs commonConfig &&
+            commonConfig.PropertyValue.Count > 0 &&
+            commonConfig.PropertyValue[0] is bool playWhenReplay)
         {
-            // if (GameState == GameState.Unknown && !_isRacing)
-            // {
-            //     // from racing to paused
-            //     _isRacing = true;
-            //     return GameState.AdHocRaceBegin;
-            // }
-            return GameState.Paused;
-        } else if (state == RBRGameState.RaceEndOrReplay0 || state == RBRGameState.RaceEnd || state == RBRGameState.RaceEndOrReplay1)
-        {
-            _countdownList.Clear();
-            _isRacing = false;
-            return GameState.RaceEnd;
+            return playWhenReplay;
         }
 
-        return GameState.Unknown;
+        return false;
     }
 
     public override void onNewUdpMessage(byte[] oldMsg, byte[] newMsg)
@@ -557,13 +608,20 @@ public class RBRGameDataReader : UdpGameDataReader
         gameData.Speed = data.SpeedKMH;
         gameData.TrackLength = data.TrackLength;
         gameData.LapDistance = data.DistanceFromStart;
-        gameData.CompletionRate = data.DistanceFromStart / (data.DistanceToFinish + data.DistanceFromStart);
+        var totalDistance = data.DistanceToFinish + data.DistanceFromStart;
+        gameData.CompletionRate = float.IsFinite(totalDistance) && totalDistance > 0
+            ? data.DistanceFromStart / totalDistance
+            : 0;
         gameData.LapTime = data.RaceTime;
-        gameData.ShiftLightsRPMValid = _currentGearShiftRPM.Count >= 2;
-        gameData.MaxRPM = gameData.ShiftLightsRPMValid ? _currentRPMLimit : 7500;
-        gameData.MaxGears = gameData.ShiftLightsRPMValid ? _currentGearShiftRPM.Count - 2 : 5;   // 5 gears by default
-        gameData.ShiftLightsRPMStart = gameData.ShiftLightsRPMValid ? _currentGearShiftRPM[data.GearId] - 1000 : 5750;
-        gameData.ShiftLightsRPMEnd = gameData.ShiftLightsRPMValid ? _currentGearShiftRPM[data.GearId] : 6500;
+        var currentGearShiftRpm = 0f;
+        var hasCurrentGearShiftRpm = _currentGearShiftRPM.Count >= 2 &&
+                                     _currentGearShiftRPM.TryGetValue(data.GearId, out currentGearShiftRpm) &&
+                                     currentGearShiftRpm > 0;
+        gameData.ShiftLightsRPMValid = hasCurrentGearShiftRpm;
+        gameData.MaxRPM = hasCurrentGearShiftRpm ? _currentRPMLimit : 7500;
+        gameData.MaxGears = hasCurrentGearShiftRpm ? _currentGearShiftRPM.Count - 2 : 5;   // 5 gears by default
+        gameData.ShiftLightsRPMStart = hasCurrentGearShiftRpm ? currentGearShiftRpm - 1000 : 5750;
+        gameData.ShiftLightsRPMEnd = hasCurrentGearShiftRpm ? currentGearShiftRpm : 6500;
         gameData.ShiftLightsFraction = (data.EngineRPM - gameData.ShiftLightsRPMStart) / (gameData.ShiftLightsRPMEnd - gameData.ShiftLightsRPMStart);
         // var xInertia = (data.XSpeed - _currentMemData.XSpeed) / MEM_REFRESH_INTERVAL;
         // var yInertia = (data.YSpeed - _currentMemData.YSpeed) / MEM_REFRESH_INTERVAL;
