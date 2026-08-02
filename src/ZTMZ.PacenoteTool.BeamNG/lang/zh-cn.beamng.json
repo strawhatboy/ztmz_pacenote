@@ -1,0 +1,16 @@
+{
+  "game": {
+    "beamng": {
+      "description": "BeamNG.drive 内置拉力模式。仪表遥测使用 OutGauge，赛段和路书数据可通过本地拉力桥接模块获得。",
+      "bridge": {
+        "userFolder": "BeamNG 用户文件夹",
+        "browseUserFolder": "选择 BeamNG.drive 用户文件夹",
+        "externalAudio": "使用路书工具领航员语音",
+        "install": "安装拉力桥接模块",
+        "installTooltip": "将可选拉力桥接模组安装到所选 BeamNG 用户文件夹",
+        "installed": "拉力桥接模块已安装到：\n{0}\n\n请在 BeamNG 中启用 OutGauge，地址设为 127.0.0.1:44444，并在控制设置中绑定 ZTMZ 拉力桥接操作。",
+        "installFailed": "拉力桥接模块安装失败"
+      }
+    }
+  }
+}

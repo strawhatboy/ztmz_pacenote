@@ -434,6 +434,7 @@ public class ZTMZPacenoteTool {
     {
         var lastState = evt.LastGameState;
         var state = evt.NewGameState;
+        var shouldPlayExternalPacenotes = ShouldPlayExternalPacenotes(_currentGame);
         _logger.Debug("Game state changed from {0} to {1}", lastState, state);
         this.onGameStateChanged?.Invoke(_currentGame, evt);
         //TODO: update UI game state (in-game state)
@@ -450,7 +451,7 @@ public class ZTMZPacenoteTool {
                     
                     // GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_end");
                     this.onRaceEnd?.Invoke(_currentGame);
-                    if (Config.Instance.PlayStartAndEndSound)
+                    if (shouldPlayExternalPacenotes && Config.Instance.PlayStartAndEndSound)
                     {
                         // play end sound, as sequential sound, not system sound
                         this._profileManager.PlaySystem(Constants.SYSTEM_END_STAGE, true, false);
@@ -494,23 +495,26 @@ public class ZTMZPacenoteTool {
                 var worker = Task.Run(() => {
                     //TODO: raise overlay text changes
 
-                    if (lastState != GameState.Paused && Config.Instance.PlayStartAndEndSound && state == GameState.RaceBegin)
+                    if (shouldPlayExternalPacenotes && lastState != GameState.Paused && Config.Instance.PlayStartAndEndSound && state == GameState.RaceBegin)
                     {
                         // play start sound as sequential system sound
                         this._profileManager.PlaySystem(Constants.SYSTEM_START_STAGE, true, true);
                     }
                     
-                    // 1. load sounds
-                    this._profileManager.StartReplaying(_currentGame, this._trackName);
-
-                    // 2. play minus script sound when in race begin but not AdhocRaceBegin
-                    if (state == GameState.RaceBegin)
+                    if (shouldPlayExternalPacenotes)
                     {
-                        // play minus distance script sound, some corners before "GO"
-                        this._profileManager.PlayMinusScript();
+                        // 1. load sounds
+                        this._profileManager.StartReplaying(_currentGame, this._trackName);
+
+                        // 2. play minus script sound when in race begin but not AdhocRaceBegin
+                        if (state == GameState.RaceBegin)
+                        {
+                            // play minus distance script sound, some corners before "GO"
+                            this._profileManager.PlayMinusScript();
+                        }
                     }
 
-                    if (state == GameState.AdHocRaceBegin) 
+                    if (shouldPlayExternalPacenotes && state == GameState.AdHocRaceBegin)
                     {
                         // relocate the current car's position
                         var distance = this._currentGame.GameDataReader.CurrentGameData.LapDistance;
@@ -531,7 +535,7 @@ public class ZTMZPacenoteTool {
             case GameState.Racing:
                 if (lastState == GameState.RaceBegin || lastState == GameState.CountingDown)
                 {
-                    if (Config.Instance.PlayGoSound) {
+                    if (shouldPlayExternalPacenotes && Config.Instance.PlayGoSound) {
                         // just go !
                         this._profileManager.PlaySystem(Constants.SYSTEM_GO, true);
                     }
@@ -552,7 +556,7 @@ public class ZTMZPacenoteTool {
                     this._trackLength = this._currentGame.GameDataReader.CurrentGameData.TrackLength;
                     _logger.Info("Setting Track length when start racing: " + this._trackLength);
                 }
-                if (lastState == GameState.Paused) {
+                if (shouldPlayExternalPacenotes && lastState == GameState.Paused) {
                     // paused to racing, probably adhoc, need to relocate pacenotes
                     var distance = this._currentGame.GameDataReader.CurrentGameData.LapDistance;
                     _logger.Info($"game state changed to racing from paused, if in RBR need to relocate pacenote, tring to relocate the pacenote based on the car's position {distance}");
@@ -560,12 +564,21 @@ public class ZTMZPacenoteTool {
                 }
                 break;
             case GameState.CountingDown:
-                if (evt.Parameters != null) 
+                if (shouldPlayExternalPacenotes && evt.Parameters != null &&
+                    evt.Parameters.TryGetValue("number", out var countdownValue) &&
+                    countdownValue is int countdownNumber &&
+                    countdownNumber >= 1 && countdownNumber <= Constants.SYSTEM_COUNTDOWNS.Count)
                 {
-                    this._profileManager.PlaySystem(Constants.SYSTEM_COUNTDOWNS[(int)evt.Parameters["number"] - 1]);
+                    this._profileManager.PlaySystem(Constants.SYSTEM_COUNTDOWNS[countdownNumber - 1]);
                 }
                 break;
         }
+    }
+
+    private static bool ShouldPlayExternalPacenotes(IGame? game)
+    {
+        return game is not IGamePacenotePlaybackControl playbackControl ||
+               playbackControl.EnableExternalPacenotes;
     }
 
     private void gameDataAvailabilityChangedHandler(bool obj)
@@ -592,7 +605,7 @@ public class ZTMZPacenoteTool {
 
         // TODO: update UI and Overlay telemetry data
         this.onNewGameData?.Invoke(_currentGame, msg);
-        if (!isRacing)
+        if (!isRacing || !ShouldPlayExternalPacenotes(_currentGame))
         {
             // wont play if it's not in racing state
             return;
@@ -652,6 +665,11 @@ public class ZTMZPacenoteTool {
 
     private void carDamagedEventHandler(CarDamageEvent evt)
     {
+        if (!ShouldPlayExternalPacenotes(_currentGame))
+        {
+            return;
+        }
+
         
         switch (evt.DamageType) 
         {
@@ -673,6 +691,11 @@ public class ZTMZPacenoteTool {
     }
 
     private void carResetHandler() {
+        if (!ShouldPlayExternalPacenotes(_currentGame))
+        {
+            return;
+        }
+
         var distance = this._currentGame.GameDataReader.CurrentGameData.LapDistance;
         _logger.Info($"tring to relocate the pacenote based on the car's position {distance} because of car reset.");
         this._profileManager.ReIndex(distance);

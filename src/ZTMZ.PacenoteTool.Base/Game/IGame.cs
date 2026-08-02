@@ -55,4 +55,12 @@ namespace ZTMZ.PacenoteTool.Base.Game
 
         int Order { get; }
     }
+
+    /// <summary>
+    /// Allows a game provider to keep the game's own co-driver audio authoritative.
+    /// </summary>
+    public interface IGamePacenotePlaybackControl
+    {
+        bool EnableExternalPacenotes { get; }
+    }
 }

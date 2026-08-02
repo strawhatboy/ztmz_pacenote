@@ -1,0 +1,44 @@
+<local:IGameConfigSettingsPane x:Class="ZTMZ.PacenoteTool.BeamNG.BeamNGRallyBridgeConfigSettingsPane"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:local="clr-namespace:ZTMZ.PacenoteTool.Base.UI.Game;assembly=ZTMZ.PacenoteTool.Base.UI">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="220" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+
+        <ui:TextBlock Grid.Row="0" VerticalAlignment="Center"
+                Text="{DynamicResource ResourceKey=game.beamng.bridge.userFolder}" />
+        <Grid Grid.Row="0" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="36" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="UserFolderPathTextBox" VerticalAlignment="Center"
+                    TextChanged="UserFolderPathTextBox_OnTextChanged" />
+            <ui:Button Grid.Column="1" x:Name="BrowseUserFolderButton"
+                    ToolTip="{DynamicResource ResourceKey=game.beamng.bridge.browseUserFolder}"
+                    Click="BrowseUserFolderButton_OnClick"
+                    Icon="{ui:SymbolIcon FolderMail20}" />
+        </Grid>
+
+        <ui:TextBlock Grid.Row="1" VerticalAlignment="Center"
+                Text="{DynamicResource ResourceKey=game.beamng.bridge.externalAudio}" />
+        <ui:ToggleSwitch Grid.Row="1" Grid.Column="1" x:Name="ExternalPacenotesToggle"
+                HorizontalAlignment="Right"
+                Click="ExternalPacenotesToggle_OnClick" />
+
+        <ui:Button Grid.Row="2" Grid.Column="1" x:Name="InstallBridgeButton"
+                HorizontalAlignment="Right"
+                Content="{DynamicResource ResourceKey=game.beamng.bridge.install}"
+                ToolTip="{DynamicResource ResourceKey=game.beamng.bridge.installTooltip}"
+                Click="InstallBridgeButton_OnClick" />
+    </Grid>
+</local:IGameConfigSettingsPane>

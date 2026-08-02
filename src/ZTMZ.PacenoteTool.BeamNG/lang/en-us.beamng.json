@@ -1,0 +1,16 @@
+{
+  "game": {
+    "beamng": {
+      "description": "BeamNG.drive built-in Rally Mode. Uses OutGauge for dashboard telemetry and an optional local Rally bridge for stage and pacenote data.",
+      "bridge": {
+        "userFolder": "BeamNG user folder",
+        "browseUserFolder": "Select the BeamNG.drive user folder",
+        "externalAudio": "Use Pacenote Tool co-driver audio",
+        "install": "Install Rally bridge",
+        "installTooltip": "Install the optional Rally bridge mod into the selected BeamNG user folder",
+        "installed": "The Rally bridge was installed to:\n{0}\n\nIn BeamNG, enable OutGauge at 127.0.0.1:44444 and bind the ZTMZ Rally bridge action under Controls.",
+        "installFailed": "Rally bridge installation failed"
+      }
+    }
+  }
+}

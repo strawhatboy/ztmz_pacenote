@@ -355,6 +355,9 @@ Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\codrivers\*"; D
 Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\profiles\*"; DestDir: "{code:GetZTMZHome}\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\lang\*"; DestDir: "{code:GetZTMZHome}\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\*"; Excludes:"*.json"; DestDir: "{code:GetInstallDir}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+; BeamNG's optional bridge is packaged from these files at runtime, so its JSON
+; manifest and input-action definition must remain beside the provider DLL.
+Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\BeamNGMod\*.json"; DestDir: "{code:GetInstallDir}\games\BeamNGMod"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\*.json"; Excludes:"*.deps.json"; DestDir: "{code:GetZTMZHome}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\runtimes\*"; DestDir: "{code:GetInstallDir}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\dashboards\*"; DestDir: "{code:GetZTMZHome}\dashboards"; Flags: ignoreversion recursesubdirs createallsubdirs

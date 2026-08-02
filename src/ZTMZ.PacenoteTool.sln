@@ -36,6 +36,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.ScriptEdi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.AC", "ZTMZ.PacenoteTool.AC\ZTMZ.PacenoteTool.AC.csproj", "{DB6D117F-232D-4454-AC39-2A7E532C3EC0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.BeamNG", "ZTMZ.PacenoteTool.BeamNG\ZTMZ.PacenoteTool.BeamNG.csproj", "{DE26AF52-F565-4C40-A791-7CF7DE257719}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -265,6 +267,24 @@ Global
 		{DB6D117F-232D-4454-AC39-2A7E532C3EC0}.Release|x64.Build.0 = Release|Any CPU
 		{DB6D117F-232D-4454-AC39-2A7E532C3EC0}.Release|x86.ActiveCfg = Release|Any CPU
 		{DB6D117F-232D-4454-AC39-2A7E532C3EC0}.Release|x86.Build.0 = Release|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Debug|x64.Build.0 = Debug|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Debug|x86.Build.0 = Debug|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Release_Portable|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Release_Portable|Any CPU.Build.0 = Debug|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Release_Portable|x64.ActiveCfg = Debug|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Release_Portable|x64.Build.0 = Debug|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Release_Portable|x86.ActiveCfg = Debug|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Release_Portable|x86.Build.0 = Debug|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Release|x64.ActiveCfg = Release|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Release|x64.Build.0 = Release|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Release|x86.ActiveCfg = Release|Any CPU
+		{DE26AF52-F565-4C40-A791-7CF7DE257719}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

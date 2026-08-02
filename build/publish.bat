@@ -15,6 +15,10 @@ cd ZTMZ.PacenoteTool.RBR
 dotnet publish -c Release -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0
 cd ..
 
+cd ZTMZ.PacenoteTool.BeamNG
+dotnet publish -c Release -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0
+cd ..
+
 cd ZTMZ.PacenoteTool.WpfGUI
 dotnet publish -c Release -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0
 cd ..
@@ -28,11 +32,13 @@ rem all the dlls
 mkdir target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games
 xcopy target\bin\ZTMZ.PacenoteTool.Codemasters\release_win-x64\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ /Y /V /Q  
 xcopy target\bin\ZTMZ.PacenoteTool.RBR\release_win-x64\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ /Y /V /Q
+xcopy target\bin\ZTMZ.PacenoteTool.BeamNG\release_win-x64\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ /E /I /Y /V /Q
 
 rem the i18n
 mkdir target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang
 xcopy target\bin\ZTMZ.PacenoteTool.Codemasters\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
 xcopy target\bin\ZTMZ.PacenoteTool.RBR\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
+xcopy target\bin\ZTMZ.PacenoteTool.BeamNG\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
 
 rem stage only release defaults from the configured application-data directory
 if not defined ZTMZ_PACKAGE_DATA_HOME (
