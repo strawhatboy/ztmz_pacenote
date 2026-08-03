@@ -11,6 +11,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
 
@@ -29,12 +30,18 @@
                     Icon="{ui:SymbolIcon FolderMail20}" />
         </Grid>
 
-        <ui:TextBlock Grid.Row="1" Grid.ColumnSpan="2" x:Name="BridgeStatusTextBlock"
+        <ui:TextBlock Grid.Row="1" Grid.ColumnSpan="2"
+                Margin="0,4,0,4"
+                Text="{DynamicResource ResourceKey=game.beamng.bridge.ports}"
+                TextWrapping="Wrap"
+                VerticalAlignment="Center" />
+
+        <ui:TextBlock Grid.Row="2" Grid.ColumnSpan="2" x:Name="BridgeStatusTextBlock"
                 Margin="0,4,0,4"
                 TextWrapping="Wrap"
                 VerticalAlignment="Center" />
 
-        <ui:Button Grid.Row="2" Grid.Column="1" x:Name="InstallBridgeButton"
+        <ui:Button Grid.Row="3" Grid.Column="1" x:Name="InstallBridgeButton"
                 HorizontalAlignment="Right"
                 Content="{DynamicResource ResourceKey=game.beamng.bridge.install}"
                 ToolTip="{DynamicResource ResourceKey=game.beamng.bridge.installTooltip}"

@@ -17,6 +17,10 @@ public class CarDamageConstants
 {
     public static string SEVERITY = "severity";
     public static string WHEELINDEX = "wheelindex";
+    public static string GROUP = "group";
+    public static string PART = "part";
+    public static string VALUE = "value";
+    public static string PREVIOUS_VALUE = "previous_value";
 }
 
 public class GameStateChangeEvent : IGameEvent
@@ -63,4 +67,3 @@ public static class GameStateRaceEndProperty {
     public static readonly string FINISH_STATE = "finish_state";   // GameStateRaceEnd
     public static readonly string FINISH_TIME_PANALTY = "finish_time_penalty";
 }
-

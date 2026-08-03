@@ -1,7 +1,7 @@
 {
   "name": "ZTMZ Pacenote Rally Bridge",
-  "version_string": "1.0.0",
+  "version_string": "1.1.2",
   "author": "ZTMZ Club",
   "type": "mod",
-  "description": "Local UDP bridge for BeamNG.drive Rally Mode telemetry and pacenote playback."
+  "description": "Automatically starts a local UDP bridge for BeamNG.drive Rally Mode telemetry, pacenote data, and vehicle damage changes."
 }

@@ -27,6 +27,10 @@ public sealed class BeamNGRallySnapshot
     public float CurrentPacenoteDistanceToMeters;
     public string VehicleName = string.Empty;
     public string VehicleClass = string.Empty;
+    public int VehicleId;
+    public float MaxRPM;
+    public float IdleRPM;
+    public BeamNGRallyDamageSummary Damage = new();
     public float FuelFraction;
     public float EngineTemperatureCelsius;
     public float OilTemperatureCelsius;
@@ -55,6 +59,36 @@ public sealed class BeamNGRallySnapshot
 
     public BeamNGRallySnapshot Clone()
     {
-        return (BeamNGRallySnapshot)MemberwiseClone();
+        var clone = (BeamNGRallySnapshot)MemberwiseClone();
+        clone.Damage = Damage.Clone();
+        return clone;
+    }
+}
+
+/// <summary>
+/// Compact, vehicle-independent damage state for dashboards and diagnostics.
+/// </summary>
+public sealed class BeamNGRallyDamageSummary
+{
+    public int VehicleId;
+    public int ActiveDamageCount;
+    public int DamagedWheelCount;
+    public float BodyDamageMaximum;
+    public float BodyDamageFrontLeft;
+    public float BodyDamageFrontRight;
+    public float BodyDamageRearLeft;
+    public float BodyDamageRearRight;
+    public bool HasEngineDamage;
+    public bool HasRadiatorDamage;
+    public bool HasPowertrainDamage;
+    public bool HasGearboxDamage;
+    public bool HasEnergyStorageDamage;
+    public bool HasDrivingDynamicsDamage;
+    public string ActiveDamage = string.Empty;
+    public string LastChanges = string.Empty;
+
+    public BeamNGRallyDamageSummary Clone()
+    {
+        return (BeamNGRallyDamageSummary)MemberwiseClone();
     }
 }

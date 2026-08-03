@@ -63,4 +63,12 @@ namespace ZTMZ.PacenoteTool.Base.Game
     {
         bool EnableExternalPacenotes { get; }
     }
+
+    /// <summary>
+    /// Lets a game provider migrate persisted settings after they have been loaded.
+    /// </summary>
+    public interface IGameConfigurationMigrator
+    {
+        bool MigrateGameConfiguration();
+    }
 }

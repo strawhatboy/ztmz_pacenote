@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
+using System.Text.Json;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 
@@ -14,8 +16,13 @@ namespace ZTMZ.PacenoteTool.BeamNG;
 /// </summary>
 public sealed class BeamNGGameDataReader : UdpGameDataReader
 {
-    public const int DefaultOutGaugePort = 44444;
+    public const int DefaultOutGaugePort = 4444;
+    public const int LegacyIncorrectOutGaugePort = 44444;
     private const uint HandbrakeLight = 1u << 2;
+    private const float FallbackMaximumRpm = 10000f;
+    private const float DamageActivityThreshold = 0.001f;
+    private const float BodyDamageEventThreshold = 0.01f;
+    private static readonly TimeSpan BridgeConnectionTimeout = TimeSpan.FromSeconds(5);
 
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     private readonly object _sync = new();
@@ -28,11 +35,14 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
     private BeamNGOutGaugePacket? _lastOutGauge;
     private BeamNGRallySnapshot _rallySnapshot = new();
     private DateTime _firstOutGaugeUtc;
+    private DateTime? _lastBridgePacketUtc;
     private bool _reportedUnsupportedProtocol;
     private string _lastStagePacenoteFingerprint = string.Empty;
+    private readonly Dictionary<string, DamageValue> _damageValues = new(StringComparer.OrdinalIgnoreCase);
 
     private event Action<GameData, GameData>? _onNewGameData;
     private event Action<GameStateChangeEvent>? _onGameStateChanged;
+    private event Action<CarDamageEvent>? _onCarDamaged;
 
     public override event Action<GameData, GameData> onNewGameData
     {
@@ -44,6 +54,12 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
     {
         add => _onGameStateChanged += value;
         remove => _onGameStateChanged -= value;
+    }
+
+    public override event Action<CarDamageEvent> onCarDamaged
+    {
+        add => _onCarDamaged += value;
+        remove => _onCarDamaged -= value;
     }
 
     public override GameState GameState
@@ -76,6 +92,29 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
             lock (_sync)
             {
                 return _bridgeListenerSocketError;
+            }
+        }
+    }
+
+    public DateTime? LastBridgePacketUtc
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return _lastBridgePacketUtc;
+            }
+        }
+    }
+
+    public bool IsBridgeConnected
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return _lastBridgePacketUtc is { } lastBridgePacketUtc &&
+                       DateTime.UtcNow - lastBridgePacketUtc <= BridgeConnectionTimeout;
             }
         }
     }
@@ -206,8 +245,10 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
             _lastOutGauge = null;
             _rallySnapshot = new BeamNGRallySnapshot();
             _firstOutGaugeUtc = default;
+            _lastBridgePacketUtc = null;
             _reportedUnsupportedProtocol = false;
             _lastStagePacenoteFingerprint = string.Empty;
+            _damageValues.Clear();
         }
 
         Logger.Info("BeamNG OutGauge and Rally bridge listeners initialized on {0} and {1}.",
@@ -223,6 +264,8 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
             bridgeReceiver = _bridgeReceiver;
             _bridgeReceiver = null;
             _bridgeListenerSocketError = null;
+            _lastBridgePacketUtc = null;
+            _damageValues.Clear();
         }
 
         if (bridgeReceiver is not null)
@@ -281,10 +324,13 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
         GameData newData;
         IReadOnlyList<BeamNGRallyPacenote>? stagePacenotesToSave = null;
         BeamNGRallyStage? stageToSave = null;
+        List<CarDamageEvent>? damageEvents;
 
         lock (_sync)
         {
+            _lastBridgePacketUtc = DateTime.UtcNow;
             ApplyBridgePacketLocked(packet);
+            damageEvents = ApplyDamagePacketLocked(packet.Damage);
             stateChange = GetStageStateChangeLocked();
             oldData = _currentGameData;
             newData = CreateGameDataLocked();
@@ -312,6 +358,13 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
         }
 
         stateChange?.Let(_onGameStateChanged);
+        if (damageEvents is not null)
+        {
+            foreach (var damageEvent in damageEvents)
+            {
+                _onCarDamaged?.Invoke(damageEvent);
+            }
+        }
         _onNewGameData?.Invoke(oldData, newData);
     }
 
@@ -333,6 +386,30 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
         if (!string.IsNullOrWhiteSpace(packet.VehicleClass))
         {
             _rallySnapshot.VehicleClass = packet.VehicleClass;
+        }
+
+        if (packet.Telemetry is not null)
+        {
+            var telemetry = packet.Telemetry;
+            if (telemetry.VehicleId > 0 && telemetry.VehicleId != _rallySnapshot.VehicleId)
+            {
+                _rallySnapshot.VehicleId = telemetry.VehicleId;
+                _rallySnapshot.MaxRPM = 0f;
+                _rallySnapshot.IdleRPM = 0f;
+                ResetDamageStateLocked(telemetry.VehicleId);
+            }
+
+            var maxRpm = Normalize(telemetry.MaxRPM);
+            if (maxRpm > 0f)
+            {
+                _rallySnapshot.MaxRPM = maxRpm;
+            }
+
+            var idleRpm = Normalize(telemetry.IdleRPM);
+            if (idleRpm > 0f)
+            {
+                _rallySnapshot.IdleRPM = idleRpm;
+            }
         }
 
         if (packet.Stage is null && string.Equals(packet.Type, "status", StringComparison.OrdinalIgnoreCase))
@@ -369,6 +446,344 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
         {
             _rallySnapshot.ExportedPacenoteCount = packet.Pacenotes.Count;
         }
+    }
+
+    private List<CarDamageEvent>? ApplyDamagePacketLocked(BeamNGRallyDamage? damage)
+    {
+        if (damage is null || damage.VehicleId <= 0 || damage.Current.Count == 0)
+        {
+            return null;
+        }
+
+        if (_rallySnapshot.VehicleId > 0 && _rallySnapshot.VehicleId != damage.VehicleId)
+        {
+            // Ignore a callback from an old vehicle after the player has switched cars.
+            return null;
+        }
+
+        if (_rallySnapshot.VehicleId == 0)
+        {
+            _rallySnapshot.VehicleId = damage.VehicleId;
+            ResetDamageStateLocked(damage.VehicleId);
+        }
+        else if (_rallySnapshot.Damage.VehicleId != damage.VehicleId)
+        {
+            ResetDamageStateLocked(damage.VehicleId);
+        }
+
+        UpdateDamageSummaryLocked(damage);
+        var damageEvents = CreateDamageEventsLocked(damage);
+        CaptureDamageValuesLocked(damage.Current);
+        if (!string.IsNullOrWhiteSpace(_rallySnapshot.Damage.LastChanges))
+        {
+            Logger.Info("BeamNG damage update for vehicle {0}: {1}.",
+                damage.VehicleId, _rallySnapshot.Damage.LastChanges);
+        }
+        return damageEvents;
+    }
+
+    private void ResetDamageStateLocked(int vehicleId)
+    {
+        _damageValues.Clear();
+        _rallySnapshot.Damage = new BeamNGRallyDamageSummary
+        {
+            VehicleId = vehicleId
+        };
+    }
+
+    private void UpdateDamageSummaryLocked(BeamNGRallyDamage damage)
+    {
+        var summary = new BeamNGRallyDamageSummary
+        {
+            VehicleId = damage.VehicleId,
+            LastChanges = BuildDamageChangeSummary(damage.Changed)
+        };
+        var activeDamage = new List<string>();
+
+        foreach (var group in damage.Current)
+        {
+            foreach (var part in group.Value)
+            {
+                if (!TryReadDamageValue(part.Value, out var value) || !value.IsActive)
+                {
+                    continue;
+                }
+
+                summary.ActiveDamageCount++;
+                if (activeDamage.Count < 12)
+                {
+                    activeDamage.Add($"{group.Key}/{part.Key}");
+                }
+
+                var groupName = group.Key.ToLowerInvariant();
+                if (groupName == "body")
+                {
+                    UpdateBodyDamageSummary(summary, part.Key, value.Magnitude);
+                    continue;
+                }
+
+                if (groupName == "wheels")
+                {
+                    summary.DamagedWheelCount++;
+                    continue;
+                }
+
+                if (groupName == "engine")
+                {
+                    summary.HasEngineDamage = true;
+                    if (part.Key.Contains("radiator", StringComparison.OrdinalIgnoreCase) ||
+                        part.Key.Contains("coolant", StringComparison.OrdinalIgnoreCase))
+                    {
+                        summary.HasRadiatorDamage = true;
+                    }
+                    continue;
+                }
+
+                if (groupName == "powertrain")
+                {
+                    summary.HasPowertrainDamage = true;
+                    continue;
+                }
+
+                if (groupName == "gearbox")
+                {
+                    summary.HasGearboxDamage = true;
+                    continue;
+                }
+
+                if (groupName is "energystorage" or "pressuretank")
+                {
+                    summary.HasEnergyStorageDamage = true;
+                    continue;
+                }
+
+                if (groupName == "drivingdynamics")
+                {
+                    summary.HasDrivingDynamicsDamage = true;
+                }
+            }
+        }
+
+        summary.ActiveDamage = string.Join(", ", activeDamage);
+        _rallySnapshot.Damage = summary;
+    }
+
+    private List<CarDamageEvent>? CreateDamageEventsLocked(BeamNGRallyDamage damage)
+    {
+        if (damage.Changed.Count == 0)
+        {
+            return null;
+        }
+
+        List<CarDamageEvent>? events = null;
+        foreach (var group in damage.Changed)
+        {
+            foreach (var part in group.Value)
+            {
+                if (!TryReadDamageValue(part.Value, out var currentValue))
+                {
+                    continue;
+                }
+
+                var key = GetDamageValueKey(group.Key, part.Key);
+                _damageValues.TryGetValue(key, out var previousValue);
+                var damageType = ClassifyDamage(group.Key, part.Key);
+                if (damageType is null || !ShouldRaiseDamageEvent(damageType.Value, currentValue, previousValue))
+                {
+                    continue;
+                }
+
+                var parameters = new Dictionary<string, object>
+                {
+                    [CarDamageConstants.GROUP] = group.Key,
+                    [CarDamageConstants.PART] = part.Key,
+                    [CarDamageConstants.VALUE] = currentValue.Magnitude,
+                    [CarDamageConstants.PREVIOUS_VALUE] = previousValue.Magnitude
+                };
+                if (damageType == CarDamage.Wheel && TryMapBeamNGWheelIndex(part.Key, out var wheelIndex))
+                {
+                    parameters[CarDamageConstants.WHEELINDEX] = wheelIndex;
+                }
+
+                events ??= new List<CarDamageEvent>();
+                events.Add(new CarDamageEvent
+                {
+                    DamageType = damageType.Value,
+                    Parameters = parameters
+                });
+            }
+        }
+
+        return events;
+    }
+
+    private void CaptureDamageValuesLocked(Dictionary<string, Dictionary<string, JsonElement>> currentDamage)
+    {
+        _damageValues.Clear();
+        foreach (var group in currentDamage)
+        {
+            foreach (var part in group.Value)
+            {
+                if (TryReadDamageValue(part.Value, out var value))
+                {
+                    _damageValues[GetDamageValueKey(group.Key, part.Key)] = value;
+                }
+            }
+        }
+    }
+
+    private static void UpdateBodyDamageSummary(BeamNGRallyDamageSummary summary, string partName, float magnitude)
+    {
+        magnitude = Math.Clamp(magnitude, 0f, 1f);
+        summary.BodyDamageMaximum = Math.Max(summary.BodyDamageMaximum, magnitude);
+        switch (partName.ToUpperInvariant())
+        {
+            case "FL":
+                summary.BodyDamageFrontLeft = magnitude;
+                break;
+            case "FR":
+                summary.BodyDamageFrontRight = magnitude;
+                break;
+            case "RL":
+                summary.BodyDamageRearLeft = magnitude;
+                break;
+            case "RR":
+                summary.BodyDamageRearRight = magnitude;
+                break;
+        }
+    }
+
+    private static string BuildDamageChangeSummary(Dictionary<string, Dictionary<string, JsonElement>> changedDamage)
+    {
+        var changes = new List<string>();
+        foreach (var group in changedDamage)
+        {
+            foreach (var part in group.Value)
+            {
+                if (changes.Count >= 12)
+                {
+                    return string.Join(", ", changes);
+                }
+
+                if (!TryReadDamageValue(part.Value, out var value))
+                {
+                    continue;
+                }
+
+                changes.Add(value.IsActive
+                    ? $"{group.Key}/{part.Key}"
+                    : $"{group.Key}/{part.Key} cleared");
+            }
+        }
+
+        return string.Join(", ", changes);
+    }
+
+    private static CarDamage? ClassifyDamage(string groupName, string partName)
+    {
+        if (string.Equals(groupName, "wheels", StringComparison.OrdinalIgnoreCase) &&
+            partName.StartsWith("tire", StringComparison.OrdinalIgnoreCase))
+        {
+            return CarDamage.Wheel;
+        }
+
+        if (string.Equals(groupName, "body", StringComparison.OrdinalIgnoreCase))
+        {
+            return CarDamage.Bodywork;
+        }
+
+        if (!string.Equals(groupName, "engine", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        if (partName.Contains("radiator", StringComparison.OrdinalIgnoreCase) ||
+            partName.Contains("coolant", StringComparison.OrdinalIgnoreCase))
+        {
+            return CarDamage.Radiator;
+        }
+
+        if (partName.Contains("waterpump", StringComparison.OrdinalIgnoreCase))
+        {
+            return CarDamage.WaterPump;
+        }
+
+        return CarDamage.Engine;
+    }
+
+    private static bool ShouldRaiseDamageEvent(CarDamage damageType, DamageValue current, DamageValue previous)
+    {
+        if (damageType == CarDamage.Bodywork)
+        {
+            return current.Magnitude - previous.Magnitude >= BodyDamageEventThreshold;
+        }
+
+        return current.IsActive && !previous.IsActive;
+    }
+
+    private static bool TryReadDamageValue(JsonElement element, out DamageValue value)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.True:
+                value = new DamageValue(true, 1f);
+                return true;
+            case JsonValueKind.False:
+            case JsonValueKind.Null:
+                value = default;
+                return true;
+            case JsonValueKind.Number when element.TryGetDouble(out var number) && double.IsFinite(number):
+                var magnitude = (float)Math.Clamp(number, 0d, float.MaxValue);
+                value = new DamageValue(magnitude > DamageActivityThreshold, magnitude);
+                return true;
+            case JsonValueKind.String:
+                var text = element.GetString();
+                if (bool.TryParse(text, out var booleanValue))
+                {
+                    value = new DamageValue(booleanValue, booleanValue ? 1f : 0f);
+                    return true;
+                }
+
+                if (float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var stringMagnitude) &&
+                    float.IsFinite(stringMagnitude))
+                {
+                    stringMagnitude = Math.Max(0f, stringMagnitude);
+                    value = new DamageValue(stringMagnitude > DamageActivityThreshold, stringMagnitude);
+                    return true;
+                }
+
+                break;
+        }
+
+        value = default;
+        return false;
+    }
+
+    private static bool TryMapBeamNGWheelIndex(string partName, out int wheelIndex)
+    {
+        var wheelName = partName.StartsWith("tire", StringComparison.OrdinalIgnoreCase)
+            ? partName[4..]
+            : partName;
+        var normalizedName = wheelName
+            .Replace("_", string.Empty, StringComparison.Ordinal)
+            .Replace("-", string.Empty, StringComparison.Ordinal)
+            .Replace(" ", string.Empty, StringComparison.Ordinal)
+            .ToUpperInvariant();
+
+        wheelIndex = normalizedName switch
+        {
+            "FL" or "FRONTLEFT" or "LEFTFRONT" => 0,
+            "FR" or "FRONTRIGHT" or "RIGHTFRONT" => 1,
+            "RL" or "REARLEFT" or "LEFTREAR" => 2,
+            "RR" or "REARRIGHT" or "RIGHTREAR" => 3,
+            _ => -1
+        };
+        return wheelIndex >= 0;
+    }
+
+    private static string GetDamageValueKey(string groupName, string partName)
+    {
+        return string.Concat(groupName, "\u001f", partName);
     }
 
     private void UpdateTelemetrySnapshotLocked(BeamNGOutGaugePacket outGauge)
@@ -450,6 +865,8 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
         var outGauge = _lastOutGauge;
         var hasStage = !string.IsNullOrWhiteSpace(snapshot.StageId);
         var elapsedSeconds = _firstOutGaugeUtc == default ? 0f : (float)(now - _firstOutGaugeUtc).TotalSeconds;
+        var rpm = Normalize(outGauge?.Rpm ?? 0f);
+        var maxRpm = ResolveMaximumRpm(snapshot.MaxRPM, rpm);
 
         return new GameData
         {
@@ -460,7 +877,9 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
             CompletionRate = snapshot.Completion,
             TrackLength = snapshot.TotalDistanceMeters,
             Speed = Normalize(outGauge?.SpeedMetersPerSecond ?? 0f) * 3.6f,
-            RPM = Normalize(outGauge?.Rpm ?? 0f),
+            RPM = rpm,
+            MaxRPM = maxRpm,
+            IdleRPM = Math.Clamp(Normalize(snapshot.IdleRPM), 0f, maxRpm),
             Gear = outGauge?.Gear ?? 0,
             Throttle = Normalize(outGauge?.Throttle ?? 0f),
             Brake = Normalize(outGauge?.Brake ?? 0f),
@@ -503,6 +922,21 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
     {
         return float.IsFinite(value) ? value : 0f;
     }
+
+    private static float ResolveMaximumRpm(float bridgeMaximumRpm, float currentRpm)
+    {
+        var reportedMaximumRpm = Normalize(bridgeMaximumRpm);
+        if (reportedMaximumRpm > 0f)
+        {
+            return reportedMaximumRpm;
+        }
+
+        // Older bridge builds did not provide an RPM limit. Avoid the dashboard's
+        // zero-denominator path until a current bridge reports the real vehicle value.
+        return Math.Max(FallbackMaximumRpm, currentRpm * 1.1f);
+    }
+
+    private readonly record struct DamageValue(bool IsActive, float Magnitude);
 }
 
 internal static class BeamNGDelegateExtensions

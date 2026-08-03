@@ -142,7 +142,15 @@ public class ZTMZPacenoteTool {
                 Directory.EnumerateFiles(gamesDirectory, "*.dll"),
                 _logger));
             this._games.Sort((g1, g2) => g1.Order.CompareTo(g2.Order));
-            this._games.ForEach(g => g.GameConfigurations = Config.Instance.LoadGameConfig(g));
+            foreach (var game in this._games)
+            {
+                game.GameConfigurations = Config.Instance.LoadGameConfig(game);
+                if (game is IGameConfigurationMigrator migrator && migrator.MigrateGameConfiguration())
+                {
+                    Config.Instance.SaveGameConfig(game);
+                    _logger.Info("Migrated game configuration for {0}.", game.Name);
+                }
+            }
         } catch (Exception ex) {
             _logger.Error($"Faield to load games: {ex.ToString()}");
         }
@@ -667,15 +675,20 @@ public class ZTMZPacenoteTool {
         switch (evt.DamageType) 
         {
             case CarDamage.Collision:
-                var lvl = (int)evt.Parameters[CarDamageConstants.SEVERITY];
-                //TODO: played in thread originally?
-                this._profileManager.PlaySystem(Constants.SYSTEM_COLLISION[lvl]);
+                if (evt.Parameters.TryGetValue(CarDamageConstants.SEVERITY, out var severityValue) &&
+                    severityValue is int lvl && lvl >= 0 && lvl < Constants.SYSTEM_COLLISION.Count)
+                {
+                    //TODO: played in thread originally?
+                    this._profileManager.PlaySystem(Constants.SYSTEM_COLLISION[lvl]);
+                }
                 
                 break;
             case CarDamage.Wheel:
-                var wheelIndex = (int)evt.Parameters[CarDamageConstants.WHEELINDEX];
-                
-                this._profileManager.PlaySystem(Constants.SYSTEM_PUNCTURE[wheelIndex]);
+                if (evt.Parameters.TryGetValue(CarDamageConstants.WHEELINDEX, out var wheelIndexValue) &&
+                    wheelIndexValue is int wheelIndex && wheelIndex >= 0 && wheelIndex < Constants.SYSTEM_PUNCTURE.Count)
+                {
+                    this._profileManager.PlaySystem(Constants.SYSTEM_PUNCTURE[wheelIndex]);
+                }
                 
                 break;
             default:

@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Win32;
 using System.Windows;
+using System.Windows.Threading;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Base.UI.Game;
@@ -11,6 +12,7 @@ namespace ZTMZ.PacenoteTool.BeamNG;
 public partial class BeamNGRallyBridgeConfigSettingsPane : IGameConfigSettingsPane
 {
     private readonly BeamNGRallyBridgeConfig _config;
+    private readonly DispatcherTimer _statusRefreshTimer;
     private IGame? _game;
     private bool _isInitializing;
 
@@ -19,6 +21,13 @@ public partial class BeamNGRallyBridgeConfigSettingsPane : IGameConfigSettingsPa
         _config = config;
         _isInitializing = true;
         InitializeComponent();
+        _statusRefreshTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(1)
+        };
+        _statusRefreshTimer.Tick += StatusRefreshTimer_OnTick;
+        Loaded += SettingsPane_OnLoaded;
+        Unloaded += SettingsPane_OnUnloaded;
         UserFolderPathTextBox.Text = _config.UserFolderPath;
         _isInitializing = false;
         RefreshBridgeStatus();
@@ -107,6 +116,22 @@ public partial class BeamNGRallyBridgeConfigSettingsPane : IGameConfigSettingsPa
         RestartNeeded?.Invoke();
     }
 
+    private void SettingsPane_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        _statusRefreshTimer.Start();
+        RefreshBridgeStatus();
+    }
+
+    private void SettingsPane_OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        _statusRefreshTimer.Stop();
+    }
+
+    private void StatusRefreshTimer_OnTick(object? sender, EventArgs e)
+    {
+        RefreshBridgeStatus();
+    }
+
     private void RefreshBridgeStatus()
     {
         if (!BeamNGUserFolderLocator.IsValidUserFolder(_config.UserFolderPath))
@@ -121,12 +146,28 @@ public partial class BeamNGRallyBridgeConfigSettingsPane : IGameConfigSettingsPa
             return;
         }
 
-        if (_game?.IsInitialized == true &&
-            _game.GameDataReader is BeamNGGameDataReader reader &&
-            !reader.IsBridgeListening)
+        if (_game?.IsInitialized == true && _game.GameDataReader is BeamNGGameDataReader reader)
         {
+            if (!reader.IsBridgeListening)
+            {
+                BridgeStatusTextBlock.Text = string.Format(
+                    I18NLoader.Instance["game.beamng.bridge.statusPortUnavailable"],
+                    BeamNGRallyBridgeConfig.DefaultPort);
+                return;
+            }
+
+            if (reader.IsBridgeConnected)
+            {
+                BridgeStatusTextBlock.Text = string.Format(
+                    I18NLoader.Instance["game.beamng.bridge.statusConnected"],
+                    BeamNGRallyBridgeConfig.DefaultPort);
+                return;
+            }
+
             BridgeStatusTextBlock.Text = string.Format(
-                I18NLoader.Instance["game.beamng.bridge.statusPortUnavailable"],
+                I18NLoader.Instance[reader.LastBridgePacketUtc is null
+                    ? "game.beamng.bridge.statusWaiting"
+                    : "game.beamng.bridge.statusNoRecentData"],
                 BeamNGRallyBridgeConfig.DefaultPort);
             return;
         }

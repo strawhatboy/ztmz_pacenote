@@ -1,4 +1,6 @@
 using System.Buffers.Binary;
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.BeamNG;
@@ -48,6 +50,27 @@ public class BeamNGProtocolTest
               "type": "stage",
               "status": "active",
               "vehicleName": "Hirochi Sunburst",
+              "telemetry": {
+                "vehicleId": 77,
+                "maxRPM": 7800,
+                "idleRPM": 850
+              },
+              "damage": {
+                "vehicleId": 77,
+                "current": {
+                  "engine": {
+                    "radiatorLeak": true
+                  },
+                  "body": {
+                    "FL": 0.24
+                  }
+                },
+                "changed": {
+                  "engine": {
+                    "radiatorLeak": true
+                  }
+                }
+              },
               "stage": {
                 "id": "small_island-intro_rally_stage1",
                 "name": "Intro Rally Stage",
@@ -72,6 +95,13 @@ public class BeamNGProtocolTest
         Assert.NotNull(packet);
         Assert.Equal(BeamNGRallyBridgePacket.SupportedProtocolVersion, packet.ProtocolVersion);
         Assert.Equal("Hirochi Sunburst", packet.VehicleName);
+        Assert.NotNull(packet.Telemetry);
+        Assert.Equal(77, packet.Telemetry.VehicleId);
+        Assert.Equal(7800f, packet.Telemetry.MaxRPM);
+        Assert.Equal(850f, packet.Telemetry.IdleRPM);
+        Assert.NotNull(packet.Damage);
+        Assert.True(packet.Damage.Current["engine"]["radiatorLeak"].GetBoolean());
+        Assert.Equal(0.24f, packet.Damage.Current["body"]["FL"].GetSingle());
         Assert.NotNull(packet.Stage);
         Assert.True(packet.Stage.IsActive);
         Assert.Equal(5120f, packet.Stage.TotalDistanceMeters);
@@ -107,7 +137,36 @@ public class BeamNGProtocolTest
             typeof(IGamePacenotePlaybackControl),
             typeof(BeamNGRally).GetInterfaces());
         var udpConfig = Assert.IsType<UdpGameConfig>(game.DefaultGameConfigurations[UdpGameConfig.Name]);
+        Assert.Equal(4444, udpConfig.Port);
         Assert.Equal(BeamNGGameDataReader.DefaultOutGaugePort, udpConfig.Port);
+    }
+
+    [Fact]
+    public void BeamNGRally_MigratesTheLegacyIncorrectOutGaugePort()
+    {
+        var userFolder = Path.Combine(Path.GetTempPath(), "ZTMZPacenoteBeamNGTests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(userFolder);
+        try
+        {
+            var game = new BeamNGRally
+            {
+                GameConfigurations = new Dictionary<string, IGameConfig>
+                {
+                    [UdpGameConfig.Name] = new UdpGameConfig { Port = BeamNGGameDataReader.LegacyIncorrectOutGaugePort },
+                    [BeamNGRallyBridgeConfig.Name] = new BeamNGRallyBridgeConfig { UserFolderPath = userFolder }
+                }
+            };
+
+            var changed = game.MigrateGameConfiguration();
+
+            Assert.True(changed);
+            var udpConfig = Assert.IsType<UdpGameConfig>(game.GameConfigurations[UdpGameConfig.Name]);
+            Assert.Equal(BeamNGGameDataReader.DefaultOutGaugePort, udpConfig.Port);
+        }
+        finally
+        {
+            Directory.Delete(userFolder, recursive: true);
+        }
     }
 
     [Fact]
@@ -142,6 +201,19 @@ public class BeamNGProtocolTest
 
         Assert.Equal("BeamNG.drive Rally", reader.TrackName);
         Assert.Equal("BeamNG.drive", reader.CarName);
+    }
+
+    [Fact]
+    public void BeamNGGameDataReader_UsesASafeMaximumRpmBeforeBridgeTelemetryArrives()
+    {
+        var reader = new BeamNGGameDataReader();
+        var packetBytes = new byte[BeamNGOutGaugePacket.MinimumPacketLength];
+        WriteSingle(packetBytes, 16, 6123f);
+
+        reader.onNewUdpMessage([], packetBytes);
+
+        Assert.Equal(6123f, reader.CurrentGameData.RPM);
+        Assert.Equal(10000f, reader.CurrentGameData.MaxRPM);
     }
 
     private static void WriteSingle(byte[] target, int offset, float value)

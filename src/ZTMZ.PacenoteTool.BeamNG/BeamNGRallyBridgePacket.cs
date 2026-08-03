@@ -21,6 +21,8 @@ public sealed class BeamNGRallyBridgePacket
     public string Error { get; init; } = string.Empty;
     public string VehicleName { get; init; } = string.Empty;
     public string VehicleClass { get; init; } = string.Empty;
+    public BeamNGRallyVehicleTelemetry? Telemetry { get; init; }
+    public BeamNGRallyDamage? Damage { get; init; }
     public BeamNGRallyStage? Stage { get; init; }
     public BeamNGRallyPacenote? Pacenote { get; init; }
     public List<BeamNGRallyPacenote>? Pacenotes { get; init; }
@@ -62,6 +64,28 @@ public sealed class BeamNGRallyBridgePacket
 
         return false;
     }
+}
+
+/// <summary>
+/// Vehicle values which BeamNG's standard OutGauge packet does not expose.
+/// </summary>
+public sealed class BeamNGRallyVehicleTelemetry
+{
+    public int VehicleId { get; init; }
+    public float MaxRPM { get; init; }
+    public float IdleRPM { get; init; }
+}
+
+/// <summary>
+/// Change-set data from BeamNG's built-in vehicle damage tracker.
+/// </summary>
+public sealed class BeamNGRallyDamage
+{
+    public int VehicleId { get; init; }
+    public Dictionary<string, Dictionary<string, JsonElement>> Current { get; init; } =
+        new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, Dictionary<string, JsonElement>> Changed { get; init; } =
+        new(StringComparer.OrdinalIgnoreCase);
 }
 
 public sealed class BeamNGRallyStage

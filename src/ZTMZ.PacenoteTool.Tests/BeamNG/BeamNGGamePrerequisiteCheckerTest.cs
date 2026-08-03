@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.BeamNG;
 
@@ -44,7 +45,23 @@ public class BeamNGGamePrerequisiteCheckerTest
         new BeamNGGamePrerequisiteChecker().ForceFix(game);
 
         Assert.True(BeamNGBridgeInstaller.IsInstalled(config));
-        Assert.True(File.Exists(Path.Combine(userFolder.Path, "mods", BeamNGBridgeInstaller.ModFileName)));
+        var installedModPath = Path.Combine(userFolder.Path, "mods", BeamNGBridgeInstaller.ModFileName);
+        Assert.True(File.Exists(installedModPath));
+
+        using var archive = ZipFile.OpenRead(installedModPath);
+        Assert.NotNull(archive.GetEntry("scripts/ztmz_pacenote_rally_bridge/modScript.lua"));
+        Assert.NotNull(archive.GetEntry("scripts/ztmz_pacenote_rally_bridge/extension.lua"));
+        Assert.NotNull(archive.GetEntry("lua/vehicle/extensions/ztmz_pacenote_rally_bridge_damage.lua"));
+        Assert.Null(archive.GetEntry("lua/ge/extensions/core/input/actions/ztmz_pacenote_rally_bridge.json"));
+    }
+
+    [Fact]
+    public void UserFolderLocator_RejectsBeamNGRetiredRedirectFolder()
+    {
+        using var userFolder = new TemporaryDirectory();
+        File.WriteAllText(Path.Combine(userFolder.Path, "moved here.lnk"), "obsolete redirect");
+
+        Assert.False(BeamNGUserFolderLocator.IsValidUserFolder(userFolder.Path));
     }
 
     private static TestGame CreateGame(string userFolderPath)

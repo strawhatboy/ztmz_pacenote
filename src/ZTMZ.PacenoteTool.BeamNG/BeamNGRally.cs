@@ -5,7 +5,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.BeamNG;
 
-public sealed class BeamNGRally : IGame
+public sealed class BeamNGRally : IGame, IGameConfigurationMigrator
 {
     public const string GameName = "BeamNG.drive Rally Mode";
 
@@ -53,5 +53,33 @@ public sealed class BeamNGRally : IGame
     public void OnCustomMessage(int level, string message)
     {
         onCustomMessage?.Invoke(level, message);
+    }
+
+    public bool MigrateGameConfiguration()
+    {
+        var changed = false;
+
+        if (GameConfigurations.TryGetValue(UdpGameConfig.Name, out var udpGameConfig) &&
+            udpGameConfig is UdpGameConfig udpConfig &&
+            udpConfig.Port == BeamNGGameDataReader.LegacyIncorrectOutGaugePort)
+        {
+            udpConfig.Port = BeamNGGameDataReader.DefaultOutGaugePort;
+            changed = true;
+        }
+
+        if (GameConfigurations.TryGetValue(BeamNGRallyBridgeConfig.Name, out var bridgeGameConfig) &&
+            bridgeGameConfig is BeamNGRallyBridgeConfig bridgeConfig &&
+            !BeamNGUserFolderLocator.IsValidUserFolder(bridgeConfig.UserFolderPath))
+        {
+            var detectedUserFolder = BeamNGUserFolderLocator.FindDefaultUserFolder();
+            if (BeamNGUserFolderLocator.IsValidUserFolder(detectedUserFolder) &&
+                !string.Equals(bridgeConfig.UserFolderPath, detectedUserFolder, StringComparison.OrdinalIgnoreCase))
+            {
+                bridgeConfig.UserFolderPath = detectedUserFolder;
+                changed = true;
+            }
+        }
+
+        return changed;
     }
 }
