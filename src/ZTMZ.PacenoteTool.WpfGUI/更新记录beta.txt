@@ -1,3 +1,15 @@
+v2.99.99.41-3.0-rc13
+------
+[English]
+* Adds live BeamNG.drive Rally Mode co-driver audio. Pacenote Tool now follows BeamNG's current pacenote timing and translates the game's native pacenote data at runtime; saved stage exports are for diagnostics and coverage checks.
+* Adds BeamNG Rally countdown calls and bridge version checks. Rally bridge 1.1.5 repairs outdated installs and diagnostics report both OutGauge and Rally bridge UDP listeners.
+* Refines the Car Damage dashboard with a configurable short alert for race-start and changed components, while keeping normal component status quieter during driving.
+
+[简体中文]
+* 新增 BeamNG.drive 拉力模式的实时领航员语音：路书工具跟随 BeamNG 当前路书的触发时机，并在运行时转换游戏原生路书数据；保存的赛段路书仅用于诊断和覆盖率检查。
+* 支持 BeamNG 拉力倒计时播报和桥接模块版本检查。拉力桥接模块升级到 1.1.5，可修复过期安装；诊断页面会同时报告 OutGauge 与拉力桥接 UDP 监听状态。
+* 优化车辆损坏仪表盘：比赛开始或部件状态变化时提供可配置的短暂高亮提醒，行驶期间保持更低干扰的常态显示。
+
 v2.99.99.40-3.0-rc12
 ------
 [English]
