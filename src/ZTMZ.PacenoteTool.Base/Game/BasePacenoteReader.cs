@@ -7,13 +7,13 @@ namespace ZTMZ.PacenoteTool.Base.Game
     {
         public virtual ScriptReader ReadPacenoteRecord(string profile, IGame game, string track)
         {
-            var scriptFile = GetScriptFileForRecording(profile, game, track);
-            if (string.IsNullOrEmpty(scriptFile))
+            var scriptFile = GetScriptFileForReplaying(profile, game, track);
+            if (string.IsNullOrWhiteSpace(scriptFile) || !File.Exists(scriptFile))
             {
                 return new ScriptReader();
             }
-            var script = ScriptReader.ReadFromFile(GetScriptFileForReplaying(profile, game, track));
-            return script;
+
+            return ScriptReader.ReadFromFile(scriptFile);
         }
 
         public virtual string GetScriptFileForReplaying(string profile, IGame game, string track, bool fallbackToDefault = true)

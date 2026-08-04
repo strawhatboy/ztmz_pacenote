@@ -140,9 +140,19 @@ public partial class BeamNGRallyBridgeConfigSettingsPane : IGameConfigSettingsPa
             return;
         }
 
-        if (!BeamNGBridgeInstaller.IsInstalled(_config))
+        var bridgeInstallation = BeamNGBridgeInstaller.GetInstallationInfo(_config);
+        if (bridgeInstallation.State == BeamNGBridgeInstallationState.Missing)
         {
             BridgeStatusTextBlock.Text = I18NLoader.Instance["game.beamng.bridge.statusNotInstalled"];
+            return;
+        }
+
+        if (!bridgeInstallation.IsCurrent)
+        {
+            BridgeStatusTextBlock.Text = string.Format(
+                I18NLoader.Instance["game.beamng.bridge.statusUpdateRequired"],
+                bridgeInstallation.InstalledVersion?.ToString() ?? I18NLoader.Instance["game.beamng.bridge.unknownVersion"],
+                bridgeInstallation.BundledVersion?.ToString() ?? I18NLoader.Instance["game.beamng.bridge.unknownVersion"]);
             return;
         }
 

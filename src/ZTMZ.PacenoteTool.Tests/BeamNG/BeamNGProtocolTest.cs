@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.BeamNG;
 
@@ -75,6 +76,8 @@ public class BeamNGProtocolTest
                 "id": "small_island-intro_rally_stage1",
                 "name": "Intro Rally Stage",
                 "isActive": true,
+                "isCountingDown": true,
+                "countdownNumber": 4,
                 "stageTimeSeconds": 93.4,
                 "distanceMeters": 1842.7,
                 "totalDistanceMeters": 5120.0,
@@ -84,6 +87,20 @@ public class BeamNGProtocolTest
                 "id": "note-32",
                 "name": "Left 4",
                 "text": "Left 4 over crest",
+                "sourceText": "Left 4 over crest",
+                "sourceLanguage": "en-us",
+                "audioMode": "structuredOnline",
+                "structured": {
+                  "schemaVersion": 3,
+                  "items": {
+                    "4": {
+                      "type": "corner",
+                      "direction": -1,
+                      "intensity": 140,
+                      "shape": "tightens"
+                    }
+                  }
+                },
                 "distanceToMeters": 72.0
               }
             }
@@ -104,9 +121,16 @@ public class BeamNGProtocolTest
         Assert.Equal(0.24f, packet.Damage.Current["body"]["FL"].GetSingle());
         Assert.NotNull(packet.Stage);
         Assert.True(packet.Stage.IsActive);
+        Assert.True(packet.Stage.IsCountingDown);
+        Assert.Equal(4, packet.Stage.CountdownNumber);
         Assert.Equal(5120f, packet.Stage.TotalDistanceMeters);
         Assert.NotNull(packet.Pacenote);
         Assert.Equal("Left 4 over crest", packet.Pacenote.Text);
+        Assert.Equal("en-us", packet.Pacenote.SourceLanguage);
+        Assert.Equal("structuredOnline", packet.Pacenote.AudioMode);
+        Assert.NotNull(packet.Pacenote.Structured);
+        Assert.Equal("corner", packet.Pacenote.Structured.Items["4"].Type);
+        Assert.Equal(-1, packet.Pacenote.Structured.Items["4"].Direction);
     }
 
     [Fact]
@@ -139,6 +163,261 @@ public class BeamNGProtocolTest
         var udpConfig = Assert.IsType<UdpGameConfig>(game.DefaultGameConfigurations[UdpGameConfig.Name]);
         Assert.Equal(4444, udpConfig.Port);
         Assert.Equal(BeamNGGameDataReader.DefaultOutGaugePort, udpConfig.Port);
+    }
+
+    [Fact]
+    public void TranslatePacenote_MapsBeamNGFreeformTextToZtmzTokens()
+    {
+        var translation = BeamNGPacenoteTranslator.Translate(
+            "60 6 right don't cut over crest",
+            ["60", "6_right", "dont_cut", "over_crest"]);
+
+        Assert.Equal(
+            ["60", "6_right", "dont_cut", "over_crest"],
+            translation.Record.Pacenotes.Select(note => note.Note));
+        Assert.Empty(translation.UnrecognizedWords);
+    }
+
+    [Fact]
+    public void TranslatePacenote_DoesNotPartiallyTranslateNonEnglishFreeformText()
+    {
+        var translation = BeamNGPacenoteTranslator.Translate(
+            new BeamNGRallyPacenote
+            {
+                SourceLanguage = "de-de",
+                SourceText = "sechs rechts"
+            },
+            ["6_right"]);
+
+        Assert.Empty(translation.Record.Pacenotes);
+        Assert.Equal(["source-language:de-de"], translation.UnrecognizedWords);
+    }
+
+    [Fact]
+    public void TranslatePacenote_MapsLanguageNeutralStructuredRecordToZtmzTokens()
+    {
+        var translation = BeamNGPacenoteTranslator.Translate(
+            new BeamNGRallyPacenote
+            {
+                SourceText = "unused English display text",
+                SourceLanguage = "de-de",
+                Structured = new BeamNGRallyPacenoteStructured
+                {
+                    SchemaVersion = 3,
+                    Items = new Dictionary<string, BeamNGRallyPacenoteStructuredItem>
+                    {
+                        ["1"] = new() { Type = "caution", Level = 2 },
+                        ["2"] = new() { Type = "overCrest" },
+                        ["4"] = new()
+                        {
+                            Type = "corner",
+                            Direction = -1,
+                            Intensity = 140,
+                            ArcMeters = 120,
+                            Shape = "tightens"
+                        }
+                    }
+                }
+            },
+            ["caution", "over_crest", "4_left", "long", "tightens"]);
+
+        Assert.Equal(
+            ["caution", "over_crest", "4_left", "long", "tightens"],
+            translation.Record.Pacenotes.Select(note => note.Note));
+        Assert.Empty(translation.UnrecognizedWords);
+    }
+
+    [Fact]
+    public void TranslatePacenote_MapsAnOptionalExportedStageWithTheSelectedCodriverVocabulary()
+    {
+        var stageExportPath = Environment.GetEnvironmentVariable("ZTMZ_BEAMNG_STAGE_EXPORT");
+        var codriverDirectory = Environment.GetEnvironmentVariable("ZTMZ_BEAMNG_CODRIVER_DIRECTORY");
+        if (string.IsNullOrWhiteSpace(stageExportPath) || string.IsNullOrWhiteSpace(codriverDirectory))
+        {
+            return;
+        }
+
+        Assert.True(File.Exists(stageExportPath), $"Stage export was not found: {stageExportPath}");
+        Assert.True(Directory.Exists(codriverDirectory), $"Co-driver directory was not found: {codriverDirectory}");
+
+        var stage = JsonSerializer.Deserialize<BeamNGRallyStageExport>(File.ReadAllText(stageExportPath));
+        Assert.NotNull(stage);
+        Assert.NotEmpty(stage.Pacenotes);
+
+        var availableTokens = Directory.EnumerateFiles(codriverDirectory)
+            .Select(Path.GetFileNameWithoutExtension)
+            .Where(token => !string.IsNullOrWhiteSpace(token))
+            .Select(token => token!)
+            .ToArray();
+        Assert.NotEmpty(availableTokens);
+
+        var unmapped = stage.Pacenotes
+            .Select(pacenote => new
+            {
+                Pacenote = pacenote,
+                Translation = BeamNGPacenoteTranslator.Translate(pacenote, availableTokens)
+            })
+            .Where(result => result.Translation.UnrecognizedWords.Count > 0)
+            .Select(result => $"{result.Pacenote.Id}: {result.Pacenote.Text} ({string.Join(" ", result.Translation.UnrecognizedWords)})")
+            .ToArray();
+
+        Assert.True(unmapped.Length == 0, "Unmapped BeamNG pacenote data:" + Environment.NewLine + string.Join(Environment.NewLine, unmapped));
+    }
+
+    [Fact]
+    public void TranslatePacenote_MapsEveryStandardStructuredTypeWithTheSelectedCodriverVocabulary()
+    {
+        var codriverDirectory = Environment.GetEnvironmentVariable("ZTMZ_BEAMNG_CODRIVER_DIRECTORY");
+        if (string.IsNullOrWhiteSpace(codriverDirectory))
+        {
+            return;
+        }
+
+        Assert.True(Directory.Exists(codriverDirectory), $"Co-driver directory was not found: {codriverDirectory}");
+        var availableTokens = Directory.EnumerateFiles(codriverDirectory)
+            .Select(Path.GetFileNameWithoutExtension)
+            .Where(token => !string.IsNullOrWhiteSpace(token))
+            .Select(token => token!)
+            .ToArray();
+
+        var pacenotes = BeamNGPacenoteTranslator.StandardModifierPhrases.Keys
+            .Select(type => CreateStructuredPacenote(type))
+            .Concat(CreateStructuredCornerPacenotes())
+            .ToArray();
+        var unmapped = pacenotes
+            .Select(pacenote => new
+            {
+                Pacenote = pacenote,
+                Translation = BeamNGPacenoteTranslator.Translate(pacenote, availableTokens),
+                Type = pacenote.Structured!.Items["4"].Type
+            })
+            .Where(result => result.Translation.UnrecognizedWords.Count > 0)
+            .Select(result => $"{result.Type}: {string.Join(" ", result.Translation.UnrecognizedWords)}")
+            .ToArray();
+
+        Assert.True(unmapped.Length == 0, "Unmapped standard BeamNG structured data:" + Environment.NewLine + string.Join(Environment.NewLine, unmapped));
+    }
+
+    private static BeamNGRallyPacenote CreateStructuredPacenote(string type)
+    {
+        return new BeamNGRallyPacenote
+        {
+            Structured = new BeamNGRallyPacenoteStructured
+            {
+                SchemaVersion = 3,
+                Items = new Dictionary<string, BeamNGRallyPacenoteStructuredItem>
+                {
+                    ["4"] = new() { Type = type }
+                }
+            }
+        };
+    }
+
+    private static IEnumerable<BeamNGRallyPacenote> CreateStructuredCornerPacenotes()
+    {
+        var bareCorner = new BeamNGRallyPacenoteStructuredItem
+        {
+            Type = "corner",
+            Direction = -1,
+            Intensity = 140,
+            ArcMeters = 120
+        };
+        yield return CreateStructuredPacenote(bareCorner);
+
+        foreach (var descriptor in new[] { "flat", "square", "hairpin", "openHairpin", "tightHairpin" })
+        {
+            yield return CreateStructuredPacenote(new BeamNGRallyPacenoteStructuredItem
+            {
+                Type = "corner",
+                Descriptor = descriptor,
+                Direction = -1,
+                Intensity = 140,
+                ArcMeters = 120
+            });
+        }
+
+        foreach (var shape in new[]
+                 {
+                     "opens", "tightens", "opensOverCrest", "opensAndTightens",
+                     "overCrest", "tightensDown", "tightensOverCrest", "tightensAndOpens"
+                 })
+        {
+            yield return CreateStructuredPacenote(new BeamNGRallyPacenoteStructuredItem
+            {
+                Type = "corner",
+                Direction = -1,
+                Intensity = 140,
+                ArcMeters = 120,
+                Shape = shape
+            });
+        }
+    }
+
+    private static BeamNGRallyPacenote CreateStructuredPacenote(BeamNGRallyPacenoteStructuredItem item)
+    {
+        return new BeamNGRallyPacenote
+        {
+            Structured = new BeamNGRallyPacenoteStructured
+            {
+                SchemaVersion = 3,
+                Items = new Dictionary<string, BeamNGRallyPacenoteStructuredItem> { ["4"] = item }
+            }
+        };
+    }
+
+    [Fact]
+    public void BeamNGGameDataReader_RelaysEachCountdownNumber()
+    {
+        var reader = new BeamNGGameDataReader();
+        var stateChanges = new List<GameStateChangeEvent>();
+        reader.onGameStateChanged += stateChanges.Add;
+
+        reader.ProcessBridgePacket(new BeamNGRallyBridgePacket
+        {
+            Stage = new BeamNGRallyStage
+            {
+                Id = "test-stage",
+                IsCountingDown = true,
+                CountdownNumber = 5
+            }
+        });
+        reader.ProcessBridgePacket(new BeamNGRallyBridgePacket
+        {
+            Stage = new BeamNGRallyStage
+            {
+                Id = "test-stage",
+                IsCountingDown = true,
+                CountdownNumber = 4
+            }
+        });
+        reader.ProcessBridgePacket(new BeamNGRallyBridgePacket
+        {
+            Stage = new BeamNGRallyStage
+            {
+                Id = "test-stage",
+                IsActive = true
+            }
+        });
+
+        Assert.Collection(
+            stateChanges,
+            first =>
+            {
+                Assert.Equal(GameState.Unknown, first.LastGameState);
+                Assert.Equal(GameState.CountingDown, first.NewGameState);
+                Assert.Equal(5, first.Parameters["number"]);
+            },
+            second =>
+            {
+                Assert.Equal(GameState.CountingDown, second.LastGameState);
+                Assert.Equal(GameState.CountingDown, second.NewGameState);
+                Assert.Equal(4, second.Parameters["number"]);
+            },
+            third =>
+            {
+                Assert.Equal(GameState.CountingDown, third.LastGameState);
+                Assert.Equal(GameState.Racing, third.NewGameState);
+            });
     }
 
     [Fact]
@@ -201,6 +480,52 @@ public class BeamNGProtocolTest
 
         Assert.Equal("BeamNG.drive Rally", reader.TrackName);
         Assert.Equal("BeamNG.drive", reader.CarName);
+    }
+
+    [Fact]
+    public void BeamNGGameDataReader_ReportsOutGaugeAndRallyBridgeListeners()
+    {
+        var reader = new BeamNGGameDataReader();
+
+        var listeners = reader.GetUdpListenerDiagnostics();
+
+        Assert.Collection(
+            listeners,
+            outGauge =>
+            {
+                Assert.Equal("OutGauge", outGauge.Name);
+                Assert.False(outGauge.Status.IsListening);
+            },
+            bridge =>
+            {
+                Assert.Equal("Rally bridge", bridge.Name);
+                Assert.False(bridge.Status.IsListening);
+                Assert.Equal($"127.0.0.1:{BeamNGRallyBridgeConfig.DefaultPort}", bridge.ConfiguredEndpoint);
+            });
+    }
+
+    [Fact]
+    public void RallyBridgeMod_ProvidesBeamNGModManagerMetadata()
+    {
+        var assemblyDirectory = Path.GetDirectoryName(typeof(BeamNGBridgeInstaller).Assembly.Location);
+        Assert.False(string.IsNullOrWhiteSpace(assemblyDirectory));
+        var metadataPath = Path.Combine(
+            assemblyDirectory!,
+            "BeamNGMod",
+            "mod_info",
+            BeamNGBridgeInstaller.ModMetadataId,
+            "info.json");
+
+        Assert.True(File.Exists(metadataPath), $"Expected bundled metadata at {metadataPath}.");
+        using var document = JsonDocument.Parse(File.ReadAllText(metadataPath));
+        var metadata = document.RootElement;
+
+        Assert.Equal(BeamNGBridgeInstaller.ModMetadataId, metadata.GetProperty("tagid").GetString());
+        Assert.Equal("ZTMZ Pacenote Rally Bridge", metadata.GetProperty("title").GetString());
+        Assert.Equal("Rally Mode integration for ZTMZ Pacenote Tool", metadata.GetProperty("tag_line").GetString());
+        Assert.Equal("草帽不是猫 with Codex", metadata.GetProperty("username").GetString());
+        Assert.Equal("1.1.5", metadata.GetProperty("version_string").GetString());
+        Assert.Contains("gitee.com/ztmz/ztmz_pacenote", metadata.GetProperty("message").GetString());
     }
 
     [Fact]

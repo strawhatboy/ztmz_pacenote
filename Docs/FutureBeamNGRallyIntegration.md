@@ -2,11 +2,13 @@
 
 ## Status
 
-An initial BeamNG.drive provider is implemented in source. It combines standard
-OutGauge dashboard telemetry with a required, read-only Rally Mode companion
-bridge. The bridge still needs in-game validation against the BeamNG.drive
-version used for the next release because Rally Mode's Lua model is not a
-documented stable external API.
+The BeamNG.drive provider combines standard OutGauge dashboard telemetry with a
+required, read-only Rally Mode companion bridge. It has been exercised against
+the shipped Rally Mode stage `SS 洛克伍德`
+(`small_island_rallyStage_001-mixed2`), including its complete 61-call stage
+export and the default ZTMZ co-driver vocabulary. Rally Mode's Lua model is not
+a documented stable external API, so this integration must still be checked
+after BeamNG updates and against community-authored stages.
 
 No BeamNG game installation is overwritten. The bridge is installed
 as a ZIP mod in the selected BeamNG user folder.
@@ -22,20 +24,28 @@ as a ZIP mod in the selected BeamNG user folder.
   allocation; the tool still reports a real local bind conflict. It sends
   versioned JSON only from the local computer and is ignored unless it has the
   `ZTMZ_BNG_RALLY` protocol marker.
-- While built-in Rally Mode is active, the bridge attempts to expose stage ID,
-  stage name, countdown/active/finished state, time, route distance, total
-  distance, completion, and the current built-in pacenote.
+- While built-in Rally Mode is active, the bridge exposes stage ID, stage name,
+  countdown/active/finished state, time, route distance, total distance,
+  completion, the complete current-stage pacenote list, and the current
+  built-in pacenote.
 - BeamNG's vehicle damage tracker sends only state changes. The provider maps
   new punctures, meaningful body damage, and engine/radiator faults into the
   existing damage-event contract, and keeps a compact current damage summary
   in BeamNG-specific telemetry for diagnostics and future dashboard work.
 - The first complete pacenote list received for a stage is saved for inspection
   under `games\\beamng\\rally-stages` in Pacenote Tool's data folder. The
-  exported JSON keeps BeamNG's original IDs, text, visual data, and distance
-  call values.
-- The bridge supplies stage distance and built-in pacenote metadata. Pacenote
-  Tool's own normal replay/script audio remains enabled by default when a
-  matching pacenote recording is selected.
+  exported JSON keeps BeamNG's original IDs, source text/language, structured
+  projection data, visual data, and distance call values.
+- The stage export is an inspection, recording, and coverage-testing artifact.
+  It is not read to schedule audio playback.
+- During racing, BeamNG remains the timing authority: the bridge sends the
+  current native pacenote, and Pacenote Tool translates that event immediately
+  into selected ZTMZ co-driver tokens and plays it through the configured audio
+  output.
+- Structured pacenotes are translated from BeamNG's language-neutral projection
+  data. Legacy English freeform notes use a conservative text fallback.
+  Legacy freeform notes with a non-English source language are exported and
+  logged, but are not partially translated into potentially incorrect calls.
 - If the bridge port cannot be opened or the mod is not installed, the provider
   reports the missing setup and exposes an install/repair action.
 
@@ -61,7 +71,7 @@ world position or motion is needed beyond OutGauge.
 The bridge is intended for BeamNG's built-in Rally Mode, with older community
 rally mods disabled during validation.
 
-## Compatibility And Validation
+## Pacenote Coverage And Validation
 
 BeamNG's documented protocols do not include Rally stage state or pacenotes;
 those fields are read defensively from the game-engine Rally Manager. Before
@@ -72,12 +82,18 @@ shipping this provider, validate a real special stage for the following:
   return-to-menu transitions do not leave stale state in Pacenote Tool.
 - Stage time and route progress match BeamNG's Rally HUD.
 - Current pacenote and exported complete list match the built-in Rally UI.
+- The countdown and live co-driver calls play once at the same points as the
+  built-in Rally Mode calls.
 - The bridge reports unavailable state rather than causing game Lua errors
   outside Rally Mode or after a BeamNG update.
 
-The exported pacenote data is currently an inspection and recording source.
-It is not yet a complete mapping from BeamNG pacenote semantics to every
-Pacenote Tool voice package or UI language.
+The exported official `SS 洛克伍德` record contains 61 pacenotes, all of which
+map to the current default ZTMZ co-driver vocabulary. The translator also has
+coverage tests for BeamNG's current standard structured modifier taxonomy.
+This does not guarantee support for arbitrary community freeform phrases,
+custom structured fields, future BeamNG schema changes, or every installed
+ZTMZ voice package. Unknown data is retained in the export and logged for
+follow-up mapping rather than discarded silently.
 
 ## References
 

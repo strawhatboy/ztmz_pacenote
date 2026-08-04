@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 using System.Net;
 using System.Timers;
 
@@ -38,6 +39,19 @@ public abstract class UdpGameDataReader : IGameDataReader, IDisposable
     public int SecondsWithoutUdpMessage => Math.Max(
         0,
         System.Threading.Interlocked.CompareExchange(ref _timerMessageAvailableCount, 0, 0));
+
+    public virtual IReadOnlyList<UdpListenerDiagnostics> GetUdpListenerDiagnostics()
+    {
+        return new[]
+        {
+            new UdpListenerDiagnostics(
+                "UDP",
+                UdpStatus,
+                IsUdpTelemetryOptional,
+                SecondsWithoutUdpMessage,
+                string.Empty)
+        };
+    }
 
     public virtual bool Initialize(IGame game)
     {

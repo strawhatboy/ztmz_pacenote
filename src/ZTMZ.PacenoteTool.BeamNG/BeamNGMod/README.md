@@ -14,5 +14,7 @@ The bridge sends Rally state, built-in pacenote metadata, engine RPM limits,
 and vehicle damage changes only to
 `127.0.0.1:44445`. This default is below Windows' normal dynamic UDP range,
 but the desktop tool still checks for an actual local port conflict before it
-initializes BeamNG. It does not control the stage, timer,
+initializes BeamNG. When BeamNG reports a built-in co-driver call, the desktop
+tool plays the corresponding ZTMZ co-driver tokens through its selected output
+device. The bridge remains read-only: it does not control the stage, timer,
 vehicle, or BeamNG audio.

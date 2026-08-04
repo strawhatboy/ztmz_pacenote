@@ -432,6 +432,8 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
                     "missing-user-folder",
                     StringComparison.Ordinal)
                     ? I18NLoader.Instance["game.beamng.bridge.setupUserFolderRequired"]
+                    : string.Equals(setupReason, "outdated-rally-bridge", StringComparison.Ordinal)
+                        ? I18NLoader.Instance["game.beamng.bridge.setupBridgeUpdateRequired"]
                     : I18NLoader.Instance["game.beamng.bridge.setupBridgeRequired"];
 
                 _ = Application.Current.Dispatcher.Invoke(async () =>

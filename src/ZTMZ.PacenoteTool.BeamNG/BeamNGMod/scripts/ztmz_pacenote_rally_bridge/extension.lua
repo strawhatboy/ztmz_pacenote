@@ -20,6 +20,7 @@ local vehicleTelemetryElapsed = VEHICLE_TELEMETRY_INTERVAL_SECONDS
 local lastExportedStageId = nil
 local vehicleTelemetry = {vehicleId = 0, maxRPM = 0, idleRPM = 0}
 local damageReporterVehicleId = 0
+local rallyRuntime = {activeState = "", countdownNumber = 0}
 
 local function asString(value)
   local valueType = type(value)
@@ -154,10 +155,20 @@ local function normalizePacenote(pacenote)
 
   local compiled = readMember(pacenote, { "asCompiled" })
   local visualEvent = compiled and readMember(compiled, { "visualPacenoteEvent" }) or nil
+  local isFreeform = asBoolean(readMember(pacenote, { "isAudioModeFreeform" }))
+  local structured = readMember(pacenote, { "structuredForProjection" })
+  if type(structured) ~= "table" or type(readMember(structured, { "items" })) ~= "table" then
+    structured = nil
+  end
+
   return {
     id = asString(readMember(pacenote, { "id", "getId" }) or readMember(compiled, { "id" })),
     name = asString(readMember(pacenote, { "name", "getName" }) or readMember(compiled, { "name" })),
     text = asString(readMember(compiled, { "noteText" }) or readMember(pacenote, { "noteOutputFreeform", "name" })),
+    sourceText = isFreeform and asString(readMember(pacenote, { "noteOutputFreeform" })) or "",
+    sourceLanguage = asString(readMember(pacenote, { "selectedCodriverLanguage" })),
+    audioMode = asString(readMember(pacenote, { "audioMode", "getAudioModeString" })),
+    structured = structured,
     visual = asString(readMember(visualEvent, { "visualPacenotes" })),
     distanceBeforeMeters = asNumber(readMember(pacenote, { "getNoteFieldBeforeMeters", "distanceBeforeMeters" })),
     distanceAfterMeters = asNumber(readMember(pacenote, { "getNoteFieldAfterMeters", "distanceAfterMeters" })),
@@ -198,7 +209,8 @@ local function buildStage(manager, stageData)
     id = asString(readMember(manager, { "getMissionId", "missionId" })),
     name = asString(readMember(manager, { "getMissionName", "missionName" })),
     isActive = asBoolean(readMember(stageData, { "isActive" })),
-    isCountingDown = false,
+    isCountingDown = rallyRuntime.activeState == "countdown",
+    countdownNumber = rallyRuntime.activeState == "countdown" and rallyRuntime.countdownNumber or 0,
     isFinished = asBoolean(readMember(stageData, { "isComplete" })) or
       asBoolean(readMember(observerState, { "stageComplete" })),
     stageTimeSeconds = asNumber(readMember(stageData, { "currentSSTime" }) or
@@ -269,6 +281,17 @@ local function sendStatus(status, errorMessage)
   })
 end
 
+function M.onRallyDataUpdated(data)
+  if type(data) ~= "table" then
+    return
+  end
+
+  rallyRuntime.activeState = asString(data.activeState)
+  local countdownData = data.countdownData
+  rallyRuntime.countdownNumber = type(countdownData) == "table" and
+    math.floor(asNumber(countdownData.countdown)) or 0
+end
+
 function M.onExtensionLoaded()
   elapsed = SEND_INTERVAL_SECONDS
   statusElapsed = STATUS_INTERVAL_SECONDS
@@ -276,6 +299,7 @@ function M.onExtensionLoaded()
   lastExportedStageId = nil
   vehicleTelemetry = {vehicleId = 0, maxRPM = 0, idleRPM = 0}
   damageReporterVehicleId = 0
+  rallyRuntime = {activeState = "", countdownNumber = 0}
   sendStatus("started", "")
 end
 

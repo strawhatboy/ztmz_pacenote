@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using ZTMZ.PacenoteTool.Base;
@@ -36,6 +38,9 @@ public partial class DiagnosticsViewVM : ObservableObject
 
     [ObservableProperty]
     private string _udpActivity = string.Empty;
+
+    [ObservableProperty]
+    private string _udpTooltip = string.Empty;
 
     [ObservableProperty]
     private string _audioStatus = string.Empty;
@@ -191,42 +196,104 @@ public partial class DiagnosticsViewVM : ObservableObject
         {
             UdpStatus = I18NLoader.Instance["diagnostics.notApplicable"];
             UdpActivity = string.Empty;
+            UdpTooltip = UdpStatus;
             UdpStatusBrush = Brushes.Gray;
         }
         else
         {
-            var endpoint = string.IsNullOrWhiteSpace(snapshot.Udp.Endpoint)
-                ? snapshot.Game.ExpectedEndpoint
-                : snapshot.Udp.Endpoint;
+            var listeners = new List<UdpListenerDiagnosticsInfo>
+            {
+                new(
+                    snapshot.Udp.Name,
+                    snapshot.Udp.IsListening,
+                    snapshot.Udp.IsOptional,
+                    snapshot.Udp.Endpoint,
+                    snapshot.Udp.SecondsWithoutMessage,
+                    snapshot.Udp.PacketCount,
+                    snapshot.Udp.LastPacketUtc,
+                    snapshot.Udp.LastPacketSize,
+                    snapshot.Udp.LastErrorUtc,
+                    snapshot.Udp.LastError)
+            };
+            listeners.AddRange(snapshot.Udp.AdditionalListeners);
+
+            var hasMultipleListeners = listeners.Count > 1;
+            var listenerDetails = new List<string>();
+            var allListenersAreListening = true;
+            var hasListenerError = false;
+
+            foreach (var listener in listeners)
+            {
+                var endpoint = GetUdpEndpoint(listener, snapshot.Game.ExpectedEndpoint);
+                var state = GetUdpListenerState(listener);
+                var activity = $"{listener.PacketCount} | {FormatTime(listener.LastPacketUtc)} | {listener.LastPacketSize} B";
+                if (!string.IsNullOrWhiteSpace(listener.LastError))
+                {
+                    activity += $" | {listener.LastError}";
+                    hasListenerError = true;
+                }
+
+                listenerDetails.Add(string.Join(
+                    " | ",
+                    listener.Name,
+                    state,
+                    endpoint,
+                    $"{listener.SecondsWithoutMessage}s",
+                    activity));
+                allListenersAreListening &= listener.IsListening;
+            }
+
+            UdpTooltip = string.Join(Environment.NewLine, listenerDetails);
 
             if (!snapshot.Game.IsInitialized)
             {
-                UdpStatus = string.Join(
-                    " | ",
-                    I18NLoader.Instance["diagnostics.waitingForGame"],
-                    endpoint);
-                UdpActivity = string.Empty;
+                if (hasMultipleListeners)
+                {
+                    UdpStatus = string.Join(
+                        " | ",
+                        listeners.Select(listener => $"{GetCompactUdpName(listener.Name)} {GetCompactEndpoint(GetUdpEndpoint(listener, snapshot.Game.ExpectedEndpoint))}"));
+                    UdpActivity = I18NLoader.Instance["diagnostics.waitingForGame"];
+                }
+                else
+                {
+                    var endpoint = GetUdpEndpoint(listeners[0], snapshot.Game.ExpectedEndpoint);
+                    UdpStatus = string.Join(
+                        " | ",
+                        I18NLoader.Instance["diagnostics.waitingForGame"],
+                        endpoint);
+                    UdpActivity = string.Empty;
+                }
                 UdpStatusBrush = Brushes.Gray;
             }
             else
             {
-                UdpStatus = string.Join(
-                    " | ",
-                    snapshot.Udp.IsListening
-                        ? I18NLoader.Instance["diagnostics.listening"]
-                        : snapshot.Udp.IsOptional
-                            ? $"{I18NLoader.Instance["diagnostics.optional"]} | {I18NLoader.Instance["diagnostics.stopped"]}"
-                            : I18NLoader.Instance["diagnostics.stopped"],
-                    endpoint,
-                    $"{snapshot.Udp.SecondsWithoutMessage}s");
-                UdpActivity = $"{snapshot.Udp.PacketCount} | {FormatTime(snapshot.Udp.LastPacketUtc)} | {snapshot.Udp.LastPacketSize} B";
-                if (!string.IsNullOrWhiteSpace(snapshot.Udp.LastError))
+                if (hasMultipleListeners)
                 {
-                    UdpActivity += $" | {snapshot.Udp.LastError}";
+                    UdpStatus = string.Join(
+                        " | ",
+                        listeners.Select(listener => $"{GetCompactUdpName(listener.Name)} {GetCompactEndpoint(GetUdpEndpoint(listener, snapshot.Game.ExpectedEndpoint))}"));
+                    UdpActivity = string.Join(
+                        " | ",
+                        listeners.Select(listener => $"{GetCompactUdpName(listener.Name)} {GetUdpListenerState(listener)} {listener.SecondsWithoutMessage}s"));
                 }
-                UdpStatusBrush = !string.IsNullOrWhiteSpace(snapshot.Udp.LastError)
+                else
+                {
+                    var listener = listeners[0];
+                    var endpoint = GetUdpEndpoint(listener, snapshot.Game.ExpectedEndpoint);
+                    UdpStatus = string.Join(
+                        " | ",
+                        GetUdpListenerState(listener),
+                        endpoint,
+                        $"{listener.SecondsWithoutMessage}s");
+                    UdpActivity = $"{listener.PacketCount} | {FormatTime(listener.LastPacketUtc)} | {listener.LastPacketSize} B";
+                    if (!string.IsNullOrWhiteSpace(listener.LastError))
+                    {
+                        UdpActivity += $" | {listener.LastError}";
+                    }
+                }
+                UdpStatusBrush = hasListenerError
                     ? Brushes.IndianRed
-                    : snapshot.Udp.IsListening ? Brushes.ForestGreen : Brushes.Gray;
+                    : allListenersAreListening ? Brushes.ForestGreen : Brushes.Gray;
             }
         }
 
@@ -268,5 +335,36 @@ public partial class DiagnosticsViewVM : ObservableObject
     {
         return timestamp?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")
             ?? I18NLoader.Instance["diagnostics.none"];
+    }
+
+    private static string GetUdpEndpoint(UdpListenerDiagnosticsInfo listener, string primaryFallbackEndpoint)
+    {
+        return string.IsNullOrWhiteSpace(listener.Endpoint)
+            ? primaryFallbackEndpoint
+            : listener.Endpoint;
+    }
+
+    private static string GetUdpListenerState(UdpListenerDiagnosticsInfo listener)
+    {
+        return listener.IsListening
+            ? I18NLoader.Instance["diagnostics.listening"]
+            : listener.IsOptional
+                ? $"{I18NLoader.Instance["diagnostics.optional"]} | {I18NLoader.Instance["diagnostics.stopped"]}"
+                : I18NLoader.Instance["diagnostics.stopped"];
+    }
+
+    private static string GetCompactUdpName(string name)
+    {
+        return string.Equals(name, "Rally bridge", StringComparison.Ordinal)
+            ? "Bridge"
+            : name;
+    }
+
+    private static string GetCompactEndpoint(string endpoint)
+    {
+        var separatorIndex = endpoint.LastIndexOf(':');
+        return separatorIndex >= 0 && separatorIndex < endpoint.Length - 1
+            ? endpoint[(separatorIndex + 1)..]
+            : endpoint;
     }
 }

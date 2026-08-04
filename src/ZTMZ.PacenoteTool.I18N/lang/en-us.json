@@ -411,14 +411,17 @@
         "browseUserFolder": "Select the BeamNG.drive user folder",
         "install": "Install / repair Rally bridge",
         "installTooltip": "Install or update the Rally bridge mod in the selected BeamNG user folder",
-        "installed": "The Rally bridge was installed to:\n{0}\n\nRestart BeamNG if it is running. In BeamNG, enable OutGauge at 127.0.0.1:44444 and bind the ZTMZ Rally bridge action under Controls.",
+        "installed": "The Rally bridge was installed to:\n{0}\n\nRestart BeamNG if it is running. In BeamNG, enable OutGauge at 127.0.0.1:4444 and bind the ZTMZ Rally bridge action under Controls.",
         "installFailed": "Rally bridge installation failed",
         "statusUserFolderRequired": "Select the BeamNG.drive user folder.",
         "statusNotInstalled": "Rally bridge is not installed.",
+        "statusUpdateRequired": "Rally bridge update required (installed: {0}; bundled: {1}).",
         "statusInstalled": "Rally bridge installed.",
         "statusPortUnavailable": "Rally bridge port {0} is unavailable.",
         "setupRequiredTitle": "BeamNG setup required",
         "setupBridgeRequired": "Install the Rally bridge before using BeamNG.drive Rally Mode with Pacenote Tool.",
+        "setupBridgeUpdateRequired": "Update the Rally bridge before using BeamNG.drive Rally Mode with Pacenote Tool.",
+        "unknownVersion": "unknown",
         "setupUserFolderRequired": "Select a valid BeamNG.drive user folder before the Rally bridge can be installed."
       }
     }

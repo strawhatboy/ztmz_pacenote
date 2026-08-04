@@ -43,6 +43,20 @@ public sealed record PrerequisiteDiagnosticsInfo(
     string Detail);
 
 public sealed record UdpDiagnosticsInfo(
+    string Name,
+    bool IsListening,
+    bool IsOptional,
+    string Endpoint,
+    int SecondsWithoutMessage,
+    long PacketCount,
+    DateTimeOffset? LastPacketUtc,
+    int LastPacketSize,
+    DateTimeOffset? LastErrorUtc,
+    string LastError,
+    IReadOnlyList<UdpListenerDiagnosticsInfo> AdditionalListeners);
+
+public sealed record UdpListenerDiagnosticsInfo(
+    string Name,
     bool IsListening,
     bool IsOptional,
     string Endpoint,
@@ -172,12 +186,48 @@ public sealed class SupportDiagnosticsService
 
     private static UdpDiagnosticsInfo CreateUdpDiagnostics(UdpGameDataReader reader)
     {
-        var status = reader.UdpStatus;
+        var listeners = reader.GetUdpListenerDiagnostics();
+        var primaryListener = listeners.Count > 0
+            ? listeners[0]
+            : new UdpListenerDiagnostics(
+                "UDP",
+                reader.UdpStatus,
+                reader.IsUdpTelemetryOptional,
+                reader.SecondsWithoutUdpMessage,
+                string.Empty);
+        var primaryInfo = CreateUdpListenerDiagnostics(primaryListener);
+        var additionalListeners = listeners
+            .Skip(1)
+            .Select(CreateUdpListenerDiagnostics)
+            .ToArray();
+
         return new UdpDiagnosticsInfo(
+            primaryInfo.Name,
+            primaryInfo.IsListening,
+            primaryInfo.IsOptional,
+            primaryInfo.Endpoint,
+            primaryInfo.SecondsWithoutMessage,
+            primaryInfo.PacketCount,
+            primaryInfo.LastPacketUtc,
+            primaryInfo.LastPacketSize,
+            primaryInfo.LastErrorUtc,
+            primaryInfo.LastError,
+            additionalListeners);
+    }
+
+    private static UdpListenerDiagnosticsInfo CreateUdpListenerDiagnostics(UdpListenerDiagnostics listener)
+    {
+        var status = listener.Status;
+        var endpoint = string.IsNullOrWhiteSpace(status.ListenAddress)
+            ? listener.ConfiguredEndpoint
+            : $"{status.ListenAddress}:{status.Port}";
+
+        return new UdpListenerDiagnosticsInfo(
+            listener.Name,
             status.IsListening,
-            reader.IsUdpTelemetryOptional,
-            string.IsNullOrWhiteSpace(status.ListenAddress) ? string.Empty : $"{status.ListenAddress}:{status.Port}",
-            reader.SecondsWithoutUdpMessage,
+            listener.IsOptional,
+            endpoint,
+            listener.SecondsWithoutMessage,
             status.PacketCount,
             status.LastPacketUtc,
             status.LastPacketSize,

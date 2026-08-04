@@ -16,6 +16,7 @@ public sealed class BeamNGGamePrerequisiteChecker : IGamePrerequisiteChecker
 {
     public const string MissingUserFolderReason = "missing-user-folder";
     public const string MissingBridgeReason = "missing-rally-bridge";
+    public const string OutdatedBridgeReason = "outdated-rally-bridge";
 
     public PrerequisitesCheckResult CheckPrerequisites(IGame game)
     {
@@ -31,9 +32,14 @@ public sealed class BeamNGGamePrerequisiteChecker : IGamePrerequisiteChecker
             return Failure(PrerequisitesCheckResultCode.SETUP_REQUIRED, MissingUserFolderReason);
         }
 
-        if (!BeamNGBridgeInstaller.IsInstalled(bridgeConfig))
+        var bridgeInstallation = BeamNGBridgeInstaller.GetInstallationInfo(bridgeConfig);
+        if (!bridgeInstallation.IsCurrent)
         {
-            return Failure(PrerequisitesCheckResultCode.SETUP_REQUIRED, MissingBridgeReason);
+            return Failure(
+                PrerequisitesCheckResultCode.SETUP_REQUIRED,
+                bridgeInstallation.State == BeamNGBridgeInstallationState.Missing
+                    ? MissingBridgeReason
+                    : OutdatedBridgeReason);
         }
 
         if (!CanListenForBridge(game, out var socketError))

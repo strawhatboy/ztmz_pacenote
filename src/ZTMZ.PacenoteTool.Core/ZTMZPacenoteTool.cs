@@ -331,6 +331,10 @@ public class ZTMZPacenoteTool {
             game.GameDataReader.onCarDamaged += carDamagedEventHandler;
             game.GameDataReader.onNewGameData += newGameDataEventHander;
             game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
+            if (game.GameDataReader is IGameLivePacenoteSource livePacenoteSource)
+            {
+                livePacenoteSource.onLivePacenote += livePacenoteHandler;
+            }
             game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
             game.GameDataReader.onCarReset += carResetHandler;
             _logger.Info("Game {0} initialized.", game.Name);
@@ -397,6 +401,10 @@ public class ZTMZPacenoteTool {
             game.GameDataReader.onCarDamaged -= carDamagedEventHandler;
             game.GameDataReader.onNewGameData -= newGameDataEventHander;
             game.GameDataReader.onGameStateChanged -= this.gamestateChangedHandler;
+            if (game.GameDataReader is IGameLivePacenoteSource livePacenoteSource)
+            {
+                livePacenoteSource.onLivePacenote -= livePacenoteHandler;
+            }
             game.GameDataReader.onGameDataAvailabilityChanged -= gameDataAvailabilityChangedHandler;
             game.GameDataReader.onCarReset -= carResetHandler;
             game.GameDataReader.Uninitialize(game);
@@ -494,6 +502,8 @@ public class ZTMZPacenoteTool {
                 }
                 
                 var worker = Task.Run(() => {
+                    try
+                    {
                     //TODO: raise overlay text changes
 
                     if (shouldPlayExternalPacenotes && lastState != GameState.Paused && Config.Instance.PlayStartAndEndSound && state == GameState.RaceBegin)
@@ -525,6 +535,11 @@ public class ZTMZPacenoteTool {
 
                     //TODO: change overlay script type
                     this.onRaceBegined?.Invoke(_currentGame);
+                    }
+                    catch (Exception exception)
+                    {
+                        _logger.Error(exception, "Failed to prepare pacenotes for {0} on {1}.", _currentGame?.Name, _trackName);
+                    }
                 });
 
                 if (state == GameState.AdHocRaceBegin) {
@@ -660,6 +675,33 @@ public class ZTMZPacenoteTool {
                     _logger.Trace("Play sound at {0} because current point is {1} and calculated play point is {2}", msg.LapDistance, currentPoint, playPoint);
                     this._profileManager.Play();
                 }
+            }
+        });
+    }
+
+    private void livePacenoteHandler(LivePacenoteEvent evt)
+    {
+        var game = _currentGame;
+        if (game is null || !ShouldPlayExternalPacenotes(game) ||
+            game.GameDataReader.GameState != GameState.Racing || evt.Record.Pacenotes.Count == 0)
+        {
+            return;
+        }
+
+        _ = Task.Run(() =>
+        {
+            try
+            {
+                if (!ReferenceEquals(_currentGame, game) || game.GameDataReader.GameState != GameState.Racing)
+                {
+                    return;
+                }
+
+                _profileManager.PlayLivePacenote(evt.Record);
+            }
+            catch (Exception exception)
+            {
+                _logger.Error(exception, "Failed to play live pacenote {0} for {1}.", evt.Id, game.Name);
             }
         });
     }

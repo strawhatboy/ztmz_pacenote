@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.Json;
+using System.Linq;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 
@@ -14,7 +15,7 @@ namespace ZTMZ.PacenoteTool.BeamNG;
 /// The two UDP streams are deliberately separate: OutGauge remains a supported game
 /// protocol while the bridge can evolve with Rally Mode independently.
 /// </summary>
-public sealed class BeamNGGameDataReader : UdpGameDataReader
+public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteSource
 {
     public const int DefaultOutGaugePort = 4444;
     public const int LegacyIncorrectOutGaugePort = 44444;
@@ -38,11 +39,14 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
     private DateTime? _lastBridgePacketUtc;
     private bool _reportedUnsupportedProtocol;
     private string _lastStagePacenoteFingerprint = string.Empty;
+    private string _lastLivePacenoteFingerprint = string.Empty;
+    private int? _lastCountdownNumber;
     private readonly Dictionary<string, DamageValue> _damageValues = new(StringComparer.OrdinalIgnoreCase);
 
     private event Action<GameData, GameData>? _onNewGameData;
     private event Action<GameStateChangeEvent>? _onGameStateChanged;
     private event Action<CarDamageEvent>? _onCarDamaged;
+    private event Action<LivePacenoteEvent>? _onLivePacenote;
 
     public override event Action<GameData, GameData> onNewGameData
     {
@@ -60,6 +64,12 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
     {
         add => _onCarDamaged += value;
         remove => _onCarDamaged -= value;
+    }
+
+    public event Action<LivePacenoteEvent> onLivePacenote
+    {
+        add => _onLivePacenote += value;
+        remove => _onLivePacenote -= value;
     }
 
     public override GameState GameState
@@ -117,6 +127,45 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
                        DateTime.UtcNow - lastBridgePacketUtc <= BridgeConnectionTimeout;
             }
         }
+    }
+
+    public override IReadOnlyList<UdpListenerDiagnostics> GetUdpListenerDiagnostics()
+    {
+        UdpReceiver? bridgeReceiver;
+        DateTime? lastBridgePacketUtc;
+        SocketError? bridgeListenerSocketError;
+        lock (_sync)
+        {
+            bridgeReceiver = _bridgeReceiver;
+            lastBridgePacketUtc = _lastBridgePacketUtc;
+            bridgeListenerSocketError = _bridgeListenerSocketError;
+        }
+
+        var bridgeStatus = bridgeReceiver?.Status ?? UdpReceiverStatus.NotListening;
+        if (bridgeListenerSocketError.HasValue && string.IsNullOrWhiteSpace(bridgeStatus.LastError))
+        {
+            bridgeStatus = bridgeStatus with { LastError = bridgeListenerSocketError.Value.ToString() };
+        }
+
+        var secondsWithoutBridgeMessage = lastBridgePacketUtc is { } timestamp
+            ? Math.Max(0, (int)(DateTime.UtcNow - timestamp).TotalSeconds)
+            : 0;
+
+        return new[]
+        {
+            new UdpListenerDiagnostics(
+                "OutGauge",
+                UdpStatus,
+                IsUdpTelemetryOptional,
+                SecondsWithoutUdpMessage,
+                string.Empty),
+            new UdpListenerDiagnostics(
+                "Rally bridge",
+                bridgeStatus,
+                false,
+                secondsWithoutBridgeMessage,
+                $"127.0.0.1:{BeamNGRallyBridgeConfig.DefaultPort}")
+        };
     }
 
     public override GameData LastGameData
@@ -248,6 +297,8 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
             _lastBridgePacketUtc = null;
             _reportedUnsupportedProtocol = false;
             _lastStagePacenoteFingerprint = string.Empty;
+            _lastLivePacenoteFingerprint = string.Empty;
+            _lastCountdownNumber = null;
             _damageValues.Clear();
         }
 
@@ -265,6 +316,8 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
             _bridgeReceiver = null;
             _bridgeListenerSocketError = null;
             _lastBridgePacketUtc = null;
+            _lastLivePacenoteFingerprint = string.Empty;
+            _lastCountdownNumber = null;
             _damageValues.Clear();
         }
 
@@ -319,19 +372,43 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
             return;
         }
 
+        ProcessBridgePacket(packet);
+    }
+
+    internal void ProcessBridgePacket(BeamNGRallyBridgePacket packet)
+    {
         GameStateChangeEvent? stateChange;
         GameData oldData;
         GameData newData;
         IReadOnlyList<BeamNGRallyPacenote>? stagePacenotesToSave = null;
         BeamNGRallyStage? stageToSave = null;
         List<CarDamageEvent>? damageEvents;
+        BeamNGRallyPacenote? livePacenote = null;
+        string livePacenoteStageId = string.Empty;
 
         lock (_sync)
         {
+            var previousStageId = _rallySnapshot.StageId;
             _lastBridgePacketUtc = DateTime.UtcNow;
             ApplyBridgePacketLocked(packet);
             damageEvents = ApplyDamagePacketLocked(packet.Damage);
             stateChange = GetStageStateChangeLocked();
+            var stageChanged = packet.Stage is not null &&
+                               !string.Equals(previousStageId, _rallySnapshot.StageId, StringComparison.Ordinal);
+            var startedNewStage = stateChange?.NewGameState == GameState.RaceBegin &&
+                                  stateChange.LastGameState != GameState.Paused;
+            if (stageChanged || startedNewStage)
+            {
+                _lastLivePacenoteFingerprint = string.Empty;
+            }
+
+            var activeState = stateChange?.NewGameState ?? _gameState;
+            if (activeState == GameState.Racing && packet.Pacenote is not null &&
+                TryMarkLivePacenoteLocked(packet.Pacenote))
+            {
+                livePacenote = packet.Pacenote;
+                livePacenoteStageId = _rallySnapshot.StageId;
+            }
             oldData = _currentGameData;
             newData = CreateGameDataLocked();
             _lastGameData = oldData;
@@ -358,6 +435,10 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
         }
 
         stateChange?.Let(_onGameStateChanged);
+        if (livePacenote is not null)
+        {
+            PublishLivePacenote(livePacenoteStageId, livePacenote);
+        }
         if (damageEvents is not null)
         {
             foreach (var damageEvent in damageEvents)
@@ -416,6 +497,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
         {
             _rallySnapshot.ClearStageData();
             _lastStagePacenoteFingerprint = string.Empty;
+            _lastLivePacenoteFingerprint = string.Empty;
         }
 
         if (packet.Stage is not null)
@@ -424,6 +506,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
             _rallySnapshot.StageName = packet.Stage.Name;
             _rallySnapshot.StageActive = packet.Stage.IsActive;
             _rallySnapshot.StageCountingDown = packet.Stage.IsCountingDown;
+            _rallySnapshot.StageCountdownNumber = packet.Stage.CountdownNumber;
             _rallySnapshot.StageFinished = packet.Stage.IsFinished;
             _rallySnapshot.StageTimeSeconds = Normalize(packet.Stage.StageTimeSeconds);
             _rallySnapshot.DistanceMeters = Normalize(packet.Stage.DistanceMeters);
@@ -1104,7 +1187,10 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
             targetState = GameState.RaceBegin;
         }
 
-        return CreateStateChangeLocked(targetState);
+        int? countdownNumber = targetState == GameState.CountingDown && _rallySnapshot.StageCountdownNumber > 0
+            ? _rallySnapshot.StageCountdownNumber
+            : null;
+        return CreateStateChangeLocked(targetState, countdownNumber);
     }
 
     private void PublishGameStateChange(GameState state)
@@ -1118,9 +1204,11 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
         stateChange?.Let(_onGameStateChanged);
     }
 
-    private GameStateChangeEvent? CreateStateChangeLocked(GameState state)
+    private GameStateChangeEvent? CreateStateChangeLocked(GameState state, int? countdownNumber = null)
     {
-        if (_gameState == state)
+        var isNewCountdownNumber = state == GameState.CountingDown && countdownNumber.HasValue &&
+                                   countdownNumber != _lastCountdownNumber;
+        if (_gameState == state && !isNewCountdownNumber)
         {
             return null;
         }
@@ -1128,6 +1216,18 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
         var previousState = _gameState;
         _gameState = state;
         var parameters = new Dictionary<string, object>();
+        if (state == GameState.CountingDown)
+        {
+            _lastCountdownNumber = countdownNumber;
+            if (countdownNumber.HasValue)
+            {
+                parameters["number"] = countdownNumber.Value;
+            }
+        }
+        else
+        {
+            _lastCountdownNumber = null;
+        }
         if (state == GameState.RaceEnd)
         {
             parameters[GameStateRaceEndProperty.FINISH_TIME] = _rallySnapshot.StageTimeSeconds;
@@ -1140,6 +1240,60 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
             NewGameState = state,
             Parameters = parameters
         };
+    }
+
+    private bool TryMarkLivePacenoteLocked(BeamNGRallyPacenote pacenote)
+    {
+        if (string.IsNullOrWhiteSpace(pacenote.Id) && string.IsNullOrWhiteSpace(pacenote.Text))
+        {
+            return false;
+        }
+
+        var fingerprint = string.Concat(pacenote.Id, "\u001f", pacenote.Text);
+        if (string.Equals(_lastLivePacenoteFingerprint, fingerprint, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        _lastLivePacenoteFingerprint = fingerprint;
+        return true;
+    }
+
+    private void PublishLivePacenote(string stageId, BeamNGRallyPacenote pacenote)
+    {
+        try
+        {
+            var translation = BeamNGPacenoteTranslator.Translate(pacenote);
+            if (translation.Record.Pacenotes.Count == 0)
+            {
+                Logger.Warn(
+                    "BeamNG Rally pacenote {0} could not be translated (source language {1}): {2}",
+                    pacenote.Id,
+                    pacenote.SourceLanguage,
+                    string.IsNullOrWhiteSpace(pacenote.SourceText) ? pacenote.Text : pacenote.SourceText);
+                return;
+            }
+
+            Logger.Debug(
+                "BeamNG Rally pacenote {0} ({1}): {2} -> {3}{4}",
+                pacenote.Id,
+                string.IsNullOrWhiteSpace(pacenote.SourceLanguage) ? "unspecified" : pacenote.SourceLanguage,
+                string.IsNullOrWhiteSpace(pacenote.SourceText) ? pacenote.Text : pacenote.SourceText,
+                string.Join(",", translation.Record.Pacenotes.Select(note => note.Note)),
+                translation.UnrecognizedWords.Count == 0
+                    ? string.Empty
+                    : $" (ignored: {string.Join(" ", translation.UnrecognizedWords)})");
+            _onLivePacenote?.Invoke(new LivePacenoteEvent
+            {
+                Id = pacenote.Id,
+                StageId = stageId,
+                Record = translation.Record
+            });
+        }
+        catch (Exception exception)
+        {
+            Logger.Error(exception, "Failed to process BeamNG Rally pacenote {0}.", pacenote.Id);
+        }
     }
 
     private GameData CreateGameDataLocked()

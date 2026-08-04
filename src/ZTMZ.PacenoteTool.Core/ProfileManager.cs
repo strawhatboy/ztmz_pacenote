@@ -648,6 +648,55 @@ namespace ZTMZ.PacenoteTool.Core
             this.PlaySound(audio, isSequential, isSystem);
         }
 
+        public bool PlayLivePacenote(PacenoteRecord record)
+        {
+            if (record is null || record.Pacenotes.Count == 0 ||
+                string.IsNullOrWhiteSpace(this.CurrentCoDriverSoundPackagePath) ||
+                !this.CoDriverPackages.ContainsKey(this.CurrentCoDriverSoundPackagePath))
+            {
+                return false;
+            }
+
+            try
+            {
+                var sound = new AutoResampledCachedSound();
+                foreach (var note in record.Pacenotes)
+                {
+                    sound.Append(this.getSoundByKeyword(note.Note, this.CurrentCoDriverSoundPackagePath));
+                    foreach (var modifier in note.Modifiers)
+                    {
+                        sound.Append(this.getSoundByKeyword(modifier, this.CurrentCoDriverSoundPackagePath));
+                    }
+                }
+
+                if (sound.IsEmpty)
+                {
+                    _logger.Warn("No playable audio tokens were found for live pacenote: {0}", record.RawText);
+                    return false;
+                }
+
+                if (PacenoteDropoutPolicy.ShouldDrop(
+                        Config.Instance.PacenoteDropoutPercentage,
+                        Random.Shared.Next(100)))
+                {
+                    _logger.Debug("Mischief mode skipped live pacenote: {0}", record.RawText);
+                    return false;
+                }
+
+                sound.PlaySpeed = this.CurrentPlaySpeed;
+                sound.Amplification = this.CurrentPlayAmplification;
+                sound.Tension = this.CurrentTension;
+                this.PlaySound(sound, Config.Instance.UseSequentialMixerToHandleAudioConflict);
+                _logger.Trace("Playing live pacenote: {0}", record.RawText);
+                return true;
+            }
+            catch (Exception exception)
+            {
+                _logger.Error(exception, "Failed to play live pacenote: {0}", record.RawText);
+                return false;
+            }
+        }
+
         public void PlaySound(AutoResampledCachedSound sound, bool isSequential, bool isSystem = false)
         {
             if (!Config.Instance.UI_Mute)
