@@ -772,6 +772,16 @@ public class DrawingCommandCapture
     
     public void DrawImage(object image, float left, float top, float right, float bottom)
     {
+        RecordImage(image, left, top, right, bottom, null);
+    }
+
+    public void DrawImage(object image, float left, float top, float right, float bottom, float opacity)
+    {
+        RecordImage(image, left, top, right, bottom, opacity);
+    }
+
+    private void RecordImage(object image, float left, float top, float right, float bottom, float? opacity)
+    {
         var imageRegistration = GetImageRegistration(image);
         if (imageRegistration != null)
         {
@@ -782,7 +792,8 @@ public class DrawingCommandCapture
                 X = left,
                 Y = top,
                 Width = right - left,
-                Height = bottom - top
+                Height = bottom - top,
+                Opacity = opacity
             });
         }
         else
@@ -793,6 +804,16 @@ public class DrawingCommandCapture
     
     public void DrawImage(object image, float x, float y)
     {
+        RecordImageAtPosition(image, x, y, null);
+    }
+
+    public void DrawImage(object image, float x, float y, float opacity)
+    {
+        RecordImageAtPosition(image, x, y, opacity);
+    }
+
+    private void RecordImageAtPosition(object image, float x, float y, float? opacity)
+    {
         var imageRegistration = GetImageRegistration(image);
         if (imageRegistration != null)
         {
@@ -801,7 +822,8 @@ public class DrawingCommandCapture
                 ImageKey = imageRegistration.Key,
                 ImageUrl = imageRegistration.ImageUrl,
                 X = x,
-                Y = y
+                Y = y,
+                Opacity = opacity
             });
         }
         else

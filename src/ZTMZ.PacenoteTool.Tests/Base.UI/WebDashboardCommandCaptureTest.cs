@@ -155,6 +155,7 @@ public class WebDashboardCommandCaptureTest
         graphics.FillEllipse(brush, 50, 60, 10, 12);
         graphics.ClipRegionStart(5, 6, 50, 60);
         graphics.DrawImage(image, 10, 20, 110, 220);
+        graphics.DrawImage(image, 120, 20, 220, 220, 0.24f);
         graphics.ClipRegionEnd();
 
         var commands = capture.GetCommands();
@@ -170,6 +171,8 @@ public class WebDashboardCommandCaptureTest
         Assert.Contains(commands, command => command is DrawImageCommand imageCommand
             && imageCommand.ImageKey == "background"
             && imageCommand.ImageUrl == "/dashboards/example/background.png");
+        Assert.Contains(commands, command => command is DrawImageCommand imageCommand
+            && imageCommand.Opacity == 0.24f);
         Assert.Contains(commands, command => command is ReleaseClipCommand);
     }
 
@@ -213,6 +216,7 @@ public class WebDashboardCommandCaptureTest
         Assert.DoesNotContain("\"imageUrl\"", message);
         Assert.DoesNotContain("\"width\":null", message);
         Assert.DoesNotContain("\"height\":null", message);
+        Assert.DoesNotContain("\"opacity\"", message);
         Assert.True(socket.HttpResponseHeaders!.TryGetValue(
             "Sec-WebSocket-Extensions",
             out var extensionValues));

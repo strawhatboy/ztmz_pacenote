@@ -378,6 +378,9 @@ public class DrawImageCommand : DrawingCommand
     
     [JsonProperty("height")]
     public float? Height { get; set; }
+
+    [JsonProperty("opacity", NullValueHandling = NullValueHandling.Ignore)]
+    public float? Opacity { get; set; }
 }
 
 /// <summary>

@@ -5,7 +5,8 @@
         "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
         "dashboards.settings.size": "dashboards.settings.tooltip.size",
         "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
-        "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV"
+        "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV",
+        "dashboards.carDamage.damageAlertDuration": "dashboards.carDamage.tooltip.damageAlertDuration"
     },
     "PropertyValue": [
         false,
@@ -13,9 +14,10 @@
         1,
         0.32,
         0.02,
-        0.03
+        0.03,
+        10.0
     ],
     "ValueRange": [
-        [], [], [], [0.18, 0.60], [0, 0.5], [0, 0.5]
+        [], [], [], [0.18, 0.60], [0, 0.5], [0, 0.5], [1, 30]
     ]
 }

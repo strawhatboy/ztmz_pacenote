@@ -278,10 +278,20 @@ public class GraphicsCommandProxy : IDisposable
     {
         _capture.DrawImage(image, left, top, right, bottom);
     }
+
+    public void DrawImage(object image, float left, float top, float right, float bottom, float opacity)
+    {
+        _capture.DrawImage(image, left, top, right, bottom, opacity);
+    }
     
     public void DrawImage(object image, float x, float y)
     {
         _capture.DrawImage(image, x, y);
+    }
+
+    public void DrawImage(object image, float x, float y, float opacity)
+    {
+        _capture.DrawImage(image, x, y, opacity);
     }
     
     public void DrawImage(object image, object rectangle)

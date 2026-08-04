@@ -308,11 +308,16 @@ function executeDrawingCommand(ctx, canvas, cmd) {
         case 'drawImage':
             const img = state.imageCache[cmd.imageKey];
             if (img) {
+                ctx.save();
+                ctx.globalAlpha = Number.isFinite(cmd.opacity)
+                    ? Math.max(0, Math.min(1, cmd.opacity))
+                    : 1;
                 if (cmd.width && cmd.height) {
                     ctx.drawImage(img, cmd.x, cmd.y, cmd.width, cmd.height);
                 } else {
                     ctx.drawImage(img, cmd.x, cmd.y);
                 }
+                ctx.restore();
             } else {
                 loadImageResource(cmd.imageKey, cmd.imageUrl);
             }

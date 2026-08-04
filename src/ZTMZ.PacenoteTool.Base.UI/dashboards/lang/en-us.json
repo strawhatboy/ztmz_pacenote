@@ -27,6 +27,10 @@
             }
         },
         "carDamage": {
+            "damageAlertDuration": "Damage alert duration",
+            "tooltip": {
+                "damageAlertDuration": "How long, in seconds, a race-start or changed-component alert remains prominent"
+            },
             "name": "Car Damage",
             "description": "Show normalized vehicle damage telemetry"
         },

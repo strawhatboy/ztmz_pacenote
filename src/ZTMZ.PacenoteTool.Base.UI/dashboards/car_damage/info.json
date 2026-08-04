@@ -1,7 +1,7 @@
 {
     "Name": "dashboards.carDamage.name",
     "Description": "dashboards.carDamage.description",
-    "Author": "ZTMZ",
+    "Author": "草帽不是猫 with Codex",
     "Version": "0.1.0",
     "SupportsWebDashboardClientLua": true,
     "PreviewImagePath": "preview.png",
