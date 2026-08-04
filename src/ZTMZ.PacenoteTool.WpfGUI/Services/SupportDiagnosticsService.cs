@@ -34,7 +34,8 @@ public sealed record GameDiagnosticsInfo(
     string Transport,
     string ExpectedEndpoint,
     string State,
-    PrerequisiteDiagnosticsInfo Prerequisite);
+    PrerequisiteDiagnosticsInfo Prerequisite,
+    object? RuntimeDiagnostics);
 
 public sealed record PrerequisiteDiagnosticsInfo(
     string Code,
@@ -127,6 +128,7 @@ public sealed class SupportDiagnosticsService
             : new PrerequisiteDiagnosticsInfo(string.Empty, true, string.Empty);
         var udpReader = game?.GameDataReader as UdpGameDataReader;
         var udp = udpReader == null ? null : CreateUdpDiagnostics(udpReader);
+        var runtimeDiagnostics = CaptureRuntimeDiagnostics(game);
         var profileManager = _tool.IsInitialized ? _tool.ProfileManager : null;
         var audioStatus = profileManager?.Player?.Status ?? AudioPlaybackStatus.NotAvailable;
         var webDashboard = _gameOverlayManager.WebDashboardDiagnostics;
@@ -146,7 +148,8 @@ public sealed class SupportDiagnosticsService
                 udpConfig == null ? "Shared memory or game-specific" : "UDP",
                 udpConfig == null ? string.Empty : $"{udpConfig.IPAddress}:{udpConfig.Port}",
                 game?.GameDataReader.GameState.ToString() ?? string.Empty,
-                prerequisite),
+                prerequisite,
+                runtimeDiagnostics),
             udp,
             new AudioDiagnosticsInfo(
                 audioStatus.IsActive,
@@ -192,6 +195,28 @@ public sealed class SupportDiagnosticsService
         }
 
         return null;
+    }
+
+    private static object? CaptureRuntimeDiagnostics(IGame? game)
+    {
+        if (game?.GameDataReader is not IGameRuntimeDiagnosticsProvider diagnosticsProvider)
+        {
+            return null;
+        }
+
+        try
+        {
+            return diagnosticsProvider.CaptureRuntimeDiagnostics();
+        }
+        catch (Exception exception)
+        {
+            Logger.Warn(exception, "Failed to capture runtime diagnostics for {0}", game?.Name ?? string.Empty);
+            return new Dictionary<string, string>
+            {
+                ["status"] = "CaptureFailed",
+                ["detail"] = RedactSensitivePath(exception.Message)
+            };
+        }
     }
 
     private static PrerequisiteDiagnosticsInfo CapturePrerequisite(IGame? game)

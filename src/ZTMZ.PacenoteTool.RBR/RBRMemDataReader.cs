@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
@@ -9,10 +10,16 @@ namespace ZTMZ.PacenoteTool.RBR;
 
 public class RBRMemDataReader
 {
+    private const int DamageTelemetryBlockPointerOffset = 0x620;
+    private const int DamageTelemetryBlockLength = 0x48C;
+    private static readonly TimeSpan DamageTelemetrySampleInterval = TimeSpan.FromMilliseconds(200);
+
     private readonly object _syncRoot = new();
+    private readonly RBRDamageTelemetryProbe _damageTelemetryProbe = new();
     private bool _isProcessOpened = false;
     private Process? _theProcess;
     private IntPtr _processHandle = IntPtr.Zero;
+    private DateTimeOffset _nextDamageTelemetrySampleUtc = DateTimeOffset.MinValue;
 
     private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -122,6 +129,9 @@ public class RBRMemDataReader
                 memData.YSpeed = MemoryReader.Read<float>(pHandle, baseAddr1 + 0x1C4);
                 memData.ZSpeed = MemoryReader.Read<float>(pHandle, baseAddr1 + 0x1C8);
 
+                CaptureDamageTelemetryIfDue(pHandle, baseAddr1);
+                memData.DamageTelemetry = _damageTelemetryProbe.CaptureDiagnostics().LatestSnapshot;
+
                 var baseAddr2 = MemoryReader.Read<int>(pHandle, 0x7EAC48);
                 memData.Steering = MemoryReader.Read<float>(pHandle, baseAddr2 + 0x794);
                 memData.Throttle = MemoryReader.Read<float>(pHandle, baseAddr2 + 0x798);
@@ -139,10 +149,188 @@ public class RBRMemDataReader
                 // memData.TrackLength = MemoryReader.Read<float>(pHandle, 0x1659184, 0x75310);
                 memData.TrackLength = memData.DistanceToFinish + memData.DistanceFromStart;
             }
+            else
+            {
+                _damageTelemetryProbe.SetWaitingForRace();
+                _nextDamageTelemetrySampleUtc = DateTimeOffset.MinValue;
+            }
 
             return memData;
         }
     }
+
+    public RBRDamageTelemetryDiagnostics CaptureDamageTelemetryDiagnostics()
+    {
+        lock (_syncRoot)
+        {
+            return _damageTelemetryProbe.CaptureDiagnostics();
+        }
+    }
+
+    private void CaptureDamageTelemetryIfDue(IntPtr processHandle, int physicsAddress)
+    {
+        var now = DateTimeOffset.UtcNow;
+        if (now < _nextDamageTelemetrySampleUtc)
+        {
+            return;
+        }
+
+        _nextDamageTelemetrySampleUtc = now + DamageTelemetrySampleInterval;
+        if (!IsPlausiblePointer(physicsAddress))
+        {
+            ReportDamageTelemetryUnavailable("RBR physics pointer is unavailable.");
+            return;
+        }
+
+        if (!TryReadInt32(processHandle, AddOffset(physicsAddress, DamageTelemetryBlockPointerOffset), out var damageAddress) ||
+            !IsPlausiblePointer(damageAddress))
+        {
+            ReportDamageTelemetryUnavailable("RBR damage block pointer could not be read.");
+            return;
+        }
+
+        var damageBlock = new byte[DamageTelemetryBlockLength];
+        if (!TryReadBytes(processHandle, damageAddress, damageBlock))
+        {
+            ReportDamageTelemetryUnavailable("RBR damage block could not be read.");
+            return;
+        }
+
+        var parts = RBRDamageTelemetryCatalog.PartDefinitions
+            .Select(definition => ReadDamagePart(definition, damageAddress, damageBlock))
+            .ToArray();
+        var snapshot = new RBRDamageTelemetrySnapshot(
+            now,
+            physicsAddress,
+            damageAddress,
+            parts,
+            RBRDamageTelemetryCatalog.CreateGroups(parts));
+        var logEntry = _damageTelemetryProbe.Record(snapshot);
+        if (logEntry != null)
+        {
+            _logger.Info(
+                "RBR damage telemetry {0}; changed={1}; {2}",
+                logEntry.Kind,
+                string.Join(",", logEntry.ChangedComponents),
+                logEntry.Snapshot.ToLogText());
+        }
+    }
+
+    private void ReportDamageTelemetryUnavailable(string error)
+    {
+        if (_damageTelemetryProbe.ReportUnavailable(error))
+        {
+            _logger.Warn("RBR damage telemetry unavailable: {0}", error);
+        }
+    }
+
+    private static RBRDamagePartTelemetry ReadDamagePart(
+        RBRDamagePartDefinition definition,
+        int damageAddress,
+        byte[] damageBlock)
+    {
+        var address = AddOffset(damageAddress, definition.Offset);
+        var byteCount = GetByteCount(definition);
+        if (definition.Offset < 0 || byteCount <= 0 || definition.Offset > damageBlock.Length - byteCount)
+        {
+            return RBRDamageTelemetryCatalog.CreatePart(definition, address, false);
+        }
+
+        return definition.ReadKind switch
+        {
+            RBRDamageReadKind.Float => RBRDamageTelemetryCatalog.CreatePart(
+                definition,
+                address,
+                true,
+                BitConverter.ToSingle(damageBlock, definition.Offset)),
+            RBRDamageReadKind.Integer or RBRDamageReadKind.Pointer => RBRDamageTelemetryCatalog.CreatePart(
+                definition,
+                address,
+                true,
+                integerValue: BitConverter.ToInt32(damageBlock, definition.Offset)),
+            RBRDamageReadKind.FloatAndInteger => RBRDamageTelemetryCatalog.CreatePart(
+                definition,
+                address,
+                true,
+                BitConverter.ToSingle(damageBlock, definition.Offset),
+                BitConverter.ToInt32(damageBlock, definition.Offset + sizeof(float))),
+            RBRDamageReadKind.FloatArray => RBRDamageTelemetryCatalog.CreatePart(
+                definition,
+                address,
+                true,
+                floatValues: ReadFloatValues(damageBlock, definition.Offset, definition.ValueCount)),
+            RBRDamageReadKind.IntegerArray => RBRDamageTelemetryCatalog.CreatePart(
+                definition,
+                address,
+                true,
+                integerValues: ReadIntegerValues(damageBlock, definition.Offset, definition.ValueCount)),
+            _ => RBRDamageTelemetryCatalog.CreatePart(definition, address, false)
+        };
+    }
+
+    private static int GetByteCount(RBRDamagePartDefinition definition)
+    {
+        return definition.ReadKind switch
+        {
+            RBRDamageReadKind.Float or RBRDamageReadKind.Integer or RBRDamageReadKind.Pointer => sizeof(int),
+            RBRDamageReadKind.FloatAndInteger => sizeof(float) + sizeof(int),
+            RBRDamageReadKind.FloatArray or RBRDamageReadKind.IntegerArray => sizeof(int) * definition.ValueCount,
+            _ => 0
+        };
+    }
+
+    private static float[] ReadFloatValues(byte[] damageBlock, int offset, int count)
+    {
+        var values = new float[count];
+        for (var index = 0; index < count; index++)
+        {
+            values[index] = BitConverter.ToSingle(damageBlock, offset + index * sizeof(float));
+        }
+
+        return values;
+    }
+
+    private static int[] ReadIntegerValues(byte[] damageBlock, int offset, int count)
+    {
+        var values = new int[count];
+        for (var index = 0; index < count; index++)
+        {
+            values[index] = BitConverter.ToInt32(damageBlock, offset + index * sizeof(int));
+        }
+
+        return values;
+    }
+
+    private static bool TryReadInt32(IntPtr processHandle, int address, out int value)
+    {
+        var buffer = new byte[sizeof(int)];
+        if (!TryReadBytes(processHandle, address, buffer))
+        {
+            value = 0;
+            return false;
+        }
+
+        value = BitConverter.ToInt32(buffer, 0);
+        return true;
+    }
+
+    private static bool TryReadBytes(IntPtr processHandle, int address, byte[] buffer)
+    {
+        var bytesRead = 0;
+        return MemoryReader.ReadProcessMemory((int)processHandle, address, buffer, buffer.Length, ref bytesRead) &&
+               bytesRead == buffer.Length;
+    }
+
+    private static int AddOffset(int address, int offset)
+    {
+        return unchecked(address + offset);
+    }
+
+    private static bool IsPlausiblePointer(int address)
+    {
+        return unchecked((uint)address) >= 0x10000;
+    }
+
     public string GetTrackNameFromMemory()
     {
         lock (_syncRoot)
@@ -187,6 +375,8 @@ public class RBRMemDataReader
             _isProcessOpened = false;
             _theProcess = null;
             _processHandle = IntPtr.Zero;
+            _damageTelemetryProbe.SetStopped();
+            _nextDamageTelemetrySampleUtc = DateTimeOffset.MinValue;
 
             try
             {

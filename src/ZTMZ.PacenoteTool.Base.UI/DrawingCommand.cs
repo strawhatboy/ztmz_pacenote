@@ -106,6 +106,35 @@ public class DrawRectangleCommand : DrawingCommand
 }
 
 /// <summary>
+/// Draw a rounded rectangle outline.
+/// </summary>
+public class DrawRoundedRectangleCommand : DrawingCommand
+{
+    public override string Type => "drawRoundedRectangle";
+
+    [JsonProperty("x")]
+    public float X { get; set; }
+
+    [JsonProperty("y")]
+    public float Y { get; set; }
+
+    [JsonProperty("width")]
+    public float Width { get; set; }
+
+    [JsonProperty("height")]
+    public float Height { get; set; }
+
+    [JsonProperty("radius")]
+    public float Radius { get; set; }
+
+    [JsonProperty("thickness")]
+    public float Thickness { get; set; }
+
+    [JsonProperty("color")]
+    public uint Color { get; set; }
+}
+
+/// <summary>
 /// Fill a rectangle
 /// </summary>
 public class FillRectangleCommand : DrawingCommand

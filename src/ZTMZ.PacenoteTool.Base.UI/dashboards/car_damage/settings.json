@@ -1,0 +1,21 @@
+{
+    "PropertyName": {
+        "dashboards.settings.enabled": "dashboards.settings.tooltip.enabled",
+        "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
+        "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
+        "dashboards.settings.size": "dashboards.settings.tooltip.size",
+        "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
+        "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV"
+    },
+    "PropertyValue": [
+        false,
+        1,
+        1,
+        0.32,
+        0.02,
+        0.03
+    ],
+    "ValueRange": [
+        [], [], [], [0.18, 0.60], [0, 0.5], [0, 0.5]
+    ]
+}

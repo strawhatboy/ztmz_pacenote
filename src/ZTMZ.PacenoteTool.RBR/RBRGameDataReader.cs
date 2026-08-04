@@ -14,7 +14,7 @@ using Newtonsoft.Json.Linq;
 
 namespace ZTMZ.PacenoteTool.RBR;
 
-public class RBRGameDataReader : UdpGameDataReader
+public class RBRGameDataReader : UdpGameDataReader, IGameRuntimeDiagnosticsProvider
 {
     private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     public static float G = 9.8f;
@@ -132,6 +132,11 @@ public class RBRGameDataReader : UdpGameDataReader
 
     private Dictionary<int, float> _currentGearShiftRPM = new();
     private float _currentRPMLimit = 0;
+
+    public object CaptureRuntimeDiagnostics()
+    {
+        return memDataReader.CaptureDamageTelemetryDiagnostics();
+    }
 
     private RBRCarDef readCurrentCarDef() {
         var rbr_root = ((RBRGamePacenoteReader)_game.GamePacenoteReader).RBRRootDir;
@@ -644,6 +649,7 @@ public class RBRGameDataReader : UdpGameDataReader
         // gameData.Speed = MathF.Sqrt(MathF.Pow(data.XSpeed, 2f) + MathF.Pow(data.YSpeed, 2f) + MathF.Pow(data.ZSpeed, 2f)); 
 
         gameData.GameSpecificData = data;
+        gameData.CarDamage = RBRCarDamageSnapshotFactory.Create(data.DamageTelemetry);
 
         return gameData;
     }

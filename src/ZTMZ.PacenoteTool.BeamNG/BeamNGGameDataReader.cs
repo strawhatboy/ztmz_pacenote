@@ -472,6 +472,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
         }
 
         UpdateDamageSummaryLocked(damage);
+        _rallySnapshot.CarDamage = CreateCarDamageSnapshot(damage);
         var damageEvents = CreateDamageEventsLocked(damage);
         CaptureDamageValuesLocked(damage.Current);
         if (!string.IsNullOrWhiteSpace(_rallySnapshot.Damage.LastChanges))
@@ -489,6 +490,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
         {
             VehicleId = vehicleId
         };
+        _rallySnapshot.CarDamage = CarDamageSnapshot.Unavailable("beamng");
     }
 
     private void UpdateDamageSummaryLocked(BeamNGRallyDamage damage)
@@ -759,6 +761,288 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
         return false;
     }
 
+    private static CarDamageSnapshot CreateCarDamageSnapshot(BeamNGRallyDamage damage)
+    {
+        var components = new List<CarDamageComponentSnapshot>();
+        var rawComponents = new List<CarDamageRawComponentSnapshot>();
+
+        foreach (var group in damage.Current)
+        {
+            foreach (var part in group.Value)
+            {
+                var rawId = $"{group.Key}/{part.Key}";
+                if (!TryReadDamageValue(part.Value, out var value))
+                {
+                    rawComponents.Add(new CarDamageRawComponentSnapshot(
+                        rawId,
+                        group.Key,
+                        part.Key,
+                        false,
+                        false,
+                        0,
+                        null,
+                        null,
+                        null,
+                        Array.Empty<float>(),
+                        Array.Empty<int>(),
+                        part.Value.GetRawText()));
+                    continue;
+                }
+
+                var severity = GetBeamNGDamageSeverity(value);
+                rawComponents.Add(new CarDamageRawComponentSnapshot(
+                    rawId,
+                    group.Key,
+                    part.Key,
+                    true,
+                    value.IsActive,
+                    severity,
+                    value.Magnitude,
+                    null,
+                    null,
+                    Array.Empty<float>(),
+                    Array.Empty<int>(),
+                    part.Value.GetRawText()));
+
+                if (TryDescribeBeamNGDamageComponent(group.Key, part.Key, out var kind, out var location))
+                {
+                    components.Add(new CarDamageComponentSnapshot(
+                        CarDamageIds.ComponentId(kind, location),
+                        kind,
+                        location,
+                        true,
+                        value.IsActive,
+                        severity,
+                        value.Magnitude));
+                }
+            }
+        }
+
+        var groups = new[]
+        {
+            CreateBeamNGDamageGroup(
+                CarDamageIds.Engine,
+                components.Where(component => string.Equals(component.Kind, CarDamageIds.Engine, StringComparison.OrdinalIgnoreCase))),
+            CreateBeamNGDamageGroup(
+                CarDamageIds.Radiator,
+                components.Where(component => string.Equals(component.Kind, CarDamageIds.Radiator, StringComparison.OrdinalIgnoreCase))),
+            CreateBeamNGDamageGroup(
+                CarDamageIds.Differential,
+                components.Where(component => string.Equals(component.Kind, CarDamageIds.Differential, StringComparison.OrdinalIgnoreCase))),
+            CreateBeamNGDamageGroup(
+                CarDamageIds.FrontRight,
+                components.Where(component => string.Equals(component.Location, CarDamageIds.FrontRight, StringComparison.OrdinalIgnoreCase))),
+            CreateBeamNGDamageGroup(
+                CarDamageIds.RearRight,
+                components.Where(component => string.Equals(component.Location, CarDamageIds.RearRight, StringComparison.OrdinalIgnoreCase))),
+            CreateBeamNGDamageGroup(
+                CarDamageIds.RearLeft,
+                components.Where(component => string.Equals(component.Location, CarDamageIds.RearLeft, StringComparison.OrdinalIgnoreCase))),
+            CreateBeamNGDamageGroup(
+                CarDamageIds.FrontLeft,
+                components.Where(component => string.Equals(component.Location, CarDamageIds.FrontLeft, StringComparison.OrdinalIgnoreCase)))
+        };
+
+        return CarDamageSnapshot.Create(
+            "beamng",
+            DateTimeOffset.UtcNow,
+            groups,
+            components,
+            rawComponents);
+    }
+
+    private static CarDamageGroupSnapshot CreateBeamNGDamageGroup(
+        string id,
+        IEnumerable<CarDamageComponentSnapshot> sourceComponents)
+    {
+        var components = sourceComponents.ToArray();
+        return new CarDamageGroupSnapshot(
+            id,
+            components.Length > 0,
+            components.Length > 0,
+            components.DefaultIfEmpty().Max(component => component?.Severity ?? 0),
+            components
+                .Select(component => component.Id)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(componentId => componentId, StringComparer.OrdinalIgnoreCase)
+                .ToArray());
+    }
+
+    private static int GetBeamNGDamageSeverity(DamageValue value)
+    {
+        if (!value.IsActive)
+        {
+            return 0;
+        }
+
+        if (value.Magnitude >= 0.9f)
+        {
+            return 4;
+        }
+
+        if (value.Magnitude >= 0.6f)
+        {
+            return 3;
+        }
+
+        if (value.Magnitude >= 0.25f)
+        {
+            return 2;
+        }
+
+        return 1;
+    }
+
+    private static bool TryDescribeBeamNGDamageComponent(
+        string groupName,
+        string partName,
+        out string kind,
+        out string location)
+    {
+        var normalizedGroup = NormalizeBeamNGDamageName(groupName);
+        var normalizedPart = NormalizeBeamNGDamageName(partName);
+        location = GetBeamNGDamageLocation(normalizedPart);
+
+        if (normalizedGroup == "body")
+        {
+            if (normalizedPart.Contains("frontbumper", StringComparison.Ordinal))
+            {
+                kind = CarDamageIds.FrontBumper;
+                location = string.Empty;
+                return true;
+            }
+
+            if (normalizedPart.Contains("rearbumper", StringComparison.Ordinal))
+            {
+                kind = CarDamageIds.RearBumper;
+                location = string.Empty;
+                return true;
+            }
+
+            if (normalizedPart.Contains("leftdoor", StringComparison.Ordinal))
+            {
+                kind = CarDamageIds.LeftDoor;
+                location = string.Empty;
+                return true;
+            }
+
+            if (normalizedPart.Contains("rightdoor", StringComparison.Ordinal))
+            {
+                kind = CarDamageIds.RightDoor;
+                location = string.Empty;
+                return true;
+            }
+
+            kind = CarDamageIds.Bodywork;
+            return true;
+        }
+
+        if (normalizedGroup == "wheels")
+        {
+            if (normalizedPart.Contains("tire", StringComparison.Ordinal) || normalizedPart.Contains("tyre", StringComparison.Ordinal))
+            {
+                kind = CarDamageIds.Tyre;
+                return true;
+            }
+
+            if (normalizedPart.Contains("brake", StringComparison.Ordinal))
+            {
+                kind = CarDamageIds.Brake;
+                return true;
+            }
+
+            if (normalizedPart.Contains("susp", StringComparison.Ordinal)
+                || normalizedPart.Contains("damper", StringComparison.Ordinal)
+                || normalizedPart.Contains("shock", StringComparison.Ordinal)
+                || normalizedPart.Contains("controlarm", StringComparison.Ordinal))
+            {
+                kind = CarDamageIds.Suspension;
+                return true;
+            }
+
+            kind = CarDamageIds.Wheel;
+            return true;
+        }
+
+        if (normalizedGroup == "engine")
+        {
+            kind = normalizedPart.Contains("radiator", StringComparison.Ordinal)
+                || normalizedPart.Contains("coolant", StringComparison.Ordinal)
+                || normalizedPart.Contains("waterpump", StringComparison.Ordinal)
+                || normalizedPart.Contains("intercooler", StringComparison.Ordinal)
+                ? CarDamageIds.Radiator
+                : CarDamageIds.Engine;
+            location = string.Empty;
+            return true;
+        }
+
+        if (normalizedGroup is "powertrain" or "differential")
+        {
+            kind = CarDamageIds.Differential;
+            location = string.Empty;
+            return true;
+        }
+
+        if (normalizedGroup == "gearbox")
+        {
+            kind = CarDamageIds.Engine;
+            location = string.Empty;
+            return true;
+        }
+
+        if (normalizedGroup == "drivingdynamics")
+        {
+            kind = CarDamageIds.Suspension;
+            return true;
+        }
+
+        kind = string.Empty;
+        location = string.Empty;
+        return false;
+    }
+
+    private static string GetBeamNGDamageLocation(string normalizedPart)
+    {
+        if (normalizedPart.Contains("frontleft", StringComparison.Ordinal)
+            || normalizedPart.Contains("leftfront", StringComparison.Ordinal)
+            || normalizedPart.EndsWith("fl", StringComparison.Ordinal))
+        {
+            return CarDamageIds.FrontLeft;
+        }
+
+        if (normalizedPart.Contains("frontright", StringComparison.Ordinal)
+            || normalizedPart.Contains("rightfront", StringComparison.Ordinal)
+            || normalizedPart.EndsWith("fr", StringComparison.Ordinal))
+        {
+            return CarDamageIds.FrontRight;
+        }
+
+        if (normalizedPart.Contains("rearleft", StringComparison.Ordinal)
+            || normalizedPart.Contains("leftrear", StringComparison.Ordinal)
+            || normalizedPart.EndsWith("rl", StringComparison.Ordinal))
+        {
+            return CarDamageIds.RearLeft;
+        }
+
+        if (normalizedPart.Contains("rearright", StringComparison.Ordinal)
+            || normalizedPart.Contains("rightrear", StringComparison.Ordinal)
+            || normalizedPart.EndsWith("rr", StringComparison.Ordinal))
+        {
+            return CarDamageIds.RearRight;
+        }
+
+        return string.Empty;
+    }
+
+    private static string NormalizeBeamNGDamageName(string value)
+    {
+        return value
+            .Replace("_", string.Empty, StringComparison.Ordinal)
+            .Replace("-", string.Empty, StringComparison.Ordinal)
+            .Replace(" ", string.Empty, StringComparison.Ordinal)
+            .ToLowerInvariant();
+    }
+
     private static bool TryMapBeamNGWheelIndex(string partName, out int wheelIndex)
     {
         var wheelName = partName.StartsWith("tire", StringComparison.OrdinalIgnoreCase)
@@ -887,6 +1171,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader
             HandBrake = outGauge is not null && (outGauge.ShowLights & HandbrakeLight) != 0 ? 1f : 0f,
             HandBrakeValid = outGauge is not null,
             ShiftLightsRPMValid = false,
+            CarDamage = snapshot.CarDamage,
             GameSpecificData = snapshot
         };
     }

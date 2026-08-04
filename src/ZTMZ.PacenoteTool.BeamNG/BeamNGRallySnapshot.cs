@@ -1,3 +1,5 @@
+using ZTMZ.PacenoteTool.Base.Game;
+
 namespace ZTMZ.PacenoteTool.BeamNG;
 
 /// <summary>
@@ -31,6 +33,7 @@ public sealed class BeamNGRallySnapshot
     public float MaxRPM;
     public float IdleRPM;
     public BeamNGRallyDamageSummary Damage = new();
+    public CarDamageSnapshot CarDamage = CarDamageSnapshot.Unavailable("beamng");
     public float FuelFraction;
     public float EngineTemperatureCelsius;
     public float OilTemperatureCelsius;

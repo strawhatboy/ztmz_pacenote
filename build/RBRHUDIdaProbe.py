@@ -49,6 +49,14 @@ INTERESTING_STRINGS = (
     "RadiatorCoolantTemperature",
 )
 
+# A focused follow-up can add telemetry names without changing the standard
+# report. For example: EngineOff,CoolantTemperatureWarning.
+EXTRA_INTERESTING_STRINGS = tuple(
+    value.strip()
+    for value in os.environ.get("RBRHUD_IDA_EXTRA_STRINGS", "").split(",")
+    if value.strip()
+)
+
 TARGET_FUNCTIONS = (
     ("Process-memory read helper", 0x10510710),
     ("Process-memory helper caller A", 0x10423410),
@@ -106,6 +114,14 @@ DAMAGE_VTABLES = (
     ("Tyre LF", "??_7CTelemetryDamageTyreLF@@6B@"),
     ("Wheel LF", "??_7CTelemetryDamageWheelLF@@6B@"),
     ("Water pump", "??_7CTelemetryDamageWaterPump@@6B@"),
+)
+
+WARNING_TELEMETRY_VTABLES = (
+    ("Engine off", "??_7CTelemetryEngineOff@@6B@"),
+    ("Engine on", "??_7CTelemetryEngineOn@@6B@"),
+    ("Coolant temperature warning", "??_7CTelemetryCoolantTemperatureWarning@@6B@"),
+    ("Coolant temperature", "??_7CTelemetryCoolantTemperatureC@@6B@"),
+    ("Radiator coolant temperature", "??_7CTelemetryRadiatorCoolantTemperatureC@@6B@"),
 )
 
 
@@ -183,7 +199,10 @@ def find_interesting_strings():
     strings = idautils.Strings()
     for string in strings:
         value = str(string)
-        if any(term.lower() in value.lower() for term in INTERESTING_STRINGS):
+        if any(
+            term.lower() in value.lower()
+            for term in INTERESTING_STRINGS + EXTRA_INTERESTING_STRINGS
+        ):
             matches.append((string.ea, value))
     return matches
 
@@ -285,6 +304,35 @@ def report_damage_vtable(report, label, name):
                 index, ea_text(target_ea), function_text(function)
             ),
         )
+
+
+def report_vtable_refresher(report, label, name, hexrays_ready):
+    vtable_ea = ida_name.get_name_ea(ida_idaapi.BADADDR, name)
+    emit(report, "{} refresh: {}".format(label, name))
+    if vtable_ea == ida_idaapi.BADADDR:
+        emit(report, "  Vtable name was not found.")
+        return
+
+    refresh_ea = idc.get_wide_dword(vtable_ea + 4)
+    function = containing_function(refresh_ea)
+    if function is None:
+        emit(report, "  Slot 1 is not a function: {}".format(ea_text(refresh_ea)))
+        return
+
+    emit(report, "  Slot 1: {}".format(function_text(function)))
+    if not hexrays_ready:
+        emit(report, "  Hex-Rays pseudocode: unavailable")
+        return
+
+    try:
+        cfunc = ida_hexrays.decompile(function.start_ea)
+        if cfunc is None:
+            emit(report, "  <decompilation returned no function>")
+            return
+        for line in cfunc.get_pseudocode():
+            emit(report, "  " + ida_lines.tag_remove(line.line))
+    except Exception as error:
+        emit(report, "  Hex-Rays failed: {}".format(error))
 
 
 def report_concrete_damage_refreshers(report, hexrays_ready):
@@ -422,6 +470,12 @@ def main():
         emit(report, "=== Representative damage telemetry vtables ===")
         for label, name in DAMAGE_VTABLES:
             report_damage_vtable(report, label, name)
+            emit(report)
+
+        emit(report, "=== Runtime warning telemetry refreshers ===")
+        for label, name in WARNING_TELEMETRY_VTABLES:
+            report_damage_vtable(report, label, name)
+            report_vtable_refresher(report, label, name, hexrays_ready)
             emit(report)
 
         emit(report, "=== Concrete damage telemetry refresh overrides ===")

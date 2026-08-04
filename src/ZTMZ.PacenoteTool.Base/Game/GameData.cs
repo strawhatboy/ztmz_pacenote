@@ -66,6 +66,12 @@ public struct GameData
 
     public object GameSpecificData;
 
+    /// <summary>
+    /// A shared, dashboard-oriented damage snapshot when the active game can
+    /// provide vehicle damage telemetry.
+    /// </summary>
+    public CarDamageSnapshot CarDamage;
+
     public override bool Equals([NotNullWhen(true)] object obj)
     {
         return base.Equals(obj);

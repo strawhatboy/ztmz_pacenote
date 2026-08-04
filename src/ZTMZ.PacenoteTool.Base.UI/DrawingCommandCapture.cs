@@ -591,6 +591,20 @@ public class DrawingCommandCapture
     {
         DrawRectangle(brush, rect.Left, rect.Top, rect.Right, rect.Bottom, stroke);
     }
+
+    public void DrawRoundedRectangle(object brush, float left, float top, float right, float bottom, float radius, float stroke)
+    {
+        _commands.Add(new DrawRoundedRectangleCommand
+        {
+            X = left,
+            Y = top,
+            Width = right - left,
+            Height = bottom - top,
+            Radius = radius,
+            Thickness = stroke,
+            Color = GetBrushColor(brush)
+        });
+    }
     
     public void FillRectangle(object brush, float left, float top, float right, float bottom)
     {

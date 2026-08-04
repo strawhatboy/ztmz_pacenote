@@ -299,6 +299,13 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
                 _logger.Info("Initializing GameOverlay in game window...");
                 _gameOverlayManager.UninitializeOverlay();
                 _gameOverlayManager.InitializeOverlay(p);
+                var currentGameState = game.GameDataReader.GameState;
+                var restoreStageActive = GameStateStageActivity.IsActive(currentGameState);
+                _gameOverlayManager.SetStageActive(restoreStageActive);
+                _logger.Info(
+                    "Restored GameOverlay stage visibility after initialization: {0} for game state {1}.",
+                    restoreStageActive,
+                    currentGameState);
 
                 _logger.Info("Try to initialize VRGameOverlay...");
                 if (OpenVR.IsRuntimeInstalled() && Config.Instance.VrShowOverlay) {

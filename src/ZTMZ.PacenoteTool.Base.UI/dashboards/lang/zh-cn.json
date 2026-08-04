@@ -26,6 +26,10 @@
                 "description": "经典WRC直播遥测长方形表盘，复刻自佐腾酱的优化版本（❤来自佐腾酱"
             }
         },
+        "carDamage": {
+            "name": "\u8f66\u8f86\u635f\u4f24",
+            "description": "\u663e\u793a\u89c4\u8303\u5316\u7684\u8f66\u8f86\u635f\u4f24\u6570\u636e"
+        },
         "settings": {
             "enabled": "启用",
             "outputTarget": "显示位置",

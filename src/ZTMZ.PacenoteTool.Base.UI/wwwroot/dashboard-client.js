@@ -242,6 +242,15 @@ function executeDrawingCommand(ctx, canvas, cmd) {
             ctx.strokeRect(cmd.x, cmd.y, cmd.width, cmd.height);
             ctx.restore();
             break;
+
+        case 'drawRoundedRectangle':
+            ctx.save();
+            ctx.strokeStyle = colorToCSS(cmd.color);
+            ctx.lineWidth = cmd.thickness;
+            addRoundedRectanglePath(ctx, cmd.x, cmd.y, cmd.width, cmd.height, cmd.radius);
+            ctx.stroke();
+            ctx.restore();
+            break;
             
         case 'fillRect':
         case 'fillRectangle':

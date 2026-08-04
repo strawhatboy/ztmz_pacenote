@@ -45,6 +45,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using ZTMZ.PacenoteTool.Base;
@@ -52,7 +53,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.RBR
 {
-    public class RBR : IGame
+    public class RBR : IGame, IGameConfigurationMigrator
     {
         public string WindowTitle => "Richard Burns Rally";
 
@@ -106,7 +107,7 @@ namespace ZTMZ.PacenoteTool.RBR
                 PropertyValue = new() {
                     true,
                     AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, "jannemod_v3.zdb")),   // custom pacenote
-                    true,
+                    true
                 },
                 PropertyType = new() {
                     "bool",
@@ -122,9 +123,66 @@ namespace ZTMZ.PacenoteTool.RBR
             GameConfigurations = DefaultGameConfigurations;
         }
 
+        public bool MigrateGameConfiguration()
+        {
+            if (!_gameConfigurations.TryGetValue(CommonGameConfigs.Name, out var configuration) ||
+                configuration is not CommonGameConfigs commonConfig ||
+                DefaultGameConfigurations[CommonGameConfigs.Name] is not CommonGameConfigs defaultConfig)
+            {
+                return false;
+            }
+
+            return RBRGameConfigurationMigration.Migrate(commonConfig, defaultConfig);
+        }
+
         public void OnCustomMessage(int level, string message)
         {
             onCustomMessage?.Invoke(level, message);
+        }
+    }
+
+    internal static class RBRGameConfigurationMigration
+    {
+        internal const string DamageTelemetryDiagnosticsConfigKey = "game.rbr.additional_settings.damageTelemetryDiagnostics";
+
+        public static bool Migrate(CommonGameConfigs commonConfig, CommonGameConfigs defaultConfig)
+        {
+            var changed = false;
+            var damageTelemetryDiagnosticsIndex = commonConfig.PropertyName.Keys
+                .ToList()
+                .IndexOf(DamageTelemetryDiagnosticsConfigKey);
+            if (damageTelemetryDiagnosticsIndex >= 0)
+            {
+                commonConfig.PropertyName.Remove(DamageTelemetryDiagnosticsConfigKey);
+                RemoveAtIfPresent(commonConfig.PropertyValue, damageTelemetryDiagnosticsIndex);
+                RemoveAtIfPresent(commonConfig.PropertyType, damageTelemetryDiagnosticsIndex);
+                RemoveAtIfPresent(commonConfig.ValueRange, damageTelemetryDiagnosticsIndex);
+                changed = true;
+            }
+
+            var defaultTypes = defaultConfig.PropertyName.Keys
+                .Select((key, index) => new { key, type = defaultConfig.PropertyType[index] })
+                .ToDictionary(item => item.key, item => item.type, StringComparer.Ordinal);
+            var migratedTypes = commonConfig.PropertyName.Keys
+                .Select((key, index) => defaultTypes.TryGetValue(key, out var type)
+                    ? type
+                    : index < commonConfig.PropertyType.Count ? commonConfig.PropertyType[index] : string.Empty)
+                .ToList();
+            if (!commonConfig.PropertyType.SequenceEqual(migratedTypes, StringComparer.Ordinal))
+            {
+                commonConfig.PropertyType = migratedTypes;
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static void RemoveAtIfPresent<T>(IList<T> values, int index)
+        {
+            if (index >= 0 && index < values.Count)
+            {
+                values.RemoveAt(index);
+            }
         }
     }
 }

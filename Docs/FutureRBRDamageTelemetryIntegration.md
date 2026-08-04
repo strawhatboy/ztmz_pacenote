@@ -2,9 +2,12 @@
 
 ## Status
 
-Static analysis has identified a candidate live damage block in the RBR build
-used by `RBRHUD.dll` dated 2025-04-21. This is research only. No additional
-RBR memory reads or damage announcements are enabled in Pacenote Tool yet.
+Static analysis has identified a live damage block in the RBR build used by
+`RBRHUD.dll` dated 2025-04-21. Pacenote Tool now reads it automatically and
+read-only during an active race or replay. Every known component keeps its raw
+values, while a second layer exposes the seven compact RBRHUD-compatible
+damage groups. This does not enable damage announcements, dashboard warnings,
+or any game modification.
 
 The public RBR API exposes the physics root but not the granular damage
 layout. RBRHUD appears to poll the game memory directly and converts fields
@@ -34,8 +37,8 @@ inject or modify the game.
 ## Candidate Damage Layout
 
 The following offsets were recovered from the concrete RBRHUD telemetry
-classes. `Converter` describes RBRHUD's raw-value interpretation. It is useful
-for validation but should not be copied blindly into the product.
+classes. `Converter` describes RBRHUD's raw-value interpretation and is now
+mirrored only as a compact `HudLevel` alongside the unmodified raw values.
 
 | Part | Damage offset | Converter |
 | --- | ---: | --- |
@@ -145,33 +148,64 @@ build, not thresholds that Pacenote Tool should expose directly.
 | Absolute-value converter | Uses `abs(raw)` with thresholds near `0.10 / 0.05 / 0.01`. |
 | Zero-test converter | Treats a non-positive raw value as the failed condition. |
 | Differential converter | Combines a float with a neighboring status field. |
-| Tyre and wheel converter | Aggregates a 128-byte region (32 floats) before assigning a display state. |
+| Tyre and wheel converter | Uses the first eight floats of the 128-byte raw window before assigning a display state. |
 | Head-gasket and gearbox converters | Select the weakest value from multiple separate float fields. |
 | Damper-mount converter | Combines two health values before assigning a state. |
 | Bodywork converter | Follows the pointer at `damage + 0x488` and aggregates multiple entries. |
 
-RBRHUD internally maps those results to display levels `1` through `5`; the
-meaning and direction vary by converter. Future Pacenote Tool code should
-instead preserve raw values, name its derived states explicitly, and validate
-each component against controlled in-game damage before it announces or shows
-anything to users.
+RBRHUD internally maps those results to display levels `1` through `5`; level
+`1` is hidden in its Honeycomb dashboard and level `5` maps to the blinking red
+state. Pacenote Tool exposes the observed `HudLevel` and a derived `Severity`
+from `0` through `4`, but retains the original raw scalar, integer, and array
+data as the source of truth. No automatic voice or visual behavior is attached
+to the new data yet.
 
-## Proposed Implementation
+## Current Implementation
 
-1. Add a small RBR-only damage snapshot reader beneath `RBRMemDataReader`.
-   It should read the two pointers once per snapshot, validate nonzero pointer
-   values, and skip the snapshot if either read fails.
-2. Read a conservative initial set first: radiator, water pump, tyres, wheels,
-   gearbox, and bodywork. These correspond to useful existing events and
-   dashboard information.
-3. Compare successive snapshots, reset the baseline when the physics or damage
-   pointer changes, and debounce changes so a damaged component generates one
-   event rather than one event per polling tick.
-4. Reuse `CarDamageConstants.GROUP`, `PART`, `VALUE`, and `PREVIOUS_VALUE` for
-   granular diagnostics. Existing collision and puncture audio should remain
-   unchanged until dedicated user-facing behavior is designed.
-5. Guard every new read behind the active race states and the existing
-   read-only process handle. Do not make RBRHUD a dependency.
+Pacenote Tool samples at most five times per second while RBR is in an active
+race or replay. It validates the physics and damage pointers, then reads the
+bounded `0x48C`-byte damage block through the existing read-only process
+handle. It makes no calls that alter RBR and does not require RBRHUD to be
+installed.
+
+Each snapshot contains all currently recovered parts, including their raw
+scalar or array data. The bodywork pointer is retained as raw evidence, but it
+is not yet followed into a derived bodywork severity. Gearbox uses the complete
+17-float window required by RBRHUD's converter. Tyre and wheel entries retain
+their full 32-float raw windows; the derived level intentionally uses the first
+eight floats, matching the analyzed RBRHUD converter.
+
+The latest snapshot is assigned to `RBRMemData.DamageTelemetry` and included as
+`Game.RuntimeDiagnostics` in `diagnostics.json` when a support bundle is
+created. The normal log records a baseline, pointer change, or a change to a
+derived part/group level. It deliberately does not log every raw fluctuation;
+the latest snapshot still retains those values. Unreadable pointers or blocks
+are reported as unavailable rather than treated as healthy data.
+
+## RBRHUD-Compatible Groups
+
+The seven group definitions reproduce the `Damage_Honeycomb.element` layout.
+Their `HudLevel` is the highest known component level. A group is marked
+partial if any required component could not be read.
+
+| Group | Raw parts |
+| --- | --- |
+| Radiator | Radiator, WaterPump, Intercooler |
+| Engine | Battery, Clutch, GearActuator, Gearbox, HeadGasket, OilPump, OilCooler, Starter |
+| Diff | CenterDiff, FrontDiff, RearDiff |
+| FrontRight | BrakeCaliperRF, ControlArmRF, DamperMountRF, DamperRF, DriveShaftRF, HubRF, SteeringRodRF, WheelRF |
+| RearRight | BrakeCaliperRR, ControlArmRR, DamperMountRR, DamperRR, DriveShaftRR, HubRR, SuspensionArmRR, WheelRR |
+| RearLeft | BrakeCaliperLR, ControlArmLR, DamperLR, DamperMountLR, DriveShaftLR, HubLR, SuspensionArmLR, WheelLR |
+| FrontLeft | BrakeCaliperLF, ControlArmLF, DamperLF, DamperMountLF, DriveShaftLF, HubLF, SteeringRodLF, WheelLF |
+
+## Warning Lights
+
+RBRHUD's warning lamps are not direct aliases for those seven damage groups.
+The analyzed engine lamp is `EngineOff`: it reads the physics field at offset
+`0x2B8` (`696`) and is on when that field is zero. Its coolant-temperature lamp
+is on only when `physics + 0x14` is greater than `120.0`. A damaged radiator or
+water pump may eventually cause those warnings, but neither warning by itself
+proves a particular raw damage component failed.
 
 ## Required Validation
 

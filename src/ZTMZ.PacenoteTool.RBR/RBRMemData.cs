@@ -111,4 +111,6 @@ public struct RBRMemData
 	public double CurrentGearUpshiftRpm;
 
 	public float FFBValue;
+
+	public RBRDamageTelemetrySnapshot? DamageTelemetry;
 }

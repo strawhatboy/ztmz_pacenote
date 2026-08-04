@@ -151,6 +151,7 @@ public class WebDashboardCommandCaptureTest
         graphics.ClearScene();
         graphics.FillRectangle(brush, 10, 20, 110, 220);
         graphics.FillRoundedRectangle(brush, 20, 30, 120, 130, 8);
+        graphics.DrawRoundedRectangle(brush, 20, 30, 120, 130, 8, 2);
         graphics.FillEllipse(brush, 50, 60, 10, 12);
         graphics.ClipRegionStart(5, 6, 50, 60);
         graphics.DrawImage(image, 10, 20, 110, 220);
@@ -161,6 +162,8 @@ public class WebDashboardCommandCaptureTest
         Assert.Contains(commands, command => command is ClearCommand);
         Assert.Contains(commands, command => command is FillRectangleCommand);
         Assert.Contains(commands, command => command is FillRoundedRectangleCommand);
+        Assert.Contains(commands, command => command is DrawRoundedRectangleCommand rounded
+            && rounded.Radius == 8 && rounded.Thickness == 2);
         Assert.Contains(commands, command => command is FillEllipseCommand);
         Assert.Contains(commands, command => command is SetClipCommand clip
             && clip.X == 5 && clip.Y == 6 && clip.Width == 45 && clip.Height == 54);

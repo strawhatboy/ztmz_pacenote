@@ -782,7 +782,12 @@ public class WebDashboardServer : IDisposable
                     CarPos = data.CarPos,
                     PosX = data.PosX,
                     PosY = data.PosY,
-                    PosZ = data.PosZ
+                    PosZ = data.PosZ,
+
+                    // Shared damage projection. Raw source arrays stay local to
+                    // the desktop process; browser dashboards receive the stable
+                    // groups and visual components only.
+                    CarDamage = CreateBrowserLuaCarDamage(data.CarDamage)
                 },
                 context = new
                 {
@@ -968,8 +973,22 @@ public class WebDashboardServer : IDisposable
             Throttle = FiniteTelemetryValue(data.Throttle),
             TrackLength = FiniteTelemetryValue(data.TrackLength),
             Time = FiniteTelemetryValue(data.Time),
+            CarDamage = CreateBrowserLuaCarDamage(data.CarDamage),
             GameDataText = data.ToString(),
             GameSpecificDataText = data.GameSpecificDataToString()
+        };
+    }
+
+    private static object CreateBrowserLuaCarDamage(CarDamageSnapshot damage)
+    {
+        var dashboard = damage?.Dashboard ?? CarDamageDashboardState.Unavailable;
+        return new
+        {
+            Source = damage?.Source ?? string.Empty,
+            CapturedAtUtc = damage?.CapturedAtUtc,
+            Dashboard = dashboard,
+            Groups = damage?.Groups ?? Array.Empty<CarDamageGroupSnapshot>(),
+            Components = damage?.Components ?? Array.Empty<CarDamageComponentSnapshot>()
         };
     }
 

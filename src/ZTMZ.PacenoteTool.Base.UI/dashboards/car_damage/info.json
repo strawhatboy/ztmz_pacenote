@@ -1,0 +1,16 @@
+{
+    "Name": "dashboards.carDamage.name",
+    "Description": "dashboards.carDamage.description",
+    "Author": "ZTMZ",
+    "Version": "0.1.0",
+    "SupportsWebDashboardClientLua": true,
+    "PreviewImagePath": "preview.png",
+    "ImageResources": {},
+    "ImageResourcesInDirectory": {
+        "images": {
+            "Path": "images",
+            "FormatGUID": "6fddc324-4e03-4bfe-b185-3d77768dc917"
+        }
+    },
+    "IsEnabled": false
+}

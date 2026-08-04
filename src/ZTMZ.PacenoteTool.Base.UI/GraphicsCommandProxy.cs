@@ -213,6 +213,11 @@ public class GraphicsCommandProxy : IDisposable
         var rect = ExtractRectangle(rectangle);
         DrawRectangle(brush, rect.Left, rect.Top, rect.Right, rect.Bottom, stroke);
     }
+
+    public void DrawRoundedRectangle(object brush, float left, float top, float right, float bottom, float radius, float stroke)
+    {
+        _capture.DrawRoundedRectangle(brush, left, top, right, bottom, radius, stroke);
+    }
     
     public void FillRectangle(object brush, float left, float top, float right, float bottom)
     {

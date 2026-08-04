@@ -558,6 +558,8 @@
                 this.drawTextWithBackgroundCenteredCore(...args));
             this.FillRectangle = luaFunction((brush, ...args) => this.fillRectangle(brush, ...args));
             this.DrawRectangle = luaFunction((brush, ...args) => this.drawRectangle(brush, ...args));
+            this.DrawRoundedRectangle = luaFunction((brush, left, top, right, bottom, radius, thickness) =>
+                this.drawRoundedRectangle(brush, left, top, right, bottom, radius, thickness));
             this.DrawLine = luaFunction((brush, ...args) => this.drawLine(brush, ...args));
             this.DrawCircle = luaFunction((brush, x, y, radius, thickness) =>
                 this.drawCircle(brush, x, y, radius, thickness));
@@ -754,6 +756,22 @@
                 rectangle.top,
                 rectangle.right - rectangle.left,
                 rectangle.bottom - rectangle.top);
+            ctx.restore();
+        }
+
+        drawRoundedRectangle(brush, left, top, right, bottom, radius, thickness) {
+            if (!brush || brushOpacity(brush) <= 0) {
+                return;
+            }
+
+            const width = right - left;
+            const height = bottom - top;
+            const ctx = this.runtime.activeContext;
+            ctx.save();
+            ctx.strokeStyle = fillStyleForBrush(ctx, brush, left, top, width, height);
+            ctx.lineWidth = Math.max(0.1, finiteNumber(thickness, 1));
+            roundedRectanglePath(ctx, left, top, width, height, radius);
+            ctx.stroke();
             ctx.restore();
         }
 

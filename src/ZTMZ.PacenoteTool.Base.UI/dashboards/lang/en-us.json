@@ -26,6 +26,10 @@
                 "description": "Classic WRC Broadcasting Dashboard, inspired by 佐腾酱's optimized version (❤from 佐腾酱)"
             }
         },
+        "carDamage": {
+            "name": "Car Damage",
+            "description": "Show normalized vehicle damage telemetry"
+        },
         "settings": {
             "enabled": "Enabled",
             "outputTarget": "Display target",
