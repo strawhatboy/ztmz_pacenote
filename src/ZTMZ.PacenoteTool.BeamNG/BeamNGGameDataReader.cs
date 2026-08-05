@@ -477,6 +477,12 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
                 _rallySnapshot.VehicleId = telemetry.VehicleId;
                 _rallySnapshot.MaxRPM = 0f;
                 _rallySnapshot.IdleRPM = 0f;
+                _rallySnapshot.HasDetailedVehicleTelemetry = false;
+                _rallySnapshot.Steering = 0f;
+                _rallySnapshot.HandBrake = 0f;
+                _rallySnapshot.MaxGears = 0f;
+                _rallySnapshot.GLong = 0f;
+                _rallySnapshot.GLat = 0f;
                 ResetDamageStateLocked(telemetry.VehicleId);
             }
 
@@ -490,6 +496,16 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
             if (idleRpm > 0f)
             {
                 _rallySnapshot.IdleRPM = idleRpm;
+            }
+
+            if (telemetry.HasDetailedTelemetry)
+            {
+                _rallySnapshot.HasDetailedVehicleTelemetry = true;
+                _rallySnapshot.Steering = float.Clamp(Normalize(telemetry.Steering), -1f, 1f);
+                _rallySnapshot.HandBrake = float.Clamp(Normalize(telemetry.HandBrake), 0f, 1f);
+                _rallySnapshot.MaxGears = Math.Max(0f, Normalize(telemetry.MaxGears));
+                _rallySnapshot.GLong = Normalize(telemetry.GLong);
+                _rallySnapshot.GLat = Normalize(telemetry.GLat);
             }
         }
 
@@ -615,11 +631,14 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
 
                 if (groupName == "engine")
                 {
-                    summary.HasEngineDamage = true;
-                    if (part.Key.Contains("radiator", StringComparison.OrdinalIgnoreCase) ||
-                        part.Key.Contains("coolant", StringComparison.OrdinalIgnoreCase))
+                    var normalizedPartName = NormalizeBeamNGDamageName(part.Key);
+                    if (IsBeamNGCoolingSystemDamage(normalizedPartName))
                     {
                         summary.HasRadiatorDamage = true;
+                    }
+                    else if (IsBeamNGEngineFailure(normalizedPartName))
+                    {
+                        summary.HasEngineDamage = true;
                     }
                     continue;
                 }
@@ -814,18 +833,44 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
             return null;
         }
 
-        if (partName.Contains("radiator", StringComparison.OrdinalIgnoreCase) ||
-            partName.Contains("coolant", StringComparison.OrdinalIgnoreCase))
-        {
-            return CarDamage.Radiator;
-        }
+        var normalizedPartName = NormalizeBeamNGDamageName(partName);
 
-        if (partName.Contains("waterpump", StringComparison.OrdinalIgnoreCase))
+        if (IsBeamNGWaterPumpDamage(normalizedPartName))
         {
             return CarDamage.WaterPump;
         }
 
-        return CarDamage.Engine;
+        if (IsBeamNGCoolingSystemDamage(normalizedPartName))
+        {
+            return CarDamage.Radiator;
+        }
+
+        return IsBeamNGEngineFailure(normalizedPartName)
+            ? CarDamage.Engine
+            : null;
+    }
+
+    private static bool IsBeamNGWaterPumpDamage(string normalizedPartName)
+    {
+        return normalizedPartName.Contains("waterpump", StringComparison.Ordinal);
+    }
+
+    private static bool IsBeamNGCoolingSystemDamage(string normalizedPartName)
+    {
+        return normalizedPartName.Contains("radiator", StringComparison.Ordinal)
+            || normalizedPartName.Contains("coolant", StringComparison.Ordinal)
+            || IsBeamNGWaterPumpDamage(normalizedPartName)
+            || normalizedPartName.Contains("intercooler", StringComparison.Ordinal);
+    }
+
+    private static bool IsBeamNGEngineFailure(string normalizedPartName)
+    {
+        return normalizedPartName.Contains("enginebroken", StringComparison.Ordinal)
+            || normalizedPartName.Contains("enginedisabled", StringComparison.Ordinal)
+            || normalizedPartName.Contains("enginelockedup", StringComparison.Ordinal)
+            || normalizedPartName.Contains("enginehydrolocked", StringComparison.Ordinal)
+            || normalizedPartName.Contains("catastrophicoverrev", StringComparison.Ordinal)
+            || normalizedPartName.Contains("catastrophicovertorque", StringComparison.Ordinal);
     }
 
     private static bool ShouldRaiseDamageEvent(CarDamage damageType, DamageValue current, DamageValue previous)
@@ -1050,14 +1095,18 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
                 return true;
             }
 
-            if (normalizedPart.Contains("leftdoor", StringComparison.Ordinal))
+            // BeamNG's built-in body damage tracker reports the door areas as
+            // ML/MR (middle-left/right), rather than as named door parts.
+            if (normalizedPart.Contains("leftdoor", StringComparison.Ordinal)
+                || normalizedPart is "ml" or "middleleft" or "leftmiddle")
             {
                 kind = CarDamageIds.LeftDoor;
                 location = string.Empty;
                 return true;
             }
 
-            if (normalizedPart.Contains("rightdoor", StringComparison.Ordinal))
+            if (normalizedPart.Contains("rightdoor", StringComparison.Ordinal)
+                || normalizedPart is "mr" or "middleright" or "rightmiddle")
             {
                 kind = CarDamageIds.RightDoor;
                 location = string.Empty;
@@ -1097,12 +1146,23 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
 
         if (normalizedGroup == "engine")
         {
-            kind = normalizedPart.Contains("radiator", StringComparison.Ordinal)
-                || normalizedPart.Contains("coolant", StringComparison.Ordinal)
-                || normalizedPart.Contains("waterpump", StringComparison.Ordinal)
-                || normalizedPart.Contains("intercooler", StringComparison.Ordinal)
-                ? CarDamageIds.Radiator
-                : CarDamageIds.Engine;
+            if (IsBeamNGCoolingSystemDamage(normalizedPart))
+            {
+                kind = CarDamageIds.Radiator;
+                location = string.Empty;
+                return true;
+            }
+
+            if (!IsBeamNGEngineFailure(normalizedPart))
+            {
+                // Auxiliary engine-group flags, such as induction and impact damage,
+                // remain available as raw telemetry but are not engine failures.
+                kind = string.Empty;
+                location = string.Empty;
+                return false;
+            }
+
+            kind = CarDamageIds.Engine;
             location = string.Empty;
             return true;
         }
@@ -1222,7 +1282,12 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
         }
         else if (_rallySnapshot.StageCountingDown)
         {
-            targetState = GameState.CountingDown;
+            // Rally Mode can first report a stage while its countdown is already
+            // running. Emit RaceBegin once so the normal session setup happens
+            // before subsequent packets relay each countdown number.
+            targetState = _gameState is GameState.Unknown or GameState.RaceEnd
+                ? GameState.RaceBegin
+                : GameState.CountingDown;
         }
         else if (_rallySnapshot.StageActive)
         {
@@ -1353,6 +1418,10 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
         var elapsedSeconds = _firstOutGaugeUtc == default ? 0f : (float)(now - _firstOutGaugeUtc).TotalSeconds;
         var rpm = Normalize(outGauge?.Rpm ?? 0f);
         var maxRpm = ResolveMaximumRpm(snapshot.MaxRPM, rpm);
+        var outGaugeHandBrake = outGauge is not null && (outGauge.ShowLights & HandbrakeLight) != 0 ? 1f : 0f;
+        var handBrake = snapshot.HasDetailedVehicleTelemetry
+            ? float.Clamp(Normalize(snapshot.HandBrake), 0f, 1f)
+            : outGaugeHandBrake;
 
         return new GameData
         {
@@ -1367,11 +1436,19 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
             MaxRPM = maxRpm,
             IdleRPM = Math.Clamp(Normalize(snapshot.IdleRPM), 0f, maxRpm),
             Gear = outGauge?.Gear ?? 0,
+            MaxGears = snapshot.HasDetailedVehicleTelemetry
+                ? Math.Max(0f, Normalize(snapshot.MaxGears))
+                : Math.Max(0f, outGauge?.Gear ?? 0),
             Throttle = Normalize(outGauge?.Throttle ?? 0f),
             Brake = Normalize(outGauge?.Brake ?? 0f),
             Clutch = Normalize(outGauge?.Clutch ?? 0f),
-            HandBrake = outGauge is not null && (outGauge.ShowLights & HandbrakeLight) != 0 ? 1f : 0f,
-            HandBrakeValid = outGauge is not null,
+            Steering = snapshot.HasDetailedVehicleTelemetry
+                ? float.Clamp(Normalize(snapshot.Steering), -1f, 1f)
+                : 0f,
+            HandBrake = handBrake,
+            HandBrakeValid = snapshot.HasDetailedVehicleTelemetry || outGauge is not null,
+            G_long = snapshot.HasDetailedVehicleTelemetry ? Normalize(snapshot.GLong) : 0f,
+            G_lat = snapshot.HasDetailedVehicleTelemetry ? Normalize(snapshot.GLat) : 0f,
             ShiftLightsRPMValid = false,
             CarDamage = snapshot.CarDamage,
             GameSpecificData = snapshot

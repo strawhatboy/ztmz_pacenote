@@ -11,15 +11,28 @@ local PORT = 44445
 local SEND_INTERVAL_SECONDS = 0.10
 local STATUS_INTERVAL_SECONDS = 2.0
 local VEHICLE_TELEMETRY_INTERVAL_SECONDS = 0.5
+local TELEMETRY_SEND_INTERVAL_SECONDS = 1 / 60
 
 local socketOk, socket = pcall(require, "socket")
 local udp = nil
 local elapsed = SEND_INTERVAL_SECONDS
 local statusElapsed = STATUS_INTERVAL_SECONDS
 local vehicleTelemetryElapsed = VEHICLE_TELEMETRY_INTERVAL_SECONDS
+local telemetrySendElapsed = TELEMETRY_SEND_INTERVAL_SECONDS
 local lastExportedStageId = nil
-local vehicleTelemetry = {vehicleId = 0, maxRPM = 0, idleRPM = 0}
+local vehicleTelemetry = {
+  vehicleId = 0,
+  maxRPM = 0,
+  idleRPM = 0,
+  hasDetailedTelemetry = false,
+  steering = 0,
+  handBrake = 0,
+  maxGears = 0,
+  gLong = 0,
+  gLat = 0
+}
 local damageReporterVehicleId = 0
+local telemetryReporterVehicleId = 0
 local rallyRuntime = {activeState = "", countdownNumber = 0}
 
 local function asString(value)
@@ -38,6 +51,24 @@ local function asNumber(value)
     return value
   end
   return tonumber(value) or 0
+end
+
+local function isFiniteNumber(value)
+  return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
+end
+
+local function resetVehicleTelemetry(vehicleId)
+  vehicleTelemetry = {
+    vehicleId = vehicleId,
+    maxRPM = 0,
+    idleRPM = 0,
+    hasDetailedTelemetry = false,
+    steering = 0,
+    handBrake = 0,
+    maxGears = 0,
+    gLong = 0,
+    gLat = 0
+  }
 end
 
 local function asBoolean(value)
@@ -95,17 +126,66 @@ local function getVehicleId(vehicle)
   return math.floor(asNumber(readMember(vehicle, { "getId", "getID" })))
 end
 
-local function updateVehicleTelemetry(vehicleId, fieldName, response)
+local function updateVehicleTelemetry(vehicleId, fieldName, response, allowSignedValue)
   if vehicleTelemetry.vehicleId ~= vehicleId then
     return
   end
 
   local value = asNumber(readMember(response, { "result" }))
-  if value <= 0 then
+  if not isFiniteNumber(value) then
+    return
+  end
+  if not allowSignedValue and value <= 0 then
     return
   end
 
+  if allowSignedValue then
+    value = math.max(-1, math.min(1, value))
+  end
   vehicleTelemetry[fieldName] = value
+end
+
+local function updateDetailedVehicleTelemetry(vehicleId, telemetry)
+  if vehicleTelemetry.vehicleId ~= vehicleId or type(telemetry) ~= "table" then
+    return
+  end
+
+  local maxRPM = asNumber(telemetry.maxRPM)
+  if isFiniteNumber(maxRPM) and maxRPM > 0 then
+    vehicleTelemetry.maxRPM = maxRPM
+  end
+
+  local idleRPM = asNumber(telemetry.idleRPM)
+  if isFiniteNumber(idleRPM) and idleRPM > 0 then
+    vehicleTelemetry.idleRPM = idleRPM
+  end
+
+  local steering = asNumber(telemetry.steering)
+  if isFiniteNumber(steering) then
+    vehicleTelemetry.steering = math.max(-1, math.min(1, steering))
+  end
+
+  local handBrake = asNumber(telemetry.handBrake)
+  if isFiniteNumber(handBrake) then
+    vehicleTelemetry.handBrake = math.max(0, math.min(1, handBrake))
+  end
+
+  local maxGears = asNumber(telemetry.maxGears)
+  if isFiniteNumber(maxGears) then
+    vehicleTelemetry.maxGears = math.max(0, maxGears)
+  end
+
+  local gLong = asNumber(telemetry.gLong)
+  if isFiniteNumber(gLong) then
+    vehicleTelemetry.gLong = gLong
+  end
+
+  local gLat = asNumber(telemetry.gLat)
+  if isFiniteNumber(gLat) then
+    vehicleTelemetry.gLat = gLat
+  end
+
+  vehicleTelemetry.hasDetailedTelemetry = true
 end
 
 local function ensureDamageReporter(vehicle, vehicleId)
@@ -114,10 +194,23 @@ local function ensureDamageReporter(vehicle, vehicleId)
   end
 
   local queued = pcall(function()
-    vehicle:queueLuaCommand('extensions.load("ztmz_pacenote_rally_bridge_damage")')
+    vehicle:queueLuaCommand('extensions.load("ztmz/pacenote/rally/bridge/damage")')
   end)
   if queued then
     damageReporterVehicleId = vehicleId
+  end
+end
+
+local function ensureTelemetryReporter(vehicle, vehicleId)
+  if telemetryReporterVehicleId == vehicleId then
+    return
+  end
+
+  local queued = pcall(function()
+    vehicle:queueLuaCommand('extensions.load("ztmz/pacenote/rally/bridge/telemetry")')
+  end)
+  if queued then
+    telemetryReporterVehicleId = vehicleId
   end
 end
 
@@ -125,15 +218,17 @@ local function requestVehicleTelemetry()
   local vehicle = getPlayerVehicleObject()
   local vehicleId = getVehicleId(vehicle)
   if vehicle == nil or vehicleId <= 0 then
-    vehicleTelemetry = {vehicleId = 0, maxRPM = 0, idleRPM = 0}
+    resetVehicleTelemetry(0)
     damageReporterVehicleId = 0
+    telemetryReporterVehicleId = 0
     return
   end
 
   if vehicleTelemetry.vehicleId ~= vehicleId then
-    vehicleTelemetry = {vehicleId = vehicleId, maxRPM = 0, idleRPM = 0}
+    resetVehicleTelemetry(vehicleId)
   end
   ensureDamageReporter(vehicle, vehicleId)
+  ensureTelemetryReporter(vehicle, vehicleId)
 
   local vehicleBridge = rawget(_G, "core_vehicleBridge")
   if type(vehicleBridge) ~= "table" or type(vehicleBridge.requestValue) ~= "function" then
@@ -296,9 +391,11 @@ function M.onExtensionLoaded()
   elapsed = SEND_INTERVAL_SECONDS
   statusElapsed = STATUS_INTERVAL_SECONDS
   vehicleTelemetryElapsed = VEHICLE_TELEMETRY_INTERVAL_SECONDS
+  telemetrySendElapsed = TELEMETRY_SEND_INTERVAL_SECONDS
   lastExportedStageId = nil
-  vehicleTelemetry = {vehicleId = 0, maxRPM = 0, idleRPM = 0}
+  resetVehicleTelemetry(0)
   damageReporterVehicleId = 0
+  telemetryReporterVehicleId = 0
   rallyRuntime = {activeState = "", countdownNumber = 0}
   sendStatus("started", "")
 end
@@ -332,13 +429,34 @@ function M.onVehicleDamage(vehicleId, currentDamage, changedDamage)
   })
 end
 
+function M.onVehicleTelemetry(vehicleId, telemetry)
+  vehicleId = math.floor(asNumber(vehicleId))
+  if vehicleId <= 0 then
+    return
+  end
+
+  updateDetailedVehicleTelemetry(vehicleId, telemetry)
+end
+
 function M.onUpdate(dtReal)
   elapsed = elapsed + (dtReal or 0)
   statusElapsed = statusElapsed + (dtReal or 0)
   vehicleTelemetryElapsed = vehicleTelemetryElapsed + (dtReal or 0)
+  telemetrySendElapsed = telemetrySendElapsed + (dtReal or 0)
   if vehicleTelemetryElapsed >= VEHICLE_TELEMETRY_INTERVAL_SECONDS then
     vehicleTelemetryElapsed = 0
     requestVehicleTelemetry()
+  end
+
+  if telemetrySendElapsed >= TELEMETRY_SEND_INTERVAL_SECONDS then
+    telemetrySendElapsed = telemetrySendElapsed - TELEMETRY_SEND_INTERVAL_SECONDS
+    if vehicleTelemetry.hasDetailedTelemetry then
+      sendPacket({
+        type = "telemetry",
+        status = "active",
+        telemetry = vehicleTelemetry
+      })
+    end
   end
 
   if elapsed < SEND_INTERVAL_SECONDS then

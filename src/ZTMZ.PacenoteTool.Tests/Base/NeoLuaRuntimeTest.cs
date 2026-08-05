@@ -146,10 +146,16 @@ public class NeoLuaRuntimeTest
             var expiredCommands = capture.GetCommands();
             var expiredImages = expiredCommands.OfType<DrawImageCommand>().ToList();
             Assert.Equal(23, expiredImages.Count);
-            Assert.All(expiredImages, image => Assert.Equal(0.24f, image.Opacity.GetValueOrDefault()));
+            var expiredEngineImage = Assert.Single(
+                expiredImages,
+                image => image.ImageKey == "images@engine_gearbox");
+            Assert.Equal(0.64f, expiredEngineImage.Opacity.GetValueOrDefault());
+            Assert.All(
+                expiredImages.Where(image => image.ImageKey != "images@engine_gearbox"),
+                image => Assert.Equal(0.24f, image.Opacity.GetValueOrDefault()));
             Assert.Contains(
                 expiredCommands.OfType<FillRoundedRectangleCommand>(),
-                command => command.Color == 0x48A67A2Du);
+                command => command.Color == 0xBEEEAA26u);
 
             capture.ClearCommands();
             arguments.GameData = new GameData { Time = 12.0f, CarDamage = CreateCarDamageSnapshot(3) };
@@ -166,9 +172,13 @@ public class NeoLuaRuntimeTest
             environment.CallMember("onUpdate", arguments);
 
             var expiredCriticalCommands = capture.GetCommands();
+            var expiredCriticalEngineImage = Assert.Single(
+                expiredCriticalCommands.OfType<DrawImageCommand>(),
+                image => image.ImageKey == "images@engine_gearbox");
+            Assert.Equal(0.72f, expiredCriticalEngineImage.Opacity.GetValueOrDefault());
             Assert.Contains(
                 expiredCriticalCommands.OfType<FillRoundedRectangleCommand>(),
-                command => command.Color == 0x52913F3Au);
+                command => command.Color == 0xCCE13C36u);
 
             environment.CallMember("onExit");
         }

@@ -54,7 +54,13 @@ public class BeamNGProtocolTest
               "telemetry": {
                 "vehicleId": 77,
                 "maxRPM": 7800,
-                "idleRPM": 850
+                "idleRPM": 850,
+                "hasDetailedTelemetry": true,
+                "steering": -0.65,
+                "handBrake": 0.5,
+                "maxGears": 6,
+                "gLong": -0.8,
+                "gLat": 1.1
               },
               "damage": {
                 "vehicleId": 77,
@@ -116,6 +122,12 @@ public class BeamNGProtocolTest
         Assert.Equal(77, packet.Telemetry.VehicleId);
         Assert.Equal(7800f, packet.Telemetry.MaxRPM);
         Assert.Equal(850f, packet.Telemetry.IdleRPM);
+        Assert.True(packet.Telemetry.HasDetailedTelemetry);
+        Assert.Equal(-0.65f, packet.Telemetry.Steering);
+        Assert.Equal(0.5f, packet.Telemetry.HandBrake);
+        Assert.Equal(6f, packet.Telemetry.MaxGears);
+        Assert.Equal(-0.8f, packet.Telemetry.GLong);
+        Assert.Equal(1.1f, packet.Telemetry.GLat);
         Assert.NotNull(packet.Damage);
         Assert.True(packet.Damage.Current["engine"]["radiatorLeak"].GetBoolean());
         Assert.Equal(0.24f, packet.Damage.Current["body"]["FL"].GetSingle());
@@ -387,6 +399,15 @@ public class BeamNGProtocolTest
             {
                 Id = "test-stage",
                 IsCountingDown = true,
+                CountdownNumber = 5
+            }
+        });
+        reader.ProcessBridgePacket(new BeamNGRallyBridgePacket
+        {
+            Stage = new BeamNGRallyStage
+            {
+                Id = "test-stage",
+                IsCountingDown = true,
                 CountdownNumber = 4
             }
         });
@@ -404,19 +425,24 @@ public class BeamNGProtocolTest
             first =>
             {
                 Assert.Equal(GameState.Unknown, first.LastGameState);
-                Assert.Equal(GameState.CountingDown, first.NewGameState);
-                Assert.Equal(5, first.Parameters["number"]);
+                Assert.Equal(GameState.RaceBegin, first.NewGameState);
             },
             second =>
             {
-                Assert.Equal(GameState.CountingDown, second.LastGameState);
+                Assert.Equal(GameState.RaceBegin, second.LastGameState);
                 Assert.Equal(GameState.CountingDown, second.NewGameState);
-                Assert.Equal(4, second.Parameters["number"]);
+                Assert.Equal(5, second.Parameters["number"]);
             },
             third =>
             {
                 Assert.Equal(GameState.CountingDown, third.LastGameState);
-                Assert.Equal(GameState.Racing, third.NewGameState);
+                Assert.Equal(GameState.CountingDown, third.NewGameState);
+                Assert.Equal(4, third.Parameters["number"]);
+            },
+            fourth =>
+            {
+                Assert.Equal(GameState.CountingDown, fourth.LastGameState);
+                Assert.Equal(GameState.Racing, fourth.NewGameState);
             });
     }
 
@@ -483,6 +509,47 @@ public class BeamNGProtocolTest
     }
 
     [Fact]
+    public void BeamNGGameDataReader_UsesRallyBridgeSteeringTelemetry()
+    {
+        var reader = new BeamNGGameDataReader();
+
+        reader.ProcessBridgePacket(new BeamNGRallyBridgePacket
+        {
+            Telemetry = new BeamNGRallyVehicleTelemetry
+            {
+                VehicleId = 77,
+                HasDetailedTelemetry = true,
+                Steering = -0.65f,
+                HandBrake = 0.5f,
+                MaxGears = 6f,
+                GLong = -0.8f,
+                GLat = 1.1f
+            }
+        });
+
+        Assert.Equal(-0.65f, reader.CurrentGameData.Steering);
+        Assert.Equal(0.5f, reader.CurrentGameData.HandBrake);
+        Assert.True(reader.CurrentGameData.HandBrakeValid);
+        Assert.Equal(6f, reader.CurrentGameData.MaxGears);
+        Assert.Equal(-0.8f, reader.CurrentGameData.G_long);
+        Assert.Equal(1.1f, reader.CurrentGameData.G_lat);
+        var snapshot = Assert.IsType<BeamNGRallySnapshot>(reader.CurrentGameData.GameSpecificData);
+        Assert.Equal(-0.65f, snapshot.Steering);
+
+        reader.ProcessBridgePacket(new BeamNGRallyBridgePacket
+        {
+            Telemetry = new BeamNGRallyVehicleTelemetry
+            {
+                VehicleId = 77,
+                HasDetailedTelemetry = true,
+                Steering = 2f
+            }
+        });
+
+        Assert.Equal(1f, reader.CurrentGameData.Steering);
+    }
+
+    [Fact]
     public void BeamNGGameDataReader_ReportsOutGaugeAndRallyBridgeListeners()
     {
         var reader = new BeamNGGameDataReader();
@@ -537,6 +604,105 @@ public class BeamNGProtocolTest
         Assert.Equal(0, dashboard.RadiatorSeverity);
         Assert.Equal(0, dashboard.FrontLeftTyreSeverity);
         Assert.Empty(damageEvents);
+    }
+
+    [Fact]
+    public void BeamNGGameDataReader_MapsMiddleBodyDamageToDoorComponents()
+    {
+        var reader = new BeamNGGameDataReader();
+
+        reader.ProcessBridgePacket(CreateDamagePacket(
+            77,
+            new Dictionary<string, Dictionary<string, JsonElement>>
+            {
+                ["body"] = new Dictionary<string, JsonElement>
+                {
+                    ["ML"] = CreateJsonElement("0.3"),
+                    ["MR"] = CreateJsonElement("0.8")
+                }
+            },
+            new Dictionary<string, Dictionary<string, JsonElement>>()));
+
+        var dashboard = reader.CurrentGameData.CarDamage.Dashboard;
+        Assert.True(dashboard.IsAvailable);
+        Assert.Equal(2, dashboard.LeftDoorSeverity);
+        Assert.Equal(3, dashboard.RightDoorSeverity);
+    }
+
+    [Fact]
+    public void BeamNGGameDataReader_KeepsAuxiliaryEngineTelemetryOutOfTheEngineFailureProjection()
+    {
+        var reader = new BeamNGGameDataReader();
+        var damageEvents = new List<CarDamageEvent>();
+        reader.onCarDamaged += damageEvents.Add;
+
+        reader.ProcessBridgePacket(CreateDamagePacket(
+            77,
+            new Dictionary<string, Dictionary<string, JsonElement>>
+            {
+                ["engine"] = new Dictionary<string, JsonElement>
+                {
+                    ["inductionSystemDamaged"] = CreateJsonElement("true"),
+                    ["impactDamage"] = CreateJsonElement("true")
+                }
+            },
+            new Dictionary<string, Dictionary<string, JsonElement>>
+            {
+                ["engine"] = new Dictionary<string, JsonElement>
+                {
+                    ["inductionSystemDamaged"] = CreateJsonElement("true"),
+                    ["impactDamage"] = CreateJsonElement("true")
+                }
+            }));
+
+        var damage = reader.CurrentGameData.CarDamage;
+        Assert.Equal(0, damage.Dashboard.EngineSeverity);
+        Assert.DoesNotContain(damage.Components, component => component.Kind == CarDamageIds.Engine);
+        Assert.Contains(damage.RawComponents, component => component.SourceName == "inductionSystemDamaged" && component.IsActive);
+        Assert.Contains(damage.RawComponents, component => component.SourceName == "impactDamage" && component.IsActive);
+        Assert.Empty(damageEvents);
+    }
+
+    [Fact]
+    public void BeamNGGameDataReader_MapsLockedEngineToTheEngineFailureProjection()
+    {
+        var reader = new BeamNGGameDataReader();
+        var damageEvents = new List<CarDamageEvent>();
+        reader.onCarDamaged += damageEvents.Add;
+
+        reader.ProcessBridgePacket(CreateDamagePacket(
+            77,
+            new Dictionary<string, Dictionary<string, JsonElement>>
+            {
+                ["engine"] = new Dictionary<string, JsonElement>
+                {
+                    ["engineLockedUp"] = CreateJsonElement("false")
+                }
+            },
+            new Dictionary<string, Dictionary<string, JsonElement>>()));
+
+        reader.ProcessBridgePacket(CreateDamagePacket(
+            77,
+            new Dictionary<string, Dictionary<string, JsonElement>>
+            {
+                ["engine"] = new Dictionary<string, JsonElement>
+                {
+                    ["engineLockedUp"] = CreateJsonElement("true")
+                }
+            },
+            new Dictionary<string, Dictionary<string, JsonElement>>
+            {
+                ["engine"] = new Dictionary<string, JsonElement>
+                {
+                    ["engineLockedUp"] = CreateJsonElement("true")
+                }
+            }));
+
+        var damage = reader.CurrentGameData.CarDamage;
+        Assert.Equal(4, damage.Dashboard.EngineSeverity);
+        Assert.Contains(damage.Components, component => component.Kind == CarDamageIds.Engine && component.IsActive);
+        var damageEvent = Assert.Single(damageEvents);
+        Assert.Equal(CarDamage.Engine, damageEvent.DamageType);
     }
 
     [Fact]
@@ -642,7 +808,7 @@ public class BeamNGProtocolTest
         Assert.Equal("ZTMZ Pacenote Rally Bridge", metadata.GetProperty("title").GetString());
         Assert.Equal("Rally Mode integration for ZTMZ Pacenote Tool", metadata.GetProperty("tag_line").GetString());
         Assert.Equal("草帽不是猫 with Codex", metadata.GetProperty("username").GetString());
-        Assert.Equal("1.1.6", metadata.GetProperty("version_string").GetString());
+        Assert.Equal("1.1.10", metadata.GetProperty("version_string").GetString());
         Assert.Contains("gitee.com/ztmz/ztmz_pacenote", metadata.GetProperty("message").GetString());
     }
 

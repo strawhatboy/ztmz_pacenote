@@ -60,10 +60,7 @@ public sealed class RuntimeControlsService
         _tool.onGameUninitialized += _ => SetStageActive(false);
         _tool.onGameStateChanged += (_, state) =>
         {
-            if (state.NewGameState is GameState.RaceEnd or GameState.Unknown)
-            {
-                SetStageActive(false);
-            }
+            SetStageActive(GameStateStageActivity.IsActive(state.NewGameState));
         };
         _gameOverlayManager.OnWebDashboardStatusChanged += _ => RaiseStateChanged();
     }

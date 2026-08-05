@@ -33,6 +33,12 @@ public sealed class BeamNGRallySnapshot
     public int VehicleId;
     public float MaxRPM;
     public float IdleRPM;
+    public bool HasDetailedVehicleTelemetry;
+    public float Steering;
+    public float HandBrake;
+    public float MaxGears;
+    public float GLong;
+    public float GLat;
     public BeamNGRallyDamageSummary Damage = new();
     public CarDamageSnapshot CarDamage = CarDamageSnapshot.Unavailable("beamng");
     public float FuelFraction;

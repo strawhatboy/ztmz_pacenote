@@ -127,9 +127,10 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         public List<bool> DashboardErrorEncountered { set; get; } = new List<bool>();
 
-        private int initializeRetryCount = 0;
-        private int initializeRetryMax = 60;    // 60 seconds
-        private int initializeRetryInterval = 5000;
+        // Poll for a real game window instead of imposing a fixed delay. Keep the
+        // former five-minute retry budget so slow-starting games such as RBR remain supported.
+        private static readonly TimeSpan OverlayInitializationTimeout = TimeSpan.FromMinutes(5);
+        private const int OverlayInitializationPollIntervalMilliseconds = 250;
 
         private int dashboardLoadRetryCount = 0;
         private int dashboardLoadRetryMax = 10;    // 10 seconds
@@ -892,36 +893,63 @@ namespace ZTMZ.PacenoteTool.Base.UI
             DashboardScriptArguments.Graphics = gfx;
 
             Task.Run(() => {
-                // retry if failed
-                // possible crash because of window not responding
-                while (p != null && !p.HasExited && initializeRetryCount < initializeRetryMax)
+                var stopwatch = Stopwatch.StartNew();
+                var retryCount = 0;
+                _logger.Info("Waiting for a usable game window before initializing GameOverlay.");
+
+                while (IsCurrentOverlayProcess(p) && stopwatch.Elapsed < OverlayInitializationTimeout)
                 {
                     try
                     {
-                        Thread.Sleep(initializeRetryInterval);
+                        if (p.HasExited)
+                        {
+                            _logger.Info("Game process exited before GameOverlay initialization completed.");
+                            OnGameOverlayInitializingStateChanged?.Invoke(false);
+                            return;
+                        }
+
                         p.Refresh();
                         var gameWindowHandle = p.MainWindowHandle;
-                        _window = new StickyWindow(gameWindowHandle, gfx);
-                        RememberGameWindowHandle(gameWindowHandle);
-                        initializeRetryCount = 0;
-                        break;
+                        if (gameWindowHandle != IntPtr.Zero && WindowHelper.IsWindow(gameWindowHandle))
+                        {
+                            var overlayWindow = new StickyWindow(gameWindowHandle, gfx);
+                            if (!IsCurrentOverlayProcess(p))
+                            {
+                                overlayWindow.Dispose();
+                                return;
+                            }
+
+                            _window = overlayWindow;
+                            RememberGameWindowHandle(gameWindowHandle);
+                            initializeOverlayIfWindowReady();
+                            return;
+                        }
                     }
                     catch (Exception ex)
                     {
-                        _logger.Error(ex, "Failed to initialize overlay, retrying...");
-                        initializeRetryCount++;
+                        retryCount++;
+                        if (retryCount == 1 || retryCount % 20 == 0)
+                        {
+                            _logger.Debug(ex, "Game window is not ready for GameOverlay initialization yet.");
+                        }
                     }
+
+                    Thread.Sleep(OverlayInitializationPollIntervalMilliseconds);
                 }
 
-                initializeRetryCount = 0;
-                if (_window == null)
+                if (IsCurrentOverlayProcess(p))
                 {
-                    _logger.Error("Failed to initialize overlay, retry count: {0}", initializeRetryCount);
-                    return;
+                    _logger.Error(
+                        "Failed to initialize GameOverlay after waiting {0:F1} seconds for the game window.",
+                        stopwatch.Elapsed.TotalSeconds);
+                    OnGameOverlayInitializingStateChanged?.Invoke(false);
                 }
-
-                initializeOverlayIfWindowReady();
             });
+        }
+
+        private bool IsCurrentOverlayProcess(Process process)
+        {
+            return !_hudShowInSeparateWindow && ReferenceEquals(_gameProcess, process);
         }
 
         private void initializeOverlayIfWindowReady() {
@@ -953,6 +981,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 return;
             }
             _isRunning = false;
+            _gameProcess = null;
             _window?.Dispose();
             _window = null;
             RefreshNativeOverlayVisibility();

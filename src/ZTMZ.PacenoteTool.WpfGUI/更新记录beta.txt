@@ -1,16 +1,18 @@
 v2.99.99.41-3.0-rc13
+
+* 修正 BeamNG 发动机损坏映射：涡轮/机械增压进气系统损坏和通用撞击损坏仍保留在原始诊断数据中，但不再误点亮发动机组件或触发发动机故障语音。
 ------
 [English]
 * Adds live BeamNG.drive Rally Mode co-driver audio. Pacenote Tool now follows BeamNG's current pacenote timing and translates the game's native pacenote data at runtime; saved stage exports are for diagnostics and coverage checks.
-* Adds BeamNG Rally countdown calls and bridge version checks. Rally bridge 1.1.6 repairs outdated installs, supplies an initial vehicle-damage baseline so the Car Damage dashboard is visible for an undamaged car, and diagnostics report both OutGauge and Rally bridge UDP listeners.
-* Refines the Car Damage dashboard with a configurable short alert for race-start and changed components, while keeping normal component status quieter during driving.
+* Adds BeamNG Rally countdown calls and bridge version checks. Rally bridge 1.1.10 repairs outdated installs, activates dashboards from the first countdown packet, supplies an initial vehicle-damage baseline so the Car Damage dashboard is visible for an undamaged car, and carries dashboard data that OutGauge does not expose: correctly oriented, normalized 60 Hz steering input, max-gear count, analog handbrake, and G-force. Diagnostics report both OutGauge and Rally bridge UDP listeners.
+* Refines the Car Damage dashboard with a configurable short alert for race-start and changed components, while keeping normal component status quieter during driving without hiding persistent warning and critical states. BeamNG middle-left and middle-right body damage now maps to the corresponding door.
 * Adds opt-in BeamNG vehicle-damage calls. Bodywork changes are combined into one collision call, while radiator, water-pump, and engine faults use dedicated system tokens with repeat protection. Voice packages can add matching recordings; missing clips use the existing caution cue.
 
 [简体中文]
 * 新增可选的 BeamNG 车辆损坏语音提示。车身损坏变化会合并为一次碰撞提示；散热器、水泵和发动机故障使用独立系统标记，并带有重复触发保护。语音包可提供对应录音；缺失时会回退到现有的注意提示音。
 * 新增 BeamNG.drive 拉力模式的实时领航员语音：路书工具跟随 BeamNG 当前路书的触发时机，并在运行时转换游戏原生路书数据；保存的赛段路书仅用于诊断和覆盖率检查。
-* 支持 BeamNG 拉力倒计时播报和桥接模块版本检查。拉力桥接模块升级到 1.1.6，可修复过期安装，并会提供车辆初始损坏快照，使车辆无损时也能显示损坏仪表盘；诊断页面会同时报告 OutGauge 与拉力桥接 UDP 监听状态。
-* 优化车辆损坏仪表盘：比赛开始或部件状态变化时提供可配置的短暂高亮提醒，行驶期间保持更低干扰的常态显示。
+* 支持 BeamNG 拉力倒计时播报和桥接模块版本检查。拉力桥接模块升级到 1.1.10，可修复过期安装，在收到首个倒计时数据包时启动仪表盘，并以最高 60 Hz 提供方向正确、归一化的转向数据；同时会提供车辆初始损坏快照，使车辆无损时也能显示损坏仪表盘，并补充 OutGauge 未提供的最大档位、线性手刹和 G 值。诊断页面会同时报告 OutGauge 与拉力桥接 UDP 监听状态。
+* 优化车辆损坏仪表盘：比赛开始或部件状态变化时提供可配置的短暂高亮提醒，行驶期间保持更低干扰的常态显示，同时保持警告和严重损坏状态清晰可见。BeamNG 的车身中左/中右损坏现在会对应显示为左右车门。
 
 v2.99.99.40-3.0-rc12
 ------

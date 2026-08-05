@@ -75,6 +75,12 @@ public sealed class BeamNGRallyVehicleTelemetry
     public int VehicleId { get; init; }
     public float MaxRPM { get; init; }
     public float IdleRPM { get; init; }
+    public bool HasDetailedTelemetry { get; init; }
+    public float Steering { get; init; }
+    public float HandBrake { get; init; }
+    public float MaxGears { get; init; }
+    public float GLong { get; init; }
+    public float GLat { get; init; }
 }
 
 /// <summary>

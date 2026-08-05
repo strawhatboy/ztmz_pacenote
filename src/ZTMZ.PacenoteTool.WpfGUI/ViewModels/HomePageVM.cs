@@ -294,9 +294,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             // GameOverlay
             _logger.Info("Game started. in Home Page. Initializing GameOverlay.");
             Task.Run(() => {
-                _logger.Info("Wait for 5 seconds..In case the machine is too slow to launch the game");
-                Thread.Sleep(5000);
-                _logger.Info("Initializing GameOverlay in game window...");
+                _logger.Info("Requesting GameOverlay initialization for the game window...");
                 _gameOverlayManager.UninitializeOverlay();
                 _gameOverlayManager.InitializeOverlay(p);
                 var currentGameState = game.GameDataReader.GameState;
@@ -576,9 +574,12 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             _gameOverlayManager.DashboardScriptArguments.GameContext.LastGameState = (int)state.LastGameState;
             _gameOverlayManager.DashboardScriptArguments.GameContext.GameState = (int)state.NewGameState;
             _gameOverlayManager.DashboardScriptArguments.GameContext.GameStateChangedParameters = state.Parameters;
-            if (state.NewGameState is GameState.RaceEnd or GameState.Unknown)
+            var isStageActive = GameStateStageActivity.IsActive(state.NewGameState);
+            IsRacing = isStageActive;
+            _gameOverlayManager.SetStageActive(isStageActive);
+            if (!isStageActive)
             {
-                _gameOverlayManager.SetStageActive(false);
+                _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison = ReplayComparisonSnapshot.Unavailable;
             }
         };
 

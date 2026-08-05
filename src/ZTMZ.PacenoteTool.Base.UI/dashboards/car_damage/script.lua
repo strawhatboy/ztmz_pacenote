@@ -30,10 +30,10 @@ function onInit(args)
     brushes["spine"] = gfx.CreateSolidBrush(123, 144, 153, 44);
     brushes["warning"] = gfx.CreateSolidBrush(246, 188, 68, 128);
     brushes["warningBlinkMuted"] = gfx.CreateSolidBrush(183, 137, 55, 44);
-    brushes["warningPersistent"] = gfx.CreateSolidBrush(166, 122, 45, 72);
+    brushes["warningPersistent"] = gfx.CreateSolidBrush(238, 170, 38, 190);
     brushes["critical"] = gfx.CreateSolidBrush(239, 82, 71, 152);
     brushes["criticalBlinkMuted"] = gfx.CreateSolidBrush(166, 57, 50, 54);
-    brushes["criticalPersistent"] = gfx.CreateSolidBrush(145, 63, 58, 82);
+    brushes["criticalPersistent"] = gfx.CreateSolidBrush(225, 60, 54, 204);
     resources["brushes"] = brushes;
     resetAlertState();
 end
@@ -133,7 +133,12 @@ function getImageOpacity(severity, alertActive)
     if alertActive then
         return severity >= 3 and 1.0 or 0.78;
     end
-    return 0.24;
+
+    if severity <= 0 then
+        return 0.24;
+    end
+
+    return severity >= 3 and 0.72 or 0.64;
 end
 
 function drawAsset(gfx, self, key, severity, alertActive, clock, centerX, centerY, height, widthRatio)

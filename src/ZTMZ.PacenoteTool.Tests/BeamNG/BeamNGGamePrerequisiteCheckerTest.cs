@@ -53,7 +53,8 @@ public class BeamNGGamePrerequisiteCheckerTest
         Assert.All(archive.Entries, entry => Assert.DoesNotContain('\\', entry.FullName));
         Assert.NotNull(archive.GetEntry("scripts/ztmz_pacenote_rally_bridge/modScript.lua"));
         Assert.NotNull(archive.GetEntry("scripts/ztmz_pacenote_rally_bridge/extension.lua"));
-        Assert.NotNull(archive.GetEntry("lua/vehicle/extensions/ztmz_pacenote_rally_bridge_damage.lua"));
+        Assert.NotNull(archive.GetEntry("lua/vehicle/extensions/ztmz/pacenote/rally/bridge/damage.lua"));
+        Assert.NotNull(archive.GetEntry("lua/vehicle/extensions/ztmz/pacenote/rally/bridge/telemetry.lua"));
         Assert.Null(archive.GetEntry("lua/ge/extensions/core/input/actions/ztmz_pacenote_rally_bridge.json"));
         Assert.Null(archive.GetEntry("mod_info.json"));
 
