@@ -505,6 +505,41 @@ public class BeamNGProtocolTest
     }
 
     [Fact]
+    public void BeamNGGameDataReader_MakesTheDashboardAvailableFromAnInitialDamageBaseline()
+    {
+        var reader = new BeamNGGameDataReader();
+        var damageEvents = new List<CarDamageEvent>();
+        reader.onCarDamaged += damageEvents.Add;
+
+        reader.ProcessBridgePacket(new BeamNGRallyBridgePacket
+        {
+            Telemetry = new BeamNGRallyVehicleTelemetry { VehicleId = 77 },
+            Damage = new BeamNGRallyDamage
+            {
+                VehicleId = 77,
+                Current = new Dictionary<string, Dictionary<string, JsonElement>>
+                {
+                    ["engine"] = new Dictionary<string, JsonElement>
+                    {
+                        ["radiatorLeak"] = CreateJsonElement("false")
+                    },
+                    ["wheels"] = new Dictionary<string, JsonElement>
+                    {
+                        ["tireFL"] = CreateJsonElement("false")
+                    }
+                },
+                Changed = new Dictionary<string, Dictionary<string, JsonElement>>()
+            }
+        });
+
+        var dashboard = reader.CurrentGameData.CarDamage.Dashboard;
+        Assert.True(dashboard.IsAvailable);
+        Assert.Equal(0, dashboard.RadiatorSeverity);
+        Assert.Equal(0, dashboard.FrontLeftTyreSeverity);
+        Assert.Empty(damageEvents);
+    }
+
+    [Fact]
     public void RallyBridgeMod_ProvidesBeamNGModManagerMetadata()
     {
         var assemblyDirectory = Path.GetDirectoryName(typeof(BeamNGBridgeInstaller).Assembly.Location);
@@ -524,7 +559,7 @@ public class BeamNGProtocolTest
         Assert.Equal("ZTMZ Pacenote Rally Bridge", metadata.GetProperty("title").GetString());
         Assert.Equal("Rally Mode integration for ZTMZ Pacenote Tool", metadata.GetProperty("tag_line").GetString());
         Assert.Equal("草帽不是猫 with Codex", metadata.GetProperty("username").GetString());
-        Assert.Equal("1.1.5", metadata.GetProperty("version_string").GetString());
+        Assert.Equal("1.1.6", metadata.GetProperty("version_string").GetString());
         Assert.Contains("gitee.com/ztmz/ztmz_pacenote", metadata.GetProperty("message").GetString());
     }
 
@@ -544,5 +579,11 @@ public class BeamNGProtocolTest
     private static void WriteSingle(byte[] target, int offset, float value)
     {
         BinaryPrimitives.WriteInt32LittleEndian(target.AsSpan(offset, 4), BitConverter.SingleToInt32Bits(value));
+    }
+
+    private static JsonElement CreateJsonElement(string json)
+    {
+        using var document = JsonDocument.Parse(json);
+        return document.RootElement.Clone();
     }
 }

@@ -11,7 +11,7 @@ folder. It does not replace or edit BeamNG Rally Mode files.
 3. Start a built-in Rally Mode stage.
 
 The bridge sends Rally state, built-in pacenote metadata, engine RPM limits,
-and vehicle damage changes only to
+an initial vehicle-damage baseline, and later vehicle damage changes only to
 `127.0.0.1:44445`. This default is below Windows' normal dynamic UDP range,
 but the desktop tool still checks for an actual local port conflict before it
 initializes BeamNG. When BeamNG reports a built-in co-driver call, the desktop

@@ -4,13 +4,19 @@
 
 local M = {}
 local callbackRegistered = false
+local initialSnapshotPending = true
 
 local function sendDamageUpdate(currentDamage, changedDamage)
+  -- The first callback establishes the vehicle's current health. It must not
+  -- look like a new damage event to the desktop tool.
+  local forwardedChanges = initialSnapshotPending and {} or (changedDamage or {})
+  initialSnapshotPending = false
+
   obj:queueGameEngineLua(
     "local bridge = extensions.scripts_ztmz__pacenote__rally__bridge_extension; " ..
     "if bridge and bridge.onVehicleDamage then bridge.onVehicleDamage(" ..
     tostring(obj:getId()) .. ", " .. serialize(currentDamage or {}) .. ", " ..
-    serialize(changedDamage or {}) .. ") end")
+    serialize(forwardedChanges) .. ") end")
 end
 
 local function registerDamageCallback()
@@ -21,11 +27,15 @@ local function registerDamageCallback()
 
   damageTracker.registerDamageUpdateCallback(sendDamageUpdate)
   callbackRegistered = true
+  if type(damageTracker.sendNow) == "function" then
+    damageTracker.sendNow()
+  end
   return true
 end
 
 function M.onExtensionLoaded()
   callbackRegistered = false
+  initialSnapshotPending = true
   registerDamageCallback()
 end
 

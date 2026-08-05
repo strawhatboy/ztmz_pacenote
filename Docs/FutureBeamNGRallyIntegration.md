@@ -28,10 +28,13 @@ as a ZIP mod in the selected BeamNG user folder.
   countdown/active/finished state, time, route distance, total distance,
   completion, the complete current-stage pacenote list, and the current
   built-in pacenote.
-- BeamNG's vehicle damage tracker sends only state changes. The provider maps
-  new punctures, meaningful body damage, and engine/radiator faults into the
+- The bridge requests a baseline snapshot from BeamNG's vehicle damage tracker
+  when it attaches, then receives later state changes. The provider maps new
+  punctures, meaningful body damage, and engine/radiator faults into the
   existing damage-event contract, and keeps a compact current damage summary
-  in BeamNG-specific telemetry for diagnostics and future dashboard work.
+  in BeamNG-specific telemetry for diagnostics and dashboard work. The
+  baseline makes the Car Damage dashboard visible for an undamaged vehicle
+  without producing a false damage alert.
 - The first complete pacenote list received for a stage is saved for inspection
   under `games\\beamng\\rally-stages` in Pacenote Tool's data folder. The
   exported JSON keeps BeamNG's original IDs, source text/language, structured
