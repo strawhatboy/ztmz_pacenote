@@ -32,6 +32,10 @@ public class ZTMZPacenoteTool {
     private float _playbackSpd = 1.0f;
     private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     private IGame _currentGame;
+    private static readonly TimeSpan CollisionSoundCooldown = TimeSpan.FromSeconds(1.5);
+    private static readonly TimeSpan MechanicalDamageSoundCooldown = TimeSpan.FromSeconds(3);
+    private readonly object _damageSoundCooldownLock = new();
+    private readonly Dictionary<string, DateTime> _lastDamageSoundUtc = new(StringComparer.Ordinal);
 
     public IGame CurrentGame => _currentGame;
     public ProfileManager ProfileManager => _profileManager;
@@ -321,6 +325,7 @@ public class ZTMZPacenoteTool {
 
         try
         {
+            ResetDamageSoundCooldowns();
             if (!game.GameDataReader.Initialize(game))
             {
                 this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.UNKNOWN, null);
@@ -398,6 +403,7 @@ public class ZTMZPacenoteTool {
         _logger.Info("Trying to uninitialize game: " + game.Name);
         try
         {
+            ResetDamageSoundCooldowns();
             game.GameDataReader.onCarDamaged -= carDamagedEventHandler;
             game.GameDataReader.onNewGameData -= newGameDataEventHander;
             game.GameDataReader.onGameStateChanged -= this.gamestateChangedHandler;
@@ -713,28 +719,56 @@ public class ZTMZPacenoteTool {
             return;
         }
 
-        
-        switch (evt.DamageType) 
+        if (!CarDamageSystemSoundResolver.TryResolve(evt, out var systemSound))
         {
-            case CarDamage.Collision:
-                if (evt.Parameters.TryGetValue(CarDamageConstants.SEVERITY, out var severityValue) &&
-                    severityValue is int lvl && lvl >= 0 && lvl < Constants.SYSTEM_COLLISION.Count)
-                {
-                    //TODO: played in thread originally?
-                    this._profileManager.PlaySystem(Constants.SYSTEM_COLLISION[lvl]);
-                }
-                
-                break;
-            case CarDamage.Wheel:
-                if (evt.Parameters.TryGetValue(CarDamageConstants.WHEELINDEX, out var wheelIndexValue) &&
-                    wheelIndexValue is int wheelIndex && wheelIndex >= 0 && wheelIndex < Constants.SYSTEM_PUNCTURE.Count)
-                {
-                    this._profileManager.PlaySystem(Constants.SYSTEM_PUNCTURE[wheelIndex]);
-                }
-                
-                break;
-            default:
-                break;
+            return;
+        }
+
+        if (systemSound.RequiresDamageSoundEnabled && !Config.Instance.PlayCollisionSound)
+        {
+            return;
+        }
+
+        if (!TryAcquireDamageSoundCooldown(systemSound))
+        {
+            return;
+        }
+
+        _profileManager.PlaySystem(systemSound.Token);
+    }
+
+    private bool TryAcquireDamageSoundCooldown(CarDamageSystemSound systemSound)
+    {
+        var cooldown = systemSound.CooldownKey switch
+        {
+            "collision" => CollisionSoundCooldown,
+            _ when systemSound.CooldownKey.StartsWith("mechanical:", StringComparison.Ordinal) => MechanicalDamageSoundCooldown,
+            _ => TimeSpan.Zero
+        };
+        if (cooldown == TimeSpan.Zero)
+        {
+            return true;
+        }
+
+        var now = DateTime.UtcNow;
+        lock (_damageSoundCooldownLock)
+        {
+            if (_lastDamageSoundUtc.TryGetValue(systemSound.CooldownKey, out var previous) &&
+                now - previous < cooldown)
+            {
+                return false;
+            }
+
+            _lastDamageSoundUtc[systemSound.CooldownKey] = now;
+            return true;
+        }
+    }
+
+    private void ResetDamageSoundCooldowns()
+    {
+        lock (_damageSoundCooldownLock)
+        {
+            _lastDamageSoundUtc.Clear();
         }
     }
 

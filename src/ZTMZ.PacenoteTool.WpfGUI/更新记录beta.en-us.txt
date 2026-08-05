@@ -3,6 +3,7 @@ v2.99.99.41-3.0-rc13
 * Adds live BeamNG.drive Rally Mode co-driver audio. Pacenote Tool now follows BeamNG's current pacenote timing and translates the game's native pacenote data at runtime; saved stage exports are for diagnostics and coverage checks.
 * Adds BeamNG Rally countdown calls and bridge version checks. Rally bridge 1.1.6 repairs outdated installs, supplies an initial vehicle-damage baseline so the Car Damage dashboard is visible for an undamaged car, and diagnostics report both OutGauge and Rally bridge UDP listeners.
 * Refines the Car Damage dashboard with a configurable short alert for race-start and changed components, while keeping normal component status quieter during driving.
+* Adds opt-in BeamNG vehicle-damage calls. Bodywork changes are combined into one collision call, while radiator, water-pump, and engine faults use dedicated system tokens with repeat protection. Voice packages can add matching recordings; missing clips use the existing caution cue.
 
 v2.99.99.40-3.0-rc12
 

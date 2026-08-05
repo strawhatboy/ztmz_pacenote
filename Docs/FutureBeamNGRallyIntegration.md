@@ -35,6 +35,13 @@ as a ZIP mod in the selected BeamNG user folder.
   in BeamNG-specific telemetry for diagnostics and dashboard work. The
   baseline makes the Car Damage dashboard visible for an undamaged vehicle
   without producing a false damage alert.
+- Meaningful bodywork changes from one bridge update are condensed into one
+  collision call at the highest severity, so a single impact does not produce
+  one call per body panel. Radiator, water-pump, and engine faults use
+  dedicated system tokens and are edge-triggered with repeat protection. They
+  follow the existing collision-sound setting. Voice packages can provide
+  `radiator_damage`, `water_pump_damage`, and `engine_damage` recordings;
+  packages without them fall back to the established `caution` recording.
 - The first complete pacenote list received for a stage is saved for inspection
   under `games\\beamng\\rally-stages` in Pacenote Tool's data folder. The
   exported JSON keeps BeamNG's original IDs, source text/language, structured

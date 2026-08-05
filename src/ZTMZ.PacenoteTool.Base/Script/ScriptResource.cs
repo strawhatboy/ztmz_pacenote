@@ -120,6 +120,14 @@ public class ScriptResource
 
         Connection.Open();
         Connection.EnableExtensions(true);
+        try
+        {
+            SystemSoundTokenMigration.Ensure(Connection);
+        }
+        catch (Exception exception)
+        {
+            logger.Warn(exception, "Could not add the optional mechanical damage system sound tokens.");
+        }
     }
 
     public async Task LoadData() {

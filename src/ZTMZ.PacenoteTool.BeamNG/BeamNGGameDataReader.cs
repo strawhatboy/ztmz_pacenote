@@ -661,6 +661,8 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
         }
 
         List<CarDamageEvent>? events = null;
+        var reportedMechanicalTypes = new HashSet<CarDamage>();
+        var collisionSeverity = CollisionSeverity.None;
         foreach (var group in damage.Changed)
         {
             foreach (var part in group.Value)
@@ -674,6 +676,23 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
                 _damageValues.TryGetValue(key, out var previousValue);
                 var damageType = ClassifyDamage(group.Key, part.Key);
                 if (damageType is null || !ShouldRaiseDamageEvent(damageType.Value, currentValue, previousValue))
+                {
+                    continue;
+                }
+
+                if (damageType == CarDamage.Bodywork)
+                {
+                    var bodyworkSeverity = GetBodyworkCollisionSeverity(currentValue, previousValue);
+                    if ((int)bodyworkSeverity > (int)collisionSeverity)
+                    {
+                        collisionSeverity = bodyworkSeverity;
+                    }
+
+                    continue;
+                }
+
+                if ((damageType.Value is CarDamage.Radiator or CarDamage.WaterPump or CarDamage.Engine) &&
+                    !reportedMechanicalTypes.Add(damageType.Value))
                 {
                     continue;
                 }
@@ -697,6 +716,19 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
                     Parameters = parameters
                 });
             }
+        }
+
+        if (collisionSeverity != CollisionSeverity.None)
+        {
+            events ??= new List<CarDamageEvent>();
+            events.Add(new CarDamageEvent
+            {
+                DamageType = CarDamage.Collision,
+                Parameters = new Dictionary<string, object>
+                {
+                    [CarDamageConstants.SEVERITY] = (int)collisionSeverity
+                }
+            });
         }
 
         return events;
@@ -804,6 +836,22 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
         }
 
         return current.IsActive && !previous.IsActive;
+    }
+
+    private static CollisionSeverity GetBodyworkCollisionSeverity(DamageValue current, DamageValue previous)
+    {
+        var increase = Math.Max(0f, current.Magnitude - previous.Magnitude);
+        if (increase >= 0.6f)
+        {
+            return CollisionSeverity.Severe;
+        }
+
+        if (increase >= 0.25f)
+        {
+            return CollisionSeverity.Medium;
+        }
+
+        return CollisionSeverity.Slight;
     }
 
     private static bool TryReadDamageValue(JsonElement element, out DamageValue value)

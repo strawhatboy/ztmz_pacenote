@@ -540,6 +540,89 @@ public class BeamNGProtocolTest
     }
 
     [Fact]
+    public void BeamNGGameDataReader_AggregatesBodyworkChangesIntoOneCollisionEvent()
+    {
+        var reader = new BeamNGGameDataReader();
+        var damageEvents = new List<CarDamageEvent>();
+        reader.onCarDamaged += damageEvents.Add;
+
+        reader.ProcessBridgePacket(CreateDamagePacket(
+            77,
+            new Dictionary<string, Dictionary<string, JsonElement>>
+            {
+                ["body"] = new Dictionary<string, JsonElement>
+                {
+                    ["FL"] = CreateJsonElement("0"),
+                    ["FR"] = CreateJsonElement("0")
+                }
+            },
+            new Dictionary<string, Dictionary<string, JsonElement>>()));
+
+        reader.ProcessBridgePacket(CreateDamagePacket(
+            77,
+            new Dictionary<string, Dictionary<string, JsonElement>>
+            {
+                ["body"] = new Dictionary<string, JsonElement>
+                {
+                    ["FL"] = CreateJsonElement("0.3"),
+                    ["FR"] = CreateJsonElement("0.8")
+                }
+            },
+            new Dictionary<string, Dictionary<string, JsonElement>>
+            {
+                ["body"] = new Dictionary<string, JsonElement>
+                {
+                    ["FL"] = CreateJsonElement("0.3"),
+                    ["FR"] = CreateJsonElement("0.8")
+                }
+            }));
+
+        var damageEvent = Assert.Single(damageEvents);
+        Assert.Equal(CarDamage.Collision, damageEvent.DamageType);
+        Assert.Equal((int)CollisionSeverity.Severe, damageEvent.Parameters[CarDamageConstants.SEVERITY]);
+    }
+
+    [Fact]
+    public void BeamNGGameDataReader_EmitsOnlyOneMechanicalEventPerTypePerDamagePacket()
+    {
+        var reader = new BeamNGGameDataReader();
+        var damageEvents = new List<CarDamageEvent>();
+        reader.onCarDamaged += damageEvents.Add;
+
+        var baseline = new Dictionary<string, Dictionary<string, JsonElement>>
+        {
+            ["engine"] = new Dictionary<string, JsonElement>
+            {
+                ["radiatorLeak"] = CreateJsonElement("false"),
+                ["waterPumpBroken"] = CreateJsonElement("false"),
+                ["mainEngineBroken"] = CreateJsonElement("false"),
+                ["oilStarvation"] = CreateJsonElement("false")
+            }
+        };
+        reader.ProcessBridgePacket(CreateDamagePacket(
+            77,
+            baseline,
+            new Dictionary<string, Dictionary<string, JsonElement>>()));
+
+        var damaged = new Dictionary<string, Dictionary<string, JsonElement>>
+        {
+            ["engine"] = new Dictionary<string, JsonElement>
+            {
+                ["radiatorLeak"] = CreateJsonElement("true"),
+                ["waterPumpBroken"] = CreateJsonElement("true"),
+                ["mainEngineBroken"] = CreateJsonElement("true"),
+                ["oilStarvation"] = CreateJsonElement("true")
+            }
+        };
+        reader.ProcessBridgePacket(CreateDamagePacket(77, damaged, damaged));
+
+        Assert.Equal(3, damageEvents.Count);
+        Assert.Contains(damageEvents, damageEvent => damageEvent.DamageType == CarDamage.Radiator);
+        Assert.Contains(damageEvents, damageEvent => damageEvent.DamageType == CarDamage.WaterPump);
+        Assert.Single(damageEvents, damageEvent => damageEvent.DamageType == CarDamage.Engine);
+    }
+
+    [Fact]
     public void RallyBridgeMod_ProvidesBeamNGModManagerMetadata()
     {
         var assemblyDirectory = Path.GetDirectoryName(typeof(BeamNGBridgeInstaller).Assembly.Location);
@@ -585,5 +668,22 @@ public class BeamNGProtocolTest
     {
         using var document = JsonDocument.Parse(json);
         return document.RootElement.Clone();
+    }
+
+    private static BeamNGRallyBridgePacket CreateDamagePacket(
+        int vehicleId,
+        Dictionary<string, Dictionary<string, JsonElement>> current,
+        Dictionary<string, Dictionary<string, JsonElement>> changed)
+    {
+        return new BeamNGRallyBridgePacket
+        {
+            Telemetry = new BeamNGRallyVehicleTelemetry { VehicleId = vehicleId },
+            Damage = new BeamNGRallyDamage
+            {
+                VehicleId = vehicleId,
+                Current = current,
+                Changed = changed
+            }
+        };
     }
 }

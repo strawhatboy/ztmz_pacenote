@@ -35,6 +35,9 @@ namespace ZTMZ.PacenoteTool.Base
         public const string SYSTEM_PUNCTURE_FRONT_RIGHT = "system_puncture_front_right";
         public const string SYSTEM_PUNCTURE_REAR_LEFT = "system_puncture_rear_left";
         public const string SYSTEM_PUNCTURE_REAR_RIGHT = "system_puncture_rear_right";
+        public const string SYSTEM_RADIATOR_DAMAGE = "system_radiator_damage";
+        public const string SYSTEM_WATER_PUMP_DAMAGE = "system_water_pump_damage";
+        public const string SYSTEM_ENGINE_DAMAGE = "system_engine_damage";
 
         public const string SYSTEM_COLLISION_SLIGHT = "system_collision_slight";
         public const string SYSTEM_COLLISION_MEDIUM = "system_collision_medium";
@@ -60,6 +63,9 @@ namespace ZTMZ.PacenoteTool.Base
             { SYSTEM_PUNCTURE_FRONT_RIGHT, "右前轮爆胎" },  
             { SYSTEM_PUNCTURE_REAR_LEFT, "左后轮爆胎" },  
             { SYSTEM_PUNCTURE_REAR_RIGHT, "右后轮爆胎" }, 
+            { SYSTEM_RADIATOR_DAMAGE, "散热器损坏" },
+            { SYSTEM_WATER_PUMP_DAMAGE, "水泵损坏" },
+            { SYSTEM_ENGINE_DAMAGE, "发动机损坏" },
             { SYSTEM_COLLISION_SLIGHT, "轻微碰撞" }, 
             { SYSTEM_COLLISION_MEDIUM, "普通碰撞" }, 
             { SYSTEM_COLLISION_SEVERE, "剧烈碰撞" },
