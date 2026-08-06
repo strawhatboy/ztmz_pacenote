@@ -131,6 +131,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
         // former five-minute retry budget so slow-starting games such as RBR remain supported.
         private static readonly TimeSpan OverlayInitializationTimeout = TimeSpan.FromMinutes(5);
         private const int OverlayInitializationPollIntervalMilliseconds = 250;
+        private const int OverlayWindowAttachmentRefreshIntervalMilliseconds = 250;
 
         private int dashboardLoadRetryCount = 0;
         private int dashboardLoadRetryMax = 10;    // 10 seconds
@@ -140,6 +141,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         private Process _gameProcess = null;
         private IntPtr _lastKnownGameWindowHandle = IntPtr.Zero;
+        private long _lastGameWindowAttachmentRefreshAt;
 
         private bool _hudShowInSeparateWindow = false;
 
@@ -875,6 +877,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
         {
             OnGameOverlayInitializingStateChanged?.Invoke(true);
             _gameProcess = p;
+            _lastKnownGameWindowHandle = IntPtr.Zero;
+            Interlocked.Exchange(ref _lastGameWindowAttachmentRefreshAt, 0);
             if (_hudShowInSeparateWindow) {
                 // do nothing
                 _logger.Warn("Hud is already shown in separate window, do nothing.");
@@ -908,9 +912,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                             return;
                         }
 
-                        p.Refresh();
-                        var gameWindowHandle = p.MainWindowHandle;
-                        if (gameWindowHandle != IntPtr.Zero && WindowHelper.IsWindow(gameWindowHandle))
+                        if (TryGetGameWindowHandle(out var gameWindowHandle))
                         {
                             var overlayWindow = new StickyWindow(gameWindowHandle, gfx);
                             if (!IsCurrentOverlayProcess(p))
@@ -982,6 +984,8 @@ namespace ZTMZ.PacenoteTool.Base.UI
             }
             _isRunning = false;
             _gameProcess = null;
+            _lastKnownGameWindowHandle = IntPtr.Zero;
+            Interlocked.Exchange(ref _lastGameWindowAttachmentRefreshAt, 0);
             _window?.Dispose();
             _window = null;
             RefreshNativeOverlayVisibility();
@@ -1020,6 +1024,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                 {
                     if (status.IsVisible)
                     {
+                        RefreshGameWindowAttachment(force: true);
                         if (!window.IsVisible)
                         {
                             window.IsVisible = true;
@@ -1087,6 +1092,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         private void RefreshOverlayLayering(bool placeAbove = false)
         {
+            RefreshGameWindowAttachment();
             var shouldBeTopmost = Config.Instance.HudTopMost || IsGameWindowForeground();
             ApplyOverlayLayering(shouldBeTopmost, placeAbove);
         }
@@ -1144,22 +1150,86 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private bool TryGetGameWindowHandle(out IntPtr gameWindowHandle)
         {
             gameWindowHandle = IntPtr.Zero;
-
-            try {
-                if (_gameProcess != null && !_gameProcess.HasExited) {
-                    _gameProcess.Refresh();
-                    RememberGameWindowHandle(_gameProcess.MainWindowHandle);
-                }
-            } catch (Exception ex) {
-                _logger.Debug(ex, "Failed to refresh the game window handle.");
-            }
-
-            if (_lastKnownGameWindowHandle == IntPtr.Zero || !WindowHelper.IsWindow(_lastKnownGameWindowHandle)) {
+            var gameProcess = _gameProcess;
+            if (gameProcess == null)
+            {
                 return false;
             }
 
-            gameWindowHandle = _lastKnownGameWindowHandle;
-            return true;
+            try {
+                if (gameProcess.HasExited) {
+                    return false;
+                }
+
+                gameProcess.Refresh();
+                var processId = gameProcess.Id;
+                var foregroundWindow = WindowHelper.GetForegroundWindow();
+                var mainWindow = gameProcess.MainWindowHandle;
+                var targetWindow = GameOverlayWindowTargetPolicy.SelectTarget(
+                    foregroundWindow,
+                    IsWindowOwnedByProcess(foregroundWindow, processId),
+                    mainWindow,
+                    IsWindowOwnedByProcess(mainWindow, processId),
+                    _lastKnownGameWindowHandle,
+                    IsWindowOwnedByProcess(_lastKnownGameWindowHandle, processId));
+
+                if (targetWindow == IntPtr.Zero) {
+                    return false;
+                }
+
+                RememberGameWindowHandle(targetWindow);
+                gameWindowHandle = targetWindow;
+                return true;
+            } catch (Exception ex) {
+                _logger.Debug(ex, "Failed to refresh the game window handle.");
+                return false;
+            }
+        }
+
+        private void RefreshGameWindowAttachment(bool force = false)
+        {
+            if (_hudShowInSeparateWindow) {
+                return;
+            }
+
+            var now = Environment.TickCount64;
+            var lastRefresh = Interlocked.Read(ref _lastGameWindowAttachmentRefreshAt);
+            if (!force && lastRefresh != 0 && now - lastRefresh < OverlayWindowAttachmentRefreshIntervalMilliseconds) {
+                return;
+            }
+
+            Interlocked.Exchange(ref _lastGameWindowAttachmentRefreshAt, now);
+
+            var window = _window;
+            if (window == null || !window.IsInitialized || !TryGetGameWindowHandle(out var targetWindow)) {
+                return;
+            }
+
+            var attachedWindow = window.ParentWindowHandle;
+            if (!GameOverlayWindowTargetPolicy.NeedsReattachment(attachedWindow, targetWindow)) {
+                return;
+            }
+
+            try {
+                window.ParentWindowHandle = targetWindow;
+                window.FitTo(targetWindow, window.AttachToClientArea);
+                _logger.Info(
+                    "Reattached GameOverlay from window handle {0} to {1}; overlay size is now {2}x{3}.",
+                    attachedWindow.ToString("X8"),
+                    targetWindow.ToString("X8"),
+                    window.Width,
+                    window.Height);
+            } catch (Exception ex) {
+                _logger.Warn(ex, "Failed to reattach GameOverlay to the current game window.");
+            }
+        }
+
+        private static bool IsWindowOwnedByProcess(IntPtr windowHandle, int processId)
+        {
+            return windowHandle != IntPtr.Zero
+                && processId > 0
+                && WindowHelper.IsWindow(windowHandle)
+                && WindowHelper.GetProcessIdFromWindow(windowHandle) == processId;
         }
 
         private void _window_SetupGraphics(object sender, SetupGraphicsEventArgs e) {
