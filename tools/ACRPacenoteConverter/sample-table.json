@@ -1,0 +1,17 @@
+{
+  "Rows": [
+    {
+      "SplineDistanceM": 525.4,
+      "LengthM": 10.0,
+      "TokenList": {
+        "Tokens": ["Left5", "Opens", "OverCrest", "Dist120"]
+      }
+    },
+    {
+      "SplineDistanceM": 876.0,
+      "TokenList": {
+        "Tokens": ["Caution", "LeftHP", "DontCut"]
+      }
+    }
+  ]
+}

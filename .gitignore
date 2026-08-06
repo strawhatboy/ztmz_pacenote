@@ -7,3 +7,9 @@ Output
 build/target
 src/ZTMZ.PacenoteTool.ScriptEditor/Assets/Monaco/min
 .fake
+tools/ACRPacenoteConverter/generated-profiles/
+tools/ACRPacenoteConverter/validated-profiles/
+tools/ACRPacenoteConverter/normalized-profiles/
+tools/ACRPacenoteConverter/test-output/
+tools/ACRPacenoteConverter/stage-aliases.json
+tools/ACRTelemetryProbe/latest-sample.*

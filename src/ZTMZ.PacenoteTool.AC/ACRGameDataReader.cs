@@ -216,7 +216,9 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader
             Time = rawData.GraphicsData.CurrentTimeMillis / 1000.0f,
             LapTime = rawData.GraphicsData.CurrentTimeMillis / 1000.0f,
             LapDistance = rawData.GraphicsData.TotalDistanceTraveled,
-            CompletionRate = rawData.GraphicsData.NormalizedCarPos,
+            CompletionRate = rawData.StaticInfo.TrackLengthMeters > 0
+                ? Math.Clamp(rawData.GraphicsData.TotalDistanceTraveled / rawData.StaticInfo.TrackLengthMeters, 0, 1)
+                : 0,
             TrackLength = rawData.StaticInfo.TrackLengthMeters,
 
             // Speed and wheels

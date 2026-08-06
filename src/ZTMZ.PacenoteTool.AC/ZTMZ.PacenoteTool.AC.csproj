@@ -19,5 +19,6 @@
     <None Update="lang\*.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <EmbeddedResource Include="stage-aliases.json" />
   </ItemGroup>
 </Project>

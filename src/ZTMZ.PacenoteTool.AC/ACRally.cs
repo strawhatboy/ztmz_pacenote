@@ -17,9 +17,11 @@ public class ACRally : IGame
 
     public string Executable => "acr";
 
-    public IGamePacenoteReader GamePacenoteReader => throw new NotImplementedException();
+    private readonly ACRGameDataReader _gameDataReader = new();
 
-    public IGameDataReader GameDataReader { get; } = new ACRGameDataReader();
+    public IGamePacenoteReader GamePacenoteReader { get; }
+
+    public IGameDataReader GameDataReader => _gameDataReader;
 
     public IGamePrerequisiteChecker GamePrerequisiteChecker { get; } = new ACRGamePrerequisiteChecker();
 
@@ -47,5 +49,6 @@ public class ACRally : IGame
     {
         this.Description = I18NLoader.Instance["game.acr.description"];
         this.GameConfigurations = DefaultGameConfigurations;
+        this.GamePacenoteReader = new ACRGamePacenoteReader(_gameDataReader);
     }
 }

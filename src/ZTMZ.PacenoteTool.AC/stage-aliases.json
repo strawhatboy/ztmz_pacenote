@@ -1,0 +1,814 @@
+[
+  {
+    "Key": "CH_BOLLENE_FULL_F",
+    "Table": "DT_PacenoteBolleneFullForward",
+    "Titles": {
+      "de": "La Boll\u00E8ne-V\u00E9subie\u00A0\u2013 Pe\u00EFra Cava, komplette Strecke",
+      "en": "La Boll\u00E8ne-V\u00E9subie - Pe\u00EFra Cava Complete",
+      "es": "La Boll\u00E8ne-V\u00E9subie - Pe\u00EFra Cava: completo",
+      "fr": "La Boll\u00E8ne-V\u00E9subie - Pe\u00EFra Cava - Intr\u00E9grale",
+      "it": "La Boll\u00E8ne-V\u00E9subie - Pe\u00EFra Completa",
+      "zh-Hans": "\u62C9\u535A\u83B1\u8BB7-\u97E6\u53D9\u6BD4 - \u4F69\u62C9\u5361\u74E6\u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_BOLLENE_FULL_R",
+    "Table": "DT_PacenoteBolleneFullReverse",
+    "Titles": {
+      "de": "Pe\u00EFra Cava\u00A0\u2013 La Boll\u00E8ne-V\u00E9subie, komplette Strecke",
+      "en": "Pe\u00EFra Cava - La Boll\u00E8ne-V\u00E9subie Complete",
+      "es": "Pe\u00EFra Cava - La Boll\u00E8ne-V\u00E9subie: completo",
+      "fr": "Pe\u00EFra Cava - La Boll\u00E8ne-V\u00E9subie - Int\u00E9grale",
+      "it": "Pe\u00EFra Cava - La Boll\u00E8ne-V\u00E9subie Completa",
+      "zh-Hans": "\u4F69\u62C9\u5361\u74E6 - \u62C9\u535A\u83B1\u8BB7-\u97E6\u53D9\u6BD4\u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_BOLLENE_PART1_F",
+    "Table": "DT_PacenoteBolleneCut1Forward",
+    "Titles": {
+      "de": "La Boll\u00E8ne-V\u00E9subie\u00A0\u2013 Turini, Teil I",
+      "en": "La Boll\u00E8ne-V\u00E9subie - Turini Part I",
+      "es": "La Boll\u00E8ne-V\u00E9subie - Turini: parte 1",
+      "fr": "La Boll\u00E8ne-V\u00E9subie - Turini - Premi\u00E8re partie",
+      "it": "La Boll\u00E8ne-V\u00E9subie - Turini Parte I",
+      "zh-Hans": "\u62C9\u535A\u83B1\u8BB7-\u97E6\u53D9\u6BD4 - \u56FE\u91CC\u5C3C\u7B2C\u4E00\u8282"
+    }
+  },
+  {
+    "Key": "CH_BOLLENE_PART1_R",
+    "Table": "DT_PacenoteBolleneCut1Reverse",
+    "Titles": {
+      "de": "Pe\u00EFra Cava\u00A0\u2013 Turini, Teil I",
+      "en": "Pe\u00EFra Cava - Turini Part I",
+      "es": "Pe\u00EFra Cava - Turini: parte 1",
+      "fr": "Pe\u00EFra Cava - Turini - Premi\u00E8re partie",
+      "it": "Pe\u00EFra Cava - Turini Parte I",
+      "zh-Hans": "\u4F69\u62C9\u5361\u74E6 - \u56FE\u91CC\u5C3C\u7B2C\u4E00\u8282"
+    }
+  },
+  {
+    "Key": "CH_BOLLENE_PART2_F",
+    "Table": "DT_PacenoteBolleneCut2Forward",
+    "Titles": {
+      "de": "Turini\u00A0\u2013Pe\u00EFra Cava, Teil II",
+      "en": "Turini - Pe\u00EFra Cava Part II",
+      "es": "Turini - Pe\u00EFra Cava: parte 2",
+      "fr": "Turini - Pe\u00EFra Cava - Deuxi\u00E8me partie",
+      "it": "Turini - Pe\u00EFra Cava Parte II",
+      "zh-Hans": "\u56FE\u91CC\u5C3C - \u4F69\u62C9\u5361\u74E6\u7B2C\u4E8C\u8282"
+    }
+  },
+  {
+    "Key": "CH_BOLLENE_PART2_R",
+    "Table": "DT_PacenoteBolleneCut2Reverse",
+    "Titles": {
+      "de": "Turini Descente, Teil II",
+      "en": "Turini Descente Part II",
+      "es": "Turini Descente: parte 2",
+      "fr": "Descente de Turini - Deuxi\u00E8me partie",
+      "it": "Turini Descente Parte II",
+      "zh-Hans": "\u56FE\u91CC\u5C3C\u4E0B\u5C71\u8D5B\u7B2C\u4E8C\u8282"
+    }
+  },
+  {
+    "Key": "CH_ELATIA_FULL_F",
+    "Table": "DT_PacenoteElatiaFullForward",
+    "Titles": {
+      "de": "Elatia - Zeli Komplett",
+      "en": "Elatia - Zeli Complete",
+      "es": "Elatia - Zeli completa",
+      "fr": "Elatia - Zeli compl\u00E8te",
+      "it": "Elatia - Zeli Completa",
+      "zh-Hans": "\u57C3\u62C9\u8482\u4E9A - \u6CFD\u5229\u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_ELATIA_FULL_R",
+    "Table": "DT_PacenoteElatiaFullReverse",
+    "Titles": {
+      "de": "Zeli - Elatia Komplett",
+      "en": "Zeli - Elatia Complete",
+      "es": "Zeli - Elatia completa",
+      "fr": "Zeli - Elatia compl\u00E8te",
+      "it": "Zeli - Elatia Completa",
+      "zh-Hans": "\u6CFD\u5229 - \u57C3\u62C9\u8482\u4E9A\u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_ELATIA_PART1_F",
+    "Table": "DT_PacenoteElatiaCut1Forward",
+    "Titles": {
+      "de": "Elatia Teil I",
+      "en": "Elatia Part I",
+      "es": "Elatia Parte I",
+      "fr": "Elatia Partie I",
+      "it": "Cwmbiga parte I",
+      "zh-Hans": "\u57C3\u62C9\u8482\u4E9A\u7B2C\u4E00\u8282"
+    }
+  },
+  {
+    "Key": "CH_ELATIA_PART1_R",
+    "Table": "DT_PacenoteElatiaCut1Reverse",
+    "Titles": {
+      "de": "Zeli R\u00FCckw\u00E4rts Teil I",
+      "en": "Zeli Reverse Part I",
+      "es": "Zeli inverso Parte I",
+      "fr": "Zeli invers\u00E9 Partie I",
+      "it": "Zeli Inversa Parte I",
+      "zh-Hans": "\u6CFD\u5229\u53CD\u5411\u7B2C\u4E00\u8282"
+    }
+  },
+  {
+    "Key": "CH_ELATIA_PART2_F",
+    "Table": "DT_PacenoteElatiaCut2Forward",
+    "Titles": {
+      "de": "Zeli Teil II",
+      "en": "Zeli Part II",
+      "es": "Zeli Parte II",
+      "fr": "Zeli Partie II",
+      "it": "Zeli Parte II",
+      "zh-Hans": "\u6CFD\u5229\u7B2C\u4E8C\u8282"
+    }
+  },
+  {
+    "Key": "CH_ELATIA_PART2_R",
+    "Table": "DT_PacenoteElatiaCut2Reverse",
+    "Titles": {
+      "de": "Elatia R\u00FCckw\u00E4rts Teil II",
+      "en": "Elatia Reverse Part II",
+      "es": "Elatia inverso Parte II",
+      "fr": "Elatia invers\u00E9 Partie II",
+      "it": "Elatia al contrario Parte II",
+      "zh-Hans": "\u57C3\u62C9\u8482\u4E9A\u53CD\u5411\u7B2C\u4E8C\u8282"
+    }
+  },
+  {
+    "Key": "CH_HAFREN_NORTH_FULL_F",
+    "Table": "DT_PacenoteHafrenNorthFullForward",
+    "Titles": {
+      "de": "Cwmbiga\u00A0\u2013 Afon Biga, komplette Strecke",
+      "en": "Cwmbiga - Afon Biga Complete",
+      "es": "Cwmbiga - Afon Biga: completo",
+      "fr": "Cwmbiga - Afon Biga\u00A0: int\u00E9gralit\u00E9",
+      "it": "Cwmbiga - Afon Biga completa",
+      "zh-Hans": "Cwmbiga - Afon Biga \u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_HAFREN_NORTH_FULL_R",
+    "Table": "DT_PacenoteHafrenNorthFullReverse",
+    "Titles": {
+      "de": "Afon Biga\u00A0\u2013 Cwmbiga, komplette Strecke",
+      "en": "Afon Biga - Cwmbiga Complete",
+      "es": "Afon Biga - Cwmbiga: completo",
+      "fr": "Afon Biga - Cwmbiga\u00A0: int\u00E9gralit\u00E9",
+      "it": "Afon Biga - Cwmbiga completa",
+      "zh-Hans": "Afon Biga - Cwmbiga \u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_HAFREN_NORTH_PART1_F",
+    "Table": "DT_PacenoteHafrenNorthForwardCut1",
+    "Titles": {
+      "de": "Cwmbiga\u00A0\u2013 Afon Biga, Teil I",
+      "en": "Cwmbiga - Afon Biga Part I",
+      "es": "Cwmbiga - Afon Biga: parte 1",
+      "fr": "Cwmbiga - Afon Biga\u00A0: partie\u00A0I",
+      "it": "Cwmbiga - Afon Biga parte I",
+      "zh-Hans": "Cwmbiga - Afon Biga \u7B2C\u4E00\u8282"
+    }
+  },
+  {
+    "Key": "CH_HAFREN_NORTH_PART1_R",
+    "Table": "DT_PacenoteHafrenNorthReverseCut1",
+    "Titles": {
+      "de": "Afon Biga\u00A0\u2013 Cwmbiga, Teil I",
+      "en": "Afon Biga - Cwmbiga Part I",
+      "es": "Afon Biga - Cwmbiga: parte 1",
+      "fr": "Afon Biga - Cwmbiga\u00A0: partie\u00A0I",
+      "it": "Afon Biga - Cwmbiga parte I",
+      "zh-Hans": "Afon Biga - Cwmbiga \u7B2C\u4E00\u8282"
+    }
+  },
+  {
+    "Key": "CH_HAFREN_NORTH_PART2_F",
+    "Table": "DT_PacenoteHafrenNorthForwardCut2",
+    "Titles": {
+      "de": "Cwmbiga\u00A0\u2013 Afon Biga, Teil II",
+      "en": "Cwmbiga - Afon Biga Part II",
+      "es": "Cwmbiga - Afon Biga: parte 2",
+      "fr": "Cwmbiga - Afon Biga\u00A0: partie\u00A0II",
+      "it": "Cwmbiga - Afon Biga parte II",
+      "zh-Hans": "Cwmbiga - Afon Biga \u7B2C\u4E8C\u8282"
+    }
+  },
+  {
+    "Key": "CH_HAFREN_NORTH_PART2_R",
+    "Table": "DT_PacenoteHafrenNorthReverseCut2",
+    "Titles": {
+      "de": "Afon Biga\u00A0\u2013 Cwmbiga, Teil II",
+      "en": "Afon Biga - Cwmbiga Part II",
+      "es": "Afon Biga - Cwmbiga: parte 2",
+      "fr": "Afon Biga - Cwmbiga\u00A0: partie\u00A0II",
+      "it": "Afon Biga - Cwmbiga parte II",
+      "zh-Hans": "Afon Biga - Cwmbiga \u7B2C\u4E8C\u8282"
+    }
+  },
+  {
+    "Key": "CH_HAFREN_SOUTH_FULL_F",
+    "Table": "DT_PacenoteHafrenSouthForward",
+    "Titles": {
+      "de": "Afon Bidno\u00A0\u2013 Severn, komplette Strecke",
+      "en": "Afon Bidno - Severn Complete",
+      "es": "Afon Bidno - Severn: completa",
+      "fr": "Afon Bidno - Severn\u00A0: int\u00E9gralit\u00E9",
+      "it": "Afon Bidno - Severn completa",
+      "zh-Hans": "Afon Bidno - Severn \u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_HAFREN_SOUTH_FULL_R",
+    "Table": "DT_PacenoteHafrenSouthReverse",
+    "Titles": {
+      "de": "Severn\u00A0\u2013 Afon Bidno, komplette Strecke",
+      "en": "Severn - Afon Bidno Complete",
+      "es": "Severn - Afon Bidno: completa",
+      "fr": "Severn - Afon Bidno\u00A0: int\u00E9gralit\u00E9",
+      "it": "Severn - Afon Bidno completa",
+      "zh-Hans": "Severn - Afon Bidno \u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_LOUTRAKI_FULL_F",
+    "Table": "DT_PacenoteLoutrakiFullForward",
+    "Titles": {
+      "de": "Loutraki - Aghii Theodori Komplett",
+      "en": "Loutraki - Aghii Theodori Complete",
+      "es": "Loutraki - Aghii Theodori completa",
+      "fr": "Loutraki - Aghii Theodori compl\u00E8te",
+      "it": "Loutraki - Aghii Theodori Completa",
+      "zh-Hans": "\u5362\u7279\u62C9\u57FA - \u963F\u5409\u4F0A\u897F\u5965\u591A\u91CC\u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_LOUTRAKI_FULL_R",
+    "Table": "DT_PacenoteLoutrakiFullReverse",
+    "Titles": {
+      "de": "Aghii Theodori - Loutraki Komplett",
+      "en": "Aghii Theodori - Loutraki Complete",
+      "es": "Aghii Theodori - Loutraki completa",
+      "fr": "Aghii Theodori - Loutraki compl\u00E8te",
+      "it": "Aghii Theodori - Loutraki Completa",
+      "zh-Hans": "\u963F\u5409\u4F0A\u897F\u5965\u591A\u91CC - \u5362\u7279\u62C9\u57FA \u5B8C\u6574\u8D5B\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_LOUTRAKI_PART1_F",
+    "Table": "DT_PacenoteLoutrakiCut1Forward",
+    "Titles": {
+      "de": "Neues Loutraki Teil I",
+      "en": "New Loutraki Part I",
+      "es": "Nuevo Loutraki Parte I",
+      "fr": "Nouveau Loutraki Partie I",
+      "it": "New Loutraki Parte I",
+      "zh-Hans": "\u65B0\u5362\u7279\u62C9\u57FA\u7B2C\u4E00\u8282"
+    }
+  },
+  {
+    "Key": "CH_LOUTRAKI_PART1_R",
+    "Table": "DT_PacenoteLoutrakiCut1Reverse",
+    "Titles": {
+      "de": "Aghii Theodori R\u00FCckw\u00E4rts Teil I",
+      "en": "Aghii Theodori Reverse Part I",
+      "es": "Aghii Theodori inverso Parte I",
+      "fr": "Aghii Theodori invers\u00E9 Partie I",
+      "it": "Aghii Theodori al contrario Parte I",
+      "zh-Hans": "\u963F\u5409\u4F0A\u897F\u5965\u591A\u91CC\u53CD\u5411\u7B2C\u4E00\u8282"
+    }
+  },
+  {
+    "Key": "CH_LOUTRAKI_PART2_F",
+    "Table": "DT_PacenoteLoutrakiCut2Forward",
+    "Titles": {
+      "de": "Aghii Theodori Teil II",
+      "en": "Aghii Theodori Part II",
+      "es": "Aghii Theodori Parte II",
+      "fr": "Aghii Theodori Partie II",
+      "it": "Aghii Theodori Parte II",
+      "zh-Hans": "\u963F\u5409\u4F0A\u897F\u5965\u591A\u91CC\u7B2C\u4E8C\u8282"
+    }
+  },
+  {
+    "Key": "CH_LOUTRAKI_PART2_R",
+    "Table": "DT_PacenoteLoutrakiCut2Reverse",
+    "Titles": {
+      "de": "Neues Loutraki R\u00FCckw\u00E4rts Teil II",
+      "en": "New Loutraki Reverse Part II",
+      "es": "Nuevo Loutraki inverso Parte II",
+      "fr": "Nouveau Loutraki invers\u00E9 Partie II",
+      "it": "New Loutraki al contrario Parte II",
+      "zh-Hans": "\u65B0\u5362\u7279\u62C9\u57FA\u53CD\u5411\u7B2C\u4E8C\u8282"
+    }
+  },
+  {
+    "Key": "CH_MUNSTER_FULL_F",
+    "Table": "DT_PacenoteMunsterFullForward",
+    "Titles": {
+      "de": "Vall\u00E9e de Munster Mont\u00E9e, komplett",
+      "en": "Vall\u00E9e de Munster Mont\u00E9e Complete",
+      "es": "Vall\u00E9e de Munster Mont\u00E9e: completa",
+      "fr": "Vall\u00E9e de Munster - Mont\u00E9e\u00A0: int\u00E9gralit\u00E9",
+      "it": "Vall\u00E9e de Munster Mont\u00E9e completa",
+      "zh-Hans": "\u660E\u65AF\u7279\u5C71\u8C37 \u722C\u5C71\u8D5B\u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_MUNSTER_FULL_R",
+    "Table": "DT_PacenoteMunsterFullReverse",
+    "Titles": {
+      "de": "Vall\u00E9e de Munster Descente, komplette Strecke",
+      "en": "Vall\u00E9e de Munster Descente Complete",
+      "es": "Vall\u00E9e de Munster Descente: completa",
+      "fr": "Vall\u00E9e de Munster - Descente\u00A0: int\u00E9gralit\u00E9",
+      "it": "Vall\u00E9e de Munster Descente completa",
+      "zh-Hans": "\u660E\u65AF\u7279\u5C71\u8C37 \u4E0B\u5C71\u8D5B\u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_MUNSTER_PART1_F",
+    "Table": "DT_PacenoteMunsterShort1Forward",
+    "Titles": {
+      "de": "Vall\u00E9e de Munster Mont\u00E9e, Teil I",
+      "en": "Vall\u00E9e de Munster Mont\u00E9e Part I",
+      "es": "Vall\u00E9e de Munster Mont\u00E9e: parte 1",
+      "fr": "Vall\u00E9e de Munster - Mont\u00E9e\u00A0: partie\u00A0I",
+      "it": "Vall\u00E9e de Munster Mont\u00E9e parte I",
+      "zh-Hans": "\u660E\u65AF\u7279\u5C71\u8C37 \u722C\u5C71\u8D5B\u7B2C\u4E00\u8282"
+    }
+  },
+  {
+    "Key": "CH_MUNSTER_PART1_R",
+    "Table": "DT_PacenoteMunsterShort1Reverse",
+    "Titles": {
+      "de": "Vall\u00E9e de Munster Descente, Teil I",
+      "en": "Vall\u00E9e de Munster Descente Part I",
+      "es": "Vall\u00E9e de Munster Descente: parte 1",
+      "fr": "Vall\u00E9e de Munster - Descente\u00A0: partie\u00A0I",
+      "it": "Vall\u00E9e de Munster Descente parte I",
+      "zh-Hans": "\u660E\u65AF\u7279\u5C71\u8C37 \u4E0B\u5C71\u8D5B\u7B2C\u4E00\u8282"
+    }
+  },
+  {
+    "Key": "CH_MUNSTER_PART2_F",
+    "Table": "DT_PacenoteMunsterShort2Forward",
+    "Titles": {
+      "de": "Vall\u00E9e de Munster Mont\u00E9e, Teil II",
+      "en": "Vall\u00E9e de Munster Mont\u00E9e Part II",
+      "es": "Vall\u00E9e de Munster Mont\u00E9e: parte 2",
+      "fr": "Vall\u00E9e de Munster - Mont\u00E9e\u00A0: partie\u00A0II",
+      "it": "Vall\u00E9e de Munster Mont\u00E9e parte II",
+      "zh-Hans": "\u660E\u65AF\u7279\u5C71\u8C37 \u722C\u5C71\u8D5B\u7B2C\u4E8C\u8282"
+    }
+  },
+  {
+    "Key": "CH_MUNSTER_PART2_R",
+    "Table": "DT_PacenoteMunsterShort2Reverse",
+    "Titles": {
+      "de": "Vall\u00E9e de Munster Descente, Teil II",
+      "en": "Vall\u00E9e de Munster Descente Part II",
+      "es": "Vall\u00E9e de Munster Descente: parte 2",
+      "fr": "Vall\u00E9e de Munster - Descente\u00A0: partie\u00A0II",
+      "it": "Vall\u00E9e de Munster Descente parte II",
+      "zh-Hans": "\u660E\u65AF\u7279\u5C71\u8C37 \u4E0B\u5C71\u8D5B\u7B2C\u4E8C\u8282"
+    }
+  },
+  {
+    "Key": "CH_SAVERNE_FULL_F",
+    "Table": "DT_PacenoteSaverneFullForward",
+    "Titles": {
+      "de": "For\u00EAt de Saverne, komplette Strecke",
+      "en": "For\u00EAt de Saverne Complete",
+      "es": "For\u00EAt de Saverne: completa",
+      "fr": "For\u00EAt de Saverne\u00A0: int\u00E9gralit\u00E9",
+      "it": "For\u00EAt de Saverne completa",
+      "zh-Hans": "\u8428\u97E6\u5C14\u8BB7\u68EE\u6797 \u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_SAVERNE_FULL_R",
+    "Table": "DT_PacenoteSaverneFullReverse",
+    "Titles": {
+      "de": "Steigenbach, komplette Strecke",
+      "en": "Steigenbach Complete",
+      "es": "Steigenbach: completa",
+      "fr": "Steigenbach\u00A0: int\u00E9gralit\u00E9",
+      "it": "Steigenbach completa",
+      "zh-Hans": "\u65BD\u6CF0\u56E0\u5DF4\u8D6B \u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_SAVERNE_PART1_F",
+    "Table": "DT_PacenoteSaverneCut1Forward",
+    "Titles": {
+      "de": "For\u00EAt de Saverne, Teil I",
+      "en": "For\u00EAt de Saverne Part I",
+      "es": "For\u00EAt de Saverne: parte 1",
+      "fr": "For\u00EAt de Saverne\u00A0: partie\u00A0I",
+      "it": "For\u00EAt de Saverne parte I",
+      "zh-Hans": "\u8428\u97E6\u5C14\u8BB7\u68EE\u6797 \u7B2C\u4E00\u8282"
+    }
+  },
+  {
+    "Key": "CH_SAVERNE_PART1_R",
+    "Table": "DT_PacenoteSaverneCut1Reverse",
+    "Titles": {
+      "de": "Steigenbach, Teil I",
+      "en": "Steigenbach Part I",
+      "es": "Steigenbach: parte 1",
+      "fr": "Steigenbach\u00A0: partie\u00A0I",
+      "it": "Steigenbach parte I",
+      "zh-Hans": "\u65BD\u6CF0\u56E0\u5DF4\u8D6B \u7B2C\u4E00\u8282"
+    }
+  },
+  {
+    "Key": "CH_SISTERON_FULL_F",
+    "Table": "DT_PacenoteSisteronFullForward",
+    "Titles": {
+      "de": "Sisteron\u00A0\u2013 St. Geniez, komplette Strecke",
+      "en": "Sisteron - St. Geniez Complete",
+      "es": "Sisteron - St. Geniez: completa",
+      "fr": "Sisteron - St Geniez - Int\u00E9grale",
+      "it": "Sisteron - St. Geniez Completa",
+      "zh-Hans": "\u9521\u65AF\u7279\u9F99 - \u5723\u70ED\u5C3C\u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_SISTERON_FULL_R",
+    "Table": "DT_PacenoteSisteronFullReverse",
+    "Titles": {
+      "de": "St. Geniez\u00A0\u2013 Sisteron, komplette Strecke",
+      "en": "St. Geniez - Sisteron Complete",
+      "es": "St. Geniez - Sisteron: completa",
+      "fr": "St Geniez - Sisteron - Int\u00E9grale",
+      "it": "St. Geniez - Sisteron Completa",
+      "zh-Hans": "\u5723\u70ED\u5C3C - \u9521\u65AF\u7279\u9F99\u5168\u6BB5"
+    }
+  },
+  {
+    "Key": "CH_SISTERON_PART1_F",
+    "Table": "DT_PacenoteSisteronCut1Forward",
+    "Titles": {
+      "de": "Sisteron\u00A0\u2013 St. Geniez, Teil I",
+      "en": "Sisteron - St. Geniez Part I",
+      "es": "Sisteron - St. Geniez: parte 1",
+      "fr": "Sisteron - St Geniez - Premi\u00E8re partie",
+      "it": "Sisteron - St. Geniez Parte I",
+      "zh-Hans": "\u9521\u65AF\u7279\u9F99 - \u5723\u70ED\u5C3C\u7B2C\u4E00\u8282"
+    }
+  },
+  {
+    "Key": "CH_SISTERON_PART1_R",
+    "Table": "DT_PacenoteSisteronCut1Reverse",
+    "Titles": {
+      "de": "St. Geniez\u00A0\u2013 Sisteron, Teil I",
+      "en": "St. Geniez - Sisteron Part I",
+      "es": "St. Geniez - Sisteron: parte 1",
+      "fr": "St Geniez - Sisteron - Premi\u00E8re partie",
+      "it": "St. Geniez - Sisteron Parte I",
+      "zh-Hans": "\u5723\u70ED\u5C3C - \u9521\u65AF\u7279\u9F99\u7B2C\u4E00\u8282"
+    }
+  },
+  {
+    "Key": "CH_SISTERON_PART2_F",
+    "Table": "DT_PacenoteSisteronCut2Forward",
+    "Titles": {
+      "de": "Sisteron\u00A0\u2013 St. Geniez, Teil II",
+      "en": "Sisteron - St. Geniez Part II",
+      "es": "Sisteron - St. Geniez: parte 2",
+      "fr": "Sisteron - St Geniez - Deuxi\u00E8me partie",
+      "it": "Sisteron - St. Geniez Parte II",
+      "zh-Hans": "\u9521\u65AF\u7279\u9F99 - \u5723\u70ED\u5C3C\u7B2C\u4E8C\u8282"
+    }
+  },
+  {
+    "Key": "CH_SISTERON_PART2_R",
+    "Table": "DT_PacenoteSisteronCut2Reverse",
+    "Titles": {
+      "de": "St. Geniez\u00A0\u2013 Sisteron, Teil II",
+      "en": "St. Geniez - Sisteron Part II",
+      "es": "St. Geniez - Sisteron: parte 2",
+      "fr": "St Geniez - Sisteron - Deuxi\u00E8me partie",
+      "it": "St. Geniez - Sisteron Parte II",
+      "zh-Hans": "\u5723\u70ED\u5C3C - \u9521\u65AF\u7279\u9F99\u7B2C\u4E8C\u8282"
+    }
+  },
+  {
+    "Key": "TRACK_ELATIA_CUT1_FORWARD",
+    "Table": "DT_PacenoteElatiaCut1Forward",
+    "Titles": {
+      "en": "Elatia",
+      "zh-Hans": "\u57C3\u62C9\u8482\u4E9A"
+    }
+  },
+  {
+    "Key": "TRACK_ELATIA_CUT1_REVERSE",
+    "Table": "DT_PacenoteElatiaCut1Reverse",
+    "Titles": {
+      "de": "Elatia R\u00FCckw\u00E4rts",
+      "en": "Elatia Reverse",
+      "es": "Elatia inverso",
+      "fr": "Elatia invers\u00E9",
+      "it": "Elatia al contrario",
+      "zh-Hans": "\u57C3\u62C9\u8482\u4E9A\u53CD\u5411"
+    }
+  },
+  {
+    "Key": "TRACK_ELATIA_CUT2_FORWARD",
+    "Table": "DT_PacenoteElatiaCut2Forward",
+    "Titles": {
+      "en": "Zeli",
+      "zh-Hans": "\u6CFD\u5229"
+    }
+  },
+  {
+    "Key": "TRACK_ELATIA_CUT2_REVERSE",
+    "Table": "DT_PacenoteElatiaCut2Reverse",
+    "Titles": {
+      "de": "Zeli R\u00FCckw\u00E4rts",
+      "en": "Zeli Reverse",
+      "es": "Zeli inverso",
+      "fr": "Zeli invers\u00E9",
+      "it": "Zeli Inversa",
+      "zh-Hans": "\u6CFD\u5229\u53CD\u5411"
+    }
+  },
+  {
+    "Key": "TRACK_ELATIA_FULL_FORWARD",
+    "Table": "DT_PacenoteElatiaFullForward",
+    "Titles": {
+      "en": "Elatia - Zeli",
+      "zh-Hans": "\u57C3\u62C9\u8482\u4E9A - \u6CFD\u5229"
+    }
+  },
+  {
+    "Key": "TRACK_ELATIA_FULL_REVERSE",
+    "Table": "DT_PacenoteElatiaFullReverse",
+    "Titles": {
+      "en": "Zeli - Elatia",
+      "zh-Hans": "\u6CFD\u5229 - \u57C3\u62C9\u8482\u4E9A"
+    }
+  },
+  {
+    "Key": "TRACK_HAFRENNORTH_CUT1_FORWARD",
+    "Table": "DT_PacenoteHafrenNorthForwardCut1",
+    "Titles": {
+      "de": "Cwmbiga\u00A0\u2013 Fedw Fain",
+      "en": "Cwmbiga - Fedw Fain"
+    }
+  },
+  {
+    "Key": "TRACK_HAFRENNORTH_CUT1_REVERSE",
+    "Table": "DT_PacenoteHafrenNorthReverseCut1",
+    "Titles": {
+      "de": "Fedw Fain\u00A0\u2013 Cwmbiga",
+      "en": "Fedw Fain - Cwmbiga"
+    }
+  },
+  {
+    "Key": "TRACK_HAFRENNORTH_CUT2_FORWARD",
+    "Table": "DT_PacenoteHafrenNorthForwardCut2",
+    "Titles": {
+      "de": "Banc Gwyn\u00A0\u2013 Afon Biga",
+      "en": "Banc Gwyn - Afon Biga"
+    }
+  },
+  {
+    "Key": "TRACK_HAFRENNORTH_CUT2_REVERSE",
+    "Table": "DT_PacenoteHafrenNorthReverseCut2",
+    "Titles": {
+      "de": "Afon Biga\u00A0\u2013 Banc Gwyn",
+      "en": "Afon Biga - Banc Gwyn"
+    }
+  },
+  {
+    "Key": "TRACK_HAFRENNORTH_FULL_FORWARD",
+    "Table": "DT_PacenoteHafrenNorthFullForward",
+    "Titles": {
+      "de": "Cwmbiga\u00A0\u2013 Afon Biga",
+      "en": "Cwmbiga - Afon Biga"
+    }
+  },
+  {
+    "Key": "TRACK_HAFRENNORTH_FULL_REVERSE",
+    "Table": "DT_PacenoteHafrenNorthFullReverse",
+    "Titles": {
+      "de": "Afon Biga\u00A0\u2013 Cwmbiga",
+      "en": "Afon Biga - Cwmbiga"
+    }
+  },
+  {
+    "Key": "TRACK_HAFRENSOUTH_FULL_FORWARD",
+    "Table": "DT_PacenoteHafrenSouthForward",
+    "Titles": {
+      "de": "Afon Bidno\u00A0\u2013 Severn",
+      "en": "Afon Bidno - Severn"
+    }
+  },
+  {
+    "Key": "TRACK_HAFRENSOUTH_FULL_REVERSE",
+    "Table": "DT_PacenoteHafrenSouthReverse",
+    "Titles": {
+      "de": "Severn\u00A0\u2013 Afon Bidno",
+      "en": "Severn - Afon Bidno"
+    }
+  },
+  {
+    "Key": "TRACK_LOUTRAKI_CUT1_FORWARD",
+    "Table": "DT_PacenoteLoutrakiCut1Forward",
+    "Titles": {
+      "de": "Neues Loutraki",
+      "en": "New Loutraki",
+      "es": "Nuevo Loutraki",
+      "fr": "Nouveau Loutraki",
+      "zh-Hans": "\u65B0\u5362\u7279\u62C9\u57FA"
+    }
+  },
+  {
+    "Key": "TRACK_LOUTRAKI_CUT1_REVERSE",
+    "Table": "DT_PacenoteLoutrakiCut1Reverse",
+    "Titles": {
+      "de": "Neues Loutraki R\u00FCckw\u00E4rts",
+      "en": "New Loutraki Reverse",
+      "es": "Nuevo Loutraki inverso",
+      "fr": "Nouveau Loutraki invers\u00E9",
+      "it": "New Loutraki al contrario",
+      "zh-Hans": "\u65B0\u5362\u7279\u62C9\u57FA\u53CD\u5411"
+    }
+  },
+  {
+    "Key": "TRACK_LOUTRAKI_CUT2_FORWARD",
+    "Table": "DT_PacenoteLoutrakiCut2Forward",
+    "Titles": {
+      "en": "Aghii Theodori",
+      "zh-Hans": "\u963F\u5409\u4F0A\u897F\u5965\u591A\u91CC"
+    }
+  },
+  {
+    "Key": "TRACK_LOUTRAKI_CUT2_REVERSE",
+    "Table": "DT_PacenoteLoutrakiCut2Reverse",
+    "Titles": {
+      "de": "Aghii Theodori R\u00FCckw\u00E4rts",
+      "en": "Aghii Theodori Reverse",
+      "es": "Aghii Theodori inverso",
+      "fr": "Aghii Theodori invers\u00E9",
+      "it": "Aghii Theodori al contrario",
+      "zh-Hans": "\u963F\u5409\u4F0A\u897F\u5965\u591A\u91CC\u53CD\u5411"
+    }
+  },
+  {
+    "Key": "TRACK_LOUTRAKI_FULL_FORWARD",
+    "Table": "DT_PacenoteLoutrakiFullForward",
+    "Titles": {
+      "en": "Loutraki - Aghii Theodori",
+      "zh-Hans": "\u5362\u7279\u62C9\u57FA - \u963F\u5409\u4F0A\u897F\u5965\u591A\u91CC"
+    }
+  },
+  {
+    "Key": "TRACK_LOUTRAKI_FULL_REVERSE",
+    "Table": "DT_PacenoteLoutrakiFullReverse",
+    "Titles": {
+      "en": "Aghii Theodori - Loutraki",
+      "zh-Hans": "\u963F\u5409\u4F0A\u897F\u5965\u591A\u91CC - \u5362\u7279\u62C9\u57FA"
+    }
+  },
+  {
+    "Key": "TRACK_MUNSTER_FULL_FORWARD",
+    "Table": "DT_PacenoteMunsterFullForward",
+    "Titles": {
+      "en": "Vall\u00E9e de Munster Mont\u00E9e",
+      "zh-Hans": "\u660E\u65AF\u7279\u5C71\u8C37 \u722C\u5C71\u8D5B"
+    }
+  },
+  {
+    "Key": "TRACK_MUNSTER_FULL_REVERSE",
+    "Table": "DT_PacenoteMunsterFullReverse",
+    "Titles": {
+      "en": "Vall\u00E9e de Munster Descente",
+      "zh-Hans": "\u660E\u65AF\u7279\u5C71\u8C37 \u4E0B\u5C71\u8D5B"
+    }
+  },
+  {
+    "Key": "TRACK_MUNSTER_SHORT1_FORWARD",
+    "Table": "DT_PacenoteMunsterShort1Forward",
+    "Titles": {
+      "en": "Luttenbach pr\u00E8s Munster",
+      "it": "Luttenbach-pr\u00E8s-Munster",
+      "zh-Hans": "\u9760\u8FD1\u660E\u65AF\u7279\u7684\u5415\u6ED5\u5DF4\u8D6B"
+    }
+  },
+  {
+    "Key": "TRACK_MUNSTER_SHORT1_REVERSE",
+    "Table": "DT_PacenoteMunsterShort1Reverse",
+    "Titles": {
+      "en": "For\u00EAt de Munster",
+      "zh-Hans": "\u660E\u65AF\u7279\u68EE\u6797"
+    }
+  },
+  {
+    "Key": "TRACK_MUNSTER_SHORT2_FORWARD",
+    "Table": "DT_PacenoteMunsterShort2Forward",
+    "Titles": {
+      "en": "Sommet de Munster ",
+      "zh-Hans": "\u660E\u65AF\u7279\u5C71\u9876 "
+    }
+  },
+  {
+    "Key": "TRACK_MUNSTER_SHORT2_REVERSE",
+    "Table": "DT_PacenoteMunsterShort2Reverse",
+    "Titles": {
+      "en": "Col du petit Ballon",
+      "zh-Hans": "\u5C0F\u5DF4\u9686\u5C71\u53E3"
+    }
+  },
+  {
+    "Key": "TRACK_SAVERNE_FULL_FORWARD",
+    "Table": "DT_PacenoteSaverneFullForward",
+    "Titles": {
+      "en": "For\u00EAt de Saverne",
+      "zh-Hans": "\u8428\u97E6\u5C14\u8BB7\u68EE\u6797"
+    }
+  },
+  {
+    "Key": "TRACK_SAVERNE_FULL_REVERSE",
+    "Table": "DT_PacenoteSaverneFullReverse",
+    "Titles": {
+      "en": "Steigenbach",
+      "zh-Hans": "\u65BD\u6CF0\u56E0\u5DF4\u8D6B"
+    }
+  },
+  {
+    "Key": "TRACK_SAVERNE_SHORT1_FORWARD",
+    "Table": "DT_PacenoteSaverneCut1Forward",
+    "Titles": {
+      "en": "Obersteigen"
+    }
+  },
+  {
+    "Key": "TRACK_SAVERNE_SHORT1_REVERSE",
+    "Table": "DT_PacenoteSaverneCut1Reverse",
+    "Titles": {
+      "en": "La travers\u00E9e de La Mossig",
+      "zh-Hans": "\u7A7F\u8D8A Mossig \u6CB3"
+    }
+  },
+  {
+    "Key": "TRACK_SISTERON_CUT1_FORWARD",
+    "Table": "DT_PacenoteSisteronCut1Forward",
+    "Titles": {
+      "en": "Sisteron - M\u00E9zien",
+      "zh-Hans": "\u9521\u65AF\u7279\u9F99 - \u6885\u6D4E\u5B89"
+    }
+  },
+  {
+    "Key": "TRACK_SISTERON_CUT1_REVERSE",
+    "Table": "DT_PacenoteSisteronCut1Reverse",
+    "Titles": {
+      "en": "M\u00E9zien - Sisteron",
+      "zh-Hans": "\u6885\u6D4E\u5B89 - \u9521\u65AF\u7279\u9F99"
+    }
+  },
+  {
+    "Key": "TRACK_SISTERON_CUT2_FORWARD",
+    "Table": "DT_PacenoteSisteronCut2Forward",
+    "Titles": {
+      "en": "M\u00E9zien - St. Geniez",
+      "zh-Hans": "\u6885\u6D4E\u5B89 - \u5723\u70ED\u5C3C"
+    }
+  },
+  {
+    "Key": "TRACK_SISTERON_CUT2_REVERSE",
+    "Table": "DT_PacenoteSisteronCut2Reverse",
+    "Titles": {
+      "en": "St. Geniez - M\u00E9zien",
+      "zh-Hans": "\u5723\u70ED\u5C3C - \u6885\u6D4E\u5B89"
+    }
+  },
+  {
+    "Key": "TRACK_SISTERON_FULL_FORWARD",
+    "Table": "DT_PacenoteSisteronFullForward",
+    "Titles": {
+      "en": "Sisteron - St. Geniez",
+      "zh-Hans": "\u9521\u65AF\u7279\u9F99 - \u5723\u70ED\u5C3C"
+    }
+  },
+  {
+    "Key": "TRACK_SISTERON_FULL_REVERSE",
+    "Table": "DT_PacenoteSisteronFullReverse",
+    "Titles": {
+      "en": "St. Geniez - Sisteron",
+      "it": "St. Geniez - M\u00E9zien",
+      "zh-Hans": "\u5723\u70ED\u5C3C - \u9521\u65AF\u7279\u9F99"
+    }
+  }
+]
