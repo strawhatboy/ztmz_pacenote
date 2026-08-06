@@ -1,10 +1,8 @@
 v2.99.99.41-3.0-rc13
 
-* Corrects the BeamNG engine-damage projection: turbo/supercharger induction damage and generic impact damage remain in raw diagnostics but no longer falsely light the engine component or trigger an engine-failure call.
-* Adds live BeamNG.drive Rally Mode co-driver audio. Pacenote Tool now follows BeamNG's current pacenote timing and translates the game's native pacenote data at runtime; saved stage exports are for diagnostics and coverage checks.
-* Adds BeamNG Rally countdown calls and bridge version checks. Rally bridge 1.1.10 repairs outdated installs, activates dashboards from the first countdown packet, supplies an initial vehicle-damage baseline so the Car Damage dashboard is visible for an undamaged car, and carries dashboard data that OutGauge does not expose: correctly oriented, normalized 60 Hz steering input, max-gear count, analog handbrake, and G-force. Diagnostics report both OutGauge and Rally bridge UDP listeners.
-* Refines the Car Damage dashboard with a configurable short alert for race-start and changed components, while keeping normal component status quieter during driving without hiding persistent warning and critical states. BeamNG middle-left and middle-right body damage now maps to the corresponding door.
-* Adds opt-in BeamNG vehicle-damage calls. Bodywork changes are combined into one collision call, while radiator, water-pump, and engine faults use dedicated system tokens with repeat protection. Voice packages can add matching recordings; missing clips use the existing caution cue.
+* Adds BeamNG.drive Rally Mode support, including live co-driver calls, countdowns, stage state, telemetry, and automatic Rally Bridge setup and updates.
+* Adds vehicle-damage dashboards and optional system voice alerts for BeamNG.drive and Richard Burns Rally.
+* Improves game detection, stage lifecycle handling, and dashboard reliability.
 
 v2.99.99.40-3.0-rc12
 
