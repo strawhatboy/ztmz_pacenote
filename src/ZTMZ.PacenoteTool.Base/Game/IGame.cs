@@ -71,4 +71,28 @@ namespace ZTMZ.PacenoteTool.Base.Game
     {
         bool MigrateGameConfiguration();
     }
+
+    public sealed record LocalBridgeDiagnosticsInfo(
+        string Name,
+        bool IsEnabled,
+        bool IsAvailable,
+        bool IsInjected,
+        string Detail);
+
+    /// <summary>Optional local game bridge state exposed to the desktop diagnostics UI.</summary>
+    public interface ILocalGameBridgeDiagnostics
+    {
+        LocalBridgeDiagnosticsInfo GetLocalBridgeDiagnostics();
+    }
+
+    /// <summary>Signals that a provider has completed a local bridge injection.</summary>
+    public static class GameRuntimeNotifications
+    {
+        public static event Action<IGame> LocalBridgeInjected;
+
+        public static void NotifyLocalBridgeInjected(IGame game)
+        {
+            LocalBridgeInjected?.Invoke(game);
+        }
+    }
 }

@@ -1,0 +1,16 @@
+{
+    "game": {
+        "acr": {
+            "experimental": {
+                "enable": "启用实验性实时桥接",
+                "inject": "注入桥接 DLL",
+                "disabled": "实验性桥接控制已禁用。",
+                "warningTitle": "实验性 ACR 桥接",
+                "enableWarning": "此内部功能会向 Assetto Corsa Rally 注入 DLL。它仅适用于离线或私人测试。游戏更新可能使其不兼容，注入代码也可能违反游戏规则或影响账号。是否启用这些控制？",
+                "injectWarning": "是否将内部实时领航桥接注入正在运行的 Assetto Corsa Rally 进程？仅用于离线或私人测试。桥接会一直保持加载，直到游戏退出。",
+                "confirm": "我已了解"
+            },
+            "description": "Assetto Corsa Rally，由 Supernova Games Studios 开发并由 505 Games 发行；制作组包含原 CM 人员，延续 DR 系列精神。"
+        }
+    }
+}

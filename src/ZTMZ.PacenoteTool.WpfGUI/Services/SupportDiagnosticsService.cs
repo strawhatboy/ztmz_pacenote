@@ -17,6 +17,7 @@ public sealed record SupportDiagnosticsSnapshot(
     ApplicationDiagnosticsInfo Application,
     GameDiagnosticsInfo Game,
     UdpDiagnosticsInfo? Udp,
+    LocalBridgeDiagnosticsInfo? LocalBridge,
     AudioDiagnosticsInfo Audio,
     WebDashboardDiagnosticsInfo WebDashboard);
 
@@ -142,6 +143,9 @@ public sealed class SupportDiagnosticsService
             : new PrerequisiteDiagnosticsInfo(string.Empty, true, string.Empty);
         var udpReader = game?.GameDataReader as UdpGameDataReader;
         var udp = udpReader == null ? null : CreateUdpDiagnostics(udpReader);
+        var localBridge = game is ILocalGameBridgeDiagnostics bridgeDiagnostics
+            ? bridgeDiagnostics.GetLocalBridgeDiagnostics()
+            : null;
         var runtimeDiagnostics = CaptureRuntimeDiagnostics(game);
         var profileManager = _tool.IsInitialized ? _tool.ProfileManager : null;
         var audioStatus = profileManager?.Player?.Status ?? AudioPlaybackStatus.NotAvailable;
@@ -165,6 +169,7 @@ public sealed class SupportDiagnosticsService
                 prerequisite,
                 runtimeDiagnostics),
             udp,
+            localBridge,
             new AudioDiagnosticsInfo(
                 audioStatus.IsActive,
                 audioStatus.DeviceId,

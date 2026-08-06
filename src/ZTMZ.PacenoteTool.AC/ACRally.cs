@@ -5,7 +5,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.AC;
 
-public class ACRally : IGame
+public class ACRally : IGame, ILocalGameBridgeDiagnostics
 {
     public string WindowTitle => "Assetto Corsa Rally";
 
@@ -29,7 +29,8 @@ public class ACRally : IGame
 
     public Dictionary<string, IGameConfig> DefaultGameConfigurations { get; } = new Dictionary<string, IGameConfig>
     {
-        { MemoryGameConfig.Name, new MemoryGameConfig() { RefreshRate = ACRGameDataReader.TARGET_FPS } }
+        { MemoryGameConfig.Name, new MemoryGameConfig() { RefreshRate = ACRGameDataReader.TARGET_FPS } },
+        { ACRExperimentalBridgeConfig.Name, new ACRExperimentalBridgeConfig() }
     };
 
     public bool IsRunning { get; set; }
@@ -50,5 +51,18 @@ public class ACRally : IGame
         this.Description = I18NLoader.Instance["game.acr.description"];
         this.GameConfigurations = DefaultGameConfigurations;
         this.GamePacenoteReader = new ACRGamePacenoteReader(_gameDataReader);
+    }
+
+    public LocalBridgeDiagnosticsInfo GetLocalBridgeDiagnostics()
+    {
+        var enabled = GameConfigurations.TryGetValue(ACRExperimentalBridgeConfig.Name, out var config) &&
+            config is ACRExperimentalBridgeConfig bridgeConfig && bridgeConfig.ControlsEnabled;
+        var status = ACRExperimentalBridgeController.Inspect();
+        return new LocalBridgeDiagnosticsInfo(
+            "ACR live bridge",
+            enabled,
+            status.BundleAvailable,
+            status.AlreadyInjected,
+            status.Message);
     }
 }

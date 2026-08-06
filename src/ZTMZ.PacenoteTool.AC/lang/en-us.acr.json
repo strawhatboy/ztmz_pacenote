@@ -1,7 +1,16 @@
 {
     "game": {
         "acr": {
-            "description": "Assetto Corsa Rally, developed by Supernova Games Studios and published by 505 Games"
+            "description": "Assetto Corsa Rally, developed by Supernova Games Studios and published by 505 Games",
+            "experimental": {
+                "enable": "Enable experimental live bridge",
+                "inject": "Inject bridge",
+                "disabled": "Experimental bridge controls are disabled.",
+                "warningTitle": "Experimental ACR bridge",
+                "enableWarning": "This internal feature can inject a DLL into Assetto Corsa Rally. It is intended only for offline or private testing. Game updates can make it incompatible, and using injected code may violate the game's rules or affect an account. Enable these controls?",
+                "injectWarning": "Inject the internal live-pacenote bridge into the running Assetto Corsa Rally process? Use it only for offline or private testing. The bridge remains loaded until the game exits.",
+                "confirm": "I understand"
+            }
         }
     }
 }

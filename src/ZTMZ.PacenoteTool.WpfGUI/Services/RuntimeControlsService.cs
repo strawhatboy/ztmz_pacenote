@@ -63,6 +63,7 @@ public sealed class RuntimeControlsService
             SetStageActive(GameStateStageActivity.IsActive(state.NewGameState));
         };
         _gameOverlayManager.OnWebDashboardStatusChanged += _ => RaiseStateChanged();
+        GameRuntimeNotifications.LocalBridgeInjected += OnLocalBridgeInjected;
     }
 
     public event EventHandler? StateChanged;
@@ -265,6 +266,17 @@ public sealed class RuntimeControlsService
     {
         _tool.SetMuted(Config.Instance.UI_Mute);
         RaiseStateChanged();
+    }
+
+    private void OnLocalBridgeInjected(IGame game)
+    {
+        if (!ReferenceEquals(_tool.CurrentGame, game))
+        {
+            return;
+        }
+
+        Logger.Info("Recovering the native overlay after bridge injection for {0}.", game.Name);
+        _gameOverlayManager.RecoverNativeOverlayAfterExternalGameAction();
     }
 
     private void SetStageActive(bool isActive)

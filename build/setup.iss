@@ -1,14 +1,28 @@
 ﻿#define MyAppName "ZTMZ Next Generation Pacenote Tool"
-#define MyAppPublishPath AddBackslash(SourcePath) + "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\ZTMZ.PacenoteTool.WpfGUI.exe"
+#ifndef MyAppPublishRoot
+  #define MyAppPublishRoot "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64"
+#endif
+#define MyAppPublishPath AddBackslash(SourcePath) + MyAppPublishRoot + "\ZTMZ.PacenoteTool.WpfGUI.exe"
 #if !FileExists(MyAppPublishPath)
   #error "Published WPF executable was not found. Run build\publish.bat before packaging."
 #endif
 #define MyAppVersion GetVersionNumbersString(MyAppPublishPath)
-#define MyAppReleaseSuffix "-rc13"
+#ifndef MyAppReleaseSuffix
+  #define MyAppReleaseSuffix "-rc13"
+#endif
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
 #define FolderName "ZTMZClub_nextgen"
+#ifndef MyAppDisplayName
+  #define MyAppDisplayName MyAppName
+#endif
+#ifndef MyAppId
+  #define MyAppId "{{9EF39FA9-58C6-40E7-B957-75EAC73369E7}"
+#endif
+#ifndef MyAppInstallFolder
+  #define MyAppInstallFolder "ztmzclub_pacenotetool_nextgen"
+#endif
 
 [Components]
 Name: "ztmz_ngptool"; Description: "ZTMZ Next Generation Pacenote Tool"; Types: full compact custom; Flags: fixed
@@ -212,7 +226,7 @@ begin
   { assign default directories for the items from the previously stored data; if }
   { there are no data stored from the previous installation, use default folders }
   { of your choice }
-  DirPage.Values[0] := GetPreviousData('InstallDir', ExpandConstant('{autopf}\ztmzclub_pacenotetool_nextgen'));
+  DirPage.Values[0] := GetPreviousData('InstallDir', ExpandConstant('{autopf}\{#MyAppInstallFolder}'));
   try
     DirPage.Values[1] := GetPreviousData('ZTMZHome', ExpandConstant('{userdocs}\My Games\{#FolderName}'));
   except
@@ -310,8 +324,8 @@ end;
 
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{9EF39FA9-58C6-40E7-B957-75EAC73369E7}
-AppName={#MyAppName}
+AppId={#MyAppId}
+AppName={#MyAppDisplayName}
 AppVersion={#MyAppVersion}
 ; .NET 10 does not support Windows 7 or Windows 8.1.
 MinVersion=10.0
@@ -320,7 +334,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={autopf}\ztmzclub_pacenotetool_nextgen
+DefaultDirName={autopf}\{#MyAppInstallFolder}
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 PrivilegesRequired=lowest
@@ -351,21 +365,21 @@ Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\default";
 ; No json file!
 ; Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\*.json"; Excludes:"config.json,userconfig.json,*.deps.json,*.runtimeconfig.json"; DestDir: "{code:GetZTMZHome}"; Flags: ignoreversion
 ; Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\*.csv"; DestDir: "{code:GetZTMZHome}"; Flags: ignoreversion
-Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\codrivers\*"; DestDir: "{code:GetZTMZHome}\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\profiles\*"; DestDir: "{code:GetZTMZHome}\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
-Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\lang\*"; DestDir: "{code:GetZTMZHome}\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\*"; Excludes:"*.json"; DestDir: "{code:GetInstallDir}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\*.json"; DestDir: "{code:GetInstallDir}\games\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\codrivers\*"; DestDir: "{code:GetZTMZHome}\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\profiles\*"; DestDir: "{code:GetZTMZHome}\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
+Source: "{#MyAppPublishRoot}\lang\*"; DestDir: "{code:GetZTMZHome}\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\games\*"; Excludes:"*.json"; DestDir: "{code:GetInstallDir}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\games\lang\*.json"; DestDir: "{code:GetInstallDir}\games\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; BeamNG's optional bridge is packaged from these files at runtime, so its JSON
 ; manifest and input-action definition must remain beside the provider DLL.
-Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\BeamNGMod\*.json"; DestDir: "{code:GetInstallDir}\games\BeamNGMod"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\*.json"; Excludes:"*.deps.json"; DestDir: "{code:GetZTMZHome}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\games\BeamNGMod\*.json"; DestDir: "{code:GetInstallDir}\games\BeamNGMod"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\games\*.json"; Excludes:"*.deps.json"; DestDir: "{code:GetZTMZHome}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\runtimes\*"; DestDir: "{code:GetInstallDir}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\dashboards\*"; DestDir: "{code:GetZTMZHome}\dashboards"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\fonts\*"; DestDir: "{code:GetZTMZHome}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\x64\*"; DestDir: "{code:GetInstallDir}\x64"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\x86\*"; DestDir: "{code:GetInstallDir}\x86"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\Assets\ztmz_ngptool_3.0_help.png"; DestDir: "{code:GetInstallDir}\Assets"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\dashboards\*"; DestDir: "{code:GetZTMZHome}\dashboards"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\fonts\*"; DestDir: "{code:GetZTMZHome}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\x64\*"; DestDir: "{code:GetInstallDir}\x64"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\x86\*"; DestDir: "{code:GetInstallDir}\x86"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\Assets\ztmz_ngptool_3.0_help.png"; DestDir: "{code:GetInstallDir}\Assets"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; db files
 Source: "..\src\ZTMZ.PacenoteTool.Base\*.zdb"; DestDir: "{code:GetZTMZHome}"; Flags: ignoreversion
 Source: "..\src\ZTMZ.PacenoteTool.RBR\*.zdb"; DestDir: "{code:GetZTMZHome}\games"; Flags: ignoreversion

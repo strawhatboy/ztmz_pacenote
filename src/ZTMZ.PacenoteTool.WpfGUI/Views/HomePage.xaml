@@ -775,7 +775,7 @@
                                  Height="7"
                                  Margin="0 6 6 0"
                                  Fill="{Binding ViewModel.Diagnostics.UdpStatusBrush}" />
-                        <ui:TextBlock Text="{DynamicResource diagnostics.udp}"
+                        <ui:TextBlock Text="{Binding Path=ViewModel.Diagnostics.TransportStatusLabel}"
                                       FontTypography="Caption" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
                     </StackPanel>
                     <ui:TextBlock Text="{Binding ViewModel.Diagnostics.UdpStatus}"

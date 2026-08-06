@@ -37,6 +37,9 @@ public partial class DiagnosticsViewVM : ObservableObject
     private string _udpStatus = string.Empty;
 
     [ObservableProperty]
+    private string _transportStatusLabel = "UDP";
+
+    [ObservableProperty]
     private string _udpActivity = string.Empty;
 
     [ObservableProperty]
@@ -192,7 +195,22 @@ public partial class DiagnosticsViewVM : ObservableObject
                 : snapshot.Game.Prerequisite.IsHealthy ? Brushes.ForestGreen : Brushes.IndianRed;
         }
 
-        if (snapshot.Udp == null)
+        TransportStatusLabel = "UDP";
+        if (snapshot.Udp == null && snapshot.LocalBridge is not null)
+        {
+            TransportStatusLabel = "Bridge";
+            UdpStatus = snapshot.LocalBridge.Name;
+            UdpActivity = snapshot.LocalBridge.IsInjected
+                ? "Injected"
+                : snapshot.LocalBridge.IsEnabled ? "Not injected" : "Disabled";
+            UdpTooltip = snapshot.LocalBridge.Detail;
+            UdpStatusBrush = snapshot.LocalBridge.IsInjected
+                ? Brushes.ForestGreen
+                : !snapshot.LocalBridge.IsAvailable && snapshot.LocalBridge.IsEnabled
+                    ? Brushes.IndianRed
+                    : Brushes.Gray;
+        }
+        else if (snapshot.Udp == null)
         {
             UdpStatus = I18NLoader.Instance["diagnostics.notApplicable"];
             UdpActivity = string.Empty;
