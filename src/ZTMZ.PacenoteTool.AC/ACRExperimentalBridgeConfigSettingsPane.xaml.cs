@@ -124,7 +124,7 @@ public partial class ACRExperimentalBridgeConfigSettingsPane : IGameConfigSettin
         }
 
         var status = ACRExperimentalBridgeController.Inspect();
-        BridgeStatusTextBlock.Text = status.Message;
+        BridgeStatusTextBlock.Text = ACRExperimentalBridgeController.FormatStatus(status);
         InjectButton.IsEnabled = status.BundleAvailable && status.GameRunning && !status.AlreadyInjected;
     }
 

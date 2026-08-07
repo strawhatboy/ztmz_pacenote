@@ -9,7 +9,16 @@
                 "warningTitle": "Experimental ACR bridge",
                 "enableWarning": "This internal feature can inject a DLL into Assetto Corsa Rally. It is intended only for offline or private testing. Game updates can make it incompatible, and using injected code may violate the game's rules or affect an account. Enable these controls?",
                 "injectWarning": "Inject the internal live-pacenote bridge into the running Assetto Corsa Rally process? Use it only for offline or private testing. The bridge remains loaded until the game exits.",
-                "confirm": "I understand"
+                "confirm": "I understand",
+                "statusBundleUnavailable": "Internal ACR bridge files are not installed in this build.",
+                "statusGameNotRunning": "Waiting for Assetto Corsa Rally to start.",
+                "statusInjected": "Experimental bridge is already loaded. Exit Assetto Corsa Rally to remove it.",
+                "statusReady": "Ready for an explicit experimental bridge injection.",
+                "launchPromptTitle": "Experimental ACR bridge",
+                "launchPromptWarning": "This experimental feature injects a DLL into Assetto Corsa Rally. It can be incompatible after a game update and may violate the game's rules or put an account at risk. Use it only for offline or private testing. Inject the live-pacenote bridge for this game session?",
+                "launchPromptInject": "Inject bridge",
+                "launchPromptNotNow": "Not now",
+                "launchPromptFailure": "The live bridge was not injected:\n{0}"
             }
         }
     }

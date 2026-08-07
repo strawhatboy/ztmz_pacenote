@@ -75,7 +75,7 @@ if errorlevel 1 goto :failed
 echo Internal ACR experimental Release package is ready:
 echo %RELEASE_ROOT%
 echo Installer: %ROOT%\Output\ZTMZClub_PacenoteTool_ACR_Experimental_Installer_*.exe
-echo This package is for private validation only. The bridge must still be enabled and injected manually from its ACR settings pane.
+echo This package is for private validation only. The bridge remains opt-in: enable its controls, then choose injection from the ACR-ready warning or settings pane.
 cd /D "%CURRENT_DIR%"
 exit /b 0
 

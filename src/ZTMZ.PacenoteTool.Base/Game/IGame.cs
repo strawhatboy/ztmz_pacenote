@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 namespace ZTMZ.PacenoteTool.Base.Game
 {
     public interface IGame
@@ -83,6 +84,14 @@ namespace ZTMZ.PacenoteTool.Base.Game
     public interface ILocalGameBridgeDiagnostics
     {
         LocalBridgeDiagnosticsInfo GetLocalBridgeDiagnostics();
+    }
+
+    public sealed record LocalBridgeInjectionResult(bool Succeeded, string Detail);
+
+    /// <summary>Allows the desktop UI to request an explicitly opted-in local bridge injection.</summary>
+    public interface ILocalGameBridgeControl : ILocalGameBridgeDiagnostics
+    {
+        Task<LocalBridgeInjectionResult> InjectLocalBridgeAsync();
     }
 
     /// <summary>Signals that a provider has completed a local bridge injection.</summary>

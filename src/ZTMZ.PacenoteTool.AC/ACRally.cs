@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.AC;
 
-public class ACRally : IGame, ILocalGameBridgeDiagnostics
+public class ACRally : IGame, ILocalGameBridgeControl
 {
     public string WindowTitle => "Assetto Corsa Rally";
 
@@ -63,6 +64,12 @@ public class ACRally : IGame, ILocalGameBridgeDiagnostics
             enabled,
             status.BundleAvailable,
             status.AlreadyInjected,
-            status.Message);
+            ACRExperimentalBridgeController.FormatStatus(status));
+    }
+
+    public async Task<LocalBridgeInjectionResult> InjectLocalBridgeAsync()
+    {
+        var result = await ACRExperimentalBridgeController.InjectAsync();
+        return new LocalBridgeInjectionResult(result.Succeeded, result.Message);
     }
 }

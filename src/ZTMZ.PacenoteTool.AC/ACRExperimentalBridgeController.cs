@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.AC;
 
@@ -12,7 +13,15 @@ internal sealed record ACRExperimentalBridgeStatus(
     bool BundleAvailable,
     bool GameRunning,
     bool AlreadyInjected,
-    string Message);
+    ACRExperimentalBridgeStatusKind Kind);
+
+internal enum ACRExperimentalBridgeStatusKind
+{
+    BundleUnavailable,
+    GameNotRunning,
+    AlreadyInjected,
+    Ready
+}
 
 internal sealed record ACRExperimentalBridgeResult(bool Succeeded, string Message);
 
@@ -31,21 +40,33 @@ internal static class ACRExperimentalBridgeController
         if (!File.Exists(bundle.InjectorPath) || !File.Exists(bundle.BridgePath) || !File.Exists(bundle.ManifestPath))
         {
             return new ACRExperimentalBridgeStatus(false, false, false,
-                "Internal ACR bridge files are not installed in this build.");
+                ACRExperimentalBridgeStatusKind.BundleUnavailable);
         }
 
         var process = FindRunningAcr();
         if (process is null)
         {
             return new ACRExperimentalBridgeStatus(true, false, false,
-                "Waiting for Assetto Corsa Rally to start.");
+                ACRExperimentalBridgeStatusKind.GameNotRunning);
         }
 
         return IsBridgeLoaded(process)
             ? new ACRExperimentalBridgeStatus(true, true, true,
-                "Experimental bridge is already loaded. Exit Assetto Corsa Rally to remove it.")
+                ACRExperimentalBridgeStatusKind.AlreadyInjected)
             : new ACRExperimentalBridgeStatus(true, true, false,
-                "Ready for an explicit experimental bridge injection.");
+                ACRExperimentalBridgeStatusKind.Ready);
+    }
+
+    public static string FormatStatus(ACRExperimentalBridgeStatus status)
+    {
+        var key = status.Kind switch
+        {
+            ACRExperimentalBridgeStatusKind.BundleUnavailable => "game.acr.experimental.statusBundleUnavailable",
+            ACRExperimentalBridgeStatusKind.GameNotRunning => "game.acr.experimental.statusGameNotRunning",
+            ACRExperimentalBridgeStatusKind.AlreadyInjected => "game.acr.experimental.statusInjected",
+            _ => "game.acr.experimental.statusReady"
+        };
+        return I18NLoader.Instance[key];
     }
 
     public static async Task<ACRExperimentalBridgeResult> InjectAsync()
@@ -53,7 +74,7 @@ internal static class ACRExperimentalBridgeController
         var status = Inspect();
         if (!status.BundleAvailable || !status.GameRunning || status.AlreadyInjected)
         {
-            return new ACRExperimentalBridgeResult(false, status.Message);
+            return new ACRExperimentalBridgeResult(false, FormatStatus(status));
         }
 
         var process = FindRunningAcr();

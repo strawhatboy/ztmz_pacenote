@@ -373,10 +373,49 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
                 return;
             }
 
-            RootNavigation.HeaderVisibility =
-                RootNavigation.SelectedItem?.TargetPageType != typeof(HomePage)
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
+            var isHomePage = navigationView.SelectedItem?.TargetPageType == typeof(HomePage);
+
+            RootNavigation.HeaderVisibility = isHomePage
+                ? Visibility.Collapsed
+                : Visibility.Visible;
+
+            // HomePage owns its scroll surface so its diagnostics row can remain pinned.
+            // Other pages retain NavigationView's normal automatic scroll behavior.
+            SetNavigationDynamicScrollEnabled(!isHomePage);
+        }
+
+        private void SetNavigationDynamicScrollEnabled(bool isEnabled)
+        {
+            _ = Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
+            {
+                var presenter = FindVisualChild<NavigationViewContentPresenter>(RootNavigation);
+                if (presenter != null)
+                {
+                    presenter.SetValue(
+                        NavigationViewContentPresenter.IsDynamicScrollViewerEnabledProperty,
+                        isEnabled);
+                }
+            }));
+        }
+
+        private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (var index = 0; index < VisualTreeHelper.GetChildrenCount(parent); index++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, index);
+                if (child is T result)
+                {
+                    return result;
+                }
+
+                var nestedResult = FindVisualChild<T>(child);
+                if (nestedResult != null)
+                {
+                    return nestedResult;
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -250,6 +250,8 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     private RuntimeControlsService _runtimeControls;
 
     private bool _isApplyingRuntimeControls;
+    private readonly object _localBridgePromptLock = new();
+    private IGame? _localBridgePromptedGame;
 
     public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool, 
         IServiceProvider serviceProvider, 
@@ -281,6 +283,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         };
         RefreshNativeOverlayHomeStatus();
         _tool.onGameStarted += (game, p) => {
+            ResetLocalBridgeInjectionPrompt(game);
             if (!Config.Instance.AutoInitializeGame && SelectedGame.Game != game) {
                 _logger.Info("Game started. in Home Page. AutoInitializeGame is false. Do nothing because current selected game is not the started game.");
                 return;
@@ -314,6 +317,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             });
         };
         _tool.onGameEnded += (game) => {
+            ResetLocalBridgeInjectionPrompt(game);
             IsGameRunning = false;
             IsGameInitialized = false;
             IsRacing = false; 
@@ -328,6 +332,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             IsGameInitializedFailed = false;
             game.onCustomMessage += this._gameCustomMessage;
             ScheduleDiagnosticsRefresh(includePrerequisiteCheck: true);
+            ScheduleLocalBridgeInjectionPrompt(game);
         };
         _tool.onGameUninitialized += (game) => {
             IsGameInitialized = false;
@@ -666,6 +671,93 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         InfoBarIsOpen = true;
         InfoBarMessage = message;
         InfoBarSeverity = (InfoBarSeverity)level;
+    }
+
+    private void ResetLocalBridgeInjectionPrompt(IGame game)
+    {
+        lock (_localBridgePromptLock)
+        {
+            if (ReferenceEquals(_localBridgePromptedGame, game))
+            {
+                _localBridgePromptedGame = null;
+            }
+        }
+    }
+
+    private void ScheduleLocalBridgeInjectionPrompt(IGame game)
+    {
+        if (!ReferenceEquals(Tool.CurrentGame, game) || game is not ILocalGameBridgeControl bridgeControl)
+        {
+            return;
+        }
+
+        var status = bridgeControl.GetLocalBridgeDiagnostics();
+        if (!game.IsRunning || !status.IsEnabled || !status.IsAvailable || status.IsInjected)
+        {
+            return;
+        }
+
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher is null)
+        {
+            return;
+        }
+
+        lock (_localBridgePromptLock)
+        {
+            if (ReferenceEquals(_localBridgePromptedGame, game))
+            {
+                return;
+            }
+
+            _localBridgePromptedGame = game;
+        }
+
+        _ = dispatcher.InvokeAsync(() => ShowLocalBridgeInjectionPromptAsync(game, bridgeControl)).Task.Unwrap();
+    }
+
+    private async Task ShowLocalBridgeInjectionPromptAsync(IGame game, ILocalGameBridgeControl bridgeControl)
+    {
+        var warningContent = new StackPanel { Margin = new System.Windows.Thickness(0, 4, 0, 0) };
+        warningContent.Children.Add(new SymbolIcon
+        {
+            Symbol = SymbolRegular.Warning20,
+            Width = 32,
+            Height = 32,
+            Foreground = Brushes.DarkOrange,
+            Margin = new System.Windows.Thickness(0, 0, 0, 12)
+        });
+        warningContent.Children.Add(new System.Windows.Controls.TextBlock
+        {
+            Text = I18NLoader.Instance["game.acr.experimental.launchPromptWarning"],
+            TextWrapping = System.Windows.TextWrapping.Wrap
+        });
+
+        var confirmation = await new Wpf.Ui.Controls.MessageBox
+        {
+            Title = I18NLoader.Instance["game.acr.experimental.launchPromptTitle"],
+            Content = warningContent,
+            PrimaryButtonText = I18NLoader.Instance["game.acr.experimental.launchPromptInject"],
+            CloseButtonText = I18NLoader.Instance["game.acr.experimental.launchPromptNotNow"]
+        }.ShowDialogAsync();
+        if (confirmation != Wpf.Ui.Controls.MessageBoxResult.Primary)
+        {
+            return;
+        }
+
+        var result = await bridgeControl.InjectLocalBridgeAsync();
+        if (result.Succeeded)
+        {
+            GameRuntimeNotifications.NotifyLocalBridgeInjected(game);
+            return;
+        }
+
+        await new Wpf.Ui.Controls.MessageBox
+        {
+            Title = I18NLoader.Instance["game.acr.experimental.launchPromptTitle"],
+            Content = string.Format(I18NLoader.Instance["game.acr.experimental.launchPromptFailure"], result.Detail),
+            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+        }.ShowDialogAsync();
     }
 
     private async Task<bool> forceFixGame(IGame game) {
