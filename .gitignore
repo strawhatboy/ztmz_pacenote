@@ -5,6 +5,8 @@ obj
 Output
 *wpftmp.csproj
 build/target
+build/target*
+artifacts/
 src/ZTMZ.PacenoteTool.ScriptEditor/Assets/Monaco/min
 .fake
 tools/ACRPacenoteConverter/generated-profiles/

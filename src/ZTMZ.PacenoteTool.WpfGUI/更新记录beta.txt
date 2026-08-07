@@ -4,11 +4,15 @@ v2.99.99.42-3.0-rc14
 * Adds experimental opt-in Assetto Corsa Rally support with live in-game pacenote forwarding.
 * Adds a clear injection warning, localized bridge state, and bridge availability to home diagnostics.
 * Fixes the Home page layout: game settings now scroll correctly and the diagnostics status bar remains visible.
+* Adds configurable UI fonts: choose a system font or download and apply recommended open-source fonts on demand.
+* Adds the online [AI] Hajimi voice package, generated with CosyVoice 3 and multiple randomly selected takes per token.
 
 [简体中文]
 * 新增实验性的 Assetto Corsa Rally 支持，可选择启用游戏内实时路书转发。
 * 新增明确的 DLL 注入风险提示、本地化桥接状态，以及主页诊断中的桥接可用性状态。
 * 修复主页布局：展开游戏设置后可正常滚动，诊断状态栏始终可见。
+* 新增可配置的界面字体：可选择系统字体，或按需下载并应用推荐的开源字体。
+* 新增在线语音包“[AI] 哈基米”：基于 CosyVoice 3 生成，每个路书标记提供多个随机播报片段。
 
 v2.99.99.41-3.0-rc13
 ------
