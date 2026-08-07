@@ -38,6 +38,12 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
     private FontChoice? _selectedSystemFont;
 
     [ObservableProperty]
+    private int _uiFontSizePercent = Math.Clamp(
+        Config.Instance.UIFontSizePercent,
+        AppFontService.MinimumFontSizePercent,
+        AppFontService.MaximumFontSizePercent);
+
+    [ObservableProperty]
     private IList<SuggestedFont> _suggestedFonts = new ObservableCollection<SuggestedFont>();
 
     [ObservableProperty]
@@ -229,6 +235,29 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
         }
 
         _ = ConfirmAndApplySystemFontAsync(value);
+    }
+
+    partial void OnUiFontSizePercentChanged(int value)
+    {
+        var boundedValue = Math.Clamp(
+            value,
+            AppFontService.MinimumFontSizePercent,
+            AppFontService.MaximumFontSizePercent);
+        if (boundedValue != value)
+        {
+            UiFontSizePercent = boundedValue;
+            return;
+        }
+
+        Config.Instance.UIFontSizePercent = value;
+        Config.Instance.SaveUserConfig();
+        _appFontService.ApplyFontSize(value);
+    }
+
+    [RelayCommand]
+    private void ResetUiFontSize()
+    {
+        UiFontSizePercent = AppFontService.DefaultFontSizePercent;
     }
 
     private async Task ConfirmAndApplySystemFontAsync(FontChoice fontChoice)

@@ -18,6 +18,7 @@
         Closing="MainWindow_Closing"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
     FontFamily="{DynamicResource AppFontFamily}"
+        FontSize="{DynamicResource AppFontSize}"
         Title="{Binding ViewModel.Title, Mode=OneWay}" Height="760" Width="1180" MinWidth="1180" MinHeight="760">
     <b:Interaction.Triggers>
     <b:EventTrigger EventName="Loaded">

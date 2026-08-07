@@ -761,6 +761,14 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._UIFontFamily;
         }
 
+        // Percentage applied to the application's inherited text size. Kept bounded by the UI.
+        private int _UIFontSizePercent = 100;
+        public int UIFontSizePercent
+        {
+            set { this._UIFontSizePercent = value; this._userconfig["UIFontSizePercent"] = value; }
+            get => this._UIFontSizePercent;
+        }
+
         private string _SkippedVersion = "1.0.0.0";
         public string SkippedVersion
         {

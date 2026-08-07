@@ -372,7 +372,11 @@ namespace ZTMZ.PacenoteTool.Core
                         _logger.Trace("Processing pacenote record {0}", record.ToString());
 
                         // always create new since there's no overlapping issue.
-                        var f = new AudioFile() { Distance = (int)record.Distance };
+                        var f = new AudioFile()
+                        {
+                            Distance = (int)record.Distance,
+                            PacenoteRecord = record
+                        };
 
                         var sound = new AutoResampledCachedSound();
                         foreach (var note in record.Pacenotes)
@@ -584,7 +588,7 @@ namespace ZTMZ.PacenoteTool.Core
         }
 
         // need to be run in a non-UI thread
-        public void Play()
+        public bool Play()
         {
             // try to amplify the sound.
             var audioFile = this.AudioFiles[this.CurrentPlayIndex++];
@@ -593,7 +597,7 @@ namespace ZTMZ.PacenoteTool.Core
                 Random.Shared.Next(100)))
             {
                 _logger.Debug("Mischief mode skipped pacenote at {0}m", audioFile.Distance);
-                return;
+                return false;
             }
 
             var sound = audioFile.Sound;
@@ -602,6 +606,7 @@ namespace ZTMZ.PacenoteTool.Core
             sound.Tension = this.CurrentTension;
             this.PlaySound(sound, Config.Instance.UseSequentialMixerToHandleAudioConflict);
             _logger.Trace("Playing {0}", this.CurrentPlayIndex);
+            return true;
         }
 
         // need to be run in a non-UI thread

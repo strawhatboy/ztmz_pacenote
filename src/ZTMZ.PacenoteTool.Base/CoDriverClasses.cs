@@ -17,6 +17,10 @@ namespace ZTMZ.PacenoteTool.Base
         //public string FilePath { set; get; }
         public int Distance { set; get; }
 
+        // Script-mode entries retain their source record so playback consumers can
+        // expose actual pacenote tokens instead of only a pre-mixed sound.
+        public PacenoteRecord PacenoteRecord { set; get; }
+
         //public AudioFileReader AudioFileReader { set; get; }
         //public byte[] Content { set; get; }
         public AutoResampledCachedSound Sound { set; get; } = null;

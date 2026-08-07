@@ -8,7 +8,11 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Media;
+using Wpf.Ui.Controls;
+using Wpf.Ui.Extensions;
+using WpfUiTextBlock = Wpf.Ui.Controls.TextBlock;
 using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.Services;
@@ -16,6 +20,11 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Services;
 public sealed class AppFontService
 {
     public const string SystemDefaultFontId = "system-default";
+    public const int MinimumFontSizePercent = 85;
+    public const int MaximumFontSizePercent = 130;
+    public const int DefaultFontSizePercent = 100;
+    private const double DefaultFontSize = 12d;
+    private const double DefaultControlContentFontSize = 14d;
     private const string SuggestedFontPrefix = "suggested:";
     private const string FontCatalogUrl = "https://gitee.com/ztmz/fonts/raw/master/repo.json";
     private const string FontCatalogCacheFileName = "repo.json";
@@ -25,6 +34,18 @@ public sealed class AppFontService
     };
 
     private IReadOnlyList<SuggestedFont> _suggestedFonts;
+    private readonly Dictionary<string, Style> _baseTypographyStyles = new();
+    private static readonly IReadOnlyDictionary<string, double> TypographyStyleFontSizes =
+        new Dictionary<string, double>
+        {
+            ["CaptionTextBlockStyle"] = 12d,
+            ["BodyTextBlockStyle"] = 14d,
+            ["BodyStrongTextBlockStyle"] = 14d,
+            ["SubtitleTextBlockStyle"] = 20d,
+            ["TitleTextBlockStyle"] = 28d,
+            ["TitleLargeTextBlockStyle"] = 40d,
+            ["DisplayTextBlockStyle"] = 68d
+        };
 
     public AppFontService()
     {
@@ -97,6 +118,64 @@ public sealed class AppFontService
         }
 
         ApplySystemDefaultFont();
+    }
+
+    public void ApplyConfiguredFontSize()
+    {
+        ApplyFontSize(Config.Instance.UIFontSizePercent);
+    }
+
+    public void ApplyFontSize(int percentage)
+    {
+        var boundedPercentage = Math.Clamp(percentage, MinimumFontSizePercent, MaximumFontSizePercent);
+        var scale = boundedPercentage / (double)DefaultFontSizePercent;
+        var resources = Application.Current.Resources;
+
+        resources["AppFontSize"] = DefaultFontSize * scale;
+        resources["ContentControlFontSize"] = DefaultControlContentFontSize * scale;
+        resources["ControlContentThemeFontSize"] = DefaultControlContentFontSize * scale;
+
+        foreach (var (resourceKey, baseFontSize) in TypographyStyleFontSizes)
+        {
+            if (!_baseTypographyStyles.TryGetValue(resourceKey, out var baseStyle))
+            {
+                baseStyle = (Style)resources[resourceKey];
+                _baseTypographyStyles[resourceKey] = baseStyle;
+            }
+
+            var scaledStyle = new Style(baseStyle.TargetType, baseStyle);
+            scaledStyle.Setters.Add(new Setter(TextElement.FontSizeProperty, baseFontSize * scale));
+            resources[resourceKey] = scaledStyle;
+        }
+
+        RefreshActiveTypographyStyles();
+    }
+
+    private static void RefreshActiveTypographyStyles()
+    {
+        foreach (Window window in Application.Current.Windows)
+        {
+            RefreshTypographyStyles(window);
+        }
+    }
+
+    private static void RefreshTypographyStyles(DependencyObject element)
+    {
+        if (element is WpfUiTextBlock textBlock)
+        {
+            if (textBlock.FontTypography is { } typography)
+            {
+                textBlock.FontTypography = typography == FontTypography.Caption
+                    ? FontTypography.Body
+                    : FontTypography.Caption;
+                textBlock.FontTypography = typography;
+            }
+        }
+
+        for (var index = 0; index < VisualTreeHelper.GetChildrenCount(element); index++)
+        {
+            RefreshTypographyStyles(VisualTreeHelper.GetChild(element, index));
+        }
     }
 
     public void ApplySystemDefaultFont()

@@ -8,7 +8,7 @@
 #endif
 #define MyAppVersion GetVersionNumbersString(MyAppPublishPath)
 #ifndef MyAppReleaseSuffix
-  #define MyAppReleaseSuffix "-rc14"
+  #define MyAppReleaseSuffix "-rc15"
 #endif
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"

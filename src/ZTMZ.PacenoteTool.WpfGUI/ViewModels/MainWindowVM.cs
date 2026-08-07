@@ -130,6 +130,13 @@ public partial class MainWindowVM : ObservableObject
         playback.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.playback");
         items.Add(playback);
 
+        var scriptEditor = new NavigationViewItem() {
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Code20 },
+            TargetPageType = typeof(Views.ScriptEditorPage)
+        };
+        scriptEditor.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.scriptEditor");
+        items.Add(scriptEditor);
+
         var hud = new NavigationViewItem() {
             Icon = new SymbolIcon { Symbol = SymbolRegular.Gauge20 },
             TargetPageType = typeof(Views.HudPage)

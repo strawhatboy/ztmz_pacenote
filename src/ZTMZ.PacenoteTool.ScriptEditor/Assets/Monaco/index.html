@@ -1,21 +1,628 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    <link rel="stylesheet"
-          data-name="vs/editor/editor.main"
-          href="./min/vs/editor/editor.main.css" />
+    <meta charset="utf-8" />
+    <link rel="stylesheet" data-name="vs/editor/editor.main" href="./min/vs/editor/editor.main.css" />
     <style>
-        html, body { height: 100%;margin: 0; }
-        #root { height: 100%; }
+        html, body, #editor-shell, #root { height: 100%; margin: 0; overflow: hidden; }
+        #editor-shell { display: flex; min-width: 0; }
+        #root { flex: 1 1 auto; min-width: 0; }
+        #roadbook-splitter {
+            flex: 0 0 6px;
+            cursor: col-resize;
+            background: #aeb5b7;
+            border-left: 1px solid rgba(0, 0, 0, .12);
+            border-right: 1px solid rgba(255, 255, 255, .35);
+        }
+        #roadbook-splitter:hover, #roadbook-splitter.dragging { background: #3b89be; }
+        #roadbook {
+            box-sizing: border-box;
+            display: flex;
+            flex: 0 0 330px;
+            flex-direction: column;
+            overflow: auto;
+            padding: 12px;
+            color: #20262c;
+            background: #cbd1d3;
+            font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+        }
+        .roadbook-document {
+            position: relative;
+            min-height: 100%;
+            padding: 14px;
+            border: 1px solid rgba(63, 48, 31, .34);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, .18);
+            background: #f5eedc;
+        }
+        .roadbook-heading {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #6f675a;
+            color: #3d3932;
+        }
+        .roadbook-heading-label { color: #8c2b26; font-family: "Segoe Print", "Microsoft YaHei", sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .08em; }
+        .roadbook-heading-title { overflow: hidden; color: #3d3932; font-size: 12px; font-weight: 600; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+        .roadbook-entries { display: flex; flex-wrap: wrap; align-content: flex-start; align-items: flex-start; gap: 9px; }
+        .roadbook-entry { display: inline-flex; flex: 0 0 auto; width: max-content; max-width: none; border: 1px solid rgba(82, 70, 53, .4); background: rgba(255, 255, 255, .26); break-inside: avoid; }
+        .roadbook-entry.selected { border-color: #4086bb; background: rgba(64, 134, 187, .13); box-shadow: inset 0 3px #4086bb; }
+        .roadbook-entry.playing { border-color: #539e5d; background: rgba(83, 158, 93, .16); box-shadow: inset 0 3px #539e5d; }
+        .roadbook-entry.selected.playing { box-shadow: inset 0 3px #4086bb, inset 0 6px #539e5d; }
+        .roadbook-leg { display: flex; flex: 0 0 42px; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 4px; border-right: 1px solid rgba(82, 70, 53, .28); color: #8c2b26; }
+        .roadbook-line { color: #7d7569; font-size: 10px; }
+        .roadbook-distance { font-family: "Segoe Print", "Microsoft YaHei", sans-serif; font-size: 14px; font-weight: 700; text-align: center; }
+        .roadbook-distance-unit { font-size: 9px; font-weight: 600; }
+        .roadbook-calls { display: flex; flex: 0 0 auto; flex-flow: row nowrap; align-items: stretch; }
+        .roadbook-call { display: flex; flex: 0 0 122px; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; min-height: 104px; padding: 7px 6px; }
+        .roadbook-call + .roadbook-call { border-left: 1px dotted rgba(82, 70, 53, .32); }
+        .roadbook-symbol { position: relative; width: 52px; height: 52px; flex: 0 0 52px; color: #222a2e; }
+        .roadbook-symbol::before, .roadbook-symbol::after { position: absolute; box-sizing: border-box; content: ""; }
+        .roadbook-symbol.sprite { background-position: var(--sprite-x) var(--sprite-y); background-repeat: no-repeat; background-size: 800% 800%; }
+        .roadbook-symbol.sprite::before, .roadbook-symbol.sprite::after { display: none; }
+        .roadbook-symbol.sprite-sheet-corners { background-image: url("./roadbook/corners.png"); }
+        .roadbook-symbol.sprite-x-0 { --sprite-x: 0%; }
+        .roadbook-symbol.sprite-x-1 { --sprite-x: 14.285714%; }
+        .roadbook-symbol.sprite-x-2 { --sprite-x: 28.571429%; }
+        .roadbook-symbol.sprite-x-3 { --sprite-x: 42.857143%; }
+        .roadbook-symbol.sprite-x-4 { --sprite-x: 57.142857%; }
+        .roadbook-symbol.sprite-x-5 { --sprite-x: 71.428571%; }
+        .roadbook-symbol.sprite-x-6 { --sprite-x: 85.714286%; }
+        .roadbook-symbol.sprite-x-7 { --sprite-x: 100%; }
+        .roadbook-symbol.sprite-y-0 { --sprite-y: 0%; }
+        .roadbook-symbol.sprite-y-1 { --sprite-y: 14.285714%; }
+        .roadbook-symbol.sprite-y-2 { --sprite-y: 28.571429%; }
+        .roadbook-symbol.sprite-y-3 { --sprite-y: 42.857143%; }
+        .roadbook-symbol.sprite-y-4 { --sprite-y: 57.142857%; }
+        .roadbook-symbol.sprite-y-5 { --sprite-y: 71.428571%; }
+        .roadbook-symbol.sprite-y-6 { --sprite-y: 85.714286%; }
+        .roadbook-symbol.sprite-y-7 { --sprite-y: 100%; }
+        .roadbook-symbol.corner::before {
+            position: absolute;
+            top: 7px;
+            left: 9px;
+            width: 29px;
+            height: 27px;
+            border: 3px solid currentColor;
+            border-top: 0;
+        }
+        .roadbook-symbol.corner.left::before { border-right: 0; border-radius: 0 0 0 28px; }
+        .roadbook-symbol.corner.right::before { left: 14px; border-left: 0; border-radius: 0 0 28px 0; }
+        .roadbook-symbol.corner::after { bottom: 5px; width: 10px; height: 10px; border-bottom: 3px solid currentColor; border-right: 3px solid currentColor; }
+        .roadbook-symbol.corner.left::after { left: 5px; transform: rotate(135deg); }
+        .roadbook-symbol.corner.right::after { right: 4px; transform: rotate(-45deg); }
+        .roadbook-symbol.corner.severity-1 { color: #b72b31; }
+        .roadbook-symbol.corner.severity-2 { color: #d34d32; }
+        .roadbook-symbol.corner.severity-3 { color: #d39a28; }
+        .roadbook-symbol.corner.severity-4 { color: #bca832; }
+        .roadbook-symbol.corner.severity-5 { color: #78a53a; }
+        .roadbook-symbol.corner.severity-6 { color: #479d4e; }
+        .roadbook-symbol.corner.severity-7 { color: #24945a; }
+        .roadbook-symbol.corner.severity-1::before { width: 16px; height: 18px; border-radius: 0 0 0 15px; }
+        .roadbook-symbol.corner.severity-2::before { width: 20px; height: 21px; border-radius: 0 0 0 19px; }
+        .roadbook-symbol.corner.severity-3::before { width: 25px; height: 25px; border-radius: 0 0 0 23px; }
+        .roadbook-symbol.corner.severity-4::before { width: 30px; height: 28px; border-radius: 0 0 0 27px; }
+        .roadbook-symbol.corner.severity-5::before { width: 34px; height: 31px; border-radius: 0 0 0 30px; }
+        .roadbook-symbol.corner.severity-6::before { width: 38px; height: 33px; border-radius: 0 0 0 34px; }
+        .roadbook-symbol.corner.severity-7::before { width: 42px; height: 35px; border-radius: 0 0 0 38px; }
+        .roadbook-symbol.corner.right.severity-1::before { left: 27px; border-radius: 0 0 15px 0; }
+        .roadbook-symbol.corner.right.severity-2::before { left: 23px; border-radius: 0 0 19px 0; }
+        .roadbook-symbol.corner.right.severity-3::before { left: 21px; border-radius: 0 0 23px 0; }
+        .roadbook-symbol.corner.right.severity-4::before { left: 16px; border-radius: 0 0 27px 0; }
+        .roadbook-symbol.corner.right.severity-5::before { left: 8px; border-radius: 0 0 30px 0; }
+        .roadbook-symbol.corner.right.severity-6::before { left: 5px; border-radius: 0 0 34px 0; }
+        .roadbook-symbol.corner.right.severity-7::before { left: 2px; border-radius: 0 0 38px 0; }
+        .roadbook-grade { position: absolute; top: 0; right: 0; width: 17px; height: 17px; border: 1px solid currentColor; border-radius: 50%; background: #f5eedc; font: 700 11px/17px "Segoe UI", sans-serif; text-align: center; }
+        .roadbook-symbol.junction::before { top: 6px; left: 24px; width: 3px; height: 34px; background: currentColor; }
+        .roadbook-symbol.junction::after { top: 15px; left: 8px; width: 38px; height: 16px; border-top: 3px solid currentColor; border-left: 3px solid currentColor; border-right: 3px solid currentColor; }
+        .roadbook-symbol.warning { color: #b54b36; }
+        .roadbook-symbol.warning::before { top: 5px; left: 10px; width: 0; height: 0; border-right: 16px solid transparent; border-bottom: 30px solid currentColor; border-left: 16px solid transparent; }
+        .roadbook-symbol.warning::after { top: 18px; left: 23px; width: 5px; height: 11px; border-top: 4px solid #f5eedc; border-bottom: 4px solid #f5eedc; }
+        .roadbook-symbol.crest::before { top: 25px; left: 5px; width: 42px; height: 18px; border-top: 3px solid currentColor; border-radius: 50% 50% 0 0; }
+        .roadbook-symbol.crest::after { top: 5px; left: 23px; width: 3px; height: 30px; background: currentColor; }
+        .roadbook-symbol.surface { color: #8a6a3e; }
+        .roadbook-symbol.surface::before { top: 8px; left: 8px; width: 36px; height: 29px; border: 3px solid currentColor; background: repeating-linear-gradient(135deg, transparent 0 5px, rgba(138, 106, 62, .35) 5px 8px); }
+        .roadbook-symbol.surface::after { top: 17px; left: 4px; width: 44px; border-top: 3px solid currentColor; }
+        .roadbook-symbol.straight::before { top: 5px; left: 24px; width: 3px; height: 34px; background: currentColor; }
+        .roadbook-symbol.straight::after { top: 3px; left: 19px; width: 12px; height: 12px; border-top: 3px solid currentColor; border-left: 3px solid currentColor; transform: rotate(45deg); }
+        .roadbook-symbol.system { color: #4d8554; }
+        .roadbook-symbol.system::before { top: 7px; left: 9px; width: 32px; height: 32px; border: 3px solid currentColor; border-radius: 50%; }
+        .roadbook-symbol.system::after { top: 19px; left: 16px; width: 18px; border-top: 3px solid currentColor; }
+        .roadbook-symbol.tighten { color: #9d4d36; }
+        .roadbook-symbol.tighten::before, .roadbook-symbol.tighten::after { top: 11px; width: 30px; border-top: 3px solid currentColor; }
+        .roadbook-symbol.tighten::before { left: 3px; transform: rotate(42deg); }
+        .roadbook-symbol.tighten::after { right: 3px; transform: rotate(-42deg); }
+        .roadbook-symbol.open { color: #38777d; }
+        .roadbook-symbol.open::before, .roadbook-symbol.open::after { bottom: 10px; width: 30px; border-top: 3px solid currentColor; }
+        .roadbook-symbol.open::before { left: 3px; transform: rotate(-42deg); }
+        .roadbook-symbol.open::after { right: 3px; transform: rotate(42deg); }
+        .roadbook-symbol.long { color: #446f94; }
+        .roadbook-symbol.long::before { top: 22px; left: 4px; width: 39px; border-top: 3px solid currentColor; }
+        .roadbook-symbol.long::after { top: 16px; right: 3px; width: 13px; height: 13px; border-top: 3px solid currentColor; border-right: 3px solid currentColor; transform: rotate(45deg); }
+        .roadbook-symbol.short { color: #446f94; }
+        .roadbook-symbol.short::before { top: 22px; left: 10px; width: 21px; border-top: 3px solid currentColor; }
+        .roadbook-symbol.short::after { top: 17px; right: 9px; width: 10px; height: 10px; border-top: 3px solid currentColor; border-right: 3px solid currentColor; transform: rotate(45deg); }
+        .roadbook-symbol.cut { color: #4f7d52; }
+        .roadbook-symbol.cut::before { top: 10px; left: 10px; width: 28px; height: 23px; border-bottom: 3px solid currentColor; border-left: 3px solid currentColor; }
+        .roadbook-symbol.cut::after { top: 17px; left: 4px; width: 12px; height: 12px; border-bottom: 3px solid currentColor; border-left: 3px solid currentColor; transform: rotate(-45deg); }
+        .roadbook-symbol.no-cut { color: #b54b36; }
+        .roadbook-symbol.no-cut::before { top: 7px; left: 9px; width: 29px; height: 29px; border: 3px solid currentColor; border-radius: 50%; }
+        .roadbook-symbol.no-cut::after { top: 4px; left: 24px; height: 36px; border-left: 3px solid currentColor; transform: rotate(45deg); }
+        .roadbook-symbol.keep-left, .roadbook-symbol.keep-right { color: #576d80; }
+        .roadbook-symbol.keep-left::before, .roadbook-symbol.keep-right::before { top: 7px; width: 6px; height: 32px; border: 3px solid currentColor; }
+        .roadbook-symbol.keep-left::before { left: 7px; border-right: 0; }
+        .roadbook-symbol.keep-right::before { right: 7px; border-left: 0; }
+        .roadbook-symbol.keep-left::after, .roadbook-symbol.keep-right::after { top: 18px; width: 21px; border-top: 3px solid currentColor; }
+        .roadbook-symbol.keep-left::after { left: 12px; }
+        .roadbook-symbol.keep-right::after { right: 12px; }
+        .roadbook-symbol.marker { color: #6b7280; }
+        .roadbook-symbol.marker::before { top: 9px; left: 14px; width: 24px; height: 24px; border: 3px solid currentColor; transform: rotate(45deg); }
+        .roadbook-symbol.marker::after { top: 20px; left: 20px; width: 12px; border-top: 3px solid currentColor; }
+        .roadbook-symbol-wrap { position: relative; width: 60px; height: 60px; flex: 0 0 60px; }
+        .roadbook-symbol-wrap > .roadbook-symbol { position: absolute; top: 4px; left: 4px; }
+        .roadbook-modifiers { position: absolute; inset: 0; pointer-events: none; }
+        .roadbook-modifier { position: absolute; width: 16px; height: 16px; border: 1px solid currentColor; border-radius: 50%; color: #315667; background: #f5eedc; }
+        .roadbook-modifier::before, .roadbook-modifier::after { position: absolute; box-sizing: border-box; content: ""; }
+        .roadbook-modifier:nth-child(1) { top: 0; right: 0; }
+        .roadbook-modifier:nth-child(2) { right: 0; bottom: 0; }
+        .roadbook-modifier:nth-child(3) { bottom: 0; left: 0; }
+        .roadbook-modifier:nth-child(4) { top: 0; left: 0; }
+        .roadbook-modifier:nth-child(n+5) { top: 19px; right: -3px; }
+        .roadbook-modifier.tighten::before, .roadbook-modifier.tighten::after { top: 4px; width: 9px; border-top: 2px solid currentColor; }
+        .roadbook-modifier.tighten::before { left: 1px; transform: rotate(45deg); }
+        .roadbook-modifier.tighten::after { right: 1px; transform: rotate(-45deg); }
+        .roadbook-modifier.open::before, .roadbook-modifier.open::after { bottom: 4px; width: 9px; border-top: 2px solid currentColor; }
+        .roadbook-modifier.open::before { left: 1px; transform: rotate(-45deg); }
+        .roadbook-modifier.open::after { right: 1px; transform: rotate(45deg); }
+        .roadbook-modifier.long::before { top: 7px; left: 2px; width: 10px; border-top: 2px solid currentColor; }
+        .roadbook-modifier.long::after { top: 4px; right: 2px; width: 6px; height: 6px; border-top: 2px solid currentColor; border-right: 2px solid currentColor; transform: rotate(45deg); }
+        .roadbook-modifier.short::before { top: 7px; left: 4px; width: 7px; border-top: 2px solid currentColor; }
+        .roadbook-modifier.short::after { top: 4px; right: 2px; width: 5px; height: 5px; border-top: 2px solid currentColor; border-right: 2px solid currentColor; transform: rotate(45deg); }
+        .roadbook-modifier.cut::before { top: 3px; left: 4px; width: 8px; height: 8px; border-bottom: 2px solid currentColor; border-left: 2px solid currentColor; }
+        .roadbook-modifier.no-cut::before { top: 2px; left: 6px; height: 11px; border-left: 2px solid currentColor; transform: rotate(45deg); }
+        .roadbook-modifier.keep-left::before, .roadbook-modifier.keep-right::before { top: 3px; width: 3px; height: 10px; background: currentColor; }
+        .roadbook-modifier.keep-left::before { left: 4px; }
+        .roadbook-modifier.keep-right::before { right: 4px; }
+        .roadbook-modifier.warning { color: #b54b36; }
+        .roadbook-modifier.warning::before { top: 2px; left: 3px; width: 0; height: 0; border-right: 5px solid transparent; border-bottom: 10px solid currentColor; border-left: 5px solid transparent; }
+        .roadbook-modifier.crest::before { top: 7px; left: 2px; width: 10px; height: 5px; border-top: 2px solid currentColor; border-radius: 50% 50% 0 0; }
+        .roadbook-modifier.surface::before { top: 3px; left: 3px; width: 9px; height: 9px; border: 1px solid currentColor; background: repeating-linear-gradient(135deg, transparent 0 2px, currentColor 2px 3px); }
+        .roadbook-modifier.junction::before { top: 2px; left: 7px; width: 2px; height: 11px; background: currentColor; }
+        .roadbook-modifier.junction::after { top: 7px; left: 3px; width: 10px; border-top: 2px solid currentColor; }
+        .roadbook-modifier.marker::before { top: 5px; left: 5px; width: 5px; height: 5px; border: 2px solid currentColor; border-radius: 50%; }
+        .roadbook-call-text { min-width: 0; text-align: center; }
+        .roadbook-token { overflow: hidden; color: #1e2730; font-family: Consolas, "Cascadia Mono", monospace; font-size: 11px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+        .roadbook-description { display: -webkit-box; overflow: hidden; margin-top: 2px; color: #50483e; font-size: 10px; line-height: 1.3; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+        .roadbook-modifier { padding: 1px 4px; border: 1px solid rgba(52, 76, 86, .38); border-radius: 2px; color: #315667; font-family: Consolas, "Cascadia Mono", monospace; font-size: 10px; }
+        .roadbook-empty { padding: 16px 2px; color: #746d62; font-size: 13px; }
+        body[data-theme="dark"] #roadbook { color: #e4e1d5; background: #32383c; }
+        body[data-theme="dark"] #roadbook-splitter { background: #51595c; border-color: #2c3032; }
+        body[data-theme="dark"] .roadbook-document { border-color: #767063; box-shadow: 0 2px 5px rgba(0, 0, 0, .45); background: #424039; }
+        body[data-theme="dark"] .roadbook-heading, body[data-theme="dark"] .roadbook-entry { border-color: rgba(232, 224, 203, .34); }
+        body[data-theme="dark"] .roadbook-heading-title, body[data-theme="dark"] .roadbook-token { color: #f5f2e9; }
+        body[data-theme="dark"] .roadbook-description, body[data-theme="dark"] .roadbook-empty, body[data-theme="dark"] .roadbook-line { color: #d0c9bb; }
+        body[data-theme="dark"] .roadbook-grade { background: #424039; }
+        body[data-theme="dark"] .roadbook-modifier { border-color: rgba(190, 220, 230, .72); color: #a9d5e6; background: #424039; }
+        @page { size: A4 portrait; margin: 10mm; }
+        @media print {
+            html, body, #editor-shell { height: auto !important; overflow: visible !important; background: #fff !important; }
+            #root, #roadbook-splitter { display: none !important; }
+            #roadbook { display: block !important; width: auto !important; height: auto !important; overflow: visible !important; padding: 0 !important; background: #fff !important; }
+            .roadbook-document { min-height: auto !important; padding: 0 !important; border: 0 !important; box-shadow: none !important; background: #fff !important; }
+            .roadbook-heading { margin-bottom: 6mm; padding-bottom: 3mm; }
+            .roadbook-entries { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4mm; }
+            .roadbook-entry { flex: 0 0 auto; width: max-content; max-width: none; border-color: rgba(82, 70, 53, .55) !important; }
+            .roadbook-call { flex-basis: 19mm; min-height: 29mm; }
+            .roadbook-entry.selected, .roadbook-entry.playing { background: transparent !important; box-shadow: none !important; }
+            body[data-theme="dark"] .roadbook-heading-title, body[data-theme="dark"] .roadbook-token { color: #1e2730 !important; }
+            body[data-theme="dark"] .roadbook-description, body[data-theme="dark"] .roadbook-empty, body[data-theme="dark"] .roadbook-line { color: #50483e !important; }
+            body[data-theme="dark"] .roadbook-grade, body[data-theme="dark"] .roadbook-modifier { background: #fff !important; }
+        }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+        <div id="editor-shell">
+        <div id="root"></div>
+        <div id="roadbook-splitter" role="separator" aria-orientation="vertical"></div>
+        <aside id="roadbook" aria-label="Roadbook preview"></aside>
+    </div>
     <script src="./min/vs/loader.js"></script>
     <script>
-        require.config({ paths: { 'vs': './min/vs' } });
+        require.config({ paths: { vs: './min/vs' } });
     </script>
     <script src="./min/vs/editor/editor.main.js"></script>
+    <script>
+        (() => {
+            let editor;
+            let catalog = { tokens: [], attributes: [] };
+            let tokenByFilename = new Map();
+            let playbackDecorations = [];
+            let semanticDecorations = [];
+            let languageRegistered = false;
+            let applyingValue = false;
+            let selectedRoadbookLine = 0;
+            let playingRoadbookLine = 0;
+            let roadbookTitle = 'Roadbook';
+
+            function normalize(value) {
+                return (value || '').trim();
+            }
+
+            function aliases(token) {
+                return (token.filenames || '').split(',').map(normalize).filter(Boolean);
+            }
+
+            function setCatalog(nextCatalog) {
+                catalog = nextCatalog || { tokens: [], attributes: [] };
+                tokenByFilename = new Map();
+                for (const token of catalog.tokens || []) {
+                    for (const filename of aliases(token)) {
+                        tokenByFilename.set(filename, token);
+                    }
+                }
+                validate();
+                refreshSemanticHighlights();
+                renderRoadbook();
+            }
+
+            function typeClass(token) {
+                return `ztmz-token-${String(token.type || 'MISC').toLowerCase()}`;
+            }
+
+            function refreshSemanticHighlights() {
+                if (!editor) return;
+                const decorations = [];
+                const model = editor.getModel();
+                for (let lineNumber = 1; lineNumber <= model.getLineCount(); lineNumber++) {
+                    const line = model.getLineContent(lineNumber);
+                    const commentIndex = line.indexOf('#');
+                    const content = (commentIndex >= 0 ? line.slice(0, commentIndex) : line).split('>')[0];
+                    const attributeMatch = /@\w+/.exec(content);
+                    if (attributeMatch) {
+                        decorations.push({
+                            range: new monaco.Range(lineNumber, attributeMatch.index + 1, lineNumber, attributeMatch.index + attributeMatch[0].length + 1),
+                            options: { inlineClassName: 'ztmz-token-attribute' }
+                        });
+                    }
+                    const tokenPattern = /[A-Za-z0-9_]+/g;
+                    let match;
+                    while ((match = tokenPattern.exec(content)) !== null) {
+                        const token = tokenByFilename.get(match[0]);
+                        if (!token) continue;
+                        decorations.push({
+                            range: new monaco.Range(lineNumber, match.index + 1, lineNumber, match.index + match[0].length + 1),
+                            options: { inlineClassName: typeClass(token) }
+                        });
+                    }
+                }
+                semanticDecorations = editor.deltaDecorations(semanticDecorations, decorations);
+            }
+
+            function escapeHtml(value) {
+                return String(value || '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
+            }
+
+            function parseRoadbookLine(line, lineNumber) {
+                const clean = (line || '').split('#')[0].split('>')[0].replace(/:/g, ',').trim();
+                if (!clean || clean.startsWith('@')) return null;
+                const parts = clean.split(',').map(normalize).filter(Boolean);
+                const distance = /^\d+(?:\.\d+)?$/.test(parts[0]) ? parts.shift() : '';
+                const calls = parts.map(part => part.split('/').map(normalize).filter(Boolean)).filter(call => call.length);
+                return calls.length ? { lineNumber, distance, calls } : null;
+            }
+
+            function iconDirection(tokenName) {
+                if (/(^|_)left($|_)/i.test(tokenName)) return 'left';
+                if (/(^|_)right($|_)/i.test(tokenName)) return 'right';
+                return 'straight';
+            }
+
+            function visualKind(tokenName, token) {
+                const type = String(token?.type || '').toUpperCase();
+                const name = String(tokenName || '').toLowerCase();
+                if (type === 'CORNERS' || /(^|_)(left|right)($|_)/.test(name)) return 'corner';
+                if (type === 'LINKS' || /(junction|intersection|fork|split|merge|cross)/.test(name)) return 'junction';
+                if (type === 'OBSTACLES' || type === 'CONSTRUCTION' || type === 'CAUTIONS' || /(caution|danger|bump|barrier|gate|rock|ditch)/.test(name)) return 'warning';
+                if (type === 'SURFACE' || /(gravel|tarmac|asphalt|mud|snow|ice|surface)/.test(name)) return 'surface';
+                if (type === 'SYSTEM') return 'system';
+                if (/(crest|jump|dip|drop|rise)/.test(name)) return 'crest';
+                if (type === 'ROAD' || type === 'LINE' || type === 'DRIVING' || /(straight|road|bridge|tunnel)/.test(name)) return 'straight';
+                if (type === 'MODIFIER' || type === 'PREPOSITIONS') return modifierKind(tokenName, token);
+                return 'marker';
+            }
+
+            function cornerSeverity(tokenName) {
+                const name = String(tokenName || '').toLowerCase();
+                if (/(?:^|_)flat(?:_|$)/.test(name)) return '7';
+                const match = /(?:^|_)([1-7])(?:_|$)/.exec(name);
+                return match ? match[1] : '';
+            }
+
+            function roadbookSpriteClasses(kind, direction, severity) {
+                return '';
+            }
+
+            function modifierKind(tokenName, token) {
+                const name = String(tokenName || '').toLowerCase();
+                const type = String(token?.type || '').toUpperCase();
+                if (/(dont|no)_?cut/.test(name)) return 'no-cut';
+                if (/cut/.test(name)) return 'cut';
+                if (/(tighten|tight|nip|acute|hairpin|square)/.test(name)) return 'tighten';
+                if (/(open|wide|widen)/.test(name)) return 'open';
+                if (/(long|through|into|over)/.test(name)) return 'long';
+                if (/(short|early|late)/.test(name)) return 'short';
+                if (/(keep.*left|left.*keep)/.test(name)) return 'keep-left';
+                if (/(keep.*right|right.*keep)/.test(name)) return 'keep-right';
+                if (type === 'CAUTIONS' || /(care|caution|brake|danger|bad)/.test(name)) return 'warning';
+                if (/(crest|jump|dip|bump|drop)/.test(name)) return 'crest';
+                if (type === 'SURFACE' || /(gravel|tarmac|asphalt|mud|snow|ice|slip)/.test(name)) return 'surface';
+                if (type === 'LINKS' || /(junction|bridge|gate|tunnel)/.test(name)) return 'junction';
+                return 'marker';
+            }
+
+            function renderRoadbookToken(tokenName) {
+                const token = tokenByFilename.get(tokenName);
+                const kind = visualKind(tokenName, token);
+                const direction = kind === 'corner' ? iconDirection(tokenName) : '';
+                const severity = kind === 'corner' ? cornerSeverity(tokenName) : '';
+                const spriteClasses = roadbookSpriteClasses(kind, direction, severity);
+                const grade = severity ? `<span class="roadbook-grade">${severity}</span>` : '';
+                const description = token?.description || tokenName;
+                return `<div class="roadbook-call"><span class="roadbook-symbol-wrap"><span class="roadbook-symbol ${kind} ${direction} ${severity ? `severity-${severity}` : ''} ${spriteClasses}">${grade}</span></span><div class="roadbook-call-text"><div class="roadbook-token">${escapeHtml(tokenName)}</div><div class="roadbook-description">${escapeHtml(description)}</div></div></div>`;
+            }
+
+            function renderRoadbook(selectedLine) {
+                const roadbook = document.querySelector('#roadbook');
+                if (!roadbook || !editor) return;
+                selectedRoadbookLine = selectedLine || selectedRoadbookLine || editor.getPosition()?.lineNumber || 0;
+                const model = editor.getModel();
+                const entries = [];
+                for (let lineNumber = 1; lineNumber <= model.getLineCount(); lineNumber++) {
+                    const entry = parseRoadbookLine(model.getLineContent(lineNumber), lineNumber);
+                    if (entry) entries.push(entry);
+                }
+                const roadbookEntries = entries.map(entry => {
+                    const states = [entry.lineNumber === selectedRoadbookLine ? 'selected' : '', entry.lineNumber === playingRoadbookLine ? 'playing' : ''].filter(Boolean).join(' ');
+                    const distance = entry.distance ? `<span class="roadbook-distance">${escapeHtml(entry.distance)}<span class="roadbook-distance-unit">m</span></span>` : '<span class="roadbook-distance">-</span>';
+                    return `<article class="roadbook-entry ${states}" data-line="${entry.lineNumber}"><div class="roadbook-leg"><span class="roadbook-line">${entry.lineNumber}</span>${distance}</div><div class="roadbook-calls">${entry.calls.flat().map(renderRoadbookToken).join('')}</div></article>`;
+                }).join('');
+                roadbook.innerHTML = `<div class="roadbook-document"><header class="roadbook-heading"><span class="roadbook-heading-label">ZTMZ ROADBOOK</span><span class="roadbook-heading-title">${escapeHtml(roadbookTitle)}</span></header>${roadbookEntries ? `<div class="roadbook-entries">${roadbookEntries}</div>` : '<div class="roadbook-empty"></div>'}</div>`;
+            }
+
+            function installRoadbookSplitter() {
+                const splitter = document.querySelector('#roadbook-splitter');
+                const roadbook = document.querySelector('#roadbook');
+                if (!splitter || !roadbook || splitter.dataset.initialized) return;
+                splitter.dataset.initialized = 'true';
+                const savedWidth = Number(window.localStorage.getItem('ztmz-roadbook-width'));
+                if (Number.isFinite(savedWidth) && savedWidth >= 260) roadbook.style.flexBasis = `${savedWidth}px`;
+                splitter.addEventListener('pointerdown', event => {
+                    event.preventDefault();
+                    const startX = event.clientX;
+                    const startWidth = roadbook.getBoundingClientRect().width;
+                    splitter.classList.add('dragging');
+                    const move = moveEvent => {
+                        const maxWidth = Math.max(260, window.innerWidth - 260);
+                        const width = Math.max(260, Math.min(maxWidth, startWidth + startX - moveEvent.clientX));
+                        roadbook.style.flexBasis = `${width}px`;
+                    };
+                    const stop = () => {
+                        splitter.classList.remove('dragging');
+                        window.localStorage.setItem('ztmz-roadbook-width', String(Math.round(roadbook.getBoundingClientRect().width)));
+                        document.removeEventListener('pointermove', move);
+                        document.removeEventListener('pointerup', stop);
+                    };
+                    document.addEventListener('pointermove', move);
+                    document.addEventListener('pointerup', stop, { once: true });
+                });
+                roadbook.addEventListener('click', event => {
+                    const entry = event.target.closest('.roadbook-entry');
+                    const lineNumber = Number(entry?.dataset.line);
+                    if (!lineNumber || !editor) return;
+                    editor.setPosition({ lineNumber, column: 1 });
+                    editor.revealLineInCenterIfOutsideViewport(lineNumber);
+                    editor.focus();
+                });
+            }
+
+            function registerLanguage() {
+                if (languageRegistered) return;
+                languageRegistered = true;
+                monaco.languages.register({ id: 'pacenote', extensions: ['.pacenote'] });
+                monaco.languages.setMonarchTokensProvider('pacenote', {
+                    tokenizer: {
+                        root: [
+                            [/^\s*@\w+/, 'keyword'],
+                            [/#.*$/, 'comment'],
+                            [/\b\d+(?:\.\d+)?\b/, 'number'],
+                            [/[a-zA-Z_][\w]*/, 'identifier'],
+                            [/[,:/]/, 'delimiter']
+                        ]
+                    }
+                });
+                monaco.languages.registerCompletionItemProvider('pacenote', {
+                    triggerCharacters: [',', ':', '/', '@'],
+                    provideCompletionItems(model, position) {
+                        const before = model.getLineContent(position.lineNumber).slice(0, position.column - 1);
+                        const attributeMode = /@\w*$/.test(before);
+                        const suggestions = attributeMode
+                            ? (catalog.attributes || []).map(attribute => ({
+                                label: attribute.name,
+                                kind: monaco.languages.CompletionItemKind.Property,
+                                insertText: attribute.name.slice(1),
+                                detail: attribute.description,
+                                documentation: attribute.description
+                            }))
+                            : (catalog.tokens || []).flatMap(token => aliases(token).map(filename => ({
+                                label: filename,
+                                kind: monaco.languages.CompletionItemKind.Value,
+                                insertText: filename,
+                                detail: token.type,
+                                documentation: `${token.description}${token.fallbacks ? `\n\nFallbacks: ${token.fallbacks}` : ''}`
+                            })));
+                        return { suggestions };
+                    }
+                });
+                monaco.languages.registerHoverProvider('pacenote', {
+                    provideHover(model, position) {
+                        const word = model.getWordAtPosition(position);
+                        if (!word) return null;
+                        const token = tokenByFilename.get(word.word);
+                        if (!token) return null;
+                        const fallbacks = token.fallbacks ? `\n\nFallbacks: ${token.fallbacks}` : '';
+                        return { contents: [{ value: `**${word.word}**  \n${token.type}  \n${token.description}${fallbacks}` }] };
+                    }
+                });
+            }
+
+            function marker(lineNumber, startColumn, endColumn, message, severity) {
+                return { startLineNumber: lineNumber, endLineNumber: lineNumber, startColumn, endColumn, message, severity };
+            }
+
+            function validate() {
+                if (!editor) return;
+                const markers = [];
+                const model = editor.getModel();
+                for (let lineNumber = 1; lineNumber <= model.getLineCount(); lineNumber++) {
+                    const line = model.getLineContent(lineNumber);
+                    const commentIndex = line.indexOf('#');
+                    const uncommented = commentIndex >= 0 ? line.slice(0, commentIndex) : line;
+                    const rawTextIndex = uncommented.indexOf('>');
+                    const content = (rawTextIndex >= 0 ? uncommented.slice(0, rawTextIndex) : uncommented).trim();
+                    if (!content) continue;
+                    const offset = line.indexOf(content);
+                    if (content.startsWith('@')) {
+                        const name = content.split(/\s+/)[0];
+                        const known = (catalog.attributes || []).some(attribute => attribute.name === name);
+                        if (!known) markers.push(marker(lineNumber, offset + 1, offset + name.length + 1, `Unknown attribute: ${name}`, monaco.MarkerSeverity.Warning));
+                        continue;
+                    }
+                    const parts = content.replace(/:/g, ',').split(',');
+                    let searchFrom = offset;
+                    parts.forEach((part, index) => {
+                        const trimmed = normalize(part);
+                        const column = line.indexOf(part, searchFrom) + 1;
+                        searchFrom = column - 1 + part.length;
+                        if (!trimmed || (index === 0 && /^\d+(?:\.\d+)?$/.test(trimmed))) return;
+                        trimmed.split('/').forEach(tokenName => {
+                            if (!tokenByFilename.has(tokenName)) {
+                                const tokenColumn = line.indexOf(tokenName, column - 1) + 1;
+                                markers.push(marker(lineNumber, tokenColumn, tokenColumn + tokenName.length, `Unknown pacenote token: ${tokenName}`, monaco.MarkerSeverity.Error));
+                            }
+                        });
+                    });
+                }
+                monaco.editor.setModelMarkers(model, 'ztmz-pacenote', markers);
+            }
+
+            function highlightPlayback(snapshot) {
+                if (!editor || !snapshot || snapshot.source !== 'script' || !snapshot.tokens || !snapshot.tokens.length) return;
+                const expected = snapshot.tokens.map(token => `${token.token}${(token.modifiers || []).map(modifier => `/${modifier}`).join('')}`);
+                const model = editor.getModel();
+                let matchedLine = 0;
+                for (let lineNumber = 1; lineNumber <= model.getLineCount(); lineNumber++) {
+                    const content = model.getLineContent(lineNumber).split('#')[0].split('>')[0].replace(/:/g, ',').trim();
+                    if (!content) continue;
+                    const parts = content.split(',').map(normalize);
+                    const tokens = /^\d+(?:\.\d+)?$/.test(parts[0]) ? parts.slice(1) : parts;
+                    if (tokens.length === expected.length && tokens.every((token, index) => token === expected[index])) {
+                        matchedLine = lineNumber;
+                        break;
+                    }
+                }
+                playbackDecorations = editor.deltaDecorations(playbackDecorations, matchedLine ? [{
+                    range: new monaco.Range(matchedLine, 1, matchedLine, model.getLineMaxColumn(matchedLine)),
+                    options: { isWholeLine: true, className: 'ztmz-current-pacenote', glyphMarginClassName: 'ztmz-current-pacenote-glyph' }
+                }] : []);
+                if (matchedLine) editor.revealLineInCenterIfOutsideViewport(matchedLine);
+                playingRoadbookLine = matchedLine;
+                renderRoadbook();
+            }
+
+            window.ztmzEditor = {
+                create(container) {
+                    registerLanguage();
+                    editor = monaco.editor.create(container, {
+                        language: 'pacenote',
+                        automaticLayout: true,
+                        glyphMargin: true,
+                        minimap: { enabled: false },
+                        wordWrap: 'on',
+                        fontSize: 15,
+                        scrollBeyondLastLine: false
+                    });
+                    editor.onDidChangeModelContent(() => {
+                        validate();
+                        refreshSemanticHighlights();
+                        renderRoadbook();
+                        if (!applyingValue) window.chrome.webview.postMessage({ type: 'changed' });
+                    });
+                    editor.onDidChangeCursorPosition(event => renderRoadbook(event.position.lineNumber));
+                    installRoadbookSplitter();
+                    monaco.editor.defineTheme('ztmz-dark', {
+                        base: 'vs-dark', inherit: true,
+                        rules: [],
+                        colors: { 'editor.lineHighlightBackground': '#ffffff08' }
+                    });
+                    monaco.editor.defineTheme('ztmz-light', {
+                        base: 'vs', inherit: true,
+                        rules: [],
+                        colors: { 'editor.lineHighlightBackground': '#00000008' }
+                    });
+                },
+                setValue(value) { applyingValue = true; editor.setValue(value || ''); applyingValue = false; validate(); },
+                getValue() { return editor.getValue(); },
+                setTheme(theme) { document.body.dataset.theme = theme === 'vs' ? 'light' : 'dark'; monaco.editor.setTheme(theme === 'vs' ? 'ztmz-light' : 'ztmz-dark'); },
+                setLanguage(language) { monaco.editor.setModelLanguage(editor.getModel(), language); },
+                setWordWrap(enabled) { editor.updateOptions({ wordWrap: enabled ? 'on' : 'off' }); },
+                setReadOnly(readOnly) { editor.updateOptions({ readOnly: !!readOnly }); },
+                setRoadbookTitle(title) { roadbookTitle = title || 'Roadbook'; renderRoadbook(); },
+                highlightPlayback,
+                validate,
+                focus() { editor.focus(); }
+            };
+            window.chrome.webview.addEventListener('message', event => {
+                if (event.data && event.data.type === 'catalog') setCatalog(event.data.catalog);
+            });
+        })();
+    </script>
+    <style>
+        .ztmz-current-pacenote { background: rgba(72, 160, 255, 0.20); }
+        .ztmz-current-pacenote-glyph { background: #48a0ff; width: 4px !important; margin-left: 3px; }
+        .ztmz-token-corners { color: #d95d39 !important; font-weight: 600; }
+        .ztmz-token-modifier { color: #009f9a !important; }
+        .ztmz-token-links { color: #b27d00 !important; font-weight: 600; }
+        .ztmz-token-adjectives { color: #3977c9 !important; }
+        .ztmz-token-road { color: #2e8b57 !important; }
+        .ztmz-token-line { color: #2386a8 !important; }
+        .ztmz-token-obstacles { color: #b05c00 !important; font-weight: 600; }
+        .ztmz-token-construction { color: #8359b4 !important; }
+        .ztmz-token-cautions { color: #c13c68 !important; font-weight: 600; }
+        .ztmz-token-driving { color: #5a8d18 !important; }
+        .ztmz-token-prepositions { color: #777f8a !important; }
+        .ztmz-token-surface { color: #7a6650 !important; }
+        .ztmz-token-numbers { color: #9a5cbd !important; }
+        .ztmz-token-misc { color: #7a8c31 !important; }
+        .ztmz-token-system { color: #876e2b !important; }
+        .ztmz-token-attribute { color: #9d52a5 !important; font-weight: 600; }
+        body[data-theme="dark"] .ztmz-token-corners { color: #ff9474 !important; }
+        body[data-theme="dark"] .ztmz-token-modifier { color: #51d4cc !important; }
+        body[data-theme="dark"] .ztmz-token-links { color: #f0c75e !important; }
+        body[data-theme="dark"] .ztmz-token-adjectives { color: #86b7ff !important; }
+        body[data-theme="dark"] .ztmz-token-road { color: #7ed89a !important; }
+        body[data-theme="dark"] .ztmz-token-line { color: #76ccea !important; }
+        body[data-theme="dark"] .ztmz-token-obstacles { color: #ffb85a !important; }
+        body[data-theme="dark"] .ztmz-token-construction { color: #c8a0ff !important; }
+        body[data-theme="dark"] .ztmz-token-cautions { color: #ff8fb0 !important; }
+        body[data-theme="dark"] .ztmz-token-driving { color: #aad867 !important; }
+        body[data-theme="dark"] .ztmz-token-prepositions { color: #a8b0bb !important; }
+        body[data-theme="dark"] .ztmz-token-surface { color: #d1b796 !important; }
+        body[data-theme="dark"] .ztmz-token-numbers { color: #d9a7f5 !important; }
+        body[data-theme="dark"] .ztmz-token-misc { color: #c0d879 !important; }
+        body[data-theme="dark"] .ztmz-token-system { color: #e1c16e !important; }
+        body[data-theme="dark"] .ztmz-token-attribute { color: #e3a5e8 !important; }
+    </style>
 </body>
-</html> 
+</html>

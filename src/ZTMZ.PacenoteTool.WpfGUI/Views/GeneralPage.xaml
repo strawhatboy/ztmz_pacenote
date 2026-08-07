@@ -94,6 +94,57 @@
             </Grid>
         </ui:Card>
 
+        <!-- application font size -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="260"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="TextFontSize20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=font.size}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=font.sizeDescription}"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <Grid Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="48"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Slider Minimum="85"
+                            Maximum="130"
+                            TickFrequency="5"
+                            IsSnapToTickEnabled="True"
+                            SmallChange="5"
+                            LargeChange="10"
+                            Value="{Binding Path=ViewModel.UiFontSizePercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <ui:TextBlock Grid.Column="1"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Center"
+                                  Text="{Binding Path=ViewModel.UiFontSizePercent, StringFormat={}{0}%}"/>
+                    <ui:Button Grid.Column="2"
+                               Margin="8 0 0 0"
+                               Command="{Binding ViewModel.ResetUiFontSizeCommand}"
+                               Icon="{ui:SymbolIcon ArrowReset20}"
+                               ToolTip="{DynamicResource ResourceKey=font.resetSize}"/>
+                </Grid>
+            </Grid>
+        </ui:Card>
+
         <!-- suggested downloadable font -->
         <ui:Card Margin="0 0 0 3"
                  Padding="16">

@@ -7,7 +7,10 @@ Output
 build/target
 build/target*
 artifacts/
-src/ZTMZ.PacenoteTool.ScriptEditor/Assets/Monaco/min
+# Monaco is vendored for the offline script editor. Keep its pinned runtime in
+# source control so publish output does not depend on a CDN or npm at build time.
+!src/ZTMZ.PacenoteTool.ScriptEditor/Assets/Monaco/min/
+!src/ZTMZ.PacenoteTool.ScriptEditor/Assets/Monaco/min/**
 .fake
 tools/ACRPacenoteConverter/generated-profiles/
 tools/ACRPacenoteConverter/validated-profiles/

@@ -17,6 +17,11 @@ public class GameContext {
     public string AudioPackage { set; get; } = "";
     public string ScriptAuthor { set; get; } = "";
     public string PacenoteType { set; get; } = "";
+    /// <summary>
+    /// The most recently dispatched external pacenote. Dashboards can use its
+    /// token names to select their own icons or render a textual call.
+    /// </summary>
+    public PacenotePlaybackSnapshot CurrentPacenote { set; get; } = PacenotePlaybackSnapshot.Empty;
     public string CarName { set; get; } = "";
     public string CarClass { set; get; } = "";
     public bool LocalReplayValid { set; get; } = false;

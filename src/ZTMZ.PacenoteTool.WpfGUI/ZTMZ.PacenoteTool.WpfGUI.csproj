@@ -6,10 +6,10 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <AssemblyVersion>2.99.99.42</AssemblyVersion>
-    <PackageVersion>2.99.99.42</PackageVersion>
-    <Version>2.99.99.42</Version>
-    <FileVersion>2.99.99.42</FileVersion>
+    <AssemblyVersion>2.99.99.43</AssemblyVersion>
+    <PackageVersion>2.99.99.43</PackageVersion>
+    <Version>2.99.99.43</Version>
+    <FileVersion>2.99.99.43</FileVersion>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 
@@ -21,6 +21,7 @@
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Core\ZTMZ.PacenoteTool.Core.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Base.UI\ZTMZ.PacenoteTool.Base.UI.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.I18N\ZTMZ.PacenoteTool.I18N.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.ScriptEditor\ZTMZ.PacenoteTool.ScriptEditor.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\app.ico">
@@ -32,6 +33,14 @@
     <Resource Include="Assets\app.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Monaco is bundled locally so the script editor works without a CDN. -->
+    <Content Include="..\ZTMZ.PacenoteTool.ScriptEditor\Assets\Monaco\**\*">
+      <Link>Assets\Monaco\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">

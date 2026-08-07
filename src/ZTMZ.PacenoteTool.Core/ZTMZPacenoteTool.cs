@@ -69,6 +69,7 @@ public class ZTMZPacenoteTool {
     public event Action<IGame, string, string, string> onTrackAndCarChanged;
 
     public event Action<IGame, GameData> onNewGameData;
+    public event Action<PacenotePlaybackSnapshot>? onPacenoteDispatched;
 
     public event Action<IGame> onRaceBegin;
     public event Action<IGame> onRaceBegined;
@@ -611,6 +612,18 @@ public class ZTMZPacenoteTool {
         }
     }
 
+    private void PublishPacenoteDispatch(PacenotePlaybackSnapshot snapshot)
+    {
+        try
+        {
+            onPacenoteDispatched?.Invoke(snapshot);
+        }
+        catch (Exception exception)
+        {
+            _logger.Error(exception, "Pacenote dispatch listener failed.");
+        }
+    }
+
     private void newGameDataEventHander(GameData oldData, GameData msg)
     {
         if (float.IsFinite(msg.TrackLength) && msg.TrackLength > 0)
@@ -679,7 +692,14 @@ public class ZTMZPacenoteTool {
                         this._profileManager.CurrentTension = msg.Speed / 200f;
                     }
                     _logger.Trace("Play sound at {0} because current point is {1} and calculated play point is {2}", msg.LapDistance, currentPoint, playPoint);
-                    this._profileManager.Play();
+                    var record = this._profileManager.CurrentAudioFile?.PacenoteRecord;
+                    if (this._profileManager.Play() && record != null)
+                    {
+                        PublishPacenoteDispatch(PacenotePlaybackSnapshot.FromRecord(
+                            record,
+                            "script",
+                            this._profileManager.CurrentScriptPath));
+                    }
                 }
             }
         });
@@ -703,7 +723,13 @@ public class ZTMZPacenoteTool {
                     return;
                 }
 
-                _profileManager.PlayLivePacenote(evt.Record);
+                if (_profileManager.PlayLivePacenote(evt.Record))
+                {
+                    PublishPacenoteDispatch(PacenotePlaybackSnapshot.FromRecord(
+                        evt.Record,
+                        "live",
+                        stageId: evt.StageId));
+                }
             }
             catch (Exception exception)
             {

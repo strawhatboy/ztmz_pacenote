@@ -520,8 +520,8 @@
                             <Grid.ColumnDefinitions>
 
                                 <ColumnDefinition Width="150"/>
-                                <ColumnDefinition Width="56"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="56"/>
                             </Grid.ColumnDefinitions>
 
                             <ui:TextBlock Grid.Row="0"
@@ -529,13 +529,14 @@
                                           Text="{DynamicResource ResourceKey=ui.tb_currentTrack}"/>
                             <ui:TextBlock Grid.Row="0"
                                           Grid.Column="1"
-                                          Grid.ColumnSpan="3"
                                           Name="tb_currentTrack"
                                           Text="{Binding Path=ViewModel.CurrentTrack, Mode=OneWay}"/>
-                            <!-- <ui:Button Grid.Row="0" Grid.Column="2" Name="tb_currentTrack_view" 
-                                    ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentTrack}"
-                                Icon="{ui:SymbolIcon Folder20}" HorizontalAlignment="Right"
-                                /> -->
+                            <ui:Button Grid.Row="0" Grid.Column="2"
+                                       Icon="{ui:SymbolIcon Code20}"
+                                       Command="{Binding ViewModel.OpenCurrentTrackPacenotesCommand}"
+                                       IsEnabled="{Binding ViewModel.IsRacing}"
+                                       ToolTip="{DynamicResource ResourceKey=scriptEditor.openCurrentTrack}"
+                                       HorizontalAlignment="Right" />
                             <!-- <Button Grid.Row="0" Grid.Column="3" Name="btn_currentTrack_script" 
                                     ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentScript}"
                                     Margin="2"

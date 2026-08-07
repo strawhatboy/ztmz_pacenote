@@ -14,6 +14,7 @@ using System.Windows.Controls;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
 using ZTMZ.PacenoteTool.Base.UI;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using VRGameOverlay.VROverlayWindow;
 using System.CodeDom;
@@ -521,6 +522,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             IsRacing = true; 
             _gameOverlayManager.SetStageActive(true);
             _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison = ReplayComparisonSnapshot.Unavailable;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.CurrentPacenote = PacenotePlaybackSnapshot.Empty;
         };
         _tool.onRaceBegined += (game) => {
             _gameOverlayManager.DashboardScriptArguments.GameContext.ScriptAuthor = _tool.CurrentScriptAuthor;
@@ -572,6 +574,11 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             IsRacing = false;
             _gameOverlayManager.SetStageActive(false);
             _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison = ReplayComparisonSnapshot.Unavailable;
+            _gameOverlayManager.DashboardScriptArguments.GameContext.CurrentPacenote = PacenotePlaybackSnapshot.Empty;
+        };
+
+        _tool.onPacenoteDispatched += snapshot => {
+            _gameOverlayManager.DashboardScriptArguments.GameContext.CurrentPacenote = snapshot;
         };
 
         _tool.onGameStateChanged += (game, state) => {
@@ -585,6 +592,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             if (!isStageActive)
             {
                 _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison = ReplayComparisonSnapshot.Unavailable;
+                _gameOverlayManager.DashboardScriptArguments.GameContext.CurrentPacenote = PacenotePlaybackSnapshot.Empty;
             }
         };
 
@@ -1012,6 +1020,58 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     private void MorePlaySettings() {
         var _navigationWindow = (_serviceProvider.GetService(typeof(INavigationWindow)) as INavigationWindow)!;
         _navigationWindow.Navigate(typeof(PlayPage));
+    }
+
+    [RelayCommand]
+    private async Task OpenCurrentTrackPacenotes()
+    {
+        var game = Tool.CurrentGame;
+        if (!IsRacing || game is null || string.IsNullOrWhiteSpace(CurrentTrack))
+        {
+            return;
+        }
+
+        var editor = _serviceProvider.GetService(typeof(ScriptEditorPage)) as ScriptEditorPage;
+        var navigationWindow = _serviceProvider.GetService(typeof(INavigationWindow)) as INavigationWindow;
+        if (editor is null || navigationWindow is null)
+        {
+            return;
+        }
+
+        var scriptPath = Tool.ProfileManager.CurrentScriptPath ?? string.Empty;
+        try
+        {
+            var opened = File.Exists(scriptPath) &&
+                         string.Equals(Path.GetExtension(scriptPath), ".pacenote", StringComparison.OrdinalIgnoreCase)
+                ? await editor.OpenScriptAsync(scriptPath)
+                : await OpenMemoryBackedPacenotesAsync(editor, game, scriptPath);
+            if (opened)
+            {
+                navigationWindow.Navigate(typeof(ScriptEditorPage));
+            }
+        }
+        catch (Exception exception)
+        {
+            NLog.LogManager.GetCurrentClassLogger().Error(exception, "Could not open current track pacenotes in the editor.");
+            InfoBarMessage = exception.Message;
+            InfoBarSeverity = InfoBarSeverity.Error;
+            InfoBarIsOpen = true;
+        }
+    }
+
+    private async Task<bool> OpenMemoryBackedPacenotesAsync(ScriptEditorPage editor, IGame game, string scriptPath)
+    {
+        var script = await Task.Run(() =>
+            game.GamePacenoteReader.ReadPacenoteRecord(Tool.ProfileManager.CurrentProfile, game, CurrentTrack));
+        if (script is null || script.PacenoteRecords.Count == 0)
+        {
+            return false;
+        }
+
+        return await editor.OpenReadOnlyScriptAsync(
+            script.ToString(),
+            $"{game.Name}: {CurrentTrack}",
+            scriptPath);
     }
 
     [RelayCommand]

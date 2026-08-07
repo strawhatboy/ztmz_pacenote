@@ -1,107 +1,143 @@
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Wpf.Ui.Appearance;
+using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.ScriptEditor;
-public class MonacoController
+
+public sealed class MonacoController
 {
-    private const string EditorContainerSelector = "#root";
-
-    private const string EditorObject = "wpfUiMonacoEditor";
-
-    private volatile WebView2 _webView;
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private readonly WebView2 _webView;
+    private bool _messageHandlerAttached;
 
     public MonacoController(WebView2 webView)
     {
         _webView = webView;
     }
 
+    public event EventHandler? ContentChanged;
+
     public async Task CreateAsync()
     {
+        AttachMessageHandler();
         await _webView.ExecuteScriptAsync(
-            $$"""
-            const {{EditorObject}} = monaco.editor.create(document.querySelector('{{EditorContainerSelector}}'));
-            window.onresize = () => {{{EditorObject}}.layout();}
-            """
+            "window.ztmzEditor.create(document.querySelector('#root'));"
         );
     }
 
-    public async Task RegisterPacenoteLanguageAsync() {
-        await _webView.ExecuteScriptAsync(
-            $$$"""
-            monaco.languages.register({{
-                id: 'pacenote',
-                extensions: ['.pacenote'],
-                aliases: ['Pacenote', 'pacenote'],
-                mimetypes: ['text/pacenote'],
-            }});
-            """);
-    }
- 
-
-    public async Task SetThemeAsync(ApplicationTheme appApplicationTheme)
+    public Task RegisterPacenoteLanguageAsync()
     {
-        const string uiThemeName = "wpf-ui-app-theme";
-        var baseMonacoTheme = appApplicationTheme == ApplicationTheme.Light ? "vs" : "vs-dark";
+        return Task.CompletedTask;
+    }
 
-        // TODO: Parse theme from object
+    public async Task ConfigurePacenoteLanguageAsync(PacenoteLanguageCatalog catalog)
+    {
+        _webView.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(new
+        {
+            type = "catalog",
+            catalog
+        }, JsonOptions));
+        await _webView.ExecuteScriptAsync("window.ztmzEditor.validate();");
+    }
 
-        await _webView.ExecuteScriptAsync(
-            $$$"""
-            monaco.editor.defineTheme('{{{uiThemeName}}}', {
-                base: '{{{baseMonacoTheme}}}',
-                inherit: true,
-                rules: [{ background: 'FFFFFF00' }],
-                colors: {'editor.background': '#FFFFFF00','minimap.background': '#FFFFFF00',}});
-            monaco.editor.setTheme('{{{uiThemeName}}}');
-            """
-        );
+    public async Task SetThemeAsync(ApplicationTheme applicationTheme)
+    {
+        var theme = applicationTheme == ApplicationTheme.Light ? "vs" : "vs-dark";
+        await _webView.ExecuteScriptAsync($"window.ztmzEditor.setTheme('{theme}');");
     }
 
     public async Task SetLanguageAsync(MonacoLanguage monacoLanguage)
     {
-        var languageId =
-            monacoLanguage == MonacoLanguage.ObjectiveC ? "objective-c" : monacoLanguage.ToString().ToLower();
-
-        await _webView.ExecuteScriptAsync(
-            "monaco.editor.setModelLanguage(" + EditorObject + $".getModel(), \"{languageId}\");"
-        );
+        await _webView.ExecuteScriptAsync("window.ztmzEditor.setLanguage('pacenote');");
     }
 
     public async Task SetContentAsync(string contents)
     {
-        var literalContents = SymbolDisplay.FormatLiteral(contents, false);
-        await _webView.ExecuteScriptAsync($"{EditorObject}.setValue(\"{literalContents}\");");
-    }
-
-    string UnescapeLiteral(string literal)
-    {
-        // Parse the literal string (which includes the surrounding quotes and escape sequences)
-        var expression = SyntaxFactory.ParseExpression(literal) as LiteralExpressionSyntax;
-        if (expression == null)
-            throw new InvalidOperationException("The literal could not be parsed.");
-
-        // Token.ValueText returns the unescaped string content
-        return expression.Token.ValueText;
+        await _webView.ExecuteScriptAsync(
+            $"window.ztmzEditor.setValue({JsonSerializer.Serialize(contents ?? string.Empty, JsonOptions)});"
+        );
     }
 
     public async Task<string> GetContentAsync()
     {
-        var content = await _webView.ExecuteScriptAsync($"{EditorObject}.getValue();");
-        content = content?.ToString() ?? string.Empty;
-        // convert from string literal
-        return UnescapeLiteral(content);
+        var value = await _webView.ExecuteScriptAsync("JSON.stringify(window.ztmzEditor.getValue());");
+        return JsonSerializer.Deserialize<string>(value) ?? string.Empty;
     }
 
-    public void DispatchScript(string script)
+    public Task ValidateAsync()
     {
-        if (_webView == null)
-            return;
+        return ExecuteAsync("window.ztmzEditor.validate();");
+    }
 
-        Application.Current.Dispatcher.InvokeAsync(async () => await _webView!.ExecuteScriptAsync(script));
+    public Task SetWordWrapAsync(bool enabled)
+    {
+        return ExecuteAsync($"window.ztmzEditor.setWordWrap({enabled.ToString().ToLowerInvariant()});");
+    }
+
+    public Task SetReadOnlyAsync(bool readOnly)
+    {
+        return ExecuteAsync($"window.ztmzEditor.setReadOnly({readOnly.ToString().ToLowerInvariant()});");
+    }
+
+    public Task SetRoadbookTitleAsync(string title)
+    {
+        return ExecuteAsync($"window.ztmzEditor.setRoadbookTitle({JsonSerializer.Serialize(title ?? string.Empty, JsonOptions)});");
+    }
+
+    public async Task<bool> ExportRoadbookPdfAsync(string fileName)
+    {
+        var printSettings = _webView.CoreWebView2.Environment.CreatePrintSettings();
+        printSettings.Orientation = CoreWebView2PrintOrientation.Portrait;
+        printSettings.ShouldPrintBackgrounds = true;
+        printSettings.ShouldPrintHeaderAndFooter = false;
+        return await _webView.CoreWebView2.PrintToPdfAsync(fileName, printSettings);
+    }
+
+    public Task HighlightPlaybackAsync(PacenotePlaybackSnapshot snapshot)
+    {
+        return ExecuteAsync($"window.ztmzEditor.highlightPlayback({JsonSerializer.Serialize(snapshot, JsonOptions)});");
+    }
+
+    public Task FocusAsync()
+    {
+        return ExecuteAsync("window.ztmzEditor.focus();");
+    }
+
+    private Task ExecuteAsync(string script)
+    {
+        return _webView.ExecuteScriptAsync(script);
+    }
+
+    private void AttachMessageHandler()
+    {
+        if (_messageHandlerAttached)
+        {
+            return;
+        }
+
+        _webView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
+        _messageHandlerAttached = true;
+    }
+
+    private void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
+    {
+        try
+        {
+            using var message = JsonDocument.Parse(e.WebMessageAsJson);
+            if (message.RootElement.TryGetProperty("type", out var type) &&
+                type.GetString() == "changed")
+            {
+                Application.Current.Dispatcher.InvokeAsync(() => ContentChanged?.Invoke(this, EventArgs.Empty));
+            }
+        }
+        catch (JsonException)
+        {
+            // Ignore messages not sent by the local editor bridge.
+        }
     }
 }

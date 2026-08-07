@@ -168,6 +168,7 @@ public partial class App : Application
             services.AddScoped<ViewModels.VoicePackagePageVM>();
             services.AddScoped<Views.PlayPage>();
             services.AddScoped<ViewModels.PlayPageVM>();
+            services.AddScoped<Views.ScriptEditorPage>();
             services.AddScoped<Views.HudPage>();
             services.AddScoped<ViewModels.HudPageVM>();
             services.AddScoped<Views.UserPage>();
@@ -213,6 +214,7 @@ public partial class App : Application
 
         SetupExceptionHandling();
         GetService<AppFontService>()?.ApplyConfiguredFont();
+        GetService<AppFontService>()?.ApplyConfiguredFontSize();
         await _host.StartAsync();
     }
 
