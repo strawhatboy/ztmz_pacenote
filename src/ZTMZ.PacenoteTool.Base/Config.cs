@@ -752,6 +752,15 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._Language;
         }
 
+        // Empty uses the Windows UI font. Other values are installed font family names
+        // or a suggested font identifier managed by the WPF application.
+        private string _UIFontFamily = string.Empty;
+        public string UIFontFamily
+        {
+            set { this._UIFontFamily = value; this._userconfig["UIFontFamily"] = value; }
+            get => this._UIFontFamily;
+        }
+
         private string _SkippedVersion = "1.0.0.0";
         public string SkippedVersion
         {

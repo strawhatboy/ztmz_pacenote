@@ -8,7 +8,7 @@
       xmlns:controls="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Controls"
       xmlns:helper="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
       Title="ReplayPlayingPage"
-      FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
+    FontFamily="{DynamicResource AppFontFamily}"
       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       ui:NavigationView.HeaderContent="{Binding ViewModel.HeaderContent}"
       mc:Ignorable="d">

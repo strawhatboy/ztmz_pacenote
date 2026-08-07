@@ -69,10 +69,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="fonts\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <!-- WebDashboardServer serves these files from the WPF application's base directory. -->
     <Content Include="..\ZTMZ.PacenoteTool.Base.UI\wwwroot\**\*">
       <Link>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</Link>

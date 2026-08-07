@@ -57,6 +57,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
                 DataContext = ViewModel,
                 ItemsSource = ViewModel.TrayMenuItems
             };
+            _trayContextMenu.SetResourceReference(Control.FontFamilyProperty, "AppFontFamily");
             _trayIconService = new MainWindowTrayIconService(ShowAndActivateWindow)
             {
                 TooltipText = ViewModel.Title,

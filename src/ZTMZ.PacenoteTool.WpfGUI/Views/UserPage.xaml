@@ -9,7 +9,7 @@
       Title="UserPage"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-      FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
+    FontFamily="{DynamicResource AppFontFamily}"
       mc:Ignorable="d">
     <Page.Resources>
         <!-- <Style TargetType="ui:Card">

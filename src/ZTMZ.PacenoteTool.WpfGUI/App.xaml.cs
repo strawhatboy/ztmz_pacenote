@@ -140,6 +140,7 @@ public partial class App : Application
             services.AddSingleton<UpdateConfigSetter>();
             services.AddSingleton<RuntimeControlsService>();
             services.AddSingleton<SystemNotificationService>();
+            services.AddSingleton<AppFontService>();
             services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<SystemNotificationService>());
 
             // Main window with navigation
@@ -211,6 +212,7 @@ public partial class App : Application
         }
 
         SetupExceptionHandling();
+        GetService<AppFontService>()?.ApplyConfiguredFont();
         await _host.StartAsync();
     }
 

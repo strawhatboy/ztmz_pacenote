@@ -17,6 +17,7 @@
                 <localUI:BaseUIControlsDictionary />
                 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
                     <FontFamily x:Key="SegoeFluentIcons">pack://application:,,,/ZTMZ.PacenoteTool.Base.UI;component/Res/#Segoe Fluent Icons</FontFamily>
+                    <FontFamily x:Key="AppFontFamily">Segoe UI</FontFamily>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

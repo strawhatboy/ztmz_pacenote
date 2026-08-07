@@ -8,7 +8,7 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:localUI="clr-namespace:ZTMZ.PacenoteTool.Base.UI;assembly=ZTMZ.PacenoteTool.Base.UI"
       Title="GeneralPage"
-      FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
+      FontFamily="{DynamicResource AppFontFamily}"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       mc:Ignorable="d">
@@ -58,6 +58,104 @@
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </ComboBox>
+            </Grid>
+        </ui:Card>
+
+        <!-- application font -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="260"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="LocalLanguage20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=font.systemFont}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{DynamicResource ResourceKey=font.systemFontDescription}"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <ComboBox Grid.Column="1"
+                          DisplayMemberPath="DisplayName"
+                          IsTextSearchEnabled="True"
+                          ItemsSource="{Binding Path=ViewModel.SystemFonts, Mode=OneWay}"
+                          SelectedItem="{Binding Path=ViewModel.SelectedSystemFont, Mode=TwoWay}"/>
+            </Grid>
+        </ui:Card>
+
+        <!-- suggested downloadable font -->
+        <ui:Card Margin="0 0 0 3"
+                 Padding="16">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="260"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="ArrowDownload20"
+                                   FontSize="26"
+                                   Margin="0 0 10 0"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=font.suggestedFont}"/>
+                        <ui:TextBlock Grid.Row="1"
+                                      Text="{Binding Path=ViewModel.SuggestedFontStatus, Mode=OneWay}"
+                                      Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      FontTypography="Caption"/>
+                    </Grid>
+                </StackPanel>
+                <Grid Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ComboBox IsTextSearchEnabled="True"
+                              ItemsSource="{Binding Path=ViewModel.SuggestedFonts, Mode=OneWay}"
+                              SelectedItem="{Binding Path=ViewModel.SelectedSuggestedFont, Mode=TwoWay}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}"
+                                           ToolTip="{Binding Description}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <ui:Button Grid.Column="1"
+                               Margin="8 0 0 0"
+                               Command="{Binding ViewModel.InstallSuggestedFontCommand}"
+                               Content="{Binding Path=ViewModel.SuggestedFontActionText, Mode=OneWay}"/>
+                    <ui:Button Grid.Column="2"
+                               Margin="8 0 0 0"
+                               Command="{Binding ViewModel.RefreshSuggestedFontCatalogCommand}"
+                               Icon="{ui:SymbolIcon ArrowClockwise20}"
+                               ToolTip="{DynamicResource ResourceKey=font.refreshCatalog}"/>
+                </Grid>
+                <ProgressBar Grid.Row="1"
+                             Grid.ColumnSpan="2"
+                             Margin="0 12 0 0"
+                             Minimum="0"
+                             Maximum="1"
+                             Value="{Binding Path=ViewModel.SuggestedFontDownloadProgress, Mode=OneWay}"
+                             Visibility="{Binding Path=ViewModel.IsDownloadingSuggestedFont, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </Grid>
         </ui:Card>
         <!-- accent color -->

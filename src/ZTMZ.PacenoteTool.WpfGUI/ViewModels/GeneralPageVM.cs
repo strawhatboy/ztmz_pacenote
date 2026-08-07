@@ -4,9 +4,11 @@ using System.IO;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Wpf.Ui.Controls;
+using Wpf.Ui.Extensions;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
+using ZTMZ.PacenoteTool.WpfGUI.Views.Dialog;
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 public partial class GeneralPageVM : ObservableObject, INavigationAware {
@@ -28,6 +30,29 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
 
     [ObservableProperty]
     private int _languageSelection = 0;
+
+    [ObservableProperty]
+    private IList<FontChoice> _systemFonts = new ObservableCollection<FontChoice>();
+
+    [ObservableProperty]
+    private FontChoice? _selectedSystemFont;
+
+    [ObservableProperty]
+    private IList<SuggestedFont> _suggestedFonts = new ObservableCollection<SuggestedFont>();
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SuggestedFontActionText))]
+    private SuggestedFont? _selectedSuggestedFont;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SuggestedFontActionText))]
+    private bool _isDownloadingSuggestedFont;
+
+    [ObservableProperty]
+    private double _suggestedFontDownloadProgress;
+
+    [ObservableProperty]
+    private string _suggestedFontStatus = string.Empty;
 
     [ObservableProperty]
     private Visibility _accentColorPickerVisibility = Config.Instance.UseSystemTheme ? Visibility.Collapsed : Visibility.Visible;
@@ -96,12 +121,34 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
 
     private readonly StartupService _startupService;
     private readonly SystemNotificationService _systemNotificationService;
+    private readonly AppFontService _appFontService;
+    private readonly IContentDialogService _contentDialogService;
+    private bool _isRefreshingFontChoices;
+
+    public string SuggestedFontActionText
+    {
+        get
+        {
+            if (IsDownloadingSuggestedFont)
+            {
+                return I18NLoader.Instance["font.downloading"];
+            }
+
+            return SelectedSuggestedFont != null && _appFontService.IsInstalled(SelectedSuggestedFont)
+                ? I18NLoader.Instance["font.apply"]
+                : I18NLoader.Instance["font.downloadAndApply"];
+        }
+    }
 
     public GeneralPageVM(
         StartupService startupService,
-        SystemNotificationService systemNotificationService) {
+        SystemNotificationService systemNotificationService,
+        AppFontService appFontService,
+        IContentDialogService contentDialogService) {
         _startupService = startupService;
         _systemNotificationService = systemNotificationService;
+        _appFontService = appFontService;
+        _contentDialogService = contentDialogService;
         foreach (var c in I18NLoader.Instance.culturesFullname)
         {
             Languages.Add(c);
@@ -114,6 +161,8 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
         {
             LanguageSelection = cindex;
         }
+
+        RefreshFontChoices();
     }
 
     [RelayCommand]
@@ -161,6 +210,160 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
         Config.Instance.SaveUserConfig();
         I18NLoader.Instance.SetCulture(c);
         I18NHelper.ApplyI18NToApplication();
+        RefreshFontChoices();
+    }
+
+    partial void OnSelectedSystemFontChanged(FontChoice? value)
+    {
+        if (_isRefreshingFontChoices || value == null)
+        {
+            return;
+        }
+
+        if (value.IsSystemDefault)
+        {
+            Config.Instance.UIFontFamily = string.Empty;
+            Config.Instance.SaveUserConfig();
+            _appFontService.ApplySystemDefaultFont();
+            return;
+        }
+
+        _ = ConfirmAndApplySystemFontAsync(value);
+    }
+
+    private async Task ConfirmAndApplySystemFontAsync(FontChoice fontChoice)
+    {
+        var dialog = new SystemFontWarningDialog(
+            _contentDialogService.GetDialogHostEx()!,
+            fontChoice.DisplayName);
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+        {
+            RefreshFontChoices();
+            return;
+        }
+
+        try
+        {
+            _appFontService.ApplySystemFont(fontChoice.Id);
+            Config.Instance.UIFontFamily = fontChoice.Id;
+            Config.Instance.SaveUserConfig();
+        }
+        catch (ArgumentException)
+        {
+            await _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions
+            {
+                Title = I18NLoader.Instance["font.systemFontWarningTitle"],
+                Content = I18NLoader.Instance["font.systemFontApplyFailed"],
+                CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+            });
+            RefreshFontChoices();
+        }
+    }
+
+    partial void OnSelectedSuggestedFontChanged(SuggestedFont? value)
+    {
+        RefreshSuggestedFontStatus();
+    }
+
+    partial void OnSuggestedFontDownloadProgressChanged(double value)
+    {
+        RefreshSuggestedFontStatus();
+    }
+
+    [RelayCommand]
+    private async Task InstallSuggestedFont()
+    {
+        if (SelectedSuggestedFont == null || IsDownloadingSuggestedFont)
+        {
+            return;
+        }
+
+        IsDownloadingSuggestedFont = true;
+        SuggestedFontDownloadProgress = 0;
+        RefreshSuggestedFontStatus();
+        try
+        {
+            if (!_appFontService.IsInstalled(SelectedSuggestedFont))
+            {
+                var progress = new Progress<double>(value => SuggestedFontDownloadProgress = value);
+                await _appFontService.DownloadSuggestedFontAsync(SelectedSuggestedFont, progress);
+            }
+
+            if (!_appFontService.TryApplySuggestedFont(SelectedSuggestedFont))
+            {
+                throw new InvalidOperationException("The downloaded font could not be loaded by WPF.");
+            }
+
+            Config.Instance.UIFontFamily = "suggested:" + SelectedSuggestedFont.Id;
+            Config.Instance.SaveUserConfig();
+            _isRefreshingFontChoices = true;
+            SelectedSystemFont = null;
+            _isRefreshingFontChoices = false;
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show(
+                string.Format(I18NLoader.Instance["font.downloadFailed"], ex.Message),
+                I18NLoader.Instance["font.downloadFailedTitle"],
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Warning);
+        }
+        finally
+        {
+            IsDownloadingSuggestedFont = false;
+            SuggestedFontDownloadProgress = 0;
+            RefreshSuggestedFontStatus();
+        }
+    }
+
+    private void RefreshFontChoices()
+    {
+        _isRefreshingFontChoices = true;
+        try
+        {
+            SystemFonts = new ObservableCollection<FontChoice>(_appFontService.GetSystemFontChoices());
+            SelectedSystemFont = _appFontService.GetConfiguredSystemFontChoice(SystemFonts);
+            SuggestedFonts = new ObservableCollection<SuggestedFont>(_appFontService.SuggestedFonts);
+            SelectedSuggestedFont = _appFontService.GetConfiguredSuggestedFont()
+                ?? (SuggestedFonts.Count > 0 ? SuggestedFonts[0] : null);
+            RefreshSuggestedFontStatus();
+        }
+        finally
+        {
+            _isRefreshingFontChoices = false;
+        }
+    }
+
+    private void RefreshSuggestedFontStatus()
+    {
+        if (SelectedSuggestedFont == null)
+        {
+            SuggestedFontStatus = string.Empty;
+            return;
+        }
+
+        if (IsDownloadingSuggestedFont)
+        {
+            SuggestedFontStatus = string.Format(
+                I18NLoader.Instance["font.downloadingProgress"],
+                SuggestedFontDownloadProgress);
+            OnPropertyChanged(nameof(SuggestedFontActionText));
+            return;
+        }
+
+        if (string.Equals(
+                Config.Instance.UIFontFamily,
+                "suggested:" + SelectedSuggestedFont.Id,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            SuggestedFontStatus = I18NLoader.Instance["font.active"];
+            return;
+        }
+
+        SuggestedFontStatus = _appFontService.IsInstalled(SelectedSuggestedFont)
+            ? I18NLoader.Instance["font.downloaded"]
+            : string.Format(I18NLoader.Instance["font.downloadSize"], Math.Ceiling(SelectedSuggestedFont.Size / 1024d / 1024d));
+        OnPropertyChanged(nameof(SuggestedFontActionText));
     }
 
     partial void OnIsAutoUpdateChanged(bool value)
@@ -218,7 +421,7 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
     }
 
     
-    public Task OnNavigatedToAsync()
+    public async Task OnNavigatedToAsync()
     {
         // update AutoUpdate settings, since it may be changed in About/Settings page
         IsAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
@@ -228,10 +431,39 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
         ShowClosePrompt = Config.Instance.ShowClosePrompt;
         IsStartMinimizedToTray = Config.Instance.StartMinimizedToTray;
         IsWindowsNotificationsEnabled = Config.Instance.EnableWindowsNotifications;
-        return Task.CompletedTask;
+        await RefreshSuggestedFontCatalog();
     }
 
     public Task OnNavigatedFromAsync() => Task.CompletedTask;
+
+    [RelayCommand]
+    private async Task RefreshSuggestedFontCatalog()
+    {
+        try
+        {
+            var fonts = await _appFontService.RefreshSuggestedFontsAsync();
+            _isRefreshingFontChoices = true;
+            try
+            {
+                SuggestedFonts = new ObservableCollection<SuggestedFont>(fonts);
+                SelectedSuggestedFont = _appFontService.GetConfiguredSuggestedFont()
+                    ?? (SuggestedFonts.Count > 0 ? SuggestedFonts[0] : null);
+            }
+            finally
+            {
+                _isRefreshingFontChoices = false;
+            }
+
+            RefreshSuggestedFontStatus();
+        }
+        catch (Exception)
+        {
+            if (SelectedSuggestedFont == null)
+            {
+                SuggestedFontStatus = I18NLoader.Instance["font.catalogUnavailable"];
+            }
+        }
+    }
 
     [RelayCommand]
     public void CloseBehaviorSelectionChanged()

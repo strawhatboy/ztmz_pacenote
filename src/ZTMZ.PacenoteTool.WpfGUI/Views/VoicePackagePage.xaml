@@ -10,7 +10,7 @@
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       mc:Ignorable="d"
-      FontFamily="pack://application:,,,/fonts/#Noto Sans SC"
+    FontFamily="{DynamicResource AppFontFamily}"
       ui:NavigationView.HeaderContent="{Binding ViewModel.HeaderContent}">
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />

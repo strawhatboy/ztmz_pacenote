@@ -94,6 +94,26 @@
     "webDashboardRunning": "Web Dashboard is running",
     "webDashboardError": "Web Dashboard error: {0}"
   },
+  "font": {
+    "systemDefault": "Windows default",
+    "systemFont": "Interface font",
+    "systemFontDescription": "Choose an installed Windows font. Missing glyphs may interrupt text rendering.",
+    "systemFontWarningTitle": "Font compatibility warning",
+    "systemFontWarningContent": "Use \"{0}\" for the interface? Some fonts do not cover every language, so characters may be missing or displayed incorrectly.",
+    "systemFontApplyFailed": "Windows could not load the selected font. The current interface font was kept.",
+    "suggestedFont": "Suggested downloadable font",
+    "refreshCatalog": "Refresh online font list",
+    "catalogUnavailable": "The online font list is unavailable.",
+    "downloading": "Downloading and verifying...",
+    "downloadingProgress": "Downloading and verifying... {0:P0}",
+    "downloaded": "Downloaded and verified",
+    "active": "Downloaded and in use",
+    "downloadSize": "Optional download, about {0} MB",
+    "downloadAndApply": "Download and apply",
+    "apply": "Apply",
+    "downloadFailedTitle": "Font download failed",
+    "downloadFailed": "The suggested font could not be downloaded or verified.\n\n{0}"
+  },
   "settings": {
     "more": "More",
     "title": "Settings",
