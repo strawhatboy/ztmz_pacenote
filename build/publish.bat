@@ -9,18 +9,27 @@ cd ../src
 
 cd ZTMZ.PacenoteTool.Codemasters
 dotnet publish -c Release -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0
+if errorlevel 1 goto :publish_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.RBR
 dotnet publish -c Release -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0
+if errorlevel 1 goto :publish_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.BeamNG
 dotnet publish -c Release -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0
+if errorlevel 1 goto :publish_failed
+cd ..
+
+cd ZTMZ.PacenoteTool.AC
+dotnet publish -c Release -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0
+if errorlevel 1 goto :publish_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.WpfGUI
 dotnet publish -c Release -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0
+if errorlevel 1 goto :publish_failed
 cd ..
 cd /D "%~dp0"  
 rem we're in build folder now
@@ -35,12 +44,28 @@ xcopy target\bin\ZTMZ.PacenoteTool.Codemasters\release_win-x64\ target\publish\Z
 xcopy target\bin\ZTMZ.PacenoteTool.RBR\release_win-x64\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ /Y /V /Q
 copy /Y "target\bin\ZTMZ.PacenoteTool.BeamNG\release_win-x64\ZTMZ.PacenoteTool.BeamNG.dll" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\" >nul
 xcopy "target\bin\ZTMZ.PacenoteTool.BeamNG\release_win-x64\BeamNGMod\*" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\BeamNGMod\" /E /I /Y /V /Q
+xcopy "target\bin\ZTMZ.PacenoteTool.AC\release_win-x64\" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\" /Y /V /S /Q
 
 rem the i18n
 mkdir target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang
 xcopy target\bin\ZTMZ.PacenoteTool.Codemasters\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
 xcopy target\bin\ZTMZ.PacenoteTool.RBR\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
 xcopy target\bin\ZTMZ.PacenoteTool.BeamNG\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
+xcopy target\bin\ZTMZ.PacenoteTool.AC\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
+
+pushd ..\tools\ACRPacenoteTrace
+call build.bat internal-bridge
+if errorlevel 1 (
+    popd
+    cd /D "%currentDir%"
+    exit /b 1
+)
+popd
+
+mkdir "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge"
+copy /Y "..\tools\ACRPacenoteTrace\ACRPacenoteTraceInjector.exe" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge\" >nul
+copy /Y "..\tools\ACRPacenoteTrace\ACRFmodLivePacenoteBridge.dll" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge\" >nul
+copy /Y "..\src\ZTMZ.PacenoteTool.AC\ExperimentalBridge\acr-live-bridge.manifest.json" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge\" >nul
 
 rem stage only release defaults from the configured application-data directory
 if not defined ZTMZ_PACKAGE_DATA_HOME (
@@ -69,3 +94,9 @@ if exist "%ZTMZ_PACKAGE_DATA_HOME%\profiles\default\" (
 cd /D "%currentDir%"
 
 echo done.
+exit /b 0
+
+:publish_failed
+echo Release publish failed. No installer should be created from this output.
+cd /D "%currentDir%"
+exit /b 1

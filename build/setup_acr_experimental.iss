@@ -11,4 +11,3 @@ OutputBaseFilename=ZTMZClub_PacenoteTool_ACR_Experimental_Installer_{#MyAppVersi
 
 [Files]
 Source: "{#MyAppPublishRoot}\*"; Excludes: "*.csv,XAudio*"; DestDir: "{code:GetInstallDir}"; Flags: ignoreversion
-Source: "{#MyAppPublishRoot}\games\ACRExperimentalBridge\*.json"; DestDir: "{code:GetInstallDir}\games\ACRExperimentalBridge"; Flags: ignoreversion recursesubdirs createallsubdirs

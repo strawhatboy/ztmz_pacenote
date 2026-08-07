@@ -373,6 +373,8 @@ Source: "{#MyAppPublishRoot}\games\lang\*.json"; DestDir: "{code:GetInstallDir}\
 ; BeamNG's optional bridge is packaged from these files at runtime, so its JSON
 ; manifest and input-action definition must remain beside the provider DLL.
 Source: "{#MyAppPublishRoot}\games\BeamNGMod\*.json"; DestDir: "{code:GetInstallDir}\games\BeamNGMod"; Flags: ignoreversion recursesubdirs createallsubdirs
+; ACR's experimental bridge is explicitly enabled by the user at runtime.
+Source: "{#MyAppPublishRoot}\games\ACRExperimentalBridge\*.json"; DestDir: "{code:GetInstallDir}\games\ACRExperimentalBridge"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\games\*.json"; Excludes:"*.deps.json"; DestDir: "{code:GetZTMZHome}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\runtimes\*"; DestDir: "{code:GetInstallDir}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\dashboards\*"; DestDir: "{code:GetZTMZHome}\dashboards"; Flags: ignoreversion recursesubdirs createallsubdirs
