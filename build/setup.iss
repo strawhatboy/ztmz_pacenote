@@ -33,7 +33,8 @@ Name: "webview2"; Description: "Microsoft Edge WebView2 Runtime"; Types: full cu
 [Code]
 var
   DownloadPage: TDownloadWizardPage;
-  NeedToDownload: Boolean;
+  NeedDesktopRuntime: Boolean;
+  NeedAspNetCoreRuntime: Boolean;
   DirPage: TInputDirWizardPage;
   HiddenPage: TInputDirWizardPage;
   HiddenPage2: TInputDirWizardPage;
@@ -94,26 +95,45 @@ begin
     Result:= True;
 end;
 
-function GetDotNetRuntimeDownloadUrl: String;
+function IsChinaStandardTime: Boolean;
 var
   TimeZoneKeyName: String;
 begin
-  if RegQueryStringValue(HKEY_LOCAL_MACHINE,
+  Result := RegQueryStringValue(HKEY_LOCAL_MACHINE,
     'SYSTEM\CurrentControlSet\Control\TimeZoneInformation',
     'TimeZoneKeyName', TimeZoneKeyName) and
-    (CompareText(TimeZoneKeyName, 'China Standard Time') = 0) then
+    (CompareText(TimeZoneKeyName, 'China Standard Time') = 0);
+end;
+
+function GetDotNetDesktopRuntimeDownloadUrl: String;
+begin
+  if IsChinaStandardTime then
   begin
-    Log('Using the Gitee .NET runtime mirror for China Standard Time.');
+    Log('Using the Gitee .NET Desktop Runtime mirror for China Standard Time.');
     Result := 'https://gitee.com/ztmz/dotnet-runtimes/releases/download/desktop-10.0.10/windowsdesktop-runtime-10.0.10-win-x64.exe';
   end
   else
   begin
-    Log('Using the Microsoft .NET runtime download.');
+    Log('Using the Microsoft .NET Desktop Runtime download.');
     Result := 'https://aka.ms/dotnet/10.0/windowsdesktop-runtime-win-x64.exe';
   end;
 end;
 
-function CheckDotNetInstalled: Boolean;
+function GetAspNetCoreRuntimeDownloadUrl: String;
+begin
+  if IsChinaStandardTime then
+  begin
+    Log('Using the Gitee ASP.NET Core Runtime mirror for China Standard Time.');
+    Result := 'https://gitee.com/ztmz/dotnet-runtimes/releases/download/aspnet-core10.0.10/aspnetcore-runtime-10.0.10-win-x64.exe';
+  end
+  else
+  begin
+    Log('Using the Microsoft ASP.NET Core Runtime download.');
+    Result := 'https://aka.ms/dotnet/10.0/aspnetcore-runtime-win-x64.exe';
+  end;
+end;
+
+function CheckDotNetRuntimeInstalled(const RuntimeName: String): Boolean;
 var 
   i: Integer;
   Success: Boolean;
@@ -128,18 +148,20 @@ begin
   if (Success) then
   begin
     Lines := TStringList.Create;
-    Lines.Text := ExecStdout;
-    { Find the .NET 10 Windows Desktop runtime required by this release. }
-    for i:= 0 to Lines.Count-1 do
-    begin
-      if StartsText('Microsoft.WindowsDesktop.App 10.', Lines[i]) then
+    try
+      Lines.Text := ExecStdout;
+      { Find the .NET 10 shared framework required by this release. }
+      for i:= 0 to Lines.Count-1 do
       begin
-        { found }
-        Result:= True;
-        Exit;
+        if StartsText(RuntimeName + ' 10.', Lines[i]) then
+        begin
+          Result:= True;
+          Exit;
+        end;
       end;
+    finally
+      Lines.Free;
     end;
-    Lines.Free;
   end;
   Result:= False;
 end;
@@ -258,11 +280,16 @@ begin
   begin
     DownloadPage.Clear;
 
-    // Check for .NET runtime
-    NeedToDownload := (not CheckDotNetInstalled);
-    if NeedToDownload then
+    // The application requires both the Windows Desktop and ASP.NET Core shared frameworks.
+    NeedDesktopRuntime := not CheckDotNetRuntimeInstalled('Microsoft.WindowsDesktop.App');
+    NeedAspNetCoreRuntime := not CheckDotNetRuntimeInstalled('Microsoft.AspNetCore.App');
+    if NeedDesktopRuntime then
     begin
-      DownloadPage.Add(GetDotNetRuntimeDownloadUrl(), 'dotnet10.exe', '');
+      DownloadPage.Add(GetDotNetDesktopRuntimeDownloadUrl(), 'dotnet-desktop-10.exe', '');
+    end;
+    if NeedAspNetCoreRuntime then
+    begin
+      DownloadPage.Add(GetAspNetCoreRuntimeDownloadUrl(), 'dotnet-aspnetcore-10.exe', '');
     end;
 
     // Check for WebView2
@@ -273,7 +300,7 @@ begin
       DownloadPage.Add('https://go.microsoft.com/fwlink/p/?LinkId=2124703', 'MicrosoftEdgeWebview2Setup.exe', '');
     end;
 
-    if NeedToDownload or InstallWebView2 then
+    if NeedDesktopRuntime or NeedAspNetCoreRuntime or InstallWebView2 then
     begin
       DownloadPage.Show;
       try
@@ -281,14 +308,24 @@ begin
           DownloadPage.Download;
           WebView2InstallerDownloaded := True; // Add this line
 
-          // Install .NET runtime
-          if NeedToDownload then
+          // Install the Desktop Runtime before the ASP.NET Core Runtime.
+          if NeedDesktopRuntime then
           begin
-            fullFileName := ExpandConstant('{tmp}\dotnet10.exe');
+            fullFileName := ExpandConstant('{tmp}\dotnet-desktop-10.exe');
             Result := Exec(fullFileName, '/install /passive', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
             if not Result then
             begin
-              RaiseException('Failed to install .NET runtime.');
+              RaiseException('Failed to install the .NET Desktop Runtime.');
+            end;
+          end;
+
+          if NeedAspNetCoreRuntime then
+          begin
+            fullFileName := ExpandConstant('{tmp}\dotnet-aspnetcore-10.exe');
+            Result := Exec(fullFileName, '/install /passive', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+            if not Result then
+            begin
+              RaiseException('Failed to install the ASP.NET Core Runtime.');
             end;
           end;
 
@@ -368,7 +405,7 @@ Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\default";
 Source: "{#MyAppPublishRoot}\codrivers\*"; DestDir: "{code:GetZTMZHome}\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\profiles\*"; DestDir: "{code:GetZTMZHome}\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 Source: "{#MyAppPublishRoot}\lang\*"; DestDir: "{code:GetZTMZHome}\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#MyAppPublishRoot}\games\*"; Excludes:"*.json"; DestDir: "{code:GetInstallDir}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\games\*"; Excludes:"*.json,dashboards\*"; DestDir: "{code:GetInstallDir}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\games\lang\*.json"; DestDir: "{code:GetInstallDir}\games\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; BeamNG's optional bridge is packaged from these files at runtime, so its JSON
 ; manifest and input-action definition must remain beside the provider DLL.

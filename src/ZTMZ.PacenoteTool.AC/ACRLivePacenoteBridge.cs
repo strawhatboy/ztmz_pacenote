@@ -24,12 +24,26 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
         PropertyNameCaseInsensitive = true
     };
     private readonly Action<LivePacenoteEvent> _publish;
+    private readonly Action<GameState, Dictionary<string, object>?> _publishGameState;
+    private readonly Action<CarDamageEvent> _publishCarDamage;
     private readonly CancellationTokenSource _cancellation = new();
     private readonly Task _listenerTask;
+    private readonly object _countdownLock = new();
+    private CancellationTokenSource? _countdownCancellation;
+    private Task? _countdownTask;
+    private DateTime _lastCountdownGoAtUtc = DateTime.MinValue;
 
-    public ACRLivePacenoteBridge(Action<LivePacenoteEvent> publish)
+    private static readonly TimeSpan CountdownInterval = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan CountdownGoDuplicateWindow = TimeSpan.FromSeconds(3);
+
+    public ACRLivePacenoteBridge(
+        Action<LivePacenoteEvent> publish,
+        Action<GameState, Dictionary<string, object>?> publishGameState,
+        Action<CarDamageEvent> publishCarDamage)
     {
         _publish = publish;
+        _publishGameState = publishGameState;
+        _publishCarDamage = publishCarDamage;
         _listenerTask = Task.Run(ListenAsync);
     }
 
@@ -99,23 +113,240 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
         }
 
         var record = ACRPacenoteTokenTranslator.Translate(message.Tokens);
-        if (record.Pacenotes.Count == 0)
+        if (record.Pacenotes.Count == 0 && !IsHandledSystemCue(message.Token ?? message.Tokens.FirstOrDefault()))
         {
-            Logger.Warn("ACR bridge pacenote {0} contains no playable tokens: {1}",
-                message.Id, string.Join(", ", message.Tokens));
-            return;
+            Logger.Warn(
+                "ACR bridge received an unmapped PN resource: raw={0}, token={1}, placement={2}, variant={3}",
+                message.RawSoundName ?? "<unknown>",
+                message.Token ?? string.Join(", ", message.Tokens),
+                message.Placement ?? "<unknown>",
+                message.Variant ?? "<unknown>");
         }
 
+        var eventId = string.IsNullOrWhiteSpace(message.Id) ? Guid.NewGuid().ToString("N") : message.Id;
         _publish(new LivePacenoteEvent
         {
-            Id = string.IsNullOrWhiteSpace(message.Id) ? Guid.NewGuid().ToString("N") : message.Id,
+            Id = eventId,
             StageId = message.StageId ?? string.Empty,
-            Record = record
+            Record = record,
+            SourceResourceName = message.RawSoundName,
+            SourceToken = message.Token,
+            SourcePlacement = message.Placement,
+            SourceVariant = message.Variant
         });
+
+        PublishSystemCue(message, eventId);
+    }
+
+    private void PublishSystemCue(ACRLivePacenoteMessage message, string eventId)
+    {
+        var token = string.IsNullOrWhiteSpace(message.Token)
+            ? message.Tokens.FirstOrDefault()
+            : message.Token;
+        if (string.Equals(token, "EventCountdown", StringComparison.OrdinalIgnoreCase))
+        {
+            StartCountdown(message, eventId);
+        }
+        else if (string.Equals(token, "EventCountdownGo", StringComparison.OrdinalIgnoreCase))
+        {
+            PublishCountdownGo();
+        }
+        else if (string.Equals(token, "StopAtMarshals", StringComparison.OrdinalIgnoreCase))
+        {
+            PublishRaceEnd(null);
+        }
+        else if (IsDisqualifiedToken(token))
+        {
+            PublishRaceEnd(GameStateRaceEnd.Disqualified);
+        }
+        else if (string.Equals(token, "EventOutOfTrack", StringComparison.OrdinalIgnoreCase))
+        {
+            PublishSystemSound(message, $"{eventId}-out-of-track", "outtrack");
+        }
+        else if (string.Equals(token, "EventCollide", StringComparison.OrdinalIgnoreCase))
+        {
+            // FMOD variants select voice takes, not collision severity.
+            PublishCollision();
+        }
+        else if (TryGetEventCountSound(token, out var systemSoundToken))
+        {
+            PublishSystemSound(message, $"{eventId}-count", systemSoundToken);
+        }
+    }
+
+    private void StartCountdown(ACRLivePacenoteMessage source, string eventId)
+    {
+        CancellationTokenSource cancellation;
+        lock (_countdownLock)
+        {
+            if (_countdownTask is { IsCompleted: false })
+            {
+                Logger.Debug("Ignoring duplicate ACR EventCountdown while the current countdown is active.");
+                return;
+            }
+
+            _countdownCancellation?.Dispose();
+            cancellation = CancellationTokenSource.CreateLinkedTokenSource(_cancellation.Token);
+            _countdownCancellation = cancellation;
+            _publishGameState(GameState.RaceBegin, null);
+            _countdownTask = PublishCountdownAsync(source, eventId, cancellation);
+        }
+    }
+
+    private async Task PublishCountdownAsync(ACRLivePacenoteMessage source, string eventId, CancellationTokenSource cancellation)
+    {
+        try
+        {
+            Logger.Info("ACR EventCountdown received; publishing ZTMZ countdown 5 to 1.");
+            for (var number = 5; number >= 1; --number)
+            {
+                cancellation.Token.ThrowIfCancellationRequested();
+                _publish(CreateSystemSoundEvent(
+                    source,
+                    $"{eventId}-countdown-{number}",
+                    Constants.SYSTEM_COUNTDOWNS[number - 1],
+                    isSequential: false));
+
+                if (number > 1)
+                {
+                    await Task.Delay(CountdownInterval, cancellation.Token);
+                }
+            }
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+        {
+        }
+        catch (Exception exception)
+        {
+            Logger.Error(exception, "Failed to publish the ZTMZ countdown for ACR.");
+        }
+        finally
+        {
+            lock (_countdownLock)
+            {
+                if (ReferenceEquals(_countdownCancellation, cancellation))
+                {
+                    _countdownCancellation = null;
+                    _countdownTask = null;
+                }
+            }
+
+            cancellation.Dispose();
+        }
+    }
+
+    private void PublishCountdownGo()
+    {
+        lock (_countdownLock)
+        {
+            var now = DateTime.UtcNow;
+            if (now - _lastCountdownGoAtUtc < CountdownGoDuplicateWindow)
+            {
+                Logger.Debug("Ignoring duplicate ACR EventCountdownGo resource.");
+                return;
+            }
+
+            _lastCountdownGoAtUtc = now;
+        }
+
+        Logger.Info("ACR EventCountdownGo received; emitting ZTMZ Racing state.");
+        _publishGameState(GameState.Racing, null);
+    }
+
+    private void PublishRaceEnd(GameStateRaceEnd? finishState)
+    {
+        var parameters = finishState is null
+            ? null
+            : new Dictionary<string, object>
+            {
+                [GameStateRaceEndProperty.FINISH_STATE] = finishState.Value
+            };
+        Logger.Info(
+            "ACR ending resource received; emitting ZTMZ RaceEnd state with finish state {0}.",
+            finishState?.ToString() ?? "Unknown");
+        _publishGameState(GameState.RaceEnd, parameters);
+    }
+
+    private void PublishSystemSound(ACRLivePacenoteMessage source, string eventId, string systemSoundToken)
+    {
+        Logger.Info("ACR {0} received; playing ZTMZ sound {1}.", source.Token, systemSoundToken);
+        _publish(CreateSystemSoundEvent(source, eventId, systemSoundToken, isSequential: false));
+    }
+
+    private void PublishCollision()
+    {
+        Logger.Info("ACR EventCollide received; publishing a medium collision event.");
+        _publishCarDamage(new CarDamageEvent
+        {
+            DamageType = CarDamage.Collision,
+            Parameters = new Dictionary<string, object>
+            {
+                [CarDamageConstants.SEVERITY] = (int)CollisionSeverity.Medium
+            }
+        });
+    }
+
+    private static bool TryGetEventCountSound(string? token, out string systemSoundToken)
+    {
+        systemSoundToken = string.Empty;
+        if (token is null || !token.StartsWith("EventCount", StringComparison.OrdinalIgnoreCase) ||
+            !int.TryParse(token["EventCount".Length..], out var count) || count is < 1 or > 5)
+        {
+            return false;
+        }
+
+        systemSoundToken = Constants.SYSTEM_COUNTDOWNS[count - 1];
+        return true;
+    }
+
+    private static bool IsHandledSystemCue(string? token)
+    {
+        return string.Equals(token, "EventCountdown", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(token, "EventCountdownGo", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(token, "StopAtMarshals", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(token, "EventOutOfTrack", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(token, "EventCollide", StringComparison.OrdinalIgnoreCase)
+            || TryGetEventCountSound(token, out _)
+            || IsDisqualifiedToken(token);
+    }
+
+    private static bool IsDisqualifiedToken(string? token)
+    {
+        return string.Equals(token, "EventDisqualified", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(token, "EventDisqualified1", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(token, "EventDisqualified2", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static LivePacenoteEvent CreateSystemSoundEvent(
+        ACRLivePacenoteMessage source,
+        string eventId,
+        string systemSoundToken,
+        bool isSequential)
+    {
+        return new LivePacenoteEvent
+        {
+            Id = eventId,
+            StageId = source.StageId ?? string.Empty,
+            SourceResourceName = source.RawSoundName ?? string.Empty,
+            SourceToken = source.Token ?? string.Empty,
+            SourcePlacement = source.Placement ?? string.Empty,
+            SourceVariant = source.Variant ?? string.Empty,
+            SystemSoundToken = systemSoundToken,
+            SystemSoundSequential = isSequential
+        };
     }
 
     public void Dispose()
     {
+        CancellationTokenSource? countdownCancellation;
+        lock (_countdownLock)
+        {
+            countdownCancellation = _countdownCancellation;
+            _countdownCancellation = null;
+            _countdownTask = null;
+        }
+        countdownCancellation?.Cancel();
+
         _cancellation.Cancel();
         try
         {
@@ -124,6 +355,7 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
         catch (AggregateException exception) when (exception.InnerExceptions.All(inner => inner is OperationCanceledException))
         {
         }
+        countdownCancellation?.Dispose();
         _cancellation.Dispose();
     }
 
@@ -133,6 +365,10 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
         public string Id { get; init; } = string.Empty;
         public string? StageId { get; init; }
         public List<string> Tokens { get; init; } = new();
+        public string? RawSoundName { get; init; }
+        public string? Token { get; init; }
+        public string? Placement { get; init; }
+        public string? Variant { get; init; }
     }
 }
 
@@ -145,8 +381,8 @@ internal static class ACRPacenoteTokenTranslator
             ["Right1"] = "1_right", ["Right2"] = "2_right", ["Right3"] = "3_right", ["Right4"] = "4_right", ["Right5"] = "5_right", ["Right6"] = "6_right",
             ["LeftHP"] = "hairpin_left", ["RightHP"] = "hairpin_right", ["Flat"] = "flat", ["FlatLeft"] = "flat_left", ["FlatRight"] = "flat_right",
             ["Into"] = "into", ["And"] = "and", ["Long"] = "long", ["VeryLong"] = "very_long", ["Short"] = "short", ["Crest"] = "crest", ["OverCrest"] = "over_crest",
-            ["OverBumps"] = "over_bumps", ["Dip"] = "dip", ["Opens"] = "opens", ["OpensLate"] = "opens_late", ["OpensToFlat"] = "opens_to_flat",
-            ["Tightens"] = "tightens", ["TightensLate"] = "tightens_late", ["Tighten1"] = "tightens_to_1", ["Tighten2"] = "tightens_to_2", ["Tighten3"] = "tightens_to_3", ["Tighten4"] = "tightens_to_4", ["Tighten5"] = "tightens_to_5",
+            ["OverBumps"] = "over_bumps", ["Dip"] = "dip", ["Opens"] = "opens", ["OpensLate"] = "opens,late", ["OpensToFlat"] = "opens_to_flat",
+            ["Tightens"] = "tightens", ["TightensLate"] = "tightens,late", ["Tighten1"] = "tightens_to_1", ["Tighten2"] = "tightens_to_2", ["Tighten3"] = "tightens_to_3", ["Tighten4"] = "tightens_to_4", ["Tighten5"] = "tightens_to_5",
             ["DontCut"] = "dont_cut", ["Caution"] = "caution", ["SlowDown"] = "slow", ["Sudden"] = "sudden", ["Narrows"] = "narrows", ["KeepLeft"] = "keep_left", ["KeepIn"] = "keep_in", ["KeepOut"] = "keep_out",
             ["Finish"] = "finish", ["Inside"] = "inside", ["Late"] = "late", ["AfterEnd"] = "after", ["AfterFinish"] = "after,finish", ["AfterJunction"] = "after,junction", ["AtJunction"] = "at_junction", ["AtTheJunction"] = "at_junction",
             ["BadCamber"] = "bad_camber", ["BigCut"] = "big_cut", ["Blind"] = "unseen", ["Brake"] = "brake", ["Bumps"] = "bumps", ["Cut"] = "cut", ["DitchInside"] = "ditches_inside", ["DitchOutside"] = "ditches_outside",
@@ -154,7 +390,28 @@ internal static class ACRPacenoteTokenTranslator
             ["KeepMiddle"] = "keep_middle", ["KeepRight"] = "keep_in,right", ["Kinks"] = "kinks", ["KinksStartingLeft"] = "kinks,slight_left", ["KinksStartingRight"] = "kinks,slight_right", ["LeftAcuteHP"] = "hairpin_left", ["LeftFlat"] = "flat_left", ["LeftKink"] = "kinks,slight_left", ["LeftOpenHP"] = "hairpin_left,opens", ["LeftSquare"] = "square_left",
             ["LogsInside"] = "logs_inside", ["LogsOutside"] = "logs_outside", ["OnAsphalt"] = "tarmac", ["OnGravel"] = "gravel", ["Over"] = "over", ["OverBridge"] = "over_bridge", ["OverBump"] = "over_bumps", ["OverJumpSmall"] = "over_small_jump",
             ["RightAcuteHP"] = "hairpin_right", ["RightChicane"] = "chicane", ["RightChicaneEntry"] = "right_entry_chicane", ["RightFlat"] = "flat_right", ["RightKink"] = "kinks,slight_right", ["RightOpenHP"] = "hairpin_right,opens", ["RightSquare"] = "square_right",
-            ["SmallCut"] = "small_cut", ["StopAtMarshals"] = "stop,marshalls", ["ThroughGate"] = "through_gate", ["ThroughTunnel"] = "through_tunnel", ["UpHill"] = "uphill", ["Widens"] = "widens"
+            ["SmallCut"] = "small_cut", ["StopAtMarshals"] = "stop,marshalls", ["ThroughGate"] = "through_gate", ["ThroughTunnel"] = "through_tunnel", ["UpHill"] = "uphill", ["Widens"] = "widens",
+
+            // Synonyms and detail calls verified against the active ZTMZ data.zdb vocabulary.
+            ["After"] = "after", ["AfterCrossroad"] = "after,junction", ["AfterTheSign"] = "after,sign", ["AfterTheSigns"] = "after,sign",
+            ["AroundBale"] = "around_bales", ["AroundBarrel"] = "around_bales", ["AroundPole"] = "around,post", ["AroundPoles"] = "around,post", ["AroundSign"] = "around_sign", ["AroundSigns"] = "around_sign", ["AroundTyres"] = "around,tyres",
+            ["Asphalt"] = "tarmac",
+            ["AtTheBale"] = "at,bales", ["AtTheBarrel"] = "at,bales", ["AtTheCrossroad"] = "at,junction", ["AtTheGate"] = "at,gate", ["AtTheHouse"] = "at,house", ["AtThePoles"] = "at,post", ["AtTheRail"] = "at,rails", ["AtTheRoundabout"] = "at,roundabout", ["AtTheSign"] = "at,sign", ["AtTheSigns"] = "at,sign", ["AtTheTyres"] = "at,tyres",
+            ["Bale"] = "bales", ["Barrel"] = "bales", ["BigCrest"] = "big_crest", ["BigDip"] = "big,dip", ["Bridge"] = "bridge", ["Bump"] = "bumps",
+            ["CautionInside"] = "caution,inside", ["CautionOutside"] = "caution,outside", ["Chicane"] = "chicane", ["Cobbles"] = "cobble", ["Concrete"] = "concrete", ["CrestBig"] = "big_crest", ["CrestOver"] = "over_crest", ["CrestSmall"] = "small_crest", ["Crossroad"] = "junction", ["CutIn"] = "cut,inside",
+            ["Ditch"] = "ditches", ["Down"] = "downhill", ["Downhill"] = "downhill", ["Early"] = "early",
+            ["FlatCrest"] = "flat,crest", ["FlatOut"] = "flat", ["Ford"] = "ford", ["Gate"] = "gate", ["Gravel"] = "gravel", ["Handbrake"] = "handbrake", ["Hidden"] = "unseen", ["Hole"] = "hole", ["HoleInside"] = "hole,inside", ["HoleOutside"] = "hole,outside", ["Holes"] = "hole", ["Ice"] = "ice", ["Immediate"] = "directly",
+            ["Jump"] = "jump", ["JumpBig"] = "big_jump", ["JumpOver"] = "over_jump", ["JumpSmall"] = "small_jump",
+            ["Left"] = "left", ["LeftChicane"] = "left_entry_chicane", ["LeftChicaneEntry"] = "left_entry_chicane", ["LeftEasy"] = "left,easy", ["LeftFast"] = "left,fast", ["LeftHard"] = "left,hard", ["LeftRight"] = "left,right", ["LeftSudden"] = "sudden,left", ["LeftVeryHard"] = "left,very,hard",
+            ["Logs"] = "logs", ["LongMale"] = "long", ["LongStraight"] = "long,straight", ["Loose"] = "loose_gravel", ["LoseGravel"] = "loose_gravel",
+            ["Minus"] = "minus", ["Mud"] = "slippery", ["NarrowsInside"] = "narrows,inside", ["NarrowsLeft"] = "narrows,left", ["NarrowsOutside"] = "narrows,outside", ["NarrowsRight"] = "narrows,right",
+            ["Numb01"] = "1", ["Numb02"] = "2", ["Numb03"] = "3", ["Numb04"] = "4", ["Numb05"] = "5", ["Numb06"] = "6", ["Numb07"] = "7",
+            ["OnCobbles"] = "cobble", ["OnConcrete"] = "concrete", ["OnIce"] = "ice", ["OnLooseGravel"] = "loose_gravel", ["OnPavement"] = "tarmac", ["OnSnow"] = "snow", ["OnSnowAndIce"] = "snow,ice",
+            ["Outside"] = "outside", ["OverBigJump"] = "over_big_jump", ["OverJump"] = "over_jump", ["Pavement"] = "tarmac", ["Plus"] = "plus", ["Pole"] = "post", ["Poles"] = "post", ["Pothole"] = "hole", ["Pothole1"] = "hole", ["Pothole2"] = "hole", ["Potholes"] = "hole", ["Potholes1"] = "hole", ["Potholes2"] = "hole",
+            ["Right"] = "right", ["RightEasy"] = "right,easy", ["RightFast"] = "right,fast", ["RightHard"] = "right,hard", ["RightLeft"] = "right,left", ["RightSudden"] = "sudden,right", ["RightVeryHard"] = "right,very,hard",
+            ["Rock"] = "rocks", ["Rocks"] = "rocks", ["RocksInside"] = "rocks,inside", ["RocksOutside"] = "rocks,outside", ["Rough"] = "rough", ["Roundabout"] = "roundabout", ["Ruts"] = "ruts", ["ShortMale"] = "short", ["Sign"] = "sign", ["Signs"] = "sign", ["Slippery"] = "slippery", ["SmallCrest"] = "small_crest", ["Snow"] = "snow", ["SnowAndIce"] = "snow,ice",
+            ["SuddenLeft"] = "sudden,left", ["SuddenRight"] = "sudden,right", ["Threes"] = "3", ["ThreesInside"] = "3,inside", ["ThreesOutside"] = "3,outside", ["ThroughWater"] = "through,water_splash",
+            ["Tree"] = "tree", ["TreeInside"] = "tree,inside", ["TreeOutside"] = "tree,outside", ["Trees"] = "tree", ["TreesInside"] = "tree,inside", ["TreesOutside"] = "tree,outside", ["Tunnel"] = "tunnel", ["Tyres"] = "tyres", ["UnderBridge"] = "tunnel", ["Up"] = "uphill", ["VeryLongStraight"] = "very_long,straight", ["Water"] = "water_splash", ["WaterSplash"] = "water_splash", ["Wet"] = "slippery", ["WidensInside"] = "widens,inside", ["WidensLeft"] = "widens,left", ["WidensOutside"] = "widens,outside", ["WidensRight"] = "widens,right"
         };
 
     public static PacenoteRecord Translate(IEnumerable<string> sourceTokens)

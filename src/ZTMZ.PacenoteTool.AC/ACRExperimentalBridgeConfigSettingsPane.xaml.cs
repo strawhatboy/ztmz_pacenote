@@ -65,6 +65,10 @@ public partial class ACRExperimentalBridgeConfigSettingsPane : IGameConfigSettin
         _config.ControlsEnabled = true;
         PersistConfiguration();
         RefreshBridgeStatus();
+        if (_game is not null)
+        {
+            GameRuntimeNotifications.NotifyLocalBridgeControlsEnabled(_game);
+        }
     }
 
     private void EnableControlsCheckBox_OnUnchecked(object sender, RoutedEventArgs e)

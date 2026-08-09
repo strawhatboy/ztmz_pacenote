@@ -4,7 +4,6 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
       xmlns:controls="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Controls"
       xmlns:helper="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
       Title="ReplayPlayingPage"
@@ -220,13 +219,10 @@
                              Visibility="{Binding ViewModel.HasBestReplay, Converter={StaticResource BooleanToVisibilityConverter}}"
                              IsChecked="{Binding ViewModel.ShowBestReplayComparison, Mode=TwoWay}" />
           </Grid>
-          <lvc:CartesianChart Grid.Row="1"
-                              Series="{Binding ViewModel.AnalysisSeries}"
-                              XAxes="{Binding ViewModel.AnalysisXAxis}"
-                              YAxes="{Binding ViewModel.AnalysisYAxis}"
-                              EasingFunction="{x:Null}"
-                              AnimationsSpeed="00:00:00"
-                              ZoomMode="X" />
+          <controls:ReplayAnalysisChartControl Grid.Row="1"
+                                               Series="{Binding ViewModel.AnalysisSeries}"
+                                               ShowBestReplay="{Binding ViewModel.ShowBestReplayComparison}"
+                                               UsesInputScale="{Binding ViewModel.AnalysisUsesInputScale}" />
         </Grid>
       </TabItem>
     </TabControl>

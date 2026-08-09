@@ -98,10 +98,16 @@ namespace ZTMZ.PacenoteTool.Base.Game
     public static class GameRuntimeNotifications
     {
         public static event Action<IGame> LocalBridgeInjected;
+        public static event Action<IGame> LocalBridgeControlsEnabled;
 
         public static void NotifyLocalBridgeInjected(IGame game)
         {
             LocalBridgeInjected?.Invoke(game);
+        }
+
+        public static void NotifyLocalBridgeControlsEnabled(IGame game)
+        {
+            LocalBridgeControlsEnabled?.Invoke(game);
         }
     }
 }

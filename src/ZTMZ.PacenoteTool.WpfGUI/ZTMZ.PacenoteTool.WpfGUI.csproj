@@ -36,7 +36,8 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Monaco is bundled locally so the script editor works without a CDN. -->
-    <Content Include="..\ZTMZ.PacenoteTool.ScriptEditor\Assets\Monaco\**\*">
+    <Content Include="..\ZTMZ.PacenoteTool.ScriptEditor\Assets\Monaco\**\*"
+             Exclude="..\ZTMZ.PacenoteTool.ScriptEditor\Assets\Monaco\min\vs\basic-languages\**\*;..\ZTMZ.PacenoteTool.ScriptEditor\Assets\Monaco\min\vs\language\**\*;..\ZTMZ.PacenoteTool.ScriptEditor\Assets\Monaco\min\vs\nls.messages.*.js">
       <Link>Assets\Monaco\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

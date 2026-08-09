@@ -2,8 +2,10 @@
 #include <MinHook.h>
 
 #include <atomic>
+#include <cstdio>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace
 {
@@ -11,7 +13,9 @@ constexpr char FmodStudioModule[] = "fmodstudio.dll";
 constexpr char SetParameterByNameExport[] = "?setParameterByName@EventInstance@Studio@FMOD@@QEAA?AW4FMOD_RESULT@@PEBDM_N@Z";
 constexpr char GetDescriptionExport[] = "?getDescription@EventInstance@Studio@FMOD@@QEBA?AW4FMOD_RESULT@@PEAPEAVEventDescription@23@@Z";
 constexpr char GetPathExport[] = "?getPath@EventDescription@Studio@FMOD@@QEBA?AW4FMOD_RESULT@@PEADHPEAH@Z";
-constexpr wchar_t LogPath[] = L"C:\\Users\\Andy\\lab\\ztmz_pacenote\\tmp\\acr_fmod_pacenote_parameters.log";
+constexpr wchar_t ZtmzRegistryPath[] = L"Software\\ZTMZ Next Generation Pacenote Tool";
+constexpr wchar_t ZtmzHomeValueName[] = L"ZTMZHome";
+constexpr wchar_t TraceLogFileName[] = L"acr_fmod_pacenote_parameters.log";
 
 using EventInstanceSetParameterByNameFn = int(__fastcall*)(void* eventInstance, const char* name, float value, bool ignoreSeekSpeed);
 using EventInstanceGetDescriptionFn = int(__fastcall*)(void* eventInstance, void** description);
@@ -24,6 +28,17 @@ HANDLE LogFile = INVALID_HANDLE_VALUE;
 std::atomic<uint64_t> Sequence = 0;
 std::atomic_flag LogLock = ATOMIC_FLAG_INIT;
 
+std::string GetLogTimestamp()
+{
+    SYSTEMTIME time{};
+    GetLocalTime(&time);
+    char buffer[32]{};
+    sprintf_s(buffer, "%04u-%02u-%02u %02u:%02u:%02u.%03u",
+        time.wYear, time.wMonth, time.wDay,
+        time.wHour, time.wMinute, time.wSecond, time.wMilliseconds);
+    return buffer;
+}
+
 void WriteTrace(const std::string& line)
 {
     if (LogFile == INVALID_HANDLE_VALUE)
@@ -35,10 +50,64 @@ void WriteTrace(const std::string& line)
     {
     }
 
-    const std::string output = std::to_string(++Sequence) + " | " + line + "\r\n";
+    const std::string output = GetLogTimestamp() + " | " + std::to_string(++Sequence) + " | " + line + "\r\n";
     DWORD written = 0;
     WriteFile(LogFile, output.data(), static_cast<DWORD>(output.size()), &written, nullptr);
     LogLock.clear(std::memory_order_release);
+}
+
+std::wstring GetZtmzLogsDirectory()
+{
+    std::wstring ztmzHome;
+    DWORD byteCount = 0;
+    if (RegGetValueW(HKEY_CURRENT_USER, ZtmzRegistryPath, ZtmzHomeValueName, RRF_RT_REG_SZ, nullptr, nullptr, &byteCount) == ERROR_SUCCESS && byteCount > sizeof(wchar_t))
+    {
+        std::vector<wchar_t> buffer(byteCount / sizeof(wchar_t));
+        if (RegGetValueW(HKEY_CURRENT_USER, ZtmzRegistryPath, ZtmzHomeValueName, RRF_RT_REG_SZ, nullptr, buffer.data(), &byteCount) == ERROR_SUCCESS && buffer[0])
+        {
+            ztmzHome = buffer.data();
+        }
+    }
+
+    if (ztmzHome.empty())
+    {
+        const DWORD profileLength = GetEnvironmentVariableW(L"USERPROFILE", nullptr, 0);
+        if (profileLength == 0)
+        {
+            return {};
+        }
+
+        std::vector<wchar_t> profile(profileLength);
+        if (GetEnvironmentVariableW(L"USERPROFILE", profile.data(), profileLength) == 0 || !profile[0])
+        {
+            return {};
+        }
+
+        ztmzHome = std::wstring(profile.data()) + L"\\Documents\\My Games\\ZTMZClub_nextgen";
+    }
+
+    if (ztmzHome.back() != L'\\' && ztmzHome.back() != L'/')
+    {
+        ztmzHome.push_back(L'\\');
+    }
+    ztmzHome += L"logs";
+
+    if (!CreateDirectoryW(ztmzHome.c_str(), nullptr) && GetLastError() != ERROR_ALREADY_EXISTS)
+    {
+        return {};
+    }
+
+    return ztmzHome;
+}
+
+void OpenLogFile()
+{
+    const std::wstring directory = GetZtmzLogsDirectory();
+    if (!directory.empty())
+    {
+        const std::wstring logPath = directory + L"\\" + TraceLogFileName;
+        LogFile = CreateFileW(logPath.c_str(), FILE_APPEND_DATA, FILE_SHARE_READ, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+    }
 }
 
 std::string DescribeEvent(void* eventInstance)
@@ -72,11 +141,7 @@ int __fastcall DetourSetParameterByName(void* eventInstance, const char* name, f
 
 DWORD WINAPI InitializeTrace(void*)
 {
-    LogFile = CreateFileW(LogPath, FILE_APPEND_DATA, FILE_SHARE_READ, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-    if (LogFile == INVALID_HANDLE_VALUE)
-    {
-        return 1;
-    }
+    OpenLogFile();
 
     const HMODULE fmod = GetModuleHandleA(FmodStudioModule);
     if (!fmod)

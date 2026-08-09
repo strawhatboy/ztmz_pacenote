@@ -3,6 +3,7 @@
 
 #include <atomic>
 #include <cctype>
+#include <cstdio>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -12,22 +13,38 @@ namespace
 constexpr char FmodStudioModule[] = "fmodstudio.dll";
 constexpr char GetSoundInfoExport[] = "?getSoundInfo@System@Studio@FMOD@@QEBA?AW4FMOD_RESULT@@PEBDPEAUFMOD_STUDIO_SOUND_INFO@@@Z";
 constexpr wchar_t PipePath[] = L"\\\\.\\pipe\\ZTMZPacenote.ACR.Live.v1";
-constexpr wchar_t LogPath[] = L"C:\\Users\\Andy\\lab\\ztmz_pacenote\\tmp\\acr_live_pacenote_bridge.log";
+constexpr wchar_t ZtmzRegistryPath[] = L"Software\\ZTMZ Next Generation Pacenote Tool";
+constexpr wchar_t ZtmzHomeValueName[] = L"ZTMZHome";
+constexpr wchar_t BridgeLogFileName[] = L"acr_live_pacenote_bridge.log";
 
 using SystemGetSoundInfoFn = int(__fastcall*)(void* system, const char* nameOrId, void* soundInfo);
 
 SystemGetSoundInfoFn OriginalGetSoundInfo = nullptr;
 HANDLE LogFile = INVALID_HANDLE_VALUE;
 std::atomic<uint64_t> Sequence = 0;
+std::atomic_bool PipeUnavailableLogged = false;
+std::atomic_bool PipeWriteFailedLogged = false;
 std::mutex PacenoteLock;
 std::vector<std::string> CurrentTokens;
 
-enum class TokenPosition
+struct PacenoteLookup
 {
-    Start,
-    Mid,
-    End,
+    std::string rawSoundName;
+    std::string token;
+    std::string placement;
+    std::string variant;
 };
+
+std::string GetLogTimestamp()
+{
+    SYSTEMTIME time{};
+    GetLocalTime(&time);
+    char buffer[32]{};
+    sprintf_s(buffer, "%04u-%02u-%02u %02u:%02u:%02u.%03u",
+        time.wYear, time.wMonth, time.wDay,
+        time.wHour, time.wMinute, time.wSecond, time.wMilliseconds);
+    return buffer;
+}
 
 void WriteLog(const std::string& text)
 {
@@ -36,12 +53,87 @@ void WriteLog(const std::string& text)
         return;
     }
 
-    const std::string line = std::to_string(++Sequence) + " | " + text + "\r\n";
+    const std::string line = GetLogTimestamp() + " | " + std::to_string(++Sequence) + " | " + text + "\r\n";
     DWORD written = 0;
     WriteFile(LogFile, line.data(), static_cast<DWORD>(line.size()), &written, nullptr);
 }
 
-bool TryParsePacenoteToken(const char* soundName, std::string& token, TokenPosition& position)
+void WritePipeUnavailableOnce(DWORD error)
+{
+    bool expected = false;
+    if (PipeUnavailableLogged.compare_exchange_strong(expected, true))
+    {
+        WriteLog("pipe-unavailable: CreateFileW failed (error=" + std::to_string(error) + ")");
+    }
+}
+
+void WritePipeWriteFailureOnce(DWORD error)
+{
+    bool expected = false;
+    if (PipeWriteFailedLogged.compare_exchange_strong(expected, true))
+    {
+        WriteLog("pipe-write-failed: WriteFile failed (error=" + std::to_string(error) + ")");
+    }
+}
+
+std::wstring GetZtmzLogsDirectory()
+{
+    std::wstring ztmzHome;
+    DWORD byteCount = 0;
+    if (RegGetValueW(HKEY_CURRENT_USER, ZtmzRegistryPath, ZtmzHomeValueName, RRF_RT_REG_SZ, nullptr, nullptr, &byteCount) == ERROR_SUCCESS && byteCount > sizeof(wchar_t))
+    {
+        std::vector<wchar_t> buffer(byteCount / sizeof(wchar_t));
+        if (RegGetValueW(HKEY_CURRENT_USER, ZtmzRegistryPath, ZtmzHomeValueName, RRF_RT_REG_SZ, nullptr, buffer.data(), &byteCount) == ERROR_SUCCESS && buffer[0])
+        {
+            ztmzHome = buffer.data();
+        }
+    }
+
+    if (ztmzHome.empty())
+    {
+        const DWORD profileLength = GetEnvironmentVariableW(L"USERPROFILE", nullptr, 0);
+        if (profileLength == 0)
+        {
+            return {};
+        }
+
+        std::vector<wchar_t> profile(profileLength);
+        if (GetEnvironmentVariableW(L"USERPROFILE", profile.data(), profileLength) == 0 || !profile[0])
+        {
+            return {};
+        }
+
+        ztmzHome = std::wstring(profile.data()) + L"\\Documents\\My Games\\ZTMZClub_nextgen";
+    }
+
+    std::wstring directory = ztmzHome;
+    if (directory.back() != L'\\' && directory.back() != L'/')
+    {
+        directory.push_back(L'\\');
+    }
+    directory += L"logs";
+
+    if (!CreateDirectoryW(directory.c_str(), nullptr) && GetLastError() != ERROR_ALREADY_EXISTS)
+    {
+        return {};
+    }
+
+    return directory;
+}
+
+void OpenLogFile()
+{
+    const std::wstring directory = GetZtmzLogsDirectory();
+    if (directory.empty())
+    {
+        return;
+    }
+
+    const std::wstring logPath = directory + L"\\" + BridgeLogFileName;
+    LogFile = CreateFileW(logPath.c_str(), FILE_APPEND_DATA, FILE_SHARE_READ, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+}
+
+bool TryParsePacenoteLookup(const char* soundName, PacenoteLookup& lookup)
 {
     if (!soundName)
     {
@@ -55,35 +147,39 @@ bool TryParsePacenoteToken(const char* soundName, std::string& token, TokenPosit
         return false;
     }
 
+    lookup = {};
+    lookup.rawSoundName = name;
+
     const size_t tokenStart = tokenPrefix + 4;
-    const size_t cadence = name.find("_Any_", tokenStart);
-    if (cadence == std::string::npos || cadence == tokenStart)
+    const size_t tokenEnd = name.find("_Any_", tokenStart);
+    if (tokenEnd == std::string::npos)
+    {
+        lookup.token = name.substr(tokenStart);
+        return !lookup.token.empty();
+    }
+
+    if (tokenEnd == tokenStart)
     {
         return false;
     }
 
-    const size_t positionStart = cadence + 5;
+    lookup.token = name.substr(tokenStart, tokenEnd - tokenStart);
+    const size_t positionStart = tokenEnd + 5;
     const size_t positionEnd = name.find('_', positionStart);
-    const std::string positionName = name.substr(positionStart, positionEnd - positionStart);
-    if (positionName == "Start")
+    if (positionEnd == std::string::npos)
     {
-        position = TokenPosition::Start;
-    }
-    else if (positionName == "Mid")
-    {
-        position = TokenPosition::Mid;
-    }
-    else if (positionName == "End")
-    {
-        position = TokenPosition::End;
-    }
-    else
-    {
-        return false;
+        lookup.placement = name.substr(positionStart);
+        return true;
     }
 
-    token = name.substr(tokenStart, cadence - tokenStart);
+    lookup.placement = name.substr(positionStart, positionEnd - positionStart);
+    lookup.variant = name.substr(positionEnd + 1);
     return true;
+}
+
+bool IsPacenoteFragmentPlacement(const std::string& placement)
+{
+    return placement == "Start" || placement == "Mid" || placement == "End";
 }
 
 std::string EscapeJson(const std::string& value)
@@ -101,7 +197,7 @@ std::string EscapeJson(const std::string& value)
     return escaped;
 }
 
-void PublishTokens(const std::vector<std::string>& tokens)
+void PublishTokens(const std::vector<std::string>& tokens, const PacenoteLookup& lookup)
 {
     if (tokens.empty())
     {
@@ -117,51 +213,54 @@ void PublishTokens(const std::vector<std::string>& tokens)
         }
         message += "\"" + EscapeJson(tokens[index]) + "\"";
     }
-    message += "]}\n";
+    message += "],\"rawSoundName\":\"" + EscapeJson(lookup.rawSoundName) +
+        "\",\"token\":\"" + EscapeJson(lookup.token) +
+        "\",\"placement\":\"" + EscapeJson(lookup.placement) +
+        "\",\"variant\":\"" + EscapeJson(lookup.variant) + "\"}\n";
 
     const HANDLE pipe = CreateFileW(PipePath, GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (pipe == INVALID_HANDLE_VALUE)
     {
-        WriteLog("pipe-unavailable: " + message);
+        WritePipeUnavailableOnce(GetLastError());
         return;
     }
 
     DWORD written = 0;
     const BOOL succeeded = WriteFile(pipe, message.data(), static_cast<DWORD>(message.size()), &written, nullptr);
+    const DWORD error = succeeded ? ERROR_SUCCESS : GetLastError();
     CloseHandle(pipe);
-    WriteLog(succeeded ? "published: " + message : "pipe-write-failed: " + message);
+    if (!succeeded)
+    {
+        WritePipeWriteFailureOnce(error);
+    }
 }
 
 int __fastcall DetourGetSoundInfo(void* system, const char* nameOrId, void* soundInfo)
 {
-    std::string token;
-    TokenPosition position{};
-    if (TryParsePacenoteToken(nameOrId, token, position))
+    PacenoteLookup lookup;
+    if (TryParsePacenoteLookup(nameOrId, lookup))
     {
-        std::vector<std::string> fragmentTokens;
+        if (IsPacenoteFragmentPlacement(lookup.placement))
         {
             std::lock_guard<std::mutex> lock(PacenoteLock);
-            if (position == TokenPosition::Start)
+            if (lookup.placement == "Start")
             {
                 CurrentTokens.clear();
             }
 
-            if (!CurrentTokens.empty() || position == TokenPosition::Start)
-            {
-                CurrentTokens.push_back(token);
-                fragmentTokens.push_back(token);
-            }
+            // Keep the normal Start/Mid/End sequence for diagnostics and future grouping,
+            // but send every fragment immediately below.
+            CurrentTokens.push_back(lookup.token);
 
-            if (position == TokenPosition::End)
+            if (lookup.placement == "End")
             {
                 CurrentTokens.clear();
             }
         }
 
-        // Do not wait for the final fragment before queuing external audio. ACR resolves
-        // each word before starting FMOD playback, so forwarding fragments preserves their
-        // order while giving the external mixer a useful head start.
-        PublishTokens(fragmentTokens);
+        // Every /PN_ lookup is forwarded. Start/Mid/End only describes ordinary phrase
+        // fragments; resources with any other placement remain standalone events.
+        PublishTokens({ lookup.token }, lookup);
     }
 
     return OriginalGetSoundInfo(system, nameOrId, soundInfo);
@@ -169,11 +268,8 @@ int __fastcall DetourGetSoundInfo(void* system, const char* nameOrId, void* soun
 
 DWORD WINAPI InitializeBridge(void*)
 {
-    LogFile = CreateFileW(LogPath, FILE_APPEND_DATA, FILE_SHARE_READ, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-    if (LogFile == INVALID_HANDLE_VALUE)
-    {
-        return 1;
-    }
+    // Diagnostics must never prevent the hook from serving live pacenotes.
+    OpenLogFile();
 
     const HMODULE fmod = GetModuleHandleA(FmodStudioModule);
     const auto getSoundInfo = fmod ? GetProcAddress(fmod, GetSoundInfoExport) : nullptr;

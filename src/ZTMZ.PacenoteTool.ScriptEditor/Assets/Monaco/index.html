@@ -60,25 +60,6 @@
         .roadbook-call + .roadbook-call { border-left: 1px dotted rgba(82, 70, 53, .32); }
         .roadbook-symbol { position: relative; width: 52px; height: 52px; flex: 0 0 52px; color: #222a2e; }
         .roadbook-symbol::before, .roadbook-symbol::after { position: absolute; box-sizing: border-box; content: ""; }
-        .roadbook-symbol.sprite { background-position: var(--sprite-x) var(--sprite-y); background-repeat: no-repeat; background-size: 800% 800%; }
-        .roadbook-symbol.sprite::before, .roadbook-symbol.sprite::after { display: none; }
-        .roadbook-symbol.sprite-sheet-corners { background-image: url("./roadbook/corners.png"); }
-        .roadbook-symbol.sprite-x-0 { --sprite-x: 0%; }
-        .roadbook-symbol.sprite-x-1 { --sprite-x: 14.285714%; }
-        .roadbook-symbol.sprite-x-2 { --sprite-x: 28.571429%; }
-        .roadbook-symbol.sprite-x-3 { --sprite-x: 42.857143%; }
-        .roadbook-symbol.sprite-x-4 { --sprite-x: 57.142857%; }
-        .roadbook-symbol.sprite-x-5 { --sprite-x: 71.428571%; }
-        .roadbook-symbol.sprite-x-6 { --sprite-x: 85.714286%; }
-        .roadbook-symbol.sprite-x-7 { --sprite-x: 100%; }
-        .roadbook-symbol.sprite-y-0 { --sprite-y: 0%; }
-        .roadbook-symbol.sprite-y-1 { --sprite-y: 14.285714%; }
-        .roadbook-symbol.sprite-y-2 { --sprite-y: 28.571429%; }
-        .roadbook-symbol.sprite-y-3 { --sprite-y: 42.857143%; }
-        .roadbook-symbol.sprite-y-4 { --sprite-y: 57.142857%; }
-        .roadbook-symbol.sprite-y-5 { --sprite-y: 71.428571%; }
-        .roadbook-symbol.sprite-y-6 { --sprite-y: 85.714286%; }
-        .roadbook-symbol.sprite-y-7 { --sprite-y: 100%; }
         .roadbook-symbol.corner::before {
             position: absolute;
             top: 7px;
@@ -340,10 +321,6 @@
                 return match ? match[1] : '';
             }
 
-            function roadbookSpriteClasses(kind, direction, severity) {
-                return '';
-            }
-
             function modifierKind(tokenName, token) {
                 const name = String(tokenName || '').toLowerCase();
                 const type = String(token?.type || '').toUpperCase();
@@ -367,10 +344,9 @@
                 const kind = visualKind(tokenName, token);
                 const direction = kind === 'corner' ? iconDirection(tokenName) : '';
                 const severity = kind === 'corner' ? cornerSeverity(tokenName) : '';
-                const spriteClasses = roadbookSpriteClasses(kind, direction, severity);
                 const grade = severity ? `<span class="roadbook-grade">${severity}</span>` : '';
                 const description = token?.description || tokenName;
-                return `<div class="roadbook-call"><span class="roadbook-symbol-wrap"><span class="roadbook-symbol ${kind} ${direction} ${severity ? `severity-${severity}` : ''} ${spriteClasses}">${grade}</span></span><div class="roadbook-call-text"><div class="roadbook-token">${escapeHtml(tokenName)}</div><div class="roadbook-description">${escapeHtml(description)}</div></div></div>`;
+                return `<div class="roadbook-call"><span class="roadbook-symbol-wrap"><span class="roadbook-symbol ${kind} ${direction} ${severity ? `severity-${severity}` : ''}">${grade}</span></span><div class="roadbook-call-text"><div class="roadbook-token">${escapeHtml(tokenName)}</div><div class="roadbook-description">${escapeHtml(description)}</div></div></div>`;
             }
 
             function renderRoadbook(selectedLine) {

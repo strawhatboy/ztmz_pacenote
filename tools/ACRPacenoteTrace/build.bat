@@ -8,7 +8,7 @@ if /I "%~1"=="fmod" (
     exit /b %ERRORLEVEL%
 )
 if /I "%~1"=="fmod-parameters" (
-    cl /nologo /std:c++20 /EHsc /LD /O2 /I third_party\minhook\include ACRFmodPacenoteParameterTrace.cpp third_party\minhook\src\buffer.c third_party\minhook\src\hook.c third_party\minhook\src\trampoline.c third_party\minhook\src\hde\hde64.c /link /OUT:ACRFmodPacenoteParameterTrace.dll
+    cl /nologo /std:c++20 /EHsc /LD /O2 /I third_party\minhook\include ACRFmodPacenoteParameterTrace.cpp third_party\minhook\src\buffer.c third_party\minhook\src\hook.c third_party\minhook\src\trampoline.c third_party\minhook\src\hde\hde64.c /link /OUT:ACRFmodPacenoteParameterTrace.dll Advapi32.lib
     exit /b %ERRORLEVEL%
 )
 if /I "%~1"=="scan-fmod" (
@@ -20,11 +20,11 @@ if /I "%~1"=="fmod-sound-info" (
     exit /b %ERRORLEVEL%
 )
 if /I "%~1"=="live-bridge" (
-    cl /nologo /std:c++20 /EHsc /LD /O2 /I third_party\minhook\include ACRFmodLivePacenoteBridge.cpp third_party\minhook\src\buffer.c third_party\minhook\src\hook.c third_party\minhook\src\trampoline.c third_party\minhook\src\hde\hde64.c /link /OUT:ACRFmodLivePacenoteBridge.dll
+    cl /nologo /std:c++20 /EHsc /LD /O2 /I third_party\minhook\include ACRFmodLivePacenoteBridge.cpp third_party\minhook\src\buffer.c third_party\minhook\src\hook.c third_party\minhook\src\trampoline.c third_party\minhook\src\hde\hde64.c /link /OUT:ACRFmodLivePacenoteBridge.dll Advapi32.lib
     exit /b %ERRORLEVEL%
 )
 if /I "%~1"=="internal-bridge" (
-    cl /nologo /std:c++20 /EHsc /LD /O2 /I third_party\minhook\include ACRFmodLivePacenoteBridge.cpp third_party\minhook\src\buffer.c third_party\minhook\src\hook.c third_party\minhook\src\trampoline.c third_party\minhook\src\hde\hde64.c /link /OUT:ACRFmodLivePacenoteBridge.dll
+    cl /nologo /std:c++20 /EHsc /LD /O2 /I third_party\minhook\include ACRFmodLivePacenoteBridge.cpp third_party\minhook\src\buffer.c third_party\minhook\src\hook.c third_party\minhook\src\trampoline.c third_party\minhook\src\hde\hde64.c /link /OUT:ACRFmodLivePacenoteBridge.dll Advapi32.lib
     if errorlevel 1 exit /b %ERRORLEVEL%
     cl /nologo /std:c++20 /EHsc /O2 InjectTrace.cpp /link /OUT:ACRPacenoteTraceInjector.exe
     exit /b %ERRORLEVEL%

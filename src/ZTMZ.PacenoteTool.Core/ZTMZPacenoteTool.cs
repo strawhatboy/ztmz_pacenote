@@ -469,8 +469,14 @@ public class ZTMZPacenoteTool {
                     this.onRaceEnd?.Invoke(_currentGame);
                     if (shouldPlayExternalPacenotes && Config.Instance.PlayStartAndEndSound)
                     {
-                        // play end sound, as sequential sound, not system sound
-                        this._profileManager.PlaySystem(Constants.SYSTEM_END_STAGE, true, false);
+                        var finishState = evt.Parameters.TryGetValue(GameStateRaceEndProperty.FINISH_STATE, out var finishStateValue)
+                            && finishStateValue is GameStateRaceEnd typedFinishState
+                            ? typedFinishState
+                            : GameStateRaceEnd.Unknown;
+                        var endSound = finishState == GameStateRaceEnd.Disqualified
+                            ? Constants.SYSTEM_RETIRED
+                            : Constants.SYSTEM_END_STAGE;
+                        this._profileManager.PlaySystem(endSound, true, false);
                     }
 
                     saveReplay(evt);
@@ -708,8 +714,23 @@ public class ZTMZPacenoteTool {
     private void livePacenoteHandler(LivePacenoteEvent evt)
     {
         var game = _currentGame;
-        if (game is null || !ShouldPlayExternalPacenotes(game) ||
-            game.GameDataReader.GameState != GameState.Racing || evt.Record.Pacenotes.Count == 0)
+        if (game is null || !ShouldPlayExternalPacenotes(game))
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(evt.SystemSoundToken))
+        {
+            if (evt.SystemSoundToken == Constants.SYSTEM_GO && !Config.Instance.PlayGoSound)
+            {
+                return;
+            }
+
+            _profileManager.PlaySystem(evt.SystemSoundToken, evt.SystemSoundSequential);
+            return;
+        }
+
+        if (game.GameDataReader.GameState != GameState.Racing || evt.Record.Pacenotes.Count == 0)
         {
             return;
         }
@@ -1012,6 +1033,9 @@ public class ZTMZPacenoteTool {
                     // replay.video_end_timestamp = this._obsStopTimestamp;
                     _ = ReplayManager.Instance.SaveReplayAsync(CurrentGame, replay, this.ReplayDetailsPerTimes, this.ReplayDetailsPerCheckpoints);
                 }
+            }
+            else {
+                ObsManager.Instance.AbnormallyStopRecording();
             }
         } else {
             // not normal finish, stop recording

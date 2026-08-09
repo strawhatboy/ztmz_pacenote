@@ -142,7 +142,6 @@ namespace ZTMZ.PacenoteTool.Base.UI
         private Process _gameProcess = null;
         private IntPtr _lastKnownGameWindowHandle = IntPtr.Zero;
         private long _lastGameWindowAttachmentRefreshAt;
-        private int _nativeOverlayRecoveryPending;
 
         private bool _hudShowInSeparateWindow = false;
 
@@ -993,47 +992,6 @@ namespace ZTMZ.PacenoteTool.Base.UI
             _logger.Info("GameOverlay uninitialized.!");
         }
 
-        /// <summary>
-        /// Recreates the native overlay after an external action changes the game process.
-        /// Remote DLL injection can invalidate the sticky window's graphics attachment.
-        /// </summary>
-        public void RecoverNativeOverlayAfterExternalGameAction()
-        {
-            var process = _gameProcess;
-            if (process == null || _hudShowInSeparateWindow ||
-                Interlocked.Exchange(ref _nativeOverlayRecoveryPending, 1) != 0)
-            {
-                return;
-            }
-
-            Task.Run(async () =>
-            {
-                try
-                {
-                    // Wait for the injector and the target DLL's initialization thread to settle.
-                    await Task.Delay(750);
-                    if (!IsCurrentOverlayProcess(process) || process.HasExited)
-                    {
-                        return;
-                    }
-
-                    var restoreStageActive = TimeToShowTelemetry;
-                    _logger.Info("Recreating GameOverlay after an external game-process action.");
-                    UninitializeOverlay();
-                    InitializeOverlay(process);
-                    SetStageActive(restoreStageActive);
-                }
-                catch (Exception exception)
-                {
-                    _logger.Warn(exception, "Failed to recover GameOverlay after an external game-process action.");
-                }
-                finally
-                {
-                    Volatile.Write(ref _nativeOverlayRecoveryPending, 0);
-                }
-            });
-        }
-
         public void UninitializeOverlayInSeparateWindow() {
             SetStageActive(false);
             _isRunning = false;
@@ -1129,14 +1087,13 @@ namespace ZTMZ.PacenoteTool.Base.UI
 
         public void SetTopMost(bool topMost)
         {
-            ApplyOverlayLayering(topMost || IsGameWindowForeground(), placeAbove: true);
+            ApplyOverlayLayering(topMost || ShouldUseForegroundTopMost(), placeAbove: true);
         }
 
         private void RefreshOverlayLayering(bool placeAbove = false)
         {
             RefreshGameWindowAttachment();
-            var shouldBeTopmost = Config.Instance.HudTopMost || IsGameWindowForeground();
-            ApplyOverlayLayering(shouldBeTopmost, placeAbove);
+            ApplyOverlayLayering(Config.Instance.HudTopMost || ShouldUseForegroundTopMost(), placeAbove);
         }
 
         private void ApplyOverlayLayering(bool topMost, bool placeAbove)
@@ -1158,6 +1115,13 @@ namespace ZTMZ.PacenoteTool.Base.UI
             if (!topMost && (placeAbove || layeringChanged) && window.IsInitialized && window.ParentWindowHandle != IntPtr.Zero) {
                 window.PlaceAbove(window.ParentWindowHandle);
             }
+        }
+
+        private bool ShouldUseForegroundTopMost()
+        {
+            // ACR drops this external Direct2D overlay when a focus change promotes it to TOPMOST.
+            return !string.Equals(_gameProcess?.ProcessName, "acr", StringComparison.OrdinalIgnoreCase)
+                && IsGameWindowForeground();
         }
 
         private bool IsGameWindowForeground()

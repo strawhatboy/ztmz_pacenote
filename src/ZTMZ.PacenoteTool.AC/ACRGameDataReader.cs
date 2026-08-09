@@ -11,8 +11,6 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
     private readonly Timer _readTimer;
     public const int TARGET_FPS = 60;
     private const double TIMER_INTERVAL_MS = 1000.0 / TARGET_FPS; // ~16.67ms for 60 FPS
-    private const int StateProbeIntervalMilliseconds = 250;
-
     private GameState _gameState = GameState.Unknown;
     private GameData _lastGameData;
     private GameData _currentGameData;
@@ -21,7 +19,6 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
     
     private bool _isDataAvailable;
     private bool _isInitialized;
-    private long _nextStateProbeAt;
     private AC_STATUS? _lastProbedStatus;
     private AC_SESSION_TYPE? _lastProbedSessionType;
     private AC_FLAGS? _lastProbedFlag;
@@ -43,33 +40,36 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
     public GameState GameState
     {
         get => _gameState;
-        set
+        set => PublishGameState(value, null);
+    }
+
+    private void PublishGameState(GameState value, System.Collections.Generic.Dictionary<string, object>? parameters)
+    {
+        if (_gameState != value)
         {
-            if (_gameState != value)
+            var previousState = _gameState;
+            _gameState = value;
+            var graphics = _currentRawGameData.GraphicsData;
+            _logger.Info(
+                "ACR emitted state transition {0} -> {1}; raw status={2}({3}), session={4}({5}), flag={6}({7}), timeMs={8}, distance={9:F1}, normalized={10:F4}, speed={11:F1}.",
+                previousState,
+                value,
+                graphics.CurrentStatus,
+                (int)graphics.CurrentStatus,
+                graphics.SessionType,
+                (int)graphics.SessionType,
+                graphics.CurrentFlag,
+                (int)graphics.CurrentFlag,
+                graphics.CurrentTimeMillis,
+                graphics.TotalDistanceTraveled,
+                graphics.NormalizedCarPos,
+                _currentRawGameData.PhysicsData.SpeedKilometersPerHour);
+            onGameStateChanged?.Invoke(new GameStateChangeEvent
             {
-                var previousState = _gameState;
-                _gameState = value;
-                var graphics = _currentRawGameData.GraphicsData;
-                _logger.Info(
-                    "ACR emitted state transition {0} -> {1}; raw status={2}({3}), session={4}({5}), flag={6}({7}), timeMs={8}, distance={9:F1}, normalized={10:F4}, speed={11:F1}.",
-                    previousState,
-                    value,
-                    graphics.CurrentStatus,
-                    (int)graphics.CurrentStatus,
-                    graphics.SessionType,
-                    (int)graphics.SessionType,
-                    graphics.CurrentFlag,
-                    (int)graphics.CurrentFlag,
-                    graphics.CurrentTimeMillis,
-                    graphics.TotalDistanceTraveled,
-                    graphics.NormalizedCarPos,
-                    _currentRawGameData.PhysicsData.SpeedKilometersPerHour);
-                onGameStateChanged?.Invoke(new GameStateChangeEvent
-                {
-                    LastGameState = previousState,
-                    NewGameState = value
-                });
-            }
+                LastGameState = previousState,
+                NewGameState = value,
+                Parameters = parameters ?? new System.Collections.Generic.Dictionary<string, object>()
+            });
         }
     }
 
@@ -121,7 +121,10 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
                 }
             }
 
-            _livePacenoteBridge ??= new ACRLivePacenoteBridge(PublishLivePacenote);
+            _livePacenoteBridge ??= new ACRLivePacenoteBridge(
+                PublishLivePacenote,
+                PublishBridgeGameState,
+                PublishBridgeCarDamage);
             _isInitialized = true;
             _readTimer.Start();
 
@@ -202,8 +205,7 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
                 if (hasData)
                 {
                     _logger.Info("AC game data became available");
-                    _logger.Info("ACR state probe: shared memory became available; legacy bootstrap emits AdHocRaceBegin before raw-state classification.");
-                    GameState = GameState.AdHocRaceBegin;
+                    _logger.Info("ACR state probe: shared memory became available; waiting for bridge race-start resources.");
                 }
                 else
                 {
@@ -303,9 +305,9 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
         var mappedState = MapRawStatusToGameState(_currentRawGameData.GraphicsData.CurrentStatus);
         RecordStateProbe(mappedState);
 
-        // The existing ACR state behavior is intentionally retained during this diagnostic
-        // capture. The probe records the raw fields needed to replace it safely after a race.
-        GameState = GameState.Racing;
+        // ACR's shared-memory status does not distinguish a rally stage's start sequence
+        // from normal session states. RaceBegin and Racing are emitted by the bridge's
+        // EventCountdown and EventCountdownGo resources instead.
     }
 
     private static GameState MapRawStatusToGameState(AC_STATUS status)
@@ -331,13 +333,11 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
             || _lastProbedMappedState != mappedState
             || _lastProbedGreenFlag != graphics.GreenFlagGlobal
             || _lastProbedChequeredFlag != graphics.ChequeredFlagGlobal;
-        var now = Environment.TickCount64;
-        if (!stateChanged && now < _nextStateProbeAt)
+        if (!stateChanged)
         {
             return;
         }
 
-        _nextStateProbeAt = now + StateProbeIntervalMilliseconds;
         _lastProbedStatus = graphics.CurrentStatus;
         _lastProbedSessionType = graphics.SessionType;
         _lastProbedFlag = graphics.CurrentFlag;
@@ -345,7 +345,7 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
         _lastProbedGreenFlag = graphics.GreenFlagGlobal;
         _lastProbedChequeredFlag = graphics.ChequeredFlagGlobal;
 
-        _logger.Info(
+        _logger.Debug(
             "ACR state probe: status={0}({1}), session={2}({3}), flag={4}({5}), mapped={6}, emitted={7}, packets={8}/{9}, timeMs={10}, sessionClock={11:F3}, remaining={12:F3}, laps={13}/{14}, distance={15:F1}, normalized={16:F4}, flags(green/checkered)={17}/{18}, setup={19}, pitBox={20}, pitLane={21}, replaySpeed={22:F2}, speed={23:F1}, throttle={24:F2}, brake={25:F2}, gear={26}.",
             graphics.CurrentStatus,
             (int)graphics.CurrentStatus,
@@ -378,7 +378,6 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
 
     private void ResetStateProbe()
     {
-        _nextStateProbeAt = 0;
         _lastProbedStatus = null;
         _lastProbedSessionType = null;
         _lastProbedFlag = null;
@@ -418,14 +417,20 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
 
     private void PublishLivePacenote(LivePacenoteEvent pacenote)
     {
-        // ACR only emits these PN_* events when its co-driver is calling a stage pacenote.
-        if (GameState != GameState.Racing)
-        {
-            GameState = GameState.Racing;
-        }
-
         _logger.Debug("ACR live pacenote {0}: {1}", pacenote.Id, pacenote.Record.RawText);
         onLivePacenote?.Invoke(pacenote);
+    }
+
+    private void PublishBridgeGameState(
+        GameState gameState,
+        System.Collections.Generic.Dictionary<string, object>? parameters)
+    {
+        PublishGameState(gameState, parameters);
+    }
+
+    private void PublishBridgeCarDamage(CarDamageEvent damageEvent)
+    {
+        onCarDamaged?.Invoke(damageEvent);
     }
 
     public new void Dispose()

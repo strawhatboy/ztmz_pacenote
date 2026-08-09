@@ -6,15 +6,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 using FFMpegCore;
-using LiveChartsCore;
-using LiveChartsCore.Defaults;
-using LiveChartsCore.Kernel.Sketches;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Painting;
-using LiveChartsCore.SkiaSharpView.Painting.Effects;
-using SkiaSharp;
 using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
@@ -246,13 +240,10 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     }
 
     [ObservableProperty]
-    private IReadOnlyList<ISeries> _analysisSeries = Array.Empty<ISeries>();
+    private IReadOnlyList<ReplayAnalysisSeries> _analysisSeries = Array.Empty<ReplayAnalysisSeries>();
 
     [ObservableProperty]
-    private IReadOnlyList<ICartesianAxis> _analysisXAxis = Array.Empty<ICartesianAxis>();
-
-    [ObservableProperty]
-    private IReadOnlyList<ICartesianAxis> _analysisYAxis = Array.Empty<ICartesianAxis>();
+    private bool _analysisUsesInputScale;
 
     public ReplayPlayingPageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool)
     {
@@ -702,83 +693,27 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             return;
         }
 
-        var series = new List<ISeries>();
-        foreach (var traceData in plotData.Traces)
-        {
-            if (traceData.Current.Count > 0)
-            {
-                series.Add(CreateSeries(traceData.Current, traceData.Trace, I18NLoader.Instance["dashboard.current"], false));
-            }
-
-            if (ShowBestReplayComparison && HasBestReplay && traceData.Best.Count > 0)
-            {
-                series.Add(CreateSeries(traceData.Best, traceData.Trace, I18NLoader.Instance["dashboard.best"], true));
-            }
-        }
-
-        AnalysisSeries = series;
-        AnalysisXAxis = new[]
-        {
-            new Axis
-            {
-                Name = I18NLoader.Instance["replay.distance"],
-                Labeler = value => $"{value:0} m",
-                Padding = new LiveChartsCore.Drawing.Padding(4)
-            }
-        };
-        AnalysisYAxis = new[]
-        {
-            new Axis
-            {
-                MinLimit = SelectedAnalysisMetric.Metric == ReplayAnalysisMetric.Inputs ? -1 : null,
-                MaxLimit = SelectedAnalysisMetric.Metric == ReplayAnalysisMetric.Inputs ? 1 : null,
-                Padding = new LiveChartsCore.Drawing.Padding(4)
-            }
-        };
-    }
-
-    private static ISeries CreateSeries(
-        IReadOnlyList<ReplayPlotPoint> points,
-        ReplayAnalysisTrace trace,
-        string sourceLabel,
-        bool isBest)
-    {
-        var values = points.Select(point => new ObservablePoint(point.Distance, point.Value)).ToList();
-        var paint = new SolidColorPaint(trace.Color)
-        {
-            StrokeThickness = 1.25f,
-            PathEffect = isBest ? new DashEffect(new[] { 4f, 3f }, 0) : null
-        };
-
-        if (trace.IsStep)
-        {
-            return new StepLineSeries<ObservablePoint>(values)
-            {
-                GeometryFill = null,
-                GeometryStroke = null,
-                Stroke = paint,
-                Fill = null,
-                Name = $"{sourceLabel} - {trace.Label}"
-            };
-        }
-
-        return new LineSeries<ObservablePoint>(values)
-        {
-            GeometryFill = null,
-            GeometryStroke = null,
-            Stroke = paint,
-            Fill = null,
-            Name = $"{sourceLabel} - {trace.Label}"
-        };
+        AnalysisSeries = plotData.Traces
+            .Where(traceData => traceData.Current.Count > 0)
+            .Select(traceData => new ReplayAnalysisSeries(
+                traceData.Trace.Label,
+                traceData.Trace.Color,
+                traceData.Trace.IsStep,
+                traceData.Current,
+                traceData.Best,
+                I18NLoader.Instance["dashboard.current"],
+                I18NLoader.Instance["dashboard.best"]))
+            .ToArray();
+        AnalysisUsesInputScale = SelectedAnalysisMetric.Metric == ReplayAnalysisMetric.Inputs;
     }
 
     private IEnumerable<ReplayAnalysisTrace> GetAnalysisTraces(ReplayAnalysisMetric metric)
     {
-        var green = SKColors.LimeGreen;
-        var red = SKColors.OrangeRed;
-        var blue = SKColors.DeepSkyBlue;
-        var orange = SKColors.Orange;
-        var purple = SKColors.MediumPurple;
+        var green = Colors.LimeGreen;
+        var red = Colors.OrangeRed;
+        var blue = Colors.DeepSkyBlue;
+        var orange = Colors.Orange;
+        var purple = Colors.MediumPurple;
 
         switch (metric)
         {
@@ -798,13 +733,13 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
                 return new[]
                 {
                     new ReplayAnalysisTrace(detail => detail.rpm, red, I18NLoader.Instance["dashboard.rpm"]),
-                    new ReplayAnalysisTrace(detail => detail.max_rpm, new SKColor(130, 130, 130), I18NLoader.Instance["replay.maximumRpm"])
+                    new ReplayAnalysisTrace(detail => detail.max_rpm, Color.FromRgb(130, 130, 130), I18NLoader.Instance["replay.maximumRpm"])
                 };
             case ReplayAnalysisMetric.Gear:
                 return new[]
                 {
                     new ReplayAnalysisTrace(detail => detail.gear, blue, I18NLoader.Instance["dashboard.gear"], true),
-                    new ReplayAnalysisTrace(detail => detail.max_gears, new SKColor(130, 130, 130), I18NLoader.Instance["replay.maximumGear"], true)
+                    new ReplayAnalysisTrace(detail => detail.max_gears, Color.FromRgb(130, 130, 130), I18NLoader.Instance["replay.maximumGear"], true)
                 };
             case ReplayAnalysisMetric.GForce:
                 return new[]
@@ -862,9 +797,8 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
     private void ClearAnalysisChart()
     {
-        AnalysisSeries = Array.Empty<ISeries>();
-        AnalysisXAxis = Array.Empty<ICartesianAxis>();
-        AnalysisYAxis = Array.Empty<ICartesianAxis>();
+        AnalysisSeries = Array.Empty<ReplayAnalysisSeries>();
+        AnalysisUsesInputScale = false;
     }
 
     private void ResetPlaybackState()
@@ -939,7 +873,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
     private sealed record ReplayAnalysisTrace(
         Func<ReplayDetailsPerTime, float> ValueSelector,
-        SKColor Color,
+        Color Color,
         string Label,
         bool IsStep = false);
 
@@ -956,3 +890,12 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
         IReadOnlyList<ReplayPlotPoint> Speed,
         float MaximumDistance);
 }
+
+public sealed record ReplayAnalysisSeries(
+    string Label,
+    Color Color,
+    bool IsStep,
+    IReadOnlyList<ReplayPlotPoint> Current,
+    IReadOnlyList<ReplayPlotPoint> Best,
+    string CurrentLabel,
+    string BestLabel);

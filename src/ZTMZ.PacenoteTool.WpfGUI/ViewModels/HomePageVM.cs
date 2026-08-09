@@ -278,6 +278,11 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         };
         _diagnosticsTimer.Tick += DiagnosticsTimerTick;
         Tool = _tool;
+        GameRuntimeNotifications.LocalBridgeControlsEnabled += game =>
+        {
+            ResetLocalBridgeInjectionPrompt(game);
+            ScheduleLocalBridgeInjectionPrompt(game);
+        };
         _gameOverlayManager.OnNativeOverlayStatusChanged += _ =>
         {
             RefreshNativeOverlayHomeStatusOnUiThread();
@@ -285,6 +290,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         RefreshNativeOverlayHomeStatus();
         _tool.onGameStarted += (game, p) => {
             ResetLocalBridgeInjectionPrompt(game);
+            ScheduleLocalBridgeInjectionPrompt(game);
             if (!Config.Instance.AutoInitializeGame && SelectedGame.Game != game) {
                 _logger.Info("Game started. in Home Page. AutoInitializeGame is false. Do nothing because current selected game is not the started game.");
                 return;
@@ -694,7 +700,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
     private void ScheduleLocalBridgeInjectionPrompt(IGame game)
     {
-        if (!ReferenceEquals(Tool.CurrentGame, game) || game is not ILocalGameBridgeControl bridgeControl)
+        if (game is not ILocalGameBridgeControl bridgeControl)
         {
             return;
         }

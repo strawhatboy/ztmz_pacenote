@@ -5,9 +5,9 @@
             "experimental": {
                 "enable": "启用实验性实时桥接",
                 "inject": "注入桥接 DLL",
-                "disabled": "实验性桥接控制已禁用。",
+                "disabled": "实验性实时桥接未启用。",
                 "warningTitle": "实验性 ACR 桥接",
-                "enableWarning": "此内部功能会向 Assetto Corsa Rally 注入 DLL。它仅适用于离线或私人测试。游戏更新可能使其不兼容，注入代码也可能违反游戏规则或影响账号。是否启用这些控制？",
+                "enableWarning": "此内部功能会向 Assetto Corsa Rally 注入 DLL。它仅适用于离线或私人测试。游戏更新可能使其不兼容，注入代码也可能违反游戏规则或影响账号。是否启用实验性实时桥接？",
                 "injectWarning": "是否将内部实时路书桥接注入正在运行的 Assetto Corsa Rally 进程？仅用于离线或私人测试。桥接会一直保持加载，直到游戏退出。",
                 "confirm": "我已了解",
                 "statusBundleUnavailable": "此版本未安装内部 ACR 桥接文件。",
