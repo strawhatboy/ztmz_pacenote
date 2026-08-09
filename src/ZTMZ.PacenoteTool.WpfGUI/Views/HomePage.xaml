@@ -520,23 +520,29 @@
                             <Grid.ColumnDefinitions>
 
                                 <ColumnDefinition Width="150"/>
-                                <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="56"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
                             <ui:TextBlock Grid.Row="0"
                                           Grid.Column="0"
                                           Text="{DynamicResource ResourceKey=ui.tb_currentTrack}"/>
-                            <ui:TextBlock Grid.Row="0"
-                                          Grid.Column="1"
-                                          Name="tb_currentTrack"
-                                          Text="{Binding Path=ViewModel.CurrentTrack, Mode=OneWay}"/>
-                            <ui:Button Grid.Row="0" Grid.Column="2"
-                                       Icon="{ui:SymbolIcon Code20}"
-                                       Command="{Binding ViewModel.OpenCurrentTrackPacenotesCommand}"
-                                       IsEnabled="{Binding ViewModel.IsRacing}"
-                                       ToolTip="{DynamicResource ResourceKey=scriptEditor.openCurrentTrack}"
-                                       HorizontalAlignment="Right" />
+                            <Grid Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="56" />
+                                </Grid.ColumnDefinitions>
+                                <ui:TextBlock Grid.Column="0"
+                                              Name="tb_currentTrack"
+                                              Text="{Binding Path=ViewModel.CurrentTrack, Mode=OneWay}"
+                                              TextTrimming="CharacterEllipsis" />
+                                <ui:Button Grid.Column="1"
+                                           Icon="{ui:SymbolIcon Code20}"
+                                           Command="{Binding ViewModel.OpenCurrentTrackPacenotesCommand}"
+                                           IsEnabled="{Binding ViewModel.IsRacing}"
+                                           ToolTip="{DynamicResource ResourceKey=scriptEditor.openCurrentTrack}"
+                                           HorizontalAlignment="Right" />
+                            </Grid>
                             <!-- <Button Grid.Row="0" Grid.Column="3" Name="btn_currentTrack_script" 
                                     ToolTip="{DynamicResource ResourceKey=ui.tooltip.btn_currentScript}"
                                     Margin="2"
