@@ -732,20 +732,33 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
     private async Task ShowLocalBridgeInjectionPromptAsync(IGame game, ILocalGameBridgeControl bridgeControl)
     {
-        var warningContent = new StackPanel { Margin = new System.Windows.Thickness(0, 4, 0, 0) };
-        warningContent.Children.Add(new SymbolIcon
+        var warningContent = new Grid { Margin = new System.Windows.Thickness(0, 4, 0, 0) };
+        warningContent.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        warningContent.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+        var warningIcon = new SymbolIcon
         {
-            Symbol = SymbolRegular.Warning20,
-            Width = 32,
-            Height = 32,
+            Symbol = SymbolRegular.Warning24,
+            Width = 40,
+            Height = 40,
             Foreground = Brushes.DarkOrange,
-            Margin = new System.Windows.Thickness(0, 0, 0, 12)
-        });
-        warningContent.Children.Add(new System.Windows.Controls.TextBlock
+            VerticalAlignment = System.Windows.VerticalAlignment.Top,
+            Margin = new System.Windows.Thickness(0, 0, 16, 0)
+        };
+        Grid.SetColumn(warningIcon, 0);
+        warningContent.Children.Add(warningIcon);
+
+        var warningText = new System.Windows.Controls.TextBlock
         {
-            Text = I18NLoader.Instance["game.acr.experimental.launchPromptWarning"],
-            TextWrapping = System.Windows.TextWrapping.Wrap
-        });
+            Text = string.Join(
+                Environment.NewLine + Environment.NewLine,
+                I18NLoader.Instance["game.acr.experimental.launchPromptWarning"],
+                I18NLoader.Instance["game.acr.experimental.privilegeWarning"]),
+            TextWrapping = System.Windows.TextWrapping.Wrap,
+            VerticalAlignment = System.Windows.VerticalAlignment.Top
+        };
+        Grid.SetColumn(warningText, 1);
+        warningContent.Children.Add(warningText);
 
         var confirmation = await new Wpf.Ui.Controls.MessageBox
         {

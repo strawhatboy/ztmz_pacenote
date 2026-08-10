@@ -25,6 +25,7 @@ public sealed class AppFontService
     public const int DefaultFontSizePercent = 100;
     private const double DefaultFontSize = 12d;
     private const double DefaultControlContentFontSize = 14d;
+    private const string BodyStrongFontSizeResourceKey = "AppBodyStrongFontSize";
     private const string SuggestedFontPrefix = "suggested:";
     private const string FontCatalogUrl = "https://gitee.com/ztmz/fonts/raw/master/repo.json";
     private const string FontCatalogCacheFileName = "repo.json";
@@ -132,6 +133,7 @@ public sealed class AppFontService
         var resources = Application.Current.Resources;
 
         resources["AppFontSize"] = DefaultFontSize * scale;
+        resources[BodyStrongFontSizeResourceKey] = TypographyStyleFontSizes["BodyStrongTextBlockStyle"] * scale;
         resources["ContentControlFontSize"] = DefaultControlContentFontSize * scale;
         resources["ControlContentThemeFontSize"] = DefaultControlContentFontSize * scale;
 
@@ -169,6 +171,7 @@ public sealed class AppFontService
                     ? FontTypography.Body
                     : FontTypography.Caption;
                 textBlock.FontTypography = typography;
+
             }
         }
 
@@ -190,14 +193,13 @@ public sealed class AppFontService
 
     public bool IsInstalled(SuggestedFont font)
     {
-        var path = GetSuggestedFontPath(font);
-        return File.Exists(path) && IsHashMatch(path, font.Sha256);
+        return IsExpectedFontFile(GetSuggestedFontPath(font), font.Sha256)
+            || IsExpectedFontFile(GetLegacySuggestedFontPath(font), font.Sha256);
     }
 
     public bool TryApplySuggestedFont(SuggestedFont font)
     {
-        var fontPath = GetSuggestedFontPath(font);
-        if (!File.Exists(fontPath) || !IsHashMatch(fontPath, font.Sha256))
+        if (!TryGetIsolatedSuggestedFontPath(font, out var fontPath))
         {
             return false;
         }
@@ -205,10 +207,29 @@ public sealed class AppFontService
         try
         {
             var fontDirectory = Path.GetDirectoryName(fontPath)! + Path.DirectorySeparatorChar;
-            ApplyFont(new FontFamily(new Uri(fontDirectory), $"./#{font.FamilyName}"));
+            var expectedSource = $"./#{font.FamilyName}";
+            var fontFamily = Fonts.GetFontFamilies(new Uri(fontDirectory))
+                .FirstOrDefault(candidate =>
+                    candidate.Source.Equals(expectedSource, StringComparison.OrdinalIgnoreCase)
+                    || candidate.FamilyNames.Values.Any(name =>
+                        name.Equals(font.FamilyName, StringComparison.OrdinalIgnoreCase)));
+            if (fontFamily is null)
+            {
+                return false;
+            }
+
+            ApplyFont(fontFamily);
             return true;
         }
         catch (ArgumentException)
+        {
+            return false;
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+        catch (UnauthorizedAccessException)
         {
             return false;
         }
@@ -279,6 +300,20 @@ public sealed class AppFontService
 
     private static string GetSuggestedFontPath(SuggestedFont font)
     {
+        return Path.Combine(
+            GetFontDirectory(),
+            "suggested",
+            font.Sha256.ToUpperInvariant(),
+            GetSafeSuggestedFontFileName(font));
+    }
+
+    private static string GetLegacySuggestedFontPath(SuggestedFont font)
+    {
+        return Path.Combine(GetFontDirectory(), GetSafeSuggestedFontFileName(font));
+    }
+
+    private static string GetSafeSuggestedFontFileName(SuggestedFont font)
+    {
         var safeFileName = Path.GetFileName(font.FileName);
         if (string.IsNullOrWhiteSpace(safeFileName)
             || !safeFileName.Equals(font.FileName, StringComparison.Ordinal)
@@ -288,7 +323,53 @@ public sealed class AppFontService
             throw new InvalidDataException("The font catalog contains an invalid font file name.");
         }
 
-        return Path.Combine(GetFontDirectory(), safeFileName);
+        return safeFileName;
+    }
+
+    private static bool TryGetIsolatedSuggestedFontPath(SuggestedFont font, out string fontPath)
+    {
+        fontPath = GetSuggestedFontPath(font);
+        if (IsExpectedFontFile(fontPath, font.Sha256))
+        {
+            return true;
+        }
+
+        var legacyPath = GetLegacySuggestedFontPath(font);
+        if (!IsExpectedFontFile(legacyPath, font.Sha256))
+        {
+            return false;
+        }
+
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(fontPath)!);
+            File.Copy(legacyPath, fontPath, true);
+            return IsExpectedFontFile(fontPath, font.Sha256);
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+
+    private static bool IsExpectedFontFile(string path, string expectedHash)
+    {
+        try
+        {
+            return File.Exists(path) && IsHashMatch(path, expectedHash);
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return false;
+        }
     }
 
     private static void ApplyFont(FontFamily fontFamily)

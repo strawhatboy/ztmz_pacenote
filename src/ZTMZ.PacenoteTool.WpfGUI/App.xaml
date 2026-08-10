@@ -20,6 +20,7 @@
                     <FontFamily x:Key="SegoeFluentIcons">pack://application:,,,/ZTMZ.PacenoteTool.Base.UI;component/Res/#Segoe Fluent Icons</FontFamily>
                     <FontFamily x:Key="AppFontFamily">Segoe UI</FontFamily>
                     <system:Double x:Key="AppFontSize">12</system:Double>
+                    <system:Double x:Key="AppBodyStrongFontSize">14</system:Double>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

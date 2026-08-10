@@ -8,6 +8,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <CheckBox x:Name="EnableControlsCheckBox"
@@ -15,11 +16,16 @@
                 Checked="EnableControlsCheckBox_OnChecked"
                 Unchecked="EnableControlsCheckBox_OnUnchecked" />
 
-        <ui:TextBlock Grid.Row="1" x:Name="BridgeStatusTextBlock"
+        <ui:TextBlock Grid.Row="1"
+                Margin="0,8,0,0"
+                Text="{DynamicResource ResourceKey=game.acr.experimental.privilegeWarning}"
+                TextWrapping="Wrap" />
+
+        <ui:TextBlock Grid.Row="2" x:Name="BridgeStatusTextBlock"
                 Margin="0,8,0,8"
                 TextWrapping="Wrap" />
 
-        <ui:Button Grid.Row="2" x:Name="InjectButton"
+        <ui:Button Grid.Row="3" x:Name="InjectButton"
                 HorizontalAlignment="Left"
                 Content="{DynamicResource ResourceKey=game.acr.experimental.inject}"
                 Click="InjectButton_OnClick" />

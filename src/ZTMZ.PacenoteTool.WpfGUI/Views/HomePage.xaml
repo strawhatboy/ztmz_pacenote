@@ -205,10 +205,11 @@
                             <ui:SymbolIcon Symbol="Games20"
                                            FontSize="26"
                                            Margin="0 0 10 0"/>
-                            <ui:TextBlock VerticalAlignment="Center"
-                                          FontTypography="BodyStrong"
-                                          Text="{DynamicResource ResourceKey=settings.gameSettings}"
-                                          Grid.Column="1"/>
+                            <TextBlock VerticalAlignment="Center"
+                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource AppBodyStrongFontSize}"
+                                       Text="{DynamicResource ResourceKey=settings.gameSettings}"
+                                       Grid.Column="1"/>
                             <!-- <ui:Button Appearance="Primary" Content="启动游戏" Grid.Column="2" HorizontalAlignment="Right"/> -->
                         </Grid>
                     </StackPanel>
@@ -264,9 +265,10 @@
                                            FontSize="26"
                                            Margin="0 0 10 0"
                                            VerticalAlignment="Center"/>
-                            <ui:TextBlock Text="{DynamicResource ResourceKey=settings.overlayHudTitle}"
-                                           FontTypography="BodyStrong"
-                                           VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource ResourceKey=settings.overlayHudTitle}"
+                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource AppBodyStrongFontSize}"
+                                       VerticalAlignment="Center"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1"
                                      Orientation="Horizontal"
@@ -359,8 +361,9 @@
                             <ui:SymbolIcon Symbol="PersonVoice20"
                                            FontSize="26"
                                            Margin="0 0 0 10"/>
-                            <ui:TextBlock Text="{DynamicResource ResourceKey=ui.tab_s_audioPackage}"
-                                          FontTypography="BodyStrong"/>
+                            <TextBlock Text="{DynamicResource ResourceKey=ui.tab_s_audioPackage}"
+                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource AppBodyStrongFontSize}"/>
                         </StackPanel>
                         <ComboBox Grid.Column="1"
                                   Name="cb_codrivers"

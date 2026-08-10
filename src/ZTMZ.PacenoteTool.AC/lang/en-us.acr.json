@@ -18,7 +18,8 @@
                 "launchPromptWarning": "This experimental feature injects a DLL into Assetto Corsa Rally. It can be incompatible after a game update and may violate the game's rules or put an account at risk. Use it only for offline or private testing. Inject the live-pacenote bridge for this game session?",
                 "launchPromptInject": "Inject bridge",
                 "launchPromptNotNow": "Not now",
-                "launchPromptFailure": "The live bridge was not injected:\n{0}"
+                "launchPromptFailure": "The live bridge was not injected:\n{0}",
+                "privilegeWarning": "ZTMZ and Assetto Corsa Rally must run at the same Windows privilege level or the bridge cannot deliver pacenotes. We recommend running both as a normal user; if one is run as administrator, run the other as administrator too."
             },
             "diagnostics": {
                 "reader": "ACR shared memory",

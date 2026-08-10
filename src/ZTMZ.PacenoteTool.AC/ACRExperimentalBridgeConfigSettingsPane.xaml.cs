@@ -93,7 +93,7 @@ public partial class ACRExperimentalBridgeConfigSettingsPane : IGameConfigSettin
         var confirmation = await new Wpf.Ui.Controls.MessageBox
         {
             Title = I18NLoader.Instance["game.acr.experimental.warningTitle"],
-            Content = I18NLoader.Instance["game.acr.experimental.injectWarning"],
+            Content = GetInjectionWarning(),
             PrimaryButtonText = I18NLoader.Instance["game.acr.experimental.inject"],
             CloseButtonText = I18NLoader.Instance["dialog.common.btn_cancel"]
         }.ShowDialogAsync();
@@ -130,6 +130,14 @@ public partial class ACRExperimentalBridgeConfigSettingsPane : IGameConfigSettin
         var status = ACRExperimentalBridgeController.Inspect();
         BridgeStatusTextBlock.Text = ACRExperimentalBridgeController.FormatStatus(status);
         InjectButton.IsEnabled = status.BundleAvailable && status.GameRunning && !status.AlreadyInjected;
+    }
+
+    private static string GetInjectionWarning()
+    {
+        return string.Join(
+            Environment.NewLine + Environment.NewLine,
+            I18NLoader.Instance["game.acr.experimental.injectWarning"],
+            I18NLoader.Instance["game.acr.experimental.privilegeWarning"]);
     }
 
     private void PersistConfiguration()

@@ -1,7 +1,9 @@
 v2.99.99.44-3.0-rc16
 
+* Fixes Home page section titles not updating with the interface font-size setting and lets newly downloaded recommended fonts apply without restarting.
 * Restores ACR stage state when ZTMZ joins an already running stage, without replaying the start countdown or Go call.
 * Localizes ACR shared-memory, bridge, and prerequisite status messages.
+* Warns when ACR and ZTMZ run at different Windows privilege levels, which prevents the live bridge from delivering pacenotes.
 * Fixes installation of the Web Dashboard client files and bundled fonts.
 * Adds an overlay-dashboard usage hint and readable game-state names in the diagnostics dashboard.
 

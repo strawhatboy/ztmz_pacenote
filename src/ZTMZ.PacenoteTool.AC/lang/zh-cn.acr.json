@@ -18,7 +18,8 @@
                 "launchPromptWarning": "此实验性功能会向 Assetto Corsa Rally 注入 DLL。游戏更新后它可能不兼容，也可能违反游戏规则或给账号带来风险。仅限离线或私人测试使用。要为本次游戏进程注入实时路书桥接吗？",
                 "launchPromptInject": "注入桥接 DLL",
                 "launchPromptNotNow": "暂不注入",
-                "launchPromptFailure": "实时桥接未能注入：\n{0}"
+                "launchPromptFailure": "实时桥接未能注入：\n{0}",
+                "privilegeWarning": "ZTMZ 与 Assetto Corsa Rally 必须以相同的 Windows 权限级别运行，否则 bridge 无法传送路书。建议两者均以普通用户运行；如其中一个以管理员权限启动，另一个也必须以管理员权限启动。"
             },
             "diagnostics": {
                 "reader": "ACR 共享内存",
