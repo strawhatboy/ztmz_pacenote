@@ -1536,7 +1536,14 @@
             'overlay.car': 'Car',
             'overlay.carclass': 'Class',
             'overlay.audioPackage': 'Audio package',
-            'overlay.scriptAuthor': 'Script author'
+            'overlay.scriptAuthor': 'Script author',
+            'overlay.gameStateUnknown': 'Unknown',
+            'overlay.gameStateRaceBegin': 'Race start',
+            'overlay.gameStateCountingDown': 'Countdown',
+            'overlay.gameStateRacing': 'Racing',
+            'overlay.gameStatePaused': 'Paused',
+            'overlay.gameStateRaceEnd': 'Race ended',
+            'overlay.gameStateAdHocRaceBegin': 'Racing (joined late)'
         };
         return labels[textKey] || textKey;
     }

@@ -283,6 +283,12 @@ async function verifyDashboard(folder, id, commonScripts) {
             throw new Error('debug: expected CRLF telemetry text to use native layout coordinates.');
         }
     }
+    if (folder === 'mapInfo') {
+        const renderedMapInfoText = renderedTextLines.map(line => line.text).join(' | ');
+        if (!renderedMapInfoText.includes('Racing')) {
+            throw new Error(`mapInfo: expected game state 3 to render as Racing; rendered: ${renderedMapInfoText}`);
+        }
+    }
 }
 
 async function verifyModernProgressWithoutBestPosition(commonScripts) {

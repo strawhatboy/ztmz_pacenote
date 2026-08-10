@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
@@ -182,9 +183,9 @@ public partial class DiagnosticsViewVM : ObservableObject
         GameStatus = string.Join(
             " | ",
             gameName,
-            snapshot.Game.Transport,
-            snapshot.Game.ReaderType,
-            snapshot.Game.State);
+            GetGameTransportLabel(snapshot.Game.Transport),
+            GetGameReaderLabel(snapshot.Game.ReaderType),
+            GetGameStateLabel(snapshot.Game.State));
         if (includePrerequisiteStatus)
         {
             PrerequisiteStatus = string.IsNullOrWhiteSpace(snapshot.Game.Prerequisite.Detail)
@@ -198,11 +199,13 @@ public partial class DiagnosticsViewVM : ObservableObject
         TransportStatusLabel = "UDP";
         if (snapshot.Udp == null && snapshot.LocalBridge is not null)
         {
-            TransportStatusLabel = "Bridge";
-            UdpStatus = snapshot.LocalBridge.Name;
+            TransportStatusLabel = I18NLoader.Instance["diagnostics.transportBridge"];
+            UdpStatus = GetLocalBridgeLabel(snapshot.LocalBridge.Name);
             UdpActivity = snapshot.LocalBridge.IsInjected
-                ? "Injected"
-                : snapshot.LocalBridge.IsEnabled ? "Not injected" : "Disabled";
+                ? I18NLoader.Instance["game.acr.diagnostics.bridgeInjected"]
+                : snapshot.LocalBridge.IsEnabled
+                    ? I18NLoader.Instance["game.acr.diagnostics.bridgeNotInjected"]
+                    : I18NLoader.Instance["game.acr.diagnostics.bridgeDisabled"];
             UdpTooltip = snapshot.LocalBridge.Detail;
             UdpStatusBrush = snapshot.LocalBridge.IsInjected
                 ? Brushes.ForestGreen
@@ -353,6 +356,42 @@ public partial class DiagnosticsViewVM : ObservableObject
     {
         return timestamp?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")
             ?? I18NLoader.Instance["diagnostics.none"];
+    }
+
+    private static string GetGameTransportLabel(string transport)
+    {
+        return string.Equals(transport, "Shared memory or game-specific", StringComparison.Ordinal)
+            ? I18NLoader.Instance["diagnostics.transportSharedMemory"]
+            : transport;
+    }
+
+    private static string GetGameReaderLabel(string readerType)
+    {
+        return string.Equals(readerType, "ACRGameDataReader", StringComparison.Ordinal)
+            ? I18NLoader.Instance["game.acr.diagnostics.reader"]
+            : readerType;
+    }
+
+    private static string GetGameStateLabel(string state)
+    {
+        return state switch
+        {
+            nameof(GameState.Unknown) => I18NLoader.Instance["diagnostics.gameStateUnknown"],
+            nameof(GameState.RaceBegin) => I18NLoader.Instance["diagnostics.gameStateRaceBegin"],
+            nameof(GameState.CountingDown) => I18NLoader.Instance["diagnostics.gameStateCountingDown"],
+            nameof(GameState.Racing) => I18NLoader.Instance["diagnostics.gameStateRacing"],
+            nameof(GameState.Paused) => I18NLoader.Instance["diagnostics.gameStatePaused"],
+            nameof(GameState.RaceEnd) => I18NLoader.Instance["diagnostics.gameStateRaceEnd"],
+            nameof(GameState.AdHocRaceBegin) => I18NLoader.Instance["diagnostics.gameStateAdHocRaceBegin"],
+            _ => state
+        };
+    }
+
+    private static string GetLocalBridgeLabel(string name)
+    {
+        return string.Equals(name, "ACR live bridge", StringComparison.Ordinal)
+            ? I18NLoader.Instance["game.acr.diagnostics.liveBridge"]
+            : name;
     }
 
     private static string GetUdpEndpoint(UdpListenerDiagnosticsInfo listener, string primaryFallbackEndpoint)

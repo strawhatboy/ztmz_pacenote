@@ -284,6 +284,12 @@
                                            TextTrimming="CharacterEllipsis"
                                            MaxWidth="160"
                                            VerticalAlignment="Center"/>
+                            <ui:SymbolIcon Symbol="QuestionCircle20"
+                                           FontSize="18"
+                                           Margin="8 0 0 0"
+                                           VerticalAlignment="Center"
+                                           ToolTip="{DynamicResource ResourceKey=settings.tooltip.overlayHudUsage}"
+                                           ToolTipService.InitialShowDelay="100" />
                         </StackPanel>
                         <ui:ToggleSwitch Grid.Column="2"
                                           Name="tb_hud"

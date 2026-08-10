@@ -19,6 +19,16 @@
                 "launchPromptInject": "注入桥接 DLL",
                 "launchPromptNotNow": "暂不注入",
                 "launchPromptFailure": "实时桥接未能注入：\n{0}"
+            },
+            "diagnostics": {
+                "reader": "ACR 共享内存",
+                "liveBridge": "ACR 实时路书桥接",
+                "bridgeInjected": "已注入",
+                "bridgeNotInjected": "未注入",
+                "bridgeDisabled": "已关闭"
+            },
+            "prerequisite": {
+                "sharedMemoryReady": "Assetto Corsa Rally 使用共享内存，无需额外前置检查。"
             }
         }
     }

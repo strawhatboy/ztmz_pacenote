@@ -19,6 +19,16 @@
                 "launchPromptInject": "Inject bridge",
                 "launchPromptNotNow": "Not now",
                 "launchPromptFailure": "The live bridge was not injected:\n{0}"
+            },
+            "diagnostics": {
+                "reader": "ACR shared memory",
+                "liveBridge": "ACR live pacenote bridge",
+                "bridgeInjected": "Injected",
+                "bridgeNotInjected": "Not injected",
+                "bridgeDisabled": "Disabled"
+            },
+            "prerequisite": {
+                "sharedMemoryReady": "Assetto Corsa Rally uses shared memory. No prerequisite check is required."
             }
         }
     }

@@ -415,6 +415,9 @@ Source: "{#MyAppPublishRoot}\games\ACRExperimentalBridge\*.json"; DestDir: "{cod
 Source: "{#MyAppPublishRoot}\games\*.json"; Excludes:"*.deps.json"; DestDir: "{code:GetZTMZHome}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\runtimes\*"; DestDir: "{code:GetInstallDir}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\dashboards\*"; DestDir: "{code:GetZTMZHome}\dashboards"; Flags: ignoreversion recursesubdirs createallsubdirs
+; WebDashboardServer serves its static client and fonts beside the installed executable.
+Source: "{#MyAppPublishRoot}\wwwroot\*"; DestDir: "{code:GetInstallDir}\wwwroot"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\fonts\*"; DestDir: "{code:GetInstallDir}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\x64\*"; DestDir: "{code:GetInstallDir}\x64"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\x86\*"; DestDir: "{code:GetInstallDir}\x86"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\Assets\ztmz_ngptool_3.0_help.png"; DestDir: "{code:GetInstallDir}\Assets"; Flags: ignoreversion recursesubdirs createallsubdirs

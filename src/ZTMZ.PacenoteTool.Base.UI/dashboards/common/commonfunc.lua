@@ -21,6 +21,31 @@ GAMESTATE_Paused = 4;
 GAMESTATE_RaceEnd = 5;
 GAMESTATE_AdHocRaceBegin = 6;
 
+function getGameStateName(i18n, gameState)
+    local key = nil;
+    if gameState == GAMESTATE_Unknown then
+        key = "overlay.gameStateUnknown";
+    elseif gameState == GAMESTATE_RaceBegin then
+        key = "overlay.gameStateRaceBegin";
+    elseif gameState == GAMESTATE_CountingDown then
+        key = "overlay.gameStateCountingDown";
+    elseif gameState == GAMESTATE_Racing then
+        key = "overlay.gameStateRacing";
+    elseif gameState == GAMESTATE_Paused then
+        key = "overlay.gameStatePaused";
+    elseif gameState == GAMESTATE_RaceEnd then
+        key = "overlay.gameStateRaceEnd";
+    elseif gameState == GAMESTATE_AdHocRaceBegin then
+        key = "overlay.gameStateAdHocRaceBegin";
+    end
+
+    if key ~= nil then
+        return i18n.ResolveByKey(key);
+    end
+
+    return tostring(gameState);
+end
+
 function getRotatePoint(gfx, helper, centerX, centerY, pointX, pointY, angle)
     local point = helper.getPoint(centerX + (pointX - centerX) * math.cos(angle) - (pointY - centerY) * math.sin(angle),
         centerY + (pointX - centerX) * math.sin(angle) + (pointY - centerY) * math.cos(angle));

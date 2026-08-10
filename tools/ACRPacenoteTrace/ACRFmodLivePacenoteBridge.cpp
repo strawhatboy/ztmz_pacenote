@@ -58,21 +58,52 @@ void WriteLog(const std::string& text)
     WriteFile(LogFile, line.data(), static_cast<DWORD>(line.size()), &written, nullptr);
 }
 
-void WritePipeUnavailableOnce(DWORD error)
+std::string GetCurrentProcessIdentity()
+{
+    char userName[256]{};
+    DWORD userNameLength = static_cast<DWORD>(sizeof(userName));
+    const std::string user = GetUserNameA(userName, &userNameLength) ? userName : "<unknown>";
+
+    bool elevated = false;
+    HANDLE token = nullptr;
+    if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token))
+    {
+        TOKEN_ELEVATION elevation{};
+        DWORD byteCount = 0;
+        if (GetTokenInformation(token, TokenElevation, &elevation, sizeof(elevation), &byteCount))
+        {
+            elevated = elevation.TokenIsElevated != 0;
+        }
+        CloseHandle(token);
+    }
+
+    return "user=" + user + ", elevated=" + (elevated ? "true" : "false");
+}
+
+std::string DescribeLookup(const PacenoteLookup& lookup)
+{
+    return ", raw=" + lookup.rawSoundName +
+        ", token=" + lookup.token +
+        ", placement=" + lookup.placement +
+        ", variant=" + lookup.variant;
+}
+
+void WritePipeUnavailableOnce(DWORD error, const PacenoteLookup& lookup)
 {
     bool expected = false;
     if (PipeUnavailableLogged.compare_exchange_strong(expected, true))
     {
-        WriteLog("pipe-unavailable: CreateFileW failed (error=" + std::to_string(error) + ")");
+        WriteLog("pipe-unavailable: CreateFileW(path=\\\\.\\pipe\\ZTMZPacenote.ACR.Live.v1, desiredAccess=GENERIC_WRITE, disposition=OPEN_EXISTING) failed (error=" +
+            std::to_string(error) + ")" + DescribeLookup(lookup));
     }
 }
 
-void WritePipeWriteFailureOnce(DWORD error)
+void WritePipeWriteFailureOnce(DWORD error, const PacenoteLookup& lookup)
 {
     bool expected = false;
     if (PipeWriteFailedLogged.compare_exchange_strong(expected, true))
     {
-        WriteLog("pipe-write-failed: WriteFile failed (error=" + std::to_string(error) + ")");
+        WriteLog("pipe-write-failed: WriteFile failed (error=" + std::to_string(error) + ")" + DescribeLookup(lookup));
     }
 }
 
@@ -221,7 +252,7 @@ void PublishTokens(const std::vector<std::string>& tokens, const PacenoteLookup&
     const HANDLE pipe = CreateFileW(PipePath, GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (pipe == INVALID_HANDLE_VALUE)
     {
-        WritePipeUnavailableOnce(GetLastError());
+        WritePipeUnavailableOnce(GetLastError(), lookup);
         return;
     }
 
@@ -231,7 +262,7 @@ void PublishTokens(const std::vector<std::string>& tokens, const PacenoteLookup&
     CloseHandle(pipe);
     if (!succeeded)
     {
-        WritePipeWriteFailureOnce(error);
+        WritePipeWriteFailureOnce(error, lookup);
     }
 }
 
@@ -288,7 +319,7 @@ DWORD WINAPI InitializeBridge(void*)
         return 3;
     }
 
-    WriteLog("bridge-started");
+    WriteLog("bridge-started: " + GetCurrentProcessIdentity());
     return 0;
 }
 }

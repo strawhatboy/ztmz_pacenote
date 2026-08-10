@@ -1,11 +1,15 @@
 v2.99.99.43-3.0-rc15
 
 * Fixes an rc14 issue that could leave ACR co-driver calls silent after bridge injection on a new PC.
+* Restores ACR stage state when ZTMZ joins an already running stage, without replaying the start countdown or Go call.
 * Adds the ACR start procedure, with ZTMZ's 5-4-3-2-1 countdown and Go call.
 * Adds normal-finish, disqualification, collision, and out-of-track handling for ACR stages.
 * Expands ACR spoken pacenote coverage, including distance calls and common hazards and landmarks.
+* Localizes ACR shared-memory, bridge, and prerequisite status messages.
 * Keeps the ACR dashboard visible while ACR has focus and shows it only when a stage begins.
 * Offers bridge injection once experimental support is enabled and ACR is ready, regardless of launch order.
+* Fixes installation of the Web Dashboard client files and bundled fonts.
+* Adds an overlay-dashboard usage hint and readable game-state names in the diagnostics dashboard.
 * Installs a missing ASP.NET Core Runtime after the .NET Desktop Runtime, with Gitee mirrors for China Standard Time.
 * Adds an interface font-size setting, adjustable from 85% to 130%.
 * Adds an offline pacenote script editor with validation, CrewChief JSON import, live playback highlighting, distance adjustment, and roadbook PDF export.

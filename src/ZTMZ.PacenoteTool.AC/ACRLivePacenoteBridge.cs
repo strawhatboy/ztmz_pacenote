@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO.Pipes;
 using System.IO;
 using System.Linq;
+using System.Security.Principal;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,6 +33,7 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
     private CancellationTokenSource? _countdownCancellation;
     private Task? _countdownTask;
     private DateTime _lastCountdownGoAtUtc = DateTime.MinValue;
+    private bool _hasObservedRaceLifecycle;
 
     private static readonly TimeSpan CountdownInterval = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan CountdownGoDuplicateWindow = TimeSpan.FromSeconds(3);
@@ -49,6 +51,7 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
 
     private async Task ListenAsync()
     {
+        Logger.Info("ACR live-pacenote bridge listener started as {0}.", GetCurrentProcessIdentity());
         while (!_cancellation.IsCancellationRequested)
         {
             try
@@ -93,6 +96,20 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
         }
     }
 
+    private static string GetCurrentProcessIdentity()
+    {
+        try
+        {
+            using var identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            return $"{identity.Name} (elevated={principal.IsInRole(WindowsBuiltInRole.Administrator)})";
+        }
+        catch
+        {
+            return "<unavailable>";
+        }
+    }
+
     private void Publish(string line)
     {
         ACRLivePacenoteMessage? message;
@@ -124,6 +141,16 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
         }
 
         var eventId = string.IsNullOrWhiteSpace(message.Id) ? Guid.NewGuid().ToString("N") : message.Id;
+
+        // If ZTMZ attaches after ACR has already started, the bridge will not
+        // replay the earlier countdown resources. Attach to the active race
+        // before forwarding the first mapped live pacenote so the core does
+        // not discard it while still in Unknown.
+        if (record.Pacenotes.Count > 0)
+        {
+            EnsureActiveRaceAttached();
+        }
+
         _publish(new LivePacenoteEvent
         {
             Id = eventId,
@@ -188,9 +215,23 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
             _countdownCancellation?.Dispose();
             cancellation = CancellationTokenSource.CreateLinkedTokenSource(_cancellation.Token);
             _countdownCancellation = cancellation;
+            _hasObservedRaceLifecycle = true;
             _publishGameState(GameState.RaceBegin, null);
             _countdownTask = PublishCountdownAsync(source, eventId, cancellation);
         }
+    }
+
+    private void EnsureActiveRaceAttached()
+    {
+        if (_hasObservedRaceLifecycle)
+        {
+            return;
+        }
+
+        _hasObservedRaceLifecycle = true;
+        Logger.Info("ACR live bridge attached after race start; emitting AdHocRaceBegin and Racing without countdown.");
+        _publishGameState(GameState.AdHocRaceBegin, null);
+        _publishGameState(GameState.Racing, null);
     }
 
     private async Task PublishCountdownAsync(ACRLivePacenoteMessage source, string eventId, CancellationTokenSource cancellation)
@@ -237,6 +278,7 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
 
     private void PublishCountdownGo()
     {
+        var joinedAfterCountdown = false;
         lock (_countdownLock)
         {
             var now = DateTime.UtcNow;
@@ -247,8 +289,19 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
             }
 
             _lastCountdownGoAtUtc = now;
+            joinedAfterCountdown = !_hasObservedRaceLifecycle;
         }
 
+        if (joinedAfterCountdown)
+        {
+            // ZTMZ can attach after EventCountdown but before EventCountdownGo.
+            // Treat this as a late join so the core initializes its active-race
+            // state without replaying either the countdown or Go.
+            EnsureActiveRaceAttached();
+            return;
+        }
+
+        _hasObservedRaceLifecycle = true;
         Logger.Info("ACR EventCountdownGo received; emitting ZTMZ Racing state.");
         _publishGameState(GameState.Racing, null);
     }
