@@ -1,3 +1,17 @@
+v2.99.99.44-3.0-rc16
+------
+[English]
+* Restores ACR stage state when ZTMZ joins an already running stage, without replaying the start countdown or Go call.
+* Localizes ACR shared-memory, bridge, and prerequisite status messages.
+* Fixes installation of the Web Dashboard client files and bundled fonts.
+* Adds an overlay-dashboard usage hint and readable game-state names in the diagnostics dashboard.
+
+[简体中文]
+* ZTMZ 在 ACR 赛段已开始后接入时，会恢复赛段状态，不会重复播报发车倒计时或 Go 语音。
+* 本地化 ACR 共享内存、bridge 和前置检查状态文本。
+* 修复安装后网页仪表盘客户端文件和内置字体缺失的问题。
+* 新增悬浮仪表盘使用提示，并让调试仪表盘显示可读的游戏状态名称。
+
 v2.99.99.43-3.0-rc15
 ------
 [English]
