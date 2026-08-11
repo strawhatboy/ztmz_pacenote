@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
@@ -197,6 +198,27 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
             catch (Exception exception)
             {
                 Logger.Error(exception, "Error while loading XML file {0}", file);
+                return null;
+            }
+        }
+
+        if (lastException is XmlException)
+        {
+            try
+            {
+                using var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var reader = new StreamReader(stream, new UTF8Encoding(false), detectEncodingFromByteOrderMarks: true);
+                var document = XDocument.Load(reader, LoadOptions.PreserveWhitespace);
+                Logger.Warn("Loaded XML file {0} as UTF-8 after its declared encoding could not be read.", file);
+                return document;
+            }
+            catch (Exception exception) when (exception is IOException or XmlException)
+            {
+                lastException = exception;
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception, "Error while loading XML file {0} with the UTF-8 compatibility fallback", file);
                 return null;
             }
         }

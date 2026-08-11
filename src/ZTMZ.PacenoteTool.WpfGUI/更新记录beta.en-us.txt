@@ -1,3 +1,7 @@
+v2.99.99.45-3.0-rc17
+
+* Fixes DiRT Rally and DiRT Rally 2.0 configuration files with an invalid XML encoding declaration being incorrectly reported as corrupted; ZTMZ now falls back to UTF-8/BOM parsing.
+
 v2.99.99.44-3.0-rc16
 
 * Fixes Home page section titles not updating with the interface font-size setting and lets newly downloaded recommended fonts apply without restarting.

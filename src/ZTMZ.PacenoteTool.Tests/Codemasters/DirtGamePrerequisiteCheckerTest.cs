@@ -43,6 +43,22 @@ public class DirtGamePrerequisiteCheckerTest
     }
 
     [Fact]
+    public void Check_AcceptsUtf8XmlWithUnsupportedEncodingDeclaration()
+    {
+        var result = CheckXml("""
+            <?xml version="1.0" encoding="System"?>
+            <hardware_settings_config>
+              <motion_platform>
+                <udp enabled="true" extradata="3" ip="127.0.0.1" port="59996" delay="1" />
+              </motion_platform>
+            </hardware_settings_config>
+            """);
+
+        Assert.True(result.IsOK);
+        Assert.Equal(PrerequisitesCheckResultCode.OK, result.Code);
+    }
+
+    [Fact]
     public void Check_ReportsMissingConfiguredPortWithoutTreatingOtherTargetsAsAnError()
     {
         var result = CheckXml("""
