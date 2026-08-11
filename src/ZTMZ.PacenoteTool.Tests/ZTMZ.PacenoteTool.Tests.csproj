@@ -14,6 +14,7 @@
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Codemasters\ZTMZ.PacenoteTool.Codemasters.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.RBR\ZTMZ.PacenoteTool.RBR.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.BeamNG\ZTMZ.PacenoteTool.BeamNG.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.AC\ZTMZ.PacenoteTool.AC.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.WpfGUI\ZTMZ.PacenoteTool.WpfGUI.csproj" />
   </ItemGroup>
 

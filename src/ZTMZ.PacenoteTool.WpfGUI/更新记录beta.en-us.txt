@@ -8,6 +8,7 @@ v2.99.99.44-3.0-rc16
 * Treats an experimental ACR bridge that is already injected as loaded instead of reporting an injection failure.
 * Fixes automatic game selection reinitializing the same running game, which could close ZTMZ when it joined ACR while already on a stage.
 * Restores replay-analysis distance-axis zooming and panning.
+* Reports ACR vehicle classes such as Rally2, H3, and WRC from the final word of the vehicle model name.
 * Fixes installation of the Web Dashboard client files and bundled fonts.
 * Adds an overlay-dashboard usage hint and readable game-state names in the diagnostics dashboard.
 

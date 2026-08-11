@@ -4,6 +4,7 @@ v2.99.99.44-3.0-rc16
 * 已注入的实验性 ACR bridge 现被识别为“已加载”，不再显示注入失败。
 * 修复 ZTMZ 自动选择已运行的同一游戏时的重复初始化；此前在 ACR 已处于赛道中接入时，可能导致 ZTMZ 退出。
 * 恢复回放分析图的距离轴缩放和拖动平移。
+* ACR 现在会从车辆名称的最后一个单词中识别并上报 Rally2、H3、WRC 等车辆组别。
 ------
 [English]
 * Fixes Home page section titles not updating with the interface font-size setting and lets newly downloaded recommended fonts apply without restarting.

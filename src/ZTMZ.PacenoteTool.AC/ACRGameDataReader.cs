@@ -92,7 +92,31 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
 
     public string CarName => _currentRawGameData.StaticInfo.VehicleModel ?? string.Empty;
 
-    public string CarClass => string.Empty; // AC doesn't provide car class in shared memory
+    public string CarClass
+    {
+        get
+        {
+            var carName = CarName;
+            var end = carName.Length - 1;
+            while (end >= 0 && char.IsWhiteSpace(carName[end]))
+            {
+                end--;
+            }
+
+            if (end < 0)
+            {
+                return string.Empty;
+            }
+
+            var start = end;
+            while (start >= 0 && !char.IsWhiteSpace(carName[start]))
+            {
+                start--;
+            }
+
+            return carName[(start + 1)..(end + 1)];
+        }
+    }
 
     public event Action<GameData, GameData>? onNewGameData;
     public event Action<bool>? onGameDataAvailabilityChanged;
