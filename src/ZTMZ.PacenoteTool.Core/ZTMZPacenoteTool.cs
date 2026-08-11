@@ -281,13 +281,18 @@ public class ZTMZPacenoteTool {
     }
 
     private void initializeReplayManager() {
-        ReplayManager.Instance.Init();
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        Action<string> reportProgress = status => this.onStatusReport?.Invoke(status);
+        ReplayManager.Instance.Init(reportProgress);
         try {
-            ReplayManager.Instance.ImportLegacyReplaysAsync(this.Games).GetAwaiter().GetResult();
+            ReplayManager.Instance.ImportLegacyReplaysAsync(this.Games, reportProgress).GetAwaiter().GetResult();
         } catch (Exception ex) {
             _logger.Error(ex, "Failed to import legacy replay databases.");
+            reportProgress("Replay manager: legacy replay import failed; continuing startup.");
         }
-        this.onStatusReport?.Invoke("Replay manager initialized.");
+        var completionStatus = $"Replay manager initialized in {stopwatch.ElapsedMilliseconds} ms.";
+        _logger.Info(completionStatus);
+        reportProgress(completionStatus);
     }
 
     private void initializeGame(IGame game) 

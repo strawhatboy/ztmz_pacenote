@@ -28,6 +28,9 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
     [ObservableProperty]
     private string _searchText = string.Empty;
 
+    [ObservableProperty]
+    private string _currentGameName = string.Empty;
+
     public ICollectionView ReplaysView { get; }
 
     public ReplayPageVM(
@@ -63,8 +66,16 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
 
     public async Task OnNavigatedToAsync()
     {
-        var replays = await ReplayManager.Instance.getReplays(_tool.CurrentGame);
+        var game = _tool.CurrentGame;
+        CurrentGameName = game?.Name ?? string.Empty;
         Replays.Clear();
+        if (game == null)
+        {
+            ReplaysView.Refresh();
+            return;
+        }
+
+        var replays = await ReplayManager.Instance.getReplays(game);
         foreach (var replay in replays.OrderByDescending(replay => replay.date))
         {
             Replays.Add(new ReplayModel

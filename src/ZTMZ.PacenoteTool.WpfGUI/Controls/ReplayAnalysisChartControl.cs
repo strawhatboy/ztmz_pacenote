@@ -16,6 +16,7 @@ public sealed class ReplayAnalysisChartControl : FrameworkElement
     private const double LeftMargin = 54;
     private const double RightMargin = 14;
     private const double BottomMargin = 28;
+    private const double DefaultHeight = 420;
     private readonly VisualCollection _visuals;
     private readonly DrawingVisual _chartVisual = new();
     private bool _hasCustomDistanceRange;
@@ -74,7 +75,13 @@ public sealed class ReplayAnalysisChartControl : FrameworkElement
 
     protected override Size MeasureOverride(Size availableSize)
     {
-        return new Size(Math.Min(availableSize.Width, 960), Math.Max(260, availableSize.Height));
+        var width = double.IsFinite(availableSize.Width)
+            ? Math.Max(0, Math.Min(availableSize.Width, 960))
+            : 960;
+        var height = double.IsFinite(availableSize.Height)
+            ? Math.Max(260, availableSize.Height)
+            : DefaultHeight;
+        return new Size(width, height);
     }
 
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)

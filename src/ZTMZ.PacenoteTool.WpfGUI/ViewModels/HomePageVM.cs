@@ -1001,6 +1001,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             Symbol = SymbolRegular.Warning24,
             Width = 40,
             Height = 40,
+            FontSize = 32,
             Foreground = Brushes.DarkOrange,
             VerticalAlignment = System.Windows.VerticalAlignment.Top,
             Margin = new System.Windows.Thickness(0, 0, 16, 0)

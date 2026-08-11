@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -612,6 +613,8 @@ public static class ReplayComparisonCalculator {
 
 public class ReplayManager {
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+    private const string ReplayMetadataVersionKey = "replay_metadata_version";
+    private const string ReplayMetadataVersion = "1";
     private static ReplayManager instance;
     private static readonly object lockObject = new object();
     private readonly SemaphoreSlim _databaseWriteSemaphore = new(1, 1);
@@ -635,21 +638,57 @@ public class ReplayManager {
     private ReplayManager() {
     }
 
-    public void Init() {
-        initDB();
+    public void Init(Action<string>? progressReporter = null) {
+        InitializeDatabase(progressReporter);
     }
 
-    public void Init(string databasePath) {
+    public void Init(string databasePath, Action<string>? progressReporter = null) {
         if (!string.IsNullOrWhiteSpace(databasePath)) {
             _databasePathOverride = databasePath;
         }
 
-        initDB();
+        InitializeDatabase(progressReporter);
     }
 
-    public async Task ImportLegacyReplaysAsync(IEnumerable<IGame> games) {
+    private void InitializeDatabase(Action<string>? progressReporter) {
+        var stopwatch = Stopwatch.StartNew();
+        ReportInitializationProgress(progressReporter, "Replay manager: initializing replay database.");
+        var initialization = initDB();
+        var metadataMessage = initialization.MetadataWasRefreshed
+            ? $"Checked {initialization.Metadata.ReplayCount} replay(s); refreshed {initialization.Metadata.UpdatedReplayCount}."
+            : "Replay metadata already current.";
+        ReportInitializationProgress(progressReporter, $"Replay manager: database ready after {stopwatch.ElapsedMilliseconds} ms. {metadataMessage}");
+    }
+
+    public async Task ImportLegacyReplaysAsync(IEnumerable<IGame> games, Action<string>? progressReporter = null) {
+        await ImportLegacyReplaysAsync(games, GetLegacyReplayDatabasePath, progressReporter);
+    }
+
+    internal async Task ImportLegacyReplaysAsync(
+        IEnumerable<IGame> games,
+        Func<IGame, string> legacyReplayPathResolver,
+        Action<string>? progressReporter = null) {
+        var stopwatch = Stopwatch.StartNew();
         var gameList = games?.Where(g => g != null).ToList() ?? new List<IGame>();
         if (gameList.Count == 0) {
+            ReportInitializationProgress(progressReporter, "Replay manager: no games available for legacy replay import.");
+            return;
+        }
+
+        var legacyDatabases = gameList
+            .Select(game => new
+            {
+                Game = game,
+                Path = legacyReplayPathResolver(game)
+            })
+            .Select(candidate => TryCreateLegacyReplayDatabase(candidate.Game, candidate.Path))
+            .Where(candidate => candidate != null)
+            .Select(candidate => candidate!)
+            .ToList();
+
+        if (legacyDatabases.Count == 0) {
+            ReportInitializationProgress(progressReporter, "Replay manager: scanning 0 legacy replay database(s).");
+            ReportInitializationProgress(progressReporter, $"Replay manager: no legacy replay import needed after {stopwatch.ElapsedMilliseconds} ms.");
             return;
         }
 
@@ -657,28 +696,55 @@ public class ReplayManager {
         try {
             using var connection = new SqliteConnection(getConnectionString());
             await connection.OpenAsync();
-            await EnsureExistingReplayMetadataAsync(connection);
+            var databasesToScan = new List<LegacyReplayDatabase>();
+            var skippedDatabaseCount = 0;
+            foreach (var legacyDatabase in legacyDatabases) {
+                if (await IsLegacyReplayDatabaseUnchangedAsync(connection, legacyDatabase)) {
+                    skippedDatabaseCount++;
+                    _logger.Info("Replay manager: skipped unchanged legacy replay database for {0}.", legacyDatabase.Game.Name);
+                    continue;
+                }
+
+                databasesToScan.Add(legacyDatabase);
+            }
+
+            ReportInitializationProgress(
+                progressReporter,
+                $"Replay manager: checking {legacyDatabases.Count} legacy replay database(s); scanning {databasesToScan.Count}, skipped {skippedDatabaseCount} unchanged.");
 
             var pending = new List<LegacyReplayImport>();
             var pendingSourceKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var pendingAvailableFingerprints = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var game in gameList) {
-                var legacyPath = AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, $"{game.Name}{Constants.FILEEXT_REPLAYS}"));
-                if (!File.Exists(legacyPath)) {
-                    continue;
-                }
+            var scannedReplayCount = 0;
+            var duplicateReplayCount = 0;
+            var alreadyImportedCount = 0;
+            for (var databaseIndex = 0; databaseIndex < databasesToScan.Count; databaseIndex++) {
+                var legacyDatabase = databasesToScan[databaseIndex];
+                ReportInitializationProgress(
+                    progressReporter,
+                    $"Replay manager: scanning legacy replays for {legacyDatabase.Game.Name} ({databaseIndex + 1}/{databasesToScan.Count}).");
 
-                var imports = await ReadLegacyReplayDatabaseAsync(game.Name, legacyPath);
+                var scanStopwatch = Stopwatch.StartNew();
+                var imports = await ReadLegacyReplayDatabaseAsync(legacyDatabase.Game.Name, legacyDatabase.SourceFile);
+                scannedReplayCount += imports.Count;
+                _logger.Info(
+                    "Replay manager: scanned {0} legacy replay(s) for {1} in {2} ms.",
+                    imports.Count,
+                    legacyDatabase.Game.Name,
+                    scanStopwatch.ElapsedMilliseconds);
                 foreach (var import in imports) {
                     if (!pendingSourceKeys.Add(GetImportSourceKey(import))) {
+                        duplicateReplayCount++;
                         continue;
                     }
 
                     if (import.Replay.available && !pendingAvailableFingerprints.Add(import.Fingerprint)) {
+                        duplicateReplayCount++;
                         continue;
                     }
 
                     if (await IsReplayAlreadyImportedAsync(connection, import)) {
+                        alreadyImportedCount++;
                         continue;
                     }
 
@@ -686,14 +752,28 @@ public class ReplayManager {
                 }
             }
 
+            ReportInitializationProgress(
+                progressReporter,
+                $"Replay manager: legacy scan completed. Checked {legacyDatabases.Count} database(s); found {scannedReplayCount} replay(s); {alreadyImportedCount} already imported, {duplicateReplayCount} duplicate, {pending.Count} pending.");
+
             if (pending.Count == 0) {
+                await SaveLegacyReplayDatabaseStatesAsync(connection, databasesToScan);
+                ReportInitializationProgress(progressReporter, $"Replay manager: no legacy replay import needed after {stopwatch.ElapsedMilliseconds} ms.");
                 return;
             }
 
             CreateDatabaseBackup();
-            foreach (var import in pending) {
+            ReportInitializationProgress(progressReporter, $"Replay manager: importing {pending.Count} legacy replay(s).");
+            for (var importIndex = 0; importIndex < pending.Count; importIndex++) {
+                var import = pending[importIndex];
                 await SaveReplayCoreAsync(connection, import.GameName, import.Replay, import.DetailsPerTime, import.DetailsPerCheckpoint, false, import);
+                if ((importIndex + 1) % 25 == 0 || importIndex + 1 == pending.Count) {
+                    ReportInitializationProgress(progressReporter, $"Replay manager: imported {importIndex + 1}/{pending.Count} legacy replay(s).");
+                }
             }
+
+            await SaveLegacyReplayDatabaseStatesAsync(connection, databasesToScan);
+            ReportInitializationProgress(progressReporter, $"Replay manager: legacy replay import completed in {stopwatch.ElapsedMilliseconds} ms.");
         } finally {
             _databaseWriteSemaphore.Release();
         }
@@ -898,7 +978,7 @@ public class ReplayManager {
         }
     }
 
-    private void initDB() {
+    private ReplayDatabaseInitializationResult initDB() {
         var databaseDirectory = Path.GetDirectoryName(getDatabasePath());
         if (!string.IsNullOrEmpty(databaseDirectory)) {
             Directory.CreateDirectory(databaseDirectory);
@@ -920,7 +1000,23 @@ public class ReplayManager {
                 imported_at TEXT NOT NULL
             );";
         command.ExecuteNonQuery();
-        command.CommandText = "DROP INDEX IF EXISTS idx_replay_import_ledger_fingerprint;";
+        command.CommandText = @"
+            CREATE TABLE IF NOT EXISTS replay_import_source (
+                source_file TEXT NOT NULL,
+                source_game TEXT NOT NULL,
+                source_size INTEGER NOT NULL,
+                source_last_write_ticks INTEGER NOT NULL,
+                source_wal_size INTEGER NOT NULL,
+                source_wal_last_write_ticks INTEGER NOT NULL,
+                scanned_at TEXT NOT NULL,
+                PRIMARY KEY (source_file, source_game)
+            );";
+        command.ExecuteNonQuery();
+        command.CommandText = @"
+            CREATE TABLE IF NOT EXISTS replay_manager_state (
+                state_key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            );";
         command.ExecuteNonQuery();
         foreach (var sql in new[] {
             "CREATE INDEX IF NOT EXISTS idx_replay_game_track_available ON replay(game, track, available, retired, finish_time);",
@@ -937,7 +1033,20 @@ public class ReplayManager {
             command.ExecuteNonQuery();
         }
 
-        EnsureExistingReplayMetadataAsync(connection).GetAwaiter().GetResult();
+        var metadataVersion = connection.ExecuteScalar<string>(
+            "SELECT value FROM replay_manager_state WHERE state_key = @key",
+            new { key = ReplayMetadataVersionKey });
+        if (metadataVersion == ReplayMetadataVersion) {
+            return new ReplayDatabaseInitializationResult(default, false);
+        }
+
+        var metadata = EnsureExistingReplayMetadataAsync(connection).GetAwaiter().GetResult();
+        connection.Execute(
+            @"INSERT INTO replay_manager_state (state_key, value)
+              VALUES (@key, @value)
+              ON CONFLICT(state_key) DO UPDATE SET value = excluded.value;",
+            new { key = ReplayMetadataVersionKey, value = ReplayMetadataVersion });
+        return new ReplayDatabaseInitializationResult(metadata, true);
     }
 
     private string getDatabasePath() {
@@ -948,6 +1057,95 @@ public class ReplayManager {
 
     private string getConnectionString() {
         return new SqliteConnectionStringBuilder { DataSource = getDatabasePath() }.ToString();
+    }
+
+    private static string GetLegacyReplayDatabasePath(IGame game) {
+        return AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, $"{game.Name}{Constants.FILEEXT_REPLAYS}"));
+    }
+
+    private static LegacyReplayDatabase? TryCreateLegacyReplayDatabase(IGame game, string path) {
+        var sourceFile = Path.GetFullPath(path);
+        return TryGetLegacyReplaySourceState(sourceFile, out var sourceState)
+            ? new LegacyReplayDatabase(game, sourceFile, sourceState)
+            : null;
+    }
+
+    private static bool TryGetLegacyReplaySourceState(string sourceFile, out LegacyReplaySourceState sourceState) {
+        sourceState = default;
+        try {
+            var databaseFile = new FileInfo(sourceFile);
+            databaseFile.Refresh();
+            if (!databaseFile.Exists) {
+                return false;
+            }
+
+            var walFile = new FileInfo(sourceFile + "-wal");
+            walFile.Refresh();
+            sourceState = new LegacyReplaySourceState(
+                databaseFile.Length,
+                databaseFile.LastWriteTimeUtc.Ticks,
+                walFile.Exists ? walFile.Length : 0,
+                walFile.Exists ? walFile.LastWriteTimeUtc.Ticks : 0);
+            return true;
+        } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException) {
+            _logger.Warn(ex, "Replay manager: could not read legacy replay database state for {0}.", sourceFile);
+            return false;
+        }
+    }
+
+    private static async Task<bool> IsLegacyReplayDatabaseUnchangedAsync(SqliteConnection connection, LegacyReplayDatabase database) {
+        var state = database.SourceState;
+        var count = await connection.ExecuteScalarAsync<long>(
+            @"SELECT COUNT(1)
+              FROM replay_import_source
+              WHERE source_file = @sourceFile
+                AND source_game = @sourceGame
+                AND source_size = @sourceSize
+                AND source_last_write_ticks = @sourceLastWriteTicks
+                AND source_wal_size = @sourceWalSize
+                AND source_wal_last_write_ticks = @sourceWalLastWriteTicks;",
+            new {
+                sourceFile = database.SourceFile,
+                sourceGame = database.Game.Name,
+                sourceSize = state.SourceSize,
+                sourceLastWriteTicks = state.SourceLastWriteTicks,
+                sourceWalSize = state.SourceWalSize,
+                sourceWalLastWriteTicks = state.SourceWalLastWriteTicks
+            });
+        return count > 0;
+    }
+
+    private static async Task SaveLegacyReplayDatabaseStatesAsync(SqliteConnection connection, IEnumerable<LegacyReplayDatabase> databases) {
+        foreach (var database in databases) {
+            if (!TryGetLegacyReplaySourceState(database.SourceFile, out var currentState)
+                || currentState != database.SourceState) {
+                _logger.Warn("Replay manager: legacy replay database changed while it was being scanned; it will be scanned again next startup: {0}.", database.SourceFile);
+                continue;
+            }
+
+            await connection.ExecuteAsync(
+                @"INSERT INTO replay_import_source (
+                      source_file, source_game, source_size, source_last_write_ticks,
+                      source_wal_size, source_wal_last_write_ticks, scanned_at)
+                  VALUES (
+                      @sourceFile, @sourceGame, @sourceSize, @sourceLastWriteTicks,
+                      @sourceWalSize, @sourceWalLastWriteTicks, @scannedAt)
+                  ON CONFLICT(source_file, source_game) DO UPDATE SET
+                      source_size = excluded.source_size,
+                      source_last_write_ticks = excluded.source_last_write_ticks,
+                      source_wal_size = excluded.source_wal_size,
+                      source_wal_last_write_ticks = excluded.source_wal_last_write_ticks,
+                      scanned_at = excluded.scanned_at;",
+                new {
+                    sourceFile = database.SourceFile,
+                    sourceGame = database.Game.Name,
+                    sourceSize = currentState.SourceSize,
+                    sourceLastWriteTicks = currentState.SourceLastWriteTicks,
+                    sourceWalSize = currentState.SourceWalSize,
+                    sourceWalLastWriteTicks = currentState.SourceWalLastWriteTicks,
+                    scannedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
+                });
+        }
     }
 
     private async Task SaveReplaySnapshotAsync(ReplaySaveSnapshot snapshot) {
@@ -1117,9 +1315,10 @@ public class ReplayManager {
         return rest.Split(new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.Trim('"', '\'', '`', '[', ']') ?? "";
     }
 
-    private async Task EnsureExistingReplayMetadataAsync(SqliteConnection connection) {
+    private async Task<ReplayMetadataScanResult> EnsureExistingReplayMetadataAsync(SqliteConnection connection) {
         var replaySql = await BuildReplaySelectSqlAsync(connection, "");
         var replays = (await connection.QueryAsync<Replay>(replaySql)).AsList();
+        var updatedReplayCount = 0;
         foreach (var replay in replays) {
             var detailsPerTime = (await connection.QueryAsync<ReplayDetailsPerTime>("SELECT * FROM replay_details_per_time WHERE id = @id", new { replay.id })).AsList();
             var detailsPerCheckpoint = (await connection.QueryAsync<ReplayDetailsPerCheckpoint>("SELECT * FROM replay_details_per_checkpoint WHERE id = @id", new { replay.id })).AsList();
@@ -1130,8 +1329,11 @@ public class ReplayManager {
                 await connection.ExecuteAsync(
                     "UPDATE replay SET available = @available, fingerprint = @fingerprint WHERE id = @id",
                     new { id = replay.id, available = available ? 1 : 0, fingerprint });
+                updatedReplayCount++;
             }
         }
+
+        return new ReplayMetadataScanResult(replays.Count, updatedReplayCount);
     }
 
     private async Task EnforceRetentionAsync(SqliteConnection connection, string gameName, Replay replay) {
@@ -1441,6 +1643,11 @@ public class ReplayManager {
         return string.Join("\u001f", import.SourceFile, import.GameName, import.SourceReplayId.ToString(CultureInfo.InvariantCulture));
     }
 
+    private static void ReportInitializationProgress(Action<string>? progressReporter, string message) {
+        _logger.Info("{0}", message);
+        progressReporter?.Invoke(message);
+    }
+
     private static string SanitizePathSegment(string value) {
         if (string.IsNullOrWhiteSpace(value)) {
             return "";
@@ -1466,6 +1673,23 @@ public class ReplayManager {
         Replay Replay,
         List<ReplayDetailsPerTime> DetailsPerTime,
         List<ReplayDetailsPerCheckpoint> DetailsPerCheckpoint);
+
+    private readonly record struct ReplayMetadataScanResult(int ReplayCount, int UpdatedReplayCount);
+
+    private readonly record struct ReplayDatabaseInitializationResult(
+        ReplayMetadataScanResult Metadata,
+        bool MetadataWasRefreshed);
+
+    private readonly record struct LegacyReplaySourceState(
+        long SourceSize,
+        long SourceLastWriteTicks,
+        long SourceWalSize,
+        long SourceWalLastWriteTicks);
+
+    private sealed record LegacyReplayDatabase(
+        IGame Game,
+        string SourceFile,
+        LegacyReplaySourceState SourceState);
 
     private sealed record LegacyReplayImport(
         string GameName,

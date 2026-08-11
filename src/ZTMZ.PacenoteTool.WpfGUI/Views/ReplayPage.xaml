@@ -42,7 +42,11 @@
       </Grid.ColumnDefinitions>
       <StackPanel>
         <TextBlock Text="{DynamicResource replay.title}" FontSize="20" FontWeight="SemiBold" />
-        <TextBlock Text="{DynamicResource replay.browserSubtitle}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap">
+          <Run Text="{DynamicResource replay.browserSubtitle}" />
+          <Run Text=": " />
+          <Run Text="{Binding ViewModel.CurrentGameName}" FontWeight="SemiBold" />
+        </TextBlock>
       </StackPanel>
       <TextBox Grid.Column="1"
                Text="{Binding ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

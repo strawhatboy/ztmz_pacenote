@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+using Dapper;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 
@@ -35,6 +36,64 @@ public class ReplayManagerTest
         Assert.Equal(200, lookup.GetTimestampByDistance(100));
         Assert.Equal(3, lookup.GetByTimestamp(400).time);
         Assert.Equal(90, lookup.GetByTime(2).distance);
+    }
+
+    [Fact]
+    public async Task InitializationReportsDatabaseAndLegacyImportProgress()
+    {
+        var databasePath = GetTempDatabasePath();
+        var progress = new List<string>();
+        var game = new TestGame("Missing Legacy Replay " + Guid.NewGuid().ToString("N"));
+
+        try
+        {
+            ReplayManager.Instance.Init(databasePath, progress.Add);
+            await ReplayManager.Instance.ImportLegacyReplaysAsync(new[] { game }, progress.Add);
+
+            Assert.Contains("Replay manager: initializing replay database.", progress);
+            Assert.Contains(progress, message => message.StartsWith("Replay manager: database ready after ", StringComparison.Ordinal));
+            Assert.Contains("Replay manager: scanning 0 legacy replay database(s).", progress);
+            Assert.Contains(progress, message => message.StartsWith("Replay manager: no legacy replay import needed after ", StringComparison.Ordinal));
+        }
+        finally
+        {
+            TryDelete(databasePath);
+        }
+    }
+
+    [Fact]
+    public async Task LegacyImportSkipsUnchangedSourcesAndRescansModifiedSource()
+    {
+        var databasePath = GetTempDatabasePath();
+        var game = new TestGame("Legacy Replay " + Guid.NewGuid().ToString("N"));
+        var legacyDatabasePath = Path.Combine(Path.GetDirectoryName(databasePath)!, $"{game.Name}{Constants.FILEEXT_REPLAYS}");
+        var progress = new List<string>();
+
+        try
+        {
+            await CreateLegacyReplayDatabaseAsync(legacyDatabasePath, "Stage One");
+            ReplayManager.Instance.Init(databasePath);
+
+            await ReplayManager.Instance.ImportLegacyReplaysAsync(new[] { game }, _ => legacyDatabasePath, progress.Add);
+            Assert.Contains(progress, message => message.Contains("checking 1 legacy replay database(s); scanning 1, skipped 0 unchanged.", StringComparison.Ordinal));
+            Assert.Single(await ReplayManager.Instance.getReplays(game));
+
+            progress.Clear();
+            await ReplayManager.Instance.ImportLegacyReplaysAsync(new[] { game }, _ => legacyDatabasePath, progress.Add);
+            Assert.Contains(progress, message => message.Contains("checking 1 legacy replay database(s); scanning 0, skipped 1 unchanged.", StringComparison.Ordinal));
+            Assert.Single(await ReplayManager.Instance.getReplays(game));
+
+            await AppendLegacyReplayAsync(legacyDatabasePath, "Stage Two");
+            progress.Clear();
+            await ReplayManager.Instance.ImportLegacyReplaysAsync(new[] { game }, _ => legacyDatabasePath, progress.Add);
+            Assert.Contains(progress, message => message.Contains("checking 1 legacy replay database(s); scanning 1, skipped 0 unchanged.", StringComparison.Ordinal));
+            Assert.Equal(2, (await ReplayManager.Instance.getReplays(game)).Count);
+        }
+        finally
+        {
+            SqliteConnection.ClearAllPools();
+            TryDelete(databasePath);
+        }
     }
 
     [Fact]
@@ -226,6 +285,11 @@ public class ReplayManagerTest
                     INSERT INTO replay (game, track, car, car_class, finish_time, track_length, retired, checkpoints, date, comment, video_path, locked, video_begin_timestamp, video_end_timestamp)
                     VALUES ('Replay Test Game', 'Stage', 'Car', 'Class', 10, 1000, 0, 2, '', '', '', 0, 0, 0);";
                 await command.ExecuteNonQueryAsync();
+                command.CommandText = @"
+                    UPDATE replay_manager_state
+                    SET value = '0'
+                    WHERE state_key = 'replay_metadata_version';";
+                await command.ExecuteNonQueryAsync();
             }
 
             ReplayManager.Instance.Init(databasePath);
@@ -277,6 +341,73 @@ public class ReplayManagerTest
         catch
         {
         }
+    }
+
+    private static async Task CreateLegacyReplayDatabaseAsync(string databasePath, string track)
+    {
+        var directory = Path.GetDirectoryName(databasePath);
+        if (!string.IsNullOrEmpty(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        await using var connection = new SqliteConnection($"Data Source={databasePath}");
+        await connection.OpenAsync();
+        await using var command = connection.CreateCommand();
+        command.CommandText = @"
+            CREATE TABLE replay (
+                id INTEGER PRIMARY KEY,
+                track TEXT NOT NULL,
+                car TEXT NOT NULL,
+                car_class TEXT NOT NULL,
+                finish_time REAL NOT NULL,
+                track_length REAL NOT NULL,
+                retired INTEGER NOT NULL,
+                locked INTEGER NOT NULL,
+                checkpoints INTEGER NOT NULL,
+                date TEXT NOT NULL,
+                comment TEXT NOT NULL,
+                video_path TEXT NOT NULL,
+                video_begin_timestamp INTEGER NOT NULL,
+                video_end_timestamp INTEGER NOT NULL
+            );
+            CREATE TABLE replay_details_per_time (
+                id INTEGER NOT NULL,
+                time REAL NOT NULL,
+                distance REAL NOT NULL,
+                timestamp INTEGER NOT NULL
+            );
+            CREATE TABLE replay_details_per_checkpoint (
+                id INTEGER NOT NULL,
+                checkpoint INTEGER NOT NULL,
+                time REAL NOT NULL,
+                distance REAL NOT NULL
+            );";
+        await command.ExecuteNonQueryAsync();
+        await InsertLegacyReplayAsync(connection, track);
+    }
+
+    private static async Task AppendLegacyReplayAsync(string databasePath, string track)
+    {
+        await using var connection = new SqliteConnection($"Data Source={databasePath}");
+        await connection.OpenAsync();
+        await InsertLegacyReplayAsync(connection, track);
+    }
+
+    private static async Task InsertLegacyReplayAsync(SqliteConnection connection, string track)
+    {
+        var replayId = await connection.ExecuteScalarAsync<long>("SELECT COALESCE(MAX(id), 0) + 1 FROM replay");
+        await connection.ExecuteAsync(
+            @"INSERT INTO replay (
+                   id, track, car, car_class, finish_time, track_length, retired, locked,
+                   checkpoints, date, comment, video_path, video_begin_timestamp, video_end_timestamp)
+               VALUES (
+                   @id, @track, 'Car', 'Class', 100, 1000, 0, 0,
+                   1, '2026-01-01 00:00:00', '', '', 0, 0);",
+            new { id = replayId, track });
+        await connection.ExecuteAsync(
+            "INSERT INTO replay_details_per_time (id, time, distance, timestamp) VALUES (@id, 0, 0, 1);",
+            new { id = replayId });
     }
 
     private sealed class TestGame : IGame

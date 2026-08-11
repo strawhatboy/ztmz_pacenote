@@ -19,7 +19,12 @@ public partial class StartupDialogVM : ObservableObject
         if (!_isInitialized) {
 
             tool.onStatusReport += s => {
-                Status = s;
+                var dispatcher = Application.Current.Dispatcher;
+                if (dispatcher.CheckAccess()) {
+                    Status = s;
+                } else {
+                    _ = dispatcher.BeginInvoke(() => Status = s);
+                }
             };
             tool.onToolInitialized += () => {
                 Application.Current.Dispatcher.Invoke(() => {
