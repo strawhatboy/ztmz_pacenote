@@ -98,7 +98,17 @@ namespace GameOverlay.Windows
 				Graphics.Height = Height;
 				Graphics.WindowHandle = Handle;
 
-				Graphics.Setup();
+				try
+				{
+					Graphics.Setup();
+				}
+				catch (Exception) when (!WindowHelper.IsWindow(Graphics.WindowHandle))
+				{
+					// Dispose can destroy the native overlay window just after this background
+					// thread starts. A stale HWND must stop this instance, never terminate ZTMZ.
+					_isRunning = false;
+					return;
+				}
 			}
 			else
 			{

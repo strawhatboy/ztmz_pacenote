@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Principal;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
@@ -28,12 +29,20 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
     private readonly Action<GameState, Dictionary<string, object>?> _publishGameState;
     private readonly Action<CarDamageEvent> _publishCarDamage;
     private readonly CancellationTokenSource _cancellation = new();
+    private readonly Channel<string> _messageQueue = Channel.CreateBounded<string>(new BoundedChannelOptions(256)
+    {
+        FullMode = BoundedChannelFullMode.Wait,
+        SingleReader = true,
+        SingleWriter = true
+    });
     private readonly Task _listenerTask;
+    private readonly Task _messageProcessorTask;
     private readonly object _countdownLock = new();
     private CancellationTokenSource? _countdownCancellation;
     private Task? _countdownTask;
     private DateTime _lastCountdownGoAtUtc = DateTime.MinValue;
     private bool _hasObservedRaceLifecycle;
+    private int _messageQueueOverflowLogged;
 
     private static readonly TimeSpan CountdownInterval = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan CountdownGoDuplicateWindow = TimeSpan.FromSeconds(3);
@@ -47,6 +56,7 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
         _publishGameState = publishGameState;
         _publishCarDamage = publishCarDamage;
         _listenerTask = Task.Run(ListenAsync);
+        _messageProcessorTask = Task.Run(ProcessMessagesAsync);
     }
 
     private async Task ListenAsync()
@@ -63,7 +73,6 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
                     PipeTransmissionMode.Byte,
                     PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
                 await pipe.WaitForConnectionAsync(_cancellation.Token);
-                Logger.Info("ACR live-pacenote bridge connected.");
 
                 using var reader = new StreamReader(pipe, leaveOpen: true);
                 while (!_cancellation.IsCancellationRequested && pipe.IsConnected)
@@ -74,7 +83,14 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
                         break;
                     }
 
-                    Publish(line);
+                    if (_messageQueue.Writer.TryWrite(line))
+                    {
+                        Interlocked.Exchange(ref _messageQueueOverflowLogged, 0);
+                    }
+                    else if (Interlocked.Exchange(ref _messageQueueOverflowLogged, 1) == 0)
+                    {
+                        Logger.Warn("ACR live-pacenote bridge receive queue is full; dropping incoming messages until it recovers.");
+                    }
                 }
             }
             catch (OperationCanceledException) when (_cancellation.IsCancellationRequested)
@@ -93,6 +109,27 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
                     return;
                 }
             }
+        }
+    }
+
+    private async Task ProcessMessagesAsync()
+    {
+        try
+        {
+            await foreach (var line in _messageQueue.Reader.ReadAllAsync(_cancellation.Token))
+            {
+                try
+                {
+                    Publish(line);
+                }
+                catch (Exception exception)
+                {
+                    Logger.Error(exception, "Failed to process an ACR live-pacenote bridge message.");
+                }
+            }
+        }
+        catch (OperationCanceledException) when (_cancellation.IsCancellationRequested)
+        {
         }
     }
 
@@ -401,9 +438,10 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
         countdownCancellation?.Cancel();
 
         _cancellation.Cancel();
+        _messageQueue.Writer.TryComplete();
         try
         {
-            _listenerTask.Wait(TimeSpan.FromSeconds(1));
+            Task.WaitAll(new[] { _listenerTask, _messageProcessorTask }, TimeSpan.FromSeconds(1));
         }
         catch (AggregateException exception) when (exception.InnerExceptions.All(inner => inner is OperationCanceledException))
         {

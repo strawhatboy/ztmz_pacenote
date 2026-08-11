@@ -3,9 +3,12 @@
 
 #include <atomic>
 #include <cctype>
+#include <condition_variable>
 #include <cstdio>
+#include <deque>
 #include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace
@@ -24,8 +27,11 @@ HANDLE LogFile = INVALID_HANDLE_VALUE;
 std::atomic<uint64_t> Sequence = 0;
 std::atomic_bool PipeUnavailableLogged = false;
 std::atomic_bool PipeWriteFailedLogged = false;
+std::atomic_bool PipeQueueFullLogged = false;
 std::mutex PacenoteLock;
 std::vector<std::string> CurrentTokens;
+std::mutex PipeQueueLock;
+std::condition_variable PipeQueueReady;
 
 struct PacenoteLookup
 {
@@ -34,6 +40,17 @@ struct PacenoteLookup
     std::string placement;
     std::string variant;
 };
+
+struct QueuedPipeMessage
+{
+    std::string message;
+    PacenoteLookup lookup;
+};
+
+std::deque<QueuedPipeMessage> PipeQueue;
+constexpr size_t MaximumQueuedPipeMessages = 256;
+constexpr int PipeBusyRetryCount = 3;
+constexpr DWORD PipeBusyWaitMilliseconds = 100;
 
 std::string GetLogTimestamp()
 {
@@ -104,6 +121,15 @@ void WritePipeWriteFailureOnce(DWORD error, const PacenoteLookup& lookup)
     if (PipeWriteFailedLogged.compare_exchange_strong(expected, true))
     {
         WriteLog("pipe-write-failed: WriteFile failed (error=" + std::to_string(error) + ")" + DescribeLookup(lookup));
+    }
+}
+
+void WritePipeQueueFullOnce(const PacenoteLookup& lookup)
+{
+    bool expected = false;
+    if (PipeQueueFullLogged.compare_exchange_strong(expected, true))
+    {
+        WriteLog("pipe-queue-full: dropping live-pacenote message" + DescribeLookup(lookup));
     }
 }
 
@@ -228,6 +254,94 @@ std::string EscapeJson(const std::string& value)
     return escaped;
 }
 
+bool EnsurePipeConnected(HANDLE& pipe, const PacenoteLookup& lookup)
+{
+    if (pipe != INVALID_HANDLE_VALUE)
+    {
+        return true;
+    }
+
+    DWORD error = ERROR_SUCCESS;
+    for (int attempt = 0; attempt <= PipeBusyRetryCount; ++attempt)
+    {
+        pipe = CreateFileW(PipePath, GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+        if (pipe != INVALID_HANDLE_VALUE)
+        {
+            break;
+        }
+
+        error = GetLastError();
+        if (error != ERROR_PIPE_BUSY || attempt == PipeBusyRetryCount)
+        {
+            WritePipeUnavailableOnce(error, lookup);
+            return false;
+        }
+
+        if (!WaitNamedPipeW(PipePath, PipeBusyWaitMilliseconds))
+        {
+            WritePipeUnavailableOnce(GetLastError(), lookup);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool TryWritePipeMessage(HANDLE pipe, const QueuedPipeMessage& queued, DWORD& error)
+{
+    DWORD written = 0;
+    const BOOL succeeded = WriteFile(pipe, queued.message.data(), static_cast<DWORD>(queued.message.size()), &written, nullptr);
+    error = succeeded ? ERROR_SUCCESS : GetLastError();
+    return succeeded && written == queued.message.size();
+}
+
+static bool IsReconnectablePipeError(DWORD error)
+{
+    return error == ERROR_BROKEN_PIPE || error == ERROR_NO_DATA || error == ERROR_PIPE_NOT_CONNECTED;
+}
+
+void SendPipeMessage(HANDLE& pipe, const QueuedPipeMessage& queued)
+{
+    for (int attempt = 0; attempt < 2; ++attempt)
+    {
+        if (!EnsurePipeConnected(pipe, queued.lookup))
+        {
+            return;
+        }
+
+        DWORD error = ERROR_SUCCESS;
+        if (TryWritePipeMessage(pipe, queued, error))
+        {
+            return;
+        }
+
+        CloseHandle(pipe);
+        pipe = INVALID_HANDLE_VALUE;
+        if (!IsReconnectablePipeError(error) || attempt == 1)
+        {
+            WritePipeWriteFailureOnce(error == ERROR_SUCCESS ? ERROR_WRITE_FAULT : error, queued.lookup);
+            return;
+        }
+    }
+}
+
+void RunPipeWriter()
+{
+    HANDLE pipe = INVALID_HANDLE_VALUE;
+    for (;;)
+    {
+        QueuedPipeMessage queued;
+        {
+            std::unique_lock<std::mutex> lock(PipeQueueLock);
+            PipeQueueReady.wait(lock, [] { return !PipeQueue.empty(); });
+            queued = std::move(PipeQueue.front());
+            PipeQueue.pop_front();
+        }
+
+        SendPipeMessage(pipe, queued);
+    }
+}
+
 void PublishTokens(const std::vector<std::string>& tokens, const PacenoteLookup& lookup)
 {
     if (tokens.empty())
@@ -235,35 +349,33 @@ void PublishTokens(const std::vector<std::string>& tokens, const PacenoteLookup&
         return;
     }
 
-    std::string message = "{\"version\":1,\"id\":\"fmod-" + std::to_string(++Sequence) + "\",\"tokens\":[";
+    QueuedPipeMessage queued;
+    queued.lookup = lookup;
+    queued.message = "{\"version\":1,\"id\":\"fmod-" + std::to_string(++Sequence) + "\",\"tokens\":[";
     for (size_t index = 0; index < tokens.size(); ++index)
     {
         if (index > 0)
         {
-            message += ',';
+            queued.message += ',';
         }
-        message += "\"" + EscapeJson(tokens[index]) + "\"";
+        queued.message += "\"" + EscapeJson(tokens[index]) + "\"";
     }
-    message += "],\"rawSoundName\":\"" + EscapeJson(lookup.rawSoundName) +
+    queued.message += "],\"rawSoundName\":\"" + EscapeJson(lookup.rawSoundName) +
         "\",\"token\":\"" + EscapeJson(lookup.token) +
         "\",\"placement\":\"" + EscapeJson(lookup.placement) +
         "\",\"variant\":\"" + EscapeJson(lookup.variant) + "\"}\n";
 
-    const HANDLE pipe = CreateFileW(PipePath, GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-    if (pipe == INVALID_HANDLE_VALUE)
     {
-        WritePipeUnavailableOnce(GetLastError(), lookup);
-        return;
-    }
+        std::lock_guard<std::mutex> lock(PipeQueueLock);
+        if (PipeQueue.size() >= MaximumQueuedPipeMessages)
+        {
+            WritePipeQueueFullOnce(lookup);
+            return;
+        }
 
-    DWORD written = 0;
-    const BOOL succeeded = WriteFile(pipe, message.data(), static_cast<DWORD>(message.size()), &written, nullptr);
-    const DWORD error = succeeded ? ERROR_SUCCESS : GetLastError();
-    CloseHandle(pipe);
-    if (!succeeded)
-    {
-        WritePipeWriteFailureOnce(error, lookup);
+        PipeQueue.push_back(std::move(queued));
     }
+    PipeQueueReady.notify_one();
 }
 
 int __fastcall DetourGetSoundInfo(void* system, const char* nameOrId, void* soundInfo)
@@ -319,6 +431,7 @@ DWORD WINAPI InitializeBridge(void*)
         return 3;
     }
 
+    std::thread(RunPipeWriter).detach();
     WriteLog("bridge-started: " + GetCurrentProcessIdentity());
     return 0;
 }

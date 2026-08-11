@@ -53,6 +53,20 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     [ObservableProperty]
     private GameWithImage _selectedGame;
 
+    private long _gameSelectionGeneration;
+    private long _lastQueuedGameSelectionGeneration = -1;
+    private readonly SemaphoreSlim _gameSelectionLock = new(1, 1);
+    private IGame? _gameSelectionInProgress;
+    private readonly object _automaticGameSelectionLock = new();
+    private IGame? _pendingAutomaticallyStartedGame;
+    private Process? _pendingAutomaticallyStartedProcess;
+    private bool _isGameSelectorReady;
+
+    partial void OnSelectedGameChanged(GameWithImage value)
+    {
+        Interlocked.Increment(ref _gameSelectionGeneration);
+    }
+
     [ObservableProperty]
     private CoDriverPackageInfo? _selectedCodriver;
 
@@ -251,8 +265,280 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     private RuntimeControlsService _runtimeControls;
 
     private bool _isApplyingRuntimeControls;
+    private readonly object _overlayInitializationLock = new();
+    private int _overlayInitializationProcessId = -1;
+    private long _overlayInitializationGeneration;
     private readonly object _localBridgePromptLock = new();
     private IGame? _localBridgePromptedGame;
+
+    private void RequestGameOverlayInitialization(IGame game, Process process)
+    {
+        int processId;
+        try
+        {
+            processId = process.Id;
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn(ex, "Cannot initialize GameOverlay because the game process is unavailable.");
+            return;
+        }
+
+        long generation;
+        lock (_overlayInitializationLock)
+        {
+            if (_overlayInitializationProcessId == processId)
+            {
+                _logger.Debug(
+                    "Ignoring duplicate GameOverlay initialization request for process {0}.",
+                    processId);
+                return;
+            }
+
+            _overlayInitializationProcessId = processId;
+            generation = ++_overlayInitializationGeneration;
+        }
+
+        _logger.Info("Game started. in Home Page. Initializing GameOverlay.");
+        var selectionGeneration = Interlocked.Read(ref _gameSelectionGeneration);
+        _ = Task.Run(() => InitializeGameOverlay(game, process, processId, generation, selectionGeneration));
+    }
+
+    private void InitializeGameOverlay(
+        IGame game,
+        Process process,
+        int processId,
+        long generation,
+        long selectionGeneration)
+    {
+        try
+        {
+            lock (_overlayInitializationLock)
+            {
+                if (!IsCurrentOverlayInitialization(processId, generation)
+                    || !IsCurrentGameSelection(game, selectionGeneration))
+                {
+                    if (IsCurrentOverlayInitialization(processId, generation))
+                    {
+                        _overlayInitializationProcessId = -1;
+                    }
+
+                    return;
+                }
+
+                _logger.Info("Requesting GameOverlay initialization for the game window...");
+                _gameOverlayManager.UninitializeOverlay();
+                _gameOverlayManager.InitializeOverlay(process);
+                var currentGameState = game.GameDataReader.GameState;
+                var restoreStageActive = GameStateStageActivity.IsActive(currentGameState);
+                _gameOverlayManager.SetStageActive(restoreStageActive);
+                _logger.Info(
+                    "Restored GameOverlay stage visibility after initialization: {0} for game state {1}.",
+                    restoreStageActive,
+                    currentGameState);
+
+                _logger.Info("Try to initialize VRGameOverlay...");
+                if (OpenVR.IsRuntimeInstalled() && Config.Instance.VrShowOverlay)
+                {
+                    _vrGameOverlayManager.StopLoop();
+                    _vrGameOverlayManager.StartLoop();
+                    _logger.Info("Vr Game overlay initliazed.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            lock (_overlayInitializationLock)
+            {
+                if (IsCurrentOverlayInitialization(processId, generation))
+                {
+                    _overlayInitializationProcessId = -1;
+                }
+            }
+
+            _logger.Error(ex, "Failed to initialize GameOverlay for process {0}.", processId);
+        }
+    }
+
+    private bool IsCurrentOverlayInitialization(int processId, long generation)
+    {
+        return _overlayInitializationProcessId == processId
+            && _overlayInitializationGeneration == generation;
+    }
+
+    private bool IsCurrentGameSelection(IGame game, long generation)
+    {
+        return Interlocked.Read(ref _gameSelectionGeneration) == generation
+            && SelectedGame?.Game == game;
+    }
+
+    private async Task ApplySelectedGameAsync(
+        GameWithImage game,
+        long generation,
+        Process? runningProcess)
+    {
+        await _gameSelectionLock.WaitAsync();
+        try
+        {
+            if (!IsCurrentGameSelection(game.Game, generation))
+            {
+                return;
+            }
+
+            Volatile.Write(ref _gameSelectionInProgress, game.Game);
+            IsGameInitializeInProgress = true;
+            var isGameRunning = await Tool.SetGame(game.Game);
+            if (IsCurrentGameSelection(game.Game, generation))
+            {
+                IsGameRunning = isGameRunning;
+                if (runningProcess != null)
+                {
+                    _gameOverlayManager.SetStageActive(false);
+                    RequestGameOverlayInitialization(game.Game, runningProcess);
+                }
+            }
+        }
+        finally
+        {
+            if (ReferenceEquals(Volatile.Read(ref _gameSelectionInProgress), game.Game))
+            {
+                Volatile.Write(ref _gameSelectionInProgress, null);
+            }
+
+            _gameSelectionLock.Release();
+        }
+    }
+
+    private void HandleAutomaticallyStartedGame(IGame game, Process process)
+    {
+        if (!_isGameSelectorReady)
+        {
+            RememberAutomaticallyStartedGame(game, process);
+            return;
+        }
+
+        var matchingGame = Games.FirstOrDefault(candidate => candidate.Game == game);
+        if (matchingGame == null)
+        {
+            _logger.Warn("Game {0} started before it was available in the selector.", game.Name);
+            RememberAutomaticallyStartedGame(game, process);
+            return;
+        }
+
+        var selectionAlreadyInProgress = ReferenceEquals(
+            Volatile.Read(ref _gameSelectionInProgress),
+            game);
+
+        if (selectionAlreadyInProgress && SelectedGame?.Game != game)
+        {
+            _logger.Debug(
+                "Ignoring game-started event for {0} because its selection was superseded.",
+                game.Name);
+            return;
+        }
+
+        var selectionChanged = SelectedGame?.Game != game;
+        if (selectionChanged)
+        {
+            SelectedGame = matchingGame;
+        }
+
+        IsGameRunning = true;
+        if (selectionAlreadyInProgress)
+        {
+            _gameOverlayManager.SetStageActive(false);
+            RequestGameOverlayInitialization(game, process);
+            return;
+        }
+
+        if (!selectionChanged)
+        {
+            // ProcessWatcher (or SetGame's running-process compensation) has already
+            // initialized the selected game. Re-entering SetGame here would tear down that
+            // reader and its freshly-created overlay while the graphics thread is starting.
+            _gameOverlayManager.SetStageActive(false);
+            RequestGameOverlayInitialization(game, process);
+            return;
+        }
+
+        // Changing SelectedGame already advances the selection generation. Reusing that
+        // generation coalesces the ComboBox's SelectionChanged command with this automatic
+        // selection, so the first SetGame cannot be immediately torn down by a second one.
+        QueueGameSelection(force: false, runningProcess: process);
+    }
+
+    private void RememberAutomaticallyStartedGame(IGame game, Process process)
+    {
+        lock (_automaticGameSelectionLock)
+        {
+            _pendingAutomaticallyStartedGame = game;
+            _pendingAutomaticallyStartedProcess = process;
+        }
+
+        _logger.Debug("Deferring automatic selection of {0} until the game selector is ready.", game.Name);
+    }
+
+    private bool TryTakePendingAutomaticallyStartedGame(out IGame? game, out Process? process)
+    {
+        lock (_automaticGameSelectionLock)
+        {
+            game = _pendingAutomaticallyStartedGame;
+            process = _pendingAutomaticallyStartedProcess;
+            _pendingAutomaticallyStartedGame = null;
+            _pendingAutomaticallyStartedProcess = null;
+        }
+
+        if (process == null)
+        {
+            return false;
+        }
+
+        try
+        {
+            return !process.HasExited;
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug(ex, "Discarding a pending automatic game selection because its process is unavailable.");
+            return false;
+        }
+    }
+
+    private void InitializeGameSelection()
+    {
+        _isGameSelectorReady = true;
+
+        if (Config.Instance.AutoInitializeGame &&
+            TryTakePendingAutomaticallyStartedGame(out var automaticallyStartedGame, out var automaticallyStartedProcess) &&
+            automaticallyStartedGame != null &&
+            automaticallyStartedProcess != null)
+        {
+            _logger.Info("Applying deferred automatic selection for running game {0}.", automaticallyStartedGame.Name);
+            HandleAutomaticallyStartedGame(automaticallyStartedGame, automaticallyStartedProcess);
+            return;
+        }
+
+        var selectedGameIndex = Config.Instance.UI_SelectedGame;
+        if (selectedGameIndex < 0 || selectedGameIndex >= Games.Count)
+        {
+            _logger.Warn("Saved selected-game index {0} is unavailable; using the first loaded game.", selectedGameIndex);
+            selectedGameIndex = 0;
+        }
+
+        SelectedGame = Games[selectedGameIndex];
+        GameSelectionChanged();
+    }
+
+    private void UninitializeGameOverlay()
+    {
+        lock (_overlayInitializationLock)
+        {
+            _overlayInitializationProcessId = -1;
+            _overlayInitializationGeneration++;
+            _gameOverlayManager.SetStageActive(false);
+            _gameOverlayManager.UninitializeOverlay();
+        }
+    }
 
     public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool, 
         IServiceProvider serviceProvider, 
@@ -289,39 +575,21 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         };
         RefreshNativeOverlayHomeStatus();
         _tool.onGameStarted += (game, p) => {
-            ResetLocalBridgeInjectionPrompt(game);
             ScheduleLocalBridgeInjectionPrompt(game);
-            if (!Config.Instance.AutoInitializeGame && SelectedGame.Game != game) {
-                _logger.Info("Game started. in Home Page. AutoInitializeGame is false. Do nothing because current selected game is not the started game.");
+            if (Config.Instance.AutoInitializeGame)
+            {
+                RunOnUiThread(() => HandleAutomaticallyStartedGame(game, p));
                 return;
             }
-            if (Config.Instance.AutoInitializeGame && SelectedGame.Game != game) {
-                SelectedGame = Games.Where(g => g.Game == game).FirstOrDefault();
+
+            var selectedGame = SelectedGame?.Game;
+            if (selectedGame != game) {
+                _logger.Info("Game started. in Home Page. AutoInitializeGame is false. Do nothing because current selected game is not the started game.");
                 return;
             }
             IsGameRunning = true;
             _gameOverlayManager.SetStageActive(false);
-            // GameOverlay
-            _logger.Info("Game started. in Home Page. Initializing GameOverlay.");
-            Task.Run(() => {
-                _logger.Info("Requesting GameOverlay initialization for the game window...");
-                _gameOverlayManager.UninitializeOverlay();
-                _gameOverlayManager.InitializeOverlay(p);
-                var currentGameState = game.GameDataReader.GameState;
-                var restoreStageActive = GameStateStageActivity.IsActive(currentGameState);
-                _gameOverlayManager.SetStageActive(restoreStageActive);
-                _logger.Info(
-                    "Restored GameOverlay stage visibility after initialization: {0} for game state {1}.",
-                    restoreStageActive,
-                    currentGameState);
-
-                _logger.Info("Try to initialize VRGameOverlay...");
-                if (OpenVR.IsRuntimeInstalled() && Config.Instance.VrShowOverlay) {
-                    _vrGameOverlayManager.StopLoop();
-                    _vrGameOverlayManager.StartLoop();
-                    _logger.Info("Vr Game overlay initliazed.");
-                }
-            });
+            RequestGameOverlayInitialization(game, p);
         };
         _tool.onGameEnded += (game) => {
             ResetLocalBridgeInjectionPrompt(game);
@@ -329,8 +597,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             IsGameInitialized = false;
             IsRacing = false; 
 
-            _gameOverlayManager.SetStageActive(false);
-            _gameOverlayManager.UninitializeOverlay();
+            UninitializeGameOverlay();
         };
 
         _tool.onGameInitialized += (game) => {
@@ -632,14 +899,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             }
             else
             {
-                var selectedGameIndex = Config.Instance.UI_SelectedGame;
-                if (selectedGameIndex < 0 || selectedGameIndex >= Games.Count)
-                {
-                    _logger.Warn("Saved selected-game index {0} is unavailable; using the first loaded game.", selectedGameIndex);
-                    selectedGameIndex = 0;
-                }
-
-                SelectedGame = Games[selectedGameIndex];
+                RunOnUiThread(InitializeGameSelection);
             }
 
             if (OutputDevices.Count == 0)
@@ -869,15 +1129,32 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     }
 
     [RelayCommand]
-    private async void GameSelectionChanged() {
+    private void GameSelectionChanged()
+    {
+        QueueGameSelection(force: false, runningProcess: null);
+    }
+
+    private void QueueGameSelection(bool force, Process? runningProcess)
+    {
         var game = SelectedGame;
+        if (game == null)
+        {
+            return;
+        }
+
+        var selectionGeneration = force
+            ? Interlocked.Increment(ref _gameSelectionGeneration)
+            : Interlocked.Read(ref _gameSelectionGeneration);
+        if (Interlocked.Exchange(ref _lastQueuedGameSelectionGeneration, selectionGeneration) == selectionGeneration)
+        {
+            return;
+        }
+
         IsGameSettingsUnlocked = false;
         Config.Instance.UI_SelectedGame = Games.IndexOf(game);
         Config.Instance.SaveUserConfig();
-        _ = Task.Run(async () => {
-            IsGameInitializeInProgress = true;
-            IsGameRunning = await Tool.SetGame(game.Game);
-        });
+        UninitializeGameOverlay();
+        _ = Task.Run(() => ApplySelectedGameAsync(game, selectionGeneration, runningProcess));
 
         // Update game settings pane
         CurrentGameSettings.Clear();

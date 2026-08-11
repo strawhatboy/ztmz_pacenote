@@ -1190,10 +1190,12 @@ public class ZTMZPacenoteTool {
     {
         bool gameRunning = false;
         uninitializeGame(_currentGame);
-        // if the game was not the current game, and the game is running, need to trigger the gamestarted event
-        // to trigger the game overlay.
+        // IsWatchedProcessRunning uses the watcher's configured window-title match, so this
+        // compensation only starts after the game's window is visible enough to identify.
+        // GameOverlayManager then waits for a usable HWND before creating the overlay.
         Process watchedProcess = _processWatcher.IsWatchedProcessRunning(game.Executable, game.WindowTitle);
-        if (_currentGame != null && _currentGame != game && watchedProcess != null) {
+        if (watchedProcess != null) {
+            game.IsRunning = true;
             this.onGameStarted?.Invoke(game, watchedProcess);
             gameRunning = true;
         }

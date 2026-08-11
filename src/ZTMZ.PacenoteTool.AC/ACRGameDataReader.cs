@@ -417,7 +417,6 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
 
     private void PublishLivePacenote(LivePacenoteEvent pacenote)
     {
-        _logger.Debug("ACR live pacenote {0}: {1}", pacenote.Id, pacenote.Record.RawText);
         onLivePacenote?.Invoke(pacenote);
     }
 

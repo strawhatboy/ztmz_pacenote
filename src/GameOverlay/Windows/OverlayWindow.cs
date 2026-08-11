@@ -816,6 +816,21 @@ namespace GameOverlay.Windows
 					DestroyWindow();
 				}
 
+				// The native window class still calls this delegate until the window
+				// thread processes the destroy message. Releasing it before then makes
+				// CoreCLR fail fast when Windows dispatches a late window message.
+				var windowThread = _windowThread;
+				if (windowThread != null && Thread.CurrentThread != windowThread)
+				{
+					try
+					{
+						windowThread.Join();
+					}
+					catch
+					{
+					}
+				}
+
 				SizeChanged = null;
 				PositionChanged = null;
 				VisibilityChanged = null;

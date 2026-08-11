@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.WpfGUI.ViewModels;
@@ -17,6 +18,11 @@ public sealed class ReplayAnalysisChartControl : FrameworkElement
     private const double BottomMargin = 28;
     private readonly VisualCollection _visuals;
     private readonly DrawingVisual _chartVisual = new();
+    private bool _hasCustomDistanceRange;
+    private double _visibleDistanceStart;
+    private double _visibleDistanceEnd;
+    private Point? _panStartPosition;
+    private (double Start, double End) _panStartRange;
 
     public static readonly DependencyProperty SeriesProperty = DependencyProperty.Register(
         nameof(Series),
@@ -58,6 +64,7 @@ public sealed class ReplayAnalysisChartControl : FrameworkElement
     {
         ClipToBounds = true;
         SnapsToDevicePixels = true;
+        Focusable = true;
         _visuals = new VisualCollection(this) { _chartVisual };
     }
 
@@ -74,6 +81,76 @@ public sealed class ReplayAnalysisChartControl : FrameworkElement
     {
         base.OnRenderSizeChanged(sizeInfo);
         Redraw();
+    }
+
+    protected override void OnMouseWheel(MouseWheelEventArgs eventArgs)
+    {
+        base.OnMouseWheel(eventArgs);
+        if (!TryGetVisibleDistanceRange(out var fullDistance, out var range) || eventArgs.Delta == 0)
+        {
+            return;
+        }
+
+        var plotWidth = Math.Max(1d, ActualWidth - LeftMargin - RightMargin);
+        var position = eventArgs.GetPosition(this);
+        var focus = Math.Clamp((position.X - LeftMargin) / plotWidth, 0d, 1d);
+        var currentSpan = range.End - range.Start;
+        var targetSpan = eventArgs.Delta > 0 ? currentSpan * 0.75d : currentSpan / 0.75d;
+        targetSpan = Math.Clamp(targetSpan, GetMinimumVisibleSpan(fullDistance), fullDistance);
+        SetVisibleDistanceRange(fullDistance, range.Start + currentSpan * focus - targetSpan * focus, targetSpan);
+        Focus();
+        eventArgs.Handled = true;
+    }
+
+    protected override void OnMouseLeftButtonDown(MouseButtonEventArgs eventArgs)
+    {
+        base.OnMouseLeftButtonDown(eventArgs);
+        if (eventArgs.ClickCount == 2)
+        {
+            _hasCustomDistanceRange = false;
+            Redraw();
+            eventArgs.Handled = true;
+            return;
+        }
+
+        if (!TryGetVisibleDistanceRange(out _, out var range))
+        {
+            return;
+        }
+
+        _panStartPosition = eventArgs.GetPosition(this);
+        _panStartRange = range;
+        CaptureMouse();
+        Focus();
+        eventArgs.Handled = true;
+    }
+
+    protected override void OnMouseMove(MouseEventArgs eventArgs)
+    {
+        base.OnMouseMove(eventArgs);
+        if (_panStartPosition is not { } startPosition || !IsMouseCaptured || !TryGetVisibleDistanceRange(out var fullDistance, out _))
+        {
+            return;
+        }
+
+        var currentPosition = eventArgs.GetPosition(this);
+        var plotWidth = Math.Max(1d, ActualWidth - LeftMargin - RightMargin);
+        var distanceOffset = (currentPosition.X - startPosition.X) / plotWidth * (_panStartRange.End - _panStartRange.Start);
+        SetVisibleDistanceRange(fullDistance, _panStartRange.Start - distanceOffset, _panStartRange.End - _panStartRange.Start);
+        eventArgs.Handled = true;
+    }
+
+    protected override void OnMouseLeftButtonUp(MouseButtonEventArgs eventArgs)
+    {
+        base.OnMouseLeftButtonUp(eventArgs);
+        if (_panStartPosition is null)
+        {
+            return;
+        }
+
+        _panStartPosition = null;
+        ReleaseMouseCapture();
+        eventArgs.Handled = true;
     }
 
     private static void OnChartDataChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
@@ -98,15 +175,16 @@ public sealed class ReplayAnalysisChartControl : FrameworkElement
             Math.Max(1, ActualHeight - legendHeight - BottomMargin - 12));
 
         var maximumDistance = GetMaximumDistance(series);
+        var visibleDistanceRange = GetVisibleDistanceRange(maximumDistance);
         var valueRange = GetValueRange(series);
-        DrawGrid(context, plot, maximumDistance, valueRange.Minimum, valueRange.Maximum);
+        DrawGrid(context, plot, visibleDistanceRange.Start, visibleDistanceRange.End, valueRange.Minimum, valueRange.Maximum);
 
         foreach (var trace in series)
         {
-            DrawTrace(context, plot, trace.Current, trace.Color, trace.IsStep, false, maximumDistance, valueRange.Minimum, valueRange.Maximum);
+            DrawTrace(context, plot, trace.Current, trace.Color, trace.IsStep, false, visibleDistanceRange.Start, visibleDistanceRange.End, valueRange.Minimum, valueRange.Maximum);
             if (ShowBestReplay)
             {
-                DrawTrace(context, plot, trace.Best, trace.Color, trace.IsStep, true, maximumDistance, valueRange.Minimum, valueRange.Maximum);
+                DrawTrace(context, plot, trace.Best, trace.Color, trace.IsStep, true, visibleDistanceRange.Start, visibleDistanceRange.End, valueRange.Minimum, valueRange.Maximum);
             }
         }
     }
@@ -149,7 +227,7 @@ public sealed class ReplayAnalysisChartControl : FrameworkElement
         x += requiredWidth;
     }
 
-    private void DrawGrid(DrawingContext context, Rect plot, double maximumDistance, double minimumValue, double maximumValue)
+    private void DrawGrid(DrawingContext context, Rect plot, double minimumDistance, double maximumDistance, double minimumValue, double maximumValue)
     {
         var gridBrush = new SolidColorBrush(Color.FromArgb(80, 128, 128, 128));
         gridBrush.Freeze();
@@ -172,7 +250,7 @@ public sealed class ReplayAnalysisChartControl : FrameworkElement
             {
                 var x = plot.Left + plot.Width * fraction;
                 context.DrawLine(gridPen, new Point(x, plot.Top), new Point(x, plot.Bottom));
-                var distance = maximumDistance * fraction;
+                var distance = minimumDistance + (maximumDistance - minimumDistance) * fraction;
                 var distanceLabel = CreateText(distance.ToString("0", CultureInfo.CurrentCulture) + " m", Brushes.Gray, 11);
                 context.DrawText(distanceLabel, new Point(x, plot.Bottom + 5));
             }
@@ -193,6 +271,44 @@ public sealed class ReplayAnalysisChartControl : FrameworkElement
         {
             return ShowBestReplay ? trace.Current.Concat(trace.Best) : trace.Current;
         }
+    }
+
+    private bool TryGetVisibleDistanceRange(out double fullDistance, out (double Start, double End) range)
+    {
+        fullDistance = GetMaximumDistance(Series ?? Array.Empty<ReplayAnalysisSeries>());
+        range = GetVisibleDistanceRange(fullDistance);
+        return ActualWidth > LeftMargin + RightMargin && fullDistance > 0;
+    }
+
+    private (double Start, double End) GetVisibleDistanceRange(double fullDistance)
+    {
+        if (!_hasCustomDistanceRange)
+        {
+            return (0d, fullDistance);
+        }
+
+        var span = Math.Clamp(_visibleDistanceEnd - _visibleDistanceStart, GetMinimumVisibleSpan(fullDistance), fullDistance);
+        var start = Math.Clamp(_visibleDistanceStart, 0d, Math.Max(0d, fullDistance - span));
+        var end = start + span;
+        _visibleDistanceStart = start;
+        _visibleDistanceEnd = end;
+        _hasCustomDistanceRange = span < fullDistance;
+        return (start, end);
+    }
+
+    private static double GetMinimumVisibleSpan(double fullDistance)
+    {
+        return Math.Min(fullDistance, Math.Max(1d, fullDistance * 0.002d));
+    }
+
+    private void SetVisibleDistanceRange(double fullDistance, double requestedStart, double requestedSpan)
+    {
+        var span = Math.Clamp(requestedSpan, GetMinimumVisibleSpan(fullDistance), fullDistance);
+        var start = Math.Clamp(requestedStart, 0d, Math.Max(0d, fullDistance - span));
+        _visibleDistanceStart = start;
+        _visibleDistanceEnd = start + span;
+        _hasCustomDistanceRange = span < fullDistance;
+        Redraw();
     }
 
     private (double Minimum, double Maximum) GetValueRange(IReadOnlyList<ReplayAnalysisSeries> series)
@@ -231,6 +347,7 @@ public sealed class ReplayAnalysisChartControl : FrameworkElement
         Color color,
         bool isStep,
         bool dashed,
+        double minimumDistance,
         double maximumDistance,
         double minimumValue,
         double maximumValue)
@@ -253,7 +370,7 @@ public sealed class ReplayAnalysisChartControl : FrameworkElement
                     continue;
                 }
 
-                var x = plot.Left + Math.Clamp(point.Distance / maximumDistance, 0, 1) * plot.Width;
+                var x = plot.Left + Math.Clamp((point.Distance - minimumDistance) / (maximumDistance - minimumDistance), 0, 1) * plot.Width;
                 var y = plot.Bottom - Math.Clamp((point.Value - minimumValue) / valueRange, 0, 1) * plot.Height;
                 var current = new Point(x, y);
                 if (!started)

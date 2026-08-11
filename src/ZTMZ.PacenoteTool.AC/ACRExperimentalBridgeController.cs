@@ -72,7 +72,12 @@ internal static class ACRExperimentalBridgeController
     public static async Task<ACRExperimentalBridgeResult> InjectAsync()
     {
         var status = Inspect();
-        if (!status.BundleAvailable || !status.GameRunning || status.AlreadyInjected)
+        if (status.AlreadyInjected)
+        {
+            return new ACRExperimentalBridgeResult(true, FormatStatus(status));
+        }
+
+        if (!status.BundleAvailable || !status.GameRunning)
         {
             return new ACRExperimentalBridgeResult(false, FormatStatus(status));
         }
