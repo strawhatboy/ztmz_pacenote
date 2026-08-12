@@ -26,6 +26,31 @@ namespace ZTMZ.PacenoteTool.Base.UI;
 /// </summary>
 public class WebDashboardServer : IDisposable
 {
+    private static readonly string[] OverlayNetworkKeywords =
+    {
+        "zerotier",
+        "tailscale",
+        "hamachi",
+        "radmin vpn",
+        "wireguard",
+        "openvpn",
+        "softether"
+    };
+
+    private static readonly string[] VirtualNetworkKeywords =
+    {
+        "vmware",
+        "virtualbox",
+        "vbox",
+        "vethernet",
+        "hyper-v",
+        "hyperv",
+        "virtual adapter",
+        "wsl",
+        "docker",
+        "container"
+    };
+
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     private static readonly JsonSerializerSettings _webDashboardJsonSettings = new()
     {
@@ -251,10 +276,21 @@ public class WebDashboardServer : IDisposable
                     networkInterface.OperationalStatus == OperationalStatus.Up
                     && networkInterface.NetworkInterfaceType != NetworkInterfaceType.Loopback
                     && networkInterface.NetworkInterfaceType != NetworkInterfaceType.Tunnel)
-                .OrderByDescending(networkInterface => networkInterface.GetIPProperties().GatewayAddresses.Any(
-                    gateway => gateway.Address.AddressFamily == AddressFamily.InterNetwork
-                        && !IPAddress.Any.Equals(gateway.Address)))
-                .SelectMany(networkInterface => networkInterface.GetIPProperties().UnicastAddresses)
+                .Select(networkInterface => new
+                {
+                    NetworkInterface = networkInterface,
+                    Priority = GetNetworkInterfacePriority(
+                        networkInterface.NetworkInterfaceType,
+                        networkInterface.Name,
+                        networkInterface.Description),
+                    HasIpv4Gateway = networkInterface.GetIPProperties().GatewayAddresses.Any(
+                        gateway => gateway.Address.AddressFamily == AddressFamily.InterNetwork
+                            && !IPAddress.Any.Equals(gateway.Address))
+                })
+                .OrderBy(networkInterface => networkInterface.Priority)
+                .ThenByDescending(networkInterface => networkInterface.HasIpv4Gateway)
+                .ThenBy(networkInterface => networkInterface.NetworkInterface.Name, StringComparer.OrdinalIgnoreCase)
+                .SelectMany(networkInterface => networkInterface.NetworkInterface.GetIPProperties().UnicastAddresses)
                 .Select(unicastAddress => unicastAddress.Address)
                 .Where(IsUsableIpv4Address)
                 .Distinct()
@@ -269,6 +305,30 @@ public class WebDashboardServer : IDisposable
 
         urls.Add($"http://localhost:{port}");
         return urls.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    internal static DashboardNetworkInterfacePriority GetNetworkInterfacePriority(
+        NetworkInterfaceType interfaceType,
+        string? name,
+        string? description)
+    {
+        var identifier = string.Join(" ", name ?? string.Empty, description ?? string.Empty);
+        if (ContainsAny(identifier, OverlayNetworkKeywords) || interfaceType == NetworkInterfaceType.Ppp)
+        {
+            return DashboardNetworkInterfacePriority.Overlay;
+        }
+
+        if (ContainsAny(identifier, VirtualNetworkKeywords))
+        {
+            return DashboardNetworkInterfacePriority.Virtual;
+        }
+
+        return DashboardNetworkInterfacePriority.Standard;
+    }
+
+    private static bool ContainsAny(string value, IEnumerable<string> keywords)
+    {
+        return keywords.Any(keyword => value.Contains(keyword, StringComparison.OrdinalIgnoreCase));
     }
 
     private static bool IsUsableIpv4Address(IPAddress address)

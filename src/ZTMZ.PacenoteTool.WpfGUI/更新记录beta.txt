@@ -2,9 +2,11 @@ v2.99.99.45-3.0-rc17
 ------
 [English]
 * Fixes DiRT Rally and DiRT Rally 2.0 configuration files with an invalid XML encoding declaration being incorrectly reported as corrupted; ZTMZ now falls back to UTF-8/BOM parsing.
+* Prioritizes physical Wi-Fi and Ethernet addresses for the Web Dashboard; VPN and virtual-network addresses remain available but are listed later.
 
 [简体中文]
 * 修复 DiRT Rally 和 DiRT Rally 2.0 配置文件使用无效 XML 编码声明时被误报为“配置文件损坏”的问题；现在会回退使用 UTF-8/BOM 解析。
+* 网页仪表盘优先展示物理 Wi-Fi 和以太网地址；VPN 和虚拟网卡地址仍会显示，但会排在后面。
 
 v2.99.99.44-3.0-rc16
 

@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text;
@@ -12,6 +13,26 @@ namespace ZTMZ.PacenoteTool.Tests.Base.UI;
 
 public class WebDashboardCommandCaptureTest
 {
+    [Theory]
+    [InlineData(NetworkInterfaceType.Ethernet, "Ethernet", "Intel Ethernet Controller", 0)]
+    [InlineData(NetworkInterfaceType.Wireless80211, "Wi-Fi", "Intel Wi-Fi 6", 0)]
+    [InlineData(NetworkInterfaceType.Ethernet, "ZeroTier One", "ZeroTier Virtual Port", 1)]
+    [InlineData(NetworkInterfaceType.Ethernet, "Tailscale", "Tailscale Tunnel", 1)]
+    [InlineData(NetworkInterfaceType.Ppp, "My VPN", "WAN Miniport (PPTP)", 1)]
+    [InlineData(NetworkInterfaceType.Ethernet, "VMware Network Adapter VMnet8", "VMware Virtual Ethernet Adapter", 2)]
+    [InlineData(NetworkInterfaceType.Ethernet, "vEthernet (WSL)", "Hyper-V Virtual Ethernet Adapter", 2)]
+    [InlineData(NetworkInterfaceType.Wireless80211, "\u672c\u5730\u8fde\u63a5* 10", "Microsoft Wi-Fi Direct Virtual Adapter #2", 2)]
+    public void DashboardAddressPriorityPrefersPhysicalNetworks(
+        NetworkInterfaceType interfaceType,
+        string name,
+        string description,
+        int expected)
+    {
+        var actual = WebDashboardServer.GetNetworkInterfacePriority(interfaceType, name, description);
+
+        Assert.Equal(expected, (int)actual);
+    }
+
     [Fact]
     public void DashboardUrlsIncludeLocalhostAndUseTheConfiguredPort()
     {
