@@ -245,6 +245,36 @@ public class WebDashboardCommandCaptureTest
     }
 
     [Fact]
+    public async Task LegacyTelemetrySerializesTransmissionValuesAsIntegers()
+    {
+        var port = GetAvailablePort();
+        using var server = new WebDashboardServer { Port = port };
+        server.Initialize(new List<Dashboard>());
+        server.Start();
+
+        using var socket = new ClientWebSocket();
+        await socket.ConnectAsync(new Uri($"ws://127.0.0.1:{port}/ws"), CancellationToken.None);
+        await WaitForClient(server);
+
+        var receiveTask = ReceiveTextAsync(socket);
+        await server.BroadcastGameData(
+            new GameData
+            {
+                Gear = 2.9999f,
+                MaxGears = 6.0001f,
+                Speed = 83.25f
+            },
+            new GameContext());
+        var message = await receiveTask.WaitAsync(TimeSpan.FromSeconds(5));
+
+        using var document = JsonDocument.Parse(message);
+        var telemetry = document.RootElement.GetProperty("data");
+        Assert.Equal(3, telemetry.GetProperty("Gear").GetInt32());
+        Assert.Equal(6, telemetry.GetProperty("MaxGears").GetInt32());
+        Assert.Equal(83.25f, telemetry.GetProperty("Speed").GetSingle());
+    }
+
+    [Fact]
     public void CaptureBuildsOrderedStaticAndDynamicLayers()
     {
         var capture = new DrawingCommandCapture { Width = 1920, Height = 1080 };
@@ -435,11 +465,11 @@ public class WebDashboardCommandCaptureTest
             Brake = 0.25f,
             Clutch = 0.1f,
             CompletionRate = 0.3f,
-            Gear = 3,
+            Gear = 2.9999f,
             HandBrakeValid = true,
             LapDistance = 100,
             LapTime = float.NaN,
-            MaxGears = 6,
+            MaxGears = 6.0001f,
             MaxRPM = 7000,
             RPM = 5200,
             ShiftLightsRPMStart = 6000,
@@ -476,6 +506,8 @@ public class WebDashboardCommandCaptureTest
             Assert.Equal(0.0f, snapshotTelemetry.GetProperty("LapTime").GetSingle());
             Assert.Equal(0.0f, snapshotTelemetry.GetProperty("Speed").GetSingle());
             Assert.Equal(0.0f, snapshotTelemetry.GetProperty("TrackLength").GetSingle());
+            Assert.Equal(3, snapshotTelemetry.GetProperty("Gear").GetInt32());
+            Assert.Equal(6, snapshotTelemetry.GetProperty("MaxGears").GetInt32());
             var comparison = snapshotDocument.RootElement
                 .GetProperty("context")
                 .GetProperty("LocalReplayComparison");

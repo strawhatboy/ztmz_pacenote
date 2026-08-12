@@ -90,6 +90,12 @@ end
 -- input: gear: float
 -- output: string
 function getGear(gear)
+    if (gear >= 0) then
+        gear = math.floor(gear + 0.5);
+    else
+        gear = math.ceil(gear - 0.5);
+    end
+
     if (gear == -1 or gear == 10) then
         return "R";
     end
@@ -97,7 +103,7 @@ function getGear(gear)
         return "N";
     end
     if (gear > 0 and gear < 10) then
-        return tostring(gear);
+        return string.format("%.0f", gear);
     end
     return "";
 end

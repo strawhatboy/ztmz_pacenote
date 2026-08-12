@@ -808,8 +808,8 @@ public class WebDashboardServer : IDisposable
                     Steering = data.Steering,
 
                     // Engine
-                    Gear = data.Gear,
-                    MaxGears = data.MaxGears,
+                    Gear = DiscreteTelemetryValue(data.Gear),
+                    MaxGears = DiscreteTelemetryValue(data.MaxGears),
                     RPM = data.RPM,
                     MaxRPM = data.MaxRPM,
                     IdleRPM = data.IdleRPM,
@@ -1015,14 +1015,14 @@ public class WebDashboardServer : IDisposable
             Brake = FiniteTelemetryValue(data.Brake),
             Clutch = FiniteTelemetryValue(data.Clutch),
             CompletionRate = FiniteTelemetryValue(data.CompletionRate),
-            Gear = FiniteTelemetryValue(data.Gear),
+            Gear = DiscreteTelemetryValue(data.Gear),
             G_lat = FiniteTelemetryValue(data.G_lat),
             G_long = FiniteTelemetryValue(data.G_long),
             HandBrake = FiniteTelemetryValue(data.HandBrake),
             data.HandBrakeValid,
             LapDistance = FiniteTelemetryValue(data.LapDistance),
             LapTime = FiniteTelemetryValue(data.LapTime),
-            MaxGears = FiniteTelemetryValue(data.MaxGears),
+            MaxGears = DiscreteTelemetryValue(data.MaxGears),
             MaxRPM = FiniteTelemetryValue(data.MaxRPM),
             RPM = FiniteTelemetryValue(data.RPM),
             ShiftLightsRPMEnd = FiniteTelemetryValue(data.ShiftLightsRPMEnd),
@@ -1055,6 +1055,17 @@ public class WebDashboardServer : IDisposable
     private static float FiniteTelemetryValue(float value)
     {
         return float.IsFinite(value) ? value : 0.0f;
+    }
+
+    private static int DiscreteTelemetryValue(float value)
+    {
+        if (!float.IsFinite(value))
+        {
+            return 0;
+        }
+
+        var rounded = Math.Round((double)value, MidpointRounding.AwayFromZero);
+        return (int)Math.Clamp(rounded, int.MinValue, int.MaxValue);
     }
 
     private static object CreateBrowserLuaDashboardPayload(WebDashboardBrowserLuaDashboard dashboard)
