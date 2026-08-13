@@ -25,6 +25,10 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <ui:Button Grid.Column="0" Icon="{ui:SymbolIcon FolderOpen20}" Click="Open_Click"
@@ -42,17 +46,47 @@
             <ui:ToggleSwitch Grid.Column="6" Margin="12,0,0,0" IsChecked="True"
                              Checked="WordWrap_Changed" Unchecked="WordWrap_Changed"
                              Content="{DynamicResource ResourceKey=scriptEditor.wordWrap}" />
-            <TextBlock Grid.Column="7" x:Name="StatusText" HorizontalAlignment="Right" VerticalAlignment="Center"
+            <ui:TextBlock Grid.Column="8" VerticalAlignment="Center"
+                          Text="{DynamicResource ResourceKey=scriptEditor.adjustDistance}" />
+            <ui:NumberBox Grid.Column="9" x:Name="DistanceAdjustment" Width="160" Margin="8,0,8,0" Value="0" />
+            <ui:Button Grid.Column="10" Icon="{ui:SymbolIcon ArrowSync20}" Click="AdjustDistance_Click"
+                       ToolTip="{DynamicResource ResourceKey=scriptEditor.adjustDistance}" />
+            <TextBlock Grid.Column="11" x:Name="StatusText" HorizontalAlignment="Right" VerticalAlignment="Center"
                        Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
         </Grid>
 
         <editor:PacenoteEditorControl x:Name="Editor" Grid.Row="1" />
 
-        <StackPanel Grid.Row="2" Margin="0,12,0,0" Orientation="Horizontal" VerticalAlignment="Center">
-            <ui:TextBlock VerticalAlignment="Center" Text="{DynamicResource ResourceKey=scriptEditor.adjustDistance}" />
-            <ui:NumberBox x:Name="DistanceAdjustment" Width="96" Margin="8,0,8,0" Value="0" />
-            <ui:Button Icon="{ui:SymbolIcon ArrowSync20}" Click="AdjustDistance_Click"
-                       ToolTip="{DynamicResource ResourceKey=scriptEditor.adjustDistance}" />
-        </StackPanel>
+        <Grid Grid.Row="2" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="48" />
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:TextBlock Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center"
+                          Text="{DynamicResource ResourceKey=scriptEditor.roadbookScale}" />
+            <Slider Grid.Column="1" x:Name="RoadbookScale" Minimum="50" Maximum="200" Value="100"
+                    TickFrequency="10" IsSnapToTickEnabled="True" SmallChange="10" LargeChange="20"
+                    ValueChanged="RoadbookScale_ValueChanged"
+                    ToolTip="{DynamicResource ResourceKey=scriptEditor.roadbookScaleDescription}" />
+            <ui:TextBlock Grid.Column="2" x:Name="RoadbookScaleValue" HorizontalAlignment="Right"
+                          VerticalAlignment="Center" Text="100%" />
+            <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                <ui:TextBlock VerticalAlignment="Center"
+                              Text="{DynamicResource ResourceKey=scriptEditor.pdfMargins}" />
+                <ui:TextBlock Margin="12,0,6,0" VerticalAlignment="Center"
+                              Text="{DynamicResource ResourceKey=scriptEditor.pdfHorizontalMargin}" />
+                <ui:NumberBox x:Name="PdfHorizontalMargin" Width="160" Minimum="5" Maximum="30"
+                              SmallChange="1" LargeChange="5" Value="15" ValueChanged="PdfMargin_ValueChanged" />
+                <ui:TextBlock Margin="4,0,0,0" VerticalAlignment="Center" Text="mm" />
+                <ui:TextBlock Margin="12,0,6,0" VerticalAlignment="Center"
+                              Text="{DynamicResource ResourceKey=scriptEditor.pdfVerticalMargin}" />
+                <ui:NumberBox x:Name="PdfVerticalMargin" Width="160" Minimum="5" Maximum="30"
+                              SmallChange="1" LargeChange="5" Value="10" ValueChanged="PdfMargin_ValueChanged" />
+                <ui:TextBlock Margin="4,0,0,0" VerticalAlignment="Center" Text="mm" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </Page>

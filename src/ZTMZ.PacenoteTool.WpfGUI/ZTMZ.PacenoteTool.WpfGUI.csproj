@@ -6,10 +6,10 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <AssemblyVersion>2.99.99.44</AssemblyVersion>
-    <PackageVersion>2.99.99.44</PackageVersion>
-    <Version>2.99.99.44</Version>
-    <FileVersion>2.99.99.44</FileVersion>
+    <AssemblyVersion>2.99.99.45</AssemblyVersion>
+    <PackageVersion>2.99.99.45</PackageVersion>
+    <Version>2.99.99.45</Version>
+    <FileVersion>2.99.99.45</FileVersion>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 
@@ -82,6 +82,14 @@
     <!-- WebDashboardServer serves these files from the WPF application's base directory. -->
     <Content Include="..\ZTMZ.PacenoteTool.Base.UI\wwwroot\**\*">
       <Link>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- One versioned icon pack is shared by WPF and WebDashboardServer. -->
+    <Content Include="..\ZTMZ.PacenoteTool.Base.UI\pacenote-icons\**\*">
+      <Link>Assets\PacenoteIcons\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

@@ -106,6 +106,27 @@ public partial class PacenoteEditorControl : UserControl
         return _controller?.SetRoadbookTitleAsync(_pendingRoadbookTitle) ?? Task.CompletedTask;
     }
 
+    public Task SetRoadbookScaleAsync(double percent)
+    {
+        return _controller?.SetRoadbookScaleAsync(percent) ?? Task.CompletedTask;
+    }
+
+    public Task<double> GetRoadbookScaleAsync()
+    {
+        return _controller?.GetRoadbookScaleAsync() ?? Task.FromResult(100.0);
+    }
+
+    public Task SetRoadbookPrintMarginsAsync(double horizontal, double vertical)
+    {
+        return _controller?.SetRoadbookPrintMarginsAsync(horizontal, vertical) ?? Task.CompletedTask;
+    }
+
+    public Task<RoadbookPrintMargins> GetRoadbookPrintMarginsAsync()
+    {
+        return _controller?.GetRoadbookPrintMarginsAsync()
+            ?? Task.FromResult(new RoadbookPrintMargins(15, 10));
+    }
+
     public Task<bool> ExportRoadbookPdfAsync(string fileName)
     {
         return _controller?.ExportRoadbookPdfAsync(fileName) ?? Task.FromResult(false);

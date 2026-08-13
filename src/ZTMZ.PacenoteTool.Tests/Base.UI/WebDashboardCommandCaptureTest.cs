@@ -64,6 +64,8 @@ public class WebDashboardCommandCaptureTest
         using var fengariResponse = await client.GetAsync($"http://127.0.0.1:{port}/vendor/fengari-web.js");
         using var fontResponse = await client.GetAsync($"http://127.0.0.1:{port}/fonts/WRCCleanRoman.ttf");
         using var boldFontResponse = await client.GetAsync($"http://127.0.0.1:{port}/fonts/WRCCleanBold.ttf");
+        using var pacenoteIconResponse = await client.GetAsync(
+            $"http://127.0.0.1:{port}/pacenote-icons/v1/icons/caution.png");
         dashboardListResponse.EnsureSuccessStatusCode();
         pageResponse.EnsureSuccessStatusCode();
         clientScriptResponse.EnsureSuccessStatusCode();
@@ -71,6 +73,7 @@ public class WebDashboardCommandCaptureTest
         fengariResponse.EnsureSuccessStatusCode();
         fontResponse.EnsureSuccessStatusCode();
         boldFontResponse.EnsureSuccessStatusCode();
+        pacenoteIconResponse.EnsureSuccessStatusCode();
         var page = await pageResponse.Content.ReadAsStringAsync();
         var clientScript = await clientScriptResponse.Content.ReadAsStringAsync();
         var browserLuaScript = await browserLuaScriptResponse.Content.ReadAsStringAsync();
@@ -110,6 +113,12 @@ public class WebDashboardCommandCaptureTest
         Assert.Contains("no-store", string.Join(",", cacheControlValues));
         Assert.Equal("font/ttf", fontResponse.Content.Headers.ContentType?.MediaType);
         Assert.Equal("font/ttf", boldFontResponse.Content.Headers.ContentType?.MediaType);
+        Assert.Equal("image/png", pacenoteIconResponse.Content.Headers.ContentType?.MediaType);
+        var iconCacheControl = pacenoteIconResponse.Headers.CacheControl;
+        Assert.NotNull(iconCacheControl);
+        Assert.True(iconCacheControl.Public);
+        Assert.Equal(TimeSpan.FromDays(365), iconCacheControl.MaxAge);
+        Assert.Contains(iconCacheControl.Extensions, directive => directive.Name == "immutable");
     }
 
     [Fact]

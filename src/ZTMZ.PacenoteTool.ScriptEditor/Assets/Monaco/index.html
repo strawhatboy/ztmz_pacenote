@@ -27,7 +27,10 @@
             font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
         }
         .roadbook-document {
+            box-sizing: border-box;
             position: relative;
+            flex: 0 0 auto;
+            width: 100%;
             min-height: 100%;
             padding: 14px;
             border: 1px solid rgba(63, 48, 31, .34);
@@ -46,18 +49,20 @@
         }
         .roadbook-heading-label { color: #8c2b26; font-family: "Segoe Print", "Microsoft YaHei", sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .08em; }
         .roadbook-heading-title { overflow: hidden; color: #3d3932; font-size: 12px; font-weight: 600; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
-        .roadbook-entries { display: flex; flex-wrap: wrap; align-content: flex-start; align-items: flex-start; gap: 9px; }
-        .roadbook-entry { display: inline-flex; flex: 0 0 auto; width: max-content; max-width: none; border: 1px solid rgba(82, 70, 53, .4); background: rgba(255, 255, 255, .26); break-inside: avoid; }
-        .roadbook-entry.selected { border-color: #4086bb; background: rgba(64, 134, 187, .13); box-shadow: inset 0 3px #4086bb; }
-        .roadbook-entry.playing { border-color: #539e5d; background: rgba(83, 158, 93, .16); box-shadow: inset 0 3px #539e5d; }
-        .roadbook-entry.selected.playing { box-shadow: inset 0 3px #4086bb, inset 0 6px #539e5d; }
-        .roadbook-leg { display: flex; flex: 0 0 42px; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 4px; border-right: 1px solid rgba(82, 70, 53, .28); color: #8c2b26; }
+        .roadbook-entries { display: flex; flex-wrap: wrap; align-content: flex-start; align-items: stretch; gap: 0; }
+        .roadbook-block { box-sizing: border-box; flex: 0 0 auto; min-height: 126px; border: 1px solid rgba(82, 70, 53, .4); background: rgba(255, 255, 255, .26); break-inside: avoid; zoom: var(--roadbook-scale, 1); }
+        .roadbook-block.selected { border-color: #4086bb; background: rgba(64, 134, 187, .13); box-shadow: inset 0 3px #4086bb; }
+        .roadbook-block.playing { border-color: #539e5d; background: rgba(83, 158, 93, .16); box-shadow: inset 0 3px #539e5d; }
+        .roadbook-block.selected.playing { box-shadow: inset 0 3px #4086bb, inset 0 6px #539e5d; }
+        .roadbook-distance-card { display: flex; flex-basis: 52px; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 4px; border-left: 4px solid #8c2b26; color: #7d211e; background: rgba(140, 43, 38, .12); }
+        .roadbook-distance-card.selected { background: rgba(64, 134, 187, .18); }
+        .roadbook-distance-card.playing { background: rgba(83, 158, 93, .2); }
+        .roadbook-distance-card.selected.playing { background: rgba(61, 132, 129, .2); }
+        .roadbook-line-gap { flex: 0 0 18px; min-height: 126px; visibility: hidden; zoom: var(--roadbook-scale, 1); }
         .roadbook-line { color: #7d7569; font-size: 10px; }
-        .roadbook-distance { font-family: "Segoe Print", "Microsoft YaHei", sans-serif; font-size: 14px; font-weight: 700; text-align: center; }
+        .roadbook-distance { font-family: "Segoe Print", "Microsoft YaHei", sans-serif; font-size: 15px; font-weight: 700; text-align: center; }
         .roadbook-distance-unit { font-size: 9px; font-weight: 600; }
-        .roadbook-calls { display: flex; flex: 0 0 auto; flex-flow: row nowrap; align-items: stretch; }
-        .roadbook-call { display: flex; flex: 0 0 122px; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; min-height: 104px; padding: 7px 6px; }
-        .roadbook-call + .roadbook-call { border-left: 1px dotted rgba(82, 70, 53, .32); }
+        .roadbook-token-card { display: flex; flex: 0 0 108px; flex-direction: column; align-items: center; justify-content: flex-start; gap: 3px; min-width: 0; padding: 7px 5px; }
         .roadbook-symbol { position: relative; width: 52px; height: 52px; flex: 0 0 52px; color: #222a2e; }
         .roadbook-symbol::before, .roadbook-symbol::after { position: absolute; box-sizing: border-box; content: ""; }
         .roadbook-symbol.corner::before {
@@ -141,65 +146,41 @@
         .roadbook-symbol.marker { color: #6b7280; }
         .roadbook-symbol.marker::before { top: 9px; left: 14px; width: 24px; height: 24px; border: 3px solid currentColor; transform: rotate(45deg); }
         .roadbook-symbol.marker::after { top: 20px; left: 20px; width: 12px; border-top: 3px solid currentColor; }
-        .roadbook-symbol-wrap { position: relative; width: 60px; height: 60px; flex: 0 0 60px; }
+        .roadbook-symbol-wrap { position: relative; display: flex; width: 68px; height: 68px; flex: 0 0 68px; align-items: center; justify-content: center; }
         .roadbook-symbol-wrap > .roadbook-symbol { position: absolute; top: 4px; left: 4px; }
-        .roadbook-modifiers { position: absolute; inset: 0; pointer-events: none; }
-        .roadbook-modifier { position: absolute; width: 16px; height: 16px; border: 1px solid currentColor; border-radius: 50%; color: #315667; background: #f5eedc; }
-        .roadbook-modifier::before, .roadbook-modifier::after { position: absolute; box-sizing: border-box; content: ""; }
-        .roadbook-modifier:nth-child(1) { top: 0; right: 0; }
-        .roadbook-modifier:nth-child(2) { right: 0; bottom: 0; }
-        .roadbook-modifier:nth-child(3) { bottom: 0; left: 0; }
-        .roadbook-modifier:nth-child(4) { top: 0; left: 0; }
-        .roadbook-modifier:nth-child(n+5) { top: 19px; right: -3px; }
-        .roadbook-modifier.tighten::before, .roadbook-modifier.tighten::after { top: 4px; width: 9px; border-top: 2px solid currentColor; }
-        .roadbook-modifier.tighten::before { left: 1px; transform: rotate(45deg); }
-        .roadbook-modifier.tighten::after { right: 1px; transform: rotate(-45deg); }
-        .roadbook-modifier.open::before, .roadbook-modifier.open::after { bottom: 4px; width: 9px; border-top: 2px solid currentColor; }
-        .roadbook-modifier.open::before { left: 1px; transform: rotate(-45deg); }
-        .roadbook-modifier.open::after { right: 1px; transform: rotate(45deg); }
-        .roadbook-modifier.long::before { top: 7px; left: 2px; width: 10px; border-top: 2px solid currentColor; }
-        .roadbook-modifier.long::after { top: 4px; right: 2px; width: 6px; height: 6px; border-top: 2px solid currentColor; border-right: 2px solid currentColor; transform: rotate(45deg); }
-        .roadbook-modifier.short::before { top: 7px; left: 4px; width: 7px; border-top: 2px solid currentColor; }
-        .roadbook-modifier.short::after { top: 4px; right: 2px; width: 5px; height: 5px; border-top: 2px solid currentColor; border-right: 2px solid currentColor; transform: rotate(45deg); }
-        .roadbook-modifier.cut::before { top: 3px; left: 4px; width: 8px; height: 8px; border-bottom: 2px solid currentColor; border-left: 2px solid currentColor; }
-        .roadbook-modifier.no-cut::before { top: 2px; left: 6px; height: 11px; border-left: 2px solid currentColor; transform: rotate(45deg); }
-        .roadbook-modifier.keep-left::before, .roadbook-modifier.keep-right::before { top: 3px; width: 3px; height: 10px; background: currentColor; }
-        .roadbook-modifier.keep-left::before { left: 4px; }
-        .roadbook-modifier.keep-right::before { right: 4px; }
-        .roadbook-modifier.warning { color: #b54b36; }
-        .roadbook-modifier.warning::before { top: 2px; left: 3px; width: 0; height: 0; border-right: 5px solid transparent; border-bottom: 10px solid currentColor; border-left: 5px solid transparent; }
-        .roadbook-modifier.crest::before { top: 7px; left: 2px; width: 10px; height: 5px; border-top: 2px solid currentColor; border-radius: 50% 50% 0 0; }
-        .roadbook-modifier.surface::before { top: 3px; left: 3px; width: 9px; height: 9px; border: 1px solid currentColor; background: repeating-linear-gradient(135deg, transparent 0 2px, currentColor 2px 3px); }
-        .roadbook-modifier.junction::before { top: 2px; left: 7px; width: 2px; height: 11px; background: currentColor; }
-        .roadbook-modifier.junction::after { top: 7px; left: 3px; width: 10px; border-top: 2px solid currentColor; }
-        .roadbook-modifier.marker::before { top: 5px; left: 5px; width: 5px; height: 5px; border: 2px solid currentColor; border-radius: 50%; }
+        .roadbook-icon { display: block; width: 68px; height: 68px; object-fit: contain; }
         .roadbook-call-text { min-width: 0; text-align: center; }
         .roadbook-token { overflow: hidden; color: #1e2730; font-family: Consolas, "Cascadia Mono", monospace; font-size: 11px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
         .roadbook-description { display: -webkit-box; overflow: hidden; margin-top: 2px; color: #50483e; font-size: 10px; line-height: 1.3; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-        .roadbook-modifier { padding: 1px 4px; border: 1px solid rgba(52, 76, 86, .38); border-radius: 2px; color: #315667; font-family: Consolas, "Cascadia Mono", monospace; font-size: 10px; }
         .roadbook-empty { padding: 16px 2px; color: #746d62; font-size: 13px; }
         body[data-theme="dark"] #roadbook { color: #e4e1d5; background: #32383c; }
         body[data-theme="dark"] #roadbook-splitter { background: #51595c; border-color: #2c3032; }
         body[data-theme="dark"] .roadbook-document { border-color: #767063; box-shadow: 0 2px 5px rgba(0, 0, 0, .45); background: #424039; }
-        body[data-theme="dark"] .roadbook-heading, body[data-theme="dark"] .roadbook-entry { border-color: rgba(232, 224, 203, .34); }
+        body[data-theme="dark"] .roadbook-heading, body[data-theme="dark"] .roadbook-block { border-color: rgba(232, 224, 203, .34); }
         body[data-theme="dark"] .roadbook-heading-title, body[data-theme="dark"] .roadbook-token { color: #f5f2e9; }
         body[data-theme="dark"] .roadbook-description, body[data-theme="dark"] .roadbook-empty, body[data-theme="dark"] .roadbook-line { color: #d0c9bb; }
         body[data-theme="dark"] .roadbook-grade { background: #424039; }
-        body[data-theme="dark"] .roadbook-modifier { border-color: rgba(190, 220, 230, .72); color: #a9d5e6; background: #424039; }
-        @page { size: A4 portrait; margin: 10mm; }
+        body[data-theme="dark"] .roadbook-distance-card { border-left-color: #d77b72; color: #ffd1cb; background: rgba(215, 123, 114, .14); }
+        body[data-theme="dark"] .roadbook-distance-card.selected { background: rgba(64, 134, 187, .24); }
+        body[data-theme="dark"] .roadbook-distance-card.playing { background: rgba(83, 158, 93, .26); }
+        body[data-theme="dark"] .roadbook-distance-card.selected.playing { background: rgba(70, 145, 137, .28); }
+        @page { size: A4 portrait; margin: 10mm 15mm; }
         @media print {
-            html, body, #editor-shell { height: auto !important; overflow: visible !important; background: #fff !important; }
+            html, body { height: auto !important; overflow: visible !important; background: #fff !important; }
+            #editor-shell { display: block !important; width: 100% !important; height: auto !important; overflow: visible !important; }
             #root, #roadbook-splitter { display: none !important; }
-            #roadbook { display: block !important; width: auto !important; height: auto !important; overflow: visible !important; padding: 0 !important; background: #fff !important; }
-            .roadbook-document { min-height: auto !important; padding: 0 !important; border: 0 !important; box-shadow: none !important; background: #fff !important; }
+            #roadbook { display: block !important; box-sizing: border-box !important; width: 100% !important; max-width: none !important; height: auto !important; overflow: visible !important; padding: 0 !important; background: #fff !important; flex: none !important; }
+            .roadbook-document { width: 100% !important; min-height: auto !important; padding: 0 !important; border: 0 !important; box-shadow: none !important; background: #fff !important; }
             .roadbook-heading { margin-bottom: 6mm; padding-bottom: 3mm; }
-            .roadbook-entries { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4mm; }
-            .roadbook-entry { flex: 0 0 auto; width: max-content; max-width: none; border-color: rgba(82, 70, 53, .55) !important; }
-            .roadbook-call { flex-basis: 19mm; min-height: 29mm; }
-            .roadbook-entry.selected, .roadbook-entry.playing { background: transparent !important; box-shadow: none !important; }
+            .roadbook-entries { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0; }
+            .roadbook-block { border-color: rgba(82, 70, 53, .55) !important; }
+            .roadbook-token-card { flex-basis: 24mm; min-height: 32mm; }
+            .roadbook-distance-card { flex-basis: 14mm; min-height: 32mm; }
+            .roadbook-line-gap { flex-basis: 5mm; min-height: 32mm; }
+            .roadbook-block.selected, .roadbook-block.playing { background: transparent !important; box-shadow: none !important; }
             body[data-theme="dark"] .roadbook-heading-title, body[data-theme="dark"] .roadbook-token { color: #1e2730 !important; }
             body[data-theme="dark"] .roadbook-description, body[data-theme="dark"] .roadbook-empty, body[data-theme="dark"] .roadbook-line { color: #50483e !important; }
-            body[data-theme="dark"] .roadbook-grade, body[data-theme="dark"] .roadbook-modifier { background: #fff !important; }
+            body[data-theme="dark"] .roadbook-grade { background: #fff !important; }
         }
     </style>
 </head>
@@ -226,6 +207,47 @@
             let selectedRoadbookLine = 0;
             let playingRoadbookLine = 0;
             let roadbookTitle = 'Roadbook';
+            let roadbookScalePercent = 100;
+            let roadbookPrintMarginHorizontal = 15;
+            let roadbookPrintMarginVertical = 10;
+
+            function clampRoadbookScale(percent) {
+                if (percent === null || percent === undefined || String(percent).trim() === '') return 100;
+                const numericPercent = Number(percent);
+                if (!Number.isFinite(numericPercent)) return 100;
+                return Math.min(200, Math.max(50, Math.round(numericPercent / 10) * 10));
+            }
+
+            function applyRoadbookScale(percent, persist = true) {
+                roadbookScalePercent = clampRoadbookScale(percent);
+                document.documentElement.style.setProperty('--roadbook-scale', String(roadbookScalePercent / 100));
+                if (persist) window.localStorage.setItem('ztmz-roadbook-scale-percent', String(roadbookScalePercent));
+                return roadbookScalePercent;
+            }
+
+            function clampRoadbookPrintMargin(millimeters, fallback) {
+                if (millimeters === null || millimeters === undefined || String(millimeters).trim() === '') return fallback;
+                const numericMillimeters = Number(millimeters);
+                if (!Number.isFinite(numericMillimeters)) return fallback;
+                return Math.min(30, Math.max(5, Math.round(numericMillimeters)));
+            }
+
+            function applyRoadbookPrintMargins(horizontal, vertical, persist = true) {
+                roadbookPrintMarginHorizontal = clampRoadbookPrintMargin(horizontal, 15);
+                roadbookPrintMarginVertical = clampRoadbookPrintMargin(vertical, 10);
+                let pageStyle = document.getElementById('ztmz-roadbook-page-style');
+                if (!pageStyle) {
+                    pageStyle = document.createElement('style');
+                    pageStyle.id = 'ztmz-roadbook-page-style';
+                    document.head.appendChild(pageStyle);
+                }
+                pageStyle.textContent = `@page { size: A4 portrait; margin: ${roadbookPrintMarginVertical}mm ${roadbookPrintMarginHorizontal}mm; }`;
+                if (persist) {
+                    window.localStorage.setItem('ztmz-roadbook-print-margin-horizontal-mm', String(roadbookPrintMarginHorizontal));
+                    window.localStorage.setItem('ztmz-roadbook-print-margin-vertical-mm', String(roadbookPrintMarginVertical));
+                }
+                return { horizontal: roadbookPrintMarginHorizontal, vertical: roadbookPrintMarginVertical };
+            }
 
             function normalize(value) {
                 return (value || '').trim();
@@ -339,14 +361,29 @@
                 return 'marker';
             }
 
-            function renderRoadbookToken(tokenName) {
-                const token = tokenByFilename.get(tokenName);
+            function renderFallbackSymbol(tokenName, token) {
                 const kind = visualKind(tokenName, token);
                 const direction = kind === 'corner' ? iconDirection(tokenName) : '';
                 const severity = kind === 'corner' ? cornerSeverity(tokenName) : '';
                 const grade = severity ? `<span class="roadbook-grade">${severity}</span>` : '';
+                return `<span class="roadbook-symbol ${kind} ${direction} ${severity ? `severity-${severity}` : ''}">${grade}</span>`;
+            }
+
+            function renderTokenIcon(tokenName) {
+                const token = tokenByFilename.get(tokenName);
+                return token?.iconUri
+                    ? `<img class="roadbook-icon" src="${escapeHtml(token.iconUri)}" alt="" draggable="false" />`
+                    : renderFallbackSymbol(tokenName, token);
+            }
+
+            function roadbookLineStates(lineNumber) {
+                return [lineNumber === selectedRoadbookLine ? 'selected' : '', lineNumber === playingRoadbookLine ? 'playing' : ''].filter(Boolean).join(' ');
+            }
+
+            function renderRoadbookToken(tokenName, lineNumber) {
+                const token = tokenByFilename.get(tokenName);
                 const description = token?.description || tokenName;
-                return `<div class="roadbook-call"><span class="roadbook-symbol-wrap"><span class="roadbook-symbol ${kind} ${direction} ${severity ? `severity-${severity}` : ''}">${grade}</span></span><div class="roadbook-call-text"><div class="roadbook-token">${escapeHtml(tokenName)}</div><div class="roadbook-description">${escapeHtml(description)}</div></div></div>`;
+                return `<div class="roadbook-block roadbook-token-card ${roadbookLineStates(lineNumber)}" data-line="${lineNumber}"><span class="roadbook-symbol-wrap">${renderTokenIcon(tokenName)}</span><div class="roadbook-call-text"><div class="roadbook-token" title="${escapeHtml(tokenName)}">${escapeHtml(tokenName)}</div><div class="roadbook-description">${escapeHtml(description)}</div></div></div>`;
             }
 
             function renderRoadbook(selectedLine) {
@@ -359,10 +396,12 @@
                     const entry = parseRoadbookLine(model.getLineContent(lineNumber), lineNumber);
                     if (entry) entries.push(entry);
                 }
-                const roadbookEntries = entries.map(entry => {
-                    const states = [entry.lineNumber === selectedRoadbookLine ? 'selected' : '', entry.lineNumber === playingRoadbookLine ? 'playing' : ''].filter(Boolean).join(' ');
+                const roadbookEntries = entries.map((entry, index) => {
                     const distance = entry.distance ? `<span class="roadbook-distance">${escapeHtml(entry.distance)}<span class="roadbook-distance-unit">m</span></span>` : '<span class="roadbook-distance">-</span>';
-                    return `<article class="roadbook-entry ${states}" data-line="${entry.lineNumber}"><div class="roadbook-leg"><span class="roadbook-line">${entry.lineNumber}</span>${distance}</div><div class="roadbook-calls">${entry.calls.flat().map(renderRoadbookToken).join('')}</div></article>`;
+                    const distanceBlock = `<div class="roadbook-block roadbook-distance-card ${roadbookLineStates(entry.lineNumber)}" data-line="${entry.lineNumber}"><span class="roadbook-line">${entry.lineNumber}</span>${distance}</div>`;
+                    const tokenBlocks = entry.calls.flat().map(tokenName => renderRoadbookToken(tokenName, entry.lineNumber)).join('');
+                    const lineGap = index < entries.length - 1 ? '<div class="roadbook-line-gap" aria-hidden="true"></div>' : '';
+                    return distanceBlock + tokenBlocks + lineGap;
                 }).join('');
                 roadbook.innerHTML = `<div class="roadbook-document"><header class="roadbook-heading"><span class="roadbook-heading-label">ZTMZ ROADBOOK</span><span class="roadbook-heading-title">${escapeHtml(roadbookTitle)}</span></header>${roadbookEntries ? `<div class="roadbook-entries">${roadbookEntries}</div>` : '<div class="roadbook-empty"></div>'}</div>`;
             }
@@ -394,8 +433,8 @@
                     document.addEventListener('pointerup', stop, { once: true });
                 });
                 roadbook.addEventListener('click', event => {
-                    const entry = event.target.closest('.roadbook-entry');
-                    const lineNumber = Number(entry?.dataset.line);
+                    const block = event.target.closest('.roadbook-block');
+                    const lineNumber = Number(block?.dataset.line);
                     if (!lineNumber || !editor) return;
                     editor.setPosition({ lineNumber, column: 1 });
                     editor.revealLineInCenterIfOutsideViewport(lineNumber);
@@ -519,6 +558,11 @@
 
             window.ztmzEditor = {
                 create(container) {
+                    applyRoadbookScale(window.localStorage.getItem('ztmz-roadbook-scale-percent'), false);
+                    applyRoadbookPrintMargins(
+                        window.localStorage.getItem('ztmz-roadbook-print-margin-horizontal-mm'),
+                        window.localStorage.getItem('ztmz-roadbook-print-margin-vertical-mm'),
+                        false);
                     registerLanguage();
                     editor = monaco.editor.create(container, {
                         language: 'pacenote',
@@ -555,6 +599,10 @@
                 setWordWrap(enabled) { editor.updateOptions({ wordWrap: enabled ? 'on' : 'off' }); },
                 setReadOnly(readOnly) { editor.updateOptions({ readOnly: !!readOnly }); },
                 setRoadbookTitle(title) { roadbookTitle = title || 'Roadbook'; renderRoadbook(); },
+                setRoadbookScale(percent) { return applyRoadbookScale(percent); },
+                getRoadbookScale() { return roadbookScalePercent; },
+                setRoadbookPrintMargins(horizontal, vertical) { return applyRoadbookPrintMargins(horizontal, vertical); },
+                getRoadbookPrintMargins() { return { horizontal: roadbookPrintMarginHorizontal, vertical: roadbookPrintMarginVertical }; },
                 highlightPlayback,
                 validate,
                 focus() { editor.focus(); }

@@ -4,6 +4,8 @@ v2.99.99.45-3.0-rc17
 * Prioritizes physical Wi-Fi and Ethernet addresses for the Web Dashboard; VPN and virtual-network addresses remain available but are listed later.
 * Fixes the installer omitting the Monaco assets required by the offline pacenote script editor; packaging now fails if those assets are missing.
 * Fixes some dashboards displaying integer gear values with a decimal suffix (for example, 1.0), including Web Dashboard browser rendering.
+* Adds a shared 128 px graphical pacenote icon catalog for WPF and Web Dashboard views, including canonical resolution for alternate token names.
+* Adds graphical pacenote previews to the script editor, with persistent 50%-200% sizing and 5-30 mm horizontal/vertical margin controls for A4 PDF exports.
 
 v2.99.99.44-3.0-rc16
 

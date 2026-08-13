@@ -24,6 +24,7 @@ public partial class ScriptEditorPage : Page
     private bool _isDirty;
     private bool _isReadOnly;
     private bool _initialized;
+    private bool _loadingRoadbookSettings;
 
     public ScriptEditorPage(ZTMZPacenoteTool tool)
     {
@@ -48,6 +49,19 @@ public partial class ScriptEditorPage : Page
         {
             await Editor.InitializeAsync();
             _initialized = true;
+            _loadingRoadbookSettings = true;
+            try
+            {
+                RoadbookScale.Value = await Editor.GetRoadbookScaleAsync();
+                UpdateRoadbookScaleText();
+                var printMargins = await Editor.GetRoadbookPrintMarginsAsync();
+                PdfHorizontalMargin.Value = printMargins.Horizontal;
+                PdfVerticalMargin.Value = printMargins.Vertical;
+            }
+            finally
+            {
+                _loadingRoadbookSettings = false;
+            }
             await UpdateRoadbookTitleAsync();
             UpdateStatus();
             await Editor.FocusEditorAsync();
@@ -150,6 +164,34 @@ public partial class ScriptEditorPage : Page
         {
             await Editor.SetWordWrapAsync(toggle.IsChecked == true);
         }
+    }
+
+    private async void RoadbookScale_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        UpdateRoadbookScaleText();
+        if (!_loadingRoadbookSettings && Editor?.IsReady == true)
+        {
+            await Editor.SetRoadbookScaleAsync(e.NewValue);
+        }
+    }
+
+    private void UpdateRoadbookScaleText()
+    {
+        if (RoadbookScaleValue != null && RoadbookScale != null)
+        {
+            RoadbookScaleValue.Text = $"{RoadbookScale.Value:0}%";
+        }
+    }
+
+    private async void PdfMargin_ValueChanged(object sender, NumberBoxValueChangedEventArgs e)
+    {
+        if (_loadingRoadbookSettings || Editor?.IsReady != true || PdfHorizontalMargin?.Value is not double horizontal
+            || PdfVerticalMargin?.Value is not double vertical)
+        {
+            return;
+        }
+
+        await Editor.SetRoadbookPrintMarginsAsync(horizontal, vertical);
     }
 
     private async void AdjustDistance_Click(object sender, RoutedEventArgs e)

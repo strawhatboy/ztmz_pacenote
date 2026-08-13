@@ -424,6 +424,21 @@ public class WebDashboardServer : IDisposable
             {
                 _logger.Warn($"Dashboard fonts folder not found at: {fontsPath}");
             }
+
+            var pacenoteIconsPath = PacenoteIconCatalog.GetAssetRoot(AppDomain.CurrentDomain.BaseDirectory);
+            if (Directory.Exists(pacenoteIconsPath))
+            {
+                _app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(pacenoteIconsPath),
+                    RequestPath = PacenoteIconCatalog.WebRequestPath,
+                    OnPrepareResponse = EnableImmutableAssetCaching
+                });
+            }
+            else
+            {
+                _logger.Warn($"Pacenote icon pack not found at: {pacenoteIconsPath}");
+            }
             
             // Serve dashboard resources as static files
             if (Directory.Exists(_dashboardsPath))
@@ -615,6 +630,11 @@ public class WebDashboardServer : IDisposable
     private static void DisableWebDashboardClientCaching(StaticFileResponseContext context)
     {
         DisableWebDashboardClientCaching(context.Context.Response);
+    }
+
+    private static void EnableImmutableAssetCaching(StaticFileResponseContext context)
+    {
+        context.Context.Response.Headers.CacheControl = "public,max-age=31536000,immutable";
     }
 
     private static void DisableWebDashboardClientCaching(HttpResponse response)

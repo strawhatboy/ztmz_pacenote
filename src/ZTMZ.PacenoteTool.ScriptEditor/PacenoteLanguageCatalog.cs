@@ -22,6 +22,7 @@ public sealed class PacenoteLanguageToken
     public string Type { get; init; } = string.Empty;
     public string Complexity { get; init; } = string.Empty;
     public string Fallbacks { get; init; } = string.Empty;
+    public string IconUri { get; set; } = string.Empty;
 }
 
 public sealed class PacenoteLanguageAttribute
@@ -54,6 +55,7 @@ public static class PacenoteLanguageCatalogProvider
             """;
 
             var tokens = (await resource.Connection.QueryAsync<PacenoteLanguageToken>(query)).ToList();
+            AttachIconUris(tokens);
             return new PacenoteLanguageCatalog
             {
                 Tokens = tokens,
@@ -64,6 +66,27 @@ public static class PacenoteLanguageCatalogProvider
         {
             NLog.LogManager.GetCurrentClassLogger().Error(exception, "Could not load the pacenote editor catalog.");
             return new PacenoteLanguageCatalog { Attributes = GetAttributes() };
+        }
+    }
+
+    internal static void AttachIconUris(IReadOnlyList<PacenoteLanguageToken> tokens)
+    {
+        try
+        {
+            var iconCatalog = PacenoteIconCatalog.Load();
+            foreach (var token in tokens)
+            {
+                if (iconCatalog.TryResolve(token.PrimaryFilename, out var icon))
+                {
+                    token.IconUri = new System.Uri(icon!.FilePath).AbsoluteUri;
+                }
+            }
+        }
+        catch (System.Exception exception)
+        {
+            NLog.LogManager.GetCurrentClassLogger().Warn(
+                exception,
+                "Pacenote editor icons are unavailable; the roadbook preview will use fallback symbols.");
         }
     }
 

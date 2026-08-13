@@ -1,0 +1,2103 @@
+{
+  "version": 1,
+  "iconSize": 128,
+  "format": "png",
+  "icons": {
+    "1": {
+      "file": "icons/1.png",
+      "sha256": "50e6f6e6ebde3778df023bc129b7337182e7a513e63103a0d54e48f889a9f7bf"
+    },
+    "100": {
+      "file": "icons/100.png",
+      "sha256": "845afc517c5698d9b0e20aa06597de9a21b211f711a7c8e5d5efcde4200f6156"
+    },
+    "1000": {
+      "file": "icons/1000.png",
+      "sha256": "44dcc7c33e56eb93f7ba670446a55863e1bcb35ca86ea2d91e0a4abe2df10b3b"
+    },
+    "110": {
+      "file": "icons/110.png",
+      "sha256": "142019b375aa6fd8833b7c9443f8144762e7a63298c79408f96e88763fdf9b61"
+    },
+    "120": {
+      "file": "icons/120.png",
+      "sha256": "c4f7e3654875bfac791d72d394ec981b59a9ecc678be64bf855d651169b3cee7"
+    },
+    "130": {
+      "file": "icons/130.png",
+      "sha256": "8d64b4b09813e638f1dbfc09853c86877e0920d06962cc95344607733fabff42"
+    },
+    "140": {
+      "file": "icons/140.png",
+      "sha256": "ffe320a991456330e7324be0cb52cdc73ea706e7e8871104c5c4ec35cd576851"
+    },
+    "150": {
+      "file": "icons/150.png",
+      "sha256": "32185087e34ca2f2686c98c5cc24c005ada0f5b328fe9e981bb30684d47dedc4"
+    },
+    "160": {
+      "file": "icons/160.png",
+      "sha256": "f99ae69aad26312235606c3a44d3e71dd17ee96676b9cc206d5487d03bf133f7"
+    },
+    "170": {
+      "file": "icons/170.png",
+      "sha256": "cf2cab0495b6f6b5a42732defa0ff97056ab9155c0cfe99e337c8a4f2c836a02"
+    },
+    "180": {
+      "file": "icons/180.png",
+      "sha256": "6d26d520579ff806135df19cc603055d0776955aca17378c4ec6295a2b4913a1"
+    },
+    "190": {
+      "file": "icons/190.png",
+      "sha256": "e528d066e5748121c6b89a40ca02a3d6b67021e96c26f48c016428f19d6124e2"
+    },
+    "1_left": {
+      "file": "icons/1_left.png",
+      "sha256": "ac5bc4b9d31578aab38e597cccf021a8fab11f378143914a5af363f23d7b6a4e"
+    },
+    "1_right": {
+      "file": "icons/1_right.png",
+      "sha256": "2d09f18f9750666eec3ec6eaef12ab266dd5d2d33381c43b6a5fcbc9ff26c078"
+    },
+    "2": {
+      "file": "icons/2.png",
+      "sha256": "9d20c1e53c3319057dbfa02471c02d0a97684a1e373a4bedc147ccfe6b514fad"
+    },
+    "20": {
+      "file": "icons/20.png",
+      "sha256": "fff878bc8c5ff14b5926752abe5b98a74883135ea981b79f1d338eda5aecb3ae"
+    },
+    "200": {
+      "file": "icons/200.png",
+      "sha256": "13ea9e36d9f170963057cc25aa1cc896b058f93e13fc76b14838c12a6efa8c02"
+    },
+    "210": {
+      "file": "icons/210.png",
+      "sha256": "a659755c384cb22721ce749f2bcb737db6a22404b242ca9374bc65ea71300265"
+    },
+    "220": {
+      "file": "icons/220.png",
+      "sha256": "90c2694aff618cd7c017484463637e2ed81284afa00259fac17e4f9b950040a7"
+    },
+    "230": {
+      "file": "icons/230.png",
+      "sha256": "e5f129767690aca29cab088e234f88dde7c89e8a2b940004426681f57637d53f"
+    },
+    "240": {
+      "file": "icons/240.png",
+      "sha256": "f01396f7afd79e654570d020ed6c754c84dcd02bbf6feda8647a4fa6e152d424"
+    },
+    "250": {
+      "file": "icons/250.png",
+      "sha256": "c0322451270d40688740747b59d304ba91f6b927e573d1759b5c2532d15197ac"
+    },
+    "260": {
+      "file": "icons/260.png",
+      "sha256": "16f310b5c9c658eafcc5a90b0b451e9ec59cfca8008febcd9625c5c012ef66e5"
+    },
+    "270": {
+      "file": "icons/270.png",
+      "sha256": "22632752982be70cc52756b49ac2ce841a644c292ea35a7c2db3267f026c4b0d"
+    },
+    "280": {
+      "file": "icons/280.png",
+      "sha256": "fe2287af9df7a85b825163c62a9823a3e155727c53c38c19f1c1f687c001914d"
+    },
+    "290": {
+      "file": "icons/290.png",
+      "sha256": "00518823f525b1e787d06b7031b705357f76df14295ba7810833783b71fb246c"
+    },
+    "2_left": {
+      "file": "icons/2_left.png",
+      "sha256": "6cddc69ecbbb4eb0a4c6b7163473414a81f35ed38067185e4e0ae4d26c2344e6"
+    },
+    "2_right": {
+      "file": "icons/2_right.png",
+      "sha256": "0ea5ffbd8598640869cb1dfd8503d6216cf9733b769e495a3b48e2cb56728bf4"
+    },
+    "3": {
+      "file": "icons/3.png",
+      "sha256": "0274397009f7ba86e139c3825cce5ff29487b5de26e163bdce360dd1a7e5d87e"
+    },
+    "30": {
+      "file": "icons/30.png",
+      "sha256": "1dbfd850fae9edc0a10a76d432c06515980f5186a11b76f299cd3a6426eb8de9"
+    },
+    "300": {
+      "file": "icons/300.png",
+      "sha256": "a78cdd513c8d4aeb9b05ccd748e4180ac716763bcd43df9bdf3bf55e0de0381e"
+    },
+    "350": {
+      "file": "icons/350.png",
+      "sha256": "baff94639a12dbd7a0423a04a71442c301b1ed62e9fbe696521fef107cba7f3f"
+    },
+    "3_left": {
+      "file": "icons/3_left.png",
+      "sha256": "8aacad3f84c9cf311dd1dc66bf799617f7410ff81f63cf8326454288a18ca651"
+    },
+    "3_right": {
+      "file": "icons/3_right.png",
+      "sha256": "9e0f1e0a0cd2c4b23165397e6c699d16476c65e0cbd86199a063d69b137b290d"
+    },
+    "4": {
+      "file": "icons/4.png",
+      "sha256": "2e886420271a6d385785813f3059378116a214d198c16e25008510c466829e29"
+    },
+    "40": {
+      "file": "icons/40.png",
+      "sha256": "892a99073459276bf7847ff142c985619a1bffdeadf67ec6bba2c8e2d8989c91"
+    },
+    "400": {
+      "file": "icons/400.png",
+      "sha256": "6fb8a5c01eef4f184755577ca097e0e5b8274a5251551cb1f37005c5b26a00ee"
+    },
+    "450": {
+      "file": "icons/450.png",
+      "sha256": "bcfa58f622cf7f4594a03994be98ec21a77a4e71b4bd9d228776e325cbcc8ab3"
+    },
+    "4_left": {
+      "file": "icons/4_left.png",
+      "sha256": "e65920c6a01dec8e3a62ab642d3957116ba9ff1a2ca8c0e2acf64a76637c9a07"
+    },
+    "4_right": {
+      "file": "icons/4_right.png",
+      "sha256": "dbefb4d197d3b4f158878acd9d4add150bd80057006d1f0fdb00fa7b4e85de9e"
+    },
+    "5": {
+      "file": "icons/5.png",
+      "sha256": "aa18dcc87de8c91571f9a65a41d53b9e400510366e186452c3f5ffd4e4fc6b54"
+    },
+    "50": {
+      "file": "icons/50.png",
+      "sha256": "7aa83065b26509355989da795bd9059ffe34e473df7358e41d3f4253d96bd341"
+    },
+    "500": {
+      "file": "icons/500.png",
+      "sha256": "170e54b151a2a955ccbe529a069d75836111cc5f2df781bb7d61598328afca08"
+    },
+    "5_left": {
+      "file": "icons/5_left.png",
+      "sha256": "f6d81a14d2d632b37491015257ee8ee9272c43dcc919a38feace73189d20b915"
+    },
+    "5_right": {
+      "file": "icons/5_right.png",
+      "sha256": "75f6a6ca15a3099a45a2ea8ca634f3cd05c11c0056710eb5f3be615f8fa97394"
+    },
+    "6": {
+      "file": "icons/6.png",
+      "sha256": "95c29276678d341962dd0d6754a53e3c74b4158626d846b21d93db000d4f2488"
+    },
+    "60": {
+      "file": "icons/60.png",
+      "sha256": "45c72c3b8801b0587bd88ca15c18a211c4ed2c1fdfdf2cc368d9bcb6aa45f9a1"
+    },
+    "600": {
+      "file": "icons/600.png",
+      "sha256": "4e100ea96d80238980e021e5c96ee6153a537ebc3ed2a11df2f277ae6ff6a269"
+    },
+    "6_left": {
+      "file": "icons/6_left.png",
+      "sha256": "3e33fcf49634a251a13a63b90a3ab9ae2c25cb0ea54e3da5092284fa097b8ac9"
+    },
+    "6_right": {
+      "file": "icons/6_right.png",
+      "sha256": "43284917908086666f7528f1a9694fc042568556d2ba0ae3826c9681ff44e649"
+    },
+    "7": {
+      "file": "icons/7.png",
+      "sha256": "87e8eb08615be6a9b2196e562e9faae5580e51f6416b70ac219232ecb310a767"
+    },
+    "70": {
+      "file": "icons/70.png",
+      "sha256": "ef1a4226182c5a2a80d4a4398026d9471b6bfb6872b7fbccbe5b6dc616be925c"
+    },
+    "700": {
+      "file": "icons/700.png",
+      "sha256": "54fa9bc953882d44d76a1f8dca5306ed3608506eedd7b1e7a6427df6dc84f312"
+    },
+    "7_left": {
+      "file": "icons/7_left.png",
+      "sha256": "9f0d1ec3e3d6f7782e478ebbf71142d8de908e00bb8910319b7fbab15ae2b8c7"
+    },
+    "7_right": {
+      "file": "icons/7_right.png",
+      "sha256": "4662adad9f26b1b1cbc0e59647add35ae4b129bb7d32f7a5252c42128c0b49ad"
+    },
+    "80": {
+      "file": "icons/80.png",
+      "sha256": "2813909249ff07e33424613a02273d02af2970dc19e1bcf83237f6529a2cd4ce"
+    },
+    "800": {
+      "file": "icons/800.png",
+      "sha256": "f5bae9ff2684e659848187f936003a69399d71a87558189db3e9c08f9c27e3c2"
+    },
+    "90": {
+      "file": "icons/90.png",
+      "sha256": "7881087a5d3fd3af8bdd55536965d6bc216d46dae9f9ae9383599f4fd88f3296"
+    },
+    "900": {
+      "file": "icons/900.png",
+      "sha256": "4b88d1bcfe6c9c0a2e0c17de496ba96bb5ed738b48ebb238a3d113f5800ccd4f"
+    },
+    "acute": {
+      "file": "icons/acute.png",
+      "sha256": "fd748d331ba3727d9c948560941b4c32bce4ce64b1a818705f57d5e890925e69"
+    },
+    "after": {
+      "file": "icons/after.png",
+      "sha256": "453037c8d37b9b4aecf0a472bb97fcf451e77cf28b6c315e241f124a8ae8a8d3"
+    },
+    "and": {
+      "file": "icons/and.png",
+      "sha256": "96bc4daafa261e9049193722b85a25672843fc72dd3e3a9bd595e2ca34f838a6"
+    },
+    "around": {
+      "file": "icons/around.png",
+      "sha256": "bbd0c5d7d231946df6e95f6000a787ec69e25f8f94a4c4e88f10b7aece376a6a"
+    },
+    "around_bales": {
+      "file": "icons/around_bales.png",
+      "sha256": "4403d50faebf0fa8d25ed68c4283f9e224211a652fae52db626638125dfb14f3"
+    },
+    "around_bridge": {
+      "file": "icons/around_bridge.png",
+      "sha256": "af79f2fba9305b450335b62f0d50f541c588e40c57774899e8ae62dd93578f11"
+    },
+    "around_bush": {
+      "file": "icons/around_bush.png",
+      "sha256": "6330eb4df4b3679b51f689ad1ab353ede412f1f24a6aed77ca3e725ad354e3a2"
+    },
+    "around_roundabout": {
+      "file": "icons/around_roundabout.png",
+      "sha256": "1a7b6af9f026b0129edd94c17a2e92d4adcca91a08173959fdf96da177f9bd6d"
+    },
+    "around_sign": {
+      "file": "icons/around_sign.png",
+      "sha256": "7288ddc1c0fcbbc46c089d84ba8108fceef43eac15d60c34aa8c452cdd8e8815"
+    },
+    "around_tree": {
+      "file": "icons/around_tree.png",
+      "sha256": "5a36961977ad722025bff0e51fae3011a5e4bd7902b4f92763557e49e27cf4d5"
+    },
+    "at": {
+      "file": "icons/at.png",
+      "sha256": "4fd8579c50e419086c79c023da9522f639caf8401d6c9f50a7de570249499490"
+    },
+    "at_bush": {
+      "file": "icons/at_bush.png",
+      "sha256": "cf7bc4a25907aaa23f5faeb329b946edd988a948232c8ffa1437fe0fae2306c3"
+    },
+    "at_junction": {
+      "file": "icons/at_junction.png",
+      "sha256": "929b8ab053e182b2cdcb2f5c87f6d5727b6b905d2441c9481305964a5d49f0b9"
+    },
+    "bad": {
+      "file": "icons/bad.png",
+      "sha256": "07c0c2a0f7450bbc1f213500f8e4049244d1cbaa2af4739846f81445092e3f8a"
+    },
+    "bad_camber": {
+      "file": "icons/bad_camber.png",
+      "sha256": "146801993aab27d9a35bd70dc0ab3a370efa29383cb06a3d0993ce93cfac58a0"
+    },
+    "bad_dip": {
+      "file": "icons/bad_dip.png",
+      "sha256": "183d9e099582694a265b274cd948718310b64f97482b0f1d5076dba6f03a3ce4"
+    },
+    "bales": {
+      "file": "icons/bales.png",
+      "sha256": "8967dffc7b558a8646ebebfb01e06079ee381b89f96c6462e8965c0b6947f652"
+    },
+    "banner": {
+      "file": "icons/banner.png",
+      "sha256": "715789e367b98bf8e2d26a49ef98cb28e4f3ce431b25246ab304357d3176a5d0"
+    },
+    "between_bales": {
+      "file": "icons/between_bales.png",
+      "sha256": "ebb6377e36cb8d1029f4656a8d4a39583e09de29e853f4838cd9c974e870ab02"
+    },
+    "big": {
+      "file": "icons/big.png",
+      "sha256": "4b4ceebfe7de88546b40dcb2c2a09882482eb354d88da28cc0953a51f6d79eb8"
+    },
+    "big_crest": {
+      "file": "icons/big_crest.png",
+      "sha256": "e2b1259e26e1eb6b34545ceca05af935009340bad943e927919992de64754c3b"
+    },
+    "big_cut": {
+      "file": "icons/big_cut.png",
+      "sha256": "e072102761e4626cf896e6044c3f0d07202b64caed4a13c83a97408fbbe405b8"
+    },
+    "big_jump": {
+      "file": "icons/big_jump.png",
+      "sha256": "1f0315453c8a210aabae73e503ab845b6b0d19d588ddab53352dc63203073776"
+    },
+    "border": {
+      "file": "icons/border.png",
+      "sha256": "68d5118198aad98fc68dff9c36fb48ff0f1afb0703195ca08f1af0e59e79fd98"
+    },
+    "brake": {
+      "file": "icons/brake.png",
+      "sha256": "5b8e40ae86efe20536d1b2b407e614e01a9032ab8a047b1fbb6443b8addd087f"
+    },
+    "brave": {
+      "file": "icons/brave.png",
+      "sha256": "92049c5408ed23455bfb85364c6d5ea756c14ebfe4039808d7361cda364e00b3"
+    },
+    "bridge": {
+      "file": "icons/bridge.png",
+      "sha256": "a8305a403addfdf3de4539cd8c8da52b3f451a49a09506a9b848d4761345fe6f"
+    },
+    "bumps": {
+      "file": "icons/bumps.png",
+      "sha256": "58e1bb369947a5aa043fb843bbb7dc879aa248313c9e4e98d4d5f118b0f1ba08"
+    },
+    "bush": {
+      "file": "icons/bush.png",
+      "sha256": "312421f4ebf47ca1224230b65aefb3345105b39c4273e6668fbeb0392a41a769"
+    },
+    "camber": {
+      "file": "icons/camber.png",
+      "sha256": "3da12054cd784d6ef04a21e439ff9ed0ba2e8081ea6f0bf743521a1d3aacb94a"
+    },
+    "care": {
+      "file": "icons/care.png",
+      "sha256": "1ed78f6cdec1c62993c9bd7a9bef3f120b70cdaf560f5926c478853563b63a00"
+    },
+    "caution": {
+      "file": "icons/caution.png",
+      "sha256": "fb24efafac7d1e46da0986251d1b88452bc15d69cfaac7dad940ee51c4fc7cd6"
+    },
+    "chicane": {
+      "file": "icons/chicane.png",
+      "sha256": "99cd7d31ccb4fdd4b8f49c47a5de2e82f0afd36cdead288c72bd96a4574b771c"
+    },
+    "clip": {
+      "file": "icons/clip.png",
+      "sha256": "4285457355f4176e713169857588af2bf6a9a7e127d8bde0cd9acd6d8e557a78"
+    },
+    "cobble": {
+      "file": "icons/cobble.png",
+      "sha256": "f12e967a9b622dc161cd6ef4ec068e04dbb4396953e7c07368f4dcfbdca32ff7"
+    },
+    "collision_medium": {
+      "file": "icons/collision_medium.png",
+      "sha256": "f5920f73e7bac68f032a721cd32c187913838993c768cb6aa4f7ef5bd7975488"
+    },
+    "collision_severe": {
+      "file": "icons/collision_severe.png",
+      "sha256": "7a8c96f0cc7199db16aa88995e8d53f8b50c2611f44c304c9b7c7ec73923504e"
+    },
+    "collision_slight": {
+      "file": "icons/collision_slight.png",
+      "sha256": "557cb663a7e6694da24f95e12ad6f522ebc800edb77d0ff13a52f541754237d2"
+    },
+    "concrete": {
+      "file": "icons/concrete.png",
+      "sha256": "0e78e3604a17b531415d0d59e050a300a754247e941c150a4cfed4ac7d2551f6"
+    },
+    "continues": {
+      "file": "icons/continues.png",
+      "sha256": "1a953c42bec8e9529f389348d3860c78439ebcd53ad46db1e4cf7c0ed470d6f4"
+    },
+    "crest": {
+      "file": "icons/crest.png",
+      "sha256": "959c5ec5f9bc8d83516bb963e5545fffa5d283d546a392c841ef5de46ad73d7c"
+    },
+    "curb": {
+      "file": "icons/curb.png",
+      "sha256": "45ef27e9e611f6956a8b8da6a3b330e67dfae31edf4e3d470936cf2eafb9d949"
+    },
+    "cut": {
+      "file": "icons/cut.png",
+      "sha256": "6581bdeaea4a49ba40e0aaeb7b288eafc5e11e020c94dcb105b3a12241dd4295"
+    },
+    "dab": {
+      "file": "icons/dab.png",
+      "sha256": "05b53739a54cdfee7d986fefa98abdd650dd0e06321a1be053c4e90d0f1f8516"
+    },
+    "deceptive": {
+      "file": "icons/deceptive.png",
+      "sha256": "c4bee57d2fbb863dc8d5a5c56a59c320ba93b62f5b504f48d3ed74ffbb69ce6a"
+    },
+    "deep": {
+      "file": "icons/deep.png",
+      "sha256": "b0ffff05a5a1e7cfaa623203bfb34fa6d18d6c661ba2e774e38137f242cb4726"
+    },
+    "dip": {
+      "file": "icons/dip.png",
+      "sha256": "8e73747d70afcc3b2c2ceed370c8ca66a5b3c80f6e29d040dab196658fe4d343"
+    },
+    "directly": {
+      "file": "icons/directly.png",
+      "sha256": "ee1ba1e109d1ef5ed0cb967305fa5c18602b2d7f839306489d8b9c049035c3a2"
+    },
+    "dirty": {
+      "file": "icons/dirty.png",
+      "sha256": "940311d54b0f02dc78a38e3dc04f533f0d756f07bc2a6b68511e59f111fc5c60"
+    },
+    "distance_call": {
+      "file": "icons/distance_call.png",
+      "sha256": "24e04b6fd609ee9e0a9603d22c12bbd4c78706ef0a0ba53dab283e66cf04cb95"
+    },
+    "ditches": {
+      "file": "icons/ditches.png",
+      "sha256": "554c37124f62775f8262c3684ac2e7f2f2da51f40d3e824a9eeb7daf1d37f8a3"
+    },
+    "ditches_inside": {
+      "file": "icons/ditches_inside.png",
+      "sha256": "32465ee153236f0ee9db607f3c25758bc5f863fc7c49d735ff73cf0b11fc59a7"
+    },
+    "ditches_outside": {
+      "file": "icons/ditches_outside.png",
+      "sha256": "d15fcfa7149e37df64d4e1c973fe5e2dd55823dc8166a76549d4a11d2e484900"
+    },
+    "dont_cut": {
+      "file": "icons/dont_cut.png",
+      "sha256": "69fedecabb04fd0691037ef949c635d8183bf5d805f1a124a6cc1290a4b8265e"
+    },
+    "donut": {
+      "file": "icons/donut.png",
+      "sha256": "03683b49404a7078e51c9bffbec254f3813feea1c4c20dd120bd2f0c96daf160"
+    },
+    "double": {
+      "file": "icons/double.png",
+      "sha256": "2b9b0b5eab476d89f56ef6f54c5389aef6a0137c04cad4b84d8587181b3f7be5"
+    },
+    "double_caution": {
+      "file": "icons/double_caution.png",
+      "sha256": "77232f0e727720d2906ccd376870a31946d4c1e1dacbef8fbcd81a8a891af60f"
+    },
+    "downhill": {
+      "file": "icons/downhill.png",
+      "sha256": "04d61b14f2a8d9dfe376fc0b5eb80dbe01fa9f720eed15b1f4b5fd0a0d092a3a"
+    },
+    "draws_in": {
+      "file": "icons/draws_in.png",
+      "sha256": "8e83a48cea89e0a206f7dc0efbf4642b30dd24371e513c82c1cc12b229f9e05a"
+    },
+    "drops": {
+      "file": "icons/drops.png",
+      "sha256": "ce71213edebfd280d0b5b253d0e49c7119a51f5c350e852588c61a4b273384d6"
+    },
+    "drops_inside": {
+      "file": "icons/drops_inside.png",
+      "sha256": "16dbb42b8aff8cfefdc05bb4d2a056e1c4a33f9fd2d1fd9e0419c10ef2c271cc"
+    },
+    "drops_outside": {
+      "file": "icons/drops_outside.png",
+      "sha256": "ef1ab9a8d66b3a87d486e0b748bbc9d635cf0db56a3f88e15e085c86350533ea"
+    },
+    "dry": {
+      "file": "icons/dry.png",
+      "sha256": "e87860f046706a632344b2f03b0d48ffe0c8c0e78671475f1ae3c83d4ff218a0"
+    },
+    "early": {
+      "file": "icons/early.png",
+      "sha256": "428a4c08fbedfb3ed87845022c14c6c28988e918fdaf8d05869562e29f056da5"
+    },
+    "easy": {
+      "file": "icons/easy.png",
+      "sha256": "22062a7a6f83144167e59702b9d4368eb55e6a6ffbcb0847646fb4a6ebd0c176"
+    },
+    "edge": {
+      "file": "icons/edge.png",
+      "sha256": "346c587729e751c03472564bdea8ea8ad455a9aafbf83da4634711ba3c503232"
+    },
+    "end_stage": {
+      "file": "icons/end_stage.png",
+      "sha256": "7d92f3684b571b2ce4b40e02cd8d5651e60d898dc2de42dcec5803fbbfe9aff9"
+    },
+    "entry": {
+      "file": "icons/entry.png",
+      "sha256": "f875952bd536087a4535847261982947d2b3418336049977e3d9ddc4d84eb782"
+    },
+    "exact": {
+      "file": "icons/exact.png",
+      "sha256": "dffd985e5a3ea22176c0b14f8db1d47e428e163ff2e9b00a804ce05d2d695b79"
+    },
+    "exit": {
+      "file": "icons/exit.png",
+      "sha256": "23a9aa379c45559b5c59ec11bc3269e40621a435a09d067ae6eea5c75119bb38"
+    },
+    "extra": {
+      "file": "icons/extra.png",
+      "sha256": "12fd747c29f721cdd0b95f17c3ff01b6e4820d408c4f339defa393f3026baa70"
+    },
+    "extra_long": {
+      "file": "icons/extra_long.png",
+      "sha256": "7227252868be66d94670530bd06531cd01d0ebb7619179079dd5a5e21e089e5c"
+    },
+    "extraextra_long": {
+      "file": "icons/extraextra_long.png",
+      "sha256": "6519ea499f4e30a2b97e1b8d118252506f9153673ae5c8538dd64315d4cc032b"
+    },
+    "fast": {
+      "file": "icons/fast.png",
+      "sha256": "6cfacac37d7eb01eb09c8dddb0087d9e0b483b0c7749e89127c9f4ee272dcc7b"
+    },
+    "fence": {
+      "file": "icons/fence.png",
+      "sha256": "e33c17d8286cf555c7a14b8d69053041dd0fd984beb34ed3c5fd6713c2654498"
+    },
+    "fence_inside": {
+      "file": "icons/fence_inside.png",
+      "sha256": "1df8efe665f1b08b242a6433c1ed72917bec3b8000b97a440c45dec08e567e37"
+    },
+    "fence_outside": {
+      "file": "icons/fence_outside.png",
+      "sha256": "d8634cef4a0e00f0b991bfc941744858c40edd23e104d57035c64d9c85338dbc"
+    },
+    "fickle": {
+      "file": "icons/fickle.png",
+      "sha256": "ef26762b427d46f66b9e8d0df6c1cd9571860eb12f941abfdb5aae7e4d4ebc23"
+    },
+    "finish": {
+      "file": "icons/finish.png",
+      "sha256": "85d7a497222f615bd9776011800528ecc88946e69c1179739319427b4ad17432"
+    },
+    "flag": {
+      "file": "icons/flag.png",
+      "sha256": "cf572e59e438757788c7c40f22b7ca6df8631502077df8ad1e84ef3b1f6fa1c9"
+    },
+    "flat": {
+      "file": "icons/flat.png",
+      "sha256": "72d1a2b3bb3076c67d271d702b932a87d956d9472d12e043edd2a0c28b2f9632"
+    },
+    "flat_left": {
+      "file": "icons/flat_left.png",
+      "sha256": "9f0d1ec3e3d6f7782e478ebbf71142d8de908e00bb8910319b7fbab15ae2b8c7"
+    },
+    "flat_right": {
+      "file": "icons/flat_right.png",
+      "sha256": "4662adad9f26b1b1cbc0e59647add35ae4b129bb7d32f7a5252c42128c0b49ad"
+    },
+    "ford": {
+      "file": "icons/ford.png",
+      "sha256": "cc7d2624f412484d439cb3908073c83397d1e87fab75639bdfa38baa320028f5"
+    },
+    "from_left": {
+      "file": "icons/from_left.png",
+      "sha256": "4c98d6721a50fd6dd03af39ac116f6fada9a2f329b411bbb8d48894e324312b1"
+    },
+    "from_right": {
+      "file": "icons/from_right.png",
+      "sha256": "fdd78e397c0f99ee6590b4ddeb3b1d25d5d042d2121378d827c46ef4dbba22e7"
+    },
+    "gate": {
+      "file": "icons/gate.png",
+      "sha256": "27ff43c635577d4144250d42df3ef6b8590f01e226f3ca229c655644e038a797"
+    },
+    "go": {
+      "file": "icons/go.png",
+      "sha256": "d2bc91d3bd92aa88495da2b3ab4684289b967f29b77be86c21f99f1f7860d61d"
+    },
+    "go_straight": {
+      "file": "icons/go_straight.png",
+      "sha256": "f848c6a757dcd94488f6316bbf339bd2f09d7cae7bf3b6b957175e0f70d894c3"
+    },
+    "good": {
+      "file": "icons/good.png",
+      "sha256": "8cf26e0796b48a2112b0c32ec01388ff9087572ac07f7062a2b4319f17b76076"
+    },
+    "gravel": {
+      "file": "icons/gravel.png",
+      "sha256": "829475b002d810d8e6aa6bf1f1d8d431d610b9c139e67c65150c599489f76ad8"
+    },
+    "grid": {
+      "file": "icons/grid.png",
+      "sha256": "6d8c0a98d4ad2f4f1e3d71d9ba9f80b9909471bb33f8690fb33d3b2950705365"
+    },
+    "hairpin": {
+      "file": "icons/hairpin.png",
+      "sha256": "57d1d5e1de75f97250e858c60ee4822a2eb5d5a43588f2ae2c6c351e987c26c7"
+    },
+    "hairpin_left": {
+      "file": "icons/hairpin_left.png",
+      "sha256": "7d931c542f68a61a3327cf0ade71726b9082021303b76c02dc29dfd9f0359d0b"
+    },
+    "hairpin_right": {
+      "file": "icons/hairpin_right.png",
+      "sha256": "d20c56bba981c395c644f26b1477efaf5faf5bbacad750d5bf3cbf38b80fe257"
+    },
+    "half_long": {
+      "file": "icons/half_long.png",
+      "sha256": "b64bcc46038adf7b62d8cf001a5079ac1f48a05e9561c04f72a231cb651bee74"
+    },
+    "handbrake": {
+      "file": "icons/handbrake.png",
+      "sha256": "e0a67015638b26e5dcd16136951f909eb90fdc6cd57769b99cbdf03b14503749"
+    },
+    "hard": {
+      "file": "icons/hard.png",
+      "sha256": "ce394811e4bcb7a0ac8c7f63b31256e4bdb2c2473cb60fdd55b7d265aee78413"
+    },
+    "hold": {
+      "file": "icons/hold.png",
+      "sha256": "ba21c38f24c6a9f4fc1c32d86f0c55045b23158a86c38b9bb6d27ecab9a5abc2"
+    },
+    "hole": {
+      "file": "icons/hole.png",
+      "sha256": "a94ad1378cd158c41e04f1f0a5cb6aacf27877363bef03126c291d88fd447876"
+    },
+    "hook": {
+      "file": "icons/hook.png",
+      "sha256": "93ecb9394850eb4d8ae1b756969070464a706d7a805b6e5c11a8121d057d478b"
+    },
+    "house": {
+      "file": "icons/house.png",
+      "sha256": "bc441c034338780e24336dd7bf7021c6f55f182c95cb304abfab8b831f09b2c6"
+    },
+    "ice": {
+      "file": "icons/ice.png",
+      "sha256": "858bb2f5bc0814dad9ab2fcf7244ccd9f37a5fcb14ef6fddd80244274b2ac992"
+    },
+    "important": {
+      "file": "icons/important.png",
+      "sha256": "7285ed905b9787554930931942da6a6010ee11df7f71bcdfaaaa549fd053fce3"
+    },
+    "inside": {
+      "file": "icons/inside.png",
+      "sha256": "5ea7d22e2474582bfe932325bf606f09926a6e47e6a04a45cdaf435f9b577aba"
+    },
+    "into": {
+      "file": "icons/into.png",
+      "sha256": "28c5fe7ad5734aa5d52fb8dc02370c6829401de1df940a98b9a943cf0759954e"
+    },
+    "island": {
+      "file": "icons/island.png",
+      "sha256": "3765ab41526686bd50249ed7aa05de59ab161f28e65e20a1586d83ed162aa0ad"
+    },
+    "jump": {
+      "file": "icons/jump.png",
+      "sha256": "0942ec0c2bebe8f13a1f22af71c2fab0ccd251668f777e582fc3cf7c9860e282"
+    },
+    "jump_maybe": {
+      "file": "icons/jump_maybe.png",
+      "sha256": "1d92bb54237b6f539b63431091253abde395174e6f9a8e3eba838424c9785ab4"
+    },
+    "junction": {
+      "file": "icons/junction.png",
+      "sha256": "3a96945a8f9c3c7c5a3624edb742b0d98820e073df1931e558a327b5cf1a6a34"
+    },
+    "keep_in": {
+      "file": "icons/keep_in.png",
+      "sha256": "ee8d16a1a8b3aec2350078665d046b26291640917394691adf9deb19a6da3539"
+    },
+    "keep_left": {
+      "file": "icons/keep_left.png",
+      "sha256": "5762b3ba06569695b51dbff212015c762b2657d7dbaf087d31be73254aaf946f"
+    },
+    "keep_middle": {
+      "file": "icons/keep_middle.png",
+      "sha256": "08213d449445cd4a3ff15df27a52eb1fbe2effb684ef15c128371b2f2d41a457"
+    },
+    "keep_out": {
+      "file": "icons/keep_out.png",
+      "sha256": "d611504759dd3fd19c0fc1899738e7508e0caa88d03ca1c53c5eedbd3c7f3d42"
+    },
+    "keep_right": {
+      "file": "icons/keep_right.png",
+      "sha256": "77b41dc09645dbbd863c1a7315b7ce5fcc0dc2bc888f25a3a06ad9067cbcd16b"
+    },
+    "kinks": {
+      "file": "icons/kinks.png",
+      "sha256": "3915cc73a86f59d4884fdb97a7f7c808c8e9e0496b2b5990c093567d86dee51a"
+    },
+    "late": {
+      "file": "icons/late.png",
+      "sha256": "2d4f211c4218b6a7a8b720cc8a4a9353ccddbb3e1bd912ee480b152380f4090a"
+    },
+    "left": {
+      "file": "icons/left.png",
+      "sha256": "7697ee6e2fd18631312b7a34e53acfce8068a84e65f52413ff6b5ecf5622de61"
+    },
+    "left_acute": {
+      "file": "icons/left_acute.png",
+      "sha256": "33a26e0199e1a415fc1204c4c2cc73178b69b2feb34f031cb17c303fe9bcd559"
+    },
+    "left_entry_chicane": {
+      "file": "icons/left_entry_chicane.png",
+      "sha256": "19bc81242d72d6e2aab97078c1fd60fbf0752f2927f369beef0e7a537b77c771"
+    },
+    "lift": {
+      "file": "icons/lift.png",
+      "sha256": "83bf10f69d5ac87ccb237775d0c6dad2e6c999dc07dcad750d69a58964f6afca"
+    },
+    "light": {
+      "file": "icons/light.png",
+      "sha256": "a48a4d93330d54d57bafdcd6955f9a8b89d39a3613cdd5feb61ddb577a0858c6"
+    },
+    "little": {
+      "file": "icons/little.png",
+      "sha256": "6707937164401a69635824187bc14c2053113eb419a96f6e137a1d84a0163382"
+    },
+    "logs": {
+      "file": "icons/logs.png",
+      "sha256": "c8f1e3382ed3962dbdb312856b5040984d8efd96e0938faa83df8248196157ee"
+    },
+    "logs_inside": {
+      "file": "icons/logs_inside.png",
+      "sha256": "4463fe4fbbaec20493aaa2426e08c173ae8e80a3265a4abfcbb5916069a92598"
+    },
+    "logs_outside": {
+      "file": "icons/logs_outside.png",
+      "sha256": "d285c0237ce5acc083d509a970f79ec6c2694f7e36766ea7bf1343c4d75bb8f1"
+    },
+    "long": {
+      "file": "icons/long.png",
+      "sha256": "7cccb6c2bffdb88f19687a8a9fdfa6f0485779cca7d075a3d366fc37da949f56"
+    },
+    "long_crest": {
+      "file": "icons/long_crest.png",
+      "sha256": "0b39731de3b8e2d50edc4a34cebd2b009e1b271da53a76381855c4c93a595602"
+    },
+    "loose_gravel": {
+      "file": "icons/loose_gravel.png",
+      "sha256": "260e79c52f62b06257e09733d1d2d3887ce077faae9f18d1400b126156480d97"
+    },
+    "many": {
+      "file": "icons/many.png",
+      "sha256": "600f4848a3b94d55b6cca98c8ac8a8724c6853e0fdcab8a432db9b5843874d6d"
+    },
+    "marshalls": {
+      "file": "icons/marshalls.png",
+      "sha256": "84d5a78fb8a0ddce4becbb6a41a643cb5172c7d8358fd36d6acd5172927c7713"
+    },
+    "maybe": {
+      "file": "icons/maybe.png",
+      "sha256": "a4e5ed1786cd213b20e56076329b082cfc55f7de58cd39f95cdf064f4aa64270"
+    },
+    "minus": {
+      "file": "icons/minus.png",
+      "sha256": "05ded2715f0f6212da8341c616400acee061fc9f5d04b12ccb087a85fc688d24"
+    },
+    "more": {
+      "file": "icons/more.png",
+      "sha256": "9f60cfde823e06b0e7d8688eee5cdadaf886fdd6ec7e6f08009992b6fdcb70bc"
+    },
+    "much": {
+      "file": "icons/much.png",
+      "sha256": "86f271a798c87999319d7d4fa4f42433aaf7cb27eec4bc7da5a633964daa92d5"
+    },
+    "narrow": {
+      "file": "icons/narrow.png",
+      "sha256": "0b2f07d5ed4000a9db9e31c22f8496e41e46f22568636a0a3caf801d63b71979"
+    },
+    "narrows": {
+      "file": "icons/narrows.png",
+      "sha256": "dff81869bb64a7edf0947bb68f1e6055af5abb0b3165840106e5c418b53cfa25"
+    },
+    "near": {
+      "file": "icons/near.png",
+      "sha256": "31117884bc2c18e8703cd3ace035be754ada9df78ba90378711e418458ab16a4"
+    },
+    "neat": {
+      "file": "icons/neat.png",
+      "sha256": "f7a977d56a77b982c1adc00a5dc9727fc3dae339975a11d369e9d1961f3aeae1"
+    },
+    "onto": {
+      "file": "icons/onto.png",
+      "sha256": "e2b3f6ebfa99c5d0224d07b4b6c203c07b29b9b608ec5a8f7b436032e053b3f2"
+    },
+    "open_hairpin": {
+      "file": "icons/open_hairpin.png",
+      "sha256": "4aa8e28f9b0823f0a951ae049c9f0473e6c9d7e8f024aef948bcc873f91298c8"
+    },
+    "open_hairpin_left": {
+      "file": "icons/open_hairpin_left.png",
+      "sha256": "5f6cee64a0ac407fddc15d9bd2f810d385f9945da62b0d7d5ea935e6306bfbe7"
+    },
+    "open_hairpin_right": {
+      "file": "icons/open_hairpin_right.png",
+      "sha256": "5cd842423395ce053d1efebf7fc01a7b3464dfd65158b8eb049bbf7baad7363d"
+    },
+    "opens": {
+      "file": "icons/opens.png",
+      "sha256": "c3a5b51878cc3f8a7db326766c635ad03445f96662b612579968c0c255e1ae70"
+    },
+    "opens_and_tightens": {
+      "file": "icons/opens_and_tightens.png",
+      "sha256": "77c0b2a0028de17f370f34930f6c4f46e4f66538c1379715732523433f725817"
+    },
+    "opens_to": {
+      "file": "icons/opens_to.png",
+      "sha256": "db7b5b6bc08463a2e61c8c8a5027a13bb8ab5455d64f2cebb62d1bb35d07e636"
+    },
+    "opens_to_1": {
+      "file": "icons/opens_to_1.png",
+      "sha256": "6825c2fc4120bf1524d9964b53fa9a563f2c4e882e36699bba52239e0f81f192"
+    },
+    "opens_to_2": {
+      "file": "icons/opens_to_2.png",
+      "sha256": "07a5bc5c0a58483dd7ccc97705801cc247252bd354c4bdb71c45774ba0623405"
+    },
+    "opens_to_3": {
+      "file": "icons/opens_to_3.png",
+      "sha256": "61a3ad898a4cd9687c2e4562cf3f6c79164c457621d2761fef460b0382e38384"
+    },
+    "opens_to_4": {
+      "file": "icons/opens_to_4.png",
+      "sha256": "959153ae9a727c55ee80be9895c694bbea4e8e0d34f3a3178631b2bd0a3bedd1"
+    },
+    "opens_to_5": {
+      "file": "icons/opens_to_5.png",
+      "sha256": "77b7103db47974edd05c80806061af165174357c098171e430faacb318322f0c"
+    },
+    "opens_to_6": {
+      "file": "icons/opens_to_6.png",
+      "sha256": "2ca2f55e90f0dd4df74b7bfed3502c4116bd2fc6ee7a9f91f07522449b919244"
+    },
+    "opens_to_7": {
+      "file": "icons/opens_to_7.png",
+      "sha256": "5c27b5b4777c34bd94ba843e01b1b3c6c763b86faca7a9c5fa252bb07a3782f7"
+    },
+    "opens_to_acute": {
+      "file": "icons/opens_to_acute.png",
+      "sha256": "d32cb75e562445c1cb93d86acd9495916e92117dc259b561895c085563a74fc5"
+    },
+    "opens_to_flat": {
+      "file": "icons/opens_to_flat.png",
+      "sha256": "5c27b5b4777c34bd94ba843e01b1b3c6c763b86faca7a9c5fa252bb07a3782f7"
+    },
+    "opens_to_hairpin": {
+      "file": "icons/opens_to_hairpin.png",
+      "sha256": "f03c80f5c13732413396f8c9c98d5a7d6f9e8ba0ea7cbc7f7507c3bb844194fe"
+    },
+    "opens_to_square": {
+      "file": "icons/opens_to_square.png",
+      "sha256": "3dee153d9bbddc891542e67881b9a8629918141b3520ce3431f2795be53b07e7"
+    },
+    "outside": {
+      "file": "icons/outside.png",
+      "sha256": "007eddbc92aee2dd081ee418cd98bc6dee9596238b1b5b865c41ace2257443c9"
+    },
+    "outtrack": {
+      "file": "icons/outtrack.png",
+      "sha256": "acc36dd7c87844583f3d562bac8fb43a580431988a638338a023814415b50171"
+    },
+    "over": {
+      "file": "icons/over.png",
+      "sha256": "a0e1738194aa44b8e9d856e6d4d9a3a84fcfd0cc04542805ac8f33513c5852b0"
+    },
+    "over_big_bumps": {
+      "file": "icons/over_big_bumps.png",
+      "sha256": "788fc420d7e8b5bc44c6f203b4b11011596d6cb295314611fb0fa6e10eadcbd4"
+    },
+    "over_big_crest": {
+      "file": "icons/over_big_crest.png",
+      "sha256": "1b678c24df572c1cec3b0fc9cf46bf1f99ccda8f13cdade3372c5a3fd3a8d643"
+    },
+    "over_big_jump": {
+      "file": "icons/over_big_jump.png",
+      "sha256": "a9888e8def1591fa3a51e8e6e98e0ab83a67c917d6390f5aee78eb1dfe7a653e"
+    },
+    "over_bridge": {
+      "file": "icons/over_bridge.png",
+      "sha256": "ab9b1c60e32e2d79d4688a80ad1b1c176fe7cf822e53da07f18c0fc5517528c1"
+    },
+    "over_bumps": {
+      "file": "icons/over_bumps.png",
+      "sha256": "a903f7a66bac3ea7e69e8ad10429d0e7f69816e92f548464122bac94a04cc62c"
+    },
+    "over_crest": {
+      "file": "icons/over_crest.png",
+      "sha256": "a9017430b86f4ea62f6e8ae6be2fc655d71515c291eae95941005ea797d3f845"
+    },
+    "over_dip": {
+      "file": "icons/over_dip.png",
+      "sha256": "396bc18fee0bdd76670da8dc96e6ba3d95b1b09f6d95ef1adfc5d67bf34969bc"
+    },
+    "over_double_crest": {
+      "file": "icons/over_double_crest.png",
+      "sha256": "203c920c0c2091532dfed1b9857837deefde2ff55e51df0ac636c40f60f82fcf"
+    },
+    "over_double_jump": {
+      "file": "icons/over_double_jump.png",
+      "sha256": "54bf3377f776e75bcb5f6043bba54d8b2af1f883539ff5aaf3bfd180817c3c76"
+    },
+    "over_grid": {
+      "file": "icons/over_grid.png",
+      "sha256": "8697dee123b41c9a24cd11de085c6c298cf04724cb62c9c44e07c0dd20ea5ff1"
+    },
+    "over_jump": {
+      "file": "icons/over_jump.png",
+      "sha256": "cee0299e583721a6f0c2c24e5cdc71394c4581568cd9ff45e7c65de3673c8928"
+    },
+    "over_logs": {
+      "file": "icons/over_logs.png",
+      "sha256": "a8cae51cffe372b6d639e69eaef438459c666474e26e95f02a92a71948bb34e3"
+    },
+    "over_long_crest": {
+      "file": "icons/over_long_crest.png",
+      "sha256": "d6cb0fb7aaa1a371100dda17262896adb9d3d6b60e93a0e12fc35a65e91adf5a"
+    },
+    "over_narrow_bridge": {
+      "file": "icons/over_narrow_bridge.png",
+      "sha256": "6208f3f2d314908b24be99f76649119f692e33ff3c3b59b73df6e1249daeba2a"
+    },
+    "over_small_bumps": {
+      "file": "icons/over_small_bumps.png",
+      "sha256": "3df567fa7992d2a93ca4f96cc3778a854b054ae612110305b96829873ed2900f"
+    },
+    "over_small_crest": {
+      "file": "icons/over_small_crest.png",
+      "sha256": "c420ca87aa32c63d783f24146640e6f8addcc38f8fc5e81df6262e1b6191e215"
+    },
+    "over_small_jump": {
+      "file": "icons/over_small_jump.png",
+      "sha256": "d07d1bbac71cec6db7435f64316143fccfde40367da78524a008b22ebb6fc612"
+    },
+    "over_very_long_crest": {
+      "file": "icons/over_very_long_crest.png",
+      "sha256": "ccac0ebf051336e6b5fc310dc83fd6db2aac7408909967b6132e2afe4f72af0a"
+    },
+    "pass_junction": {
+      "file": "icons/pass_junction.png",
+      "sha256": "c584cbebde290263acfbbf4551beb80be236bd14b0b3e8e3a72c03e7dcae7c9e"
+    },
+    "patchy": {
+      "file": "icons/patchy.png",
+      "sha256": "b9e1e694eed3ffe6d826c342a47c2a2df28403285a639453b63e9f1162a86bcc"
+    },
+    "patient": {
+      "file": "icons/patient.png",
+      "sha256": "ed9c7c6dc0bbd72998a7c0f39776a4bf8dc6aed7a9a34b982b68b086e717b2fd"
+    },
+    "plus": {
+      "file": "icons/plus.png",
+      "sha256": "67c5411da9eed665f1d2a2e1646dec05bd8883e71405bb397ee051f723c599d9"
+    },
+    "post": {
+      "file": "icons/post.png",
+      "sha256": "b0e3c2fff0ade681989885d1c84933c2650c067eb48acc9c3a3b2c648305bd47"
+    },
+    "post_inside": {
+      "file": "icons/post_inside.png",
+      "sha256": "b6847360f5d20cb5f1e895f0f41a57298b21d67f590f6683ce4867ba8a251419"
+    },
+    "post_outside": {
+      "file": "icons/post_outside.png",
+      "sha256": "6fc9b2f6db1bc1707f1142892d1ad33630673a2535e3ffaf58621e4ca9e02f15"
+    },
+    "puncture_front_left": {
+      "file": "icons/puncture_front_left.png",
+      "sha256": "739da43dcad06c53da5d72cd5d6a7100f54b91bb23fbc053339b564401e6b629"
+    },
+    "puncture_front_right": {
+      "file": "icons/puncture_front_right.png",
+      "sha256": "c9f52337923cadc97f40c8b57609ae6f494a59daa90524eace6b3d01ad6d70ae"
+    },
+    "puncture_rear_left": {
+      "file": "icons/puncture_rear_left.png",
+      "sha256": "96840375330f6880732847a4a52d97e52c2d07c4f3f90ec2d84412af9510523d"
+    },
+    "puncture_rear_right": {
+      "file": "icons/puncture_rear_right.png",
+      "sha256": "7df511ab9c09dd9900864e2acce4a0bb12c7143b58b623e16f5b240610c52c46"
+    },
+    "rails": {
+      "file": "icons/rails.png",
+      "sha256": "48d1ca42810ed88946b39f26732960926d5125d7f3603a4b423eea113232f32c"
+    },
+    "remember": {
+      "file": "icons/remember.png",
+      "sha256": "569b97f1dbef735e55e236961e7bb9dfddd18b20087b8db56f4ade50c129dfbf"
+    },
+    "retired": {
+      "file": "icons/retired.png",
+      "sha256": "bbb4314a33bde3a7d069f0c6683843fa921b9c8dc0e41cb3e6d78c34dc9a5ef4"
+    },
+    "reverse_donut": {
+      "file": "icons/reverse_donut.png",
+      "sha256": "c2055a6fb186daf9ee87a9ac1bfb3e7a7bf2dc4cfe0871023825779536491fb7"
+    },
+    "right": {
+      "file": "icons/right.png",
+      "sha256": "9350c0ce6aa3b2cd8dbbebc79ee2787f08a85a048ba54f855ee357a097ee439e"
+    },
+    "right_acute": {
+      "file": "icons/right_acute.png",
+      "sha256": "e4b11c78b2a4a96d8b02533bc43d97aac6e282ee7f111d3cdee4306ec6863aeb"
+    },
+    "right_entry_chicane": {
+      "file": "icons/right_entry_chicane.png",
+      "sha256": "bfb2e5d653d24e5810d476a23dc55ab7f32770e6416c5b8466e91be886dcc562"
+    },
+    "rocks": {
+      "file": "icons/rocks.png",
+      "sha256": "de0575fdcbe636f1b9305baa4a6ebbce80dc81956d3b748860b26ff58c04c45d"
+    },
+    "rocks_inside": {
+      "file": "icons/rocks_inside.png",
+      "sha256": "d15234f0ce53945e89688a52d2b0f99c761de8e11f8a3ffa8116a84cad26fda2"
+    },
+    "rocks_outside": {
+      "file": "icons/rocks_outside.png",
+      "sha256": "c9f617d36a601f9fe20b1e916ed3e40aa92f07ae58a81a8e354596bb16520621"
+    },
+    "rotate": {
+      "file": "icons/rotate.png",
+      "sha256": "3f0c0bd1b027e5d95c80aff20051a4f20673c4ce5eb32261f003c98ea6db8870"
+    },
+    "rough": {
+      "file": "icons/rough.png",
+      "sha256": "9ab8ff26bfa94ac15c438233fd8a064df8f49cf5d5dd6f8bfdc9d8ca22b79c50"
+    },
+    "roundabout": {
+      "file": "icons/roundabout.png",
+      "sha256": "1da09b25972497b681167a128c0b2d9eb58711f8820261034354cf30bb8a8993"
+    },
+    "ruts": {
+      "file": "icons/ruts.png",
+      "sha256": "19771e69fb95e60a0c4d0495af1405e2ac46974037030a92b69844927c495cee"
+    },
+    "sharp": {
+      "file": "icons/sharp.png",
+      "sha256": "a095d45e92fae7716af8c34d616940439ede91e50088115fee7976a8ef422c1c"
+    },
+    "short": {
+      "file": "icons/short.png",
+      "sha256": "46f4e77d7c0b7fe3d8c62dff6ff6251bdc117773a925cf65824f8c3bd5221de8"
+    },
+    "shoulder": {
+      "file": "icons/shoulder.png",
+      "sha256": "f40104f33de427f3452497a852d060bfb4ce610b8c33a35c0c4e7399a0ac47e7"
+    },
+    "sign": {
+      "file": "icons/sign.png",
+      "sha256": "93d229975ec07a556457a5628d6e77f780f9298e77fd2805173da70e49308719"
+    },
+    "slight_left": {
+      "file": "icons/slight_left.png",
+      "sha256": "7697ee6e2fd18631312b7a34e53acfce8068a84e65f52413ff6b5ecf5622de61"
+    },
+    "slight_right": {
+      "file": "icons/slight_right.png",
+      "sha256": "9350c0ce6aa3b2cd8dbbebc79ee2787f08a85a048ba54f855ee357a097ee439e"
+    },
+    "slightly": {
+      "file": "icons/slightly.png",
+      "sha256": "9a596cd36855b84690cd0ee571eb92ecb912757c17c6bf69b3526fd2d5e84958"
+    },
+    "slippery": {
+      "file": "icons/slippery.png",
+      "sha256": "4a60fd35733885a9bc8fb39c40d92f7b3105d2016979e01287c1c3b2c6afb116"
+    },
+    "slope": {
+      "file": "icons/slope.png",
+      "sha256": "333f4f15ee49cb7e5786a086bc95055dae0abb12bb36beca1fb876a78f52ab60"
+    },
+    "slow": {
+      "file": "icons/slow.png",
+      "sha256": "2a9f07175ab49eaeb10d74760beced32320cc62bda50229c755f1ec0eae4cad7"
+    },
+    "slowing": {
+      "file": "icons/slowing.png",
+      "sha256": "e7e46ae0f2cc09df46c79e2231e16ee46a5d784dc70d033f33d02b58aee7de1c"
+    },
+    "small": {
+      "file": "icons/small.png",
+      "sha256": "92ea8ec090d4c51f3e6a6427feee24a773bff77936a6b426a02ee1d04333a416"
+    },
+    "small_crest": {
+      "file": "icons/small_crest.png",
+      "sha256": "096748e7b4fd91003a636c308c87215251b1c6f2b229e973853bed83956b6f8f"
+    },
+    "small_cut": {
+      "file": "icons/small_cut.png",
+      "sha256": "07464cd16cf1859e413e5e2fc3e9d869eff3d7c3a83384275b1b8a8a797bf6f7"
+    },
+    "small_jump": {
+      "file": "icons/small_jump.png",
+      "sha256": "ca63a985c2c397c11f18a662e5f6d0ba990a0fb06e673cc3b913cca5a7514a06"
+    },
+    "snow": {
+      "file": "icons/snow.png",
+      "sha256": "dc79b2120a7455656ac7544edab1a62b8214316887951b527dcdc0e9637f0f60"
+    },
+    "spectators": {
+      "file": "icons/spectators.png",
+      "sha256": "f599d18bbb63a14eea7c4e5486d48485b97b3f0f14a6406e6bd0f217da3e7d77"
+    },
+    "square": {
+      "file": "icons/square.png",
+      "sha256": "1471865a1da931b26aa482c988879294a828ff41ce7a91cd882c1c6df6fd2eb1"
+    },
+    "square_left": {
+      "file": "icons/square_left.png",
+      "sha256": "6a61a1d153bfe997b05c7d1061e4e8bb3172f21642fbde46a8a1873bb045a931"
+    },
+    "square_right": {
+      "file": "icons/square_right.png",
+      "sha256": "659c70730b239058049d52e5af005cec213fbaa8bef927f8b1de7921890b2050"
+    },
+    "stake": {
+      "file": "icons/stake.png",
+      "sha256": "7e91fddb34c9d11537eef866a9ba0a54297f8b9184e14bca06dab59a26b2c9c9"
+    },
+    "stake_inside": {
+      "file": "icons/stake_inside.png",
+      "sha256": "8e55db021aa028db42bcfc4863cac4524960b9c1871afa8add2e5368b82d9145"
+    },
+    "stake_outside": {
+      "file": "icons/stake_outside.png",
+      "sha256": "b96e3ad17ed64ba42afbd62e924daf0add808aec855f5a665ddbd7d55b65db0c"
+    },
+    "start_stage": {
+      "file": "icons/start_stage.png",
+      "sha256": "81a574e77a8a8cdb7122cf32e50c0050fb50e8a52a7552ab282c32f1cbc046b1"
+    },
+    "steep": {
+      "file": "icons/steep.png",
+      "sha256": "16538992a3e15a164f2eb2c3a5fba6d5402cec1217e050751bef530477f399b9"
+    },
+    "steep_hill": {
+      "file": "icons/steep_hill.png",
+      "sha256": "0bc93a2398c93baa765f1613616e2bd9922ff30e50f023377d363a00764d758c"
+    },
+    "steep_incline": {
+      "file": "icons/steep_incline.png",
+      "sha256": "c85cd16da2d431a708ad1691d0ee14cbbf7057c8413f9e875e0e0d5cb32917c1"
+    },
+    "steep_slope": {
+      "file": "icons/steep_slope.png",
+      "sha256": "40b6f5fb59791a1687307723798f1028c7d9918de1306616c8dd15fba4dd0773"
+    },
+    "stop": {
+      "file": "icons/stop.png",
+      "sha256": "c4fcbe0bc7002ff7403aca095db0798c5a617e7e03f2623d8a545d5c29fb0fce"
+    },
+    "straight": {
+      "file": "icons/straight.png",
+      "sha256": "e49f4396c80f4e3bd5934659b9f43bedd4a5528634400fff3a08dfb22bcec678"
+    },
+    "stump": {
+      "file": "icons/stump.png",
+      "sha256": "1be08c43d874ba0f857fe0bea358aad1bcf679d3f7cefb7cb4f1a9576687ba1b"
+    },
+    "sudden": {
+      "file": "icons/sudden.png",
+      "sha256": "d71458adeb7bc403fba7d8de908166710ce221b461b2ac4b08b79a1199ed1c10"
+    },
+    "take_speed": {
+      "file": "icons/take_speed.png",
+      "sha256": "3c6022a68b1df0bd9a1df4d4e41c74657799f4c30f1810b12cbd9352086e305d"
+    },
+    "tape": {
+      "file": "icons/tape.png",
+      "sha256": "34da226f27e38cd659b91cdd990dc61453c1ee713aec96df7537200ab7de877d"
+    },
+    "tarmac": {
+      "file": "icons/tarmac.png",
+      "sha256": "10c70c2068653cd726ba5b270b6ef92ad9e5a5b840d9e78231d1265104195a19"
+    },
+    "then": {
+      "file": "icons/then.png",
+      "sha256": "a3e88b0ff824d4f181bad66de53429284f98df2be7c43bf993455d04ec7e9565"
+    },
+    "through": {
+      "file": "icons/through.png",
+      "sha256": "01547b539689ea1f54371745ce2d24f4e6b11367378c734cde1c33dc91bb6412"
+    },
+    "through_bush": {
+      "file": "icons/through_bush.png",
+      "sha256": "4836fa6c9252bfa71d36a11f65a950279fc2f2f49221dbc179e81e716fa3ce1b"
+    },
+    "through_dip": {
+      "file": "icons/through_dip.png",
+      "sha256": "bbbc6d1cdd251c1fa4232b4bb65968f0295c6a697c13f66d0415adf1a6b50732"
+    },
+    "through_gate": {
+      "file": "icons/through_gate.png",
+      "sha256": "e1632511cb14c19028c70e0e53762708643aa955baa3bbfe62b8d05266e27baf"
+    },
+    "through_grid": {
+      "file": "icons/through_grid.png",
+      "sha256": "ca12d4ccf35d21849194d5da5028c41682677a090f6e8406ee613dfc1f2f2190"
+    },
+    "through_houses": {
+      "file": "icons/through_houses.png",
+      "sha256": "7cad54dcfb07f33fb7e6adb3825ca55ce39b10daae290e3c5484f7df37cabd6f"
+    },
+    "through_junction": {
+      "file": "icons/through_junction.png",
+      "sha256": "0fead02b9d119263e9207dfbac41710390ba3a598f60b655c4cbf16554da5ec3"
+    },
+    "through_logs": {
+      "file": "icons/through_logs.png",
+      "sha256": "b56a1a23d104b793958beed97ed0a11552fff8a6ca0f50363e019ba95b62d40b"
+    },
+    "through_narrow_gate": {
+      "file": "icons/through_narrow_gate.png",
+      "sha256": "54cf8b510cff90292e387176beb7783da2ccec03070a5711d3b718a44f563d7d"
+    },
+    "through_narrow_grid": {
+      "file": "icons/through_narrow_grid.png",
+      "sha256": "81679352f037cd9ae1fcc01d090951cea18acee47315c1ec502a4684ac4a7135"
+    },
+    "through_posts": {
+      "file": "icons/through_posts.png",
+      "sha256": "90cca40627884be8e74958731342b2c84caa00b61af4c63a57c675d53a699755"
+    },
+    "through_tunnel": {
+      "file": "icons/through_tunnel.png",
+      "sha256": "2d19f6c1965ff90802e5c6da512e7cfe4cc1158a480a278010fb4afd3c46cabe"
+    },
+    "tightens": {
+      "file": "icons/tightens.png",
+      "sha256": "b31544e32e264a16c6f2c0232115cb7e9de0975a5a14402b6f0ce75489497d67"
+    },
+    "tightens_bad": {
+      "file": "icons/tightens_bad.png",
+      "sha256": "ac74cebef759f96016826b3e3b998b78b371af532409ba8678c7dfbd437546ab"
+    },
+    "tightens_to": {
+      "file": "icons/tightens_to.png",
+      "sha256": "1bee5e57ce67a3213412d21f20a3e3528323d8927c49964ed3b53a6bc840a0e7"
+    },
+    "tightens_to_1": {
+      "file": "icons/tightens_to_1.png",
+      "sha256": "4f7623f44425fd4a6b82ac6d7dc0b4ded35e942574d26e1386c692094d92b11a"
+    },
+    "tightens_to_2": {
+      "file": "icons/tightens_to_2.png",
+      "sha256": "90b6876512d7f73c23e5e3fb47cc49c26160205f0efb5d12af36c2cd147365ee"
+    },
+    "tightens_to_3": {
+      "file": "icons/tightens_to_3.png",
+      "sha256": "a8df7274a370373095d90fc1b6844be7d81354390b7680187cad07b2127ad1f1"
+    },
+    "tightens_to_4": {
+      "file": "icons/tightens_to_4.png",
+      "sha256": "941047b606bbb01a1b05314fecd2a94e7ab2e4f26b1b925cf6b48c0f3b449337"
+    },
+    "tightens_to_5": {
+      "file": "icons/tightens_to_5.png",
+      "sha256": "c847f18f3f3b2636069e46b8f846cabbbec2026ee6320e82996d8bc62f71de21"
+    },
+    "tightens_to_6": {
+      "file": "icons/tightens_to_6.png",
+      "sha256": "38cd5f82fd3e29c63b177481e0e4eb2612ce2e03d1cf89047d9c3af60595b3d7"
+    },
+    "tightens_to_7": {
+      "file": "icons/tightens_to_7.png",
+      "sha256": "7825693167ba764930a9bc367bd35048e4e2844a7ea7e514d5ea1043d15203ce"
+    },
+    "tightens_to_acute": {
+      "file": "icons/tightens_to_acute.png",
+      "sha256": "93ee9ee3c6315837de849f8c8041bf141c84f237d2da3589913727bbd4976b2f"
+    },
+    "tightens_to_hairpin": {
+      "file": "icons/tightens_to_hairpin.png",
+      "sha256": "d42f1c3c75a9989625b282b74ef2c37e750885c20f18ba27385d865f1c034559"
+    },
+    "tightens_to_squre": {
+      "file": "icons/tightens_to_squre.png",
+      "sha256": "0dff6767ac9884a3f3496aba4303f182ece384cfddef7f26261f062eac30713f"
+    },
+    "tree": {
+      "file": "icons/tree.png",
+      "sha256": "0eaaf8777e160a63749b75eaa4bfa293aab87e1bd3a4f14e47e44bd3ea099fba"
+    },
+    "tree_inside": {
+      "file": "icons/tree_inside.png",
+      "sha256": "5b7717b25542a66aadb04b962a87fb74c950bd31e528e325d14cadb65f5f6ea7"
+    },
+    "tree_outside": {
+      "file": "icons/tree_outside.png",
+      "sha256": "3734eab6445203ceb09fe326f6e828b21720cb86dc4575f07eab01c57c454f01"
+    },
+    "triple": {
+      "file": "icons/triple.png",
+      "sha256": "5e6910ea0d11e55a061ff2ad656fad1d37135c89ff8fe1f180f18b063330eab8"
+    },
+    "triple_caution": {
+      "file": "icons/triple_caution.png",
+      "sha256": "f2b659b021f973095e798bcea8b6ab122f84c79f9e53188806db09b47c589b9e"
+    },
+    "trust": {
+      "file": "icons/trust.png",
+      "sha256": "4db8c2ce7c7f880e2512ef2ee47112ad535fb23a078e46617becfbc077e49f17"
+    },
+    "tunnel": {
+      "file": "icons/tunnel.png",
+      "sha256": "e3d3dd08aa0d9dd87d3d4837f9a58b4b36a2475964f9ac8e213e4cbbaa06adaf"
+    },
+    "turn": {
+      "file": "icons/turn.png",
+      "sha256": "f87ee40ec227f330c3522ff8606bd6dc9c102f50e3884ac70fa32919d4e28c88"
+    },
+    "twisty": {
+      "file": "icons/twisty.png",
+      "sha256": "cd2fcd0b166e860bf0c498c542e3d2de9ab9846a1310ed86b233a70a5816cf18"
+    },
+    "twisty_left": {
+      "file": "icons/twisty_left.png",
+      "sha256": "baf88ce33fc7d33aa5f5a2213a3ccd71ec5f149afc5e4fada3fbe46b5a3fe569"
+    },
+    "twisty_right": {
+      "file": "icons/twisty_right.png",
+      "sha256": "2429dffacf74722d3a8cf64d1e0ef530c3c32b4ba4a2b906f9cbb2cd2fd36a0e"
+    },
+    "tyres": {
+      "file": "icons/tyres.png",
+      "sha256": "ab270fd94c5d6e5bcc04eb28677cb068e84801c25568554771c9a7ba542da22a"
+    },
+    "understeer": {
+      "file": "icons/understeer.png",
+      "sha256": "aec301f6ce7f6c2730e05f37afc2df12fd135d444bc709d9185b14aab6a343db"
+    },
+    "unseen": {
+      "file": "icons/unseen.png",
+      "sha256": "6b777d84acaabcca09bcf11701aa16f9b4fc2fe085ed336a8a24cdec9ef288fc"
+    },
+    "until": {
+      "file": "icons/until.png",
+      "sha256": "b8d69594f367ddebf4541819562a0ed5e0a194a6f31578988d135916236caee8"
+    },
+    "uphill": {
+      "file": "icons/uphill.png",
+      "sha256": "c97f296451fe61ee8336d022dcbb2093accc8718e3f7ff6b2787579f5d408bda"
+    },
+    "very": {
+      "file": "icons/very.png",
+      "sha256": "61d6b7c781d513cdb4a52999908244cd49e0058e5d6d1b0b75f08d690c8e0ca5"
+    },
+    "verylong": {
+      "file": "icons/verylong.png",
+      "sha256": "8478dc6e9f9ec4fd8f7abdecdd46f3d21bc36e3ec5adfcce6fc95be0ea82f756"
+    },
+    "walk": {
+      "file": "icons/walk.png",
+      "sha256": "352fa69afb2f27eafb5baf5c008d13b43a1fad552b68dc5f2ec826c57293cc8c"
+    },
+    "wall": {
+      "file": "icons/wall.png",
+      "sha256": "6175e8f0eff80a7422b049052e4ae8fc0b8d021828f5f98420829585e4b0bec3"
+    },
+    "wall_inside": {
+      "file": "icons/wall_inside.png",
+      "sha256": "0449d4d343eb63f4b6e73773d70ab5522f7b431225dd410fd795c7b9669aa784"
+    },
+    "wall_outside": {
+      "file": "icons/wall_outside.png",
+      "sha256": "7f4992ae383cffcd92de05189a065b3b1e9b58e633fe087d36500ccc33cff36e"
+    },
+    "widens": {
+      "file": "icons/widens.png",
+      "sha256": "fe6ed9c6cee287d3267a76b7210697f4a0ca74c6a791171547e56dd5913c88d8"
+    }
+  },
+  "aliases": {
+    "1": "1",
+    "100": "100",
+    "1000": "1000",
+    "110": "110",
+    "120": "120",
+    "130": "130",
+    "140": "140",
+    "150": "150",
+    "160": "160",
+    "170": "170",
+    "180": "180",
+    "190": "190",
+    "1_left": "1_left",
+    "1_right": "1_right",
+    "2": "2",
+    "20": "20",
+    "200": "200",
+    "210": "210",
+    "220": "220",
+    "230": "230",
+    "240": "240",
+    "250": "250",
+    "260": "260",
+    "270": "270",
+    "280": "280",
+    "290": "290",
+    "2_left": "2_left",
+    "2_right": "2_right",
+    "3": "3",
+    "30": "30",
+    "300": "300",
+    "350": "350",
+    "3_left": "3_left",
+    "3_right": "3_right",
+    "4": "4",
+    "40": "40",
+    "400": "400",
+    "450": "450",
+    "4_left": "4_left",
+    "4_right": "4_right",
+    "5": "5",
+    "50": "50",
+    "500": "500",
+    "5_left": "5_left",
+    "5_right": "5_right",
+    "6": "6",
+    "60": "60",
+    "600": "600",
+    "6_left": "6_left",
+    "6_right": "6_right",
+    "7": "7",
+    "70": "70",
+    "700": "700",
+    "7_left": "7_left",
+    "7_right": "7_right",
+    "80": "80",
+    "800": "800",
+    "90": "90",
+    "900": "900",
+    "acute": "acute",
+    "after": "after",
+    "and": "and",
+    "around": "around",
+    "around_bales": "around_bales",
+    "around_bridge": "around_bridge",
+    "around_bush": "around_bush",
+    "around_roundabout": "around_roundabout",
+    "around_sign": "around_sign",
+    "around_the_sign": "around_sign",
+    "around_tree": "around_tree",
+    "at": "at",
+    "at_bush": "at_bush",
+    "at_junction": "at_junction",
+    "bad": "bad",
+    "bad_camber": "bad_camber",
+    "bad_dip": "bad_dip",
+    "bales": "bales",
+    "banner": "banner",
+    "between_bales": "between_bales",
+    "big": "big",
+    "big_crest": "big_crest",
+    "big_cut": "big_cut",
+    "big_jump": "big_jump",
+    "border": "border",
+    "brake": "brake",
+    "brave": "brave",
+    "bridge": "bridge",
+    "bumps": "bumps",
+    "bush": "bush",
+    "camber": "camber",
+    "care": "care",
+    "caution": "caution",
+    "chicane": "chicane",
+    "clip": "clip",
+    "cobble": "cobble",
+    "collision_medium": "collision_medium",
+    "collision_severe": "collision_severe",
+    "collision_slight": "collision_slight",
+    "concrete": "concrete",
+    "continues": "continues",
+    "corner_1_left": "1_left",
+    "corner_1_right": "1_right",
+    "corner_2_left": "2_left",
+    "corner_2_right": "2_right",
+    "corner_3_left": "3_left",
+    "corner_3_right": "3_right",
+    "corner_4_left": "4_left",
+    "corner_4_right": "4_right",
+    "corner_5_left": "5_left",
+    "corner_5_right": "5_right",
+    "corner_6_left": "6_left",
+    "corner_6_right": "6_right",
+    "corner_acute": "acute",
+    "corner_donut": "donut",
+    "corner_flat_left": "flat_left",
+    "corner_flat_right": "flat_right",
+    "corner_hairpin": "hairpin",
+    "corner_left": "left",
+    "corner_left_acute": "left_acute",
+    "corner_open_hairpin": "open_hairpin",
+    "corner_open_hairpin_left": "open_hairpin_left",
+    "corner_open_hairpin_right": "open_hairpin_right",
+    "corner_reverse_donut": "reverse_donut",
+    "corner_right": "right",
+    "corner_right_acute": "right_acute",
+    "corner_square": "square",
+    "corner_square_left": "square_left",
+    "corner_square_right": "square_right",
+    "corner_twisty_left": "twisty_left",
+    "corner_twisty_right": "twisty_right",
+    "countdown_1": "1",
+    "countdown_2": "2",
+    "countdown_3": "3",
+    "countdown_4": "4",
+    "countdown_5": "5",
+    "crest": "crest",
+    "curb": "curb",
+    "cut": "cut",
+    "dab": "dab",
+    "deceptive": "deceptive",
+    "deep": "deep",
+    "detail_7_left": "7_left",
+    "detail_7_right": "7_right",
+    "detail_after": "after",
+    "detail_and": "and",
+    "detail_around": "around",
+    "detail_around_bales": "around_bales",
+    "detail_around_bridge": "around_bridge",
+    "detail_around_bush": "around_bush",
+    "detail_around_roundabout": "around_roundabout",
+    "detail_around_sign": "around_sign",
+    "detail_around_the_sign": "around_sign",
+    "detail_around_tree": "around_tree",
+    "detail_at": "at",
+    "detail_at_bush": "at_bush",
+    "detail_at_junction": "at_junction",
+    "detail_bad": "bad",
+    "detail_bad_camber": "bad_camber",
+    "detail_bad_dip": "bad_dip",
+    "detail_bales": "bales",
+    "detail_banner": "banner",
+    "detail_between_bales": "between_bales",
+    "detail_big": "big",
+    "detail_big_crest": "big_crest",
+    "detail_big_cut": "big_cut",
+    "detail_big_jump": "big_jump",
+    "detail_border": "border",
+    "detail_brake": "brake",
+    "detail_brave": "brave",
+    "detail_bridge": "bridge",
+    "detail_bumps": "bumps",
+    "detail_bush": "bush",
+    "detail_camber": "camber",
+    "detail_care": "care",
+    "detail_caution": "caution",
+    "detail_chicane": "chicane",
+    "detail_clip": "clip",
+    "detail_cobble": "cobble",
+    "detail_concrete": "concrete",
+    "detail_continues": "continues",
+    "detail_crest": "crest",
+    "detail_curb": "curb",
+    "detail_cut": "cut",
+    "detail_dab": "dab",
+    "detail_deceptive": "deceptive",
+    "detail_deep": "deep",
+    "detail_dip": "dip",
+    "detail_directly": "directly",
+    "detail_dirty": "dirty",
+    "detail_distance_call": "distance_call",
+    "detail_ditches": "ditches",
+    "detail_ditches_inside": "ditches_inside",
+    "detail_ditches_outside": "ditches_outside",
+    "detail_dont_cut": "dont_cut",
+    "detail_double": "double",
+    "detail_double_caution": "double_caution",
+    "detail_downhill": "downhill",
+    "detail_draws_in": "draws_in",
+    "detail_drops": "drops",
+    "detail_drops_inside": "drops_inside",
+    "detail_drops_outside": "drops_outside",
+    "detail_dry": "dry",
+    "detail_early": "early",
+    "detail_easy": "easy",
+    "detail_edge": "edge",
+    "detail_entry": "entry",
+    "detail_exact": "exact",
+    "detail_exit": "exit",
+    "detail_extra": "extra",
+    "detail_extra_long": "extra_long",
+    "detail_extraextra_long": "extraextra_long",
+    "detail_fast": "fast",
+    "detail_fence": "fence",
+    "detail_fence_inside": "fence_inside",
+    "detail_fence_outside": "fence_outside",
+    "detail_fickle": "fickle",
+    "detail_finish": "finish",
+    "detail_flag": "flag",
+    "detail_flat": "flat",
+    "detail_ford": "ford",
+    "detail_from_left": "from_left",
+    "detail_from_right": "from_right",
+    "detail_gate": "gate",
+    "detail_go_straight": "go_straight",
+    "detail_good": "good",
+    "detail_gravel": "gravel",
+    "detail_grid": "grid",
+    "detail_hairpin_left": "hairpin_left",
+    "detail_hairpin_right": "hairpin_right",
+    "detail_half_long": "half_long",
+    "detail_handbrake": "handbrake",
+    "detail_hard": "hard",
+    "detail_hold": "hold",
+    "detail_hole": "hole",
+    "detail_hook": "hook",
+    "detail_house": "house",
+    "detail_ice": "ice",
+    "detail_important": "important",
+    "detail_inside": "inside",
+    "detail_into": "into",
+    "detail_island": "island",
+    "detail_jump": "jump",
+    "detail_jump_maybe": "jump_maybe",
+    "detail_junction": "junction",
+    "detail_keep_in": "keep_in",
+    "detail_keep_left": "keep_left",
+    "detail_keep_middle": "keep_middle",
+    "detail_keep_out": "keep_out",
+    "detail_keep_right": "keep_right",
+    "detail_kinks": "kinks",
+    "detail_late": "late",
+    "detail_left_entry_chicane": "left_entry_chicane",
+    "detail_lift": "lift",
+    "detail_light": "light",
+    "detail_little": "little",
+    "detail_logs": "logs",
+    "detail_logs_inside": "logs_inside",
+    "detail_logs_outside": "logs_outside",
+    "detail_long": "long",
+    "detail_long_crest": "long_crest",
+    "detail_longlong": "verylong",
+    "detail_loose_gravel": "loose_gravel",
+    "detail_many": "many",
+    "detail_marshalls": "marshalls",
+    "detail_maybe": "maybe",
+    "detail_minus": "minus",
+    "detail_more": "more",
+    "detail_much": "much",
+    "detail_narrow": "narrow",
+    "detail_narrows": "narrows",
+    "detail_near": "near",
+    "detail_neat": "neat",
+    "detail_onto": "onto",
+    "detail_opens": "opens",
+    "detail_opens_and_tightens": "opens_and_tightens",
+    "detail_opens_to": "opens_to",
+    "detail_opens_to_1": "opens_to_1",
+    "detail_opens_to_2": "opens_to_2",
+    "detail_opens_to_3": "opens_to_3",
+    "detail_opens_to_4": "opens_to_4",
+    "detail_opens_to_5": "opens_to_5",
+    "detail_opens_to_6": "opens_to_6",
+    "detail_opens_to_7": "opens_to_7",
+    "detail_opens_to_acute": "opens_to_acute",
+    "detail_opens_to_flat": "opens_to_flat",
+    "detail_opens_to_hairpin": "opens_to_hairpin",
+    "detail_opens_to_square": "opens_to_square",
+    "detail_outside": "outside",
+    "detail_outtrack": "outtrack",
+    "detail_over": "over",
+    "detail_over_big_bumps": "over_big_bumps",
+    "detail_over_big_crest": "over_big_crest",
+    "detail_over_big_jump": "over_big_jump",
+    "detail_over_bridge": "over_bridge",
+    "detail_over_bumps": "over_bumps",
+    "detail_over_crest": "over_crest",
+    "detail_over_dip": "over_dip",
+    "detail_over_double_crest": "over_double_crest",
+    "detail_over_double_jump": "over_double_jump",
+    "detail_over_grid": "over_grid",
+    "detail_over_jump": "over_jump",
+    "detail_over_logs": "over_logs",
+    "detail_over_long_crest": "over_long_crest",
+    "detail_over_narrow_bridge": "over_narrow_bridge",
+    "detail_over_small_bumps": "over_small_bumps",
+    "detail_over_small_crest": "over_small_crest",
+    "detail_over_small_jump": "over_small_jump",
+    "detail_over_very_long_crest": "over_very_long_crest",
+    "detail_pass_junction": "pass_junction",
+    "detail_patchy": "patchy",
+    "detail_patient": "patient",
+    "detail_plus": "plus",
+    "detail_post": "post",
+    "detail_post_inside": "post_inside",
+    "detail_post_outside": "post_outside",
+    "detail_rails": "rails",
+    "detail_remember": "remember",
+    "detail_right_entry_chicane": "right_entry_chicane",
+    "detail_rocks": "rocks",
+    "detail_rocks_inside": "rocks_inside",
+    "detail_rocks_outside": "rocks_outside",
+    "detail_rotate": "rotate",
+    "detail_rough": "rough",
+    "detail_roundabout": "roundabout",
+    "detail_ruts": "ruts",
+    "detail_sharp": "sharp",
+    "detail_short": "short",
+    "detail_shoulder": "shoulder",
+    "detail_sign": "sign",
+    "detail_slight_left": "slight_left",
+    "detail_slight_right": "slight_right",
+    "detail_slightly": "slightly",
+    "detail_slippery": "slippery",
+    "detail_slope": "slope",
+    "detail_slow": "slow",
+    "detail_slowing": "slowing",
+    "detail_small": "small",
+    "detail_small_crest": "small_crest",
+    "detail_small_cut": "small_cut",
+    "detail_small_jump": "small_jump",
+    "detail_snow": "snow",
+    "detail_spectators": "spectators",
+    "detail_stake": "stake",
+    "detail_stake_inside": "stake_inside",
+    "detail_stake_outside": "stake_outside",
+    "detail_steep": "steep",
+    "detail_steep_hill": "steep_hill",
+    "detail_steep_incline": "steep_incline",
+    "detail_steep_slope": "steep_slope",
+    "detail_stop": "stop",
+    "detail_straight": "straight",
+    "detail_stump": "stump",
+    "detail_sudden": "sudden",
+    "detail_take_speed": "take_speed",
+    "detail_tape": "tape",
+    "detail_tarmac": "tarmac",
+    "detail_then": "then",
+    "detail_through": "through",
+    "detail_through_bush": "through_bush",
+    "detail_through_dip": "through_dip",
+    "detail_through_gate": "through_gate",
+    "detail_through_grid": "through_grid",
+    "detail_through_houses": "through_houses",
+    "detail_through_junction": "through_junction",
+    "detail_through_logs": "through_logs",
+    "detail_through_narrow_gate": "through_narrow_gate",
+    "detail_through_narrow_grid": "through_narrow_grid",
+    "detail_through_posts": "through_posts",
+    "detail_through_tunnel": "through_tunnel",
+    "detail_tightens": "tightens",
+    "detail_tightens_bad": "tightens_bad",
+    "detail_tightens_to": "tightens_to",
+    "detail_tightens_to_1": "tightens_to_1",
+    "detail_tightens_to_2": "tightens_to_2",
+    "detail_tightens_to_3": "tightens_to_3",
+    "detail_tightens_to_4": "tightens_to_4",
+    "detail_tightens_to_5": "tightens_to_5",
+    "detail_tightens_to_6": "tightens_to_6",
+    "detail_tightens_to_7": "tightens_to_7",
+    "detail_tightens_to_acute": "tightens_to_acute",
+    "detail_tightens_to_hairpin": "tightens_to_hairpin",
+    "detail_tightens_to_squre": "tightens_to_squre",
+    "detail_tree": "tree",
+    "detail_tree_inside": "tree_inside",
+    "detail_tree_outside": "tree_outside",
+    "detail_triple": "triple",
+    "detail_triple_caution": "triple_caution",
+    "detail_trust": "trust",
+    "detail_tunnel": "tunnel",
+    "detail_turn": "turn",
+    "detail_twisty": "twisty",
+    "detail_tyres": "tyres",
+    "detail_understeer": "understeer",
+    "detail_unseen": "unseen",
+    "detail_until": "until",
+    "detail_uphill": "uphill",
+    "detail_very": "very",
+    "detail_very_long": "verylong",
+    "detail_verylong": "verylong",
+    "detail_walk": "walk",
+    "detail_wall": "wall",
+    "detail_wall_inside": "wall_inside",
+    "detail_wall_outside": "wall_outside",
+    "detail_water_splash": "ford",
+    "detail_widens": "widens",
+    "dip": "dip",
+    "directly": "directly",
+    "dirty": "dirty",
+    "distance_call": "distance_call",
+    "ditches": "ditches",
+    "ditches_inside": "ditches_inside",
+    "ditches_outside": "ditches_outside",
+    "dont_cut": "dont_cut",
+    "donut": "donut",
+    "double": "double",
+    "double_caution": "double_caution",
+    "downhill": "downhill",
+    "draws_in": "draws_in",
+    "drops": "drops",
+    "drops_inside": "drops_inside",
+    "drops_outside": "drops_outside",
+    "dry": "dry",
+    "early": "early",
+    "easy": "easy",
+    "edge": "edge",
+    "end_stage": "end_stage",
+    "entry": "entry",
+    "exact": "exact",
+    "exit": "exit",
+    "extra": "extra",
+    "extra_long": "extra_long",
+    "extraextra_long": "extraextra_long",
+    "fast": "fast",
+    "fence": "fence",
+    "fence_inside": "fence_inside",
+    "fence_outside": "fence_outside",
+    "fickle": "fickle",
+    "finish": "finish",
+    "flag": "flag",
+    "flat": "flat",
+    "flat_left": "flat_left",
+    "flat_right": "flat_right",
+    "ford": "ford",
+    "from_left": "from_left",
+    "from_right": "from_right",
+    "gate": "gate",
+    "go": "go",
+    "go_straight": "go_straight",
+    "good": "good",
+    "gravel": "gravel",
+    "grid": "grid",
+    "hairpin": "hairpin",
+    "hairpin_left": "hairpin_left",
+    "hairpin_right": "hairpin_right",
+    "half_long": "half_long",
+    "handbrake": "handbrake",
+    "hard": "hard",
+    "hold": "hold",
+    "hole": "hole",
+    "hook": "hook",
+    "house": "house",
+    "ice": "ice",
+    "important": "important",
+    "inside": "inside",
+    "into": "into",
+    "island": "island",
+    "jump": "jump",
+    "jump_maybe": "jump_maybe",
+    "junction": "junction",
+    "keep_in": "keep_in",
+    "keep_left": "keep_left",
+    "keep_middle": "keep_middle",
+    "keep_out": "keep_out",
+    "keep_right": "keep_right",
+    "kinks": "kinks",
+    "late": "late",
+    "left": "left",
+    "left_acute": "left_acute",
+    "left_entry_chicane": "left_entry_chicane",
+    "lift": "lift",
+    "light": "light",
+    "little": "little",
+    "logs": "logs",
+    "logs_inside": "logs_inside",
+    "logs_outside": "logs_outside",
+    "long": "long",
+    "long_crest": "long_crest",
+    "longlong": "verylong",
+    "loose_gravel": "loose_gravel",
+    "many": "many",
+    "marshalls": "marshalls",
+    "maybe": "maybe",
+    "minus": "minus",
+    "more": "more",
+    "much": "much",
+    "narrow": "narrow",
+    "narrows": "narrows",
+    "near": "near",
+    "neat": "neat",
+    "number_1": "1",
+    "number_100": "100",
+    "number_1000": "1000",
+    "number_110": "110",
+    "number_120": "120",
+    "number_130": "130",
+    "number_140": "140",
+    "number_150": "150",
+    "number_160": "160",
+    "number_170": "170",
+    "number_180": "180",
+    "number_190": "190",
+    "number_2": "2",
+    "number_20": "20",
+    "number_200": "200",
+    "number_210": "210",
+    "number_220": "220",
+    "number_230": "230",
+    "number_240": "240",
+    "number_250": "250",
+    "number_260": "260",
+    "number_270": "270",
+    "number_280": "280",
+    "number_290": "290",
+    "number_3": "3",
+    "number_30": "30",
+    "number_300": "300",
+    "number_350": "350",
+    "number_4": "4",
+    "number_40": "40",
+    "number_400": "400",
+    "number_450": "450",
+    "number_5": "5",
+    "number_50": "50",
+    "number_500": "500",
+    "number_6": "6",
+    "number_60": "60",
+    "number_600": "600",
+    "number_7": "7",
+    "number_70": "70",
+    "number_700": "700",
+    "number_80": "80",
+    "number_800": "800",
+    "number_90": "90",
+    "number_900": "900",
+    "onto": "onto",
+    "open_hairpin": "open_hairpin",
+    "open_hairpin_left": "open_hairpin_left",
+    "open_hairpin_right": "open_hairpin_right",
+    "opens": "opens",
+    "opens_and_tightens": "opens_and_tightens",
+    "opens_to": "opens_to",
+    "opens_to_1": "opens_to_1",
+    "opens_to_2": "opens_to_2",
+    "opens_to_3": "opens_to_3",
+    "opens_to_4": "opens_to_4",
+    "opens_to_5": "opens_to_5",
+    "opens_to_6": "opens_to_6",
+    "opens_to_7": "opens_to_7",
+    "opens_to_acute": "opens_to_acute",
+    "opens_to_flat": "opens_to_flat",
+    "opens_to_hairpin": "opens_to_hairpin",
+    "opens_to_square": "opens_to_square",
+    "outside": "outside",
+    "outtrack": "outtrack",
+    "over": "over",
+    "over_big_bumps": "over_big_bumps",
+    "over_big_crest": "over_big_crest",
+    "over_big_jump": "over_big_jump",
+    "over_bridge": "over_bridge",
+    "over_bumps": "over_bumps",
+    "over_crest": "over_crest",
+    "over_dip": "over_dip",
+    "over_double_crest": "over_double_crest",
+    "over_double_jump": "over_double_jump",
+    "over_grid": "over_grid",
+    "over_jump": "over_jump",
+    "over_logs": "over_logs",
+    "over_long_crest": "over_long_crest",
+    "over_narrow_bridge": "over_narrow_bridge",
+    "over_small_bumps": "over_small_bumps",
+    "over_small_crest": "over_small_crest",
+    "over_small_jump": "over_small_jump",
+    "over_very_long_crest": "over_very_long_crest",
+    "pass_junction": "pass_junction",
+    "patchy": "patchy",
+    "patient": "patient",
+    "plus": "plus",
+    "post": "post",
+    "post_inside": "post_inside",
+    "post_outside": "post_outside",
+    "puncture_front_left": "puncture_front_left",
+    "puncture_front_right": "puncture_front_right",
+    "puncture_rear_left": "puncture_rear_left",
+    "puncture_rear_right": "puncture_rear_right",
+    "rails": "rails",
+    "remember": "remember",
+    "retired": "retired",
+    "reverse_donut": "reverse_donut",
+    "right": "right",
+    "right_acute": "right_acute",
+    "right_entry_chicane": "right_entry_chicane",
+    "rocks": "rocks",
+    "rocks_inside": "rocks_inside",
+    "rocks_outside": "rocks_outside",
+    "rotate": "rotate",
+    "rough": "rough",
+    "roundabout": "roundabout",
+    "ruts": "ruts",
+    "sharp": "sharp",
+    "short": "short",
+    "shoulder": "shoulder",
+    "sign": "sign",
+    "slight_left": "slight_left",
+    "slight_right": "slight_right",
+    "slightly": "slightly",
+    "slippery": "slippery",
+    "slope": "slope",
+    "slow": "slow",
+    "slowing": "slowing",
+    "small": "small",
+    "small_crest": "small_crest",
+    "small_cut": "small_cut",
+    "small_jump": "small_jump",
+    "snow": "snow",
+    "spectators": "spectators",
+    "square": "square",
+    "square_left": "square_left",
+    "square_right": "square_right",
+    "stake": "stake",
+    "stake_inside": "stake_inside",
+    "stake_outside": "stake_outside",
+    "start_stage": "start_stage",
+    "steep": "steep",
+    "steep_hill": "steep_hill",
+    "steep_incline": "steep_incline",
+    "steep_slope": "steep_slope",
+    "stop": "stop",
+    "straight": "straight",
+    "stump": "stump",
+    "sudden": "sudden",
+    "system_collision_medium": "collision_medium",
+    "system_collision_severe": "collision_severe",
+    "system_collision_slight": "collision_slight",
+    "system_countdown_1": "1",
+    "system_countdown_2": "2",
+    "system_countdown_3": "3",
+    "system_countdown_4": "4",
+    "system_countdown_5": "5",
+    "system_end_stage": "end_stage",
+    "system_go": "go",
+    "system_puncture_front_left": "puncture_front_left",
+    "system_puncture_front_right": "puncture_front_right",
+    "system_puncture_rear_left": "puncture_rear_left",
+    "system_puncture_rear_right": "puncture_rear_right",
+    "system_retired": "retired",
+    "system_start_stage": "start_stage",
+    "take_speed": "take_speed",
+    "tape": "tape",
+    "tarmac": "tarmac",
+    "then": "then",
+    "through": "through",
+    "through_bush": "through_bush",
+    "through_dip": "through_dip",
+    "through_gate": "through_gate",
+    "through_grid": "through_grid",
+    "through_houses": "through_houses",
+    "through_junction": "through_junction",
+    "through_logs": "through_logs",
+    "through_narrow_gate": "through_narrow_gate",
+    "through_narrow_grid": "through_narrow_grid",
+    "through_posts": "through_posts",
+    "through_tunnel": "through_tunnel",
+    "tightens": "tightens",
+    "tightens_bad": "tightens_bad",
+    "tightens_to": "tightens_to",
+    "tightens_to_1": "tightens_to_1",
+    "tightens_to_2": "tightens_to_2",
+    "tightens_to_3": "tightens_to_3",
+    "tightens_to_4": "tightens_to_4",
+    "tightens_to_5": "tightens_to_5",
+    "tightens_to_6": "tightens_to_6",
+    "tightens_to_7": "tightens_to_7",
+    "tightens_to_acute": "tightens_to_acute",
+    "tightens_to_hairpin": "tightens_to_hairpin",
+    "tightens_to_squre": "tightens_to_squre",
+    "tree": "tree",
+    "tree_inside": "tree_inside",
+    "tree_outside": "tree_outside",
+    "triple": "triple",
+    "triple_caution": "triple_caution",
+    "trust": "trust",
+    "tunnel": "tunnel",
+    "turn": "turn",
+    "twisty": "twisty",
+    "twisty_left": "twisty_left",
+    "twisty_right": "twisty_right",
+    "tyres": "tyres",
+    "understeer": "understeer",
+    "unseen": "unseen",
+    "until": "until",
+    "uphill": "uphill",
+    "very": "very",
+    "very_long": "verylong",
+    "verylong": "verylong",
+    "walk": "walk",
+    "wall": "wall",
+    "wall_inside": "wall_inside",
+    "wall_outside": "wall_outside",
+    "water_splash": "ford",
+    "widens": "widens"
+  }
+}

@@ -10,9 +10,13 @@
 #if !FileExists(MyAppMonacoIndexPath)
   #error "Published Monaco editor assets were not found. Run build\publish.bat before packaging."
 #endif
+#define MyAppPacenoteIconManifestPath AddBackslash(SourcePath) + MyAppPublishRoot + "\Assets\PacenoteIcons\v1\manifest.json"
+#if !FileExists(MyAppPacenoteIconManifestPath)
+  #error "Published pacenote icon assets were not found. Run build\publish.bat before packaging."
+#endif
 #define MyAppVersion GetVersionNumbersString(MyAppPublishPath)
 #ifndef MyAppReleaseSuffix
-  #define MyAppReleaseSuffix "-rc16"
+  #define MyAppReleaseSuffix "-rc17"
 #endif
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
@@ -426,6 +430,7 @@ Source: "{#MyAppPublishRoot}\x64\*"; DestDir: "{code:GetInstallDir}\x64"; Flags:
 Source: "{#MyAppPublishRoot}\x86\*"; DestDir: "{code:GetInstallDir}\x86"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\Assets\ztmz_ngptool_3.0_help.png"; DestDir: "{code:GetInstallDir}\Assets"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\Assets\Monaco\*"; DestDir: "{code:GetInstallDir}\Assets\Monaco"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\Assets\PacenoteIcons\*"; DestDir: "{code:GetInstallDir}\Assets\PacenoteIcons"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; db files
 Source: "..\src\ZTMZ.PacenoteTool.Base\*.zdb"; DestDir: "{code:GetZTMZHome}"; Flags: ignoreversion
 Source: "..\src\ZTMZ.PacenoteTool.RBR\*.zdb"; DestDir: "{code:GetZTMZHome}\games"; Flags: ignoreversion

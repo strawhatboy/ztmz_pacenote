@@ -89,10 +89,42 @@ public sealed class MonacoController
         return ExecuteAsync($"window.ztmzEditor.setRoadbookTitle({JsonSerializer.Serialize(title ?? string.Empty, JsonOptions)});");
     }
 
+    public Task SetRoadbookScaleAsync(double percent)
+    {
+        return ExecuteAsync($"window.ztmzEditor.setRoadbookScale({percent.ToString(System.Globalization.CultureInfo.InvariantCulture)});");
+    }
+
+    public async Task<double> GetRoadbookScaleAsync()
+    {
+        var value = await _webView.ExecuteScriptAsync("window.ztmzEditor.getRoadbookScale();");
+        return JsonSerializer.Deserialize<double>(value);
+    }
+
+    public Task SetRoadbookPrintMarginsAsync(double horizontal, double vertical)
+    {
+        return ExecuteAsync(
+            $"window.ztmzEditor.setRoadbookPrintMargins({horizontal.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {vertical.ToString(System.Globalization.CultureInfo.InvariantCulture)});");
+    }
+
+    public async Task<RoadbookPrintMargins> GetRoadbookPrintMarginsAsync()
+    {
+        var value = await _webView.ExecuteScriptAsync("window.ztmzEditor.getRoadbookPrintMargins();");
+        return JsonSerializer.Deserialize<RoadbookPrintMargins>(value, JsonOptions)
+            ?? new RoadbookPrintMargins(15, 10);
+    }
+
     public async Task<bool> ExportRoadbookPdfAsync(string fileName)
     {
+        var margins = await GetRoadbookPrintMarginsAsync();
         var printSettings = _webView.CoreWebView2.Environment.CreatePrintSettings();
         printSettings.Orientation = CoreWebView2PrintOrientation.Portrait;
+        printSettings.MediaSize = CoreWebView2PrintMediaSize.Custom;
+        printSettings.PageWidth = 210.0 / 25.4;
+        printSettings.PageHeight = 297.0 / 25.4;
+        printSettings.MarginTop = margins.Vertical / 25.4;
+        printSettings.MarginBottom = margins.Vertical / 25.4;
+        printSettings.MarginLeft = margins.Horizontal / 25.4;
+        printSettings.MarginRight = margins.Horizontal / 25.4;
         printSettings.ShouldPrintBackgrounds = true;
         printSettings.ShouldPrintHeaderAndFooter = false;
         return await _webView.CoreWebView2.PrintToPdfAsync(fileName, printSettings);
@@ -141,3 +173,5 @@ public sealed class MonacoController
         }
     }
 }
+
+public sealed record RoadbookPrintMargins(double Horizontal, double Vertical);
