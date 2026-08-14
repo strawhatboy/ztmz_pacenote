@@ -21,3 +21,4 @@ tools/ACRTelemetryProbe/latest-sample.*
 tools/ACRPacenoteTrace/*.dll
 tools/ACRPacenoteTrace/*.exe
 tools/ACRPacenoteTrace/*.obj
+tmp
