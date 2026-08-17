@@ -9,9 +9,7 @@ using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using System.Threading.Tasks;
 using System.Threading;
-using NAudio.Wave;
 using System.Diagnostics;
-using System.DirectoryServices.ActiveDirectory;
 
 namespace ZTMZ.PacenoteTool.Core;
 
@@ -46,8 +44,8 @@ public class ZTMZPacenoteTool {
     public List<string> Profiles => _profiles;
     private List<CoDriverPackage> _codriverPackages = new();
     public List<CoDriverPackage> CoDriverPackages => _codriverPackages;
-    private List<string> _outputDevices = new();
-    public List<string> OutputDevices => _outputDevices;
+    private List<AudioOutputDeviceInfo> _outputDevices = new();
+    public List<AudioOutputDeviceInfo> OutputDevices => _outputDevices;
 
     public event Action<string> onStatusReport;
 
@@ -198,14 +196,32 @@ public class ZTMZPacenoteTool {
     private void loadOutputDevices() {
         _logger.Info("Loading output devices...");
         this.onStatusReport?.Invoke("Loading output devices...");
-        // WaveOut only works for windows !!! DAMN IT !!!
-        for (int i = 0; i < NAudio.Wave.WaveOut.DeviceCount; i++)
+
+        this._outputDevices.Clear();
+        this._outputDevices.AddRange(AudioOutputDeviceEnumerator.EnumerateActiveRenderDevices());
+
+        if (this._outputDevices.Count > 0)
         {
-            WaveOutCapabilities WOC = NAudio.Wave.WaveOut.GetCapabilities(i);
-            this._outputDevices.Add(WOC.ProductName);
+            var configuredIndex = this._outputDevices.FindIndex(device =>
+                string.Equals(
+                    device.Id,
+                    Config.Instance.UI_SelectedPlaybackDeviceId,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (configuredIndex < 0)
+            {
+                configuredIndex = Math.Clamp(
+                    Config.Instance.UI_SelectedPlaybackDevice,
+                    0,
+                    this._outputDevices.Count - 1);
+            }
+
+            Config.Instance.UI_SelectedPlaybackDevice = configuredIndex;
+            Config.Instance.UI_SelectedPlaybackDeviceId = this._outputDevices[configuredIndex].Id;
         }
-        _logger.Info($"{NAudio.Wave.WaveOut.DeviceCount} output devices loaded.");
-        this.onStatusReport?.Invoke($"{NAudio.Wave.WaveOut.DeviceCount} output devices loaded.");
+
+        _logger.Info($"{this._outputDevices.Count} WASAPI output devices loaded.");
+        this.onStatusReport?.Invoke($"{this._outputDevices.Count} output devices loaded.");
     }
     private void initGoogleAnalytics()
     {
@@ -1263,10 +1279,20 @@ public class ZTMZPacenoteTool {
     }
 
     public void SetOutputDevice(int outputDeviceIndex) {
-        if (outputDeviceIndex < this.OutputDevices.Count && outputDeviceIndex >= 0)
-            this._profileManager.CurrentPlayDeviceId = outputDeviceIndex;
-        else
-            this._profileManager.CurrentPlayDeviceId = 0;
+        if (this.OutputDevices.Count == 0)
+        {
+            _logger.Warn("Cannot select an output device because no active WASAPI render endpoints were found.");
+            return;
+        }
+
+        var resolvedIndex = outputDeviceIndex < this.OutputDevices.Count && outputDeviceIndex >= 0
+            ? outputDeviceIndex
+            : 0;
+        var device = this.OutputDevices[resolvedIndex];
+
+        Config.Instance.UI_SelectedPlaybackDevice = resolvedIndex;
+        Config.Instance.UI_SelectedPlaybackDeviceId = device.Id;
+        this._profileManager.SetCurrentPlayDevice(device, resolvedIndex);
     }
 
     public bool TrySetCodriver(string selectionIdentity)

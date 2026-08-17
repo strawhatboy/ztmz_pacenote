@@ -46,15 +46,15 @@ namespace ZTMZ.PacenoteTool.Base
             }
         }
 
-        public int Read(float[] buffer, int offset, int count)
+        public int Read(Span<float> buffer)
         {
             int outputSamples = 0;
             lock (sources)
             {
-                while (outputSamples < count && sources.Count > 0)
+                while (outputSamples < buffer.Length && sources.Count > 0)
                 {
                     var source = sources.Peek();
-                    int samplesRead = source.Read(buffer, offset + outputSamples, count - outputSamples);
+                    int samplesRead = source.Read(buffer[outputSamples..]);
                     if (samplesRead > 0)
                     {
                         outputSamples += samplesRead;
@@ -65,14 +65,10 @@ namespace ZTMZ.PacenoteTool.Base
                 }
             }
             // optionally ensure we return a full buffer
-            if (ReadFully && outputSamples < count)
+            if (ReadFully && outputSamples < buffer.Length)
             {
-                int outputIndex = offset + outputSamples;
-                while (outputIndex < offset + count)
-                {
-                    buffer[outputIndex++] = 0;
-                }
-                outputSamples = count;
+                buffer[outputSamples..].Clear();
+                outputSamples = buffer.Length;
             }
             return outputSamples;
         }

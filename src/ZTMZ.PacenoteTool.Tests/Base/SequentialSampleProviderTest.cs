@@ -15,7 +15,7 @@ public class SequentialSampleProviderTest
         provider.AddSequentialInput(new ChunkedSampleProvider(format, new[] { 4f, 5f }, 1));
         var buffer = new float[5];
 
-        var samplesRead = provider.Read(buffer, 0, buffer.Length);
+        var samplesRead = provider.Read(buffer);
 
         Assert.Equal(5, samplesRead);
         Assert.Equal(new[] { 1f, 2f, 3f, 4f, 5f }, buffer);
@@ -28,11 +28,11 @@ public class SequentialSampleProviderTest
         var provider = new SequentialSampleProvider(format) { ReadFully = true };
         var buffer = new float[4];
 
-        Assert.Equal(4, provider.Read(buffer, 0, buffer.Length));
+        Assert.Equal(4, provider.Read(buffer));
         Assert.Equal(new[] { 0f, 0f, 0f, 0f }, buffer);
 
         provider.AddSequentialInput(new ChunkedSampleProvider(format, new[] { 1f, 2f }, 1));
-        Assert.Equal(4, provider.Read(buffer, 0, buffer.Length));
+        Assert.Equal(4, provider.Read(buffer));
         Assert.Equal(new[] { 1f, 2f, 0f, 0f }, buffer);
     }
 
@@ -64,7 +64,7 @@ public class SequentialSampleProviderTest
         var maxSample = 0f;
         for (var i = 0; i < 30; i++)
         {
-            mixer.Read(buffer, 0, buffer.Length);
+            mixer.Read(buffer);
             maxSample = Math.Max(maxSample, buffer.Max(MathF.Abs));
         }
 
@@ -94,7 +94,7 @@ public class SequentialSampleProviderTest
 
         for (var i = 0; i < 100 && firstAudibleSample == 0f; i++)
         {
-            var samplesRead = provider.Read(buffer, 0, buffer.Length);
+            var samplesRead = provider.Read(buffer);
             for (var sample = 0; sample < samplesRead; sample++)
             {
                 if (MathF.Abs(buffer[sample]) > 0.1f)
@@ -114,7 +114,7 @@ public class SequentialSampleProviderTest
         var provider = new AudioKeepAliveSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(44100, 2));
         var buffer = new float[4096];
 
-        Assert.Equal(buffer.Length, provider.Read(buffer, 0, buffer.Length));
+        Assert.Equal(buffer.Length, provider.Read(buffer));
         Assert.Contains(buffer, sample => MathF.Abs(sample) > 0f);
     }
 
@@ -133,10 +133,10 @@ public class SequentialSampleProviderTest
 
         public WaveFormat WaveFormat { get; }
 
-        public int Read(float[] buffer, int offset, int count)
+        public int Read(Span<float> buffer)
         {
-            var samplesToRead = Math.Min(Math.Min(maxSamplesPerRead, count), samples.Length - position);
-            Array.Copy(samples, position, buffer, offset, samplesToRead);
+            var samplesToRead = Math.Min(Math.Min(maxSamplesPerRead, buffer.Length), samples.Length - position);
+            samples.AsSpan(position, samplesToRead).CopyTo(buffer);
             position += samplesToRead;
             return samplesToRead;
         }

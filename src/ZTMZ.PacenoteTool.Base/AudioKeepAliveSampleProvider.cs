@@ -21,13 +21,12 @@ public sealed class AudioKeepAliveSampleProvider : ISampleProvider
 
     public WaveFormat WaveFormat { get; }
 
-    public int Read(float[] buffer, int offset, int count)
+    public int Read(Span<float> buffer)
     {
-        var end = offset + count;
-        for (var index = offset; index < end; index += WaveFormat.Channels)
+        for (var index = 0; index < buffer.Length; index += WaveFormat.Channels)
         {
             var sample = (float)(Math.Sin(phase) * Gain);
-            for (var channel = 0; channel < WaveFormat.Channels && index + channel < end; channel++)
+            for (var channel = 0; channel < WaveFormat.Channels && index + channel < buffer.Length; channel++)
             {
                 buffer[index + channel] = sample;
             }
@@ -39,6 +38,6 @@ public sealed class AudioKeepAliveSampleProvider : ISampleProvider
             }
         }
 
-        return count;
+        return buffer.Length;
     }
 }

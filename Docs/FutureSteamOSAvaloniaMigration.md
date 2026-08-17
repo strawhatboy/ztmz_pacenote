@@ -1,51 +1,271 @@
-# Future SteamOS and Avalonia Migration
+# SteamOS and Steam Deck Support Roadmap
 
 ## Status
 
-Deferred design note. This is not a committed roadmap and does not change the
-current Windows WPF product.
+Design roadmap. The current Windows WPF application remains the supported
+product while platform-neutral services and a Linux host are developed
+incrementally. SteamOS support must not require a one-time rewrite of the
+working Windows application.
 
-## Current Assessment
+## Product Goal
 
-Moving the desktop application to Avalonia is feasible for a future
-cross-platform edition, but a full drop-in replacement is not practical as one
-change. The WPF UI, Direct2D overlay, SteamVR overlay, Windows registry access,
-and Windows-specific audio stack must be separated first.
+The first SteamOS release should provide the useful core of ZTMZ on a Steam
+Deck:
 
-The most realistic Linux target is SteamOS Desktop Mode. Gamescope and the
-in-game overlay path need a separate feasibility spike; they should not be
-assumed to work simply because the main UI starts on Linux.
+- receive supported game telemetry and live pacenotes;
+- play co-driver audio through the selected Linux output device;
+- expose the control UI and Web Dashboard locally and over the LAN;
+- load the existing profiles, co-driver packages, dashboards, icons, and
+  localization data;
+- run without Windows registry, WPF, WebView2, Direct2D, or Win32 window APIs.
 
-## Proposed Direction
+Feature parity with the Windows native overlay, ACR injection, RBR process
+memory, SteamVR overlay, and replay capture is not required for the first
+Linux release. Each is a separate platform integration.
 
-1. Keep the current WPF application as the supported Windows host.
-2. Introduce platform-neutral services for configuration, paths, game data,
-   audio queueing, and dashboard data.
-3. Add an Avalonia desktop host after those services can be referenced without
-   WPF or Win32 dependencies.
-4. Use the existing web dashboard as an early Linux-friendly, second-screen HUD
-   option while a native cross-platform HUD is evaluated.
-5. Treat the native Direct2D and SteamVR overlays as optional Windows features
-   in the first cross-platform release.
+## Current Platform Boundaries
 
-## Audio Direction
+| Area | Current Windows dependency | Cross-platform direction |
+| --- | --- | --- |
+| Main UI | WPF, WPF-UI, WinForms, `net10.0-windows` | Browser-based control UI first; optional Avalonia host later |
+| Audio output | NAudio WASAPI | Keep WASAPI on Windows; add PortAudio/ALSA on Linux |
+| Audio decoding and resampling | NAudio `AudioFileReader` and Media Foundation | Introduce a decoder/resampler abstraction backed by managed codecs or FFmpeg/libav on Linux |
+| Native overlay | GameOverlay.Net, SharpDX, Direct2D, `user32.dll`, HWND attachment | Keep as a Windows feature; research a Gamescope-specific host separately |
+| Web Dashboard | ASP.NET Core, WebSocket, browser JavaScript | Extract from `Base.UI` and SharpDX types so it can run in the Linux host |
+| Script editor | Monaco hosted by WPF WebView2 | Reuse Monaco through the local web host or system browser on Linux |
+| Game discovery and IPC | Windows process/window APIs, registry, named maps, named pipes, injection | Introduce platform services and Proton relay processes where required |
+| Replay capture | WASAPI loopback and Windows window capture | Add PipeWire/FFmpeg capture only after the core Linux release |
+| Packaging and updates | Inno Setup and Windows executable updates | Define a separate SteamOS/Linux package and update channel |
 
-The current NAudio implementation is Windows-specific. A future Linux edition
-should first evaluate NAudio 3's ALSA and SoundFile packages in a small spike.
-PortAudio is only an output layer and would still require decoding, mixing,
-resampling, and device-management work, so it is not the default first choice.
+WPF itself only runs on Windows, and the current WebView2 desktop runtime does
+not provide a Linux host. Porting only the audio backend therefore cannot make
+the current WPF executable a native SteamOS application.
 
-## Game Support Scope
+References:
 
-UDP-based games are the best first candidates, subject to validating their
-configuration and Proton file locations. Registry, memory-reader, Direct2D, and
-Windows-only integration paths should be marked unsupported until platform
-specific replacements exist.
+- [Microsoft WPF overview](https://learn.microsoft.com/en-us/dotnet/desktop/wpf/overview/)
+- [Microsoft WebView2 platform overview](https://learn.microsoft.com/en-us/microsoft-edge/webview2/)
+- [Avalonia supported platforms](https://v11.docs.avaloniaui.net/docs/overview/supported-platforms/)
+- [PortAudio API overview](https://portaudio.com/docs/v19-doxydocs/api_overview.html)
+- [Valve Gamescope](https://github.com/ValveSoftware/gamescope)
 
-## Exit Criteria For A Feasibility Spike
+## Target Architecture
 
-- Avalonia host starts on SteamOS Desktop Mode.
-- A selected UDP game supplies telemetry under Proton.
-- A co-driver package plays through the selected Linux audio device.
-- The web dashboard or an Avalonia dashboard renders live telemetry.
-- Configuration and package paths work without Windows registry access.
+```text
+Windows WPF host                         SteamOS/Linux host
+       |                                       |
+Windows platform services              Linux platform services
+  - WASAPI output                        - PortAudio/ALSA output
+  - WebView2                              - system browser/web UI
+  - Win32 process/window access           - Linux process and path access
+  - Direct2D native overlay               - no native overlay initially
+       |                                       |
+       +---------- platform contracts --------+
+                           |
+                    platform-neutral core
+              pacenotes, profiles, replay data,
+              game state, audio queue, dashboards
+                           |
+                 ASP.NET Core + WebSocket host
+                 control UI and Web Dashboard
+```
+
+The existing WPF application should remain a host, not become the platform
+contract. Platform-neutral code must not reference WPF, WPF-UI, WebView2,
+SharpDX, `Microsoft.Win32.Registry`, Windows Core Audio, or Win32 P/Invoke.
+
+Recommended contracts include:
+
+- `IAudioOutputBackend` and `IAudioOutputDeviceEnumerator`;
+- `IAudioDecoder` and `IAudioResampler`;
+- `IApplicationPaths` and `IConfigurationLocation`;
+- `IGameProcessService` and `IGameWindowService`;
+- `IGameTransport` for UDP, shared memory, pipes, or relays;
+- `IOverlayHost` as an optional capability;
+- `IExternalBrowser`, `IFileDialog`, `INotificationService`, and
+  `IAutoStartService`.
+
+## Audio Platform Decision
+
+### Windows ducking diagnosis
+
+The previous Windows playback path could cause every other application to be
+attenuated. Windows exposes this behavior in:
+
+```text
+Control Panel -> Sound -> Communications
+```
+
+The default policy commonly reduces other sounds when Windows detects
+communications activity. Reproducing the problem together with that policy
+is strong evidence that an active audio session was being treated as a
+communications stream. The previous `WaveOutEvent` path could neither declare
+an explicit media stream category nor opt the session out of Windows' default
+ducking behavior, so ZTMZ could not prevent the attenuation.
+
+The Windows backend now uses WASAPI shared mode with the `Media` stream
+category and calls `IAudioSessionControl2::SetDuckingPreference(true)` after
+stream initialization. Microsoft documents this call as opting the session
+out of the default stream-attenuation experience.
+
+Reference:
+
+- [IAudioSessionControl2::SetDuckingPreference](https://learn.microsoft.com/en-us/windows/win32/api/audiopolicy/nf-audiopolicy-iaudiosessioncontrol2-setduckingpreference)
+
+### Cross-platform output policy
+
+Do not replace the working Windows WASAPI backend merely to obtain Linux
+support. Use the existing output interface for platform implementations:
+
+```text
+IAudioOutputBackend
+  - WasapiAudioOutputBackend       Windows
+  - PortAudioAudioOutputBackend    Linux/SteamOS
+```
+
+PortAudio supplies real-time device and stream I/O across Windows, macOS, and
+Linux host APIs, including ALSA. It does not decode audio files, resample them,
+or replace ZTMZ's mixer and sequencing logic. Decoder and resampler portability
+must therefore be addressed independently.
+
+## Web Dashboard Extraction
+
+`WebDashboardServer` already uses ASP.NET Core, static files, WebSocket, and
+browser rendering, making it the shortest path to a useful SteamOS build. It
+is currently hosted by `GameOverlayManager` and its command-capture layer uses
+GameOverlay.Net and SharpDX drawing types.
+
+Extract the following into a `net10.0` project with no WPF or SharpDX
+references:
+
+- Web server lifecycle and status;
+- static dashboard resources and pacenote icons;
+- WebSocket protocol and retained-layer scene state;
+- browser-side Lua execution support;
+- platform-neutral drawing command and text-layout DTOs;
+- dashboard runtime and output-target selection.
+
+The Windows overlay host may adapt the neutral drawing model to Direct2D. The
+Linux host may run only the browser renderer initially.
+
+## Game Support Order
+
+### Tier 1: native UDP candidates
+
+Validate these first because their runtime telemetry already arrives over UDP:
+
+- DiRT Rally;
+- DiRT Rally 2.0;
+- EA SPORTS WRC;
+- BeamNG.drive OutGauge and Rally Mode bridge.
+
+Required work is limited mainly to Proton configuration paths, process
+detection, loopback binding, and launch testing. UDP parsing and the game-state
+contracts should remain shared.
+
+### Tier 2: Proton relay candidates
+
+ACR uses Windows named shared-memory pages plus an injected DLL/named-pipe
+bridge. A native Linux process should not attempt to open these Windows IPC
+objects directly. Run a small Windows relay inside the same Proton prefix and
+forward versioned telemetry, lifecycle events, and live pacenotes to the native
+Linux host over localhost UDP or another explicit cross-boundary transport.
+
+RBR should be split by capability. Reuse UDP telemetry where available, then
+relay registry-, process-memory-, or plugin-dependent data from the Proton
+environment. Missing relay capabilities must be reported explicitly rather
+than silently treated as a supported full integration.
+
+### Tier 3: platform-native integrations
+
+- Gamescope in-game overlay;
+- SteamVR overlay on Linux;
+- PipeWire replay audio and window capture;
+- SteamOS notifications, autostart, packaging, and update integration.
+
+Gamescope is a compositor, and Steam Deck Gaming Mode isolates games in its
+own Xwayland environment. A normal Avalonia transparent window must not be
+assumed to behave like the current Win32 click-through overlay. Treat this as
+an independent feasibility project.
+
+## Delivery Phases
+
+### Phase 0: enforce platform boundaries
+
+- Keep the Windows WPF product building and behaviorally unchanged.
+- Move Windows registry access behind application-path/configuration services.
+- Move WASAPI device enumeration and output behind audio interfaces.
+- Separate Windows shared-memory/process helpers from portable game contracts.
+- Make the portable projects target plain `net10.0`.
+
+### Phase 1: headless Linux proof of concept
+
+- Add a native `linux-x64` host.
+- Load configuration, pacenote definitions, profiles, and co-driver packages.
+- Receive one UDP game's telemetry under Proton.
+- Decode, mix, and play a real co-driver package through PortAudio.
+- Log diagnostics without requiring a desktop UI.
+
+### Phase 2: useful Steam Deck MVP
+
+- Extract and host the Web Dashboard on Linux.
+- Add a browser-based control UI for game, profile, co-driver, audio device,
+  dashboard, and diagnostics selection.
+- Support the Tier 1 UDP games.
+- Provide SteamOS path discovery and a distributable Linux package.
+
+This phase is the first public Steam Deck candidate. It does not wait for an
+Avalonia rewrite or an in-game Gamescope overlay.
+
+### Phase 3: Proton relays
+
+- Build a versioned relay protocol.
+- Add the ACR shared-memory/live-pacenote relay.
+- Add RBR relay capabilities incrementally.
+- Surface relay version, connection, and capability diagnostics in the UI.
+
+### Phase 4: optional native desktop shell
+
+- Add Avalonia if a native settings/editor experience provides enough benefit
+  beyond the web control UI.
+- Reuse view models and platform services, but do not attempt to compile WPF
+  XAML unchanged.
+- Keep Monaco browser-hosted unless a reliable Linux embedded-webview solution
+  is selected.
+
+### Phase 5: SteamOS overlay and capture research
+
+- Prototype a Gamescope-compatible overlay path.
+- Measure frame pacing, latency, focus, controller input, and Gaming Mode
+  lifecycle behavior on real Steam Deck hardware.
+- Research PipeWire/FFmpeg replay capture independently.
+
+## Acceptance Criteria
+
+### Linux proof of concept
+
+- A self-contained `linux-x64` build starts on SteamOS without Wine.
+- A selected UDP game supplies stable telemetry while running under Proton.
+- A normal co-driver package plays through the selected Linux audio device.
+- Playback does not require WPF, WebView2, Media Foundation, or WASAPI.
+
+### Steam Deck MVP
+
+- The browser control UI and Web Dashboard are usable at the Deck's native
+  resolution and from another LAN device.
+- Game/profile/co-driver selection persists without Windows registry access.
+- At least the Tier 1 integrations report honest capability diagnostics.
+- Suspend/resume, game restart, audio-device changes, and application restart
+  recover without losing playback permanently.
+- Windows builds and their native overlay remain supported by the same shared
+  core.
+
+## Explicit Non-Goals For The MVP
+
+- Running the current WPF executable natively on Linux;
+- treating WebView2 as a Linux browser host;
+- opening Proton's Windows named maps directly from native Linux code;
+- promising a click-through in-game overlay merely because Avalonia opens a
+  desktop window;
+- replacing the stable Windows WASAPI backend with PortAudio;
+- blocking the first Steam Deck release on full Windows feature parity.

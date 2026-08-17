@@ -1,6 +1,5 @@
 using System;
 using NAudio.Dsp;
-using NAudio.MediaFoundation;
 using NAudio.Wave;
 
 public class InterComEffectSampleProvider : ISampleProvider
@@ -43,21 +42,26 @@ public class InterComEffectSampleProvider : ISampleProvider
     
     public WaveFormat WaveFormat { get; }
     
-    public int Read(float[] buffer, int offset, int count)
+    public int Read(Span<float> buffer)
     {
         // Read from the source
-        int samplesRead = sourceProvider.Read(buffer, offset, count);
+        int samplesRead = sourceProvider.Read(buffer);
+        if (samplesRead == 0)
+        {
+            return 0;
+        }
+
         float meanSample = 0;
         float maxSample = 0;
         
         // Apply the BiQuadFilter to each sample
         for (int i = 0; i < samplesRead; i++)
         {
-            maxSample = Math.Max(maxSample, Math.Abs(buffer[offset + i]));
-            meanSample += Math.Abs(buffer[offset + i]);
+            maxSample = Math.Max(maxSample, Math.Abs(buffer[i]));
+            meanSample += Math.Abs(buffer[i]);
             // filter the sound by low pass filter and high pass filter
-            buffer[offset + i] = lowPassFilter.Transform(buffer[offset + i]);
-            buffer[offset + i] = highPassFilter.Transform(buffer[offset + i]);
+            buffer[i] = lowPassFilter.Transform(buffer[i]);
+            buffer[i] = highPassFilter.Transform(buffer[i]);
 
         }
         meanSample /= samplesRead;
@@ -67,11 +71,11 @@ public class InterComEffectSampleProvider : ISampleProvider
             // change distortion threshold and gain based on the maxSample
             distortionThreshold = maxSample - (maxSample - meanSample) * Math.Abs(MathF.Pow(level / 100f, 3));
             // amplify the sample if the level is high
-            buffer[offset + i] = buffer[offset + i] * (MathF.Pow(level, 2) / 1000f + 1);
+            buffer[i] = buffer[i] * (MathF.Pow(level, 2) / 1000f + 1);
 
-            if (Math.Abs(buffer[offset + i]) > distortionThreshold)
+            if (Math.Abs(buffer[i]) > distortionThreshold)
             {
-                buffer[offset + i] = MathF.Sign(buffer[offset + i]) * distortionThreshold;
+                buffer[i] = MathF.Sign(buffer[i]) * distortionThreshold;
             }
         }
         

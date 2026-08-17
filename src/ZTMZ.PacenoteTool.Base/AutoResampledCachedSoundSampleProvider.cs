@@ -18,24 +18,21 @@ namespace ZTMZ.PacenoteTool.Base
             this.cachedSound = cachedSound;
         }
 
-        public int Read(float[] buffer, int offset, int count)
+        public int Read(Span<float> buffer)
         {
             var availableSamples = Math.Max(0, cachedSound.AudioData.Length - samplesRead);
-            var samplesToCopy = Math.Min(availableSamples, count);
+            var samplesToCopy = Math.Min(availableSamples, buffer.Length);
 
             for (int i = 0; i < samplesToCopy; i++)
             {
-                buffer[offset + i] = cachedSound[samplesRead + i];
+                buffer[i] = cachedSound[samplesRead + i];
             }
 
             // this is very necessary to avoid the sound from being cut off
             // #IAH9PW finally fixed.
-            if (samplesToCopy < count && samplesToCopy > 0)
+            if (samplesToCopy < buffer.Length && samplesToCopy > 0)
             {
-                for (int i = samplesToCopy; i < count; i++)
-                {
-                    buffer[offset + i] = 0;
-                }
+                buffer[samplesToCopy..].Clear();
             }
 
             samplesRead += samplesToCopy;
@@ -46,7 +43,7 @@ namespace ZTMZ.PacenoteTool.Base
                 return 0;
             }
 
-            return count;
+            return buffer.Length;
         }
 
 

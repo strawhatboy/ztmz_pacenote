@@ -71,10 +71,10 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     private CoDriverPackageInfo? _selectedCodriver;
 
     [ObservableProperty]
-    private IList<string> _outputDevices = new ObservableCollection<string>();
+    private IList<AudioOutputDeviceInfo> _outputDevices = new ObservableCollection<AudioOutputDeviceInfo>();
 
     [ObservableProperty]
-    private string _selectedOutputDevice;
+    private AudioOutputDeviceInfo? _selectedOutputDevice;
 
     private object _collectionLock = new object();
 
@@ -1236,7 +1236,13 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     [RelayCommand]
     private void OutputDeviceSelectionChanged() {
         var outputDevice = SelectedOutputDevice;
+        if (outputDevice == null)
+        {
+            return;
+        }
+
         Config.Instance.UI_SelectedPlaybackDevice = OutputDevices.IndexOf(outputDevice);
+        Config.Instance.UI_SelectedPlaybackDeviceId = outputDevice.Id;
         Config.Instance.SaveUserConfig();
         Tool.SetOutputDevice(Config.Instance.UI_SelectedPlaybackDevice);
     }

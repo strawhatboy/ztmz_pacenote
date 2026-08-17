@@ -1,4 +1,3 @@
-using NAudio.Wave;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -59,20 +58,30 @@ namespace ZTMZ.PacenoteTool.Core
 
         private ConcurrentDictionary<string, AutoResampledCachedSound> soundCache = new();
 
-        private int _currentPlayDeviceId = 0;
+        public AudioOutputDeviceInfo CurrentPlayDevice { get; private set; }
 
-        public int CurrentPlayDeviceId
+        public void SetCurrentPlayDevice(AudioOutputDeviceInfo device, int deviceIndex)
         {
-            set
+            ArgumentNullException.ThrowIfNull(device);
+
+            var nextPlayer = new ZTMZAudioPlaybackEngine(
+                device.Id,
+                deviceIndex,
+                Config.Instance.UseSequentialMixerToHandleAudioConflict,
+                Config.Instance.PlaybackDeviceDesiredLatency);
+            nextPlayer.SetMuted(Config.Instance.UI_Mute);
+
+            var previousPlayer = this.Player;
+            this.Player = nextPlayer;
+            this.CurrentPlayDevice = device;
+            try
             {
-                this.Player?.Dispose();
-                this._currentPlayDeviceId = value;
-                this.Player = new ZTMZAudioPlaybackEngine(this._currentPlayDeviceId,
-                    Config.Instance.UseSequentialMixerToHandleAudioConflict,
-                    Config.Instance.PlaybackDeviceDesiredLatency);
-                this.Player.SetMuted(Config.Instance.UI_Mute);
+                previousPlayer?.Dispose();
             }
-            get => this._currentPlayDeviceId;
+            catch (Exception exception)
+            {
+                _logger.Warn(exception, "Failed to dispose the previous audio output after switching devices.");
+            }
         }
 
         public int CurrentPlayAmplification { set; get; } = 100;

@@ -37,16 +37,12 @@ namespace ZTMZ.PacenoteTool.Base
             this.PlaybackRate = playbackRate;
         }
 
-        public int Read(float[] buffer, int offset, int count)
+        public int Read(Span<float> buffer)
         {
             if (playbackRate == 0) // play silence
             {
-                for (int n = 0; n < count; n++)
-                {
-                    buffer[offset++] = 0;
-                }
-
-                return count;
+                buffer.Clear();
+                return buffer.Length;
             }
 
             if (repositionRequested)
@@ -57,9 +53,9 @@ namespace ZTMZ.PacenoteTool.Base
             }
 
             int samplesRead = 0;
-            while (samplesRead < count)
+            while (samplesRead < buffer.Length)
             {
-                var desiredSampleFrames = (count - samplesRead) / channelCount;
+                var desiredSampleFrames = (buffer.Length - samplesRead) / channelCount;
                 if (desiredSampleFrames == 0)
                 {
                     break;
@@ -69,7 +65,7 @@ namespace ZTMZ.PacenoteTool.Base
                                channelCount;
                 if (received > 0)
                 {
-                    Array.Copy(soundTouchReadBuffer, 0, buffer, offset + samplesRead, received);
+                    soundTouchReadBuffer.AsSpan(0, received).CopyTo(buffer[samplesRead..]);
                     samplesRead += received;
                     continue;
                 }
@@ -79,7 +75,7 @@ namespace ZTMZ.PacenoteTool.Base
                     break;
                 }
 
-                var readFromSource = sourceProvider.Read(sourceReadBuffer, 0, sourceReadBuffer.Length);
+                var readFromSource = sourceProvider.Read(sourceReadBuffer);
                 if (readFromSource > 0)
                 {
                     currentSoundTouchProcessor.PutSamples(sourceReadBuffer, readFromSource / channelCount);

@@ -5,28 +5,31 @@ set currentDir=%cd%
 cd /D "%~dp0"
 cd ../src
 
+rem Build the shared project graph once. Several game projects reference Base.UI;
+rem rebuilding that WPF project in separate or concurrent MSBuild nodes can
+rem corrupt its BAML state and make the first build fail with BG1002.
+cd ZTMZ.PacenoteTool.WpfGUI
+dotnet build -c Release --disable-build-servers --maxcpucount:1 --property WarningLevel=0
+if errorlevel 1 goto :build_failed
+cd ..
+
 cd ZTMZ.PacenoteTool.Codemasters
-dotnet build -c Release --property WarningLevel=0
+dotnet build -c Release --no-dependencies --property WarningLevel=0
 if errorlevel 1 goto :build_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.RBR
-dotnet build -c Release --property WarningLevel=0
+dotnet build -c Release --no-dependencies --property WarningLevel=0
 if errorlevel 1 goto :build_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.BeamNG
-dotnet build -c Release --property WarningLevel=0
+dotnet build -c Release --no-dependencies --property WarningLevel=0
 if errorlevel 1 goto :build_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.AC
-dotnet build -c Release --property WarningLevel=0
-if errorlevel 1 goto :build_failed
-cd ..
-
-cd ZTMZ.PacenoteTool.WpfGUI
-dotnet build -c Release --property WarningLevel=0
+dotnet build -c Release --no-dependencies --property WarningLevel=0
 if errorlevel 1 goto :build_failed
 cd ..
 

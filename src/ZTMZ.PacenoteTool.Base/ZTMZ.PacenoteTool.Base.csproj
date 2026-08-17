@@ -14,9 +14,10 @@
     <PackageReference Include="ini-parser-netstandard" Version="2.5.3" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.10" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
-    <PackageReference Include="NAudio" Version="2.3.0" />
-    <PackageReference Include="NAudio.Extras" Version="2.3.0" />
-    <PackageReference Include="NAudio.Vorbis" Version="1.5.0" />
+    <PackageReference Include="NAudio" Version="3.0.0" />
+    <PackageReference Include="NAudio.Extras" Version="3.0.0" />
+    <PackageReference Include="NAudio.Wasapi" Version="3.0.0" />
+    <PackageReference Include="NVorbis" Version="0.10.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="NLog" Version="6.1.4" />
     <PackageReference Include="obs-websocket-dotnet" Version="5.0.1" />

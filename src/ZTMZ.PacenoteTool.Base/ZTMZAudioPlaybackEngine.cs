@@ -2,14 +2,16 @@
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
+using System.Runtime.Versioning;
 using System.Threading;
 using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.Base
 {
+    [SupportedOSPlatform("windows")]
     public class ZTMZAudioPlaybackEngine : IDisposable
     {
-        private readonly WaveOutEvent outputDevice;
+        private readonly IAudioOutputBackend outputDevice;
         private readonly MixingSampleProvider mixer;
         private readonly VolumeSampleProvider outputVolume;
         private readonly SequentialSampleProvider sequential;
@@ -24,16 +26,13 @@ namespace ZTMZ.PacenoteTool.Base
         private int isDisposed;
 
 
-        public ZTMZAudioPlaybackEngine(int deviceID = -1, bool isSequential = true, int desiredLatency = 50,
+        public ZTMZAudioPlaybackEngine(string deviceEndpointId = "", int deviceID = 0,
+            bool isSequential = true, int desiredLatency = 50,
             int sampleRate = 44100, int channelCount = 2)
         {
             this.deviceId = deviceID;
             this.desiredLatency = desiredLatency;
-            outputDevice = new WaveOutEvent
-            {
-                DeviceNumber = deviceID,
-                DesiredLatency = desiredLatency
-            };
+            outputDevice = new WasapiAudioOutputBackend(deviceEndpointId, desiredLatency);
 
             var ieeeFloatWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channelCount);
             mixer = new MixingSampleProvider(ieeeFloatWaveFormat) { ReadFully = true };
@@ -48,8 +47,7 @@ namespace ZTMZ.PacenoteTool.Base
             mixer.AddMixerInput(new AudioKeepAliveSampleProvider(ieeeFloatWaveFormat));
 
             SetMuted(Config.Instance.UI_Mute);
-            outputDevice.Init(outputVolume);
-            outputDevice.Play();
+            outputDevice.Start(outputVolume);
         }
 
         public bool IsMuted { get; private set; }

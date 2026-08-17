@@ -1,6 +1,7 @@
 v2.99.99.46-3.0-rc18
 
 * Adds an in-window roadbook print dialog with an exact live PDF preview, physical-printer and PDF destinations, paper size, orientation, margins, configurable page-number format and position, page ranges, and copies; printed backgrounds are preserved and browser file-path headers and footers are removed.
+* Upgrades audio playback to NAudio 3 and WASAPI shared-mode media sessions; fixes Windows treating pacenote playback as communications activity and automatically lowering or muting game and other application audio, while improving output-device identification and switching reliability.
 * Fixes game-specific descriptions, setup guidance, bridge warnings, diagnostics, and settings remaining in English when the interface uses German, Spanish, French, Italian, Japanese, Korean, Brazilian Portuguese, or Russian.
 * Shows every language in the language selector using its own native name instead of translating the entire list into the Windows display language.
 * Adds a visual pacenote dashboard for the native overlay and Web Dashboard, showing every token in the current call as an icon while previous calls scroll upward and fade; token labels, history length, row spacing, and icon-to-label spacing are configurable.

@@ -179,6 +179,17 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._UI_SelectedPlaybackDevice;
         }
 
+        private string _UI_SelectedPlaybackDeviceId = "";
+        public string UI_SelectedPlaybackDeviceId
+        {
+            set
+            {
+                this._UI_SelectedPlaybackDeviceId = value ?? "";
+                this._userconfig[nameof(UI_SelectedPlaybackDeviceId)] = this._UI_SelectedPlaybackDeviceId;
+            }
+            get => this._UI_SelectedPlaybackDeviceId;
+        }
+
         private int _UI_SelectedAudioPackage = 0;
         public int UI_SelectedAudioPackage
         {
