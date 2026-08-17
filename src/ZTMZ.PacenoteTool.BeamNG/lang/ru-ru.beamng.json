@@ -1,0 +1,26 @@
+{
+  "game": {
+    "beamng": {
+      "description": "Встроенный режим Rally в BeamNG.drive. Использует OutGauge для телеметрии приборной панели и локальный мост Rally для данных этапа и заметок.",
+      "bridge": {
+        "userFolder": "Папка пользователя BeamNG",
+        "browseUserFolder": "Выбрать папку пользователя BeamNG.drive",
+        "install": "Установить / восстановить мост Rally",
+        "installTooltip": "Установить или обновить мод моста Rally в выбранной папке пользователя BeamNG",
+        "ports": "Адрес OutGauge: 127.0.0.1:4444. Адрес моста ZTMZ Rally: 127.0.0.1:44445.",
+        "installed": "Мост Rally установлен в:\n{0}\n\nПерезапустите BeamNG, если игра запущена. В Mods Manager игры BeamNG один раз включите ZTMZ Pacenote Rally Bridge. Затем включите OutGauge и укажите адрес 127.0.0.1:4444. Мост ZTMZ запускается автоматически; назначать клавишу в Controls не требуется.",
+        "installFailed": "Не удалось установить мост Rally",
+        "statusUserFolderRequired": "Выберите папку пользователя BeamNG.drive.",
+        "statusNotInstalled": "Мост Rally не установлен.",
+        "statusInstalled": "Мост Rally установлен. Перезапустите BeamNG, чтобы загрузить обновленный мод.",
+        "statusPortUnavailable": "Порт {0} моста Rally недоступен.",
+        "statusWaiting": "Мост Rally прослушивает порт {0}. В Mods Manager игры BeamNG включите ZTMZ Pacenote Rally Bridge, затем откройте встроенный этап Rally.",
+        "statusNoRecentData": "Мост Rally обнаружен, но на порт {0} давно не поступали данные. Убедитесь, что ZTMZ Pacenote Rally Bridge включен, затем перезагрузите мод или перезапустите BeamNG.",
+        "statusConnected": "Мост Rally подключен через порт {0}.",
+        "setupRequiredTitle": "Требуется настройка BeamNG",
+        "setupBridgeRequired": "Установите мост Rally перед использованием режима Rally BeamNG.drive с Pacenote Tool.",
+        "setupUserFolderRequired": "Перед установкой моста Rally выберите корректную папку пользователя BeamNG.drive."
+      }
+    }
+  }
+}

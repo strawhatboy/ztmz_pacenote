@@ -435,7 +435,11 @@
                     },
                     Self: {
                         ImageResources: this.imageResources,
-                        GetConfigByKey: luaFunction(key => runtime.settings[toJavaScriptString(key)])
+                        GetConfigByKey: luaFunction(key => runtime.settings[toJavaScriptString(key)]),
+                        ResolvePacenoteIconToken: luaFunction(token => {
+                            const normalized = toJavaScriptString(token).trim().replace(/\.png$/i, '');
+                            return runtime.dashboardPackage.pacenoteIconTokenMap?.[normalized.toLowerCase()] || '';
+                        })
                     },
                     IsWebDashboard: true,
                     WebDashboardStaticLayerDirty: true,

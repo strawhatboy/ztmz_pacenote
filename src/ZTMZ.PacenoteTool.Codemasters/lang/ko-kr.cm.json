@@ -1,0 +1,13 @@
+{
+    "game": {
+        "dr1": {
+            "description": "Codemasters의 Dirt Rally 1.0"
+        },
+        "dr2": {
+            "description": "Codemasters의 Dirt Rally 2.0"
+        },
+        "wrc": {
+            "description": "EA Sports의 EA Sports WRC."
+        }
+    }
+}

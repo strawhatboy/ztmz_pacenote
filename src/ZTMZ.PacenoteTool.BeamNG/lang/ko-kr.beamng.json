@@ -1,0 +1,26 @@
+{
+  "game": {
+    "beamng": {
+      "description": "BeamNG.drive 내장 Rally Mode입니다. 대시보드 텔레메트리에는 OutGauge를, 스테이지 및 페이스노트 데이터에는 로컬 Rally 브리지를 사용합니다.",
+      "bridge": {
+        "userFolder": "BeamNG 사용자 폴더",
+        "browseUserFolder": "BeamNG.drive 사용자 폴더 선택",
+        "install": "Rally 브리지 설치 / 복구",
+        "installTooltip": "선택한 BeamNG 사용자 폴더에 Rally 브리지 모드를 설치하거나 업데이트합니다",
+        "ports": "OutGauge 대상: 127.0.0.1:4444. ZTMZ Rally 브리지 대상: 127.0.0.1:44445.",
+        "installed": "Rally 브리지가 다음 위치에 설치되었습니다:\n{0}\n\nBeamNG가 실행 중이면 다시 시작하십시오. BeamNG의 Mods Manager에서 ZTMZ Pacenote Rally Bridge를 한 번 활성화하십시오. 그런 다음 OutGauge를 활성화하고 대상을 127.0.0.1:4444로 설정하십시오. ZTMZ 브리지는 자동으로 시작되므로 Controls 키 할당은 필요하지 않습니다.",
+        "installFailed": "Rally 브리지 설치 실패",
+        "statusUserFolderRequired": "BeamNG.drive 사용자 폴더를 선택하십시오.",
+        "statusNotInstalled": "Rally 브리지가 설치되어 있지 않습니다.",
+        "statusInstalled": "Rally 브리지가 설치되었습니다. 업데이트된 모드를 불러오려면 BeamNG를 다시 시작하십시오.",
+        "statusPortUnavailable": "Rally 브리지 포트 {0}을 사용할 수 없습니다.",
+        "statusWaiting": "Rally 브리지가 포트 {0}에서 수신 대기 중입니다. BeamNG의 Mods Manager에서 ZTMZ Pacenote Rally Bridge를 활성화한 다음 내장 Rally 스테이지에 진입하십시오.",
+        "statusNoRecentData": "Rally 브리지가 감지되었지만 포트 {0}에 최근 데이터가 도착하지 않았습니다. ZTMZ Pacenote Rally Bridge가 활성화되어 있는지 확인한 다음 모드를 다시 불러오거나 BeamNG를 다시 시작하십시오.",
+        "statusConnected": "Rally 브리지가 포트 {0}에 연결되었습니다.",
+        "setupRequiredTitle": "BeamNG 설정 필요",
+        "setupBridgeRequired": "Pacenote Tool로 BeamNG.drive Rally Mode를 사용하기 전에 Rally 브리지를 설치하십시오.",
+        "setupUserFolderRequired": "Rally 브리지를 설치하려면 먼저 올바른 BeamNG.drive 사용자 폴더를 선택하십시오."
+      }
+    }
+  }
+}

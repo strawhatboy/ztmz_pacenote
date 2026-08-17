@@ -1,0 +1,20 @@
+{
+    "game": {
+        "rbr": {
+            "description": "定番ラリーシミュレーターの Rally Sim Fans 版です。",
+            "additional_settings": {
+                "playPacenotesWhenReplaying": "リプレイ中にペースノートを再生する。",
+                "additional_pacenote_def": "カスタム RBR ペースノート定義。",
+                "autoSwitchPacenoteDef": "ペースノート定義を自動的に切り替える。",
+                "tooltip": {
+                    "playPacenotesWhenReplaying": "完走したレースのリプレイ中にペースノートを再生します。",
+                    "additional_pacenote_def": "RBR ペースノートと ZTMZ ペースノート定義の対応関係を格納した定義データベースファイルです。",
+                    "autoSwitchPacenoteDef": "現在のコースが標準 RBR ペースノートを使用している場合は標準定義を使用し、それ以外の場合は上記の定義ファイルを使用します。"
+                }
+            },
+            "message": {
+                "custom_pacenote_not_used": "現在のコース {0} では標準ペースノートが使用されています。そのままでも利用できますが、Luppis V3 ペースノートを推奨します。Luppis V3 に現在のコース用ペースノートスクリプトが含まれていない可能性もあります。"
+            }
+        }
+    }
+}

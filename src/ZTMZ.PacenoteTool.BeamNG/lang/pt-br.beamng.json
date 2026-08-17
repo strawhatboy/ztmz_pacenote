@@ -1,0 +1,26 @@
+{
+  "game": {
+    "beamng": {
+      "description": "Modo Rally integrado do BeamNG.drive. Usa o OutGauge para a telemetria do painel e a ponte Rally local para dados de etapa e notas.",
+      "bridge": {
+        "userFolder": "Pasta de usuário do BeamNG",
+        "browseUserFolder": "Selecionar a pasta de usuário do BeamNG.drive",
+        "install": "Instalar / reparar a ponte Rally",
+        "installTooltip": "Instala ou atualiza o mod da ponte Rally na pasta de usuário do BeamNG selecionada",
+        "ports": "Destino do OutGauge: 127.0.0.1:4444. Destino da ponte Rally do ZTMZ: 127.0.0.1:44445.",
+        "installed": "A ponte Rally foi instalada em:\n{0}\n\nReinicie o BeamNG se ele estiver em execução. No Mods Manager do BeamNG, ative ZTMZ Pacenote Rally Bridge uma vez. Em seguida, ative o OutGauge e defina o destino como 127.0.0.1:4444. A ponte do ZTMZ inicia automaticamente; não é necessário atribuir nenhum controle.",
+        "installFailed": "Falha na instalação da ponte Rally",
+        "statusUserFolderRequired": "Selecione a pasta de usuário do BeamNG.drive.",
+        "statusNotInstalled": "A ponte Rally não está instalada.",
+        "statusInstalled": "Ponte Rally instalada. Reinicie o BeamNG para carregar o mod atualizado.",
+        "statusPortUnavailable": "A porta {0} da ponte Rally não está disponível.",
+        "statusWaiting": "A ponte Rally está escutando na porta {0}. No Mods Manager do BeamNG, ative ZTMZ Pacenote Rally Bridge e entre em uma etapa Rally integrada.",
+        "statusNoRecentData": "A ponte Rally foi detectada, mas nenhum dado recente chegou à porta {0}. Confirme que ZTMZ Pacenote Rally Bridge está ativado e recarregue o mod ou reinicie o BeamNG.",
+        "statusConnected": "Ponte Rally conectada na porta {0}.",
+        "setupRequiredTitle": "Configuração do BeamNG necessária",
+        "setupBridgeRequired": "Instale a ponte Rally antes de usar o Modo Rally do BeamNG.drive com o Pacenote Tool.",
+        "setupUserFolderRequired": "Selecione uma pasta de usuário válida do BeamNG.drive antes de instalar a ponte Rally."
+      }
+    }
+  }
+}

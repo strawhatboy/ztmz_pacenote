@@ -1,0 +1,26 @@
+{
+  "game": {
+    "beamng": {
+      "description": "BeamNG.drive 内蔵の Rally Mode。ダッシュボードのテレメトリーには OutGauge、ステージとペースノートのデータにはローカル Rally ブリッジを使用します。",
+      "bridge": {
+        "userFolder": "BeamNG ユーザーフォルダー",
+        "browseUserFolder": "BeamNG.drive ユーザーフォルダーを選択",
+        "install": "Rally ブリッジをインストール / 修復",
+        "installTooltip": "選択した BeamNG ユーザーフォルダーに Rally ブリッジ Mod をインストールまたは更新します",
+        "ports": "OutGauge の送信先: 127.0.0.1:4444。ZTMZ Rally ブリッジの送信先: 127.0.0.1:44445。",
+        "installed": "Rally ブリッジを次の場所にインストールしました：\n{0}\n\nBeamNG が実行中の場合は再起動してください。BeamNG の Mods Manager で ZTMZ Pacenote Rally Bridge を一度有効にします。次に OutGauge を有効にし、送信先を 127.0.0.1:4444 に設定します。ZTMZ ブリッジは自動的に起動するため、Controls での割り当ては不要です。",
+        "installFailed": "Rally ブリッジのインストールに失敗しました",
+        "statusUserFolderRequired": "BeamNG.drive ユーザーフォルダーを選択してください。",
+        "statusNotInstalled": "Rally ブリッジがインストールされていません。",
+        "statusInstalled": "Rally ブリッジをインストールしました。更新した Mod を読み込むには BeamNG を再起動してください。",
+        "statusPortUnavailable": "Rally ブリッジのポート {0} は使用できません。",
+        "statusWaiting": "Rally ブリッジはポート {0} で待機しています。BeamNG の Mods Manager で ZTMZ Pacenote Rally Bridge を有効にしてから、内蔵 Rally ステージに入ってください。",
+        "statusNoRecentData": "Rally ブリッジは検出されましたが、ポート {0} に最近のデータが届いていません。ZTMZ Pacenote Rally Bridge が有効であることを確認し、Mod を再読み込みするか BeamNG を再起動してください。",
+        "statusConnected": "Rally ブリッジがポート {0} に接続しました。",
+        "setupRequiredTitle": "BeamNG の設定が必要です",
+        "setupBridgeRequired": "Pacenote Tool で BeamNG.drive Rally Mode を使用する前に Rally ブリッジをインストールしてください。",
+        "setupUserFolderRequired": "Rally ブリッジをインストールする前に、有効な BeamNG.drive ユーザーフォルダーを選択してください。"
+      }
+    }
+  }
+}

@@ -17,6 +17,7 @@ public partial class PacenoteEditorControl : UserControl
     private bool _pendingReadOnly;
     private bool _isReady;
     private bool _initializing;
+    private string _configuredCulture = string.Empty;
 
     public PacenoteEditorControl()
     {
@@ -58,6 +59,7 @@ public partial class PacenoteEditorControl : UserControl
             _controller.ContentChanged += (_, _) => ContentChanged?.Invoke(this, EventArgs.Empty);
             await _controller.CreateAsync();
             await _controller.ConfigurePacenoteLanguageAsync(await PacenoteLanguageCatalogProvider.LoadAsync());
+            _configuredCulture = I18NLoader.Instance.CurrentCultureName;
             await _controller.SetThemeAsync(ApplicationThemeManager.GetAppTheme());
             await _controller.SetContentAsync(_pendingText);
             await _controller.SetReadOnlyAsync(_pendingReadOnly);
@@ -68,6 +70,18 @@ public partial class PacenoteEditorControl : UserControl
         {
             _initializing = false;
         }
+    }
+
+    public async Task RefreshPacenoteLanguageAsync()
+    {
+        var culture = I18NLoader.Instance.CurrentCultureName;
+        if (_controller == null || string.Equals(_configuredCulture, culture, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        await _controller.ConfigurePacenoteLanguageAsync(await PacenoteLanguageCatalogProvider.LoadAsync());
+        _configuredCulture = culture;
     }
 
     public async Task SetTextAsync(string text)
@@ -116,20 +130,14 @@ public partial class PacenoteEditorControl : UserControl
         return _controller?.GetRoadbookScaleAsync() ?? Task.FromResult(100.0);
     }
 
-    public Task SetRoadbookPrintMarginsAsync(double horizontal, double vertical)
+    public Task<bool> ExportRoadbookPdfAsync(string fileName, RoadbookPrintOptions options)
     {
-        return _controller?.SetRoadbookPrintMarginsAsync(horizontal, vertical) ?? Task.CompletedTask;
+        return _controller?.ExportRoadbookPdfAsync(fileName, options) ?? Task.FromResult(false);
     }
 
-    public Task<RoadbookPrintMargins> GetRoadbookPrintMarginsAsync()
+    public Task<RoadbookPrintResult> PrintRoadbookAsync(RoadbookPrintOptions options)
     {
-        return _controller?.GetRoadbookPrintMarginsAsync()
-            ?? Task.FromResult(new RoadbookPrintMargins(15, 10));
-    }
-
-    public Task<bool> ExportRoadbookPdfAsync(string fileName)
-    {
-        return _controller?.ExportRoadbookPdfAsync(fileName) ?? Task.FromResult(false);
+        return _controller?.PrintRoadbookAsync(options) ?? Task.FromResult(RoadbookPrintResult.OtherError);
     }
 
     public Task HighlightPlaybackAsync(PacenotePlaybackSnapshot snapshot)

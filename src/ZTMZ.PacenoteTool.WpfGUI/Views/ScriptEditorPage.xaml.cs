@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using Wpf.Ui;
 using Wpf.Ui.Controls;
+using Wpf.Ui.Extensions;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Core;
 
@@ -16,19 +18,20 @@ public partial class ScriptEditorPage : Page
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     private const string PacenoteFilter = "Pacenote scripts (*.pacenote)|*.pacenote|All files (*.*)|*.*";
-    private const string RoadbookPdfFilter = "PDF files (*.pdf)|*.pdf";
     private readonly ZTMZPacenoteTool _tool;
+    private readonly IContentDialogService _contentDialogService;
     private string _currentFile = string.Empty;
     private string _playbackScriptPath = string.Empty;
     private string _documentName = string.Empty;
     private bool _isDirty;
     private bool _isReadOnly;
     private bool _initialized;
-    private bool _loadingRoadbookSettings;
+    private bool _loadingRoadbookScale;
 
-    public ScriptEditorPage(ZTMZPacenoteTool tool)
+    public ScriptEditorPage(ZTMZPacenoteTool tool, IContentDialogService contentDialogService)
     {
         _tool = tool;
+        _contentDialogService = contentDialogService;
         InitializeComponent();
         Editor.ContentChanged += (_, _) =>
         {
@@ -42,6 +45,7 @@ public partial class ScriptEditorPage : Page
     {
         if (_initialized)
         {
+            await Editor.RefreshPacenoteLanguageAsync();
             return;
         }
 
@@ -49,18 +53,15 @@ public partial class ScriptEditorPage : Page
         {
             await Editor.InitializeAsync();
             _initialized = true;
-            _loadingRoadbookSettings = true;
+            _loadingRoadbookScale = true;
             try
             {
                 RoadbookScale.Value = await Editor.GetRoadbookScaleAsync();
                 UpdateRoadbookScaleText();
-                var printMargins = await Editor.GetRoadbookPrintMarginsAsync();
-                PdfHorizontalMargin.Value = printMargins.Horizontal;
-                PdfVerticalMargin.Value = printMargins.Vertical;
             }
             finally
             {
-                _loadingRoadbookSettings = false;
+                _loadingRoadbookScale = false;
             }
             await UpdateRoadbookTitleAsync();
             UpdateStatus();
@@ -131,30 +132,25 @@ public partial class ScriptEditorPage : Page
         await Editor.ValidateAsync();
     }
 
-    private async void ExportRoadbookPdf_Click(object sender, RoutedEventArgs e)
+    private async void PrintRoadbook_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new SaveFileDialog
-        {
-            Filter = RoadbookPdfFilter,
-            DefaultExt = ".pdf",
-            FileName = "roadbook.pdf"
-        };
-        if (dialog.ShowDialog() != true)
-        {
-            return;
-        }
-
+        var editorVisibility = Editor.Visibility;
+        Editor.Visibility = Visibility.Collapsed;
         try
         {
-            if (!await Editor.ExportRoadbookPdfAsync(dialog.FileName))
-            {
-                await ShowErrorAsync(I18NLoader.Instance["scriptEditor.exportRoadbookPdfFailed"]);
-            }
+            var dialog = new RoadbookPrintWindow(
+                _contentDialogService.GetDialogHostEx()!,
+                Editor);
+            await dialog.ShowAsync();
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, "Roadbook PDF export failed.");
+            Logger.Error(exception, "Roadbook print dialog failed.");
             await ShowErrorAsync(exception.Message);
+        }
+        finally
+        {
+            Editor.Visibility = editorVisibility;
         }
     }
 
@@ -169,7 +165,7 @@ public partial class ScriptEditorPage : Page
     private async void RoadbookScale_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         UpdateRoadbookScaleText();
-        if (!_loadingRoadbookSettings && Editor?.IsReady == true)
+        if (!_loadingRoadbookScale && Editor?.IsReady == true)
         {
             await Editor.SetRoadbookScaleAsync(e.NewValue);
         }
@@ -181,17 +177,6 @@ public partial class ScriptEditorPage : Page
         {
             RoadbookScaleValue.Text = $"{RoadbookScale.Value:0}%";
         }
-    }
-
-    private async void PdfMargin_ValueChanged(object sender, NumberBoxValueChangedEventArgs e)
-    {
-        if (_loadingRoadbookSettings || Editor?.IsReady != true || PdfHorizontalMargin?.Value is not double horizontal
-            || PdfVerticalMargin?.Value is not double vertical)
-        {
-            return;
-        }
-
-        await Editor.SetRoadbookPrintMarginsAsync(horizontal, vertical);
     }
 
     private async void AdjustDistance_Click(object sender, RoutedEventArgs e)

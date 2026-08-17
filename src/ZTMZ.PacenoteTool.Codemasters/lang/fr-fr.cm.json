@@ -1,0 +1,13 @@
+{
+    "game": {
+        "dr1": {
+            "description": "Dirt Rally 1.0, par Codemasters"
+        },
+        "dr2": {
+            "description": "Dirt Rally 2.0, par Codemasters"
+        },
+        "wrc": {
+            "description": "EA Sports WRC, par EA Sports."
+        }
+    }
+}

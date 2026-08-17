@@ -1,0 +1,26 @@
+{
+  "game": {
+    "beamng": {
+      "description": "Integrierter Rally Mode von BeamNG.drive. Verwendet OutGauge für Dashboard-Telemetrie und die lokale Rally-Bridge für Etappen- und Pacenote-Daten.",
+      "bridge": {
+        "userFolder": "BeamNG-Benutzerordner",
+        "browseUserFolder": "BeamNG.drive-Benutzerordner auswählen",
+        "install": "Rally-Bridge installieren / reparieren",
+        "installTooltip": "Rally-Bridge-Mod im ausgewählten BeamNG-Benutzerordner installieren oder aktualisieren",
+        "ports": "OutGauge-Ziel: 127.0.0.1:4444. Ziel der ZTMZ Rally-Bridge: 127.0.0.1:44445.",
+        "installed": "Die Rally-Bridge wurde installiert unter:\n{0}\n\nStarte BeamNG neu, falls es ausgeführt wird. Aktiviere im Mods Manager von BeamNG einmalig die ZTMZ Pacenote Rally Bridge. Aktiviere danach OutGauge und lege 127.0.0.1:4444 als Ziel fest. Die ZTMZ-Bridge startet automatisch; eine Tastenbelegung unter Controls ist nicht erforderlich.",
+        "installFailed": "Installation der Rally-Bridge fehlgeschlagen",
+        "statusUserFolderRequired": "Wähle den BeamNG.drive-Benutzerordner aus.",
+        "statusNotInstalled": "Die Rally-Bridge ist nicht installiert.",
+        "statusInstalled": "Rally-Bridge installiert. Starte BeamNG neu, um den aktualisierten Mod zu laden.",
+        "statusPortUnavailable": "Port {0} der Rally-Bridge ist nicht verfügbar.",
+        "statusWaiting": "Die Rally-Bridge lauscht auf Port {0}. Aktiviere im Mods Manager von BeamNG die ZTMZ Pacenote Rally Bridge und öffne anschließend eine integrierte Rally-Etappe.",
+        "statusNoRecentData": "Die Rally-Bridge wurde erkannt, aber auf Port {0} sind keine aktuellen Daten eingegangen. Prüfe, ob die ZTMZ Pacenote Rally Bridge aktiviert ist, und lade dann den Mod neu oder starte BeamNG neu.",
+        "statusConnected": "Rally-Bridge auf Port {0} verbunden.",
+        "setupRequiredTitle": "BeamNG-Einrichtung erforderlich",
+        "setupBridgeRequired": "Installiere die Rally-Bridge, bevor du den Rally Mode von BeamNG.drive mit Pacenote Tool verwendest.",
+        "setupUserFolderRequired": "Wähle einen gültigen BeamNG.drive-Benutzerordner aus, bevor die Rally-Bridge installiert werden kann."
+      }
+    }
+  }
+}

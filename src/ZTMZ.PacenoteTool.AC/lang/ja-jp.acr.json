@@ -1,0 +1,36 @@
+{
+    "game": {
+        "acr": {
+            "description": "Supernova Games Studios が開発し、505 Games が販売する Assetto Corsa Rally",
+            "experimental": {
+                "enable": "試験的なライブブリッジを有効にする",
+                "inject": "ブリッジを注入",
+                "disabled": "試験的なライブブリッジは有効になっていません。",
+                "warningTitle": "試験的な ACR ブリッジ",
+                "enableWarning": "この内部機能は Assetto Corsa Rally に DLL を注入します。オフラインまたは非公開のテストでのみ使用してください。ゲームの更新により互換性が失われる可能性があり、注入コードの使用はゲームの規約に違反したり、アカウントに影響したりする場合があります。試験的なライブブリッジを有効にしますか？",
+                "injectWarning": "実行中の Assetto Corsa Rally プロセスに内部ライブペースノートブリッジを注入しますか？オフラインまたは非公開のテストでのみ使用してください。ブリッジはゲームを終了するまで読み込まれたままになります。",
+                "confirm": "理解しました",
+                "statusBundleUnavailable": "このビルドには内部 ACR ブリッジファイルがインストールされていません。",
+                "statusGameNotRunning": "Assetto Corsa Rally の起動を待っています。",
+                "statusInjected": "試験的なブリッジはすでに読み込まれています。削除するには Assetto Corsa Rally を終了してください。",
+                "statusReady": "試験的なブリッジを明示的に注入する準備ができました。",
+                "launchPromptTitle": "試験的な ACR ブリッジ",
+                "launchPromptWarning": "この試験的機能は Assetto Corsa Rally に DLL を注入します。ゲームの更新後に互換性が失われ、ゲームの規約に違反したり、アカウントを危険にさらしたりする可能性があります。オフラインまたは非公開のテストでのみ使用してください。このゲームセッションにライブペースノートブリッジを注入しますか？",
+                "launchPromptInject": "ブリッジを注入",
+                "launchPromptNotNow": "後で",
+                "launchPromptFailure": "ライブブリッジを注入できませんでした：\n{0}",
+                "privilegeWarning": "ZTMZ と Assetto Corsa Rally は同じ Windows 権限レベルで実行する必要があります。異なる場合、ブリッジはペースノートを送信できません。両方を通常ユーザーとして実行することを推奨します。一方を管理者として実行する場合は、もう一方も管理者として実行してください。"
+            },
+            "diagnostics": {
+                "reader": "ACR 共有メモリ",
+                "liveBridge": "ACR ライブペースノートブリッジ",
+                "bridgeInjected": "注入済み",
+                "bridgeNotInjected": "未注入",
+                "bridgeDisabled": "無効"
+            },
+            "prerequisite": {
+                "sharedMemoryReady": "Assetto Corsa Rally は共有メモリを使用します。前提条件の確認は必要ありません。"
+            }
+        }
+    }
+}

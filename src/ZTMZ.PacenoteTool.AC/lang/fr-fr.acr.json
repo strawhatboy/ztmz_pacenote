@@ -1,0 +1,36 @@
+{
+    "game": {
+        "acr": {
+            "description": "Assetto Corsa Rally, développé par Supernova Games Studios et publié par 505 Games",
+            "experimental": {
+                "enable": "Activer le pont en temps réel expérimental",
+                "inject": "Injecter le pont",
+                "disabled": "Le pont en temps réel expérimental n'est pas activé.",
+                "warningTitle": "Pont ACR expérimental",
+                "enableWarning": "Cette fonction interne peut injecter une DLL dans Assetto Corsa Rally. Elle est réservée aux essais hors ligne ou privés. Les mises à jour du jeu peuvent la rendre incompatible, et l'utilisation de code injecté peut enfreindre les règles du jeu ou affecter un compte. Activer le pont en temps réel expérimental ?",
+                "injectWarning": "Injecter le pont interne de notes en temps réel dans le processus Assetto Corsa Rally en cours d'exécution ? Utilisez-le uniquement pour des essais hors ligne ou privés. Le pont reste chargé jusqu'à la fermeture du jeu.",
+                "confirm": "J'ai compris",
+                "statusBundleUnavailable": "Les fichiers internes du pont ACR ne sont pas installés dans cette version.",
+                "statusGameNotRunning": "En attente du demarrage d'Assetto Corsa Rally.",
+                "statusInjected": "Le pont expérimental est déjà chargé. Fermez Assetto Corsa Rally pour le retirer.",
+                "statusReady": "Prêt pour une injection explicite du pont expérimental.",
+                "launchPromptTitle": "Pont ACR expérimental",
+                "launchPromptWarning": "Cette fonction expérimentale injecte une DLL dans Assetto Corsa Rally. Elle peut devenir incompatible après une mise à jour du jeu et enfreindre ses règles ou mettre un compte en danger. Utilisez-la uniquement pour des essais hors ligne ou privés. Injecter le pont de notes en temps réel pour cette session de jeu ?",
+                "launchPromptInject": "Injecter le pont",
+                "launchPromptNotNow": "Pas maintenant",
+                "launchPromptFailure": "Le pont en temps réel n'a pas été injecté :\n{0}",
+                "privilegeWarning": "ZTMZ et Assetto Corsa Rally doivent être exécutés avec le même niveau de privilèges Windows, sinon le pont ne peut pas transmettre les notes. Nous recommandons d'exécuter les deux en tant qu'utilisateur standard. Si l'un est exécuté en tant qu'administrateur, exécutez également l'autre en tant qu'administrateur."
+            },
+            "diagnostics": {
+                "reader": "Mémoire partagée ACR",
+                "liveBridge": "Pont de notes en temps réel ACR",
+                "bridgeInjected": "Injecté",
+                "bridgeNotInjected": "Non injecté",
+                "bridgeDisabled": "Désactivé"
+            },
+            "prerequisite": {
+                "sharedMemoryReady": "Assetto Corsa Rally utilise la mémoire partagée. Aucun contrôle préalable n'est nécessaire."
+            }
+        }
+    }
+}

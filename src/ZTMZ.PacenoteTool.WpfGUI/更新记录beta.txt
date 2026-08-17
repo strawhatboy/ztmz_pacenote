@@ -1,3 +1,23 @@
+v2.99.99.46-3.0-rc18
+------
+[English]
+* Adds an in-window roadbook print dialog with an exact live PDF preview, physical-printer and PDF destinations, paper size, orientation, margins, configurable page-number format and position, page ranges, and copies; printed backgrounds are preserved and browser file-path headers and footers are removed.
+* Fixes game-specific descriptions, setup guidance, bridge warnings, diagnostics, and settings remaining in English when the interface uses German, Spanish, French, Italian, Japanese, Korean, Brazilian Portuguese, or Russian.
+* Shows every language in the language selector using its own native name instead of translating the entire list into the Windows display language.
+* Adds a visual pacenote dashboard for the native overlay and Web Dashboard, showing every token in the current call as an icon while previous calls scroll upward and fade; token labels, history length, row spacing, and icon-to-label spacing are configurable.
+* Makes the bundled data.zdb the authoritative catalog for official pacenote tokens, fixes the classification, primary aliases, and fallbacks of mechanical-damage calls, and adds an optional read-only custom ZDB merge with official definitions taking priority.
+* Adds rally-oriented database translations for every official pacenote token in all ten interface languages; the script editor and visual dashboard now show token meanings in the current interface language, with merge support for custom ZDB translations.
+* Completes German, Spanish, French, Italian, Japanese, Korean, Brazilian Portuguese, and Russian translations for the core interface, eliminating unintended English fallback across settings, replays, diagnostics, the system tray, data migration, the script editor, and dialogs.
+
+[简体中文]
+* 路书编辑器新增主窗口内打印弹层，提供准确且实时刷新的 PDF 分页预览、实体打印机与 PDF 输出、纸张、方向、页边距、可配置格式与位置的页码、页码范围和份数设置；打印会保留背景色，并移除浏览器生成的文件路径页眉页脚。
+* 修复界面使用德语、西班牙语、法语、意大利语、日语、韩语、巴西葡萄牙语或俄语时，游戏专属说明、安装引导、桥接警告、诊断和设置仍显示英文的问题。
+* 语言选择器现在使用每种语言自己的名称，不再随 Windows 显示语言整组变成英文或中文。
+* 新增原生悬浮窗和网页仪表盘均可使用的图形路书 dashboard：当前播报行会显示全部标记图标，已播报行会向上滚动并逐渐淡化；可配置是否显示标记文字、保留的历史行数、行间距以及图标与文字间距。
+* 将官方路书 token 统一收录到内置 data.zdb，修正机械损坏提示的分类、主别名和回退关系，并新增只读自定义 ZDB 合并设置；发生冲突时始终以官方定义为准。
+* 为全部官方路书 token 补齐十种界面语言的数据库翻译，并按各语言常用的拉力路书术语校对；路书编辑器和图形路书 dashboard 现在都会按当前界面语言显示 token 含义，自定义 ZDB 也可补充翻译。
+* 补全核心界面的德语、西班牙语、法语、意大利语、日语、韩语、巴西葡萄牙语和俄语翻译，解决设置、回放、诊断、托盘、数据迁移、路书编辑器与弹窗意外回退为英文的问题。
+
 v2.99.99.45-3.0-rc17
 ------
 [English]

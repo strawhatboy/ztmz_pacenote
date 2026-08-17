@@ -1,0 +1,26 @@
+{
+  "game": {
+    "beamng": {
+      "description": "Modalità Rally integrata di BeamNG.drive. Utilizza OutGauge per la telemetria del cruscotto e il bridge Rally locale per i dati di prova e delle note.",
+      "bridge": {
+        "userFolder": "Cartella utente di BeamNG",
+        "browseUserFolder": "Seleziona la cartella utente di BeamNG.drive",
+        "install": "Installa / ripara il bridge Rally",
+        "installTooltip": "Installa o aggiorna il mod del bridge Rally nella cartella utente di BeamNG selezionata",
+        "ports": "Destinazione OutGauge: 127.0.0.1:4444. Destinazione bridge Rally ZTMZ: 127.0.0.1:44445.",
+        "installed": "Il bridge Rally è stato installato in:\n{0}\n\nRiavvia BeamNG se è in esecuzione. Nel Mods Manager di BeamNG, abilita una volta ZTMZ Pacenote Rally Bridge. Quindi abilita OutGauge e imposta la destinazione su 127.0.0.1:4444. Il bridge ZTMZ si avvia automaticamente; non è necessaria alcuna assegnazione in Controls.",
+        "installFailed": "Installazione del bridge Rally non riuscita",
+        "statusUserFolderRequired": "Seleziona la cartella utente di BeamNG.drive.",
+        "statusNotInstalled": "Il bridge Rally non è installato.",
+        "statusInstalled": "Bridge Rally installato. Riavvia BeamNG per caricare il mod aggiornato.",
+        "statusPortUnavailable": "La porta {0} del bridge Rally non è disponibile.",
+        "statusWaiting": "Il bridge Rally è in ascolto sulla porta {0}. Nel Mods Manager di BeamNG, abilita ZTMZ Pacenote Rally Bridge, quindi entra in una prova Rally integrata.",
+        "statusNoRecentData": "Il bridge Rally è stato rilevato, ma non sono arrivati dati recenti sulla porta {0}. Verifica che ZTMZ Pacenote Rally Bridge sia abilitato, quindi ricarica il mod o riavvia BeamNG.",
+        "statusConnected": "Bridge Rally connesso sulla porta {0}.",
+        "setupRequiredTitle": "È necessaria la configurazione di BeamNG",
+        "setupBridgeRequired": "Installa il bridge Rally prima di utilizzare la modalità Rally di BeamNG.drive con Pacenote Tool.",
+        "setupUserFolderRequired": "Seleziona una cartella utente valida di BeamNG.drive prima di installare il bridge Rally."
+      }
+    }
+  }
+}

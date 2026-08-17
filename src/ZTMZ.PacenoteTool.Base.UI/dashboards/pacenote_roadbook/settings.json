@@ -1,0 +1,31 @@
+{
+    "PropertyName": {
+        "dashboards.settings.enabled": "dashboards.settings.tooltip.enabled",
+        "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
+        "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
+        "dashboards.settings.size": "dashboards.settings.tooltip.size",
+        "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
+        "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV",
+        "dashboards.settings.backgroundOpacity": "dashboards.settings.tooltip.backgroundOpacity",
+        "dashboards.pacenoteRoadbook.showLabels": "dashboards.pacenoteRoadbook.tooltip.showLabels",
+        "dashboards.pacenoteRoadbook.historyRows": "dashboards.pacenoteRoadbook.tooltip.historyRows",
+        "dashboards.pacenoteRoadbook.rowGap": "dashboards.pacenoteRoadbook.tooltip.rowGap",
+        "dashboards.pacenoteRoadbook.iconLabelGap": "dashboards.pacenoteRoadbook.tooltip.iconLabelGap"
+    },
+    "PropertyValue": [
+        false,
+        0,
+        -1,
+        0.3,
+        0,
+        0,
+        0.05,
+        true,
+        1,
+        0.018,
+        0.02
+    ],
+    "ValueRange": [
+        [], [], [], [0.18, 0.42], [0, 0.5], [0, 0.5], [0, 1], [], [], [0, 0.08], [0, 0.12]
+    ]
+}

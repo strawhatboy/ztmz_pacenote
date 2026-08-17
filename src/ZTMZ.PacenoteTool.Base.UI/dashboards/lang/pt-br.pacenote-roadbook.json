@@ -1,0 +1,18 @@
+{
+  "dashboards": {
+    "pacenoteRoadbook": {
+      "rowGap": "Espaçamento entre linhas",
+      "iconLabelGap": "Espaço ícone–texto",
+      "showLabels": "Mostrar nomes das notas",
+      "historyRows": "Linhas anteriores",
+      "tooltip": {
+        "rowGap": "Espaçamento vertical entre as linhas de notas",
+        "iconLabelGap": "Espaçamento vertical entre cada ícone e seu texto",
+        "showLabels": "Mostrar o nome de cada nota abaixo do ícone",
+        "historyRows": "Número de linhas anteriores mantidas acima da linha atual (0-5)"
+      },
+      "name": "Roadbook gráfico",
+      "description": "Mostrar a linha atual de notas e as linhas anteriores esmaecidas usando ícones"
+    }
+  }
+}

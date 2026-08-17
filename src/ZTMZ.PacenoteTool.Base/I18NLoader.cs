@@ -60,7 +60,7 @@ namespace ZTMZ.PacenoteTool.Base
             cultures = new List<string>(); 
             culturesFullname = new List<string>();
             CultureInfo[] cinfo = CultureInfo.GetCultures(CultureTypes.AllCultures);
-            var cultureDict = cinfo.ToDictionary(a => a.Name.ToLowerInvariant(), a => a.DisplayName, StringComparer.OrdinalIgnoreCase);
+            var cultureDict = cinfo.ToDictionary(a => a.Name.ToLowerInvariant(), a => a.NativeName, StringComparer.OrdinalIgnoreCase);
 
             if (cultureDict.ContainsKey("zh-hans-cn"))
             {

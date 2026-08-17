@@ -4,11 +4,35 @@
     "title_dev": "ZTMZ Club Pacenote Tool (Sviluppo)",
     "title_test": "ZTMZ Club Pacenote Tool (Test)"
   },
+  "dataFolderMigration": {
+    "title": "Sposta cartella dati",
+    "selectDestination": "Seleziona una cartella vuota come nuova cartella dati",
+    "confirmation": "L’applicazione verrà chiusa prima di copiare e verificare tutti i dati.\n\nCartella attuale:\n{0}\n\nNuova cartella:\n{1}\n\nDati da copiare: {2}\nSpazio libero richiesto: {3}\nSpazio disponibile: {4}\n\nLa vecchia cartella rimarrà invariata, a meno che tu non scelga di eliminarla dopo la verifica della copia.",
+    "start": "Sposta e chiudi l’applicazione",
+    "cancel": "Annulla",
+    "close": "Chiudi",
+    "restart": "Riavvia l’applicazione",
+    "portableNotSupported": "Lo spostamento della cartella dati non è disponibile nelle versioni portatili.",
+    "waitingForApplication": "In attesa della chiusura dell’applicazione...",
+    "scanning": "Verifica dei file sorgente e dello spazio di destinazione...",
+    "copying": "Copia dei file dati...",
+    "verifying": "Verifica dei file copiati...",
+    "canceling": "Annullamento della migrazione...",
+    "canceled": "Migrazione annullata. La cartella dati originale rimane attiva. I file copiati parzialmente non sono stati modificati.",
+    "complete": "Migrazione completata. La nuova cartella dati verrà usata al prossimo avvio.",
+    "failed": "Migrazione non riuscita. La cartella dati originale rimane attiva.\n\n{0}",
+    "insufficientSpace": "La destinazione dispone di {1}, ma sono necessari {0}.",
+    "deleteOldConfirmation": "I dati copiati sono stati verificati. Eliminare la vecchia cartella dati?\n\n{0}\n\nQuesta operazione non può essere annullata.",
+    "deletingOldFolder": "Nuova verifica dei file copiati ed eliminazione della vecchia cartella dati...",
+    "oldFolderDeleted": "La vecchia cartella dati è stata eliminata.",
+    "deleteFailed": "La vecchia cartella dati è stata conservata perché non è stato possibile eliminarla: {0}"
+  },
   "tabs": {
     "home": "Home",
     "general": "Generale",
     "voices": "Voci",
     "playback": "Riproduzione",
+    "scriptEditor": "Editor delle note",
     "hud": "HUD",
     "dashboard": "Cruscotti",
     "game": "Gioco",
@@ -16,6 +40,134 @@
     "replay": "Replay",
     "user": "Utente",
     "about": "Informazioni"
+  },
+  "replay": {
+    "title": "Replay",
+    "browserSubtitle": "Esamina le prove salvate per il gioco attuale",
+    "searchTooltip": "Cerca prova speciale, auto, classe o nota",
+    "status": "Stato",
+    "ready": "Pronto",
+    "unavailable": "Non disponibile",
+    "stage": "Prova speciale",
+    "car": "Auto",
+    "class": "Classe",
+    "finishTime": "Arrivo",
+    "recorded": "Registrato",
+    "note": "Nota",
+    "actions": "Azioni",
+    "playback": "Riproduzione",
+    "analysis": "Analisi",
+    "liveTelemetry": "Telemetria in tempo reale",
+    "elapsed": "Trascorso",
+    "distance": "Distanza",
+    "runOverview": "Riepilogo della prova",
+    "volume": "Volume",
+    "speed": "Velocità",
+    "analysisDistanceHint": "La telemetria è allineata alla distanza della prova speciale.",
+    "compareBest": "Confronta con il miglior replay",
+    "analysisInputs": "Comandi",
+    "analysisSpeed": "Velocità",
+    "analysisEngine": "Motore",
+    "analysisGear": "Marcia",
+    "analysisGForce": "Forza G",
+    "analysisBrakeTemperatures": "Temperature dei freni",
+    "analysisSuspensionTravel": "Escursione sospensioni",
+    "analysisSuspensionVelocity": "Velocità sospensioni",
+    "analysisPosition": "Posizione",
+    "maximumRpm": "Regime massimo",
+    "maximumGear": "Marcia massima",
+    "positionX": "Posizione X",
+    "positionY": "Posizione Y",
+    "positionZ": "Posizione Z",
+    "actionFailed": "Azione sul replay non riuscita"
+  },
+  "tray": {
+    "codriver": "Navigatore: {0}",
+    "noCodrivers": "Nessun pacchetto navigatore",
+    "manageCodrivers": "Gestisci navigatori...",
+    "muteAudio": "Disattiva audio",
+    "overlayHud": "HUD sovrapposto",
+    "webDashboard": "Dashboard web",
+    "unavailableDuringStage": "Non disponibile durante una prova speciale attiva",
+    "unmuteToPlayExample": "Riattiva l’audio per riprodurre un esempio",
+    "webDashboardStopped": "La dashboard web è arrestata",
+    "webDashboardStarting": "La dashboard web si sta avviando",
+    "webDashboardRunning": "La dashboard web è in esecuzione",
+    "webDashboardError": "Errore dashboard web: {0}"
+  },
+  "font": {
+    "systemDefault": "Predefinito di Windows",
+    "systemFont": "Carattere dell’interfaccia",
+    "systemFontDescription": "Scegli un carattere installato in Windows. I glifi mancanti possono compromettere la visualizzazione del testo.",
+    "size": "Dimensione testo dell’interfaccia",
+    "sizeDescription": "Regola la dimensione del testo in tutta l’applicazione.",
+    "resetSize": "Ripristina la dimensione predefinita",
+    "systemFontWarningTitle": "Avviso compatibilità carattere",
+    "systemFontWarningContent": "Usare \"{0}\" per l’interfaccia? Alcuni caratteri non supportano tutte le lingue; alcuni simboli potrebbero mancare o essere visualizzati in modo errato.",
+    "systemFontApplyFailed": "Windows non ha potuto caricare il carattere selezionato. È stato mantenuto quello attuale.",
+    "suggestedFont": "Carattere consigliato da scaricare",
+    "refreshCatalog": "Aggiorna elenco caratteri online",
+    "catalogUnavailable": "L’elenco dei caratteri online non è disponibile.",
+    "downloading": "Download e verifica...",
+    "downloadingProgress": "Download e verifica... {0:P0}",
+    "downloaded": "Scaricato e verificato",
+    "active": "Scaricato e in uso",
+    "downloadSize": "Download facoltativo, circa {0} MB",
+    "downloadAndApply": "Scarica e applica",
+    "apply": "Applica",
+    "downloadFailedTitle": "Download del carattere non riuscito",
+    "downloadFailed": "Non è stato possibile scaricare o verificare il carattere consigliato.\n\n{0}"
+  },
+  "scriptEditor": {
+    "open": "Apri script",
+    "save": "Salva",
+    "saveAs": "Salva con nome",
+    "importCrewChief": "Importa JSON CrewChief",
+    "validate": "Convalida script",
+    "printRoadbook": "Stampa o esporta note...",
+    "wordWrap": "A capo automatico",
+    "roadbookScale": "Dimensione note",
+    "roadbookScaleDescription": "Modifica la dimensione visiva delle note nell’anteprima e nel PDF esportato.",
+    "printDialog": {
+      "title": "Stampa note",
+      "destination": "Destinazione",
+      "savePdf": "Salva come PDF",
+      "layout": "Impaginazione",
+      "paper": "Formato carta",
+      "orientation": "Orientamento",
+      "portrait": "Verticale",
+      "landscape": "Orizzontale",
+      "margins": "Margini (mm)",
+      "horizontal": "Sinistra / destra",
+      "vertical": "Alto / basso",
+      "pageNumbers": "Numeri di pagina",
+      "showPageNumbers": "Mostra",
+      "pageNumberBottomLeft": "In basso a sinistra",
+      "pageNumberBottomCenter": "In basso al centro",
+      "pageNumberBottomRight": "In basso a destra",
+      "pages": "Pagine",
+      "pagesHint": "Lascia vuoto per tutte le pagine oppure inserisci 1-3, 5.",
+      "copies": "Copie",
+      "preparingPreview": "Preparazione anteprima...",
+      "previewFailed": "Impossibile creare l’anteprima di stampa.",
+      "print": "Stampa",
+      "export": "Esporta PDF",
+      "printing": "Invio alla stampante...",
+      "exporting": "Esportazione PDF...",
+      "printerUnavailable": "La stampante selezionata non è disponibile.",
+      "printFailed": "Impossibile stampare le note.",
+      "exportFailed": "Impossibile creare il PDF delle note.",
+      "cancel": "Annulla"
+    },
+    "adjustDistance": "Regola distanza della chiamata",
+    "unsaved": "Modifiche non salvate",
+    "newDocument": "Nuovo script",
+    "unsavedTitle": "Salvare le modifiche?",
+    "unsavedContent": "Lo script attuale contiene modifiche non salvate.",
+    "discard": "Ignora",
+    "readOnly": "Sola lettura: {0}",
+    "openCurrentTrack": "Apri le note della prova attuale",
+    "errorTitle": "Editor delle note"
   },
   "settings": {
     "more": "Altro",
@@ -44,24 +196,138 @@
     },
     "restartNeeded": "Riavviare lo strumento per applicare le modifiche",
     "tooltip": {
+      "autoInitializeGame": "Seleziona automaticamente il gioco all’avvio",
       "language": "Lingua visualizzata",
+      "btn_reset": "È necessario riavviare l’applicazione per applicare la modifica",
+      "playbackDeviceDesiredLatency": "Ritardo dopo l’arrivo dell’indicazione al dispositivo. Un valore troppo basso può alterare il suono; uno elevato crea un ritardo percepibile.",
+      "logLevel": "Imposta il livello di registro. I livelli più severi mostrano meno informazioni.",
+      "viewLogs": "Visualizza registri",
       "theme": "Tema chiaro/scuro o tema di sistema Windows",
       "accentColor": "Colore di tutti i controlli dell'interfaccia",
       "checkUpdateWhenStartup": "Cercare aggiornamenti all'avvio dello strumento",
       "startWithWindows": "Avviare lo strumento con Windows",
-      "logLevel": "Imposta il livello di registro. I livelli più severi mostrano meno informazioni.",
-      "viewLogs": "Visualizza registri",
+      "startMinimizedToTray": "Avvia nascosta e resta disponibile dall’icona nell’area di notifica. Ha effetto dal prossimo avvio.",
+      "windowsNotifications": "Mostra notifiche Windows al rilevamento del gioco e all’inizio o alla fine di una prova speciale.",
+      "warnIfPortMismatch": "Avvisa se la porta UDP del gioco non corrisponde a quella dell’applicazione",
+      "hudFPS": "Limita gli FPS dell’HUD. Una frequenza elevata può ridurre le prestazioni di programmi di acquisizione come OBS.",
+      "importAudioPackage": "Importa un pacchetto vocale in formato *.zpak",
+      "playStartAndEndSound": "Riproduci chiamate speciali all’inizio e alla fine della prova",
+      "playGoSound": "Riproduci una chiamata come «Via» alla fine del conto alla rovescia",
       "pacenoteDropoutPercentage": "Solo per divertimento. Ogni chiamata pacenote normale può essere saltata con questa probabilità. Lo 0% la disattiva; anteprime e suoni di sistema non sono interessati.",
+      "useReversePacenote": "Nei rally cinesi è comune la scala inversa: più piccolo è il numero, più aperta è la curva; più grande è il numero, più stretta è la curva.",
+      "playCollisionSound": "Riproduci una chiamata speciale in caso di collisione",
+      "collision_slight": "Soglia di calo improvviso della velocità per una collisione lieve",
+      "collision_medium": "Soglia di calo improvviso della velocità per una collisione media",
+      "collision_severe": "Soglia di calo improvviso della velocità per una collisione grave",
+      "playWheelAbnormalSound": "Avvisa in caso di foratura; la ruota interessata potrebbe non essere rilevata con precisione",
+      "useDefaultSoundPackageByDefault": "Ignora il pacchetto vocale predefinito generato dall’IA",
+      "useDefaultSoundPackageForFallback": "Usa il pacchetto vocale predefinito generato dall’IA se quello attuale è incompleto",
+      "preloadSounds": "Il precaricamento dei pacchetti vocali usa più memoria (circa 2,5 GB), ma rende i suoni disponibili più rapidamente.",
+      "additionalCoDriverPackagesSearchPath": "Cartella aggiuntiva in cui cercare i pacchetti vocali",
+      "additionalPacenotesDefinitionSearchPath": "Inserisci qui file *.csv aggiuntivi nel formato di pacenotes.csv",
+      "customPacenoteDatabasePath": "File *.zdb personalizzato facoltativo, unito al database ufficiale dei token al prossimo avvio. I token ufficiali hanno la priorità.",
+      "removeIntoAndOnto": "Alcuni giochi collegano le note con «into», «and» o «onto». Questa opzione rimuove tali parole per rendere la lettura più fluida.",
+      "useSequentialMixerToHandleAudioConflict": "Il missaggio sequenziale evita la sovrapposizione dei frammenti vocali",
+      "useDynamicPlaybackSpeed": "Nelle prove con note ravvicinate, regola dinamicamente la velocità di lettura in base alla velocità dell’auto e alla posizione della chiamata successiva, evitando che il navigatore rimanga indietro.",
+      "useTempoInsteadOfRate": "Tempo cambia la velocità senza modificare l’intonazione. Rate modifica anche l’intonazione e può risultare innaturale.",
+      "dynamicPlaybackMaxSpeed": "Moltiplicatore massimo della velocità dinamica. Ad esempio, 2,0 limita la velocità a x2,0.",
+      "useDynamicVolume": "Valuta la tensione dalla velocità attuale e applica una modulazione sinusoidale alla voce",
+      "dynamicVolumePerturbationFrequency": "Frequenza della modulazione: più è alta, più rapido è il tremolio",
+      "dynamicVolumePerturbationAmplitude": "Ampiezza della modulazione: più è alta, più intenso è il tremolio",
+      "factorToRemoveSpaceFromAudioFiles": "Più alto è il valore, più ravvicinate saranno le chiamate e maggiore sarà il rischio di sovrapposizione",
+      "connectCloseDistanceCallToNextPacenote": "Per una distanza molto breve, inferiore a 30 m, collega la nota successiva a tale distanza",
+      "connectNumericDistanceCallToPreviousPacenote": "Collega una distanza numerica, come 100 m, alla nota precedente",
+      "examplePacenoteString": "Esempio di note per provare diversi pacchetti vocali",
+      "hudTopMost": "L’HUD viene sempre visualizzato sopra le altre finestre.",
+      "hudChromaKeyMode": "È necessario riavviare l’applicazione.\nPer un gioco a schermo intero, aggiungi in OBS Studio l’acquisizione della finestra \"ZTMZ Club Hud\" con un filtro chroma key, usando l’HUD come livello trasparente per streaming o registrazione.\nNon attivare questa modalità per un gioco in finestra. Anche i colori saranno leggermente diversi.",
+      "hudShowTelemetry": "Dashboard simile a Dirt Telemetry Tool",
+      "hudShowInSeparateWindow": "Mostra tutte le dashboard in una finestra separata, ad esempio su un altro monitor",
+      "hudSizePercentage": "Dimensione della dashboard rispetto all’altezza della finestra di gioco",
+      "hudPaddingH": "Distanza tra gli elementi e i bordi sinistro e destro della dashboard",
+      "hudPaddingV": "Distanza tra gli elementi e i bordi superiore e inferiore della dashboard",
+      "hudElementSpacing": "Spaziatura tra gli elementi della dashboard",
+      "hudSectorThicknessRatio": "Spessore degli elementi ad arco, come tachimetro e contagiri",
+      "hudBackgroundOpacity": "Opacità dello sfondo della dashboard; più basso è il valore, più è trasparente",
+      "hudTelemetryShowGBall": "L’indicatore di forza G aiuta a comprendere la dinamica inerziale del veicolo",
+      "hudTelemetryShowSpdSector": "Il tachimetro mostra la velocità effettiva del veicolo, non quella delle ruote",
+      "hudTelemetryShowRPMSector": "Il contagiri mostra il regime attuale del motore",
+      "hudTelemetryShowPedals": "Stato di frizione (blu), freno (rosso) e acceleratore (verde)",
+      "hudTelemetryShowGear": "Schema del cambio a H; la retromarcia si trova in alto a sinistra",
+      "hudTelemetryShowSteering": "Posizione del volante",
+      "hudTelemetrySteeringDegree": "Angolo totale del volante da un fine corsa all’altro",
+      "hudTelemetryShowSuspensionBars": "Velocità ruota (verde), temperatura freno (rosso), posizione sospensione (bianco) e velocità sospensione (blu)",
+      "hudShowDebugTelemetry": "Mostra tutta la telemetria a sinistra dello schermo di gioco per debug e diagnostica",
       "webDashboardEnabled": "Abilita il server del cruscotto web per dispositivi mobili",
+      "webDashboardBrowserLuaLabel": "Rendering Lua nel browser:",
+      "webDashboardBrowserLuaEnabled": "Consigliato. Attivo: gli script Lua compatibili e i calcoli di disegno vengono eseguiti nel browser; il server ZTMZ invia solo la telemetria, in genere circa 50 KB/s per client a 60 FPS.\nDisattivo: il server esegue gli script e genera tutti i comandi di disegno per ogni fotogramma; le dashboard complesse possono usare circa 3 MB/s per client.\nLe dashboard non supportate e gli errori Lua usano automaticamente il renderer di compatibilità.",
       "webDashboardPort": "Numero di porta del server del cruscotto web (applicato subito)",
+      "webDashboardTitle": "Dashboard web",
+      "webDashboardSubtitle": "Accedi alle dashboard da dispositivi mobili",
+      "webDashboardPortLabel": "Porta:",
+      "webDashboardFrameRateLabel": "FPS:",
       "webDashboardFrameRate": "Frequenza fotogrammi massima del cruscotto web (applicata subito)",
       "webDashboardOpen": "Apri il cruscotto nel browser",
+      "webDashboardAvailableAddresses": "Indirizzi disponibili della dashboard:",
+      "webDashboardStatusRunning": "Il server è in esecuzione",
+      "webDashboardStatusStopped": "Il server è arrestato",
+      "webDashboardStatusPortUnavailable": "Questa porta non è disponibile. Scegline un’altra.",
+      "webDashboardStatusError": "Impossibile avviare il server: {0}",
       "overlayHudEnabled": "Mostra il cruscotto nativo sopra la finestra del gioco. Questa opzione non avvia né arresta il cruscotto web.",
+      "overlayHudHomeStatus": "Mostra lo stato dell’overlay nativo. A parte la finestra di anteprima, l’overlay appare solo durante una prova speciale attiva.",
+      "overlayHudUsage": "Requisiti della dashboard sovrapposta:\n• Esegui il gioco in modalità finestra o finestra senza bordi.\n• RBR con DirectX 9: usa la modalità finestra predefinita.\n• RBR con Vulkan: seleziona la modalità di visualizzazione Vulkan + SimHub.",
+      "overlayHudHomeStatusDisabled": "Disattivato",
+      "overlayHudHomeStatusNoDashboard": "Nessuna dashboard nativa",
+      "overlayHudHomeStatusUnavailable": "In attesa del gioco",
+      "overlayHudHomeStatusReady": "Pronto",
+      "overlayHudHomeStatusActive": "Attivo",
+      "overlayHudHomeStatusPreview": "Anteprima",
       "webDashboardHomeStatus": "Il cruscotto web è indipendente dall'interruttore HUD in sovrimpressione. Configuralo nelle impostazioni HUD.",
+      "webDashboardHomeStatusRunning": "Dashboard web: in esecuzione",
+      "webDashboardHomeStatusStopped": "Dashboard web: disattivata",
+      "webDashboardHomeStatusPortUnavailable": "Dashboard web: porta non disponibile",
+      "webDashboardHomeStatusError": "Dashboard web: errore",
+      "enableOnlineAnalytics": "Usa Google Analytics/Azure AppInsights per raccogliere dati anonimi sull’utilizzo e migliorare l’applicazione. I dati vengono inviati in forma anonima ai server Google/Microsoft solo per fini statistici. Puoi modificare l’autorizzazione in qualsiasi momento. Comprendono esclusivamente:\n\t- Arresti anomali ed eccezioni (per correggere errori)\n\t- Versione del sistema operativo\n\t- Avvio dell’applicazione\n\t- Apertura delle finestre\n\t- Modifiche alla configurazione\n \t- Modifiche alla configurazione dell’interfaccia principale\n\t- Uso dei pacchetti vocali nel gioco (statistiche sulle preferenze)",
+      "optInBetaPlan": "Ricevi aggiornamenti e nuove funzioni delle versioni beta",
+      "vrUseZTMZHud": "Usa ZTMZ HUD nell’overlay SteamVR per mostrare la telemetria",
+      "vrShowOverlay": "Attiva l’overlay SteamVR. Verifica che SteamVR sia in esecuzione e il visore sia collegato.",
+      "vrSelectWindow": "Seleziona la finestra da usare nell’overlay SteamVR",
+      "vrOverlayPositionX": "Posizione X overlay VR",
+      "vrOverlayPositionY": "Posizione Y overlay VR",
+      "vrOverlayPositionZ": "Posizione Z overlay VR",
+      "vrOverlayRotationX": "Rotazione X overlay VR",
+      "vrOverlayRotationY": "Rotazione Y overlay VR",
+      "vrOverlayRotationZ": "Rotazione Z overlay VR",
+      "vrOverlayScale": "Scala overlay VR",
+      "vrOverlayParamSave": "Salva tutti i parametri VR precedenti",
       "udpListenAddress": "127.0.0.1 per impostazione predefinita",
       "udpListenPort": "Per usare questo strumento insieme a SIMHUB può essere utile cambiare la porta predefinita 20777 in 20778.",
-      "udpListenPort_Warning": "La porta non corrisponde all'impostazione di Dirt Rally 2.0 {0}; potresti usare SIMHUB."
+      "udpListenPort_Warning": "La porta non corrisponde all'impostazione di Dirt Rally 2.0 {0}; potresti usare SIMHUB.",
+      "memoryRefreshRate": "Frequenza di aggiornamento del monitor della memoria",
+      "replaySave": "Salva la telemetria dettagliata del giro migliore per mostrare delta e tempi di settore nell’HUD",
+      "replayPreferredFilter": "Filtra il replay migliore per auto, classe o senza filtro",
+      "replayStoredCountLimit": "Numero massimo di replay salvati per prova",
+      "replaySaveInterval": "Intervallo di salvataggio della telemetria del giro migliore",
+      "replaySaveWithoutInterval": "Salva ogni fotogramma di dati per calcolare il delta con maggiore precisione. Può ridurre le prestazioni e aumentare il file.",
+      "onlineRivalsEnabled": "Mostra gli avversari online nell’HUD. Disponibile solo in EA Sports WRC, come la funzione avversari in multigiocatore.",
+      "replayOBSSave": "Salva il video con OBS; OBS deve essere in esecuzione e WebSocket attivo",
+      "replayOBSWebsocketUrl": "URL WebSocket di OBS, solitamente ws://<ipaddress>:<port>",
+      "replayOBSWebsocketPassword": "Password WebSocket, se configurata in OBS",
+      "replayOBSWebsocketTimeout": "Timeout WebSocket in millisecondi",
+      "replayDeleteRelatedVideo": "Elimina il video associato quando elimini il replay",
+      "replayPositionOffset": "Scostamento in secondi per allineare il replay al video",
+      "replayGotoLapDistance": "Distanza di salto al giro, in metri",
+      "replayExport": "Esporta replay, video e telemetria in una cartella",
+      "replayExportAudio": "Esporta replay, audio e telemetria. ffmpeg deve essere installato e aggiunto al PATH.",
+      "replayFFmpegPath": "Percorso dell’eseguibile ffmpeg, necessario per la pagina dei replay",
+      "replayDownloadFFmpeg": "Scarica ffmpeg da gitee.com o autonomamente",
+      "replayShowDiagrams": "Mostra i grafici statistici durante la riproduzione.",
+      "replayCleanUpAbnormalVideo": "Rimuovi video anomali di sessioni incomplete, ritiri, riavvii e così via",
+      "replayLock": "Blocca il replay per impedirne l’eliminazione automatica",
+      "replayUnlock": "Sblocca il replay e consentine l’eliminazione automatica",
+      "replayLocked": "Questo replay è bloccato e non verrà eliminato automaticamente",
+      "replayUnlocked": "Questo replay è sbloccato e potrà essere eliminato quando verrà stabilito un nuovo record"
     },
+    "customPacenoteDatabasePath": "Database pacenote personalizzato",
     "autoInitializeGame_on": "Selezione automatica del gioco",
     "autoInitializeGame_off": "Selezione manuale del gioco",
     "language": "Lingua",
@@ -80,6 +346,9 @@
     "checkUpdateWhenStartup_On": "Aggiornamento automatico (attivo)",
     "checkUpdateWhenStartup_Off": "Aggiornamento automatico (disattivo)",
     "startWithWindows": "Avvia con Windows",
+    "startMinimizedToTray": "Avvia ridotta nell’area di notifica",
+    "windowsNotifications": "Notifiche eventi Windows",
+    "testWindowsNotification": "Invia notifica di prova",
     "warnIfPortMismatch": "Avvisa se la porta non corrisponde",
     "hudFPS": "FPS HUD in gioco",
     "importAudioPackage": "Importa pacchetto audio",
@@ -165,6 +434,13 @@
     "replayOBSWebsocketUrl": "URL WebSocket OBS",
     "replayOBSWebsocketPassword": "Password WebSocket OBS",
     "replayOBSWebsocketTimeout": "Timeout WebSocket OBS (ms)",
+    "obsConnectionStatus": "OBS WebSocket",
+    "obsConnectionDisabled": "Disattivato",
+    "obsConnectionConnecting": "Connessione...",
+    "obsConnectionConnected": "Connesso",
+    "obsConnectionDisconnected": "Non connesso",
+    "obsConnectionFailed": "Connessione non riuscita: {0}",
+    "obsConnectionRetry": "Prova connessione WebSocket OBS",
     "replayDeleteRelatedVideo": "Elimina video correlato",
     "replayPositionOffset": "Offset posizione replay (s)",
     "replayGotoLapDistance": "Distanza salto giro (m)",
@@ -176,6 +452,32 @@
     "replayShowDiagrams": "Mostra grafici statistici",
     "replayCleanUpAbnormalVideo": "Pulisci file video anomali",
     "replayLock": "Blocca questo replay"
+  },
+  "game": {
+    "acr": {
+      "description": "Assetto Corsa Rally, sviluppato da Supernova Games Studios e pubblicato da 505 Games"
+    },
+    "beamng": {
+      "description": "Modalità Rally integrata di BeamNG.drive. Usa OutGauge per la telemetria e il bridge locale per i dati della prova e delle note.",
+      "bridge": {
+        "userFolder": "Cartella utente BeamNG",
+        "browseUserFolder": "Seleziona cartella utente BeamNG.drive",
+        "install": "Installa / ripara bridge Rally",
+        "installTooltip": "Installa o aggiorna la mod del bridge Rally nella cartella utente BeamNG selezionata",
+        "installed": "Il bridge Rally è stato installato in:\n{0}\n\nRiavvia BeamNG se è in esecuzione. In BeamNG, attiva OutGauge su 127.0.0.1:4444 e assegna l’azione del bridge Rally ZTMZ nei comandi.",
+        "installFailed": "Installazione del bridge Rally non riuscita",
+        "statusUserFolderRequired": "Seleziona la cartella utente BeamNG.drive.",
+        "statusNotInstalled": "Il bridge Rally non è installato.",
+        "statusUpdateRequired": "Aggiornamento del bridge Rally richiesto (installato: {0}; incluso: {1}).",
+        "statusInstalled": "Bridge Rally installato.",
+        "statusPortUnavailable": "La porta {0} del bridge Rally non è disponibile.",
+        "setupRequiredTitle": "Configurazione BeamNG richiesta",
+        "setupBridgeRequired": "Installa il bridge Rally prima di usare la modalità Rally di BeamNG.drive con Pacenote Tool.",
+        "setupBridgeUpdateRequired": "Aggiorna il bridge Rally prima di usare la modalità Rally di BeamNG.drive con Pacenote Tool.",
+        "unknownVersion": "sconosciuta",
+        "setupUserFolderRequired": "Seleziona una cartella utente BeamNG.drive valida prima di installare il bridge Rally."
+      }
+    }
   },
   "dialog": {
     "common": {
@@ -198,12 +500,14 @@
       "title": "Porta non corrispondente",
       "btn_ok": "OK",
       "btn_FORCE": "FORZA RIPARAZIONE",
-      "ckbox_show": "Non mostrare più questa finestra"
+      "ckbox_show": "Non mostrare più questa finestra",
+      "content": "La configurazione del gioco \"{0}\" in {1} non è corretta: la porta {2} non corrisponde alla porta {3} dell’applicazione e il riconoscimento della prova potrebbe non riuscire.\n\n\t(1) Potresti usare SIMHUB con inoltro delle porte UDP. In questo caso scegli «OK» per non modificare la configurazione.\n\n\t(2) Se non sai cosa fare, scegli «FORZA RIPARAZIONE» per correggerla automaticamente. Poi riavvia il gioco."
     },
     "resetConfig": {
       "title": "Ripristina tutta la configurazione",
       "btn_ok": "OK",
-      "btn_cancel": "Annulla"
+      "btn_cancel": "Annulla",
+      "content": "Stai per ripristinare tutte le impostazioni predefinite. Continuare? Dopo aver scelto «OK», riavvia l’applicazione."
     },
     "downloadFile": {
       "title": "Download...",
@@ -212,17 +516,20 @@
     },
     "newUpdate": {
       "title": "Nuovo aggiornamento",
+      "content": "È disponibile la nuova versione {0}; attualmente usi la {1}. Vuoi aggiornare?",
       "btn_cancel": "Annulla",
       "btn_ok": "OK",
       "chkbox_skip": "Salta questa versione"
     },
     "enableOnlineAnalytics": {
       "title": "Migliora l'esperienza utente",
+      "content": "L’applicazione richiede di usare Google Analytics/Azure AppInsights per raccogliere dati anonimi sull’utilizzo e migliorare il programma. I dati vengono inviati in forma anonima ai server Google/Microsoft solo per fini statistici. Puoi modificare l’autorizzazione in qualsiasi momento. Comprendono esclusivamente:\n\t- Arresti anomali ed eccezioni (per correggere errori)\n\t- Versione del sistema operativo\n\t- Avvio dell’applicazione\n\t- Apertura delle finestre\n\t- Modifiche alla configurazione\n \t- Modifiche alla configurazione dell’interfaccia principale\n\t- Uso dei pacchetti vocali nel gioco (statistiche sulle preferenze)",
       "btn_cancel": "Rifiuta",
       "btn_ok": "Accetta"
     },
     "scriptNotExist": {
-      "title": "Lo script non esiste"
+      "title": "Lo script non esiste",
+      "content": "Non esiste uno script di note personalizzato. Vuoi crearne uno? Le note originali di RBR potrebbero poi non essere disponibili. Elimina il nuovo file di script per ripristinarle."
     },
     "closePrompt": {
       "dontShowAgain": "Non mostrare più questa finestra",
@@ -231,11 +538,13 @@
     },
     "voicePkgExist": {
       "title": "Il pacchetto voci esiste già",
+      "content": "Il pacchetto vocale {0} esiste già. Vuoi sovrascriverlo?",
       "ok": "Sovrascrivi",
       "cancel": "Annulla"
     }
   },
   "ui": {
+    "specialThanks": "Ringraziamenti speciali all’SSD di KyoLee, a EA Sports WRC di Meeke777, a ZTMZ Club, SimRallyCN e a tutti i collaboratori!",
     "eula": "EULA",
     "license": "Licenze open source",
     "opensoftware": "Software open source",
@@ -244,7 +553,10 @@
     "opensoftware_reference": "Software open source (riferimento)",
     "opensoftware_notopen": "(Software non open source)",
     "contactUs": "Contattaci",
+    "contactUs_github": "GitHub",
+    "contactUs_gitee": "Gitee",
     "raise_issue": "Segnala un problema",
+    "contactUs_QQ": "QQ",
     "donate": "Offrimi un caffè (assicurati che il collegamento punti a gitee.com)",
     "data_folder_size": "Dimensione cartella dati: ",
     "openDataFolder": "Apri cartella dati",
@@ -258,6 +570,11 @@
     "tb_speed": "Velocità:",
     "tb_length": "Lunghezza prova:",
     "tb_progress": "Progresso:",
+    "tb_posZ": "Posizione Z:",
+    "tb_wheelSpdFL": "FL：",
+    "tb_wheelSpdFR": "FR：",
+    "tb_wheelSpdRL": "RL：",
+    "tb_wheelSpdRR": "RR：",
     "tb_currentProfile": "Profilo corrente",
     "tb_currentGame": "Gioco",
     "tb_currentGameSettings": "Impostazioni del gioco",
@@ -307,7 +624,63 @@
     "closeBehavior": "Comportamento alla chiusura",
     "closeToMinimize": "Riduci a icona",
     "showMainUI": "Mostra interfaccia principale",
-    "closeToExit": "Esci"
+    "closeToExit": "Esci",
+    "tooltip": {
+      "rb_record": "La modalità può essere cambiata solo quando lo stato del gioco è Sconosciuto (fuori dalla prova).\n\nModalità sola voce:\nDopo l’avvio in modalità registrazione, premi F1 per iniziare un frammento di note e F4 per terminarlo. Durante il conto alla rovescia puoi mettere in pausa e registrare la chiamata di partenza. È disponibile un solo frammento, salvato come \"-2.wav\" nella cartella della prova e riprodotto all’inizio del conto alla rovescia.\n\nModalità script automatica:\nMantieni il computer silenzioso. Chiudi QQ, Thunder, video nel browser e altri programmi il cui audio può interferire con il riconoscimento vocale.",
+      "rb_replay": "La modalità può essere cambiata solo quando lo stato del gioco è Sconosciuto (fuori dalla prova). In modalità riproduzione, se esistono note per la prova, il frammento registrato viene riprodotto automaticamente alla posizione definita.",
+      "btn_settings": "Apri impostazioni",
+      "tb_gameState": "Stato attuale del gioco\nRaceBegin: inizio conto alla rovescia\nRacing: in gara\nPaused: in pausa\nRaceEnd: gara terminata\nUnknown: stato sconosciuto",
+      "tb_time": "Tempo di gioco; potrebbe non essere preciso",
+      "tb_lapTime": "Tempo sul giro",
+      "tb_distance": "Distanza percorsa, in metri",
+      "tb_speed": "Velocità, in chilometri orari",
+      "tb_length": "Lunghezza della prova, in metri",
+      "tb_progress": "Avanzamento sulla prova; 0,5 indica metà percorso",
+      "tb_posZ": "Posizione Z del veicolo",
+      "tb_wheelSpd": "Velocità delle ruote",
+      "tb_currentProfile": "I profili sono memorizzati nelle sottocartelle di profiles. È possibile registrare più serie di note; il profilo non può essere cambiato durante il gioco.",
+      "tab_pa_codriver": "Navigatore di questa prova",
+      "tab_pa_isRecording": "In modalità registrazione, durante RaceBegin, Racing o Paused, premi F1 per iniziare un frammento di note e F4 per terminarlo.",
+      "cb_rq_low": "Registrazione di bassa qualità, file piccoli e facili da condividere\nEQ basso: possibile distorsione\nEQ alto: effetto radio",
+      "cb_rq_medium": "Registrazione di qualità media",
+      "cb_rq_high": "Registrazione di alta qualità con file più grandi; conserva più dettagli ed è più realistica",
+      "tab_s_isDynamic": "La riproduzione dinamica è determinata dalla direttiva @dynamic nel file di script",
+      "tab_s_author": "Autore dello script di note della prova attuale",
+      "tab_s_listenDevice": "Dispositivo monitorato in modalità registrazione automatica dello script",
+      "tb_replayDevice": "Non cambiare dispositivo di riproduzione durante il gioco",
+      "btn_currentTrack": "Apri cartella della prova attuale",
+      "btn_currentScript": "Apri script della prova attuale",
+      "btn_currentCodriver": "Apri cartella del pacchetto navigatore attuale",
+      "btn_currentCodriverLink": "Apri pagina dell’autore del pacchetto navigatore attuale",
+      "btn_playExample": "Riproduci esempio",
+      "tb_playVolume": "Regola il volume di riproduzione. L’amplificazione può causare distorsioni dovute al clipping del segnale audio.",
+      "tb_prePlay": "Ad esempio, +1 s riproduce le note un secondo più tardi e -2 s due secondi prima.",
+      "tb_replayMode": "La modalità di riproduzione non può essere cambiata durante il gioco",
+      "tb_playbackSpd": "Velocità di lettura fissa, applicata oltre alla regolazione dinamica",
+      "cb_pureAudioMode": "Riproduci note audio registrate",
+      "cb_scriptMode": "Modalità script",
+      "cb_mixMode": "Modalità mista",
+      "tb_recordMode": "La modalità di registrazione non può essere cambiata durante il gioco",
+      "cb_pureAudioRecordMode": "Registrazione della sola voce",
+      "tb_autoScriptRecordMode": "Registra automaticamente gli script tramite riconoscimento vocale",
+      "tb_showHud": "Mostra l’HUD nel gioco. Il gioco deve essere in modalità finestra o finestra senza bordi.",
+      "tb_mute": "Disattiva/riattiva audio",
+      "cb_gameNotInstalled": "Il gioco non è installato. Se RSFRBR funziona, esegui un’installazione minima per riparare il registro, quindi riavvia l’applicazione.\nIl gioco potrebbe essere appena stato installato da Steam e non ancora avviato. Avvialo e chiudilo, quindi riavvia applicazione e gioco.",
+      "tb_intercom": "Più alto è il valore, più intenso sarà l’effetto radio e la distorsione della voce",
+      "showClosePrompt": "Mostra una conferma quando si fa clic sul pulsante di chiusura",
+      "closeBehavior": "Comportamento del pulsante di chiusura",
+      "closeToMinimize": "Riduci l’applicazione quando si chiude la finestra",
+      "closeToExit": "Esci dall’applicazione quando si chiude la finestra",
+      "tb_currentTrack": "Prova attuale"
+    }
+  },
+  "notification": {
+    "title": "ZTMZ Pacenote Tool",
+    "gameStarted": "Rilevato {0}.",
+    "gameEnded": "{0} è stato chiuso.",
+    "stageStarted": "Prova speciale iniziata: {0}.",
+    "stageFinished": "Prova speciale terminata: {0}.",
+    "test": "Le notifiche eventi di Windows funzionano."
   },
   "misc": {
     "gender_male": "Uomo",
@@ -332,7 +705,8 @@
       "fixed": "PacenoteTool è stato configurato per usare la porta UDP {0}. Riavvia il gioco."
     },
     "configFileCorrupted": {
-      "title": "File di configurazione corrotto."
+      "title": "File di configurazione corrotto.",
+      "msg": "Il file di configurazione {1} del gioco {0} è danneggiato.\nPer Dirt Rally 1.0/2.0, elimina il file e riavvia il gioco per ripristinare i valori predefiniti.\nPer RBR, prova una reinstallazione minima del gioco."
     },
     "unknown": {
       "title": "Errore sconosciuto"
@@ -343,6 +717,7 @@
     },
     "configFileAbnormal": {
       "title": "File di configurazione anomalo",
+      "msg": "Il file di configurazione {1} del gioco {0} contiene errori, forse voci duplicate che possono causare comportamenti anomali.\nVuoi forzare la riparazione?\n[IMPORTANTE] Riavvia il gioco dopo la riparazione.",
       "btn_ok": "Forza riparazione",
       "btn_cancel": "Annulla"
     }
@@ -367,7 +742,50 @@
     "carclass": "Classe auto:",
     "audioPackage": "Pacchetto audio:",
     "scriptAuthor": "Autore script:",
+    "gameStateUnknown": "Sconosciuto",
+    "gameStateRaceBegin": "Partenza gara",
+    "gameStateCountingDown": "Conto alla rovescia",
+    "gameStateRacing": "In gara",
+    "gameStatePaused": "In pausa",
+    "gameStateRaceEnd": "Gara terminata",
+    "gameStateAdHocRaceBegin": "In gara (connessione tardiva)",
     "dyanmic": "È @dynamic:"
+  },
+  "arr_test": [
+    "test 1",
+    "test 2",
+    "test 3",
+    {
+      "wtf": "contenuto di prova"
+    }
+  ],
+  "staff": {
+    "specialThanks": "Ringraziamenti speciali",
+    "rnd": "Tecnologia",
+    "rnd_staff": {
+      "mainProgrammer": "Programmatore principale",
+      "uiDesigner": "Designer dell’interfaccia",
+      "pluginDeveloper": "Sviluppatore di plugin",
+      "vrSupport": "Supporto VR",
+      "initialIdea": "Idea iniziale",
+      "ideaProvider": "Autore di idee",
+      "tester": "Collaudatore"
+    },
+    "club": "Club",
+    "club_staff": {
+      "clubLeader": "Responsabile del club",
+      "eventOrganizer": "Organizzatore di eventi",
+      "toolOrganizer": "Organizzatore dello sviluppo dello strumento",
+      "specialGuest": "Ospite speciale"
+    },
+    "audioPkg": "Pacchetto vocale",
+    "script": "Script delle note",
+    "all": "E a tutte le persone che hanno contribuito a questo strumento,\ne a tutti i giocatori che lo usano: grazie a tutti!",
+    "missing": "Se manca qualcuno, contattaci per aggiungerlo."
+  },
+  "chinese_localization": {
+    "pacenote": "Mod cinese delle note WRC",
+    "language": "Localizzazione cinese di WRC"
   },
   "dashboard": {
     "current": "CORRENTE",
@@ -402,145 +820,38 @@
     "suspension_speed_rear_left": "Vel. sosp. PS",
     "suspension_speed_rear_right": "Vel. sosp. PD"
   },
-  "game": {
-    "dr1": {
-      "description": "Dirt Rally 1.0, di Codemasters"
-    },
-    "dr2": {
-      "description": "Dirt Rally 2.0, di Codemasters"
-    },
-    "wrc": {
-      "description": "EA Sports WRC, di EA Sports"
-    },
-    "rbr": {
-      "description": "Il simulatore rally classico, versione Rally Sim Fans.",
-      "additional_settings": {
-        "playPacenotesWhenReplaying": "Riproduci le pacenote durante il replay.",
-        "additional_pacenote_def": "Definizione pacenote RBR personalizzata.",
-        "autoSwitchPacenoteDef": "Cambia automaticamente definizione pacenote."
-      }
-    },
-    "acr": {
-      "description": "Assetto Corsa Rally, sviluppato da Supernova Games Studios e pubblicato da 505 Games"
-    }
-  },
-  "dashboards": {
-    "classic": {
-      "debug": {
-        "name": "Debug",
-        "description": "Mostra informazioni di debug (angolo in alto a sinistra)"
-      },
-      "mapInfo": {
-        "name": "Info mappa",
-        "description": "Mostra informazioni mappa nel gioco (angolo in alto a destra)."
-      },
-      "progress": {
-        "name": "Progresso",
-        "description": "Mostra progresso classico della prova"
-      },
-      "classicDashboard": {
-        "name": "Cruscotto classico",
-        "description": "Mostra cruscotto classico"
-      },
-      "pedals_statistics": {
-        "name": "Statistiche pedali",
-        "description": "Mostra statistiche pedali"
-      },
-      "wrcDashboard": {
-        "name": "Cruscotto WRC classico",
-        "description": "Cruscotto classico delle trasmissioni WRC"
-      }
-    },
-    "modern": {
-      "wrc": {
-        "name": "WRC",
-        "description": "Cruscotto trasmissioni WRC 2023"
-      },
-      "fiesta": {
-        "name": "Fiesta",
-        "description": "Cruscotto Ford Fiesta WRC"
-      },
-      "wrc_info": {
-        "name": "Pannello informazioni WRC",
-        "description": "Pannello WRC con pilota, prova, progresso e tempo"
-      },
-      "wrc2": {
-        "name": "Stile WRC 2",
-        "description": "Cruscotto trasmissioni WRC 2023"
-      },
-      "wrc2025": {
-        "name": "WRC2025",
-        "description": "Cruscotto trasmissioni WRC 2025"
-      },
-      "wrc2025v2": {
-        "name": "WRC2025v2",
-        "description": "Versione grande del cruscotto trasmissioni WRC 2025"
-      },
-      "wrc2025info": {
-        "name": "Cruscotto informazioni WRC 2025",
-        "description": "Cruscotto WRC 2025 moderno con pilota, progresso prova e tempi"
-      },
-      "racelogic": {
-        "name": "Display Racelogic",
-        "description": "Display Racelogic VBox classico per tempi e distanza"
-      },
-      "fiesta2": {
-        "name": "Cruscotto Fiesta moderno 2",
-        "description": "Cruscotto da gara moderno con luci RPM, marcia e telemetria"
-      },
-      "progress": {
-        "name": "Progresso moderno",
-        "description": "Mostra progresso moderno WRC"
-      }
-    },
-    "settings": {
-      "enabled": "Abilitato",
-      "outputTarget": "Destinazione visualizzazione",
-      "outputTargetOff": "Disattivato",
-      "outputTargetOverlay": "Sovrimpressione",
-      "outputTargetWeb": "Web",
-      "outputTargetBoth": "Sovrimpressione e Web",
-      "positionH": "Posizione orizzontale",
-      "positionV": "Posizione verticale",
-      "top": "Alto",
-      "bottom": "Basso",
-      "left": "Sinistra",
-      "right": "Destra",
-      "center": "Centro",
-      "size": "Dimensione",
-      "paddingH": "Margine interno orizzontale",
-      "paddingV": "Margine interno verticale",
-      "elementSpacing": "Spaziatura elementi",
-      "sectorThicknessRatio": "Rapporto spessore settori",
-      "backgroundOpacity": "Opacità sfondo",
-      "whRatio": "Rapporto larghezza/altezza",
-      "showGBall": "Mostra sfera forza G",
-      "showSpdSector": "Mostra settore velocità",
-      "showRpmSector": "Mostra settore RPM",
-      "showGear": "Mostra marcia",
-      "showPedals": "Mostra pedali",
-      "showSteering": "Mostra sterzo",
-      "steeringDegree": "Angolo di sterzo",
-      "switchGearNSpeed": "Scambia marcia e velocità",
-      "recordedFrames": "Fotogrammi registrati",
-      "lineWeight": "Spessore linea",
-      "showThrottlePedal": "Mostra acceleratore",
-      "showBrakePedal": "Mostra freno",
-      "showClutchPedal": "Mostra frizione",
-      "showHandBrakePedal": "Mostra freno a mano",
-      "showGameSpecificData": "Mostra dati specifici del gioco",
-      "padding": "Margine interno",
-      "marginH": "Margine orizzontale",
-      "marginV": "Margine verticale",
-      "drivername": "Nome pilota",
-      "driverregion": "Regione pilota",
-      "useOffset": "Usa offset orizzontale",
-      "showSteeringIndicator": "Mostra indicatore sterzo",
-      "showLocalBest": "Mostra miglior tempo locale",
-      "showDeltaTime": "Mostra tempo delta",
-      "showAdditionalInfo": "Mostra informazioni aggiuntive",
-      "showRPMBlink": "Mostra effetto lampeggio RPM",
-      "verticalOrHorizontal": "Verticale o orizzontale"
-    }
+  "diagnostics": {
+    "title": "Diagnostica",
+    "application": "Applicazione",
+    "game": "Gioco e configurazione",
+    "prerequisite": "Verifica prerequisiti",
+    "udp": "Telemetria UDP",
+    "audio": "Riproduzione audio",
+    "webDashboard": "Dashboard web",
+    "activity": "Attività",
+    "refresh": "Aggiorna",
+    "createBundle": "Crea pacchetto di assistenza",
+    "openSupportFolder": "Apri cartella di assistenza",
+    "notSelected": "Nessun gioco selezionato",
+    "notApplicable": "Non usato dal gioco selezionato",
+    "transportSharedMemory": "Memoria condivisa / interfaccia specifica del gioco",
+    "transportBridge": "Bridge",
+    "gameStateUnknown": "Sconosciuto",
+    "gameStateRaceBegin": "Partenza gara",
+    "gameStateCountingDown": "Conto alla rovescia",
+    "gameStateRacing": "In gara",
+    "gameStatePaused": "In pausa",
+    "gameStateRaceEnd": "Gara terminata",
+    "gameStateAdHocRaceBegin": "In gara (connessione tardiva)",
+    "waitingForGame": "In attesa del gioco",
+    "optional": "Facoltativo",
+    "listening": "In ascolto",
+    "stopped": "Arrestato",
+    "active": "Attivo",
+    "inactive": "Inattivo",
+    "none": "Nessuna attività",
+    "bundleCreated": "Pacchetto di assistenza creato: {0}",
+    "bundleFailed": "Creazione pacchetto di assistenza non riuscita: {0}",
+    "refreshFailed": "Aggiornamento diagnostica non riuscito: {0}"
   }
 }

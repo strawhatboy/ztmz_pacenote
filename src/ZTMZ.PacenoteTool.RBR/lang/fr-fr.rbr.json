@@ -1,0 +1,20 @@
+{
+    "game": {
+        "rbr": {
+            "description": "Le grand classique de la simulation de rallye, dans sa version Rally Sim Fans.",
+            "additional_settings": {
+                "playPacenotesWhenReplaying": "Lire les notes pendant les ralentis.",
+                "additional_pacenote_def": "Définition personnalisée des notes RBR.",
+                "autoSwitchPacenoteDef": "Changer automatiquement de définition des notes.",
+                "tooltip": {
+                    "playPacenotesWhenReplaying": "Lit les notes pendant les ralentis des courses terminées.",
+                    "additional_pacenote_def": "Fichier de base de données contenant la correspondance entre les notes RBR et les définitions de notes ZTMZ.",
+                    "autoSwitchPacenoteDef": "Si l'étape actuelle utilise les notes RBR par défaut, la définition par défaut est utilisée ; sinon, les définitions du fichier indiqué ci-dessus sont utilisées."
+                }
+            },
+            "message": {
+                "custom_pacenote_not_used": "Les notes par défaut sont utilisées pour l'étape actuelle {0}. Cela fonctionne, mais les notes Luppis V3 sont recommandées. Il est également possible que Luppis V3 ne contienne pas de script de notes pour cette étape."
+            }
+        }
+    }
+}

@@ -51,6 +51,7 @@ public enum ScriptResourceTypes {
     SURFACE         =   11,
     NUMBERS         =   12,
     MISC            =   13,
+    SYSTEM          =   14,
 
 }
 
@@ -58,6 +59,13 @@ public class ScriptResourceFilenames {
     public int id;
     public string filename;
     public bool is_primary;
+}
+
+public class ScriptResourcePacenoteLocalization {
+    public int pacenote_id;
+    public string locale;
+    public string display_name;
+    public string description;
 }
 
 public class ScriptResourceFallbacks {
@@ -79,8 +87,10 @@ public class ScriptResource
 {
     private static ScriptResource _instance;
     public static ScriptResource Instance => _instance ??= new ScriptResource();
+    public static ScriptResource LoadedInstance => _instance;
 
     private NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    private readonly string databasePath;
 
     public static string DBNAME="data.zdb";
 
@@ -90,6 +100,7 @@ public class ScriptResource
     public List<ScriptResourceComplexity> Complexities { get; private set; } = new();
     public List<ScriptResourceType> Types { get; private set; } = new();
     public List<ScriptResourceFilenames> Filenames { get; private set; } = new();
+    public List<ScriptResourcePacenoteLocalization> Localizations { get; private set; } = new();
     public List<ScriptResourceFallbacks> Fallbacks { get; private set; } = new();
     public List<ScriptResourceReverseCorners> ReverseCorners { get; private set; } = new();
 
@@ -99,6 +110,7 @@ public class ScriptResource
     public Dictionary<int, List<string>> FilenameDict { get; private set; } = new();
     public Dictionary<int, List<int>> FallbackDict { get; private set; } = new();
     public Dictionary<string, int> FilenameToIdDict { get; private set; } = new();
+    public Dictionary<(int PacenoteId, string Locale), ScriptResourcePacenoteLocalization> LocalizationDict { get; private set; } = new();
 
     public int SimpleTokensCount { get; private set; } = 0;
     public int NormalTokensCount { get; private set; } = 0;
@@ -108,14 +120,14 @@ public class ScriptResource
     private ScriptResource() {
         // load from data.db
         // data.db should be in user profile directory
-        var dbFile = AppLevelVariables.Instance.GetPath(DBNAME);
-        if (!File.Exists(dbFile)) {
+        databasePath = AppLevelVariables.Instance.GetPath(DBNAME);
+        if (!File.Exists(databasePath)) {
             // ERROR
-            logger.Error($"Database file not found: {dbFile}");
-            throw new FileNotFoundException($"Database file not found: {dbFile}");
+            logger.Error($"Database file not found: {databasePath}");
+            throw new FileNotFoundException($"Database file not found: {databasePath}");
         }
 
-        Connection = new SqliteConnection($"Data Source={dbFile};");
+        Connection = new SqliteConnection($"Data Source={databasePath};");
         // load tables
 
         Connection.Open();
@@ -126,17 +138,62 @@ public class ScriptResource
         }
         catch (Exception exception)
         {
-            logger.Warn(exception, "Could not add the optional mechanical damage system sound tokens.");
+            logger.Warn(exception, "Could not migrate legacy mechanical-damage system sound tokens.");
+        }
+        try
+        {
+            PacenoteLocalizationMigration.Ensure(Connection);
+        }
+        catch (Exception exception)
+        {
+            logger.Warn(exception, "Could not migrate the legacy pacenote localization schema.");
         }
     }
 
     public async Task LoadData() {
-        Pacenotes = (await Connection.QueryAsync<ScriptResourcePacenote>("SELECT * FROM pacenote")).ToList();
-        Complexities = (await Connection.QueryAsync<ScriptResourceComplexity>("SELECT * FROM pacenote_complexity")).ToList();
-        Types = (await Connection.QueryAsync<ScriptResourceType>("SELECT * FROM pacenote_type")).ToList();
-        Filenames = (await Connection.QueryAsync<ScriptResourceFilenames>("SELECT * FROM pacenote_filenames")).ToList();
-        Fallbacks = (await Connection.QueryAsync<ScriptResourceFallbacks>("SELECT * FROM pacenote_fallbacks")).ToList();
-        ReverseCorners = (await Connection.QueryAsync<ScriptResourceReverseCorners>("SELECT * FROM reverse_corners")).ToList();
+        var data = await PacenoteDatabaseLoader.LoadAsync(Connection);
+        var customDatabasePath = Config.Instance.CustomPacenoteDatabasePath;
+        if (!string.IsNullOrWhiteSpace(customDatabasePath))
+        {
+            try
+            {
+                var normalizedCustomPath = Path.GetFullPath(customDatabasePath);
+                if (string.Equals(
+                    Path.GetFullPath(databasePath),
+                    normalizedCustomPath,
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    logger.Warn("Ignoring the custom pacenote database because it is the official data.zdb file.");
+                }
+                else if (!File.Exists(normalizedCustomPath))
+                {
+                    logger.Warn("Custom pacenote database not found: {0}", normalizedCustomPath);
+                }
+                else
+                {
+                    var result = await PacenoteDatabaseLoader.MergeCustomAsync(data, normalizedCustomPath, logger);
+                    logger.Info(
+                        "Merged custom pacenote database {0}: {1} tokens and {2} localizations added, {3} ids remapped, {4} invalid relations skipped.",
+                        normalizedCustomPath,
+                        result.AddedTokens,
+                        result.AddedLocalizations,
+                        result.RemappedIds,
+                        result.SkippedRelations);
+                }
+            }
+            catch (Exception exception)
+            {
+                logger.Warn(exception, "Could not merge custom pacenote database {0}; using official definitions only.", customDatabasePath);
+            }
+        }
+
+        Pacenotes = data.Pacenotes;
+        Complexities = data.Complexities;
+        Types = data.Types;
+        Filenames = data.Filenames;
+        Localizations = data.Localizations;
+        Fallbacks = data.Fallbacks;
+        ReverseCorners = data.ReverseCorners;
 
         PacenoteDict = Pacenotes.ToDictionary(x => x.id);
         ComplexityDict = Complexities.ToDictionary(x => x.id);
@@ -145,9 +202,51 @@ public class ScriptResource
         FilenameDict = Filenames.GroupBy(x => x.id).ToDictionary(x => x.Key, x => x.OrderByDescending(y => y.is_primary).Select(y => y.filename).ToList());
         FallbackDict = Fallbacks.GroupBy(x => x.id).ToDictionary(x => x.Key, x => x.OrderBy(y => y.order_id).Select(y => y.fallback_id).ToList());
         FilenameToIdDict = Filenames.ToDictionary(x => x.filename, x => x.id);
+        LocalizationDict = Localizations.ToDictionary(
+            item => (item.pacenote_id, NormalizeLocale(item.locale)),
+            item => item);
 
         SimpleTokensCount = Pacenotes.Count(x => ComplexityDict[x.complexity].id == (int)ScriptResourceComplexities.SIMPLE);
         NormalTokensCount = Pacenotes.Count(x => ComplexityDict[x.complexity].id == (int)ScriptResourceComplexities.NORMAL);
         ComplexTokensCount = Pacenotes.Count(x => ComplexityDict[x.complexity].id == (int)ScriptResourceComplexities.COMPLEX);
+    }
+
+    public string ResolvePacenoteDisplayName(string token, string locale)
+    {
+        var normalizedToken = token?.Trim() ?? string.Empty;
+        if (normalizedToken.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        if (!FilenameToIdDict.TryGetValue(normalizedToken, out var pacenoteId))
+        {
+            return HumanizeToken(normalizedToken);
+        }
+
+        var normalizedLocale = NormalizeLocale(locale);
+        if (normalizedLocale == "zh-hans-cn")
+        {
+            normalizedLocale = "zh-cn";
+        }
+
+        if (LocalizationDict.TryGetValue((pacenoteId, normalizedLocale), out var localized)
+            || LocalizationDict.TryGetValue((pacenoteId, I18NLoader.FallbackCultureName), out localized))
+        {
+            return localized.display_name;
+        }
+
+        var primaryToken = Filenames.FirstOrDefault(item => item.id == pacenoteId && item.is_primary)?.filename;
+        return HumanizeToken(primaryToken ?? normalizedToken);
+    }
+
+    private static string NormalizeLocale(string locale)
+    {
+        return locale?.Trim().Replace('_', '-').ToLowerInvariant() ?? string.Empty;
+    }
+
+    private static string HumanizeToken(string token)
+    {
+        return token.Replace('_', ' ');
     }
 }

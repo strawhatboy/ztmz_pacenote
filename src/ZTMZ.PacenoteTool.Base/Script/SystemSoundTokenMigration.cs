@@ -5,9 +5,8 @@ using Microsoft.Data.Sqlite;
 namespace ZTMZ.PacenoteTool.Base.Script;
 
 /// <summary>
-/// Keeps optional system-call tokens available in existing user databases.
-/// New voice packages can provide the dedicated recording names; older packages
-/// fall back to the established caution token.
+/// Upgrades legacy databases that predate the official mechanical-damage tokens.
+/// The packaged data.zdb remains the authoritative source for official tokens.
 /// </summary>
 public static class SystemSoundTokenMigration
 {
@@ -70,14 +69,30 @@ public static class SystemSoundTokenMigration
                     {
                         id = tokenId.Value,
                         description = definition.Description,
-                        type = (int)ScriptResourceTypes.MISC,
-                        complexity = (int)ScriptResourceComplexities.MISC
+                        type = (int)ScriptResourceTypes.SYSTEM,
+                        complexity = (int)ScriptResourceComplexities.SIMPLE
                     },
                     transaction);
             }
 
-            EnsureFilename(connection, transaction, tokenId.Value, definition.SystemToken, isPrimary: true);
-            EnsureFilename(connection, transaction, tokenId.Value, definition.RecordingToken, isPrimary: false);
+            connection.Execute(
+                """
+                UPDATE pacenote
+                SET description = @description, type = @type, complexity = @complexity
+                WHERE id = @id
+                  AND (description <> @description OR type <> @type OR complexity <> @complexity)
+                """,
+                new
+                {
+                    id = tokenId.Value,
+                    description = definition.Description,
+                    type = (int)ScriptResourceTypes.SYSTEM,
+                    complexity = (int)ScriptResourceComplexities.SIMPLE
+                },
+                transaction);
+
+            EnsureFilename(connection, transaction, tokenId.Value, definition.RecordingToken, isPrimary: true);
+            EnsureFilename(connection, transaction, tokenId.Value, definition.SystemToken, isPrimary: false);
             if (fallbackId is not null)
             {
                 EnsureFallback(connection, transaction, tokenId.Value, fallbackId.Value);
@@ -101,6 +116,14 @@ public static class SystemSoundTokenMigration
             WHERE NOT EXISTS (
                 SELECT 1 FROM pacenote_filenames WHERE id = @id AND filename = @filename
             )
+            """,
+            new { id, filename, isPrimary = isPrimary ? 1 : 0 },
+            transaction);
+        connection.Execute(
+            """
+            UPDATE pacenote_filenames
+            SET is_primary = @isPrimary
+            WHERE id = @id AND filename = @filename AND is_primary <> @isPrimary
             """,
             new { id, filename, isPrimary = isPrimary ? 1 : 0 },
             transaction);

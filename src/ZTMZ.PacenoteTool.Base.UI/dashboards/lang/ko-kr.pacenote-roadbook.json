@@ -1,0 +1,18 @@
+{
+  "dashboards": {
+    "pacenoteRoadbook": {
+      "rowGap": "행 간격",
+      "iconLabelGap": "아이콘–텍스트 간격",
+      "showLabels": "토큰 이름 표시",
+      "historyRows": "이전 줄",
+      "tooltip": {
+        "rowGap": "페이스노트 행 사이의 세로 간격",
+        "iconLabelGap": "각 아이콘과 아래 텍스트 사이의 세로 간격",
+        "showLabels": "각 페이스노트 아이콘 아래에 토큰 이름을 표시합니다",
+        "historyRows": "현재 줄 위에 유지할 이전 페이스노트 줄 수(0-5)"
+      },
+      "name": "그래픽 페이스노트",
+      "description": "현재 페이스노트 줄과 점차 흐려지는 이전 줄을 아이콘으로 표시합니다"
+    }
+  }
+}

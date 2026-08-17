@@ -117,6 +117,7 @@ public class Dashboard {
     
     private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     private long _configurationRevision;
+    private PacenoteIconCatalog _pacenoteIconCatalog;
 
     public DashboardDescriptor Descriptor { get; set; }
 
@@ -212,6 +213,22 @@ public class Dashboard {
                     new DashboardImageResourceSource(file, imageDescriptor.FormatGUID));
             }
         }
+
+        if (Descriptor.UsesPacenoteIcons) {
+            _pacenoteIconCatalog = PacenoteIconCatalog.Load();
+            foreach (var icon in _pacenoteIconCatalog.GetCanonicalIcons()) {
+                var resourceKey = $"pacenote@{icon.CanonicalToken}";
+                var imageDescriptor = new DashboardResourceImageDescriptor { Path = icon.FilePath };
+                this.ImageResources.Add(
+                    resourceKey,
+                    imageDescriptor.GetImage(args.Graphics, resourceKey, icon.FilePath));
+                this.ImageResourceSources.Add(
+                    resourceKey,
+                    new DashboardImageResourceSource(icon.FilePath, null, icon.WebPath));
+            }
+        } else {
+            _pacenoteIconCatalog = null;
+        }
     }
 
     private string GetResourcePath(string resourcePath) {
@@ -306,6 +323,26 @@ public class Dashboard {
         return null;
     }
 
+    public string ResolvePacenoteIconToken(string token) {
+        if (_pacenoteIconCatalog == null && Descriptor.UsesPacenoteIcons) {
+            _pacenoteIconCatalog = PacenoteIconCatalog.Load();
+        }
+
+        return _pacenoteIconCatalog != null
+            && _pacenoteIconCatalog.TryResolve(token, out var icon)
+                ? icon.CanonicalToken
+                : string.Empty;
+    }
+
+    public string ResolvePacenoteDisplayName(string token) {
+        var canonicalToken = ResolvePacenoteIconToken(token);
+        var labelToken = string.IsNullOrWhiteSpace(canonicalToken) ? token : canonicalToken;
+        return ZTMZ.PacenoteTool.Base.Script.ScriptResource.LoadedInstance?.ResolvePacenoteDisplayName(
+                   labelToken,
+                   I18NLoader.Instance.CurrentCultureName)
+               ?? labelToken.Replace('_', ' ');
+    }
+
     public void SaveConfig() {
         File.WriteAllText(Path.Combine(Descriptor.Path, Constants.FILE_USER_SETTINGS), JsonConvert.SerializeObject(DashboardConfigurations, Formatting.Indented));
         Interlocked.Increment(ref _configurationRevision);
@@ -333,7 +370,10 @@ public class DashboardResourceImageDescriptor {
     }
 }
 
-public sealed record DashboardImageResourceSource(string Path, string FormatGuid);
+public sealed record DashboardImageResourceSource(
+    string Path,
+    string FormatGuid,
+    string WebPath = null);
 
 public class DashboardDescriptor {
     public string Name { get; set; }
@@ -346,6 +386,7 @@ public class DashboardDescriptor {
     public Dictionary<string, DashboardResourceImageDescriptor> ImageResourcesInDirectory { get; set; }
     public bool SupportsNativeStaticImageCache { get; set; }
     public bool SupportsWebDashboardClientLua { get; set; }
+    public bool UsesPacenoteIcons { get; set; }
     public string Path { get; set; }
     public bool IsEnabled { get; set; } = true;
 }

@@ -1,0 +1,18 @@
+{
+  "dashboards": {
+    "pacenoteRoadbook": {
+      "rowGap": "Espacement des lignes",
+      "iconLabelGap": "Espacement icône–texte",
+      "showLabels": "Afficher le nom des symboles",
+      "historyRows": "Lignes précédentes",
+      "tooltip": {
+        "rowGap": "Espacement vertical entre les lignes de notes",
+        "iconLabelGap": "Espacement vertical entre chaque icône et son libellé",
+        "showLabels": "Afficher le nom de chaque note sous son symbole",
+        "historyRows": "Nombre de lignes précédentes conservées au-dessus de la ligne actuelle (0-5)"
+      },
+      "name": "Roadbook graphique",
+      "description": "Afficher la ligne de notes actuelle et les lignes précédentes estompées sous forme de symboles"
+    }
+  }
+}

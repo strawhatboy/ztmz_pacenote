@@ -1,0 +1,18 @@
+{
+  "dashboards": {
+    "pacenoteRoadbook": {
+      "rowGap": "行間隔",
+      "iconLabelGap": "アイコンと文字の間隔",
+      "showLabels": "トークン名を表示",
+      "historyRows": "過去の行",
+      "tooltip": {
+        "rowGap": "ペースノート各行の縦方向の間隔",
+        "iconLabelGap": "各アイコンとその下の文字との縦方向の間隔",
+        "showLabels": "各ペースノートの名前をアイコンの下に表示します",
+        "historyRows": "現在の行の上に残す過去のペースノート行数（0-5）"
+      },
+      "name": "グラフィカル ペースノート",
+      "description": "現在のペースノート行と、徐々に薄くなる過去の行をアイコンで表示します"
+    }
+  }
+}

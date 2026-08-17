@@ -1,0 +1,36 @@
+{
+    "game": {
+        "acr": {
+            "description": "Supernova Games Studios가 개발하고 505 Games가 배급한 Assetto Corsa Rally",
+            "experimental": {
+                "enable": "실험적 라이브 브리지 사용",
+                "inject": "브리지 주입",
+                "disabled": "실험적 라이브 브리지가 활성화되어 있지 않습니다.",
+                "warningTitle": "실험적 ACR 브리지",
+                "enableWarning": "이 내부 기능은 Assetto Corsa Rally에 DLL을 주입할 수 있습니다. 오프라인 또는 비공개 테스트에서만 사용해야 합니다. 게임 업데이트로 인해 호환되지 않을 수 있으며, 주입된 코드를 사용하면 게임 규정을 위반하거나 계정에 영향을 줄 수 있습니다. 실험적 라이브 브리지를 활성화하시겠습니까?",
+                "injectWarning": "실행 중인 Assetto Corsa Rally 프로세스에 내부 라이브 페이스노트 브리지를 주입하시겠습니까? 오프라인 또는 비공개 테스트에서만 사용하십시오. 브리지는 게임을 종료할 때까지 로드된 상태로 유지됩니다.",
+                "confirm": "이해했습니다",
+                "statusBundleUnavailable": "이 빌드에는 내부 ACR 브리지 파일이 설치되어 있지 않습니다.",
+                "statusGameNotRunning": "Assetto Corsa Rally가 시작되기를 기다리는 중입니다.",
+                "statusInjected": "실험적 브리지가 이미 로드되어 있습니다. 제거하려면 Assetto Corsa Rally를 종료하십시오.",
+                "statusReady": "실험적 브리지를 명시적으로 주입할 준비가 되었습니다.",
+                "launchPromptTitle": "실험적 ACR 브리지",
+                "launchPromptWarning": "이 실험적 기능은 Assetto Corsa Rally에 DLL을 주입합니다. 게임 업데이트 후 호환되지 않을 수 있으며 게임 규정을 위반하거나 계정을 위험에 빠뜨릴 수 있습니다. 오프라인 또는 비공개 테스트에서만 사용하십시오. 이번 게임 세션에 라이브 페이스노트 브리지를 주입하시겠습니까?",
+                "launchPromptInject": "브리지 주입",
+                "launchPromptNotNow": "나중에",
+                "launchPromptFailure": "라이브 브리지를 주입하지 못했습니다:\n{0}",
+                "privilegeWarning": "ZTMZ와 Assetto Corsa Rally는 동일한 Windows 권한 수준으로 실행해야 합니다. 그렇지 않으면 브리지가 페이스노트를 전달할 수 없습니다. 두 프로그램 모두 일반 사용자로 실행하는 것을 권장합니다. 하나를 관리자로 실행하면 다른 하나도 관리자로 실행하십시오."
+            },
+            "diagnostics": {
+                "reader": "ACR 공유 메모리",
+                "liveBridge": "ACR 라이브 페이스노트 브리지",
+                "bridgeInjected": "주입됨",
+                "bridgeNotInjected": "주입되지 않음",
+                "bridgeDisabled": "비활성화됨"
+            },
+            "prerequisite": {
+                "sharedMemoryReady": "Assetto Corsa Rally는 공유 메모리를 사용합니다. 사전 요구 사항 검사는 필요하지 않습니다."
+            }
+        }
+    }
+}

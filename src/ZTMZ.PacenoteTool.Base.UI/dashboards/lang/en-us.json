@@ -34,6 +34,20 @@
             "name": "Car Damage",
             "description": "Show normalized vehicle damage telemetry"
         },
+        "pacenoteRoadbook": {
+            "rowGap": "Row spacing",
+            "iconLabelGap": "Icon-to-label spacing",
+            "showLabels": "Show token labels",
+            "historyRows": "Previous rows",
+            "tooltip": {
+                "rowGap": "Vertical spacing between pacenote rows",
+                "iconLabelGap": "Vertical spacing between each icon and its label",
+                "showLabels": "Show each pacenote token name below its icon",
+                "historyRows": "Number of previous pacenote rows retained above the current row (0-5)"
+            },
+            "name": "Visual Pacenote Roadbook",
+            "description": "Show the current pacenote row and faded previous rows as graphical icons"
+        },
         "settings": {
             "enabled": "Enabled",
             "outputTarget": "Display target",

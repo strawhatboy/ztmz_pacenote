@@ -100,34 +100,22 @@ public sealed class MonacoController
         return JsonSerializer.Deserialize<double>(value);
     }
 
-    public Task SetRoadbookPrintMarginsAsync(double horizontal, double vertical)
+    public async Task<bool> ExportRoadbookPdfAsync(string fileName, RoadbookPrintOptions options)
     {
-        return ExecuteAsync(
-            $"window.ztmzEditor.setRoadbookPrintMargins({horizontal.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {vertical.ToString(System.Globalization.CultureInfo.InvariantCulture)});");
+        await ApplyPrintPageStyleAsync(options);
+        return await _webView.CoreWebView2.PrintToPdfAsync(fileName, CreatePrintSettings(options));
     }
 
-    public async Task<RoadbookPrintMargins> GetRoadbookPrintMarginsAsync()
+    public async Task<RoadbookPrintResult> PrintRoadbookAsync(RoadbookPrintOptions options)
     {
-        var value = await _webView.ExecuteScriptAsync("window.ztmzEditor.getRoadbookPrintMargins();");
-        return JsonSerializer.Deserialize<RoadbookPrintMargins>(value, JsonOptions)
-            ?? new RoadbookPrintMargins(15, 10);
-    }
-
-    public async Task<bool> ExportRoadbookPdfAsync(string fileName)
-    {
-        var margins = await GetRoadbookPrintMarginsAsync();
-        var printSettings = _webView.CoreWebView2.Environment.CreatePrintSettings();
-        printSettings.Orientation = CoreWebView2PrintOrientation.Portrait;
-        printSettings.MediaSize = CoreWebView2PrintMediaSize.Custom;
-        printSettings.PageWidth = 210.0 / 25.4;
-        printSettings.PageHeight = 297.0 / 25.4;
-        printSettings.MarginTop = margins.Vertical / 25.4;
-        printSettings.MarginBottom = margins.Vertical / 25.4;
-        printSettings.MarginLeft = margins.Horizontal / 25.4;
-        printSettings.MarginRight = margins.Horizontal / 25.4;
-        printSettings.ShouldPrintBackgrounds = true;
-        printSettings.ShouldPrintHeaderAndFooter = false;
-        return await _webView.CoreWebView2.PrintToPdfAsync(fileName, printSettings);
+        await ApplyPrintPageStyleAsync(options);
+        var status = await _webView.CoreWebView2.PrintAsync(CreatePrintSettings(options));
+        return status switch
+        {
+            CoreWebView2PrintStatus.Succeeded => RoadbookPrintResult.Succeeded,
+            CoreWebView2PrintStatus.PrinterUnavailable => RoadbookPrintResult.PrinterUnavailable,
+            _ => RoadbookPrintResult.OtherError
+        };
     }
 
     public Task HighlightPlaybackAsync(PacenotePlaybackSnapshot snapshot)
@@ -143,6 +131,55 @@ public sealed class MonacoController
     private Task ExecuteAsync(string script)
     {
         return _webView.ExecuteScriptAsync(script);
+    }
+
+    private CoreWebView2PrintSettings CreatePrintSettings(RoadbookPrintOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        var settings = _webView.CoreWebView2.Environment.CreatePrintSettings();
+        settings.Orientation = options.Landscape
+            ? CoreWebView2PrintOrientation.Landscape
+            : CoreWebView2PrintOrientation.Portrait;
+        settings.MediaSize = CoreWebView2PrintMediaSize.Custom;
+        settings.PageWidth = options.PaperWidthMillimeters / 25.4;
+        settings.PageHeight = options.PaperHeightMillimeters / 25.4;
+        settings.MarginTop = options.VerticalMarginMillimeters / 25.4;
+        settings.MarginBottom = options.VerticalMarginMillimeters / 25.4;
+        settings.MarginLeft = options.HorizontalMarginMillimeters / 25.4;
+        settings.MarginRight = options.HorizontalMarginMillimeters / 25.4;
+        settings.ShouldPrintBackgrounds = true;
+        settings.ShouldPrintHeaderAndFooter = false;
+        settings.PageRanges = options.PageRanges?.Trim() ?? string.Empty;
+        settings.Copies = Math.Clamp(options.Copies, 1, 999);
+        settings.PrinterName = options.PrinterName ?? string.Empty;
+        return settings;
+    }
+
+    private Task ApplyPrintPageStyleAsync(RoadbookPrintOptions options)
+    {
+        var style = BuildPrintPageStyle(options);
+        return ExecuteAsync(
+            $"window.ztmzEditor.setPrintPageStyle({JsonSerializer.Serialize(style, JsonOptions)});"
+        );
+    }
+
+    private static string BuildPrintPageStyle(RoadbookPrintOptions options)
+    {
+        if (!options.ShowPageNumbers)
+        {
+            return string.Empty;
+        }
+
+        var marginBox = options.PageNumberPosition switch
+        {
+            RoadbookPageNumberPosition.BottomLeft => "@bottom-left",
+            RoadbookPageNumberPosition.BottomRight => "@bottom-right",
+            _ => "@bottom-center"
+        };
+        var content = options.PageNumberStyle == RoadbookPageNumberStyle.Current
+            ? "counter(page)"
+            : "counter(page) ' / ' counter(pages)";
+        return $"@page {{ {marginBox} {{ content: {content}; color: #5f6368; font-family: sans-serif; font-size: 9pt; }} }}";
     }
 
     private void AttachMessageHandler()
@@ -174,4 +211,35 @@ public sealed class MonacoController
     }
 }
 
-public sealed record RoadbookPrintMargins(double Horizontal, double Vertical);
+public sealed record RoadbookPrintOptions(
+    double PaperWidthMillimeters,
+    double PaperHeightMillimeters,
+    bool Landscape,
+    double HorizontalMarginMillimeters,
+    double VerticalMarginMillimeters,
+    string PageRanges = "",
+    int Copies = 1,
+    string PrinterName = "",
+    bool ShowPageNumbers = true,
+    RoadbookPageNumberStyle PageNumberStyle = RoadbookPageNumberStyle.CurrentAndTotal,
+    RoadbookPageNumberPosition PageNumberPosition = RoadbookPageNumberPosition.BottomCenter);
+
+public enum RoadbookPageNumberStyle
+{
+    CurrentAndTotal,
+    Current
+}
+
+public enum RoadbookPageNumberPosition
+{
+    BottomLeft,
+    BottomCenter,
+    BottomRight
+}
+
+public enum RoadbookPrintResult
+{
+    Succeeded,
+    PrinterUnavailable,
+    OtherError
+}

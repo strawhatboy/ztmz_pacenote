@@ -1,0 +1,36 @@
+{
+    "game": {
+        "acr": {
+            "description": "Assetto Corsa Rally, sviluppato da Supernova Games Studios e pubblicato da 505 Games",
+            "experimental": {
+                "enable": "Abilita bridge in tempo reale sperimentale",
+                "inject": "Inietta bridge",
+                "disabled": "Il bridge in tempo reale sperimentale non è abilitato.",
+                "warningTitle": "Bridge ACR sperimentale",
+                "enableWarning": "Questa funzione interna può iniettare una DLL in Assetto Corsa Rally. È destinata esclusivamente a test offline o privati. Gli aggiornamenti del gioco possono renderla incompatibile e l'uso di codice iniettato può violare le regole del gioco o avere conseguenze su un account. Abilitare il bridge in tempo reale sperimentale?",
+                "injectWarning": "Iniettare il bridge interno delle note in tempo reale nel processo Assetto Corsa Rally in esecuzione? Usalo solo per test offline o privati. Il bridge rimane caricato fino alla chiusura del gioco.",
+                "confirm": "Ho capito",
+                "statusBundleUnavailable": "I file interni del bridge ACR non sono installati in questa build.",
+                "statusGameNotRunning": "In attesa dell'avvio di Assetto Corsa Rally.",
+                "statusInjected": "Il bridge sperimentale è già caricato. Chiudi Assetto Corsa Rally per rimuoverlo.",
+                "statusReady": "Pronto per l'iniezione esplicita del bridge sperimentale.",
+                "launchPromptTitle": "Bridge ACR sperimentale",
+                "launchPromptWarning": "Questa funzione sperimentale inietta una DLL in Assetto Corsa Rally. Può diventare incompatibile dopo un aggiornamento del gioco e violarne le regole o mettere a rischio un account. Usala solo per test offline o privati. Iniettare il bridge delle note in tempo reale per questa sessione di gioco?",
+                "launchPromptInject": "Inietta bridge",
+                "launchPromptNotNow": "Non ora",
+                "launchPromptFailure": "Il bridge in tempo reale non è stato iniettato:\n{0}",
+                "privilegeWarning": "ZTMZ e Assetto Corsa Rally devono essere eseguiti con lo stesso livello di privilegi Windows, altrimenti il bridge non può inviare le note. Consigliamo di eseguirli entrambi come utente normale. Se uno viene eseguito come amministratore, esegui come amministratore anche l'altro."
+            },
+            "diagnostics": {
+                "reader": "Memoria condivisa ACR",
+                "liveBridge": "Bridge delle note in tempo reale ACR",
+                "bridgeInjected": "Iniettato",
+                "bridgeNotInjected": "Non iniettato",
+                "bridgeDisabled": "Disabilitato"
+            },
+            "prerequisite": {
+                "sharedMemoryReady": "Assetto Corsa Rally utilizza la memoria condivisa. Non è necessario alcun controllo preliminare."
+            }
+        }
+    }
+}

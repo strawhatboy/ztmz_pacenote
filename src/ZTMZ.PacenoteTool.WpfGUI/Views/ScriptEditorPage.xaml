@@ -41,8 +41,8 @@
                        ToolTip="{DynamicResource ResourceKey=scriptEditor.importCrewChief}" />
             <ui:Button Grid.Column="4" Icon="{ui:SymbolIcon ArrowClockwise20}" Click="Validate_Click"
                        ToolTip="{DynamicResource ResourceKey=scriptEditor.validate}" />
-            <ui:Button Grid.Column="5" Icon="{ui:SymbolIcon Print20}" Click="ExportRoadbookPdf_Click"
-                       ToolTip="{DynamicResource ResourceKey=scriptEditor.exportRoadbookPdf}" />
+            <ui:Button Grid.Column="5" Icon="{ui:SymbolIcon Print20}" Click="PrintRoadbook_Click"
+                       ToolTip="{DynamicResource ResourceKey=scriptEditor.printRoadbook}" />
             <ui:ToggleSwitch Grid.Column="6" Margin="12,0,0,0" IsChecked="True"
                              Checked="WordWrap_Changed" Unchecked="WordWrap_Changed"
                              Content="{DynamicResource ResourceKey=scriptEditor.wordWrap}" />
@@ -60,10 +60,8 @@
         <Grid Grid.Row="2" Margin="0,12,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="180" />
                 <ColumnDefinition Width="48" />
-                <ColumnDefinition Width="24" />
-                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <ui:TextBlock Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center"
                           Text="{DynamicResource ResourceKey=scriptEditor.roadbookScale}" />
@@ -73,20 +71,6 @@
                     ToolTip="{DynamicResource ResourceKey=scriptEditor.roadbookScaleDescription}" />
             <ui:TextBlock Grid.Column="2" x:Name="RoadbookScaleValue" HorizontalAlignment="Right"
                           VerticalAlignment="Center" Text="100%" />
-            <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
-                <ui:TextBlock VerticalAlignment="Center"
-                              Text="{DynamicResource ResourceKey=scriptEditor.pdfMargins}" />
-                <ui:TextBlock Margin="12,0,6,0" VerticalAlignment="Center"
-                              Text="{DynamicResource ResourceKey=scriptEditor.pdfHorizontalMargin}" />
-                <ui:NumberBox x:Name="PdfHorizontalMargin" Width="160" Minimum="5" Maximum="30"
-                              SmallChange="1" LargeChange="5" Value="15" ValueChanged="PdfMargin_ValueChanged" />
-                <ui:TextBlock Margin="4,0,0,0" VerticalAlignment="Center" Text="mm" />
-                <ui:TextBlock Margin="12,0,6,0" VerticalAlignment="Center"
-                              Text="{DynamicResource ResourceKey=scriptEditor.pdfVerticalMargin}" />
-                <ui:NumberBox x:Name="PdfVerticalMargin" Width="160" Minimum="5" Maximum="30"
-                              SmallChange="1" LargeChange="5" Value="10" ValueChanged="PdfMargin_ValueChanged" />
-                <ui:TextBlock Margin="4,0,0,0" VerticalAlignment="Center" Text="mm" />
-            </StackPanel>
         </Grid>
     </Grid>
 </Page>

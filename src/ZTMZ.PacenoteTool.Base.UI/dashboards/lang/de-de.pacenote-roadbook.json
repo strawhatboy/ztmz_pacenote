@@ -1,0 +1,18 @@
+{
+  "dashboards": {
+    "pacenoteRoadbook": {
+      "rowGap": "Zeilenabstand",
+      "iconLabelGap": "Abstand Symbol–Text",
+      "showLabels": "Token-Beschriftungen anzeigen",
+      "historyRows": "Vorherige Zeilen",
+      "tooltip": {
+        "rowGap": "Vertikaler Abstand zwischen den Pacenote-Zeilen",
+        "iconLabelGap": "Vertikaler Abstand zwischen Symbol und Beschriftung",
+        "showLabels": "Den Namen jedes Pacenote-Tokens unter seinem Symbol anzeigen",
+        "historyRows": "Anzahl der vorherigen Pacenote-Zeilen über der aktuellen Zeile (0-5)"
+      },
+      "name": "Grafisches Pacenote-Roadbook",
+      "description": "Aktuelle Pacenote-Zeile und verblassende vorherige Zeilen als Symbole anzeigen"
+    }
+  }
+}

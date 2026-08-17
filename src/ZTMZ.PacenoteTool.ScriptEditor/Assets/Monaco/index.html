@@ -164,7 +164,6 @@
         body[data-theme="dark"] .roadbook-distance-card.selected { background: rgba(64, 134, 187, .24); }
         body[data-theme="dark"] .roadbook-distance-card.playing { background: rgba(83, 158, 93, .26); }
         body[data-theme="dark"] .roadbook-distance-card.selected.playing { background: rgba(70, 145, 137, .28); }
-        @page { size: A4 portrait; margin: 10mm 15mm; }
         @media print {
             html, body { height: auto !important; overflow: visible !important; background: #fff !important; }
             #editor-shell { display: block !important; width: 100% !important; height: auto !important; overflow: visible !important; }
@@ -174,10 +173,22 @@
             .roadbook-heading { margin-bottom: 6mm; padding-bottom: 3mm; }
             .roadbook-entries { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0; }
             .roadbook-block { border-color: rgba(82, 70, 53, .55) !important; }
+            .roadbook-block:not(.roadbook-distance-card).selected,
+            .roadbook-block:not(.roadbook-distance-card).playing { background: transparent !important; box-shadow: none !important; }
             .roadbook-token-card { flex-basis: 24mm; min-height: 32mm; }
-            .roadbook-distance-card { flex-basis: 14mm; min-height: 32mm; }
+            .roadbook-distance-card,
+            .roadbook-distance-card.selected,
+            .roadbook-distance-card.playing,
+            .roadbook-distance-card.selected.playing {
+                flex-basis: 14mm;
+                min-height: 32mm;
+                border-left-color: #8c2b26 !important;
+                color: #7d211e !important;
+                background: #f1e3e2 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
             .roadbook-line-gap { flex-basis: 5mm; min-height: 32mm; }
-            .roadbook-block.selected, .roadbook-block.playing { background: transparent !important; box-shadow: none !important; }
             body[data-theme="dark"] .roadbook-heading-title, body[data-theme="dark"] .roadbook-token { color: #1e2730 !important; }
             body[data-theme="dark"] .roadbook-description, body[data-theme="dark"] .roadbook-empty, body[data-theme="dark"] .roadbook-line { color: #50483e !important; }
             body[data-theme="dark"] .roadbook-grade { background: #fff !important; }
@@ -208,8 +219,7 @@
             let playingRoadbookLine = 0;
             let roadbookTitle = 'Roadbook';
             let roadbookScalePercent = 100;
-            let roadbookPrintMarginHorizontal = 15;
-            let roadbookPrintMarginVertical = 10;
+            let printPageStyleElement;
 
             function clampRoadbookScale(percent) {
                 if (percent === null || percent === undefined || String(percent).trim() === '') return 100;
@@ -223,30 +233,6 @@
                 document.documentElement.style.setProperty('--roadbook-scale', String(roadbookScalePercent / 100));
                 if (persist) window.localStorage.setItem('ztmz-roadbook-scale-percent', String(roadbookScalePercent));
                 return roadbookScalePercent;
-            }
-
-            function clampRoadbookPrintMargin(millimeters, fallback) {
-                if (millimeters === null || millimeters === undefined || String(millimeters).trim() === '') return fallback;
-                const numericMillimeters = Number(millimeters);
-                if (!Number.isFinite(numericMillimeters)) return fallback;
-                return Math.min(30, Math.max(5, Math.round(numericMillimeters)));
-            }
-
-            function applyRoadbookPrintMargins(horizontal, vertical, persist = true) {
-                roadbookPrintMarginHorizontal = clampRoadbookPrintMargin(horizontal, 15);
-                roadbookPrintMarginVertical = clampRoadbookPrintMargin(vertical, 10);
-                let pageStyle = document.getElementById('ztmz-roadbook-page-style');
-                if (!pageStyle) {
-                    pageStyle = document.createElement('style');
-                    pageStyle.id = 'ztmz-roadbook-page-style';
-                    document.head.appendChild(pageStyle);
-                }
-                pageStyle.textContent = `@page { size: A4 portrait; margin: ${roadbookPrintMarginVertical}mm ${roadbookPrintMarginHorizontal}mm; }`;
-                if (persist) {
-                    window.localStorage.setItem('ztmz-roadbook-print-margin-horizontal-mm', String(roadbookPrintMarginHorizontal));
-                    window.localStorage.setItem('ztmz-roadbook-print-margin-vertical-mm', String(roadbookPrintMarginVertical));
-                }
-                return { horizontal: roadbookPrintMarginHorizontal, vertical: roadbookPrintMarginVertical };
             }
 
             function normalize(value) {
@@ -559,10 +545,6 @@
             window.ztmzEditor = {
                 create(container) {
                     applyRoadbookScale(window.localStorage.getItem('ztmz-roadbook-scale-percent'), false);
-                    applyRoadbookPrintMargins(
-                        window.localStorage.getItem('ztmz-roadbook-print-margin-horizontal-mm'),
-                        window.localStorage.getItem('ztmz-roadbook-print-margin-vertical-mm'),
-                        false);
                     registerLanguage();
                     editor = monaco.editor.create(container, {
                         language: 'pacenote',
@@ -598,11 +580,17 @@
                 setLanguage(language) { monaco.editor.setModelLanguage(editor.getModel(), language); },
                 setWordWrap(enabled) { editor.updateOptions({ wordWrap: enabled ? 'on' : 'off' }); },
                 setReadOnly(readOnly) { editor.updateOptions({ readOnly: !!readOnly }); },
-                setRoadbookTitle(title) { roadbookTitle = title || 'Roadbook'; renderRoadbook(); },
+                setRoadbookTitle(title) { roadbookTitle = title || 'Roadbook'; document.title = roadbookTitle; renderRoadbook(); },
                 setRoadbookScale(percent) { return applyRoadbookScale(percent); },
                 getRoadbookScale() { return roadbookScalePercent; },
-                setRoadbookPrintMargins(horizontal, vertical) { return applyRoadbookPrintMargins(horizontal, vertical); },
-                getRoadbookPrintMargins() { return { horizontal: roadbookPrintMarginHorizontal, vertical: roadbookPrintMarginVertical }; },
+                setPrintPageStyle(css) {
+                    if (!printPageStyleElement) {
+                        printPageStyleElement = document.createElement('style');
+                        printPageStyleElement.id = 'ztmz-print-page-style';
+                        document.head.appendChild(printPageStyleElement);
+                    }
+                    printPageStyleElement.textContent = String(css || '');
+                },
                 highlightPlayback,
                 validate,
                 focus() { editor.focus(); }

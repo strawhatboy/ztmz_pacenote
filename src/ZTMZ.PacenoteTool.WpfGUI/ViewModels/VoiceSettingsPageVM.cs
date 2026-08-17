@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using System.IO;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using System.Windows.Data;
@@ -139,6 +140,15 @@ public partial class VoiceSettingsPageVM : ObservableObject {
         Config.Instance.SaveUserConfig();
     }
 
+    [ObservableProperty]
+    private string _customPacenoteDatabasePath = Config.Instance.CustomPacenoteDatabasePath;
+
+    partial void OnCustomPacenoteDatabasePathChanged(string value)
+    {
+        Config.Instance.CustomPacenoteDatabasePath = value;
+        Config.Instance.SaveUserConfig();
+    }
+
     [RelayCommand]
     public void OnOpenFolderAdditionalCoDriverPackagesSearchPath()
     {
@@ -193,5 +203,32 @@ public partial class VoiceSettingsPageVM : ObservableObject {
         AdditionalPacenotesDefinitionSearchPath = openFolderDialog.FolderNames.First();
 #else
 #endif
+    }
+
+    [RelayCommand]
+    public void OnSelectCustomPacenoteDatabase()
+    {
+        var initialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        if (!string.IsNullOrWhiteSpace(CustomPacenoteDatabasePath))
+        {
+            var configuredDirectory = Path.GetDirectoryName(CustomPacenoteDatabasePath);
+            if (Directory.Exists(configuredDirectory))
+            {
+                initialDirectory = configuredDirectory;
+            }
+        }
+
+        OpenFileDialog dialog = new()
+        {
+            CheckFileExists = true,
+            Multiselect = false,
+            InitialDirectory = initialDirectory,
+            Filter = "ZTMZ pacenote database (*.zdb)|*.zdb|All files (*.*)|*.*"
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            CustomPacenoteDatabasePath = dialog.FileName;
+        }
     }
 }

@@ -1,3 +1,13 @@
+v2.99.99.46-3.0-rc18
+
+* Adds an in-window roadbook print dialog with an exact live PDF preview, physical-printer and PDF destinations, paper size, orientation, margins, configurable page-number format and position, page ranges, and copies; printed backgrounds are preserved and browser file-path headers and footers are removed.
+* Fixes game-specific descriptions, setup guidance, bridge warnings, diagnostics, and settings remaining in English when the interface uses German, Spanish, French, Italian, Japanese, Korean, Brazilian Portuguese, or Russian.
+* Shows every language in the language selector using its own native name instead of translating the entire list into the Windows display language.
+* Adds a visual pacenote dashboard for the native overlay and Web Dashboard, showing every token in the current call as an icon while previous calls scroll upward and fade; token labels, history length, row spacing, and icon-to-label spacing are configurable.
+* Makes the bundled data.zdb the authoritative catalog for official pacenote tokens, fixes the classification, primary aliases, and fallbacks of mechanical-damage calls, and adds an optional read-only custom ZDB merge with official definitions taking priority.
+* Adds rally-oriented database translations for every official pacenote token in all ten interface languages; the script editor and visual dashboard now show token meanings in the current interface language, with merge support for custom ZDB translations.
+* Completes German, Spanish, French, Italian, Japanese, Korean, Brazilian Portuguese, and Russian translations for the core interface, eliminating unintended English fallback across settings, replays, diagnostics, the system tray, data migration, the script editor, and dialogs.
+
 v2.99.99.45-3.0-rc17
 
 * Fixes DiRT Rally and DiRT Rally 2.0 configuration files with an invalid XML encoding declaration being incorrectly reported as corrupted; ZTMZ now falls back to UTF-8/BOM parsing.

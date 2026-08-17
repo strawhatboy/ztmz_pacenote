@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Globalization;
 using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.Tests.Base;
@@ -69,6 +70,28 @@ public class I18NLoaderTest
 
         Assert.Equal("de-de", loader.CurrentCultureName);
         Assert.Equal("Deutsch", loader["common.value"]);
+    }
+
+    [Fact]
+    public void ListsEachLanguageUsingItsNativeName()
+    {
+        using var testDirectory = new TemporaryDirectory();
+        File.WriteAllText(Path.Combine(testDirectory.Path, "en-us.json"), "{}");
+        File.WriteAllText(Path.Combine(testDirectory.Path, "de-de.json"), "{}");
+        File.WriteAllText(Path.Combine(testDirectory.Path, "ja-jp.json"), "{}");
+
+        var loader = CreateLoader();
+        loader.Initialize(new[] { testDirectory.Path });
+
+        Assert.Equal(
+            CultureInfo.GetCultureInfo("en-US").NativeName,
+            loader.culturesFullname[loader.cultures.IndexOf("en-us")]);
+        Assert.Equal(
+            CultureInfo.GetCultureInfo("de-DE").NativeName,
+            loader.culturesFullname[loader.cultures.IndexOf("de-de")]);
+        Assert.Equal(
+            CultureInfo.GetCultureInfo("ja-JP").NativeName,
+            loader.culturesFullname[loader.cultures.IndexOf("ja-jp")]);
     }
 
     private static I18NLoader CreateLoader()

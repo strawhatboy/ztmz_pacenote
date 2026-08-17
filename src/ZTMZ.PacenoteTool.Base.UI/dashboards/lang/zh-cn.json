@@ -34,6 +34,20 @@
             "name": "\u8f66\u8f86\u635f\u4f24",
             "description": "\u663e\u793a\u89c4\u8303\u5316\u7684\u8f66\u8f86\u635f\u4f24\u6570\u636e"
         },
+        "pacenoteRoadbook": {
+            "rowGap": "行间距",
+            "iconLabelGap": "图标与文字间距",
+            "showLabels": "显示标记文字",
+            "historyRows": "已播放行数",
+            "tooltip": {
+                "rowGap": "路书各行之间的垂直间距",
+                "iconLabelGap": "每个路书图标与其下方文字之间的垂直间距",
+                "showLabels": "在每个路书图标下显示对应的标记名称",
+                "historyRows": "在当前行上方保留的已播放路书行数（0-5）"
+            },
+            "name": "图形路书",
+            "description": "用图标显示正在播放的路书行，并在上方渐隐显示已经播放的行"
+        },
         "settings": {
             "enabled": "启用",
             "outputTarget": "显示位置",

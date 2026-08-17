@@ -95,7 +95,7 @@ public class WebDashboardCommandCaptureTest
             "font-family: 'WRC Clean Roman';\n            src: url('/fonts/WRCCleanRoman.ttf') format('truetype');\n            font-weight: 400;",
             normalizedPage);
         Assert.Contains("vendor/fengari-web.js?v=0.1.4", page);
-        Assert.Contains("browser-lua-dashboard.js?v=5", page);
+        Assert.Contains("browser-lua-dashboard.js?v=6", page);
         Assert.Contains("dashboard-client.js?v=5", page);
         Assert.Contains("cmd.fontWeight", clientScript);
         Assert.Contains("cmd.baseline", clientScript);
@@ -162,6 +162,63 @@ public class WebDashboardCommandCaptureTest
             Assert.Contains("\"overlayEnabled\":false", response);
             Assert.Contains("\"webEnabled\":true", response);
             Assert.Contains("\"outputTarget\":\"web\"", response);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public async Task DashboardPackagePublishesSharedPacenoteIconsAndAliases()
+    {
+        var root = Path.Combine(Path.GetTempPath(), $"ZTMZPacenoteDashboardRouteTest-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(root);
+
+        try
+        {
+            File.WriteAllText(Path.Combine(root, Constants.FILE_LUA_SCRIPT), "function onInit(args) end");
+            File.WriteAllText(
+                Path.Combine(root, Constants.FILE_SETTINGS),
+                """
+                {
+                  "PropertyName": { "dashboards.settings.enabled": "dashboards.settings.tooltip.enabled" },
+                  "PropertyValue": [ true ],
+                  "ValueRange": [ [] ]
+                }
+                """);
+            var dashboard = new Dashboard(new DashboardDescriptor
+            {
+                Path = root,
+                Name = "dashboards.pacenoteRoadbook.name",
+                Description = "dashboards.pacenoteRoadbook.description",
+                Author = "test",
+                Version = "1.0",
+                SupportsWebDashboardClientLua = true,
+                UsesPacenoteIcons = true,
+                ImageResources = new Dictionary<string, DashboardResourceImageDescriptor>(),
+                ImageResourcesInDirectory = new Dictionary<string, DashboardResourceImageDescriptor>()
+            });
+            var port = GetAvailablePort();
+            using var server = new WebDashboardServer { Port = port };
+            server.Initialize(new List<Dashboard> { dashboard }, _ => DashboardOutputTarget.Web);
+            server.Start();
+
+            using var client = new HttpClient();
+            var response = await GetWhenReady(client, $"http://127.0.0.1:{port}/api/dashboard/0");
+            using var package = JsonDocument.Parse(response);
+            var rootElement = package.RootElement;
+
+            Assert.Equal(
+                "/pacenote-icons/v1/icons/caution.png",
+                rootElement.GetProperty("imageResources")
+                    .GetProperty("0:pacenote@caution")
+                    .GetString());
+            Assert.Equal(
+                "caution",
+                rootElement.GetProperty("pacenoteIconTokenMap")
+                    .GetProperty("detail_caution")
+                    .GetString());
         }
         finally
         {

@@ -1,0 +1,20 @@
+{
+    "game": {
+        "rbr": {
+            "description": "O clássico simulador de rali na versão Rally Sim Fans.",
+            "additional_settings": {
+                "playPacenotesWhenReplaying": "Reproduzir as notas durante os replays.",
+                "additional_pacenote_def": "Definição personalizada de notas do RBR.",
+                "autoSwitchPacenoteDef": "Alternar automaticamente a definição de notas.",
+                "tooltip": {
+                    "playPacenotesWhenReplaying": "Reproduz as notas durante os replays de corridas concluídas.",
+                    "additional_pacenote_def": "Arquivo de banco de dados de definições que contém o mapeamento das notas do RBR para as definições de notas do ZTMZ.",
+                    "autoSwitchPacenoteDef": "Quando a pista atual usa as notas padrão do RBR, a definição padrão é usada; caso contrário, são usadas as definições do arquivo indicado acima."
+                }
+            },
+            "message": {
+                "custom_pacenote_not_used": "As notas padrão estão sendo usadas na pista atual {0}. Isso funciona, mas as notas Luppis V3 são recomendadas. Também é possível que o Luppis V3 não contenha um roteiro de notas para a pista atual."
+            }
+        }
+    }
+}

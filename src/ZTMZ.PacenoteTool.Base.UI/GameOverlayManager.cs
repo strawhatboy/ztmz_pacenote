@@ -1513,9 +1513,12 @@ namespace ZTMZ.PacenoteTool.Base.UI
                     }
 
                     foreach (var imageResource in dashboard.ImageResources) {
-                        var imageUrl = imageResource.Value is GraphicsCommandProxy.ProxyImage image
-                            ? WebDashboardServer.GetDashboardImageUrl(image.Path)
-                            : null;
+                        DashboardImageResourceSource source = null;
+                        dashboard.ImageResourceSources?.TryGetValue(imageResource.Key, out source);
+                        var imageUrl = source?.WebPath;
+                        if (imageUrl == null && imageResource.Value is GraphicsCommandProxy.ProxyImage image) {
+                            imageUrl = WebDashboardServer.GetDashboardImageUrl(image.Path);
+                        }
                         _webCommandCapture.RegisterImage(
                             WebDashboardServer.GetDashboardImageCacheKey(i, imageResource.Key),
                             imageResource.Value,

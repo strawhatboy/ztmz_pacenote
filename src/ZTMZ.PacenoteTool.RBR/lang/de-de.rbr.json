@@ -1,0 +1,20 @@
+{
+    "game": {
+        "rbr": {
+            "description": "Der klassische Rally-Simulator in der Rally-Sim-Fans-Version.",
+            "additional_settings": {
+                "playPacenotesWhenReplaying": "Pacenotes bei Wiederholungen abspielen.",
+                "additional_pacenote_def": "Benutzerdefinierte RBR-Pacenote-Definition.",
+                "autoSwitchPacenoteDef": "Pacenote-Definition automatisch wechseln.",
+                "tooltip": {
+                    "playPacenotesWhenReplaying": "Spielt die Pacenotes bei Wiederholungen abgeschlossener Rennen ab.",
+                    "additional_pacenote_def": "Datenbankdatei der Pacenote-Definition mit der Zuordnung von RBR-Pacenotes zu ZTMZ-Pacenote-Definitionen.",
+                    "autoSwitchPacenoteDef": "Wenn die aktuelle Strecke die standardmäßigen RBR-Pacenotes verwendet, wird die Standarddefinition verwendet. Andernfalls werden die Definitionen aus der oben angegebenen Datei verwendet."
+                }
+            },
+            "message": {
+                "custom_pacenote_not_used": "Für die aktuelle Strecke {0} werden die Standard-Pacenotes verwendet. Das ist in Ordnung, empfohlen werden jedoch Luppis-V3-Pacenotes. Möglicherweise enthält Luppis V3 auch kein Pacenote-Skript für die aktuelle Strecke."
+            }
+        }
+    }
+}

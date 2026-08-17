@@ -1,0 +1,20 @@
+{
+    "game": {
+        "rbr": {
+            "description": "El simulador de rally clásico en su versión Rally Sim Fans.",
+            "additional_settings": {
+                "playPacenotesWhenReplaying": "Reproducir las notas durante las repeticiones.",
+                "additional_pacenote_def": "Definición de notas personalizada de RBR.",
+                "autoSwitchPacenoteDef": "Cambiar automáticamente la definición de notas.",
+                "tooltip": {
+                    "playPacenotesWhenReplaying": "Reproduce las notas durante las repeticiones de carreras finalizadas.",
+                    "additional_pacenote_def": "Archivo de base de datos de definiciones que contiene la correspondencia entre las notas de RBR y las definiciones de ZTMZ.",
+                    "autoSwitchPacenoteDef": "Si el tramo actual utiliza las notas predeterminadas de RBR, se usa la definición predeterminada; de lo contrario, se usan las definiciones del archivo indicado arriba."
+                }
+            },
+            "message": {
+                "custom_pacenote_not_used": "El tramo actual {0} utiliza las notas predeterminadas. Es válido, pero se recomiendan las notas Luppis V3. También es posible que Luppis V3 no contenga un guion de notas para el tramo actual."
+            }
+        }
+    }
+}

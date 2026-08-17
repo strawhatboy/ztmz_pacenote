@@ -560,6 +560,20 @@ public class WebDashboardServer : IDisposable
                         }
                     }
                 }
+
+                IReadOnlyDictionary<string, string> pacenoteIconTokenMap =
+                    new Dictionary<string, string>();
+                if (dashboard.Descriptor.UsesPacenoteIcons)
+                {
+                    var iconCatalog = PacenoteIconCatalog.Load();
+                    foreach (var icon in iconCatalog.GetCanonicalIcons())
+                    {
+                        var key = $"pacenote@{icon.CanonicalToken}";
+                        imageResources[GetDashboardImageCacheKey(id, key)] = icon.WebPath;
+                    }
+
+                    pacenoteIconTokenMap = iconCatalog.TokenMap;
+                }
                 
                 var package = new
                 {
@@ -572,6 +586,7 @@ public class WebDashboardServer : IDisposable
                     luaScript = luaScript,
                     commonScripts = commonScripts,
                     imageResources = imageResources,
+                    pacenoteIconTokenMap = pacenoteIconTokenMap,
                     settings = dashboard.DashboardConfigurations.PropertyValue
                         .Select((val, idx) => new
                         {

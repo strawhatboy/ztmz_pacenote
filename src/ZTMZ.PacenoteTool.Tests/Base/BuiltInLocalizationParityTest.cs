@@ -1,10 +1,17 @@
 using System.Globalization;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 
 namespace ZTMZ.PacenoteTool.Tests.Base;
 
 public class BuiltInLocalizationParityTest
 {
+    private static readonly string[] ProviderCultures =
+    [
+        "zh-cn", "de-de", "fr-fr", "it-it", "ru-ru",
+        "es-es", "pt-br", "ja-jp", "ko-kr"
+    ];
+
     [Theory]
     [InlineData("de-de")]
     [InlineData("fr-fr")]
@@ -22,6 +29,36 @@ public class BuiltInLocalizationParityTest
     }
 
     [Fact]
+    public void CoreLocalesMatchEnglishKeysAndPlaceholders()
+    {
+        var languageDirectory = Path.Combine(
+            FindRepositoryRoot(),
+            "src",
+            "ZTMZ.PacenoteTool.I18N",
+            "lang");
+        var english = LoadResourceValues(Path.Combine(languageDirectory, "en-us.json"));
+
+        foreach (var culture in ProviderCultures)
+        {
+            var resourcePath = Path.Combine(languageDirectory, $"{culture}.json");
+            Assert.True(File.Exists(resourcePath), $"Missing core localization: {culture}.");
+
+            var localized = LoadResourceValues(resourcePath);
+            Assert.Equal(
+                english.Keys.OrderBy(key => key, StringComparer.OrdinalIgnoreCase),
+                localized.Keys.OrderBy(key => key, StringComparer.OrdinalIgnoreCase),
+                StringComparer.OrdinalIgnoreCase);
+
+            foreach (var key in english.Keys)
+            {
+                Assert.Equal(
+                    ExtractPlaceholders(english[key]),
+                    ExtractPlaceholders(localized[key]));
+            }
+        }
+    }
+
+    [Fact]
     public void BuiltInLocalesOnlyOverrideEnglishResourceKeys()
     {
         var resourcesByCulture = LoadBuiltInResourceKeys();
@@ -35,6 +72,62 @@ public class BuiltInLocalizationParityTest
                 extra.Count == 0,
                 $"{resourceSet.Key} localization contains keys that do not exist in en-us. " +
                 $"Unknown: {string.Join(", ", extra.Take(10))}.");
+        }
+    }
+
+    [Theory]
+    [InlineData("ZTMZ.PacenoteTool.AC", "acr")]
+    [InlineData("ZTMZ.PacenoteTool.BeamNG", "beamng")]
+    [InlineData("ZTMZ.PacenoteTool.Codemasters", "cm")]
+    [InlineData("ZTMZ.PacenoteTool.RBR", "rbr")]
+    public void GameProviderLocalesMatchEnglishKeysAndPlaceholders(string project, string suffix)
+    {
+        var languageDirectory = Path.Combine(FindRepositoryRoot(), "src", project, "lang");
+        var english = LoadResourceValues(Path.Combine(languageDirectory, $"en-us.{suffix}.json"));
+
+        foreach (var culture in ProviderCultures)
+        {
+            var resourcePath = Path.Combine(languageDirectory, $"{culture}.{suffix}.json");
+            Assert.True(File.Exists(resourcePath), $"Missing {project} localization: {culture}.");
+
+            var localized = LoadResourceValues(resourcePath);
+            Assert.Equal(
+                english.Keys.OrderBy(key => key, StringComparer.OrdinalIgnoreCase),
+                localized.Keys.OrderBy(key => key, StringComparer.OrdinalIgnoreCase),
+                StringComparer.OrdinalIgnoreCase);
+
+            foreach (var key in english.Keys)
+            {
+                Assert.Equal(
+                    ExtractPlaceholders(english[key]),
+                    ExtractPlaceholders(localized[key]));
+            }
+        }
+    }
+
+    [Fact]
+    public void PacenoteRoadbookDashboardIsLocalizedForEveryBuiltInCulture()
+    {
+        var resourcesByCulture = LoadBuiltInResourceKeys();
+        var requiredKeys = new[]
+        {
+            "dashboards.pacenoteRoadbook.name",
+            "dashboards.pacenoteRoadbook.description",
+            "dashboards.pacenoteRoadbook.showLabels",
+            "dashboards.pacenoteRoadbook.historyRows",
+            "dashboards.pacenoteRoadbook.rowGap",
+            "dashboards.pacenoteRoadbook.iconLabelGap",
+            "dashboards.pacenoteRoadbook.tooltip.showLabels",
+            "dashboards.pacenoteRoadbook.tooltip.historyRows",
+            "dashboards.pacenoteRoadbook.tooltip.rowGap",
+            "dashboards.pacenoteRoadbook.tooltip.iconLabelGap"
+        };
+
+        foreach (var culture in new[] { "en-us" }.Concat(ProviderCultures))
+        {
+            Assert.True(resourcesByCulture.TryGetValue(culture, out var keys), $"Missing {culture} resources.");
+            var missing = requiredKeys.Where(key => !keys.Contains(key)).ToList();
+            Assert.Empty(missing);
         }
     }
 
@@ -78,6 +171,23 @@ public class BuiltInLocalizationParityTest
     {
         return culture == "zh-cn" || CultureInfo.GetCultures(CultureTypes.AllCultures)
             .Any(candidate => candidate.Name.Equals(culture, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static Dictionary<string, string> LoadResourceValues(string path)
+    {
+        var root = JObject.Parse(File.ReadAllText(path));
+        return root.DescendantsAndSelf()
+            .OfType<JValue>()
+            .ToDictionary(value => value.Path, value => value.ToString(), StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static string[] ExtractPlaceholders(string value)
+    {
+        return Regex.Matches(value, @"\{\d+(?::[^{}]+)?\}")
+            .Select(match => match.Value)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(placeholder => placeholder, StringComparer.Ordinal)
+            .ToArray();
     }
 
     private static bool IsSourceDirectory(string repositoryRoot, string directory)

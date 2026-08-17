@@ -466,5 +466,42 @@
                 />
             </Grid>
         </ui:Card>
+
+        <!-- customPacenoteDatabasePath -->
+        <ui:Card Margin="0 0 0 3"
+            Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="300" />
+                    <ColumnDefinition Width="40" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="FolderOpen20"
+                        FontSize="26"
+                        Margin="0 0 10 0" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            Text="{DynamicResource ResourceKey=settings.customPacenoteDatabasePath}" />
+                        <ui:TextBlock Grid.Row="1"
+                            Text="{DynamicResource ResourceKey=settings.tooltip.customPacenoteDatabasePath}"
+                            Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                            FontTypography="Caption" />
+                    </Grid>
+                </StackPanel>
+                <ui:TextBox Grid.Column="1" VerticalAlignment="Center"
+                    Text="{Binding Path=ViewModel.CustomPacenoteDatabasePath, Mode=TwoWay}" />
+                <ui:Button
+                    HorizontalAlignment="Right"
+                    Grid.Column="2"
+                    Icon="{ui:SymbolIcon Folder20}"
+                    Command="{Binding ViewModel.SelectCustomPacenoteDatabaseCommand}" />
+            </Grid>
+        </ui:Card>
     </StackPanel>
 </Page>

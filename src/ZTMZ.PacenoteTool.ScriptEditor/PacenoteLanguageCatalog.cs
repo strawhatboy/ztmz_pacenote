@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Dapper;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Script;
 
@@ -39,22 +38,45 @@ public static class PacenoteLanguageCatalogProvider
         {
             var resource = ZTMZ.PacenoteTool.Base.Script.ScriptResource.Instance;
             await resource.LoadData();
+            var locale = I18NLoader.Instance.CurrentCultureName;
+            var filenamesById = resource.Filenames
+                .GroupBy(item => item.id)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group
+                        .OrderByDescending(item => item.is_primary)
+                        .ThenBy(item => item.filename, System.StringComparer.OrdinalIgnoreCase)
+                        .ToList());
+            var primaryFilenameById = filenamesById.ToDictionary(
+                item => item.Key,
+                item => item.Value.First().filename);
+            var fallbacksById = resource.Fallbacks
+                .GroupBy(item => item.id)
+                .ToDictionary(
+                    group => group.Key,
+                    group => string.Join(",", group
+                        .OrderBy(item => item.order_id)
+                        .Select(item => primaryFilenameById.GetValueOrDefault(item.fallback_id))
+                        .Where(item => !string.IsNullOrWhiteSpace(item))));
 
-        const string query = """
-            SELECT
-                pacenote_view.id AS Id,
-                pacenote_view.primary_filename AS PrimaryFilename,
-                pacenote_view.filenames AS Filenames,
-                pacenote_view.description AS Description,
-                pacenote_view.type AS Type,
-                pacenote_view.complexity AS Complexity,
-                COALESCE(pacenote_fallbacks_view.fallbacks, '') AS Fallbacks
-            FROM pacenote_view
-            LEFT JOIN pacenote_fallbacks_view ON pacenote_view.id = pacenote_fallbacks_view.id
-            ORDER BY pacenote_view.primary_filename COLLATE NOCASE;
-            """;
-
-            var tokens = (await resource.Connection.QueryAsync<PacenoteLanguageToken>(query)).ToList();
+            var tokens = resource.Pacenotes
+                .Where(item => filenamesById.ContainsKey(item.id))
+                .Select(item =>
+                {
+                    var primaryFilename = primaryFilenameById[item.id];
+                    return new PacenoteLanguageToken
+                    {
+                        Id = item.id,
+                        PrimaryFilename = primaryFilename,
+                        Filenames = string.Join(",", filenamesById[item.id].Select(filename => filename.filename)),
+                        Description = resource.ResolvePacenoteDisplayName(primaryFilename, locale),
+                        Type = resource.TypeDict.GetValueOrDefault(item.type)?.name ?? string.Empty,
+                        Complexity = resource.ComplexityDict.GetValueOrDefault(item.complexity)?.name ?? string.Empty,
+                        Fallbacks = fallbacksById.GetValueOrDefault(item.id) ?? string.Empty
+                    };
+                })
+                .OrderBy(item => item.PrimaryFilename, System.StringComparer.OrdinalIgnoreCase)
+                .ToList();
             AttachIconUris(tokens);
             return new PacenoteLanguageCatalog
             {

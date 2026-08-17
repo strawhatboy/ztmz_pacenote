@@ -1,0 +1,12 @@
+{
+    "Name": "dashboards.pacenoteRoadbook.name",
+    "Description": "dashboards.pacenoteRoadbook.description",
+    "Author": "ZTMZ with Codex",
+    "Version": "0.1.0",
+    "SupportsWebDashboardClientLua": true,
+    "PreviewImagePath": "preview.png",
+    "ImageResources": {},
+    "ImageResourcesInDirectory": {},
+    "UsesPacenoteIcons": true,
+    "IsEnabled": false
+}

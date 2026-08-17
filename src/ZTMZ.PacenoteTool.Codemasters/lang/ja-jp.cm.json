@@ -1,0 +1,13 @@
+{
+    "game": {
+        "dr1": {
+            "description": "Codemasters による Dirt Rally 1.0"
+        },
+        "dr2": {
+            "description": "Codemasters による Dirt Rally 2.0"
+        },
+        "wrc": {
+            "description": "EA Sports による EA Sports WRC。"
+        }
+    }
+}

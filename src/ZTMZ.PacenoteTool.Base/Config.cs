@@ -878,6 +878,13 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._AdditionalPacenotesDefinitionSearchPath;
         }
 
+        private string _CustomPacenoteDatabasePath = "";
+        public string CustomPacenoteDatabasePath
+        {
+            set { this._CustomPacenoteDatabasePath = value; this._userconfig["CustomPacenoteDatabasePath"] = value; }
+            get => this._CustomPacenoteDatabasePath;
+        }
+
         private bool _RemoveIntoAndOnto = false;
         public bool RemoveIntoAndOnto
         {

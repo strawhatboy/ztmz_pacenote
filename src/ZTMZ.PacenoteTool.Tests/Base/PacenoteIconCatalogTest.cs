@@ -27,6 +27,12 @@ public class PacenoteIconCatalogTest
         Assert.Equal("collision_severe", systemAlias!.CanonicalToken);
         Assert.False(catalog.TryResolve("../../rough", out _));
         Assert.False(catalog.TryResolve("unknown_token", out _));
+
+        var canonicalIcons = catalog.GetCanonicalIcons();
+        Assert.Equal(catalog.IconCount, canonicalIcons.Count);
+        Assert.Equal(catalog.IconCount, canonicalIcons.Select(icon => icon.CanonicalToken).Distinct().Count());
+        Assert.Equal("rough", catalog.TokenMap["detail_rough"]);
+        Assert.All(canonicalIcons, icon => Assert.StartsWith(PacenoteIconCatalog.WebRequestPath, icon.WebPath));
     }
 
     [Fact]

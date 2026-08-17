@@ -1,0 +1,36 @@
+{
+    "game": {
+        "acr": {
+            "description": "Assetto Corsa Rally, entwickelt von Supernova Games Studios und veröffentlicht von 505 Games",
+            "experimental": {
+                "enable": "Experimentelle Live-Bridge aktivieren",
+                "inject": "Bridge injizieren",
+                "disabled": "Die experimentelle Live-Bridge ist nicht aktiviert.",
+                "warningTitle": "Experimentelle ACR-Bridge",
+                "enableWarning": "Diese interne Funktion kann eine DLL in Assetto Corsa Rally injizieren. Sie ist nur für Offline- oder private Tests vorgesehen. Spielupdates können sie inkompatibel machen, und die Verwendung von injiziertem Code kann gegen die Spielregeln verstoßen oder ein Konto beeinträchtigen. Experimentelle Live-Bridge aktivieren?",
+                "injectWarning": "Die interne Live-Pacenote-Bridge in den laufenden Assetto-Corsa-Rally-Prozess injizieren? Verwende sie nur für Offline- oder private Tests. Die Bridge bleibt geladen, bis das Spiel beendet wird.",
+                "confirm": "Ich verstehe",
+                "statusBundleUnavailable": "Die internen ACR-Bridge-Dateien sind in diesem Build nicht installiert.",
+                "statusGameNotRunning": "Warten auf den Start von Assetto Corsa Rally.",
+                "statusInjected": "Die experimentelle Bridge ist bereits geladen. Beende Assetto Corsa Rally, um sie zu entfernen.",
+                "statusReady": "Bereit für eine ausdrückliche Injektion der experimentellen Bridge.",
+                "launchPromptTitle": "Experimentelle ACR-Bridge",
+                "launchPromptWarning": "Diese experimentelle Funktion injiziert eine DLL in Assetto Corsa Rally. Nach einem Spielupdate kann sie inkompatibel sein und gegen die Spielregeln verstoßen oder ein Konto gefährden. Verwende sie nur für Offline- oder private Tests. Die Live-Pacenote-Bridge für diese Spielsitzung injizieren?",
+                "launchPromptInject": "Bridge injizieren",
+                "launchPromptNotNow": "Nicht jetzt",
+                "launchPromptFailure": "Die Live-Bridge wurde nicht injiziert:\n{0}",
+                "privilegeWarning": "ZTMZ und Assetto Corsa Rally müssen mit derselben Windows-Berechtigungsstufe ausgeführt werden, sonst kann die Bridge keine Pacenotes übertragen. Wir empfehlen, beide als normaler Benutzer auszuführen. Wird eines als Administrator gestartet, muss das andere ebenfalls als Administrator gestartet werden."
+            },
+            "diagnostics": {
+                "reader": "ACR Shared Memory",
+                "liveBridge": "ACR Live-Pacenote-Bridge",
+                "bridgeInjected": "Injiziert",
+                "bridgeNotInjected": "Nicht injiziert",
+                "bridgeDisabled": "Deaktiviert"
+            },
+            "prerequisite": {
+                "sharedMemoryReady": "Assetto Corsa Rally verwendet Shared Memory. Es ist keine Vorabprüfung erforderlich."
+            }
+        }
+    }
+}

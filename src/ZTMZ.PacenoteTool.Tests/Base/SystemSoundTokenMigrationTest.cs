@@ -46,6 +46,18 @@ public class SystemSoundTokenMigrationTest
             "SELECT COUNT(*) FROM pacenote_filenames WHERE id = @id AND filename = @filename",
             new { id, filename = recordingToken }));
         Assert.Equal(1, connection.ExecuteScalar<int>(
+            "SELECT is_primary FROM pacenote_filenames WHERE id = @id AND filename = @filename",
+            new { id, filename = recordingToken }));
+        Assert.Equal(0, connection.ExecuteScalar<int>(
+            "SELECT is_primary FROM pacenote_filenames WHERE id = @id AND filename = @filename",
+            new { id, filename = systemToken }));
+        Assert.Equal((int)ScriptResourceTypes.SYSTEM, connection.ExecuteScalar<int>(
+            "SELECT type FROM pacenote WHERE id = @id",
+            new { id }));
+        Assert.Equal((int)ScriptResourceComplexities.SIMPLE, connection.ExecuteScalar<int>(
+            "SELECT complexity FROM pacenote WHERE id = @id",
+            new { id }));
+        Assert.Equal(1, connection.ExecuteScalar<int>(
             "SELECT COUNT(*) FROM pacenote_fallbacks WHERE id = @id AND fallback_id = 1",
             new { id }));
     }

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace ZTMZ.PacenoteTool.Base;
@@ -43,6 +44,7 @@ public sealed class PacenoteIconCatalog
     public int IconSize { get; }
     public int IconCount => _icons.Count;
     public int AliasCount => _aliases.Count;
+    public IReadOnlyDictionary<string, string> TokenMap => _aliases;
 
     public static string GetAssetRoot(string baseDirectory)
     {
@@ -109,12 +111,27 @@ public sealed class PacenoteIconCatalog
             return false;
         }
 
+        icon = CreateReference(canonical, entry);
+        return true;
+    }
+
+    public IReadOnlyList<PacenoteIconReference> GetCanonicalIcons()
+    {
+        return _icons
+            .OrderBy(pair => pair.Key, StringComparer.Ordinal)
+            .Select(pair => CreateReference(pair.Key, pair.Value))
+            .ToArray();
+    }
+
+    private PacenoteIconReference CreateReference(
+        string canonical,
+        PacenoteIconManifestEntry entry)
+    {
         var relativePath = entry.File.Replace('/', Path.DirectorySeparatorChar);
-        icon = new PacenoteIconReference(
+        return new PacenoteIconReference(
             canonical,
             Path.Combine(AssetRoot, relativePath),
             $"{WebRequestPath}/{entry.File.Replace('\\', '/')}");
-        return true;
     }
 
     private static string NormalizeToken(string? token)
