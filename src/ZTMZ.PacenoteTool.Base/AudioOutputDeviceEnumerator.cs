@@ -6,6 +6,20 @@ using NAudio.CoreAudioApi;
 
 namespace ZTMZ.PacenoteTool.Base;
 
+public interface IAudioOutputDeviceEnumerator
+{
+    IReadOnlyList<AudioOutputDeviceInfo> EnumerateActiveRenderDevices();
+}
+
+[SupportedOSPlatform("windows")]
+public sealed class WasapiAudioOutputDeviceEnumerator : IAudioOutputDeviceEnumerator
+{
+    public IReadOnlyList<AudioOutputDeviceInfo> EnumerateActiveRenderDevices()
+    {
+        return AudioOutputDeviceEnumerator.EnumerateActiveRenderDevices();
+    }
+}
+
 [SupportedOSPlatform("windows")]
 public static class AudioOutputDeviceEnumerator
 {

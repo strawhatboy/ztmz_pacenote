@@ -6,7 +6,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.Core;
 
-internal static class GamePluginLoader
+public static class GamePluginLoader
 {
     public static IReadOnlyList<IGame> Load(IEnumerable<string> assemblyPaths, NLog.Logger logger)
     {

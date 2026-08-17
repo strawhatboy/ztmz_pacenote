@@ -2,10 +2,25 @@
 
 ## Status
 
-Design roadmap. The current Windows WPF application remains the supported
-product while platform-neutral services and a Linux host are developed
-incrementally. SteamOS support must not require a one-time rewrite of the
-working Windows application.
+Implementation in progress. The current Windows WPF application remains the
+supported product while platform-neutral services and a Linux host are
+developed incrementally. SteamOS support does not require a one-time rewrite
+of the working Windows application.
+
+The first native bootstrap was verified on Arch Linux on August 18, 2026:
+
+- .NET 10 SDK `10.0.111` built `Base`, `Core`, and the Linux host natively;
+- the Linux host resolved and wrote its XDG-compatible data root;
+- nine platform-boundary tests passed on both Windows and Arch Linux;
+- the existing 242-test Windows suite still passed;
+- a permission-minimal Flatpak development package built, installed, and launched successfully;
+- the Flatpak loaded 349 official pacenote tokens and three Codemasters UDP game providers;
+- a DiRT Rally 2.0 UDP listener bound successfully inside the Flatpak sandbox;
+- Flathub exposes Freedesktop `25.08` and the matching `dotnet10` SDK extension.
+
+This is an infrastructure milestone, not a playable Steam Deck release. The
+Linux host currently reports unavailable audio and overlay capabilities rather
+than accidentally invoking WASAPI or Win32 code.
 
 ## Product Goal
 
@@ -193,18 +208,73 @@ an independent feasibility project.
 ### Phase 0: enforce platform boundaries
 
 - Keep the Windows WPF product building and behaviorally unchanged.
-- Move Windows registry access behind application-path/configuration services.
-- Move WASAPI device enumeration and output behind audio interfaces.
+- [x] Move Windows registry access behind application-path/configuration services.
+- [x] Move WASAPI device enumeration and playback construction behind audio interfaces.
 - Separate Windows shared-memory/process helpers from portable game contracts.
-- Make the portable projects target plain `net10.0`.
+- [x] Make `Base` and `Core` target plain `net10.0`.
+- [x] Add a `net10.0` portable test project runnable on Windows and Linux.
+
+The application-data boundary now exposes `IApplicationPaths` and
+`IConfigurationLocation`. The Windows host supplies the existing registry
+location, while platform-neutral code uses `ZTMZ_DATA_HOME` and defaults to
+`$XDG_DATA_HOME/ztmz` (or `~/.local/share/ztmz`) on Linux. Existing callers can
+continue using `AppLevelVariables` while they are migrated to constructor
+injection incrementally.
+
+The audio boundary now exposes `IAudioOutputDeviceEnumerator`,
+`IAudioPlaybackEngine`, and `IAudioPlaybackEngineFactory`. Windows resolves
+these contracts to the existing WASAPI implementation. Other platforms resolve
+to explicit unavailable implementations until a Linux backend is registered,
+so shared core initialization cannot silently call Windows Core Audio.
 
 ### Phase 1: headless Linux proof of concept
 
-- Add a native `linux-x64` host.
-- Load configuration, pacenote definitions, profiles, and co-driver packages.
+- [x] Add a native `net10.0` Linux bootstrap host.
+- [x] Verify XDG data-root resolution and write access on Arch Linux.
+- [x] Publish and run the bootstrap inside a local Flatpak development sandbox.
+- [x] Provision and load the official pacenote database.
+- [x] Load portable Codemasters game providers and persist their UDP configuration.
+- Load profiles and co-driver packages.
 - Receive one UDP game's telemetry under Proton.
 - Decode, mix, and play a real co-driver package through PortAudio.
 - Log diagnostics without requiring a desktop UI.
+
+The bootstrap host is intentionally diagnostic-only today. It provisions the
+packaged `data.zdb` into the writable user-data root, preserving runtime database
+changes while the packaged source is unchanged. It reports the loaded token and
+game-provider counts, can bind a selected UDP provider for a bounded diagnostic
+interval, and reports honest availability for audio and overlay capabilities.
+The next runtime milestone is receiving telemetry from a game running under
+Proton, followed by loading and playing a real co-driver package.
+
+## Flatpak Development Baseline
+
+`packaging/flatpak/io.github.strawhatboy.ZTMZPacenoteTool.Devel.yml` is a local
+development manifest, not the final Flathub submission. It uses Freedesktop
+`25.08` plus `org.freedesktop.Sdk.Extension.dotnet10` and packages the native
+bootstrap with only `--share=network`, which is required for telemetry from a
+game running under Proton. It grants no host filesystem access.
+
+The local Arch VM uses an unprivileged `deck` account for source checkout,
+builds, tests, Flatpak installation, and application execution. Root SSH is
+reserved for system maintenance. Both accounts use key authentication, and
+the development account's password remains locked. This keeps normal build
+artifacts out of `/root` without adding another password or an unrestricted
+passwordless-sudo entry.
+
+When the VM needs the Windows host's development proxy, set `http_proxy` and
+`https_proxy` in the invoking shell. Proxy addresses are machine-specific and
+must not be committed to the Flatpak manifest or application configuration.
+
+Before a Flathub submission, the packaging work must additionally:
+
+- replace the local directory source with a public source pinned to a commit;
+- generate and commit offline NuGet sources with `flatpak-dotnet-generator`;
+- settle the permanent application ID and verify the matching domain or source host;
+- install the license, desktop file, icon, and complete English AppStream metadata;
+- add only the runtime permissions justified by UDP telemetry, audio, dashboards,
+  and portals;
+- pass `flathub-build` and `flatpak-builder-lint`.
 
 ### Phase 2: useful Steam Deck MVP
 

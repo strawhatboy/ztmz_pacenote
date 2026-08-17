@@ -16,6 +16,7 @@ namespace ZTMZ.PacenoteTool.Core
 
     public class ProfileManager
     {
+        private readonly IAudioPlaybackEngineFactory _audioPlaybackEngineFactory;
         public static string DEFAULT_CODRIVER_PACKAGE_ID = "3322c09e-142e-42a1-90fe-2ffc81d03548";
         private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -64,11 +65,12 @@ namespace ZTMZ.PacenoteTool.Core
         {
             ArgumentNullException.ThrowIfNull(device);
 
-            var nextPlayer = new ZTMZAudioPlaybackEngine(
-                device.Id,
-                deviceIndex,
-                Config.Instance.UseSequentialMixerToHandleAudioConflict,
-                Config.Instance.PlaybackDeviceDesiredLatency);
+            var nextPlayer = _audioPlaybackEngineFactory.Create(
+                new AudioPlaybackEngineOptions(
+                    device.Id,
+                    deviceIndex,
+                    Config.Instance.UseSequentialMixerToHandleAudioConflict,
+                    Config.Instance.PlaybackDeviceDesiredLatency));
             nextPlayer.SetMuted(Config.Instance.UI_Mute);
 
             var previousPlayer = this.Player;
@@ -131,7 +133,7 @@ namespace ZTMZ.PacenoteTool.Core
         //public IList<SoundPlayer> Players { set; get; } = new List<SoundPlayer>();
         //public IList<WaveOutEvent> Players { set; get; } = new List<WaveOutEvent>();
 
-        public ZTMZAudioPlaybackEngine Player { set; get; }
+        public IAudioPlaybackEngine Player { set; get; }
 
         public void SetMuted(bool muted)
         {
@@ -157,7 +159,14 @@ namespace ZTMZ.PacenoteTool.Core
 
 
         public ProfileManager()
+            : this(AudioPlatformServices.CreateDefaultPlaybackEngineFactory())
         {
+        }
+
+        public ProfileManager(IAudioPlaybackEngineFactory audioPlaybackEngineFactory)
+        {
+            _audioPlaybackEngineFactory = audioPlaybackEngineFactory ??
+                throw new ArgumentNullException(nameof(audioPlaybackEngineFactory));
             _logger.Debug("initializing profile manager");
             Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("profiles")));
             Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("codrivers")));

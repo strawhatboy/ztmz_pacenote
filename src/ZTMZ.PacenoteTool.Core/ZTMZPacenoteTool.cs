@@ -14,6 +14,8 @@ using System.Diagnostics;
 namespace ZTMZ.PacenoteTool.Core;
 
 public class ZTMZPacenoteTool {
+    private readonly IAudioOutputDeviceEnumerator _audioOutputDeviceEnumerator;
+    private readonly IAudioPlaybackEngineFactory _audioPlaybackEngineFactory;
     
     private ProfileManager _profileManager;
     private ProcessWatcher _processWatcher;
@@ -82,6 +84,23 @@ public class ZTMZPacenoteTool {
 
     public event Action<bool> onOnlineReplayLoaded;
 
+    public ZTMZPacenoteTool()
+        : this(
+            AudioPlatformServices.CreateDefaultDeviceEnumerator(),
+            AudioPlatformServices.CreateDefaultPlaybackEngineFactory())
+    {
+    }
+
+    public ZTMZPacenoteTool(
+        IAudioOutputDeviceEnumerator audioOutputDeviceEnumerator,
+        IAudioPlaybackEngineFactory audioPlaybackEngineFactory)
+    {
+        _audioOutputDeviceEnumerator = audioOutputDeviceEnumerator ??
+            throw new ArgumentNullException(nameof(audioOutputDeviceEnumerator));
+        _audioPlaybackEngineFactory = audioPlaybackEngineFactory ??
+            throw new ArgumentNullException(nameof(audioPlaybackEngineFactory));
+    }
+
     public string CurrentScriptAuthor => _profileManager?.CurrentScriptReader?.Author ?? "???";
 
     public bool IsInitialized { private set; get; } = false;
@@ -130,7 +149,7 @@ public class ZTMZPacenoteTool {
     private void loadProfileManager() {
         _logger.Info("Loading profile manager...");
         this.onStatusReport?.Invoke("Loading profile manager...");
-        _profileManager = new();
+        _profileManager = new(_audioPlaybackEngineFactory);
         _logger.Info("Profile manager loaded.");
         this.onStatusReport?.Invoke("Profile manager loaded.");
     }
@@ -198,7 +217,8 @@ public class ZTMZPacenoteTool {
         this.onStatusReport?.Invoke("Loading output devices...");
 
         this._outputDevices.Clear();
-        this._outputDevices.AddRange(AudioOutputDeviceEnumerator.EnumerateActiveRenderDevices());
+        this._outputDevices.AddRange(
+            _audioOutputDeviceEnumerator.EnumerateActiveRenderDevices());
 
         if (this._outputDevices.Count > 0)
         {
@@ -220,7 +240,7 @@ public class ZTMZPacenoteTool {
             Config.Instance.UI_SelectedPlaybackDeviceId = this._outputDevices[configuredIndex].Id;
         }
 
-        _logger.Info($"{this._outputDevices.Count} WASAPI output devices loaded.");
+        _logger.Info($"{this._outputDevices.Count} output devices loaded.");
         this.onStatusReport?.Invoke($"{this._outputDevices.Count} output devices loaded.");
     }
     private void initGoogleAnalytics()

@@ -35,6 +35,7 @@ public partial class App : Application
     }
 
     public App() {
+        AppLevelVariables.Configure(new WindowsRegistryConfigurationLocation());
 
         if (DataFolderMigrationLauncher.TryParseRequest(Environment.GetCommandLineArgs(), out var migrationRequest))
         {
@@ -141,6 +142,7 @@ public partial class App : Application
             services.AddSingleton<RuntimeControlsService>();
             services.AddSingleton<SystemNotificationService>();
             services.AddSingleton<AppFontService>();
+            services.AddSingleton<IApplicationPaths>(_ => AppLevelVariables.Instance);
             services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<SystemNotificationService>());
 
             // Main window with navigation

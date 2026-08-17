@@ -1,0 +1,56 @@
+id: io.github.strawhatboy.ZTMZPacenoteTool.Devel
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.dotnet10
+command: ztmz
+
+finish-args:
+  - --share=network
+
+build-options:
+  append-ld-library-path: /usr/lib/sdk/dotnet10/lib
+  prepend-path: /usr/lib/sdk/dotnet10/bin
+  prepend-pkg-config-path: /usr/lib/sdk/dotnet10/lib/pkgconfig
+  env:
+    DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+    DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE: '1'
+    DOTNET_NOLOGO: '1'
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: '1'
+
+modules:
+  - name: dotnet
+    buildsystem: simple
+    build-commands:
+      - /usr/lib/sdk/dotnet10/bin/install.sh
+
+  - name: ztmz-pacenote-tool
+    buildsystem: simple
+    sources:
+      - type: dir
+        path: ../..
+      - nuget-sources.json
+    build-commands:
+      - >-
+        dotnet publish
+        src/ZTMZ.PacenoteTool.Linux/ZTMZ.PacenoteTool.Linux.csproj
+        --configuration Release
+        --no-self-contained
+        --source ./nuget-sources
+        --output /app/lib/ztmz
+      - >-
+        dotnet publish
+        src/ZTMZ.PacenoteTool.Codemasters/ZTMZ.PacenoteTool.Codemasters.csproj
+        --framework net10.0
+        --configuration Release
+        --no-self-contained
+        --source ./nuget-sources
+        --output ./ztmz-codemasters-stage
+      - install -Dm0644 ./ztmz-codemasters-stage/ZTMZ.PacenoteTool.Codemasters.dll /app/lib/ztmz/games/ZTMZ.PacenoteTool.Codemasters.dll
+      - rm -r ./ztmz-codemasters-stage
+      - install -Dm0644 src/ZTMZ.PacenoteTool.Base/data.zdb /app/share/ztmz/data.zdb
+      - install -d /app/share/ztmz/lang
+      - install -m0644 src/ZTMZ.PacenoteTool.I18N/lang/*.json /app/share/ztmz/lang/
+      - install -m0644 src/ZTMZ.PacenoteTool.Codemasters/lang/*.json /app/share/ztmz/lang/
+      - install -Dm0755 packaging/flatpak/ztmz.sh /app/bin/ztmz

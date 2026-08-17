@@ -8,6 +8,7 @@ v2.99.99.46-3.0-rc18
 * Makes the bundled data.zdb the authoritative catalog for official pacenote tokens, fixes the classification, primary aliases, and fallbacks of mechanical-damage calls, and adds an optional read-only custom ZDB merge with official definitions taking priority.
 * Adds rally-oriented database translations for every official pacenote token in all ten interface languages; the script editor and visual dashboard now show token meanings in the current interface language, with merge support for custom ZDB translations.
 * Completes German, Spanish, French, Italian, Japanese, Korean, Brazilian Portuguese, and Russian translations for the core interface, eliminating unintended English fallback across settings, replays, diagnostics, the system tray, data migration, the script editor, and dialogs.
+* Establishes the cross-platform runtime foundation for future SteamOS and Steam Deck support by separating application paths and audio platform services, adding a native Linux diagnostics host, portable tests, and a Flatpak development package, and verifying the official pacenote database and Codemasters UDP providers on Linux. This is development infrastructure, not yet a complete SteamOS client.
 
 v2.99.99.45-3.0-rc17
 

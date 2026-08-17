@@ -4,6 +4,7 @@
     <TargetFrameworks>net10.0</TargetFrameworks>
 	  <Configurations>Debug;Release;Release_Portable</Configurations>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ExcludeSevenZipAssemblies Condition="'$(OS)' != 'Windows_NT'">true</ExcludeSevenZipAssemblies>
   </PropertyGroup>
 
   <ItemGroup>

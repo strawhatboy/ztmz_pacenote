@@ -1,5 +1,8 @@
+using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Resources;
 using System.Text;
 using Neo.IronLua;
 
@@ -35,24 +38,43 @@ public static class StringHelper
 
     public static string ReadContentFromResource(Assembly asm, string resourceName)
     {
-        resourceName = resourceName.lower();
+        ArgumentNullException.ThrowIfNull(asm);
+        ArgumentException.ThrowIfNullOrWhiteSpace(resourceName);
+
+        resourceName = resourceName.ToLowerInvariant();
         var resName = asm.GetName().Name + ".g.resources";
         using (var stream = asm.GetManifestResourceStream(resName))
-        using (var reader = new System.Resources.ResourceReader(stream))
         {
-            byte[] data;
-            string resType;
-            reader.GetResourceData(resourceName, out resType, out data);
-            var result = System.Text.Encoding.UTF8.GetString(data);
-            var strStopCharIndex = result.LastIndexOf('\0');
-            if (strStopCharIndex < result.Length - 1) 
+            if (stream != null)
             {
-                result = result.Substring(strStopCharIndex + 1);
-                return result;
+                using var reader = new System.Resources.ResourceReader(stream);
+                reader.GetResourceData(resourceName, out _, out var data);
+                var result = Encoding.UTF8.GetString(data);
+                var strStopCharIndex = result.LastIndexOf('\0');
+                return strStopCharIndex < result.Length - 1
+                    ? result[(strStopCharIndex + 1)..]
+                    : result;
             }
-
-            return result;
         }
+
+        var manifestResourceName = asm.GetManifestResourceNames()
+            .FirstOrDefault(name =>
+                name.Equals(resourceName, StringComparison.OrdinalIgnoreCase) ||
+                name.EndsWith('.' + resourceName, StringComparison.OrdinalIgnoreCase));
+        if (manifestResourceName == null)
+        {
+            throw new MissingManifestResourceException(
+                $"Resource {resourceName} was not found in assembly {asm.GetName().Name}.");
+        }
+
+        using var manifestStream = asm.GetManifestResourceStream(manifestResourceName)
+            ?? throw new MissingManifestResourceException(
+                $"Resource stream {manifestResourceName} could not be opened.");
+        using var manifestReader = new StreamReader(
+            manifestStream,
+            Encoding.UTF8,
+            detectEncodingFromByteOrderMarks: true);
+        return manifestReader.ReadToEnd();
     }
 
     public static void ExtractFileFromResource(Assembly asm, string resourceName, string fileName) {
@@ -66,4 +88,3 @@ public static class StringHelper
         }
     }
 }
-

@@ -1,100 +1,138 @@
-﻿using System;
+#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using Microsoft.Win32;
 
+namespace ZTMZ.PacenoteTool.Base;
 
-namespace ZTMZ.PacenoteTool.Base
+public class AppLevelVariables : IApplicationPaths
 {
+    private static readonly object InstanceLock = new();
+    private static IConfigurationLocation _configurationLocation = new EnvironmentConfigurationLocation();
+    private static AppLevelVariables? _instance;
 
+    private readonly IConfigurationLocation _location;
+    private readonly object _pathLock = new();
+    private string? _appConfigFolder;
 
-    public class AppLevelVariables
+    public AppLevelVariables()
+        : this(new EnvironmentConfigurationLocation())
     {
-        private const string AppRegistryPath = @"Software\ZTMZ Next Generation Pacenote Tool";
-        private const string AppConfigFolderRegistryValueName = "ZTMZHome";
+    }
 
-        private string _appConfigFolder;
-        public string AppConfigFolder {
-            get {
-                // if not found, use My Documents\My Games\ZTMZClub_nextgen
-                if (string.IsNullOrEmpty(_appConfigFolder))
+    public AppLevelVariables(IConfigurationLocation location)
+    {
+        _location = location ?? throw new ArgumentNullException(nameof(location));
+    }
+
+    public string AppConfigFolder
+    {
+        get
+        {
+            if (_appConfigFolder != null)
+            {
+                return _appConfigFolder;
+            }
+
+            lock (_pathLock)
+            {
+                if (_appConfigFolder != null)
                 {
-                    // read from registry HKCU\Software\ZTMZ Next Generation Pacenote Tool\ZTMZHome
-                    using var key = Registry.CurrentUser.OpenSubKey(AppRegistryPath);
-                    _appConfigFolder = key?.GetValue(AppConfigFolderRegistryValueName) as string;
-
-                    if (string.IsNullOrWhiteSpace(_appConfigFolder))
-                    {
-                        _appConfigFolder = Path.Combine(
-                            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                            "My Games",
-                            "ZTMZClub_nextgen");
-                    }
-
-                    Directory.CreateDirectory(_appConfigFolder);
+                    return _appConfigFolder;
                 }
 
+                var configuredPath = _location.GetConfiguredDataRoot();
+                _appConfigFolder = Path.TrimEndingDirectorySeparator(Path.GetFullPath(
+                    string.IsNullOrWhiteSpace(configuredPath)
+                        ? ApplicationDataPathDefaults.ResolveCurrentPlatform()
+                        : configuredPath));
+                Directory.CreateDirectory(_appConfigFolder);
                 return _appConfigFolder;
             }
         }
+    }
 
-        private static AppLevelVariables _instance;
-        public static AppLevelVariables Instance => _instance ?? (_instance = new AppLevelVariables());
+    public string DataRoot => AppConfigFolder;
 
-        public static List<char> InvalidCharsForWindowsPath;
-
-        static AppLevelVariables()
+    public static AppLevelVariables Instance
+    {
+        get
         {
-            InvalidCharsForWindowsPath = new()
+            lock (InstanceLock)
             {
-                '*', '{', '}', '!', '"', '?'
-            };
+                return _instance ??= new AppLevelVariables(_configurationLocation);
+            }
+        }
+    }
+
+    public static List<char> InvalidCharsForWindowsPath { get; } =
+    [
+        '*', '{', '}', '!', '"', '?'
+    ];
+
+    public bool IsPortable => IsPortableVersion();
+
+    public static void Configure(IConfigurationLocation configurationLocation)
+    {
+        ArgumentNullException.ThrowIfNull(configurationLocation);
+
+        lock (InstanceLock)
+        {
+            if (_instance != null)
+            {
+                throw new InvalidOperationException(
+                    "Application paths must be configured before they are first used.");
+            }
+
+            _configurationLocation = configurationLocation;
+        }
+    }
+
+    public string GetPath(string path)
+    {
+        foreach (var c in InvalidCharsForWindowsPath)
+        {
+            path = path.Replace(c, '_');
         }
 
-        public string GetPath(string path)
-        {
-            // remove invalid characters
-            foreach (var c in InvalidCharsForWindowsPath)
-            {
-                path = path.Replace(c, '_');
-            }
+        path = path
+            .Replace('\\', Path.DirectorySeparatorChar)
+            .Replace('/', Path.DirectorySeparatorChar);
 #if RELEASE_PORTABLE
-            return path;
+        return path;
 #else
-            return Path.Join(AppLevelVariables.Instance.AppConfigFolder, path);
+        return Path.Join(AppConfigFolder, path);
 #endif
-        }
+    }
 
-        public bool IsPortableVersion()
-        {
+    public bool IsPortableVersion()
+    {
 #if RELEASE_PORTABLE
-            return true;
+        return true;
 #else
-            return false;
+        return false;
 #endif
-        }
+    }
 
-        public void SetAppConfigFolderForNextLaunch(string folderPath)
+    public void SetAppConfigFolderForNextLaunch(string folderPath)
+    {
+        if (string.IsNullOrWhiteSpace(folderPath))
         {
-            if (string.IsNullOrWhiteSpace(folderPath))
-            {
-                throw new ArgumentException("A data-folder path is required.", nameof(folderPath));
-            }
-
-            var normalizedPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(folderPath));
-            if (!Directory.Exists(normalizedPath))
-            {
-                throw new DirectoryNotFoundException($"The data folder does not exist: {normalizedPath}");
-            }
-
-            using var key = Registry.CurrentUser.CreateSubKey(AppRegistryPath);
-            if (key == null)
-            {
-                throw new InvalidOperationException("The application registry key could not be opened.");
-            }
-
-            key.SetValue(AppConfigFolderRegistryValueName, normalizedPath, RegistryValueKind.String);
+            throw new ArgumentException("A data-folder path is required.", nameof(folderPath));
         }
+
+        var normalizedPath = Path.TrimEndingDirectorySeparator(Path.GetFullPath(folderPath));
+        if (!Directory.Exists(normalizedPath))
+        {
+            throw new DirectoryNotFoundException($"The data folder does not exist: {normalizedPath}");
+        }
+
+        _location.SetConfiguredDataRoot(normalizedPath);
+    }
+
+    public void SetDataRootForNextLaunch(string folderPath)
+    {
+        SetAppConfigFolderForNextLaunch(folderPath);
     }
 }

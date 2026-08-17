@@ -9,6 +9,7 @@ v2.99.99.46-3.0-rc18
 * Makes the bundled data.zdb the authoritative catalog for official pacenote tokens, fixes the classification, primary aliases, and fallbacks of mechanical-damage calls, and adds an optional read-only custom ZDB merge with official definitions taking priority.
 * Adds rally-oriented database translations for every official pacenote token in all ten interface languages; the script editor and visual dashboard now show token meanings in the current interface language, with merge support for custom ZDB translations.
 * Completes German, Spanish, French, Italian, Japanese, Korean, Brazilian Portuguese, and Russian translations for the core interface, eliminating unintended English fallback across settings, replays, diagnostics, the system tray, data migration, the script editor, and dialogs.
+* Establishes the cross-platform runtime foundation for future SteamOS and Steam Deck support by separating application paths and audio platform services, adding a native Linux diagnostics host, portable tests, and a Flatpak development package, and verifying the official pacenote database and Codemasters UDP providers on Linux. This is development infrastructure, not yet a complete SteamOS client.
 
 [简体中文]
 * 路书编辑器新增主窗口内打印弹层，提供准确且实时刷新的 PDF 分页预览、实体打印机与 PDF 输出、纸张、方向、页边距、可配置格式与位置的页码、页码范围和份数设置；打印会保留背景色，并移除浏览器生成的文件路径页眉页脚。
@@ -19,6 +20,7 @@ v2.99.99.46-3.0-rc18
 * 将官方路书 token 统一收录到内置 data.zdb，修正机械损坏提示的分类、主别名和回退关系，并新增只读自定义 ZDB 合并设置；发生冲突时始终以官方定义为准。
 * 为全部官方路书 token 补齐十种界面语言的数据库翻译，并按各语言常用的拉力路书术语校对；路书编辑器和图形路书 dashboard 现在都会按当前界面语言显示 token 含义，自定义 ZDB 也可补充翻译。
 * 补全核心界面的德语、西班牙语、法语、意大利语、日语、韩语、巴西葡萄牙语和俄语翻译，解决设置、回放、诊断、托盘、数据迁移、路书编辑器与弹窗意外回退为英文的问题。
+* 为未来的 SteamOS 和 Steam Deck 支持建立跨平台运行基础：拆分应用数据路径和音频平台服务，新增原生 Linux 诊断宿主、便携测试与 Flatpak 开发包，并已在 Linux/Flatpak 中验证官方路书数据库、Codemasters UDP 游戏插件及配置的加载。当前仍为开发基础，尚不代表完整的 SteamOS 客户端。
 
 v2.99.99.45-3.0-rc17
 ------

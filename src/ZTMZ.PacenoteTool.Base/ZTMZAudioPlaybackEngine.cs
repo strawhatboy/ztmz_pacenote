@@ -9,7 +9,7 @@ using ZTMZ.PacenoteTool.Base;
 namespace ZTMZ.PacenoteTool.Base
 {
     [SupportedOSPlatform("windows")]
-    public class ZTMZAudioPlaybackEngine : IDisposable
+    public class ZTMZAudioPlaybackEngine : IAudioPlaybackEngine
     {
         private readonly IAudioOutputBackend outputDevice;
         private readonly MixingSampleProvider mixer;
