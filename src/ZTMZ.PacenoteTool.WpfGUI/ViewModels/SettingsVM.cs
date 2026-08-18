@@ -36,10 +36,14 @@ public partial class SettingsVM : ObservableObject, INavigationAware
 
     private readonly IContentDialogService _contentDialogService;
     private readonly DataFolderMigrationService _dataFolderMigrationService = new();
+    private readonly ReplayCatalogService _replayCatalog;
 
-    public SettingsVM(IContentDialogService contentDialogService)
+    public SettingsVM(
+        IContentDialogService contentDialogService,
+        ReplayCatalogService replayCatalog)
     {
         _contentDialogService = contentDialogService;
+        _replayCatalog = replayCatalog;
     }
 
     partial void OnIsAutoUpdateChanged(bool value)
@@ -267,7 +271,7 @@ public partial class SettingsVM : ObservableObject, INavigationAware
             }
 
             Config.Instance.SaveUserConfig();
-            await ReplayManager.Instance.FlushPendingSavesAsync();
+            await _replayCatalog.FlushPendingSavesAsync();
             DataFolderMigrationLauncher.Start(new DataFolderMigrationRequest(
                 sourcePath,
                 destinationPath,

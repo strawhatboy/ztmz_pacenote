@@ -129,7 +129,13 @@ Already shared outside `WpfGUI`:
   paths supplied by the host;
 - application update-definition retrieval, stable/Beta channel selection,
   version filtering, skipped-version handling, and localized changelog lookup;
+- streamed application-update download execution and progress reporting, while
+  launch, shutdown, and replacement remain host responsibilities;
 - data-folder planning, free-space checks, copying, verification, and deletion;
+- replay listing, detail lookup, best-run selection, locking, export, and
+  pending-save flushing through a shared catalog service;
+- co-driver package destination inspection, managed import/update installation,
+  export, and runtime refresh;
 - game activity contracts and telemetry-reader lifecycle;
 - pacenote definitions, configuration models, replay data, and game contracts;
 - audio decoding, mixing, sequencing, device contracts, and playback state;
@@ -137,12 +143,8 @@ Already shared outside `WpfGUI`:
 
 Good extraction candidates still located in `WpfGUI`:
 
-- update download execution, separated from WPF prompts, shutdown, and
-  executable replacement;
-- replay queries and package-management operations currently invoked by view
-  models;
-- co-driver package download, import, export, and update operations currently
-  invoked directly by WPF view models.
+- co-driver online update-catalog retrieval and download orchestration, with
+  presentation state kept in the platform UI;
 
 Must remain host-specific:
 

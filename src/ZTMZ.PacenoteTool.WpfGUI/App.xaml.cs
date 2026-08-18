@@ -101,6 +101,7 @@ public partial class App : Application
 
             services.AddSingleton<HttpClient>();
             services.AddSingleton<ApplicationUpdateQueryService>();
+            services.AddSingleton<ApplicationUpdateDownloadService>();
             services.AddSingleton<UpdateService>();
             services.AddSingleton<StartupService>();
             services.AddSingleton<GameOverlayManager>();
@@ -111,6 +112,8 @@ public partial class App : Application
             services.AddSingleton<IAudioOutputDeviceEnumerator, WasapiAudioOutputDeviceEnumerator>();
             services.AddSingleton<IAudioPlaybackEngineFactory, WasapiAudioPlaybackEngineFactory>();
             services.AddSingleton<RuntimeDiagnosticsService>();
+            services.AddSingleton<ReplayCatalogService>();
+            services.AddSingleton<CoDriverPackageCatalogService>();
             services.AddSingleton<SupportDiagnosticsService>();
             services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>(provider =>
                 new ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool(
@@ -212,7 +215,7 @@ public partial class App : Application
         }
 
         try {
-            await ReplayManager.Instance.FlushPendingSavesAsync();
+            await GetService<ReplayCatalogService>()!.FlushPendingSavesAsync();
         } catch (Exception ex) {
             _logger.Error(ex, "Failed to flush pending replay saves during shutdown.");
         }

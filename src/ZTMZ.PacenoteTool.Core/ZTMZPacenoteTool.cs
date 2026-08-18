@@ -207,7 +207,11 @@ public class ZTMZPacenoteTool : IDisposable {
         this.onStatusReport?.Invoke($"{this._codriverPackages.Count} codrivers loaded.");
     }
 
-    public async void RefreshCodrivers() {
+    public void RefreshCodrivers() {
+        _ = RefreshCodriversAsync();
+    }
+
+    public async Task RefreshCodriversAsync() {
         this._codriverPackages.Clear();
         await this._profileManager.RefreshCodriverSounds();
         this.loadCodrivers();

@@ -10,6 +10,7 @@ using Microsoft.Win32;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.WpfGUI.Models;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
 
@@ -20,6 +21,7 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
     private readonly INavigationService _navigationService;
     private readonly ReplayPlayingPageVM _replayPlayingPageVM;
     private readonly ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool;
+    private readonly ReplayCatalogService _replayCatalog;
     private readonly object _collectionLock = new();
 
     [ObservableProperty]
@@ -36,11 +38,13 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
     public ReplayPageVM(
         INavigationService navigationService,
         ReplayPlayingPageVM replayPlayingPageVM,
-        ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool)
+        ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool,
+        ReplayCatalogService replayCatalog)
     {
         _navigationService = navigationService;
         _replayPlayingPageVM = replayPlayingPageVM;
         _tool = tool;
+        _replayCatalog = replayCatalog;
 
         BindingOperations.EnableCollectionSynchronization(Replays, _collectionLock);
         ReplaysView = CollectionViewSource.GetDefaultView(Replays);
@@ -75,7 +79,7 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
             return;
         }
 
-        var replays = await ReplayManager.Instance.getReplays(game);
+        var replays = await _replayCatalog.GetReplaysAsync(game);
         foreach (var replay in replays.OrderByDescending(replay => replay.date))
         {
             Replays.Add(new ReplayModel
@@ -131,8 +135,7 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
 
         try
         {
-            var replay = await ReplayManager.Instance.getReplay(id);
-            await ReplayManager.Instance.ExportReplay(_tool.CurrentGame, replay, folder);
+            await _replayCatalog.ExportAsync(_tool.CurrentGame, id, folder);
         }
         catch (Exception ex)
         {
@@ -157,8 +160,7 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
 
         try
         {
-            var replay = await ReplayManager.Instance.getReplay(id);
-            await ReplayManager.Instance.ExportReplayWithAudio(_tool.CurrentGame, replay, folder);
+            await _replayCatalog.ExportAudioAsync(_tool.CurrentGame, id, folder);
         }
         catch (Exception ex)
         {
@@ -178,7 +180,7 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
         replay.Locked = true;
         try
         {
-            await ReplayManager.Instance.LockReplayAsync(id);
+            await _replayCatalog.SetLockedAsync(id, true);
         }
         catch (Exception ex)
         {
@@ -199,7 +201,7 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
         replay.Locked = false;
         try
         {
-            await ReplayManager.Instance.UnlockReplayAsync(id);
+            await _replayCatalog.SetLockedAsync(id, false);
         }
         catch (Exception ex)
         {

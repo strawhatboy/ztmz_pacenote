@@ -289,6 +289,13 @@ namespace ZTMZ.PacenoteTool.Base
         
         public async static Task<CoDriverPackage> Import(string path)
         {
+            return await Import(
+                path,
+                AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS));
+        }
+
+        public async static Task<CoDriverPackage> Import(string path, string coDriversRoot)
+        {
             // import a codriver package from a 7zip file
             if (!File.Exists(path)) {
                 return null;
@@ -296,14 +303,14 @@ namespace ZTMZ.PacenoteTool.Base
 
             var zipPath = path;
             var extractFolderName = ProbePkgFolderName(path);
-            var extractPath = Path.Combine(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS), extractFolderName);
+            var extractPath = Path.Combine(coDriversRoot, extractFolderName);
             if (Directory.Exists(extractPath)) {
                 await Task.Run(() => Directory.Delete(extractPath, true));
             }
 
             var sevenZipExtractor = new SharpSevenZipExtractor(zipPath) { PreserveDirectoryStructure = true };
 
-            await sevenZipExtractor.ExtractArchiveAsync(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS));
+            await sevenZipExtractor.ExtractArchiveAsync(coDriversRoot);
             
             return await Load(extractPath);
         }

@@ -1,32 +1,23 @@
 
 using System.Collections.Generic;
 using ZTMZ.PacenoteTool.Base;
-using ZTMZ.PacenoteTool.Base.Game;
 using System.Windows.Data;
 using System.Threading.Tasks;
-using ZTMZ.PacenoteTool.Base.UI.Game;
 using Wpf.Ui.Controls;
 using System.Linq;
-using System.Reflection;
-using System.Windows.Controls;
 using Microsoft.Win32;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 using ZTMZ.PacenoteTool.WpfGUI.Models;
-using System.IO;
-using System.Text;
-using SevenZipExtractor;
-using NLog;
-using System.Runtime.CompilerServices;
-using Neo.IronLua;
+using ZTMZ.PacenoteTool.Core;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
 public partial class VoicePageVM : ObservableObject {
 
-    private static readonly Logger logger = LogManager.GetCurrentClassLogger();
     private readonly ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool;
     private readonly VoicePackagePageVM voicePackagePageVM;
     private readonly INavigationService navigationService;
+    private readonly CoDriverPackageCatalogService packageCatalog;
 
     [ObservableProperty]
     private ObservableCollection<CodriverPackageUpdateFile> _voicePackages = new ();
@@ -39,10 +30,12 @@ public partial class VoicePageVM : ObservableObject {
     public VoicePageVM(Core.ZTMZPacenoteTool tool, 
     VoicePackagePageVM voicePackagePageVM,
     INavigationService navigationService,
-    UpdateService updateService) {
+    UpdateService updateService,
+    CoDriverPackageCatalogService packageCatalog) {
         this.tool = tool;
         this.voicePackagePageVM = voicePackagePageVM;
         this.navigationService = navigationService;
+        this.packageCatalog = packageCatalog;
 
         BindingOperations.EnableCollectionSynchronization(VoicePackages, _collectionLock);
 
@@ -91,7 +84,7 @@ public partial class VoicePageVM : ObservableObject {
     }
 
     [RelayCommand]
-    private async void UpdateCodriverPkg(string id)
+    private async Task UpdateCodriverPkg(string id)
     {
         // download and install the voice package
         // show progress bar
@@ -113,45 +106,31 @@ public partial class VoicePageVM : ObservableObject {
             var downloadedFile = downloadedFiles[pkg.url];
             pkg.IsDownloading = false;
             pkg.IsInstalling = true;
-            // install, unzip to the voice package folder
-            await Task.Run(() => {
-                var pathes = Directory.GetDirectories(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS));
-                if (Directory.Exists(pkg.Path)) {
-                    try {
-                        Directory.Delete(pkg.Path, true);  // delete if exists
-                    } catch (Exception e) {
-                        // failed to delete, could be in use
-                        logger.Warn(e, $"Failed to delete the existing voice package folder {pkg.Path}");
-                    }
-                }
-                using (ArchiveFile f = new(downloadedFile)) {
-                    f.Extract(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS), true);
-                }
-                var new_pathes = Directory.GetDirectories(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS));
-                var new_path = new_pathes.Except(pathes).FirstOrDefault();
-                if (new_path != null) {
-                    pkg.Path = new_path;
-                }
-            });
+            var installedPackage = await packageCatalog.ImportAsync(downloadedFile, pkg.Path);
+            pkg.Path = installedPackage.Info.Path;
             pkg.IsInstalling = false;
             pkg.IsAvailable = true;
 
-            await refreshCodrivers();
+            await RefreshCodriversWhenUpdatesCompleteAsync();
         }
     }
 
-    private async Task refreshCodrivers() {
-        lock (_updateQueue) {
-            _updateQueue.Dequeue();
-            if (_updateQueue.Count == 0) {
-                // update the tool's voice packages list? when this is the last updating one
-                this.tool.RefreshCodrivers();
+    private async Task RefreshCodriversWhenUpdatesCompleteAsync() {
+        var shouldRefresh = false;
+        lock (_updateLock) {
+            if (_updateQueue.Count > 0) {
+                _updateQueue.Dequeue();
             }
+            shouldRefresh = _updateQueue.Count == 0;
+        }
+
+        if (shouldRefresh) {
+            await tool.RefreshCodriversAsync();
         }
     }
 
     [RelayCommand]
-    private async void ExportCodriverPkg(string id) {
+    private async Task ExportCodriverPkg(string id) {
         var pkg = VoicePackages.FirstOrDefault(p => p.id == id);
         if (pkg == null) {
             return;
@@ -169,13 +148,13 @@ public partial class VoicePageVM : ObservableObject {
 
         if (saveFileDialog.ShowDialog() == true) {
             pkg.IsExporting = true;
-            await pkgLocal.Export(saveFileDialog.FileName);
+            await packageCatalog.ExportAsync(pkgLocal, saveFileDialog.FileName);
             pkg.IsExporting = false;
         }
     }
 
     [RelayCommand]
-    private async void ImportAudioPackage() {
+    private async Task ImportAudioPackage() {
         // open file dialog
         OpenFileDialog openFileDialog = new();
         openFileDialog.Filter = "zpak files (*.zpak)|*.zpak";
@@ -186,12 +165,12 @@ public partial class VoicePageVM : ObservableObject {
         if (openFileDialog.ShowDialog() == true) {
             // unzip to the voice package folder
             var path = openFileDialog.FileName;
-            var pkgLocalPath = Path.Combine(AppLevelVariables.Instance.GetPath(Constants.PATH_CODRIVERS), CoDriverPackage.ProbePkgFolderName(path));
-            if (Directory.Exists(pkgLocalPath)) {
+            var importPlan = packageCatalog.InspectImport(path);
+            if (importPlan.DestinationExists) {
                 // already exists, try asking if overwrite or cancel
                 var result = await new Wpf.Ui.Controls.MessageBox {
                     Title = I18NLoader.Instance["dialog.voicePkgExist.title"],
-                    Content = string.Format(I18NLoader.Instance["dialog.voicePkgExist.content"], pkgLocalPath),
+                    Content = string.Format(I18NLoader.Instance["dialog.voicePkgExist.content"], importPlan.DestinationPath),
                     PrimaryButtonText = I18NLoader.Instance["dialog.voicePkgExist.ok"],
                     CloseButtonText = I18NLoader.Instance["dialog.voicePkgExist.cancel"]
                 }.ShowDialogAsync();
@@ -201,18 +180,15 @@ public partial class VoicePageVM : ObservableObject {
                 }
             }
 
-            var pkgLocal = await CoDriverPackage.Import(path);
+            var pkgLocal = await packageCatalog.ImportAsync(path);
             var pkg = new CodriverPackageUpdateFile(pkgLocal.Info);
-            if (pkg == null) {
-                return;
-            }
-            lock (_updateQueue) {
+            lock (_updateLock) {
                 _updateQueue.Enqueue(pkg);
             }
             pkg.IsAvailable = true;
             VoicePackages.Add(pkg);
 
-            await refreshCodrivers();
+            await RefreshCodriversWhenUpdatesCompleteAsync();
         }
     }
 }

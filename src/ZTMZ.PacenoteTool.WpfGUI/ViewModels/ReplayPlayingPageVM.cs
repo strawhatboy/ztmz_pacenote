@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using FFMpegCore;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Core;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -43,6 +44,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     private readonly DispatcherTimer _timer = new(DispatcherPriority.Background);
     private readonly ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool;
+    private readonly ReplayCatalogService _replayCatalog;
     private readonly Dictionary<ReplayAnalysisMetric, ReplayAnalysisPlotData> _analysisCache = new();
 
     private Replay? _replay;
@@ -245,9 +247,12 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     [ObservableProperty]
     private bool _analysisUsesInputScale;
 
-    public ReplayPlayingPageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool)
+    public ReplayPlayingPageVM(
+        ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool tool,
+        ReplayCatalogService replayCatalog)
     {
         _tool = tool;
+        _replayCatalog = replayCatalog;
         _timer.Interval = TimeSpan.FromMilliseconds(33);
         _timer.Tick += TimerTicks;
 
@@ -267,14 +272,14 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
     {
         ResetPlaybackState();
 
-        _replay = await ReplayManager.Instance.getReplay(ReplayId);
+        _replay = await _replayCatalog.GetReplayAsync(ReplayId);
         if (_replay == null || !_replay.available)
         {
             HeaderContent = $"Replay: {ReplayId}";
             return;
         }
 
-        _replayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(ReplayId);
+        _replayDetailsPerTime = await _replayCatalog.GetDetailsPerTimeAsync(ReplayId);
         if (_replayDetailsPerTime.Count == 0)
         {
             return;
@@ -307,13 +312,13 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
             return;
         }
 
-        _bestReplay = await ReplayManager.Instance.GetBestReplay(_tool.CurrentGame, _replay.track, _replay.car_class, _replay.car);
+        _bestReplay = await _replayCatalog.GetBestReplayAsync(_tool.CurrentGame, _replay.track, _replay.car_class, _replay.car);
         if (_bestReplay == null || !_bestReplay.available || _bestReplay.id == _replay.id)
         {
             return;
         }
 
-        _bestReplayDetailsPerTime = await ReplayManager.Instance.getReplayDetailsPerTime(_bestReplay.id);
+        _bestReplayDetailsPerTime = await _replayCatalog.GetDetailsPerTimeAsync(_bestReplay.id);
         if (_bestReplayDetailsPerTime.Count == 0)
         {
             return;
@@ -614,7 +619,7 @@ public partial class ReplayPlayingPageVM : ObservableObject, INavigationAware
 
         try
         {
-            await ReplayManager.Instance.SetReplayLockedAsync(_replay.id, value);
+            await _replayCatalog.SetLockedAsync(_replay.id, value);
         }
         catch (Exception ex)
         {

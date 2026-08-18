@@ -19,12 +19,15 @@ public class UpdateService {
 
     private readonly IContentDialogService _contentDialogService;
     private readonly ApplicationUpdateQueryService _updateQuery;
+    private readonly ApplicationUpdateDownloadService _updateDownload;
 
     public UpdateService(
         IContentDialogService contentDialogService,
-        ApplicationUpdateQueryService updateQuery) {
+        ApplicationUpdateQueryService updateQuery,
+        ApplicationUpdateDownloadService updateDownload) {
         _contentDialogService = contentDialogService;
         _updateQuery = updateQuery;
+        _updateDownload = updateDownload;
     }
 
     string updateURL = Config.Instance.UpdateDefinitionUrl;
@@ -124,19 +127,24 @@ public class UpdateService {
 
     public async Task Update(UpdateFile f)
     {
-        DownloadFileDialog dfd = new DownloadFileDialog(_contentDialogService.GetDialogHostEx()!, f);
-        dfd.DownloadComplete += Dfd_DownloadComplete;
-        dfd.DownloadFiles(new List<string> { f.url });
-        await dfd.ShowAsync();
-    }
-
-    private void Dfd_DownloadComplete(IDictionary<string, string> obj)
-    {
-        // try to close application and update
-        if (obj != null && obj.Count > 0)
+        var dialog = new DownloadFileDialog(
+            _contentDialogService.GetDialogHostEx()!,
+            _updateDownload);
+        var dialogTask = dialog.ShowAsync();
+        try
         {
-            Process.Start(new ProcessStartInfo(String.Format("{0}", obj.First().Value)));
+            var downloadedFile = await dialog.DownloadAsync(f.url);
+            dialog.CloseAfterDownload();
+            await dialogTask;
+
+            Process.Start(new ProcessStartInfo(downloadedFile));
             System.Windows.Application.Current.Shutdown();
+        }
+        catch
+        {
+            dialog.CloseAfterDownload();
+            await dialogTask;
+            throw;
         }
     }
 }
