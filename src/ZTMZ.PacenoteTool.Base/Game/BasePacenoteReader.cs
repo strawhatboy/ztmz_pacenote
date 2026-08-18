@@ -18,7 +18,8 @@ namespace ZTMZ.PacenoteTool.Base.Game
 
         public virtual string GetScriptFileForReplaying(string profile, IGame game, string track, bool fallbackToDefault = true)
         {
-            string filePath = AppLevelVariables.Instance.GetPath(string.Format("profiles\\{0}\\{1}\\{2}.pacenote", profile, game.Name, track));
+            string filePath = AppLevelVariables.Instance.GetPath(
+                Path.Combine(Constants.PATH_PROFILES, profile, game.Name, $"{track}.pacenote"));
             if (!File.Exists(filePath))
             {
                 if (fallbackToDefault) 
@@ -37,7 +38,8 @@ namespace ZTMZ.PacenoteTool.Base.Game
         // If not exist, ask user to create one or readonly open the replay script.
         public virtual string GetScriptFileForRecording(string profile, IGame game, string track)
         {
-            string filePath = AppLevelVariables.Instance.GetPath(string.Format("profiles\\{0}\\{1}\\{2}.pacenote", profile, game.Name, track));
+            string filePath = AppLevelVariables.Instance.GetPath(
+                Path.Combine(Constants.PATH_PROFILES, profile, game.Name, $"{track}.pacenote"));
             return filePath;
         }
     }

@@ -19,6 +19,19 @@ The first native bootstrap was verified on Arch Linux on August 18, 2026:
 - a host-side simulator sent 20 valid Codemasters frames across the Flatpak boundary,
   all of which were received and decoded with the expected speed, gear, RPM, and distance;
 - Flathub exposes Freedesktop `25.08` and the matching `dotnet10` SDK extension.
+- a self-contained x86_64 AppDir and AppImage were built and launched on Arch Linux;
+- both FUSE mounting and the AppImage extract-and-run fallback loaded 349 tokens,
+  three Codemasters providers, Web Dashboard assets, and the PortAudio backend;
+- the AppImage's initial `/proc` scan detected a Proton-style DiRT Rally process
+  that was already running before ZTMZ started.
+- the Linux host now activates the same complete `ZTMZPacenoteTool` game session
+  as Windows, covering profile and co-driver selection, pacenote processing,
+  PortAudio playback, and Web Dashboard context/telemetry publication;
+- the AppImage provisions its default co-driver and default profile on a fresh
+  XDG data root instead of starting with an audio-incomplete empty profile;
+- a DR1-tagged process on the Arch VM initialized that full session with the
+  default profile, 796-file co-driver package, PortAudio output, and dashboard
+  bridge, then released it cleanly when the process exited.
 
 This is an infrastructure milestone, not a playable Steam Deck release. The
 Linux host now has a PortAudio output implementation and loads co-driver
@@ -26,6 +39,9 @@ packages through a cross-platform decoder boundary. WAV, AIFF, MP3, Ogg, FLAC,
 and Opus use libsndfile; WMA, AAC, MP4, and M4A fall back to FFmpeg. Audible
 playback inside the rebuilt Flatpak remains to be verified on the Arch VM. The
 native overlay still reports unavailable rather than invoking Win32 code.
+The installed native Linux DR1 build is recognized through Steam/Feral paths,
+but a real rendered stage cannot yet be used for end-to-end telemetry and
+audible playback validation because the VMware guest exposes no Vulkan device.
 
 ## Product Goal
 
@@ -55,7 +71,7 @@ Linux release. Each is a separate platform integration.
 | Script editor | Monaco hosted by WPF WebView2 | Reuse Monaco through the local web host or system browser on Linux |
 | Game discovery and IPC | Windows process/window APIs, registry, named maps, named pipes, injection | Shared activity monitor implemented; native Linux uses `/proc`, while Flatpak and Windows-only IPC require Proton relays |
 | Replay capture | WASAPI loopback and Windows window capture | Add PipeWire/FFmpeg capture only after the core Linux release |
-| Packaging and updates | Inno Setup and Windows executable updates | Define a separate SteamOS/Linux package and update channel |
+| Packaging and updates | Inno Setup and Windows executable updates | AppImage is the primary SteamOS package; retain Flatpak as a later store channel |
 
 WPF itself only runs on Windows, and the current WebView2 desktop runtime does
 not provide a Linux host. Porting only the audio backend therefore cannot make
@@ -93,6 +109,52 @@ Windows platform services              Linux platform services
 The existing WPF application should remain a host, not become the platform
 contract. Platform-neutral code must not reference WPF, WPF-UI, WebView2,
 SharpDX, `Microsoft.Win32.Registry`, Windows Core Audio, or Win32 P/Invoke.
+
+## WPF Host Extraction Inventory
+
+The `WpfGUI` project still contains some platform-neutral behavior, but its
+directory is not evidence that the behavior belongs to WPF. Extraction should
+follow dependencies and ownership rather than copying current view models into
+Avalonia.
+
+Already shared outside `WpfGUI`:
+
+- runtime startup, resource provisioning, game catalogs, profiles, co-drivers,
+  prerequisites, and ordered status reporting;
+- game activity contracts and telemetry-reader lifecycle;
+- pacenote definitions, configuration models, replay data, and game contracts;
+- audio decoding, mixing, sequencing, device contracts, and playback state;
+- Web Dashboard hosting, packages, browser protocol, fonts, and pacenote icons.
+
+Good extraction candidates still located in `WpfGUI`:
+
+- update metadata/download logic, separated from WPF prompts, shutdown, and
+  executable replacement;
+- update configuration migrations, with the application version supplied by
+  the host instead of `UpdateService`;
+- support-diagnostics collection, separated from the Windows overlay manager;
+- co-driver selection, mute, example playback, and Web Dashboard controls in
+  `RuntimeControlsService`, separated from native HUD controls and telemetry;
+- replay queries and package-management operations currently invoked by view
+  models;
+- data-folder migration request parsing and file operations, separated from
+  the Windows `.exe` restart implementation.
+
+Must remain host-specific:
+
+- XAML views, WPF converters, controls, navigation, dispatcher access, and
+  WPF-UI dialogs;
+- WebView2, Windows file/folder dialogs, registry, tray integration, and system
+  notifications;
+- native overlay, window attachment, replay window capture, and other Win32
+  integrations.
+
+The canonical application icon is still stored under `WpfGUI/Assets` even
+though it is a product asset used by every package. AppImage now carries a
+correctly sized Linux packaging derivative so its build no longer depends on
+the WPF source tree. Move canonical branding and other genuinely shared static
+assets to a neutral asset root before the Avalonia host becomes another source
+of independently maintained copies.
 
 Recommended contracts include:
 
@@ -161,15 +223,16 @@ assets. The project has no WPF, GameOverlay.Net, SharpDX, or WebView2 reference.
 
 Windows keeps its native overlay renderer in `Base.UI` and adapts the existing
 `Dashboard` objects to portable `WebDashboardDefinition` objects. Linux hosts
-`WebDashboardRuntime` directly and publishes decoded UDP telemetry to browser
-Lua dashboards. `--web-dashboard` starts the server, and combining it with
-`--listen-game` keeps the telemetry loop alive until `Ctrl+C` unless a bounded
-`--listen-seconds` value is supplied.
+`WebDashboardRuntime` directly. `WebDashboardGameSessionBridge` subscribes to
+the shared core's track/car, game-state, pacenote, race, and telemetry events,
+so browser Lua dashboards receive the same evolving `GameContext` rather than
+an independent Linux-only telemetry model. `--web-dashboard` starts the server,
+and combining it with `--listen-game` keeps the complete game session alive
+until `Ctrl+C` unless a bounded `--listen-seconds` value is supplied.
 
 The next Web Dashboard work is product integration rather than platform
-extraction: expose its settings in the future Avalonia UI, populate full
-pacenote/replay `GameContext` state from the shared runtime, and validate the
-browser renderer against Proton game traffic on SteamOS hardware.
+extraction: expose its settings in the future Avalonia UI and validate the
+browser renderer against real Proton game traffic on SteamOS hardware.
 
 ## Game Activity Monitoring
 
@@ -179,12 +242,12 @@ names, Windows executable paths in Proton command lines, Steam application
 environment variables, and `compatdata/<app-id>` paths. Its initial scan also
 detects a game that was already running before ZTMZ started.
 
-`GameTelemetrySession` owns the selected reader lifecycle. Starting or changing
-games initializes the corresponding reader once; leaving the game unsubscribes
-telemetry handlers and releases the UDP listener. Linux forwards the active
-reader's telemetry and basic game context to the Web Dashboard. The explicit
-`--listen-game` option remains available as a manual override, and
-`--no-game-watch` retains the bounded diagnostics behavior.
+The Linux monitor activates games through the shared `ZTMZPacenoteTool` session
+controller. Starting or changing games initializes the corresponding reader,
+selected profile, co-driver audio pipeline, pacenote core, and Web Dashboard
+bridge once; leaving the game releases the reader and all session subscribers.
+The explicit `--listen-game` option uses that same complete session as a manual
+override, and `--no-game-watch` retains the bounded diagnostics behavior.
 
 Flatpak deliberately cannot inspect host processes. ZTMZ does not request
 `org.freedesktop.Flatpak` access or use `flatpak-spawn --host`, because that
@@ -292,6 +355,9 @@ backends are interchangeable.
 - [x] Verify host-to-Flatpak UDP telemetry with valid simulated Codemasters frames.
 - [x] Load profiles and co-driver packages from the XDG data root, including the configured additional co-driver search path.
 - [x] Use the same shared runtime bootstrap and startup status sequence as the Windows host.
+- [x] Activate game detection, profile/co-driver selection, pacenote core,
+  PortAudio, and Web Dashboard through one shared game-session controller.
+- [x] Package and provision the default profile and co-driver into a fresh AppImage data root.
 - Receive one UDP game's telemetry under Proton.
 - Decode, mix, and play a real co-driver package through PortAudio.
 - [x] Log co-driver, output-device, playback, and telemetry diagnostics without a desktop UI.
@@ -303,8 +369,10 @@ game-provider counts, can bind a selected UDP provider for a bounded diagnostic
 interval, lists profiles, PortAudio output devices, and co-driver packages, and
 can decode and play a selected audio file through the complete ZTMZ playback pipeline. The
 next runtime milestone is rebuilding the Flatpak and audibly verifying a real
-co-driver file, followed by receiving telemetry from a game running under
-Proton.
+co-driver file, followed by receiving telemetry from a real DR1 stage. The
+current Arch VMware guest cannot complete that test until Vulkan rendering is
+available; the simulated DR1 process lifecycle is not counted as stage telemetry
+or audible playback verification.
 
 ## Flatpak Development Baseline
 
@@ -340,6 +408,29 @@ Before a Flathub submission, the packaging work must additionally:
 - add only the runtime permissions justified by UDP telemetry, audio, dashboards,
   and portals;
 - pass `flathub-build` and `flatpak-builder-lint`.
+
+## AppImage Development Baseline
+
+AppImage is now the primary packaging target for the first SteamOS release.
+`packaging/appimage/build-appimage.sh` creates a self-contained `linux-x64`
+publish and adds the portable Codemasters provider, official database,
+localization, desktop metadata, Web Dashboard files, fonts, pacenote icons, and
+PortAudio native library. Required payload checks fail the build when a shared
+resource is accidentally omitted.
+
+The generated AppDir is approximately 137 MB and the zstd-compressed AppImage
+is approximately 60 MB. The first development package was verified on the Arch
+VM through both its normal FUSE path and `APPIMAGE_EXTRACT_AND_RUN=1`. AppImage
+runs with the current user's normal permissions, so the existing native `/proc`
+monitor can detect host Steam/Proton processes without a broad sandbox escape
+or a separate lifecycle relay.
+
+The package remains read-only. Configuration, profiles, co-driver packages,
+logs, and provisioned data continue to use the XDG data root. A portable archive
+can be produced from the same AppDir as a fallback for environments where FUSE
+is unavailable. Flatpak files remain in the repository as a tested future store
+channel, but Flatpak-specific lifecycle work no longer blocks the first SteamOS
+candidate.
 
 ### Phase 2: useful Steam Deck MVP
 

@@ -13,13 +13,22 @@ using System.Diagnostics;
 
 namespace ZTMZ.PacenoteTool.Core;
 
-public class ZTMZPacenoteTool {
+public sealed record ZtmzPacenoteToolInitializationOptions(
+    ZtmzRuntimeOptions Runtime,
+    bool InitializeProcessWatcher = true,
+    bool EnableObsIntegration = true,
+    bool EnableReplayIntegration = true);
+
+public class ZTMZPacenoteTool : IDisposable {
     private readonly IAudioOutputDeviceEnumerator _audioOutputDeviceEnumerator;
     private readonly IAudioPlaybackEngineFactory _audioPlaybackEngineFactory;
     private readonly ZtmzRuntime _runtime;
     
     private ProfileManager _profileManager;
     private ProcessWatcher _processWatcher;
+    private bool _enableObsIntegration = true;
+    private bool _enableReplayIntegration = true;
+    private bool _disposed;
     private string _trackName;
     private string _carName;
     private string _carClass;
@@ -129,10 +138,20 @@ public class ZTMZPacenoteTool {
     public void Init() => InitAsync().GetAwaiter().GetResult();
 
     public async Task InitAsync(CancellationToken cancellationToken = default) {
+        await InitAsync(
+            new ZtmzPacenoteToolInitializationOptions(
+                new ZtmzRuntimeOptions(
+                    Path.Combine(AppContext.BaseDirectory, Constants.PATH_GAMES),
+                    new ResourceBootstrapOptions())),
+            cancellationToken);
+    }
+
+    public async Task<ZtmzRuntimeState> InitAsync(
+        ZtmzPacenoteToolInitializationOptions options,
+        CancellationToken cancellationToken = default) {
+        ArgumentNullException.ThrowIfNull(options);
         var state = await _runtime.InitializeAsync(
-            new ZtmzRuntimeOptions(
-                Path.Combine(AppContext.BaseDirectory, Constants.PATH_GAMES),
-                new ResourceBootstrapOptions()),
+            options.Runtime,
             ReportInitializationStatus,
             cancellationToken);
 
@@ -143,12 +162,24 @@ public class ZTMZPacenoteTool {
         _outputDevices = state.OutputDevices.ToList();
 
         // this.initGoogleAnalytics();
-        this.initializeProcessWatcher();
-        this.initializeObsConnection();
-        this.initializeReplayManager();
+        _enableObsIntegration = options.EnableObsIntegration;
+        _enableReplayIntegration = options.EnableReplayIntegration;
+        if (options.InitializeProcessWatcher)
+        {
+            this.initializeProcessWatcher();
+        }
+        if (_enableObsIntegration)
+        {
+            this.initializeObsConnection();
+        }
+        if (_enableReplayIntegration)
+        {
+            this.initializeReplayManager();
+        }
 
         this.IsInitialized = true;
         onToolInitialized?.Invoke();
+        return state;
     }
 
 #region privates
@@ -327,7 +358,10 @@ public class ZTMZPacenoteTool {
             _logger.Info("Game {0} initialized.", game.Name);
             game.IsInitialized = true;
             this.onGameInitialized?.Invoke(game);
-            ObsManager.Instance.Connect();
+            if (_enableObsIntegration)
+            {
+                ObsManager.Instance.Connect();
+            }
         }
         catch (PortAlreadyInUseException exception)
         {
@@ -404,15 +438,17 @@ public class ZTMZPacenoteTool {
         finally
         {
             game.IsInitialized = false;
-            _logger.Info("Stop OBS recording when game uninitialized no matter if it is recording.");
-
-            try
+            if (_enableObsIntegration)
             {
-                ObsManager.Instance.AbnormallyStopRecording();
-            }
-            catch (Exception exception)
-            {
-                _logger.Error(exception, "Failed to stop OBS recording while uninitializing {0}.", game.Name);
+                _logger.Info("Stop OBS recording when game uninitialized no matter if it is recording.");
+                try
+                {
+                    ObsManager.Instance.AbnormallyStopRecording();
+                }
+                catch (Exception exception)
+                {
+                    _logger.Error(exception, "Failed to stop OBS recording while uninitializing {0}.", game.Name);
+                }
             }
 
             try
@@ -460,7 +496,10 @@ public class ZTMZPacenoteTool {
                         this._profileManager.PlaySystem(endSound, true, false);
                     }
 
-                    saveReplay(evt);
+                    if (_enableReplayIntegration)
+                    {
+                        saveReplay(evt);
+                    }
                 }
 
                 // disable telemetry hud, show statistics?
@@ -471,7 +510,7 @@ public class ZTMZPacenoteTool {
                 // load trace, use lastmsg tracklength & startZ
                 // this._udpReceiver.LastMessage.TrackLength
                 this.onRaceBegin?.Invoke(_currentGame);
-                if (lastState != GameState.Paused)
+                if (_enableObsIntegration && lastState != GameState.Paused)
                 {
                     // GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_begin", this._currentGame.Name + " - " + this._profileManager.CurrentCoDriverSoundPackageInfo.DisplayText);
                     // no matter if OBS is recording, we stop recording here.
@@ -536,7 +575,7 @@ public class ZTMZPacenoteTool {
                     }
                 });
 
-                if (state == GameState.AdHocRaceBegin) {
+                if (_enableReplayIntegration && state == GameState.AdHocRaceBegin) {
                     // also start to record the replay when in AdHocRaceBegin
                     initReplay();
                 }
@@ -550,15 +589,17 @@ public class ZTMZPacenoteTool {
                         this._profileManager.PlaySystem(Constants.SYSTEM_GO, true);
                     }
 
-                    // start to record the replay
-                    initReplay();
+                    if (_enableReplayIntegration)
+                    {
+                        initReplay();
+                    }
 
                     // start to record the video with OBS!
                     // Should try to connect to Obs when 
                     // 1. this tool started
                     // 2. game initialized
                     // 3. toggle the obs saving switch
-                    if (!this._isReplaySession) {
+                    if (_enableObsIntegration && !this._isReplaySession) {
                         // it's not replay session, start to record the video
                         ObsManager.Instance.StartRecording();
                     }
@@ -619,7 +660,7 @@ public class ZTMZPacenoteTool {
         }
 
         var isRacing = _currentGame.GameDataReader.GameState == GameState.Racing;
-        if (isRacing)
+        if (_enableReplayIntegration && isRacing)
         {
             // Keep the current-run lookup in sync before dashboards consume this packet.
             traceReplay(msg);
@@ -1009,16 +1050,20 @@ public class ZTMZPacenoteTool {
                     replay.retired = false;
                     replay.car_class = this._carClass;
                     replay.comment = "";
-                    replay.video_path = ObsManager.Instance.StopRecording();
-                    replay.video_begin_timestamp = Config.Instance.ReplayOBSSave ? this._obsStartTimestamp : 0;
+                    replay.video_path = _enableObsIntegration
+                        ? ObsManager.Instance.StopRecording()
+                        : string.Empty;
+                    replay.video_begin_timestamp = _enableObsIntegration && Config.Instance.ReplayOBSSave
+                        ? this._obsStartTimestamp
+                        : 0;
                     // replay.video_end_timestamp = this._obsStopTimestamp;
                     _ = ReplayManager.Instance.SaveReplayAsync(CurrentGame, replay, this.ReplayDetailsPerTimes, this.ReplayDetailsPerCheckpoints);
                 }
             }
-            else {
+            else if (_enableObsIntegration) {
                 ObsManager.Instance.AbnormallyStopRecording();
             }
-        } else {
+        } else if (_enableObsIntegration) {
             // not normal finish, stop recording
             ObsManager.Instance.AbnormallyStopRecording();
         }
@@ -1177,7 +1222,7 @@ public class ZTMZPacenoteTool {
         // IsWatchedProcessRunning uses the watcher's configured window-title match, so this
         // compensation only starts after the game's window is visible enough to identify.
         // GameOverlayManager then waits for a usable HWND before creating the overlay.
-        Process watchedProcess = _processWatcher.IsWatchedProcessRunning(game.Executable, game.WindowTitle);
+        Process watchedProcess = _processWatcher?.IsWatchedProcessRunning(game.Executable, game.WindowTitle);
         if (watchedProcess != null) {
             game.IsRunning = true;
             this.onGameStarted?.Invoke(game, watchedProcess);
@@ -1189,6 +1234,37 @@ public class ZTMZPacenoteTool {
         _logger.Info("Game selection changed to {0}, trying to initialize it.", this._currentGame.Name);
         initializeGame(_currentGame);
         return gameRunning;
+    }
+
+    public bool ActivateGame(IGame game)
+    {
+        ArgumentNullException.ThrowIfNull(game);
+        if (!ReferenceEquals(_currentGame, game))
+        {
+            uninitializeGame(_currentGame);
+            _currentGame = game;
+        }
+
+        game.IsRunning = true;
+        _logger.Info("Activating shared game session for {0}.", game.Name);
+        initializeGame(game);
+        return game.IsInitialized;
+    }
+
+    public void DeactivateCurrentGame()
+    {
+        if (_currentGame == null)
+        {
+            return;
+        }
+
+        _currentGame.IsRunning = false;
+        if (!_currentGame.IsInitialized)
+        {
+            return;
+        }
+
+        uninitializeGame(_currentGame);
     }
 
     public void SetFromConfiguration() {
@@ -1235,16 +1311,24 @@ public class ZTMZPacenoteTool {
     }
 
     public void SetProfile(int profileIndex) {
+        if (this.Profiles.Count == 0)
+        {
+            _logger.Warn("No profiles are available for selection.");
+            return;
+        }
+
         if (profileIndex < this.Profiles.Count && profileIndex >= 0)
-            this._profileManager.CurrentProfile = this.Profiles[profileIndex].ToString().Split('\\').Last();
+            this._profileManager.CurrentProfile = Path.GetFileName(
+                Path.TrimEndingDirectorySeparator(this.Profiles[profileIndex]));
         else
-            this._profileManager.CurrentProfile = this.Profiles.First().Split('\\').Last();
+            this._profileManager.CurrentProfile = Path.GetFileName(
+                Path.TrimEndingDirectorySeparator(this.Profiles.First()));
     }
 
     public void SetOutputDevice(int outputDeviceIndex) {
         if (this.OutputDevices.Count == 0)
         {
-            _logger.Warn("Cannot select an output device because no active WASAPI render endpoints were found.");
+            _logger.Warn("No audio output devices are available for selection.");
             return;
         }
 
@@ -1314,6 +1398,20 @@ public class ZTMZPacenoteTool {
     public void PlaySound(string path) {
         this._profileManager.CurrentPlaySpeed = this._playbackSpd;
         this._profileManager.PlaySound(new AutoResampledCachedSound(path), isSequential: false);
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        DeactivateCurrentGame();
+        _processWatcher?.Dispose();
+        _profileManager?.Player?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
 

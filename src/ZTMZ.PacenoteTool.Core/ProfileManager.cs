@@ -268,7 +268,9 @@ namespace ZTMZ.PacenoteTool.Core
 
         public void CreateNewProfile(string profileName)
         {
-            Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("profiles\\{0}", profileName)));
+            Directory.CreateDirectory(
+                AppLevelVariables.Instance.GetPath(
+                    Path.Combine(Constants.PATH_PROFILES, profileName)));
             this.CurrentProfile = profileName;
         }
 
@@ -282,7 +284,8 @@ namespace ZTMZ.PacenoteTool.Core
 
         public string GetRecordingsFolder(IGame game, string itinerary)
         {
-            string filesPath = AppLevelVariables.Instance.GetPath(string.Format("profiles\\{0}\\{1}\\{2}", this.CurrentProfile, game.Name, itinerary));
+            string filesPath = AppLevelVariables.Instance.GetPath(
+                Path.Combine(Constants.PATH_PROFILES, this.CurrentProfile, game.Name, itinerary));
             Directory.CreateDirectory(filesPath);
             return filesPath;
         }
@@ -293,7 +296,8 @@ namespace ZTMZ.PacenoteTool.Core
 
         public string GetScriptFile(string itinerary, string profile)
         {
-            string filePath = AppLevelVariables.Instance.GetPath(string.Format("profiles\\{0}\\{1}.pacenote", profile, itinerary));
+            string filePath = AppLevelVariables.Instance.GetPath(
+                Path.Combine(Constants.PATH_PROFILES, profile, $"{itinerary}.pacenote"));
             if (!File.Exists(filePath))
             {
                 File.WriteAllText(filePath, "");

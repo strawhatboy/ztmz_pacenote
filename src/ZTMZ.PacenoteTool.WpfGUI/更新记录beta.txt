@@ -16,6 +16,9 @@ v2.99.99.46-3.0-rc18
 * Unifies Windows and Linux initialization of resources, game plugins, profiles, co-drivers, and prerequisites, and lets the DiRT Rally, DiRT Rally 2.0, and EA SPORTS WRC checks locate their Documents directories inside Steam Proton prefixes.
 * Extracts the Web Dashboard from WPF, the native overlay, and SharpDX and connects it to the Linux runtime; SteamOS/Linux can now load all bundled dashboards, the browser client, fonts, and pacenote icons and stream Codemasters UDP telemetry to browser dashboards in real time.
 * Lets the native Linux host detect DiRT Rally, DiRT Rally 2.0, and EA SPORTS WRC already running or subsequently launched through Steam Proton, automatically select the matching game, and create, switch, and release its telemetry reader; automatic discovery inside the Flatpak sandbox still requires a future host lifecycle relay.
+* Adds an x86_64 AppImage packaging flow for SteamOS, bundling the official pacenote database, localization, Web Dashboard, fonts, pacenote icons, default profile, and default co-driver package; mutable default resources are provisioned into the user data directory on first launch.
+* Makes Linux game detection activate the same complete game session used by Windows, including profile and co-driver selection, pacenote processing, PortAudio playback, and Web Dashboard state publication, with reliable release when games exit or change.
+* Fixes native Feral Interactive DiRT Rally installations being reported as not installed on Linux; ZTMZ now recognizes the Steam manifest and native configuration path and accurately reports when UDP telemetry still needs to be enabled.
 
 [简体中文]
 * 路书编辑器新增主窗口内打印弹层，提供准确且实时刷新的 PDF 分页预览、实体打印机与 PDF 输出、纸张、方向、页边距、可配置格式与位置的页码、页码范围和份数设置；打印会保留背景色，并移除浏览器生成的文件路径页眉页脚。
@@ -33,6 +36,9 @@ v2.99.99.46-3.0-rc18
 * 统一 Windows 与 Linux 的资源、游戏插件、profile、领航员语音包和前置条件初始化流程，并让 DiRT Rally、DiRT Rally 2.0 与 EA SPORTS WRC 的配置检查能够定位 Steam Proton prefix 中的 Documents 目录。
 * 网页仪表盘已从 WPF、原生悬浮窗和 SharpDX 中独立出来，并接入 Linux Runtime；SteamOS/Linux 现在能够加载全部内置仪表盘、网页客户端、字体和路书图标，并将 Codemasters UDP 遥测实时发送到浏览器仪表盘。
 * 原生 Linux 宿主现在能够识别 Steam Proton 中已运行或随后启动的 DiRT Rally、DiRT Rally 2.0 与 EA SPORTS WRC，自动选择对应游戏并建立、切换和释放遥测读取器；Flatpak 沙箱内的自动发现仍需后续的宿主生命周期 relay。
+* 新增面向 SteamOS 的 x86_64 AppImage 打包流程，完整携带官方路书数据库、多语言、网页仪表盘、字体、路书图标、默认 profile 和默认领航员语音包；首次启动时会将可修改的默认资源部署到用户数据目录。
+* Linux 游戏检测现在会建立与 Windows 共用的完整游戏会话，统一完成 profile 与领航员选择、路书处理、PortAudio 播放和网页仪表盘状态发布，并在游戏退出或切换时可靠释放整个会话。
+* 修复原生 Linux 版 DiRT Rally 使用 Feral Interactive 数据目录时被误报为“游戏未安装”的问题；现在能够识别 Steam 安装清单和原生配置路径，并准确提示尚未开启 UDP 遥测。
 
 v2.99.99.45-3.0-rc17
 ------

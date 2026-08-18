@@ -58,6 +58,57 @@ public sealed class SteamGameDocumentsLocatorTest
     }
 
     [Fact]
+    public void ProtonLocator_ReportsInstalledGameWithoutCreatedPrefix()
+    {
+        using var directory = new TemporaryDirectory();
+        var steamRoot = Path.Combine(directory.Path, "Steam");
+        var steamApps = Path.Combine(steamRoot, "steamapps");
+        Directory.CreateDirectory(steamApps);
+        File.WriteAllText(
+            Path.Combine(steamApps, $"appmanifest_{DirtRally.SteamAppId}.acf"),
+            string.Empty);
+        var locator = new ProtonGameDocumentsLocator(directory.Path, [steamRoot]);
+
+        Assert.True(locator.IsInstalled(DirtRally.SteamAppId));
+    }
+
+    [Fact]
+    public void ProtonLocator_FindsNativeFeralDirtRallyDocuments()
+    {
+        using var directory = new TemporaryDirectory();
+        var steamRoot = Path.Combine(directory.Path, "Steam");
+        var steamApps = Path.Combine(steamRoot, "steamapps");
+        Directory.CreateDirectory(steamApps);
+        File.WriteAllText(
+            Path.Combine(steamApps, $"appmanifest_{DirtRally.SteamAppId}.acf"),
+            string.Empty);
+        var feralDocuments = Path.Combine(
+            directory.Path,
+            ".local",
+            "share",
+            "feral-interactive",
+            "DiRT Rally",
+            "VFS",
+            "User",
+            "AppData",
+            "Roaming");
+        Directory.CreateDirectory(feralDocuments);
+        var locator = new ProtonGameDocumentsLocator(directory.Path, [steamRoot]);
+
+        Assert.Contains(feralDocuments, locator.FindDocumentsDirectories(DirtRally.SteamAppId));
+    }
+
+    [Fact]
+    public void DirtPrerequisiteChecker_TreatsInstalledGameWithoutSettingsAsRepairable()
+    {
+        var checker = new DirtGamePrerequisiteChecker(new InstalledGameDocumentsLocator());
+
+        var result = checker.CheckPrerequisites(new DirtRally());
+
+        Assert.Equal(PrerequisitesCheckResultCode.PORT_NOT_OPEN, result.Code);
+    }
+
+    [Fact]
     public void DirtPrerequisiteChecker_UsesLocatedProtonDocuments()
     {
         using var directory = new TemporaryDirectory();
@@ -217,6 +268,15 @@ public sealed class SteamGameDocumentsLocatorTest
         {
             return [documents];
         }
+    }
+
+    private sealed class InstalledGameDocumentsLocator :
+        IGameDocumentsLocator,
+        ISteamGameInstallationLocator
+    {
+        public IReadOnlyList<string> FindDocumentsDirectories(uint steamAppId) => [];
+
+        public bool IsInstalled(uint steamAppId) => steamAppId == DirtRally.SteamAppId;
     }
 
     private sealed class TemporaryDirectory : IDisposable

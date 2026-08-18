@@ -29,6 +29,31 @@ public sealed class PackagedFileProvisionerTest
         Assert.Equal("version-two", File.ReadAllText(destinationFile));
     }
 
+    [Fact]
+    public void EnsureCurrentDirectory_CopiesTreeAndOnlyUpdatesWhenPackageChanges()
+    {
+        using var directory = new TemporaryDirectory();
+        var package = Path.Combine(directory.Path, "package", "default");
+        var destination = Path.Combine(directory.Path, "data", "default");
+        Directory.CreateDirectory(Path.Combine(package, "tokens"));
+        File.WriteAllText(Path.Combine(package, "info.json"), "version-one");
+        File.WriteAllText(Path.Combine(package, "tokens", "left.wav"), "audio-one");
+
+        var copied = PackagedFileProvisioner.EnsureCurrentDirectory(package, destination);
+        Assert.Equal(PackagedFileProvisioningStatus.Copied, copied.Status);
+        Assert.Equal("audio-one", File.ReadAllText(Path.Combine(destination, "tokens", "left.wav")));
+
+        File.WriteAllText(Path.Combine(destination, "tokens", "left.wav"), "runtime-change");
+        var unchanged = PackagedFileProvisioner.EnsureCurrentDirectory(package, destination);
+        Assert.Equal(PackagedFileProvisioningStatus.Unchanged, unchanged.Status);
+        Assert.Equal("runtime-change", File.ReadAllText(Path.Combine(destination, "tokens", "left.wav")));
+
+        File.WriteAllText(Path.Combine(package, "tokens", "left.wav"), "audio-two");
+        var updated = PackagedFileProvisioner.EnsureCurrentDirectory(package, destination);
+        Assert.Equal(PackagedFileProvisioningStatus.Updated, updated.Status);
+        Assert.Equal("audio-two", File.ReadAllText(Path.Combine(destination, "tokens", "left.wav")));
+    }
+
     private sealed class TemporaryDirectory : IDisposable
     {
         public TemporaryDirectory()

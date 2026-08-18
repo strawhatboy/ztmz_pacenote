@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj"
                       AdditionalProperties="ExcludeSevenZipAssemblies=true" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.Core\ZTMZ.PacenoteTool.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

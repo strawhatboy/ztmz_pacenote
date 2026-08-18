@@ -12,6 +12,11 @@ public interface IGameDocumentsLocator
     IReadOnlyList<string> FindDocumentsDirectories(uint steamAppId);
 }
 
+public interface ISteamGameInstallationLocator
+{
+    bool IsInstalled(uint steamAppId);
+}
+
 public static class GameDocumentsLocatorFactory
 {
     public static IGameDocumentsLocator CreateDefault()
@@ -48,7 +53,7 @@ public sealed class WindowsGameDocumentsLocator : IGameDocumentsLocator
     }
 }
 
-public sealed class ProtonGameDocumentsLocator : IGameDocumentsLocator
+public sealed class ProtonGameDocumentsLocator : IGameDocumentsLocator, ISteamGameInstallationLocator
 {
     public const string AdditionalSteamRootsEnvironmentVariable = "ZTMZ_STEAM_ROOTS";
 
@@ -88,6 +93,11 @@ public sealed class ProtonGameDocumentsLocator : IGameDocumentsLocator
             : StringComparer.Ordinal;
         var seen = new HashSet<string>(comparer);
 
+        if (installedLibraries.Count > 0)
+        {
+            AddNativeLinuxDocumentsDirectory(steamAppId, result, seen);
+        }
+
         foreach (var library in candidateLibraries)
         {
             var prefix = Path.Combine(
@@ -100,6 +110,42 @@ public sealed class ProtonGameDocumentsLocator : IGameDocumentsLocator
         }
 
         return result;
+    }
+
+    public bool IsInstalled(uint steamAppId)
+    {
+        return FindSteamLibraries().Any(library => SafeFileExists(Path.Combine(
+            library,
+            "steamapps",
+            $"appmanifest_{steamAppId}.acf")));
+    }
+
+    private void AddNativeLinuxDocumentsDirectory(
+        uint steamAppId,
+        List<string> result,
+        HashSet<string> seen)
+    {
+        if (steamAppId != 310560)
+        {
+            return;
+        }
+
+        var xdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
+        var dataHome = string.IsNullOrWhiteSpace(xdgDataHome)
+            ? Path.Combine(_userProfileDirectory, ".local", "share")
+            : xdgDataHome;
+        var feralDocuments = Path.Combine(
+            dataHome,
+            "feral-interactive",
+            "DiRT Rally",
+            "VFS",
+            "User",
+            "AppData",
+            "Roaming");
+        if (SafeDirectoryExists(feralDocuments))
+        {
+            AddPath(feralDocuments, result, seen);
+        }
     }
 
     private IReadOnlyList<string> FindSteamLibraries()

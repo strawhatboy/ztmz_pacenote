@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace ZTMZ.PacenoteTool.Base;
 
@@ -73,9 +75,76 @@ public static class PackagedFileProvisioner
             packageHash);
     }
 
+    public static PackagedFileProvisioningResult EnsureCurrentDirectory(
+        string packagedDirectory,
+        string destinationDirectory)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(packagedDirectory);
+        ArgumentException.ThrowIfNullOrWhiteSpace(destinationDirectory);
+
+        var sourcePath = Path.GetFullPath(packagedDirectory);
+        var destinationPath = Path.GetFullPath(destinationDirectory);
+        if (!Directory.Exists(sourcePath))
+        {
+            throw new DirectoryNotFoundException(
+                $"Packaged directory was not found: {sourcePath}");
+        }
+
+        var packageHash = ComputeDirectorySha256(sourcePath);
+        var hashFile = Path.Combine(destinationPath, PackageHashSuffix);
+        if (Directory.Exists(destinationPath) &&
+            File.Exists(hashFile) &&
+            string.Equals(
+                File.ReadAllText(hashFile).Trim(),
+                packageHash,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return new PackagedFileProvisioningResult(
+                PackagedFileProvisioningStatus.Unchanged,
+                packageHash);
+        }
+
+        var destinationExisted = Directory.Exists(destinationPath);
+        Directory.CreateDirectory(destinationPath);
+        foreach (var sourceFile in Directory.EnumerateFiles(
+                     sourcePath,
+                     "*",
+                     SearchOption.AllDirectories))
+        {
+            var relativePath = Path.GetRelativePath(sourcePath, sourceFile);
+            var destinationFile = Path.Combine(destinationPath, relativePath);
+            Directory.CreateDirectory(Path.GetDirectoryName(destinationFile)!);
+            File.Copy(sourceFile, destinationFile, overwrite: true);
+        }
+
+        File.WriteAllText(hashFile, packageHash + Environment.NewLine);
+        return new PackagedFileProvisioningResult(
+            destinationExisted
+                ? PackagedFileProvisioningStatus.Updated
+                : PackagedFileProvisioningStatus.Copied,
+            packageHash);
+    }
+
     private static string ComputeSha256(string path)
     {
         using var stream = File.OpenRead(path);
         return Convert.ToHexString(SHA256.HashData(stream));
+    }
+
+    private static string ComputeDirectorySha256(string path)
+    {
+        using var combinedHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        foreach (var file in Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories)
+                     .OrderBy(file => Path.GetRelativePath(path, file), StringComparer.Ordinal))
+        {
+            var relativePath = Path.GetRelativePath(path, file)
+                .Replace(Path.DirectorySeparatorChar, '/');
+            combinedHash.AppendData(Encoding.UTF8.GetBytes(relativePath));
+            combinedHash.AppendData([0]);
+            using var stream = File.OpenRead(file);
+            combinedHash.AppendData(SHA256.HashData(stream));
+        }
+
+        return Convert.ToHexString(combinedHash.GetHashAndReset());
     }
 }

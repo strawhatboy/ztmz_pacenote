@@ -15,7 +15,9 @@ public sealed record ResourceBootstrapOptions(
     string? PackagedPacenoteDatabasePath = null,
     IReadOnlyList<string>? LocalizationRoots = null,
     string? Culture = null,
-    bool InitializeLocalization = false);
+    bool InitializeLocalization = false,
+    string? PackagedDefaultCoDriverDirectory = null,
+    string? PackagedDefaultProfileDirectory = null);
 
 public sealed record ResourceBootstrapResult(
     PackagedFileProvisioningStatus? ProvisioningStatus,
@@ -39,6 +41,12 @@ public sealed class ResourceBootstrapService
         cancellationToken.ThrowIfCancellationRequested();
 
         EnsureDataDirectories();
+        ProvisionPackagedDirectory(
+            options.PackagedDefaultCoDriverDirectory,
+            _paths.GetPath(Path.Combine(Constants.PATH_CODRIVERS, "default")));
+        ProvisionPackagedDirectory(
+            options.PackagedDefaultProfileDirectory,
+            _paths.GetPath(Path.Combine(Constants.PATH_PROFILES, Constants.DEFAULT_PROFILE)));
 
         IReadOnlyList<string> localizationDirectories = [];
         if (options.InitializeLocalization)
@@ -71,6 +79,14 @@ public sealed class ResourceBootstrapService
         Directory.CreateDirectory(_paths.GetPath(Constants.PATH_PROFILES));
         Directory.CreateDirectory(_paths.GetPath(Constants.PATH_CODRIVERS));
         Directory.CreateDirectory(_paths.GetPath(Constants.PATH_LANGUAGE));
+    }
+
+    private static void ProvisionPackagedDirectory(string? source, string destination)
+    {
+        if (!string.IsNullOrWhiteSpace(source))
+        {
+            PackagedFileProvisioner.EnsureCurrentDirectory(source, destination);
+        }
     }
 
     public static IReadOnlyList<string> InitializeLocalization(

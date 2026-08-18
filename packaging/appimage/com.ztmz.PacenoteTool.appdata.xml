@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.ztmz.PacenoteTool</id>
+  <name>ZTMZ Pacenote Tool</name>
+  <summary>Pacenote playback and rally telemetry dashboards</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>AGPL-3.0-only</project_license>
+  <description>
+    <p>
+      ZTMZ provides configurable co-driver pacenote playback, game telemetry,
+      and browser-based rally dashboards.
+    </p>
+  </description>
+  <launchable type="desktop-id">com.ztmz.PacenoteTool.desktop</launchable>
+  <provides>
+    <binary>ztmz</binary>
+  </provides>
+  <developer id="com.ztmz">
+    <name>ZTMZ</name>
+  </developer>
+  <url type="homepage">https://gitee.com/ztmz/ztmz_pacenote</url>
+  <content_rating type="oars-1.1" />
+</component>

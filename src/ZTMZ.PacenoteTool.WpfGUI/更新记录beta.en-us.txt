@@ -15,6 +15,9 @@ v2.99.99.46-3.0-rc18
 * Unifies Windows and Linux initialization of resources, game plugins, profiles, co-drivers, and prerequisites, and lets the DiRT Rally, DiRT Rally 2.0, and EA SPORTS WRC checks locate their Documents directories inside Steam Proton prefixes.
 * Extracts the Web Dashboard from WPF, the native overlay, and SharpDX and connects it to the Linux runtime; SteamOS/Linux can now load all bundled dashboards, the browser client, fonts, and pacenote icons and stream Codemasters UDP telemetry to browser dashboards in real time.
 * Lets the native Linux host detect DiRT Rally, DiRT Rally 2.0, and EA SPORTS WRC already running or subsequently launched through Steam Proton, automatically select the matching game, and create, switch, and release its telemetry reader; automatic discovery inside the Flatpak sandbox still requires a future host lifecycle relay.
+* Adds an x86_64 AppImage packaging flow for SteamOS, bundling the official pacenote database, localization, Web Dashboard, fonts, pacenote icons, default profile, and default co-driver package; mutable default resources are provisioned into the user data directory on first launch.
+* Makes Linux game detection activate the same complete game session used by Windows, including profile and co-driver selection, pacenote processing, PortAudio playback, and Web Dashboard state publication, with reliable release when games exit or change.
+* Fixes native Feral Interactive DiRT Rally installations being reported as not installed on Linux; ZTMZ now recognizes the Steam manifest and native configuration path and accurately reports when UDP telemetry still needs to be enabled.
 
 v2.99.99.45-3.0-rc17
 

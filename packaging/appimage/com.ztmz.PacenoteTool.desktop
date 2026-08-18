@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=ZTMZ Pacenote Tool
+Comment=Pacenote playback and rally telemetry dashboards
+Exec=ztmz
+Icon=ztmz
+Terminal=true
+Categories=Game;
+Keywords=rally;pacenote;codriver;telemetry;
+StartupNotify=true

@@ -67,21 +67,34 @@ public static class Program
         var gamesDirectory = Path.Combine(AppContext.BaseDirectory, Constants.PATH_GAMES);
         var audioDevices = new PortAudioAudioOutputDeviceEnumerator();
         var audioPlayback = new PortAudioAudioPlaybackEngineFactory();
-        var runtime = new ZtmzRuntime(paths, audioDevices, audioPlayback);
-        var state = await runtime.InitializeAsync(
-            new ZtmzRuntimeOptions(
-                gamesDirectory,
-                new ResourceBootstrapOptions(
-                    Path.Combine(
-                        resourceRoot,
-                        ZTMZ.PacenoteTool.Base.Script.ScriptResource.DBNAME),
-                    [
-                        Path.Combine(resourceRoot, Constants.PATH_LANGUAGE),
-                        paths.GetPath(Constants.PATH_LANGUAGE)
-                    ],
-                    Config.Instance.Language,
-                    InitializeLocalization: true),
-                CheckPrerequisites: true));
+        using var tool = new ZTMZPacenoteTool(audioDevices, audioPlayback);
+        var state = await tool.InitAsync(
+            new ZtmzPacenoteToolInitializationOptions(
+                new ZtmzRuntimeOptions(
+                    gamesDirectory,
+                    new ResourceBootstrapOptions(
+                        Path.Combine(
+                            resourceRoot,
+                            ZTMZ.PacenoteTool.Base.Script.ScriptResource.DBNAME),
+                        [
+                            Path.Combine(resourceRoot, Constants.PATH_LANGUAGE),
+                            paths.GetPath(Constants.PATH_LANGUAGE)
+                        ],
+                        Config.Instance.Language,
+                        InitializeLocalization: true,
+                        PackagedDefaultCoDriverDirectory: Path.Combine(
+                            resourceRoot,
+                            Constants.PATH_CODRIVERS,
+                            "default"),
+                        PackagedDefaultProfileDirectory: Path.Combine(
+                            resourceRoot,
+                            Constants.PATH_PROFILES,
+                            Constants.DEFAULT_PROFILE)),
+                    CheckPrerequisites: true),
+                InitializeProcessWatcher: false,
+                EnableObsIntegration: false,
+                EnableReplayIntegration: false));
+        tool.SetFromConfiguration();
 
         Console.WriteLine("ZTMZ native Linux host bootstrap");
         Console.WriteLine($"OS: {RuntimeInformation.OSDescription}");
@@ -152,7 +165,7 @@ public static class Program
 
         if (!string.IsNullOrWhiteSpace(options.ListenGame) &&
             !await ListenForGameTelemetryAsync(
-                state.Games,
+                tool,
                 options.ListenGame,
                 options.ListenSecondsSpecified || webDashboard == null
                     ? options.ListenSeconds
@@ -178,7 +191,7 @@ public static class Program
                          string.IsNullOrWhiteSpace(options.PlayAudio);
         if (watchGames)
         {
-            await WatchGamesAsync(state.Games, webDashboard);
+            await WatchGamesAsync(tool, webDashboard);
         }
         else if (webDashboard != null && string.IsNullOrWhiteSpace(options.ListenGame))
         {
@@ -332,12 +345,12 @@ public static class Program
     }
 
     private static async Task<bool> ListenForGameTelemetryAsync(
-        IReadOnlyList<IGame> games,
+        ZTMZPacenoteTool tool,
         string gameName,
         int listenSeconds,
         WebDashboardRuntime? webDashboard)
     {
-        var game = games.FirstOrDefault(candidate =>
+        var game = tool.Games.FirstOrDefault(candidate =>
             string.Equals(candidate.Name, gameName, StringComparison.OrdinalIgnoreCase));
         if (game == null)
         {
@@ -354,22 +367,30 @@ public static class Program
         long sampleCount = 0;
         var sampleLock = new object();
         var latestSample = default(GameData);
-        var dashboardContext = new GameContext();
-        udpReader.onNewGameData += (_, current) =>
+        using var dashboardBridge = webDashboard == null
+            ? null
+            : new WebDashboardGameSessionBridge(tool, webDashboard);
+        void OnTelemetry(IGame source, GameData current)
         {
+            if (!ReferenceEquals(source, game))
+            {
+                return;
+            }
+
             lock (sampleLock)
             {
                 latestSample = current;
             }
 
             Interlocked.Increment(ref sampleCount);
-            webDashboard?.PublishTelemetry(current, dashboardContext);
-        };
+        }
+        tool.onNewGameData += OnTelemetry;
         try
         {
-            if (!udpReader.Initialize(game))
+            game.IsRunning = true;
+            if (!tool.ActivateGame(game))
             {
-                Console.Error.WriteLine($"UDP reader did not initialize for {game.Name}.");
+                Console.Error.WriteLine($"Game session did not initialize for {game.Name}.");
                 return false;
             }
 
@@ -421,12 +442,16 @@ public static class Program
         }
         finally
         {
-            udpReader.Uninitialize(game);
+            tool.onNewGameData -= OnTelemetry;
+            if (ReferenceEquals(tool.CurrentGame, game))
+            {
+                tool.DeactivateCurrentGame();
+            }
         }
     }
 
     private static async Task WatchGamesAsync(
-        IReadOnlyList<IGame> games,
+        ZTMZPacenoteTool tool,
         WebDashboardRuntime? webDashboard)
     {
         if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FLATPAK_ID")))
@@ -447,17 +472,30 @@ public static class Program
         await using var monitor = new PollingGameActivityMonitor(
             new LinuxProcGameProcessSnapshotProvider(),
             TimeSpan.FromMilliseconds(Math.Max(100, Config.Instance.ProcessWatcherInterval)));
-        using var session = new GameTelemetrySession();
-        var dashboardContext = new GameContext();
-        session.TelemetryReceived += (game, data) =>
+        using var dashboardBridge = webDashboard == null
+            ? null
+            : new WebDashboardGameSessionBridge(tool, webDashboard);
+        tool.onGameInitializeFailed += (game, code, parameters) =>
         {
-            dashboardContext.TrackName = game.GameDataReader.TrackName;
-            dashboardContext.CarName = game.GameDataReader.CarName;
-            dashboardContext.CarClass = game.GameDataReader.CarClass;
-            dashboardContext.LastGameState = dashboardContext.GameState;
-            dashboardContext.GameState = (int)game.GameDataReader.GameState;
-            webDashboard?.PublishTelemetry(data, dashboardContext);
+            Console.Error.WriteLine(
+                $"Game prerequisite requires attention for {game.Name}: {code}" +
+                (parameters is { Count: > 0 }
+                    ? $" ({string.Join(", ", parameters)})"
+                    : string.Empty));
         };
+        tool.onGameInitialized += game => Console.WriteLine(
+            $"Game session initialized: {game.Name}; " +
+            $"profile {tool.ProfileManager.CurrentProfile}; " +
+            $"co-driver {tool.ProfileManager.CurrentCoDriverSoundPackageInfo?.name ?? "unavailable"}; " +
+            $"audio device {tool.ProfileManager.CurrentPlayDevice?.Name ?? "unavailable"}");
+        tool.onGameUninitialized += game => Console.WriteLine(
+            $"Game session released: {game.Name}");
+        tool.onGameStateChanged += (game, state) => Console.WriteLine(
+            $"Game state: {game.Name}: {state.LastGameState} -> {state.NewGameState}");
+        tool.onRaceBegined += game => Console.WriteLine(
+            $"Pacenote session ready: {game.Name}; " +
+            $"track {game.GameDataReader.TrackName}; " +
+            $"script author {tool.CurrentScriptAuthor}");
         monitor.GameStarted += activity => changes.Writer.TryWrite(
             new GameActivityChange(GameActivityChangeKind.Started, activity));
         monitor.GameStopped += activity => changes.Writer.TryWrite(
@@ -472,7 +510,7 @@ public static class Program
         Console.CancelKeyPress += cancelHandler;
         try
         {
-            monitor.Start(games);
+            monitor.Start(tool.Games);
             Console.WriteLine(
                 "Watching native and Proton game processes. Press Ctrl+C to stop.");
             while (await changes.Reader.WaitToReadAsync(cancellation.Token))
@@ -485,7 +523,7 @@ public static class Program
                         Console.WriteLine(
                             $"Game detected: {change.Activity.Game.Name} " +
                             $"(PID {change.Activity.ProcessId})");
-                        if (!session.Activate(change.Activity.Game))
+                        if (!tool.ActivateGame(change.Activity.Game))
                         {
                             Console.Error.WriteLine(
                                 $"Failed to initialize telemetry for {change.Activity.Game.Name}.");
@@ -495,14 +533,14 @@ public static class Program
                     {
                         change.Activity.Game.IsRunning = false;
                         Console.WriteLine($"Game exited: {change.Activity.Game.Name}");
-                        if (ReferenceEquals(session.CurrentGame, change.Activity.Game))
+                        if (ReferenceEquals(tool.CurrentGame, change.Activity.Game))
                         {
-                            session.Deactivate();
+                            tool.DeactivateCurrentGame();
                             var fallback = monitor.ActiveGames.FirstOrDefault();
                             if (fallback != null)
                             {
                                 fallback.Game.IsRunning = true;
-                                session.Activate(fallback.Game);
+                                tool.ActivateGame(fallback.Game);
                             }
                         }
                     }

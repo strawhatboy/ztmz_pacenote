@@ -43,6 +43,13 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
 
         if (existingSettingsFiles.Count == 0)
         {
+            if (TryGetSteamAppId(game, out var steamAppId) &&
+                _documentsLocator is ISteamGameInstallationLocator installationLocator &&
+                installationLocator.IsInstalled(steamAppId))
+            {
+                return Failure(PrerequisitesCheckResultCode.PORT_NOT_OPEN, game.Name);
+            }
+
             return Failure(PrerequisitesCheckResultCode.GAME_NOT_INSTALLED);
         }
 
@@ -127,16 +134,19 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
 
     private bool TryGetSettingsFiles(IGame game, out IReadOnlyList<SettingsFiles> settingsFiles)
     {
-        uint steamAppId;
+        if (!TryGetSteamAppId(game, out var steamAppId))
+        {
+            settingsFiles = [];
+            return false;
+        }
+
         string gameDirectory;
         if (string.Equals(game.Name, DirtRally.GameName, StringComparison.Ordinal))
         {
-            steamAppId = DirtRally.SteamAppId;
             gameDirectory = "DiRT Rally";
         }
         else if (string.Equals(game.Name, DirtRally2.GameName, StringComparison.Ordinal))
         {
-            steamAppId = DirtRally2.SteamAppId;
             gameDirectory = "DiRT Rally 2.0";
         }
         else
@@ -159,6 +169,18 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
             })
             .ToList();
         return true;
+    }
+
+    private static bool TryGetSteamAppId(IGame game, out uint steamAppId)
+    {
+        if (game is ISteamGameIdentity steamGame)
+        {
+            steamAppId = steamGame.SteamApplicationId;
+            return true;
+        }
+
+        steamAppId = 0;
+        return false;
     }
 
     private static List<string> SelectActiveSettingsFiles(
