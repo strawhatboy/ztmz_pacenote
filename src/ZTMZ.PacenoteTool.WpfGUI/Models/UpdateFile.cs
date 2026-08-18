@@ -1,47 +1,22 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Core;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.Models;
 
 
-public class UpdateFile
+public class UpdateFile : ApplicationUpdateDefinition
 {
-    public string version { set; get; } = string.Empty;
-    public string url { set; get; } = string.Empty;
-    public bool urlRedirected { set; get; } = false;
-    // Kept for older clients and as the fallback when a culture has no dedicated notes.
-    public string changelog { set; get; } = string.Empty;
-    public Dictionary<string, string>? changelogs { set; get; }
-    public string minVersionSupported { set; get; } = string.Empty;
-
-    public string ResolveChangelogUrl(string? cultureName)
+    public static UpdateFile FromDefinition(ApplicationUpdateDefinition definition)
     {
-        if (changelogs == null || changelogs.Count == 0 || string.IsNullOrWhiteSpace(cultureName))
+        return new UpdateFile
         {
-            return changelog;
-        }
-
-        var requestedCulture = cultureName.Trim().Replace('_', '-');
-        var exactMatch = changelogs.FirstOrDefault(entry =>
-            string.Equals(entry.Key, requestedCulture, StringComparison.OrdinalIgnoreCase));
-        if (!string.IsNullOrWhiteSpace(exactMatch.Value))
-        {
-            return exactMatch.Value;
-        }
-
-        var requestedLanguage = GetLanguageCode(requestedCulture);
-        var languageMatch = changelogs.FirstOrDefault(entry =>
-            string.Equals(GetLanguageCode(entry.Key), requestedLanguage, StringComparison.OrdinalIgnoreCase));
-
-        return string.IsNullOrWhiteSpace(languageMatch.Value) ? changelog : languageMatch.Value;
-    }
-
-    private static string GetLanguageCode(string cultureName)
-    {
-        var separatorIndex = cultureName.IndexOf('-');
-        return separatorIndex < 0 ? cultureName : cultureName[..separatorIndex];
+            version = definition.version,
+            url = definition.url,
+            urlRedirected = definition.urlRedirected,
+            changelog = definition.changelog,
+            changelogs = definition.changelogs,
+            minVersionSupported = definition.minVersionSupported
+        };
     }
 }
 

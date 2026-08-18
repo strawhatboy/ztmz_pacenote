@@ -121,6 +121,15 @@ Already shared outside `WpfGUI`:
 
 - runtime startup, resource provisioning, game catalogs, profiles, co-drivers,
   prerequisites, and ordered status reporting;
+- runtime controls for co-driver selection, mute, example playback, and Web
+  Dashboard enablement, behind a host-supplied dashboard controller;
+- runtime support-diagnostics collection for game prerequisites, UDP readers,
+  local bridges, audio, and Web Dashboard state;
+- versioned configuration migrations, with the application version and data
+  paths supplied by the host;
+- application update-definition retrieval, stable/Beta channel selection,
+  version filtering, skipped-version handling, and localized changelog lookup;
+- data-folder planning, free-space checks, copying, verification, and deletion;
 - game activity contracts and telemetry-reader lifecycle;
 - pacenote definitions, configuration models, replay data, and game contracts;
 - audio decoding, mixing, sequencing, device contracts, and playback state;
@@ -128,17 +137,12 @@ Already shared outside `WpfGUI`:
 
 Good extraction candidates still located in `WpfGUI`:
 
-- update metadata/download logic, separated from WPF prompts, shutdown, and
+- update download execution, separated from WPF prompts, shutdown, and
   executable replacement;
-- update configuration migrations, with the application version supplied by
-  the host instead of `UpdateService`;
-- support-diagnostics collection, separated from the Windows overlay manager;
-- co-driver selection, mute, example playback, and Web Dashboard controls in
-  `RuntimeControlsService`, separated from native HUD controls and telemetry;
 - replay queries and package-management operations currently invoked by view
   models;
-- data-folder migration request parsing and file operations, separated from
-  the Windows `.exe` restart implementation.
+- co-driver package download, import, export, and update operations currently
+  invoked directly by WPF view models.
 
 Must remain host-specific:
 
@@ -146,6 +150,8 @@ Must remain host-specific:
   WPF-UI dialogs;
 - WebView2, Windows file/folder dialogs, registry, tray integration, and system
   notifications;
+- update confirmation/download progress UI, application shutdown, executable
+  replacement, and data-folder migration process relaunch/progress windows;
 - native overlay, window attachment, replay window capture, and other Win32
   integrations.
 

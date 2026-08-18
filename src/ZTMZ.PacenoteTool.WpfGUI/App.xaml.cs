@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.IO;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -98,18 +99,26 @@ public partial class App : Application
 
             services.AddSingleton<IContentDialogService, ContentDialogService>();
 
+            services.AddSingleton<HttpClient>();
+            services.AddSingleton<ApplicationUpdateQueryService>();
             services.AddSingleton<UpdateService>();
             services.AddSingleton<StartupService>();
             services.AddSingleton<GameOverlayManager>();
+            services.AddSingleton<IRuntimeDashboardController, GameOverlayDashboardController>();
+            services.AddSingleton<SharedRuntimeControlsService>();
             services.AddSingleton<VRGameOverlayManager>();
             services.AddSingleton<AzureAppInsightsManager>();
             services.AddSingleton<IAudioOutputDeviceEnumerator, WasapiAudioOutputDeviceEnumerator>();
             services.AddSingleton<IAudioPlaybackEngineFactory, WasapiAudioPlaybackEngineFactory>();
+            services.AddSingleton<RuntimeDiagnosticsService>();
             services.AddSingleton<SupportDiagnosticsService>();
             services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>(provider =>
                 new ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool(
                     provider.GetRequiredService<IAudioOutputDeviceEnumerator>(),
                     provider.GetRequiredService<IAudioPlaybackEngineFactory>()));
+            services.AddSingleton(provider => new UpdateConfigurationMigrationService(
+                new Version(UpdateService.CurrentVersion),
+                provider.GetRequiredService<IApplicationPaths>()));
             services.AddSingleton<UpdateConfigSetter>();
             services.AddSingleton<RuntimeControlsService>();
             services.AddSingleton<SystemNotificationService>();

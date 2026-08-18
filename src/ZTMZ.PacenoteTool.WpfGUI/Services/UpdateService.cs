@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -19,9 +18,13 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Services;
 public class UpdateService {
 
     private readonly IContentDialogService _contentDialogService;
+    private readonly ApplicationUpdateQueryService _updateQuery;
 
-    public UpdateService(IContentDialogService contentDialogService) {
+    public UpdateService(
+        IContentDialogService contentDialogService,
+        ApplicationUpdateQueryService updateQuery) {
         _contentDialogService = contentDialogService;
+        _updateQuery = updateQuery;
     }
 
     string updateURL = Config.Instance.UpdateDefinitionUrl;
@@ -33,7 +36,7 @@ public class UpdateService {
 
     public static string CurrentVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
-    public UpdateFile UpdateFile { private set; get; }
+    public UpdateFile? UpdateFile { private set; get; }
 
     public async Task<UpdateFile?> CheckUpdate()
     {
@@ -48,19 +51,19 @@ public class UpdateService {
 
     public async Task<UpdateFile?> CheckForUpdate()
     {
-        var updateFile = await CheckUpdateDefinition(updateURL);
-        if (updateFile != null)
-        {
-            return updateFile;
-        }
-
-        if (Config.Instance.OptInBetaPlan || ToolUtils.GetToolVersion() == ToolVersion.TEST)
-        {
-            // When there is no stable update, beta users and test builds also check the beta channel.
-            return await CheckUpdateDefinition(betaUpdateURL);
-        }
-
-        return null;
+        var skippedVersion = Version.TryParse(Config.Instance.SkippedVersion, out var skipped)
+            ? skipped
+            : null;
+        var definition = await _updateQuery.FindUpdateAsync(
+            new ApplicationUpdateQueryOptions(
+                updateURL,
+                betaUpdateURL,
+                new Version(CurrentVersion),
+                skippedVersion,
+                Config.Instance.OptInBetaPlan || ToolUtils.GetToolVersion() == ToolVersion.TEST));
+        var updateFile = definition == null ? null : UpdateFile.FromDefinition(definition);
+        UpdateFile = updateFile;
+        return updateFile;
     }
 
     public async Task<List<CodriverPackageUpdateFile>> CheckCodriverPackagesUpdate(List<CoDriverPackageInfo> packages) {
@@ -117,49 +120,6 @@ public class UpdateService {
 
         await Update(updateFile);
         return true;
-    }
-
-    private async Task<UpdateFile?> CheckUpdateDefinition(string url)
-    {
-        using (HttpClient w = new HttpClient())
-        {
-            var json = await w.GetStringAsync(url);
-            if (json == null)
-            {
-                return null;
-            }
-
-            var versionFile = JsonConvert.DeserializeObject<UpdateFile>(json);
-            if (versionFile == null)
-            {
-                return null;
-            }
-
-            this.UpdateFile = versionFile;
-            // compare version
-            var newVersion = new Version(versionFile.version);
-            var skippedVersion = new Version(Config.Instance.SkippedVersion);
-            var minVersionSupported = new Version(versionFile.minVersionSupported);
-            var myVersion = new Version(CurrentVersion);
-
-            if (newVersion.Equals(skippedVersion))
-            {
-                // this version is set to be skipped.
-                return null;
-            }
-
-            if (myVersion.CompareTo(minVersionSupported) < 0)
-            {
-                return null;
-            }
-
-            if (myVersion.CompareTo(newVersion) < 0)
-            {
-                return versionFile;
-            }
-
-            return null;
-        }
     }
 
     public async Task Update(UpdateFile f)

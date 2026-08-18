@@ -18,6 +18,7 @@ v2.99.99.46-3.0-rc18
 * Adds an x86_64 AppImage packaging flow for SteamOS, bundling the official pacenote database, localization, Web Dashboard, fonts, pacenote icons, default profile, and default co-driver package; mutable default resources are provisioned into the user data directory on first launch.
 * Makes Linux game detection activate the same complete game session used by Windows, including profile and co-driver selection, pacenote processing, PortAudio playback, and Web Dashboard state publication, with reliable release when games exit or change.
 * Fixes native Feral Interactive DiRT Rally installations being reported as not installed on Linux; ZTMZ now recognizes the Steam manifest and native configuration path and accurately reports when UDP telemetry still needs to be enabled.
+* Continues the shared Runtime foundation for an Avalonia/SteamOS UI: update checks and configuration migrations, co-driver selection, mute and example playback, Web Dashboard control, and support diagnostics are now reusable across platforms, while the native HUD, update dialogs, and installer replacement remain Windows Host responsibilities.
 
 v2.99.99.45-3.0-rc17
 

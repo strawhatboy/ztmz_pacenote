@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
+using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;

@@ -19,6 +19,7 @@ v2.99.99.46-3.0-rc18
 * Adds an x86_64 AppImage packaging flow for SteamOS, bundling the official pacenote database, localization, Web Dashboard, fonts, pacenote icons, default profile, and default co-driver package; mutable default resources are provisioned into the user data directory on first launch.
 * Makes Linux game detection activate the same complete game session used by Windows, including profile and co-driver selection, pacenote processing, PortAudio playback, and Web Dashboard state publication, with reliable release when games exit or change.
 * Fixes native Feral Interactive DiRT Rally installations being reported as not installed on Linux; ZTMZ now recognizes the Steam manifest and native configuration path and accurately reports when UDP telemetry still needs to be enabled.
+* Continues the shared Runtime foundation for an Avalonia/SteamOS UI: update checks and configuration migrations, co-driver selection, mute and example playback, Web Dashboard control, and support diagnostics are now reusable across platforms, while the native HUD, update dialogs, and installer replacement remain Windows Host responsibilities.
 
 [简体中文]
 * 路书编辑器新增主窗口内打印弹层，提供准确且实时刷新的 PDF 分页预览、实体打印机与 PDF 输出、纸张、方向、页边距、可配置格式与位置的页码、页码范围和份数设置；打印会保留背景色，并移除浏览器生成的文件路径页眉页脚。
@@ -39,6 +40,7 @@ v2.99.99.46-3.0-rc18
 * 新增面向 SteamOS 的 x86_64 AppImage 打包流程，完整携带官方路书数据库、多语言、网页仪表盘、字体、路书图标、默认 profile 和默认领航员语音包；首次启动时会将可修改的默认资源部署到用户数据目录。
 * Linux 游戏检测现在会建立与 Windows 共用的完整游戏会话，统一完成 profile 与领航员选择、路书处理、PortAudio 播放和网页仪表盘状态发布，并在游戏退出或切换时可靠释放整个会话。
 * 修复原生 Linux 版 DiRT Rally 使用 Feral Interactive 数据目录时被误报为“游戏未安装”的问题；现在能够识别 Steam 安装清单和原生配置路径，并准确提示尚未开启 UDP 遥测。
+* 继续为 Avalonia/SteamOS 界面统一共享 Runtime：更新检查与版本配置迁移、领航员选择、静音与试听、网页仪表盘控制以及支持诊断现在均可跨平台复用；Windows 原生 HUD、更新弹窗和安装程序替换仍由 Windows Host 负责。
 
 v2.99.99.45-3.0-rc17
 ------
