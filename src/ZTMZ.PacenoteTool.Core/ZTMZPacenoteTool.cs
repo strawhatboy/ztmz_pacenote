@@ -19,10 +19,13 @@ public sealed record ZtmzPacenoteToolInitializationOptions(
     bool EnableObsIntegration = true,
     bool EnableReplayIntegration = true);
 
-public class ZTMZPacenoteTool : IDisposable {
+public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
     private readonly IAudioOutputDeviceEnumerator _audioOutputDeviceEnumerator;
     private readonly IAudioPlaybackEngineFactory _audioPlaybackEngineFactory;
     private readonly ZtmzRuntime _runtime;
+    private readonly object _audioDeviceSync = new();
+    private CancellationTokenSource _audioDeviceMonitorCancellation;
+    private Task _audioDeviceMonitorTask;
     
     private ProfileManager _profileManager;
     private ProcessWatcher _processWatcher;
@@ -64,6 +67,8 @@ public class ZTMZPacenoteTool : IDisposable {
     public event Action onToolInitialized;
 
     public event Action onCodriversRefreshed;
+
+    public event Action onOutputDevicesChanged;
 
     public event Action<IGame> onGameInitialized;
     public event Action<IGame> onGameUninitialized;
@@ -178,6 +183,7 @@ public class ZTMZPacenoteTool : IDisposable {
         }
 
         this.IsInitialized = true;
+        StartAudioOutputDeviceMonitor();
         onToolInitialized?.Invoke();
         return state;
     }
@@ -1330,20 +1336,215 @@ public class ZTMZPacenoteTool : IDisposable {
     }
 
     public void SetOutputDevice(int outputDeviceIndex) {
-        if (this.OutputDevices.Count == 0)
+        lock (_audioDeviceSync)
         {
-            _logger.Warn("No audio output devices are available for selection.");
+            if (this.OutputDevices.Count == 0)
+            {
+                _logger.Warn("No audio output devices are available for selection.");
+                return;
+            }
+
+            var resolvedIndex = outputDeviceIndex < this.OutputDevices.Count && outputDeviceIndex >= 0
+                ? outputDeviceIndex
+                : 0;
+            var device = this.OutputDevices[resolvedIndex];
+
+            Config.Instance.UI_SelectedPlaybackDevice = resolvedIndex;
+            Config.Instance.UI_SelectedPlaybackDeviceId = device.Id;
+            this._profileManager.SetCurrentPlayDevice(device, resolvedIndex);
+        }
+    }
+
+    private void StartAudioOutputDeviceMonitor()
+    {
+        if (_audioOutputDeviceEnumerator is not IAudioOutputDeviceChangeDetector detector ||
+            _audioDeviceMonitorTask != null)
+        {
             return;
         }
 
-        var resolvedIndex = outputDeviceIndex < this.OutputDevices.Count && outputDeviceIndex >= 0
-            ? outputDeviceIndex
-            : 0;
-        var device = this.OutputDevices[resolvedIndex];
+        _audioDeviceMonitorCancellation = new CancellationTokenSource();
+        _audioDeviceMonitorTask = Task.Run(
+            () => MonitorAudioOutputDevicesAsync(
+                detector,
+                _audioDeviceMonitorCancellation.Token));
+    }
 
-        Config.Instance.UI_SelectedPlaybackDevice = resolvedIndex;
-        Config.Instance.UI_SelectedPlaybackDeviceId = device.Id;
-        this._profileManager.SetCurrentPlayDevice(device, resolvedIndex);
+    private async Task MonitorAudioOutputDevicesAsync(
+        IAudioOutputDeviceChangeDetector detector,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var fingerprint = await detector.GetDeviceChangeFingerprintAsync(
+                cancellationToken).ConfigureAwait(false);
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(3));
+            while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false))
+            {
+                var nextFingerprint = await detector.GetDeviceChangeFingerprintAsync(
+                    cancellationToken).ConfigureAwait(false);
+                if (string.Equals(fingerprint, nextFingerprint, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (RefreshAudioOutputDevices(
+                        detector.RequiresPlaybackStopBeforeRefresh))
+                {
+                    fingerprint = nextFingerprint;
+                }
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+        }
+        catch (Exception exception)
+        {
+            _logger.Error(exception, "Audio output device monitoring stopped unexpectedly.");
+        }
+    }
+
+    private bool RefreshAudioOutputDevices(bool stopPlaybackBeforeRefresh)
+    {
+        lock (_audioDeviceSync)
+        {
+            if (_disposed || _profileManager == null)
+            {
+                return false;
+            }
+
+            var previousDevice = _profileManager.CurrentPlayDevice;
+            if (stopPlaybackBeforeRefresh)
+            {
+                _profileManager.StopCurrentAudioOutput();
+            }
+
+            IReadOnlyList<AudioOutputDeviceInfo> refreshedDevices;
+            try
+            {
+                refreshedDevices = _audioOutputDeviceEnumerator
+                    .EnumerateActiveRenderDevices();
+            }
+            catch (Exception exception)
+            {
+                _logger.Error(exception, "Failed to refresh audio output devices.");
+                TryRestoreAudioOutput(previousDevice);
+                return false;
+            }
+
+            var previousFingerprint = AudioOutputDeviceFingerprint.Create(_outputDevices);
+            _outputDevices = refreshedDevices.ToList();
+            var selectedIndex = FindRefreshedOutputDeviceIndex(
+                _outputDevices,
+                previousDevice);
+            if (selectedIndex < 0)
+            {
+                Config.Instance.UI_SelectedPlaybackDevice = -1;
+                Config.Instance.UI_SelectedPlaybackDeviceId = string.Empty;
+                if (!stopPlaybackBeforeRefresh)
+                {
+                    _profileManager.StopCurrentAudioOutput();
+                }
+            }
+            else
+            {
+                var selectedDevice = _outputDevices[selectedIndex];
+                var mustRecreatePlayer = stopPlaybackBeforeRefresh ||
+                                         _profileManager.Player == null ||
+                                         previousDevice == null ||
+                                         !string.Equals(
+                                             previousDevice.Id,
+                                             selectedDevice.Id,
+                                             StringComparison.Ordinal);
+                Config.Instance.UI_SelectedPlaybackDevice = selectedIndex;
+                Config.Instance.UI_SelectedPlaybackDeviceId = selectedDevice.Id;
+                if (mustRecreatePlayer)
+                {
+                    try
+                    {
+                        _profileManager.SetCurrentPlayDevice(selectedDevice, selectedIndex);
+                    }
+                    catch (Exception exception)
+                    {
+                        _logger.Error(
+                            exception,
+                            "Failed to switch to refreshed audio output {0}.",
+                            selectedDevice.Name);
+                        onOutputDevicesChanged?.Invoke();
+                        return false;
+                    }
+                }
+            }
+
+            try
+            {
+                Config.Instance.SaveUserConfig();
+            }
+            catch (Exception exception)
+            {
+                _logger.Warn(exception, "Failed to persist refreshed audio output selection.");
+            }
+
+            var nextFingerprint = AudioOutputDeviceFingerprint.Create(_outputDevices);
+            if (!string.Equals(previousFingerprint, nextFingerprint, StringComparison.Ordinal) ||
+                stopPlaybackBeforeRefresh)
+            {
+                onOutputDevicesChanged?.Invoke();
+            }
+
+            return true;
+        }
+    }
+
+    internal static int FindRefreshedOutputDeviceIndex(
+        IReadOnlyList<AudioOutputDeviceInfo> devices,
+        AudioOutputDeviceInfo previousDevice)
+    {
+        if (devices.Count == 0)
+        {
+            return -1;
+        }
+
+        var selectedIndex = previousDevice == null
+            ? -1
+            : devices.ToList().FindIndex(device =>
+                string.Equals(device.Id, previousDevice.Id, StringComparison.Ordinal));
+        if (selectedIndex < 0 && previousDevice != null)
+        {
+            selectedIndex = devices.ToList().FindIndex(device =>
+                string.Equals(
+                    device.Name,
+                    previousDevice.Name,
+                    StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (selectedIndex < 0)
+        {
+            selectedIndex = devices.ToList().FindIndex(device => device.IsDefault);
+        }
+
+        return selectedIndex >= 0 ? selectedIndex : 0;
+    }
+
+    private void TryRestoreAudioOutput(AudioOutputDeviceInfo previousDevice)
+    {
+        if (previousDevice == null || _profileManager.Player != null)
+        {
+            return;
+        }
+
+        var previousIndex = _outputDevices.FindIndex(device =>
+            string.Equals(device.Id, previousDevice.Id, StringComparison.Ordinal));
+        try
+        {
+            _profileManager.SetCurrentPlayDevice(
+                previousDevice,
+                previousIndex >= 0 ? previousIndex : 0);
+        }
+        catch (Exception exception)
+        {
+            _logger.Error(exception, "Failed to restore the previous audio output.");
+        }
     }
 
     public bool TrySetCodriver(string selectionIdentity)
@@ -1373,6 +1574,7 @@ public class ZTMZPacenoteTool : IDisposable {
             ? codriverIndex
             : 0;
         this._profileManager.CurrentCoDriverSoundPackagePath = this.CoDriverPackages[selectedIndex].Info.Path;
+        this._profileManager.PrepareExampleAudio();
     }
 
     public void SetPlayBackSpeed(float speed) {
@@ -1412,9 +1614,18 @@ public class ZTMZPacenoteTool : IDisposable {
         }
 
         _disposed = true;
+        _audioDeviceMonitorCancellation?.Cancel();
+        try
+        {
+            _audioDeviceMonitorTask?.GetAwaiter().GetResult();
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        _audioDeviceMonitorCancellation?.Dispose();
         DeactivateCurrentGame();
         _processWatcher?.Dispose();
-        _profileManager?.Player?.Dispose();
+        _profileManager?.StopCurrentAudioOutput();
         GC.SuppressFinalize(this);
     }
 }

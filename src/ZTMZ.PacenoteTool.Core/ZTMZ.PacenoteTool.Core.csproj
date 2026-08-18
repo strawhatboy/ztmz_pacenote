@@ -9,4 +9,8 @@
   <ItemGroup>
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ZTMZ.PacenoteTool.Portable.Tests" />
+  </ItemGroup>
 </Project>

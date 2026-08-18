@@ -1,18 +1,22 @@
-using System;
-using System.Runtime.Versioning;
 using Microsoft.Win32;
 using ZTMZ.PacenoteTool.Base;
 
-namespace ZTMZ.PacenoteTool.WpfGUI.Services;
+namespace ZTMZ.PacenoteTool.Platform.Windows;
 
-[SupportedOSPlatform("windows")]
-internal sealed class WindowsRegistryConfigurationLocation : IConfigurationLocation
+public sealed class WindowsRegistryConfigurationLocation : IConfigurationLocation
 {
     private const string AppRegistryPath = @"Software\ZTMZ Next Generation Pacenote Tool";
     private const string AppConfigFolderRegistryValueName = "ZTMZHome";
 
     public string? GetConfiguredDataRoot()
     {
+        var environmentPath = Environment.GetEnvironmentVariable(
+            EnvironmentConfigurationLocation.DataHomeEnvironmentVariable);
+        if (!string.IsNullOrWhiteSpace(environmentPath))
+        {
+            return environmentPath;
+        }
+
         using var key = Registry.CurrentUser.OpenSubKey(AppRegistryPath);
         return key?.GetValue(AppConfigFolderRegistryValueName) as string;
     }
@@ -22,7 +26,8 @@ internal sealed class WindowsRegistryConfigurationLocation : IConfigurationLocat
         using var key = Registry.CurrentUser.CreateSubKey(AppRegistryPath);
         if (key == null)
         {
-            throw new InvalidOperationException("The application registry key could not be opened.");
+            throw new InvalidOperationException(
+                "The application registry key could not be opened.");
         }
 
         key.SetValue(AppConfigFolderRegistryValueName, path, RegistryValueKind.String);

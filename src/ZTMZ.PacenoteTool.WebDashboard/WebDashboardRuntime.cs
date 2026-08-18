@@ -42,6 +42,14 @@ public sealed class WebDashboardRuntime : IDisposable
 
     public int ClientCount => _server?.ClientCount ?? 0;
 
+    public void SetTargetFrameRate(int frameRate)
+    {
+        _targetFrameRate = Math.Clamp(
+            frameRate,
+            Config.WebDashboardFrameRateMinimum,
+            Config.WebDashboardFrameRateMaximum);
+    }
+
     public void Start(WebDashboardRuntimeOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -58,10 +66,7 @@ public sealed class WebDashboardRuntime : IDisposable
         server.Initialize(_dashboards, options.DashboardPackagesPath, options.StaticAssetsRoot);
         server.Start();
         _server = server;
-        _targetFrameRate = Math.Clamp(
-            options.FrameRate,
-            Config.WebDashboardFrameRateMinimum,
-            Config.WebDashboardFrameRateMaximum);
+        SetTargetFrameRate(options.FrameRate);
         _frameCount = 0;
         _lastFrameUtc = null;
         Status = new WebDashboardServerStatus(

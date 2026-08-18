@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -403,6 +404,58 @@ public sealed class LinuxProcGameProcessSnapshotProvider : IGameProcessSnapshotP
             if (separator > 0)
             {
                 result[entry[..separator]] = entry[(separator + 1)..];
+            }
+        }
+
+        return result;
+    }
+}
+
+public sealed class SystemGameProcessSnapshotProvider : IGameProcessSnapshotProvider
+{
+    public IReadOnlyList<GameProcessSnapshot> Capture()
+    {
+        var result = new List<GameProcessSnapshot>();
+        foreach (var process in Process.GetProcesses())
+        {
+            using (process)
+            {
+                try
+                {
+                    var arguments = new List<string>();
+                    try
+                    {
+                        var executablePath = process.MainModule?.FileName;
+                        if (!string.IsNullOrWhiteSpace(executablePath))
+                        {
+                            arguments.Add(executablePath);
+                        }
+                    }
+                    catch (InvalidOperationException)
+                    {
+                    }
+                    catch (System.ComponentModel.Win32Exception)
+                    {
+                    }
+                    catch (NotSupportedException)
+                    {
+                    }
+
+                    result.Add(new GameProcessSnapshot(
+                        process.Id,
+                        process.ProcessName,
+                        arguments,
+                        new Dictionary<string, string>()));
+                }
+                catch (InvalidOperationException)
+                {
+                }
+                catch (System.ComponentModel.Win32Exception)
+                {
+                }
+                catch (NotSupportedException)
+                {
+                }
             }
         }
 

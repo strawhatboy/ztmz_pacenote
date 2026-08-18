@@ -17,4 +17,8 @@
     <PackageReference Include="PortAudioSharp2" Version="1.0.6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="ZTMZ.PacenoteTool.Portable.Tests" />
+  </ItemGroup>
+
 </Project>

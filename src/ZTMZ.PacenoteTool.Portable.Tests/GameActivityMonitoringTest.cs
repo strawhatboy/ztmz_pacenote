@@ -1,5 +1,6 @@
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Codemasters;
+using ZTMZ.PacenoteTool.Core;
 using Xunit;
 
 namespace ZTMZ.PacenoteTool.Portable.Tests;
@@ -54,6 +55,16 @@ public sealed class GameActivityMonitoringTest
     }
 
     [Fact]
+    public void SystemSnapshotIncludesCurrentProcess()
+    {
+        var currentProcessId = Environment.ProcessId;
+
+        var snapshots = new SystemGameProcessSnapshotProvider().Capture();
+
+        Assert.Contains(snapshots, process => process.ProcessId == currentProcessId);
+    }
+
+    [Fact]
     public async Task PollingMonitorDetectsAlreadyRunningGameAndItsExit()
     {
         var game = new DirtRally();
@@ -76,6 +87,36 @@ public sealed class GameActivityMonitoringTest
 
         snapshots.Processes = [];
         Assert.Same(game, (await stopped.Task.WaitAsync(TimeSpan.FromSeconds(2))).Game);
+    }
+
+    [Fact]
+    public async Task SessionCoordinatorActivatesInitialGameAndFallsBackWhenCurrentGameStops()
+    {
+        var firstGame = new DirtRally();
+        var secondGame = new DirtRally2();
+        var monitor = new TestGameActivityMonitor(firstGame);
+        var sessions = new TestGameSessionActivator();
+        await using var coordinator = new GameActivitySessionCoordinator(
+            monitor,
+            sessions,
+            [firstGame, secondGame]);
+
+        coordinator.Start();
+
+        Assert.Same(firstGame, sessions.CurrentGame);
+        Assert.True(firstGame.IsRunning);
+
+        monitor.RaiseStarted(secondGame);
+        Assert.Same(secondGame, sessions.CurrentGame);
+
+        monitor.RaiseStopped(secondGame);
+        Assert.Same(firstGame, sessions.CurrentGame);
+        Assert.True(firstGame.IsRunning);
+        Assert.False(secondGame.IsRunning);
+
+        await coordinator.StopAsync();
+        Assert.Null(sessions.CurrentGame);
+        Assert.False(firstGame.IsRunning);
     }
 
     private static GameProcessSnapshot Snapshot(
@@ -102,5 +143,61 @@ public sealed class GameActivityMonitoringTest
         }
 
         public IReadOnlyList<GameProcessSnapshot> Capture() => Processes;
+    }
+
+    private sealed class TestGameActivityMonitor : IGameActivityMonitor
+    {
+        private readonly List<GameActivity> _activeGames = [];
+        private readonly IGame? _initialGame;
+
+        public TestGameActivityMonitor(IGame? initialGame = null)
+        {
+            _initialGame = initialGame;
+        }
+
+        public event Action<GameActivity>? GameStarted;
+        public event Action<GameActivity>? GameStopped;
+
+        public IReadOnlyCollection<GameActivity> ActiveGames => _activeGames;
+
+        public void Start(IReadOnlyList<IGame> games)
+        {
+            if (_initialGame != null)
+            {
+                RaiseStarted(_initialGame);
+            }
+        }
+
+        public Task StopAsync() => Task.CompletedTask;
+
+        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+
+        public void RaiseStarted(IGame game)
+        {
+            var activity = new GameActivity(game, _activeGames.Count + 1, game.Executable);
+            _activeGames.Add(activity);
+            GameStarted?.Invoke(activity);
+        }
+
+        public void RaiseStopped(IGame game)
+        {
+            var activity = _activeGames.Single(candidate =>
+                ReferenceEquals(candidate.Game, game));
+            _activeGames.Remove(activity);
+            GameStopped?.Invoke(activity);
+        }
+    }
+
+    private sealed class TestGameSessionActivator : IGameSessionActivator
+    {
+        public IGame? CurrentGame { get; private set; }
+
+        public bool ActivateGame(IGame game)
+        {
+            CurrentGame = game;
+            return true;
+        }
+
+        public void DeactivateCurrentGame() => CurrentGame = null;
     }
 }

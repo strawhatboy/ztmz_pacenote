@@ -63,7 +63,7 @@ Linux release. Each is a separate platform integration.
 
 | Area | Current Windows dependency | Cross-platform direction |
 | --- | --- | --- |
-| Main UI | WPF, WPF-UI, WinForms, `net10.0-windows` | Browser-based control UI first; optional Avalonia host later |
+| Main UI | WPF, WPF-UI, WinForms, `net10.0-windows` | Avalonia 12 desktop host with FluentAvalonia; browser remains the dashboard renderer |
 | Audio output | NAudio WASAPI | WASAPI remains on Windows; PortAudio is implemented for Linux |
 | Audio decoding and resampling | NAudio `AudioFileReader` and Media Foundation | `IAudioFileDecoder`, libsndfile, FFmpeg fallback, and managed WDL resampling on Linux |
 | Native overlay | GameOverlay.Net, SharpDX, Direct2D, `user32.dll`, HWND attachment | Keep as a Windows feature; research a Gamescope-specific host separately |
@@ -146,6 +146,17 @@ The scoped extraction inventory above is now complete. Avalonia still needs
 platform views that consume these services, but those views should not require
 a second implementation of the underlying update, replay, diagnostics,
 co-driver, or data-migration workflows.
+
+The first `net10.0` Avalonia desktop host now builds with Avalonia `12.1.1` and
+FluentAvalonia `3.0.2`. Its initial runtime view consumes the shared startup
+status, game-session state, co-driver selection and example playback, mute
+state, and Web Dashboard controls. A shared Web Dashboard controller owns the
+server and telemetry bridge lifecycle, while a shared game-activity session
+coordinator preserves initial detection, automatic activation, fallback, and
+release behavior across the CLI and desktop hosts. Native Arch rendering and
+interaction validation, localization, and the remaining settings views are
+still pending. The AppImage build now publishes this desktop host as its primary
+entry point while retaining the separate CLI project for diagnostics.
 
 Must remain host-specific:
 
@@ -444,13 +455,17 @@ candidate.
 ### Phase 2: useful Steam Deck MVP
 
 - [x] Extract and host the Web Dashboard on Linux.
-- Add a browser-based control UI for game, profile, co-driver, audio device,
-  dashboard, and diagnostics selection.
+- [x] Establish an Avalonia 12 + FluentAvalonia desktop host backed by the
+  shared Runtime, game monitor, co-driver controls, and Web Dashboard lifecycle.
+- Complete the Avalonia views for game, profile, co-driver, audio device,
+  dashboard, and diagnostics selection, including localization.
+- Publish the Avalonia host as the AppImage desktop entry point and validate it
+  under the Arch VM and SteamOS Desktop Mode.
 - Support the Tier 1 UDP games.
 - Provide SteamOS path discovery and a distributable Linux package.
 
 This phase is the first public Steam Deck candidate. It does not wait for an
-Avalonia rewrite or an in-game Gamescope overlay.
+in-game Gamescope overlay.
 
 ### Phase 3: Proton relays
 
@@ -459,12 +474,11 @@ Avalonia rewrite or an in-game Gamescope overlay.
 - Add RBR relay capabilities incrementally.
 - Surface relay version, connection, and capability diagnostics in the UI.
 
-### Phase 4: optional native desktop shell
+### Phase 4: desktop feature completion
 
-- Add Avalonia if a native settings/editor experience provides enough benefit
-  beyond the web control UI.
-- Reuse view models and platform services, but do not attempt to compile WPF
-  XAML unchanged.
+- Add the remaining replay, package management, update, and diagnostics views
+  to Avalonia by consuming the shared services rather than porting WPF view
+  models or XAML unchanged.
 - Keep Monaco browser-hosted unless a reliable Linux embedded-webview solution
   is selected.
 

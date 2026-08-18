@@ -129,20 +129,46 @@ public sealed class ZtmzRuntime
             return;
         }
 
-        var configuredIndex = devices.ToList().FindIndex(device =>
-            string.Equals(
-                device.Id,
-                Config.Instance.UI_SelectedPlaybackDeviceId,
-                StringComparison.OrdinalIgnoreCase));
-        if (configuredIndex < 0)
-        {
-            configuredIndex = Math.Clamp(
-                Config.Instance.UI_SelectedPlaybackDevice,
-                0,
-                devices.Count - 1);
-        }
+        var configuredIndex = ResolveConfiguredOutputDeviceIndex(
+            devices,
+            Config.Instance.UI_SelectedPlaybackDeviceId,
+            Config.Instance.UI_SelectedPlaybackDevice);
 
         Config.Instance.UI_SelectedPlaybackDevice = configuredIndex;
         Config.Instance.UI_SelectedPlaybackDeviceId = devices[configuredIndex].Id;
+    }
+
+    internal static int ResolveConfiguredOutputDeviceIndex(
+        IReadOnlyList<AudioOutputDeviceInfo> devices,
+        string configuredDeviceId,
+        int legacyConfiguredIndex)
+    {
+        ArgumentNullException.ThrowIfNull(devices);
+        if (devices.Count == 0)
+        {
+            return -1;
+        }
+
+        var configuredIndex = devices.ToList().FindIndex(device =>
+            string.Equals(
+                device.Id,
+                configuredDeviceId,
+                StringComparison.OrdinalIgnoreCase));
+        if (configuredIndex < 0)
+        {
+            configuredIndex = string.IsNullOrWhiteSpace(configuredDeviceId)
+                ? Math.Clamp(
+                    legacyConfiguredIndex,
+                    0,
+                    devices.Count - 1)
+                : devices.ToList().FindIndex(device => device.IsDefault);
+
+            if (configuredIndex < 0)
+            {
+                configuredIndex = 0;
+            }
+        }
+
+        return configuredIndex;
     }
 }

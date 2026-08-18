@@ -1,0 +1,129 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework Condition="'$(OS)' == 'Windows_NT'">net10.0-windows</TargetFramework>
+    <TargetFramework Condition="'$(OS)' != 'Windows_NT'">net10.0</TargetFramework>
+    <AssemblyName>com.ztmz.PacenoteTool</AssemblyName>
+    <AssemblyVersion>2.99.99.45</AssemblyVersion>
+    <PackageVersion>2.99.99.45</PackageVersion>
+    <Version>2.99.99.45</Version>
+    <FileVersion>2.99.99.45</FileVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Wayland" Version="12.1.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="FluentAvaloniaUI" Version="3.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.Platform.Windows\ZTMZ.PacenoteTool.Platform.Windows.csproj"
+                      Condition="'$(OS)' == 'Windows_NT'" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj"
+                      AdditionalProperties="ExcludeSevenZipAssemblies=true" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.Audio.PortAudio\ZTMZ.PacenoteTool.Audio.PortAudio.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.Core\ZTMZ.PacenoteTool.Core.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.WebDashboard\ZTMZ.PacenoteTool.WebDashboard.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.Codemasters\ZTMZ.PacenoteTool.Codemasters.csproj"
+                      ReferenceOutputAssembly="false"
+                      AdditionalProperties="TargetFramework=net10.0" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.BeamNG\ZTMZ.PacenoteTool.BeamNG.csproj"
+                      Condition="'$(OS)' == 'Windows_NT'"
+                      ReferenceOutputAssembly="false"
+                      AdditionalProperties="TargetFramework=net10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="lang\*.json">
+      <Link>resources\lang\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\ZTMZ.PacenoteTool.WpfGUI\Assets\app.png">
+      <Link>Assets\app.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\ZTMZ.PacenoteTool.WpfGUI\Assets\ztmz_ngptool_3.0_help.png">
+      <Link>Assets\ztmz_ngptool_3.0_help.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\ZTMZ.PacenoteTool.Codemasters\dirtrally.jpg">
+      <Link>Assets\Games\dirtrally.jpg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\ZTMZ.PacenoteTool.Codemasters\dirtrally2.jpg">
+      <Link>Assets\Games\dirtrally2.jpg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\ZTMZ.PacenoteTool.Codemasters\wrc.jpg">
+      <Link>Assets\Games\wrc.jpg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\ZTMZ.PacenoteTool.BeamNG\beamng.jpg">
+      <Link>Assets\Games\beamng.jpg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\ZTMZ.PacenoteTool.RBR\rbr.jpg">
+      <Link>Assets\Games\rbr.jpg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\ZTMZ.PacenoteTool.AC\acr.jpg">
+      <Link>Assets\Games\acr.jpg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\ZTMZ.PacenoteTool.Base\data.zdb">
+      <Link>resources\data.zdb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\ZTMZ.PacenoteTool.I18N\lang\*.json">
+      <Link>resources\lang\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <Target Name="StageAvaloniaGameProviders" AfterTargets="Build">
+    <PropertyGroup>
+      <CodemastersOutput>$(MSBuildProjectDirectory)\..\ZTMZ.PacenoteTool.Codemasters\bin\$(Configuration)\net10.0</CodemastersOutput>
+      <BeamNgOutput>$(MSBuildProjectDirectory)\..\ZTMZ.PacenoteTool.BeamNG\bin\$(Configuration)\net10.0</BeamNgOutput>
+    </PropertyGroup>
+    <ItemGroup>
+      <GameProviderBinaries Include="$(CodemastersOutput)\ZTMZ.PacenoteTool.Codemasters.dll" />
+      <GameProviderLanguages Include="$(CodemastersOutput)\lang\*.json" />
+      <GameProviderBinaries Include="$(BeamNgOutput)\ZTMZ.PacenoteTool.BeamNG.dll"
+                            Condition="'$(OS)' == 'Windows_NT'" />
+      <GameProviderLanguages Include="$(BeamNgOutput)\lang\*.json"
+                             Condition="'$(OS)' == 'Windows_NT'" />
+      <BeamNgModFiles Include="$(BeamNgOutput)\BeamNGMod\**\*"
+                      Condition="'$(OS)' == 'Windows_NT'" />
+    </ItemGroup>
+    <MakeDir Directories="$(OutDir)games;$(OutDir)games\lang" />
+    <Copy SourceFiles="@(GameProviderBinaries)"
+          DestinationFolder="$(OutDir)games"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(GameProviderLanguages)"
+          DestinationFolder="$(OutDir)games\lang"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(BeamNgModFiles)"
+          DestinationFiles="@(BeamNgModFiles->'$(OutDir)games\BeamNGMod\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true"
+          Condition="'@(BeamNgModFiles)' != ''" />
+  </Target>
+
+</Project>

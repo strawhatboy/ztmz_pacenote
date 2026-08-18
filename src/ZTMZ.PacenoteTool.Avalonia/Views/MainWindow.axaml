@@ -1,0 +1,127 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:fa="using:FluentAvalonia.UI.Controls"
+        x:Class="ZTMZ.PacenoteTool.Avalonia.Views.MainWindow"
+        Title="{Binding WindowTitle}"
+        Icon="{Binding AppLogo}"
+        Width="1180"
+        Height="760"
+        MinWidth="1180"
+        MinHeight="760"
+        Background="{DynamicResource ApplicationPageBackgroundThemeBrush}"
+        WindowStartupLocation="CenterScreen">
+  <Window.Styles>
+    <Style Selector="ListBox.left-fluent-nav">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+    </Style>
+    <Style Selector="ListBoxItem.left-fluent-nav-item">
+      <Setter Property="Width" Value="82" />
+      <Setter Property="Height" Value="64" />
+      <Setter Property="Margin" Value="5,2" />
+      <Setter Property="Padding" Value="4" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="ListBoxItem.left-fluent-nav-item:pointerover">
+      <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+    </Style>
+    <Style Selector="ListBoxItem.left-fluent-nav-item:selected">
+      <Setter Property="Background" Value="{DynamicResource SubtleFillColorTertiaryBrush}" />
+    </Style>
+    <Style Selector="ListBoxItem.left-fluent-nav-item TextBlock">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="TextAlignment" Value="Center" />
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="48,*">
+    <Grid x:Name="CustomTitleBar"
+          Grid.Row="0"
+          Height="48"
+          ColumnDefinitions="Auto,*,Auto"
+          Background="Transparent"
+          WindowDecorationProperties.ElementRole="TitleBar">
+      <Image Width="22"
+             Height="22"
+             Margin="14,0,10,0"
+             Source="{Binding AppLogo}"
+             UseLayoutRounding="True"
+             RenderOptions.BitmapInterpolationMode="HighQuality"
+             IsHitTestVisible="False"
+             VerticalAlignment="Center" />
+      <TextBlock Grid.Column="1"
+                 Text="{Binding WindowTitle}"
+                 FontSize="12"
+                 IsHitTestVisible="False"
+                 VerticalAlignment="Center" />
+      <StackPanel Grid.Column="2"
+                  Margin="0,0,142,0"
+                  Orientation="Horizontal"
+                  Spacing="2"
+                  VerticalAlignment="Center">
+        <Button Command="{Binding ShowHelpCommand}"
+                Background="Transparent"
+                ToolTip.Tip="{DynamicResource ui.tb_qanda}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <fa:FASymbolIcon Symbol="Help" />
+            <TextBlock Text="{DynamicResource ui.tb_qanda}" />
+          </StackPanel>
+        </Button>
+        <Button Command="{Binding RaiseIssueCommand}"
+                Background="Transparent"
+                ToolTip.Tip="{DynamicResource ui.raise_issue}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <fa:FASymbolIcon Symbol="Comment" />
+            <TextBlock Text="{DynamicResource ui.raise_issue}" />
+          </StackPanel>
+        </Button>
+        <Button Command="{Binding BuyMeACoffeeCommand}"
+                Background="Transparent"
+                Foreground="#D83B6A"
+                ToolTip.Tip="{DynamicResource ui.donate}">
+          <fa:FASymbolIcon Symbol="Favorite" />
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <Grid Grid.Row="1" ColumnDefinitions="92,*">
+      <Border Grid.Column="0"
+              BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+              BorderThickness="0,0,1,0">
+        <ListBox x:Name="NavigationList"
+                 Classes="left-fluent-nav">
+          <ListBoxItem x:Name="HomeNavigationItem"
+                       Classes="left-fluent-nav-item"
+                       Tag="home"
+                       ToolTip.Tip="{DynamicResource tabs.home}">
+            <StackPanel Spacing="3" HorizontalAlignment="Center">
+              <fa:FASymbolIcon Symbol="Home" FontSize="23" />
+              <TextBlock Text="{DynamicResource tabs.home}" />
+            </StackPanel>
+          </ListBoxItem>
+          <ListBoxItem Classes="left-fluent-nav-item"
+                       Tag="codriver"
+                       ToolTip.Tip="{DynamicResource tabs.voices}">
+            <StackPanel Spacing="3" HorizontalAlignment="Center">
+              <fa:FASymbolIcon Symbol="Audio" FontSize="23" />
+              <TextBlock Text="{DynamicResource tabs.voices}" />
+            </StackPanel>
+          </ListBoxItem>
+          <ListBoxItem Classes="left-fluent-nav-item"
+                       Tag="dashboard"
+                       ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardTitle}">
+            <StackPanel Spacing="3" HorizontalAlignment="Center">
+              <fa:FASymbolIcon Symbol="Globe" FontSize="23" />
+              <TextBlock Text="{DynamicResource tabs.dashboard}" />
+            </StackPanel>
+          </ListBoxItem>
+        </ListBox>
+      </Border>
+
+      <ContentControl x:Name="PageHost" Grid.Column="1" />
+    </Grid>
+  </Grid>
+</Window>

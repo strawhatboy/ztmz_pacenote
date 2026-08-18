@@ -1,0 +1,70 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ZTMZ.PacenoteTool.Avalonia.Views.CoDriverView">
+  <ScrollViewer>
+    <Grid Margin="42,28,42,40"
+          HorizontalAlignment="Stretch"
+          RowDefinitions="Auto,Auto,Auto">
+      <StackPanel Spacing="4">
+        <TextBlock Text="{DynamicResource ui.tab_s_audioPackage}" FontSize="28" FontWeight="SemiBold" />
+        <TextBlock Text="{Binding CoDriverPackageSummary}"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+      </StackPanel>
+
+      <Grid Grid.Row="1"
+            Margin="0,28,0,0"
+            ColumnDefinitions="190,*"
+            RowDefinitions="Auto,Auto">
+        <StackPanel Spacing="4">
+          <TextBlock Text="{DynamicResource ui.tab_s_audioPackage}" FontSize="18" FontWeight="SemiBold" />
+          <TextBlock Text="{DynamicResource ui.tab_s_audioPackage}"
+                     Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        </StackPanel>
+        <Grid Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+          <ComboBox ItemsSource="{Binding CoDrivers}"
+                    SelectedItem="{Binding SelectedCoDriver, Mode=TwoWay}"
+                    MinWidth="340"
+                    IsEnabled="{Binding IsReady}">
+            <ComboBox.ItemTemplate>
+              <DataTemplate>
+                <Grid ColumnDefinitions="40,*" RowDefinitions="Auto,Auto" MinWidth="280">
+                  <TextBlock Grid.RowSpan="2" Text="{Binding GenderSymbol}"
+                             Foreground="{Binding GenderBrush}" FontSize="24"
+                             HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="1" Text="{Binding Name}" />
+                  <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="{Binding Language}" FontSize="11"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{Binding Version}" FontSize="11"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                  </StackPanel>
+                </Grid>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+          <Button Grid.Column="1"
+                  Content="{DynamicResource ui.btn_playExample}"
+                  Command="{Binding PlayExampleCommand}"
+                  Padding="16,8" />
+        </Grid>
+
+        <StackPanel Grid.Row="1" Margin="0,28,0,0" Spacing="4">
+          <TextBlock Text="{DynamicResource ui.tab_s_audioSettings}" FontSize="18" FontWeight="SemiBold" />
+          <TextBlock Text="{DynamicResource ui.tooltip.tb_mute}"
+                     Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        </StackPanel>
+        <ToggleSwitch Grid.Row="1"
+                      Grid.Column="1"
+                      Margin="0,24,0,0"
+                      IsChecked="{Binding IsMuted, Mode=TwoWay}"
+                      OnContent=""
+                      OffContent="" />
+      </Grid>
+
+      <Border Grid.Row="2"
+              Margin="0,30,0,0"
+              BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+              BorderThickness="0,1,0,0" />
+    </Grid>
+  </ScrollViewer>
+</UserControl>

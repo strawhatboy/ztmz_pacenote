@@ -2,9 +2,10 @@
 Type=Application
 Name=ZTMZ Pacenote Tool
 Comment=Pacenote playback and rally telemetry dashboards
-Exec=ztmz
-Icon=ztmz
-Terminal=true
+Exec=com.ztmz.PacenoteTool
+Icon=com.ztmz.PacenoteTool
+StartupWMClass=com.ztmz.PacenoteTool
+Terminal=false
 Categories=Game;
 Keywords=rally;pacenote;codriver;telemetry;
 StartupNotify=true

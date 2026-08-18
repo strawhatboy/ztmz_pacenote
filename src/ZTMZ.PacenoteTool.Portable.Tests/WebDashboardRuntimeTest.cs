@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Text.Json;
 using Xunit;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.WebDashboard;
 
 namespace ZTMZ.PacenoteTool.Portable.Tests;
@@ -57,6 +58,59 @@ public sealed class WebDashboardRuntimeTest
 
         runtime.Stop();
         Assert.Equal(WebDashboardServerState.Stopped, runtime.Status.State);
+    }
+
+    [Fact]
+    public void ControllerOwnsRuntimeBridgeAndSupportsLiveFrameRateChanges()
+    {
+        using var files = new TemporaryDashboardFiles();
+        files.CreateDashboard($"portable-controller-{Guid.NewGuid():N}");
+        using var tool = new ZTMZPacenoteTool();
+        using var controller = new WebDashboardRuntimeController(
+            tool,
+            new WebDashboardRuntimeControllerOptions(
+                files.DashboardsPath,
+                files.RootPath));
+        var statusChanges = 0;
+        controller.StatusChanged += (_, _) => statusChanges++;
+        var port = GetAvailablePort();
+
+        controller.Configure(true, port, 30);
+
+        Assert.True(controller.Status.IsRunning);
+        Assert.Equal(port, controller.Status.Port);
+        Assert.Equal(30, controller.Diagnostics.TargetFrameRate);
+
+        controller.Configure(true, port, 75);
+
+        Assert.True(controller.Status.IsRunning);
+        Assert.Equal(75, controller.Diagnostics.TargetFrameRate);
+
+        controller.Configure(false, port, 75);
+
+        Assert.False(controller.Status.IsRunning);
+        Assert.Equal(WebDashboardServerState.Stopped.ToString(), controller.Status.State);
+        Assert.Equal(3, statusChanges);
+    }
+
+    [Fact]
+    public void ControllerReportsInvalidPortWithoutStartingTheRuntime()
+    {
+        using var files = new TemporaryDashboardFiles();
+        using var tool = new ZTMZPacenoteTool();
+        using var controller = new WebDashboardRuntimeController(
+            tool,
+            new WebDashboardRuntimeControllerOptions(
+                files.DashboardsPath,
+                files.RootPath));
+
+        controller.Configure(true, 80, 60);
+
+        Assert.False(controller.Status.IsRunning);
+        Assert.Equal(
+            WebDashboardServerState.PortUnavailable.ToString(),
+            controller.Status.State);
+        Assert.Contains("1024", controller.Status.ErrorMessage);
     }
 
     private static int GetAvailablePort()

@@ -1248,15 +1248,15 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     [RelayCommand]
     private void OutputDeviceSelectionChanged() {
         var outputDevice = SelectedOutputDevice;
-        if (outputDevice == null)
+        if (_isApplyingRuntimeControls || outputDevice == null)
         {
             return;
         }
 
-        Config.Instance.UI_SelectedPlaybackDevice = OutputDevices.IndexOf(outputDevice);
-        Config.Instance.UI_SelectedPlaybackDeviceId = outputDevice.Id;
-        Config.Instance.SaveUserConfig();
-        Tool.SetOutputDevice(Config.Instance.UI_SelectedPlaybackDevice);
+        if (!_runtimeControls.TrySelectOutputDevice(outputDevice.Id))
+        {
+            ApplyRuntimeControls();
+        }
     }
 
     [RelayCommand]
@@ -1299,6 +1299,22 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         try
         {
             IsHudEnabled = snapshot.IsNativeHudVisible;
+            if (!OutputDevices.Select(device => device.Id).SequenceEqual(
+                    snapshot.OutputDevices.Select(device => device.Id)))
+            {
+                OutputDevices.Clear();
+                foreach (var device in snapshot.OutputDevices)
+                {
+                    OutputDevices.Add(device);
+                }
+            }
+
+            SelectedOutputDevice = snapshot.SelectedOutputDevice == null
+                ? null
+                : OutputDevices.FirstOrDefault(device => string.Equals(
+                    device.Id,
+                    snapshot.SelectedOutputDevice.Id,
+                    StringComparison.OrdinalIgnoreCase));
             if (snapshot.SelectedCodriver == null)
             {
                 SelectedCodriver = null;

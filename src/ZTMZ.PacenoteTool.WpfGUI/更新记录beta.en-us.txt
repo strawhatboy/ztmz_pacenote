@@ -21,6 +21,11 @@ v2.99.99.46-3.0-rc18
 * Continues the shared Runtime foundation for an Avalonia/SteamOS UI: update checks and configuration migrations, co-driver selection, mute and example playback, Web Dashboard control, and support diagnostics are now reusable across platforms, while the native HUD, update dialogs, and installer replacement remain Windows Host responsibilities.
 * Further unifies replay and co-driver package operations across Windows and SteamOS: replay listing, analysis, locking, and export, plus co-driver package import, export, and update installation, are now reusable by cross-platform UIs; application installers use reliable streamed downloads with failed temporary files cleaned up, while Windows still presents progress, launches the installer, and exits.
 * Unifies online co-driver package catalog checks, streamed downloads, and safe installation for Windows and SteamOS UIs; failed downloads or installations now clean up temporary files and restore update state instead of leaving an update stuck in progress.
+* Adds a cross-platform desktop UI based on Avalonia and FluentAvalonia and connects it to the shared Runtime, game-process monitoring, complete game sessions, PortAudio playback, and Web Dashboard so Windows and SteamOS use the same core workflows.
+* Corrects the Avalonia migration where it had diverged from the established WPF product design, restoring the original Home-page wording, co-driver card and four quick actions, versioned custom title bar, troubleshooting, issue-reporting, and support entries.
+* Makes Avalonia reuse the existing WPF localization resources for all ten interface languages and load Dashboard localization resources; changing the interface language now refreshes co-driver and Dashboard names and descriptions.
+* Completes the cross-platform Web Dashboard UI with a clickable real Dashboard preview on Home, a clickable access address, port and refresh-rate controls, the full Dashboard catalog, and page margins aligned with Home.
+* Completes cross-platform logging and audio-device lifecycle handling: logs use the shared Data Home logs directory and capture startup context, initialization failures, and unhandled exceptions; PortAudio filters unusable devices, follows device additions/removals and migration, and reduces latency, clipping, and crackling risks.
 
 v2.99.99.45-3.0-rc17
 

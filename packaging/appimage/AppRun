@@ -6,4 +6,4 @@ APPDIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 export ZTMZ_RESOURCE_HOME="${ZTMZ_RESOURCE_HOME:-$APPDIR/usr/share/ztmz}"
 export LD_LIBRARY_PATH="$APPDIR/usr/lib/ztmz${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
-exec "$APPDIR/usr/lib/ztmz/ztmz" "$@"
+exec "$APPDIR/usr/lib/ztmz/com.ztmz.PacenoteTool" "$@"

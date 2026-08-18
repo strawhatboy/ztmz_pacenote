@@ -1,0 +1,377 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             x:Class="ZTMZ.PacenoteTool.Avalonia.Views.HomeView">
+  <Grid RowDefinitions="Auto,*,Auto">
+    <fa:FAInfoBar Margin="42,0"
+                  IsOpen="{Binding HasError}"
+                  Severity="Error"
+                  Title="{DynamicResource avalonia.runtimeInitializationFailed}"
+                  Message="{Binding ErrorMessage}" />
+
+    <ScrollViewer Grid.Row="1"
+                  HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+      <Grid Margin="42,0,42,24"
+            ColumnDefinitions="480,*"
+            ColumnSpacing="20">
+        <StackPanel Grid.Column="0"
+                    Margin="0,40,0,0"
+                    Spacing="20">
+          <Grid Height="210"
+                RowDefinitions="150,60"
+                ColumnDefinitions="150,*,250">
+            <Image Width="130"
+                   Height="130"
+                   Source="{Binding AppLogo}"
+                   Stretch="Uniform"
+                   UseLayoutRounding="True"
+                   RenderOptions.BitmapInterpolationMode="HighQuality"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center" />
+
+            <Border Grid.Column="1"
+                    Height="4"
+                    Background="{Binding GameStatusBrush}"
+                    CornerRadius="2"
+                    VerticalAlignment="Center" />
+
+            <Border Grid.Column="2"
+                    Width="250"
+                    Height="130"
+                    Padding="12"
+                    Background="{DynamicResource LayerFillColorDefaultBrush}"
+                    BorderBrush="{Binding GameStatusBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    ToolTip.Tip="{Binding ActiveGameDescription}">
+              <Grid>
+                <Image Source="{Binding ActiveGameImage}"
+                       IsVisible="{Binding HasActiveGameImage}"
+                       Stretch="Uniform"
+                       UseLayoutRounding="True"
+                       RenderOptions.BitmapInterpolationMode="HighQuality" />
+                <fa:FASymbolIcon Symbol="Games"
+                                 IsVisible="{Binding ShowsGamePlaceholder}"
+                                 FontSize="48"
+                                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center" />
+              </Grid>
+            </Border>
+
+            <StackPanel Grid.Row="1"
+                        Grid.ColumnSpan="3"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="8">
+              <Ellipse Width="8" Height="8" Fill="{Binding GameStatusBrush}" />
+              <TextBlock Text="{Binding ActiveGameName}" FontWeight="SemiBold" />
+              <TextBlock Text="{Binding GameConnectionStatus}"
+                         Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+          </Grid>
+
+          <Expander Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="16">
+            <Expander.Header>
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <fa:FASymbolIcon Symbol="Games" FontSize="26" />
+                <TextBlock Text="{DynamicResource settings.gameSettings}"
+                           FontSize="15"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center" />
+              </StackPanel>
+            </Expander.Header>
+            <StackPanel Margin="0,14,0,0" Spacing="10">
+              <TextBlock Text="{Binding GameDetectionSummary}" TextWrapping="Wrap" />
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="{DynamicResource avalonia.availableGameProviders}"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                <TextBlock Grid.Column="1" Text="{Binding GameCount}" FontWeight="SemiBold" />
+              </Grid>
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="{DynamicResource avalonia.detectedGameProcesses}"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                <TextBlock Grid.Column="1" Text="{Binding ActiveGameCount}" FontWeight="SemiBold" />
+              </Grid>
+            </StackPanel>
+          </Expander>
+
+          <Expander IsExpanded="True"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="16">
+            <Expander.Header>
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                  <fa:FASymbolIcon Symbol="Globe" FontSize="26" />
+                  <TextBlock Text="{DynamicResource settings.overlayHudTitle}"
+                             FontSize="15"
+                             FontWeight="SemiBold"
+                             VerticalAlignment="Center" />
+                </StackPanel>
+                <StackPanel Grid.Column="1"
+                            Margin="12,0"
+                            Orientation="Horizontal"
+                            Spacing="6"
+                            VerticalAlignment="Center">
+                  <Ellipse Width="8" Height="8" Fill="{Binding DashboardStatusBrush}" />
+                  <TextBlock Text="{Binding DashboardStatus}"
+                             Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+              </Grid>
+            </Expander.Header>
+            <Button Margin="0,14,0,0"
+                    Padding="0"
+                    HorizontalContentAlignment="Stretch"
+                    Command="{Binding OpenDashboardSettingsCommand}"
+                    ToolTip.Tip="{DynamicResource settings.tooltip.overlayHudUsage}">
+              <Grid Height="104" ColumnDefinitions="176,*" ColumnSpacing="14">
+                <Border Background="#111111" CornerRadius="3" ClipToBounds="True">
+                  <Image Source="{Binding FeaturedDashboard.PreviewImage}"
+                         Stretch="UniformToFill"
+                         RenderOptions.BitmapInterpolationMode="HighQuality" />
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                  <TextBlock Text="{Binding FeaturedDashboard.Name}"
+                             FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding FeaturedDashboard.Description}"
+                             Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                             TextWrapping="Wrap"
+                             MaxLines="2" />
+                  <TextBlock Text="{DynamicResource settings.more}"
+                             Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                </StackPanel>
+              </Grid>
+            </Button>
+          </Expander>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1"
+                    Margin="0,40,0,0">
+          <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                  BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                  BorderThickness="1"
+                  CornerRadius="4">
+            <StackPanel>
+              <Grid Margin="16"
+                    RowDefinitions="Auto,Auto"
+                    ColumnDefinitions="Auto,*"
+                    RowSpacing="10"
+                    ColumnSpacing="16">
+                <StackPanel Grid.RowSpan="2"
+                            Width="92"
+                            Spacing="8"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                  <fa:FASymbolIcon Symbol="Audio" FontSize="28" />
+                  <TextBlock Text="{DynamicResource ui.tab_s_audioPackage}"
+                             FontSize="15"
+                             FontWeight="SemiBold"
+                             TextAlignment="Center" />
+                </StackPanel>
+
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding CoDrivers}"
+                          SelectedItem="{Binding SelectedCoDriver, Mode=TwoWay}"
+                          ToolTip.Tip="{Binding SelectedCoDriver.Description}"
+                          IsEnabled="{Binding IsReady}">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <Grid ColumnDefinitions="40,*" RowDefinitions="Auto,Auto" MinWidth="280">
+                        <TextBlock Grid.RowSpan="2"
+                                   Text="{Binding GenderSymbol}"
+                                   Foreground="{Binding GenderBrush}"
+                                   FontSize="24"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" Text="{Binding Name}" />
+                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                          <TextBlock Text="{Binding Language}"
+                                     FontSize="11"
+                                     Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                          <TextBlock Text="{Binding Version}"
+                                     FontSize="11"
+                                     Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                      </Grid>
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <StackPanel Grid.Row="1"
+                            Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="10">
+                  <Button Command="{Binding PlayExampleCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="7">
+                      <fa:FASymbolIcon Symbol="Play" />
+                      <TextBlock Text="{DynamicResource ui.btn_playExample}" />
+                    </StackPanel>
+                  </Button>
+                  <Button Command="{Binding OpenCoDriverHomePageCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="7">
+                      <fa:FASymbolIcon Symbol="Link" />
+                      <TextBlock Text="{DynamicResource ui.tb_codriverLink}" />
+                    </StackPanel>
+                  </Button>
+                  <Button Command="{Binding OpenCoDriverFolderCommand}"
+                          ToolTip.Tip="{DynamicResource ui.tooltip.btn_currentCodriver}">
+                    <fa:FASymbolIcon Symbol="Folder" />
+                  </Button>
+                  <Button Command="{Binding MoreCoDriverSettingsCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="7">
+                      <fa:FASymbolIcon Symbol="More" />
+                      <TextBlock Text="{DynamicResource settings.more}" />
+                    </StackPanel>
+                  </Button>
+                </StackPanel>
+              </Grid>
+
+              <Border BorderBrush="{DynamicResource DividerStrokeColorDefaultBrush}"
+                      BorderThickness="0,1,0,0">
+                <Grid Margin="16"
+                      RowDefinitions="44,44,44,44,44,44,44"
+                      ColumnDefinitions="150,56,*">
+                  <TextBlock Text="{DynamicResource ui.tb_currentTrack}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="1"
+                             Grid.ColumnSpan="2"
+                             Text="{Binding CurrentTrack}"
+                             Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                             VerticalAlignment="Center" />
+
+                  <TextBlock Grid.Row="1" Text="{DynamicResource ui.tb_replayDevice}" VerticalAlignment="Center" />
+                  <ComboBox Grid.Row="1"
+                            Grid.Column="1"
+                            Grid.ColumnSpan="2"
+                            ItemsSource="{Binding OutputDevices}"
+                            SelectedItem="{Binding SelectedOutputDevice, Mode=TwoWay}"
+                            DisplayMemberBinding="{Binding DisplayName}" />
+
+                  <TextBlock Grid.Row="2" Text="{DynamicResource ui.tb_playVolume}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Row="2"
+                             Grid.Column="1"
+                             Text="{Binding PlaybackVolume, StringFormat={}{0:F0}}"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center" />
+                  <Slider Grid.Row="2"
+                          Grid.Column="2"
+                          Minimum="0"
+                          Maximum="100"
+                          Value="{Binding PlaybackVolume, Mode=TwoWay}" />
+
+                  <TextBlock Grid.Row="3" Text="{DynamicResource ui.tb_prePlay}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Row="3"
+                             Grid.Column="1"
+                             Text="{Binding PlaybackAdjustSeconds, StringFormat={}{0:F1}s}"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center" />
+                  <Slider Grid.Row="3"
+                          Grid.Column="2"
+                          Minimum="-4"
+                          Maximum="4"
+                          Value="{Binding PlaybackAdjustSeconds, Mode=TwoWay}" />
+
+                  <TextBlock Grid.Row="4" Text="{DynamicResource ui.tb_playbackSpd}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Row="4"
+                             Grid.Column="1"
+                             Text="{Binding PlaybackSpeed, StringFormat={}x {0:F2}}"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center" />
+                  <Slider Grid.Row="4"
+                          Grid.Column="2"
+                          Minimum="0.5"
+                          Maximum="1.5"
+                          TickFrequency="0.125"
+                          IsSnapToTickEnabled="True"
+                          Value="{Binding PlaybackSpeed, Mode=TwoWay}" />
+
+                  <TextBlock Grid.Row="5"
+                             Text="{DynamicResource settings.factorToRemoveSpaceFromAudioFiles}"
+                             ToolTip.Tip="{DynamicResource settings.tooltip.factorToRemoveSpaceFromAudioFiles}"
+                             VerticalAlignment="Center" />
+                  <TextBlock Grid.Row="5"
+                             Grid.Column="1"
+                             Text="{Binding SilenceRemovalLevel}"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center" />
+                  <Slider Grid.Row="5"
+                          Grid.Column="2"
+                          Minimum="0"
+                          Maximum="2"
+                          TickFrequency="1"
+                          IsSnapToTickEnabled="True"
+                          Value="{Binding SilenceRemovalLevel, Mode=TwoWay}" />
+
+                  <TextBlock Grid.Row="6" Text="{DynamicResource ui.tb_intercom}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Row="6"
+                             Grid.Column="1"
+                             Text="{Binding IntercomEffect}"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center" />
+                  <Slider Grid.Row="6"
+                          Grid.Column="2"
+                          Minimum="0"
+                          Maximum="100"
+                          Value="{Binding IntercomEffect, Mode=TwoWay}" />
+
+                </Grid>
+              </Border>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </Grid>
+    </ScrollViewer>
+
+    <Border Grid.Row="2"
+            Padding="42,10"
+            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+            BorderThickness="0,1,0,0">
+      <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="22">
+        <StackPanel Spacing="4">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <Ellipse Width="8" Height="8" Fill="{Binding GameStatusBrush}" />
+            <TextBlock Text="{DynamicResource diagnostics.game}" FontWeight="SemiBold" />
+          </StackPanel>
+          <TextBlock Text="{Binding GameConnectionStatus}"
+                     TextTrimming="CharacterEllipsis"
+                     Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Spacing="4">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <Ellipse Width="8" Height="8" Fill="{Binding GameStatusBrush}" />
+            <TextBlock Text="{DynamicResource diagnostics.udp}" FontWeight="SemiBold" />
+          </StackPanel>
+          <TextBlock Text="{Binding StageStatus}"
+                     Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="2" Spacing="4">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <Ellipse Width="8" Height="8" Fill="{Binding AudioStatusBrush}" />
+            <TextBlock Text="{DynamicResource diagnostics.audio}" FontWeight="SemiBold" />
+          </StackPanel>
+          <TextBlock Text="{Binding AudioStatus}"
+                     Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        </StackPanel>
+
+        <StackPanel Grid.Column="3" Spacing="4">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <Ellipse Width="8" Height="8" Fill="{Binding DashboardStatusBrush}" />
+            <TextBlock Text="{DynamicResource settings.tooltip.webDashboardTitle}" FontWeight="SemiBold" />
+          </StackPanel>
+          <TextBlock Text="{Binding DashboardStatus}"
+                     Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

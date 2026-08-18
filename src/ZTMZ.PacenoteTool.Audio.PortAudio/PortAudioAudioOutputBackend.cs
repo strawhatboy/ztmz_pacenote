@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 using PortAudioSharp;
 using ZTMZ.PacenoteTool.Base;
 using PortAudioStream = PortAudioSharp.Stream;
@@ -9,13 +10,18 @@ namespace ZTMZ.PacenoteTool.Audio.PortAudio;
 public sealed class PortAudioAudioOutputBackend : IAudioOutputBackend
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+    private static readonly Exception OutputUnderflowError = new InvalidOperationException(
+        "PortAudio reported an output underflow; increase the playback latency if it repeats.");
     private readonly IDisposable runtime;
     private readonly int channelCount;
+    private readonly int outputSampleRate;
     private readonly PortAudioStream.Callback callback;
     private PortAudioStream? stream;
     private ISampleProvider? source;
     private Exception? playbackError;
     private long lastErrorUtcTicks;
+    private long correctedSampleCount;
+    private long outputUnderflowCount;
     private int isDisposed;
 
     public PortAudioAudioOutputBackend(
@@ -40,7 +46,7 @@ public sealed class PortAudioAudioOutputBackend : IAudioOutputBackend
 
         try
         {
-            var deviceIndex = ResolveDeviceIndex(deviceId);
+            var deviceIndex = ResolveDeviceIndex(deviceId, channelCount);
             var device = global::PortAudioSharp.PortAudio.GetDeviceInfo(deviceIndex);
             if (device.maxOutputChannels < channelCount)
             {
@@ -48,6 +54,12 @@ public sealed class PortAudioAudioOutputBackend : IAudioOutputBackend
                     $"PortAudio device '{device.name}' supports {device.maxOutputChannels} output " +
                     $"channels, but {channelCount} are required.");
             }
+
+            outputSampleRate = ResolveOutputSampleRate(
+                deviceIndex,
+                device,
+                sampleRate,
+                channelCount);
 
             var outputParameters = new StreamParameters
             {
@@ -63,9 +75,9 @@ public sealed class PortAudioAudioOutputBackend : IAudioOutputBackend
             stream = new PortAudioStream(
                 null,
                 outputParameters,
-                sampleRate,
+                outputSampleRate,
                 global::PortAudioSharp.PortAudio.FramesPerBufferUnspecified,
-                StreamFlags.ClipOff,
+                StreamFlags.NoFlag,
                 callback,
                 this);
 
@@ -74,9 +86,10 @@ public sealed class PortAudioAudioOutputBackend : IAudioOutputBackend
             LatencyMilliseconds = desiredLatencyMilliseconds;
 
             Logger.Info(
-                "Created PortAudio output for {0} ({1}) with {2} ms desired latency.",
+                "Created PortAudio output for {0} ({1}) at {2} Hz with {3} ms desired latency.",
                 DeviceName,
                 DeviceId,
+                outputSampleRate,
                 LatencyMilliseconds);
         }
         catch
@@ -128,7 +141,19 @@ public sealed class PortAudioAudioOutputBackend : IAudioOutputBackend
                 nameof(source));
         }
 
-        this.source = source;
+        this.source = source.WaveFormat.SampleRate == outputSampleRate
+            ? source
+            : new WdlResamplingSampleProvider(source, outputSampleRate);
+
+        if (source.WaveFormat.SampleRate != outputSampleRate)
+        {
+            Logger.Info(
+                "Resampling PortAudio output from {0} Hz to the device rate {1} Hz for {2}.",
+                source.WaveFormat.SampleRate,
+                outputSampleRate,
+                DeviceName);
+        }
+
         stream!.Start();
     }
 
@@ -147,6 +172,21 @@ public sealed class PortAudioAudioOutputBackend : IAudioOutputBackend
             }
 
             stream?.Dispose();
+
+            var underflows = Interlocked.Read(ref outputUnderflowCount);
+            if (underflows > 0)
+            {
+                Logger.Warn("PortAudio reported {0} output underflows for {1}.", underflows, DeviceName);
+            }
+
+            var correctedSamples = Interlocked.Read(ref correctedSampleCount);
+            if (correctedSamples > 0)
+            {
+                Logger.Warn(
+                    "PortAudio corrected {0} non-finite or out-of-range output samples for {1}.",
+                    correctedSamples,
+                    DeviceName);
+            }
         }
         finally
         {
@@ -169,21 +209,115 @@ public sealed class PortAudioAudioOutputBackend : IAudioOutputBackend
 
         try
         {
+            if ((statusFlags & StreamCallbackFlags.OutputUnderflow) != 0)
+            {
+                Interlocked.Increment(ref outputUnderflowCount);
+                RecordPlaybackError(OutputUnderflowError);
+            }
+
             var samplesRead = source?.Read(outputSamples) ?? 0;
+            Interlocked.Add(
+                ref correctedSampleCount,
+                SanitizeOutputSamples(outputSamples[..samplesRead]));
             outputSamples[samplesRead..].Clear();
             return StreamCallbackResult.Continue;
         }
         catch (Exception exception)
         {
             outputSamples.Clear();
-            Volatile.Write(ref playbackError, exception);
-            Interlocked.Exchange(ref lastErrorUtcTicks, DateTime.UtcNow.Ticks);
+            RecordPlaybackError(exception);
             return StreamCallbackResult.Abort;
         }
     }
 
-    private static int ResolveDeviceIndex(string deviceId)
+    internal static int SanitizeOutputSamples(Span<float> samples)
     {
+        var corrected = 0;
+        for (var index = 0; index < samples.Length; index++)
+        {
+            var sample = samples[index];
+            if (!float.IsFinite(sample))
+            {
+                samples[index] = 0f;
+                corrected++;
+            }
+            else if (sample > 1f)
+            {
+                samples[index] = 1f;
+                corrected++;
+            }
+            else if (sample < -1f)
+            {
+                samples[index] = -1f;
+                corrected++;
+            }
+        }
+
+        return corrected;
+    }
+
+    private void RecordPlaybackError(Exception exception)
+    {
+        Volatile.Write(ref playbackError, exception);
+        Interlocked.Exchange(ref lastErrorUtcTicks, DateTime.UtcNow.Ticks);
+    }
+
+    private static int ResolveOutputSampleRate(
+        int deviceIndex,
+        DeviceInfo device,
+        int sourceSampleRate,
+        int channelCount)
+    {
+        var defaultSampleRate = double.IsFinite(device.defaultSampleRate) &&
+                                device.defaultSampleRate > 0 &&
+                                device.defaultSampleRate <= int.MaxValue
+            ? checked((int)Math.Round(device.defaultSampleRate))
+            : 0;
+        if (defaultSampleRate > 0 &&
+            PortAudioNative.IsOutputFormatSupported(
+                deviceIndex,
+                device,
+                defaultSampleRate,
+                channelCount))
+        {
+            return defaultSampleRate;
+        }
+
+        if (PortAudioNative.IsOutputFormatSupported(
+                deviceIndex,
+                device,
+                sourceSampleRate,
+                channelCount))
+        {
+            return sourceSampleRate;
+        }
+
+        throw new InvalidOperationException(
+            $"PortAudio device '{device.name}' does not support {channelCount}-channel float output " +
+            $"at its default rate ({device.defaultSampleRate:G} Hz) or the source rate " +
+            $"({sourceSampleRate} Hz).");
+    }
+
+    private static int ResolveDeviceIndex(string deviceId, int requiredOutputChannels)
+    {
+        var hostApis = PortAudioNative.GetHostApis();
+        var hostApisByIndex = hostApis.ToDictionary(hostApi => hostApi.Index);
+        for (var index = 0; index < global::PortAudioSharp.PortAudio.DeviceCount; index++)
+        {
+            var device = global::PortAudioSharp.PortAudio.GetDeviceInfo(index);
+            if (device.maxOutputChannels >= requiredOutputChannels &&
+                hostApisByIndex.TryGetValue(device.hostApi, out var hostApi) &&
+                string.Equals(
+                    PortAudioAudioOutputDeviceEnumerator.CreateStableDeviceId(
+                        hostApi,
+                        device.name),
+                    deviceId,
+                    StringComparison.Ordinal))
+            {
+                return index;
+            }
+        }
+
         if (int.TryParse(
                 deviceId,
                 System.Globalization.NumberStyles.None,
@@ -193,6 +327,12 @@ public sealed class PortAudioAudioOutputBackend : IAudioOutputBackend
             deviceIndex < global::PortAudioSharp.PortAudio.DeviceCount)
         {
             return deviceIndex;
+        }
+
+        if (!string.IsNullOrWhiteSpace(deviceId))
+        {
+            throw new InvalidOperationException(
+                $"PortAudio output device '{deviceId}' is no longer available.");
         }
 
         deviceIndex = global::PortAudioSharp.PortAudio.DefaultOutputDevice;

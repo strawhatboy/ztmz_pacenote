@@ -11,6 +11,8 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Services;
 public sealed record RuntimeControlsSnapshot(
     IReadOnlyList<CoDriverPackageInfo> Codrivers,
     CoDriverPackageInfo? SelectedCodriver,
+    IReadOnlyList<AudioOutputDeviceInfo> OutputDevices,
+    AudioOutputDeviceInfo? SelectedOutputDevice,
     bool IsStageActive,
     bool IsMuted,
     bool IsNativeHudVisible,
@@ -55,6 +57,8 @@ public sealed class RuntimeControlsService
         return new RuntimeControlsSnapshot(
             shared.Codrivers,
             shared.SelectedCodriver,
+            shared.OutputDevices,
+            shared.SelectedOutputDevice,
             shared.IsStageActive,
             shared.IsMuted,
             Config.Instance.UI_ShowHud,
@@ -64,6 +68,9 @@ public sealed class RuntimeControlsService
 
     public bool TrySelectCodriver(string identity) =>
         _sharedControls.TrySelectCodriver(identity);
+
+    public bool TrySelectOutputDevice(string id) =>
+        _sharedControls.TrySelectOutputDevice(id);
 
     public bool TryPlayExample() => _sharedControls.TryPlayExample();
 

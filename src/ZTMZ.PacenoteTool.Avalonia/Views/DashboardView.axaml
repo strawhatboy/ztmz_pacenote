@@ -1,0 +1,119 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             x:Class="ZTMZ.PacenoteTool.Avalonia.Views.DashboardView">
+  <ScrollViewer>
+    <Grid Margin="42,28,42,40"
+          HorizontalAlignment="Stretch"
+          RowDefinitions="Auto,Auto,Auto">
+      <StackPanel Spacing="4">
+        <TextBlock Text="{DynamicResource tabs.dashboard}"
+                   FontSize="28"
+                   FontWeight="SemiBold" />
+        <TextBlock Text="{Binding DashboardStatus}"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+      </StackPanel>
+
+      <Border Grid.Row="1"
+              Margin="0,28,0,0"
+              Padding="16"
+              Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+              BorderThickness="1"
+              CornerRadius="4">
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="14">
+          <StackPanel Spacing="4">
+            <TextBlock Text="{DynamicResource settings.tooltip.webDashboardTitle}"
+                       FontSize="18"
+                       FontWeight="SemiBold" />
+            <TextBlock Text="{DynamicResource settings.tooltip.webDashboardSubtitle}"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1"
+                        IsChecked="{Binding IsWebDashboardEnabled, Mode=TwoWay}"
+                        OnContent=""
+                        OffContent="" />
+          <Button Grid.Row="1"
+                  Grid.ColumnSpan="2"
+                  HorizontalContentAlignment="Stretch"
+                  Command="{Binding OpenDashboardCommand}"
+                  ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardOpen}">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+              <Ellipse Width="8" Height="8" Fill="{Binding DashboardStatusBrush}" />
+              <TextBlock Grid.Column="1"
+                         Text="{Binding DashboardDisplayUrl}"
+                         TextTrimming="CharacterEllipsis" />
+              <fa:FASymbolIcon Grid.Column="2" Symbol="NewWindow" />
+            </Grid>
+          </Button>
+          <Grid Grid.Row="2"
+                Grid.ColumnSpan="2"
+                ColumnDefinitions="Auto,120,Auto,50,*"
+                ColumnSpacing="10">
+            <TextBlock Text="{DynamicResource settings.tooltip.webDashboardPortLabel}"
+                       VerticalAlignment="Center" />
+            <NumericUpDown Grid.Column="1"
+                           Minimum="1024"
+                           Maximum="65535"
+                           Value="{Binding WebDashboardPort, Mode=TwoWay}" />
+            <TextBlock Grid.Column="2"
+                       Text="{DynamicResource settings.tooltip.webDashboardFrameRateLabel}"
+                       VerticalAlignment="Center" />
+            <TextBlock Grid.Column="3"
+                       Text="{Binding WebDashboardFrameRate}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center" />
+            <Slider Grid.Column="4"
+                    Minimum="5"
+                    Maximum="240"
+                    Value="{Binding WebDashboardFrameRate, Mode=TwoWay}" />
+          </Grid>
+        </Grid>
+      </Border>
+
+      <ItemsControl Grid.Row="2"
+                    Margin="0,18,0,0"
+                    ItemsSource="{Binding Dashboards}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Border Margin="0,0,0,8"
+                    Padding="10"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4">
+              <Grid ColumnDefinitions="160,*,Auto" ColumnSpacing="14">
+                <Border Height="82"
+                        Background="#111111"
+                        CornerRadius="3"
+                        ClipToBounds="True">
+                  <Image Source="{Binding PreviewImage}"
+                         Stretch="UniformToFill"
+                         RenderOptions.BitmapInterpolationMode="HighQuality" />
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding Version}"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{Binding Author}"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                  </StackPanel>
+                  <TextBlock Text="{Binding Description}"
+                             TextWrapping="Wrap"
+                             MaxLines="2"
+                             Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+                <Button Grid.Column="2"
+                        Command="{Binding $parent[UserControl].DataContext.OpenDashboardCommand}"
+                        ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardOpen}">
+                  <fa:FASymbolIcon Symbol="NewWindow" />
+                </Button>
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </Grid>
+  </ScrollViewer>
+</UserControl>

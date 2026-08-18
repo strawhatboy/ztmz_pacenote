@@ -46,7 +46,7 @@ if [[ ! -d "$default_profile_source" ]]; then
 fi
 
 dotnet publish \
-    "$repo_root/src/ZTMZ.PacenoteTool.Linux/ZTMZ.PacenoteTool.Linux.csproj" \
+    "$repo_root/src/ZTMZ.PacenoteTool.Avalonia/ZTMZ.PacenoteTool.Avalonia.csproj" \
     --configuration "$configuration" \
     --runtime "$runtime_identifier" \
     --self-contained true \
@@ -84,15 +84,20 @@ if [[ ! -f "$icon_source" ]]; then
     exit 66
 fi
 install -Dm0644 -- "$icon_source" \
-    "$appdir/usr/share/icons/hicolor/512x512/apps/ztmz.png"
-ln -s -- "usr/share/icons/hicolor/512x512/apps/ztmz.png" "$appdir/ztmz.png"
+    "$appdir/usr/share/icons/hicolor/512x512/apps/com.ztmz.PacenoteTool.png"
+ln -s -- "usr/share/icons/hicolor/512x512/apps/com.ztmz.PacenoteTool.png" \
+    "$appdir/com.ztmz.PacenoteTool.png"
+ln -s -- "com.ztmz.PacenoteTool.png" "$appdir/.DirIcon"
 
 required_paths=(
-    "$publish_dir/ztmz"
+    "$publish_dir/com.ztmz.PacenoteTool"
+    "$publish_dir/FluentAvalonia.dll"
     "$publish_dir/games/ZTMZ.PacenoteTool.Codemasters.dll"
     "$publish_dir/wwwroot/index.html"
     "$publish_dir/dashboards"
     "$publish_dir/Assets/PacenoteIcons"
+    "$publish_dir/Assets/Games/dirtrally.jpg"
+    "$appdir/usr/share/applications/com.ztmz.PacenoteTool.desktop"
     "$resource_dir/data.zdb"
     "$resource_dir/codrivers/default/info.json"
     "$resource_dir/profiles/default"

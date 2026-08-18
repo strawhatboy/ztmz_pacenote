@@ -27,7 +27,12 @@ namespace ZTMZ.PacenoteTool.Core
         public string CurrentScriptPath { set; get; }
         public ScriptReader CurrentScriptReader { get; private set; }
 
-        public string CurrentCoDriverSoundPackagePath { set; get; }
+        private string _currentCoDriverSoundPackagePath = string.Empty;
+        public string CurrentCoDriverSoundPackagePath
+        {
+            set => _currentCoDriverSoundPackagePath = value ?? string.Empty;
+            get => _currentCoDriverSoundPackagePath;
+        }
 
         public CoDriverPackageInfo CurrentCoDriverSoundPackageInfo
         {
@@ -58,6 +63,8 @@ namespace ZTMZ.PacenoteTool.Core
         public int CurrentPlayIndex { set; get; } = 0;
 
         private ConcurrentDictionary<string, AutoResampledCachedSound> soundCache = new();
+        private readonly ConcurrentDictionary<ExampleAudioCacheKey, Lazy<AutoResampledCachedSound>>
+            exampleAudioCache = new();
 
         public AudioOutputDeviceInfo CurrentPlayDevice { get; private set; }
 
@@ -83,6 +90,21 @@ namespace ZTMZ.PacenoteTool.Core
             catch (Exception exception)
             {
                 _logger.Warn(exception, "Failed to dispose the previous audio output after switching devices.");
+            }
+        }
+
+        public void StopCurrentAudioOutput()
+        {
+            var previousPlayer = this.Player;
+            this.Player = null;
+            this.CurrentPlayDevice = null;
+            try
+            {
+                previousPlayer?.Dispose();
+            }
+            catch (Exception exception)
+            {
+                _logger.Warn(exception, "Failed to stop the current audio output.");
             }
         }
 
@@ -114,10 +136,7 @@ namespace ZTMZ.PacenoteTool.Core
         }
         public float CurrentTension { set; get; } = 0f;
 
-        private AutoResampledCachedSound _exampleAudio;
-
         // private WaveOutEvent _exampleWaveOut;
-        private Random _random = new Random();
 
         public int AudioPacenoteCount { private set; get; }
         public int ScriptPacenoteCount { private set; get; }
@@ -200,17 +219,61 @@ namespace ZTMZ.PacenoteTool.Core
             this.initCodriverSounds().Wait();
         }
 
-        private void initExampleAudio()
+        private AutoResampledCachedSound BuildExampleAudio(ExampleAudioCacheKey cacheKey)
         {
-            this._exampleAudio = new AutoResampledCachedSound();
-            var parts = Config.Instance.ExamplePacenoteString.Split(new char[] { ',', '/' }, StringSplitOptions.RemoveEmptyEntries);
+            var stopwatch = Stopwatch.StartNew();
+            var exampleAudio = new AutoResampledCachedSound();
+            var parts = cacheKey.PacenoteString.Split(
+                new char[] { ',', '/' },
+                StringSplitOptions.RemoveEmptyEntries);
             foreach (var part in parts)
             {
-                var s = this.getSoundByKeyword(part, this.CurrentCoDriverSoundPackagePath);
-                this._exampleAudio.Append(s);
+                var sound = this.getSoundByKeyword(part.Trim(), cacheKey.CoDriverPackagePath);
+                exampleAudio.Append(sound);
             }
-            //this._exampleAudio = new AudioFileReader("20210715_152916.m4a");
-            // this._exampleWaveOut = new WaveOutEvent();
+
+            if (stopwatch.ElapsedMilliseconds >= 250)
+            {
+                _logger.Info(
+                    "Prepared codriver example audio with {0} token(s) in {1} ms.",
+                    parts.Length,
+                    stopwatch.ElapsedMilliseconds);
+            }
+            else
+            {
+                _logger.Debug(
+                    "Prepared codriver example audio with {0} token(s) in {1} ms.",
+                    parts.Length,
+                    stopwatch.ElapsedMilliseconds);
+            }
+            return exampleAudio;
+        }
+
+        public void PrepareExampleAudio()
+        {
+            if (!TryCreateExampleAudioCacheKey(out var cacheKey))
+            {
+                return;
+            }
+
+            var cached = GetOrCreateExampleAudio(cacheKey);
+            if (cached.IsValueCreated)
+            {
+                return;
+            }
+
+            _ = Task.Run(() =>
+            {
+                try
+                {
+                    _ = cached.Value;
+                }
+                catch (Exception exception)
+                {
+                    exampleAudioCache.TryRemove(cacheKey, out _);
+                    _logger.Warn(exception, "Failed to prepare the codriver example audio.");
+                }
+            });
         }
 
         private async Task initCodriverSounds()
@@ -225,6 +288,8 @@ namespace ZTMZ.PacenoteTool.Core
         public async Task RefreshCodriverSounds()
         {
             this.CoDriverPackages.Clear();
+            this.soundCache.Clear();
+            this.exampleAudioCache.Clear();
             await this.initCodriverSounds();
         }
 
@@ -239,13 +304,12 @@ namespace ZTMZ.PacenoteTool.Core
 
         private AutoResampledCachedSound getSoundFromCache(string path)
         {
-            if (!this.soundCache.ContainsKey(path))
-            {
-                this.soundCache.AddOrUpdate(path, new AutoResampledCachedSound(path), (key, oldValue) => oldValue);
-            }
+            var cachedSound = this.soundCache.GetOrAdd(
+                path,
+                static audioPath => new AutoResampledCachedSound(audioPath));
             if (Config.Instance.AudioProcessType == (int)AudioProcessType.CutHeadAndTail)
-                return new AutoResampledCachedSound(this.soundCache[path].CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
-            return this.soundCache[path];
+                return new AutoResampledCachedSound(cachedSound.CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
+            return cachedSound;
         }
 
         private void clearSoundCache()
@@ -511,16 +575,16 @@ namespace ZTMZ.PacenoteTool.Core
 
                     if (Config.Instance.AudioProcessType == (int)AudioProcessType.CutHeadAndTail)
                     {
-                        return new AutoResampledCachedSound(tokens.ElementAt(this._random.Next(0, tokens.Count)).CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
+                        return new AutoResampledCachedSound(tokens.ElementAt(Random.Shared.Next(0, tokens.Count)).CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
                     }
-                    return tokens.ElementAt(this._random.Next(0, tokens.Count));
+                    return tokens.ElementAt(Random.Shared.Next(0, tokens.Count));
                 }
                 if (!Config.Instance.PreloadSounds && package.tokensPath.ContainsKey(keyword))
                 {
                     var tokens = package.tokensPath[keyword];
                     if (tokens.Count > 0)
                     {
-                        return this.getSoundFromCache(tokens.ElementAt(this._random.Next(0, tokens.Count)));
+                        return this.getSoundFromCache(tokens.ElementAt(Random.Shared.Next(0, tokens.Count)));
                     }
                     else
                     {
@@ -567,9 +631,9 @@ namespace ZTMZ.PacenoteTool.Core
                 {
                     if (Config.Instance.AudioProcessType == (int)AudioProcessType.CutHeadAndTail)
                     {
-                        return new AutoResampledCachedSound(tokens.ElementAt(this._random.Next(0, tokens.Count)).CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
+                        return new AutoResampledCachedSound(tokens.ElementAt(Random.Shared.Next(0, tokens.Count)).CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles));
                     }
-                    return tokens.ElementAt(this._random.Next(0, tokens.Count));
+                    return tokens.ElementAt(Random.Shared.Next(0, tokens.Count));
                 }
             }
             if (!Config.Instance.PreloadSounds && package.id2tokensPath.ContainsKey(id))
@@ -577,7 +641,7 @@ namespace ZTMZ.PacenoteTool.Core
                 var tokens = package.id2tokensPath[id];
                 if (tokens.Count > 0)
                 {
-                    return this.getSoundFromCache(tokens.ElementAt(this._random.Next(0, tokens.Count)));
+                    return this.getSoundFromCache(tokens.ElementAt(Random.Shared.Next(0, tokens.Count)));
                 }
             }
 
@@ -639,12 +703,94 @@ namespace ZTMZ.PacenoteTool.Core
         // need to be run in a non-UI thread
         public void PlayExample()
         {
-            //load example audio file?
-            this.initExampleAudio();
-            this._exampleAudio.Amplification = this.CurrentPlayAmplification;
-            this._exampleAudio.PlaySpeed = this.CurrentPlaySpeed;
-            this.PlaySound(this._exampleAudio, isSequential: false);
+            var stopwatch = Stopwatch.StartNew();
+            if (!TryCreateExampleAudioCacheKey(out var cacheKey))
+            {
+                _logger.Warn("Codriver example audio was skipped because no codriver is selected.");
+                return;
+            }
+
+            var cachedExampleAudio = GetPreparedExampleAudio(cacheKey);
+            var preparationMilliseconds = stopwatch.ElapsedMilliseconds;
+            var exampleAudio = new AutoResampledCachedSound(cachedExampleAudio.AudioData);
+            exampleAudio.Amplification = this.CurrentPlayAmplification;
+            exampleAudio.PlaySpeed = this.CurrentPlaySpeed;
+            this.PlaySound(exampleAudio, isSequential: false);
+            if (stopwatch.ElapsedMilliseconds >= 250)
+            {
+                _logger.Info(
+                    "Queued codriver example audio in {0} ms ({1} ms preparing audio).",
+                    stopwatch.ElapsedMilliseconds,
+                    preparationMilliseconds);
+            }
+            else
+            {
+                _logger.Debug(
+                    "Queued codriver example audio in {0} ms ({1} ms preparing audio).",
+                    stopwatch.ElapsedMilliseconds,
+                    preparationMilliseconds);
+            }
         }
+
+        private Lazy<AutoResampledCachedSound> GetOrCreateExampleAudio(
+            ExampleAudioCacheKey cacheKey)
+        {
+            return exampleAudioCache.GetOrAdd(
+                cacheKey,
+                key => new Lazy<AutoResampledCachedSound>(
+                    () => BuildExampleAudio(key),
+                    LazyThreadSafetyMode.ExecutionAndPublication));
+        }
+
+        private AutoResampledCachedSound GetPreparedExampleAudio(
+            ExampleAudioCacheKey cacheKey)
+        {
+            var cached = GetOrCreateExampleAudio(cacheKey);
+            try
+            {
+                return cached.Value;
+            }
+            catch
+            {
+                if (exampleAudioCache.TryGetValue(cacheKey, out var current) &&
+                    ReferenceEquals(cached, current))
+                {
+                    exampleAudioCache.TryRemove(cacheKey, out _);
+                }
+
+                throw;
+            }
+        }
+
+        private bool TryCreateExampleAudioCacheKey(out ExampleAudioCacheKey cacheKey)
+        {
+            var packagePath = this.CurrentCoDriverSoundPackagePath;
+            if (string.IsNullOrWhiteSpace(packagePath) ||
+                !this.CoDriverPackages.ContainsKey(packagePath))
+            {
+                cacheKey = default;
+                return false;
+            }
+
+            cacheKey = new ExampleAudioCacheKey(
+                packagePath,
+                Config.Instance.ExamplePacenoteString ?? string.Empty,
+                Config.Instance.AudioProcessType,
+                Config.Instance.FactorToRemoveSpaceFromAudioFiles,
+                Config.Instance.UseReversePacenote,
+                Config.Instance.RemoveIntoAndOnto,
+                Config.Instance.UseDefaultSoundPackageForFallback);
+            return true;
+        }
+
+        private readonly record struct ExampleAudioCacheKey(
+            string CoDriverPackagePath,
+            string PacenoteString,
+            int AudioProcessType,
+            float SilenceRemovalFactor,
+            bool UseReversePacenote,
+            bool RemoveIntoAndOnto,
+            bool UseDefaultSoundPackageForFallback);
 
         public void PlayMinusScript()
         {
@@ -733,6 +879,12 @@ namespace ZTMZ.PacenoteTool.Core
         {
             if (!Config.Instance.UI_Mute)
             {
+                if (this.Player == null)
+                {
+                    _logger.Warn("Pacenote audio was skipped because no output device is available.");
+                    return;
+                }
+
                 this.Player.PlaybackRate = this.CurrentPlaySpeed;
                 this.Player.PlaySound(sound, isSequential, isSystem);
             }

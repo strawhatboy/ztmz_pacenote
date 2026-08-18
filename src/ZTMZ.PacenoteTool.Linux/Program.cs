@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Runtime.InteropServices;
-using System.Threading.Channels;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Core;
@@ -150,9 +149,10 @@ public static class Program
             return 2;
         }
 
-        using var webDashboard = StartWebDashboard(options, resourceRoot);
+        using var webDashboard = CreateWebDashboardController(tool, options, resourceRoot);
+        var webDashboardRunning = webDashboard.Status.IsRunning;
 
-        if (state.Games.Count == 0 && webDashboard == null)
+        if (state.Games.Count == 0 && !webDashboardRunning)
         {
             return 4;
         }
@@ -167,10 +167,9 @@ public static class Program
             !await ListenForGameTelemetryAsync(
                 tool,
                 options.ListenGame,
-                options.ListenSecondsSpecified || webDashboard == null
+                options.ListenSecondsSpecified || !webDashboardRunning
                     ? options.ListenSeconds
-                    : 0,
-                webDashboard))
+                    : 0))
         {
             return 5;
         }
@@ -191,9 +190,9 @@ public static class Program
                          string.IsNullOrWhiteSpace(options.PlayAudio);
         if (watchGames)
         {
-            await WatchGamesAsync(tool, webDashboard);
+            await WatchGamesAsync(tool);
         }
-        else if (webDashboard != null && string.IsNullOrWhiteSpace(options.ListenGame))
+        else if (webDashboardRunning && string.IsNullOrWhiteSpace(options.ListenGame))
         {
             Console.WriteLine("Web Dashboard is running. Press Ctrl+C to stop.");
             await WaitForCancellationAsync();
@@ -202,36 +201,38 @@ public static class Program
         return 0;
     }
 
-    private static WebDashboardRuntime? StartWebDashboard(
+    private static WebDashboardRuntimeController CreateWebDashboardController(
+        ZTMZPacenoteTool tool,
         LinuxHostOptions options,
         string resourceRoot)
     {
-        if (!options.WebDashboard && !Config.Instance.WebDashboardEnabled)
-        {
-            return null;
-        }
-
         var port = options.WebDashboardPort ?? Config.Instance.WebDashboardPort;
         var packagesPath = ResolveDashboardPackagesPath(resourceRoot);
-        var runtime = new WebDashboardRuntime();
-        try
-        {
-            runtime.Start(new WebDashboardRuntimeOptions(
+        var controller = new WebDashboardRuntimeController(
+            tool,
+            new WebDashboardRuntimeControllerOptions(
                 packagesPath,
                 AppContext.BaseDirectory,
-                port,
-                Config.Instance.WebDashboardFrameRate,
                 Config.Instance.WebDashboardBrowserLuaEnabled));
-            Console.WriteLine(
-                $"Web Dashboard: {runtime.Status.Url}; " +
-                $"{runtime.Dashboards.Count} packages loaded");
-            return runtime;
-        }
-        catch
+        if (options.WebDashboard || Config.Instance.WebDashboardEnabled)
         {
-            runtime.Dispose();
-            throw;
+            controller.Configure(
+                true,
+                port,
+                Config.Instance.WebDashboardFrameRate);
+            var status = controller.Status;
+            if (status.IsRunning)
+            {
+                Console.WriteLine($"Web Dashboard: {status.Url}");
+            }
+            else
+            {
+                Console.Error.WriteLine(
+                    $"Web Dashboard failed: {status.State}; {status.ErrorMessage}");
+            }
         }
+
+        return controller;
     }
 
     private static string ResolveDashboardPackagesPath(string resourceRoot)
@@ -347,8 +348,7 @@ public static class Program
     private static async Task<bool> ListenForGameTelemetryAsync(
         ZTMZPacenoteTool tool,
         string gameName,
-        int listenSeconds,
-        WebDashboardRuntime? webDashboard)
+        int listenSeconds)
     {
         var game = tool.Games.FirstOrDefault(candidate =>
             string.Equals(candidate.Name, gameName, StringComparison.OrdinalIgnoreCase));
@@ -367,9 +367,6 @@ public static class Program
         long sampleCount = 0;
         var sampleLock = new object();
         var latestSample = default(GameData);
-        using var dashboardBridge = webDashboard == null
-            ? null
-            : new WebDashboardGameSessionBridge(tool, webDashboard);
         void OnTelemetry(IGame source, GameData current)
         {
             if (!ReferenceEquals(source, game))
@@ -450,9 +447,7 @@ public static class Program
         }
     }
 
-    private static async Task WatchGamesAsync(
-        ZTMZPacenoteTool tool,
-        WebDashboardRuntime? webDashboard)
+    private static async Task WatchGamesAsync(ZTMZPacenoteTool tool)
     {
         if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FLATPAK_ID")))
         {
@@ -463,18 +458,13 @@ public static class Program
             return;
         }
 
-        var changes = Channel.CreateUnbounded<GameActivityChange>(
-            new UnboundedChannelOptions
-            {
-                SingleReader = true,
-                SingleWriter = false
-            });
-        await using var monitor = new PollingGameActivityMonitor(
+        var monitor = new PollingGameActivityMonitor(
             new LinuxProcGameProcessSnapshotProvider(),
             TimeSpan.FromMilliseconds(Math.Max(100, Config.Instance.ProcessWatcherInterval)));
-        using var dashboardBridge = webDashboard == null
-            ? null
-            : new WebDashboardGameSessionBridge(tool, webDashboard);
+        await using var coordinator = new GameActivitySessionCoordinator(
+            monitor,
+            tool,
+            tool.Games);
         tool.onGameInitializeFailed += (game, code, parameters) =>
         {
             Console.Error.WriteLine(
@@ -496,10 +486,24 @@ public static class Program
             $"Pacenote session ready: {game.Name}; " +
             $"track {game.GameDataReader.TrackName}; " +
             $"script author {tool.CurrentScriptAuthor}");
-        monitor.GameStarted += activity => changes.Writer.TryWrite(
-            new GameActivityChange(GameActivityChangeKind.Started, activity));
-        monitor.GameStopped += activity => changes.Writer.TryWrite(
-            new GameActivityChange(GameActivityChangeKind.Stopped, activity));
+        coordinator.ActivityChanged += (_, change) =>
+        {
+            if (change.Kind == GameActivityChangeKind.Started)
+            {
+                Console.WriteLine(
+                    $"Game detected: {change.Activity.Game.Name} " +
+                    $"(PID {change.Activity.ProcessId})");
+                if (!change.SessionActivated)
+                {
+                    Console.Error.WriteLine(
+                        $"Failed to initialize telemetry for {change.Activity.Game.Name}.");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Game exited: {change.Activity.Game.Name}");
+            }
+        };
 
         using var cancellation = new CancellationTokenSource();
         ConsoleCancelEventHandler cancelHandler = (_, eventArgs) =>
@@ -510,42 +514,10 @@ public static class Program
         Console.CancelKeyPress += cancelHandler;
         try
         {
-            monitor.Start(tool.Games);
+            coordinator.Start();
             Console.WriteLine(
                 "Watching native and Proton game processes. Press Ctrl+C to stop.");
-            while (await changes.Reader.WaitToReadAsync(cancellation.Token))
-            {
-                while (changes.Reader.TryRead(out var change))
-                {
-                    if (change.Kind == GameActivityChangeKind.Started)
-                    {
-                        change.Activity.Game.IsRunning = true;
-                        Console.WriteLine(
-                            $"Game detected: {change.Activity.Game.Name} " +
-                            $"(PID {change.Activity.ProcessId})");
-                        if (!tool.ActivateGame(change.Activity.Game))
-                        {
-                            Console.Error.WriteLine(
-                                $"Failed to initialize telemetry for {change.Activity.Game.Name}.");
-                        }
-                    }
-                    else
-                    {
-                        change.Activity.Game.IsRunning = false;
-                        Console.WriteLine($"Game exited: {change.Activity.Game.Name}");
-                        if (ReferenceEquals(tool.CurrentGame, change.Activity.Game))
-                        {
-                            tool.DeactivateCurrentGame();
-                            var fallback = monitor.ActiveGames.FirstOrDefault();
-                            if (fallback != null)
-                            {
-                                fallback.Game.IsRunning = true;
-                                tool.ActivateGame(fallback.Game);
-                            }
-                        }
-                    }
-                }
-            }
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellation.Token);
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
         {
@@ -553,7 +525,7 @@ public static class Program
         finally
         {
             Console.CancelKeyPress -= cancelHandler;
-            await monitor.StopAsync();
+            await coordinator.StopAsync();
         }
     }
 

@@ -50,5 +50,29 @@ namespace ZTMZ.PacenoteTool.Base
                 logfile.SetLoggingLevels(LogLevel.FromOrdinal(level), LogLevel.Fatal);
             }
         }
+
+        public static void AddAlwaysOnRule(string ruleName, string loggerNamePattern, LogLevel minimumLevel)
+        {
+            var config = NLog.LogManager.Configuration;
+            var defaultRule = config?.FindRuleByName(RULE_NAME);
+            if (config == null || defaultRule == null || config.FindRuleByName(ruleName) != null)
+            {
+                return;
+            }
+
+            var rule = new NLog.Config.LoggingRule(ruleName)
+            {
+                LoggerNamePattern = loggerNamePattern,
+                Final = true,
+            };
+            foreach (var target in defaultRule.Targets)
+            {
+                rule.Targets.Add(target);
+            }
+
+            rule.SetLoggingLevels(minimumLevel, LogLevel.Fatal);
+            config.LoggingRules.Insert(0, rule);
+            NLog.LogManager.ReconfigExistingLoggers();
+        }
     }
 }

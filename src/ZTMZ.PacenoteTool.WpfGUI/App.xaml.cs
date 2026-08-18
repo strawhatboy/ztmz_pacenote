@@ -19,6 +19,7 @@ using Wpf.Ui.Extensions;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.UI;
 using ZTMZ.PacenoteTool.Core;
+using ZTMZ.PacenoteTool.Platform.Windows;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 
 namespace ZTMZ.PacenoteTool.WpfGUI;
