@@ -20,6 +20,7 @@ v2.99.99.46-3.0-rc18
 * Fixes native Feral Interactive DiRT Rally installations being reported as not installed on Linux; ZTMZ now recognizes the Steam manifest and native configuration path and accurately reports when UDP telemetry still needs to be enabled.
 * Continues the shared Runtime foundation for an Avalonia/SteamOS UI: update checks and configuration migrations, co-driver selection, mute and example playback, Web Dashboard control, and support diagnostics are now reusable across platforms, while the native HUD, update dialogs, and installer replacement remain Windows Host responsibilities.
 * Further unifies replay and co-driver package operations across Windows and SteamOS: replay listing, analysis, locking, and export, plus co-driver package import, export, and update installation, are now reusable by cross-platform UIs; application installers use reliable streamed downloads with failed temporary files cleaned up, while Windows still presents progress, launches the installer, and exits.
+* Unifies online co-driver package catalog checks, streamed downloads, and safe installation for Windows and SteamOS UIs; failed downloads or installations now clean up temporary files and restore update state instead of leaving an update stuck in progress.
 
 v2.99.99.45-3.0-rc17
 

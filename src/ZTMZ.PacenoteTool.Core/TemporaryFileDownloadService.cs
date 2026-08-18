@@ -9,36 +9,42 @@ using System.Threading.Tasks;
 
 namespace ZTMZ.PacenoteTool.Core;
 
-public sealed record ApplicationUpdateDownloadProgress(
+public sealed record FileDownloadProgress(
     long BytesReceived,
     long? TotalBytes,
     double BytesPerSecond)
 {
-    public double? Percentage => TotalBytes is > 0
-        ? BytesReceived * 100d / TotalBytes.Value
+    public double? Fraction => TotalBytes is > 0
+        ? (double)BytesReceived / TotalBytes.Value
         : null;
+
+    public double? Percentage => Fraction * 100d;
 }
 
-public sealed class ApplicationUpdateDownloadService
+public sealed class TemporaryFileDownloadService
 {
     private const int BufferSize = 81920;
     private readonly HttpClient _httpClient;
 
-    public ApplicationUpdateDownloadService(HttpClient httpClient)
+    public TemporaryFileDownloadService(HttpClient httpClient)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
     }
 
     public async Task<string> DownloadAsync(
         string url,
-        IProgress<ApplicationUpdateDownloadProgress>? progress = null,
+        string fileNamePrefix,
+        string extension,
+        IProgress<FileDownloadProgress>? progress = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(url);
+        ValidateFileNamePart(fileNamePrefix, nameof(fileNamePrefix));
+        ValidateExtension(extension);
 
         var destinationPath = Path.Combine(
             Path.GetTempPath(),
-            $"ztmz-update-{Guid.NewGuid():N}.exe");
+            $"{fileNamePrefix}-{Guid.NewGuid():N}{extension}");
 
         try
         {
@@ -71,7 +77,7 @@ public sealed class ApplicationUpdateDownloadService
 
                 await destination.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
                 bytesReceived += read;
-                progress?.Report(new ApplicationUpdateDownloadProgress(
+                progress?.Report(new FileDownloadProgress(
                     bytesReceived,
                     totalBytes,
                     bytesReceived / Math.Max(stopwatch.Elapsed.TotalSeconds, 0.001)));
@@ -86,7 +92,7 @@ public sealed class ApplicationUpdateDownloadService
         }
     }
 
-    private static void TryDelete(string path)
+    public static void TryDelete(string path)
     {
         try
         {
@@ -97,7 +103,27 @@ public sealed class ApplicationUpdateDownloadService
         }
         catch
         {
-            // Preserve the original download failure.
+            // Cleanup is best-effort and must not hide the primary operation result.
+        }
+    }
+
+    private static void ValidateFileNamePart(string value, string parameterName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value, parameterName);
+        if (value.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+        {
+            throw new ArgumentException("The value must be a valid file-name segment.", parameterName);
+        }
+    }
+
+    private static void ValidateExtension(string extension)
+    {
+        if (string.IsNullOrWhiteSpace(extension) ||
+            extension[0] != '.' ||
+            extension.Length == 1 ||
+            extension.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+        {
+            throw new ArgumentException("The extension must include a leading dot.", nameof(extension));
         }
     }
 }

@@ -8,16 +8,19 @@ using Xunit;
 
 namespace ZTMZ.PacenoteTool.Portable.Tests;
 
-public sealed class ApplicationUpdateDownloadServiceTest
+public sealed class TemporaryFileDownloadServiceTest
 {
     [Fact]
     public async Task DownloadAsyncWritesResponseToExecutableTemporaryFile()
     {
         const string expected = "installer-content";
         using var client = new HttpClient(new StaticResponseHandler(expected));
-        var service = new ApplicationUpdateDownloadService(client);
+        var service = new TemporaryFileDownloadService(client);
 
-        var downloadedFile = await service.DownloadAsync("https://updates/installer");
+        var downloadedFile = await service.DownloadAsync(
+            "https://updates/installer",
+            "ztmz-update-test",
+            ".exe");
         try
         {
             Assert.EndsWith(".exe", downloadedFile, StringComparison.OrdinalIgnoreCase);

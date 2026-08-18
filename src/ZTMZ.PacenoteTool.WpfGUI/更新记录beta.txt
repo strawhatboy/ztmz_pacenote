@@ -21,6 +21,7 @@ v2.99.99.46-3.0-rc18
 * Fixes native Feral Interactive DiRT Rally installations being reported as not installed on Linux; ZTMZ now recognizes the Steam manifest and native configuration path and accurately reports when UDP telemetry still needs to be enabled.
 * Continues the shared Runtime foundation for an Avalonia/SteamOS UI: update checks and configuration migrations, co-driver selection, mute and example playback, Web Dashboard control, and support diagnostics are now reusable across platforms, while the native HUD, update dialogs, and installer replacement remain Windows Host responsibilities.
 * Further unifies replay and co-driver package operations across Windows and SteamOS: replay listing, analysis, locking, and export, plus co-driver package import, export, and update installation, are now reusable by cross-platform UIs; application installers use reliable streamed downloads with failed temporary files cleaned up, while Windows still presents progress, launches the installer, and exits.
+* Unifies online co-driver package catalog checks, streamed downloads, and safe installation for Windows and SteamOS UIs; failed downloads or installations now clean up temporary files and restore update state instead of leaving an update stuck in progress.
 
 [简体中文]
 * 路书编辑器新增主窗口内打印弹层，提供准确且实时刷新的 PDF 分页预览、实体打印机与 PDF 输出、纸张、方向、页边距、可配置格式与位置的页码、页码范围和份数设置；打印会保留背景色，并移除浏览器生成的文件路径页眉页脚。
@@ -43,6 +44,7 @@ v2.99.99.46-3.0-rc18
 * 修复原生 Linux 版 DiRT Rally 使用 Feral Interactive 数据目录时被误报为“游戏未安装”的问题；现在能够识别 Steam 安装清单和原生配置路径，并准确提示尚未开启 UDP 遥测。
 * 继续为 Avalonia/SteamOS 界面统一共享 Runtime：更新检查与版本配置迁移、领航员选择、静音与试听、网页仪表盘控制以及支持诊断现在均可跨平台复用；Windows 原生 HUD、更新弹窗和安装程序替换仍由 Windows Host 负责。
 * 进一步统一 Windows 与 SteamOS 的回放和领航员语音包操作：回放列表、分析、锁定与导出，以及语音包导入、导出和更新安装现在均可由跨平台界面复用；应用更新安装包改为可靠的流式下载并在失败时清理临时文件，Windows 仍负责显示进度、启动安装程序和退出。
+* 统一在线领航员语音包的目录检查、流式下载和安全安装流程，供 Windows 与 SteamOS 界面共用；下载或安装失败时会清理临时文件并恢复更新状态，不再让更新操作停留在进行中。
 
 v2.99.99.45-3.0-rc17
 ------

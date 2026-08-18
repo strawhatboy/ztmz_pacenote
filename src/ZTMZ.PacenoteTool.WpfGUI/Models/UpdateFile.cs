@@ -22,6 +22,30 @@ public class UpdateFile : ApplicationUpdateDefinition
 
 public partial class CodriverPackageUpdateFile: ObservableObject {
     public CodriverPackageUpdateFile() {}
+    public static CodriverPackageUpdateFile FromStatus(CoDriverPackageUpdateStatus status) {
+        var definition = status.Definition;
+        return new CodriverPackageUpdateFile {
+            Id = definition.id,
+            Name = definition.name,
+            Description = definition.description,
+            Gender = definition.gender,
+            Language = definition.language,
+            Homepage = definition.homepage,
+            Version = definition.version,
+            Url = definition.url,
+            UrlRedirected = definition.urlRedirected,
+            Changelog = definition.changelog,
+            NeedUpdate = status.NeedsUpdate,
+            NeedDownload = status.NeedsDownload,
+            IsAvailable = !status.NeedsDownload,
+            OriginalVersion = status.OriginalVersion,
+            Path = status.ExistingPackagePath,
+            Integrity_simple = definition.integrity_simple,
+            Integrity_normal = definition.integrity_normal,
+            Integrity_complex = definition.integrity_complex
+        };
+    }
+
     public CodriverPackageUpdateFile(CoDriverPackageInfo info) {
         this.Id = info.id;
         this.Name = info.name;

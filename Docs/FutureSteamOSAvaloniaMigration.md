@@ -134,17 +134,18 @@ Already shared outside `WpfGUI`:
 - data-folder planning, free-space checks, copying, verification, and deletion;
 - replay listing, detail lookup, best-run selection, locking, export, and
   pending-save flushing through a shared catalog service;
-- co-driver package destination inspection, managed import/update installation,
-  export, and runtime refresh;
+- co-driver online catalog comparison, streamed package download with explicit
+  download/install phases, managed import/update installation, export, runtime
+  refresh, and temporary-file cleanup;
 - game activity contracts and telemetry-reader lifecycle;
 - pacenote definitions, configuration models, replay data, and game contracts;
 - audio decoding, mixing, sequencing, device contracts, and playback state;
 - Web Dashboard hosting, packages, browser protocol, fonts, and pacenote icons.
 
-Good extraction candidates still located in `WpfGUI`:
-
-- co-driver online update-catalog retrieval and download orchestration, with
-  presentation state kept in the platform UI;
+The scoped extraction inventory above is now complete. Avalonia still needs
+platform views that consume these services, but those views should not require
+a second implementation of the underlying update, replay, diagnostics,
+co-driver, or data-migration workflows.
 
 Must remain host-specific:
 

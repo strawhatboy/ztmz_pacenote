@@ -18,6 +18,7 @@ public partial class VoicePageVM : ObservableObject {
     private readonly VoicePackagePageVM voicePackagePageVM;
     private readonly INavigationService navigationService;
     private readonly CoDriverPackageCatalogService packageCatalog;
+    private readonly CoDriverPackageUpdateService packageUpdates;
 
     [ObservableProperty]
     private ObservableCollection<CodriverPackageUpdateFile> _voicePackages = new ();
@@ -30,12 +31,13 @@ public partial class VoicePageVM : ObservableObject {
     public VoicePageVM(Core.ZTMZPacenoteTool tool, 
     VoicePackagePageVM voicePackagePageVM,
     INavigationService navigationService,
-    UpdateService updateService,
-    CoDriverPackageCatalogService packageCatalog) {
+    CoDriverPackageCatalogService packageCatalog,
+    CoDriverPackageUpdateService packageUpdates) {
         this.tool = tool;
         this.voicePackagePageVM = voicePackagePageVM;
         this.navigationService = navigationService;
         this.packageCatalog = packageCatalog;
+        this.packageUpdates = packageUpdates;
 
         BindingOperations.EnableCollectionSynchronization(VoicePackages, _collectionLock);
 
@@ -46,8 +48,13 @@ public partial class VoicePageVM : ObservableObject {
 
         VoicePackages.Clear();
         Task.Run(async () => {
-            var needUpdatePkgs = await updateService.CheckCodriverPackagesUpdate((from p in tool.CoDriverPackages select p.Info).ToList());
-            var needUpdateOrDownload = (from p in needUpdatePkgs where p.needUpdate || p.needDownload select p).ToList();
+            var updateStatuses = await packageUpdates.CheckForUpdatesAsync(
+                Config.Instance.UpdateDefinitionUrl_AudioPkg,
+                tool.CoDriverPackages.Select(package => package.Info).ToList());
+            var needUpdateOrDownload = updateStatuses
+                .Where(status => status.NeedsUpdate || status.NeedsDownload)
+                .Select(CodriverPackageUpdateFile.FromStatus)
+                .ToList();
             foreach (var pkg in needUpdateOrDownload) {
                 VoicePackages.Add(pkg);
             }
@@ -91,27 +98,39 @@ public partial class VoicePageVM : ObservableObject {
         // show success or failure message
         var pkg = VoicePackages.FirstOrDefault(p => p.id == id);
         if (pkg != null) {
+            var neededUpdate = pkg.NeedUpdate;
+            var neededDownload = pkg.NeedDownload;
             pkg.IsDownloading = true;
             pkg.NeedUpdate = false;
             pkg.NeedDownload = false;
             lock (_updateLock) {
                 _updateQueue.Enqueue(pkg);
             }
-            // download and install
-            FileDownloader fd = new();
-            var progress = new Progress<float>(p => {
-                pkg.DownloadProgress = p;   // update progress bar
-            });
-            var downloadedFiles = await fd.DownloadFiles(new List<string> { pkg.Url }, progress);
-            var downloadedFile = downloadedFiles[pkg.url];
-            pkg.IsDownloading = false;
-            pkg.IsInstalling = true;
-            var installedPackage = await packageCatalog.ImportAsync(downloadedFile, pkg.Path);
-            pkg.Path = installedPackage.Info.Path;
-            pkg.IsInstalling = false;
-            pkg.IsAvailable = true;
+            var progress = new Progress<CoDriverPackageUpdateProgress>(p => {
+                if (p.Phase == CoDriverPackageUpdatePhase.Installing) {
+                    pkg.IsDownloading = false;
+                    pkg.IsInstalling = true;
+                    return;
+                }
 
-            await RefreshCodriversWhenUpdatesCompleteAsync();
+                pkg.DownloadProgress = (float)(p.Download?.Fraction ?? 0);
+            });
+            try {
+                var installedPackage = await packageUpdates.DownloadAndInstallAsync(
+                    pkg.Url,
+                    pkg.Path,
+                    progress);
+                pkg.Path = installedPackage.Info.Path;
+                pkg.IsAvailable = true;
+            } catch {
+                pkg.NeedUpdate = neededUpdate;
+                pkg.NeedDownload = neededDownload;
+                throw;
+            } finally {
+                pkg.IsDownloading = false;
+                pkg.IsInstalling = false;
+                await RefreshCodriversWhenUpdatesCompleteAsync();
+            }
         }
     }
 

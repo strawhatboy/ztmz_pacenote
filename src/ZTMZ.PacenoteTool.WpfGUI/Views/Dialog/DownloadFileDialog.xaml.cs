@@ -8,11 +8,11 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views.Dialog;
 
 public partial class DownloadFileDialog : ContentDialog
 {
-    private readonly ApplicationUpdateDownloadService _downloadService;
+    private readonly TemporaryFileDownloadService _downloadService;
 
     public DownloadFileDialog(
         ContentDialogHost dialogHost,
-        ApplicationUpdateDownloadService downloadService)
+        TemporaryFileDownloadService downloadService)
         : base(dialogHost)
     {
         InitializeComponent();
@@ -26,7 +26,7 @@ public partial class DownloadFileDialog : ContentDialog
             "(1/1)",
             url);
 
-        var progress = new Progress<ApplicationUpdateDownloadProgress>(value =>
+        var progress = new Progress<FileDownloadProgress>(value =>
         {
             pb.IsIndeterminate = value.Percentage == null;
             if (value.Percentage is double percentage)
@@ -45,7 +45,11 @@ public partial class DownloadFileDialog : ContentDialog
                 total);
         });
 
-        return await _downloadService.DownloadAsync(url, progress);
+        return await _downloadService.DownloadAsync(
+            url,
+            "ztmz-update",
+            ".exe",
+            progress);
     }
 
     public void CloseAfterDownload()

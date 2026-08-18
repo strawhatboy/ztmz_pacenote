@@ -101,7 +101,7 @@ public partial class App : Application
 
             services.AddSingleton<HttpClient>();
             services.AddSingleton<ApplicationUpdateQueryService>();
-            services.AddSingleton<ApplicationUpdateDownloadService>();
+            services.AddSingleton<TemporaryFileDownloadService>();
             services.AddSingleton<UpdateService>();
             services.AddSingleton<StartupService>();
             services.AddSingleton<GameOverlayManager>();
@@ -114,6 +114,7 @@ public partial class App : Application
             services.AddSingleton<RuntimeDiagnosticsService>();
             services.AddSingleton<ReplayCatalogService>();
             services.AddSingleton<CoDriverPackageCatalogService>();
+            services.AddSingleton<CoDriverPackageUpdateService>();
             services.AddSingleton<SupportDiagnosticsService>();
             services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>(provider =>
                 new ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool(
