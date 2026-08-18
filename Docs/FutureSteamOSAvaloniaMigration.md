@@ -53,7 +53,7 @@ Linux release. Each is a separate platform integration.
 | Native overlay | GameOverlay.Net, SharpDX, Direct2D, `user32.dll`, HWND attachment | Keep as a Windows feature; research a Gamescope-specific host separately |
 | Web Dashboard | ASP.NET Core, WebSocket, browser JavaScript | Extracted into the platform-neutral `WebDashboard` project and hosted by the Linux runtime |
 | Script editor | Monaco hosted by WPF WebView2 | Reuse Monaco through the local web host or system browser on Linux |
-| Game discovery and IPC | Windows process/window APIs, registry, named maps, named pipes, injection | Introduce platform services and Proton relay processes where required |
+| Game discovery and IPC | Windows process/window APIs, registry, named maps, named pipes, injection | Shared activity monitor implemented; native Linux uses `/proc`, while Flatpak and Windows-only IPC require Proton relays |
 | Replay capture | WASAPI loopback and Windows window capture | Add PipeWire/FFmpeg capture only after the core Linux release |
 | Packaging and updates | Inno Setup and Windows executable updates | Define a separate SteamOS/Linux package and update channel |
 
@@ -170,6 +170,28 @@ The next Web Dashboard work is product integration rather than platform
 extraction: expose its settings in the future Avalonia UI, populate full
 pacenote/replay `GameContext` state from the shared runtime, and validate the
 browser renderer against Proton game traffic on SteamOS hardware.
+
+## Game Activity Monitoring
+
+Game discovery now uses the platform-neutral `IGameActivityMonitor` contract.
+The native Linux implementation polls `/proc` and recognizes direct executable
+names, Windows executable paths in Proton command lines, Steam application
+environment variables, and `compatdata/<app-id>` paths. Its initial scan also
+detects a game that was already running before ZTMZ started.
+
+`GameTelemetrySession` owns the selected reader lifecycle. Starting or changing
+games initializes the corresponding reader once; leaving the game unsubscribes
+telemetry handlers and releases the UDP listener. Linux forwards the active
+reader's telemetry and basic game context to the Web Dashboard. The explicit
+`--listen-game` option remains available as a manual override, and
+`--no-game-watch` retains the bounded diagnostics behavior.
+
+Flatpak deliberately cannot inspect host processes. ZTMZ does not request
+`org.freedesktop.Flatpak` access or use `flatpak-spawn --host`, because that
+would be a broad sandbox escape and unsuitable as the normal Flathub design.
+The Flatpak build therefore reports that automatic process discovery requires
+the planned versioned Proton lifecycle relay; manual `--listen-game` selection
+continues to work in the meantime.
 
 ## Game Support Order
 

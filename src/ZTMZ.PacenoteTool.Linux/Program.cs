@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Threading.Channels;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Core;
@@ -18,6 +19,7 @@ public static class Program
     private const string AudioDeviceOption = "--audio-device";
     private const string WebDashboardOption = "--web-dashboard";
     private const string WebDashboardPortOption = "--web-dashboard-port";
+    private const string NoGameWatchOption = "--no-game-watch";
     private const string ResourceHomeEnvironmentVariable = "ZTMZ_RESOURCE_HOME";
 
     public static async Task<int> Main(string[] args)
@@ -170,7 +172,15 @@ public static class Program
             return 6;
         }
 
-        if (webDashboard != null && string.IsNullOrWhiteSpace(options.ListenGame))
+        var watchGames = !options.DisableGameWatch &&
+                         Config.Instance.AutoInitializeGame &&
+                         string.IsNullOrWhiteSpace(options.ListenGame) &&
+                         string.IsNullOrWhiteSpace(options.PlayAudio);
+        if (watchGames)
+        {
+            await WatchGamesAsync(state.Games, webDashboard);
+        }
+        else if (webDashboard != null && string.IsNullOrWhiteSpace(options.ListenGame))
         {
             Console.WriteLine("Web Dashboard is running. Press Ctrl+C to stop.");
             await WaitForCancellationAsync();
@@ -415,6 +425,100 @@ public static class Program
         }
     }
 
+    private static async Task WatchGamesAsync(
+        IReadOnlyList<IGame> games,
+        WebDashboardRuntime? webDashboard)
+    {
+        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FLATPAK_ID")))
+        {
+            Console.WriteLine(
+                "Automatic host-process discovery is unavailable inside the Flatpak sandbox. " +
+                $"Use {ListenGameOption} until the Proton lifecycle relay is installed.");
+            await WaitForCancellationAsync();
+            return;
+        }
+
+        var changes = Channel.CreateUnbounded<GameActivityChange>(
+            new UnboundedChannelOptions
+            {
+                SingleReader = true,
+                SingleWriter = false
+            });
+        await using var monitor = new PollingGameActivityMonitor(
+            new LinuxProcGameProcessSnapshotProvider(),
+            TimeSpan.FromMilliseconds(Math.Max(100, Config.Instance.ProcessWatcherInterval)));
+        using var session = new GameTelemetrySession();
+        var dashboardContext = new GameContext();
+        session.TelemetryReceived += (game, data) =>
+        {
+            dashboardContext.TrackName = game.GameDataReader.TrackName;
+            dashboardContext.CarName = game.GameDataReader.CarName;
+            dashboardContext.CarClass = game.GameDataReader.CarClass;
+            dashboardContext.LastGameState = dashboardContext.GameState;
+            dashboardContext.GameState = (int)game.GameDataReader.GameState;
+            webDashboard?.PublishTelemetry(data, dashboardContext);
+        };
+        monitor.GameStarted += activity => changes.Writer.TryWrite(
+            new GameActivityChange(GameActivityChangeKind.Started, activity));
+        monitor.GameStopped += activity => changes.Writer.TryWrite(
+            new GameActivityChange(GameActivityChangeKind.Stopped, activity));
+
+        using var cancellation = new CancellationTokenSource();
+        ConsoleCancelEventHandler cancelHandler = (_, eventArgs) =>
+        {
+            eventArgs.Cancel = true;
+            cancellation.Cancel();
+        };
+        Console.CancelKeyPress += cancelHandler;
+        try
+        {
+            monitor.Start(games);
+            Console.WriteLine(
+                "Watching native and Proton game processes. Press Ctrl+C to stop.");
+            while (await changes.Reader.WaitToReadAsync(cancellation.Token))
+            {
+                while (changes.Reader.TryRead(out var change))
+                {
+                    if (change.Kind == GameActivityChangeKind.Started)
+                    {
+                        change.Activity.Game.IsRunning = true;
+                        Console.WriteLine(
+                            $"Game detected: {change.Activity.Game.Name} " +
+                            $"(PID {change.Activity.ProcessId})");
+                        if (!session.Activate(change.Activity.Game))
+                        {
+                            Console.Error.WriteLine(
+                                $"Failed to initialize telemetry for {change.Activity.Game.Name}.");
+                        }
+                    }
+                    else
+                    {
+                        change.Activity.Game.IsRunning = false;
+                        Console.WriteLine($"Game exited: {change.Activity.Game.Name}");
+                        if (ReferenceEquals(session.CurrentGame, change.Activity.Game))
+                        {
+                            session.Deactivate();
+                            var fallback = monitor.ActiveGames.FirstOrDefault();
+                            if (fallback != null)
+                            {
+                                fallback.Game.IsRunning = true;
+                                session.Activate(fallback.Game);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+        {
+        }
+        finally
+        {
+            Console.CancelKeyPress -= cancelHandler;
+            await monitor.StopAsync();
+        }
+    }
+
     private static string FormatUdpConfiguration(IGame game)
     {
         return game.GameConfigurations.TryGetValue(UdpGameConfig.Name, out var configuration) &&
@@ -485,6 +589,7 @@ public static class Program
         string? playAudio = null;
         string? audioDevice = null;
         var webDashboard = false;
+        var disableGameWatch = false;
         int? webDashboardPort = null;
         var listenSeconds = 10;
         var listenSecondsSpecified = false;
@@ -496,6 +601,12 @@ public static class Program
             if (option == WebDashboardOption)
             {
                 webDashboard = true;
+                continue;
+            }
+
+            if (option == NoGameWatchOption)
+            {
+                disableGameWatch = true;
                 continue;
             }
 
@@ -593,7 +704,8 @@ public static class Program
             playAudio,
             audioDevice,
             webDashboard,
-            webDashboardPort);
+            webDashboardPort,
+            disableGameWatch);
         return true;
     }
 
@@ -605,7 +717,8 @@ public static class Program
             "Usage: ztmz [--data-root <directory>] [--resource-root <directory>] " +
             "[--listen-game <name> [--listen-seconds <1-300>]] " +
             "[--play-audio <file> [--audio-device <id>]] " +
-            "[--web-dashboard [--web-dashboard-port <1024-65535>]]");
+            "[--web-dashboard [--web-dashboard-port <1024-65535>]] " +
+            "[--no-game-watch]");
         Console.WriteLine();
         Console.WriteLine("Loads packaged pacenote data and native game providers on Linux.");
         Console.WriteLine(
@@ -622,5 +735,6 @@ public static class Program
         string? PlayAudio,
         string? AudioDevice,
         bool WebDashboard,
-        int? WebDashboardPort);
+        int? WebDashboardPort,
+        bool DisableGameWatch);
 }

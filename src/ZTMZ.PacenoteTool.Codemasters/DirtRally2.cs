@@ -5,7 +5,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.Codemasters
 {
-    public class DirtRally2 : IGame
+    public class DirtRally2 : IGame, ISteamGameIdentity
     {
 
         public string WindowTitle => "DiRT Rally 2.0";
@@ -13,6 +13,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
         public string Name => GameName;
         public static string GameName = "Dirt Rally 2.0";
         public const uint SteamAppId = 690790;
+        public uint SteamApplicationId => SteamAppId;
 
         public event Action<int, string> onCustomMessage;
 

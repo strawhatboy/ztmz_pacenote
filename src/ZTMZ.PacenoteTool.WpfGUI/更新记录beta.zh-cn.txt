@@ -14,6 +14,7 @@ v2.99.99.46-3.0-rc18
 * Linux 原生宿主新增 PortAudio 播放后端，并共享现有的语音解码、混音、顺序播放、变速、静音和诊断能力；已在 Arch Linux 虚拟机中验证音频设备枚举与播放链路。
 * 统一 Windows 与 Linux 的资源、游戏插件、profile、领航员语音包和前置条件初始化流程，并让 DiRT Rally、DiRT Rally 2.0 与 EA SPORTS WRC 的配置检查能够定位 Steam Proton prefix 中的 Documents 目录。
 * 网页仪表盘已从 WPF、原生悬浮窗和 SharpDX 中独立出来，并接入 Linux Runtime；SteamOS/Linux 现在能够加载全部内置仪表盘、网页客户端、字体和路书图标，并将 Codemasters UDP 遥测实时发送到浏览器仪表盘。
+* 原生 Linux 宿主现在能够识别 Steam Proton 中已运行或随后启动的 DiRT Rally、DiRT Rally 2.0 与 EA SPORTS WRC，自动选择对应游戏并建立、切换和释放遥测读取器；Flatpak 沙箱内的自动发现仍需后续的宿主生命周期 relay。
 
 v2.99.99.45-3.0-rc17
 

@@ -73,6 +73,12 @@ namespace ZTMZ.PacenoteTool.Base.Game
         bool MigrateGameConfiguration();
     }
 
+    /// <summary>Optional Steam identity used by platform game discovery.</summary>
+    public interface ISteamGameIdentity
+    {
+        uint SteamApplicationId { get; }
+    }
+
     public sealed record LocalBridgeDiagnosticsInfo(
         string Name,
         bool IsEnabled,

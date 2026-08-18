@@ -114,5 +114,13 @@ simulated speed, gear, RPM, and stage distance. Because the sender runs outside
 the Flatpak, this checks the same host-to-sandbox UDP boundary used by a game
 running under Proton.
 
+The native Linux host automatically watches `/proc` for supported games and
+also detects games that were running before ZTMZ started. Flatpak applications
+cannot see host processes, so the development package currently requires
+`--listen-game <name>` for an explicit game selection until the Proton
+lifecycle relay is available. ZTMZ intentionally does not request
+`org.freedesktop.Flatpak` access or invoke `flatpak-spawn --host`. Use
+`--no-game-watch` when only the startup diagnostics are needed.
+
 The permanent application ID, AppStream metadata, desktop integration, and
 runtime permissions will be finalized when the Linux host provides a usable UI.

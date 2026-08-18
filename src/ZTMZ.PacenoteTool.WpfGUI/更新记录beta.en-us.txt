@@ -14,6 +14,7 @@ v2.99.99.46-3.0-rc18
 * Adds a PortAudio output backend to the native Linux host while sharing the existing decoding, mixing, sequential playback, speed control, mute, and diagnostics behavior; audio-device enumeration and playback have been validated on an Arch Linux VM.
 * Unifies Windows and Linux initialization of resources, game plugins, profiles, co-drivers, and prerequisites, and lets the DiRT Rally, DiRT Rally 2.0, and EA SPORTS WRC checks locate their Documents directories inside Steam Proton prefixes.
 * Extracts the Web Dashboard from WPF, the native overlay, and SharpDX and connects it to the Linux runtime; SteamOS/Linux can now load all bundled dashboards, the browser client, fonts, and pacenote icons and stream Codemasters UDP telemetry to browser dashboards in real time.
+* Lets the native Linux host detect DiRT Rally, DiRT Rally 2.0, and EA SPORTS WRC already running or subsequently launched through Steam Proton, automatically select the matching game, and create, switch, and release its telemetry reader; automatic discovery inside the Flatpak sandbox still requires a future host lifecycle relay.
 
 v2.99.99.45-3.0-rc17
 

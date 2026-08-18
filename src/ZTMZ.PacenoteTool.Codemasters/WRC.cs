@@ -5,7 +5,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.Codemasters
 {
-    public class WRC : IGame
+    public class WRC : IGame, ISteamGameIdentity
     {
 
         public string WindowTitle => "EA SPORTS™ WRC";
@@ -13,6 +13,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
         public string Name => GameName;
         public static string GameName = "EA SPORTS™ WRC";
         public const uint SteamAppId = 1849250;
+        public uint SteamApplicationId => SteamAppId;
 
         public event Action<int, string> onCustomMessage;
 
