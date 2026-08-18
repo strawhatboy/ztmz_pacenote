@@ -57,16 +57,50 @@ public sealed class CodemastersPluginTest
             Assert.True(listener.Status.Port > 0);
 
             using var sender = new UdpClient(AddressFamily.InterNetwork);
+            var packet = CreateDirtTelemetryPacket(
+                speedMetersPerSecond: 34.5f,
+                gear: 4,
+                rpm: 6200,
+                lapDistance: 1234.5f);
             await sender.SendAsync(
-                new byte[264],
+                packet,
                 new IPEndPoint(IPAddress.Loopback, listener.Status.Port));
 
-            await packetReceived.Task.WaitAsync(TimeSpan.FromSeconds(3));
+            var sample = await packetReceived.Task.WaitAsync(TimeSpan.FromSeconds(3));
             Assert.True(reader.UdpStatus.PacketCount > 0);
+            Assert.Equal(124.2f, sample.Speed, precision: 1);
+            Assert.Equal(4f, sample.Gear);
+            Assert.Equal(6200f, sample.RPM);
+            Assert.Equal(1234.5f, sample.LapDistance);
         }
         finally
         {
             reader.Uninitialize(game);
         }
+    }
+
+    private static byte[] CreateDirtTelemetryPacket(
+        float speedMetersPerSecond,
+        float gear,
+        float rpm,
+        float lapDistance)
+    {
+        var packet = new byte[264];
+        WriteSingle(packet, 0, 15.0f);
+        WriteSingle(packet, 4, 12.5f);
+        WriteSingle(packet, 8, lapDistance);
+        WriteSingle(packet, 12, 0.25f);
+        WriteSingle(packet, 28, speedMetersPerSecond);
+        WriteSingle(packet, 33 << 2, gear);
+        WriteSingle(packet, 37 << 2, rpm / 10f);
+        WriteSingle(packet, 63 << 2, 800f);
+        WriteSingle(packet, 64 << 2, 90f);
+        WriteSingle(packet, 65 << 2, 6f);
+        return packet;
+    }
+
+    private static void WriteSingle(byte[] packet, int offset, float value)
+    {
+        BitConverter.GetBytes(value).CopyTo(packet, offset);
     }
 }

@@ -8,27 +8,27 @@ rmdir /S /Q target
 cd ../src
 
 cd ZTMZ.PacenoteTool.Codemasters
-dotnet publish -c Release -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0
+dotnet publish -c Release -f net10.0-windows -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0 --property ArtifactsPivots=release_win-x64
 if errorlevel 1 goto :publish_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.RBR
-dotnet publish -c Release -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0
+dotnet publish -c Release -f net10.0-windows -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0 --property ArtifactsPivots=release_win-x64
 if errorlevel 1 goto :publish_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.BeamNG
-dotnet publish -c Release -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0
+dotnet publish -c Release -f net10.0-windows -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0 --property ArtifactsPivots=release_win-x64
 if errorlevel 1 goto :publish_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.AC
-dotnet publish -c Release -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0
+dotnet publish -c Release -f net10.0-windows -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0 --property ArtifactsPivots=release_win-x64
 if errorlevel 1 goto :publish_failed
 cd ..
 
 cd ZTMZ.PacenoteTool.WpfGUI
-dotnet publish -c Release -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0
+dotnet publish -c Release -f net10.0-windows -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0 --property ArtifactsPivots=release_win-x64
 if errorlevel 1 goto :publish_failed
 cd ..
 cd /D "%~dp0"  

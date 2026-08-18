@@ -81,7 +81,7 @@ exit /b 0
 
 :publish
 pushd "%SOURCE_ROOT%\%~1"
-dotnet publish -c Release -r win-x64 --artifacts-path "%ARTIFACT_ROOT%" --property WarningLevel=0
+dotnet publish -c Release -f net10.0-windows -r win-x64 --artifacts-path "%ARTIFACT_ROOT%" --property WarningLevel=0 --property ArtifactsPivots=release_win-x64
 set "PUBLISH_RESULT=%ERRORLEVEL%"
 popd
 exit /b %PUBLISH_RESULT%

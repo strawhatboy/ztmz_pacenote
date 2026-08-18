@@ -16,6 +16,8 @@ The first native bootstrap was verified on Arch Linux on August 18, 2026:
 - a permission-minimal Flatpak development package built, installed, and launched successfully;
 - the Flatpak loaded 349 official pacenote tokens and three Codemasters UDP game providers;
 - a DiRT Rally 2.0 UDP listener bound successfully inside the Flatpak sandbox;
+- a host-side simulator sent 20 valid Codemasters frames across the Flatpak boundary,
+  all of which were received and decoded with the expected speed, gear, RPM, and distance;
 - Flathub exposes Freedesktop `25.08` and the matching `dotnet10` SDK extension.
 
 This is an infrastructure milestone, not a playable Steam Deck release. The
@@ -234,6 +236,7 @@ so shared core initialization cannot silently call Windows Core Audio.
 - [x] Publish and run the bootstrap inside a local Flatpak development sandbox.
 - [x] Provision and load the official pacenote database.
 - [x] Load portable Codemasters game providers and persist their UDP configuration.
+- [x] Verify host-to-Flatpak UDP telemetry with valid simulated Codemasters frames.
 - Load profiles and co-driver packages.
 - Receive one UDP game's telemetry under Proton.
 - Decode, mix, and play a real co-driver package through PortAudio.
@@ -253,7 +256,9 @@ Proton, followed by loading and playing a real co-driver package.
 development manifest, not the final Flathub submission. It uses Freedesktop
 `25.08` plus `org.freedesktop.Sdk.Extension.dotnet10` and packages the native
 bootstrap with only `--share=network`, which is required for telemetry from a
-game running under Proton. It grants no host filesystem access.
+game running under Proton. It grants no host filesystem access. The development
+build targets `linux-x64` explicitly so NuGet runtime assets for unrelated
+operating systems and architectures are not copied into the Flatpak.
 
 The local Arch VM uses an unprivileged `deck` account for source checkout,
 builds, tests, Flatpak installation, and application execution. Root SSH is

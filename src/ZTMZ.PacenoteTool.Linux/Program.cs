@@ -186,7 +186,17 @@ public static class Program
         }
 
         long sampleCount = 0;
-        udpReader.onNewGameData += (_, _) => Interlocked.Increment(ref sampleCount);
+        var sampleLock = new object();
+        var latestSample = default(GameData);
+        udpReader.onNewGameData += (_, current) =>
+        {
+            lock (sampleLock)
+            {
+                latestSample = current;
+            }
+
+            Interlocked.Increment(ref sampleCount);
+        };
         try
         {
             if (!udpReader.Initialize(game))
@@ -205,6 +215,25 @@ public static class Program
             Console.WriteLine(
                 $"UDP telemetry result: {finalStatus.PacketCount} packets, " +
                 $"{sampleCount} decoded samples, last packet {finalStatus.LastPacketSize} bytes");
+            if (sampleCount > 0)
+            {
+                GameData sample;
+                lock (sampleLock)
+                {
+                    sample = latestSample;
+                }
+
+                Console.WriteLine(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "Latest decoded sample: speed {0:F1} km/h, gear {1:F0}, " +
+                        "RPM {2:F0}, stage distance {3:F1} m",
+                        sample.Speed,
+                        sample.Gear,
+                        sample.RPM,
+                        sample.LapDistance));
+            }
+
             return true;
         }
         catch (Exception exception)

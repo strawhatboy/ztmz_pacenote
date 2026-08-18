@@ -5,7 +5,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.BeamNG;
 
-public sealed class BeamNGRally : IGame, IGameConfigurationMigrator
+public sealed class BeamNGRally : IGame, IGameConfigurationMigrator, IGameWithIntegrationProviders
 {
     public const string GameName = "BeamNG.drive Rally Mode";
 
@@ -36,6 +36,11 @@ public sealed class BeamNGRally : IGame, IGameConfigurationMigrator
         },
         [BeamNGRallyBridgeConfig.Name] = new BeamNGRallyBridgeConfig()
     };
+
+    public IReadOnlyList<IGameIntegrationProvider> IntegrationProviders { get; } =
+    [
+        new BeamNGIntegrationProvider()
+    ];
 
     public event Action<int, string>? onCustomMessage;
 

@@ -12,6 +12,7 @@
         "installFailed": "Rally bridge installation failed",
         "statusUserFolderRequired": "Select the BeamNG.drive user folder.",
         "statusNotInstalled": "Rally bridge is not installed.",
+        "statusUpdateRequired": "Rally bridge update required. Installed version: {0}; bundled version: {1}.",
         "statusInstalled": "Rally bridge installed. Restart BeamNG to load the updated mod.",
         "statusPortUnavailable": "Rally bridge port {0} is unavailable.",
         "statusWaiting": "Rally bridge is listening on port {0}. In BeamNG's Mods Manager, enable ZTMZ Pacenote Rally Bridge, then enter a built-in Rally stage.",

@@ -1179,8 +1179,20 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             for (var i = 0; i < settings.Count; i++) {
                 var setting = settings.ElementAt(i);
                 var pane = _gameConfigSettingsPaneTypes.Where(t => t.GetCustomAttribute<GameConfigPaneAttribute>()?.PaneType == setting.Value.GetType()).FirstOrDefault();
-                if (pane != null) {
-                    var instance = Activator.CreateInstance(pane, setting.Value) as IGameConfigSettingsPane;
+                IGameConfigSettingsPane? instance = pane is null
+                    ? null
+                    : Activator.CreateInstance(pane, setting.Value) as IGameConfigSettingsPane;
+                if (instance is null && game.Game is IGameWithIntegrationProviders integrationGame)
+                {
+                    var provider = integrationGame.IntegrationProviders.FirstOrDefault(candidate =>
+                        candidate.ConfigurationType.IsInstanceOfType(setting.Value));
+                    if (provider is not null)
+                    {
+                        instance = new GameIntegrationConfigSettingsPane(setting.Value, provider);
+                    }
+                }
+
+                if (instance != null) {
                     instance.InitializeWithGame(game.Game);
                     CurrentGameSettings.Add(instance);
                     _gameConfigSettingsPanes[game.Game].Add(instance);

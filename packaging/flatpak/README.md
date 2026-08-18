@@ -53,5 +53,25 @@ flatpak run io.github.strawhatboy.ZTMZPacenoteTool.Devel \
 Flatpak process. No host filesystem permission is granted by this development
 manifest.
 
+To simulate that Proton-side traffic without installing a game, start the
+listener in one terminal:
+
+```bash
+flatpak run io.github.strawhatboy.ZTMZPacenoteTool.Devel \
+  --listen-game "Dirt Rally 2.0" \
+  --listen-seconds 10
+```
+
+Then send valid Codemasters packets from the Linux host in another terminal:
+
+```bash
+python3 packaging/flatpak/send-codemasters-udp.py
+```
+
+The listener should report received and decoded samples, followed by the
+simulated speed, gear, RPM, and stage distance. Because the sender runs outside
+the Flatpak, this checks the same host-to-sandbox UDP boundary used by a game
+running under Proton.
+
 The permanent application ID, AppStream metadata, desktop integration, and
 runtime permissions will be finalized when the Linux host provides a usable UI.

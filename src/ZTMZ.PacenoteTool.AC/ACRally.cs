@@ -6,7 +6,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.AC;
 
-public class ACRally : IGame, ILocalGameBridgeControl
+public class ACRally : IGame, ILocalGameBridgeControl, IGameWithIntegrationProviders
 {
     public string WindowTitle => "Assetto Corsa Rally";
 
@@ -33,6 +33,11 @@ public class ACRally : IGame, ILocalGameBridgeControl
         { MemoryGameConfig.Name, new MemoryGameConfig() { RefreshRate = ACRGameDataReader.TARGET_FPS } },
         { ACRExperimentalBridgeConfig.Name, new ACRExperimentalBridgeConfig() }
     };
+
+    public IReadOnlyList<IGameIntegrationProvider> IntegrationProviders { get; } =
+    [
+        new ACRIntegrationProvider()
+    ];
 
     public bool IsRunning { get; set; }
     public bool IsInitialized { get; set; }
