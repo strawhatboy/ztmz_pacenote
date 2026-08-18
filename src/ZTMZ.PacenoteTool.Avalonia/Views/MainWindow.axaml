@@ -103,6 +103,14 @@
             </StackPanel>
           </ListBoxItem>
           <ListBoxItem Classes="left-fluent-nav-item"
+                       Tag="general"
+                       ToolTip.Tip="{DynamicResource tabs.general}">
+            <StackPanel Spacing="3" HorizontalAlignment="Center">
+              <fa:FASymbolIcon Symbol="Settings" FontSize="23" />
+              <TextBlock Text="{DynamicResource tabs.general}" />
+            </StackPanel>
+          </ListBoxItem>
+          <ListBoxItem Classes="left-fluent-nav-item"
                        Tag="codriver"
                        ToolTip.Tip="{DynamicResource tabs.voices}">
             <StackPanel Spacing="3" HorizontalAlignment="Center">

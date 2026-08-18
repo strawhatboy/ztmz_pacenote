@@ -128,29 +128,31 @@
                 </StackPanel>
               </Grid>
             </Expander.Header>
-            <Button Margin="0,14,0,0"
-                    Padding="0"
-                    HorizontalContentAlignment="Stretch"
-                    Command="{Binding OpenDashboardSettingsCommand}"
-                    ToolTip.Tip="{DynamicResource settings.tooltip.overlayHudUsage}">
-              <Grid Height="104" ColumnDefinitions="176,*" ColumnSpacing="14">
-                <Border Background="#111111" CornerRadius="3" ClipToBounds="True">
-                  <Image Source="{Binding FeaturedDashboard.PreviewImage}"
-                         Stretch="UniformToFill"
-                         RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </Border>
-                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
-                  <TextBlock Text="{Binding FeaturedDashboard.Name}"
-                             FontWeight="SemiBold" />
-                  <TextBlock Text="{Binding FeaturedDashboard.Description}"
-                             Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                             TextWrapping="Wrap"
-                             MaxLines="2" />
-                  <TextBlock Text="{DynamicResource settings.more}"
-                             Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
-                </StackPanel>
-              </Grid>
-            </Button>
+            <Grid Margin="0,14,0,0"
+                  Height="82"
+                  HorizontalAlignment="Stretch"
+                  ColumnDefinitions="*,*,*,*,*,*">
+              <Border Grid.Column="0" Background="#609D51" />
+              <Border Grid.Column="1" Background="#D3A95B" />
+              <Border Grid.Column="2" Background="#B9574A" />
+              <Border Grid.Column="3" Background="#B9574A" />
+              <Border Grid.Column="4" Background="#D3A95B" />
+              <Border Grid.Column="5" Background="#609D51" />
+              <TextBlock Grid.ColumnSpan="6"
+                         Text="6"
+                         FontSize="42"
+                         FontWeight="SemiBold"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center" />
+              <Button Grid.ColumnSpan="6"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      Background="Transparent"
+                      BorderThickness="0"
+                      Cursor="Hand"
+                      Command="{Binding OpenDashboardSettingsCommand}"
+                      ToolTip.Tip="{DynamicResource settings.tooltip.overlayHudUsage}" />
+            </Grid>
           </Expander>
         </StackPanel>
 

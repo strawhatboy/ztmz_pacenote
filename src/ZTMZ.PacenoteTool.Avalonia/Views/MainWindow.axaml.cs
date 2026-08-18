@@ -35,6 +35,7 @@ public sealed partial class MainWindow : FAAppWindow
         _pages = new Dictionary<string, Control>(StringComparer.OrdinalIgnoreCase)
         {
             ["home"] = new HomeView(),
+            ["general"] = new GeneralView(),
             ["codriver"] = new CoDriverView(),
             ["dashboard"] = new DashboardView()
         };

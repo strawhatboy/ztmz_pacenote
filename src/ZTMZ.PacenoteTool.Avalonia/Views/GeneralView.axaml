@@ -1,0 +1,122 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             x:Class="ZTMZ.PacenoteTool.Avalonia.Views.GeneralView">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Margin="42,30,42,42" Spacing="3">
+      <TextBlock Text="{DynamicResource tabs.general}"
+                 FontSize="28"
+                 FontWeight="SemiBold"
+                 Margin="0,0,0,18" />
+
+      <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+              BorderThickness="1"
+              CornerRadius="4"
+              Padding="16">
+        <Grid ColumnDefinitions="*,220">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <fa:FASymbolIcon Symbol="Settings" FontSize="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.theme}" />
+              <TextBlock Text="{DynamicResource settings.tooltip.theme}"
+                         Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+          </StackPanel>
+          <ComboBox Grid.Column="1" SelectedIndex="{Binding ThemeSelection, Mode=TwoWay}">
+            <ComboBoxItem Content="{DynamicResource settings.lightTheme}" />
+            <ComboBoxItem Content="{DynamicResource settings.darkTheme}" />
+            <ComboBoxItem Content="{DynamicResource settings.systemTheme}" />
+          </ComboBox>
+        </Grid>
+      </Border>
+
+      <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+              BorderThickness="1"
+              CornerRadius="4"
+              Padding="16">
+        <Grid ColumnDefinitions="*,220">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <fa:FASymbolIcon Symbol="Globe" FontSize="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.language}" />
+              <TextBlock Text="{DynamicResource settings.tooltip.language}"
+                         Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+          </StackPanel>
+          <ComboBox Grid.Column="1"
+                    ItemsSource="{Binding Languages}"
+                    SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}">
+            <ComboBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding DisplayName}" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </Grid>
+      </Border>
+
+      <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+              BorderThickness="1"
+              CornerRadius="4"
+              Padding="16">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel>
+            <TextBlock Text="{DynamicResource settings.checkUpdateWhenStartup}" />
+            <TextBlock Text="{DynamicResource settings.tooltip.checkUpdateWhenStartup}"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1"
+                        IsChecked="{Binding IsAutoUpdate, Mode=TwoWay}"
+                        OnContent=""
+                        OffContent=""
+                        VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+              BorderThickness="1"
+              CornerRadius="4"
+              Padding="16">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel>
+            <TextBlock Text="{DynamicResource settings.optInBetaPlan}" />
+            <TextBlock Text="{DynamicResource settings.tooltip.optInBetaPlan}"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1"
+                        IsChecked="{Binding IsOptInBetaPlan, Mode=TwoWay}"
+                        OnContent=""
+                        OffContent=""
+                        VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+              BorderThickness="1"
+              CornerRadius="4"
+              Padding="16">
+        <Grid ColumnDefinitions="*,220">
+          <StackPanel>
+            <TextBlock Text="{DynamicResource settings.logLevel}" />
+            <TextBlock Text="{DynamicResource settings.tooltip.logLevel}"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+          </StackPanel>
+          <ComboBox Grid.Column="1" SelectedIndex="{Binding LogLevel, Mode=TwoWay}">
+            <ComboBoxItem Content="{DynamicResource logLevel.trace}" />
+            <ComboBoxItem Content="{DynamicResource logLevel.debug}" />
+            <ComboBoxItem Content="{DynamicResource logLevel.info}" />
+            <ComboBoxItem Content="{DynamicResource logLevel.warn}" />
+            <ComboBoxItem Content="{DynamicResource logLevel.error}" />
+            <ComboBoxItem Content="{DynamicResource logLevel.fatal}" />
+            <ComboBoxItem Content="{DynamicResource logLevel.off}" />
+          </ComboBox>
+        </Grid>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

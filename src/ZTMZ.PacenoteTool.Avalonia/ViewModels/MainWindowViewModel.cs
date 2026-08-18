@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -31,6 +32,7 @@ internal sealed record CoDriverChoice(
     string Version,
     string Path);
 internal sealed record AudioOutputChoice(string Id, string DisplayName);
+internal sealed record LanguageChoice(string Culture, string DisplayName);
 
 internal sealed record DashboardChoice(
     string Id,
@@ -49,6 +51,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
 
     private readonly DesktopRuntime _runtime = new();
     private bool _applyingSnapshot;
+    private bool _applyingSettings;
     private string _activeImageFileName = string.Empty;
     private string _dashboardCulture = string.Empty;
 
@@ -154,10 +157,24 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     private CoDriverChoice? _selectedCoDriver;
 
     [ObservableProperty]
-    private DashboardChoice? _featuredDashboard;
+    private AudioOutputChoice? _selectedOutputDevice;
 
     [ObservableProperty]
-    private AudioOutputChoice? _selectedOutputDevice;
+    private int _themeSelection = Config.Instance.UseSystemTheme
+        ? 2
+        : Config.Instance.IsDarkTheme ? 1 : 0;
+
+    [ObservableProperty]
+    private LanguageChoice? _selectedLanguage;
+
+    [ObservableProperty]
+    private bool _isAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
+
+    [ObservableProperty]
+    private bool _isOptInBetaPlan = Config.Instance.OptInBetaPlan;
+
+    [ObservableProperty]
+    private int _logLevel = Config.Instance.LogLevel;
 
     [ObservableProperty]
     private double _playbackVolume = 50d;
@@ -177,6 +194,19 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     public MainWindowViewModel()
     {
         AppLogo = LoadBitmap(Path.Combine(AppContext.BaseDirectory, "Assets", "app.png"));
+        _applyingSettings = true;
+        for (var index = 0; index < I18NLoader.Instance.cultures.Count; index++)
+        {
+            Languages.Add(new LanguageChoice(
+                I18NLoader.Instance.cultures[index],
+                I18NLoader.Instance.culturesFullname[index]));
+        }
+        SelectedLanguage = Languages.FirstOrDefault(language => string.Equals(
+                               language.Culture,
+                               I18NLoader.Instance.CurrentCultureName,
+                               StringComparison.OrdinalIgnoreCase))
+                           ?? Languages.FirstOrDefault();
+        _applyingSettings = false;
         _runtime.SnapshotChanged += (_, _) => Dispatcher.UIThread.Post(RefreshSnapshot);
         AvaloniaLocalization.CultureChanged += OnCultureChanged;
     }
@@ -186,6 +216,8 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     public ObservableCollection<AudioOutputChoice> OutputDevices { get; } = [];
 
     public ObservableCollection<DashboardChoice> Dashboards { get; } = [];
+
+    public ObservableCollection<LanguageChoice> Languages { get; } = [];
 
     public bool IsWaitingForGame => !HasActiveGame;
 
@@ -218,7 +250,6 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
             dashboard.PreviewImage?.Dispose();
         }
         Dashboards.Clear();
-        FeaturedDashboard = null;
         await _runtime.DisposeAsync().ConfigureAwait(false);
         activeGameImage?.Dispose();
         AppLogo?.Dispose();
@@ -271,6 +302,71 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
         {
             _runtime.Controls?.ConfigureWebDashboard(WebDashboardPort, value);
         }
+    }
+
+    partial void OnThemeSelectionChanged(int value)
+    {
+        if (_applyingSettings || value is < 0 or > 2)
+        {
+            return;
+        }
+
+        Config.Instance.UseSystemTheme = value == 2;
+        Config.Instance.IsDarkTheme = value == 1;
+        Config.Instance.SaveUserConfig();
+        if (global::Avalonia.Application.Current != null)
+        {
+            global::Avalonia.Application.Current.RequestedThemeVariant = value switch
+            {
+                0 => ThemeVariant.Light,
+                1 => ThemeVariant.Dark,
+                _ => ThemeVariant.Default
+            };
+        }
+    }
+
+    partial void OnSelectedLanguageChanged(LanguageChoice? value)
+    {
+        if (_applyingSettings || value == null)
+        {
+            return;
+        }
+
+        AvaloniaLocalization.SetCulture(value.Culture);
+        Config.Instance.SaveUserConfig();
+    }
+
+    partial void OnIsAutoUpdateChanged(bool value)
+    {
+        if (_applyingSettings)
+        {
+            return;
+        }
+
+        Config.Instance.CheckUpdateWhenStartup = value;
+        Config.Instance.SaveUserConfig();
+    }
+
+    partial void OnIsOptInBetaPlanChanged(bool value)
+    {
+        if (_applyingSettings)
+        {
+            return;
+        }
+
+        Config.Instance.OptInBetaPlan = value;
+        Config.Instance.SaveUserConfig();
+    }
+
+    partial void OnLogLevelChanged(int value)
+    {
+        if (_applyingSettings || value is < 0 or > 6)
+        {
+            return;
+        }
+
+        Config.Instance.LogLevel = value;
+        Config.Instance.SaveUserConfig();
     }
 
     partial void OnSelectedCoDriverChanged(CoDriverChoice? value)
@@ -520,9 +616,6 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
                 LoadBitmap(previewPath)));
         }
 
-        FeaturedDashboard = Dashboards.FirstOrDefault(item =>
-                                item.OutputTarget.Includes(DashboardOutputTarget.Web))
-                            ?? Dashboards.FirstOrDefault();
     }
 
     private static string CoDriverDisplayIdentity(CoDriverChoice choice) => string.Join(
