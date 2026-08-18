@@ -82,6 +82,10 @@ public sealed partial class MainWindow : FAAppWindow
             _pages.TryGetValue(pageKey, out var page))
         {
             _pageHost.Content = page;
+            if (string.Equals(pageKey, "general", StringComparison.OrdinalIgnoreCase))
+            {
+                _generalSettingsViewModel.RefreshFromConfig();
+            }
         }
     }
 

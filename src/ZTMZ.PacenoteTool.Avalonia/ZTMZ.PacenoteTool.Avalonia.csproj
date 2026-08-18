@@ -16,6 +16,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- UseWindowsForms=true brings System.Windows.Forms/System.Drawing framework
+         references for WindowsTrayService, but ImplicitUsings then injects global
+         usings that collide with Avalonia types (Application, Color, Bitmap, ...).
+         Keep the reference, drop the implicit global usings. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.1" />
     <PackageReference Include="Avalonia.Desktop" Version="12.1.1" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />

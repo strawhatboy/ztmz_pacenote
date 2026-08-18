@@ -56,6 +56,29 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
 
     public event Action<string, string>? NotificationRequested;
 
+    /// <summary>
+    /// Re-reads settings that may have been changed elsewhere (for example the
+    /// close-prompt dialog) and refreshes the suggested-font catalog, mirroring
+    /// the WPF page's OnNavigatedToAsync behavior.
+    /// </summary>
+    public void RefreshFromConfig()
+    {
+        _initializing = true;
+        try
+        {
+            IsAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
+            IsStartMinimizedToTray = Config.Instance.StartMinimizedToTray;
+            IsWindowsNotificationsEnabled = Config.Instance.EnableWindowsNotifications;
+            ShowClosePrompt = Config.Instance.ShowClosePrompt;
+            CloseBehaviorSelection = Config.Instance.CloseWindowToMinimize ? 1 : 0;
+            _ = RefreshSuggestedFontCatalogAsync();
+        }
+        finally
+        {
+            _initializing = false;
+        }
+    }
+
     public ObservableCollection<AvaloniaFontChoice> SystemFonts { get; } = [];
     public ObservableCollection<AvaloniaSuggestedFont> SuggestedFonts { get; } = [];
     public ObservableCollection<LanguageChoice> Languages { get; } = [];
