@@ -18,44 +18,28 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
     private const int XmlLoadRetryDelayMilliseconds = 100;
 
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+    private readonly IGameDocumentsLocator _documentsLocator;
 
-    private readonly string _dr1SettingsFile = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-        "My Games",
-        "DiRT Rally",
-        "hardwaresettings",
-        "hardware_settings_config.xml");
-    private readonly string _dr1SettingsVrFile = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-        "My Games",
-        "DiRT Rally",
-        "hardwaresettings",
-        "hardware_settings_config_vr.xml");
-    private readonly string _dr2SettingsFile = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-        "My Games",
-        "DiRT Rally 2.0",
-        "hardwaresettings",
-        "hardware_settings_config.xml");
-    private readonly string _dr2SettingsVrFile = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-        "My Games",
-        "DiRT Rally 2.0",
-        "hardwaresettings",
-        "hardware_settings_config_vr.xml");
+    public DirtGamePrerequisiteChecker()
+        : this(GameDocumentsLocatorFactory.CreateDefault())
+    {
+    }
+
+    public DirtGamePrerequisiteChecker(IGameDocumentsLocator documentsLocator)
+    {
+        _documentsLocator = documentsLocator ?? throw new ArgumentNullException(nameof(documentsLocator));
+    }
 
     public PrerequisitesCheckResult CheckPrerequisites(IGame game)
     {
         ArgumentNullException.ThrowIfNull(game);
 
-        if (!TryGetSettingsFiles(game, out var settingsFile, out var settingsVrFile))
+        if (!TryGetSettingsFiles(game, out var settingsFiles))
         {
             return Failure(PrerequisitesCheckResultCode.UNKNOWN);
         }
 
-        var existingSettingsFiles = new[] { settingsFile, settingsVrFile }
-            .Where(File.Exists)
-            .ToList();
+        var existingSettingsFiles = SelectActiveSettingsFiles(settingsFiles);
 
         if (existingSettingsFiles.Count == 0)
         {
@@ -86,7 +70,7 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
     {
         ArgumentNullException.ThrowIfNull(game);
 
-        if (!TryGetSettingsFiles(game, out var settingsFile, out var settingsVrFile))
+        if (!TryGetSettingsFiles(game, out var settingsFiles))
         {
             return;
         }
@@ -96,7 +80,7 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
             throw new InvalidOperationException($"Game {game.Name} has no valid UDP configuration.");
         }
 
-        foreach (var file in new[] { settingsFile, settingsVrFile }.Where(File.Exists))
+        foreach (var file in SelectActiveSettingsFiles(settingsFiles))
         {
             Write(file, udpConfig);
         }
@@ -141,25 +125,57 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
             : Failure(PrerequisitesCheckResultCode.PORT_NOT_OPEN, game.Name, file);
     }
 
-    private bool TryGetSettingsFiles(IGame game, out string settingsFile, out string settingsVrFile)
+    private bool TryGetSettingsFiles(IGame game, out IReadOnlyList<SettingsFiles> settingsFiles)
     {
+        uint steamAppId;
+        string gameDirectory;
         if (string.Equals(game.Name, DirtRally.GameName, StringComparison.Ordinal))
         {
-            settingsFile = _dr1SettingsFile;
-            settingsVrFile = _dr1SettingsVrFile;
-            return true;
+            steamAppId = DirtRally.SteamAppId;
+            gameDirectory = "DiRT Rally";
         }
-
-        if (string.Equals(game.Name, DirtRally2.GameName, StringComparison.Ordinal))
+        else if (string.Equals(game.Name, DirtRally2.GameName, StringComparison.Ordinal))
         {
-            settingsFile = _dr2SettingsFile;
-            settingsVrFile = _dr2SettingsVrFile;
-            return true;
+            steamAppId = DirtRally2.SteamAppId;
+            gameDirectory = "DiRT Rally 2.0";
+        }
+        else
+        {
+            settingsFiles = [];
+            return false;
         }
 
-        settingsFile = string.Empty;
-        settingsVrFile = string.Empty;
-        return false;
+        settingsFiles = _documentsLocator.FindDocumentsDirectories(steamAppId)
+            .Select(documentsDirectory =>
+            {
+                var hardwareSettingsDirectory = Path.Combine(
+                    documentsDirectory,
+                    "My Games",
+                    gameDirectory,
+                    "hardwaresettings");
+                return new SettingsFiles(
+                    Path.Combine(hardwareSettingsDirectory, "hardware_settings_config.xml"),
+                    Path.Combine(hardwareSettingsDirectory, "hardware_settings_config_vr.xml"));
+            })
+            .ToList();
+        return true;
+    }
+
+    private static List<string> SelectActiveSettingsFiles(
+        IReadOnlyList<SettingsFiles> candidates)
+    {
+        foreach (var candidate in candidates)
+        {
+            var existingFiles = new[] { candidate.Standard, candidate.Vr }
+                .Where(File.Exists)
+                .ToList();
+            if (existingFiles.Count > 0)
+            {
+                return existingFiles;
+            }
+        }
+
+        return [];
     }
 
     private static bool TryGetUdpConfig(IGame game, out UdpGameConfig udpConfig)
@@ -318,4 +334,6 @@ public class DirtGamePrerequisiteChecker : IGamePrerequisiteChecker
             Params = parameters.Length > 0 ? new List<object>(parameters) : new List<object>()
         };
     }
+
+    private sealed record SettingsFiles(string Standard, string Vr);
 }

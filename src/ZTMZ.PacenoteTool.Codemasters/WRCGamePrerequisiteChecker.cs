@@ -11,17 +11,32 @@ namespace ZTMZ.PacenoteTool.Codemasters;
 
 public class WRCGamePrerequisiteChecker : IGamePrerequisiteChecker
 {
-    public static string WRCUDPConfigFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games/WRC/telemetry/config.json");
-    public static string WRCUDPZTMZChannelFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games/WRC/telemetry/udp/ztmz.json");
+    private readonly IGameDocumentsLocator _documentsLocator;
+
+    public WRCGamePrerequisiteChecker()
+        : this(GameDocumentsLocatorFactory.CreateDefault())
+    {
+    }
+
+    public WRCGamePrerequisiteChecker(IGameDocumentsLocator documentsLocator)
+    {
+        _documentsLocator = documentsLocator ?? throw new ArgumentNullException(nameof(documentsLocator));
+    }
+
     public PrerequisitesCheckResult CheckPrerequisites(IGame game)
     {
+        if (!TryGetConfigFiles(out var configFile, out var channelFile))
+        {
+            return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.GAME_NOT_INSTALLED };
+        }
+
         var udpConfig = game.GameConfigurations[UdpGameConfig.Name] as UdpGameConfig;
         JObject? config = null;
-        if (File.Exists(WRCUDPConfigFile))
+        if (File.Exists(configFile))
         {
             try
             {
-                config = JObject.Parse(File.ReadAllText(WRCUDPConfigFile));
+                config = JObject.Parse(File.ReadAllText(configFile));
             }
             catch (Exception)
             {
@@ -57,7 +72,7 @@ public class WRCGamePrerequisiteChecker : IGamePrerequisiteChecker
                 (udpConfig != null && packet["port"]?.ToString() != udpConfig.Port.ToString())) // has udp config but port not match
             {
                 return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.PORT_NOT_OPEN, Params = new List<object>() {
-                    game.Name, WRCUDPConfigFile
+                    game.Name, configFile
                 }};
             }
         } else {
@@ -67,11 +82,18 @@ public class WRCGamePrerequisiteChecker : IGamePrerequisiteChecker
         // check if scheme is correct
         var ztmzConfig = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "ztmz.json");
         var ztmzJsonConfig = JObject.Parse(ztmzConfig);
-        var originalZtmzJsonConfig = JObject.Parse(File.ReadAllText(WRCUDPZTMZChannelFile));
+        if (!File.Exists(channelFile))
+        {
+            return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.PORT_NOT_OPEN, Params = new List<object>() {
+                game.Name, configFile
+            }};
+        }
+
+        var originalZtmzJsonConfig = JObject.Parse(File.ReadAllText(channelFile));
         if (compareConfigVersion(originalZtmzJsonConfig, ztmzJsonConfig))
         {   // we got new ztmz json config, force fix!
             return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.PORT_NOT_OPEN, Params = new List<object>() {
-                game.Name, WRCUDPConfigFile
+                game.Name, configFile
             }};
         }
         
@@ -95,7 +117,12 @@ public class WRCGamePrerequisiteChecker : IGamePrerequisiteChecker
 
     public void ForceFix(IGame game)
     {// only when PORT_NOT_OPEN
-        var config = JObject.Parse(File.ReadAllText(WRCUDPConfigFile));
+        if (!TryGetConfigFiles(out var configFile, out var channelFile))
+        {
+            throw new FileNotFoundException("EA SPORTS WRC telemetry configuration was not found.");
+        }
+
+        var config = JObject.Parse(File.ReadAllText(configFile));
 
         var packetsNode = config["udp"]["packets"];
         
@@ -123,10 +150,34 @@ public class WRCGamePrerequisiteChecker : IGamePrerequisiteChecker
             }
         }
 
-        File.WriteAllText(WRCUDPConfigFile, config.ToString(Newtonsoft.Json.Formatting.Indented));
+        File.WriteAllText(configFile, config.ToString(Newtonsoft.Json.Formatting.Indented));
 
         // write ztmz.json
         var ztmzConfig = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "ztmz.json");
-        File.WriteAllText(WRCUDPZTMZChannelFile, ztmzConfig);
+        Directory.CreateDirectory(Path.GetDirectoryName(channelFile)!);
+        File.WriteAllText(channelFile, ztmzConfig);
+    }
+
+    private bool TryGetConfigFiles(out string configFile, out string channelFile)
+    {
+        foreach (var documentsDirectory in _documentsLocator.FindDocumentsDirectories(WRC.SteamAppId))
+        {
+            var telemetryDirectory = Path.Combine(
+                documentsDirectory,
+                "My Games",
+                "WRC",
+                "telemetry");
+            var candidateConfigFile = Path.Combine(telemetryDirectory, "config.json");
+            if (File.Exists(candidateConfigFile))
+            {
+                configFile = candidateConfigFile;
+                channelFile = Path.Combine(telemetryDirectory, "udp", "ztmz.json");
+                return true;
+            }
+        }
+
+        configFile = string.Empty;
+        channelFile = string.Empty;
+        return false;
     }
 }

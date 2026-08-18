@@ -13,6 +13,7 @@ using System.Windows.Controls.Primitives;
 using ZTMZ.PacenoteTool.Base.UI;
 using System.Windows.Media;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
+using ZTMZ.PacenoteTool.WebDashboard;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 

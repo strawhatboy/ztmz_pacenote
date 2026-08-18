@@ -3,7 +3,8 @@ using System.Runtime.InteropServices;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Core;
-using PacenoteDatabase = ZTMZ.PacenoteTool.Base.Script.ScriptResource;
+using ZTMZ.PacenoteTool.Audio.PortAudio;
+using ZTMZ.PacenoteTool.WebDashboard;
 
 namespace ZTMZ.PacenoteTool.Linux;
 
@@ -13,6 +14,10 @@ public static class Program
     private const string ResourceRootOption = "--resource-root";
     private const string ListenGameOption = "--listen-game";
     private const string ListenSecondsOption = "--listen-seconds";
+    private const string PlayAudioOption = "--play-audio";
+    private const string AudioDeviceOption = "--audio-device";
+    private const string WebDashboardOption = "--web-dashboard";
+    private const string WebDashboardPortOption = "--web-dashboard-port";
     private const string ResourceHomeEnvironmentVariable = "ZTMZ_RESOURCE_HOME";
 
     public static async Task<int> Main(string[] args)
@@ -40,6 +45,7 @@ public static class Program
 
         try
         {
+            AudioDecodingServices.Decoder = new SoundFileAudioFileDecoder();
             return await RunDiagnosticsAsync(AppLevelVariables.Instance, options);
         }
         catch (Exception exception)
@@ -56,22 +62,24 @@ public static class Program
         var dataRoot = paths.DataRoot;
         var dataRootWritable = VerifyWritableDirectory(dataRoot);
         var resourceRoot = ResolveResourceRoot(options.ResourceRoot);
-        Directory.CreateDirectory(paths.GetPath(Constants.PATH_GAMES));
-        I18NLoader.Instance.Initialize(
-        [
-            Path.Combine(resourceRoot, Constants.PATH_LANGUAGE),
-            paths.GetPath(Constants.PATH_LANGUAGE)
-        ]);
-
-        var dataLoaded = TryProvisionAndLoadPacenoteData(
-            resourceRoot,
-            paths,
-            out var provisioningStatus,
-            out var pacenoteCount,
-            out var dataError);
-
         var gamesDirectory = Path.Combine(AppContext.BaseDirectory, Constants.PATH_GAMES);
-        var games = LoadGames(gamesDirectory);
+        var audioDevices = new PortAudioAudioOutputDeviceEnumerator();
+        var audioPlayback = new PortAudioAudioPlaybackEngineFactory();
+        var runtime = new ZtmzRuntime(paths, audioDevices, audioPlayback);
+        var state = await runtime.InitializeAsync(
+            new ZtmzRuntimeOptions(
+                gamesDirectory,
+                new ResourceBootstrapOptions(
+                    Path.Combine(
+                        resourceRoot,
+                        ZTMZ.PacenoteTool.Base.Script.ScriptResource.DBNAME),
+                    [
+                        Path.Combine(resourceRoot, Constants.PATH_LANGUAGE),
+                        paths.GetPath(Constants.PATH_LANGUAGE)
+                    ],
+                    Config.Instance.Language,
+                    InitializeLocalization: true),
+                CheckPrerequisites: true));
 
         Console.WriteLine("ZTMZ native Linux host bootstrap");
         Console.WriteLine($"OS: {RuntimeInformation.OSDescription}");
@@ -80,16 +88,46 @@ public static class Program
         Console.WriteLine($"Data root writable: {FormatAvailability(dataRootWritable)}");
         Console.WriteLine($"Resource root: {resourceRoot}");
         Console.WriteLine(
-            dataLoaded
-                ? $"Official pacenote data: {provisioningStatus}; {pacenoteCount} tokens loaded"
-                : $"Official pacenote data: unavailable ({dataError})");
+            $"Official pacenote data: " +
+            $"{state.Resources.ProvisioningStatus?.ToString().ToLowerInvariant() ?? "existing"}; " +
+            $"{state.Resources.PacenoteCount} tokens loaded");
         Console.WriteLine($"Game plugin directory: {gamesDirectory}");
-        Console.WriteLine($"Game providers loaded: {games.Count}");
-        foreach (var game in games)
+        Console.WriteLine($"Game providers loaded: {state.Games.Count}");
+        foreach (var game in state.Games)
         {
-            Console.WriteLine($"  - {game.Name}{FormatUdpConfiguration(game)}");
+            Console.WriteLine(
+                $"  - {game.Name}{FormatUdpConfiguration(game)}; " +
+                $"prerequisite: {FormatPrerequisiteStatus(state, game)}");
         }
-        Console.WriteLine("Linux audio output: unavailable (backend not implemented)");
+        Console.WriteLine($"Co-driver packages loaded: {state.CoDrivers.Count}");
+        foreach (var coDriver in state.CoDrivers)
+        {
+            var audioFileCount = Config.Instance.PreloadSounds
+                ? coDriver.tokens.Values.Sum(sounds => sounds.Count)
+                : coDriver.tokensPath.Values.Sum(paths => paths.Count);
+            Console.WriteLine(
+                $"  - {coDriver.Info?.name ?? coDriver.Info?.Path ?? "unknown"}: " +
+                $"{audioFileCount} audio files");
+        }
+
+        Console.WriteLine($"Profiles loaded: {state.Profiles.Count}");
+        foreach (var profile in state.Profiles)
+        {
+            var scriptCount = Directory.EnumerateFiles(
+                    profile,
+                    "*.pacenote",
+                    SearchOption.AllDirectories)
+                .Count();
+            Console.WriteLine($"  - {Path.GetFileName(profile)}: {scriptCount} pacenote scripts");
+        }
+
+        Console.WriteLine($"PortAudio output devices: {state.OutputDevices.Count}");
+        foreach (var device in state.OutputDevices)
+        {
+            Console.WriteLine(
+                $"  - [{device.Id}] {device.Name}" +
+                (device.IsDefault ? " (default)" : string.Empty));
+        }
         Console.WriteLine("Native overlay: unavailable on Linux");
 
         if (!dataRootWritable)
@@ -97,79 +135,197 @@ public static class Program
             return 2;
         }
 
-        if (!dataLoaded)
-        {
-            return 3;
-        }
+        using var webDashboard = StartWebDashboard(options, resourceRoot);
 
-        if (games.Count == 0)
+        if (state.Games.Count == 0 && webDashboard == null)
         {
             return 4;
         }
 
+        if (state.Games.Count == 0 && !string.IsNullOrWhiteSpace(options.ListenGame))
+        {
+            Console.Error.WriteLine("No game providers are available for telemetry.");
+            return 5;
+        }
+
         if (!string.IsNullOrWhiteSpace(options.ListenGame) &&
-            !await ListenForGameTelemetryAsync(games, options.ListenGame, options.ListenSeconds))
+            !await ListenForGameTelemetryAsync(
+                state.Games,
+                options.ListenGame,
+                options.ListenSecondsSpecified || webDashboard == null
+                    ? options.ListenSeconds
+                    : 0,
+                webDashboard))
         {
             return 5;
+        }
+
+        if (!string.IsNullOrWhiteSpace(options.PlayAudio) &&
+            !await PlayAudioDiagnosticAsync(
+                options.PlayAudio,
+                options.AudioDevice,
+                state.OutputDevices,
+                audioPlayback))
+        {
+            return 6;
+        }
+
+        if (webDashboard != null && string.IsNullOrWhiteSpace(options.ListenGame))
+        {
+            Console.WriteLine("Web Dashboard is running. Press Ctrl+C to stop.");
+            await WaitForCancellationAsync();
         }
 
         return 0;
     }
 
-    private static bool TryProvisionAndLoadPacenoteData(
-        string resourceRoot,
-        IApplicationPaths paths,
-        out string provisioningStatus,
-        out int pacenoteCount,
-        out string error)
+    private static WebDashboardRuntime? StartWebDashboard(
+        LinuxHostOptions options,
+        string resourceRoot)
     {
-        provisioningStatus = string.Empty;
-        pacenoteCount = 0;
-        error = string.Empty;
+        if (!options.WebDashboard && !Config.Instance.WebDashboardEnabled)
+        {
+            return null;
+        }
 
+        var port = options.WebDashboardPort ?? Config.Instance.WebDashboardPort;
+        var packagesPath = ResolveDashboardPackagesPath(resourceRoot);
+        var runtime = new WebDashboardRuntime();
         try
         {
-            var result = PackagedFileProvisioner.EnsureCurrent(
-                Path.Combine(resourceRoot, PacenoteDatabase.DBNAME),
-                paths.GetPath(PacenoteDatabase.DBNAME));
-            provisioningStatus = result.Status.ToString().ToLowerInvariant();
-            PacenoteDatabase.Instance.LoadData().GetAwaiter().GetResult();
-            pacenoteCount = PacenoteDatabase.Instance.Pacenotes.Count;
+            runtime.Start(new WebDashboardRuntimeOptions(
+                packagesPath,
+                AppContext.BaseDirectory,
+                port,
+                Config.Instance.WebDashboardFrameRate,
+                Config.Instance.WebDashboardBrowserLuaEnabled));
+            Console.WriteLine(
+                $"Web Dashboard: {runtime.Status.Url}; " +
+                $"{runtime.Dashboards.Count} packages loaded");
+            return runtime;
+        }
+        catch
+        {
+            runtime.Dispose();
+            throw;
+        }
+    }
+
+    private static string ResolveDashboardPackagesPath(string resourceRoot)
+    {
+        var packagedPath = Path.Combine(resourceRoot, Constants.PATH_DASHBOARDS);
+        return Directory.Exists(packagedPath)
+            ? packagedPath
+            : Path.Combine(AppContext.BaseDirectory, Constants.PATH_DASHBOARDS);
+    }
+
+    private static async Task WaitForCancellationAsync()
+    {
+        var completion = new TaskCompletionSource(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        ConsoleCancelEventHandler handler = (_, eventArgs) =>
+        {
+            eventArgs.Cancel = true;
+            completion.TrySetResult();
+        };
+        Console.CancelKeyPress += handler;
+        try
+        {
+            await completion.Task;
+        }
+        finally
+        {
+            Console.CancelKeyPress -= handler;
+        }
+    }
+
+    private static string FormatPrerequisiteStatus(ZtmzRuntimeState state, IGame game)
+    {
+        var status = state.Prerequisites.FirstOrDefault(candidate =>
+            ReferenceEquals(candidate.Game, game));
+        return status?.Result?.Code.ToString() ??
+               $"unavailable ({status?.Error ?? "not checked"})";
+    }
+
+    private static async Task<bool> PlayAudioDiagnosticAsync(
+        string audioPath,
+        string? requestedDeviceId,
+        IReadOnlyList<AudioOutputDeviceInfo> audioDevices,
+        IAudioPlaybackEngineFactory audioPlayback)
+    {
+        try
+        {
+            audioPath = Path.GetFullPath(audioPath);
+            if (!File.Exists(audioPath))
+            {
+                Console.Error.WriteLine($"Audio file not found: {audioPath}");
+                return false;
+            }
+
+            var selectedDevice = string.IsNullOrWhiteSpace(requestedDeviceId)
+                ? audioDevices.FirstOrDefault(device => device.IsDefault) ??
+                  audioDevices.FirstOrDefault()
+                : audioDevices.FirstOrDefault(device =>
+                    string.Equals(
+                        device.Id,
+                        requestedDeviceId,
+                        StringComparison.OrdinalIgnoreCase));
+            if (selectedDevice == null)
+            {
+                Console.Error.WriteLine(
+                    string.IsNullOrWhiteSpace(requestedDeviceId)
+                        ? "No PortAudio output device is available."
+                        : $"PortAudio output device not found: {requestedDeviceId}");
+                return false;
+            }
+
+            Console.WriteLine($"Decoding audio: {audioPath}");
+            var sound = new AutoResampledCachedSound(audioPath);
+            Console.WriteLine(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "Playing {0:F2} seconds through [{1}] {2}...",
+                    sound.Duration,
+                    selectedDevice.Id,
+                    selectedDevice.Name));
+
+            using var engine = audioPlayback.Create(
+                new AudioPlaybackEngineOptions(
+                    selectedDevice.Id,
+                    int.TryParse(
+                        selectedDevice.Id,
+                        NumberStyles.None,
+                        CultureInfo.InvariantCulture,
+                        out var deviceIndex)
+                        ? deviceIndex
+                        : 0,
+                    true,
+                    Config.Instance.PlaybackDeviceDesiredLatency));
+            engine.SetMuted(false);
+            engine.PlaySound(sound, isSequential: false);
+            await Task.Delay(TimeSpan.FromSeconds(sound.Duration + 0.5));
+            if (!string.IsNullOrWhiteSpace(engine.Status.LastError))
+            {
+                Console.Error.WriteLine(
+                    $"Audio output reported an error: {engine.Status.LastError}");
+                return false;
+            }
+
+            Console.WriteLine("Audio playback diagnostic completed.");
             return true;
         }
         catch (Exception exception)
         {
-            error = exception.Message;
+            Console.Error.WriteLine($"Audio playback diagnostic failed: {exception}");
             return false;
         }
-    }
-
-    private static IReadOnlyList<IGame> LoadGames(string gamesDirectory)
-    {
-        if (!Directory.Exists(gamesDirectory))
-        {
-            return [];
-        }
-
-        var games = GamePluginLoader.Load(
-                Directory.EnumerateFiles(gamesDirectory, "*.dll"),
-                NLog.LogManager.GetCurrentClassLogger())
-            .OrderBy(game => game.Order)
-            .ThenBy(game => game.Name, StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        foreach (var game in games)
-        {
-            game.GameConfigurations = Config.Instance.LoadGameConfig(game);
-        }
-
-        return games;
     }
 
     private static async Task<bool> ListenForGameTelemetryAsync(
         IReadOnlyList<IGame> games,
         string gameName,
-        int listenSeconds)
+        int listenSeconds,
+        WebDashboardRuntime? webDashboard)
     {
         var game = games.FirstOrDefault(candidate =>
             string.Equals(candidate.Name, gameName, StringComparison.OrdinalIgnoreCase));
@@ -188,6 +344,7 @@ public static class Program
         long sampleCount = 0;
         var sampleLock = new object();
         var latestSample = default(GameData);
+        var dashboardContext = new GameContext();
         udpReader.onNewGameData += (_, current) =>
         {
             lock (sampleLock)
@@ -196,6 +353,7 @@ public static class Program
             }
 
             Interlocked.Increment(ref sampleCount);
+            webDashboard?.PublishTelemetry(current, dashboardContext);
         };
         try
         {
@@ -206,10 +364,20 @@ public static class Program
             }
 
             var listener = udpReader.GetUdpListenerDiagnostics().First();
-            Console.WriteLine(
-                $"Listening for {game.Name} telemetry on " +
-                $"{listener.Status.ListenAddress}:{listener.Status.Port} for {listenSeconds} seconds...");
-            await Task.Delay(TimeSpan.FromSeconds(listenSeconds));
+            if (listenSeconds > 0)
+            {
+                Console.WriteLine(
+                    $"Listening for {game.Name} telemetry on " +
+                    $"{listener.Status.ListenAddress}:{listener.Status.Port} for {listenSeconds} seconds...");
+                await Task.Delay(TimeSpan.FromSeconds(listenSeconds));
+            }
+            else
+            {
+                Console.WriteLine(
+                    $"Listening for {game.Name} telemetry on " +
+                    $"{listener.Status.ListenAddress}:{listener.Status.Port}. Press Ctrl+C to stop.");
+                await WaitForCancellationAsync();
+            }
 
             var finalStatus = udpReader.UdpStatus;
             Console.WriteLine(
@@ -314,13 +482,25 @@ public static class Program
         string? dataRoot = null;
         string? resourceRoot = null;
         string? listenGame = null;
+        string? playAudio = null;
+        string? audioDevice = null;
+        var webDashboard = false;
+        int? webDashboardPort = null;
         var listenSeconds = 10;
+        var listenSecondsSpecified = false;
         error = null;
 
         for (var index = 0; index < args.Count; index++)
         {
             var option = args[index];
-            if (option is DataRootOption or ResourceRootOption or ListenGameOption)
+            if (option == WebDashboardOption)
+            {
+                webDashboard = true;
+                continue;
+            }
+
+            if (option is DataRootOption or ResourceRootOption or ListenGameOption or
+                PlayAudioOption or AudioDeviceOption or WebDashboardPortOption)
             {
                 if (++index >= args.Count || string.IsNullOrWhiteSpace(args[index]))
                 {
@@ -337,9 +517,34 @@ public static class Program
                 {
                     resourceRoot = args[index];
                 }
-                else
+                else if (option == ListenGameOption)
                 {
                     listenGame = args[index];
+                }
+                else if (option == PlayAudioOption)
+                {
+                    playAudio = args[index];
+                }
+                else if (option == WebDashboardPortOption)
+                {
+                    if (!int.TryParse(
+                            args[index],
+                            NumberStyles.None,
+                            CultureInfo.InvariantCulture,
+                            out var parsedPort) ||
+                        parsedPort is < 1024 or > 65535)
+                    {
+                        options = default!;
+                        error = $"{WebDashboardPortOption} requires a port from 1024 to 65535.";
+                        return false;
+                    }
+
+                    webDashboardPort = parsedPort;
+                    webDashboard = true;
+                }
+                else
+                {
+                    audioDevice = args[index];
                 }
 
                 continue;
@@ -356,6 +561,7 @@ public static class Program
                     return false;
                 }
 
+                listenSecondsSpecified = true;
                 continue;
             }
 
@@ -371,7 +577,23 @@ public static class Program
             return false;
         }
 
-        options = new LinuxHostOptions(dataRoot, resourceRoot, listenGame, listenSeconds);
+        if (playAudio == null && audioDevice != null)
+        {
+            options = default!;
+            error = $"{AudioDeviceOption} requires {PlayAudioOption}.";
+            return false;
+        }
+
+        options = new LinuxHostOptions(
+            dataRoot,
+            resourceRoot,
+            listenGame,
+            listenSeconds,
+            listenSecondsSpecified,
+            playAudio,
+            audioDevice,
+            webDashboard,
+            webDashboardPort);
         return true;
     }
 
@@ -381,7 +603,9 @@ public static class Program
     {
         Console.WriteLine(
             "Usage: ztmz [--data-root <directory>] [--resource-root <directory>] " +
-            "[--listen-game <name> [--listen-seconds <1-300>]]");
+            "[--listen-game <name> [--listen-seconds <1-300>]] " +
+            "[--play-audio <file> [--audio-device <id>]] " +
+            "[--web-dashboard [--web-dashboard-port <1024-65535>]]");
         Console.WriteLine();
         Console.WriteLine("Loads packaged pacenote data and native game providers on Linux.");
         Console.WriteLine(
@@ -393,5 +617,10 @@ public static class Program
         string? DataRoot,
         string? ResourceRoot,
         string? ListenGame,
-        int ListenSeconds);
+        int ListenSeconds,
+        bool ListenSecondsSpecified,
+        string? PlayAudio,
+        string? AudioDevice,
+        bool WebDashboard,
+        int? WebDashboardPort);
 }

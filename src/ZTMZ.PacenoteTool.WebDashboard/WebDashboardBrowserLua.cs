@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using ZTMZ.PacenoteTool.Base;
 
-namespace ZTMZ.PacenoteTool.Base.UI;
+namespace ZTMZ.PacenoteTool.WebDashboard;
 
 /// <summary>
 /// Global configuration values required by the browser-compatible Lua facade.

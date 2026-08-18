@@ -21,8 +21,11 @@ The first native bootstrap was verified on Arch Linux on August 18, 2026:
 - Flathub exposes Freedesktop `25.08` and the matching `dotnet10` SDK extension.
 
 This is an infrastructure milestone, not a playable Steam Deck release. The
-Linux host currently reports unavailable audio and overlay capabilities rather
-than accidentally invoking WASAPI or Win32 code.
+Linux host now has a PortAudio output implementation and loads co-driver
+packages through a cross-platform decoder boundary. WAV, AIFF, MP3, Ogg, FLAC,
+and Opus use libsndfile; WMA, AAC, MP4, and M4A fall back to FFmpeg. Audible
+playback inside the rebuilt Flatpak remains to be verified on the Arch VM. The
+native overlay still reports unavailable rather than invoking Win32 code.
 
 ## Product Goal
 
@@ -45,10 +48,10 @@ Linux release. Each is a separate platform integration.
 | Area | Current Windows dependency | Cross-platform direction |
 | --- | --- | --- |
 | Main UI | WPF, WPF-UI, WinForms, `net10.0-windows` | Browser-based control UI first; optional Avalonia host later |
-| Audio output | NAudio WASAPI | Keep WASAPI on Windows; add PortAudio/ALSA on Linux |
-| Audio decoding and resampling | NAudio `AudioFileReader` and Media Foundation | Introduce a decoder/resampler abstraction backed by managed codecs or FFmpeg/libav on Linux |
+| Audio output | NAudio WASAPI | WASAPI remains on Windows; PortAudio is implemented for Linux |
+| Audio decoding and resampling | NAudio `AudioFileReader` and Media Foundation | `IAudioFileDecoder`, libsndfile, FFmpeg fallback, and managed WDL resampling on Linux |
 | Native overlay | GameOverlay.Net, SharpDX, Direct2D, `user32.dll`, HWND attachment | Keep as a Windows feature; research a Gamescope-specific host separately |
-| Web Dashboard | ASP.NET Core, WebSocket, browser JavaScript | Extract from `Base.UI` and SharpDX types so it can run in the Linux host |
+| Web Dashboard | ASP.NET Core, WebSocket, browser JavaScript | Extracted into the platform-neutral `WebDashboard` project and hosted by the Linux runtime |
 | Script editor | Monaco hosted by WPF WebView2 | Reuse Monaco through the local web host or system browser on Linux |
 | Game discovery and IPC | Windows process/window APIs, registry, named maps, named pipes, injection | Introduce platform services and Proton relay processes where required |
 | Replay capture | WASAPI loopback and Windows window capture | Add PipeWire/FFmpeg capture only after the core Linux release |
@@ -94,7 +97,7 @@ SharpDX, `Microsoft.Win32.Registry`, Windows Core Audio, or Win32 P/Invoke.
 Recommended contracts include:
 
 - `IAudioOutputBackend` and `IAudioOutputDeviceEnumerator`;
-- `IAudioDecoder` and `IAudioResampler`;
+- `IAudioFileDecoder` and the shared sample-provider resampler;
 - `IApplicationPaths` and `IConfigurationLocation`;
 - `IGameProcessService` and `IGameWindowService`;
 - `IGameTransport` for UDP, shared memory, pipes, or relays;
@@ -143,27 +146,30 @@ IAudioOutputBackend
 PortAudio supplies real-time device and stream I/O across Windows, macOS, and
 Linux host APIs, including ALSA. It does not decode audio files, resample them,
 or replace ZTMZ's mixer and sequencing logic. Decoder and resampler portability
-must therefore be addressed independently.
+is addressed independently through `IAudioFileDecoder`, libsndfile/FFmpeg, and
+the managed WDL resampler. The existing mixer, sequential lanes, speed control,
+intercom effect, mute state, and playback diagnostics are shared by both output
+backends.
 
 ## Web Dashboard Extraction
 
-`WebDashboardServer` already uses ASP.NET Core, static files, WebSocket, and
-browser rendering, making it the shortest path to a useful SteamOS build. It
-is currently hosted by `GameOverlayManager` and its command-capture layer uses
-GameOverlay.Net and SharpDX drawing types.
+The Web Dashboard runtime is now extracted into the platform-neutral
+`ZTMZ.PacenoteTool.WebDashboard` `net10.0` project. It owns the ASP.NET Core
+server, WebSocket protocol, browser-side Lua transport, neutral drawing DTOs,
+dashboard catalog, static client, dashboard packages, fonts, and pacenote icon
+assets. The project has no WPF, GameOverlay.Net, SharpDX, or WebView2 reference.
 
-Extract the following into a `net10.0` project with no WPF or SharpDX
-references:
+Windows keeps its native overlay renderer in `Base.UI` and adapts the existing
+`Dashboard` objects to portable `WebDashboardDefinition` objects. Linux hosts
+`WebDashboardRuntime` directly and publishes decoded UDP telemetry to browser
+Lua dashboards. `--web-dashboard` starts the server, and combining it with
+`--listen-game` keeps the telemetry loop alive until `Ctrl+C` unless a bounded
+`--listen-seconds` value is supplied.
 
-- Web server lifecycle and status;
-- static dashboard resources and pacenote icons;
-- WebSocket protocol and retained-layer scene state;
-- browser-side Lua execution support;
-- platform-neutral drawing command and text-layout DTOs;
-- dashboard runtime and output-target selection.
-
-The Windows overlay host may adapt the neutral drawing model to Direct2D. The
-Linux host may run only the browser renderer initially.
+The next Web Dashboard work is product integration rather than platform
+extraction: expose its settings in the future Avalonia UI, populate full
+pacenote/replay `GameContext` state from the shared runtime, and validate the
+browser renderer against Proton game traffic on SteamOS hardware.
 
 ## Game Support Order
 
@@ -179,6 +185,12 @@ Validate these first because their runtime telemetry already arrives over UDP:
 Required work is limited mainly to Proton configuration paths, process
 detection, loopback binding, and launch testing. UDP parsing and the game-state
 contracts should remain shared.
+
+Proton configuration discovery is shared through `IGameDocumentsLocator`.
+Windows resolves the existing Documents folder, while Linux parses Steam's
+library list, finds the library containing the game's AppID, and resolves the
+Windows Documents directory in that Proton prefix. The DiRT Rally prerequisite
+checker and XML repair implementation remain a single cross-platform code path.
 
 ### Tier 2: Proton relay candidates
 
@@ -225,9 +237,28 @@ injection incrementally.
 
 The audio boundary now exposes `IAudioOutputDeviceEnumerator`,
 `IAudioPlaybackEngine`, and `IAudioPlaybackEngineFactory`. Windows resolves
-these contracts to the existing WASAPI implementation. Other platforms resolve
-to explicit unavailable implementations until a Linux backend is registered,
+these contracts to the existing WASAPI implementation. The Linux host registers
+PortAudio explicitly; unsupported hosts retain the unavailable implementation,
 so shared core initialization cannot silently call Windows Core Audio.
+
+Application startup now also has one platform-neutral orchestration path in
+`ZtmzRuntime.InitializeAsync()`. Both the WPF and Linux hosts use the same:
+
+- `ResourceBootstrapService` for data directories, localization, and official
+  pacenote database provisioning;
+- `GameCatalogService` for plugin discovery, ordering, configuration loading,
+  and configuration migration;
+- `ProfileCatalogService` for profiles and co-driver package discovery;
+- `PrerequisiteService` for prerequisite checks and repairs;
+- ordered startup status callbacks for resources, profiles, games, co-drivers,
+  and audio devices.
+
+The hosts now select platform implementations and present the resulting runtime
+state. WPF injects WASAPI and continues to own Windows process watching, DLL
+injection, native overlays, WebView2, and replay capture. The Linux host injects
+PortAudio and owns Linux/Flatpak command-line diagnostics. This removes the two
+independent ZTMZ business bootstraps without pretending that their platform
+backends are interchangeable.
 
 ### Phase 1: headless Linux proof of concept
 
@@ -237,28 +268,35 @@ so shared core initialization cannot silently call Windows Core Audio.
 - [x] Provision and load the official pacenote database.
 - [x] Load portable Codemasters game providers and persist their UDP configuration.
 - [x] Verify host-to-Flatpak UDP telemetry with valid simulated Codemasters frames.
-- Load profiles and co-driver packages.
+- [x] Load profiles and co-driver packages from the XDG data root, including the configured additional co-driver search path.
+- [x] Use the same shared runtime bootstrap and startup status sequence as the Windows host.
 - Receive one UDP game's telemetry under Proton.
 - Decode, mix, and play a real co-driver package through PortAudio.
-- Log diagnostics without requiring a desktop UI.
+- [x] Log co-driver, output-device, playback, and telemetry diagnostics without a desktop UI.
 
 The bootstrap host is intentionally diagnostic-only today. It provisions the
 packaged `data.zdb` into the writable user-data root, preserving runtime database
 changes while the packaged source is unchanged. It reports the loaded token and
 game-provider counts, can bind a selected UDP provider for a bounded diagnostic
-interval, and reports honest availability for audio and overlay capabilities.
-The next runtime milestone is receiving telemetry from a game running under
-Proton, followed by loading and playing a real co-driver package.
+interval, lists profiles, PortAudio output devices, and co-driver packages, and
+can decode and play a selected audio file through the complete ZTMZ playback pipeline. The
+next runtime milestone is rebuilding the Flatpak and audibly verifying a real
+co-driver file, followed by receiving telemetry from a game running under
+Proton.
 
 ## Flatpak Development Baseline
 
 `packaging/flatpak/io.github.strawhatboy.ZTMZPacenoteTool.Devel.yml` is a local
 development manifest, not the final Flathub submission. It uses Freedesktop
 `25.08` plus `org.freedesktop.Sdk.Extension.dotnet10` and packages the native
-bootstrap with only `--share=network`, which is required for telemetry from a
-game running under Proton. It grants no host filesystem access. The development
-build targets `linux-x64` explicitly so NuGet runtime assets for unrelated
-operating systems and architectures are not copied into the Flatpak.
+bootstrap with `--share=network` for Proton telemetry and
+`--socket=pulseaudio` for the user's PipeWire/PulseAudio compatibility socket.
+It grants scoped access to native Steam data, Flatpak Steam data, and removable
+libraries under `/run/media` so prerequisite checks can read and repair Proton
+configuration files. It grants no complete home or host filesystem access. The
+development build targets `linux-x64` explicitly; the published output contains
+the Linux PortAudio library without copying the Windows, macOS, or ARM native
+assets into the Flatpak.
 
 The local Arch VM uses an unprivileged `deck` account for source checkout,
 builds, tests, Flatpak installation, and application execution. Root SSH is
@@ -283,7 +321,7 @@ Before a Flathub submission, the packaging work must additionally:
 
 ### Phase 2: useful Steam Deck MVP
 
-- Extract and host the Web Dashboard on Linux.
+- [x] Extract and host the Web Dashboard on Linux.
 - Add a browser-based control UI for game, profile, co-driver, audio device,
   dashboard, and diagnostics selection.
 - Support the Tier 1 UDP games.

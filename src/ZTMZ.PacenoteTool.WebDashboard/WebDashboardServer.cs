@@ -19,7 +19,7 @@ using Newtonsoft.Json;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 
-namespace ZTMZ.PacenoteTool.Base.UI;
+namespace ZTMZ.PacenoteTool.WebDashboard;
 
 /// <summary>
 /// Web server that streams server-rendered dashboard commands and resources to browser clients
@@ -73,12 +73,9 @@ public class WebDashboardServer : IDisposable
     private long _nextBrowserLuaSceneRevision;
     private int _browserLuaExecutionEnabled = 1;
     
-    private List<Dashboard>? _dashboards;
+    private IReadOnlyList<WebDashboardDefinition>? _dashboards;
     private string? _dashboardsPath;
-    private Func<Dashboard, DashboardOutputTarget> _dashboardOutputTargetResolver =
-        dashboard => dashboard.Descriptor.IsEnabled
-            ? DashboardOutputTarget.Both
-            : DashboardOutputTarget.None;
+    private string? _staticAssetsRoot;
 
     private sealed class LayeredScene
     {
@@ -227,7 +224,7 @@ public class WebDashboardServer : IDisposable
         return $"{dashboardId}:{imageKey}";
     }
 
-    public static string GetDashboardImageUrl(string imagePath)
+    public string GetDashboardImageUrl(string imagePath)
     {
         if (string.IsNullOrWhiteSpace(imagePath))
         {
@@ -236,8 +233,12 @@ public class WebDashboardServer : IDisposable
 
         try
         {
-            var dashboardsPath = Path.GetFullPath(
-                AppLevelVariables.Instance.GetPath(Constants.PATH_DASHBOARDS));
+            if (string.IsNullOrWhiteSpace(_dashboardsPath))
+            {
+                return null;
+            }
+
+            var dashboardsPath = Path.GetFullPath(_dashboardsPath);
             var relativePath = Path.GetRelativePath(dashboardsPath, Path.GetFullPath(imagePath));
             if (Path.IsPathRooted(relativePath)
                 || relativePath.Equals("..", StringComparison.Ordinal)
@@ -346,15 +347,14 @@ public class WebDashboardServer : IDisposable
     /// Initialize the server with dashboard data
     /// </summary>
     public void Initialize(
-        List<Dashboard> dashboards,
-        Func<Dashboard, DashboardOutputTarget> dashboardOutputTargetResolver = null)
+        IReadOnlyList<WebDashboardDefinition> dashboards,
+        string? dashboardsPath = null,
+        string? staticAssetsRoot = null)
     {
-        _dashboards = dashboards;
-        _dashboardOutputTargetResolver = dashboardOutputTargetResolver ??
-            (dashboard => dashboard.Descriptor.IsEnabled
-                ? DashboardOutputTarget.Both
-                : DashboardOutputTarget.None);
-        _dashboardsPath = AppLevelVariables.Instance.GetPath(Constants.PATH_DASHBOARDS);
+        _dashboards = dashboards ?? throw new ArgumentNullException(nameof(dashboards));
+        _dashboardsPath = Path.GetFullPath(
+            dashboardsPath ?? Path.Combine(AppContext.BaseDirectory, Constants.PATH_DASHBOARDS));
+        _staticAssetsRoot = Path.GetFullPath(staticAssetsRoot ?? AppContext.BaseDirectory);
         _logger.Info($"WebDashboard server initialized with {dashboards.Count} dashboards");
     }
     
@@ -369,7 +369,7 @@ public class WebDashboardServer : IDisposable
             return;
         }
         
-        if (_dashboards == null || _dashboardsPath == null)
+        if (_dashboards == null || _dashboardsPath == null || _staticAssetsRoot == null)
         {
             throw new InvalidOperationException("Server not initialized. Call Initialize() first.");
         }
@@ -385,7 +385,7 @@ public class WebDashboardServer : IDisposable
             _app = builder.Build();
             
             // Serve wwwroot static files (HTML, JS, CSS)
-            var wwwrootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
+            var wwwrootPath = Path.Combine(_staticAssetsRoot, "wwwroot");
             if (Directory.Exists(wwwrootPath))
             {
                 // Enable default files (index.html) support
@@ -407,7 +407,7 @@ public class WebDashboardServer : IDisposable
                 _logger.Warn($"wwwroot folder not found at: {wwwrootPath}");
             }
 
-            var fontsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "fonts");
+            var fontsPath = Path.Combine(_staticAssetsRoot, "fonts");
             if (Directory.Exists(fontsPath))
             {
                 var fontContentTypes = new FileExtensionContentTypeProvider();
@@ -425,7 +425,7 @@ public class WebDashboardServer : IDisposable
                 _logger.Warn($"Dashboard fonts folder not found at: {fontsPath}");
             }
 
-            var pacenoteIconsPath = PacenoteIconCatalog.GetAssetRoot(AppDomain.CurrentDomain.BaseDirectory);
+            var pacenoteIconsPath = PacenoteIconCatalog.GetAssetRoot(_staticAssetsRoot);
             if (Directory.Exists(pacenoteIconsPath))
             {
                 _app.UseStaticFiles(new StaticFileOptions
@@ -486,17 +486,17 @@ public class WebDashboardServer : IDisposable
                     return new
                     {
                         id = index,
-                        name = d.Descriptor.Name,
-                        description = d.Descriptor.Description,
-                        author = d.Descriptor.Author,
-                        version = d.Descriptor.Version,
+                        name = d.Name,
+                        description = d.Description,
+                        author = d.Author,
+                        version = d.Version,
                         enabled = outputTarget != DashboardOutputTarget.None,
                         overlayEnabled = outputTarget.Includes(DashboardOutputTarget.Overlay),
                         webEnabled = outputTarget.Includes(DashboardOutputTarget.Web),
                         outputTarget = GetOutputTargetName(outputTarget),
-                        supportsWebDashboardClientLua = d.Descriptor.SupportsWebDashboardClientLua,
-                        previewImage = d.Descriptor.PreviewImagePath != null
-                            ? $"/dashboards/{Path.GetFileName(d.Descriptor.Path)}/{d.Descriptor.PreviewImagePath}"
+                        supportsWebDashboardClientLua = d.SupportsWebDashboardClientLua,
+                        previewImage = d.PreviewImagePath != null
+                            ? $"/dashboards/{Uri.EscapeDataString(d.Id)}/{d.PreviewImagePath}"
                             : null
                     };
                 }).ToList();
@@ -512,10 +512,10 @@ public class WebDashboardServer : IDisposable
                 }
                 
                 var dashboard = _dashboards[id];
-                var dashboardFolder = Path.GetFileName(dashboard.Descriptor.Path);
+                var dashboardFolder = dashboard.Id;
                 
                 // Read Lua script
-                var scriptPath = Path.Combine(dashboard.Descriptor.Path, Constants.FILE_LUA_SCRIPT);
+                var scriptPath = Path.Combine(dashboard.PackagePath, Constants.FILE_LUA_SCRIPT);
                 var luaScript = File.Exists(scriptPath) ? File.ReadAllText(scriptPath) : "";
                 
                 // Read common Lua scripts
@@ -533,18 +533,18 @@ public class WebDashboardServer : IDisposable
                 var imageResources = new Dictionary<string, string>();
                 
                 // Single images
-                foreach (var img in dashboard.Descriptor.ImageResources)
+                foreach (var img in dashboard.ImageResources)
                 {
                     imageResources[GetDashboardImageCacheKey(id, img.Key)] =
                         $"/dashboards/{dashboardFolder}/{img.Value.Path}";
                 }
                 
                 // Image directories
-                foreach (var imgDir in dashboard.Descriptor.ImageResourcesInDirectory)
+                foreach (var imgDir in dashboard.ImageResourceDirectories)
                 {
                     if (imgDir.Value == null) continue;
 
-                    var dirPath = Path.Combine(dashboard.Descriptor.Path, imgDir.Value.Path);
+                    var dirPath = Path.Combine(dashboard.PackagePath, imgDir.Value.Path);
                     if (!Directory.Exists(dirPath)) continue;
 
                     foreach (var file in Directory.GetFiles(dirPath))
@@ -554,7 +554,7 @@ public class WebDashboardServer : IDisposable
                         {
                             var fileName = Path.GetFileNameWithoutExtension(file);
                             var key = $"{imgDir.Key}@{fileName}";
-                            var relativePath = Path.GetRelativePath(dashboard.Descriptor.Path, file).Replace('\\', '/');
+                            var relativePath = Path.GetRelativePath(dashboard.PackagePath, file).Replace('\\', '/');
                             imageResources[GetDashboardImageCacheKey(id, key)] =
                                 $"/dashboards/{dashboardFolder}/{relativePath}";
                         }
@@ -563,7 +563,7 @@ public class WebDashboardServer : IDisposable
 
                 IReadOnlyDictionary<string, string> pacenoteIconTokenMap =
                     new Dictionary<string, string>();
-                if (dashboard.Descriptor.UsesPacenoteIcons)
+                if (dashboard.UsesPacenoteIcons)
                 {
                     var iconCatalog = PacenoteIconCatalog.Load();
                     foreach (var icon in iconCatalog.GetCanonicalIcons())
@@ -578,22 +578,16 @@ public class WebDashboardServer : IDisposable
                 var package = new
                 {
                     id = id,
-                    name = dashboard.Descriptor.Name,
-                    description = dashboard.Descriptor.Description,
-                    author = dashboard.Descriptor.Author,
-                    version = dashboard.Descriptor.Version,
-                    supportsWebDashboardClientLua = dashboard.Descriptor.SupportsWebDashboardClientLua,
+                    name = dashboard.Name,
+                    description = dashboard.Description,
+                    author = dashboard.Author,
+                    version = dashboard.Version,
+                    supportsWebDashboardClientLua = dashboard.SupportsWebDashboardClientLua,
                     luaScript = luaScript,
                     commonScripts = commonScripts,
                     imageResources = imageResources,
                     pacenoteIconTokenMap = pacenoteIconTokenMap,
-                    settings = dashboard.DashboardConfigurations.PropertyValue
-                        .Select((val, idx) => new
-                        {
-                            key = dashboard.DashboardConfigurations.PropertyName.Keys.ElementAt(idx),
-                            value = val
-                        })
-                        .ToDictionary(x => x.key, x => x.value)
+                    settings = dashboard.GetSettings()
                 };
                 
                 return Results.Json(package);
@@ -621,14 +615,12 @@ public class WebDashboardServer : IDisposable
         }
     }
 
-    private DashboardOutputTarget ResolveOutputTarget(Dashboard dashboard)
+    private static DashboardOutputTarget ResolveOutputTarget(WebDashboardDefinition dashboard)
     {
-        var outputTarget = _dashboardOutputTargetResolver(dashboard);
+        var outputTarget = dashboard.GetOutputTarget();
         return outputTarget.IsValid()
             ? outputTarget
-            : dashboard.Descriptor.IsEnabled
-                ? DashboardOutputTarget.Both
-                : DashboardOutputTarget.None;
+            : DashboardOutputTarget.None;
     }
 
     private static string GetOutputTargetName(DashboardOutputTarget outputTarget)

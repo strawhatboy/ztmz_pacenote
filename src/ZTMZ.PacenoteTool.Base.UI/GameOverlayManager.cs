@@ -15,6 +15,7 @@ using GameOverlay.Drawing;
 using SharpDX;
 using SharpDX.Direct2D1;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.WebDashboard;
 using Geometry = GameOverlay.Drawing.Geometry;
 using Image = GameOverlay.Drawing.Image;
 using Point = GameOverlay.Drawing.Point;
@@ -1517,7 +1518,7 @@ namespace ZTMZ.PacenoteTool.Base.UI
                         dashboard.ImageResourceSources?.TryGetValue(imageResource.Key, out source);
                         var imageUrl = source?.WebPath;
                         if (imageUrl == null && imageResource.Value is GraphicsCommandProxy.ProxyImage image) {
-                            imageUrl = WebDashboardServer.GetDashboardImageUrl(image.Path);
+                            imageUrl = _webDashboardServer?.GetDashboardImageUrl(image.Path);
                         }
                         _webCommandCapture.RegisterImage(
                             WebDashboardServer.GetDashboardImageCacheKey(i, imageResource.Key),

@@ -1,6 +1,6 @@
 using System;
 
-namespace ZTMZ.PacenoteTool.Base.UI;
+namespace ZTMZ.PacenoteTool.WebDashboard;
 
 public sealed record WebDashboardRuntimeDiagnostics(
     WebDashboardServerStatus Status,

@@ -274,7 +274,7 @@ public sealed class SupportDiagnosticsService
         }
     }
 
-    private static PrerequisiteDiagnosticsInfo CapturePrerequisite(IGame? game)
+    private PrerequisiteDiagnosticsInfo CapturePrerequisite(IGame? game)
     {
         if (game == null)
         {
@@ -283,7 +283,7 @@ public sealed class SupportDiagnosticsService
 
         try
         {
-            var result = game.GamePrerequisiteChecker.CheckPrerequisites(game);
+            var result = _tool.CheckPrerequisite(game);
             var details = new List<string>();
             if (!string.IsNullOrWhiteSpace(result.Msg))
             {

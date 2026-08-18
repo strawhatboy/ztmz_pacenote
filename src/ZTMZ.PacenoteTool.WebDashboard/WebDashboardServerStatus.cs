@@ -1,4 +1,4 @@
-namespace ZTMZ.PacenoteTool.Base.UI;
+namespace ZTMZ.PacenoteTool.WebDashboard;
 
 public enum WebDashboardServerState
 {

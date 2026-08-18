@@ -918,9 +918,9 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             IntercomEffect = Config.Instance.IntercomEffect;
         };
         
-        Task.Run(() => {
+        _ = Task.Run(async () => {
             // _tool.SetGame(theGame.Game);
-            _tool.Init();
+            await _tool.InitAsync();
             _tool.SetFromConfiguration();
         });
     }
@@ -1050,7 +1050,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
     private async Task<bool> forceFixGame(IGame game) {
         try {
-            game.GamePrerequisiteChecker.ForceFix(game);
+            Tool.ForceFixPrerequisite(game);
             Config.Instance.SaveGameConfig(game);
             RefreshGameSettingsFromConfiguration(game);
             return true;

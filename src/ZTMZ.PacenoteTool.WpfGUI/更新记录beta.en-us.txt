@@ -11,6 +11,9 @@ v2.99.99.46-3.0-rc18
 * Establishes the cross-platform runtime foundation for future SteamOS and Steam Deck support by separating application paths and audio platform services, adding a native Linux diagnostics host, portable tests, and a Flatpak development package, and verifying the official pacenote database and Codemasters UDP providers on Linux. This is development infrastructure, not yet a complete SteamOS client.
 * Extends SteamOS/Flatpak telemetry validation with a Codemasters UDP simulator, confirming that valid host-side packets cross the Flatpak sandbox boundary and decode correctly into speed, gear, RPM, and stage distance.
 * Replaces the BeamNG and ACR game-specific WPF settings panes with a generic game-integration settings model: paths, toggles, status, confirmations, and install/inject actions are now described without a UI dependency and rendered centrally by Base.UI. Both game plugins no longer depend on Base.UI, and the BeamNG core can now build as a portable .NET plugin.
+* Adds a PortAudio output backend to the native Linux host while sharing the existing decoding, mixing, sequential playback, speed control, mute, and diagnostics behavior; audio-device enumeration and playback have been validated on an Arch Linux VM.
+* Unifies Windows and Linux initialization of resources, game plugins, profiles, co-drivers, and prerequisites, and lets the DiRT Rally, DiRT Rally 2.0, and EA SPORTS WRC checks locate their Documents directories inside Steam Proton prefixes.
+* Extracts the Web Dashboard from WPF, the native overlay, and SharpDX and connects it to the Linux runtime; SteamOS/Linux can now load all bundled dashboards, the browser client, fonts, and pacenote icons and stream Codemasters UDP telemetry to browser dashboards in real time.
 
 v2.99.99.45-3.0-rc17
 

@@ -16,6 +16,7 @@ namespace ZTMZ.PacenoteTool.Core;
 public class ZTMZPacenoteTool {
     private readonly IAudioOutputDeviceEnumerator _audioOutputDeviceEnumerator;
     private readonly IAudioPlaybackEngineFactory _audioPlaybackEngineFactory;
+    private readonly ZtmzRuntime _runtime;
     
     private ProfileManager _profileManager;
     private ProcessWatcher _processWatcher;
@@ -99,6 +100,11 @@ public class ZTMZPacenoteTool {
             throw new ArgumentNullException(nameof(audioOutputDeviceEnumerator));
         _audioPlaybackEngineFactory = audioPlaybackEngineFactory ??
             throw new ArgumentNullException(nameof(audioPlaybackEngineFactory));
+        _runtime = new ZtmzRuntime(
+            AppLevelVariables.Instance,
+            _audioOutputDeviceEnumerator,
+            _audioPlaybackEngineFactory,
+            _logger);
     }
 
     public string CurrentScriptAuthor => _profileManager?.CurrentScriptReader?.Author ?? "???";
@@ -119,14 +125,23 @@ public class ZTMZPacenoteTool {
     public Dictionary<string, List<ReplayDetailsPerCheckpoint>> OnlineReplayDetailsPerCheckpoints { set; get; } = new();
     public Dictionary<string, List<ReplayDetailsPerTime>> OnlineReplayDetailsPerTimes { set; get; } = new();
 
-    // init the tool, load settings, etc.
-    public void Init() {
-        this.loadPacenoteDefinitions();
-        this.loadProfileManager();
-        this.loadGames();
-        this.loadProfiles();
-        this.loadCodrivers();
-        this.loadOutputDevices();
+    // Synchronous compatibility entry point used by the existing WPF host.
+    public void Init() => InitAsync().GetAwaiter().GetResult();
+
+    public async Task InitAsync(CancellationToken cancellationToken = default) {
+        var state = await _runtime.InitializeAsync(
+            new ZtmzRuntimeOptions(
+                Path.Combine(AppContext.BaseDirectory, Constants.PATH_GAMES),
+                new ResourceBootstrapOptions()),
+            ReportInitializationStatus,
+            cancellationToken);
+
+        _profileManager = state.ProfileManager;
+        _games = state.Games.ToList();
+        _profiles = state.Profiles.ToList();
+        _codriverPackages = state.CoDrivers.ToList();
+        _outputDevices = state.OutputDevices.ToList();
+
         // this.initGoogleAnalytics();
         this.initializeProcessWatcher();
         this.initializeObsConnection();
@@ -138,54 +153,10 @@ public class ZTMZPacenoteTool {
 
 #region privates
 
-    private void loadPacenoteDefinitions() {
-        _logger.Info("Loading pacenote definitions...");
-        this.onStatusReport?.Invoke("Loading pacenote definitions...");
-        Task.Run(ZTMZ.PacenoteTool.Base.Script.ScriptResource.Instance.LoadData).Wait();
-        _logger.Info("Pacenote definitions loaded.");
-        this.onStatusReport?.Invoke("Pacenote definitions loaded.");
-    }
-
-    private void loadProfileManager() {
-        _logger.Info("Loading profile manager...");
-        this.onStatusReport?.Invoke("Loading profile manager...");
-        _profileManager = new(_audioPlaybackEngineFactory);
-        _logger.Info("Profile manager loaded.");
-        this.onStatusReport?.Invoke("Profile manager loaded.");
-    }
-    private void loadGames()
+    private void ReportInitializationStatus(string status)
     {
-        _logger.Info("Loading games...");
-        this.onStatusReport?.Invoke("Loading games...");
-        this._games.Clear();
-        try {
-            var gamesDirectory = Path.Combine(AppContext.BaseDirectory, Constants.PATH_GAMES);
-            this._games.AddRange(GamePluginLoader.Load(
-                Directory.EnumerateFiles(gamesDirectory, "*.dll"),
-                _logger));
-            this._games.Sort((g1, g2) => g1.Order.CompareTo(g2.Order));
-            foreach (var game in this._games)
-            {
-                game.GameConfigurations = Config.Instance.LoadGameConfig(game);
-                if (game is IGameConfigurationMigrator migrator && migrator.MigrateGameConfiguration())
-                {
-                    Config.Instance.SaveGameConfig(game);
-                    _logger.Info("Migrated game configuration for {0}.", game.Name);
-                }
-            }
-        } catch (Exception ex) {
-            _logger.Error($"Faield to load games: {ex.ToString()}");
-        }
-        _logger.Info($"{this._games.Count} games loaded.");
-        this.onStatusReport?.Invoke($"{this._games.Count} games loaded.");
-    }
-
-    private void loadProfiles() {
-        _logger.Info("Loading profiles...");
-        this.onStatusReport?.Invoke("Loading profiles...");
-        this._profiles = _profileManager.GetAllProfiles();
-        _logger.Info($"{this._profiles.Count} profiles loaded.");
-        this.onStatusReport?.Invoke($"{this._profiles.Count} profiles loaded.");
+        _logger.Info(status);
+        this.onStatusReport?.Invoke(status);
     }
 
     private void loadCodrivers() {
@@ -212,37 +183,6 @@ public class ZTMZPacenoteTool {
         this.onCodriversRefreshed?.Invoke();
     }
 
-    private void loadOutputDevices() {
-        _logger.Info("Loading output devices...");
-        this.onStatusReport?.Invoke("Loading output devices...");
-
-        this._outputDevices.Clear();
-        this._outputDevices.AddRange(
-            _audioOutputDeviceEnumerator.EnumerateActiveRenderDevices());
-
-        if (this._outputDevices.Count > 0)
-        {
-            var configuredIndex = this._outputDevices.FindIndex(device =>
-                string.Equals(
-                    device.Id,
-                    Config.Instance.UI_SelectedPlaybackDeviceId,
-                    StringComparison.OrdinalIgnoreCase));
-
-            if (configuredIndex < 0)
-            {
-                configuredIndex = Math.Clamp(
-                    Config.Instance.UI_SelectedPlaybackDevice,
-                    0,
-                    this._outputDevices.Count - 1);
-            }
-
-            Config.Instance.UI_SelectedPlaybackDevice = configuredIndex;
-            Config.Instance.UI_SelectedPlaybackDeviceId = this._outputDevices[configuredIndex].Id;
-        }
-
-        _logger.Info($"{this._outputDevices.Count} output devices loaded.");
-        this.onStatusReport?.Invoke($"{this._outputDevices.Count} output devices loaded.");
-    }
     private void initGoogleAnalytics()
     {
         return;
@@ -337,7 +277,7 @@ public class ZTMZPacenoteTool {
             return;
 
         // check prerequisite
-        var res = checkPrerequisite(game);
+        var res = CheckPrerequisite(game);
         var code = res.Code;
         if (code == PrerequisitesCheckResultCode.GAME_NOT_INSTALLED)
         {
@@ -1202,11 +1142,9 @@ public class ZTMZPacenoteTool {
     }
 #endregion
 
-    private PrerequisitesCheckResult checkPrerequisite(IGame game)
+    public PrerequisitesCheckResult CheckPrerequisite(IGame game)
     {
-        // check the file
-        var preCheck = game.GamePrerequisiteChecker;
-        var checkResult = preCheck.CheckPrerequisites(game);
+        var checkResult = _runtime.Prerequisites.Check(game);
         switch (checkResult.Code)
         {
             case PrerequisitesCheckResultCode.PORT_NOT_OPEN:
@@ -1221,6 +1159,11 @@ public class ZTMZPacenoteTool {
                 break;
         }
         return checkResult;
+    }
+
+    public void ForceFixPrerequisite(IGame game)
+    {
+        _runtime.Prerequisites.ForceFix(game);
     }
 
 #endregion

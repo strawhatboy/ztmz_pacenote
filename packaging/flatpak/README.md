@@ -39,9 +39,12 @@ Run the bootstrap:
 flatpak run io.github.strawhatboy.ZTMZPacenoteTool.Devel
 ```
 
-The package installs the official pacenote database, localization files, and
-the portable Codemasters UDP provider. To verify that a listener can bind
-inside the sandbox without starting a game:
+The package installs the official pacenote database, localization files, the
+portable Codemasters UDP provider, and the PortAudio output backend. On
+startup, the host lists the co-driver packages and output devices it found.
+WAV, AIFF, MP3, Ogg, FLAC, and Opus are decoded in-process through libsndfile;
+WMA, AAC, MP4, and M4A use the FFmpeg supplied by the Freedesktop runtime.
+To verify that a listener can bind inside the sandbox without starting a game:
 
 ```bash
 flatpak run io.github.strawhatboy.ZTMZPacenoteTool.Devel \
@@ -50,8 +53,46 @@ flatpak run io.github.strawhatboy.ZTMZPacenoteTool.Devel \
 ```
 
 `--share=network` is required so telemetry sent by a Proton game can reach the
-Flatpak process. No host filesystem permission is granted by this development
-manifest.
+Flatpak process. `--socket=pulseaudio` gives PortAudio access to the user's
+PipeWire/PulseAudio compatibility socket.
+
+The development manifest grants narrowly scoped read/write access to the
+native Steam data directory, the Flatpak Steam data directory, and
+`/run/media`, where SteamOS normally mounts removable Steam libraries. ZTMZ
+needs write access because prerequisite repair updates game configuration
+files inside Proton prefixes. It does not receive access to the complete home
+or host filesystem.
+
+The shared Proton locator reads each Steam root's `steamapps/libraryfolders.vdf`
+and selects the library containing the game's `appmanifest_<appid>.acf`. For
+DiRT Rally 2.0 it then checks the Windows Documents directory inside
+`steamapps/compatdata/690790/pfx`. Additional non-standard Steam roots can be
+provided as a colon-separated list through `ZTMZ_STEAM_ROOTS`; the selected
+directories must also be exposed to the sandbox with a matching Flatpak
+filesystem override.
+
+To verify decoding and audible playback using a file already visible inside
+the sandbox, run:
+
+```bash
+flatpak run io.github.strawhatboy.ZTMZPacenoteTool.Devel \
+  --play-audio /path/visible/inside/the/sandbox/example.ogg
+```
+
+Use `--audio-device <id>` to select a non-default device from the startup list.
+
+Start the browser dashboard and keep forwarding decoded game telemetry until
+`Ctrl+C`:
+
+```bash
+flatpak run io.github.strawhatboy.ZTMZPacenoteTool.Devel \
+  --web-dashboard \
+  --listen-game "Dirt Rally 2.0"
+```
+
+The startup output prints the browser URL and the number of loaded dashboard
+packages. Add `--web-dashboard-port <1024-65535>` to override the configured
+port. Supplying `--listen-seconds <1-300>` keeps the bounded diagnostic behavior.
 
 To simulate that Proton-side traffic without installing a game, start the
 listener in one terminal:

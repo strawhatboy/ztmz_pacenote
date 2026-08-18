@@ -2,6 +2,7 @@ using Neo.IronLua;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.WebDashboard;
 
 namespace ZTMZ.PacenoteTool.Tests.Base;
 

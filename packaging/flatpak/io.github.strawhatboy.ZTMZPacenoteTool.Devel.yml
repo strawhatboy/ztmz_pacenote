@@ -8,6 +8,10 @@ command: ztmz
 
 finish-args:
   - --share=network
+  - --socket=pulseaudio
+  - --filesystem=xdg-data/Steam:rw
+  - --filesystem=~/.var/app/com.valvesoftware.Steam/.local/share/Steam:rw
+  - --filesystem=/run/media:rw
 
 build-options:
   append-ld-library-path: /usr/lib/sdk/dotnet10/lib

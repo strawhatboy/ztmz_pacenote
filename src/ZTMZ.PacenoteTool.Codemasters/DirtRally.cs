@@ -12,6 +12,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
         public string Name => GameName;
 
         public static string GameName = "Dirt Rally 1.0";
+        public const uint SteamAppId = 310560;
 
         public event Action<int, string> onCustomMessage;
 

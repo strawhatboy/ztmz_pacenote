@@ -12,6 +12,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
 
         public string Name => GameName;
         public static string GameName = "EA SPORTS™ WRC";
+        public const uint SteamAppId = 1849250;
 
         public event Action<int, string> onCustomMessage;
 

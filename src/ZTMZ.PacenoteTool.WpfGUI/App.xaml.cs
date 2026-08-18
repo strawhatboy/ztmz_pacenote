@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -56,18 +55,11 @@ public partial class App : Application
         // patch ZTMZ.PacenoteTool.Base to fix the SevenZipExtractor issue
         ArchiveFilePatch.Patch(harmony);
 
-        // Provider language files live beside provider DLLs, while user-installed language
-        // overrides live in the data folder. Load both so a moved data folder cannot hide
-        // packaged provider descriptions and settings.
-        var jsonPaths = new List<string>();
-        var seenLanguagePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        AddLanguageDirectories(AppContext.BaseDirectory, jsonPaths, seenLanguagePaths);
-        AddLanguageDirectories(AppLevelVariables.Instance.AppConfigFolder, jsonPaths, seenLanguagePaths);
-            
         NLogManager.init(ToolUtils.GetToolVersion());
         _logger.Info("Application started");
-        I18NLoader.Instance.Initialize(jsonPaths);
-        I18NLoader.Instance.SetCulture(Config.Instance.Language);
+        ResourceBootstrapService.InitializeLocalization(
+            [AppContext.BaseDirectory, AppLevelVariables.Instance.AppConfigFolder],
+            Config.Instance.Language);
         _logger.Info("i18n Loaded.");
         GetService<AzureAppInsightsManager>().TrackEvent("Application started", new Dictionary<string, string> {
             { "Language", Config.Instance.Language },
@@ -78,31 +70,6 @@ public partial class App : Application
     }
 
     private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-
-    private static void AddLanguageDirectories(
-        string rootDirectory,
-        ICollection<string> target,
-        ISet<string> seenPaths)
-    {
-        if (string.IsNullOrWhiteSpace(rootDirectory) || !Directory.Exists(rootDirectory))
-        {
-            return;
-        }
-
-        foreach (var directory in Directory.EnumerateDirectories(
-                     rootDirectory,
-                     Constants.PATH_LANGUAGE,
-                     SearchOption.AllDirectories)
-                 .Where(directory => Path.GetFileName(directory)
-                     .Equals(Constants.PATH_LANGUAGE, StringComparison.OrdinalIgnoreCase)))
-        {
-            var normalizedDirectory = Path.GetFullPath(directory);
-            if (seenPaths.Add(normalizedDirectory))
-            {
-                target.Add(normalizedDirectory);
-            }
-        }
-    }
 
     private static Mutex mutex = new Mutex(true, "{F1D4A3D4-6D1A-4D3A-8D1A-4D1A6D1A4D3A}"); // unique id
     
@@ -136,8 +103,13 @@ public partial class App : Application
             services.AddSingleton<GameOverlayManager>();
             services.AddSingleton<VRGameOverlayManager>();
             services.AddSingleton<AzureAppInsightsManager>();
+            services.AddSingleton<IAudioOutputDeviceEnumerator, WasapiAudioOutputDeviceEnumerator>();
+            services.AddSingleton<IAudioPlaybackEngineFactory, WasapiAudioPlaybackEngineFactory>();
             services.AddSingleton<SupportDiagnosticsService>();
-            services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>();
+            services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>(provider =>
+                new ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool(
+                    provider.GetRequiredService<IAudioOutputDeviceEnumerator>(),
+                    provider.GetRequiredService<IAudioPlaybackEngineFactory>()));
             services.AddSingleton<UpdateConfigSetter>();
             services.AddSingleton<RuntimeControlsService>();
             services.AddSingleton<SystemNotificationService>();

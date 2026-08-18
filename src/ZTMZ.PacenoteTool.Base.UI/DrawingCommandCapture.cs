@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GameOverlay.Drawing;
+using ZTMZ.PacenoteTool.WebDashboard;
 
 namespace ZTMZ.PacenoteTool.Base.UI;
 

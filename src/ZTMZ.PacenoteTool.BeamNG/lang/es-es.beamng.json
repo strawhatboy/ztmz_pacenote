@@ -12,6 +12,7 @@
         "installFailed": "Error al instalar el puente Rally",
         "statusUserFolderRequired": "Selecciona la carpeta de usuario de BeamNG.drive.",
         "statusNotInstalled": "El puente Rally no está instalado.",
+        "statusUpdateRequired": "Es necesario actualizar el puente Rally. Versión instalada: {0}; versión incluida: {1}.",
         "statusInstalled": "Puente Rally instalado. Reinicia BeamNG para cargar el mod actualizado.",
         "statusPortUnavailable": "El puerto {0} del puente Rally no está disponible.",
         "statusWaiting": "El puente Rally está escuchando en el puerto {0}. En el Mods Manager de BeamNG, activa ZTMZ Pacenote Rally Bridge y entra en un tramo Rally integrado.",

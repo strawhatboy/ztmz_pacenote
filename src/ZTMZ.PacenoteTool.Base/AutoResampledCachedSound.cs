@@ -133,54 +133,9 @@ namespace ZTMZ.PacenoteTool.Base
 
         public AutoResampledCachedSound(string audioFileName, bool cutHeadAndTail = false)
         {
-            IDisposable audioFileReader;
-            ISampleProvider source;
-            long estimatedSampleCount;
-            var extension = Path.GetExtension(audioFileName);
-            if (extension.Equals(".ogg", StringComparison.OrdinalIgnoreCase))
-            {
-                var vorbisReader = new NVorbisSampleProvider(audioFileName);
-                audioFileReader = vorbisReader;
-                source = vorbisReader;
-                estimatedSampleCount = vorbisReader.TotalSamples * vorbisReader.WaveFormat.Channels;
-            }
-            else if (IsMediaFoundationFormat(extension))
-            {
-                // NAudio 3 moved Media Foundation codecs out of NAudio.Core. Use the
-                // Windows reader directly instead of relying on AudioFileReader registration.
-                var mediaFoundationReader = new MediaFoundationReader(audioFileName);
-                audioFileReader = mediaFoundationReader;
-                source = mediaFoundationReader.ToSampleProvider();
-                estimatedSampleCount = mediaFoundationReader.Length /
-                    Math.Max(1, mediaFoundationReader.WaveFormat.BitsPerSample / 8);
-            }
-            else
-            {
-                var fileReader = new AudioFileReader(audioFileName);
-                audioFileReader = fileReader;
-                source = fileReader;
-                estimatedSampleCount = fileReader.Length / sizeof(float);
-            }
-
-            using (audioFileReader)
-            using (var resampler = new MediaFoundationResampler(
-                       new SampleToWaveProvider(source),
-                       WaveFormat.CreateIeeeFloatWaveFormat(44100, 2)))
-            {
-                var resampledAudio = new WaveToSampleProvider(resampler);
-                this.WaveFormat = resampledAudio.WaveFormat;
-
-                var capacity = (int)Math.Min(estimatedSampleCount, int.MaxValue);
-                var wholeFile = new List<float>(capacity);
-                var buffer = new float[resampledAudio.WaveFormat.SampleRate * resampledAudio.WaveFormat.Channels];
-                int samplesRead;
-                while ((samplesRead = resampledAudio.Read(buffer)) > 0)
-                {
-                    wholeFile.AddRange(buffer.Take(samplesRead));
-                }
-
-                this.AudioData = wholeFile.ToArray();
-            }
+            var decoded = AudioDecodingServices.Decoder.Decode(audioFileName, 44100, 2);
+            this.WaveFormat = decoded.WaveFormat;
+            this.AudioData = decoded.Samples;
 
             // always remove zeros...
             CutHeadAndTail(1e-5);
@@ -189,15 +144,6 @@ namespace ZTMZ.PacenoteTool.Base
             {
                 CutHeadAndTail(Config.Instance.FactorToRemoveSpaceFromAudioFiles);
             }
-        }
-
-        private static bool IsMediaFoundationFormat(string extension)
-        {
-            return extension.Equals(".mp3", StringComparison.OrdinalIgnoreCase) ||
-                   extension.Equals(".wma", StringComparison.OrdinalIgnoreCase) ||
-                   extension.Equals(".aac", StringComparison.OrdinalIgnoreCase) ||
-                   extension.Equals(".mp4", StringComparison.OrdinalIgnoreCase) ||
-                   extension.Equals(".m4a", StringComparison.OrdinalIgnoreCase);
         }
 
         public static int GetTailIndex(float[] audioData, float cutSampleFloatLimit = 1e-3f)

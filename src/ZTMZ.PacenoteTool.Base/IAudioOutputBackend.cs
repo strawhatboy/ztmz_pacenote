@@ -11,5 +11,9 @@ public interface IAudioOutputBackend : IDisposable
 
     int LatencyMilliseconds { get; }
 
+    DateTimeOffset? LastErrorUtc { get; }
+
+    string LastError { get; }
+
     void Start(ISampleProvider source);
 }

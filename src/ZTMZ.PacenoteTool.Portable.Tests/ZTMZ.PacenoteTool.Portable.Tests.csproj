@@ -13,6 +13,8 @@
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Core\ZTMZ.PacenoteTool.Core.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Codemasters\ZTMZ.PacenoteTool.Codemasters.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.BeamNG\ZTMZ.PacenoteTool.BeamNG.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.Audio.PortAudio\ZTMZ.PacenoteTool.Audio.PortAudio.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.WebDashboard\ZTMZ.PacenoteTool.WebDashboard.csproj" />
   </ItemGroup>
 
   <ItemGroup>

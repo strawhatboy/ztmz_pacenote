@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj"
+                      AdditionalProperties="ExcludeSevenZipAssemblies=true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio.SoundFile" Version="3.0.0" />
+    <PackageReference Include="PortAudioSharp2" Version="1.0.6" />
+  </ItemGroup>
+
+</Project>

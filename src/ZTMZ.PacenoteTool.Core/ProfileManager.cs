@@ -157,19 +157,34 @@ namespace ZTMZ.PacenoteTool.Core
 
         private object obj = new();
 
+        private readonly ProfileCatalogService _profileCatalog;
+
 
         public ProfileManager()
-            : this(AudioPlatformServices.CreateDefaultPlaybackEngineFactory())
+            : this(
+                AudioPlatformServices.CreateDefaultPlaybackEngineFactory(),
+                new ProfileCatalogService(AppLevelVariables.Instance))
         {
         }
 
         public ProfileManager(IAudioPlaybackEngineFactory audioPlaybackEngineFactory)
+            : this(
+                audioPlaybackEngineFactory,
+                new ProfileCatalogService(AppLevelVariables.Instance))
+        {
+        }
+
+        public ProfileManager(
+            IAudioPlaybackEngineFactory audioPlaybackEngineFactory,
+            ProfileCatalogService profileCatalog)
         {
             _audioPlaybackEngineFactory = audioPlaybackEngineFactory ??
                 throw new ArgumentNullException(nameof(audioPlaybackEngineFactory));
+            _profileCatalog = profileCatalog ??
+                throw new ArgumentNullException(nameof(profileCatalog));
             _logger.Debug("initializing profile manager");
-            Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("profiles")));
-            Directory.CreateDirectory(AppLevelVariables.Instance.GetPath(string.Format("codrivers")));
+            _profileCatalog.GetProfileDirectories();
+            _profileCatalog.GetCoDriverDirectories();
             this.CreateNewProfile(Constants.DEFAULT_PROFILE);
 
             _logger.Debug("initializing codriver sounds");
@@ -200,15 +215,11 @@ namespace ZTMZ.PacenoteTool.Core
 
         private async Task initCodriverSounds()
         {
-            List<Task> tasks = new List<Task>();
-            foreach (var codriverPath in this.GetAllCodrivers())
+            var packages = await _profileCatalog.LoadCoDriversAsync();
+            foreach (var package in packages)
             {
-                tasks.Add(Task.Run(async () =>
-                {
-                    this.CoDriverPackages[codriverPath] = await CoDriverPackage.Load(codriverPath);
-                }));
+                this.CoDriverPackages[package.Key] = package.Value;
             }
-            await Task.WhenAll(tasks.ToArray());
         }
 
         public async Task RefreshCodriverSounds()
@@ -244,19 +255,13 @@ namespace ZTMZ.PacenoteTool.Core
 
         public List<string> GetAllProfiles()
         {
-            return Directory.GetDirectories(AppLevelVariables.Instance.GetPath("profiles\\")).ToList();
+            return _profileCatalog.GetProfileDirectories().ToList();
         }
 
         public List<string> GetAllCodrivers()
         {
             _logger.Debug("getting all codrivers");
-            var dirs = Directory.GetDirectories(AppLevelVariables.Instance.GetPath("codrivers\\")).ToList();
-            if (!string.IsNullOrEmpty(Config.Instance.AdditionalCoDriverPackagesSearchPath) &&
-                Directory.Exists(Config.Instance.AdditionalCoDriverPackagesSearchPath))
-            {
-                dirs.AddRange(Directory.GetDirectories(Config.Instance.AdditionalCoDriverPackagesSearchPath));
-            }
-
+            var dirs = _profileCatalog.GetCoDriverDirectories().ToList();
             _logger.Debug("found {0} codrivers", dirs.Count);
             return dirs;
         }

@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Core\ZTMZ.PacenoteTool.Core.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Base.UI\ZTMZ.PacenoteTool.Base.UI.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.WebDashboard\ZTMZ.PacenoteTool.WebDashboard.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.I18N\ZTMZ.PacenoteTool.I18N.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.ScriptEditor\ZTMZ.PacenoteTool.ScriptEditor.csproj" />
   </ItemGroup>
@@ -80,7 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <!-- WebDashboardServer serves these files from the WPF application's base directory. -->
-    <Content Include="..\ZTMZ.PacenoteTool.Base.UI\wwwroot\**\*">
+    <Content Include="..\ZTMZ.PacenoteTool.WebDashboard\wwwroot\**\*">
       <Link>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -88,7 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <!-- One versioned icon pack is shared by WPF and WebDashboardServer. -->
-    <Content Include="..\ZTMZ.PacenoteTool.Base.UI\pacenote-icons\**\*">
+    <Content Include="..\ZTMZ.PacenoteTool.WebDashboard\pacenote-icons\**\*">
       <Link>Assets\PacenoteIcons\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

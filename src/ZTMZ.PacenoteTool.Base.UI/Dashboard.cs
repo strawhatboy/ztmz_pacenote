@@ -8,47 +8,10 @@ using GameOverlay.Drawing;
 using Neo.IronLua;
 using Newtonsoft.Json;
 using ZTMZ.PacenoteTool.Base.Game;
+using ZTMZ.PacenoteTool.WebDashboard;
 
 namespace ZTMZ.PacenoteTool.Base.UI;
 
-
-public class GameContext {
-    public string TrackName { set; get; } = "";
-    public string AudioPackage { set; get; } = "";
-    public string ScriptAuthor { set; get; } = "";
-    public string PacenoteType { set; get; } = "";
-    /// <summary>
-    /// The most recently dispatched external pacenote. Dashboards can use its
-    /// token names to select their own icons or render a textual call.
-    /// </summary>
-    public PacenotePlaybackSnapshot CurrentPacenote { set; get; } = PacenotePlaybackSnapshot.Empty;
-    public string CarName { set; get; } = "";
-    public string CarClass { set; get; } = "";
-    public bool LocalReplayValid { set; get; } = false;
-    public List<ReplayDetailsPerCheckpoint> LocalReplayDetailsPerCheckpoints { set; get; } = new();
-    public List<ReplayDetailsPerTime> LocalReplayDetailsPerTimes { set; get; } = new();
-    public Dictionary<float, float> LocalReplayDetailsPerTimesDict { set; get; } = new();
-    public Replay LocalReplay { set; get; } = new();
-    public float LocalReplayFinishTime { set; get; }
-    /// <summary>
-    /// One immutable, core-calculated comparison for the current telemetry packet.
-    /// Dashboards should prefer this over replay lookup delegates for live values.
-    /// </summary>
-    public ReplayComparisonSnapshot LocalReplayComparison { set; get; } = ReplayComparisonSnapshot.Unavailable;
-
-    /// <summary>
-    /// Get the delta time between the current time and the given distance
-    /// </summary>
-    public Func<float, float> GetDelta { set; get; } = (float distance) => 0;
-    public Func<float, float, float> GetDeltaByDistanceAndTime { set; get; } = (float distance, float time) => 0;
-    public Func<int, float> GetDeltaByCheckpoint { set; get; } = (int checkpoint) => 0;
-    public Func<float, float> GetTimeByDistance { set; get; } = (float distance) => 0;
-    public Func<float, float> GetBestTimeByDistance { set; get; } = (float distance) => 0;
-    public Func<float, float> GetBestDistanceByTime { set; get; } = (float time) => 0;
-    public int LastGameState { set; get; }
-    public int GameState { set; get; }
-    public Dictionary<string, object> GameStateChangedParameters { set; get; } = new();
-}
 
 public class DashboardScriptArguments {
     // Changed from Graphics to object to support both real Graphics and GraphicsCommandProxy

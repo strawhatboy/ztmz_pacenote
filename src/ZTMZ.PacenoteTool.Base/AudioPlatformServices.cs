@@ -94,7 +94,9 @@ public sealed class WasapiAudioPlaybackEngineFactory : IAudioPlaybackEngineFacto
         ArgumentNullException.ThrowIfNull(options);
 
         return new ZTMZAudioPlaybackEngine(
-            options.DeviceEndpointId,
+            new WasapiAudioOutputBackend(
+                options.DeviceEndpointId,
+                options.DesiredLatencyMilliseconds),
             options.DeviceIndex,
             options.IsSequential,
             options.DesiredLatencyMilliseconds,

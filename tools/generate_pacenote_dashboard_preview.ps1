@@ -4,8 +4,8 @@ param(
 
 Add-Type -AssemblyName System.Drawing
 
-$iconRoot = Join-Path $RepositoryRoot "src\ZTMZ.PacenoteTool.Base.UI\pacenote-icons\v1\icons"
-$outputPath = Join-Path $RepositoryRoot "src\ZTMZ.PacenoteTool.Base.UI\dashboards\pacenote_roadbook\preview.png"
+$iconRoot = Join-Path $RepositoryRoot "src\ZTMZ.PacenoteTool.WebDashboard\pacenote-icons\v1\icons"
+$outputPath = Join-Path $RepositoryRoot "src\ZTMZ.PacenoteTool.WebDashboard\dashboards\pacenote_roadbook\preview.png"
 
 function New-RoundedRectanglePath {
     param([System.Drawing.RectangleF]$Rectangle, [float]$Radius)

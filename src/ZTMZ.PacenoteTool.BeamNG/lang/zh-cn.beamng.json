@@ -12,6 +12,7 @@
         "installFailed": "拉力桥接模块安装失败",
         "statusUserFolderRequired": "请选择 BeamNG.drive 用户文件夹。",
         "statusNotInstalled": "尚未安装拉力桥接模块。",
+        "statusUpdateRequired": "拉力桥接模块需要更新。已安装版本：{0}；内置版本：{1}。",
         "statusInstalled": "拉力桥接模块已安装。请重启 BeamNG 以加载更新后的模块。",
         "statusPortUnavailable": "拉力桥接端口 {0} 不可用。",
         "statusWaiting": "拉力桥接模块正在监听端口 {0}。请在 BeamNG 的模组管理器中启用 ZTMZ Pacenote Rally Bridge，然后进入内置拉力赛段。",

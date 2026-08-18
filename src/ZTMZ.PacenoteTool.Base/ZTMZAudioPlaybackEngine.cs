@@ -8,7 +8,6 @@ using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.Base
 {
-    [SupportedOSPlatform("windows")]
     public class ZTMZAudioPlaybackEngine : IAudioPlaybackEngine
     {
         private readonly IAudioOutputBackend outputDevice;
@@ -26,13 +25,33 @@ namespace ZTMZ.PacenoteTool.Base
         private int isDisposed;
 
 
+        [SupportedOSPlatform("windows")]
         public ZTMZAudioPlaybackEngine(string deviceEndpointId = "", int deviceID = 0,
             bool isSequential = true, int desiredLatency = 50,
             int sampleRate = 44100, int channelCount = 2)
+            : this(
+                new WasapiAudioOutputBackend(deviceEndpointId, desiredLatency),
+                deviceID,
+                isSequential,
+                desiredLatency,
+                sampleRate,
+                channelCount)
         {
+        }
+
+        public ZTMZAudioPlaybackEngine(
+            IAudioOutputBackend outputDevice,
+            int deviceID = 0,
+            bool isSequential = true,
+            int desiredLatency = 50,
+            int sampleRate = 44100,
+            int channelCount = 2)
+        {
+            ArgumentNullException.ThrowIfNull(outputDevice);
+
             this.deviceId = deviceID;
             this.desiredLatency = desiredLatency;
-            outputDevice = new WasapiAudioOutputBackend(deviceEndpointId, desiredLatency);
+            this.outputDevice = outputDevice;
 
             var ieeeFloatWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channelCount);
             mixer = new MixingSampleProvider(ieeeFloatWaveFormat) { ReadFully = true };
@@ -64,14 +83,20 @@ namespace ZTMZ.PacenoteTool.Base
             {
                 lock (diagnosticsLock)
                 {
+                    var backendErrorUtc = outputDevice.LastErrorUtc;
+                    var engineErrorUtc = ToUtcDateTimeOffset(
+                        Interlocked.Read(ref lastErrorUtcTicks));
+                    var useBackendError = backendErrorUtc.HasValue &&
+                                          (!engineErrorUtc.HasValue ||
+                                           backendErrorUtc > engineErrorUtc);
                     return new AudioPlaybackStatus(
                         Volatile.Read(ref isDisposed) == 0,
                         deviceId,
                         desiredLatency,
                         Interlocked.Read(ref queuedSoundCount),
                         ToUtcDateTimeOffset(Interlocked.Read(ref lastSoundQueuedUtcTicks)),
-                        ToUtcDateTimeOffset(Interlocked.Read(ref lastErrorUtcTicks)),
-                        lastError);
+                        useBackendError ? backendErrorUtc : engineErrorUtc,
+                        useBackendError ? outputDevice.LastError : lastError);
                 }
             }
         }

@@ -92,6 +92,13 @@
     },
     {
         "type": "file",
+        "url": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.logging.abstractions/10.0.10/microsoft.extensions.logging.abstractions.10.0.10.nupkg",
+        "sha512": "6fcc5a6cd33bcca73b47c0771bd1ad9cc044eac53d3af43c017cc684932f1f107981c7a0312922c14e6e2aa9b8df1d3a70655dd0acdcf9b97d3ce975fc21d588",
+        "dest": "nuget-sources",
+        "dest-filename": "microsoft.extensions.logging.abstractions.10.0.10.nupkg"
+    },
+    {
+        "type": "file",
         "url": "https://api.nuget.org/v3-flatcontainer/microsoft.io.recyclablememorystream/3.0.0/microsoft.io.recyclablememorystream.3.0.0.nupkg",
         "sha512": "ef1548eb301d88e00a72190f50b8f2df7591a7730fc70a18201de4c7441655d17d7e56f70e1a221ad487adeedcff547d0c87b7b2142bae261e8b05d63a4037ca",
         "dest": "nuget-sources",
@@ -124,6 +131,13 @@
         "sha512": "c6925a024da406bf229ad0446e6d7ccf5b9cf626121f7e06187c183b49556ca64cda85411d694455351f62e903d341e464e8bfe8a129dd347bf86a783513f394",
         "dest": "nuget-sources",
         "dest-filename": "naudio.midi.3.0.0.nupkg"
+    },
+    {
+        "type": "file",
+        "url": "https://api.nuget.org/v3-flatcontainer/naudio.soundfile/3.0.0/naudio.soundfile.3.0.0.nupkg",
+        "sha512": "d4dbca0aa8818003a0627d95a6dd471a09305296e24d1602f508f9fe7e58ba4631ac0dd21b72dcf0f2ad9acd39cefaa245c82ada707013d9b435e1fbdb444b1a",
+        "dest": "nuget-sources",
+        "dest-filename": "naudio.soundfile.3.0.0.nupkg"
     },
     {
         "type": "file",
@@ -173,6 +187,48 @@
         "sha512": "08f6d5f3d42b1c4a9ece1f5b07c918aa590ba984170f4128c1b250adc6164a3563e3263bbdfcada816500f461f5a5a48ae7746b889db8a73e2e4aa95742c7654",
         "dest": "nuget-sources",
         "dest-filename": "obs-websocket-dotnet.5.0.1.nupkg"
+    },
+    {
+        "type": "file",
+        "url": "https://api.nuget.org/v3-flatcontainer/org.k2fsa.portaudio.runtime.linux-aarch64/1.0.6/org.k2fsa.portaudio.runtime.linux-aarch64.1.0.6.nupkg",
+        "sha512": "36c7ab714b05c621aa472a87f6be9eae8a961296c37a025f464532572612984fba75b66058df0e76c8878998adf92ba3d93faeab20423f84f922d830e3d59f4d",
+        "dest": "nuget-sources",
+        "dest-filename": "org.k2fsa.portaudio.runtime.linux-aarch64.1.0.6.nupkg"
+    },
+    {
+        "type": "file",
+        "url": "https://api.nuget.org/v3-flatcontainer/org.k2fsa.portaudio.runtime.linux-x64/1.0.6/org.k2fsa.portaudio.runtime.linux-x64.1.0.6.nupkg",
+        "sha512": "ac0774975714dc890bc8871239ea3375a7c6d69a6618df237d781a41b9c90d9c2750a6a4c2177c6540715b9d52fe21f429692af09b70455a7dd09b99460e6f81",
+        "dest": "nuget-sources",
+        "dest-filename": "org.k2fsa.portaudio.runtime.linux-x64.1.0.6.nupkg"
+    },
+    {
+        "type": "file",
+        "url": "https://api.nuget.org/v3-flatcontainer/org.k2fsa.portaudio.runtime.osx-arm64/1.0.6/org.k2fsa.portaudio.runtime.osx-arm64.1.0.6.nupkg",
+        "sha512": "531ddfd9a056693c5e09ab5f6a84af8ade959ab2ff4831ab4548f103370287c1a04907adb992cc21960d7ca49a78c691b165a7a37a3bbddf0dcee1f26ddc173c",
+        "dest": "nuget-sources",
+        "dest-filename": "org.k2fsa.portaudio.runtime.osx-arm64.1.0.6.nupkg"
+    },
+    {
+        "type": "file",
+        "url": "https://api.nuget.org/v3-flatcontainer/org.k2fsa.portaudio.runtime.osx-x64/1.0.6/org.k2fsa.portaudio.runtime.osx-x64.1.0.6.nupkg",
+        "sha512": "b3119414ec315d0dff8692b5edf01b297867787f1fa3e797cf022e627f92bd9414d0207ec6801be4c77b42bc70b6606c1a526a280b097189ab670092c54cb263",
+        "dest": "nuget-sources",
+        "dest-filename": "org.k2fsa.portaudio.runtime.osx-x64.1.0.6.nupkg"
+    },
+    {
+        "type": "file",
+        "url": "https://api.nuget.org/v3-flatcontainer/org.k2fsa.portaudio.runtime.win-x64/1.0.6/org.k2fsa.portaudio.runtime.win-x64.1.0.6.nupkg",
+        "sha512": "76c30d6f787eaff388def312345453d60c86ffc0ee954cc87e671e5aa3b5512c42fd719069f1d2193eae734bbb8347622574a2b8bb246a32c7ba1b318d3100f9",
+        "dest": "nuget-sources",
+        "dest-filename": "org.k2fsa.portaudio.runtime.win-x64.1.0.6.nupkg"
+    },
+    {
+        "type": "file",
+        "url": "https://api.nuget.org/v3-flatcontainer/portaudiosharp2/1.0.6/portaudiosharp2.1.0.6.nupkg",
+        "sha512": "f1b8c81a8fd1451fd08183366852db97c03f37e9a7ce9265f98e9dcf7743f2e4e01b106b58411a503db47ae2b670c74c93cf940527c2f316d1721ba57d09f497",
+        "dest": "nuget-sources",
+        "dest-filename": "portaudiosharp2.1.0.6.nupkg"
     },
     {
         "type": "file",

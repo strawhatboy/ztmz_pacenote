@@ -47,6 +47,10 @@ public sealed class WasapiAudioOutputBackend : IAudioOutputBackend
 
     public int LatencyMilliseconds { get; }
 
+    public DateTimeOffset? LastErrorUtc => null;
+
+    public string LastError => string.Empty;
+
     public void Start(ISampleProvider source)
     {
         ObjectDisposedException.ThrowIf(isDisposed, this);
