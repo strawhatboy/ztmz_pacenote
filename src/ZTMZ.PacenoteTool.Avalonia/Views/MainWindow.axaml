@@ -8,6 +8,8 @@
         Height="760"
         MinWidth="1180"
         MinHeight="760"
+        FontFamily="{DynamicResource AppFontFamily}"
+        FontSize="{DynamicResource AppFontSize}"
         Background="{DynamicResource ApplicationPageBackgroundThemeBrush}"
         WindowStartupLocation="CenterScreen">
   <Window.Styles>

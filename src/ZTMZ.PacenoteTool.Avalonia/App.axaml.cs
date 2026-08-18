@@ -1,8 +1,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Avalonia.Styling;
-using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Avalonia.Services;
 using ZTMZ.PacenoteTool.Avalonia.ViewModels;
 using ZTMZ.PacenoteTool.Avalonia.Views;
@@ -18,11 +16,7 @@ public sealed partial class App : Application
     {
         AvaloniaXamlLoader.Load(this);
         AvaloniaLocalization.ApplyCurrentCulture(this);
-        RequestedThemeVariant = Config.Instance.UseSystemTheme
-            ? ThemeVariant.Default
-            : Config.Instance.IsDarkTheme
-                ? ThemeVariant.Dark
-                : ThemeVariant.Light;
+        AvaloniaAppearanceService.ApplyConfiguredAppearance(this);
     }
 
     public override void OnFrameworkInitializationCompleted()

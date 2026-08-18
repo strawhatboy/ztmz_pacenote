@@ -2,25 +2,40 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="ZTMZ.PacenoteTool.Avalonia.Views.GeneralView">
+  <UserControl.Styles>
+    <Style Selector="Border.setting-card">
+      <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Padding" Value="16" />
+    </Style>
+    <Style Selector="TextBlock.setting-description">
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+  </UserControl.Styles>
+
   <ScrollViewer HorizontalScrollBarVisibility="Disabled">
     <StackPanel Margin="42,30,42,42" Spacing="3">
       <TextBlock Text="{DynamicResource tabs.general}"
-                 FontSize="28"
+                 FontSize="{DynamicResource AppTitleFontSize}"
                  FontWeight="SemiBold"
                  Margin="0,0,0,18" />
 
-      <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-              BorderThickness="1"
-              CornerRadius="4"
-              Padding="16">
-        <Grid ColumnDefinitions="*,220">
+      <Border Classes="setting-card" IsVisible="{Binding HasSettingsMessage}">
+        <TextBlock Text="{Binding SettingsMessage}"
+                   Foreground="{DynamicResource SystemFillColorCriticalBrush}"
+                   TextWrapping="Wrap" />
+      </Border>
+
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,260">
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <fa:FASymbolIcon Symbol="Settings" FontSize="26" />
             <StackPanel>
               <TextBlock Text="{DynamicResource settings.theme}" />
-              <TextBlock Text="{DynamicResource settings.tooltip.theme}"
-                         Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+              <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.theme}" />
             </StackPanel>
           </StackPanel>
           <ComboBox Grid.Column="1" SelectedIndex="{Binding ThemeSelection, Mode=TwoWay}">
@@ -31,82 +46,178 @@
         </Grid>
       </Border>
 
-      <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-              BorderThickness="1"
-              CornerRadius="4"
-              Padding="16">
-        <Grid ColumnDefinitions="*,220">
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,360">
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-            <fa:FASymbolIcon Symbol="Globe" FontSize="26" />
+            <fa:FASymbolIcon Symbol="Font" FontSize="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.language}" />
-              <TextBlock Text="{DynamicResource settings.tooltip.language}"
-                         Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+              <TextBlock Text="{DynamicResource font.systemFont}" />
+              <TextBlock Classes="setting-description" Text="{DynamicResource font.systemFontDescription}" />
             </StackPanel>
           </StackPanel>
           <ComboBox Grid.Column="1"
-                    ItemsSource="{Binding Languages}"
-                    SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}">
+                    IsTextSearchEnabled="True"
+                    ItemsSource="{Binding SystemFonts}"
+                    SelectedItem="{Binding SelectedSystemFont, Mode=TwoWay}">
             <ComboBox.ItemTemplate>
-              <DataTemplate>
-                <TextBlock Text="{Binding DisplayName}" />
-              </DataTemplate>
+              <DataTemplate><TextBlock Text="{Binding DisplayName}" /></DataTemplate>
             </ComboBox.ItemTemplate>
           </ComboBox>
         </Grid>
       </Border>
 
-      <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-              BorderThickness="1"
-              CornerRadius="4"
-              Padding="16">
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,360">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <fa:FASymbolIcon Symbol="FontSize" FontSize="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource font.size}" />
+              <TextBlock Classes="setting-description" Text="{DynamicResource font.sizeDescription}" />
+            </StackPanel>
+          </StackPanel>
+          <Grid Grid.Column="1" ColumnDefinitions="*,58,Auto" ColumnSpacing="8">
+            <Slider Minimum="85" Maximum="130" TickFrequency="5" IsSnapToTickEnabled="True"
+                    Value="{Binding UiFontSizePercent, Mode=TwoWay}" />
+            <TextBlock Grid.Column="1" Text="{Binding UiFontSizeText}"
+                       HorizontalAlignment="Right" VerticalAlignment="Center" />
+            <Button Grid.Column="2" Command="{Binding ResetUiFontSizeCommand}"
+                    ToolTip.Tip="{DynamicResource font.resetSize}">
+              <fa:FASymbolIcon Symbol="Refresh" />
+            </Button>
+          </Grid>
+        </Grid>
+      </Border>
+
+      <Border Classes="setting-card">
+        <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,460">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <fa:FASymbolIcon Symbol="Download" FontSize="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource font.suggestedFont}" />
+              <TextBlock Classes="setting-description" Text="{Binding SuggestedFontStatus}" />
+            </StackPanel>
+          </StackPanel>
+          <Grid Grid.Column="1" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+            <ComboBox ItemsSource="{Binding SuggestedFonts}"
+                      SelectedItem="{Binding SelectedSuggestedFont, Mode=TwoWay}">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Name}" ToolTip.Tip="{Binding Description}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Button Grid.Column="1" Command="{Binding InstallSuggestedFontCommand}"
+                    Content="{Binding SuggestedFontActionText}" />
+            <Button Grid.Column="2" Command="{Binding RefreshSuggestedFontCatalogCommand}"
+                    ToolTip.Tip="{DynamicResource font.refreshCatalog}">
+              <fa:FASymbolIcon Symbol="Refresh" />
+            </Button>
+          </Grid>
+          <ProgressBar Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0"
+                       Minimum="0" Maximum="1" Value="{Binding SuggestedFontDownloadProgress}"
+                       IsVisible="{Binding IsDownloadingSuggestedFont}" />
+        </Grid>
+      </Border>
+
+      <Border Classes="setting-card" IsVisible="{Binding IsAccentColorVisible}">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <fa:FASymbolIcon Symbol="ColorFill" FontSize="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.accentColor}" />
+              <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.accentColor}" />
+            </StackPanel>
+          </StackPanel>
+          <ColorPicker Grid.Column="1" Width="260" Color="{Binding AccentColor, Mode=TwoWay}" />
+        </Grid>
+      </Border>
+
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,260">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <fa:FASymbolIcon Symbol="Globe" FontSize="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.language}" />
+              <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.language}" />
+            </StackPanel>
+          </StackPanel>
+          <ComboBox Grid.Column="1" ItemsSource="{Binding Languages}"
+                    SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}">
+            <ComboBox.ItemTemplate>
+              <DataTemplate><TextBlock Text="{Binding DisplayName}" /></DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </Grid>
+      </Border>
+
+      <Border Classes="setting-card">
         <Grid ColumnDefinitions="*,Auto">
           <StackPanel>
             <TextBlock Text="{DynamicResource settings.checkUpdateWhenStartup}" />
-            <TextBlock Text="{DynamicResource settings.tooltip.checkUpdateWhenStartup}"
-                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.checkUpdateWhenStartup}" />
           </StackPanel>
-          <ToggleSwitch Grid.Column="1"
-                        IsChecked="{Binding IsAutoUpdate, Mode=TwoWay}"
-                        OnContent=""
-                        OffContent=""
-                        VerticalAlignment="Center" />
+          <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsAutoUpdate, Mode=TwoWay}"
+                        OnContent="" OffContent="" VerticalAlignment="Center" />
         </Grid>
       </Border>
 
-      <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-              BorderThickness="1"
-              CornerRadius="4"
-              Padding="16">
+      <Border Classes="setting-card" IsVisible="{Binding IsWindows}">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel>
+            <TextBlock Text="{DynamicResource settings.startWithWindows}" />
+            <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.startWithWindows}" />
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsStartWithWindows, Mode=TwoWay}"
+                        OnContent="" OffContent="" VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <Border Classes="setting-card" IsVisible="{Binding IsWindows}">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel>
+            <TextBlock Text="{DynamicResource settings.startMinimizedToTray}" />
+            <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.startMinimizedToTray}" />
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsStartMinimizedToTray, Mode=TwoWay}"
+                        OnContent="" OffContent="" VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <Border Classes="setting-card" IsVisible="{Binding IsWindows}">
+        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+          <StackPanel>
+            <TextBlock Text="{DynamicResource settings.windowsNotifications}" />
+            <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.windowsNotifications}" />
+          </StackPanel>
+          <Button Grid.Column="1" Command="{Binding SendTestWindowsNotificationCommand}"
+                  ToolTip.Tip="{DynamicResource settings.testWindowsNotification}">
+            <fa:FASymbolIcon Symbol="Play" />
+          </Button>
+          <ToggleSwitch Grid.Column="2" IsChecked="{Binding IsWindowsNotificationsEnabled, Mode=TwoWay}"
+                        OnContent="" OffContent="" VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <Border Classes="setting-card">
         <Grid ColumnDefinitions="*,Auto">
           <StackPanel>
             <TextBlock Text="{DynamicResource settings.optInBetaPlan}" />
-            <TextBlock Text="{DynamicResource settings.tooltip.optInBetaPlan}"
-                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.optInBetaPlan}" />
           </StackPanel>
-          <ToggleSwitch Grid.Column="1"
-                        IsChecked="{Binding IsOptInBetaPlan, Mode=TwoWay}"
-                        OnContent=""
-                        OffContent=""
-                        VerticalAlignment="Center" />
+          <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsOptInBetaPlan, Mode=TwoWay}"
+                        OnContent="" OffContent="" VerticalAlignment="Center" />
         </Grid>
       </Border>
 
-      <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-              BorderThickness="1"
-              CornerRadius="4"
-              Padding="16">
-        <Grid ColumnDefinitions="*,220">
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,Auto,260" ColumnSpacing="10">
           <StackPanel>
             <TextBlock Text="{DynamicResource settings.logLevel}" />
-            <TextBlock Text="{DynamicResource settings.tooltip.logLevel}"
-                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.logLevel}" />
           </StackPanel>
-          <ComboBox Grid.Column="1" SelectedIndex="{Binding LogLevel, Mode=TwoWay}">
+          <Button Grid.Column="1" Command="{Binding ViewLogsCommand}"
+                  Content="{DynamicResource settings.tooltip.viewLogs}" />
+          <ComboBox Grid.Column="2" SelectedIndex="{Binding LogLevel, Mode=TwoWay}">
             <ComboBoxItem Content="{DynamicResource logLevel.trace}" />
             <ComboBoxItem Content="{DynamicResource logLevel.debug}" />
             <ComboBoxItem Content="{DynamicResource logLevel.info}" />
@@ -114,6 +225,32 @@
             <ComboBoxItem Content="{DynamicResource logLevel.error}" />
             <ComboBoxItem Content="{DynamicResource logLevel.fatal}" />
             <ComboBoxItem Content="{DynamicResource logLevel.off}" />
+          </ComboBox>
+        </Grid>
+      </Border>
+
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel>
+            <TextBlock Text="{DynamicResource ui.showClosePrompt}" />
+            <TextBlock Classes="setting-description" Text="{DynamicResource ui.tooltip.showClosePrompt}" />
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1" IsChecked="{Binding ShowClosePrompt, Mode=TwoWay}"
+                        OnContent="" OffContent="" VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <Border Classes="setting-card" IsVisible="{Binding IsWindows}">
+        <Grid ColumnDefinitions="*,260">
+          <StackPanel>
+            <TextBlock Text="{DynamicResource ui.closeBehavior}" />
+            <TextBlock Classes="setting-description" Text="{DynamicResource ui.tooltip.closeBehavior}" />
+          </StackPanel>
+          <ComboBox Grid.Column="1" SelectedIndex="{Binding CloseBehaviorSelection, Mode=TwoWay}">
+            <ComboBoxItem Content="{DynamicResource ui.closeToExit}"
+                          ToolTip.Tip="{DynamicResource ui.tooltip.closeToExit}" />
+            <ComboBoxItem Content="{DynamicResource ui.closeToMinimize}"
+                          ToolTip.Tip="{DynamicResource ui.tooltip.closeToMinimize}" />
           </ComboBox>
         </Grid>
       </Border>

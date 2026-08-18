@@ -11,6 +11,7 @@
     <FileVersion>2.99.99.45</FileVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UseWindowsForms Condition="'$(OS)' == 'Windows_NT'">true</UseWindowsForms>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 
@@ -48,6 +49,12 @@
     </Content>
     <Content Include="..\ZTMZ.PacenoteTool.WpfGUI\Assets\app.png">
       <Link>Assets\app.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\ZTMZ.PacenoteTool.WpfGUI\Assets\app_tray.ico"
+             Condition="'$(OS)' == 'Windows_NT'">
+      <Link>Assets\app_tray.ico</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
