@@ -1,6 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="ZTMZ.PacenoteTool.Avalonia.Views.GeneralView">
   <UserControl.Styles>
     <Style Selector="Border.setting-card">
@@ -32,7 +32,7 @@
       <Border Classes="setting-card">
         <Grid ColumnDefinitions="*,260">
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-            <fa:FASymbolIcon Symbol="Settings" FontSize="26" />
+            <materialIcons:MaterialIcon Kind="ThemeLightDark" Width="26" Height="26" />
             <StackPanel>
               <TextBlock Text="{DynamicResource settings.theme}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.theme}" />
@@ -49,7 +49,7 @@
       <Border Classes="setting-card">
         <Grid ColumnDefinitions="*,360">
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-            <fa:FASymbolIcon Symbol="Font" FontSize="26" />
+            <materialIcons:MaterialIcon Kind="FormatFont" Width="26" Height="26" />
             <StackPanel>
               <TextBlock Text="{DynamicResource font.systemFont}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource font.systemFontDescription}" />
@@ -69,7 +69,7 @@
       <Border Classes="setting-card">
         <Grid ColumnDefinitions="*,360">
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-            <fa:FASymbolIcon Symbol="FontSize" FontSize="26" />
+            <materialIcons:MaterialIcon Kind="FormatSize" Width="26" Height="26" />
             <StackPanel>
               <TextBlock Text="{DynamicResource font.size}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource font.sizeDescription}" />
@@ -81,8 +81,9 @@
             <TextBlock Grid.Column="1" Text="{Binding UiFontSizeText}"
                        HorizontalAlignment="Right" VerticalAlignment="Center" />
             <Button Grid.Column="2" Command="{Binding ResetUiFontSizeCommand}"
-                    ToolTip.Tip="{DynamicResource font.resetSize}">
-              <fa:FASymbolIcon Symbol="Refresh" />
+                    ToolTip.Tip="{DynamicResource font.resetSize}"
+                    ToolTip.ShowDelay="100">
+              <materialIcons:MaterialIcon Kind="Restore" Width="16" Height="16" />
             </Button>
           </Grid>
         </Grid>
@@ -91,7 +92,7 @@
       <Border Classes="setting-card">
         <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,460">
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-            <fa:FASymbolIcon Symbol="Download" FontSize="26" />
+            <materialIcons:MaterialIcon Kind="Download" Width="26" Height="26" />
             <StackPanel>
               <TextBlock Text="{DynamicResource font.suggestedFont}" />
               <TextBlock Classes="setting-description" Text="{Binding SuggestedFontStatus}" />
@@ -102,15 +103,17 @@
                       SelectedItem="{Binding SelectedSuggestedFont, Mode=TwoWay}">
               <ComboBox.ItemTemplate>
                 <DataTemplate>
-                  <TextBlock Text="{Binding Name}" ToolTip.Tip="{Binding Description}" />
+                  <TextBlock Text="{Binding Name}" ToolTip.Tip="{Binding Description}"
+                             ToolTip.ShowDelay="100" />
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
             <Button Grid.Column="1" Command="{Binding InstallSuggestedFontCommand}"
                     Content="{Binding SuggestedFontActionText}" />
             <Button Grid.Column="2" Command="{Binding RefreshSuggestedFontCatalogCommand}"
-                    ToolTip.Tip="{DynamicResource font.refreshCatalog}">
-              <fa:FASymbolIcon Symbol="Refresh" />
+                    ToolTip.Tip="{DynamicResource font.refreshCatalog}"
+                    ToolTip.ShowDelay="100">
+              <materialIcons:MaterialIcon Kind="Refresh" Width="16" Height="16" />
             </Button>
           </Grid>
           <ProgressBar Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0"
@@ -122,7 +125,7 @@
       <Border Classes="setting-card" IsVisible="{Binding IsAccentColorVisible}">
         <Grid ColumnDefinitions="*,Auto">
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-            <fa:FASymbolIcon Symbol="ColorFill" FontSize="26" />
+            <materialIcons:MaterialIcon Kind="Palette" Width="26" Height="26" />
             <StackPanel>
               <TextBlock Text="{DynamicResource settings.accentColor}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.accentColor}" />
@@ -135,7 +138,7 @@
       <Border Classes="setting-card">
         <Grid ColumnDefinitions="*,260">
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-            <fa:FASymbolIcon Symbol="Globe" FontSize="26" />
+            <materialIcons:MaterialIcon Kind="Translate" Width="26" Height="26" />
             <StackPanel>
               <TextBlock Text="{DynamicResource settings.language}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.language}" />
@@ -152,9 +155,12 @@
 
       <Border Classes="setting-card">
         <Grid ColumnDefinitions="*,Auto">
-          <StackPanel>
-            <TextBlock Text="{DynamicResource settings.checkUpdateWhenStartup}" />
-            <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.checkUpdateWhenStartup}" />
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="Update" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.checkUpdateWhenStartup}" />
+              <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.checkUpdateWhenStartup}" />
+            </StackPanel>
           </StackPanel>
           <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsAutoUpdate, Mode=TwoWay}"
                         OnContent="" OffContent="" VerticalAlignment="Center" />
@@ -163,9 +169,12 @@
 
       <Border Classes="setting-card" IsVisible="{Binding IsWindows}">
         <Grid ColumnDefinitions="*,Auto">
-          <StackPanel>
-            <TextBlock Text="{DynamicResource settings.startWithWindows}" />
-            <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.startWithWindows}" />
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="Run" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.startWithWindows}" />
+              <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.startWithWindows}" />
+            </StackPanel>
           </StackPanel>
           <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsStartWithWindows, Mode=TwoWay}"
                         OnContent="" OffContent="" VerticalAlignment="Center" />
@@ -174,9 +183,12 @@
 
       <Border Classes="setting-card" IsVisible="{Binding IsWindows}">
         <Grid ColumnDefinitions="*,Auto">
-          <StackPanel>
-            <TextBlock Text="{DynamicResource settings.startMinimizedToTray}" />
-            <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.startMinimizedToTray}" />
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="TrayArrowDown" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.startMinimizedToTray}" />
+              <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.startMinimizedToTray}" />
+            </StackPanel>
           </StackPanel>
           <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsStartMinimizedToTray, Mode=TwoWay}"
                         OnContent="" OffContent="" VerticalAlignment="Center" />
@@ -185,13 +197,17 @@
 
       <Border Classes="setting-card" IsVisible="{Binding IsWindows}">
         <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
-          <StackPanel>
-            <TextBlock Text="{DynamicResource settings.windowsNotifications}" />
-            <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.windowsNotifications}" />
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="BellOutline" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.windowsNotifications}" />
+              <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.windowsNotifications}" />
+            </StackPanel>
           </StackPanel>
           <Button Grid.Column="1" Command="{Binding SendTestWindowsNotificationCommand}"
-                  ToolTip.Tip="{DynamicResource settings.testWindowsNotification}">
-            <fa:FASymbolIcon Symbol="Play" />
+                  ToolTip.Tip="{DynamicResource settings.testWindowsNotification}"
+                  ToolTip.ShowDelay="100">
+            <materialIcons:MaterialIcon Kind="Bell" Width="16" Height="16" />
           </Button>
           <ToggleSwitch Grid.Column="2" IsChecked="{Binding IsWindowsNotificationsEnabled, Mode=TwoWay}"
                         OnContent="" OffContent="" VerticalAlignment="Center" />
@@ -200,9 +216,12 @@
 
       <Border Classes="setting-card">
         <Grid ColumnDefinitions="*,Auto">
-          <StackPanel>
-            <TextBlock Text="{DynamicResource settings.optInBetaPlan}" />
-            <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.optInBetaPlan}" />
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="Flask" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.optInBetaPlan}" />
+              <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.optInBetaPlan}" />
+            </StackPanel>
           </StackPanel>
           <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsOptInBetaPlan, Mode=TwoWay}"
                         OnContent="" OffContent="" VerticalAlignment="Center" />
@@ -211,9 +230,12 @@
 
       <Border Classes="setting-card">
         <Grid ColumnDefinitions="*,Auto,260" ColumnSpacing="10">
-          <StackPanel>
-            <TextBlock Text="{DynamicResource settings.logLevel}" />
-            <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.logLevel}" />
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="FormatListChecks" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.logLevel}" />
+              <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.logLevel}" />
+            </StackPanel>
           </StackPanel>
           <Button Grid.Column="1" Command="{Binding ViewLogsCommand}"
                   Content="{DynamicResource settings.tooltip.viewLogs}" />
@@ -231,9 +253,12 @@
 
       <Border Classes="setting-card">
         <Grid ColumnDefinitions="*,Auto">
-          <StackPanel>
-            <TextBlock Text="{DynamicResource ui.showClosePrompt}" />
-            <TextBlock Classes="setting-description" Text="{DynamicResource ui.tooltip.showClosePrompt}" />
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="MessageAlert" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource ui.showClosePrompt}" />
+              <TextBlock Classes="setting-description" Text="{DynamicResource ui.tooltip.showClosePrompt}" />
+            </StackPanel>
           </StackPanel>
           <ToggleSwitch Grid.Column="1" IsChecked="{Binding ShowClosePrompt, Mode=TwoWay}"
                         OnContent="" OffContent="" VerticalAlignment="Center" />
@@ -242,15 +267,20 @@
 
       <Border Classes="setting-card" IsVisible="{Binding IsWindows}">
         <Grid ColumnDefinitions="*,260">
-          <StackPanel>
-            <TextBlock Text="{DynamicResource ui.closeBehavior}" />
-            <TextBlock Classes="setting-description" Text="{DynamicResource ui.tooltip.closeBehavior}" />
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="WindowClose" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource ui.closeBehavior}" />
+              <TextBlock Classes="setting-description" Text="{DynamicResource ui.tooltip.closeBehavior}" />
+            </StackPanel>
           </StackPanel>
           <ComboBox Grid.Column="1" SelectedIndex="{Binding CloseBehaviorSelection, Mode=TwoWay}">
             <ComboBoxItem Content="{DynamicResource ui.closeToExit}"
-                          ToolTip.Tip="{DynamicResource ui.tooltip.closeToExit}" />
+                          ToolTip.Tip="{DynamicResource ui.tooltip.closeToExit}"
+                          ToolTip.ShowDelay="100" />
             <ComboBoxItem Content="{DynamicResource ui.closeToMinimize}"
-                          ToolTip.Tip="{DynamicResource ui.tooltip.closeToMinimize}" />
+                          ToolTip.Tip="{DynamicResource ui.tooltip.closeToMinimize}"
+                          ToolTip.ShowDelay="100" />
           </ComboBox>
         </Grid>
       </Border>

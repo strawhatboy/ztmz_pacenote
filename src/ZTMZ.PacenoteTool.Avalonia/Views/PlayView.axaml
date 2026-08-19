@@ -1,0 +1,192 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:Class="ZTMZ.PacenoteTool.Avalonia.Views.PlayView">
+  <UserControl.Styles>
+    <Style Selector="Border.setting-card">
+      <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Padding" Value="16" />
+    </Style>
+    <Style Selector="TextBlock.setting-description">
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+  </UserControl.Styles>
+
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Margin="42,30,42,42" Spacing="3">
+
+      <TextBlock Text="{DynamicResource tabs.playback}"
+                 FontSize="{DynamicResource AppTitleFontSize}"
+                 FontWeight="SemiBold"
+                 Margin="0,0,0,18" />
+
+      <!-- UseDynamicPlaybackSpeed -->
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,160">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="Speedometer" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.useDynamicPlaybackSpeed}" />
+              <TextBlock Classes="setting-description"
+                         Text="{DynamicResource settings.tooltip.useDynamicPlaybackSpeed}" />
+            </StackPanel>
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1"
+                        IsChecked="{Binding UseDynamicPlaybackSpeed, Mode=TwoWay}"
+                        OnContent="" OffContent="" HorizontalAlignment="Right"
+                        VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <!-- DynamicPlaybackMaxSpeed -->
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,60,300">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="Gauge" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.dynamicPlaybackMaxSpeed}" />
+              <TextBlock Classes="setting-description"
+                         Text="{DynamicResource settings.tooltip.dynamicPlaybackMaxSpeed}" />
+            </StackPanel>
+          </StackPanel>
+          <TextBlock Grid.Column="1" Text="{Binding DynamicPlaybackMaxSpeed, StringFormat={}{0:N1}}"
+                     VerticalAlignment="Center" HorizontalAlignment="Right" />
+          <Slider Grid.Column="2" Minimum="1" Maximum="1.5"
+                  TickFrequency="0.1" IsSnapToTickEnabled="True"
+                  Value="{Binding DynamicPlaybackMaxSpeed, Mode=TwoWay}"
+                  VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <!-- UseDynamicVolume -->
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,160">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="VolumeHigh" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.useDynamicVolume}" />
+              <TextBlock Classes="setting-description"
+                         Text="{DynamicResource settings.tooltip.useDynamicVolume}" />
+            </StackPanel>
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1"
+                        IsChecked="{Binding UseDynamicVolume, Mode=TwoWay}"
+                        OnContent="" OffContent="" HorizontalAlignment="Right"
+                        VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <!-- DynamicVolumePerturbationFrequency -->
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,160">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="SineWave" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.dynamicVolumePerturbationFrequency}" />
+              <TextBlock Classes="setting-description"
+                         Text="{DynamicResource settings.tooltip.dynamicVolumePerturbationFrequency}" />
+            </StackPanel>
+          </StackPanel>
+          <NumericUpDown Grid.Column="1"
+                         Value="{Binding DynamicVolumePerturbationFrequency, Mode=TwoWay}"
+                         VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <!-- DynamicVolumePerturbationAmplitude -->
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,40,300">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="Waveform" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.dynamicVolumePerturbationAmplitude}" />
+              <TextBlock Classes="setting-description"
+                         Text="{DynamicResource settings.tooltip.dynamicVolumePerturbationAmplitude}" />
+            </StackPanel>
+          </StackPanel>
+          <TextBlock Grid.Column="1" Text="{Binding DynamicVolumePerturbationAmplitude, StringFormat={}{0:N1}}"
+                     VerticalAlignment="Center" HorizontalAlignment="Right" />
+          <Slider Grid.Column="2" Minimum="0" Maximum="1"
+                  TickFrequency="0.125" IsSnapToTickEnabled="True"
+                  Value="{Binding DynamicVolumePerturbationAmplitude, Mode=TwoWay}"
+                  VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <!-- PlaybackDeviceDesiredLatency -->
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,160">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="TimerOutline" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.playbackDeviceDesiredLatency}" />
+              <TextBlock Classes="setting-description"
+                         Text="{DynamicResource settings.tooltip.playbackDeviceDesiredLatency}" />
+            </StackPanel>
+          </StackPanel>
+          <NumericUpDown Grid.Column="1"
+                         Value="{Binding PlaybackDeviceDesiredLatency, Mode=TwoWay}"
+                         VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <!-- ConnectCloseDistanceCallToNextPacenote -->
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,160">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="MapMarkerDistance" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.connectCloseDistanceCallToNextPacenote}" />
+              <TextBlock Classes="setting-description"
+                         Text="{DynamicResource settings.tooltip.connectCloseDistanceCallToNextPacenote}" />
+            </StackPanel>
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1"
+                        IsChecked="{Binding ConnectCloseDistanceCallToNextPacenote, Mode=TwoWay}"
+                        OnContent="" OffContent="" HorizontalAlignment="Right"
+                        VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <!-- ConnectNumericDistanceCallToPreviousPacenote -->
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,160">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="Numeric" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.connectNumericDistanceCallToPreviousPacenote}" />
+              <TextBlock Classes="setting-description"
+                         Text="{DynamicResource settings.tooltip.connectNumericDistanceCallToPreviousPacenote}" />
+            </StackPanel>
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1"
+                        IsChecked="{Binding ConnectNumericDistanceCallToPreviousPacenote, Mode=TwoWay}"
+                        OnContent="" OffContent="" HorizontalAlignment="Right"
+                        VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <!-- ExamplePacenoteString -->
+      <Border Classes="setting-card">
+        <Grid ColumnDefinitions="*,560">
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <materialIcons:MaterialIcon Kind="TextBox" Width="26" Height="26" />
+            <StackPanel>
+              <TextBlock Text="{DynamicResource settings.examplePacenoteString}" />
+              <TextBlock Classes="setting-description"
+                         Text="{DynamicResource settings.tooltip.examplePacenoteString}" />
+            </StackPanel>
+          </StackPanel>
+          <TextBox Grid.Column="1"
+                   Text="{Binding ExamplePacenoteString, Mode=TwoWay}"
+                   VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

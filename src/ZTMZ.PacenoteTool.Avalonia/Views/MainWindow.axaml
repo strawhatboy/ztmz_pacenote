@@ -1,6 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:fa="using:FluentAvalonia.UI.Controls"
+        xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         x:Class="ZTMZ.PacenoteTool.Avalonia.Views.MainWindow"
         Title="{Binding WindowTitle}"
         Icon="{Binding AppLogo}"
@@ -66,25 +66,28 @@
                   VerticalAlignment="Center">
         <Button Command="{Binding ShowHelpCommand}"
                 Background="Transparent"
-                ToolTip.Tip="{DynamicResource ui.tb_qanda}">
+                ToolTip.Tip="{DynamicResource ui.tb_qanda}"
+                ToolTip.ShowDelay="100">
           <StackPanel Orientation="Horizontal" Spacing="6">
-            <fa:FASymbolIcon Symbol="Help" />
+            <materialIcons:MaterialIcon Kind="HelpCircleOutline" Width="16" Height="16" />
             <TextBlock Text="{DynamicResource ui.tb_qanda}" />
           </StackPanel>
         </Button>
         <Button Command="{Binding RaiseIssueCommand}"
                 Background="Transparent"
-                ToolTip.Tip="{DynamicResource ui.raise_issue}">
+                ToolTip.Tip="{DynamicResource ui.raise_issue}"
+                ToolTip.ShowDelay="100">
           <StackPanel Orientation="Horizontal" Spacing="6">
-            <fa:FASymbolIcon Symbol="Comment" />
+            <materialIcons:MaterialIcon Kind="BugOutline" Width="16" Height="16" />
             <TextBlock Text="{DynamicResource ui.raise_issue}" />
           </StackPanel>
         </Button>
         <Button Command="{Binding BuyMeACoffeeCommand}"
                 Background="Transparent"
                 Foreground="#D83B6A"
-                ToolTip.Tip="{DynamicResource ui.donate}">
-          <fa:FASymbolIcon Symbol="Favorite" />
+                ToolTip.Tip="{DynamicResource ui.donate}"
+                ToolTip.ShowDelay="100">
+          <materialIcons:MaterialIcon Kind="Coffee" Width="16" Height="16" />
         </Button>
       </StackPanel>
     </Grid>
@@ -98,33 +101,46 @@
           <ListBoxItem x:Name="HomeNavigationItem"
                        Classes="left-fluent-nav-item"
                        Tag="home"
-                       ToolTip.Tip="{DynamicResource tabs.home}">
+                       ToolTip.Tip="{DynamicResource tabs.home}"
+                       ToolTip.ShowDelay="100">
             <StackPanel Spacing="3" HorizontalAlignment="Center">
-              <fa:FASymbolIcon Symbol="Home" FontSize="23" />
+              <materialIcons:MaterialIcon Kind="Home" Width="23" Height="23" />
               <TextBlock Text="{DynamicResource tabs.home}" />
             </StackPanel>
           </ListBoxItem>
           <ListBoxItem Classes="left-fluent-nav-item"
                        Tag="general"
-                       ToolTip.Tip="{DynamicResource tabs.general}">
+                       ToolTip.Tip="{DynamicResource tabs.general}"
+                       ToolTip.ShowDelay="100">
             <StackPanel Spacing="3" HorizontalAlignment="Center">
-              <fa:FASymbolIcon Symbol="Settings" FontSize="23" />
+              <materialIcons:MaterialIcon Kind="Cog" Width="23" Height="23" />
               <TextBlock Text="{DynamicResource tabs.general}" />
             </StackPanel>
           </ListBoxItem>
           <ListBoxItem Classes="left-fluent-nav-item"
                        Tag="codriver"
-                       ToolTip.Tip="{DynamicResource tabs.voices}">
+                       ToolTip.Tip="{DynamicResource tabs.voices}"
+                       ToolTip.ShowDelay="100">
             <StackPanel Spacing="3" HorizontalAlignment="Center">
-              <fa:FASymbolIcon Symbol="Audio" FontSize="23" />
+              <materialIcons:MaterialIcon Kind="AccountVoice" Width="23" Height="23" />
               <TextBlock Text="{DynamicResource tabs.voices}" />
             </StackPanel>
           </ListBoxItem>
           <ListBoxItem Classes="left-fluent-nav-item"
-                       Tag="dashboard"
-                       ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardTitle}">
+                       Tag="play"
+                       ToolTip.Tip="{DynamicResource tabs.playback}"
+                       ToolTip.ShowDelay="100">
             <StackPanel Spacing="3" HorizontalAlignment="Center">
-              <fa:FASymbolIcon Symbol="Globe" FontSize="23" />
+              <materialIcons:MaterialIcon Kind="Play" Width="23" Height="23" />
+              <TextBlock Text="{DynamicResource tabs.playback}" />
+            </StackPanel>
+          </ListBoxItem>
+          <ListBoxItem Classes="left-fluent-nav-item"
+                       Tag="dashboard"
+                       ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardTitle}"
+                       ToolTip.ShowDelay="100">
+            <StackPanel Spacing="3" HorizontalAlignment="Center">
+              <materialIcons:MaterialIcon Kind="ViewDashboard" Width="23" Height="23" />
               <TextBlock Text="{DynamicResource tabs.dashboard}" />
             </StackPanel>
           </ListBoxItem>
@@ -135,3 +151,5 @@
     </Grid>
   </Grid>
 </Window>
+
+

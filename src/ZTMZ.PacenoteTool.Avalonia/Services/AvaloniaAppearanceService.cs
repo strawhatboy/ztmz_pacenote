@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using Avalonia;
 using Avalonia.Media;
+using Avalonia.Media.Fonts;
 using Avalonia.Styling;
 using FluentAvalonia.Styling;
 using ZTMZ.PacenoteTool.Base;
@@ -177,13 +178,30 @@ internal sealed class AvaloniaAppearanceService
 
         try
         {
-            var directory = Path.GetDirectoryName(fontPath)! + Path.DirectorySeparatorChar;
-            ApplyFont(
-                Application.Current,
-                new FontFamily(new Uri(directory, UriKind.Absolute), $"./#{font.FamilyName}"));
+            // Avalonia 12 cannot load a font from a bare directory/file URI passed
+            // to FontFamily. Register the font file as a font collection keyed by a
+            // fonts:// URI, then reference it through the parsed "fonts://key#family"
+            // form so the FontManager actually resolves the custom glyph typeface.
+            // See https://github.com/AvaloniaUI/Avalonia/issues/16793
+            var key = new Uri($"fonts://ztmz/suggested/{Uri.EscapeDataString(font.Id)}/", UriKind.Absolute);
+            var source = new Uri(fontPath, UriKind.Absolute);
+            var collection = new EmbeddedFontCollection(key, source);
+            if (!collection.TryGetGlyphTypeface(
+                    font.FamilyName,
+                    FontStyle.Normal,
+                    FontWeight.Normal,
+                    FontStretch.Normal,
+                    out _))
+            {
+                return false;
+            }
+
+            FontManager.Current.RemoveFontCollection(key);
+            FontManager.Current.AddFontCollection(collection);
+            ApplyFont(Application.Current, FontFamily.Parse($"{key}#{font.FamilyName}"));
             return true;
         }
-        catch (Exception exception) when (exception is ArgumentException or UriFormatException)
+        catch (Exception exception) when (exception is not OutOfMemoryException)
         {
             return false;
         }

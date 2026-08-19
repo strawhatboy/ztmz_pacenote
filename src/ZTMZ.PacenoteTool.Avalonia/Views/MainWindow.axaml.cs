@@ -19,6 +19,7 @@ public sealed partial class MainWindow : FAAppWindow
     private readonly ContentControl _pageHost;
     private readonly IReadOnlyDictionary<string, Control> _pages;
     private readonly GeneralSettingsViewModel _generalSettingsViewModel;
+    private readonly PlaySettingsViewModel _playSettingsViewModel;
     private MainWindowViewModel? _viewModel;
     private bool _exitRequested;
     private bool _closeFlowActive;
@@ -44,12 +45,14 @@ public sealed partial class MainWindow : FAAppWindow
 
         _generalSettingsViewModel = new GeneralSettingsViewModel();
         _generalSettingsViewModel.NotificationRequested += OnSystemNotificationRequested;
+        _playSettingsViewModel = new PlaySettingsViewModel();
         _pages = new Dictionary<string, Control>(StringComparer.OrdinalIgnoreCase)
         {
             ["home"] = new HomeView(),
             ["general"] = new GeneralView { DataContext = _generalSettingsViewModel },
             ["codriver"] = new CoDriverView(),
-            ["dashboard"] = new DashboardView()
+            ["dashboard"] = new DashboardView(),
+            ["play"] = new PlayView { DataContext = _playSettingsViewModel }
         };
 
 #if WINDOWS
@@ -207,6 +210,7 @@ public sealed partial class MainWindow : FAAppWindow
         AvaloniaLocalization.CultureChanged -= OnCultureChanged;
         _generalSettingsViewModel.NotificationRequested -= OnSystemNotificationRequested;
         _generalSettingsViewModel.Dispose();
+        _playSettingsViewModel.Dispose();
         DetachViewModel();
 #if WINDOWS
         if (_trayService != null)
@@ -266,3 +270,4 @@ public sealed partial class MainWindow : FAAppWindow
         }
     }
 }
+

@@ -1,6 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="ZTMZ.PacenoteTool.Avalonia.Views.DashboardView">
   <ScrollViewer>
     <Grid Margin="42,28,42,40"
@@ -37,13 +37,14 @@
                   Grid.ColumnSpan="2"
                   HorizontalContentAlignment="Stretch"
                   Command="{Binding OpenDashboardCommand}"
-                  ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardOpen}">
+                  ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardOpen}"
+                  ToolTip.ShowDelay="100">
             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
               <Ellipse Width="8" Height="8" Fill="{Binding DashboardStatusBrush}" />
               <TextBlock Grid.Column="1"
                          Text="{Binding DashboardDisplayUrl}"
                          TextTrimming="CharacterEllipsis" />
-              <fa:FASymbolIcon Grid.Column="2" Symbol="NewWindow" />
+              <materialIcons:MaterialIcon Grid.Column="2" Kind="OpenInNew" Width="16" Height="16" />
             </Grid>
           </Button>
           <Grid Grid.Row="2"
@@ -106,8 +107,9 @@
                 </StackPanel>
                 <Button Grid.Column="2"
                         Command="{Binding $parent[UserControl].DataContext.OpenDashboardCommand}"
-                        ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardOpen}">
-                  <fa:FASymbolIcon Symbol="NewWindow" />
+                        ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardOpen}"
+                        ToolTip.ShowDelay="100">
+                  <materialIcons:MaterialIcon Kind="OpenInNew" Width="16" Height="16" />
                 </Button>
               </Grid>
             </Border>

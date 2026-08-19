@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fa="using:FluentAvalonia.UI.Controls"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="ZTMZ.PacenoteTool.Avalonia.Views.HomeView">
   <Grid RowDefinitions="Auto,*,Auto">
     <fa:FAInfoBar Margin="42,0"
@@ -44,16 +45,17 @@
                     BorderBrush="{Binding GameStatusBrush}"
                     BorderThickness="1"
                     CornerRadius="4"
-                    ToolTip.Tip="{Binding ActiveGameDescription}">
+                    ToolTip.Tip="{Binding ActiveGameDescription}"
+                    ToolTip.ShowDelay="100">
               <Grid>
                 <Image Source="{Binding ActiveGameImage}"
                        IsVisible="{Binding HasActiveGameImage}"
                        Stretch="Uniform"
                        UseLayoutRounding="True"
                        RenderOptions.BitmapInterpolationMode="HighQuality" />
-                <fa:FASymbolIcon Symbol="Games"
+                <materialIcons:MaterialIcon Kind="RacingHelmet"
                                  IsVisible="{Binding ShowsGamePlaceholder}"
-                                 FontSize="48"
+                                 Width="48" Height="48"
                                  Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                  HorizontalAlignment="Center"
                                  VerticalAlignment="Center" />
@@ -80,7 +82,7 @@
                     Padding="16">
             <Expander.Header>
               <StackPanel Orientation="Horizontal" Spacing="10">
-                <fa:FASymbolIcon Symbol="Games" FontSize="26" />
+                <materialIcons:MaterialIcon Kind="Steering" Width="26" Height="26" />
                 <TextBlock Text="{DynamicResource settings.gameSettings}"
                            FontSize="15"
                            FontWeight="SemiBold"
@@ -111,7 +113,7 @@
             <Expander.Header>
               <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Orientation="Horizontal" Spacing="10">
-                  <fa:FASymbolIcon Symbol="Globe" FontSize="26" />
+                  <materialIcons:MaterialIcon Kind="ViewDashboard" Width="26" Height="26" />
                   <TextBlock Text="{DynamicResource settings.overlayHudTitle}"
                              FontSize="15"
                              FontWeight="SemiBold"
@@ -151,7 +153,8 @@
                       BorderThickness="0"
                       Cursor="Hand"
                       Command="{Binding OpenDashboardSettingsCommand}"
-                      ToolTip.Tip="{DynamicResource settings.tooltip.overlayHudUsage}" />
+                      ToolTip.Tip="{DynamicResource settings.tooltip.overlayHudUsage}"
+                      ToolTip.ShowDelay="100" />
             </Grid>
           </Expander>
         </StackPanel>
@@ -173,7 +176,7 @@
                             Spacing="8"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center">
-                  <fa:FASymbolIcon Symbol="Audio" FontSize="28" />
+                  <materialIcons:MaterialIcon Kind="AccountVoice" Width="28" Height="28" />
                   <TextBlock Text="{DynamicResource ui.tab_s_audioPackage}"
                              FontSize="15"
                              FontWeight="SemiBold"
@@ -184,6 +187,7 @@
                           ItemsSource="{Binding CoDrivers}"
                           SelectedItem="{Binding SelectedCoDriver, Mode=TwoWay}"
                           ToolTip.Tip="{Binding SelectedCoDriver.Description}"
+                          ToolTip.ShowDelay="100"
                           IsEnabled="{Binding IsReady}">
                   <ComboBox.ItemTemplate>
                     <DataTemplate>
@@ -214,23 +218,24 @@
                             Spacing="10">
                   <Button Command="{Binding PlayExampleCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="7">
-                      <fa:FASymbolIcon Symbol="Play" />
+                      <materialIcons:MaterialIcon Kind="Play" Width="16" Height="16" />
                       <TextBlock Text="{DynamicResource ui.btn_playExample}" />
                     </StackPanel>
                   </Button>
                   <Button Command="{Binding OpenCoDriverHomePageCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="7">
-                      <fa:FASymbolIcon Symbol="Link" />
+                      <materialIcons:MaterialIcon Kind="Link" Width="16" Height="16" />
                       <TextBlock Text="{DynamicResource ui.tb_codriverLink}" />
                     </StackPanel>
                   </Button>
                   <Button Command="{Binding OpenCoDriverFolderCommand}"
-                          ToolTip.Tip="{DynamicResource ui.tooltip.btn_currentCodriver}">
-                    <fa:FASymbolIcon Symbol="Folder" />
+                          ToolTip.Tip="{DynamicResource ui.tooltip.btn_currentCodriver}"
+                          ToolTip.ShowDelay="100">
+                    <materialIcons:MaterialIcon Kind="FolderOpen" Width="16" Height="16" />
                   </Button>
                   <Button Command="{Binding MoreCoDriverSettingsCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="7">
-                      <fa:FASymbolIcon Symbol="More" />
+                      <materialIcons:MaterialIcon Kind="DotsHorizontal" Width="16" Height="16" />
                       <TextBlock Text="{DynamicResource settings.more}" />
                     </StackPanel>
                   </Button>
@@ -249,7 +254,11 @@
                              Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                              VerticalAlignment="Center" />
 
-                  <TextBlock Grid.Row="1" Text="{DynamicResource ui.tb_replayDevice}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Row="1"
+                             Text="{DynamicResource ui.tb_replayDevice}"
+                             ToolTip.Tip="{DynamicResource ui.tooltip.tb_replayDevice}"
+                             ToolTip.ShowDelay="100"
+                             VerticalAlignment="Center" />
                   <ComboBox Grid.Row="1"
                             Grid.Column="1"
                             Grid.ColumnSpan="2"
@@ -257,7 +266,11 @@
                             SelectedItem="{Binding SelectedOutputDevice, Mode=TwoWay}"
                             DisplayMemberBinding="{Binding DisplayName}" />
 
-                  <TextBlock Grid.Row="2" Text="{DynamicResource ui.tb_playVolume}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Row="2"
+                             Text="{DynamicResource ui.tb_playVolume}"
+                             ToolTip.Tip="{DynamicResource ui.tooltip.tb_playVolume}"
+                             ToolTip.ShowDelay="100"
+                             VerticalAlignment="Center" />
                   <TextBlock Grid.Row="2"
                              Grid.Column="1"
                              Text="{Binding PlaybackVolume, StringFormat={}{0:F0}}"
@@ -269,7 +282,11 @@
                           Maximum="100"
                           Value="{Binding PlaybackVolume, Mode=TwoWay}" />
 
-                  <TextBlock Grid.Row="3" Text="{DynamicResource ui.tb_prePlay}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Row="3"
+                             Text="{DynamicResource ui.tb_prePlay}"
+                             ToolTip.Tip="{DynamicResource ui.tooltip.tb_prePlay}"
+                             ToolTip.ShowDelay="100"
+                             VerticalAlignment="Center" />
                   <TextBlock Grid.Row="3"
                              Grid.Column="1"
                              Text="{Binding PlaybackAdjustSeconds, StringFormat={}{0:F1}s}"
@@ -281,7 +298,11 @@
                           Maximum="4"
                           Value="{Binding PlaybackAdjustSeconds, Mode=TwoWay}" />
 
-                  <TextBlock Grid.Row="4" Text="{DynamicResource ui.tb_playbackSpd}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Row="4"
+                             Text="{DynamicResource ui.tb_playbackSpd}"
+                             ToolTip.Tip="{DynamicResource ui.tooltip.tb_playbackSpd}"
+                             ToolTip.ShowDelay="100"
+                             VerticalAlignment="Center" />
                   <TextBlock Grid.Row="4"
                              Grid.Column="1"
                              Text="{Binding PlaybackSpeed, StringFormat={}x {0:F2}}"
@@ -298,6 +319,7 @@
                   <TextBlock Grid.Row="5"
                              Text="{DynamicResource settings.factorToRemoveSpaceFromAudioFiles}"
                              ToolTip.Tip="{DynamicResource settings.tooltip.factorToRemoveSpaceFromAudioFiles}"
+                             ToolTip.ShowDelay="100"
                              VerticalAlignment="Center" />
                   <TextBlock Grid.Row="5"
                              Grid.Column="1"
@@ -312,7 +334,11 @@
                           IsSnapToTickEnabled="True"
                           Value="{Binding SilenceRemovalLevel, Mode=TwoWay}" />
 
-                  <TextBlock Grid.Row="6" Text="{DynamicResource ui.tb_intercom}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Row="6"
+                             Text="{DynamicResource ui.tb_intercom}"
+                             ToolTip.Tip="{DynamicResource ui.tooltip.tb_intercom}"
+                             ToolTip.ShowDelay="100"
+                             VerticalAlignment="Center" />
                   <TextBlock Grid.Row="6"
                              Grid.Column="1"
                              Text="{Binding IntercomEffect}"
