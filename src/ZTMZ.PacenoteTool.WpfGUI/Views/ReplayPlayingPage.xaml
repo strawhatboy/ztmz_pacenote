@@ -1,4 +1,4 @@
-<Page x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.ReplayPlayingPage"
+﻿<Page x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.ReplayPlayingPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -66,7 +66,7 @@
           </Grid.ColumnDefinitions>
 
           <Grid Grid.Row="0" Grid.Column="0" Margin="0 0 16 0" Background="{DynamicResource LayerFillColorDefaultBrush}">
-            <Image Source="pack://application:,,,/ZTMZ.PacenoteTool.Base.UI;component/unknown_dashboard_preview_image.png"
+            <Image Source="pack://application:,,,/ZTMZ.PacenoteTool.UI.Wpf;component/unknown_dashboard_preview_image.png"
                    Stretch="Uniform"
                    HorizontalAlignment="Stretch"
                    VerticalAlignment="Stretch" />

@@ -23,12 +23,16 @@ public sealed partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            _mainWindowViewModel = new MainWindowViewModel();
-            desktop.MainWindow = new MainWindow
+            if (AvaloniaDataFolderMigrationLauncher.TryParseRequest(
+                    Environment.GetCommandLineArgs(), out var migrationRequest))
             {
-                DataContext = _mainWindowViewModel
-            };
-            desktop.MainWindow.Opened += (_, _) => _ = _mainWindowViewModel.InitializeAsync();
+                desktop.MainWindow = new DataFolderMigrationWindow(migrationRequest!);
+                base.OnFrameworkInitializationCompleted();
+                return;
+            }
+
+            _mainWindowViewModel = new MainWindowViewModel();
+            desktop.MainWindow = new MainWindow(_mainWindowViewModel);
             desktop.Exit += OnExit;
         }
 

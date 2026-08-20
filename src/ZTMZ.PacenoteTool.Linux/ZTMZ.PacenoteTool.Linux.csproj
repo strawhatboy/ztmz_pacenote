@@ -12,6 +12,7 @@
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj"
                       AdditionalProperties="ExcludeSevenZipAssemblies=true" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Audio.PortAudio\ZTMZ.PacenoteTool.Audio.PortAudio.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.Platform.Linux\ZTMZ.PacenoteTool.Platform.Linux.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Core\ZTMZ.PacenoteTool.Core.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.WebDashboard\ZTMZ.PacenoteTool.WebDashboard.csproj" />
   </ItemGroup>

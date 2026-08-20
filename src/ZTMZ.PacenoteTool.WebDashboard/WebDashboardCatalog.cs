@@ -96,48 +96,9 @@ public sealed class WebDashboardCatalog
 
     private static IReadOnlyDictionary<string, object> LoadSettings(string packagePath)
     {
-        var settings = ReadSettings(Path.Combine(packagePath, Constants.FILE_SETTINGS));
-        var userSettingsPath = Path.Combine(packagePath, Constants.FILE_USER_SETTINGS);
-        if (File.Exists(userSettingsPath))
-        {
-            foreach (var setting in ReadSettings(userSettingsPath))
-            {
-                settings[setting.Key] = setting.Value;
-            }
-        }
-
-        return settings;
-    }
-
-    private static Dictionary<string, object> ReadSettings(string path)
-    {
-        if (!File.Exists(path))
-        {
-            return new Dictionary<string, object>(StringComparer.Ordinal);
-        }
-
-        var root = JObject.Parse(File.ReadAllText(path));
-        var names = root["PropertyName"] as JObject;
-        var values = root["PropertyValue"] as JArray;
-        if (names == null || values == null)
-        {
-            return new Dictionary<string, object>(StringComparer.Ordinal);
-        }
-
-        var result = new Dictionary<string, object>(StringComparer.Ordinal);
-        var index = 0;
-        foreach (var property in names.Properties())
-        {
-            if (index >= values.Count)
-            {
-                break;
-            }
-
-            result[property.Name] = values[index].ToObject<object>()!;
-            index++;
-        }
-
-        return result;
+        return DashboardPackageSettings.Load(packagePath)
+            .Where(setting => setting.Value != null)
+            .ToDictionary(setting => setting.Key, setting => setting.Value!, StringComparer.Ordinal);
     }
 
     private static bool ReadBooleanSetting(

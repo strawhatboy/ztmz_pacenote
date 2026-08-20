@@ -1,4 +1,4 @@
-﻿// This Source Code Form is subject to the terms of the MIT License.
+// This Source Code Form is subject to the terms of the MIT License.
 // If a copy of the MIT was not distributed with this file, You can obtain one at https://opensource.org/licenses/MIT.
 // Copyright (C) Leszek Pomianowski and WPF UI Contributors.
 // All Rights Reserved.
@@ -10,7 +10,7 @@ using System.Windows.Controls;
 using Wpf.Ui.Controls;
 using Wpf.Ui.Extensions;
 using ZTMZ.PacenoteTool.Base;
-using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.UI.Windows;
 using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 using ZTMZ.PacenoteTool.WpfGUI.Views.Dialog;

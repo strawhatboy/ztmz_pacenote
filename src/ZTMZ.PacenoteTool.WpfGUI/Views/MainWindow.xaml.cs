@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -18,7 +18,7 @@ using Wpf.Ui;
 using Wpf.Ui.Controls;
 using Wpf.Ui.Tray;
 using ZTMZ.PacenoteTool.Base;
-using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.UI.Windows;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 using ZTMZ.PacenoteTool.WpfGUI.Views.Dialog;
 // using Wpf.Ui.Controls.Window;

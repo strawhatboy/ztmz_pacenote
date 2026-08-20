@@ -221,6 +221,22 @@
             let roadbookScalePercent = 100;
             let printPageStyleElement;
 
+            const hostBridge = {
+                post(message) {
+                    if (window.chrome?.webview?.postMessage) {
+                        window.chrome.webview.postMessage(message);
+                    } else if (typeof window.invokeCSharpAction === 'function') {
+                        window.invokeCSharpAction(JSON.stringify(message));
+                    }
+                }
+            };
+
+            window.ztmzHost = {
+                receive(message) {
+                    if (message?.type === 'catalog') setCatalog(message.catalog);
+                }
+            };
+
             function clampRoadbookScale(percent) {
                 if (percent === null || percent === undefined || String(percent).trim() === '') return 100;
                 const numericPercent = Number(percent);
@@ -535,7 +551,7 @@
                 }
                 playbackDecorations = editor.deltaDecorations(playbackDecorations, matchedLine ? [{
                     range: new monaco.Range(matchedLine, 1, matchedLine, model.getLineMaxColumn(matchedLine)),
-                    options: { isWholeLine: true, className: 'ztmz-current-pacenote', glyphMarginClassName: 'ztmz-current-pacenote-glyph' }
+                    options: { isWholeLine: true, className: 'ztmz-current-pacenote' }
                 }] : []);
                 if (matchedLine) editor.revealLineInCenterIfOutsideViewport(matchedLine);
                 playingRoadbookLine = matchedLine;
@@ -549,7 +565,7 @@
                     editor = monaco.editor.create(container, {
                         language: 'pacenote',
                         automaticLayout: true,
-                        glyphMargin: true,
+                        glyphMargin: false,
                         minimap: { enabled: false },
                         wordWrap: 'on',
                         fontSize: 15,
@@ -559,7 +575,7 @@
                         validate();
                         refreshSemanticHighlights();
                         renderRoadbook();
-                        if (!applyingValue) window.chrome.webview.postMessage({ type: 'changed' });
+                        if (!applyingValue) hostBridge.post({ type: 'changed' });
                     });
                     editor.onDidChangeCursorPosition(event => renderRoadbook(event.position.lineNumber));
                     installRoadbookSplitter();
@@ -595,14 +611,13 @@
                 validate,
                 focus() { editor.focus(); }
             };
-            window.chrome.webview.addEventListener('message', event => {
-                if (event.data && event.data.type === 'catalog') setCatalog(event.data.catalog);
-            });
+            if (window.chrome?.webview?.addEventListener) {
+                window.chrome.webview.addEventListener('message', event => window.ztmzHost.receive(event.data));
+            }
         })();
     </script>
     <style>
         .ztmz-current-pacenote { background: rgba(72, 160, 255, 0.20); }
-        .ztmz-current-pacenote-glyph { background: #48a0ff; width: 4px !important; margin-left: 3px; }
         .ztmz-token-corners { color: #d95d39 !important; font-weight: 600; }
         .ztmz-token-modifier { color: #009f9a !important; }
         .ztmz-token-links { color: #b27d00 !important; font-weight: 600; }

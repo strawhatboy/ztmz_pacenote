@@ -43,12 +43,14 @@
             <ui:TitleBar.TrailingContent>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
                     <ui:Button Icon="{ui:SymbolIcon ChatHelp20}" Command="{Binding ViewModel.ShowHelpCommand}"      ToolTip="{DynamicResource ResourceKey=ui.tb_qanda}" FontSize="16"
+                    VerticalAlignment="Top"
                     SnapsToDevicePixels="True"
                     Background="Transparent"
                     ToolTipService.InitialShowDelay="100"
                     Content="{DynamicResource ResourceKey=ui.tb_qanda}" />
                     <ui:Button Icon="{ui:SymbolIcon Lightbulb20}" Command="{Binding ViewModel.RaiseIssueCommand}" ToolTip="{DynamicResource ResourceKey=ui.raise_issue}"
                     FontSize="16"
+                    VerticalAlignment="Top"
                     SnapsToDevicePixels="True"
                     Background="Transparent"
                     ToolTipService.InitialShowDelay="100" Content="{DynamicResource ResourceKey=ui.raise_issue}" />
@@ -61,6 +63,7 @@
                     SnapsToDevicePixels="True"
                     Background="Transparent"
                     FontSize="16"
+                    VerticalAlignment="Top"
                     ToolTip="{DynamicResource ResourceKey=ui.donate}"
                     ToolTipService.InitialShowDelay="100"
                     />

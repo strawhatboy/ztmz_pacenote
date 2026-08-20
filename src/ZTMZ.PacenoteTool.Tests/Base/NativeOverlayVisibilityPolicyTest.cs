@@ -1,4 +1,4 @@
-using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.UI.Windows;
 
 namespace ZTMZ.PacenoteTool.Tests.Base;
 

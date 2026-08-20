@@ -1,4 +1,4 @@
-﻿{
+{
   "application": {
     "title": "ZTMZ Club Pacenote Tool",
     "title_dev": "ZTMZ Club Pacenote Tool (Dev)",
@@ -207,12 +207,14 @@
       "playbackDeviceDesiredLatency": "The delay for playing after the instructions arrive at the device, if this value is very small, \nthe sound may be weird. Meanwhile a big delay may affect the experience",
       "logLevel": "Set the log level, the more severe the level, the less information will be shown\nNotice: In testing version, this option doesnot take effect, the log level is always DEBUG",
       "viewLogs": "View logs",
+      "logDirectoryOpenFailed": "No application is configured to open folders. Log directory: {0}",
+      "folderOpenFailed": "No application is configured to open folders. Folder: {0}",
       "theme": "Dark/Light theme, or follow the Windows system theme",
       "accentColor": "Color for every control in the UI",
       "checkUpdateWhenStartup": "Whether to check for update when the tool starts",
-      "startWithWindows": "Whether to start the tool when Windows starts",
+      "startWithSystem": "Start with system",
       "startMinimizedToTray": "Start hidden and leave the tool available from its system-tray icon. Takes effect next launch.",
-      "windowsNotifications": "Show native Windows popups for game detection and stage start or finish events.",
+      "windowsNotifications": "Show system notifications for game detection and stage start or finish events.",
 
       "warnIfPortMismatch": "Show warning dialog if the game UDP port mismatch with the tool UDP port",
 
@@ -361,9 +363,9 @@
     "checkUpdateWhenStartup": "Check update when startup",
     "checkUpdateWhenStartup_On": "Auto Update (On)",
     "checkUpdateWhenStartup_Off": "Auto Update (Off)",
-    "startWithWindows": "Start with Windows",
+    "startWithSystem": "Start the tool automatically when you sign in",
     "startMinimizedToTray": "Start minimized to tray",
-    "windowsNotifications": "Windows event notifications",
+    "windowsNotifications": "System event notifications",
     "testWindowsNotification": "Send a test notification",
 
     "warnIfPortMismatch": "Show warning dialog if port mismatch",
@@ -725,6 +727,18 @@
     "stageFinished": "Stage finished: {0}.",
     "test": "Windows event notifications are working."
   },
+  "voicePackageDetails": {
+    "id": "ID",
+    "token": "Token",
+    "description": "Token Description",
+    "available": "Available",
+    "type": "Type",
+    "files": "Files",
+    "listen": "Preview"
+  },
+  "languageSwitch": {
+    "applying": "Switching language..."
+  },
   "misc": {
     "gender_male": "Male",
     "gender_female": "Female",
@@ -901,5 +915,47 @@
     "bundleCreated": "Support bundle created: {0}",
     "bundleFailed": "Support bundle failed: {0}",
     "refreshFailed": "Diagnostics refresh failed: {0}"
+  },
+  "runtime": {
+    "initializingRuntime": "Initializing runtime...",
+    "initializationFailed": "Initialization failed",
+    "loadingPacenoteDefinitions": "Loading pacenote definitions...",
+    "pacenoteDefinitionsLoaded": "Pacenote definitions loaded.",
+    "loadingProfileManager": "Loading profile manager...",
+    "profileManagerLoaded": "Profile manager loaded.",
+    "loadingGames": "Loading games...",
+    "gamesLoaded": "{0} games loaded.",
+    "loadingProfiles": "Loading profiles...",
+    "profilesLoaded": "{0} profiles loaded.",
+    "loadingCodrivers": "Loading co-drivers...",
+    "codriversLoaded": "{0} co-drivers loaded.",
+    "loadingOutputDevices": "Loading output devices...",
+    "outputDevicesLoaded": "{0} output devices loaded.",
+    "ready": "Ready"
+  },
+  "gameSession": {
+    "waitingForGame": "Waiting for a game",
+    "automaticDetectionActive": "Automatic detection is active",
+    "noSupportedGameDetected": "No supported game process detected",
+    "stageActive": "Stage active",
+    "waitingForStage": "Waiting for stage",
+    "connected": "Connected",
+    "connectionFailed": "Game detected, connection failed",
+    "gamesDetectedUsing": "{0} games detected; using {1}",
+    "selectedAutomatically": "Selected automatically from the running process"
+  },
+  "dashboardStatus": {
+    "running": "Running",
+    "portUnavailable": "Port unavailable",
+    "error": "Error",
+    "stopped": "Stopped"
+  },
+  "audioStatus": {
+    "muted": "Muted",
+    "initializing": "Initializing",
+    "defaultDevice": "{0} (Default)"
+  },
+  "codriverCatalog": {
+    "packagesAvailable": "{0} packages available"
   }
 }

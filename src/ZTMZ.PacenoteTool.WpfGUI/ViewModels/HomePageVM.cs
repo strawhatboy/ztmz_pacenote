@@ -6,13 +6,12 @@ using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using System.Windows.Data;
 using System.Threading.Tasks;
-using ZTMZ.PacenoteTool.Base.UI.Game;
+using ZTMZ.PacenoteTool.UI.Windows.Game;
 using Wpf.Ui.Controls;
 using System.Linq;
-using System.Reflection;
 using System.Windows.Controls;
 using ZTMZ.PacenoteTool.WpfGUI.Views;
-using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.UI.Windows;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -97,8 +96,6 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     private bool _isGameSettingsUnlocked;
 
     private IDictionary<IGame, IList<object>> _gameConfigSettingsPanes = new Dictionary<IGame, IList<object>>(); 
-
-    private List<Type>? _gameConfigSettingsPaneTypes = null;
 
     [ObservableProperty]
     private bool _isHudEnabled = Config.Instance.UI_ShowHud;
@@ -1161,15 +1158,6 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         CurrentGameSettings.Clear();
         var settings = game.Game.GameConfigurations;
 
-        if (_gameConfigSettingsPaneTypes == null) {
-            _gameConfigSettingsPaneTypes = new List<Type>();
-
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                _gameConfigSettingsPaneTypes.AddRange(asm.GetTypes().Where(t => typeof(IGameConfigSettingsPane).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract));
-            }
-        }
-            
         if (_gameConfigSettingsPanes.ContainsKey(game.Game)) {
             foreach (var pane in _gameConfigSettingsPanes[game.Game]) {
                 CurrentGameSettings.Add(pane);
@@ -1178,19 +1166,15 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             _gameConfigSettingsPanes[game.Game] = new List<object>();
             for (var i = 0; i < settings.Count; i++) {
                 var setting = settings.ElementAt(i);
-                var pane = _gameConfigSettingsPaneTypes.Where(t => t.GetCustomAttribute<GameConfigPaneAttribute>()?.PaneType == setting.Value.GetType()).FirstOrDefault();
-                IGameConfigSettingsPane? instance = pane is null
-                    ? null
-                    : Activator.CreateInstance(pane, setting.Value) as IGameConfigSettingsPane;
-                if (instance is null && game.Game is IGameWithIntegrationProviders integrationGame)
+                IGameSettingsProvider? provider = BuiltInGameSettingsProviders.Find(setting.Value);
+                if (provider is null && game.Game is IGameWithIntegrationProviders integrationGame)
                 {
-                    var provider = integrationGame.IntegrationProviders.FirstOrDefault(candidate =>
+                    provider = integrationGame.IntegrationProviders.FirstOrDefault(candidate =>
                         candidate.ConfigurationType.IsInstanceOfType(setting.Value));
-                    if (provider is not null)
-                    {
-                        instance = new GameIntegrationConfigSettingsPane(setting.Value, provider);
-                    }
                 }
+                var instance = provider is null
+                    ? null
+                    : new GameIntegrationConfigSettingsPane(setting.Value, provider);
 
                 if (instance != null) {
                     instance.InitializeWithGame(game.Game);

@@ -5,6 +5,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.Audio.PortAudio;
 using ZTMZ.PacenoteTool.WebDashboard;
+using ZTMZ.PacenoteTool.Platform.Linux;
 
 namespace ZTMZ.PacenoteTool.Linux;
 

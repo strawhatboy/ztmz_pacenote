@@ -26,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameOverlay", "GameOverlay\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VRGameOverlay", "VRGameOverlay\VRGameOverlay.csproj", "{258718C6-7093-428F-AF65-4AF12028D193}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZTMZ.PacenoteTool.Base.UI", "ZTMZ.PacenoteTool.Base.UI\ZTMZ.PacenoteTool.Base.UI.csproj", "{FE7F3DEC-0A5B-4CD0-8134-70A693B7FC07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZTMZ.PacenoteTool.UI.Wpf", "ZTMZ.PacenoteTool.UI.Wpf\ZTMZ.PacenoteTool.UI.Wpf.csproj", "{FE7F3DEC-0A5B-4CD0-8134-70A693B7FC07}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZTMZ.PacenoteTool.Console", "ZTMZ.PacenoteTool.Console\ZTMZ.PacenoteTool.Console.csproj", "{A3AE9DE8-2B09-4FEE-818F-522625CDF910}"
 EndProject
@@ -49,6 +49,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.Avalonia", "ZTMZ.PacenoteTool.Avalonia\ZTMZ.PacenoteTool.Avalonia.csproj", "{E11DE6D1-6C35-4930-A96D-42214B2D9BE8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.Platform.Windows", "ZTMZ.PacenoteTool.Platform.Windows\ZTMZ.PacenoteTool.Platform.Windows.csproj", "{A648577F-9147-4DD9-9549-8F8073844BFB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.Platform.Linux", "ZTMZ.PacenoteTool.Platform.Linux\ZTMZ.PacenoteTool.Platform.Linux.csproj", "{7AB24D1C-AD79-4639-A299-0D074167D875}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{4F52FD11-658E-A102-6CD3-7D7C16FFA15B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.ScriptEditor.Core", "ZTMZ.PacenoteTool.ScriptEditor.Core\ZTMZ.PacenoteTool.ScriptEditor.Core.csproj", "{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -405,9 +411,48 @@ Global
 		{A648577F-9147-4DD9-9549-8F8073844BFB}.Release|x64.Build.0 = Release|Any CPU
 		{A648577F-9147-4DD9-9549-8F8073844BFB}.Release|x86.ActiveCfg = Release|Any CPU
 		{A648577F-9147-4DD9-9549-8F8073844BFB}.Release|x86.Build.0 = Release|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Debug|x64.Build.0 = Debug|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Debug|x86.Build.0 = Debug|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Release_Portable|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Release_Portable|Any CPU.Build.0 = Debug|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Release_Portable|x64.ActiveCfg = Debug|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Release_Portable|x64.Build.0 = Debug|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Release_Portable|x86.ActiveCfg = Debug|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Release_Portable|x86.Build.0 = Debug|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Release|x64.ActiveCfg = Release|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Release|x64.Build.0 = Release|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Release|x86.ActiveCfg = Release|Any CPU
+		{7AB24D1C-AD79-4639-A299-0D074167D875}.Release|x86.Build.0 = Release|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Debug|x64.Build.0 = Debug|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Debug|x86.Build.0 = Debug|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release_Portable|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release_Portable|Any CPU.Build.0 = Debug|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release_Portable|x64.ActiveCfg = Debug|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release_Portable|x64.Build.0 = Debug|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release_Portable|x86.ActiveCfg = Debug|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release_Portable|x86.Build.0 = Debug|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release|x64.ActiveCfg = Release|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release|x64.Build.0 = Release|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release|x86.ActiveCfg = Release|Any CPU
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C} = {4F52FD11-658E-A102-6CD3-7D7C16FFA15B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {814DAFC7-6533-4095-907C-95C983F88928}

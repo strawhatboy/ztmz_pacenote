@@ -202,12 +202,14 @@
       "playbackDeviceDesiredLatency": "Délai après l’arrivée de l’annonce sur le périphérique. Une valeur trop faible peut altérer le son ; une valeur élevée crée un retard perceptible.",
       "logLevel": "Définir le niveau de journalisation. Les niveaux les plus élevés affichent moins d'informations.",
       "viewLogs": "Afficher les journaux",
+      "logDirectoryOpenFailed": "Aucune application n'est configurée pour ouvrir les dossiers. Dossier des journaux : {0}",
+      "folderOpenFailed": "Aucune application n'est configurée pour ouvrir les dossiers. Dossier : {0}",
       "theme": "Thème clair/sombre ou thème du système Windows",
       "accentColor": "Couleur de tous les contrôles de l'interface",
       "checkUpdateWhenStartup": "Vérifier les mises à jour au démarrage de l'outil",
-      "startWithWindows": "Démarrer l'outil avec Windows",
+      "startWithSystem": "Demarrer avec le systeme",
       "startMinimizedToTray": "Démarrer masquée et rester accessible depuis l’icône de la zone de notification. Prend effet au prochain démarrage.",
-      "windowsNotifications": "Afficher des notifications Windows lors de la détection du jeu et au départ ou à l’arrivée d’une spéciale.",
+      "windowsNotifications": "Afficher des notifications système lors de la détection du jeu et au départ ou à l’arrivée d’une spéciale.",
       "warnIfPortMismatch": "Avertir si le port UDP du jeu ne correspond pas à celui de l’application",
       "hudFPS": "Limiter les FPS du HUD. Une fréquence élevée peut réduire les performances des logiciels de capture comme OBS.",
       "importAudioPackage": "Importer un pack vocal au format *.zpak",
@@ -345,9 +347,9 @@
     "checkUpdateWhenStartup": "Vérifier les mises à jour au démarrage",
     "checkUpdateWhenStartup_On": "Mise à jour automatique (activée)",
     "checkUpdateWhenStartup_Off": "Mise à jour automatique (désactivée)",
-    "startWithWindows": "Démarrer avec Windows",
+    "startWithSystem": "Demarrer automatiquement l'outil a l'ouverture de session",
     "startMinimizedToTray": "Démarrer réduite dans la zone de notification",
-    "windowsNotifications": "Notifications d’événements Windows",
+    "windowsNotifications": "Notifications d’événements système",
     "testWindowsNotification": "Envoyer une notification de test",
     "warnIfPortMismatch": "Avertir en cas de port différent",
     "hudFPS": "IPS du HUD en jeu",
@@ -682,6 +684,18 @@
     "stageFinished": "Spéciale terminée : {0}.",
     "test": "Les notifications d’événements Windows fonctionnent."
   },
+  "voicePackageDetails": {
+    "id": "ID",
+    "token": "Repère",
+    "description": "Description du repère",
+    "available": "Disponible",
+    "type": "Type",
+    "files": "Fichiers",
+    "listen": "Écouter"
+  },
+  "languageSwitch": {
+    "applying": "Changement de langue..."
+  },
   "misc": {
     "gender_male": "Homme",
     "gender_female": "Femme",
@@ -853,5 +867,47 @@
     "bundleCreated": "Paquet d’assistance créé : {0}",
     "bundleFailed": "Échec du paquet d’assistance : {0}",
     "refreshFailed": "Échec de l’actualisation du diagnostic : {0}"
+  },
+  "runtime": {
+    "initializingRuntime": "Initialisation de l\u0027environnement d\u0027ex\u00E9cution...",
+    "initializationFailed": "\u00C9chec de l\u0027initialisation",
+    "loadingPacenoteDefinitions": "Chargement des d\u00E9finitions de notes...",
+    "pacenoteDefinitionsLoaded": "D\u00E9finitions de notes charg\u00E9es.",
+    "loadingProfileManager": "Chargement du gestionnaire de profils...",
+    "profileManagerLoaded": "Gestionnaire de profils charg\u00E9.",
+    "loadingGames": "Chargement des jeux...",
+    "gamesLoaded": "{0} jeux charg\u00E9s.",
+    "loadingProfiles": "Chargement des profils...",
+    "profilesLoaded": "{0} profils charg\u00E9s.",
+    "loadingCodrivers": "Chargement des copilotes...",
+    "codriversLoaded": "{0} copilotes charg\u00E9s.",
+    "loadingOutputDevices": "Chargement des p\u00E9riph\u00E9riques de sortie...",
+    "outputDevicesLoaded": "{0} p\u00E9riph\u00E9riques de sortie charg\u00E9s.",
+    "ready": "Pr\u00EAt"
+  },
+  "gameSession": {
+    "waitingForGame": "En attente d\u0027un jeu",
+    "automaticDetectionActive": "La d\u00E9tection automatique est active",
+    "noSupportedGameDetected": "Aucun processus de jeu compatible d\u00E9tect\u00E9",
+    "stageActive": "Sp\u00E9ciale en cours",
+    "waitingForStage": "En attente d\u0027une sp\u00E9ciale",
+    "connected": "Connect\u00E9",
+    "connectionFailed": "Jeu d\u00E9tect\u00E9, \u00E9chec de la connexion",
+    "gamesDetectedUsing": "{0} jeux d\u00E9tect\u00E9s ; utilisation de {1}",
+    "selectedAutomatically": "S\u00E9lectionn\u00E9 automatiquement d\u0027apr\u00E8s le processus actif"
+  },
+  "dashboardStatus": {
+    "running": "En cours d\u0027ex\u00E9cution",
+    "portUnavailable": "Port indisponible",
+    "error": "Erreur",
+    "stopped": "Arr\u00EAt\u00E9"
+  },
+  "audioStatus": {
+    "muted": "Muet",
+    "initializing": "Initialisation",
+    "defaultDevice": "{0} (Par d\u00E9faut)"
+  },
+  "codriverCatalog": {
+    "packagesAvailable": "{0} packs disponibles"
   }
 }

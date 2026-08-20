@@ -1,4 +1,4 @@
-﻿{
+{
   "application": {
     "title": "ZTMZ Club 路书工具",
     "title_dev": "ZTMZ Club 路书工具开发版",
@@ -207,12 +207,14 @@
       "playbackDeviceDesiredLatency": "播放设备的 缓冲区延迟 表示指令到达播放设备后开始播放的延迟，如果延迟过低，\n对于某些设备可能会出现声音卡顿的现象，延迟过高可能会导致路书播放滞后",
       "logLevel": "设置日志的级别，设置的级别越严重，日志中的信息量越少\n注意：在测试版中，此选项无效，日志级别总是设置为 调试",
       "viewLogs": "查看日志",
+      "logDirectoryOpenFailed": "系统未配置可打开文件夹的应用。日志目录：{0}",
+      "folderOpenFailed": "系统未配置可打开文件夹的应用。文件夹：{0}",
       "theme": "工具显示的暗色或亮色主题，或者跟随Windows系统设置",
       "accentColor": "工具上各种组件的主要颜色",
       "checkUpdateWhenStartup": "是否在工具启动时，自动检查更新",
-      "startWithWindows": "是否在Windows启动时，自动启动本工具",
+      "startWithSystem": "随系统启动",
       "startMinimizedToTray": "启动时隐藏主窗口，仅保留系统托盘图标。下次启动时生效。",
-      "windowsNotifications": "在检测到游戏、赛段开始或结束时显示 Windows 原生弹窗通知。",
+      "windowsNotifications": "在检测到游戏、赛段开始或结束时显示系统原生通知。",
 
       "warnIfPortMismatch": "当游戏的UDP端口和本工具的UDP端口不一致时，弹出提示框警告",
 
@@ -360,9 +362,9 @@
     "checkUpdateWhenStartup": "自动更新",
     "checkUpdateWhenStartup_On": "自动更新 (已开启)",
     "checkUpdateWhenStartup_Off": "自动更新 (已关闭)",
-    "startWithWindows": "开机自动启动",
+    "startWithSystem": "登录系统时自动启动本工具",
     "startMinimizedToTray": "启动时最小化到托盘",
-    "windowsNotifications": "Windows 事件通知",
+    "windowsNotifications": "系统事件通知",
     "testWindowsNotification": "发送测试通知",
 
     "warnIfPortMismatch": "端口不匹配时展示警告对话框",
@@ -723,6 +725,18 @@
     "stageFinished": "赛段结束：{0}。",
     "test": "Windows 事件通知工作正常。"
   },
+  "voicePackageDetails": {
+    "id": "ID",
+    "token": "标记",
+    "description": "标记描述",
+    "available": "是否可用",
+    "type": "类型",
+    "files": "文件个数",
+    "listen": "试听"
+  },
+  "languageSwitch": {
+    "applying": "正在切换语言..."
+  },
   "misc": {
     "gender_male": "男",
     "gender_female": "女",
@@ -899,5 +913,47 @@
     "bundleCreated": "支持包已创建：{0}",
     "bundleFailed": "创建支持包失败：{0}",
     "refreshFailed": "刷新诊断信息失败：{0}"
+  },
+  "runtime": {
+    "initializingRuntime": "\u6B63\u5728\u521D\u59CB\u5316\u8FD0\u884C\u73AF\u5883...",
+    "initializationFailed": "\u521D\u59CB\u5316\u5931\u8D25",
+    "loadingPacenoteDefinitions": "\u6B63\u5728\u52A0\u8F7D\u8DEF\u4E66\u5B9A\u4E49...",
+    "pacenoteDefinitionsLoaded": "\u8DEF\u4E66\u5B9A\u4E49\u52A0\u8F7D\u5B8C\u6210\u3002",
+    "loadingProfileManager": "\u6B63\u5728\u52A0\u8F7D\u914D\u7F6E\u7BA1\u7406\u5668...",
+    "profileManagerLoaded": "\u914D\u7F6E\u7BA1\u7406\u5668\u52A0\u8F7D\u5B8C\u6210\u3002",
+    "loadingGames": "\u6B63\u5728\u52A0\u8F7D\u6E38\u620F...",
+    "gamesLoaded": "\u5DF2\u52A0\u8F7D {0} \u4E2A\u6E38\u620F\u3002",
+    "loadingProfiles": "\u6B63\u5728\u52A0\u8F7D\u914D\u7F6E...",
+    "profilesLoaded": "\u5DF2\u52A0\u8F7D {0} \u4E2A\u914D\u7F6E\u3002",
+    "loadingCodrivers": "\u6B63\u5728\u52A0\u8F7D\u9886\u822A\u5458...",
+    "codriversLoaded": "\u5DF2\u52A0\u8F7D {0} \u4E2A\u9886\u822A\u5458\u3002",
+    "loadingOutputDevices": "\u6B63\u5728\u52A0\u8F7D\u8F93\u51FA\u8BBE\u5907...",
+    "outputDevicesLoaded": "\u5DF2\u52A0\u8F7D {0} \u4E2A\u8F93\u51FA\u8BBE\u5907\u3002",
+    "ready": "\u5C31\u7EEA"
+  },
+  "gameSession": {
+    "waitingForGame": "\u6B63\u5728\u7B49\u5F85\u6E38\u620F",
+    "automaticDetectionActive": "\u5DF2\u542F\u7528\u81EA\u52A8\u68C0\u6D4B",
+    "noSupportedGameDetected": "\u672A\u68C0\u6D4B\u5230\u652F\u6301\u7684\u6E38\u620F\u8FDB\u7A0B",
+    "stageActive": "\u8D5B\u6BB5\u8FDB\u884C\u4E2D",
+    "waitingForStage": "\u6B63\u5728\u7B49\u5F85\u8D5B\u6BB5\u5F00\u59CB",
+    "connected": "\u5DF2\u8FDE\u63A5",
+    "connectionFailed": "\u5DF2\u68C0\u6D4B\u5230\u6E38\u620F\uFF0C\u4F46\u8FDE\u63A5\u5931\u8D25",
+    "gamesDetectedUsing": "\u68C0\u6D4B\u5230 {0} \u4E2A\u6E38\u620F\uFF0C\u5F53\u524D\u4F7F\u7528 {1}",
+    "selectedAutomatically": "\u5DF2\u6839\u636E\u8FD0\u884C\u4E2D\u7684\u8FDB\u7A0B\u81EA\u52A8\u9009\u62E9"
+  },
+  "dashboardStatus": {
+    "running": "\u8FD0\u884C\u4E2D",
+    "portUnavailable": "\u7AEF\u53E3\u4E0D\u53EF\u7528",
+    "error": "\u9519\u8BEF",
+    "stopped": "\u5DF2\u505C\u6B62"
+  },
+  "audioStatus": {
+    "muted": "\u5DF2\u9759\u97F3",
+    "initializing": "\u6B63\u5728\u521D\u59CB\u5316",
+    "defaultDevice": "{0}\uFF08\u9ED8\u8BA4\uFF09"
+  },
+  "codriverCatalog": {
+    "packagesAvailable": "\u5171 {0} \u4E2A\u8BED\u97F3\u5305"
   }
 }

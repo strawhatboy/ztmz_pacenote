@@ -439,6 +439,13 @@
                         ResolvePacenoteIconToken: luaFunction(token => {
                             const normalized = toJavaScriptString(token).trim().replace(/\.png$/i, '');
                             return runtime.dashboardPackage.pacenoteIconTokenMap?.[normalized.toLowerCase()] || '';
+                        }),
+                        ResolvePacenoteDisplayName: luaFunction(token => {
+                            const normalized = toJavaScriptString(token).trim().replace(/\.png$/i, '');
+                            const canonical = runtime.dashboardPackage.pacenoteIconTokenMap?.[
+                                normalized.toLowerCase()] || normalized;
+                            return runtime.dashboardPackage.pacenoteDisplayNameMap?.[canonical]
+                                || canonical.replace(/_/g, ' ');
                         })
                     },
                     IsWebDashboard: true,

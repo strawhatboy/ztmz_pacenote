@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using ZTMZ.PacenoteTool.Base;
-using ZTMZ.PacenoteTool.Base.UI.Dialog;
+using ZTMZ.PacenoteTool.UI.Windows.Dialog;
 using ZTMZ.PacenoteTool.Core;
 
 namespace ZTMZ.PacenoteTool

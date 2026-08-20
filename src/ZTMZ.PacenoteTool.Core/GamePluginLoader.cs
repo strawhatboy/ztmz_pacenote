@@ -18,6 +18,7 @@ public static class GamePluginLoader
         {
             try
             {
+                logger.Debug("Loading game provider library {0}.", assemblyPath);
                 var assembly = Assembly.LoadFrom(assemblyPath);
                 if (string.Equals(
                         assembly.GetName().Name,
@@ -31,9 +32,11 @@ public static class GamePluginLoader
                 {
                     try
                     {
+                        logger.Debug("Creating game provider {0} from {1}.", type.FullName, assemblyPath);
                         if (Activator.CreateInstance(type) is IGame game)
                         {
                             games.Add(game);
+                            logger.Debug("Created game provider {0}.", game.Name);
                         }
                     }
                     catch (Exception ex)

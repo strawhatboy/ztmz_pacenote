@@ -3,7 +3,6 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:editor="clr-namespace:ZTMZ.PacenoteTool.ScriptEditor;assembly=ZTMZ.PacenoteTool.ScriptEditor"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       FontFamily="{DynamicResource AppFontFamily}"
       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
@@ -55,7 +54,7 @@
                        Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
         </Grid>
 
-        <editor:PacenoteEditorControl x:Name="Editor" Grid.Row="1" />
+        <ContentControl x:Name="EditorHost" Grid.Row="1" />
 
         <Grid Grid.Row="2" Margin="0,12,0,0">
             <Grid.ColumnDefinitions>

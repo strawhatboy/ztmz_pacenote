@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using Newtonsoft.Json;
 
 namespace ZTMZ.PacenoteTool.Base.Game;
 
 public interface IGameConfig
 {
-    // IGameConfigSettingsPane UI { get; set; }
 }
 
 
@@ -28,14 +25,10 @@ public class UdpGameConfig : IGameConfig
     public string IPAddress { set; get; }
     public int Port { set; get; }
 
-    [JsonIgnore]
-    // public IGameConfigSettingsPane UI { set; get; }
-
     public static string Name => "udp";
 
     public UdpGameConfig()
     {
-        // UI = new UdpGameConfigSettingsPane(this);
     }
 }
 
@@ -46,12 +39,8 @@ public class MemoryGameConfig : IGameConfig
 
     public static string Name => "memory";
 
-    // [JsonIgnore]
-    // public IGameConfigSettingsPane UI { set; get; }
-
     public MemoryGameConfig()
     {
-        // UI = new MemoryGameConfigSettingsPane(this);
     }
 }
 
@@ -67,12 +56,8 @@ public class CommonGameConfigs: IGameConfig
 
     public List<string> PropertyType { set; get; } = new();
 
-    // [JsonIgnore]
-    // public IGameConfigSettingsPane UI {set;get;}
-
     public CommonGameConfigs()
     {
-        // UI = new CommonGameConfigsSettingsPane(this);
     }
 
     public object this[string idx]
@@ -136,4 +121,3 @@ public class CommonGameConfigs: IGameConfig
         }
     }
 }
-

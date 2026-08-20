@@ -6,6 +6,27 @@
              RequestedThemeVariant="Default">
   <Application.Styles>
     <styling:FluentAvaloniaTheme />
+    <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
     <materialIcons:MaterialIconStyles />
+    <Style Selector="TextBox">
+      <Setter Property="Height" Value="32" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="NumericUpDown">
+      <Setter Property="Height" Value="32" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="ComboBox">
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="TextBlock.setting-title">
+      <Setter Property="FontSize" Value="{DynamicResource AppFontSize}" />
+    </Style>
+    <Style Selector="TextBlock.setting-description">
+      <Setter Property="FontSize" Value="{DynamicResource AppSettingDescriptionFontSize}" />
+      <Setter Property="FontWeight" Value="Normal" />
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
   </Application.Styles>
 </Application>

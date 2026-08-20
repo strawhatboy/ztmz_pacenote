@@ -68,7 +68,7 @@ Linux release. Each is a separate platform integration.
 | Audio decoding and resampling | NAudio `AudioFileReader` and Media Foundation | `IAudioFileDecoder`, libsndfile, FFmpeg fallback, and managed WDL resampling on Linux |
 | Native overlay | GameOverlay.Net, SharpDX, Direct2D, `user32.dll`, HWND attachment | Keep as a Windows feature; research a Gamescope-specific host separately |
 | Web Dashboard | ASP.NET Core, WebSocket, browser JavaScript | Extracted into the platform-neutral `WebDashboard` project and hosted by the Linux runtime |
-| Script editor | Monaco hosted by WPF WebView2 | Reuse Monaco through the local web host or system browser on Linux |
+| Script editor | Monaco hosted by WPF WebView2 | Shared Monaco protocol and catalog with Avalonia `NativeWebView`; WPE WebKit or WebKitGTK renders the loopback-hosted assets on Linux |
 | Game discovery and IPC | Windows process/window APIs, registry, named maps, named pipes, injection | Shared activity monitor implemented; native Linux uses `/proc`, while Flatpak and Windows-only IPC require Proton relays |
 | Replay capture | WASAPI loopback and Windows window capture | Add PipeWire/FFmpeg capture only after the core Linux release |
 | Packaging and updates | Inno Setup and Windows executable updates | AppImage is the primary SteamOS package; retain Flatpak as a later store channel |
@@ -82,6 +82,7 @@ References:
 - [Microsoft WPF overview](https://learn.microsoft.com/en-us/dotnet/desktop/wpf/overview/)
 - [Microsoft WebView2 platform overview](https://learn.microsoft.com/en-us/microsoft-edge/webview2/)
 - [Avalonia supported platforms](https://v11.docs.avaloniaui.net/docs/overview/supported-platforms/)
+- [Avalonia WebView documentation](https://docs.avaloniaui.net/docs/app-development/embedding-web-content)
 - [PortAudio API overview](https://portaudio.com/docs/v19-doxydocs/api_overview.html)
 - [Valve Gamescope](https://github.com/ValveSoftware/gamescope)
 
@@ -150,7 +151,11 @@ co-driver, or data-migration workflows.
 The first `net10.0` Avalonia desktop host now builds with Avalonia `12.1.1` and
 FluentAvalonia `3.0.2`. Its initial runtime view consumes the shared startup
 status, game-session state, co-driver selection and example playback, mute
-state, and Web Dashboard controls. A shared Web Dashboard controller owns the
+state, Web Dashboard controls, and the Monaco pacenote editor. The editor now
+uses a platform-neutral controller and language catalog, with thin WebView2 and
+Avalonia `NativeWebView` adapters. Monaco and pacenote icons are served only on
+a random loopback port so Linux WebKit does not depend on `file://` worker or
+cross-origin behavior. A shared Web Dashboard controller owns the
 server and telemetry bridge lifecycle, while a shared game-activity session
 coordinator preserves initial detection, automatic activation, fallback, and
 release behavior across the CLI and desktop hosts. Native Arch rendering and
@@ -162,8 +167,8 @@ Must remain host-specific:
 
 - XAML views, WPF converters, controls, navigation, dispatcher access, and
   WPF-UI dialogs;
-- WebView2, Windows file/folder dialogs, registry, tray integration, and system
-  notifications;
+- WebView2 printing, platform file/folder pickers, registry, tray integration,
+  and system notifications; the Monaco editing protocol itself remains shared;
 - update confirmation/download progress UI, application shutdown, executable
   replacement, and data-folder migration process relaunch/progress windows;
 - native overlay, window attachment, replay window capture, and other Win32
@@ -457,8 +462,12 @@ candidate.
 - [x] Extract and host the Web Dashboard on Linux.
 - [x] Establish an Avalonia 12 + FluentAvalonia desktop host backed by the
   shared Runtime, game monitor, co-driver controls, and Web Dashboard lifecycle.
+- [x] Host the shared Monaco pacenote editor in Avalonia with bidirectional
+  JavaScript messaging and loopback-served editor/icon assets.
 - Complete the Avalonia views for game, profile, co-driver, audio device,
   dashboard, and diagnostics selection, including localization.
+- Bundle or provision WPE WebKit (preferred) or WebKitGTK in the AppImage and
+  validate resizing, IME input, clipboard, and navigation under Wayland.
 - Publish the Avalonia host as the AppImage desktop entry point and validate it
   under the Arch VM and SteamOS Desktop Mode.
 - Support the Tier 1 UDP games.

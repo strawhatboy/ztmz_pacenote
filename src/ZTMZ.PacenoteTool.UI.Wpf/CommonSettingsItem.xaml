@@ -1,0 +1,44 @@
+<UserControl
+    x:Class="ZTMZ.PacenoteTool.UI.Windows.CommonSettingsItem"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:Wpf.Ui.Controls"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:local="clr-namespace:ZTMZ.PacenoteTool.UI.Windows"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+    
+    
+  <ui:Card Margin="0 0 0 3"
+  Padding="16">
+    <Grid>
+      <Grid.ColumnDefinitions>
+          <ColumnDefinition />
+          <ColumnDefinition Width="160" />
+      </Grid.ColumnDefinitions>
+      <StackPanel Orientation="Horizontal"
+                  VerticalAlignment="Center">
+          <ContentControl
+                  Grid.Column="1"
+                  Margin="0 0 10 0"
+                  Content="{Binding Icon}"
+                  TextElement.FontSize="26"
+                  Focusable="False" />
+          <Grid>
+              <Grid.RowDefinitions>
+                  <RowDefinition />
+                  <RowDefinition />
+              </Grid.RowDefinitions>
+              <ui:TextBlock Text="{Binding Label}">
+              </ui:TextBlock>
+              <ui:TextBlock Grid.Row="1"
+                            Appearance="Tertiary"
+                            Text="{Binding Description}"
+                            FontTypography="Caption" >
+              </ui:TextBlock>
+          </Grid>
+      </StackPanel>
+      <ContentPresenter Grid.Column="1" HorizontalAlignment="Right" 
+                        x:Name="the_content" />
+    </Grid>
+  </ui:Card>
+</UserControl>

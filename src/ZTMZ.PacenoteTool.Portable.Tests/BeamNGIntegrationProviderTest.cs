@@ -1,4 +1,4 @@
-using NLog;
+﻿using NLog;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.BeamNG;
 using ZTMZ.PacenoteTool.Core;
@@ -9,14 +9,14 @@ namespace ZTMZ.PacenoteTool.Portable.Tests;
 public sealed class BeamNGIntegrationProviderTest
 {
     [Fact]
-    public void PortablePlugin_LoadsWithoutBaseUiAndExposesGenericIntegrationSettings()
+    public void PortablePlugin_LoadsWithoutWpfUiAndExposesGenericIntegrationSettings()
     {
         var assembly = typeof(BeamNGRally).Assembly;
         Assert.DoesNotContain(
             assembly.GetReferencedAssemblies(),
             reference => string.Equals(
                 reference.Name,
-                "ZTMZ.PacenoteTool.Base.UI",
+                "ZTMZ.PacenoteTool.UI.Wpf",
                 StringComparison.Ordinal));
 
         var game = Assert.Single(GamePluginLoader.Load(

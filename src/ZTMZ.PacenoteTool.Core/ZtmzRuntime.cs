@@ -72,7 +72,11 @@ public sealed class ZtmzRuntime
         reportStatus?.Invoke("Profile manager loaded.");
 
         reportStatus?.Invoke("Loading games...");
-        var games = _gameCatalog.Load(options.GamesDirectory);
+        // Plugin discovery may load managed assemblies and migrate per-game files.
+        // Keep that synchronous work off a UI host's startup dispatcher so its splash can render.
+        var games = await Task.Run(
+            () => _gameCatalog.Load(options.GamesDirectory),
+            cancellationToken).ConfigureAwait(false);
         reportStatus?.Invoke($"{games.Count} games loaded.");
 
         reportStatus?.Invoke("Loading profiles...");

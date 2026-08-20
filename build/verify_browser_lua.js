@@ -1,11 +1,12 @@
-'use strict';
+﻿'use strict';
 
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
 const repositoryRoot = path.resolve(__dirname, '..');
-const dashboardsRoot = path.join(repositoryRoot, 'src', 'ZTMZ.PacenoteTool.Base.UI', 'dashboards');
+const webDashboardRoot = path.join(repositoryRoot, 'src', 'ZTMZ.PacenoteTool.WebDashboard');
+const dashboardsRoot = path.join(webDashboardRoot, 'dashboards');
 let renderedTextLines = [];
 let renderedTextRectangles = [];
 
@@ -213,7 +214,13 @@ async function verifyDashboard(folder, id, commonScripts) {
             supportsWebDashboardClientLua: descriptor.SupportsWebDashboardClientLua,
             luaScript: fs.readFileSync(scriptPath, 'utf8'),
             commonScripts,
-            imageResources: {}
+            imageResources: {},
+            pacenoteIconTokenMap: {
+                'left_6': 'left_6'
+            },
+            pacenoteDisplayNameMap: {
+                'left_6': 'Left 6'
+            }
         }),
         loadImage: async () => image,
         getImage: () => image,
@@ -402,7 +409,7 @@ function verifyInboundTelemetryCoalescing() {
     const dashboardClientPath = path.join(
         repositoryRoot,
         'src',
-        'ZTMZ.PacenoteTool.Base.UI',
+        'ZTMZ.PacenoteTool.WebDashboard',
         'wwwroot',
         'dashboard-client.js');
     const dashboardClientSource = fs.readFileSync(dashboardClientPath, 'utf8');
@@ -472,14 +479,14 @@ async function main() {
     global.fengari = require(path.join(
         repositoryRoot,
         'src',
-        'ZTMZ.PacenoteTool.Base.UI',
+        'ZTMZ.PacenoteTool.WebDashboard',
         'wwwroot',
         'vendor',
         'fengari-web.js'));
     require(path.join(
         repositoryRoot,
         'src',
-        'ZTMZ.PacenoteTool.Base.UI',
+        'ZTMZ.PacenoteTool.WebDashboard',
         'wwwroot',
         'browser-lua-dashboard.js'));
 

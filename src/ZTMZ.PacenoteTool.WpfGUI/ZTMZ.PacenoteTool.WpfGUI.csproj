@@ -20,7 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Platform.Windows\ZTMZ.PacenoteTool.Platform.Windows.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Core\ZTMZ.PacenoteTool.Core.csproj" />
-    <ProjectReference Include="..\ZTMZ.PacenoteTool.Base.UI\ZTMZ.PacenoteTool.Base.UI.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.UI.Wpf\ZTMZ.PacenoteTool.UI.Wpf.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.WebDashboard\ZTMZ.PacenoteTool.WebDashboard.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.I18N\ZTMZ.PacenoteTool.I18N.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.ScriptEditor\ZTMZ.PacenoteTool.ScriptEditor.csproj" />
@@ -38,8 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Monaco is bundled locally so the script editor works without a CDN. -->
-    <Content Include="..\ZTMZ.PacenoteTool.ScriptEditor\Assets\Monaco\**\*"
-             Exclude="..\ZTMZ.PacenoteTool.ScriptEditor\Assets\Monaco\min\vs\basic-languages\**\*;..\ZTMZ.PacenoteTool.ScriptEditor\Assets\Monaco\min\vs\language\**\*;..\ZTMZ.PacenoteTool.ScriptEditor\Assets\Monaco\min\vs\nls.messages.*.js">
+    <Content Include="..\ZTMZ.PacenoteTool.ScriptEditor\Assets\Monaco\**\*" Exclude="..\ZTMZ.PacenoteTool.ScriptEditor\Assets\Monaco\min\vs\basic-languages\**\*;..\ZTMZ.PacenoteTool.ScriptEditor\Assets\Monaco\min\vs\language\**\*;..\ZTMZ.PacenoteTool.ScriptEditor\Assets\Monaco\min\vs\nls.messages.*.js">
       <Link>Assets\Monaco\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

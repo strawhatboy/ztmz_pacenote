@@ -82,6 +82,30 @@ public sealed class WebDashboardRuntimeController : IRuntimeDashboardController,
         StatusChanged?.Invoke(this, EventArgs.Empty);
     }
 
+    /// <summary>Reloads package settings and output targets without changing the user's enabled switch.</summary>
+    public void Reload()
+    {
+        RuntimeDashboardStatus status;
+        lock (_sync)
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            if (_status.IsRunning)
+            {
+                var port = _status.Port;
+                var frameRate = _runtime.GetDiagnostics().TargetFrameRate;
+                Stop(port);
+                status = Start(port, frameRate);
+            }
+            else
+            {
+                status = _status;
+            }
+            _status = status;
+        }
+
+        StatusChanged?.Invoke(this, EventArgs.Empty);
+    }
+
     public void Dispose()
     {
         lock (_sync)

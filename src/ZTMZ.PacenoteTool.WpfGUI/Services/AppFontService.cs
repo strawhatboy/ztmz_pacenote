@@ -2,9 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,15 +23,8 @@ public sealed class AppFontService
     private const double DefaultFontSize = 12d;
     private const double DefaultControlContentFontSize = 14d;
     private const string BodyStrongFontSizeResourceKey = "AppBodyStrongFontSize";
-    private const string SuggestedFontPrefix = "suggested:";
-    private const string FontCatalogUrl = "https://gitee.com/ztmz/fonts/raw/master/repo.json";
-    private const string FontCatalogCacheFileName = "repo.json";
-    private static readonly JsonSerializerOptions CatalogSerializerOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
-
-    private IReadOnlyList<SuggestedFont> _suggestedFonts;
+    private const string SuggestedFontPrefix = SuggestedFontCatalogService.SuggestedFontPrefix;
+    private readonly SuggestedFontCatalogService _fontCatalog = new();
     private readonly Dictionary<string, Style> _baseTypographyStyles = new();
     private static readonly IReadOnlyDictionary<string, double> TypographyStyleFontSizes =
         new Dictionary<string, double>
@@ -48,12 +38,7 @@ public sealed class AppFontService
             ["DisplayTextBlockStyle"] = 68d
         };
 
-    public AppFontService()
-    {
-        _suggestedFonts = LoadCachedSuggestedFonts();
-    }
-
-    public IReadOnlyList<SuggestedFont> SuggestedFonts => _suggestedFonts;
+    public IReadOnlyList<SuggestedFont> SuggestedFonts => _fontCatalog.Fonts;
 
     public IReadOnlyList<FontChoice> GetSystemFontChoices()
     {
@@ -83,17 +68,8 @@ public sealed class AppFontService
         return choices.FirstOrDefault(choice => choice.Id.Equals(configured, StringComparison.OrdinalIgnoreCase)) ?? choices[0];
     }
 
-    public SuggestedFont? GetConfiguredSuggestedFont()
-    {
-        var configured = Config.Instance.UIFontFamily ?? string.Empty;
-        if (!configured.StartsWith(SuggestedFontPrefix, StringComparison.OrdinalIgnoreCase))
-        {
-            return null;
-        }
-
-        var id = configured.Substring(SuggestedFontPrefix.Length);
-        return SuggestedFonts.FirstOrDefault(font => font.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
-    }
+    public SuggestedFont? GetConfiguredSuggestedFont() =>
+        _fontCatalog.GetConfiguredFont(Config.Instance.UIFontFamily);
 
     public void ApplyConfiguredFont()
     {
@@ -191,15 +167,11 @@ public sealed class AppFontService
         ApplyFont(new FontFamily(familyName));
     }
 
-    public bool IsInstalled(SuggestedFont font)
-    {
-        return IsExpectedFontFile(GetSuggestedFontPath(font), font.Sha256)
-            || IsExpectedFontFile(GetLegacySuggestedFontPath(font), font.Sha256);
-    }
+    public bool IsInstalled(SuggestedFont font) => _fontCatalog.IsInstalled(font);
 
     public bool TryApplySuggestedFont(SuggestedFont font)
     {
-        if (!TryGetIsolatedSuggestedFontPath(font, out var fontPath))
+        if (!_fontCatalog.TryGetFontPath(font, out var fontPath))
         {
             return false;
         }
@@ -238,230 +210,17 @@ public sealed class AppFontService
     public async Task DownloadSuggestedFontAsync(
         SuggestedFont font,
         IProgress<double>? progress = null,
-        CancellationToken cancellationToken = default)
-    {
-        var destination = GetSuggestedFontPath(font);
-        var tempPath = destination + ".download";
-        Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+        CancellationToken cancellationToken = default) =>
+        await _fontCatalog.DownloadAsync(font, progress, cancellationToken);
 
-        try
-        {
-            progress?.Report(0);
-            using var client = new HttpClient();
-            using var response = await client.GetAsync(font.Url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            await using (var source = await response.Content.ReadAsStreamAsync(cancellationToken))
-            await using (var target = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
-            {
-                var buffer = new byte[81920];
-                var totalBytesRead = 0L;
-                int bytesRead;
-                while ((bytesRead = await source.ReadAsync(buffer, cancellationToken)) > 0)
-                {
-                    await target.WriteAsync(buffer.AsMemory(0, bytesRead), cancellationToken);
-                    totalBytesRead += bytesRead;
-                    progress?.Report(Math.Min(1d, totalBytesRead / (double)font.Size));
-                }
-            }
-
-            if (!IsHashMatch(tempPath, font.Sha256))
-            {
-                throw new InvalidDataException("Downloaded font did not match its expected SHA-256 hash.");
-            }
-
-            File.Move(tempPath, destination, true);
-            progress?.Report(1);
-        }
-        finally
-        {
-            if (File.Exists(tempPath))
-            {
-                File.Delete(tempPath);
-            }
-        }
-    }
-
-    public async Task<IReadOnlyList<SuggestedFont>> RefreshSuggestedFontsAsync(CancellationToken cancellationToken = default)
-    {
-        using var client = new HttpClient();
-        var catalogJson = await client.GetStringAsync(FontCatalogUrl, cancellationToken);
-        var fonts = ParseSuggestedFonts(catalogJson);
-        SaveSuggestedFontCache(catalogJson);
-        _suggestedFonts = fonts;
-        return SuggestedFonts;
-    }
-
-    private static bool IsHashMatch(string path, string expectedHash)
-    {
-        using var stream = File.OpenRead(path);
-        var actualHash = Convert.ToHexString(SHA256.HashData(stream));
-        return actualHash.Equals(expectedHash, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static string GetSuggestedFontPath(SuggestedFont font)
-    {
-        return Path.Combine(
-            GetFontDirectory(),
-            "suggested",
-            font.Sha256.ToUpperInvariant(),
-            GetSafeSuggestedFontFileName(font));
-    }
-
-    private static string GetLegacySuggestedFontPath(SuggestedFont font)
-    {
-        return Path.Combine(GetFontDirectory(), GetSafeSuggestedFontFileName(font));
-    }
-
-    private static string GetSafeSuggestedFontFileName(SuggestedFont font)
-    {
-        var safeFileName = Path.GetFileName(font.FileName);
-        if (string.IsNullOrWhiteSpace(safeFileName)
-            || !safeFileName.Equals(font.FileName, StringComparison.Ordinal)
-            || (!safeFileName.EndsWith(".ttf", StringComparison.OrdinalIgnoreCase)
-                && !safeFileName.EndsWith(".otf", StringComparison.OrdinalIgnoreCase)))
-        {
-            throw new InvalidDataException("The font catalog contains an invalid font file name.");
-        }
-
-        return safeFileName;
-    }
-
-    private static bool TryGetIsolatedSuggestedFontPath(SuggestedFont font, out string fontPath)
-    {
-        fontPath = GetSuggestedFontPath(font);
-        if (IsExpectedFontFile(fontPath, font.Sha256))
-        {
-            return true;
-        }
-
-        var legacyPath = GetLegacySuggestedFontPath(font);
-        if (!IsExpectedFontFile(legacyPath, font.Sha256))
-        {
-            return false;
-        }
-
-        try
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(fontPath)!);
-            File.Copy(legacyPath, fontPath, true);
-            return IsExpectedFontFile(fontPath, font.Sha256);
-        }
-        catch (IOException)
-        {
-            return false;
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return false;
-        }
-    }
-
-    private static bool IsExpectedFontFile(string path, string expectedHash)
-    {
-        try
-        {
-            return File.Exists(path) && IsHashMatch(path, expectedHash);
-        }
-        catch (IOException)
-        {
-            return false;
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return false;
-        }
-    }
+    public Task<IReadOnlyList<SuggestedFont>> RefreshSuggestedFontsAsync(CancellationToken cancellationToken = default) =>
+        _fontCatalog.RefreshAsync(cancellationToken);
 
     private static void ApplyFont(FontFamily fontFamily)
     {
         Application.Current.Resources["AppFontFamily"] = fontFamily;
     }
 
-    private static IReadOnlyList<SuggestedFont> LoadCachedSuggestedFonts()
-    {
-        var cachePath = Path.Combine(GetFontDirectory(), FontCatalogCacheFileName);
-        if (!File.Exists(cachePath))
-        {
-            return Array.Empty<SuggestedFont>();
-        }
-
-        try
-        {
-            return ParseSuggestedFonts(File.ReadAllText(cachePath));
-        }
-        catch (IOException)
-        {
-            return Array.Empty<SuggestedFont>();
-        }
-        catch (JsonException)
-        {
-            return Array.Empty<SuggestedFont>();
-        }
-        catch (InvalidDataException)
-        {
-            return Array.Empty<SuggestedFont>();
-        }
-    }
-
-    private static IReadOnlyList<SuggestedFont> ParseSuggestedFonts(string catalogJson)
-    {
-        var fonts = JsonSerializer.Deserialize<List<SuggestedFont>>(catalogJson, CatalogSerializerOptions)
-            ?? throw new InvalidDataException("The font catalog is empty or invalid.");
-
-        var validFonts = fonts
-            .Where(IsValidSuggestedFont)
-            .GroupBy(font => font.Id, StringComparer.OrdinalIgnoreCase)
-            .Select(group => group.First())
-            .ToList();
-
-        if (validFonts.Count == 0)
-        {
-            throw new InvalidDataException("The font catalog did not contain any valid fonts.");
-        }
-
-        return validFonts;
-    }
-
-    private static bool IsValidSuggestedFont(SuggestedFont font)
-    {
-        return !string.IsNullOrWhiteSpace(font.Id)
-            && !string.IsNullOrWhiteSpace(font.Name)
-            && !string.IsNullOrWhiteSpace(font.FamilyName)
-            && Uri.TryCreate(font.Url, UriKind.Absolute, out var uri)
-            && uri.Scheme == Uri.UriSchemeHttps
-            && font.Sha256.Length == 64
-            && font.Sha256.All(Uri.IsHexDigit)
-            && font.Size > 0
-            && !string.IsNullOrWhiteSpace(font.FileName)
-            && font.FileName.Equals(Path.GetFileName(font.FileName), StringComparison.Ordinal)
-            && (font.FileName.EndsWith(".ttf", StringComparison.OrdinalIgnoreCase)
-                || font.FileName.EndsWith(".otf", StringComparison.OrdinalIgnoreCase));
-    }
-
-    private static void SaveSuggestedFontCache(string catalogJson)
-    {
-        var directory = GetFontDirectory();
-        Directory.CreateDirectory(directory);
-        var targetPath = Path.Combine(directory, FontCatalogCacheFileName);
-        var tempPath = targetPath + ".download";
-        File.WriteAllText(tempPath, catalogJson);
-        File.Move(tempPath, targetPath, true);
-    }
-
-    private static string GetFontDirectory()
-    {
-        return Path.Combine(AppLevelVariables.Instance.AppConfigFolder, "fonts");
-    }
 }
 
 public sealed record FontChoice(string Id, string DisplayName, bool IsSystemDefault);
-
-public sealed record SuggestedFont(
-    string Id,
-    string Name,
-    string Description,
-    string FamilyName,
-    string FileName,
-    string Url,
-    string Sha256,
-    long Size);

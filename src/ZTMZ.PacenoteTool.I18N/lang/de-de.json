@@ -202,12 +202,14 @@
       "playbackDeviceDesiredLatency": "Verzögerung nach Eingang einer Ansage am Gerät. Ein zu niedriger Wert kann den Klang beeinträchtigen, ein hoher Wert führt zu spürbarer Verzögerung.",
       "logLevel": "Protokollierungsstufe festlegen. Höhere Stufen zeigen weniger Informationen an.",
       "viewLogs": "Protokolle anzeigen",
+      "logDirectoryOpenFailed": "Keine Anwendung ist zum Öffnen von Ordnern eingerichtet. Protokollordner: {0}",
+      "folderOpenFailed": "Keine Anwendung ist zum Öffnen von Ordnern eingerichtet. Ordner: {0}",
       "theme": "Helles/dunkles Design oder Windows-Systemdesign verwenden",
       "accentColor": "Farbe für alle Steuerelemente der Benutzeroberfläche",
       "checkUpdateWhenStartup": "Beim Start des Tools nach Updates suchen",
-      "startWithWindows": "Das Tool mit Windows starten",
+      "startWithSystem": "Mit dem System starten",
       "startMinimizedToTray": "Ausgeblendet starten und über das Symbol im Infobereich verfügbar bleiben. Gilt ab dem nächsten Start.",
-      "windowsNotifications": "Native Windows-Benachrichtigungen bei Spielerkennung sowie Start oder Ende einer Wertungsprüfung anzeigen.",
+      "windowsNotifications": "Systembenachrichtigungen bei Spielerkennung sowie Start oder Ende einer Wertungsprüfung anzeigen.",
       "warnIfPortMismatch": "Warnen, wenn der UDP-Port des Spiels nicht mit dem Port des Tools übereinstimmt",
       "hudFPS": "Bildrate des HUD begrenzen. Eine hohe Bildrate kann die Leistung von Bildschirmaufnahmeprogrammen wie OBS beeinträchtigen.",
       "importAudioPackage": "Sprachpaket im Format *.zpak importieren",
@@ -345,9 +347,9 @@
     "checkUpdateWhenStartup": "Beim Start nach Updates suchen",
     "checkUpdateWhenStartup_On": "Automatische Updates (Ein)",
     "checkUpdateWhenStartup_Off": "Automatische Updates (Aus)",
-    "startWithWindows": "Mit Windows starten",
+    "startWithSystem": "Das Tool beim Anmelden automatisch starten",
     "startMinimizedToTray": "Minimiert im Infobereich starten",
-    "windowsNotifications": "Windows-Ereignisbenachrichtigungen",
+    "windowsNotifications": "Systemereignisbenachrichtigungen",
     "testWindowsNotification": "Testbenachrichtigung senden",
     "warnIfPortMismatch": "Bei Portabweichung warnen",
     "hudFPS": "HUD-Bildrate im Spiel",
@@ -682,6 +684,18 @@
     "stageFinished": "Wertungsprüfung beendet: {0}.",
     "test": "Windows-Ereignisbenachrichtigungen funktionieren."
   },
+  "voicePackageDetails": {
+    "id": "ID",
+    "token": "Token",
+    "description": "Tokenbeschreibung",
+    "available": "Verfügbar",
+    "type": "Typ",
+    "files": "Dateien",
+    "listen": "Vorschau"
+  },
+  "languageSwitch": {
+    "applying": "Sprache wird gewechselt..."
+  },
   "misc": {
     "gender_male": "Männlich",
     "gender_female": "Weiblich",
@@ -853,5 +867,47 @@
     "bundleCreated": "Supportpaket erstellt: {0}",
     "bundleFailed": "Supportpaket fehlgeschlagen: {0}",
     "refreshFailed": "Diagnoseaktualisierung fehlgeschlagen: {0}"
+  },
+  "runtime": {
+    "initializingRuntime": "Laufzeit wird initialisiert...",
+    "initializationFailed": "Initialisierung fehlgeschlagen",
+    "loadingPacenoteDefinitions": "Pacenote-Definitionen werden geladen...",
+    "pacenoteDefinitionsLoaded": "Pacenote-Definitionen geladen.",
+    "loadingProfileManager": "Profilverwaltung wird geladen...",
+    "profileManagerLoaded": "Profilverwaltung geladen.",
+    "loadingGames": "Spiele werden geladen...",
+    "gamesLoaded": "{0} Spiele geladen.",
+    "loadingProfiles": "Profile werden geladen...",
+    "profilesLoaded": "{0} Profile geladen.",
+    "loadingCodrivers": "Beifahrer werden geladen...",
+    "codriversLoaded": "{0} Beifahrer geladen.",
+    "loadingOutputDevices": "Ausgabeger\u00E4te werden geladen...",
+    "outputDevicesLoaded": "{0} Ausgabeger\u00E4te geladen.",
+    "ready": "Bereit"
+  },
+  "gameSession": {
+    "waitingForGame": "Warte auf ein Spiel",
+    "automaticDetectionActive": "Automatische Erkennung ist aktiv",
+    "noSupportedGameDetected": "Kein unterst\u00FCtzter Spielprozess erkannt",
+    "stageActive": "Wertungspr\u00FCfung aktiv",
+    "waitingForStage": "Warte auf Wertungspr\u00FCfung",
+    "connected": "Verbunden",
+    "connectionFailed": "Spiel erkannt, Verbindung fehlgeschlagen",
+    "gamesDetectedUsing": "{0} Spiele erkannt; {1} wird verwendet",
+    "selectedAutomatically": "Automatisch anhand des laufenden Prozesses ausgew\u00E4hlt"
+  },
+  "dashboardStatus": {
+    "running": "L\u00E4uft",
+    "portUnavailable": "Port nicht verf\u00FCgbar",
+    "error": "Fehler",
+    "stopped": "Gestoppt"
+  },
+  "audioStatus": {
+    "muted": "Stumm",
+    "initializing": "Wird initialisiert",
+    "defaultDevice": "{0} (Standard)"
+  },
+  "codriverCatalog": {
+    "packagesAvailable": "{0} Pakete verf\u00FCgbar"
   }
 }

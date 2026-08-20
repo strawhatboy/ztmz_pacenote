@@ -6,7 +6,7 @@ using System.Windows.Media;
 using Wpf.Ui.Controls;
 using Wpf.Ui.Extensions;
 using ZTMZ.PacenoteTool.Base;
-using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.UI.Windows;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 using ZTMZ.PacenoteTool.WpfGUI.Views.Dialog;
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;

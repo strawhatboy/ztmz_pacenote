@@ -6,7 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:system="clr-namespace:System;assembly=System.Runtime"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      xmlns:localUI="clr-namespace:ZTMZ.PacenoteTool.Base.UI;assembly=ZTMZ.PacenoteTool.Base.UI"
+      xmlns:localUI="clr-namespace:ZTMZ.PacenoteTool.UI.Windows;assembly=ZTMZ.PacenoteTool.UI.Wpf"
       Title="GeneralPage"
       FontFamily="{DynamicResource AppFontFamily}"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
@@ -362,7 +362,7 @@
             </Grid>
         </ui:Card>
 
-        <!-- startWithWindows -->
+        <!-- startWithSystem -->
         <ui:Card Margin="0 0 0 3"
                  Padding="16">
             <Grid>
@@ -380,9 +380,9 @@
                             <RowDefinition/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.startWithWindows}"/>
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.startWithSystem}"/>
                         <ui:TextBlock Grid.Row="1"
-                                      Text="{DynamicResource ResourceKey=settings.tooltip.startWithWindows}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                      Text="{DynamicResource ResourceKey=settings.tooltip.startWithSystem}" Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                       FontTypography="Caption"/>
                     </Grid>
                 </StackPanel>
@@ -392,8 +392,8 @@
             </Grid>
         </ui:Card>
 
-        <!-- <localUI:CommonSettingsItem Icon="{ui:SymbolIcon PersonRunning20}" Label="{DynamicResource ResourceKey=settings.startWithWindows}" 
-            Description="{DynamicResource ResourceKey=settings.tooltip.startWithWindows}" SettingsPropertyName="StartWithWindows" /> -->
+        <!-- <localUI:CommonSettingsItem Icon="{ui:SymbolIcon PersonRunning20}" Label="{DynamicResource ResourceKey=settings.startWithSystem}"
+            Description="{DynamicResource ResourceKey=settings.tooltip.startWithSystem}" SettingsPropertyName="StartWithWindows" /> -->
 
         <!-- start minimized to tray -->
         <ui:Card Margin="0 0 0 3"

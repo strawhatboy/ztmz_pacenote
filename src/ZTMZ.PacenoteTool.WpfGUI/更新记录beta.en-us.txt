@@ -1,6 +1,7 @@
 v2.99.99.46-3.0-rc18
 
 * Adds an in-window roadbook print dialog with an exact live PDF preview, physical-printer and PDF destinations, paper size, orientation, margins, configurable page-number format and position, page ranges, and copies; printed backgrounds are preserved and browser file-path headers and footers are removed.
+* Improves Windows application and tray icons with high-quality multi-resolution frames from 16 through 256 pixels, so taskbar, title-bar, Start menu, and high-DPI shell surfaces no longer rely on temporary scaling of one 256px icon.
 * Upgrades audio playback to NAudio 3 and WASAPI shared-mode media sessions; fixes Windows treating pacenote playback as communications activity and automatically lowering or muting game and other application audio, while improving output-device identification and switching reliability.
 * Fixes game-specific descriptions, setup guidance, bridge warnings, diagnostics, and settings remaining in English when the interface uses German, Spanish, French, Italian, Japanese, Korean, Brazilian Portuguese, or Russian.
 * Shows every language in the language selector using its own native name instead of translating the entire list into the Windows display language.

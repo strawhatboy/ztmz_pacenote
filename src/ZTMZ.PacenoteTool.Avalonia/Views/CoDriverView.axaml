@@ -1,70 +1,257 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dataGrid="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls.DataGrid"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="ZTMZ.PacenoteTool.Avalonia.Views.CoDriverView">
   <ScrollViewer>
-    <Grid Margin="42,28,42,40"
-          HorizontalAlignment="Stretch"
-          RowDefinitions="Auto,Auto,Auto">
-      <StackPanel Spacing="4">
-        <TextBlock Text="{DynamicResource ui.tab_s_audioPackage}" FontSize="28" FontWeight="SemiBold" />
-        <TextBlock Text="{Binding CoDriverPackageSummary}"
-                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-      </StackPanel>
-
-      <Grid Grid.Row="1"
-            Margin="0,28,0,0"
-            ColumnDefinitions="190,*"
-            RowDefinitions="Auto,Auto">
+    <Grid Margin="42,28,42,40" HorizontalAlignment="Stretch">
+      <StackPanel IsVisible="{Binding IsVoicePackageListVisible}" Spacing="8">
         <StackPanel Spacing="4">
-          <TextBlock Text="{DynamicResource ui.tab_s_audioPackage}" FontSize="18" FontWeight="SemiBold" />
-          <TextBlock Text="{DynamicResource ui.tab_s_audioPackage}"
+          <TextBlock Text="{DynamicResource tabs.voices}" FontSize="28" FontWeight="SemiBold" />
+          <TextBlock Text="{Binding CoDriverPackageSummary}"
                      Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
         </StackPanel>
-        <Grid Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="12">
-          <ComboBox ItemsSource="{Binding CoDrivers}"
-                    SelectedItem="{Binding SelectedCoDriver, Mode=TwoWay}"
-                    MinWidth="340"
-                    IsEnabled="{Binding IsReady}">
-            <ComboBox.ItemTemplate>
-              <DataTemplate>
-                <Grid ColumnDefinitions="40,*" RowDefinitions="Auto,Auto" MinWidth="280">
-                  <TextBlock Grid.RowSpan="2" Text="{Binding GenderSymbol}"
-                             Foreground="{Binding GenderBrush}" FontSize="24"
-                             HorizontalAlignment="Center" VerticalAlignment="Center" />
-                  <TextBlock Grid.Column="1" Text="{Binding Name}" />
-                  <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="10">
-                    <TextBlock Text="{Binding Language}" FontSize="11"
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                    <TextBlock Text="{Binding Version}" FontSize="11"
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+
+        <Button Margin="0,20,0,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                Command="{Binding OpenVoiceSettingsCommand}">
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <materialIcons:MaterialIcon Kind="AccountVoice" Width="24" Height="24" />
+            <StackPanel Grid.Column="1" Spacing="2">
+              <TextBlock Text="{DynamicResource settings.subsection.voicePackage}" />
+              <TextBlock Text="{DynamicResource settings.subsection.tooltip.voicePackage}"
+                         FontSize="{DynamicResource AppSmallFontSize}"
+                         TextWrapping="Wrap"
+                         Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+          </Grid>
+        </Button>
+        <Button Margin="0,3,0,8" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                Click="OnImportVoicePackageClick">
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <materialIcons:MaterialIcon Kind="Import" Width="24" Height="24" />
+            <StackPanel Grid.Column="1" Spacing="2">
+              <TextBlock Text="{DynamicResource settings.importAudioPackage}" />
+              <TextBlock Text="{DynamicResource settings.tooltip.importAudioPackage}"
+                         FontSize="{DynamicResource AppSmallFontSize}"
+                         TextWrapping="Wrap"
+                         Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+          </Grid>
+        </Button>
+
+        <Grid Margin="0,14,0,0" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+          <TextBlock Text="{DynamicResource tabs.voices}" FontSize="18" FontWeight="SemiBold" />
+          <Button Grid.Column="1" Command="{Binding RefreshVoicePackagesCommand}"
+                  ToolTip.Tip="{DynamicResource misc.update}">
+            <materialIcons:MaterialIcon Kind="Refresh" Width="17" Height="17" />
+          </Button>
+        </Grid>
+        <ProgressBar IsVisible="{Binding IsVoicePackageCatalogLoading}" IsIndeterminate="True" Height="3" />
+        <ItemsControl ItemsSource="{Binding VoicePackages}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Margin="0,0,0,3" Padding="0" Cursor="Hand"
+                      Tag="{Binding}" PointerPressed="OnVoicePackageCardPressed"
+                      Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                      BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                      BorderThickness="1" CornerRadius="4">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                  <Border Padding="14,10">
+                    <Grid ColumnDefinitions="40,*" ColumnSpacing="12">
+                      <TextBlock Text="{Binding GenderSymbol}" Foreground="{Binding GenderBrush}"
+                                 FontSize="26" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                      <StackPanel Grid.Column="1" Spacing="3">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                          <TextBlock Text="{Binding Language}"
+                                     Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                          <TextBlock Text="{Binding Version}"
+                                     Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                          <TextBlock Text="{Binding OriginalVersion}"
+                                     IsVisible="{Binding NeedsUpdate}"
+                                     TextDecorations="Strikethrough"
+                                     Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                          <Border Padding="5,1" BorderThickness="1" CornerRadius="3"
+                                  BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                            <TextBlock Text="{Binding IntegritySimple, StringFormat={}{0:P0}}"
+                                       ToolTip.Tip="{DynamicResource integrityLevel.simple}"
+                                       FontSize="{DynamicResource AppSmallFontSize}" />
+                          </Border>
+                          <Border Padding="5,1" BorderThickness="1" CornerRadius="3"
+                                  BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                            <TextBlock Text="{Binding IntegrityNormal, StringFormat={}{0:P0}}"
+                                       ToolTip.Tip="{DynamicResource integrityLevel.normal}"
+                                       FontSize="{DynamicResource AppSmallFontSize}" />
+                          </Border>
+                          <Border Padding="5,1" BorderThickness="1" CornerRadius="3"
+                                  BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                            <TextBlock Text="{Binding IntegrityComplex, StringFormat={}{0:P0}}"
+                                       ToolTip.Tip="{DynamicResource integrityLevel.complex}"
+                                       FontSize="{DynamicResource AppSmallFontSize}" />
+                          </Border>
+                        </StackPanel>
+                        <TextBlock Text="{Binding Description}" MaxLines="2" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
+                              Margin="0,0,12,0" VerticalAlignment="Center">
+                    <ProgressBar Width="72" Height="4" Maximum="1"
+                                 IsVisible="{Binding IsDownloading}" Value="{Binding DownloadProgress}" />
+                    <Button Width="116" IsVisible="{Binding NeedsDownload}"
+                            Command="{Binding $parent[UserControl].DataContext.UpdateVoicePackageCommand}"
+                            CommandParameter="{Binding}">
+                      <StackPanel Orientation="Horizontal" Spacing="6">
+                        <materialIcons:MaterialIcon Kind="Download" Width="16" Height="16" />
+                        <TextBlock Text="{DynamicResource misc.download}" />
+                      </StackPanel>
+                    </Button>
+                    <Button Width="116" IsVisible="{Binding NeedsUpdate}"
+                            Command="{Binding $parent[UserControl].DataContext.UpdateVoicePackageCommand}"
+                            CommandParameter="{Binding}">
+                      <StackPanel Orientation="Horizontal" Spacing="6">
+                        <materialIcons:MaterialIcon Kind="Refresh" Width="16" Height="16" />
+                        <TextBlock Text="{DynamicResource misc.update}" />
+                      </StackPanel>
+                    </Button>
+                    <Button Width="116" IsVisible="{Binding IsInstalled}" Click="OnExportVoicePackageClick"
+                            Tag="{Binding}" ToolTip.Tip="{DynamicResource misc.export}">
+                      <StackPanel Orientation="Horizontal" Spacing="6">
+                        <materialIcons:MaterialIcon Kind="Export" Width="16" Height="16" />
+                        <TextBlock Text="{DynamicResource misc.export}" />
+                      </StackPanel>
+                    </Button>
                   </StackPanel>
                 </Grid>
-              </DataTemplate>
-            </ComboBox.ItemTemplate>
-          </ComboBox>
-          <Button Grid.Column="1"
-                  Content="{DynamicResource ui.btn_playExample}"
-                  Command="{Binding PlayExampleCommand}"
-                  Padding="16,8" />
-        </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
 
-        <StackPanel Grid.Row="1" Margin="0,28,0,0" Spacing="4">
-          <TextBlock Text="{DynamicResource ui.tab_s_audioSettings}" FontSize="18" FontWeight="SemiBold" />
-          <TextBlock Text="{DynamicResource ui.tooltip.tb_mute}"
-                     Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-        </StackPanel>
-        <ToggleSwitch Grid.Row="1"
-                      Grid.Column="1"
-                      Margin="0,24,0,0"
-                      IsChecked="{Binding IsMuted, Mode=TwoWay}"
-                      OnContent=""
-                      OffContent="" />
-      </Grid>
+      <StackPanel IsVisible="{Binding IsVoiceSettingsOpen}" Spacing="3">
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,160" ColumnSpacing="16">
+            <StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.playStartAndEndSound}" /><TextBlock Text="{DynamicResource settings.tooltip.playStartAndEndSound}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel>
+            <ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.PlayStartAndEndSound, Mode=TwoWay}" OnContent="" OffContent="" />
+          </Grid>
+        </Border>
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,160" ColumnSpacing="16">
+            <StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.playGoSound}" /><TextBlock Text="{DynamicResource settings.tooltip.playGoSound}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel>
+            <ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.PlayGoSound, Mode=TwoWay}" OnContent="" OffContent="" />
+          </Grid>
+        </Border>
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,56,160" ColumnSpacing="12">
+            <StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.pacenoteDropoutPercentage}" /><TextBlock Text="{DynamicResource settings.tooltip.pacenoteDropoutPercentage}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel>
+            <TextBlock Grid.Column="1" Text="{Binding VoiceSettings.PacenoteDropoutPercentage, StringFormat={}{0}%}" VerticalAlignment="Center" />
+            <Slider Grid.Column="2" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding VoiceSettings.PacenoteDropoutPercentage, Mode=TwoWay}" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,160" ColumnSpacing="16">
+            <StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.removeIntoAndOnto}" /><TextBlock Text="{DynamicResource settings.tooltip.removeIntoAndOnto}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel>
+            <ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.RemoveIntoAndOnto, Mode=TwoWay}" OnContent="" OffContent="" />
+          </Grid>
+        </Border>
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,160" ColumnSpacing="16">
+            <StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.useReversePacenote}" /><TextBlock Text="{DynamicResource settings.tooltip.useReversePacenote}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel>
+            <ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.UseReversePacenote, Mode=TwoWay}" OnContent="" OffContent="" />
+          </Grid>
+        </Border>
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,160" ColumnSpacing="16">
+            <StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.playCollisionSound}" /><TextBlock Text="{DynamicResource settings.tooltip.playCollisionSound}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel>
+            <ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.PlayCollisionSound, Mode=TwoWay}" OnContent="" OffContent="" />
+          </Grid>
+        </Border>
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,160" ColumnSpacing="16"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.collision_slight}" /><TextBlock Text="{DynamicResource settings.tooltip.collision_slight}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><NumericUpDown Grid.Column="1" Value="{Binding VoiceSettings.CollisionSpeedChangeThresholdSlight, Mode=TwoWay}" /></Grid>
+        </Border>
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,160" ColumnSpacing="16"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.collision_medium}" /><TextBlock Text="{DynamicResource settings.tooltip.collision_medium}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><NumericUpDown Grid.Column="1" Value="{Binding VoiceSettings.CollisionSpeedChangeThresholdMedium, Mode=TwoWay}" /></Grid>
+        </Border>
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,160" ColumnSpacing="16"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.collision_severe}" /><TextBlock Text="{DynamicResource settings.tooltip.collision_severe}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><NumericUpDown Grid.Column="1" Value="{Binding VoiceSettings.CollisionSpeedChangeThresholdSevere, Mode=TwoWay}" /></Grid>
+        </Border>
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,160" ColumnSpacing="16"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.useDefaultSoundPackageByDefault}" /><TextBlock Text="{DynamicResource settings.tooltip.useDefaultSoundPackageByDefault}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.UseDefaultSoundPackageByDefault, Mode=TwoWay}" OnContent="" OffContent="" /></Grid>
+        </Border>
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,160" ColumnSpacing="16"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.useDefaultSoundPackageForFallback}" /><TextBlock Text="{DynamicResource settings.tooltip.useDefaultSoundPackageForFallback}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.UseDefaultSoundPackageForFallback, Mode=TwoWay}" OnContent="" OffContent="" /></Grid>
+        </Border>
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,160" ColumnSpacing="16"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.preloadSounds}" /><TextBlock Text="{DynamicResource settings.tooltip.preloadSounds}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.PreloadSounds, Mode=TwoWay}" OnContent="" OffContent="" /></Grid>
+        </Border>
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,300,40" ColumnSpacing="10"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.additionalCoDriverPackagesSearchPath}" /><TextBlock Text="{DynamicResource settings.tooltip.additionalCoDriverPackagesSearchPath}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><TextBox Grid.Column="1" Text="{Binding VoiceSettings.AdditionalCoDriverPackagesSearchPath, Mode=TwoWay}" /><Button Grid.Column="2" Click="OnPickAdditionalCoDriverDirectoryClick"><materialIcons:MaterialIcon Kind="FolderOpen" Width="17" Height="17" /></Button></Grid>
+        </Border>
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,300,40" ColumnSpacing="10"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.additionalPacenotesDefinitionSearchPath}" /><TextBlock Text="{DynamicResource settings.tooltip.additionalPacenotesDefinitionSearchPath}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><TextBox Grid.Column="1" Text="{Binding VoiceSettings.AdditionalPacenotesDefinitionSearchPath, Mode=TwoWay}" /><Button Grid.Column="2" Click="OnPickAdditionalPacenotesDirectoryClick"><materialIcons:MaterialIcon Kind="FolderOpen" Width="17" Height="17" /></Button></Grid>
+        </Border>
+        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+          <Grid ColumnDefinitions="*,300,40" ColumnSpacing="10"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.customPacenoteDatabasePath}" /><TextBlock Text="{DynamicResource settings.tooltip.customPacenoteDatabasePath}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><TextBox Grid.Column="1" Text="{Binding VoiceSettings.CustomPacenoteDatabasePath, Mode=TwoWay}" /><Button Grid.Column="2" Click="OnPickCustomPacenoteDatabaseClick"><materialIcons:MaterialIcon Kind="File" Width="17" Height="17" /></Button></Grid>
+        </Border>
+      </StackPanel>
 
-      <Border Grid.Row="2"
-              Margin="0,30,0,0"
-              BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
-              BorderThickness="0,1,0,0" />
+      <StackPanel IsVisible="{Binding IsVoicePackageDetailsOpen}" Spacing="10">
+        <ProgressBar IsVisible="{Binding IsVoicePackageDetailsLoading}" IsIndeterminate="True" Height="3" />
+        <dataGrid:DataGrid x:Name="VoicePackageDetailsGrid"
+                           ItemsSource="{Binding VoicePackageDetails}"
+                           AutoGenerateColumns="False"
+                           IsReadOnly="True"
+                           CanUserReorderColumns="False"
+                           CanUserResizeColumns="True"
+                           CanUserSortColumns="True"
+                           HeadersVisibility="All"
+                           ColumnHeaderHeight="36"
+                           GridLinesVisibility="Horizontal"
+                           RowHeight="38"
+                           Height="540">
+          <dataGrid:DataGrid.Styles>
+            <Style Selector="dataGrid|DataGridColumnHeader">
+              <Setter Property="Height" Value="36" />
+              <Setter Property="Padding" Value="0" />
+              <Setter Property="FontWeight" Value="SemiBold" />
+              <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            </Style>
+            <Style Selector="dataGrid|DataGridCell">
+              <Setter Property="Padding" Value="0" />
+            </Style>
+          </dataGrid:DataGrid.Styles>
+          <dataGrid:DataGrid.Columns>
+            <dataGrid:DataGridTextColumn Header="ID" Binding="{Binding Id}" SortMemberPath="Id" Width="56" MinWidth="48" />
+            <dataGrid:DataGridTextColumn Header="Token" Binding="{Binding Token}" SortMemberPath="Token" Width="160" MinWidth="120" />
+            <dataGrid:DataGridTextColumn Header="Description" Binding="{Binding Description}" SortMemberPath="Description" Width="*" MinWidth="220" />
+            <dataGrid:DataGridCheckBoxColumn Header="Available" Binding="{Binding IsAvailable}" SortMemberPath="IsAvailable" Width="110" MinWidth="110" />
+            <dataGrid:DataGridTextColumn Header="Type" Binding="{Binding Type}" SortMemberPath="Type" Width="100" MinWidth="80" />
+            <dataGrid:DataGridTextColumn Header="Files" Binding="{Binding FilesCount}" SortMemberPath="FilesCount" Width="88" MinWidth="88" />
+            <dataGrid:DataGridTemplateColumn Header="Preview" CanUserSort="False" Width="200" MinWidth="150">
+              <dataGrid:DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <ItemsControl ItemsSource="{Binding Files}" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="4" /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Button Width="25" Height="25"
+                                Command="{Binding $parent[UserControl].DataContext.PlayVoicePackageFileCommand}"
+                                CommandParameter="{Binding}" ToolTip.Tip="{Binding Path}">
+                          <TextBlock Text="{Binding Index}" />
+                        </Button>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </DataTemplate>
+              </dataGrid:DataGridTemplateColumn.CellTemplate>
+            </dataGrid:DataGridTemplateColumn>
+          </dataGrid:DataGrid.Columns>
+        </dataGrid:DataGrid>
+      </StackPanel>
     </Grid>
   </ScrollViewer>
 </UserControl>

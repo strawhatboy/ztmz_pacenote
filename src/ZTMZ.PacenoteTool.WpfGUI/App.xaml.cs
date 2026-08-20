@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -17,7 +17,7 @@ using Wpf.Ui.Extensions;
 
 // using Wpf.Ui.Contracts;
 using ZTMZ.PacenoteTool.Base;
-using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.UI.Windows;
 using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.Platform.Windows;
 using ZTMZ.PacenoteTool.WpfGUI.Services;

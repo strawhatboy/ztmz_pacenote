@@ -14,98 +14,85 @@ internal sealed partial class PlaySettingsViewModel : ObservableObject, IDisposa
         _initializing = false;
     }
 
-    // UseSequentialMixerToHandleAudioConflict and UseTempoInsteadOfRate are
-    // intentionally not exposed: they are always true (see Config defaults) and
-    // the audio engine relies on those defaults, so no UI is needed for them.
+    [ObservableProperty]
+    private bool _useDynamicPlaybackSpeed = PlaybackSettingsService.Instance.UseDynamicPlaybackSpeed;
 
     [ObservableProperty]
-    private bool _useDynamicPlaybackSpeed = Config.Instance.UseDynamicPlaybackSpeed;
+    private float _dynamicPlaybackMaxSpeed = PlaybackSettingsService.Instance.DynamicPlaybackMaxSpeed;
 
     [ObservableProperty]
-    private float _dynamicPlaybackMaxSpeed = Config.Instance.DynamicPlaybackMaxSpeed;
+    private bool _useDynamicVolume = PlaybackSettingsService.Instance.UseDynamicVolume;
 
     [ObservableProperty]
-    private bool _useDynamicVolume = Config.Instance.UseDynamicVolume;
+    private int _dynamicVolumePerturbationFrequency = PlaybackSettingsService.Instance.DynamicVolumePerturbationFrequency;
 
     [ObservableProperty]
-    private int _dynamicVolumePerturbationFrequency = Config.Instance.DynamicVolumePerturbationFrequency;
+    private float _dynamicVolumePerturbationAmplitude = PlaybackSettingsService.Instance.DynamicVolumePerturbationAmplitude;
 
     [ObservableProperty]
-    private float _dynamicVolumePerturbationAmplitude = Config.Instance.DynamicVolumePerturbationAmplitude;
+    private int _playbackDeviceDesiredLatency = PlaybackSettingsService.Instance.PlaybackDeviceDesiredLatency;
 
     [ObservableProperty]
-    private int _playbackDeviceDesiredLatency = Config.Instance.PlaybackDeviceDesiredLatency;
+    private bool _connectCloseDistanceCallToNextPacenote = PlaybackSettingsService.Instance.ConnectCloseDistanceCallToNextPacenote;
 
     [ObservableProperty]
-    private bool _connectCloseDistanceCallToNextPacenote = Config.Instance.ConnectCloseDistanceCallToNextPacenote;
+    private bool _connectNumericDistanceCallToPreviousPacenote = PlaybackSettingsService.Instance.ConnectNumericDistanceCallToPreviousPacenote;
 
     [ObservableProperty]
-    private bool _connectNumericDistanceCallToPreviousPacenote = Config.Instance.ConnectNumericDistanceCallToPreviousPacenote;
-
-    [ObservableProperty]
-    private string _examplePacenoteString = Config.Instance.ExamplePacenoteString;
+    private string _examplePacenoteString = PlaybackSettingsService.Instance.ExamplePacenoteString;
 
     partial void OnUseDynamicPlaybackSpeedChanged(bool value)
     {
         if (_initializing) return;
-        Config.Instance.UseDynamicPlaybackSpeed = value;
-        Config.Instance.SaveUserConfig();
+        PlaybackSettingsService.Instance.UseDynamicPlaybackSpeed = value;
     }
 
     partial void OnDynamicPlaybackMaxSpeedChanged(float value)
     {
         if (_initializing) return;
-        Config.Instance.DynamicPlaybackMaxSpeed = value;
-        Config.Instance.SaveUserConfig();
+        PlaybackSettingsService.Instance.DynamicPlaybackMaxSpeed = value;
     }
 
     partial void OnUseDynamicVolumeChanged(bool value)
     {
         if (_initializing) return;
-        Config.Instance.UseDynamicVolume = value;
-        Config.Instance.SaveUserConfig();
+        PlaybackSettingsService.Instance.UseDynamicVolume = value;
     }
 
     partial void OnDynamicVolumePerturbationFrequencyChanged(int value)
     {
         if (_initializing) return;
-        Config.Instance.DynamicVolumePerturbationFrequency = value;
-        Config.Instance.SaveUserConfig();
+        PlaybackSettingsService.Instance.DynamicVolumePerturbationFrequency = value;
     }
 
     partial void OnDynamicVolumePerturbationAmplitudeChanged(float value)
     {
         if (_initializing) return;
-        Config.Instance.DynamicVolumePerturbationAmplitude = value;
-        Config.Instance.SaveUserConfig();
+        PlaybackSettingsService.Instance.DynamicVolumePerturbationAmplitude = value;
     }
 
     partial void OnPlaybackDeviceDesiredLatencyChanged(int value)
     {
         if (_initializing) return;
-        Config.Instance.PlaybackDeviceDesiredLatency = value;
-        Config.Instance.SaveUserConfig();
+        PlaybackSettingsService.Instance.PlaybackDeviceDesiredLatency = value;
     }
 
     partial void OnConnectCloseDistanceCallToNextPacenoteChanged(bool value)
     {
         if (_initializing) return;
-        Config.Instance.ConnectCloseDistanceCallToNextPacenote = value;
-        Config.Instance.SaveUserConfig();
+        PlaybackSettingsService.Instance.ConnectCloseDistanceCallToNextPacenote = value;
     }
 
     partial void OnConnectNumericDistanceCallToPreviousPacenoteChanged(bool value)
     {
         if (_initializing) return;
-        Config.Instance.ConnectNumericDistanceCallToPreviousPacenote = value;
-        Config.Instance.SaveUserConfig();
+        PlaybackSettingsService.Instance.ConnectNumericDistanceCallToPreviousPacenote = value;
     }
 
     partial void OnExamplePacenoteStringChanged(string value)
     {
         if (_initializing) return;
-        Config.Instance.ExamplePacenoteString = value;
-        Config.Instance.SaveUserConfig();
+        PlaybackSettingsService.Instance.ExamplePacenoteString = value;
     }
 
     public void Dispose()

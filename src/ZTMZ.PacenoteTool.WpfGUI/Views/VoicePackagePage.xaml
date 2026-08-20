@@ -56,6 +56,9 @@
                      CellStyle="{StaticResource Body_Content_DataGrid_Centering}"
                      AutoGenerateColumns="False"
                      CanUserAddRows="False"
+                     CanUserReorderColumns="False"
+                     CanUserResizeColumns="True"
+                     CanUserSortColumns="True"
                      EnableRowVirtualization="True"
                      EnableColumnVirtualization="True"
                      VirtualizingPanel.IsVirtualizing="True"
@@ -64,24 +67,45 @@
             <DataGrid.Columns>
                 <DataGridTextColumn
                     Binding="{Binding id}"
-                    Header="ID"/>
+                    Header="{DynamicResource voicePackageDetails.id}"
+                    SortMemberPath="id"
+                    Width="56"
+                    MinWidth="48" />
                 <DataGridTextColumn
                     Binding="{Binding Token}"
-                    Header="标记"/>
+                    Header="{DynamicResource voicePackageDetails.token}"
+                    SortMemberPath="Token"
+                    Width="160"
+                    MinWidth="120" />
                 <DataGridTextColumn
                     Binding="{Binding TokenDescription}"
-                    Header="标记描述"/>
+                    Header="{DynamicResource voicePackageDetails.description}"
+                    SortMemberPath="TokenDescription"
+                    Width="*"
+                    MinWidth="220" />
                 <DataGridTextColumn
                     Binding="{Binding IsAvailable}"
-                    Header="是否可用"/>
+                    Header="{DynamicResource voicePackageDetails.available}"
+                    SortMemberPath="IsAvailable"
+                    Width="110"
+                    MinWidth="110" />
                 <DataGridTextColumn
                     Binding="{Binding Type}"
-                    Header="类型"/>
+                    Header="{DynamicResource voicePackageDetails.type}"
+                    SortMemberPath="Type"
+                    Width="100"
+                    MinWidth="80" />
                 <DataGridTextColumn
                     Binding="{Binding FilesCount}"
-                    Header="文件个数"/>
+                    Header="{DynamicResource voicePackageDetails.files}"
+                    SortMemberPath="FilesCount"
+                    Width="88"
+                    MinWidth="88" />
                 <DataGridTemplateColumn
-                    Header="试听">
+                    Header="{DynamicResource voicePackageDetails.listen}"
+                    CanUserSort="False"
+                    Width="200"
+                    MinWidth="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <ListBox ItemsSource="{Binding Files}" Padding="0" Margin="0">

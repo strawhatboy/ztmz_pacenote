@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using ZTMZ.PacenoteTool.Audio.PortAudio;
@@ -10,6 +12,9 @@ using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.WebDashboard;
+#if !WINDOWS
+using ZTMZ.PacenoteTool.Platform.Linux;
+#endif
 
 namespace ZTMZ.PacenoteTool.Avalonia.Services;
 
@@ -39,12 +44,40 @@ internal sealed record DesktopRuntimeSnapshot(
     bool IsReady,
     string? ErrorMessage);
 
+internal sealed record VoicePackageSnapshot(
+    string Id,
+    string Name,
+    string Description,
+    string Gender,
+    string Language,
+    string Homepage,
+    string Version,
+    string OriginalVersion,
+    string PackagePath,
+    string DownloadUrl,
+    bool NeedsUpdate,
+    bool NeedsDownload,
+    bool IsInstalled,
+    float IntegritySimple,
+    float IntegrityNormal,
+    float IntegrityComplex);
+
+internal sealed record VoicePackageTokenSnapshot(
+    int Id,
+    string Token,
+    string Description,
+    string Type,
+    IReadOnlyList<string> AudioFiles);
+
 internal sealed class DesktopRuntime : IAsyncDisposable
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     private ZTMZPacenoteTool? _tool;
     private WebDashboardRuntimeController? _dashboard;
     private SharedRuntimeControlsService? _controls;
+    private HttpClient? _voicePackageHttpClient;
+    private CoDriverPackageCatalogService? _voicePackageCatalog;
+    private CoDriverPackageUpdateService? _voicePackageUpdates;
     private GameActivitySessionCoordinator? _gameSessions;
     private ZtmzRuntimeState? _state;
     private IReadOnlyList<WebDashboardDefinition> _dashboards = [];
@@ -55,7 +88,159 @@ internal sealed class DesktopRuntime : IAsyncDisposable
 
     public event EventHandler? SnapshotChanged;
 
+    /// <summary>Gets the currently active game (may be null/not running).</summary>
+    public IGame? CurrentGame => _tool?.CurrentGame;
+
     public SharedRuntimeControlsService? Controls => _controls;
+
+    public void ReloadDashboards()
+    {
+        var resourceRoot = AvaloniaLocalization.ResourceRoot;
+        _dashboards = new WebDashboardCatalog(Logger).Load(
+            ResolveDashboardPackagesPath(resourceRoot),
+            supportsNativeOverlay: false);
+        _dashboard?.Reload();
+        RaiseSnapshotChanged();
+    }
+
+    public async Task<IReadOnlyList<VoicePackageSnapshot>> GetVoicePackagesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        if (_tool == null || _voicePackageUpdates == null)
+        {
+            return [];
+        }
+
+        var localPackages = _tool.CoDriverPackages.Select(package => package.Info).ToArray();
+        var updateStatuses = await _voicePackageUpdates.CheckForUpdatesAsync(
+            Config.Instance.UpdateDefinitionUrl_AudioPkg,
+            localPackages,
+            cancellationToken);
+        var snapshots = updateStatuses.Select(status => new VoicePackageSnapshot(
+            status.Definition.id,
+            status.Definition.name,
+            status.Definition.description,
+            status.Definition.gender,
+            status.Definition.language,
+            status.Definition.homepage,
+            status.Definition.version,
+            status.OriginalVersion,
+            status.ExistingPackagePath,
+            status.Definition.url,
+            status.NeedsUpdate,
+            status.NeedsDownload,
+            !status.NeedsDownload,
+            status.Definition.integrity_simple,
+            status.Definition.integrity_normal,
+            status.Definition.integrity_complex)).ToList();
+
+        foreach (var local in localPackages.Where(local => snapshots.All(item =>
+                     !string.Equals(item.Id, local.id, StringComparison.Ordinal))))
+        {
+            snapshots.Add(new VoicePackageSnapshot(
+                local.id ?? string.Empty,
+                local.name ?? string.Empty,
+                local.description ?? string.Empty,
+                local.gender ?? string.Empty,
+                local.language ?? string.Empty,
+                local.homepage ?? string.Empty,
+                local.version ?? string.Empty,
+                local.version ?? string.Empty,
+                local.Path ?? string.Empty,
+                string.Empty,
+                false,
+                false,
+                true,
+                local.integrity_simple,
+                local.integrity_normal,
+                local.integrity_complex));
+        }
+
+        return snapshots;
+    }
+
+    public async Task InstallVoicePackageAsync(
+        VoicePackageSnapshot package,
+        IProgress<CoDriverPackageUpdateProgress>? progress = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (_tool == null || _voicePackageUpdates == null)
+            throw new InvalidOperationException("The runtime is not ready.");
+
+        await _voicePackageUpdates.DownloadAndInstallAsync(
+            package.DownloadUrl,
+            package.PackagePath,
+            progress,
+            cancellationToken);
+        await _tool.RefreshCodriversAsync();
+        RaiseSnapshotChanged();
+    }
+
+    public async Task ImportVoicePackageAsync(string archivePath, string? existingPackagePath = null)
+    {
+        if (_tool == null || _voicePackageCatalog == null)
+            throw new InvalidOperationException("The runtime is not ready.");
+
+        await _voicePackageCatalog.ImportAsync(archivePath, existingPackagePath);
+        await _tool.RefreshCodriversAsync();
+        RaiseSnapshotChanged();
+    }
+
+    public Task<CoDriverPackageImportPlan> InspectVoicePackageImportAsync(string archivePath) =>
+        Task.FromResult(_voicePackageCatalog?.InspectImport(archivePath)
+            ?? throw new InvalidOperationException("The runtime is not ready."));
+
+    public Task ExportVoicePackageAsync(string id, string archivePath)
+    {
+        if (_tool == null || _voicePackageCatalog == null)
+            throw new InvalidOperationException("The runtime is not ready.");
+        var package = _tool.CoDriverPackages.FirstOrDefault(item =>
+            string.Equals(item.Info.id, id, StringComparison.Ordinal))
+            ?? throw new InvalidOperationException("The co-driver package is no longer installed.");
+        return _voicePackageCatalog.ExportAsync(package, archivePath);
+    }
+
+    public Task<IReadOnlyList<VoicePackageTokenSnapshot>> GetVoicePackageDetailsAsync(string id)
+    {
+        if (_tool == null)
+            throw new InvalidOperationException("The runtime is not ready.");
+
+        var package = _tool.CoDriverPackages.FirstOrDefault(item =>
+            string.Equals(item.Info.id, id, StringComparison.Ordinal))
+            ?? throw new InvalidOperationException("The co-driver package is no longer installed.");
+        var resource = ZTMZ.PacenoteTool.Base.Script.ScriptResource.LoadedInstance;
+        if (resource == null)
+            return Task.FromResult<IReadOnlyList<VoicePackageTokenSnapshot>>([]);
+
+        var locale = I18NLoader.Instance.CurrentCultureName;
+        // Voice packages can contain several hundred token entries. Build the snapshots away
+        // from the UI thread; the host adds them to its bound collection in small batches.
+        return Task.Run<IReadOnlyList<VoicePackageTokenSnapshot>>(() => resource.Pacenotes.Select(pacenote =>
+        {
+            var token = resource.FilenameDict.TryGetValue(pacenote.id, out var names)
+                ? names.FirstOrDefault() ?? pacenote.id.ToString()
+                : pacenote.id.ToString();
+            var files = package.id2tokensPath.TryGetValue(pacenote.id, out var paths)
+                ? paths.OrderBy(path => path, StringComparer.OrdinalIgnoreCase).ToArray()
+                : [];
+            var type = resource.TypeDict.TryGetValue(pacenote.type, out var typeDefinition)
+                ? typeDefinition.name
+                : string.Empty;
+            return new VoicePackageTokenSnapshot(
+                pacenote.id,
+                token,
+                resource.ResolvePacenoteDisplayName(token, locale),
+                type,
+                files);
+        }).ToArray());
+    }
+
+    public void PlayVoicePackageFile(string path)
+    {
+        if (_tool == null)
+            throw new InvalidOperationException("The runtime is not ready.");
+        _tool.PlaySound(path);
+    }
 
     public DesktopRuntimeSnapshot GetSnapshot()
     {
@@ -95,6 +280,12 @@ internal sealed class DesktopRuntime : IAsyncDisposable
         {
             AudioDecodingServices.Decoder = new SoundFileAudioFileDecoder();
             var paths = AppLevelVariables.Instance;
+            _voicePackageHttpClient = new HttpClient();
+            _voicePackageCatalog = new CoDriverPackageCatalogService(paths);
+            _voicePackageUpdates = new CoDriverPackageUpdateService(
+                _voicePackageHttpClient,
+                new TemporaryFileDownloadService(_voicePackageHttpClient),
+                _voicePackageCatalog);
             var resourceRoot = AvaloniaLocalization.ResourceRoot;
             var gamesDirectory = Path.Combine(AppContext.BaseDirectory, Constants.PATH_GAMES);
             _tool = new ZTMZPacenoteTool(
@@ -199,6 +390,7 @@ internal sealed class DesktopRuntime : IAsyncDisposable
 
         _dashboard?.Dispose();
         _tool?.Dispose();
+        _voicePackageHttpClient?.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -210,10 +402,14 @@ internal sealed class DesktopRuntime : IAsyncDisposable
 
     private void RaiseSnapshotChanged() => SnapshotChanged?.Invoke(this, EventArgs.Empty);
 
-    private static IGameProcessSnapshotProvider CreateProcessSnapshotProvider() =>
-        OperatingSystem.IsWindows()
-            ? new SystemGameProcessSnapshotProvider()
-            : new LinuxProcGameProcessSnapshotProvider();
+    private static IGameProcessSnapshotProvider CreateProcessSnapshotProvider()
+    {
+#if WINDOWS
+        return new SystemGameProcessSnapshotProvider();
+#else
+        return new LinuxProcGameProcessSnapshotProvider();
+#endif
+    }
 
     private static string GetImageFileName(string imageUri)
     {

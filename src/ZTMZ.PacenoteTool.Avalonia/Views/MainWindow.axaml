@@ -1,16 +1,20 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:fa="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
         xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         x:Class="ZTMZ.PacenoteTool.Avalonia.Views.MainWindow"
         Title="{Binding WindowTitle}"
-        Icon="{Binding AppLogo}"
-        Width="1180"
-        Height="760"
-        MinWidth="1180"
-        MinHeight="760"
+        Width="1120"
+        Height="700"
+        MinWidth="1024"
+        MinHeight="640"
         FontFamily="{DynamicResource AppFontFamily}"
         FontSize="{DynamicResource AppFontSize}"
         Background="{DynamicResource ApplicationPageBackgroundThemeBrush}"
+        UseLayoutRounding="True"
+        TextOptions.TextRenderingMode="SubpixelAntialias"
+        TextOptions.TextHintingMode="Strong"
+        TextOptions.BaselinePixelAlignment="Aligned"
         WindowStartupLocation="CenterScreen">
   <Window.Styles>
     <Style Selector="ListBox.left-fluent-nav">
@@ -34,17 +38,35 @@
       <Setter Property="Background" Value="{DynamicResource SubtleFillColorTertiaryBrush}" />
     </Style>
     <Style Selector="ListBoxItem.left-fluent-nav-item TextBlock">
-      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
+      <Setter Property="FontSize" Value="{DynamicResource AppSmallFontSize}" />
+      <Setter Property="TextAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.left-fluent-nav-button">
+      <Setter Property="Width" Value="82" />
+      <Setter Property="Height" Value="64" />
+      <Setter Property="Margin" Value="5,2" />
+      <Setter Property="Padding" Value="4" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.left-fluent-nav-button:pointerover">
+      <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+    </Style>
+    <Style Selector="Button.left-fluent-nav-button TextBlock">
+      <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
+      <Setter Property="FontSize" Value="{DynamicResource AppSmallFontSize}" />
       <Setter Property="TextAlignment" Value="Center" />
     </Style>
   </Window.Styles>
 
-  <Grid RowDefinitions="48,*">
+  <Grid x:Name="ShellGrid" RowDefinitions="48,*">
     <Grid x:Name="CustomTitleBar"
           Grid.Row="0"
           Height="48"
           ColumnDefinitions="Auto,*,Auto"
           Background="Transparent"
+          PointerPressed="OnTitleBarPointerPressed"
           WindowDecorationProperties.ElementRole="TitleBar">
       <Image Width="22"
              Height="22"
@@ -59,45 +81,51 @@
                  FontSize="12"
                  IsHitTestVisible="False"
                  VerticalAlignment="Center" />
-      <StackPanel Grid.Column="2"
+      <StackPanel x:Name="TitleBarActions"
+                  Grid.Column="2"
                   Margin="0,0,142,0"
                   Orientation="Horizontal"
                   Spacing="2"
-                  VerticalAlignment="Center">
+                  VerticalAlignment="Top"
+                  WindowDecorationProperties.ElementRole="User">
         <Button Command="{Binding ShowHelpCommand}"
-                Background="Transparent"
+                AutomationProperties.Name="{DynamicResource ui.tb_qanda}"
                 ToolTip.Tip="{DynamicResource ui.tb_qanda}"
-                ToolTip.ShowDelay="100">
+                ToolTip.ShowDelay="100"
+                VerticalAlignment="Top">
           <StackPanel Orientation="Horizontal" Spacing="6">
             <materialIcons:MaterialIcon Kind="HelpCircleOutline" Width="16" Height="16" />
             <TextBlock Text="{DynamicResource ui.tb_qanda}" />
           </StackPanel>
         </Button>
         <Button Command="{Binding RaiseIssueCommand}"
-                Background="Transparent"
+                AutomationProperties.Name="{DynamicResource ui.raise_issue}"
                 ToolTip.Tip="{DynamicResource ui.raise_issue}"
-                ToolTip.ShowDelay="100">
+                ToolTip.ShowDelay="100"
+                VerticalAlignment="Top">
           <StackPanel Orientation="Horizontal" Spacing="6">
             <materialIcons:MaterialIcon Kind="BugOutline" Width="16" Height="16" />
             <TextBlock Text="{DynamicResource ui.raise_issue}" />
           </StackPanel>
         </Button>
         <Button Command="{Binding BuyMeACoffeeCommand}"
-                Background="Transparent"
+                AutomationProperties.Name="{DynamicResource ui.donate}"
                 Foreground="#D83B6A"
                 ToolTip.Tip="{DynamicResource ui.donate}"
-                ToolTip.ShowDelay="100">
+                ToolTip.ShowDelay="100"
+                VerticalAlignment="Top">
           <materialIcons:MaterialIcon Kind="Coffee" Width="16" Height="16" />
         </Button>
       </StackPanel>
     </Grid>
 
     <Grid Grid.Row="1" ColumnDefinitions="92,*">
-      <Border Grid.Column="0"
-              BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
-              BorderThickness="0,0,1,0">
-        <ListBox x:Name="NavigationList"
-                 Classes="left-fluent-nav">
+      <Grid Grid.Column="0" RowDefinitions="*,Auto">
+        <Border Grid.Row="0"
+                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                BorderThickness="0,0,1,0">
+          <ListBox x:Name="NavigationList"
+                   Classes="left-fluent-nav">
           <ListBoxItem x:Name="HomeNavigationItem"
                        Classes="left-fluent-nav-item"
                        Tag="home"
@@ -144,11 +172,63 @@
               <TextBlock Text="{DynamicResource tabs.dashboard}" />
             </StackPanel>
           </ListBoxItem>
-        </ListBox>
-      </Border>
+          <ListBoxItem Classes="left-fluent-nav-item"
+                       Tag="scriptEditor"
+                       ToolTip.Tip="{DynamicResource tabs.scriptEditor}"
+                       ToolTip.ShowDelay="100">
+            <StackPanel Spacing="3" HorizontalAlignment="Center">
+              <materialIcons:MaterialIcon Kind="FileDocumentEdit" Width="23" Height="23" />
+              <TextBlock Text="{DynamicResource tabs.scriptEditor}"
+                         MaxWidth="76"
+                         TextAlignment="Center"
+                         TextWrapping="Wrap" />
+            </StackPanel>
+          </ListBoxItem>
+          </ListBox>
+        </Border>
+        <Border Grid.Row="1"
+                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                BorderThickness="0,1,1,0">
+          <Button x:Name="AboutNavigationButton"
+                  Classes="left-fluent-nav-button"
+                  Click="OnAboutNavigationClick"
+                  ToolTip.Tip="{DynamicResource tabs.about}"
+                  ToolTip.ShowDelay="100">
+            <StackPanel Spacing="3" HorizontalAlignment="Center">
+              <materialIcons:MaterialIcon Kind="InformationOutline" Width="23" Height="23" />
+              <TextBlock Text="{DynamicResource tabs.about}" />
+            </StackPanel>
+          </Button>
+        </Border>
+      </Grid>
 
-      <ContentControl x:Name="PageHost" Grid.Column="1" />
+      <Grid Grid.Column="1" RowDefinitions="Auto,*">
+        <fa:FABreadcrumbBar x:Name="NavigationBreadcrumb"
+                            Margin="42,20,42,0"
+                            ItemsSource="{Binding NavigationBreadcrumbItems}"
+                            IsVisible="{Binding HasNavigationBreadcrumb}"
+                            FontFamily="{DynamicResource AppFontFamily}"
+                            FontSize="{DynamicResource AppFontSize}" />
+        <Grid x:Name="PageHost" Grid.Row="1" />
+      </Grid>
     </Grid>
+    <Border Grid.RowSpan="2"
+            Background="#55000000"
+            IsVisible="{Binding IsLanguageSwitchInProgress}">
+      <Border Width="260"
+              Padding="20,18"
+              CornerRadius="6"
+              Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center">
+        <StackPanel Spacing="12">
+          <TextBlock Text="{DynamicResource languageSwitch.applying}"
+                     HorizontalAlignment="Center"
+                     TextAlignment="Center" />
+          <ProgressBar Height="5" IsIndeterminate="True" />
+        </StackPanel>
+      </Border>
+    </Border>
   </Grid>
 </Window>
 

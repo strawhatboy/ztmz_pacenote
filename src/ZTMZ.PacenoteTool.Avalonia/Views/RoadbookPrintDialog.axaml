@@ -1,0 +1,83 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:Class="ZTMZ.PacenoteTool.Avalonia.Views.RoadbookPrintDialog">
+  <Grid MinWidth="680" MinHeight="420" ColumnDefinitions="*,344" ColumnSpacing="0">
+    <Grid Margin="0,0,16,0">
+      <Border BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+              BorderThickness="1"
+              Background="White">
+        <NativeWebView x:Name="PreviewWebView" />
+      </Border>
+      <Border x:Name="PreviewLoading"
+              Background="#CCFFFFFF">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+          <ProgressBar IsIndeterminate="True" Width="160" />
+          <TextBlock x:Name="PreviewStatusText"
+                     Foreground="#FF3A3A3A"
+                     TextAlignment="Center"
+                     TextWrapping="Wrap" />
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <Border Grid.Column="1"
+            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+            BorderThickness="1,0,0,0"
+            Padding="20,0,0,0">
+      <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="8">
+          <TextBlock x:Name="LayoutHeading" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,2" />
+
+          <TextBlock x:Name="PaperLabel" />
+          <ComboBox x:Name="PaperBox" SelectionChanged="PreviewSetting_Changed" />
+
+          <TextBlock x:Name="OrientationLabel" Margin="0,6,0,0" />
+          <ComboBox x:Name="OrientationBox" SelectionChanged="PreviewSetting_Changed" />
+
+          <TextBlock x:Name="MarginsLabel" Margin="0,6,0,0" />
+          <Grid ColumnDefinitions="*,12,*">
+            <StackPanel Spacing="4">
+              <TextBlock x:Name="HorizontalMarginLabel"
+                         Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+              <NumericUpDown x:Name="HorizontalMarginBox"
+                             Height="32"
+                             Minimum="0"
+                             Maximum="50"
+                             Increment="1"
+                             Value="15"
+                             FormatString="0"
+                             ValueChanged="PreviewNumberSetting_Changed" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" Spacing="4">
+              <TextBlock x:Name="VerticalMarginLabel"
+                         Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+              <NumericUpDown x:Name="VerticalMarginBox"
+                             Height="32"
+                             Minimum="0"
+                             Maximum="50"
+                             Increment="1"
+                             Value="10"
+                             FormatString="0"
+                             ValueChanged="PreviewNumberSetting_Changed" />
+            </StackPanel>
+          </Grid>
+
+          <TextBlock x:Name="PageNumbersLabel" Margin="0,6,0,0" />
+          <Grid ColumnDefinitions="Auto,12,*,12,*">
+            <ToggleSwitch x:Name="PageNumbersToggle"
+                          VerticalAlignment="Center"
+                          IsChecked="True"
+                          IsCheckedChanged="PageNumbers_Changed" />
+            <ComboBox x:Name="PageNumberStyleBox"
+                      Grid.Column="2"
+                      SelectionChanged="PreviewSetting_Changed" />
+            <ComboBox x:Name="PageNumberPositionBox"
+                      Grid.Column="4"
+                      SelectionChanged="PreviewSetting_Changed" />
+          </Grid>
+        </StackPanel>
+      </ScrollViewer>
+    </Border>
+  </Grid>
+</UserControl>

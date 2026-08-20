@@ -1,4 +1,4 @@
-# ztmz_pacenote 🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉
+﻿# ztmz_pacenote 🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉
 
 - [更新计划](#plan)。[待完成任务](https://gitee.com/ztmz/ztmz_pacenote/milestones)。欢迎提PR和Issue。
 - [github 镜像](https://github.com/strawhatboy/ztmz_pacenote)
@@ -69,8 +69,14 @@ ZTMZ车队路书工具，可以播放Dirt Rally 1.0/2.0，EA Sports™ WRC，Ric
   主程序入口，整个WPF界面的绘制逻辑
 * __ZTMZ.PacenoteTool.Base__
   基础模块：配置文件的加载与保存，语音包定义，路书定义，日志管理，语音特效等
-* **ZTMZ.PacenoteTool.Base.UI**
-  基础UI模块：悬浮窗，通用UI模块，主题颜色样式等
+* **ZTMZ.PacenoteTool.UI.Wpf**
+  Windows/WPF 专用 UI 模块：原生悬浮窗、WPF 通用控件和主题资源等；跨平台 Host 不引用此模块
+* **ZTMZ.PacenoteTool.Avalonia**
+  Windows 与 Linux 共用的 Avalonia 桌面 Host，通过条件项目引用注入平台实现
+* **ZTMZ.PacenoteTool.Platform.Windows**
+  Windows 平台实现：注册表、系统托盘和 Windows 进程集成等
+* **ZTMZ.PacenoteTool.Platform.Linux**
+  Linux 平台实现：`/proc` 进程发现等；不包含另一套业务 Runtime 或 UI
 * **ZTMZ.PacenoteTool.Core**
   核心模块：语音包加载，路书播放逻辑等
 * **ZTMZ.PacenoteTool.Console**

@@ -1,0 +1,135 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:Class="ZTMZ.PacenoteTool.Avalonia.Views.ScriptEditorView">
+  <Grid Margin="42,20,42,6" RowDefinitions="Auto,Auto,*,Auto">
+    <Grid ColumnDefinitions="*,360" ColumnSpacing="16">
+      <TextBlock Text="{DynamicResource tabs.scriptEditor}"
+                 FontSize="{DynamicResource AppTitleFontSize}"
+                 FontWeight="SemiBold"
+                 VerticalAlignment="Center" />
+      <TextBlock x:Name="StatusText"
+                 Grid.Column="1"
+                 Text="{DynamicResource scriptEditor.newDocument}"
+                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                 HorizontalAlignment="Right"
+                 VerticalAlignment="Center"
+                 TextAlignment="Right"
+                 TextTrimming="CharacterEllipsis" />
+    </Grid>
+
+    <Grid Grid.Row="1"
+          Margin="0,14,0,8"
+          ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,24,Auto,160,Auto,*"
+          ColumnSpacing="6">
+      <Button Grid.Column="0"
+              Click="Open_Click"
+              ToolTip.Tip="{DynamicResource scriptEditor.open}"
+              ToolTip.ShowDelay="100">
+        <materialIcons:MaterialIcon Kind="FolderOpen" Width="18" Height="18" />
+      </Button>
+      <Button Grid.Column="1"
+              Click="Save_Click"
+              ToolTip.Tip="{DynamicResource scriptEditor.save}"
+              ToolTip.ShowDelay="100">
+        <materialIcons:MaterialIcon Kind="ContentSave" Width="18" Height="18" />
+      </Button>
+      <Button Grid.Column="2"
+              Click="SaveAs_Click"
+              ToolTip.Tip="{DynamicResource scriptEditor.saveAs}"
+              ToolTip.ShowDelay="100">
+        <materialIcons:MaterialIcon Kind="ContentSaveEdit" Width="18" Height="18" />
+      </Button>
+      <Button Grid.Column="3"
+              Click="Import_Click"
+              ToolTip.Tip="{DynamicResource scriptEditor.importCrewChief}"
+              ToolTip.ShowDelay="100">
+        <materialIcons:MaterialIcon Kind="Import" Width="18" Height="18" />
+      </Button>
+      <Button Grid.Column="4"
+              Click="Validate_Click"
+              ToolTip.Tip="{DynamicResource scriptEditor.validate}"
+              ToolTip.ShowDelay="100">
+        <materialIcons:MaterialIcon Kind="Refresh" Width="18" Height="18" />
+      </Button>
+      <Button Grid.Column="5"
+              Click="PrintRoadbook_Click"
+              ToolTip.Tip="{DynamicResource scriptEditor.printRoadbook}"
+              ToolTip.ShowDelay="100">
+        <materialIcons:MaterialIcon Kind="Printer" Width="18" Height="18" />
+      </Button>
+      <Grid Grid.Column="6"
+            ColumnDefinitions="Auto,Auto"
+            ColumnSpacing="8"
+            VerticalAlignment="Center">
+        <TextBlock Text="{DynamicResource scriptEditor.wordWrap}"
+                   TextWrapping="NoWrap"
+                   VerticalAlignment="Center" />
+        <ToggleSwitch x:Name="WordWrapToggle"
+                      Grid.Column="1"
+                      IsChecked="True"
+                      OnContent=""
+                      OffContent=""
+                      IsCheckedChanged="WordWrap_Changed" />
+      </Grid>
+      <TextBlock Grid.Column="8"
+                 Text="{DynamicResource scriptEditor.adjustDistance}"
+                 VerticalAlignment="Center" />
+      <NumericUpDown x:Name="DistanceAdjustment"
+                     Grid.Column="9"
+                     Height="32"
+                     VerticalAlignment="Center"
+                     Value="0"
+                     Increment="1"
+                     FormatString="0.###" />
+      <Button Grid.Column="10"
+              Click="AdjustDistance_Click"
+              ToolTip.Tip="{DynamicResource scriptEditor.adjustDistance}"
+              ToolTip.ShowDelay="100">
+        <materialIcons:MaterialIcon Kind="Sync" Width="18" Height="18" />
+      </Button>
+    </Grid>
+
+    <Border Grid.Row="2"
+            Background="{DynamicResource ControlFillColorDefaultBrush}"
+            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            CornerRadius="4"
+            ClipToBounds="True">
+      <NativeWebView x:Name="EditorWebView"
+                     Background="{DynamicResource ApplicationPageBackgroundThemeBrush}" />
+    </Border>
+
+    <Grid Grid.Row="3"
+          Height="32"
+          Margin="0,2,0,0"
+          ColumnDefinitions="Auto,180,48"
+          ColumnSpacing="8">
+      <TextBlock Text="{DynamicResource scriptEditor.roadbookScale}"
+                 VerticalAlignment="Center" />
+      <Slider x:Name="RoadbookScale"
+              Grid.Column="1"
+              Minimum="50"
+              Maximum="200"
+              Value="100"
+              Height="32"
+              Padding="0"
+              VerticalAlignment="Center"
+              TickFrequency="10"
+              IsSnapToTickEnabled="True"
+              ValueChanged="RoadbookScale_ValueChanged"
+              ToolTip.Tip="{DynamicResource scriptEditor.roadbookScaleDescription}">
+        <!-- No ticks are shown, but the Fluent template reserves two tick-bar rows. -->
+        <Slider.Resources>
+          <GridLength x:Key="SliderPreContentMargin">*</GridLength>
+          <GridLength x:Key="SliderPostContentMargin">*</GridLength>
+        </Slider.Resources>
+      </Slider>
+      <TextBlock x:Name="RoadbookScaleValue"
+                 Grid.Column="2"
+                 Text="100%"
+                 HorizontalAlignment="Right"
+                 VerticalAlignment="Center" />
+    </Grid>
+  </Grid>
+</UserControl>

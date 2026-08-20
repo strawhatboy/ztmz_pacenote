@@ -50,13 +50,17 @@ dotnet publish \
     --configuration "$configuration" \
     --runtime "$runtime_identifier" \
     --self-contained true \
-    --output "$publish_dir"
+    --output "$publish_dir" \
+    --disable-build-servers \
+    -m:1
 
 dotnet build \
     "$repo_root/src/ZTMZ.PacenoteTool.Codemasters/ZTMZ.PacenoteTool.Codemasters.csproj" \
     --framework net10.0 \
     --configuration "$configuration" \
-    --runtime "$runtime_identifier"
+    --runtime "$runtime_identifier" \
+    --disable-build-servers \
+    -m:1
 
 codemasters_dll="$repo_root/src/ZTMZ.PacenoteTool.Codemasters/bin/$configuration/net10.0/$runtime_identifier/ZTMZ.PacenoteTool.Codemasters.dll"
 install -Dm0644 -- "$codemasters_dll" \
@@ -126,6 +130,7 @@ if [[ -z "$appimagetool" || ! -x "$appimagetool" ]]; then
 fi
 
 output_path="$output_dir/ZTMZClub_PacenoteTool_${version}-${appimage_arch}.AppImage"
+rm -f -- "$output_path"
 ARCH="$appimage_arch" VERSION="$version" "$appimagetool" "$appdir" "$output_path"
 
 echo "AppImage ready: $output_path"

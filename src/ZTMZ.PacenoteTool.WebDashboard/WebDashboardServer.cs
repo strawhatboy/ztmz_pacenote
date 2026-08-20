@@ -563,6 +563,8 @@ public class WebDashboardServer : IDisposable
 
                 IReadOnlyDictionary<string, string> pacenoteIconTokenMap =
                     new Dictionary<string, string>();
+                IReadOnlyDictionary<string, string> pacenoteDisplayNameMap =
+                    new Dictionary<string, string>();
                 if (dashboard.UsesPacenoteIcons)
                 {
                     var iconCatalog = PacenoteIconCatalog.Load();
@@ -573,6 +575,7 @@ public class WebDashboardServer : IDisposable
                     }
 
                     pacenoteIconTokenMap = iconCatalog.TokenMap;
+                    pacenoteDisplayNameMap = CreatePacenoteDisplayNameMap(iconCatalog);
                 }
                 
                 var package = new
@@ -587,6 +590,7 @@ public class WebDashboardServer : IDisposable
                     commonScripts = commonScripts,
                     imageResources = imageResources,
                     pacenoteIconTokenMap = pacenoteIconTokenMap,
+                    pacenoteDisplayNameMap = pacenoteDisplayNameMap,
                     settings = dashboard.GetSettings()
                 };
                 
@@ -1093,6 +1097,18 @@ public class WebDashboardServer : IDisposable
 
         var rounded = Math.Round((double)value, MidpointRounding.AwayFromZero);
         return (int)Math.Clamp(rounded, int.MinValue, int.MaxValue);
+    }
+
+    private static IReadOnlyDictionary<string, string> CreatePacenoteDisplayNameMap(
+        PacenoteIconCatalog iconCatalog)
+    {
+        var resource = ZTMZ.PacenoteTool.Base.Script.ScriptResource.LoadedInstance;
+        var locale = I18NLoader.Instance.CurrentCultureName;
+        return iconCatalog.GetCanonicalIcons().ToDictionary(
+            icon => icon.CanonicalToken,
+            icon => resource?.ResolvePacenoteDisplayName(icon.CanonicalToken, locale)
+                ?? icon.CanonicalToken.Replace('_', ' '),
+            StringComparer.OrdinalIgnoreCase);
     }
 
     private static object CreateBrowserLuaDashboardPayload(WebDashboardBrowserLuaDashboard dashboard)

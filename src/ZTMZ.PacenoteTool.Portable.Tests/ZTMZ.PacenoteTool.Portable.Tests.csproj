@@ -14,6 +14,8 @@
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Codemasters\ZTMZ.PacenoteTool.Codemasters.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.BeamNG\ZTMZ.PacenoteTool.BeamNG.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Audio.PortAudio\ZTMZ.PacenoteTool.Audio.PortAudio.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.Platform.Linux\ZTMZ.PacenoteTool.Platform.Linux.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.ScriptEditor.Core\ZTMZ.PacenoteTool.ScriptEditor.Core.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.WebDashboard\ZTMZ.PacenoteTool.WebDashboard.csproj" />
   </ItemGroup>
 

@@ -75,42 +75,117 @@
       <ItemsControl Grid.Row="2"
                     Margin="0,18,0,0"
                     ItemsSource="{Binding Dashboards}">
+        <ItemsControl.Styles>
+          <Style Selector="ContentPresenter">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+          </Style>
+        </ItemsControl.Styles>
         <ItemsControl.ItemTemplate>
           <DataTemplate>
             <Border Margin="0,0,0,8"
+                    HorizontalAlignment="Stretch"
                     Padding="10"
                     Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"
                     CornerRadius="4">
-              <Grid ColumnDefinitions="160,*,Auto" ColumnSpacing="14">
-                <Border Height="82"
+              <Grid RowDefinitions="Auto,Auto">
+                <ToggleButton x:Name="SettingsExpander"
+                              HorizontalAlignment="Stretch"
+                              HorizontalContentAlignment="Stretch"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              Padding="0">
+                <Grid ColumnDefinitions="160,*,Auto" ColumnSpacing="14">
+                  <Border Height="82"
                         Background="#111111"
                         CornerRadius="3"
                         ClipToBounds="True">
-                  <Image Source="{Binding PreviewImage}"
-                         Stretch="UniformToFill"
-                         RenderOptions.BitmapInterpolationMode="HighQuality" />
-                </Border>
-                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3">
-                  <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding Version}"
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                    <TextBlock Text="{Binding Author}"
+                    <Image Source="{Binding PreviewImage}"
+                           Stretch="UniformToFill"
+                           RenderOptions.BitmapInterpolationMode="HighQuality" />
+                  </Border>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                      <TextBlock Text="{Binding Version}"
+                                 Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                      <TextBlock Text="{Binding Author}"
+                                 Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding Description}"
+                               TextWrapping="Wrap"
+                               MaxLines="2"
                                Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
                   </StackPanel>
-                  <TextBlock Text="{Binding Description}"
-                             TextWrapping="Wrap"
-                             MaxLines="2"
-                             Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                </StackPanel>
-                <Button Grid.Column="2"
-                        Command="{Binding $parent[UserControl].DataContext.OpenDashboardCommand}"
-                        ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardOpen}"
-                        ToolTip.ShowDelay="100">
-                  <materialIcons:MaterialIcon Kind="OpenInNew" Width="16" Height="16" />
-                </Button>
+                  <Grid Grid.Column="2" ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="0"
+                                VerticalAlignment="Center"
+                                ToolTip.Tip="{DynamicResource dashboards.settings.tooltip.outputTarget}">
+                      <ToggleButton IsChecked="{Binding IsOutputOff, Mode=TwoWay}"
+                                    ToolTip.Tip="{DynamicResource dashboards.settings.tooltip.outputTargetOff}">
+                        <materialIcons:MaterialIcon Kind="EyeOffOutline" Width="16" Height="16" />
+                      </ToggleButton>
+                      <ToggleButton IsChecked="{Binding IsOutputOverlay, Mode=TwoWay}"
+                                    ToolTip.Tip="{DynamicResource dashboards.settings.tooltip.outputTargetOverlay}">
+                        <materialIcons:MaterialIcon Kind="DesktopClassic" Width="16" Height="16" />
+                      </ToggleButton>
+                      <ToggleButton IsChecked="{Binding IsOutputWeb, Mode=TwoWay}"
+                                    ToolTip.Tip="{DynamicResource dashboards.settings.tooltip.outputTargetWeb}">
+                        <materialIcons:MaterialIcon Kind="Web" Width="16" Height="16" />
+                      </ToggleButton>
+                      <ToggleButton IsChecked="{Binding IsOutputBoth, Mode=TwoWay}"
+                                    ToolTip.Tip="{DynamicResource dashboards.settings.tooltip.outputTargetBoth}">
+                        <materialIcons:MaterialIcon Kind="ViewDashboardOutline" Width="16" Height="16" />
+                      </ToggleButton>
+                    </StackPanel>
+                    <materialIcons:MaterialIcon Grid.Column="1"
+                                                Kind="ChevronDown"
+                                                Width="18" Height="18"
+                                                VerticalAlignment="Center" />
+                  </Grid>
+                </Grid>
+                </ToggleButton>
+                <ItemsControl Grid.Row="1"
+                              Margin="0,14,0,2"
+                              IsVisible="{Binding IsChecked, ElementName=SettingsExpander}"
+                              ItemsSource="{Binding Settings}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Grid Margin="0,0,0,10" ColumnDefinitions="*,260" ColumnSpacing="14">
+                      <StackPanel Spacing="2">
+                        <TextBlock Text="{Binding Name}" />
+                        <TextBlock Text="{Binding Tooltip}"
+                                   FontSize="{DynamicResource AppSmallFontSize}"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                      </StackPanel>
+                      <ToggleSwitch Grid.Column="1" IsVisible="{Binding IsBoolean}"
+                                    HorizontalAlignment="Left"
+                                    IsChecked="{Binding BooleanValue, Mode=TwoWay}"
+                                    OnContent="" OffContent="" />
+                      <ComboBox Grid.Column="1" IsVisible="{Binding IsHorizontalPosition}"
+                                ItemsSource="{Binding HorizontalPositions}"
+                                SelectedIndex="{Binding PositionIndex, Mode=TwoWay}" />
+                      <ComboBox Grid.Column="1" IsVisible="{Binding IsVerticalPosition}"
+                                ItemsSource="{Binding VerticalPositions}"
+                                SelectedIndex="{Binding PositionIndex, Mode=TwoWay}" />
+                      <TextBox Grid.Column="1" IsVisible="{Binding IsText}"
+                               Text="{Binding TextValue, Mode=TwoWay}" />
+                      <NumericUpDown Grid.Column="1" IsVisible="{Binding IsPlainNumeric}"
+                                     Value="{Binding NumericValue, Mode=TwoWay}" />
+                      <Grid Grid.Column="1" IsVisible="{Binding IsRangedNumeric}"
+                            ColumnDefinitions="50,*" ColumnSpacing="8">
+                        <TextBlock Text="{Binding NumericValue, StringFormat={}{0:0.##}}"
+                                   VerticalAlignment="Center" />
+                        <Slider Grid.Column="1" Minimum="{Binding ValueRange[0]}"
+                                Maximum="{Binding ValueRange[1]}"
+                                Value="{Binding NumericValue, Mode=TwoWay}" />
+                      </Grid>
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                </ItemsControl>
               </Grid>
             </Border>
           </DataTemplate>

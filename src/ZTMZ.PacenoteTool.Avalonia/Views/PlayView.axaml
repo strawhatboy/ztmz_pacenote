@@ -10,10 +10,6 @@
       <Setter Property="CornerRadius" Value="4" />
       <Setter Property="Padding" Value="16" />
     </Style>
-    <Style Selector="TextBlock.setting-description">
-      <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
-      <Setter Property="TextWrapping" Value="Wrap" />
-    </Style>
   </UserControl.Styles>
 
   <ScrollViewer HorizontalScrollBarVisibility="Disabled">
@@ -30,7 +26,7 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="Speedometer" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.useDynamicPlaybackSpeed}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.useDynamicPlaybackSpeed}" />
               <TextBlock Classes="setting-description"
                          Text="{DynamicResource settings.tooltip.useDynamicPlaybackSpeed}" />
             </StackPanel>
@@ -48,7 +44,7 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="Gauge" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.dynamicPlaybackMaxSpeed}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.dynamicPlaybackMaxSpeed}" />
               <TextBlock Classes="setting-description"
                          Text="{DynamicResource settings.tooltip.dynamicPlaybackMaxSpeed}" />
             </StackPanel>
@@ -68,7 +64,7 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="VolumeHigh" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.useDynamicVolume}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.useDynamicVolume}" />
               <TextBlock Classes="setting-description"
                          Text="{DynamicResource settings.tooltip.useDynamicVolume}" />
             </StackPanel>
@@ -86,7 +82,7 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="SineWave" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.dynamicVolumePerturbationFrequency}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.dynamicVolumePerturbationFrequency}" />
               <TextBlock Classes="setting-description"
                          Text="{DynamicResource settings.tooltip.dynamicVolumePerturbationFrequency}" />
             </StackPanel>
@@ -103,7 +99,7 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="Waveform" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.dynamicVolumePerturbationAmplitude}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.dynamicVolumePerturbationAmplitude}" />
               <TextBlock Classes="setting-description"
                          Text="{DynamicResource settings.tooltip.dynamicVolumePerturbationAmplitude}" />
             </StackPanel>
@@ -123,7 +119,7 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="TimerOutline" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.playbackDeviceDesiredLatency}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.playbackDeviceDesiredLatency}" />
               <TextBlock Classes="setting-description"
                          Text="{DynamicResource settings.tooltip.playbackDeviceDesiredLatency}" />
             </StackPanel>
@@ -140,7 +136,7 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="MapMarkerDistance" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.connectCloseDistanceCallToNextPacenote}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.connectCloseDistanceCallToNextPacenote}" />
               <TextBlock Classes="setting-description"
                          Text="{DynamicResource settings.tooltip.connectCloseDistanceCallToNextPacenote}" />
             </StackPanel>
@@ -158,7 +154,7 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="Numeric" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.connectNumericDistanceCallToPreviousPacenote}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.connectNumericDistanceCallToPreviousPacenote}" />
               <TextBlock Classes="setting-description"
                          Text="{DynamicResource settings.tooltip.connectNumericDistanceCallToPreviousPacenote}" />
             </StackPanel>
@@ -176,7 +172,7 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="TextBox" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.examplePacenoteString}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.examplePacenoteString}" />
               <TextBlock Classes="setting-description"
                          Text="{DynamicResource settings.tooltip.examplePacenoteString}" />
             </StackPanel>

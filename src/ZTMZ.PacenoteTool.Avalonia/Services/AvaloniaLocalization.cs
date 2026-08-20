@@ -4,7 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Threading;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Core;
 
@@ -13,7 +16,9 @@ namespace ZTMZ.PacenoteTool.Avalonia.Services;
 internal static class AvaloniaLocalization
 {
     private const string ResourceHomeEnvironmentVariable = "ZTMZ_RESOURCE_HOME";
+    private static ResourceDictionary? _currentCultureResources;
 
+    public static event EventHandler? CultureChanging;
     public static event EventHandler? CultureChanged;
 
     public static string ResourceRoot { get; private set; } = string.Empty;
@@ -35,15 +40,41 @@ internal static class AvaloniaLocalization
             return;
         }
 
+        // Replace the whole culture dictionary at once. Per-key updates invalidate
+        // the visual tree once for every localized resource.
+        var resources = new ResourceDictionary();
         foreach (var resource in I18NLoader.Instance.CurrentCulture)
         {
-            application.Resources[resource.Key] = resource.Value;
+            resources[resource.Key] = resource.Value;
         }
+
+        if (_currentCultureResources != null)
+        {
+            application.Resources.MergedDictionaries.Remove(_currentCultureResources);
+        }
+
+        application.Resources.MergedDictionaries.Add(resources);
+        _currentCultureResources = resources;
     }
 
     public static void SetCulture(string culture)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(culture);
+        SetCultureCore(culture);
+    }
+
+    public static async Task SetCultureAsync(string culture)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(culture);
+        CultureChanging?.Invoke(null, EventArgs.Empty);
+
+        // Give the busy overlay a render pass before replacing application resources.
+        await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Render);
+        SetCultureCore(culture);
+    }
+
+    private static void SetCultureCore(string culture)
+    {
         I18NLoader.Instance.SetCulture(culture);
         Config.Instance.Language = I18NLoader.Instance.CurrentCultureName;
         if (Application.Current != null)
@@ -64,6 +95,8 @@ internal static class AvaloniaLocalization
         IApplicationPaths paths) =>
     [
         Path.Combine(resourceRoot, Constants.PATH_LANGUAGE),
+        Path.Combine(resourceRoot, "..", Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE),
+        Path.Combine(AppContext.BaseDirectory, "resources", Constants.PATH_LANGUAGE),
         Path.Combine(AppContext.BaseDirectory, Constants.PATH_GAMES, Constants.PATH_LANGUAGE),
         Path.Combine(AppContext.BaseDirectory, Constants.PATH_DASHBOARDS, Constants.PATH_LANGUAGE),
         paths.GetPath(Constants.PATH_LANGUAGE)

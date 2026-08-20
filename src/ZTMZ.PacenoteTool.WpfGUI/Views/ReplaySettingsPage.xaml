@@ -6,7 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:system="clr-namespace:System;assembly=System.Runtime"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      xmlns:localUI="clr-namespace:ZTMZ.PacenoteTool.Base.UI;assembly=ZTMZ.PacenoteTool.Base.UI"
+      xmlns:localUI="clr-namespace:ZTMZ.PacenoteTool.UI.Windows;assembly=ZTMZ.PacenoteTool.UI.Wpf"
       Title="ReplaySettingsPage"
     FontFamily="{DynamicResource AppFontFamily}"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"

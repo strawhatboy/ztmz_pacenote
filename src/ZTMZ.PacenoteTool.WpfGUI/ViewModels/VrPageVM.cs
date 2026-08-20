@@ -4,7 +4,7 @@ using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using System.Windows.Data;
 using System.Threading.Tasks;
-using ZTMZ.PacenoteTool.Base.UI.Game;
+using ZTMZ.PacenoteTool.UI.Windows.Game;
 using Wpf.Ui.Controls;
 using System.Linq;
 using System.Reflection;
@@ -12,7 +12,7 @@ using System.Windows.Controls;
 using Microsoft.Win32;
 using System.Diagnostics;
 using VRGameOverlay.VROverlayWindow;
-using ZTMZ.PacenoteTool.Base.UI;
+using ZTMZ.PacenoteTool.UI.Windows;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 

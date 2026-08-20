@@ -28,7 +28,10 @@ public sealed record GameSettingField(
     GameSettingFieldKind Kind,
     string? ToolTipKey = null,
     bool RequiresRestart = false,
-    GameSettingConfirmation? Confirmation = null);
+    GameSettingConfirmation? Confirmation = null,
+    double? Minimum = null,
+    double? Maximum = null,
+    string? FileExtension = null);
 
 public sealed record GameIntegrationAction(
     string Id,
@@ -53,21 +56,28 @@ public sealed record GameIntegrationActionResult(
 /// <summary>
 /// Describes a game's configuration fields and setup commands without depending on a UI framework.
 /// </summary>
-public interface IGameIntegrationProvider
+public interface IGameSettingsProvider
 {
     Type ConfigurationType { get; }
 
+    IReadOnlyList<GameSettingField> GetFields(IGameConfig configuration);
+
+    object? GetFieldValue(IGameConfig configuration, string fieldId);
+
+    void SetFieldValue(IGameConfig configuration, string fieldId, object? value, IGame game);
+}
+
+public interface IGameIntegrationProvider : IGameSettingsProvider
+{
     IReadOnlyList<GameSettingField> Fields { get; }
+
+    IReadOnlyList<GameSettingField> IGameSettingsProvider.GetFields(IGameConfig configuration) => Fields;
 
     IReadOnlyList<string> InformationKeys { get; }
 
     IReadOnlyList<GameIntegrationAction> Actions { get; }
 
     TimeSpan StatusRefreshInterval { get; }
-
-    object? GetFieldValue(IGameConfig configuration, string fieldId);
-
-    void SetFieldValue(IGameConfig configuration, string fieldId, object? value, IGame game);
 
     GameIntegrationStatus GetStatus(IGameConfig configuration, IGame game);
 

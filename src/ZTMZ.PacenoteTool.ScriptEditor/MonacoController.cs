@@ -1,5 +1,6 @@
+#nullable enable
+
 using System;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
@@ -9,106 +10,61 @@ using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.ScriptEditor;
 
-public sealed class MonacoController
+public sealed class MonacoController : IDisposable
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private readonly WebView2 _webView;
-    private bool _messageHandlerAttached;
+    private readonly WebView2MonacoWebViewBridge _bridge;
+    private readonly MonacoEditorController _controller;
 
     public MonacoController(WebView2 webView)
     {
-        _webView = webView;
+        _webView = webView ?? throw new ArgumentNullException(nameof(webView));
+        _bridge = new WebView2MonacoWebViewBridge(webView);
+        _controller = new MonacoEditorController(_bridge);
+        _controller.ContentChanged += OnContentChanged;
     }
 
     public event EventHandler? ContentChanged;
 
-    public async Task CreateAsync()
-    {
-        AttachMessageHandler();
-        await _webView.ExecuteScriptAsync(
-            "window.ztmzEditor.create(document.querySelector('#root'));"
-        );
-    }
+    public Task CreateAsync() => _controller.CreateAsync();
 
-    public Task RegisterPacenoteLanguageAsync()
-    {
-        return Task.CompletedTask;
-    }
+    public Task RegisterPacenoteLanguageAsync() => Task.CompletedTask;
 
-    public async Task ConfigurePacenoteLanguageAsync(PacenoteLanguageCatalog catalog)
-    {
-        _webView.CoreWebView2.PostWebMessageAsJson(JsonSerializer.Serialize(new
-        {
-            type = "catalog",
-            catalog
-        }, JsonOptions));
-        await _webView.ExecuteScriptAsync("window.ztmzEditor.validate();");
-    }
+    public Task ConfigurePacenoteLanguageAsync(PacenoteLanguageCatalog catalog) =>
+        _controller.ConfigurePacenoteLanguageAsync(catalog);
 
-    public async Task SetThemeAsync(ApplicationTheme applicationTheme)
-    {
-        var theme = applicationTheme == ApplicationTheme.Light ? "vs" : "vs-dark";
-        await _webView.ExecuteScriptAsync($"window.ztmzEditor.setTheme('{theme}');");
-    }
+    public Task SetThemeAsync(ApplicationTheme applicationTheme) => _controller.SetThemeAsync(
+        applicationTheme == ApplicationTheme.Light
+            ? MonacoEditorTheme.Light
+            : MonacoEditorTheme.Dark);
 
-    public async Task SetLanguageAsync(MonacoLanguage monacoLanguage)
-    {
-        await _webView.ExecuteScriptAsync("window.ztmzEditor.setLanguage('pacenote');");
-    }
+    public Task SetLanguageAsync(MonacoLanguage monacoLanguage) => Task.CompletedTask;
 
-    public async Task SetContentAsync(string contents)
-    {
-        await _webView.ExecuteScriptAsync(
-            $"window.ztmzEditor.setValue({JsonSerializer.Serialize(contents ?? string.Empty, JsonOptions)});"
-        );
-    }
+    public Task SetContentAsync(string contents) => _controller.SetContentAsync(contents);
 
-    public async Task<string> GetContentAsync()
-    {
-        var value = await _webView.ExecuteScriptAsync("JSON.stringify(window.ztmzEditor.getValue());");
-        return JsonSerializer.Deserialize<string>(value) ?? string.Empty;
-    }
+    public Task<string> GetContentAsync() => _controller.GetContentAsync();
 
-    public Task ValidateAsync()
-    {
-        return ExecuteAsync("window.ztmzEditor.validate();");
-    }
+    public Task ValidateAsync() => _controller.ValidateAsync();
 
-    public Task SetWordWrapAsync(bool enabled)
-    {
-        return ExecuteAsync($"window.ztmzEditor.setWordWrap({enabled.ToString().ToLowerInvariant()});");
-    }
+    public Task SetWordWrapAsync(bool enabled) => _controller.SetWordWrapAsync(enabled);
 
-    public Task SetReadOnlyAsync(bool readOnly)
-    {
-        return ExecuteAsync($"window.ztmzEditor.setReadOnly({readOnly.ToString().ToLowerInvariant()});");
-    }
+    public Task SetReadOnlyAsync(bool readOnly) => _controller.SetReadOnlyAsync(readOnly);
 
-    public Task SetRoadbookTitleAsync(string title)
-    {
-        return ExecuteAsync($"window.ztmzEditor.setRoadbookTitle({JsonSerializer.Serialize(title ?? string.Empty, JsonOptions)});");
-    }
+    public Task SetRoadbookTitleAsync(string title) => _controller.SetRoadbookTitleAsync(title);
 
-    public Task SetRoadbookScaleAsync(double percent)
-    {
-        return ExecuteAsync($"window.ztmzEditor.setRoadbookScale({percent.ToString(System.Globalization.CultureInfo.InvariantCulture)});");
-    }
+    public Task SetRoadbookScaleAsync(double percent) => _controller.SetRoadbookScaleAsync(percent);
 
-    public async Task<double> GetRoadbookScaleAsync()
-    {
-        var value = await _webView.ExecuteScriptAsync("window.ztmzEditor.getRoadbookScale();");
-        return JsonSerializer.Deserialize<double>(value);
-    }
+    public Task<double> GetRoadbookScaleAsync() => _controller.GetRoadbookScaleAsync();
 
     public async Task<bool> ExportRoadbookPdfAsync(string fileName, RoadbookPrintOptions options)
     {
-        await ApplyPrintPageStyleAsync(options);
+        await _controller.ApplyPrintPageStyleAsync(options);
         return await _webView.CoreWebView2.PrintToPdfAsync(fileName, CreatePrintSettings(options));
     }
 
     public async Task<RoadbookPrintResult> PrintRoadbookAsync(RoadbookPrintOptions options)
     {
-        await ApplyPrintPageStyleAsync(options);
+        await _controller.ApplyPrintPageStyleAsync(options);
         var status = await _webView.CoreWebView2.PrintAsync(CreatePrintSettings(options));
         return status switch
         {
@@ -118,19 +74,16 @@ public sealed class MonacoController
         };
     }
 
-    public Task HighlightPlaybackAsync(PacenotePlaybackSnapshot snapshot)
-    {
-        return ExecuteAsync($"window.ztmzEditor.highlightPlayback({JsonSerializer.Serialize(snapshot, JsonOptions)});");
-    }
+    public Task HighlightPlaybackAsync(PacenotePlaybackSnapshot snapshot) =>
+        _controller.HighlightPlaybackAsync(snapshot);
 
-    public Task FocusAsync()
-    {
-        return ExecuteAsync("window.ztmzEditor.focus();");
-    }
+    public Task FocusAsync() => _controller.FocusAsync();
 
-    private Task ExecuteAsync(string script)
+    public void Dispose()
     {
-        return _webView.ExecuteScriptAsync(script);
+        _controller.ContentChanged -= OnContentChanged;
+        _controller.Dispose();
+        _bridge.Dispose();
     }
 
     private CoreWebView2PrintSettings CreatePrintSettings(RoadbookPrintOptions options)
@@ -155,91 +108,77 @@ public sealed class MonacoController
         return settings;
     }
 
-    private Task ApplyPrintPageStyleAsync(RoadbookPrintOptions options)
-    {
-        var style = BuildPrintPageStyle(options);
-        return ExecuteAsync(
-            $"window.ztmzEditor.setPrintPageStyle({JsonSerializer.Serialize(style, JsonOptions)});"
-        );
-    }
+    private static string BuildPrintPageStyle(RoadbookPrintOptions options) =>
+        RoadbookPrintCssBuilder.BuildPageStyle(options);
 
-    private static string BuildPrintPageStyle(RoadbookPrintOptions options)
+    private void OnContentChanged(object? sender, EventArgs eventArgs)
     {
-        if (!options.ShowPageNumbers)
+        if (Application.Current?.Dispatcher.CheckAccess() != false)
         {
-            return string.Empty;
+            ContentChanged?.Invoke(this, EventArgs.Empty);
+            return;
         }
 
-        var marginBox = options.PageNumberPosition switch
-        {
-            RoadbookPageNumberPosition.BottomLeft => "@bottom-left",
-            RoadbookPageNumberPosition.BottomRight => "@bottom-right",
-            _ => "@bottom-center"
-        };
-        var content = options.PageNumberStyle == RoadbookPageNumberStyle.Current
-            ? "counter(page)"
-            : "counter(page) ' / ' counter(pages)";
-        return $"@page {{ {marginBox} {{ content: {content}; color: #5f6368; font-family: sans-serif; font-size: 9pt; }} }}";
+        _ = Application.Current.Dispatcher.InvokeAsync(
+            () => ContentChanged?.Invoke(this, EventArgs.Empty));
+    }
+}
+
+internal sealed class WebView2MonacoWebViewBridge : IMonacoWebViewBridge, IDisposable
+{
+    private readonly WebView2 _webView;
+    private CoreWebView2? _coreWebView;
+    private bool _disposed;
+
+    public WebView2MonacoWebViewBridge(WebView2 webView)
+    {
+        _webView = webView;
     }
 
-    private void AttachMessageHandler()
+    public event EventHandler<MonacoWebMessageReceivedEventArgs>? WebMessageReceived;
+
+    public async Task<string?> InvokeScriptAsync(string script)
     {
-        if (_messageHandlerAttached)
+        EnsureMessageHandlerAttached();
+        return await _webView.ExecuteScriptAsync(script);
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
         {
             return;
         }
 
-        _webView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
-        _messageHandlerAttached = true;
+        if (_coreWebView != null)
+        {
+            _coreWebView.WebMessageReceived -= OnWebMessageReceived;
+            _coreWebView = null;
+        }
+        _disposed = true;
     }
 
-    private void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
+    private void EnsureMessageHandlerAttached()
     {
-        try
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        var coreWebView = _webView.CoreWebView2
+            ?? throw new InvalidOperationException("WebView2 must be initialized before invoking Monaco.");
+        if (ReferenceEquals(coreWebView, _coreWebView))
         {
-            using var message = JsonDocument.Parse(e.WebMessageAsJson);
-            if (message.RootElement.TryGetProperty("type", out var type) &&
-                type.GetString() == "changed")
-            {
-                Application.Current.Dispatcher.InvokeAsync(() => ContentChanged?.Invoke(this, EventArgs.Empty));
-            }
+            return;
         }
-        catch (JsonException)
+
+        if (_coreWebView != null)
         {
-            // Ignore messages not sent by the local editor bridge.
+            _coreWebView.WebMessageReceived -= OnWebMessageReceived;
         }
+
+        _coreWebView = coreWebView;
+        _coreWebView.WebMessageReceived += OnWebMessageReceived;
     }
-}
 
-public sealed record RoadbookPrintOptions(
-    double PaperWidthMillimeters,
-    double PaperHeightMillimeters,
-    bool Landscape,
-    double HorizontalMarginMillimeters,
-    double VerticalMarginMillimeters,
-    string PageRanges = "",
-    int Copies = 1,
-    string PrinterName = "",
-    bool ShowPageNumbers = true,
-    RoadbookPageNumberStyle PageNumberStyle = RoadbookPageNumberStyle.CurrentAndTotal,
-    RoadbookPageNumberPosition PageNumberPosition = RoadbookPageNumberPosition.BottomCenter);
-
-public enum RoadbookPageNumberStyle
-{
-    CurrentAndTotal,
-    Current
-}
-
-public enum RoadbookPageNumberPosition
-{
-    BottomLeft,
-    BottomCenter,
-    BottomRight
-}
-
-public enum RoadbookPrintResult
-{
-    Succeeded,
-    PrinterUnavailable,
-    OtherError
+    private void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs eventArgs) =>
+        WebMessageReceived?.Invoke(
+            this,
+            new MonacoWebMessageReceivedEventArgs(eventArgs.WebMessageAsJson));
 }

@@ -18,7 +18,7 @@ local fontFactor = 0.8;
 --     args.I18NLoader: ZTMZ.PacenoteTool.Base.I18NLoader
 --     args.GameData: ZTMZ.PacenoteTool.Base.Game.GameData
 --     args.GameOverlayDrawingHelper: ZTMZ.PacenoteTool.GameOverlayDrawingHelper
---     args.Self: ZTMZ.PacenoteTool.Base.UI.Dashboard
+--     args.Self: ZTMZ.PacenoteTool.UI.Windows.Dashboard
 --     args.GameContext: 
 --         args.GameContext.TrackName: string
 --         args.GameContext.AudioPackage: string

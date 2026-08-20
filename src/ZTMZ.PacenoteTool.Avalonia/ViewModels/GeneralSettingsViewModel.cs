@@ -2,6 +2,7 @@
 
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -10,6 +11,8 @@ using ZTMZ.PacenoteTool.Avalonia.Services;
 using ZTMZ.PacenoteTool.Base;
 #if WINDOWS
 using ZTMZ.PacenoteTool.Platform.Windows;
+#else
+using ZTMZ.PacenoteTool.Platform.Linux;
 #endif
 
 namespace ZTMZ.PacenoteTool.Avalonia.ViewModels;
@@ -18,6 +21,7 @@ internal sealed record LanguageChoice(string Culture, string DisplayName);
 
 internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisposable
 {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     private readonly AvaloniaAppearanceService _appearanceService = new();
     private bool _initializing = true;
     private bool _refreshingFonts;
@@ -54,24 +58,41 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
         AvaloniaLocalization.CultureChanged += OnCultureChanged;
     }
 
+    // The persisted property keeps its historical Windows name for configuration compatibility.
     public event Action<string, string>? NotificationRequested;
+    public event Action<string>? LogDirectoryViewRequested;
 
-    /// <summary>
-    /// Re-reads settings that may have been changed elsewhere (for example the
-    /// close-prompt dialog) and refreshes the suggested-font catalog, mirroring
-    /// the WPF page's OnNavigatedToAsync behavior.
-    /// </summary>
+    /// <summary>Re-reads settings that may have been changed elsewhere.</summary>
     public void RefreshFromConfig()
     {
         _initializing = true;
         try
         {
+            ThemeSelection = Config.Instance.UseSystemTheme
+                ? 2
+                : Config.Instance.IsDarkTheme ? 1 : 0;
+            SelectedSystemFont = _appearanceService.GetConfiguredSystemFontChoice(SystemFonts);
+            UiFontSizePercent = Math.Clamp(
+                Config.Instance.UIFontSizePercent,
+                AvaloniaAppearanceService.MinimumFontSizePercent,
+                AvaloniaAppearanceService.MaximumFontSizePercent);
+            AccentColor = Color.FromRgb(
+                (byte)Math.Clamp(Config.Instance.AccentColorR, 0, 255),
+                (byte)Math.Clamp(Config.Instance.AccentColorG, 0, 255),
+                (byte)Math.Clamp(Config.Instance.AccentColorB, 0, 255));
+            SelectedLanguage = Languages.FirstOrDefault(language => string.Equals(
+                                   language.Culture,
+                                   I18NLoader.Instance.CurrentCultureName,
+                                   StringComparison.OrdinalIgnoreCase))
+                               ?? Languages.FirstOrDefault();
             IsAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
+            IsStartWithSystem = Config.Instance.StartWithWindows;
             IsStartMinimizedToTray = Config.Instance.StartMinimizedToTray;
             IsWindowsNotificationsEnabled = Config.Instance.EnableWindowsNotifications;
+            IsOptInBetaPlan = Config.Instance.OptInBetaPlan;
+            LogLevel = Config.Instance.LogLevel;
             ShowClosePrompt = Config.Instance.ShowClosePrompt;
             CloseBehaviorSelection = Config.Instance.CloseWindowToMinimize ? 1 : 0;
-            _ = RefreshSuggestedFontCatalogAsync();
         }
         finally
         {
@@ -80,12 +101,14 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
     }
 
     public ObservableCollection<AvaloniaFontChoice> SystemFonts { get; } = [];
-    public ObservableCollection<AvaloniaSuggestedFont> SuggestedFonts { get; } = [];
+    public ObservableCollection<SuggestedFont> SuggestedFonts { get; } = [];
     public ObservableCollection<LanguageChoice> Languages { get; } = [];
 
     public bool IsWindows => OperatingSystem.IsWindows();
+    public bool IsDesktopNotificationSupported => OperatingSystem.IsWindows() || OperatingSystem.IsLinux();
     public bool IsAccentColorVisible => ThemeSelection != 2;
     public bool HasSettingsMessage => !string.IsNullOrWhiteSpace(SettingsMessage);
+    public bool IsLanguageSelectionEnabled => !IsLanguageSwitching;
     public string UiFontSizeText => $"{UiFontSizePercent}%";
 
     public string SuggestedFontActionText => IsDownloadingSuggestedFont
@@ -113,7 +136,7 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SuggestedFontActionText))]
     [NotifyCanExecuteChangedFor(nameof(InstallSuggestedFontCommand))]
-    private AvaloniaSuggestedFont? _selectedSuggestedFont;
+    private SuggestedFont? _selectedSuggestedFont;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SuggestedFontActionText))]
@@ -133,13 +156,18 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
         (byte)Math.Clamp(Config.Instance.AccentColorB, 0, 255));
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsLanguageSelectionEnabled))]
+    private bool _isLanguageSwitching;
+
+    [ObservableProperty]
     private LanguageChoice? _selectedLanguage;
 
     [ObservableProperty]
     private bool _isAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
 
     [ObservableProperty]
-    private bool _isStartWithWindows = Config.Instance.StartWithWindows;
+    // Config keeps this historical name so existing user settings continue to work.
+    private bool _isStartWithSystem = Config.Instance.StartWithWindows;
 
     [ObservableProperty]
     private bool _isStartMinimizedToTray = Config.Instance.StartMinimizedToTray;
@@ -197,6 +225,7 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
         }
         catch (Exception exception)
         {
+            Logger.Error(exception, "Failed to apply system font {FontId}.", value.Id);
             SettingsMessage = string.Format(
                 AvaloniaLocalization.Get("font.systemFontApplyFailed"),
                 exception.Message);
@@ -225,7 +254,7 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
         AvaloniaAppearanceService.ApplyFontSize(Application.Current, value);
     }
 
-    partial void OnSelectedSuggestedFontChanged(AvaloniaSuggestedFont? value)
+    partial void OnSelectedSuggestedFontChanged(SuggestedFont? value)
     {
         if (!_refreshingFonts)
         {
@@ -240,21 +269,40 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
 
     partial void OnSelectedLanguageChanged(LanguageChoice? value)
     {
-        if (_initializing || value == null)
+        if (_initializing || value == null || IsLanguageSwitching)
         {
             return;
         }
 
-        AvaloniaLocalization.SetCulture(value.Culture);
-        Config.Instance.SaveUserConfig();
+        _ = ApplyLanguageAsync(value);
+    }
+
+    private async Task ApplyLanguageAsync(LanguageChoice choice)
+    {
+        IsLanguageSwitching = true;
+        try
+        {
+            await AvaloniaLocalization.SetCultureAsync(choice.Culture);
+            Config.Instance.SaveUserConfig();
+            SettingsMessage = string.Empty;
+        }
+        catch (Exception exception)
+        {
+            Logger.Error(exception, "Failed to switch application language to {Culture}.", choice.Culture);
+            SettingsMessage = exception.Message;
+        }
+        finally
+        {
+            IsLanguageSwitching = false;
+        }
     }
 
     partial void OnIsAutoUpdateChanged(bool value) => Save(value, setting =>
         Config.Instance.CheckUpdateWhenStartup = setting);
 
-    partial void OnIsStartWithWindowsChanged(bool value)
+    partial void OnIsStartWithSystemChanged(bool value)
     {
-        if (_initializing || !OperatingSystem.IsWindows())
+        if (_initializing)
         {
             return;
         }
@@ -265,6 +313,10 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
             WindowsStartupRegistrationService.SetEnabled(
                 value,
                 Environment.ProcessPath ?? throw new InvalidOperationException("Application path is unavailable."));
+#else
+            LinuxStartupRegistrationService.SetEnabled(
+                value,
+                LinuxStartupRegistrationService.GetCurrentApplicationPath());
 #endif
             Config.Instance.StartWithWindows = value;
             Config.Instance.SaveUserConfig();
@@ -274,7 +326,7 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
         {
             SettingsMessage = exception.Message;
             _initializing = true;
-            IsStartWithWindows = !value;
+            IsStartWithSystem = !value;
             _initializing = false;
         }
     }
@@ -350,6 +402,10 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
         }
         catch (Exception exception)
         {
+            Logger.Error(
+                exception,
+                "Failed to download or apply suggested font {FontId}.",
+                SelectedSuggestedFont?.Id ?? "unknown");
             SettingsMessage = string.Format(
                 AvaloniaLocalization.Get("font.downloadFailed"),
                 exception.Message);
@@ -394,11 +450,18 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
     }
 
     [RelayCommand]
-    private void ViewLogs()
+    private async Task ViewLogsAsync()
     {
         var path = AppLevelVariables.Instance.GetPath("logs");
         Directory.CreateDirectory(path);
-        Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+
+        if (!await DesktopFolderLauncher.TryOpenAsync(path))
+        {
+            Logger.Warn("No system folder handler was available for {LogDirectory}.", path);
+            LogDirectoryViewRequested?.Invoke(path);
+        }
+
+        SettingsMessage = string.Empty;
     }
 
     [RelayCommand(CanExecute = nameof(CanSendTestWindowsNotification))]
@@ -407,7 +470,7 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
         AvaloniaLocalization.Get("notification.test"));
 
     private bool CanSendTestWindowsNotification() =>
-        IsWindows && IsWindowsNotificationsEnabled;
+        IsDesktopNotificationSupported && IsWindowsNotificationsEnabled;
 
     private void UpdateAccentColor(Color value)
     {

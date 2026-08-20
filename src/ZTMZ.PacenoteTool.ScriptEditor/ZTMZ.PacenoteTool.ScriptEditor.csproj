@@ -26,18 +26,19 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="WPF-UI" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
-    <ProjectReference Include="..\ZTMZ.PacenoteTool.Base.UI\ZTMZ.PacenoteTool.Base.UI.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.ScriptEditor.Core\ZTMZ.PacenoteTool.ScriptEditor.Core.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.UI.Wpf\ZTMZ.PacenoteTool.UI.Wpf.csproj" />
   </ItemGroup>
 
   <ItemGroup>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\Monaco\**"
-             Exclude="Assets\Monaco\min\vs\basic-languages\**\*;Assets\Monaco\min\vs\language\**\*;Assets\Monaco\min\vs\nls.messages.*.js">
+    <Content Include="Assets\Monaco\**" Exclude="Assets\Monaco\min\vs\basic-languages\**\*;Assets\Monaco\min\vs\language\**\*;Assets\Monaco\min\vs\nls.messages.*.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

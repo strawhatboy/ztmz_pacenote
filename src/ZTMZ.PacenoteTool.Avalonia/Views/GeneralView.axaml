@@ -10,10 +10,6 @@
       <Setter Property="CornerRadius" Value="4" />
       <Setter Property="Padding" Value="16" />
     </Style>
-    <Style Selector="TextBlock.setting-description">
-      <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
-      <Setter Property="TextWrapping" Value="Wrap" />
-    </Style>
   </UserControl.Styles>
 
   <ScrollViewer HorizontalScrollBarVisibility="Disabled">
@@ -34,11 +30,13 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="ThemeLightDark" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.theme}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.theme}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.theme}" />
             </StackPanel>
           </StackPanel>
-          <ComboBox Grid.Column="1" SelectedIndex="{Binding ThemeSelection, Mode=TwoWay}">
+          <ComboBox Grid.Column="1"
+                    HorizontalAlignment="Stretch"
+                    SelectedIndex="{Binding ThemeSelection, Mode=TwoWay}">
             <ComboBoxItem Content="{DynamicResource settings.lightTheme}" />
             <ComboBoxItem Content="{DynamicResource settings.darkTheme}" />
             <ComboBoxItem Content="{DynamicResource settings.systemTheme}" />
@@ -47,15 +45,16 @@
       </Border>
 
       <Border Classes="setting-card">
-        <Grid ColumnDefinitions="*,360">
+        <Grid ColumnDefinitions="*,260">
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="FormatFont" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource font.systemFont}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource font.systemFont}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource font.systemFontDescription}" />
             </StackPanel>
           </StackPanel>
           <ComboBox Grid.Column="1"
+                    HorizontalAlignment="Stretch"
                     IsTextSearchEnabled="True"
                     ItemsSource="{Binding SystemFonts}"
                     SelectedItem="{Binding SelectedSystemFont, Mode=TwoWay}">
@@ -67,11 +66,11 @@
       </Border>
 
       <Border Classes="setting-card">
-        <Grid ColumnDefinitions="*,360">
+        <Grid ColumnDefinitions="*,260">
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="FormatSize" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource font.size}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource font.size}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource font.sizeDescription}" />
             </StackPanel>
           </StackPanel>
@@ -90,16 +89,18 @@
       </Border>
 
       <Border Classes="setting-card">
-        <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,460">
+        <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,380">
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="Download" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource font.suggestedFont}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource font.suggestedFont}" />
               <TextBlock Classes="setting-description" Text="{Binding SuggestedFontStatus}" />
             </StackPanel>
           </StackPanel>
           <Grid Grid.Column="1" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
             <ComboBox ItemsSource="{Binding SuggestedFonts}"
+                      MinWidth="170"
+                      HorizontalAlignment="Stretch"
                       SelectedItem="{Binding SelectedSuggestedFont, Mode=TwoWay}">
               <ComboBox.ItemTemplate>
                 <DataTemplate>
@@ -127,7 +128,7 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="Palette" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.accentColor}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.accentColor}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.accentColor}" />
             </StackPanel>
           </StackPanel>
@@ -140,11 +141,14 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="Translate" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.language}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.language}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.language}" />
             </StackPanel>
           </StackPanel>
-          <ComboBox Grid.Column="1" ItemsSource="{Binding Languages}"
+          <ComboBox Grid.Column="1"
+                    HorizontalAlignment="Stretch"
+                    IsEnabled="{Binding IsLanguageSelectionEnabled}"
+                    ItemsSource="{Binding Languages}"
                     SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}">
             <ComboBox.ItemTemplate>
               <DataTemplate><TextBlock Text="{Binding DisplayName}" /></DataTemplate>
@@ -158,7 +162,7 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="Update" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.checkUpdateWhenStartup}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.checkUpdateWhenStartup}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.checkUpdateWhenStartup}" />
             </StackPanel>
           </StackPanel>
@@ -172,11 +176,11 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="Run" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.startWithWindows}" />
-              <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.startWithWindows}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.startWithSystem}" />
+              <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.startWithSystem}" />
             </StackPanel>
           </StackPanel>
-          <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsStartWithWindows, Mode=TwoWay}"
+          <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsStartWithSystem, Mode=TwoWay}"
                         OnContent="" OffContent="" VerticalAlignment="Center" />
         </Grid>
       </Border>
@@ -186,7 +190,7 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="TrayArrowDown" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.startMinimizedToTray}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.startMinimizedToTray}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.startMinimizedToTray}" />
             </StackPanel>
           </StackPanel>
@@ -195,12 +199,12 @@
         </Grid>
       </Border>
 
-      <Border Classes="setting-card" IsVisible="{Binding IsWindows}">
+      <Border Classes="setting-card" IsVisible="{Binding IsDesktopNotificationSupported}">
         <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="BellOutline" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.windowsNotifications}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.windowsNotifications}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.windowsNotifications}" />
             </StackPanel>
           </StackPanel>
@@ -219,7 +223,7 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="Flask" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.optInBetaPlan}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.optInBetaPlan}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.optInBetaPlan}" />
             </StackPanel>
           </StackPanel>
@@ -229,17 +233,26 @@
       </Border>
 
       <Border Classes="setting-card">
-        <Grid ColumnDefinitions="*,Auto,260" ColumnSpacing="10">
+        <Grid ColumnDefinitions="*,Auto,160" ColumnSpacing="10">
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="FormatListChecks" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource settings.logLevel}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource settings.logLevel}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource settings.tooltip.logLevel}" />
             </StackPanel>
           </StackPanel>
-          <Button Grid.Column="1" Command="{Binding ViewLogsCommand}"
-                  Content="{DynamicResource settings.tooltip.viewLogs}" />
-          <ComboBox Grid.Column="2" SelectedIndex="{Binding LogLevel, Mode=TwoWay}">
+          <Button Grid.Column="1"
+                  Command="{Binding ViewLogsCommand}"
+                  VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <materialIcons:MaterialIcon Kind="FolderOpen" Width="16" Height="16" />
+              <TextBlock Text="{DynamicResource settings.tooltip.viewLogs}" />
+            </StackPanel>
+          </Button>
+          <ComboBox Grid.Column="2"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center"
+                    SelectedIndex="{Binding LogLevel, Mode=TwoWay}">
             <ComboBoxItem Content="{DynamicResource logLevel.trace}" />
             <ComboBoxItem Content="{DynamicResource logLevel.debug}" />
             <ComboBoxItem Content="{DynamicResource logLevel.info}" />
@@ -256,7 +269,7 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="MessageAlert" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource ui.showClosePrompt}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource ui.showClosePrompt}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource ui.tooltip.showClosePrompt}" />
             </StackPanel>
           </StackPanel>
@@ -270,11 +283,13 @@
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="WindowClose" Width="26" Height="26" />
             <StackPanel>
-              <TextBlock Text="{DynamicResource ui.closeBehavior}" />
+              <TextBlock Classes="setting-title" Text="{DynamicResource ui.closeBehavior}" />
               <TextBlock Classes="setting-description" Text="{DynamicResource ui.tooltip.closeBehavior}" />
             </StackPanel>
           </StackPanel>
-          <ComboBox Grid.Column="1" SelectedIndex="{Binding CloseBehaviorSelection, Mode=TwoWay}">
+          <ComboBox Grid.Column="1"
+                    HorizontalAlignment="Stretch"
+                    SelectedIndex="{Binding CloseBehaviorSelection, Mode=TwoWay}">
             <ComboBoxItem Content="{DynamicResource ui.closeToExit}"
                           ToolTip.Tip="{DynamicResource ui.tooltip.closeToExit}"
                           ToolTip.ShowDelay="100" />

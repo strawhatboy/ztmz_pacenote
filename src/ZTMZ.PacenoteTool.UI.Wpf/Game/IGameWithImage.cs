@@ -1,0 +1,26 @@
+
+using System;
+using System.IO;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using ZTMZ.PacenoteTool.Base.Game;
+namespace ZTMZ.PacenoteTool.UI.Windows.Game;
+
+
+public class GameWithImage
+{
+    public IGame Game {get;}
+
+    public BitmapImage Image {get;}
+
+    public GameWithImage(IGame game)
+    {
+        Game = game;
+
+        Image = new BitmapImage(new Uri(game.ImageUri));
+        Image.Freeze(); // must freeze for different thread access.
+    }
+}
+
+

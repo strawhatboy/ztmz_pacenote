@@ -11,6 +11,7 @@ using Wpf.Ui.Controls;
 using Wpf.Ui.Extensions;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Core;
+using ZTMZ.PacenoteTool.ScriptEditor;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.Views;
 
@@ -20,6 +21,7 @@ public partial class ScriptEditorPage : Page
     private const string PacenoteFilter = "Pacenote scripts (*.pacenote)|*.pacenote|All files (*.*)|*.*";
     private readonly ZTMZPacenoteTool _tool;
     private readonly IContentDialogService _contentDialogService;
+    private PacenoteEditorControl Editor { get; }
     private string _currentFile = string.Empty;
     private string _playbackScriptPath = string.Empty;
     private string _documentName = string.Empty;
@@ -33,6 +35,8 @@ public partial class ScriptEditorPage : Page
         _tool = tool;
         _contentDialogService = contentDialogService;
         InitializeComponent();
+        Editor = new PacenoteEditorControl();
+        EditorHost.Content = Editor;
         Editor.ContentChanged += (_, _) =>
         {
             _isDirty = true;

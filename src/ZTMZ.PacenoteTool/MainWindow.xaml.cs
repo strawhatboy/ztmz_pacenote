@@ -1,4 +1,4 @@
-﻿// Original UI, can be used as a "ViewModel" of the new UI
+// Original UI, can be used as a "ViewModel" of the new UI
 // Lots of shit here, but it works
 
 using System;
@@ -27,7 +27,7 @@ using System.Threading;
 using ZTMZ.PacenoteTool.Dialog;
 using Constants = ZTMZ.PacenoteTool.Base.Constants;
 using System.Windows.Media.Effects;
-using ZTMZ.PacenoteTool.Base.UI.Dialog;
+using ZTMZ.PacenoteTool.UI.Windows.Dialog;
 using VRGameOverlay.VROverlayWindow;
 
 namespace ZTMZ.PacenoteTool

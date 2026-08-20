@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ZTMZ.PacenoteTool.Avalonia.Views.StartupSplashContent"
+             Background="{DynamicResource ApplicationPageBackgroundThemeBrush}">
+  <Grid>
+    <Grid Width="380"
+          Height="350"
+          HorizontalAlignment="Center"
+          VerticalAlignment="Center"
+          RowDefinitions="104,Auto,4,132"
+          RowSpacing="14">
+      <Image Grid.Row="0"
+             Width="104"
+             Height="104"
+             Source="{Binding AppLogo}"
+             Stretch="Uniform"
+             UseLayoutRounding="True"
+             RenderOptions.BitmapInterpolationMode="HighQuality"
+             HorizontalAlignment="Center" />
+      <TextBlock Grid.Row="1"
+                 Text="{Binding WindowTitle}"
+                 FontSize="18"
+                 FontWeight="SemiBold"
+                 Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                 TextAlignment="Center"
+                 TextWrapping="Wrap" />
+      <ProgressBar Grid.Row="2"
+                   Height="4"
+                   IsIndeterminate="True" />
+      <Border Grid.Row="3" ClipToBounds="True">
+        <ItemsControl ItemsSource="{Binding StartupStatusHistory}"
+                      VerticalAlignment="Bottom"
+                      HorizontalAlignment="Stretch">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Spacing="6" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.Styles>
+          <Style Selector="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+            <Setter Property="Opacity" Value="0.42" />
+          </Style>
+          <Style Selector="TextBlock.startup-status-current">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="Opacity" Value="1" />
+          </Style>
+        </ItemsControl.Styles>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding Text}"
+                       Classes.startup-status-current="{Binding IsCurrent}"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap" />
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Border>
+    </Grid>
+  </Grid>
+</UserControl>

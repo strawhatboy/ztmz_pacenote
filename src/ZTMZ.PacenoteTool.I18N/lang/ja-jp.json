@@ -202,12 +202,14 @@
       "playbackDeviceDesiredLatency": "指示がデバイスに届いてから再生するまでの遅延です。小さすぎると音が乱れ、大きすぎると遅れが目立ちます。",
       "logLevel": "ログ レベルを設定します。重大度が高いほど表示される情報は少なくなります。",
       "viewLogs": "ログを表示",
+      "logDirectoryOpenFailed": "フォルダーを開くアプリが設定されていません。ログフォルダー: {0}",
+      "folderOpenFailed": "フォルダーを開くアプリが設定されていません。フォルダー: {0}",
       "theme": "ライト/ダーク テーマ、または Windows のシステム テーマ",
       "accentColor": "UI のすべてのコントロールに使用する色",
       "checkUpdateWhenStartup": "ツール起動時に更新を確認します",
-      "startWithWindows": "Windows とともにツールを起動します",
+      "startWithSystem": "システム起動時に開始",
       "startMinimizedToTray": "非表示で起動し、システムトレイのアイコンから利用できるようにします。次回起動時から有効です。",
-      "windowsNotifications": "ゲーム検出時、およびステージの開始・終了時にWindows通知を表示します。",
+      "windowsNotifications": "ゲーム検出時、およびステージの開始・終了時にシステム通知を表示します。",
       "warnIfPortMismatch": "ゲームのUDPポートとアプリケーションのポートが一致しない場合に警告する",
       "hudFPS": "HUDのFPSを制限します。高いFPSはOBSなどの画面録画ソフトの性能に影響する場合があります。",
       "importAudioPackage": "*.zpak形式の音声パッケージをインポートします",
@@ -345,9 +347,9 @@
     "checkUpdateWhenStartup": "起動時に更新を確認",
     "checkUpdateWhenStartup_On": "自動更新（オン）",
     "checkUpdateWhenStartup_Off": "自動更新（オフ）",
-    "startWithWindows": "Windows とともに起動",
+    "startWithSystem": "サインイン時にツールを自動的に起動します",
     "startMinimizedToTray": "最小化してシステムトレイに起動",
-    "windowsNotifications": "Windows イベント通知",
+    "windowsNotifications": "システムイベント通知",
     "testWindowsNotification": "テスト通知を送信",
     "warnIfPortMismatch": "ポート不一致時に警告",
     "hudFPS": "ゲーム内 HUD FPS",
@@ -682,6 +684,18 @@
     "stageFinished": "ステージ終了: {0}。",
     "test": "Windows イベント通知は正常に動作しています。"
   },
+  "voicePackageDetails": {
+    "id": "ID",
+    "token": "トークン",
+    "description": "トークンの説明",
+    "available": "利用可",
+    "type": "種類",
+    "files": "ファイル数",
+    "listen": "試聴"
+  },
+  "languageSwitch": {
+    "applying": "言語を切り替えています..."
+  },
   "misc": {
     "gender_male": "男性",
     "gender_female": "女性",
@@ -853,5 +867,47 @@
     "bundleCreated": "サポートバンドルを作成しました: {0}",
     "bundleFailed": "サポートバンドルの作成に失敗しました: {0}",
     "refreshFailed": "診断の更新に失敗しました: {0}"
+  },
+  "runtime": {
+    "initializingRuntime": "\u30E9\u30F3\u30BF\u30A4\u30E0\u3092\u521D\u671F\u5316\u3057\u3066\u3044\u307E\u3059...",
+    "initializationFailed": "\u521D\u671F\u5316\u306B\u5931\u6557\u3057\u307E\u3057\u305F",
+    "loadingPacenoteDefinitions": "\u30DA\u30FC\u30B9\u30CE\u30FC\u30C8\u5B9A\u7FA9\u3092\u8AAD\u307F\u8FBC\u3093\u3067\u3044\u307E\u3059...",
+    "pacenoteDefinitionsLoaded": "\u30DA\u30FC\u30B9\u30CE\u30FC\u30C8\u5B9A\u7FA9\u3092\u8AAD\u307F\u8FBC\u307F\u307E\u3057\u305F\u3002",
+    "loadingProfileManager": "\u30D7\u30ED\u30D5\u30A1\u30A4\u30EB\u30DE\u30CD\u30FC\u30B8\u30E3\u30FC\u3092\u8AAD\u307F\u8FBC\u3093\u3067\u3044\u307E\u3059...",
+    "profileManagerLoaded": "\u30D7\u30ED\u30D5\u30A1\u30A4\u30EB\u30DE\u30CD\u30FC\u30B8\u30E3\u30FC\u3092\u8AAD\u307F\u8FBC\u307F\u307E\u3057\u305F\u3002",
+    "loadingGames": "\u30B2\u30FC\u30E0\u3092\u8AAD\u307F\u8FBC\u3093\u3067\u3044\u307E\u3059...",
+    "gamesLoaded": "{0} \u500B\u306E\u30B2\u30FC\u30E0\u3092\u8AAD\u307F\u8FBC\u307F\u307E\u3057\u305F\u3002",
+    "loadingProfiles": "\u30D7\u30ED\u30D5\u30A1\u30A4\u30EB\u3092\u8AAD\u307F\u8FBC\u3093\u3067\u3044\u307E\u3059...",
+    "profilesLoaded": "{0} \u500B\u306E\u30D7\u30ED\u30D5\u30A1\u30A4\u30EB\u3092\u8AAD\u307F\u8FBC\u307F\u307E\u3057\u305F\u3002",
+    "loadingCodrivers": "\u30B3\u30FB\u30C9\u30E9\u30A4\u30D0\u30FC\u3092\u8AAD\u307F\u8FBC\u3093\u3067\u3044\u307E\u3059...",
+    "codriversLoaded": "{0} \u4EBA\u306E\u30B3\u30FB\u30C9\u30E9\u30A4\u30D0\u30FC\u3092\u8AAD\u307F\u8FBC\u307F\u307E\u3057\u305F\u3002",
+    "loadingOutputDevices": "\u51FA\u529B\u30C7\u30D0\u30A4\u30B9\u3092\u8AAD\u307F\u8FBC\u3093\u3067\u3044\u307E\u3059...",
+    "outputDevicesLoaded": "{0} \u500B\u306E\u51FA\u529B\u30C7\u30D0\u30A4\u30B9\u3092\u8AAD\u307F\u8FBC\u307F\u307E\u3057\u305F\u3002",
+    "ready": "\u6E96\u5099\u5B8C\u4E86"
+  },
+  "gameSession": {
+    "waitingForGame": "\u30B2\u30FC\u30E0\u3092\u5F85\u6A5F\u4E2D",
+    "automaticDetectionActive": "\u81EA\u52D5\u691C\u51FA\u304C\u6709\u52B9\u3067\u3059",
+    "noSupportedGameDetected": "\u5BFE\u5FDC\u3059\u308B\u30B2\u30FC\u30E0\u30D7\u30ED\u30BB\u30B9\u304C\u691C\u51FA\u3055\u308C\u3066\u3044\u307E\u305B\u3093",
+    "stageActive": "\u30B9\u30C6\u30FC\u30B8\u8D70\u884C\u4E2D",
+    "waitingForStage": "\u30B9\u30C6\u30FC\u30B8\u958B\u59CB\u3092\u5F85\u6A5F\u4E2D",
+    "connected": "\u63A5\u7D9A\u6E08\u307F",
+    "connectionFailed": "\u30B2\u30FC\u30E0\u3092\u691C\u51FA\u3057\u307E\u3057\u305F\u304C\u3001\u63A5\u7D9A\u306B\u5931\u6557\u3057\u307E\u3057\u305F",
+    "gamesDetectedUsing": "{0} \u500B\u306E\u30B2\u30FC\u30E0\u3092\u691C\u51FA\u3001{1} \u3092\u4F7F\u7528\u4E2D",
+    "selectedAutomatically": "\u5B9F\u884C\u4E2D\u306E\u30D7\u30ED\u30BB\u30B9\u304B\u3089\u81EA\u52D5\u9078\u629E\u3055\u308C\u307E\u3057\u305F"
+  },
+  "dashboardStatus": {
+    "running": "\u5B9F\u884C\u4E2D",
+    "portUnavailable": "\u30DD\u30FC\u30C8\u3092\u4F7F\u7528\u3067\u304D\u307E\u305B\u3093",
+    "error": "\u30A8\u30E9\u30FC",
+    "stopped": "\u505C\u6B62"
+  },
+  "audioStatus": {
+    "muted": "\u30DF\u30E5\u30FC\u30C8",
+    "initializing": "\u521D\u671F\u5316\u4E2D",
+    "defaultDevice": "{0}\uFF08\u65E2\u5B9A\uFF09"
+  },
+  "codriverCatalog": {
+    "packagesAvailable": "{0} \u500B\u306E\u30D1\u30C3\u30B1\u30FC\u30B8\u304C\u5229\u7528\u53EF\u80FD"
   }
 }

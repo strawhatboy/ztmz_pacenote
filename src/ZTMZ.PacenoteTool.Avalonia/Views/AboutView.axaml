@@ -1,0 +1,110 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:Class="ZTMZ.PacenoteTool.Avalonia.Views.AboutView"
+             FontFamily="{DynamicResource AppFontFamily}"
+             FontSize="{DynamicResource AppFontSize}">
+  <UserControl.Styles>
+    <Style Selector="Button.about-action">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Padding" Value="16" />
+      <Setter Property="MinHeight" Value="54" />
+    </Style>
+  </UserControl.Styles>
+
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Width="500"
+                HorizontalAlignment="Center"
+                Margin="42,30,42,42"
+                Spacing="4">
+      <Image Width="130"
+             Height="130"
+             HorizontalAlignment="Center"
+             Source="{Binding AppLogo}"
+             RenderOptions.BitmapInterpolationMode="HighQuality" />
+
+      <StackPanel Margin="0,20,0,0"
+                  HorizontalAlignment="Center"
+                  Orientation="Horizontal"
+                  Spacing="10">
+        <TextBlock VerticalAlignment="Center" Text="{Binding VersionText}" />
+        <ToggleSwitch IsChecked="{Binding IsAutoUpdate, Mode=TwoWay}"
+                      OnContent="{DynamicResource settings.checkUpdateWhenStartup_On}"
+                      OffContent="{DynamicResource settings.checkUpdateWhenStartup_Off}" />
+      </StackPanel>
+
+      <StackPanel Margin="0,20,0,0"
+                  HorizontalAlignment="Center"
+                  Orientation="Horizontal"
+                  Spacing="10">
+        <TextBlock VerticalAlignment="Center" Text="{DynamicResource ui.data_folder_size}" />
+        <TextBlock VerticalAlignment="Center" Text="{Binding DataFolderSize}" />
+        <Button Click="OpenDataFolder_Click" Content="{DynamicResource ui.openDataFolder}">
+          <Button.ContentTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="7">
+                <materialIcons:MaterialIcon Kind="FolderOpenOutline" Width="18" Height="18" />
+                <TextBlock Text="{Binding}" />
+              </StackPanel>
+            </DataTemplate>
+          </Button.ContentTemplate>
+        </Button>
+        <Button Click="MoveDataFolder_Click" Content="{DynamicResource ui.moveDataFolder}">
+          <Button.ContentTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="7">
+                <materialIcons:MaterialIcon Kind="FolderMoveOutline" Width="18" Height="18" />
+                <TextBlock Text="{Binding}" />
+              </StackPanel>
+            </DataTemplate>
+          </Button.ContentTemplate>
+        </Button>
+      </StackPanel>
+
+      <TextBlock Margin="0,20,0,0"
+                 TextWrapping="Wrap"
+                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                 Text="{DynamicResource ui.specialThanks}" />
+
+      <Grid Margin="0,4,0,0" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="4" RowSpacing="4">
+        <Button Classes="about-action" Click="Staff_Click">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock VerticalAlignment="Center" Text="{DynamicResource settings.staff}" />
+            <materialIcons:MaterialIcon Grid.Column="1" Kind="AccountGroup" Width="26" Height="26" />
+          </Grid>
+        </Button>
+        <Button Grid.Column="1" Classes="about-action" Click="UpdateHistory_Click">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock VerticalAlignment="Center" Text="{DynamicResource ui.tb_updates}" />
+            <materialIcons:MaterialIcon Grid.Column="1" Kind="History" Width="26" Height="26" />
+          </Grid>
+        </Button>
+        <Button Grid.Row="1" Classes="about-action" Click="Eula_Click">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock VerticalAlignment="Center" Text="{DynamicResource ui.eula}" />
+            <materialIcons:MaterialIcon Grid.Column="1" Kind="FileDocumentOutline" Width="26" Height="26" />
+          </Grid>
+        </Button>
+        <Button Grid.Row="1" Grid.Column="1" Classes="about-action" Click="ContactUs_Click">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock VerticalAlignment="Center" Text="{DynamicResource ui.contactUs}" />
+            <materialIcons:MaterialIcon Grid.Column="1" Kind="EmailOutline" Width="26" Height="26" />
+          </Grid>
+        </Button>
+        <Button Grid.Row="2" Classes="about-action" Click="OpenSource_Click">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock VerticalAlignment="Center" Text="{DynamicResource ui.opensoftware}" />
+            <materialIcons:MaterialIcon Grid.Column="1" Kind="SourceBranch" Width="26" Height="26" />
+          </Grid>
+        </Button>
+        <Button Grid.Row="2" Grid.Column="1" Classes="about-action" Click="License_Click">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock VerticalAlignment="Center" Text="{DynamicResource ui.license}" />
+            <materialIcons:MaterialIcon Grid.Column="1" Kind="ScaleBalance" Width="26" Height="26" />
+          </Grid>
+        </Button>
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
