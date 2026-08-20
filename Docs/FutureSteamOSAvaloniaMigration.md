@@ -66,7 +66,7 @@ Linux release. Each is a separate platform integration.
 | Main UI | WPF, WPF-UI, WinForms, `net10.0-windows` | Avalonia 12 desktop host with FluentAvalonia; browser remains the dashboard renderer |
 | Audio output | NAudio WASAPI | WASAPI remains on Windows; PortAudio is implemented for Linux |
 | Audio decoding and resampling | NAudio `AudioFileReader` and Media Foundation | `IAudioFileDecoder`, libsndfile, FFmpeg fallback, and managed WDL resampling on Linux |
-| Native overlay | GameOverlay.Net, SharpDX, Direct2D, `user32.dll`, HWND attachment | Keep as a Windows feature; research a Gamescope-specific host separately |
+| Native overlay | GameOverlay.Net, SharpDX, Direct2D, `user32.dll`, HWND attachment | Keep the current external overlay on Windows; research an opt-in Vulkan Layer for supported Proton games separately |
 | Web Dashboard | ASP.NET Core, WebSocket, browser JavaScript | Extracted into the platform-neutral `WebDashboard` project and hosted by the Linux runtime |
 | Script editor | Monaco hosted by WPF WebView2 | Shared Monaco protocol and catalog with Avalonia `NativeWebView`; WPE WebKit or WebKitGTK renders the loopback-hosted assets on Linux |
 | Game discovery and IPC | Windows process/window APIs, registry, named maps, named pipes, injection | Shared activity monitor implemented; native Linux uses `/proc`, while Flatpak and Windows-only IPC require Proton relays |
@@ -327,6 +327,84 @@ own Xwayland environment. A normal Avalonia transparent window must not be
 assumed to behave like the current Win32 click-through overlay. Treat this as
 an independent feasibility project.
 
+### Experimental Vulkan in-game overlay route
+
+The viable route for an actual SteamOS/Proton in-game overlay is a small native
+Vulkan Layer, not an always-on-top Avalonia window and not a dependency on a
+private Gamescope protocol. It is an optional post-MVP feature and is not part
+of the initial AppImage feature promise.
+
+```text
+ZTMZ Linux host
+  game session, pacenote core, configuration
+                  |
+     versioned local IPC (Unix-domain socket)
+                  |
+ZTMZ Vulkan Layer inside the selected game process
+  receive current/previous pacenote rows and settings
+  render the native roadbook overlay before presentation
+                  |
+Proton / DXVK / vkd3d -> Vulkan -> Gamescope
+```
+
+The layer should remain a narrow C/C++ rendering component. It should not host
+Avalonia, WPF, WebView, the pacenote database, game detection, audio playback,
+or a second copy of the dashboard business logic. The managed host continues to
+resolve names, icons, translations, history, opacity, and layout settings, then
+sends an explicitly versioned display snapshot to the layer. The first renderer
+should be native and minimal; embedding a browser inside the injected layer is
+out of scope.
+
+#### Loading and packaging
+
+- Provide a dedicated Steam launch wrapper such as `ztmz-overlay %command%`.
+  It enables the layer only for the selected game launch and lets the normal
+  Steam/Proton launch path remain intact.
+- Do not make an AppImage attempt global or silent injection into unrelated
+  Steam games.
+- Build and ship matching 64-bit and, where a target requires it, 32-bit layer
+  binaries. Report the layer version, renderer detection result, IPC connection,
+  and active capability in ZTMZ diagnostics.
+- If the game is not presenting through Vulkan, the layer reports unavailable
+  and ZTMZ continues to offer the Web Dashboard.
+
+#### Compatibility and safety boundary
+
+ProtonDB Gold means that the game itself is usable under Proton. It does not
+prove that a third-party Vulkan Layer loads successfully, maintains frame
+pacing, or is allowed by a game's anti-cheat policy. The layer must therefore
+be opt-in, title-specific, and disabled by default.
+
+- Never load it automatically for a game with active anti-cheat protection.
+- Enable a protected online game only after documented approval from the game
+  publisher and, where applicable, the anti-cheat provider; no evasion,
+  concealment, or compatibility bypass is a product feature.
+- Keep the Web Dashboard as the supported fallback for all protected or unknown
+  games.
+- Treat launch failure, a blocked module, an anti-cheat warning, a renderer
+  mismatch, or unstable frame pacing as an immediate unsupported result rather
+  than trying alternative injection techniques.
+
+#### First validation sequence
+
+1. Establish an automated Vulkan Layer smoke test against a small Vulkan sample:
+   layer load, IPC reconnect, resize, focus loss, and clean unload.
+2. Test DiRT Rally 2.0 under the current Proton version. Its Windows DirectX
+   path is expected to use DXVK/Vulkan, but the active renderer must be verified
+   from the layer diagnostics rather than assumed.
+3. Test DiRT Rally 1 only when launched through Proton. Its native Linux/Feral
+   renderer may be OpenGL, in which case a Vulkan Layer cannot render over it.
+4. Probe Assetto Corsa Rally's actual presentation API under Proton, then add a
+   per-title compatibility record only after telemetry, route updates, frame
+   pacing, suspend/resume, and game shutdown pass on real Steam Deck hardware.
+5. Defer EA SPORTS WRC until its base Proton compatibility is stable. A broken
+   game launch cannot validate an overlay.
+
+Windows keeps its existing external native overlay. A Vulkan Layer may gain a
+Windows build for games that actually render with Vulkan, but it is not a
+replacement for the DirectX-independent Windows overlay and does not justify
+adding D3D hooks.
+
 ## Delivery Phases
 
 ### Phase 0: enforce platform boundaries
@@ -493,9 +571,13 @@ in-game Gamescope overlay.
 
 ### Phase 5: SteamOS overlay and capture research
 
-- Prototype a Gamescope-compatible overlay path.
-- Measure frame pacing, latency, focus, controller input, and Gaming Mode
-  lifecycle behavior on real Steam Deck hardware.
+- Prototype the opt-in Vulkan Layer route and its versioned local IPC protocol.
+- Verify actual renderer selection before treating a Proton title as a candidate.
+- Measure frame pacing, overlay latency, resize, suspend/resume, focus,
+  controller input, and Gaming Mode lifecycle behavior on real Steam Deck
+  hardware.
+- Keep Gamescope integration limited to normal Vulkan presentation; do not use
+  undocumented/private Gamescope protocols as a product dependency.
 - Research PipeWire/FFmpeg replay capture independently.
 
 ## Acceptance Criteria
@@ -525,5 +607,7 @@ in-game Gamescope overlay.
 - opening Proton's Windows named maps directly from native Linux code;
 - promising a click-through in-game overlay merely because Avalonia opens a
   desktop window;
+- auto-loading a Vulkan Layer for anti-cheat-protected or unverified games;
+- bypassing, concealing, or attempting to work around anti-cheat protections;
 - replacing the stable Windows WASAPI backend with PortAudio;
 - blocking the first Steam Deck release on full Windows feature parity.
