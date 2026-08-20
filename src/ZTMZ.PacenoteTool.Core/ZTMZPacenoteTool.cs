@@ -49,6 +49,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
     private static readonly TimeSpan MechanicalDamageSoundCooldown = TimeSpan.FromSeconds(3);
     private readonly object _damageSoundCooldownLock = new();
     private readonly Dictionary<string, DateTime> _lastDamageSoundUtc = new(StringComparer.Ordinal);
+    private int _externalPacenoteSessionStarted;
 
     public IGame CurrentGame => _currentGame;
     public ProfileManager ProfileManager => _profileManager;
@@ -349,22 +350,16 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         try
         {
             ResetDamageSoundCooldowns();
+            // Initialize starts the UDP listener. Subscribe before it so the
+            // first Unknown -> AdHocRaceBegin transition cannot be lost.
+            AttachGameDataReaderHandlers(game);
             if (!game.GameDataReader.Initialize(game))
             {
+                DetachGameDataReaderHandlers(game);
                 this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.UNKNOWN, null);
                 return;
             }
 
-            // Inform the overlay that game data can now be received.
-            game.GameDataReader.onCarDamaged += carDamagedEventHandler;
-            game.GameDataReader.onNewGameData += newGameDataEventHander;
-            game.GameDataReader.onGameStateChanged += this.gamestateChangedHandler;
-            if (game.GameDataReader is IGameLivePacenoteSource livePacenoteSource)
-            {
-                livePacenoteSource.onLivePacenote += livePacenoteHandler;
-            }
-            game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
-            game.GameDataReader.onCarReset += carResetHandler;
             _logger.Info("Game {0} initialized.", game.Name);
             game.IsInitialized = true;
             this.onGameInitialized?.Invoke(game);
@@ -375,6 +370,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         }
         catch (PortAlreadyInUseException exception)
         {
+            DetachGameDataReaderHandlers(game);
             _logger.Warn(exception, "UDP port {0} is already in use while initializing {1}.", exception.Port, game.Name);
             this.onGameInitializeFailed?.Invoke(
                 game,
@@ -384,6 +380,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         }
         catch (PortAccessDeniedException exception)
         {
+            DetachGameDataReaderHandlers(game);
             _logger.Warn(exception, "Windows denied access to UDP port {0} while initializing {1}.", exception.Port, game.Name);
             this.onGameInitializeFailed?.Invoke(
                 game,
@@ -393,6 +390,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         }
         catch (Exception exception)
         {
+            DetachGameDataReaderHandlers(game);
             _logger.Error(exception, "Failed to initialize game {0}.", game.Name);
             this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.UNKNOWN, null);
             return;
@@ -421,24 +419,45 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         return !UdpPortFinder.CanBind(ipAddress, port, out socketError);
     }
 
+    private void AttachGameDataReaderHandlers(IGame game)
+    {
+        game.GameDataReader.onCarDamaged += carDamagedEventHandler;
+        game.GameDataReader.onNewGameData += newGameDataEventHander;
+        game.GameDataReader.onGameStateChanged += gamestateChangedHandler;
+        if (game.GameDataReader is IGameLivePacenoteSource livePacenoteSource)
+        {
+            livePacenoteSource.onLivePacenote += livePacenoteHandler;
+        }
+
+        game.GameDataReader.onGameDataAvailabilityChanged += gameDataAvailabilityChangedHandler;
+        game.GameDataReader.onCarReset += carResetHandler;
+    }
+
+    private void DetachGameDataReaderHandlers(IGame game)
+    {
+        game.GameDataReader.onCarDamaged -= carDamagedEventHandler;
+        game.GameDataReader.onNewGameData -= newGameDataEventHander;
+        game.GameDataReader.onGameStateChanged -= gamestateChangedHandler;
+        if (game.GameDataReader is IGameLivePacenoteSource livePacenoteSource)
+        {
+            livePacenoteSource.onLivePacenote -= livePacenoteHandler;
+        }
+
+        game.GameDataReader.onGameDataAvailabilityChanged -= gameDataAvailabilityChangedHandler;
+        game.GameDataReader.onCarReset -= carResetHandler;
+    }
+
     private void uninitializeGame(IGame game)
     {
         if (game == null)
             return;
 
         _logger.Info("Trying to uninitialize game: " + game.Name);
+        ResetExternalPacenoteSession();
         try
         {
             ResetDamageSoundCooldowns();
-            game.GameDataReader.onCarDamaged -= carDamagedEventHandler;
-            game.GameDataReader.onNewGameData -= newGameDataEventHander;
-            game.GameDataReader.onGameStateChanged -= this.gamestateChangedHandler;
-            if (game.GameDataReader is IGameLivePacenoteSource livePacenoteSource)
-            {
-                livePacenoteSource.onLivePacenote -= livePacenoteHandler;
-            }
-            game.GameDataReader.onGameDataAvailabilityChanged -= gameDataAvailabilityChangedHandler;
-            game.GameDataReader.onCarReset -= carResetHandler;
+            DetachGameDataReaderHandlers(game);
             game.GameDataReader.Uninitialize(game);
         }
         catch (Exception exception)
@@ -486,9 +505,11 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
             case GameState.Unknown:
                 //TODO raise enable profile, codriver, replay_device switch
                 //TODO raise overlay dismiss
+                ResetExternalPacenoteSession();
                 break;
             case GameState.RaceEnd:
                 // end recording, unload trace loaded?
+                ResetExternalPacenoteSession();
                 
                 if (lastState == GameState.Racing) {
                     
@@ -517,6 +538,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
                 break;
             case GameState.RaceBegin:
             case GameState.AdHocRaceBegin:
+                ResetExternalPacenoteSession();
                 // load trace, use lastmsg tracklength & startZ
                 // this._udpReceiver.LastMessage.TrackLength
                 this.onRaceBegin?.Invoke(_currentGame);
@@ -527,11 +549,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
                     _logger.Info("Stop recording video with OBS at racebegin in case of the last session ended abnormally.");
                     ObsManager.Instance.AbnormallyStopRecording();
                 }
-                this._trackName = this._currentGame.GameDataReader.TrackName;
-                this._carName = this._currentGame.GameDataReader.CarName;
-                this._carClass = this._currentGame.GameDataReader.CarClass;
-                //TODO: update UI trackname
-                this.onTrackAndCarChanged?.Invoke(_currentGame, this._trackName, this._carName, this._carClass);
+                RefreshStageMetadata(_currentGame);
                 
                 // check if it is replay
                 if (evt.Parameters.ContainsKey(GameStateRaceBeginProperty.IS_REPLAY))
@@ -544,46 +562,15 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
                     this._isReplaySession = false;
                 }
                 
-                var worker = Task.Run(() => {
-                    try
-                    {
-                    //TODO: raise overlay text changes
-
-                    if (shouldPlayExternalPacenotes && lastState != GameState.Paused && Config.Instance.PlayStartAndEndSound && state == GameState.RaceBegin)
-                    {
-                        // play start sound as sequential system sound
-                        this._profileManager.PlaySystem(Constants.SYSTEM_START_STAGE, true, true);
-                    }
-                    
-                    if (shouldPlayExternalPacenotes)
-                    {
-                        // 1. load sounds
-                        this._profileManager.StartReplaying(_currentGame, this._trackName);
-
-                        // 2. play minus script sound when in race begin but not AdhocRaceBegin
-                        if (state == GameState.RaceBegin)
-                        {
-                            // play minus distance script sound, some corners before "GO"
-                            this._profileManager.PlayMinusScript();
-                        }
-                    }
-
-                    if (shouldPlayExternalPacenotes && state == GameState.AdHocRaceBegin)
-                    {
-                        // relocate the current car's position
-                        var distance = this._currentGame.GameDataReader.CurrentGameData.LapDistance;
-                        _logger.Info($"tring to relocate the pacenote based on the car's position {distance}");
-                        this._profileManager.ReIndex(distance);
-                    }
-
-                    //TODO: change overlay script type
-                    this.onRaceBegined?.Invoke(_currentGame);
-                    }
-                    catch (Exception exception)
-                    {
-                        _logger.Error(exception, "Failed to prepare pacenotes for {0} on {1}.", _currentGame?.Name, _trackName);
-                    }
-                });
+                PrepareExternalPacenoteSession(
+                    _currentGame,
+                    shouldPlayExternalPacenotes,
+                    playStartSound: lastState != GameState.Paused &&
+                        Config.Instance.PlayStartAndEndSound &&
+                        state == GameState.RaceBegin,
+                    playMinusScript: state == GameState.RaceBegin,
+                    relocateToCurrentDistance: state == GameState.AdHocRaceBegin,
+                    reason: state.ToString());
 
                 if (_enableReplayIntegration && state == GameState.AdHocRaceBegin) {
                     // also start to record the replay when in AdHocRaceBegin
@@ -592,6 +579,9 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
 
                 break;
             case GameState.Racing:
+                RecoverExternalPacenoteSessionWhenJoiningRunningStage(
+                    lastState,
+                    shouldPlayExternalPacenotes);
                 if (lastState == GameState.RaceBegin || lastState == GameState.CountingDown)
                 {
                     if (shouldPlayExternalPacenotes && Config.Instance.PlayGoSound) {
@@ -640,6 +630,116 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
     {
         return game is not IGamePacenotePlaybackControl playbackControl ||
                playbackControl.EnableExternalPacenotes;
+    }
+
+    private void RecoverExternalPacenoteSessionWhenJoiningRunningStage(
+        GameState previousState,
+        bool shouldPlayExternalPacenotes)
+    {
+        if (!shouldPlayExternalPacenotes ||
+            Volatile.Read(ref _externalPacenoteSessionStarted) != 0 ||
+            _currentGame == null)
+        {
+            return;
+        }
+
+        // A host can attach after the game has already emitted its RaceBegin or
+        // AdHocRaceBegin event. The next UDP packet then only reports Racing.
+        // Restore the route at the current distance without replaying start audio.
+        _logger.Info(
+            "Recovering external pacenote session for running stage {0}; previous state was {1}.",
+            _currentGame.Name,
+            previousState);
+        RefreshStageMetadata(_currentGame);
+        _isReplaySession = false;
+        this.onRaceBegin?.Invoke(_currentGame);
+        PrepareExternalPacenoteSession(
+            _currentGame,
+            shouldPlayExternalPacenotes: true,
+            playStartSound: false,
+            playMinusScript: false,
+            relocateToCurrentDistance: true,
+            reason: "late running-stage attachment");
+    }
+
+    private void RefreshStageMetadata(IGame game)
+    {
+        _trackName = game.GameDataReader.TrackName;
+        _carName = game.GameDataReader.CarName;
+        _carClass = game.GameDataReader.CarClass;
+        this.onTrackAndCarChanged?.Invoke(game, _trackName, _carName, _carClass);
+    }
+
+    private void PrepareExternalPacenoteSession(
+        IGame game,
+        bool shouldPlayExternalPacenotes,
+        bool playStartSound,
+        bool playMinusScript,
+        bool relocateToCurrentDistance,
+        string reason)
+    {
+        if (!shouldPlayExternalPacenotes)
+        {
+            this.onRaceBegined?.Invoke(game);
+            return;
+        }
+
+        if (Interlocked.CompareExchange(ref _externalPacenoteSessionStarted, 1, 0) != 0)
+        {
+            _logger.Debug(
+                "External pacenote session for {0} is already prepared; ignoring {1}.",
+                game.Name,
+                reason);
+            return;
+        }
+
+        var trackName = _trackName;
+        _ = Task.Run(() =>
+        {
+            try
+            {
+                if (playStartSound)
+                {
+                    _profileManager.PlaySystem(Constants.SYSTEM_START_STAGE, true, true);
+                }
+
+                _profileManager.StartReplaying(game, trackName);
+
+                if (playMinusScript)
+                {
+                    // Play the script calls that occur before the Go signal.
+                    _profileManager.PlayMinusScript();
+                }
+
+                if (relocateToCurrentDistance)
+                {
+                    var distance = game.GameDataReader.CurrentGameData.LapDistance;
+                    _logger.Info(
+                        "Relocating pacenotes to {0} for {1} ({2}).",
+                        distance,
+                        game.Name,
+                        reason);
+                    _profileManager.ReIndex(distance);
+                }
+
+                this.onRaceBegined?.Invoke(game);
+            }
+            catch (Exception exception)
+            {
+                ResetExternalPacenoteSession();
+                _logger.Error(
+                    exception,
+                    "Failed to prepare pacenotes for {0} on {1} ({2}).",
+                    game.Name,
+                    trackName,
+                    reason);
+            }
+        });
+    }
+
+    private void ResetExternalPacenoteSession()
+    {
+        Interlocked.Exchange(ref _externalPacenoteSessionStarted, 0);
     }
 
     private void gameDataAvailabilityChangedHandler(bool obj)
