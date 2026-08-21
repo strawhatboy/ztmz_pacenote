@@ -100,6 +100,8 @@ public sealed class GameActivityMonitoringTest
             monitor,
             sessions,
             [firstGame, secondGame]);
+        var activityChanges = new List<GameActivitySessionChange>();
+        coordinator.ActivityChanged += (_, change) => activityChanges.Add(change);
 
         coordinator.Start();
 
@@ -113,6 +115,12 @@ public sealed class GameActivityMonitoringTest
         Assert.Same(firstGame, sessions.CurrentGame);
         Assert.True(firstGame.IsRunning);
         Assert.False(secondGame.IsRunning);
+        var fallbackChange = Assert.Single(activityChanges, change =>
+            change.Kind == GameActivityChangeKind.Stopped &&
+            ReferenceEquals(change.Activity.Game, secondGame));
+        Assert.True(fallbackChange.SessionActivated);
+        Assert.Same(firstGame, fallbackChange.CurrentGame);
+        Assert.Same(firstGame, fallbackChange.CurrentActivity?.Game);
 
         await coordinator.StopAsync();
         Assert.Null(sessions.CurrentGame);

@@ -21,7 +21,8 @@ public sealed record GameActivitySessionChange(
     GameActivityChangeKind Kind,
     GameActivity Activity,
     bool SessionActivated,
-    IGame? CurrentGame);
+    IGame? CurrentGame,
+    GameActivity? CurrentActivity);
 
 public sealed class GameActivitySessionCoordinator : IAsyncDisposable
 {
@@ -128,7 +129,8 @@ public sealed class GameActivitySessionCoordinator : IAsyncDisposable
                 GameActivityChangeKind.Started,
                 activity,
                 activated,
-                _sessions.CurrentGame);
+                _sessions.CurrentGame,
+                activated ? activity : null);
         }
 
         ActivityChanged?.Invoke(this, change);
@@ -146,6 +148,7 @@ public sealed class GameActivitySessionCoordinator : IAsyncDisposable
 
             activity.Game.IsRunning = false;
             var activated = false;
+            GameActivity? currentActivity = null;
             if (ReferenceEquals(_sessions.CurrentGame, activity.Game))
             {
                 _sessions.DeactivateCurrentGame();
@@ -154,6 +157,7 @@ public sealed class GameActivitySessionCoordinator : IAsyncDisposable
                 {
                     fallback.Game.IsRunning = true;
                     activated = _sessions.ActivateGame(fallback.Game);
+                    currentActivity = activated ? fallback : null;
                 }
             }
 
@@ -161,7 +165,8 @@ public sealed class GameActivitySessionCoordinator : IAsyncDisposable
                 GameActivityChangeKind.Stopped,
                 activity,
                 activated,
-                _sessions.CurrentGame);
+                _sessions.CurrentGame,
+                currentActivity);
         }
 
         ActivityChanged?.Invoke(this, change);

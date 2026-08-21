@@ -439,6 +439,30 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     private bool _isWebDashboardEnabled;
 
     [ObservableProperty]
+    private bool _isNativeOverlaySupported;
+
+    [ObservableProperty]
+    private bool _isNativeOverlayEnabled;
+
+    [ObservableProperty]
+    private bool _isNativeOverlayInitializing;
+
+    [ObservableProperty]
+    private int _nativeOverlayFrameRate = Config.Instance.HudFPS;
+
+    [ObservableProperty]
+    private bool _isNativeOverlayFrameRateLocked = Config.Instance.HudLockFPS;
+
+    [ObservableProperty]
+    private bool _isNativeOverlayTopMost = Config.Instance.HudTopMost;
+
+    [ObservableProperty]
+    private string _nativeOverlayStatus = string.Empty;
+
+    [ObservableProperty]
+    private IBrush _nativeOverlayStatusBrush = WaitingBrush;
+
+    [ObservableProperty]
     private int _webDashboardPort = Config.Instance.WebDashboardPort;
 
     [ObservableProperty]
@@ -792,6 +816,38 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
         }
     }
 
+    partial void OnIsNativeOverlayEnabledChanged(bool value)
+    {
+        if (!_applyingSnapshot && !_runtime.SetNativeOverlayEnabled(value))
+        {
+            RefreshSnapshot();
+        }
+    }
+
+    partial void OnIsNativeOverlayFrameRateLockedChanged(bool value)
+    {
+        if (!_applyingSnapshot && !_runtime.SetNativeOverlayFrameRateLock(value))
+        {
+            RefreshSnapshot();
+        }
+    }
+
+    partial void OnNativeOverlayFrameRateChanged(int value)
+    {
+        if (!_applyingSnapshot && !_runtime.SetNativeOverlayFrameRate(value))
+        {
+            RefreshSnapshot();
+        }
+    }
+
+    partial void OnIsNativeOverlayTopMostChanged(bool value)
+    {
+        if (!_applyingSnapshot && !_runtime.SetNativeOverlayTopMost(value))
+        {
+            RefreshSnapshot();
+        }
+    }
+
     private void RefreshSnapshot()
     {
         var snapshot = _runtime.GetSnapshot();
@@ -808,6 +864,19 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
             IsReady = snapshot.IsReady;
             ErrorMessage = snapshot.ErrorMessage ?? string.Empty;
             ApplyDashboards(snapshot.Dashboards);
+            IsNativeOverlaySupported = snapshot.NativeOverlay.IsSupported;
+            IsNativeOverlayEnabled = snapshot.NativeOverlay.IsEnabled;
+            IsNativeOverlayInitializing = snapshot.NativeOverlay.IsInitializing;
+            NativeOverlayFrameRate = snapshot.NativeOverlay.FrameRate;
+            IsNativeOverlayFrameRateLocked = snapshot.NativeOverlay.IsFrameRateLocked;
+            IsNativeOverlayTopMost = snapshot.NativeOverlay.IsTopMost;
+            NativeOverlayStatus = LocalizeNativeOverlayStatus(snapshot.NativeOverlay.State);
+            NativeOverlayStatusBrush = snapshot.NativeOverlay.State switch
+            {
+                "Active" or "Preview" => ConnectedBrush,
+                "Ready" => new SolidColorBrush(Color.Parse("#B8860B")),
+                _ => WaitingBrush
+            };
 
             var controls = snapshot.Controls;
             if (controls != null)
@@ -1465,6 +1534,16 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
         "PortUnavailable" => AvaloniaLocalization.Get("dashboardStatus.portUnavailable"),
         "Error" => AvaloniaLocalization.Get("dashboardStatus.error"),
         _ => AvaloniaLocalization.Get("dashboardStatus.stopped")
+    };
+
+    private static string LocalizeNativeOverlayStatus(string state) => state switch
+    {
+        "Disabled" => AvaloniaLocalization.Get("settings.tooltip.overlayHudHomeStatusDisabled"),
+        "NoDashboard" => AvaloniaLocalization.Get("settings.tooltip.overlayHudHomeStatusNoDashboard"),
+        "Ready" => AvaloniaLocalization.Get("settings.tooltip.overlayHudHomeStatusReady"),
+        "Active" => AvaloniaLocalization.Get("settings.tooltip.overlayHudHomeStatusActive"),
+        "Preview" => AvaloniaLocalization.Get("settings.tooltip.overlayHudHomeStatusPreview"),
+        _ => AvaloniaLocalization.Get("settings.tooltip.overlayHudHomeStatusUnavailable")
     };
 
     private static string LocalizeRuntimeStatus(string status)

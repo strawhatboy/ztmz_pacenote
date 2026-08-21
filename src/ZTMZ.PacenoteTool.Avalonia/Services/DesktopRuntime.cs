@@ -41,6 +41,7 @@ internal sealed record DesktopRuntimeSnapshot(
     int OutputDeviceCount,
     IReadOnlyList<WebDashboardDefinition> Dashboards,
     SharedRuntimeControlsSnapshot? Controls,
+    DesktopNativeOverlaySnapshot NativeOverlay,
     bool IsReady,
     string? ErrorMessage);
 
@@ -80,6 +81,9 @@ internal sealed class DesktopRuntime : IAsyncDisposable
     private CoDriverPackageUpdateService? _voicePackageUpdates;
     private GameActivitySessionCoordinator? _gameSessions;
     private ZtmzRuntimeState? _state;
+#if WINDOWS
+    private WindowsNativeOverlayHost? _nativeOverlay;
+#endif
     private IReadOnlyList<WebDashboardDefinition> _dashboards = [];
     private string _currentTrack = string.Empty;
     private string _status = "Initializing runtime...";
@@ -98,9 +102,48 @@ internal sealed class DesktopRuntime : IAsyncDisposable
         var resourceRoot = AvaloniaLocalization.ResourceRoot;
         _dashboards = new WebDashboardCatalog(Logger).Load(
             ResolveDashboardPackagesPath(resourceRoot),
-            supportsNativeOverlay: false);
+            supportsNativeOverlay: OperatingSystem.IsWindows());
         _dashboard?.Reload();
+#if WINDOWS
+        _nativeOverlay?.ReloadDashboardConfigurations();
+#endif
         RaiseSnapshotChanged();
+    }
+
+    public bool SetNativeOverlayEnabled(bool enabled)
+    {
+#if WINDOWS
+        return _nativeOverlay?.SetEnabled(enabled) ?? false;
+#else
+        return false;
+#endif
+    }
+
+    public bool SetNativeOverlayFrameRateLock(bool enabled)
+    {
+#if WINDOWS
+        return _nativeOverlay?.SetFrameRateLock(enabled) ?? false;
+#else
+        return false;
+#endif
+    }
+
+    public bool SetNativeOverlayFrameRate(int frameRate)
+    {
+#if WINDOWS
+        return _nativeOverlay?.SetFrameRate(frameRate) ?? false;
+#else
+        return false;
+#endif
+    }
+
+    public bool SetNativeOverlayTopMost(bool enabled)
+    {
+#if WINDOWS
+        return _nativeOverlay?.SetTopMost(enabled) ?? false;
+#else
+        return false;
+#endif
     }
 
     public async Task<IReadOnlyList<VoicePackageSnapshot>> GetVoicePackagesAsync(
@@ -265,6 +308,7 @@ internal sealed class DesktopRuntime : IAsyncDisposable
             _tool?.OutputDevices.Count ?? 0,
             _dashboards,
             _controls?.GetSnapshot(),
+            GetNativeOverlaySnapshot(),
             _state != null && _errorMessage == null,
             _errorMessage);
     }
@@ -309,15 +353,22 @@ internal sealed class DesktopRuntime : IAsyncDisposable
             var dashboardPackagesPath = ResolveDashboardPackagesPath(resourceRoot);
             _dashboards = new WebDashboardCatalog(Logger).Load(
                 dashboardPackagesPath,
-                supportsNativeOverlay: false);
+                supportsNativeOverlay: OperatingSystem.IsWindows());
             _dashboard = new WebDashboardRuntimeController(
                 _tool,
                 new WebDashboardRuntimeControllerOptions(
                     dashboardPackagesPath,
                     AppContext.BaseDirectory,
-                    Config.Instance.WebDashboardBrowserLuaEnabled));
+                    Config.Instance.WebDashboardBrowserLuaEnabled,
+                    SupportsNativeOverlay: OperatingSystem.IsWindows()));
             _controls = new SharedRuntimeControlsService(_tool, _dashboard);
             _controls.StateChanged += (_, _) => RaiseSnapshotChanged();
+#if WINDOWS
+            _nativeOverlay = new WindowsNativeOverlayHost(
+                _tool,
+                () => _controls?.GetSnapshot().SelectedCodriver);
+            _nativeOverlay.Changed += (_, _) => RaiseSnapshotChanged();
+#endif
 
             _state = await _tool.InitAsync(
                 new ZtmzPacenoteToolInitializationOptions(
@@ -356,7 +407,13 @@ internal sealed class DesktopRuntime : IAsyncDisposable
                     monitor,
                     _tool,
                     _tool.Games);
-                _gameSessions.ActivityChanged += (_, _) => RaiseSnapshotChanged();
+                _gameSessions.ActivityChanged += (_, change) =>
+                {
+#if WINDOWS
+                    _nativeOverlay?.HandleActivityChanged(change);
+#endif
+                    RaiseSnapshotChanged();
+                };
                 _gameSessions.Start();
             }
 
@@ -389,6 +446,9 @@ internal sealed class DesktopRuntime : IAsyncDisposable
         }
 
         _dashboard?.Dispose();
+#if WINDOWS
+        _nativeOverlay?.Dispose();
+#endif
         _tool?.Dispose();
         _voicePackageHttpClient?.Dispose();
         GC.SuppressFinalize(this);
@@ -401,6 +461,18 @@ internal sealed class DesktopRuntime : IAsyncDisposable
     }
 
     private void RaiseSnapshotChanged() => SnapshotChanged?.Invoke(this, EventArgs.Empty);
+
+    private DesktopNativeOverlaySnapshot GetNativeOverlaySnapshot()
+    {
+#if WINDOWS
+        return _nativeOverlay?.GetSnapshot()
+            ?? new DesktopNativeOverlaySnapshot(true, Config.Instance.UI_ShowHud, false,
+                Config.Instance.HudFPS, Config.Instance.HudLockFPS, Config.Instance.HudTopMost,
+                "Unavailable", false);
+#else
+        return new DesktopNativeOverlaySnapshot(false, false, false, 0, false, false, "Unavailable", false);
+#endif
+    }
 
     private static IGameProcessSnapshotProvider CreateProcessSnapshotProvider()
     {

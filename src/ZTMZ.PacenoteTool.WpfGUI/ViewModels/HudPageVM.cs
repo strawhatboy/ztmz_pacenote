@@ -1,6 +1,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using ZTMZ.PacenoteTool.UI.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using ZTMZ.PacenoteTool.WpfGUI.Services;
 using ZTMZ.PacenoteTool.WebDashboard;
 
@@ -229,11 +231,11 @@ public partial class HudPageVM : ObservableObject {
 
     [RelayCommand]
     private void ShowInSeparateWindow() {
-        // _gameOverlayManager.UninitializeOverlay();
-        _gameOverlayManager.InitializeOverlayInSeparateWindow();
+        _previewController.Show();
     }
     
     private GameOverlayManager _gameOverlayManager;
+    private readonly WpfNativeOverlayPreviewController _previewController;
 
     private RuntimeControlsService _runtimeControls;
 
@@ -242,9 +244,13 @@ public partial class HudPageVM : ObservableObject {
     [ObservableProperty]
     private bool _isHudInitializing = false;
 
-    public HudPageVM(GameOverlayManager gameOverlayManager, RuntimeControlsService runtimeControls) {
+    public HudPageVM(
+        GameOverlayManager gameOverlayManager,
+        RuntimeControlsService runtimeControls,
+        WpfNativeOverlayPreviewController previewController) {
         _gameOverlayManager = gameOverlayManager;
         _runtimeControls = runtimeControls;
+        _previewController = previewController;
         _runtimeControls.StateChanged += OnRuntimeControlsStateChanged;
         _gameOverlayManager.OnGameOverlayInitializingStateChanged += (isInitializing) => {
             IsHudInitializing = isInitializing;
@@ -266,7 +272,7 @@ public partial class HudPageVM : ObservableObject {
 
             // preview image
             Wpf.Ui.Controls.Image previewImage = new Wpf.Ui.Controls.Image();
-            previewImage.Source = dashboard.PreviewImage;
+            previewImage.Source = LoadPreviewImage(dashboard);
             previewImage.Height = 50;
             previewImage.Width = 100;
             previewImage.Stretch = Stretch.UniformToFill;
@@ -496,6 +502,18 @@ public partial class HudPageVM : ObservableObject {
         textBlock.SetResourceReference(
             System.Windows.Controls.TextBlock.ForegroundProperty,
             resourceKey);
+    }
+
+    private static ImageSource LoadPreviewImage(Dashboard dashboard)
+    {
+        var imagePath = dashboard.PreviewImageFilePath;
+        if (!string.IsNullOrWhiteSpace(imagePath) && File.Exists(imagePath))
+        {
+            return new BitmapImage(new Uri(imagePath, UriKind.Absolute));
+        }
+
+        return new BitmapImage(new Uri(
+            "pack://application:,,,/ZTMZ.PacenoteTool.UI.Wpf;component/unknown_dashboard_preview_image.png"));
     }
 
     private Grid CreateDashboardOutputTargetSelector(Dashboard dashboard)

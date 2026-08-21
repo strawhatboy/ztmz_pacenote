@@ -9,7 +9,6 @@ using System.Runtime.InteropServices;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Windows.Xps.Serialization;
 using GameOverlay.Windows;
 using GameOverlay.Drawing;
 using SharpDX;
@@ -25,8 +24,6 @@ using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.UI.Windows;
 using System.IO;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Interop;
 using System.Security.Principal;
 
 namespace ZTMZ.PacenoteTool.UI.Windows
@@ -138,8 +135,6 @@ namespace ZTMZ.PacenoteTool.UI.Windows
         private int dashboardLoadRetryMax = 10;    // 10 seconds
         private int dashboardLoadRetryInterval = 1000;
 
-        private Window _gameOverlaySeparateWindow = new SeparateWindowForOverlay();
-
         private Process _gameProcess = null;
         private IntPtr _lastKnownGameWindowHandle = IntPtr.Zero;
         private long _lastGameWindowAttachmentRefreshAt;
@@ -148,6 +143,7 @@ namespace ZTMZ.PacenoteTool.UI.Windows
 
         private WebDashboardServer? _webDashboardServer = null;
         private readonly object _webDashboardLock = new();
+        private readonly bool _manageWebDashboard;
         private readonly object _webDashboardCaptureLock = new();
         private WebDashboardServerStatus _webDashboardStatus = new(
             WebDashboardServerState.Stopped,
@@ -225,6 +221,25 @@ namespace ZTMZ.PacenoteTool.UI.Windows
             RefreshNativeOverlayVisibility();
         }
 
+        public void ReloadNativeDashboardConfigurations()
+        {
+            lock (_dashboardRenderLock)
+            {
+                for (var index = 0; index < Dashboards.Count; index++)
+                {
+                    var dashboard = Dashboards[index];
+                    dashboard.Unload();
+                    dashboard.ReloadConfig();
+                    DashboardLoaded[index] = false;
+                    _dashboardNativeLoadFailed[index] = false;
+                    DashboardErrorEncountered[index] = false;
+                    DisposeNativeStaticImageLayer(index);
+                }
+            }
+
+            RefreshNativeOverlayVisibility();
+        }
+
         public bool IsDashboardEnabledForOverlay(Dashboard dashboard)
         {
             return GetDashboardOutputTarget(dashboard).Includes(DashboardOutputTarget.Overlay);
@@ -250,7 +265,8 @@ namespace ZTMZ.PacenoteTool.UI.Windows
             return dashboard.Descriptor.Name ?? string.Empty;
         }
 
-        public GameOverlayManager() {
+        public GameOverlayManager(bool manageWebDashboard = true) {
+            _manageWebDashboard = manageWebDashboard;
             var dashboardsPath = AppLevelVariables.Instance.GetPath(Constants.PATH_DASHBOARDS);
             if (System.IO.Directory.Exists(dashboardsPath))
             {
@@ -284,26 +300,7 @@ namespace ZTMZ.PacenoteTool.UI.Windows
             _webDashboardLoaded.AddRange(Enumerable.Repeat(false, _webDashboards.Count));
             _logger.Info($"Loaded {Dashboards.Count} Dashboards.");
             
-            _gameOverlaySeparateWindow.Closing += (sender, args) => {
-                _hudShowInSeparateWindow = false;
-                // UninitializeOverlayInSeparateWindow();
-                (sender as Window)?.Hide();
-                args.Cancel = true;
-
-                // Restore the actual game window after closing the preview. MainWindowHandle
-                // may temporarily be zero for a full-screen game, so keep the last valid handle.
-                if (_window != null && TryGetGameWindowHandle(out var gameWindowHandle)) {
-                    _window.ParentWindowHandle = gameWindowHandle;
-                } else {
-                    _logger.Warn("Unable to restore the game window as the overlay parent.");
-                    UninitializeOverlayInSeparateWindow();
-                    return;
-                }
-
-                RefreshNativeOverlayVisibility();
-            };
-
-            if (Config.Instance.WebDashboardEnabled)
+            if (_manageWebDashboard && Config.Instance.WebDashboardEnabled)
             {
                 ConfigureWebDashboard(
                     true,
@@ -828,25 +825,21 @@ namespace ZTMZ.PacenoteTool.UI.Windows
                 : new DateTimeOffset(new DateTime(ticks, DateTimeKind.Utc));
         }
 
-        public void InitializeOverlayInSeparateWindow() {
+        public bool InitializeOverlayInPreviewWindow(IntPtr windowHandle) {
             if (_hudShowInSeparateWindow) {
-                // do nothing
                 _logger.Warn("Hud is already shown in separate window, do nothing.");
-                return;
+                return false;
             }
             _logger.Info("Initializing overlay in separate window....");
             _hudShowInSeparateWindow = true;
-            _gameOverlaySeparateWindow.Title = "PacenoteTool GameOverlay Separate Window";
-            _gameOverlaySeparateWindow.Width = 1280;
-            _gameOverlaySeparateWindow.Height = 720;
-            _gameOverlaySeparateWindow.Show();
             if (_isRunning && _window != null) {
                 RememberGameWindowHandle(_window.ParentWindowHandle);
-                _window.ParentWindowHandle = new WindowInteropHelper(_gameOverlaySeparateWindow).Handle;
+                _window.ParentWindowHandle = windowHandle;
                 RefreshNativeOverlayVisibility();
             } else {
-                InitializeOverlay(new WindowInteropHelper(_gameOverlaySeparateWindow).Handle);
+                InitializeOverlay(windowHandle);
             }
+            return true;
         }
 
         public void InitializeOverlay(IntPtr windowHandle) {
@@ -993,14 +986,22 @@ namespace ZTMZ.PacenoteTool.UI.Windows
             _logger.Info("GameOverlay uninitialized.!");
         }
 
-        public void UninitializeOverlayInSeparateWindow() {
-            SetStageActive(false);
-            _isRunning = false;
+        public void ClosePreviewWindow() {
+            if (!_hudShowInSeparateWindow) {
+                return;
+            }
+
             _hudShowInSeparateWindow = false;
-            _window?.Dispose();
-            _window = null;
+            if (_window != null && TryGetGameWindowHandle(out var gameWindowHandle)) {
+                _window.ParentWindowHandle = gameWindowHandle;
+            } else {
+                _logger.Warn("Unable to restore the game window as the overlay parent.");
+                UninitializeOverlay();
+                return;
+            }
+
             RefreshNativeOverlayVisibility();
-            _logger.Info("GameOverlay uninitialized in separate window.!");
+            _logger.Info("GameOverlay restored from preview window.");
         }
 
         public void SetFPS(int fps)

@@ -1,6 +1,7 @@
 v2.99.99.46-3.0-rc18
 ------
 [English]
+* Fixes the native overlay and Web Dashboard sometimes showing no live data when ZTMZ starts after a stage is already under way; stage activity, telemetry, pacenotes, and replay information now remain available.
 * Adds an in-window roadbook print dialog with an exact live PDF preview, physical-printer and PDF destinations, paper size, orientation, margins, configurable page-number format and position, page ranges, and copies; printed backgrounds are preserved and browser file-path headers and footers are removed.
 * Fixes Codemasters games joining an already running stage potentially losing the first AdHocRaceBegin state while the UDP receiver starts, leaving pacenote playback and the visual pacenote dashboard uninitialized; pacenotes now restore at the car's current stage distance without replaying start prompts.
 * Improves Windows application and tray icons with high-quality multi-resolution frames from 16 through 256 pixels, so taskbar, title-bar, Start menu, and high-DPI shell surfaces no longer rely on temporary scaling of one 256px icon.
@@ -11,26 +12,8 @@ v2.99.99.46-3.0-rc18
 * Makes the bundled data.zdb the authoritative catalog for official pacenote tokens, fixes the classification, primary aliases, and fallbacks of mechanical-damage calls, and adds an optional read-only custom ZDB merge with official definitions taking priority.
 * Adds rally-oriented database translations for every official pacenote token in all ten interface languages; the script editor and visual dashboard now show token meanings in the current interface language, with merge support for custom ZDB translations.
 * Completes German, Spanish, French, Italian, Japanese, Korean, Brazilian Portuguese, and Russian translations for the core interface, eliminating unintended English fallback across settings, replays, diagnostics, the system tray, data migration, the script editor, and dialogs.
-* Establishes the cross-platform runtime foundation for future SteamOS and Steam Deck support by separating application paths and audio platform services, adding a native Linux diagnostics host, portable tests, and a Flatpak development package, and verifying the official pacenote database and Codemasters UDP providers on Linux. This is development infrastructure, not yet a complete SteamOS client.
-* Extends SteamOS/Flatpak telemetry validation with a Codemasters UDP simulator, confirming that valid host-side packets cross the Flatpak sandbox boundary and decode correctly into speed, gear, RPM, and stage distance.
-* Replaces the BeamNG and ACR game-specific WPF settings panes with a generic game-integration settings model: paths, toggles, status, confirmations, and install/inject actions are now described without a UI dependency and rendered centrally by Base.UI. Both game plugins no longer depend on Base.UI, and the BeamNG core can now build as a portable .NET plugin.
-* Adds a PortAudio output backend to the native Linux host while sharing the existing decoding, mixing, sequential playback, speed control, mute, and diagnostics behavior; audio-device enumeration and playback have been validated on an Arch Linux VM.
-* Unifies Windows and Linux initialization of resources, game plugins, profiles, co-drivers, and prerequisites, and lets the DiRT Rally, DiRT Rally 2.0, and EA SPORTS WRC checks locate their Documents directories inside Steam Proton prefixes.
-* Extracts the Web Dashboard from WPF, the native overlay, and SharpDX and connects it to the Linux runtime; SteamOS/Linux can now load all bundled dashboards, the browser client, fonts, and pacenote icons and stream Codemasters UDP telemetry to browser dashboards in real time.
-* Lets the native Linux host detect DiRT Rally, DiRT Rally 2.0, and EA SPORTS WRC already running or subsequently launched through Steam Proton, automatically select the matching game, and create, switch, and release its telemetry reader; automatic discovery inside the Flatpak sandbox still requires a future host lifecycle relay.
-* Adds an x86_64 AppImage packaging flow for SteamOS, bundling the official pacenote database, localization, Web Dashboard, fonts, pacenote icons, default profile, and default co-driver package; mutable default resources are provisioned into the user data directory on first launch.
-* Makes Linux game detection activate the same complete game session used by Windows, including profile and co-driver selection, pacenote processing, PortAudio playback, and Web Dashboard state publication, with reliable release when games exit or change.
-* Fixes native Feral Interactive DiRT Rally installations being reported as not installed on Linux; ZTMZ now recognizes the Steam manifest and native configuration path and accurately reports when UDP telemetry still needs to be enabled.
-* Continues the shared Runtime foundation for an Avalonia/SteamOS UI: update checks and configuration migrations, co-driver selection, mute and example playback, Web Dashboard control, and support diagnostics are now reusable across platforms, while the native HUD, update dialogs, and installer replacement remain Windows Host responsibilities.
-* Further unifies replay and co-driver package operations across Windows and SteamOS: replay listing, analysis, locking, and export, plus co-driver package import, export, and update installation, are now reusable by cross-platform UIs; application installers use reliable streamed downloads with failed temporary files cleaned up, while Windows still presents progress, launches the installer, and exits.
-* Unifies online co-driver package catalog checks, streamed downloads, and safe installation for Windows and SteamOS UIs; failed downloads or installations now clean up temporary files and restore update state instead of leaving an update stuck in progress.
-* Adds a cross-platform desktop UI based on Avalonia and FluentAvalonia and connects it to the shared Runtime, game-process monitoring, complete game sessions, PortAudio playback, and Web Dashboard so Windows and SteamOS use the same core workflows.
-* Corrects the Avalonia migration where it had diverged from the established WPF product design, restoring the original Home-page wording, co-driver card and four quick actions, abstract Dashboard entry on Home, General settings as the second navigation item, versioned custom title bar, troubleshooting, issue-reporting, and support entries.
-* Makes Avalonia reuse the existing WPF localization resources for all ten interface languages and load Dashboard localization resources; changing the interface language now refreshes co-driver and Dashboard names and descriptions.
-* Completes the cross-platform Web Dashboard UI with a clickable real Dashboard preview on Home, a clickable access address, port and refresh-rate controls, the full Dashboard catalog, and page margins aligned with Home.
-* Completes cross-platform logging and audio-device lifecycle handling: logs use the shared Data Home logs directory and capture startup context, initialization failures, and unhandled exceptions; PortAudio filters unusable devices, follows device additions/removals and migration, and reduces latency, clipping, and crackling risks.
-
 [简体中文]
+* 修复游戏已在赛段中启动 ZTMZ 时，原生悬浮窗和网页仪表盘可能不显示实时数据的问题；现在会保持赛段活动状态，稳定显示遥测、路书和回放信息。
 * 路书编辑器新增主窗口内打印弹层，提供准确且实时刷新的 PDF 分页预览、实体打印机与 PDF 输出、纸张、方向、页边距、可配置格式与位置的页码、页码范围和份数设置；打印会保留背景色，并移除浏览器生成的文件路径页眉页脚。
 * 修复在 Codemasters 游戏赛段已进行中才启动 ZTMZ 时，首个 AdHocRaceBegin 状态可能在 UDP 接收器启动前丢失，导致路书播报和图形路书仪表盘未初始化的问题；现在会按车辆当前赛段距离恢复路书，不会重复播报发车提示。
 * 改进 Windows 应用和托盘图标：现在内置 16 至 256 像素的高质量多分辨率图标帧，任务栏、标题栏、开始菜单和高 DPI Shell 场景不再依赖单一 256 像素图标的临时缩放。
@@ -41,25 +24,6 @@ v2.99.99.46-3.0-rc18
 * 将官方路书 token 统一收录到内置 data.zdb，修正机械损坏提示的分类、主别名和回退关系，并新增只读自定义 ZDB 合并设置；发生冲突时始终以官方定义为准。
 * 为全部官方路书 token 补齐十种界面语言的数据库翻译，并按各语言常用的拉力路书术语校对；路书编辑器和图形路书 dashboard 现在都会按当前界面语言显示 token 含义，自定义 ZDB 也可补充翻译。
 * 补全核心界面的德语、西班牙语、法语、意大利语、日语、韩语、巴西葡萄牙语和俄语翻译，解决设置、回放、诊断、托盘、数据迁移、路书编辑器与弹窗意外回退为英文的问题。
-* 为未来的 SteamOS 和 Steam Deck 支持建立跨平台运行基础：拆分应用数据路径和音频平台服务，新增原生 Linux 诊断宿主、便携测试与 Flatpak 开发包，并已在 Linux/Flatpak 中验证官方路书数据库、Codemasters UDP 游戏插件及配置的加载。当前仍为开发基础，尚不代表完整的 SteamOS 客户端。
-* 扩展 SteamOS/Flatpak 遥测验证：新增 Codemasters UDP 数据模拟器，确认宿主发送的有效数据可穿过 Flatpak 沙箱并被完整解码为车速、档位、转速和赛段距离。
-* 将 BeamNG 和 ACR 的专属 WPF 设置面板重构为通用游戏集成设置：目录、开关、状态、确认及安装/注入操作现在由平台无关模型描述并由 Base.UI 统一渲染；两个游戏插件不再依赖 Base.UI，BeamNG 核心也可构建为便携 .NET 插件。
-* Linux 原生宿主新增 PortAudio 播放后端，并共享现有的语音解码、混音、顺序播放、变速、静音和诊断能力；已在 Arch Linux 虚拟机中验证音频设备枚举与播放链路。
-* 统一 Windows 与 Linux 的资源、游戏插件、profile、领航员语音包和前置条件初始化流程，并让 DiRT Rally、DiRT Rally 2.0 与 EA SPORTS WRC 的配置检查能够定位 Steam Proton prefix 中的 Documents 目录。
-* 网页仪表盘已从 WPF、原生悬浮窗和 SharpDX 中独立出来，并接入 Linux Runtime；SteamOS/Linux 现在能够加载全部内置仪表盘、网页客户端、字体和路书图标，并将 Codemasters UDP 遥测实时发送到浏览器仪表盘。
-* 原生 Linux 宿主现在能够识别 Steam Proton 中已运行或随后启动的 DiRT Rally、DiRT Rally 2.0 与 EA SPORTS WRC，自动选择对应游戏并建立、切换和释放遥测读取器；Flatpak 沙箱内的自动发现仍需后续的宿主生命周期 relay。
-* 新增面向 SteamOS 的 x86_64 AppImage 打包流程，完整携带官方路书数据库、多语言、网页仪表盘、字体、路书图标、默认 profile 和默认领航员语音包；首次启动时会将可修改的默认资源部署到用户数据目录。
-* Linux 游戏检测现在会建立与 Windows 共用的完整游戏会话，统一完成 profile 与领航员选择、路书处理、PortAudio 播放和网页仪表盘状态发布，并在游戏退出或切换时可靠释放整个会话。
-* 修复原生 Linux 版 DiRT Rally 使用 Feral Interactive 数据目录时被误报为“游戏未安装”的问题；现在能够识别 Steam 安装清单和原生配置路径，并准确提示尚未开启 UDP 遥测。
-* 继续为 Avalonia/SteamOS 界面统一共享 Runtime：更新检查与版本配置迁移、领航员选择、静音与试听、网页仪表盘控制以及支持诊断现在均可跨平台复用；Windows 原生 HUD、更新弹窗和安装程序替换仍由 Windows Host 负责。
-* 进一步统一 Windows 与 SteamOS 的回放和领航员语音包操作：回放列表、分析、锁定与导出，以及语音包导入、导出和更新安装现在均可由跨平台界面复用；应用更新安装包改为可靠的流式下载并在失败时清理临时文件，Windows 仍负责显示进度、启动安装程序和退出。
-* 统一在线领航员语音包的目录检查、流式下载和安全安装流程，供 Windows 与 SteamOS 界面共用；下载或安装失败时会清理临时文件并恢复更新状态，不再让更新操作停留在进行中。
-* 新增基于 Avalonia 和 FluentAvalonia 的跨平台桌面界面，并接入共享 Runtime、游戏进程监听、完整游戏会话、PortAudio 播放与网页仪表盘；Windows 与 SteamOS 使用同一套核心业务流程。
-* 修正 Avalonia 界面迁移偏离现有 WPF 产品设计的问题：恢复原有主界面文案、领航员卡片与四个快捷操作、Home 页抽象仪表入口、第二导航项的通用设置、带版本号的自定义标题栏，以及疑难解答、问题反馈和赞助入口。
-* Avalonia 界面现在直接复用现有十种语言的 WPF 多语言资源，并补充仪表盘语言资源加载；切换界面语言时会同步刷新领航员、仪表盘名称和相关说明。
-* 完善跨平台网页仪表盘界面：主页显示可点击的真实仪表预览，仪表盘页面提供可点击访问地址、端口、刷新率和完整仪表列表，并统一各页面与主页的左右边距。
-* 完善跨平台日志和音频设备生命周期：日志写入统一 Data Home 的 logs 目录并记录启动环境、初始化及未处理异常；PortAudio 会过滤不可用设备、处理运行期间的设备增删与迁移，并降低延迟、削波和爆音风险。
-
 v2.99.99.45-3.0-rc17
 ------
 [English]

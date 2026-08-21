@@ -106,6 +106,14 @@ public partial class App : Application
             services.AddSingleton<UpdateService>();
             services.AddSingleton<StartupService>();
             services.AddSingleton<GameOverlayManager>();
+            services.AddSingleton<NativeOverlaySessionController>(provider =>
+                new NativeOverlaySessionController(
+                    provider.GetRequiredService<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>(),
+                    () => provider.GetRequiredService<RuntimeControlsService>()
+                        .GetSnapshot()
+                        .SelectedCodriver,
+                    provider.GetRequiredService<GameOverlayManager>()));
+            services.AddSingleton<WpfNativeOverlayPreviewController>();
             services.AddSingleton<IRuntimeDashboardController, GameOverlayDashboardController>();
             services.AddSingleton<SharedRuntimeControlsService>();
             services.AddSingleton<VRGameOverlayManager>();

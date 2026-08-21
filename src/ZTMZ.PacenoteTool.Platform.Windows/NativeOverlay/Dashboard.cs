@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Windows.Media.Imaging;
 using ZTMZ.PacenoteTool.Base;
 using GameOverlay.Drawing;
 using Neo.IronLua;
@@ -97,7 +96,6 @@ public class Dashboard {
         Descriptor = JsonConvert.DeserializeObject<DashboardDescriptor>(File.ReadAllText(jsonDescriptorPath));
         Descriptor.Path = Path.GetDirectoryName(jsonDescriptorPath);
         loadConfig();
-        loadPreviewImage();
     }
 
     private void loadConfig() { 
@@ -117,24 +115,23 @@ public class Dashboard {
         Descriptor.IsEnabled = (bool)dashBoardConfig["dashboards.settings.enabled"];
     }
 
-    private void loadPreviewImage() {
-        if (!string.IsNullOrEmpty(Descriptor.PreviewImagePath)) {
-            this.PreviewImage = new BitmapImage(new Uri(Path.Combine(Descriptor.Path, Descriptor.PreviewImagePath)));
-        } else {
-            this.PreviewImage = new BitmapImage(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.UI.Wpf;component/unknown_dashboard_preview_image.png"));
-        }
-        this.PreviewImage.Freeze();
-    }
-
     public void SetIsEnable(bool value) {
         Descriptor.IsEnabled = value;
         DashboardConfigurations["dashboards.settings.enabled"] = value;
         Interlocked.Increment(ref _configurationRevision);
     }
 
+    public void ReloadConfig()
+    {
+        loadConfig();
+        Interlocked.Increment(ref _configurationRevision);
+    }
+
     public long ConfigurationRevision => Interlocked.Read(ref _configurationRevision);
 
-    public BitmapImage PreviewImage { get; set; }   // use wpf compatible image
+    public string? PreviewImageFilePath => string.IsNullOrWhiteSpace(Descriptor.PreviewImagePath)
+        ? null
+        : Path.Combine(Descriptor.Path, Descriptor.PreviewImagePath);
     public Dictionary<string, object> ImageResources { get; set; }
     public Dictionary<string, DashboardImageResourceSource> ImageResourceSources { get; private set; }
 

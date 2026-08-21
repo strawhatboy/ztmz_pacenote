@@ -261,106 +261,24 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
     private RuntimeControlsService _runtimeControls;
 
+    private NativeOverlaySessionController _nativeOverlaySession;
+
     private bool _isApplyingRuntimeControls;
-    private readonly object _overlayInitializationLock = new();
-    private int _overlayInitializationProcessId = -1;
-    private long _overlayInitializationGeneration;
     private readonly object _localBridgePromptLock = new();
     private IGame? _localBridgePromptedGame;
 
     private void RequestGameOverlayInitialization(IGame game, Process process)
     {
-        int processId;
-        try
+        if (_nativeOverlaySession.EnsureAttached(game, process))
         {
-            processId = process.Id;
-        }
-        catch (Exception ex)
-        {
-            _logger.Warn(ex, "Cannot initialize GameOverlay because the game process is unavailable.");
-            return;
-        }
-
-        long generation;
-        lock (_overlayInitializationLock)
-        {
-            if (_overlayInitializationProcessId == processId)
+            _logger.Info("Game started in Home Page. Initializing native overlay session.");
+            if (OpenVR.IsRuntimeInstalled() && Config.Instance.VrShowOverlay)
             {
-                _logger.Debug(
-                    "Ignoring duplicate GameOverlay initialization request for process {0}.",
-                    processId);
-                return;
-            }
-
-            _overlayInitializationProcessId = processId;
-            generation = ++_overlayInitializationGeneration;
-        }
-
-        _logger.Info("Game started. in Home Page. Initializing GameOverlay.");
-        var selectionGeneration = Interlocked.Read(ref _gameSelectionGeneration);
-        _ = Task.Run(() => InitializeGameOverlay(game, process, processId, generation, selectionGeneration));
-    }
-
-    private void InitializeGameOverlay(
-        IGame game,
-        Process process,
-        int processId,
-        long generation,
-        long selectionGeneration)
-    {
-        try
-        {
-            lock (_overlayInitializationLock)
-            {
-                if (!IsCurrentOverlayInitialization(processId, generation)
-                    || !IsCurrentGameSelection(game, selectionGeneration))
-                {
-                    if (IsCurrentOverlayInitialization(processId, generation))
-                    {
-                        _overlayInitializationProcessId = -1;
-                    }
-
-                    return;
-                }
-
-                _logger.Info("Requesting GameOverlay initialization for the game window...");
-                _gameOverlayManager.UninitializeOverlay();
-                _gameOverlayManager.InitializeOverlay(process);
-                var currentGameState = game.GameDataReader.GameState;
-                var restoreStageActive = GameStateStageActivity.IsActive(currentGameState);
-                _gameOverlayManager.SetStageActive(restoreStageActive);
-                _logger.Info(
-                    "Restored GameOverlay stage visibility after initialization: {0} for game state {1}.",
-                    restoreStageActive,
-                    currentGameState);
-
-                _logger.Info("Try to initialize VRGameOverlay...");
-                if (OpenVR.IsRuntimeInstalled() && Config.Instance.VrShowOverlay)
-                {
-                    _vrGameOverlayManager.StopLoop();
-                    _vrGameOverlayManager.StartLoop();
-                    _logger.Info("Vr Game overlay initliazed.");
-                }
+                _vrGameOverlayManager.StopLoop();
+                _vrGameOverlayManager.StartLoop();
+                _logger.Info("VR game overlay initialized.");
             }
         }
-        catch (Exception ex)
-        {
-            lock (_overlayInitializationLock)
-            {
-                if (IsCurrentOverlayInitialization(processId, generation))
-                {
-                    _overlayInitializationProcessId = -1;
-                }
-            }
-
-            _logger.Error(ex, "Failed to initialize GameOverlay for process {0}.", processId);
-        }
-    }
-
-    private bool IsCurrentOverlayInitialization(int processId, long generation)
-    {
-        return _overlayInitializationProcessId == processId
-            && _overlayInitializationGeneration == generation;
     }
 
     private bool IsCurrentGameSelection(IGame game, long generation)
@@ -390,7 +308,6 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
                 IsGameRunning = isGameRunning;
                 if (runningProcess != null)
                 {
-                    _gameOverlayManager.SetStageActive(false);
                     RequestGameOverlayInitialization(game.Game, runningProcess);
                 }
             }
@@ -443,7 +360,6 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         IsGameRunning = true;
         if (selectionAlreadyInProgress)
         {
-            _gameOverlayManager.SetStageActive(false);
             RequestGameOverlayInitialization(game, process);
             return;
         }
@@ -453,7 +369,6 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             // ProcessWatcher (or SetGame's running-process compensation) has already
             // initialized the selected game. Re-entering SetGame here would tear down that
             // reader and its freshly-created overlay while the graphics thread is starting.
-            _gameOverlayManager.SetStageActive(false);
             RequestGameOverlayInitialization(game, process);
             return;
         }
@@ -528,18 +443,13 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
     private void UninitializeGameOverlay()
     {
-        lock (_overlayInitializationLock)
-        {
-            _overlayInitializationProcessId = -1;
-            _overlayInitializationGeneration++;
-            _gameOverlayManager.SetStageActive(false);
-            _gameOverlayManager.UninitializeOverlay();
-        }
+        _nativeOverlaySession.Detach();
     }
 
     public HomePageVM(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool _tool, 
         IServiceProvider serviceProvider, 
         GameOverlayManager gameOverlayManager, 
+        NativeOverlaySessionController nativeOverlaySession,
         VRGameOverlayManager vRGameOverlayManager,
         AzureAppInsightsManager azureAppInsightsManager,
         UpdateConfigSetter updateConfigSetter,
@@ -547,6 +457,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         DiagnosticsView diagnosticsView,
         RuntimeControlsService runtimeControls) {
         _gameOverlayManager = gameOverlayManager;
+        _nativeOverlaySession = nativeOverlaySession;
         _vrGameOverlayManager = vRGameOverlayManager;
         _serviceProvider = serviceProvider;
         _azureAppInsightsManager = azureAppInsightsManager;
@@ -585,7 +496,6 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
                 return;
             }
             IsGameRunning = true;
-            _gameOverlayManager.SetStageActive(false);
             RequestGameOverlayInitialization(game, p);
         };
         _tool.onGameEnded += (game) => {
@@ -609,7 +519,6 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             IsGameInitialized = false;
             IsGameInitializedFailed = false;
             IsRacing = false; 
-            _gameOverlayManager.SetStageActive(false);
             game.onCustomMessage -= this._gameCustomMessage;
             ScheduleDiagnosticsRefresh(includePrerequisiteCheck: false);
         };
@@ -790,20 +699,10 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         };
         _tool.onRaceBegin += (game) => { 
             IsRacing = true; 
-            _gameOverlayManager.SetStageActive(true);
-            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison = ReplayComparisonSnapshot.Unavailable;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.CurrentPacenote = PacenotePlaybackSnapshot.Empty;
-        };
-        _tool.onRaceBegined += (game) => {
-            _gameOverlayManager.DashboardScriptArguments.GameContext.ScriptAuthor = _tool.CurrentScriptAuthor;
         };
         _tool.onTrackAndCarChanged += (game, trackName, carName, carClass) => {
             CurrentTrack = trackName;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.TrackName = trackName;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.CarName = carName;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.CarClass = carClass;
             var selectedCodriver = _runtimeControls.GetSnapshot().SelectedCodriver;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.AudioPackage = selectedCodriver?.name ?? string.Empty;
             _azureAppInsightsManager.TrackEvent("RaceTrackChanged", 
                 new Dictionary<string, string>{ 
                     {"Game", game.Name },
@@ -813,57 +712,12 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
                 });
         };
 
-        _tool.onLocalReplayLoaded += res => {
-            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayValid = res;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplay = _tool.BestLocalReplay;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayDetailsPerCheckpoints = _tool.BestLocalReplayDetailsPerCheckpoints;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayDetailsPerTimes = _tool.BestLocalReplayDetailsPerTimes;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayDetailsPerTimesDict = _tool.BestLocalReplayDetailsPerTimes
-                .GroupBy(x => x.time)
-                .ToDictionary(x => x.Key, x => x.First().distance);
-            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayFinishTime = _tool.BestLocalReplay?.finish_time ?? 0;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.GetDelta = _tool.GetDelta;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.GetDeltaByDistanceAndTime = _tool.GetDeltaByDistanceAndTime;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.GetDeltaByCheckpoint = _tool.GetDeltaByCheckpoint;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.GetTimeByDistance = _tool.GetTimeByDistance;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.GetBestTimeByDistance = _tool.GetBestTimeByDistance;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.GetBestDistanceByTime = _tool.GetBestDistanceByTime;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison = ReplayComparisonSnapshot.Unavailable;
-        };
-
-        _tool.onNewGameData += (game, data) => {
-            if (_isRacing) {
-                // update game data.
-                _gameOverlayManager.DashboardScriptArguments.GameData = data;
-                _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison =
-                    _tool.GetReplayComparison(data);
-            }
-        };
-
         _tool.onRaceEnd += (game) => { 
             IsRacing = false;
-            _gameOverlayManager.SetStageActive(false);
-            _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison = ReplayComparisonSnapshot.Unavailable;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.CurrentPacenote = PacenotePlaybackSnapshot.Empty;
-        };
-
-        _tool.onPacenoteDispatched += snapshot => {
-            _gameOverlayManager.DashboardScriptArguments.GameContext.CurrentPacenote = snapshot;
         };
 
         _tool.onGameStateChanged += (game, state) => {
-            // set Gamestate to dashboard context.
-            _gameOverlayManager.DashboardScriptArguments.GameContext.LastGameState = (int)state.LastGameState;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.GameState = (int)state.NewGameState;
-            _gameOverlayManager.DashboardScriptArguments.GameContext.GameStateChangedParameters = state.Parameters;
-            var isStageActive = GameStateStageActivity.IsActive(state.NewGameState);
-            IsRacing = isStageActive;
-            _gameOverlayManager.SetStageActive(isStageActive);
-            if (!isStageActive)
-            {
-                _gameOverlayManager.DashboardScriptArguments.GameContext.LocalReplayComparison = ReplayComparisonSnapshot.Unavailable;
-                _gameOverlayManager.DashboardScriptArguments.GameContext.CurrentPacenote = PacenotePlaybackSnapshot.Empty;
-            }
+            IsRacing = GameStateStageActivity.IsActive(state.NewGameState);
         };
 
         BindingOperations.EnableCollectionSynchronization(Games, _collectionLock);

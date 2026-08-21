@@ -5,7 +5,7 @@
   <ScrollViewer>
     <Grid Margin="42,28,42,40"
           HorizontalAlignment="Stretch"
-          RowDefinitions="Auto,Auto,Auto">
+          RowDefinitions="Auto,Auto,Auto,Auto">
       <StackPanel Spacing="4">
         <TextBlock Text="{DynamicResource tabs.dashboard}"
                    FontSize="28"
@@ -15,6 +15,66 @@
       </StackPanel>
 
       <Border Grid.Row="1"
+              Margin="0,28,0,0"
+              Padding="16"
+              IsVisible="{Binding IsNativeOverlaySupported}"
+              Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+              BorderThickness="1"
+              CornerRadius="4">
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="14">
+          <StackPanel Spacing="4">
+            <TextBlock Text="{DynamicResource settings.overlayHud}"
+                       FontSize="18"
+                       FontWeight="SemiBold" />
+            <TextBlock Text="{DynamicResource settings.tooltip.overlayHudHomeStatus}"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1"
+                        IsChecked="{Binding IsNativeOverlayEnabled, Mode=TwoWay}"
+                        OnContent=""
+                        OffContent=""
+                        ToolTip.Tip="{DynamicResource settings.tooltip.overlayHudEnabled}" />
+          <Grid Grid.Row="1" Grid.ColumnSpan="2"
+                ColumnDefinitions="Auto,Auto,60,*" ColumnSpacing="10">
+            <TextBlock Text="{DynamicResource settings.hudFPS}"
+                       VerticalAlignment="Center" />
+            <ToggleSwitch Grid.Column="1"
+                          IsChecked="{Binding IsNativeOverlayFrameRateLocked, Mode=TwoWay}"
+                          OnContent=""
+                          OffContent=""
+                          ToolTip.Tip="{DynamicResource settings.tooltip.hudFPS}" />
+            <TextBlock Grid.Column="2"
+                       Text="{Binding NativeOverlayFrameRate}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center" />
+            <Slider Grid.Column="3"
+                    Minimum="30"
+                    Maximum="240"
+                    IsEnabled="{Binding IsNativeOverlayFrameRateLocked}"
+                    Value="{Binding NativeOverlayFrameRate, Mode=TwoWay}" />
+          </Grid>
+          <Grid Grid.Row="2" Grid.ColumnSpan="2" ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="10">
+            <TextBlock Text="{DynamicResource settings.hudTopMost}"
+                       VerticalAlignment="Center" />
+            <ToggleSwitch Grid.Column="1"
+                          IsChecked="{Binding IsNativeOverlayTopMost, Mode=TwoWay}"
+                          OnContent=""
+                          OffContent=""
+                          ToolTip.Tip="{DynamicResource settings.tooltip.hudTopMost}" />
+            <ProgressBar Grid.Column="2"
+                         IsIndeterminate="True"
+                         IsVisible="{Binding IsNativeOverlayInitializing}"
+                         VerticalAlignment="Center" />
+            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <Ellipse Width="8" Height="8" Fill="{Binding NativeOverlayStatusBrush}" />
+              <TextBlock Text="{Binding NativeOverlayStatus}" />
+            </StackPanel>
+          </Grid>
+        </Grid>
+      </Border>
+
+      <Border Grid.Row="2"
               Margin="0,28,0,0"
               Padding="16"
               Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
@@ -72,7 +132,7 @@
         </Grid>
       </Border>
 
-      <ItemsControl Grid.Row="2"
+      <ItemsControl Grid.Row="3"
                     Margin="0,18,0,0"
                     ItemsSource="{Binding Dashboards}">
         <ItemsControl.Styles>
