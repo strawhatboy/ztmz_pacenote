@@ -6,6 +6,7 @@ Output
 *wpftmp.csproj
 build/target
 build/target*
+build/avalonia-publish-probe/
 artifacts/
 # Monaco is vendored for the offline script editor. Keep its pinned runtime in
 # source control so publish output does not depend on a CDN or npm at build time.
