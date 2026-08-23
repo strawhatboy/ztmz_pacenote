@@ -77,6 +77,7 @@ public sealed partial class MainWindow : FAAppWindow
         {
             ["home"] = new HomeView(),
             ["general"] = new GeneralView { DataContext = _generalSettingsViewModel },
+            ["games"] = new GamesView(),
             ["codriver"] = new CoDriverView(),
             ["dashboard"] = new DashboardView(),
             ["play"] = new PlayView { DataContext = _playSettingsViewModel },
@@ -615,4 +616,3 @@ public sealed partial class MainWindow : FAAppWindow
         }
     }
 }
-

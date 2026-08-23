@@ -75,54 +75,6 @@
           </Grid>
 
           <Expander IsExpanded="True"
-                    IsVisible="{Binding HasGameSettingsContent}"
-                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1"
-                    CornerRadius="4"
-                    Padding="16">
-            <Expander.Header>
-              <StackPanel Orientation="Horizontal" Spacing="10">
-                <materialIcons:MaterialIcon Kind="Steering" Width="26" Height="26" />
-                <TextBlock Text="{DynamicResource gameSettings}"
-                           FontSize="15"
-                           FontWeight="SemiBold"
-                           VerticalAlignment="Center" />
-              </StackPanel>
-            </Expander.Header>
-            <StackPanel Margin="0,14,0,0" Spacing="10">
-              <TextBlock Text="{Binding GameDetectionSummary}" TextWrapping="Wrap" />
-              <!-- Lock / Unlock -->
-              <Border IsVisible="{Binding IsGameSettingsLocked}"
-                      Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
-                      CornerRadius="4" Padding="12">
-                <StackPanel Spacing="8">
-                  <TextBlock Text="{DynamicResource gameSettingsLockedTitle}"
-                             FontWeight="SemiBold" />
-                  <TextBlock Text="{DynamicResource gameSettingsLockedMessage}"
-                             TextWrapping="Wrap" />
-                  <Button Command="{Binding UnlockGameSettingsCommand}"
-                          HorizontalAlignment="Left">
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                      <materialIcons:MaterialIcon Kind="LockOpen" Width="16" Height="16" />
-                      <TextBlock Text="{DynamicResource unlockGameSettings}" />
-                    </StackPanel>
-                  </Button>
-                </StackPanel>
-              </Border>
-              <!-- Game-specific settings panes -->
-              <ItemsControl ItemsSource="{Binding CurrentGameSettings}"
-                            IsVisible="{Binding IsGameSettingsUnlocked}">
-                <ItemsControl.ItemsPanel>
-                  <ItemsPanelTemplate>
-                    <StackPanel Spacing="8" />
-                  </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-              </ItemsControl>
-            </StackPanel>
-          </Expander>
-
-          <Expander IsExpanded="True"
                     Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"

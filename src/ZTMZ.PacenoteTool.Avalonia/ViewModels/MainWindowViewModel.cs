@@ -335,7 +335,6 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     private bool _applyingSnapshot;
     private string _activeImageFileName = string.Empty;
     private string _dashboardCulture = string.Empty;
-    private IGame? _gameSettingsGame;
     private bool _hasNotificationSnapshot;
     private bool _lastHasActiveGame;
     private bool _lastStageActive;
@@ -525,27 +524,10 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     [NotifyPropertyChangedFor(nameof(HasNavigationBreadcrumb))]
     private string _activeNavigationPage = "home";
 
-    // ── Game Settings Panes ──────────────────────────────────────────────
-
-    [ObservableProperty]
-    private ObservableCollection<object> _currentGameSettings = [];
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsGameSettingsLocked))]
-    private bool _isGameSettingsUnlocked;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsGameSettingsLocked))]
-    private bool _hasGameSettingsContent;
-
     [ObservableProperty]
     private bool _isLanguageSwitchInProgress;
 
-    public bool IsGameSettingsLocked => HasGameSettingsContent && !IsGameSettingsUnlocked;
-
     public IGame? CurrentActiveGame => _runtime.CurrentGame;
-
-    // ── end Game Settings ────────────────────────────────────────────────
 
     public MainWindowViewModel()
     {
@@ -566,6 +548,8 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     public ObservableCollection<AudioOutputChoice> OutputDevices { get; } = [];
 
     public ObservableCollection<DashboardChoice> Dashboards { get; } = [];
+
+    public ObservableCollection<GameSettingsGroup> GameSettings { get; } = [];
 
     public ObservableCollection<VoicePackageChoice> VoicePackages { get; } = [];
 
@@ -588,6 +572,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
             {
                 "home" => "tabs.home",
                 "general" => "tabs.general",
+                "games" => "tabs.games",
                 "play" => "tabs.playback",
                 "dashboard" => "tabs.dashboard",
                 "scriptEditor" => "tabs.scriptEditor",
@@ -618,6 +603,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         await _runtime.InitializeAsync(cancellationToken);
+        RebuildGameSettingsPanes();
         RefreshSnapshot();
         _ = RefreshVoicePackagesAsync();
     }
@@ -857,6 +843,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
             Status = LocalizeRuntimeStatus(snapshot.Status);
             UpdateStartupStatusHistory(Status);
             ApplyActiveGame(snapshot.ActiveGame, snapshot.ActiveGameCount);
+            RefreshGameSettingsRuntimeState();
             CurrentTrack = snapshot.CurrentTrack;
             GameCount = snapshot.GameCount;
             CoDriverCount = snapshot.CoDriverCount;
@@ -1021,7 +1008,6 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
             GameDetectionSummary = AvaloniaLocalization.Get("gameSession.noSupportedGameDetected");
             GameStatusBrush = WaitingBrush;
             SetActiveGameImage(string.Empty);
-            RebuildGameSettingsPanes(currentGame: null);
             return;
         }
 
@@ -1037,43 +1023,44 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
             ? ConnectedBrush
             : FailedBrush;
         SetActiveGameImage(game.ImageFileName);
-        RebuildGameSettingsPanes(currentGame: _runtime.CurrentGame);
     }
 
-    private void RebuildGameSettingsPanes(IGame? currentGame)
+    private void RebuildGameSettingsPanes()
     {
-        if (ReferenceEquals(_gameSettingsGame, currentGame))
-        {
-            return;
-        }
-
-        _gameSettingsGame = currentGame;
         DisposeGameSettingsPanes();
-        IsGameSettingsUnlocked = false;
-
-        if (currentGame is null)
+        foreach (var game in _runtime.Games)
         {
-            HasGameSettingsContent = false;
-            return;
+            var panes = GameSettingsPaneFactory.CreatePanesForGame(game);
+            if (panes.Count == 0)
+            {
+                continue;
+            }
+
+            foreach (var pane in panes)
+            {
+                pane.RestartNeeded += OnGameSettingsRestartNeeded;
+            }
+
+            GameSettings.Add(new GameSettingsGroup(game, panes, LoadGameImage(game)));
         }
 
-        var panes = GameSettingsPaneFactory.CreatePanesForGame(currentGame);
-        foreach (var pane in panes)
-        {
-            pane.RestartNeeded += OnGameSettingsRestartNeeded;
-            CurrentGameSettings.Add(pane);
-        }
-        HasGameSettingsContent = CurrentGameSettings.Count > 0;
+        RefreshGameSettingsRuntimeState();
     }
 
     private void DisposeGameSettingsPanes()
     {
-        foreach (var pane in CurrentGameSettings.OfType<GameSettingsPane>())
+        foreach (var group in GameSettings)
         {
-            pane.RestartNeeded -= OnGameSettingsRestartNeeded;
-            pane.Dispose();
+            foreach (var pane in group.Panes)
+            {
+                pane.RestartNeeded -= OnGameSettingsRestartNeeded;
+                pane.Dispose();
+            }
+
+            group.Dispose();
         }
-        CurrentGameSettings.Clear();
+
+        GameSettings.Clear();
     }
 
     private void OnGameSettingsRestartNeeded() =>
@@ -1100,6 +1087,28 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
         var previousImage = ActiveGameImage;
         ActiveGameImage = nextImage;
         previousImage?.Dispose();
+    }
+
+    private void RefreshGameSettingsRuntimeState()
+    {
+        foreach (var group in GameSettings)
+        {
+            group.UpdateRuntimeState(
+                group.Game.IsRunning,
+                group.Game.IsInitialized,
+                AvaloniaLocalization.Get("gameSession.connected"),
+                AvaloniaLocalization.Get("gameSession.connectionFailed"),
+                ConnectedBrush,
+                FailedBrush);
+        }
+    }
+
+    private static Bitmap? LoadGameImage(IGame game)
+    {
+        var imageFileName = Path.GetFileName(game.ImageUri);
+        return string.IsNullOrWhiteSpace(imageFileName)
+            ? null
+            : LoadBitmap(Path.Combine(AppContext.BaseDirectory, "Assets", "Games", imageFileName));
     }
 
     private void ApplyDashboards(IReadOnlyList<WebDashboardDefinition> definitions)
@@ -1439,27 +1448,6 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     [RelayCommand]
     private void OpenExternalUri(string? uri) => OpenExternal(uri);
 
-    [RelayCommand]
-    private async Task UnlockGameSettings()
-    {
-        if (IsGameSettingsUnlocked)
-            return;
-
-        var dialog = FaContentDialogFactory.Create(new FAContentDialog
-        {
-            Title = AvaloniaLocalization.Get("gameSettingsUnlockDialogTitle"),
-            Content = AvaloniaLocalization.Get("gameSettingsUnlockDialogMessage"),
-            PrimaryButtonText = AvaloniaLocalization.Get("gameSettingsUnlockConfirm"),
-            CloseButtonText = AvaloniaLocalization.Get("dialog.common.btn_cancel"),
-            DefaultButton = FAContentDialogButton.Primary
-        });
-        var result = await dialog.ShowAsync();
-        if (result == FAContentDialogResult.Primary)
-        {
-            IsGameSettingsUnlocked = true;
-        }
-    }
-
     [RelayCommand(CanExecute = nameof(CanOpenDashboard))]
     private void OpenDashboard()
     {
@@ -1506,6 +1494,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
             OnPropertyChanged(nameof(VoiceBreadcrumbItems));
             OnPropertyChanged(nameof(NavigationBreadcrumbItems));
             OnPropertyChanged(nameof(HasNavigationBreadcrumb));
+            RebuildGameSettingsPanes();
             RefreshSnapshot();
 
             if (IsVoicePackageDetailsOpen && SelectedVoicePackage != null)

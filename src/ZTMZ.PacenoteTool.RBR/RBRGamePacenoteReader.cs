@@ -7,7 +7,6 @@
 
 //TODO: ScriptReader, ScriptResource should be changed to use sqlite files.
 
-using Microsoft.Win32;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using IniParser;
@@ -106,32 +105,45 @@ public class RBRGamePacenoteReader : BasePacenoteReader
     }
     public RBRGamePacenoteReader()
     {
-        // 1. find RBR Root installation folder
-        var key = Registry.LocalMachine.OpenSubKey("Software\\Wow6432Node\\Rallysimfans RBR");
-        if (key != null)
+        Configure(null);
+    }
+
+    internal void Configure(RBRGameInstallationConfig? configuration)
+    {
+        TrackNoNameMap.Clear();
+        TrackNoStageNameMap.Clear();
+        _hasCustomPacenote = false;
+        _customPacenoteFolder = "";
+
+        if (!RBRGameInstallPathResolver.TryResolveRoot(configuration, out var rootDirectory, out _))
         {
-            var rootDir = key.GetValue("InstallPath") as string;
-            if (rootDir != null) 
-            {
-                RBRRootDir = rootDir;
-            } else {
-                return;
-            }
-        } else 
-        {
-            // RSF rbr not installed.
+            RBRRootDir = "";
             return;
         }
 
+        RBRRootDir = rootDirectory;
+        try
+        {
+            LoadInstallationData();
+        }
+        catch (Exception exception)
+        {
+            TrackNoNameMap.Clear();
+            TrackNoStageNameMap.Clear();
+            _hasCustomPacenote = false;
+            _customPacenoteFolder = "";
+            _logger.Error(exception, "Unable to read RBR installation data from {0}.", RBRRootDir);
+        }
+    }
 
+    private void LoadInstallationData()
+    {
         var trackFilePath = Path.Join(RBRRootDir, "Maps\\Tracks.ini");
-        if (!File.Exists(trackFilePath)) 
+        if (!File.Exists(trackFilePath))
         {
-            // RSF rbr not valid or uninstalled properly.
             return;
         }
 
-        // 2. load Tracks.ini
         var parser = new FileIniDataParser();
 
         var personalDefPath = Path.Join(RBRRootDir, "rallysimfans_personal.ini");
@@ -187,7 +199,13 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             TrackNoStageNameMap.Add(mapNo, mapStageName);
         }
 
-        data = parser.ReadFile(Path.Join(RBRRootDir, "Plugins\\NGPCarMenu.ini"));
+        var ngpCarMenuPath = Path.Join(RBRRootDir, "Plugins\\NGPCarMenu.ini");
+        if (!File.Exists(ngpCarMenuPath))
+        {
+            return;
+        }
+
+        data = parser.ReadFile(ngpCarMenuPath);
         var defaultSection = data.Sections.FirstOrDefault(s => s.SectionName.Equals("Default"));
         if (defaultSection != null) 
         {

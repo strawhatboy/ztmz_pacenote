@@ -146,6 +146,18 @@
             </StackPanel>
           </ListBoxItem>
           <ListBoxItem Classes="left-fluent-nav-item"
+                       Tag="games"
+                       ToolTip.Tip="{DynamicResource tabs.games}"
+                       ToolTip.ShowDelay="100">
+            <StackPanel Spacing="3" HorizontalAlignment="Center">
+              <materialIcons:MaterialIcon Kind="GamepadVariant" Width="23" Height="23" />
+              <TextBlock Text="{DynamicResource tabs.games}"
+                         MaxWidth="76"
+                         TextAlignment="Center"
+                         TextWrapping="Wrap" />
+            </StackPanel>
+          </ListBoxItem>
+          <ListBoxItem Classes="left-fluent-nav-item"
                        Tag="codriver"
                        ToolTip.Tip="{DynamicResource tabs.voices}"
                        ToolTip.ShowDelay="100">
@@ -231,5 +243,3 @@
     </Border>
   </Grid>
 </Window>
-
-

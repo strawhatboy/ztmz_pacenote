@@ -1,5 +1,5 @@
 
-// How to get rbr root dir: HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Rallysimfans RBR\[InstallPath]
+// RBR root is derived from the player's configured executable, with the registry as a legacy fallback.
 // RBR track name by track id: [rbrRoot]\Maps\Tracks.ini (DLS tracks)
 // Analyze BTB tracks from [rbrRoot]\RX_CONTENT\Tracks\[TrackName]\[TrackId]_[TrackName].jpg
 //
@@ -53,7 +53,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.RBR
 {
-    public class RBR : IGame, IGameConfigurationMigrator
+    public class RBR : IGame, IGameConfigurationMigrator, IGameWithIntegrationProviders
     {
         public string WindowTitle => "Richard Burns Rally";
 
@@ -81,6 +81,11 @@ namespace ZTMZ.PacenoteTool.RBR
         public Dictionary<string, IGameConfig> GameConfigurations { 
             set {
                 _gameConfigurations = value;
+                if (_gameConfigurations.TryGetValue(RBRGameInstallationConfig.Name, out var installationConfiguration))
+                {
+                    ((RBRGamePacenoteReader)GamePacenoteReader).Configure(
+                        installationConfiguration as RBRGameInstallationConfig);
+                }
                 // load script resource
                 var pacenoteDef = ((CommonGameConfigs)_gameConfigurations[CommonGameConfigs.Name])["game.rbr.additional_settings.additional_pacenote_def"].ToString();
                 Task.Run(() => RBRScriptResource.Instance.LoadData(pacenoteDef)).Wait();
@@ -94,9 +99,15 @@ namespace ZTMZ.PacenoteTool.RBR
 
         public IGamePrerequisiteChecker GamePrerequisiteChecker { get; } = new RBRGamePrerequisiteChecker();
 
+        public IReadOnlyList<IGameIntegrationProvider> IntegrationProviders { get; } =
+        [
+            new RBRGameInstallationIntegrationProvider()
+        ];
+
         public Dictionary<string, IGameConfig> DefaultGameConfigurations { get; } = new() {
             { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback.ToString(), Port = 30001 } },
             { MemoryGameConfig.Name, new MemoryGameConfig() { RefreshRate = 60f } },    // use 60Hz as default
+            { RBRGameInstallationConfig.Name, new RBRGameInstallationConfig() },
             { CommonGameConfigs.Name, new CommonGameConfigs() 
             { 
                 PropertyName = new() {

@@ -1,6 +1,17 @@
 {
     "game": {
         "rbr": {
+            "installation": {
+                "executable": "RBR 游戏可执行文件",
+                "tooltip": {
+                    "executable": "为便携版 RBR 选择 RichardBurnsRally_SSE.exe（或 RichardBurnsRally.exe）。仅在此项为空时才使用注册表路径。"
+                },
+                "status": {
+                    "configured": "正在使用已配置的 RBR 安装目录：{0}",
+                    "registry": "正在使用注册表中找到的 RBR 安装目录：{0}",
+                    "missing": "请选择 RBR 游戏可执行文件以使用便携版安装。"
+                }
+            },
             "description": "最经典的拉力赛模拟游戏Richard Burns Rally，这里是RSF（Rallysimfans）版本",
             "additional_settings": {
                 "playPacenotesWhenReplaying": "在播放比赛回放的时候播放路书",

@@ -7,7 +7,7 @@
 // udpTelemetryPort=6776
 //
 // 
-// 1. check if the game was installed by registry
+// 1. resolve the configured RBR executable, then use the registry as a fallback
 // 2. check if the udpTelemetry is 1 (port opened)
 // 3. check if the Port matches that in game configuration
 //
@@ -18,7 +18,6 @@ using System.IO;
 using System.Linq;
 using IniParser;
 using IniParser.Model;
-using Microsoft.Win32;
 using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.RBR;
@@ -32,22 +31,14 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
     {
         _logger.Info("Checking RBR Prerequisites");
 
-        bool notInstalled = false;
-        var key = Registry.LocalMachine.OpenSubKey("Software\\Wow6432Node\\Rallysimfans RBR");
-        if (key != null)
+        if (!RBRGameInstallPathResolver.TryResolveRoot(game, out var rootDirectory, out var source))
         {
-            var rootDir = key.GetValue("InstallPath") as string;
-            if (rootDir != null) 
-            {
-                RBRRootDir = rootDir;
-            } else {
-                notInstalled = true;
-            }
-        } else 
-        {
-            // rsf rbr not installed.
-            notInstalled = true;
+            _logger.Info("RBR installation was not found in the configured executable path or registry.");
+            return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.GAME_NOT_INSTALLED };
         }
+
+        RBRRootDir = rootDirectory;
+        _logger.Info("Resolved RBR installation at {0} from {1}.", RBRRootDir, source);
 
         var iniFilePath = Path.Join(RBRRootDir, "RichardBurnsRally.ini");
         if (!RBRHelper.checkIfIniFileValid(iniFilePath)) 
@@ -59,11 +50,6 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
         if (!RBRHelper.checkIfIniFileValid(trackFilePath)) 
         {
             return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.CONFIG_FILE_CORRUPTED, IsOK = false, Params = new List<object> { game.Name, trackFilePath } };
-        }
-
-        if (notInstalled)
-        {
-            return new PrerequisitesCheckResult { Code = PrerequisitesCheckResultCode.GAME_NOT_INSTALLED };
         }
 
         // udp
@@ -109,6 +95,13 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
 
     public void ForceFix(IGame game)
     {
+        if (!RBRGameInstallPathResolver.TryResolveRoot(game, out var rootDirectory, out _))
+        {
+            _logger.Error("Cannot configure RBR telemetry because the RBR installation was not found.");
+            return;
+        }
+
+        RBRRootDir = rootDirectory;
         var parser = new FileIniDataParser();
         var iniFilePath = Path.Join(RBRRootDir, "RichardBurnsRally.ini");
         IniData data = parser.ReadFile(iniFilePath);
@@ -146,4 +139,3 @@ public class RBRGamePrerequisiteChecker : IGamePrerequisiteChecker
 
 
 }
-

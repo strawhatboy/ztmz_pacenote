@@ -1,0 +1,78 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:Class="ZTMZ.PacenoteTool.Avalonia.Views.GamesView">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="42,30,42,24" Spacing="20">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <materialIcons:MaterialIcon Kind="GamepadVariant" Width="28" Height="28" />
+        <TextBlock Text="{DynamicResource gameSettings}"
+                   FontSize="28"
+                   FontWeight="SemiBold"
+                   VerticalAlignment="Center" />
+      </StackPanel>
+
+      <ItemsControl ItemsSource="{Binding GameSettings}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Spacing="24" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Spacing="10">
+              <Grid ColumnDefinitions="56,*,Auto"
+                    ColumnSpacing="10">
+                <Border Width="48"
+                        Height="48"
+                        CornerRadius="4"
+                        Background="{DynamicResource ControlFillColorDefaultBrush}">
+                  <Image Source="{Binding Image}"
+                         Margin="4"
+                         Stretch="Uniform" />
+                </Border>
+
+                <StackPanel Grid.Column="1" Spacing="2">
+                  <TextBlock Text="{Binding Name}"
+                             FontSize="18"
+                             FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding Description}"
+                             Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                             TextWrapping="Wrap" />
+                </StackPanel>
+
+                <Border Grid.Column="2"
+                        Padding="8,4"
+                        VerticalAlignment="Center"
+                        Background="{Binding ConnectionBrush}"
+                        CornerRadius="4"
+                        IsVisible="{Binding IsRunning}">
+                  <TextBlock Text="{Binding ConnectionStatus}"
+                             Foreground="White" />
+                </Border>
+              </Grid>
+
+              <Border Height="3"
+                      Background="{Binding ConnectionBrush}"
+                      CornerRadius="2"
+                      IsVisible="{Binding IsRunning}" />
+
+              <ItemsControl ItemsSource="{Binding Panes}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Spacing="8" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+              </ItemsControl>
+
+              <Border Height="1"
+                      Margin="0,10,0,0"
+                      Background="{DynamicResource ControlStrokeColorDefaultBrush}" />
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

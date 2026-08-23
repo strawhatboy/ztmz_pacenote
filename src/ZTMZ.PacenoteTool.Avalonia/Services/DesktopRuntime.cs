@@ -95,6 +95,11 @@ internal sealed class DesktopRuntime : IAsyncDisposable
     /// <summary>Gets the currently active game (may be null/not running).</summary>
     public IGame? CurrentGame => _tool?.CurrentGame;
 
+    /// <summary>Gets every game integration loaded by the desktop runtime.</summary>
+    public IReadOnlyList<IGame> Games => _tool is null
+        ? []
+        : _tool.Games.OrderBy(game => game.Order).ToArray();
+
     public SharedRuntimeControlsService? Controls => _controls;
 
     public void ReloadDashboards()
