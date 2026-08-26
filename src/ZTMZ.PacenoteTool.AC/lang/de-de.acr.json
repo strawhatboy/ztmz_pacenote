@@ -2,6 +2,10 @@
     "game": {
         "acr": {
             "description": "Assetto Corsa Rally, entwickelt von Supernova Games Studios und veröffentlicht von 505 Games",
+            "resources": {
+                "replacementChinesePacenotes": "Alternative chinesische Pacenotes",
+                "replacementChinesePacenotesDescription": "Laden Sie acr.7z herunter, kopieren Sie den Ordner acr in das Spielverzeichnis und ersetzen Sie bei Nachfrage alle Dateien."
+            },
             "experimental": {
                 "enable": "Experimentelle Live-Bridge aktivieren",
                 "inject": "Bridge injizieren",

@@ -2,6 +2,10 @@
     "game": {
         "acr": {
             "description": "Supernova Games Studios が開発し、505 Games が販売する Assetto Corsa Rally",
+            "resources": {
+                "replacementChinesePacenotes": "中国語ペースノート差し替え版",
+                "replacementChinesePacenotesDescription": "acr.7zをダウンロードし、中のacrフォルダーをゲームのルートへコピーして、確認時にすべて置き換えます。"
+            },
             "experimental": {
                 "enable": "試験的なライブブリッジを有効にする",
                 "inject": "ブリッジを注入",

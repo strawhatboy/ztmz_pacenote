@@ -8,6 +8,13 @@
         },
         "wrc": {
             "description": "EA Sports WRC von EA Sports."
+        },
+        "resources": {
+            "replacementChinesePacenotes": "Alternatives chinesisches Beifahrerpaket",
+            "chineseLocalization": "Vereinfachte chinesische Lokalisierung",
+            "wrcReplacementChinesePacenotesDescription": "Professionelle chinesische Beifahrerstimme von 117; das Installationsprogramm im Spielverzeichnis ausführen.",
+            "wrcChineseLocalizationDescription": "Deckt historische Momente, Karriere, Rallye-Schule, Werkstatt und mehr ab; wenige englische Texte können verbleiben.",
+            "dr2ChineseLocalizationDescription": "Ersetzt Spielressourcendateien und vermeidet die unansehnlichen Schriften und langen Streckenladezeiten des ALI213-Patches."
         }
     }
 }

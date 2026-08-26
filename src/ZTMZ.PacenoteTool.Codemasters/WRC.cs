@@ -5,7 +5,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.Codemasters
 {
-    public class WRC : IGame, ISteamGameIdentity
+    public class WRC : IGame, ISteamGameIdentity, IGameWithResourceLinks
     {
 
         public string WindowTitle => "EA SPORTS™ WRC";
@@ -14,6 +14,18 @@ namespace ZTMZ.PacenoteTool.Codemasters
         public static string GameName = "EA SPORTS™ WRC";
         public const uint SteamAppId = 1849250;
         public uint SteamApplicationId => SteamAppId;
+
+        public IReadOnlyList<GameResourceLink> ResourceLinks { get; } =
+        [
+            new("replacement-chinese-pacenotes", "game.resources.replacementChinesePacenotes",
+                new Uri("https://gitee.com/ztmz/ea_wrc_chinese_codrivers/releases"),
+                GameResourceKind.Pacenotes,
+                DescriptionKey: "game.resources.wrcReplacementChinesePacenotesDescription"),
+            new("chinese-localization", "game.resources.chineseLocalization",
+                new Uri("https://gitee.com/ztmz/ea_wrc_chinese_translation/releases"),
+                GameResourceKind.Localization,
+                DescriptionKey: "game.resources.wrcChineseLocalizationDescription")
+        ];
 
         public event Action<int, string> onCustomMessage;
 

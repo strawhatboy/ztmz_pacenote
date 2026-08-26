@@ -8,6 +8,13 @@
         },
         "wrc": {
             "description": "EA Sports WRC от EA Sports."
+        },
+        "resources": {
+            "replacementChinesePacenotes": "Альтернативный китайский пакет штурмана",
+            "chineseLocalization": "Локализация на упрощённый китайский",
+            "wrcReplacementChinesePacenotesDescription": "Профессиональный китайский голос штурмана от 117; запустите установщик из папки игры.",
+            "wrcChineseLocalizationDescription": "Охватывает исторические моменты, карьеру, школу ралли, мастерскую и другое; некоторые английские строки могут остаться.",
+            "dr2ChineseLocalizationDescription": "Заменяет файлы игровых ресурсов, избегая непривлекательных шрифтов и медленной загрузки этапов в патче ALI213."
         }
     }
 }

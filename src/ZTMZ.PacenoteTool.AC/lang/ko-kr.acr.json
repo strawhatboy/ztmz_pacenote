@@ -2,6 +2,10 @@
     "game": {
         "acr": {
             "description": "Supernova Games Studios가 개발하고 505 Games가 배급한 Assetto Corsa Rally",
+            "resources": {
+                "replacementChinesePacenotes": "중국어 페이스노트 교체판",
+                "replacementChinesePacenotesDescription": "acr.7z를 내려받아 안의 acr 폴더를 게임 루트에 복사하고 메시지가 표시되면 모든 파일을 교체하세요."
+            },
             "experimental": {
                 "enable": "실험적 라이브 브리지 사용",
                 "inject": "브리지 주입",

@@ -2,6 +2,10 @@
     "game": {
         "acr": {
             "description": "Assetto Corsa Rally, разработанная Supernova Games Studios и изданная 505 Games",
+            "resources": {
+                "replacementChinesePacenotes": "Альтернативные китайские стенограммы",
+                "replacementChinesePacenotesDescription": "Скачайте acr.7z, скопируйте папку acr в корень игры и при запросе замените все файлы."
+            },
             "experimental": {
                 "enable": "Включить экспериментальный мост реального времени",
                 "inject": "Внедрить мост",

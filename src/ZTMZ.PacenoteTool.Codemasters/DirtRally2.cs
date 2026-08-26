@@ -5,7 +5,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.Codemasters
 {
-    public class DirtRally2 : IGame, ISteamGameIdentity
+    public class DirtRally2 : IGame, ISteamGameIdentity, IGameWithResourceLinks
     {
 
         public string WindowTitle => "DiRT Rally 2.0";
@@ -14,6 +14,14 @@ namespace ZTMZ.PacenoteTool.Codemasters
         public static string GameName = "Dirt Rally 2.0";
         public const uint SteamAppId = 690790;
         public uint SteamApplicationId => SteamAppId;
+
+        public IReadOnlyList<GameResourceLink> ResourceLinks { get; } =
+        [
+            new("chinese-localization", "game.resources.chineseLocalization",
+                new Uri("https://gitee.com/ztmz/dr2_-chinese_localization/releases#release-v1.0.1"),
+                GameResourceKind.Localization,
+                DescriptionKey: "game.resources.dr2ChineseLocalizationDescription")
+        ];
 
         public event Action<int, string> onCustomMessage;
 

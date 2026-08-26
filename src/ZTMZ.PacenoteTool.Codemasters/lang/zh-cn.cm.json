@@ -8,6 +8,13 @@
         },
         "wrc": {
             "description": "EA Sports WRC, 由原Codemasters团队开发，Dirt Rally 精神续作\nCodemasters解散啦，EA卷款跑路啦，现在已经是完全版本啦，可以放心食用"
+        },
+        "resources": {
+            "replacementChinesePacenotes": "替换版中文路书",
+            "chineseLocalization": "简体中文汉化",
+            "wrcReplacementChinesePacenotesDescription": "117 的专业中文领航语音替换包；下载后将安装程序放入游戏目录运行。",
+            "wrcChineseLocalizationDescription": "覆盖历史时刻、生涯模式、拉力学院字幕和赛车工坊等内容，仍可能存在少量英文词条。",
+            "dr2ChineseLocalizationDescription": "通过替换游戏资源文件实现，没有游侠汉化的字体不好看和地图加载过慢的问题"
         }
     }
 }

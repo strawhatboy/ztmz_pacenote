@@ -8,6 +8,13 @@
         },
         "wrc": {
             "description": "EA Sports WRC, by EA Sports."
+        },
+        "resources": {
+            "replacementChinesePacenotes": "Replacement Chinese co-driver package",
+            "chineseLocalization": "Simplified Chinese localization",
+            "wrcReplacementChinesePacenotesDescription": "Professional Chinese co-driver replacement voice by 117; place the installer in the game directory and run it.",
+            "wrcChineseLocalizationDescription": "Covers Historic Moments, Career, Rally School subtitles, the workshop, and more; a small number of English strings may remain.",
+            "dr2ChineseLocalizationDescription": "Replaces game resource files, avoiding the unattractive fonts and slow stage loading of the ALI213 patch."
         }
     }
 }

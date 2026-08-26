@@ -2,6 +2,10 @@
     "game": {
         "acr": {
             "description": "Assetto Corsa Rally，由 Supernova Games Studios 开发并由 505 Games 发行；制作组包含原 CM 人员，延续 DR 系列精神。",
+            "resources": {
+                "replacementChinesePacenotes": "替换版中文路书",
+                "replacementChinesePacenotesDescription": "下载 acr.7z，将其中的 acr 文件夹复制到游戏根目录，并在提示时选择全部替换。"
+            },
             "experimental": {
                 "enable": "启用实验性实时桥接",
                 "inject": "注入桥接 DLL",

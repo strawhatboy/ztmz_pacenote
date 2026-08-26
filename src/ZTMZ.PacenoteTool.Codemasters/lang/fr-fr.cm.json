@@ -8,6 +8,13 @@
         },
         "wrc": {
             "description": "EA Sports WRC, par EA Sports."
+        },
+        "resources": {
+            "replacementChinesePacenotes": "Pack de copilote chinois alternatif",
+            "chineseLocalization": "Localisation en chinois simplifié",
+            "wrcReplacementChinesePacenotesDescription": "Voix de copilote chinoise professionnelle de 117 ; exécutez l'installateur depuis le dossier du jeu.",
+            "wrcChineseLocalizationDescription": "Couvre les Moments historiques, la Carrière, l'École de rallye, l'atelier et plus encore ; quelques textes anglais peuvent subsister.",
+            "dr2ChineseLocalizationDescription": "Remplace les fichiers de ressources du jeu et évite les polices peu esthétiques et le chargement lent des spéciales du patch ALI213."
         }
     }
 }

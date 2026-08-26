@@ -6,7 +6,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.AC;
 
-public class ACRally : IGame, ILocalGameBridgeControl, IGameWithIntegrationProviders
+public class ACRally : IGame, ILocalGameBridgeControl, IGameWithIntegrationProviders, IGameWithResourceLinks
 {
     public string WindowTitle => "Assetto Corsa Rally";
 
@@ -37,6 +37,14 @@ public class ACRally : IGame, ILocalGameBridgeControl, IGameWithIntegrationProvi
     public IReadOnlyList<IGameIntegrationProvider> IntegrationProviders { get; } =
     [
         new ACRIntegrationProvider()
+    ];
+
+    public IReadOnlyList<GameResourceLink> ResourceLinks { get; } =
+    [
+        new("replacement-chinese-pacenotes", "game.acr.resources.replacementChinesePacenotes",
+            new Uri("https://gitee.com/ztmz/acr_pacenotes/releases/tag/0.0.1"),
+            GameResourceKind.Pacenotes,
+            DescriptionKey: "game.acr.resources.replacementChinesePacenotesDescription")
     ];
 
     public bool IsRunning { get; set; }

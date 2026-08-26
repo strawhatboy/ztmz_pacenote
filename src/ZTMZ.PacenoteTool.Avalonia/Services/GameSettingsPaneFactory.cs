@@ -44,6 +44,12 @@ public static class GameSettingsPaneFactory
             if (pane is not null)
                 panes.Add(pane);
         }
+        if (game is IGameWithResourceLinks { ResourceLinks.Count: > 0 } resourceGame)
+        {
+            var resourcePane = new GameResourceLinksPane(resourceGame.ResourceLinks);
+            resourcePane.InitializeWithGame(game);
+            panes.Add(resourcePane);
+        }
         return panes;
     }
 }

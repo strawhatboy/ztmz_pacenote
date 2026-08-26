@@ -8,6 +8,13 @@
         },
         "wrc": {
             "description": "EA Sports による EA Sports WRC。"
+        },
+        "resources": {
+            "replacementChinesePacenotes": "中国語コ・ドライバー差し替えパッケージ",
+            "chineseLocalization": "簡体字中国語ローカライズ",
+            "wrcReplacementChinesePacenotesDescription": "117によるプロ仕様の中国語コ・ドライバー音声。インストーラーをゲームフォルダーに置いて実行します。",
+            "wrcChineseLocalizationDescription": "歴史的瞬間、キャリア、ラリースクール字幕、ワークショップなどに対応していますが、一部英語が残る場合があります。",
+            "dr2ChineseLocalizationDescription": "ゲームリソースファイルを差し替える方式で、ALI213版にある見栄えの悪いフォントやステージ読み込みの遅延を回避します。"
         }
     }
 }

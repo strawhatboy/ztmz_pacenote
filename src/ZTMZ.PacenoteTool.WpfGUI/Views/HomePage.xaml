@@ -43,11 +43,11 @@
                     Severity="{Binding ViewModel.InfoBarSeverity}"/>
 
         <!-- Scroll the page content as one surface; keep diagnostics outside it. -->
-        <ScrollViewer Grid.Row="1"
-                      Grid.ColumnSpan="2"
-                      VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled"
-                      PanningMode="Both">
+        <ui:DynamicScrollViewer Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                VerticalScrollBarVisibility="Auto"
+                                HorizontalScrollBarVisibility="Disabled"
+                                PanningMode="Both">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="480"/>
@@ -692,61 +692,18 @@
                     </Border>
                 </StackPanel>
             </ui:Card>
-            <Grid Margin="0 20 0 0"
-                  Visibility="{Binding Path=ViewModel.ShowWRCLocalization, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-
-                <!-- 中文路书 -->
-                <ui:CardAction
-                    BorderBrush="{ui:ThemeResource SystemAccentColorPrimaryBrush}"
-                    BorderThickness="2,2,2,2"
-                    Padding="16"
-                    Margin="0 0 10 0"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch"
-                    IsChevronVisible="False"
-                    Command="{Binding ViewModel.OpenChinesePacenoteCommand}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <ui:TextBlock VerticalAlignment="Center"
-                                      Grid.Column="0"
-                                      Text="{DynamicResource ResourceKey=chinese_localization.pacenote}"/>
-                        <ui:SymbolIcon FontSize="26"
-                                       Grid.Column="1"
-                                       Symbol="Script16"/>
-                    </Grid>
-                </ui:CardAction>
-                <!-- 中文汉化 -->
-                <ui:CardAction
-                    BorderBrush="{ui:ThemeResource SystemFillColorSuccessBrush}"
-                    BorderThickness="2,2,2,2"
-                    Padding="16"
-                    Margin="10 0 0 0"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch"
-                    IsChevronVisible="False"
-                    Grid.Column="1"
-                    Command="{Binding ViewModel.OpenChineseLocalizationCommand}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <ui:TextBlock VerticalAlignment="Center"
-                                      Grid.Column="0"
-                                      Text="{DynamicResource ResourceKey=chinese_localization.language}"/>
-                        <ui:SymbolIcon FontSize="26"
-                                       Grid.Column="1"
-                                       Symbol="LocalLanguage20"/>
-                    </Grid>
-                </ui:CardAction>
-            </Grid>
+            <ContentControl Content="{Binding Path=ViewModel.CurrentGameResources, Mode=OneWay}"
+                            Margin="0 20 0 0">
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                        <Style.Triggers>
+                            <Trigger Property="Content" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
+            </ContentControl>
             <!-- <ui:CardExpander IsExpanded="True" >
                 <ui:CardExpander.Header>
                     <StackPanel Orientation="Horizontal">
@@ -758,7 +715,7 @@
             </ui:CardExpander> -->
                 </StackPanel>
             </Grid>
-        </ScrollViewer>
+        </ui:DynamicScrollViewer>
         <Border Grid.Row="2"
                 Grid.ColumnSpan="2"
                 Margin="-42 12 -42 0"

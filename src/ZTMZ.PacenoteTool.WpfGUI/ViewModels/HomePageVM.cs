@@ -93,6 +93,9 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     private IList<object> _currentGameSettings = new ObservableCollection<object>();
 
     [ObservableProperty]
+    private object? _currentGameResources;
+
+    [ObservableProperty]
     private bool _isGameSettingsUnlocked;
 
     private IDictionary<IGame, IList<object>> _gameConfigSettingsPanes = new Dictionary<IGame, IList<object>>(); 
@@ -1043,12 +1046,11 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
                 }
             }
         }
+        CurrentGameResources = game.Game is IGameWithResourceLinks { ResourceLinks.Count: > 0 } resourceGame
+            ? new GameResourceLinksPane(resourceGame.ResourceLinks)
+            : null;
 
         ScheduleDiagnosticsRefresh(includePrerequisiteCheck: true);
-
-        // TODO: UGLY CODE
-        // for EAWRC, localization part
-        ShowWRCLocalization = game.Game.Name == "EA SPORTS™ WRC";
     }
 
     [RelayCommand]
@@ -1307,23 +1309,4 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             _diagnosticsRefreshLock.Release();
         }
     }
-
-    // TODO: UGLY CODE
-    // for EAWRC, localization part
-    #region EAWRC
-    [ObservableProperty]
-    private bool _showWRCLocalization = false;
-
-    [RelayCommand]
-    private void OpenChinesePacenote() {
-        // open url https://gitee.com/ztmz/ea_wrc_chinese_codrivers/releases in default browser
-        Process.Start(new ProcessStartInfo("https://gitee.com/ztmz/ea_wrc_chinese_codrivers/releases") { UseShellExecute = true });
-    }
-
-    [RelayCommand]
-    private void OpenChineseLocalization() {
-        // open url https://gitee.com/ztmz/ea_wrc_chinese_translation/releases in default browser
-        Process.Start(new ProcessStartInfo("https://gitee.com/ztmz/ea_wrc_chinese_translation/releases") { UseShellExecute = true });
-    }
-    #endregion
 }

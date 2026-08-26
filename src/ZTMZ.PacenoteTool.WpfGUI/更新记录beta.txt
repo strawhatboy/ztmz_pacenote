@@ -1,3 +1,18 @@
+v2.99.99.47-3.0-rc19
+------
+[English]
+* Adds convenient access to the DiRT Rally 2.0 Simplified Chinese localization, which replaces game resources without the unattractive fonts and slow stage loading associated with the older localization patch.
+* Adds download links for the EA SPORTS WRC replacement Chinese co-driver and localization, and the Assetto Corsa Rally replacement Chinese pacenotes, with clear descriptions for each resource.
+* Improves Richard Burns Rally detection and setup, including manual selection of the game executable.
+* Improves the stability and consistency of the in-game overlay and its preview.
+* Improves the Home page layout: longer content scrolls correctly, and the scrollbar automatically hides when idle.
+[简体中文]
+* 新增 DiRT Rally 2.0 简体中文汉化入口；该汉化通过替换游戏资源文件实现，没有旧汉化补丁字体不好看和地图加载过慢的问题。
+* 新增 EA SPORTS WRC 替换版中文领航语音与汉化、Assetto Corsa Rally 替换版中文路书的下载入口，并为每项资源提供清晰说明。
+* 改进 Richard Burns Rally 的检测和设置流程，并支持手动选择游戏程序。
+* 提高游戏内悬浮窗及其预览功能的稳定性和一致性。
+* 改进主页布局：较长内容现在可正常滚动，滚动条会在闲置时自动隐藏。
+
 v2.99.99.46-3.0-rc18
 ------
 [English]
