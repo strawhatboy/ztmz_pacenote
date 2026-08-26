@@ -6,10 +6,10 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <AssemblyVersion>2.99.99.46</AssemblyVersion>
-    <PackageVersion>2.99.99.46</PackageVersion>
-    <Version>2.99.99.46</Version>
-    <FileVersion>2.99.99.46</FileVersion>
+    <AssemblyVersion>2.99.99.47</AssemblyVersion>
+    <PackageVersion>2.99.99.47</PackageVersion>
+    <Version>2.99.99.47</Version>
+    <FileVersion>2.99.99.47</FileVersion>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 
