@@ -70,7 +70,43 @@ internal sealed record VoicePackageTokenSnapshot(
     string Type,
     IReadOnlyList<string> AudioFiles);
 
-internal sealed class DesktopRuntime : IAsyncDisposable
+internal interface IDesktopRuntime : IAsyncDisposable
+{
+    event EventHandler? SnapshotChanged;
+    IGame? CurrentGame { get; }
+    IReadOnlyList<IGame> Games { get; }
+    Task InitializeAsync(CancellationToken cancellationToken = default);
+    DesktopRuntimeSnapshot GetSnapshot();
+    void ReloadDashboards();
+    bool SetNativeOverlayEnabled(bool enabled);
+    bool SetNativeOverlayFrameRateLock(bool enabled);
+    bool SetNativeOverlayFrameRate(int frameRate);
+    bool SetNativeOverlayTopMost(bool enabled);
+    bool SetMuted(bool muted);
+    bool SetWebDashboardEnabled(bool enabled);
+    bool ConfigureWebDashboard(int port, int targetFrameRate);
+    bool TrySelectCodriver(string identity);
+    bool TrySelectOutputDevice(string id);
+    bool SetPlaybackVolume(double volume);
+    bool SetPlaybackAdjustSeconds(double seconds);
+    bool SetPlaybackSpeed(double speed);
+    bool SetSilenceRemovalLevel(int level);
+    bool SetIntercomEffect(int effect);
+    bool TryPlayExample();
+    Task<IReadOnlyList<VoicePackageSnapshot>> GetVoicePackagesAsync(
+        CancellationToken cancellationToken = default);
+    Task InstallVoicePackageAsync(
+        VoicePackageSnapshot package,
+        IProgress<CoDriverPackageUpdateProgress>? progress = null,
+        CancellationToken cancellationToken = default);
+    Task ImportVoicePackageAsync(string archivePath, string? existingPackagePath = null);
+    Task<CoDriverPackageImportPlan> InspectVoicePackageImportAsync(string archivePath);
+    Task ExportVoicePackageAsync(string id, string archivePath);
+    Task<IReadOnlyList<VoicePackageTokenSnapshot>> GetVoicePackageDetailsAsync(string id);
+    void PlayVoicePackageFile(string path);
+}
+
+internal sealed class DesktopRuntime : IDesktopRuntime
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     private ZTMZPacenoteTool? _tool;
@@ -100,7 +136,23 @@ internal sealed class DesktopRuntime : IAsyncDisposable
         ? []
         : _tool.Games.OrderBy(game => game.Order).ToArray();
 
-    public SharedRuntimeControlsService? Controls => _controls;
+    public bool SetMuted(bool muted) => _controls?.SetMuted(muted) ?? false;
+    public bool SetWebDashboardEnabled(bool enabled) =>
+        _controls?.SetWebDashboardEnabled(enabled) ?? false;
+    public bool ConfigureWebDashboard(int port, int targetFrameRate) =>
+        _controls?.ConfigureWebDashboard(port, targetFrameRate) ?? false;
+    public bool TrySelectCodriver(string identity) =>
+        _controls?.TrySelectCodriver(identity) ?? false;
+    public bool TrySelectOutputDevice(string id) =>
+        _controls?.TrySelectOutputDevice(id) ?? false;
+    public bool SetPlaybackVolume(double volume) => _controls?.SetPlaybackVolume(volume) ?? false;
+    public bool SetPlaybackAdjustSeconds(double seconds) =>
+        _controls?.SetPlaybackAdjustSeconds(seconds) ?? false;
+    public bool SetPlaybackSpeed(double speed) => _controls?.SetPlaybackSpeed(speed) ?? false;
+    public bool SetSilenceRemovalLevel(int level) =>
+        _controls?.SetSilenceRemovalLevel(level) ?? false;
+    public bool SetIntercomEffect(int effect) => _controls?.SetIntercomEffect(effect) ?? false;
+    public bool TryPlayExample() => _controls?.TryPlayExample() ?? false;
 
     public void ReloadDashboards()
     {

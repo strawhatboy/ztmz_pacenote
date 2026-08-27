@@ -56,6 +56,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{4F52FD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.ScriptEditor.Core", "ZTMZ.PacenoteTool.ScriptEditor.Core\ZTMZ.PacenoteTool.ScriptEditor.Core.csproj", "{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZTMZ.PacenoteTool.Avalonia.Tests", "ZTMZ.PacenoteTool.Avalonia.Tests\ZTMZ.PacenoteTool.Avalonia.Tests.csproj", "{F727A7AF-7779-4895-B759-89B5837AFFF9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -447,6 +449,24 @@ Global
 		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release|x64.Build.0 = Release|Any CPU
 		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release|x86.ActiveCfg = Release|Any CPU
 		{5FB41DDB-AD56-4B7E-AA57-32A31BA4277C}.Release|x86.Build.0 = Release|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Debug|x64.Build.0 = Debug|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Debug|x86.Build.0 = Debug|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Release_Portable|Any CPU.ActiveCfg = Debug|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Release_Portable|Any CPU.Build.0 = Debug|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Release_Portable|x64.ActiveCfg = Debug|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Release_Portable|x64.Build.0 = Debug|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Release_Portable|x86.ActiveCfg = Debug|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Release_Portable|x86.Build.0 = Debug|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Release|x64.ActiveCfg = Release|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Release|x64.Build.0 = Release|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Release|x86.ActiveCfg = Release|Any CPU
+		{F727A7AF-7779-4895-B759-89B5837AFFF9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

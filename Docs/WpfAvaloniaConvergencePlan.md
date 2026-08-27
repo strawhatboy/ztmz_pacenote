@@ -2,7 +2,7 @@
 
 Status: active
 
-Last reviewed: 2026-08-27
+Last reviewed: 2026-08-28
 
 ## Goal
 
@@ -36,6 +36,17 @@ Recorded on 2026-08-27:
   nightly version.
 - Canonical product assets and release text are still sourced from the WPF
   project directory.
+
+## Progress
+
+- 2026-08-28: Phase 0 completed. Portable and Windows tests pass, WPF and
+  Avalonia use one canonical desktop version property, and the RBR portable-path
+  resources now have parity across every supported locale.
+- 2026-08-28: Phase 1 started. `MainWindowViewModel` now receives an
+  `IDesktopRuntime` instead of constructing `DesktopRuntime`, runtime control
+  operations no longer expose the concrete controls service, and a dedicated
+  Avalonia headless test project covers startup snapshot mapping and control
+  forwarding without starting real audio, game monitoring, or a desktop window.
 
 ## Principles
 

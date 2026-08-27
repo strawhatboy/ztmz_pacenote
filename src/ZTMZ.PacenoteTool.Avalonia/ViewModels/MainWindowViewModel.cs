@@ -331,7 +331,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     private static readonly IBrush ConnectedBrush = new SolidColorBrush(Color.Parse("#198754"));
     private static readonly IBrush FailedBrush = new SolidColorBrush(Color.Parse("#C13D3D"));
 
-    private readonly DesktopRuntime _runtime = new();
+    private readonly IDesktopRuntime _runtime;
     private bool _applyingSnapshot;
     private string _activeImageFileName = string.Empty;
     private string _dashboardCulture = string.Empty;
@@ -529,8 +529,13 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
 
     public IGame? CurrentActiveGame => _runtime.CurrentGame;
 
-    public MainWindowViewModel()
+    public MainWindowViewModel() : this(new DesktopRuntime())
     {
+    }
+
+    internal MainWindowViewModel(IDesktopRuntime runtime)
+    {
+        _runtime = runtime ?? throw new ArgumentNullException(nameof(runtime));
         AppLogo = LoadBitmap(Path.Combine(AppContext.BaseDirectory, "Assets", "app.png"));
         _dashboardReloadTimer.Tick += (_, _) =>
         {
@@ -538,7 +543,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
             _ = ReloadDashboardsAsync(Volatile.Read(ref _dashboardReloadVersion));
         };
         UpdateStartupStatusHistory(Status);
-        _runtime.SnapshotChanged += (_, _) => Dispatcher.UIThread.Post(RefreshSnapshot);
+        _runtime.SnapshotChanged += OnRuntimeSnapshotChanged;
         AvaloniaLocalization.CultureChanging += OnCultureChanging;
         AvaloniaLocalization.CultureChanged += OnCultureChanged;
     }
@@ -616,6 +621,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
         _dashboardReloadTimer.Stop();
         AvaloniaLocalization.CultureChanging -= OnCultureChanging;
         AvaloniaLocalization.CultureChanged -= OnCultureChanged;
+        _runtime.SnapshotChanged -= OnRuntimeSnapshotChanged;
         await _dashboardOperationGate.WaitAsync().ConfigureAwait(false);
         try
         {
@@ -648,7 +654,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
 
         if (!_applyingSnapshot)
         {
-            _runtime.Controls?.SetMuted(value);
+            _runtime.SetMuted(value);
         }
     }
 
@@ -685,14 +691,8 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
                     return;
                 }
 
-                var controls = _runtime.Controls;
-                if (controls == null)
-                {
-                    return;
-                }
-
                 var applied = await Task.Run(
-                    () => controls.SetWebDashboardEnabled(enabled)).ConfigureAwait(false);
+                    () => _runtime.SetWebDashboardEnabled(enabled)).ConfigureAwait(false);
                 if (!applied && operationVersion == Volatile.Read(ref _dashboardOperationVersion))
                 {
                     await Dispatcher.UIThread.InvokeAsync(() => RestoreWebDashboardEnabled(enabled));
@@ -734,7 +734,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     {
         if (!_applyingSnapshot)
         {
-            _runtime.Controls?.ConfigureWebDashboard(value, WebDashboardFrameRate);
+            _runtime.ConfigureWebDashboard(value, WebDashboardFrameRate);
         }
     }
 
@@ -742,7 +742,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     {
         if (!_applyingSnapshot)
         {
-            _runtime.Controls?.ConfigureWebDashboard(WebDashboardPort, value);
+            _runtime.ConfigureWebDashboard(WebDashboardPort, value);
         }
     }
 
@@ -750,7 +750,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     {
         if (!_applyingSnapshot && value != null)
         {
-            _runtime.Controls?.TrySelectCodriver(value.Identity);
+            _runtime.TrySelectCodriver(value.Identity);
         }
     }
 
@@ -758,7 +758,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     {
         if (!_applyingSnapshot && value != null)
         {
-            _runtime.Controls?.TrySelectOutputDevice(value.Id);
+            _runtime.TrySelectOutputDevice(value.Id);
         }
     }
 
@@ -766,7 +766,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     {
         if (!_applyingSnapshot)
         {
-            _runtime.Controls?.SetPlaybackVolume(value);
+            _runtime.SetPlaybackVolume(value);
         }
     }
 
@@ -774,7 +774,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     {
         if (!_applyingSnapshot)
         {
-            _runtime.Controls?.SetPlaybackAdjustSeconds(value);
+            _runtime.SetPlaybackAdjustSeconds(value);
         }
     }
 
@@ -782,7 +782,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     {
         if (!_applyingSnapshot)
         {
-            _runtime.Controls?.SetPlaybackSpeed(value);
+            _runtime.SetPlaybackSpeed(value);
         }
     }
 
@@ -790,7 +790,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     {
         if (!_applyingSnapshot)
         {
-            _runtime.Controls?.SetSilenceRemovalLevel(value);
+            _runtime.SetSilenceRemovalLevel(value);
         }
     }
 
@@ -798,7 +798,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     {
         if (!_applyingSnapshot)
         {
-            _runtime.Controls?.SetIntercomEffect(value);
+            _runtime.SetIntercomEffect(value);
         }
     }
 
@@ -833,6 +833,9 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
             RefreshSnapshot();
         }
     }
+
+    private void OnRuntimeSnapshotChanged(object? sender, EventArgs eventArgs) =>
+        Dispatcher.UIThread.Post(RefreshSnapshot);
 
     private void RefreshSnapshot()
     {
@@ -1235,7 +1238,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
         choice.Path);
 
     [RelayCommand(CanExecute = nameof(CanPlayExample))]
-    private void PlayExample() => _runtime.Controls?.TryPlayExample();
+    private void PlayExample() => _runtime.TryPlayExample();
 
     private bool CanPlayExample() =>
         IsReady && !IsStageActive && !IsMuted && SelectedCoDriver != null;
