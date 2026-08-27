@@ -5,10 +5,10 @@
     <TargetFramework Condition="'$(OS)' == 'Windows_NT'">net10.0-windows</TargetFramework>
     <TargetFramework Condition="'$(OS)' != 'Windows_NT'">net10.0</TargetFramework>
     <AssemblyName>com.ztmz.PacenoteTool</AssemblyName>
-    <AssemblyVersion>2.99.99.45</AssemblyVersion>
-    <PackageVersion>2.99.99.45</PackageVersion>
-    <Version>2.99.99.45</Version>
-    <FileVersion>2.99.99.45</FileVersion>
+    <AssemblyVersion>$(ZtmzAvaloniaVersion)</AssemblyVersion>
+    <PackageVersion>$(ZtmzAvaloniaVersion)</PackageVersion>
+    <Version>$(ZtmzAvaloniaVersion)</Version>
+    <FileVersion>$(ZtmzAvaloniaVersion)</FileVersion>
     <ApplicationManifest Condition="'$(OS)' == 'Windows_NT'">app.manifest</ApplicationManifest>
     <ApplicationIcon Condition="'$(OS)' == 'Windows_NT'">..\ZTMZ.PacenoteTool.WpfGUI\Assets\app.ico</ApplicationIcon>
     <ImplicitUsings>enable</ImplicitUsings>

@@ -82,7 +82,9 @@ public class ScriptEditorPrintLayoutTest
             ShowPageNumbers: true,
             PageNumberStyle: RoadbookPageNumberStyle.Current));
 
-        Assert.Empty(hidden);
+        Assert.Contains("@page", hidden, StringComparison.Ordinal);
+        Assert.DoesNotContain("content:", hidden, StringComparison.Ordinal);
+        Assert.DoesNotContain("counter(page)", hidden, StringComparison.Ordinal);
         Assert.Contains("content: counter(page);", currentOnly, StringComparison.Ordinal);
         Assert.DoesNotContain("counter(pages)", currentOnly, StringComparison.Ordinal);
     }

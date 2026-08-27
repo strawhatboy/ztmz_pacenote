@@ -2,6 +2,17 @@
     "game": {
         "rbr": {
             "description": "O clássico simulador de rali na versão Rally Sim Fans.",
+            "installation": {
+                "executable": "Executável do jogo RBR",
+                "tooltip": {
+                    "executable": "Selecione RichardBurnsRally_SSE.exe (ou RichardBurnsRally.exe) para uma instalação portátil do RBR. O registro só é usado quando este campo está vazio."
+                },
+                "status": {
+                    "configured": "Usando a instalação configurada do RBR: {0}",
+                    "registry": "Usando a instalação do RBR encontrada no registro: {0}",
+                    "missing": "Selecione o executável do RBR para usar uma instalação portátil."
+                }
+            },
             "additional_settings": {
                 "playPacenotesWhenReplaying": "Reproduzir as notas durante os replays.",
                 "additional_pacenote_def": "Definição personalizada de notas do RBR.",

@@ -2,6 +2,17 @@
     "game": {
         "rbr": {
             "description": "定番ラリーシミュレーターの Rally Sim Fans 版です。",
+            "installation": {
+                "executable": "RBR ゲーム実行ファイル",
+                "tooltip": {
+                    "executable": "ポータブル版 RBR を使用するには RichardBurnsRally_SSE.exe（または RichardBurnsRally.exe）を選択してください。この項目が空の場合のみレジストリを使用します。"
+                },
+                "status": {
+                    "configured": "設定された RBR インストール先を使用しています: {0}",
+                    "registry": "レジストリで検出した RBR インストール先を使用しています: {0}",
+                    "missing": "ポータブル版を使用するには RBR の実行ファイルを選択してください。"
+                }
+            },
             "additional_settings": {
                 "playPacenotesWhenReplaying": "リプレイ中にペースノートを再生する。",
                 "additional_pacenote_def": "カスタム RBR ペースノート定義。",

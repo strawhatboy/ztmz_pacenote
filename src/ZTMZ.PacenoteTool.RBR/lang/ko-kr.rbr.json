@@ -2,6 +2,17 @@
     "game": {
         "rbr": {
             "description": "대표적인 랠리 시뮬레이션 게임의 Rally Sim Fans 버전입니다.",
+            "installation": {
+                "executable": "RBR 게임 실행 파일",
+                "tooltip": {
+                    "executable": "포터블 RBR 설치를 사용하려면 RichardBurnsRally_SSE.exe(또는 RichardBurnsRally.exe)를 선택하세요. 이 항목이 비어 있을 때만 레지스트리를 사용합니다."
+                },
+                "status": {
+                    "configured": "설정된 RBR 설치 경로 사용 중: {0}",
+                    "registry": "레지스트리에서 찾은 RBR 설치 경로 사용 중: {0}",
+                    "missing": "포터블 설치를 사용하려면 RBR 실행 파일을 선택하세요."
+                }
+            },
             "additional_settings": {
                 "playPacenotesWhenReplaying": "리플레이 중 페이스노트 재생.",
                 "additional_pacenote_def": "사용자 지정 RBR 페이스노트 정의.",

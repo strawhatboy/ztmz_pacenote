@@ -2,6 +2,17 @@
     "game": {
         "rbr": {
             "description": "Классический раллийный симулятор в версии Rally Sim Fans.",
+            "installation": {
+                "executable": "Исполняемый файл RBR",
+                "tooltip": {
+                    "executable": "Выберите RichardBurnsRally_SSE.exe (или RichardBurnsRally.exe) для портативной установки RBR. Реестр используется только в том случае, если это поле пусто."
+                },
+                "status": {
+                    "configured": "Используется настроенная установка RBR: {0}",
+                    "registry": "Используется установка RBR, найденная в реестре: {0}",
+                    "missing": "Выберите исполняемый файл RBR, чтобы использовать портативную установку."
+                }
+            },
             "additional_settings": {
                 "playPacenotesWhenReplaying": "Воспроизводить заметки во время повторов.",
                 "additional_pacenote_def": "Пользовательское определение заметок RBR.",

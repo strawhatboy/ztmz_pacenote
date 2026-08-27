@@ -88,7 +88,7 @@ public class RBRGameInstallPathResolverTest
         }
 
         public string WindowTitle => string.Empty;
-        public string Name => RBR.GameName;
+        public string Name => global::ZTMZ.PacenoteTool.RBR.RBR.GameName;
         public string Description => string.Empty;
         public string ImageUri => string.Empty;
         public string Executable => "RichardBurnsRally_SSE";
