@@ -1121,9 +1121,9 @@ namespace ZTMZ.PacenoteTool.UI.Windows
 
         private bool ShouldUseForegroundTopMost()
         {
-            // ACR drops this external Direct2D overlay when a focus change promotes it to TOPMOST.
-            return !string.Equals(_gameProcess?.ProcessName, "acr", StringComparison.OrdinalIgnoreCase)
-                && IsGameWindowForeground();
+            return NativeOverlayLayeringPolicy.ShouldPromoteToTopMost(
+                _gameProcess?.ProcessName,
+                IsGameWindowForeground());
         }
 
         private bool IsGameWindowForeground()
