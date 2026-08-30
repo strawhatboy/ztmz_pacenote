@@ -67,29 +67,29 @@
                  Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                  Text="{DynamicResource ui.specialThanks}" />
 
-      <Grid Margin="0,4,0,0" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="4" RowSpacing="4">
+      <Grid Margin="0,4,0,0" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="4" RowSpacing="4">
         <Button Classes="about-action" Click="Staff_Click">
           <Grid ColumnDefinitions="*,Auto">
             <TextBlock VerticalAlignment="Center" Text="{DynamicResource settings.staff}" />
             <materialIcons:MaterialIcon Grid.Column="1" Kind="AccountGroup" Width="26" Height="26" />
           </Grid>
         </Button>
-        <Button Grid.Column="1" Classes="about-action" Click="UpdateHistory_Click">
+        <Button Grid.Column="1" Classes="about-action" Click="Sponsors_Click">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock VerticalAlignment="Center" Text="{DynamicResource ui.sponsors}" />
+            <materialIcons:MaterialIcon Grid.Column="1" Kind="Heart" Width="26" Height="26" />
+          </Grid>
+        </Button>
+        <Button Grid.Row="1" Classes="about-action" Click="UpdateHistory_Click">
           <Grid ColumnDefinitions="*,Auto">
             <TextBlock VerticalAlignment="Center" Text="{DynamicResource ui.tb_updates}" />
             <materialIcons:MaterialIcon Grid.Column="1" Kind="History" Width="26" Height="26" />
           </Grid>
         </Button>
-        <Button Grid.Row="1" Classes="about-action" Click="Eula_Click">
+        <Button Grid.Row="1" Grid.Column="1" Classes="about-action" Click="Eula_Click">
           <Grid ColumnDefinitions="*,Auto">
             <TextBlock VerticalAlignment="Center" Text="{DynamicResource ui.eula}" />
             <materialIcons:MaterialIcon Grid.Column="1" Kind="FileDocumentOutline" Width="26" Height="26" />
-          </Grid>
-        </Button>
-        <Button Grid.Row="1" Grid.Column="1" Classes="about-action" Click="ContactUs_Click">
-          <Grid ColumnDefinitions="*,Auto">
-            <TextBlock VerticalAlignment="Center" Text="{DynamicResource ui.contactUs}" />
-            <materialIcons:MaterialIcon Grid.Column="1" Kind="EmailOutline" Width="26" Height="26" />
           </Grid>
         </Button>
         <Button Grid.Row="2" Classes="about-action" Click="OpenSource_Click">
@@ -102,6 +102,12 @@
           <Grid ColumnDefinitions="*,Auto">
             <TextBlock VerticalAlignment="Center" Text="{DynamicResource ui.license}" />
             <materialIcons:MaterialIcon Grid.Column="1" Kind="ScaleBalance" Width="26" Height="26" />
+          </Grid>
+        </Button>
+        <Button Grid.Row="3" Grid.ColumnSpan="2" Classes="about-action" Click="ContactUs_Click">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock VerticalAlignment="Center" Text="{DynamicResource ui.contactUs}" />
+            <materialIcons:MaterialIcon Grid.Column="1" Kind="EmailOutline" Width="26" Height="26" />
           </Grid>
         </Button>
       </Grid>

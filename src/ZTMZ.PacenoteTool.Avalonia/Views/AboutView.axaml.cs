@@ -215,6 +215,9 @@ public sealed partial class AboutView : UserControl, INotifyPropertyChanged
     private async void Staff_Click(object? sender, RoutedEventArgs eventArgs) =>
         await ShowControlDialogAsync(AvaloniaLocalization.Get("settings.staff"), BuildStaffContent());
 
+    private async void Sponsors_Click(object? sender, RoutedEventArgs eventArgs) =>
+        await ShowControlDialogAsync(AvaloniaLocalization.Get("ui.sponsors"), BuildSponsorsContent());
+
     private async void UpdateHistory_Click(object? sender, RoutedEventArgs eventArgs)
     {
         var beta = ToolUtils.GetToolVersion() == ToolVersion.TEST;
@@ -314,6 +317,16 @@ public sealed partial class AboutView : UserControl, INotifyPropertyChanged
         ]);
         AddHeading(content, "staff.all");
         content.Children.Add(new TextBlock { Text = AvaloniaLocalization.Get("staff.missing"), HorizontalAlignment = HorizontalAlignment.Center });
+        return content;
+    }
+
+    private Control BuildSponsorsContent()
+    {
+        var content = new StackPanel { MaxWidth = 560, Spacing = 6 };
+        AddHeading(content, "ui.sponsors_major");
+        AddNames(content, [SponsorCatalog.MajorSponsor]);
+        AddHeading(content, "ui.sponsors_supporters");
+        AddNames(content, SponsorCatalog.SponsorNames);
         return content;
     }
 

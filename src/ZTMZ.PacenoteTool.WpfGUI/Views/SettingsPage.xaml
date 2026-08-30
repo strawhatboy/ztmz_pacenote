@@ -53,23 +53,47 @@
                 <!-- Special Thanks -->
                 <ui:TextBlock FontTypography="Caption" TextWrapping="Wrap" Text="{DynamicResource ui.specialThanks}" />
 
-                <!-- Staff -->
-                <ui:CardAction
-                    Margin="0 4 0 0"
-                    Padding="16"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch"
-                    IsChevronVisible="False"
-                    Command="{Binding ViewModel.OpenStaffDialogCommand}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ui:TextBlock VerticalAlignment="Center" Grid.Column="0" Text="{DynamicResource settings.staff}" />
-                        <ui:SymbolIcon FontSize="26" Grid.Column="1" Symbol="ContactCardGroup20" />
-                    </Grid>
-                </ui:CardAction>
+                <!-- Staff and sponsors -->
+                <Grid Margin="0 4 0 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <ui:CardAction
+                        Grid.Column="0"
+                        Margin="0 0 2 0"
+                        Padding="16"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        IsChevronVisible="False"
+                        Command="{Binding ViewModel.OpenStaffDialogCommand}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBlock Grid.Column="0" VerticalAlignment="Center" Text="{DynamicResource settings.staff}" />
+                            <ui:SymbolIcon Grid.Column="1" FontSize="26" Symbol="ContactCardGroup20" />
+                        </Grid>
+                    </ui:CardAction>
+                    <ui:CardAction
+                        Grid.Column="1"
+                        Margin="2 0 0 0"
+                        Padding="16"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        IsChevronVisible="False"
+                        Command="{Binding ViewModel.OpenSponsorsDialogCommand}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBlock Grid.Column="0" VerticalAlignment="Center" Text="{DynamicResource ui.sponsors}" />
+                            <ui:SymbolIcon Grid.Column="1" FontSize="26" Symbol="Heart20" />
+                        </Grid>
+                    </ui:CardAction>
+                </Grid>
                 <!-- update history -->
                 <ui:CardAction
                     Margin="0 4 0 0"

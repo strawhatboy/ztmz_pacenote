@@ -121,6 +121,8 @@ public partial class SettingsVM : ObservableObject, INavigationAware
 
     private UserControl _staff = new Views.About.Staff();
 
+    private UserControl _sponsors = new Views.About.Sponsors();
+
     private UserControl _opensoftware = new Views.About.OpenSoftware();
 
     private UserControl _contactUs = new Views.About.ContactUs();
@@ -133,6 +135,17 @@ public partial class SettingsVM : ObservableObject, INavigationAware
         {
             Title = I18NLoader.Instance["settings.staff"],
             Content = _staff,
+            CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+        });
+    }
+
+    [RelayCommand]
+    private async void OpenSponsorsDialog()
+    {
+        await _contentDialogService.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions()
+        {
+            Title = I18NLoader.Instance["ui.sponsors"],
+            Content = _sponsors,
             CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
         });
     }
