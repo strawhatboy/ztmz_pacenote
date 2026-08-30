@@ -472,16 +472,26 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             // too big, unknown flag
             return "";
         }
-        foreach (var kv in RBRScriptResource.Instance.ModiferId2ZTMZids)
+        foreach (var modifierType in getModifierTypesFromFlag(flag))
         {
-            if ((flag & kv.Key) == kv.Key)
-            {
-                var ztmzIds = kv.Value;
-                //it's a list!!! use comma separated string
-                modifiers.Add(string.Join(",", from p in ztmzIds select Base.Script.ScriptResource.Instance.FilenameDict[p].First()));
-            }
+            var ztmzIds = RBRScriptResource.Instance.ModiferId2ZTMZids[modifierType];
+            //it's a list!!! use comma separated string
+            modifiers.Add(string.Join(",", from p in ztmzIds select Base.Script.ScriptResource.Instance.FilenameDict[p].First()));
         }
         return string.Join(",", modifiers);
+    }
+
+    private static List<int> getModifierTypesFromFlag(int flag)
+    {
+        if (flag >= 32768)
+        {
+            return [];
+        }
+
+        return RBRScriptResource.Instance.ModiferId2ZTMZids.Keys
+            .Where(modifierType => (flag & modifierType) == modifierType)
+            .OrderBy(modifierType => modifierType)
+            .ToList();
     }
 
     public static DynamicPacenoteRecord GetDynamicPacenoteRecord(int ptype, int pflag, float pdistance)
@@ -507,6 +517,13 @@ public class RBRGamePacenoteReader : BasePacenoteReader
         }
         record.Modifier = getModifiersFromFlag(pflag);
         record.Distance = pdistance;
+        record.SourceAudioCue = new GamePacenoteAudioCue
+        {
+            ProviderId = RBRInstalledCodriverAudioProvider.ProviderId,
+            PacenoteType = ptype,
+            ModifierFlags = pflag,
+            ModifierTypes = getModifierTypesFromFlag(pflag)
+        };
 
         if (!string.IsNullOrEmpty(record.Pacenote))
         {

@@ -63,6 +63,7 @@ namespace ZTMZ.PacenoteTool.Core
         public int CurrentPlayIndex { set; get; } = 0;
 
         private ConcurrentDictionary<string, AutoResampledCachedSound> soundCache = new();
+        private IGamePacenoteAudioProvider _activeGameAudioProvider;
         private readonly ConcurrentDictionary<ExampleAudioCacheKey, Lazy<AutoResampledCachedSound>>
             exampleAudioCache = new();
 
@@ -380,6 +381,7 @@ namespace ZTMZ.PacenoteTool.Core
         public void StartReplaying(IGame game, string itinerary, int playMode = 1)
         {
             _logger.Trace("Start playing pacenotes: {0} {1}", game.Name, itinerary);
+            SetActiveGameAudioProvider(game);
             // bydefault playMode=1, script mode, only.
             this.CurrentItineraryPath = this.GetRecordingsFolder(game, itinerary);
             // this.CurrentScriptPath = this.GetScriptFile(itinerary);
@@ -454,6 +456,7 @@ namespace ZTMZ.PacenoteTool.Core
                 var records = (from p in reader.PacenoteRecords
                                where p.Distance.HasValue
                                select p).ToList();
+                var gameAudioProvider = Volatile.Read(ref _activeGameAudioProvider);
 
                 for (int i = 0; i < records.Count; i++)
                 {
@@ -469,15 +472,7 @@ namespace ZTMZ.PacenoteTool.Core
                             PacenoteRecord = record
                         };
 
-                        var sound = new AutoResampledCachedSound();
-                        foreach (var note in record.Pacenotes)
-                        {
-                            sound.Append(this.getSoundByKeyword(note.Note, this.CurrentCoDriverSoundPackagePath));
-                            foreach (var mod in note.Modifiers)
-                            {
-                                sound.Append(this.getSoundByKeyword(mod, this.CurrentCoDriverSoundPackagePath));
-                            }
-                        }
+                        var sound = BuildPacenoteRecordSound(record, gameAudioProvider);
 
                         f.Sound = sound;
                         audioFiles.Add(f);
@@ -527,6 +522,69 @@ namespace ZTMZ.PacenoteTool.Core
             // }
             this.CurrentPlayIndex = 0;
             _logger.Trace("Start replaying {0} {1} with {2} pacenotes", game.Name, itinerary, this.AudioFiles.Count);
+        }
+
+        private AutoResampledCachedSound BuildPacenoteRecordSound(
+            PacenoteRecord record,
+            IGamePacenoteAudioProvider gameAudioProvider)
+        {
+            var sound = new AutoResampledCachedSound();
+            var spansByStartIndex = record.SourceAudioCueSpans
+                .Where(span => span.PacenoteCount > 0)
+                .GroupBy(span => span.PacenoteStartIndex)
+                .ToDictionary(group => group.Key, group => group.First());
+
+            for (var noteIndex = 0; noteIndex < record.Pacenotes.Count; noteIndex++)
+            {
+                if (gameAudioProvider != null &&
+                    spansByStartIndex.TryGetValue(noteIndex, out var span) &&
+                    TryAppendNativePacenoteAudio(sound, gameAudioProvider, span.Cue))
+                {
+                    noteIndex += span.PacenoteCount - 1;
+                    continue;
+                }
+
+                var note = record.Pacenotes[noteIndex];
+                sound.Append(this.getSoundByKeyword(note.Note, this.CurrentCoDriverSoundPackagePath));
+                foreach (var modifier in note.Modifiers)
+                {
+                    sound.Append(this.getSoundByKeyword(modifier, this.CurrentCoDriverSoundPackagePath));
+                }
+            }
+
+            return sound;
+        }
+
+        private bool TryAppendNativePacenoteAudio(
+            AutoResampledCachedSound target,
+            IGamePacenoteAudioProvider provider,
+            GamePacenoteAudioCue cue)
+        {
+            try
+            {
+                if (!provider.TryResolvePacenoteAudio(cue, out var resolution) ||
+                    resolution.Segments.Count == 0 ||
+                    resolution.Segments.Any(segment => segment.AlternativePaths.Count == 0))
+                {
+                    return false;
+                }
+
+                foreach (var segment in resolution.Segments)
+                {
+                    var path = segment.AlternativePaths[Random.Shared.Next(segment.AlternativePaths.Count)];
+                    target.Append(this.getSoundFromCache(path));
+                }
+                return true;
+            }
+            catch (Exception exception)
+            {
+                _logger.Warn(
+                    exception,
+                    "Failed to resolve native pacenote audio from {0} for type {1}; using the selected ZTMZ co-driver.",
+                    cue.ProviderId,
+                    cue.PacenoteType);
+                return false;
+            }
         }
         //private AutoResampledCachedSound getSoundByKeywordTryTmp(string keyword)
         //{
@@ -819,11 +877,79 @@ namespace ZTMZ.PacenoteTool.Core
         public void PlaySystem(string sound, bool isSequential = false, bool isSystem = false)
         {
             _logger.Trace(string.Format("Playing system sound : {0}", sound));
-            var audio = this.getSoundByKeyword(sound, this.CurrentCoDriverSoundPackagePath);
+            var audio = TryGetNativeSystemSound(sound, out var nativeAudio)
+                ? nativeAudio
+                : this.getSoundByKeyword(sound, this.CurrentCoDriverSoundPackagePath);
             audio.PlaySpeed = this.CurrentPlaySpeed;
             audio.Amplification = this.CurrentPlayAmplification;
             audio.Tension = this.CurrentTension;
             this.PlaySound(audio, isSequential, isSystem);
+        }
+
+        public void SetActiveGameAudioProvider(IGame game)
+        {
+            var provider = game as IGamePacenoteAudioProvider;
+            if (provider == null)
+            {
+                Volatile.Write(ref _activeGameAudioProvider, null);
+                return;
+            }
+
+            try
+            {
+                provider.PreparePacenoteAudio();
+                Volatile.Write(ref _activeGameAudioProvider, provider);
+            }
+            catch (Exception exception)
+            {
+                Volatile.Write(ref _activeGameAudioProvider, null);
+                _logger.Warn(exception, "Failed to prepare native audio for {0}.", game.Name);
+            }
+        }
+
+        public void ClearActiveGameAudioProvider(IGame game)
+        {
+            if (game is IGamePacenoteAudioProvider provider)
+            {
+                Interlocked.CompareExchange(ref _activeGameAudioProvider, null, provider);
+            }
+        }
+
+        private bool TryGetNativeSystemSound(
+            string systemSoundToken,
+            out AutoResampledCachedSound audio)
+        {
+            audio = null;
+            var provider = Volatile.Read(ref _activeGameAudioProvider);
+            if (provider == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (!provider.TryResolveSystemAudio(systemSoundToken, out var segment) ||
+                    segment.AlternativePaths.Count == 0)
+                {
+                    return false;
+                }
+
+                var path = segment.AlternativePaths[Random.Shared.Next(segment.AlternativePaths.Count)];
+                audio = this.getSoundFromCache(path);
+                _logger.Debug(
+                    "Using native game audio {0} for system sound {1}.",
+                    path,
+                    systemSoundToken);
+                return true;
+            }
+            catch (Exception exception)
+            {
+                _logger.Warn(
+                    exception,
+                    "Failed to resolve native game audio for system sound {0}; using the selected ZTMZ co-driver.",
+                    systemSoundToken);
+                return false;
+            }
         }
 
         public bool PlayLivePacenote(PacenoteRecord record)

@@ -73,6 +73,7 @@ namespace ZTMZ.PacenoteTool.Base
     {
         public float? Distance { set; get; }
         public List<Pacenote> Pacenotes { set; get; } = new List<Pacenote>();
+        public List<Game.GamePacenoteAudioCueSpan> SourceAudioCueSpans { set; get; } = new();
 
         public string RawText { set; get; }
 
@@ -168,7 +169,16 @@ namespace ZTMZ.PacenoteTool.Base
             if (record.Modifier != "none")
             {
                 pn.Modifiers = pn.Modifiers.Concat(from p in record.Modifier.Split(',') select p.Trim()).ToList();
-            } 
+            }
+            if (record.SourceAudioCue != null && ret.Pacenotes.Count > 0)
+            {
+                ret.SourceAudioCueSpans.Add(new Game.GamePacenoteAudioCueSpan
+                {
+                    PacenoteStartIndex = 0,
+                    PacenoteCount = ret.Pacenotes.Count,
+                    Cue = record.SourceAudioCue
+                });
+            }
 
             return ret;
         }

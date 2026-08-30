@@ -49,6 +49,8 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
     private static readonly TimeSpan MechanicalDamageSoundCooldown = TimeSpan.FromSeconds(3);
     private readonly object _damageSoundCooldownLock = new();
     private readonly Dictionary<string, DateTime> _lastDamageSoundUtc = new(StringComparer.Ordinal);
+    private DamageSoundPlaybackQueue _damageSoundPlaybackQueue;
+    private long _damageSoundSession;
     private int _externalPacenoteSessionStarted;
 
     public IGame CurrentGame => _currentGame;
@@ -166,6 +168,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         _profiles = state.Profiles.ToList();
         _codriverPackages = state.CoDrivers.ToList();
         _outputDevices = state.OutputDevices.ToList();
+        StartDamageSoundPlaybackQueue();
 
         // this.initGoogleAnalytics();
         _enableObsIntegration = options.EnableObsIntegration;
@@ -350,12 +353,14 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         try
         {
             ResetDamageSoundCooldowns();
+            _profileManager.SetActiveGameAudioProvider(game);
             // Initialize starts the UDP listener. Subscribe before it so the
             // first Unknown -> AdHocRaceBegin transition cannot be lost.
             AttachGameDataReaderHandlers(game);
             if (!game.GameDataReader.Initialize(game))
             {
                 DetachGameDataReaderHandlers(game);
+                _profileManager.ClearActiveGameAudioProvider(game);
                 this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.UNKNOWN, null);
                 return;
             }
@@ -371,6 +376,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         catch (PortAlreadyInUseException exception)
         {
             DetachGameDataReaderHandlers(game);
+            _profileManager.ClearActiveGameAudioProvider(game);
             _logger.Warn(exception, "UDP port {0} is already in use while initializing {1}.", exception.Port, game.Name);
             this.onGameInitializeFailed?.Invoke(
                 game,
@@ -381,6 +387,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         catch (PortAccessDeniedException exception)
         {
             DetachGameDataReaderHandlers(game);
+            _profileManager.ClearActiveGameAudioProvider(game);
             _logger.Warn(exception, "Windows denied access to UDP port {0} while initializing {1}.", exception.Port, game.Name);
             this.onGameInitializeFailed?.Invoke(
                 game,
@@ -391,6 +398,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         catch (Exception exception)
         {
             DetachGameDataReaderHandlers(game);
+            _profileManager.ClearActiveGameAudioProvider(game);
             _logger.Error(exception, "Failed to initialize game {0}.", game.Name);
             this.onGameInitializeFailed?.Invoke(game, PrerequisitesCheckResultCode.UNKNOWN, null);
             return;
@@ -467,6 +475,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         finally
         {
             game.IsInitialized = false;
+            _profileManager.ClearActiveGameAudioProvider(game);
             if (_enableObsIntegration)
             {
                 _logger.Info("Stop OBS recording when game uninitialized no matter if it is recording.");
@@ -893,7 +902,8 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
 
     private void carDamagedEventHandler(CarDamageEvent evt)
     {
-        if (!ShouldPlayExternalPacenotes(_currentGame))
+        var damageSoundSession = Volatile.Read(ref _damageSoundSession);
+        if (_disposed || !ShouldPlayExternalPacenotes(_currentGame))
         {
             return;
         }
@@ -913,7 +923,40 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
             return;
         }
 
-        _profileManager.PlaySystem(systemSound.Token);
+        if (_damageSoundPlaybackQueue == null ||
+            !_damageSoundPlaybackQueue.TryEnqueue(systemSound.Token, damageSoundSession))
+        {
+            _logger.Warn("Damage sound queue is unavailable or full; dropping {0}.", systemSound.Token);
+        }
+    }
+
+    private void StartDamageSoundPlaybackQueue()
+    {
+        _damageSoundPlaybackQueue ??= new DamageSoundPlaybackQueue(
+            PlayDamageSystemSound,
+            session => session == Volatile.Read(ref _damageSoundSession),
+            (token, exception) =>
+                _logger.Error(exception, "Failed to play queued damage sound {0}.", token));
+    }
+
+    private void PlayDamageSystemSound(string token)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        try
+        {
+            _profileManager.PlaySystem(token);
+        }
+        finally
+        {
+            stopwatch.Stop();
+            if (stopwatch.ElapsedMilliseconds >= 100)
+            {
+                _logger.Warn(
+                    "Preparing queued damage sound {0} took {1} ms.",
+                    token,
+                    stopwatch.ElapsedMilliseconds);
+            }
+        }
     }
 
     private bool TryAcquireDamageSoundCooldown(CarDamageSystemSound systemSound)
@@ -945,6 +988,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
 
     private void ResetDamageSoundCooldowns()
     {
+        Interlocked.Increment(ref _damageSoundSession);
         lock (_damageSoundCooldownLock)
         {
             _lastDamageSoundUtc.Clear();
@@ -1724,6 +1768,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         }
         _audioDeviceMonitorCancellation?.Dispose();
         DeactivateCurrentGame();
+        _damageSoundPlaybackQueue?.Dispose();
         _processWatcher?.Dispose();
         _profileManager?.StopCurrentAudioOutput();
         GC.SuppressFinalize(this);

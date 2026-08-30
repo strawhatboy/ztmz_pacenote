@@ -17,10 +17,12 @@
                 "playPacenotesWhenReplaying": "Riproduci le note durante i replay.",
                 "additional_pacenote_def": "Definizione personalizzata delle note RBR.",
                 "autoSwitchPacenoteDef": "Cambia automaticamente la definizione delle note.",
+                "useInstalledCodriverAudio": "Usa l'audio del copilota installato in RBR.",
                 "tooltip": {
                     "playPacenotesWhenReplaying": "Riproduce le note durante i replay delle gare completate.",
                     "additional_pacenote_def": "File di database delle definizioni che contiene la corrispondenza tra le note RBR e le definizioni delle note ZTMZ.",
-                    "autoSwitchPacenoteDef": "Se la prova corrente utilizza le note RBR predefinite, viene usata la definizione predefinita; in caso contrario, vengono usate le definizioni del file indicato sopra."
+                    "autoSwitchPacenoteDef": "Se la prova corrente utilizza le note RBR predefinite, viene usata la definizione predefinita; in caso contrario, vengono usate le definizioni del file indicato sopra.",
+                    "useInstalledCodriverAudio": "Usa l'audio RBR installato per le note e gli avvisi disponibili di conto alla rovescia, partenza, arrivo e danni. Gli avvisi non disponibili in RBR usano ZTMZ. Disattiva le chiamate di RBR per evitare una doppia riproduzione."
                 }
             },
             "message": {

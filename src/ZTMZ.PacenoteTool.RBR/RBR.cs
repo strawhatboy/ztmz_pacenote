@@ -53,8 +53,12 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.RBR
 {
-    public class RBR : IGame, IGameConfigurationMigrator, IGameWithIntegrationProviders
+    public class RBR : IGame, IGameConfigurationMigrator, IGameWithIntegrationProviders, IGamePacenoteAudioProvider
     {
+        internal const string UseInstalledCodriverAudioConfigKey =
+            "game.rbr.additional_settings.useInstalledCodriverAudio";
+
+        private readonly RBRInstalledCodriverAudioProvider _installedCodriverAudioProvider = new();
         public string WindowTitle => "Richard Burns Rally";
 
         public string Name => GameName;
@@ -87,8 +91,13 @@ namespace ZTMZ.PacenoteTool.RBR
                         installationConfiguration as RBRGameInstallationConfig);
                 }
                 // load script resource
-                var pacenoteDef = ((CommonGameConfigs)_gameConfigurations[CommonGameConfigs.Name])["game.rbr.additional_settings.additional_pacenote_def"].ToString();
+                var commonConfiguration = (CommonGameConfigs)_gameConfigurations[CommonGameConfigs.Name];
+                var pacenoteDef = Convert.ToString(
+                    commonConfiguration["game.rbr.additional_settings.additional_pacenote_def"]) ?? string.Empty;
                 Task.Run(() => RBRScriptResource.Instance.LoadData(pacenoteDef)).Wait();
+                _installedCodriverAudioProvider.Configure(
+                    installationConfiguration as RBRGameInstallationConfig,
+                    commonConfiguration[UseInstalledCodriverAudioConfigKey] is true);
             }
             get {
                 return _gameConfigurations;
@@ -113,16 +122,19 @@ namespace ZTMZ.PacenoteTool.RBR
                 PropertyName = new() {
                     { "game.rbr.additional_settings.playPacenotesWhenReplaying", "game.rbr.additional_settings.tooltip.playPacenotesWhenReplaying" },
                     { "game.rbr.additional_settings.additional_pacenote_def", "game.rbr.additional_settings.tooltip.additional_pacenote_def" },
-                    { "game.rbr.additional_settings.autoSwitchPacenoteDef", "game.rbr.additional_settings.tooltip.autoSwitchPacenoteDef"}
+                    { "game.rbr.additional_settings.autoSwitchPacenoteDef", "game.rbr.additional_settings.tooltip.autoSwitchPacenoteDef"},
+                    { UseInstalledCodriverAudioConfigKey, "game.rbr.additional_settings.tooltip.useInstalledCodriverAudio" }
                 },
                 PropertyValue = new() {
                     true,
                     AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, "jannemod_v3.zdb")),   // custom pacenote
-                    true
+                    true,
+                    false
                 },
                 PropertyType = new() {
                     "bool",
                     "file:zdb",
+                    "bool",
                     "bool"
                 }
             }},
@@ -150,6 +162,19 @@ namespace ZTMZ.PacenoteTool.RBR
         {
             onCustomMessage?.Invoke(level, message);
         }
+
+        public void PreparePacenoteAudio() =>
+            _installedCodriverAudioProvider.PreparePacenoteAudio();
+
+        public bool TryResolvePacenoteAudio(
+            GamePacenoteAudioCue cue,
+            out GamePacenoteAudioResolution resolution) =>
+            _installedCodriverAudioProvider.TryResolvePacenoteAudio(cue, out resolution);
+
+        public bool TryResolveSystemAudio(
+            string systemSoundToken,
+            out GamePacenoteAudioSegment segment) =>
+            _installedCodriverAudioProvider.TryResolveSystemAudio(systemSoundToken, out segment);
     }
 
     internal static class RBRGameConfigurationMigration

@@ -17,10 +17,12 @@
                 "playPacenotesWhenReplaying": "Pacenotes bei Wiederholungen abspielen.",
                 "additional_pacenote_def": "Benutzerdefinierte RBR-Pacenote-Definition.",
                 "autoSwitchPacenoteDef": "Pacenote-Definition automatisch wechseln.",
+                "useInstalledCodriverAudio": "Installierte RBR-Beifahreransagen verwenden.",
                 "tooltip": {
                     "playPacenotesWhenReplaying": "Spielt die Pacenotes bei Wiederholungen abgeschlossener Rennen ab.",
                     "additional_pacenote_def": "Datenbankdatei der Pacenote-Definition mit der Zuordnung von RBR-Pacenotes zu ZTMZ-Pacenote-Definitionen.",
-                    "autoSwitchPacenoteDef": "Wenn die aktuelle Strecke die standardmäßigen RBR-Pacenotes verwendet, wird die Standarddefinition verwendet. Andernfalls werden die Definitionen aus der oben angegebenen Datei verwendet."
+                    "autoSwitchPacenoteDef": "Wenn die aktuelle Strecke die standardmäßigen RBR-Pacenotes verwendet, wird die Standarddefinition verwendet. Andernfalls werden die Definitionen aus der oben angegebenen Datei verwendet.",
+                    "useInstalledCodriverAudio": "Verwendet installierte RBR-Audios für Pacenotes sowie passende Countdown-, Start-, Ziel- und Schadensansagen. In RBR fehlende Ansagen verwenden ZTMZ als Ersatz. Deaktiviere die RBR-eigenen Ansagen, um doppelte Aufrufe zu vermeiden."
                 }
             },
             "message": {

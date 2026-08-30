@@ -17,10 +17,12 @@
                 "playPacenotesWhenReplaying": "リプレイ中にペースノートを再生する。",
                 "additional_pacenote_def": "カスタム RBR ペースノート定義。",
                 "autoSwitchPacenoteDef": "ペースノート定義を自動的に切り替える。",
+                "useInstalledCodriverAudio": "RBR にインストールされたコドライバー音声を使用する。",
                 "tooltip": {
                     "playPacenotesWhenReplaying": "完走したレースのリプレイ中にペースノートを再生します。",
                     "additional_pacenote_def": "RBR ペースノートと ZTMZ ペースノート定義の対応関係を格納した定義データベースファイルです。",
-                    "autoSwitchPacenoteDef": "現在のコースが標準 RBR ペースノートを使用している場合は標準定義を使用し、それ以外の場合は上記の定義ファイルを使用します。"
+                    "autoSwitchPacenoteDef": "現在のコースが標準 RBR ペースノートを使用している場合は標準定義を使用し、それ以外の場合は上記の定義ファイルを使用します。",
+                    "useInstalledCodriverAudio": "ペースノートと、対応するカウントダウン、スタート、フィニッシュ、損傷通知に RBR のインストール済み音声を使用します。RBR にない音声は ZTMZ を使用します。二重再生を避けるため、RBR 側のコドライバー音声を無効にしてください。"
                 }
             },
             "message": {

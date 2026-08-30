@@ -174,7 +174,9 @@ namespace ZTMZ.PacenoteTool.Base
                             // merge with next
                             if (Config.Instance.ConnectCloseDistanceCallToNextPacenote && (i + 1) < records.Count)
                             {   // make sure i+1 is valid (to prevent index out of range)
-                                record.Pacenotes.AddRange(PacenoteRecord.FromCrewChiefPacenoteRecord(records[i + 1]).Pacenotes);
+                                AppendPacenoteRecord(
+                                    record,
+                                    PacenoteRecord.FromCrewChiefPacenoteRecord(records[i + 1]));
                                 i++;
                             }
                         } else if (distance_to_next < 30)
@@ -184,7 +186,9 @@ namespace ZTMZ.PacenoteTool.Base
                             // merge with next
                             if (Config.Instance.ConnectCloseDistanceCallToNextPacenote && (i + 1) < records.Count)
                             {   // make sure i+1 is valid (to prevent index out of range)
-                                record.Pacenotes.AddRange(PacenoteRecord.FromCrewChiefPacenoteRecord(records[i + 1]).Pacenotes);
+                                AppendPacenoteRecord(
+                                    record,
+                                    PacenoteRecord.FromCrewChiefPacenoteRecord(records[i + 1]));
                                 i++;
                             }
                         } else {
@@ -210,8 +214,7 @@ namespace ZTMZ.PacenoteTool.Base
                     MathF.Round(r.Distance) == MathF.Round(lastRecord.Distance.Value))
                 {
                     //merge them
-                    lastRecord.Pacenotes
-                        .AddRange(PacenoteRecord.FromCrewChiefPacenoteRecord(r).Pacenotes);
+                    AppendPacenoteRecord(lastRecord, PacenoteRecord.FromCrewChiefPacenoteRecord(r));
                     continue;
                 }
 
@@ -233,7 +236,9 @@ namespace ZTMZ.PacenoteTool.Base
                         // merge with next
                         if (Config.Instance.ConnectCloseDistanceCallToNextPacenote)
                         {
-                            record.Pacenotes.AddRange(PacenoteRecord.FromCrewChiefPacenoteRecord(records[i + 1]).Pacenotes);
+                            AppendPacenoteRecord(
+                                record,
+                                PacenoteRecord.FromCrewChiefPacenoteRecord(records[i + 1]));
                             i++;
                         }
                     } else if (distance_to_next < 30)
@@ -243,7 +248,9 @@ namespace ZTMZ.PacenoteTool.Base
                         // merge with next
                         if (Config.Instance.ConnectCloseDistanceCallToNextPacenote)
                         {
-                            record.Pacenotes.AddRange(PacenoteRecord.FromCrewChiefPacenoteRecord(records[i + 1]).Pacenotes);
+                            AppendPacenoteRecord(
+                                record,
+                                PacenoteRecord.FromCrewChiefPacenoteRecord(records[i + 1]));
                             i++;
                         }
                     }
@@ -261,6 +268,21 @@ namespace ZTMZ.PacenoteTool.Base
             reader.FlagComments.Add(ScriptFlags.DYNAMIC, "");
 
             return reader;
+        }
+
+        private static void AppendPacenoteRecord(PacenoteRecord target, PacenoteRecord source)
+        {
+            var indexOffset = target.Pacenotes.Count;
+            target.Pacenotes.AddRange(source.Pacenotes);
+            foreach (var span in source.SourceAudioCueSpans)
+            {
+                target.SourceAudioCueSpans.Add(new Game.GamePacenoteAudioCueSpan
+                {
+                    PacenoteStartIndex = span.PacenoteStartIndex + indexOffset,
+                    PacenoteCount = span.PacenoteCount,
+                    Cue = span.Cue
+                });
+            }
         }
 
         private static bool isCorner(string note) {

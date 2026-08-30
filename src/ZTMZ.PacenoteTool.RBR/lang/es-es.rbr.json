@@ -17,10 +17,12 @@
                 "playPacenotesWhenReplaying": "Reproducir las notas durante las repeticiones.",
                 "additional_pacenote_def": "Definición de notas personalizada de RBR.",
                 "autoSwitchPacenoteDef": "Cambiar automáticamente la definición de notas.",
+                "useInstalledCodriverAudio": "Usar el audio de copiloto instalado en RBR.",
                 "tooltip": {
                     "playPacenotesWhenReplaying": "Reproduce las notas durante las repeticiones de carreras finalizadas.",
                     "additional_pacenote_def": "Archivo de base de datos de definiciones que contiene la correspondencia entre las notas de RBR y las definiciones de ZTMZ.",
-                    "autoSwitchPacenoteDef": "Si el tramo actual utiliza las notas predeterminadas de RBR, se usa la definición predeterminada; de lo contrario, se usan las definiciones del archivo indicado arriba."
+                    "autoSwitchPacenoteDef": "Si el tramo actual utiliza las notas predeterminadas de RBR, se usa la definición predeterminada; de lo contrario, se usan las definiciones del archivo indicado arriba.",
+                    "useInstalledCodriverAudio": "Usa el audio instalado de RBR para notas y avisos disponibles de cuenta atrás, salida, meta y daños. Los avisos que RBR no incluya usan ZTMZ. Desactiva las indicaciones propias de RBR para evitar llamadas duplicadas."
                 }
             },
             "message": {

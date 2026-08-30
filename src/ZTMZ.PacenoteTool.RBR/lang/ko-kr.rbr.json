@@ -17,10 +17,12 @@
                 "playPacenotesWhenReplaying": "리플레이 중 페이스노트 재생.",
                 "additional_pacenote_def": "사용자 지정 RBR 페이스노트 정의.",
                 "autoSwitchPacenoteDef": "페이스노트 정의 자동 전환.",
+                "useInstalledCodriverAudio": "RBR에 설치된 코드라이버 음성을 사용합니다.",
                 "tooltip": {
                     "playPacenotesWhenReplaying": "완주한 경기의 리플레이 중 페이스노트를 재생합니다.",
                     "additional_pacenote_def": "RBR 페이스노트와 ZTMZ 페이스노트 정의의 대응 관계가 들어 있는 정의 데이터베이스 파일입니다.",
-                    "autoSwitchPacenoteDef": "현재 트랙이 기본 RBR 페이스노트를 사용하면 기본 정의를 사용하고, 그렇지 않으면 위의 정의 파일을 사용합니다."
+                    "autoSwitchPacenoteDef": "현재 트랙이 기본 RBR 페이스노트를 사용하면 기본 정의를 사용하고, 그렇지 않으면 위의 정의 파일을 사용합니다.",
+                    "useInstalledCodriverAudio": "페이스노트와 지원되는 카운트다운, 출발, 완주 및 손상 알림에 설치된 RBR 음성을 사용합니다. RBR에 없는 음성은 ZTMZ를 사용합니다. 중복 재생을 피하려면 RBR 자체 코드라이버 음성을 끄십시오."
                 }
             },
             "message": {

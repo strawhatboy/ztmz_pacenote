@@ -7,5 +7,6 @@ namespace ZTMZ.PacenoteTool.Base
         public string Modifier { set; get; } = "";
         public string RawVoiceCommand { set; get; }
         public string UnprocessedVoiceCommandText { set; get; }
+        public Game.GamePacenoteAudioCue SourceAudioCue { set; get; }
     }
 }
