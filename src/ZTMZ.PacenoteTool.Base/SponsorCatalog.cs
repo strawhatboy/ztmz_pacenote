@@ -8,6 +8,7 @@ public static class SponsorCatalog
 
     public static IReadOnlyList<string> SponsorNames { get; } =
     [
+        "年轮",
         "k*e",
         "**新",
         "*师",
