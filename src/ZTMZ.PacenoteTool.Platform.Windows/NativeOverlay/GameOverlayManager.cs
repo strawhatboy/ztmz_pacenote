@@ -1089,13 +1089,13 @@ namespace ZTMZ.PacenoteTool.UI.Windows
 
         public void SetTopMost(bool topMost)
         {
-            ApplyOverlayLayering(topMost || ShouldUseForegroundTopMost(), placeAbove: true);
+            ApplyOverlayLayering(topMost, placeAbove: true);
         }
 
         private void RefreshOverlayLayering(bool placeAbove = false)
         {
             RefreshGameWindowAttachment();
-            ApplyOverlayLayering(Config.Instance.HudTopMost || ShouldUseForegroundTopMost(), placeAbove);
+            ApplyOverlayLayering(Config.Instance.HudTopMost, placeAbove);
         }
 
         private void ApplyOverlayLayering(bool topMost, bool placeAbove)
@@ -1116,35 +1116,6 @@ namespace ZTMZ.PacenoteTool.UI.Windows
 
             if (!topMost && (placeAbove || layeringChanged) && window.IsInitialized && window.ParentWindowHandle != IntPtr.Zero) {
                 window.PlaceAbove(window.ParentWindowHandle);
-            }
-        }
-
-        private bool ShouldUseForegroundTopMost()
-        {
-            return NativeOverlayLayeringPolicy.ShouldPromoteToTopMost(
-                _gameProcess?.ProcessName,
-                IsGameWindowForeground());
-        }
-
-        private bool IsGameWindowForeground()
-        {
-            if (_hudShowInSeparateWindow || _gameProcess == null) {
-                return false;
-            }
-
-            try {
-                if (_gameProcess.HasExited) {
-                    return false;
-                }
-
-                var foregroundWindow = WindowHelper.GetForegroundWindow();
-                return (_lastKnownGameWindowHandle != IntPtr.Zero
-                        && foregroundWindow == _lastKnownGameWindowHandle)
-                    || (foregroundWindow != IntPtr.Zero
-                        && WindowHelper.GetProcessIdFromWindow(foregroundWindow) == _gameProcess.Id);
-            } catch (Exception ex) {
-                _logger.Debug(ex, "Failed to inspect the foreground game window.");
-                return false;
             }
         }
 
