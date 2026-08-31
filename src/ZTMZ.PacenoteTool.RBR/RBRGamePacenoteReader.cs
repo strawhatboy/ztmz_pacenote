@@ -23,8 +23,18 @@ using Neo.IronLua;
 
 namespace ZTMZ.PacenoteTool.RBR;
 
+internal readonly record struct RBRPacenoteEncoding(
+    int StandardPacenoteType,
+    int CustomPacenoteType,
+    int ModifierFlags);
+
 public class RBRGamePacenoteReader : BasePacenoteReader
 {
+    // Jannemod packs a 12-bit custom call ID above the lower 19 modifier bits.
+    private const int CustomPacenoteTypeShift = 19;
+    private const int CustomPacenoteTypeMask = 0xFFF;
+    private const int PacenoteModifierMask = (1 << CustomPacenoteTypeShift) - 1;
+
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     public Dictionary<int, string> TrackNoNameMap = new();
     public Dictionary<int, string> TrackNoStageNameMap = new();
@@ -468,8 +478,7 @@ public class RBRGamePacenoteReader : BasePacenoteReader
     private static string getModifiersFromFlag(int flag)
     {
         var modifiers = new List<string>();
-        if (flag >= 32768) {
-            // too big, unknown flag
+        if (flag < 0 || flag > PacenoteModifierMask) {
             return "";
         }
         foreach (var modifierType in getModifierTypesFromFlag(flag))
@@ -483,7 +492,7 @@ public class RBRGamePacenoteReader : BasePacenoteReader
 
     private static List<int> getModifierTypesFromFlag(int flag)
     {
-        if (flag >= 32768)
+        if (flag < 0 || flag > PacenoteModifierMask)
         {
             return [];
         }
@@ -500,29 +509,35 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             // wtf is this.
             return null;
         }
+        var encoding = DecodePacenoteEncoding(ptype, pflag);
+        var effectivePacenoteType = encoding.CustomPacenoteType > 0 &&
+                                    RBRScriptResource.Instance.PacenoteId2ZTMZIds.ContainsKey(encoding.CustomPacenoteType)
+            ? encoding.CustomPacenoteType
+            : encoding.StandardPacenoteType;
+        var modifierFlags = encoding.ModifierFlags;
         DynamicPacenoteRecord record = new DynamicPacenoteRecord();
         // remove ID_2_PACENOTE
-        if (RBRScriptResource.Instance.PacenoteId2ZTMZIds.ContainsKey(ptype))
+        if (RBRScriptResource.Instance.PacenoteId2ZTMZIds.ContainsKey(effectivePacenoteType))
         {
-            var ztmzIds = RBRScriptResource.Instance.PacenoteId2ZTMZIds[ptype];
+            var ztmzIds = RBRScriptResource.Instance.PacenoteId2ZTMZIds[effectivePacenoteType];
             record.Pacenote = string.Join(",", from p in ztmzIds select Base.Script.ScriptResource.Instance.FilenameDict[p].First());
         } else {
             // log warning
-            _logger.Warn("Pacenote mapping {0} from RBR to ZTMZ not found, along with flag {1} and distance {2}", ptype, pflag, pdistance);
-            if (RBRScriptResource.Instance.PacenotesDict.ContainsKey(ptype)) {
-                _logger.Warn("Pacenote type {0} found in RBRScriptResource, which is {1}, but not mapped to ZTMZ", ptype, RBRScriptResource.Instance.PacenotesDict[ptype].First().name);
+            _logger.Warn("Pacenote mapping {0} from RBR to ZTMZ not found, along with flag {1} and distance {2}", effectivePacenoteType, modifierFlags, pdistance);
+            if (RBRScriptResource.Instance.PacenotesDict.ContainsKey(effectivePacenoteType)) {
+                _logger.Warn("Pacenote type {0} found in RBRScriptResource, which is {1}, but not mapped to ZTMZ", effectivePacenoteType, RBRScriptResource.Instance.PacenotesDict[effectivePacenoteType].First().name);
             } else {
-                _logger.Warn("Pacenote type {0} not found in RBRScriptResource", ptype);
+                _logger.Warn("Pacenote type {0} not found in RBRScriptResource", effectivePacenoteType);
             }
         }
-        record.Modifier = getModifiersFromFlag(pflag);
+        record.Modifier = getModifiersFromFlag(modifierFlags);
         record.Distance = pdistance;
         record.SourceAudioCue = new GamePacenoteAudioCue
         {
             ProviderId = RBRInstalledCodriverAudioProvider.ProviderId,
-            PacenoteType = ptype,
-            ModifierFlags = pflag,
-            ModifierTypes = getModifierTypesFromFlag(pflag)
+            PacenoteType = effectivePacenoteType,
+            ModifierFlags = modifierFlags,
+            ModifierTypes = getModifierTypesFromFlag(modifierFlags)
         };
 
         if (!string.IsNullOrEmpty(record.Pacenote))
@@ -531,6 +546,14 @@ public class RBRGamePacenoteReader : BasePacenoteReader
         }
 
         return null;
+    }
+
+    internal static RBRPacenoteEncoding DecodePacenoteEncoding(int standardPacenoteType, int encodedFlags)
+    {
+        var rawFlags = unchecked((uint)encodedFlags);
+        var customPacenoteType = (int)((rawFlags >> CustomPacenoteTypeShift) & CustomPacenoteTypeMask);
+        var modifierFlags = (int)(rawFlags & PacenoteModifierMask);
+        return new RBRPacenoteEncoding(standardPacenoteType, customPacenoteType, modifierFlags);
     }
 
     private string getCustomPacenoteFolder(string trackName)
