@@ -710,19 +710,16 @@ namespace ZTMZ.PacenoteTool.Core
             {
                 var fallbacks = ZTMZ.PacenoteTool.Base.Script.ScriptResource.Instance.FallbackDict[id];
                 AutoResampledCachedSound sound = new AutoResampledCachedSound();
-                var soundCount = 0;
-                foreach (var fallback in fallbacks)
+                var fallbackSounds = ResolveFallbackSounds(
+                    fallbacks,
+                    visitedIds,
+                    (fallback, branchVisitedIds) => getSoundById(fallback, package, branchVisitedIds));
+                foreach (var fallbackSound in fallbackSounds)
                 {
-                    if (visitedIds.Contains(fallback))
-                    {
-                        continue;   // ignore visited ids to avoid infinite loop
-                    }
-                    sound.Append(getSoundById(fallback, package, visitedIds));
-                    soundCount++;
+                    sound.Append(fallbackSound);
                 }
 
-                // only if we have sound, or we use default codriver sound package for fallback
-                if (soundCount > 0)
+                if (fallbackSounds.Count > 0)
                 {
                     return sound;
                 }
@@ -734,6 +731,30 @@ namespace ZTMZ.PacenoteTool.Core
                 return getSoundById(id, DefaultCoDriverSoundPackage, visitedIds, true);
             }
             return new AutoResampledCachedSound();
+        }
+
+        internal static IReadOnlyList<AutoResampledCachedSound> ResolveFallbackSounds(
+            IEnumerable<int> fallbacks,
+            IReadOnlySet<int> visitedIds,
+            Func<int, HashSet<int>, AutoResampledCachedSound> resolve)
+        {
+            var sounds = new List<AutoResampledCachedSound>();
+            foreach (var fallback in fallbacks)
+            {
+                if (visitedIds.Contains(fallback))
+                {
+                    continue;
+                }
+
+                var branchVisitedIds = new HashSet<int>(visitedIds);
+                var fallbackSound = resolve(fallback, branchVisitedIds);
+                if (!fallbackSound.IsEmpty)
+                {
+                    sounds.Add(fallbackSound);
+                }
+            }
+
+            return sounds;
         }
 
         // need to be run in a non-UI thread

@@ -72,6 +72,66 @@ public class RBRPacenoteMappingTest
             new { ztmzId }));
     }
 
+    [Theory]
+    [InlineData("default.zdb")]
+    [InlineData("jannemod_v3.zdb")]
+    public void RbrDatabasesDoNotContainAccidentalDuplicateMappings(string databaseName)
+    {
+        using var connection = OpenReadOnly(GetRbrDatabasePath(databaseName));
+
+        Assert.Equal(0, connection.ExecuteScalar<int>(
+            """
+            SELECT COUNT(*)
+            FROM (
+                SELECT id, ztmz_id, order_id
+                FROM pacenote_ztmz
+                GROUP BY id, ztmz_id, order_id
+                HAVING COUNT(*) > 1
+            )
+            """));
+        foreach (var sourceId in new[] { 243, 302 })
+        {
+            Assert.Equal(1, connection.ExecuteScalar<int>(
+                "SELECT COUNT(*) FROM pacenote_ztmz WHERE id = @sourceId",
+                new { sourceId }));
+        }
+    }
+
+    [Fact]
+    public void DefaultRbrDatabaseMapsKnownIncorrectCallsCorrectly()
+    {
+        using var connection = OpenReadOnly(GetRbrDatabasePath("default.zdb"));
+
+        Assert.Equal(
+            new[] { 180 },
+            connection.Query<int>(
+                "SELECT ztmz_id FROM pacenote_ztmz WHERE id = 2156 ORDER BY order_id").ToArray());
+        Assert.Equal(
+            new[] { 62, 166 },
+            connection.Query<int>(
+                "SELECT ztmz_id FROM pacenote_ztmz WHERE id = 2190 ORDER BY order_id").ToArray());
+    }
+
+    [Fact]
+    public void WallPositionFallbacksUseWallRatherThanTree()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        using var connection = OpenReadOnly(Path.Combine(
+            repositoryRoot,
+            "src",
+            "ZTMZ.PacenoteTool.Base",
+            "data.zdb"));
+
+        Assert.Equal(
+            new[] { 113, 252 },
+            connection.Query<int>(
+                "SELECT fallback_id FROM pacenote_fallbacks WHERE id = 253 ORDER BY order_id").ToArray());
+        Assert.Equal(
+            new[] { 153, 252 },
+            connection.Query<int>(
+                "SELECT fallback_id FROM pacenote_fallbacks WHERE id = 254 ORDER BY order_id").ToArray());
+    }
+
     private static SqliteConnection OpenReadOnly(string path)
     {
         var connection = new SqliteConnection(new SqliteConnectionStringBuilder
@@ -82,6 +142,15 @@ public class RBRPacenoteMappingTest
         }.ToString());
         connection.Open();
         return connection;
+    }
+
+    private static string GetRbrDatabasePath(string databaseName)
+    {
+        return Path.Combine(
+            FindRepositoryRoot(),
+            "src",
+            "ZTMZ.PacenoteTool.RBR",
+            databaseName);
     }
 
     private static string FindRepositoryRoot()

@@ -1,6 +1,7 @@
 v2.99.99.48-3.0-rc20
 
 * Fixes Jannemod custom Richard Burns Rally calls being interpreted as their standard compatibility calls (for example, a left-entry chicane as twisty); encoded custom call IDs and modifiers are now decoded correctly.
+* Fixes duplicate and incorrect Richard Burns Rally mappings, incorrect wall-position fallbacks, and fallback audio resolution that could accept empty results or skip repeated call components.
 
 v2.99.99.47-3.0-rc19
 
