@@ -39,6 +39,7 @@ public static class SponsorCatalog
         "骨架（很少看手机）",
         "seasky",
         "不落",
-        "*鹏"
+        "*鹏",
+        "๑"
     ];
 }
