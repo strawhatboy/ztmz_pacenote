@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <ZtmzDesktopVersion Condition="'$(ZtmzDesktopVersion)' == ''">2.99.99.47</ZtmzDesktopVersion>
+    <ZtmzDesktopVersion Condition="'$(ZtmzDesktopVersion)' == ''">2.99.99.48</ZtmzDesktopVersion>
     <ZtmzWpfVersion Condition="'$(ZtmzWpfVersion)' == ''">$(ZtmzDesktopVersion)</ZtmzWpfVersion>
     <ZtmzAvaloniaVersion Condition="'$(ZtmzAvaloniaVersion)' == ''">$(ZtmzDesktopVersion)</ZtmzAvaloniaVersion>
   </PropertyGroup>

@@ -1,3 +1,10 @@
+v2.99.99.48-3.0-rc20
+------
+[English]
+* Fixes Jannemod custom Richard Burns Rally calls being interpreted as their standard compatibility calls (for example, a left-entry chicane as twisty); encoded custom call IDs and modifiers are now decoded correctly.
+[简体中文]
+* 修复 Richard Burns Rally 的 Jannemod 自定义路书被误识别为标准兼容路书的问题（例如左进减速弯被播报为“蛇形弯”）；现在会正确解码自定义路书类型和修饰词。
+
 v2.99.99.47-3.0-rc19
 ------
 [English]

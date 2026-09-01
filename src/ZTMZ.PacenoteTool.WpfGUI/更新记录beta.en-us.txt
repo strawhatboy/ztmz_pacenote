@@ -1,9 +1,12 @@
+v2.99.99.48-3.0-rc20
+
+* Fixes Jannemod custom Richard Burns Rally calls being interpreted as their standard compatibility calls (for example, a left-entry chicane as twisty); encoded custom call IDs and modifiers are now decoded correctly.
+
 v2.99.99.47-3.0-rc19
 
 * Adds convenient access to the DiRT Rally 2.0 Simplified Chinese localization, which replaces game resources without the unattractive fonts and slow stage loading associated with the older localization patch.
 * Adds download links for the EA SPORTS WRC replacement Chinese co-driver and localization, and the Assetto Corsa Rally replacement Chinese pacenotes, with clear descriptions for each resource.
 * Improves Richard Burns Rally detection and setup, including manual selection of the game executable.
-* Fixes Jannemod custom Richard Burns Rally calls being interpreted as their standard compatibility calls (for example, a left-entry chicane as twisty); encoded custom call IDs and modifiers are now decoded correctly.
 * Improves the stability and consistency of the in-game overlay and its preview.
 * Improves the Home page layout: longer content scrolls correctly, and the scrollbar automatically hides when idle.
 
