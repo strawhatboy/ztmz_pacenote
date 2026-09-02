@@ -24,7 +24,7 @@
               CornerRadius="4">
         <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="14">
           <StackPanel Spacing="4">
-            <TextBlock Text="{DynamicResource settings.overlayHud}"
+            <TextBlock Text="{DynamicResource settings.overlayHudTitle}"
                        FontSize="18"
                        FontWeight="SemiBold" />
             <TextBlock Text="{DynamicResource settings.tooltip.overlayHudHomeStatus}"
@@ -93,20 +93,30 @@
                         IsChecked="{Binding IsWebDashboardEnabled, Mode=TwoWay}"
                         OnContent=""
                         OffContent="" />
-          <Button Grid.Row="1"
-                  Grid.ColumnSpan="2"
-                  HorizontalContentAlignment="Stretch"
-                  Command="{Binding OpenDashboardCommand}"
-                  ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardOpen}"
-                  ToolTip.ShowDelay="100">
-            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-              <Ellipse Width="8" Height="8" Fill="{Binding DashboardStatusBrush}" />
-              <TextBlock Grid.Column="1"
-                         Text="{Binding DashboardDisplayUrl}"
-                         TextTrimming="CharacterEllipsis" />
-              <materialIcons:MaterialIcon Grid.Column="2" Kind="OpenInNew" Width="16" Height="16" />
-            </Grid>
-          </Button>
+          <Grid Grid.Row="1"
+                Grid.ColumnSpan="2"
+                ColumnDefinitions="Auto,*,Auto,160"
+                ColumnSpacing="10">
+            <Button HorizontalContentAlignment="Stretch"
+                    Command="{Binding OpenDashboardCommand}"
+                    ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardOpen}"
+                    ToolTip.ShowDelay="100">
+              <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                <Ellipse Width="8" Height="8" Fill="{Binding DashboardStatusBrush}" />
+                <TextBlock Grid.Column="1"
+                           Text="{Binding DashboardDisplayUrl}"
+                           TextTrimming="CharacterEllipsis" />
+                <materialIcons:MaterialIcon Grid.Column="2" Kind="OpenInNew" Width="16" Height="16" />
+              </Grid>
+            </Button>
+            <TextBlock Grid.Column="2"
+                       Text="{DynamicResource settings.tooltip.webDashboardCanvasResolutionLabel}"
+                       VerticalAlignment="Center" />
+            <ComboBox Grid.Column="3"
+                      ItemsSource="{Binding WebDashboardCanvasResolutionOptions}"
+                      SelectedItem="{Binding WebDashboardCanvasResolution, Mode=TwoWay}"
+                      ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardCanvasResolution}" />
+          </Grid>
           <Grid Grid.Row="2"
                 Grid.ColumnSpan="2"
                 ColumnDefinitions="Auto,120,Auto,50,*"
@@ -128,17 +138,6 @@
                     Minimum="5"
                     Maximum="240"
                     Value="{Binding WebDashboardFrameRate, Mode=TwoWay}" />
-          </Grid>
-          <Grid Grid.Row="3"
-                Grid.ColumnSpan="2"
-                ColumnDefinitions="Auto,160"
-                ColumnSpacing="10">
-            <TextBlock Text="{DynamicResource settings.tooltip.webDashboardCanvasResolutionLabel}"
-                       VerticalAlignment="Center" />
-            <ComboBox Grid.Column="1"
-                      ItemsSource="{Binding WebDashboardCanvasResolutionOptions}"
-                      SelectedItem="{Binding WebDashboardCanvasResolution, Mode=TwoWay}"
-                      ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardCanvasResolution}" />
           </Grid>
         </Grid>
       </Border>
