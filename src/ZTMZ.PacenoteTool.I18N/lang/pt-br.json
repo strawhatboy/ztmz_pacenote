@@ -269,6 +269,8 @@
       "webDashboardPortLabel": "Porta:",
       "webDashboardFrameRateLabel": "FPS:",
       "webDashboardFrameRate": "Taxa máxima de quadros do painel web (aplicada imediatamente)",
+      "webDashboardCanvasResolutionLabel": "Resolução de renderização:",
+      "webDashboardCanvasResolution": "Resolução de renderização do Canvas. Valores menores continuam mostrando o painel completo e reduzem o consumo do celular, com uma imagem um pouco menos nítida.",
       "webDashboardOpen": "Abrir painel no navegador",
       "webDashboardAvailableAddresses": "Endereços disponíveis do painel:",
       "webDashboardStatusRunning": "Servidor em execução",

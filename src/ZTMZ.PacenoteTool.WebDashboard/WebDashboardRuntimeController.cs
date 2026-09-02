@@ -2,6 +2,7 @@
 
 using System;
 using System.Net.Sockets;
+using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Core;
 
 namespace ZTMZ.PacenoteTool.WebDashboard;
@@ -137,6 +138,7 @@ public sealed class WebDashboardRuntimeController : IRuntimeDashboardController,
         if (_runtime.Status.IsRunning && _runtime.Status.Port == port)
         {
             _runtime.SetTargetFrameRate(targetFrameRate);
+            _runtime.SetCanvasResolution(Config.Instance.WebDashboardCanvasResolution);
             return ConvertStatus(_runtime.Status);
         }
 
@@ -149,7 +151,8 @@ public sealed class WebDashboardRuntimeController : IRuntimeDashboardController,
                 port,
                 targetFrameRate,
                 _options.BrowserLuaExecutionEnabled,
-                _options.SupportsNativeOverlay));
+                _options.SupportsNativeOverlay,
+                Config.Instance.WebDashboardCanvasResolution));
             _bridge = new WebDashboardGameSessionBridge(_tool, _runtime);
             return ConvertStatus(_runtime.Status);
         }

@@ -100,6 +100,29 @@ public partial class HudPageVM : ObservableObject {
     [ObservableProperty]
     private int _webDashboardFrameRate = Config.Instance.WebDashboardFrameRate;
 
+    public IReadOnlyList<string> WebDashboardCanvasResolutionOptions { get; } =
+        global::ZTMZ.PacenoteTool.Base.WebDashboardCanvasResolution.Supported;
+
+    [ObservableProperty]
+    private string _webDashboardCanvasResolution = Config.Instance.WebDashboardCanvasResolution;
+
+    partial void OnWebDashboardCanvasResolutionChanged(string value)
+    {
+        Config.Instance.WebDashboardCanvasResolution = value;
+        var configuredResolution = Config.Instance.WebDashboardCanvasResolution;
+        if (!string.Equals(configuredResolution, value, StringComparison.Ordinal))
+        {
+            WebDashboardCanvasResolution = configuredResolution;
+            return;
+        }
+
+        if (WebDashboardEnabled)
+        {
+            _gameOverlayManager.ConfigureWebDashboard(true, WebDashboardPort, WebDashboardFrameRate);
+        }
+        Config.Instance.SaveUserConfig();
+    }
+
     partial void OnWebDashboardFrameRateChanged(int value)
     {
         Config.Instance.WebDashboardFrameRate = value;

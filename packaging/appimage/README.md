@@ -57,9 +57,10 @@ The package is read-only. Runtime data remains in the XDG data root, normally
 `~/.local/share/ztmz`, and can be overridden with `ZTMZ_DATA_HOME`. Packaged
 resources are resolved through `ZTMZ_RESOURCE_HOME` inside the AppImage.
 
-The desktop host uses Avalonia's native Wayland backend when `WAYLAND_DISPLAY`
-is available. Set `ZTMZ_DISPLAY_BACKEND=x11` to force the X11/XWayland backend
-for troubleshooting.
+The desktop host uses Avalonia's X11 backend by default, including through
+XWayland on Wayland desktops. Native Wayland remains experimental and can be
+enabled explicitly with `ZTMZ_DISPLAY_BACKEND=wayland` when `WAYLAND_DISPLAY`
+is available.
 
 The AppImage opens the Avalonia desktop host without a terminal. The separate
 `ZTMZ.PacenoteTool.Linux` project remains available for command-line bootstrap,

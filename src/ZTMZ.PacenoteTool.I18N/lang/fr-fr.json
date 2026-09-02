@@ -269,6 +269,8 @@
       "webDashboardPortLabel": "Port :",
       "webDashboardFrameRateLabel": "FPS :",
       "webDashboardFrameRate": "Fréquence d'images maximale du tableau de bord web (appliquée immédiatement)",
+      "webDashboardCanvasResolutionLabel": "Résolution de rendu :",
+      "webDashboardCanvasResolution": "Résolution de rendu du Canvas. Une valeur plus basse affiche toujours le tableau de bord complet et réduit la consommation du téléphone, avec une image légèrement moins nette.",
       "webDashboardOpen": "Ouvrir le tableau de bord dans le navigateur",
       "webDashboardAvailableAddresses": "Adresses disponibles du tableau de bord :",
       "webDashboardStatusRunning": "Le serveur fonctionne",

@@ -14,7 +14,9 @@ public sealed class WebDashboardBrowserLuaConfig
         float hudShiftGreenZone,
         float hudShiftYellowZone,
         float hudShiftRedZone,
-        int frameRate = Config.WebDashboardFrameRateDefault)
+        int frameRate = Config.WebDashboardFrameRateDefault,
+        int canvasWidth = WebDashboardCanvasResolution.DefaultWidth,
+        int canvasHeight = WebDashboardCanvasResolution.DefaultHeight)
     {
         HudChromaKeyMode = hudChromaKeyMode;
         HudShiftGreenZone = hudShiftGreenZone;
@@ -24,6 +26,8 @@ public sealed class WebDashboardBrowserLuaConfig
             frameRate,
             Config.WebDashboardFrameRateMinimum,
             Config.WebDashboardFrameRateMaximum);
+        CanvasWidth = Math.Max(1, canvasWidth);
+        CanvasHeight = Math.Max(1, canvasHeight);
     }
 
     public bool HudChromaKeyMode { get; }
@@ -35,6 +39,10 @@ public sealed class WebDashboardBrowserLuaConfig
     public float HudShiftRedZone { get; }
 
     public int FrameRate { get; }
+
+    public int CanvasWidth { get; }
+
+    public int CanvasHeight { get; }
 }
 
 /// <summary>

@@ -40,6 +40,8 @@ public static class SponsorCatalog
         "seasky",
         "不落",
         "*鹏",
-        "๑"
+        "๑",
+        "哥斯拉稀",
+        "㵉晞"
     ];
 }

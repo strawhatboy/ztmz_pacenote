@@ -279,6 +279,8 @@
       "webDashboardPortLabel": "端口：",
       "webDashboardFrameRateLabel": "帧率：",
       "webDashboardFrameRate": "网页仪表盘的最高帧率（5-60 FPS，修改后立即生效）",
+      "webDashboardCanvasResolutionLabel": "渲染分辨率：",
+      "webDashboardCanvasResolution": "Canvas 渲染分辨率。较低的数值仍会显示完整仪表盘，并降低手机耗电，但画面会稍微模糊。",
       "webDashboardOpen": "在浏览器中打开仪表盘",
       "webDashboardAvailableAddresses": "可用的仪表盘地址：",
       "webDashboardStatusRunning": "服务器正在运行",

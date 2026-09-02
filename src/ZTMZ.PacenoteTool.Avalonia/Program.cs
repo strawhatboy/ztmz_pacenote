@@ -99,17 +99,22 @@ internal static class Program
 
     private static bool ShouldUseWayland()
     {
-        if (!OperatingSystem.IsLinux() ||
-            string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("WAYLAND_DISPLAY")))
-        {
-            return false;
-        }
-
-        return !string.Equals(
-            Environment.GetEnvironmentVariable("ZTMZ_DISPLAY_BACKEND"),
-            "x11",
-            StringComparison.OrdinalIgnoreCase);
+        return ShouldUseWayland(
+            OperatingSystem.IsLinux(),
+            Environment.GetEnvironmentVariable("WAYLAND_DISPLAY"),
+            Environment.GetEnvironmentVariable("ZTMZ_DISPLAY_BACKEND"));
     }
+
+    internal static bool ShouldUseWayland(
+        bool isLinux,
+        string? waylandDisplay,
+        string? requestedBackend) =>
+        isLinux &&
+        !string.IsNullOrWhiteSpace(waylandDisplay) &&
+        string.Equals(
+            requestedBackend?.Trim(),
+            "wayland",
+            StringComparison.OrdinalIgnoreCase);
 
     private static string GetDisplayBackend()
     {

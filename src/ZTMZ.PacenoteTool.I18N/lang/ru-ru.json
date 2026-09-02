@@ -269,6 +269,8 @@
       "webDashboardPortLabel": "Порт:",
       "webDashboardFrameRateLabel": "Кадров/с:",
       "webDashboardFrameRate": "Максимальная частота кадров веб-панели (применяется сразу)",
+      "webDashboardCanvasResolutionLabel": "Разрешение рендеринга:",
+      "webDashboardCanvasResolution": "Разрешение рендеринга Canvas. Низкие значения по-прежнему показывают всю панель и снижают расход батареи телефона, но изображение становится немного мягче.",
       "webDashboardOpen": "Открыть панель в браузере",
       "webDashboardAvailableAddresses": "Доступные адреса приборной панели:",
       "webDashboardStatusRunning": "Сервер работает",

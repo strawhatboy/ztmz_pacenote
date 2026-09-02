@@ -62,6 +62,7 @@ public class WebDashboardCommandCaptureTest
         using var pageResponse = await client.GetAsync($"http://127.0.0.1:{port}/");
         using var clientScriptResponse = await client.GetAsync($"http://127.0.0.1:{port}/dashboard-client.js");
         using var browserLuaScriptResponse = await client.GetAsync($"http://127.0.0.1:{port}/browser-lua-dashboard.js");
+        using var faviconResponse = await client.GetAsync($"http://127.0.0.1:{port}/favicon.ico");
         using var fengariResponse = await client.GetAsync($"http://127.0.0.1:{port}/vendor/fengari-web.js");
         using var fontResponse = await client.GetAsync($"http://127.0.0.1:{port}/fonts/WRCCleanRoman.ttf");
         using var boldFontResponse = await client.GetAsync($"http://127.0.0.1:{port}/fonts/WRCCleanBold.ttf");
@@ -71,6 +72,7 @@ public class WebDashboardCommandCaptureTest
         pageResponse.EnsureSuccessStatusCode();
         clientScriptResponse.EnsureSuccessStatusCode();
         browserLuaScriptResponse.EnsureSuccessStatusCode();
+        faviconResponse.EnsureSuccessStatusCode();
         fengariResponse.EnsureSuccessStatusCode();
         fontResponse.EnsureSuccessStatusCode();
         boldFontResponse.EnsureSuccessStatusCode();
@@ -86,6 +88,7 @@ public class WebDashboardCommandCaptureTest
         Assert.Contains("orientation-button", page);
         Assert.Contains("frame-rate", page);
         Assert.Contains("connection-status-text", page);
+        Assert.Contains("<link rel=\"icon\" href=\"/favicon.ico\" sizes=\"any\">", page);
         Assert.Contains("WRCCleanRoman.ttf", page);
         Assert.Contains("font-weight: 700", page);
         var normalizedPage = page.Replace("\r\n", "\n");
@@ -96,8 +99,8 @@ public class WebDashboardCommandCaptureTest
             "font-family: 'WRC Clean Roman';\n            src: url('/fonts/WRCCleanRoman.ttf') format('truetype');\n            font-weight: 400;",
             normalizedPage);
         Assert.Contains("vendor/fengari-web.js?v=0.1.4", page);
-        Assert.Contains("browser-lua-dashboard.js?v=6", page);
-        Assert.Contains("dashboard-client.js?v=5", page);
+        Assert.Contains("browser-lua-dashboard.js?v=7", page);
+        Assert.Contains("dashboard-client.js?v=6", page);
         Assert.Contains("cmd.fontWeight", clientScript);
         Assert.Contains("cmd.baseline", clientScript);
         Assert.Contains("layeredDrawCommands", clientScript);
@@ -106,6 +109,10 @@ public class WebDashboardCommandCaptureTest
         Assert.Contains("DASHBOARD_LAYER_Z_INDEX_STRIDE", clientScript);
         Assert.Contains("ZtmzBrowserLuaDashboardManager", browserLuaScript);
         Assert.Contains("DASHBOARD_LAYER_Z_INDEX_STRIDE", browserLuaScript);
+        Assert.DoesNotContain("canvas.width = canvas.width", browserLuaScript);
+        Assert.DoesNotContain("layer.canvas.width = state.renderWidth", clientScript);
+        Assert.Contains("clearRect(0, 0, canvas.width, canvas.height)", browserLuaScript);
+        Assert.Contains("clearRect(0, 0, layer.canvas.width, layer.canvas.height)", clientScript);
         Assert.Contains("t.fengari=e()", fengariScript);
         Assert.Contains("dashboard-layer-stack", page);
         Assert.True(dashboardListResponse.Headers.TryGetValues("Cache-Control", out var dashboardCacheControlValues));
@@ -115,6 +122,7 @@ public class WebDashboardCommandCaptureTest
         Assert.Equal("font/ttf", fontResponse.Content.Headers.ContentType?.MediaType);
         Assert.Equal("font/ttf", boldFontResponse.Content.Headers.ContentType?.MediaType);
         Assert.Equal("image/png", pacenoteIconResponse.Content.Headers.ContentType?.MediaType);
+        Assert.Equal("image/x-icon", faviconResponse.Content.Headers.ContentType?.MediaType);
         var iconCacheControl = pacenoteIconResponse.Headers.CacheControl;
         Assert.NotNull(iconCacheControl);
         Assert.True(iconCacheControl.Public);
@@ -500,7 +508,9 @@ public class WebDashboardCommandCaptureTest
                 hudShiftGreenZone: 0.6f,
                 hudShiftYellowZone: 0.75f,
                 hudShiftRedZone: 0.9f,
-                frameRate: 75));
+                frameRate: 75,
+                canvasWidth: 960,
+                canvasHeight: 540));
         var context = new GameContext
         {
             TrackName = "Stage",
@@ -566,6 +576,8 @@ public class WebDashboardCommandCaptureTest
         Assert.Contains("\"checkpoints\":10", snapshot);
         Assert.Contains("\"LocalReplayDelta\":-0.5", snapshot);
         Assert.Contains("\"FrameRate\":75", snapshot);
+        Assert.Contains("\"CanvasWidth\":960", snapshot);
+        Assert.Contains("\"CanvasHeight\":540", snapshot);
         Assert.DoesNotContain("\"Id\":4", snapshot);
         using (var snapshotDocument = JsonDocument.Parse(snapshot))
         {
@@ -597,12 +609,15 @@ public class WebDashboardCommandCaptureTest
         Assert.DoesNotContain("\"BestReplayTimeline\"", delta);
 
         var compatibilityTask = ReceiveTextAsync(socket);
+        server.SetCanvasSize(960, 540);
         await server.BroadcastDrawFrameAsync(new WebDashboardDrawFrame(
             Array.Empty<WebDashboardDrawLayer>(),
             new DrawingCommand[] { new ClearCommand() },
             hasExplicitStaticLayers: false));
         var compatibilityFrame = await compatibilityTask.WaitAsync(TimeSpan.FromSeconds(5));
         Assert.Contains("\"type\":\"drawCommands\"", compatibilityFrame);
+        Assert.Contains("\"canvasWidth\":960", compatibilityFrame);
+        Assert.Contains("\"canvasHeight\":540", compatibilityFrame);
 
         var resumedSnapshotTask = ReceiveTextAsync(socket);
         initialData.Speed = 94;

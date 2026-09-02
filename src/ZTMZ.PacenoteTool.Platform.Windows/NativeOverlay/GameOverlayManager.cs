@@ -367,6 +367,7 @@ namespace ZTMZ.PacenoteTool.UI.Windows
             var alreadyRunning = false;
             var normalizedFrameRate = NormalizeWebDashboardFrameRate(frameRate);
             var renderInterval = GetWebDashboardRenderInterval(normalizedFrameRate);
+            var canvasSize = WebDashboardCanvasResolution.Parse(Config.Instance.WebDashboardCanvasResolution);
 
             lock (_webDashboardLock)
             {
@@ -375,6 +376,7 @@ namespace ZTMZ.PacenoteTool.UI.Windows
                     && _webDashboardServer.Port == port
                     && _webDashboardRenderTimer != null)
                 {
+                    _webDashboardServer.SetCanvasSize(canvasSize.Width, canvasSize.Height);
                     alreadyRunning = true;
                     activeTimer = _webDashboardRenderTimer;
                 }
@@ -410,6 +412,7 @@ namespace ZTMZ.PacenoteTool.UI.Windows
                     BrowserLuaExecutionEnabled = Config.Instance.WebDashboardBrowserLuaEnabled
                 };
                 server.Initialize(Dashboards, GetDashboardOutputTarget);
+                server.SetCanvasSize(canvasSize.Width, canvasSize.Height);
                 server.Start();
 
                 lock (_webDashboardLock)
@@ -674,6 +677,8 @@ namespace ZTMZ.PacenoteTool.UI.Windows
                 return false;
             }
 
+            var canvasSize = WebDashboardCanvasResolution.Parse(
+                Config.Instance.WebDashboardCanvasResolution);
             scene = new WebDashboardBrowserLuaScene(
                 browserLuaDashboards,
                 new WebDashboardBrowserLuaConfig(
@@ -681,7 +686,9 @@ namespace ZTMZ.PacenoteTool.UI.Windows
                     Config.Instance.HudShiftGreenZone,
                     Config.Instance.HudShiftYellowZone,
                     Config.Instance.HudShiftRedZone,
-                    Volatile.Read(ref _webDashboardFrameRate)));
+                    Volatile.Read(ref _webDashboardFrameRate),
+                    canvasSize.Width,
+                    canvasSize.Height));
             return true;
         }
 

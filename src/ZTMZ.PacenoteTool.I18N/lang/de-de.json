@@ -269,6 +269,8 @@
       "webDashboardPortLabel": "Port:",
       "webDashboardFrameRateLabel": "FPS:",
       "webDashboardFrameRate": "Maximale Bildrate des Web-Dashboards (wird sofort angewendet)",
+      "webDashboardCanvasResolutionLabel": "Renderauflösung:",
+      "webDashboardCanvasResolution": "Canvas-Renderauflösung. Niedrigere Werte zeigen weiterhin das vollständige Dashboard, senken aber den Stromverbrauch des Telefons bei etwas weicherer Darstellung.",
       "webDashboardOpen": "Dashboard im Browser öffnen",
       "webDashboardAvailableAddresses": "Verfügbare Dashboard-Adressen:",
       "webDashboardStatusRunning": "Server läuft",

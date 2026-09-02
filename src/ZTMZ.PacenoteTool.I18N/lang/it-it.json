@@ -269,6 +269,8 @@
       "webDashboardPortLabel": "Porta:",
       "webDashboardFrameRateLabel": "FPS:",
       "webDashboardFrameRate": "Frequenza fotogrammi massima del cruscotto web (applicata subito)",
+      "webDashboardCanvasResolutionLabel": "Risoluzione rendering:",
+      "webDashboardCanvasResolution": "Risoluzione di rendering del Canvas. I valori inferiori mostrano comunque l'intero dashboard e riducono il consumo del telefono, con un'immagine leggermente meno nitida.",
       "webDashboardOpen": "Apri il cruscotto nel browser",
       "webDashboardAvailableAddresses": "Indirizzi disponibili della dashboard:",
       "webDashboardStatusRunning": "Il server è in esecuzione",

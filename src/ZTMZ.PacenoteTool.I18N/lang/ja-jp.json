@@ -269,6 +269,8 @@
       "webDashboardPortLabel": "ポート:",
       "webDashboardFrameRateLabel": "FPS:",
       "webDashboardFrameRate": "Web ダッシュボードの最大フレームレート（即時適用）",
+      "webDashboardCanvasResolutionLabel": "描画解像度：",
+      "webDashboardCanvasResolution": "Canvas の描画解像度です。低い値でもダッシュボード全体を表示し、画質が少し柔らかくなる代わりにスマートフォンの消費電力を抑えます。",
       "webDashboardOpen": "ブラウザーでダッシュボードを開く",
       "webDashboardAvailableAddresses": "利用可能なダッシュボードアドレス:",
       "webDashboardStatusRunning": "サーバー稼働中",

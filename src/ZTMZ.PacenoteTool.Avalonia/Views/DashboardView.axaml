@@ -22,7 +22,7 @@
               BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
               BorderThickness="1"
               CornerRadius="4">
-        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="14">
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="14">
           <StackPanel Spacing="4">
             <TextBlock Text="{DynamicResource settings.overlayHud}"
                        FontSize="18"
@@ -128,6 +128,17 @@
                     Minimum="5"
                     Maximum="240"
                     Value="{Binding WebDashboardFrameRate, Mode=TwoWay}" />
+          </Grid>
+          <Grid Grid.Row="3"
+                Grid.ColumnSpan="2"
+                ColumnDefinitions="Auto,160"
+                ColumnSpacing="10">
+            <TextBlock Text="{DynamicResource settings.tooltip.webDashboardCanvasResolutionLabel}"
+                       VerticalAlignment="Center" />
+            <ComboBox Grid.Column="1"
+                      ItemsSource="{Binding WebDashboardCanvasResolutionOptions}"
+                      SelectedItem="{Binding WebDashboardCanvasResolution, Mode=TwoWay}"
+                      ToolTip.Tip="{DynamicResource settings.tooltip.webDashboardCanvasResolution}" />
           </Grid>
         </Grid>
       </Border>

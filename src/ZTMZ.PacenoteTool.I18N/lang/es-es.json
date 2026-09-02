@@ -269,6 +269,8 @@
       "webDashboardPortLabel": "Puerto:",
       "webDashboardFrameRateLabel": "FPS:",
       "webDashboardFrameRate": "Frecuencia máxima de cuadros del tablero web (se aplica inmediatamente)",
+      "webDashboardCanvasResolutionLabel": "Resolución de renderizado:",
+      "webDashboardCanvasResolution": "Resolución de renderizado del Canvas. Los valores bajos siguen mostrando el panel completo y reducen el consumo del teléfono, con una imagen algo menos nítida.",
       "webDashboardOpen": "Abrir tablero en el navegador",
       "webDashboardAvailableAddresses": "Direcciones disponibles del panel:",
       "webDashboardStatusRunning": "El servidor está en ejecución",

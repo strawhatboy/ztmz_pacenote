@@ -21,6 +21,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="..\ZTMZ.PacenoteTool.WpfGUI\Assets\app.ico">
+      <Link>wwwroot\favicon.ico</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <None Update="wwwroot\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

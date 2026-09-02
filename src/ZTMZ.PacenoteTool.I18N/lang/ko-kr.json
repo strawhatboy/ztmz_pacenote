@@ -269,6 +269,8 @@
       "webDashboardPortLabel": "포트:",
       "webDashboardFrameRateLabel": "FPS:",
       "webDashboardFrameRate": "웹 대시보드 최대 프레임 속도(즉시 적용)",
+      "webDashboardCanvasResolutionLabel": "렌더링 해상도:",
+      "webDashboardCanvasResolution": "Canvas 렌더링 해상도입니다. 낮은 값도 전체 대시보드를 표시하며, 화면이 약간 부드러워지는 대신 휴대폰 전력 사용량을 줄입니다.",
       "webDashboardOpen": "브라우저에서 대시보드 열기",
       "webDashboardAvailableAddresses": "사용 가능한 대시보드 주소:",
       "webDashboardStatusRunning": "서버 실행 중",

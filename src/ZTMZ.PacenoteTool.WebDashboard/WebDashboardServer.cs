@@ -72,6 +72,8 @@ public class WebDashboardServer : IDisposable
     private BrowserLuaScene _browserLuaScene;
     private long _nextBrowserLuaSceneRevision;
     private int _browserLuaExecutionEnabled = 1;
+    private int _canvasWidth = WebDashboardCanvasResolution.DefaultWidth;
+    private int _canvasHeight = WebDashboardCanvasResolution.DefaultHeight;
     
     private IReadOnlyList<WebDashboardDefinition>? _dashboards;
     private string? _dashboardsPath;
@@ -152,6 +154,12 @@ public class WebDashboardServer : IDisposable
     
     public int Port { get; set; } = 8080;
     public bool IsRunning { get; private set; }
+
+    public void SetCanvasSize(int width, int height)
+    {
+        Interlocked.Exchange(ref _canvasWidth, Math.Max(1, width));
+        Interlocked.Exchange(ref _canvasHeight, Math.Max(1, height));
+    }
 
     /// <summary>
     /// Controls whether this server may execute dashboard Lua in connected browsers.
@@ -949,6 +957,8 @@ public class WebDashboardServer : IDisposable
         {
             type = "layeredDrawCommands",
             sceneRevision = scene.Revision,
+            canvasWidth = Volatile.Read(ref _canvasWidth),
+            canvasHeight = Volatile.Read(ref _canvasHeight),
             browserLuaDashboardIds = normalizedBrowserLuaDashboardIds,
             layers = scene.Layers.Select(CreateLayerPayload).ToList()
         });
@@ -956,6 +966,8 @@ public class WebDashboardServer : IDisposable
         {
             type = "layeredDrawCommands",
             sceneRevision = scene.Revision,
+            canvasWidth = Volatile.Read(ref _canvasWidth),
+            canvasHeight = Volatile.Read(ref _canvasHeight),
             browserLuaDashboardIds = normalizedBrowserLuaDashboardIds,
             dynamicLayers = scene.Layers
                 .Where(layer => layer.Kind == WebDashboardDrawLayerKind.Dynamic)
@@ -1312,6 +1324,8 @@ public class WebDashboardServer : IDisposable
         var commandsSegment = SerializeMessage(new
         {
             type = "drawCommands",
+            canvasWidth = Volatile.Read(ref _canvasWidth),
+            canvasHeight = Volatile.Read(ref _canvasHeight),
             commands = commands
         });
         await SendToAllClients(commandsSegment);

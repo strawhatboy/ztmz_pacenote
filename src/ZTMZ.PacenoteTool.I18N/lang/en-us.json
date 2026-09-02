@@ -280,6 +280,8 @@
       "webDashboardPortLabel": "Port:",
       "webDashboardFrameRateLabel": "FPS:",
       "webDashboardFrameRate": "Maximum Web Dashboard frame rate (5-60 FPS, applies immediately)",
+      "webDashboardCanvasResolutionLabel": "Render resolution:",
+      "webDashboardCanvasResolution": "Canvas render resolution. Lower values still show the complete dashboard while reducing phone power usage, with slightly softer image quality.",
       "webDashboardOpen": "Open dashboard in browser",
       "webDashboardAvailableAddresses": "Available dashboard addresses:",
       "webDashboardStatusRunning": "Server is running",

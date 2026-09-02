@@ -467,6 +467,12 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     [ObservableProperty]
     private int _webDashboardFrameRate = Config.Instance.WebDashboardFrameRate;
 
+    public IReadOnlyList<string> WebDashboardCanvasResolutionOptions { get; } =
+        global::ZTMZ.PacenoteTool.Base.WebDashboardCanvasResolution.Supported;
+
+    [ObservableProperty]
+    private string _webDashboardCanvasResolution = Config.Instance.WebDashboardCanvasResolution;
+
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(PlayExampleCommand))]
     [NotifyCanExecuteChangedFor(nameof(OpenCoDriverHomePageCommand))]
@@ -744,6 +750,24 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
         {
             _runtime.ConfigureWebDashboard(WebDashboardPort, value);
         }
+    }
+
+    partial void OnWebDashboardCanvasResolutionChanged(string value)
+    {
+        if (_applyingSnapshot)
+        {
+            return;
+        }
+
+        Config.Instance.WebDashboardCanvasResolution = value;
+        var configuredResolution = Config.Instance.WebDashboardCanvasResolution;
+        if (!string.Equals(configuredResolution, value, StringComparison.Ordinal))
+        {
+            WebDashboardCanvasResolution = configuredResolution;
+            return;
+        }
+
+        _runtime.ConfigureWebDashboard(WebDashboardPort, WebDashboardFrameRate);
     }
 
     partial void OnSelectedCoDriverChanged(CoDriverChoice? value)

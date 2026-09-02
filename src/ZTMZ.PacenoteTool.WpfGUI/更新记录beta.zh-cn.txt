@@ -2,6 +2,9 @@ v2.99.99.48-3.0-rc20
 
 * 修复 Richard Burns Rally 的 Jannemod 自定义路书被误识别为标准兼容路书的问题（例如左进减速弯被播报为“蛇形弯”）；现在会正确解码自定义路书类型和修饰词。
 * 修复 Richard Burns Rally 中重复及错误的路书映射、错误的墙体方位 fallback，以及可能接受空结果或跳过重复路书片段的 fallback 语音解析问题。
+* 优化旧版 Android 和 Chrome 设备上网页仪表盘的运行效率，新增可配置的渲染分辨率，并使用 ZTMZ 图标作为网页图标。
+* Avalonia Linux 程序默认使用 X11/XWayland，提高桌面及窗口图标的可靠性；原生 Wayland 仍可作为实验选项手动启用。
+* 更新赞助鸣谢名单。
 
 v2.99.99.47-3.0-rc19
 

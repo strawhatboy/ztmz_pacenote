@@ -624,6 +624,17 @@ namespace ZTMZ.PacenoteTool.Base
             get => _WebDashboardFrameRate;
         }
 
+        private string _WebDashboardCanvasResolution = global::ZTMZ.PacenoteTool.Base.WebDashboardCanvasResolution.Default;
+        public string WebDashboardCanvasResolution
+        {
+            set
+            {
+                _WebDashboardCanvasResolution = global::ZTMZ.PacenoteTool.Base.WebDashboardCanvasResolution.Normalize(value);
+                _userconfig[nameof(WebDashboardCanvasResolution)] = _WebDashboardCanvasResolution;
+            }
+            get => _WebDashboardCanvasResolution;
+        }
+
         private Dictionary<string, DashboardOutputTarget> _dashboardOutputTargets =
             new(StringComparer.OrdinalIgnoreCase);
 

@@ -15,7 +15,8 @@ public sealed record WebDashboardRuntimeOptions(
     int Port,
     int FrameRate,
     bool BrowserLuaExecutionEnabled = true,
-    bool SupportsNativeOverlay = false);
+    bool SupportsNativeOverlay = false,
+    string CanvasResolution = WebDashboardCanvasResolution.Default);
 
 public sealed class WebDashboardRuntime : IDisposable
 {
@@ -24,6 +25,8 @@ public sealed class WebDashboardRuntime : IDisposable
     private WebDashboardServer? _server;
     private IReadOnlyList<WebDashboardDefinition> _dashboards = [];
     private int _targetFrameRate = Config.WebDashboardFrameRateDefault;
+    private int _canvasWidth = WebDashboardCanvasResolution.DefaultWidth;
+    private int _canvasHeight = WebDashboardCanvasResolution.DefaultHeight;
     private long _frameCount;
     private DateTimeOffset? _lastFrameUtc;
 
@@ -50,6 +53,12 @@ public sealed class WebDashboardRuntime : IDisposable
             Config.WebDashboardFrameRateMaximum);
     }
 
+    public void SetCanvasResolution(string resolution)
+    {
+        (_canvasWidth, _canvasHeight) = WebDashboardCanvasResolution.Parse(resolution);
+        _server?.SetCanvasSize(_canvasWidth, _canvasHeight);
+    }
+
     public void Start(WebDashboardRuntimeOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -64,6 +73,8 @@ public sealed class WebDashboardRuntime : IDisposable
             BrowserLuaExecutionEnabled = options.BrowserLuaExecutionEnabled
         };
         server.Initialize(_dashboards, options.DashboardPackagesPath, options.StaticAssetsRoot);
+        SetCanvasResolution(options.CanvasResolution);
+        server.SetCanvasSize(_canvasWidth, _canvasHeight);
         server.Start();
         _server = server;
         SetTargetFrameRate(options.FrameRate);
@@ -106,7 +117,9 @@ public sealed class WebDashboardRuntime : IDisposable
                 Config.Instance.HudShiftGreenZone,
                 Config.Instance.HudShiftYellowZone,
                 Config.Instance.HudShiftRedZone,
-                _targetFrameRate));
+                _targetFrameRate,
+                _canvasWidth,
+                _canvasHeight));
         await server.BroadcastBrowserLuaTelemetryAsync(scene, data, context);
         System.Threading.Interlocked.Increment(ref _frameCount);
         _lastFrameUtc = DateTimeOffset.UtcNow;

@@ -187,6 +187,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <ui:TextBlock Grid.Column="0"
                                   Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardPortLabel}"
@@ -230,6 +231,19 @@
                                          ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardBrowserLuaEnabled}" />
                     </StackPanel>
                     <StackPanel Grid.Row="1"
+                                Grid.ColumnSpan="6"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Margin="0 8 0 0">
+                        <ui:TextBlock Text="{DynamicResource ResourceKey=settings.tooltip.webDashboardCanvasResolutionLabel}"
+                                      VerticalAlignment="Center"
+                                      Margin="0 0 8 0" />
+                        <ComboBox Width="140"
+                                  ItemsSource="{Binding Path=ViewModel.WebDashboardCanvasResolutionOptions}"
+                                  SelectedItem="{Binding Path=ViewModel.WebDashboardCanvasResolution, Mode=TwoWay}"
+                                  ToolTip="{DynamicResource ResourceKey=settings.tooltip.webDashboardCanvasResolution}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="2"
                                 Grid.ColumnSpan="6"
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center"

@@ -23,6 +23,8 @@ const state = {
     layers: new Map(),
     renderWidth: 1920,
     renderHeight: 1080,
+    canvasWidth: 1280,
+    canvasHeight: 720,
     renderMode: 'legacy',
     sceneRevision: 0,
     orientation: 'landscape',
@@ -211,16 +213,16 @@ function initializeBrowserLuaDashboardManager() {
 /**
  * Execute a single drawing command on the canvas
  */
-function executeDrawingCommand(ctx, canvas, cmd) {
+function executeDrawingCommand(ctx, canvas, cmd, layer) {
     
     try {
         switch (cmd.type) {
         case 'clear':
             if (cmd.color) {
                 ctx.fillStyle = colorToCSS(cmd.color);
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, state.renderWidth, state.renderHeight);
             } else {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, state.renderWidth, state.renderHeight);
             }
             break;
             
@@ -353,26 +355,28 @@ function executeDrawingCommand(ctx, canvas, cmd) {
             break;
             
         case 'resetTransform':
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            applyLogicalCanvasTransform(ctx, canvas);
             break;
             
         case 'save':
             ctx.save();
+            layer.savedStateDepth++;
             break;
             
         case 'restore':
-            ctx.restore();
+            restoreTrackedLayerState(layer);
             break;
             
         case 'setClip':
             ctx.save();
+            layer.savedStateDepth++;
             ctx.beginPath();
             ctx.rect(cmd.x, cmd.y, cmd.width, cmd.height);
             ctx.clip();
             break;
             
         case 'releaseClip':
-            ctx.restore();
+            restoreTrackedLayerState(layer);
             break;
         
         case 'fillGeometry':
@@ -782,6 +786,8 @@ function renderLatestDashboardFrame() {
 }
 
 function renderDashboardMessage(message) {
+    applyRenderResolution(message.canvasWidth, message.canvasHeight);
+
     switch (message.type) {
     case 'drawCommands':
         state.browserLuaHybrid = false;
@@ -911,17 +917,21 @@ function resetToLegacyLayer() {
 function createRenderLayer(id, kind) {
     const canvas = document.createElement('canvas');
     canvas.className = 'dashboard-render-layer';
-    canvas.width = state.renderWidth;
-    canvas.height = state.renderHeight;
+    canvas.width = state.canvasWidth;
+    canvas.height = state.canvasHeight;
     canvas.dataset.dashboardLayer = id;
     canvas.style.zIndex = String(getDashboardLayerZIndex(id));
-    return {
+    const layer = {
         id,
         kind,
         canvas,
         ctx: canvas.getContext('2d'),
-        commands: []
+        commands: [],
+        baselineSaved: false,
+        savedStateDepth: 0
     };
+    initializeLayerContext(layer);
+    return layer;
 }
 
 function getDashboardLayerZIndex(id) {
@@ -950,21 +960,79 @@ function getDashboardLayerZIndex(id) {
 function redrawLayer(layer) {
     resetLayerContext(layer);
     for (const command of layer.commands) {
-        executeDrawingCommand(layer.ctx, layer.canvas, command);
+        executeDrawingCommand(layer.ctx, layer.canvas, command, layer);
     }
 }
 
 function resetLayerContext(layer) {
     if (typeof layer.ctx.reset === 'function') {
         layer.ctx.reset();
+        initializeLayerContext(layer);
         return;
     }
 
-    // Resizing resets the drawing state, including any clip left by an invalid
-    // third-party command stream. This fallback is only used by older browsers.
-    layer.canvas.width = state.renderWidth;
-    layer.canvas.height = state.renderHeight;
-    layer.ctx = layer.canvas.getContext('2d');
+    while (layer.savedStateDepth > 0) {
+        layer.ctx.restore();
+        layer.savedStateDepth--;
+    }
+    if (layer.baselineSaved) {
+        layer.ctx.restore();
+    }
+
+    layer.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    layer.ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
+    initializeLayerContext(layer);
+}
+
+function initializeLayerContext(layer) {
+    applyLogicalCanvasTransform(layer.ctx, layer.canvas);
+    layer.ctx.beginPath();
+    layer.ctx.save();
+    layer.baselineSaved = true;
+    layer.savedStateDepth = 0;
+}
+
+function applyLogicalCanvasTransform(ctx, canvas) {
+    ctx.setTransform(
+        canvas.width / state.renderWidth,
+        0,
+        0,
+        canvas.height / state.renderHeight,
+        0,
+        0);
+}
+
+function restoreTrackedLayerState(layer) {
+    if (layer.savedStateDepth <= 0) {
+        return;
+    }
+
+    layer.ctx.restore();
+    layer.savedStateDepth--;
+}
+
+function applyRenderResolution(width, height) {
+    const nextWidth = Number(width);
+    const nextHeight = Number(height);
+    if (!Number.isInteger(nextWidth) || !Number.isInteger(nextHeight)
+        || nextWidth <= 0 || nextHeight <= 0
+        || (nextWidth === state.canvasWidth && nextHeight === state.canvasHeight)) {
+        return;
+    }
+
+    state.canvasWidth = nextWidth;
+    state.canvasHeight = nextHeight;
+    for (const layer of state.layers.values()) {
+        layer.canvas.width = nextWidth;
+        layer.canvas.height = nextHeight;
+        layer.ctx = layer.canvas.getContext('2d');
+        layer.baselineSaved = false;
+        layer.savedStateDepth = 0;
+        initializeLayerContext(layer);
+        if (layer.commands.length > 0) {
+            redrawLayer(layer);
+        }
+    }
 }
 
 function requestLayeredSceneSnapshot() {

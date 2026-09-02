@@ -279,8 +279,8 @@
 
             this.staticCanvas = this.createCanvas('static');
             this.dynamicCanvas = this.createCanvas('dynamic');
-            this.staticContext = this.staticCanvas.getContext('2d');
-            this.dynamicContext = this.dynamicCanvas.getContext('2d');
+            this.staticContext = initializeCanvasContext(this.staticCanvas);
+            this.dynamicContext = initializeCanvasContext(this.dynamicCanvas);
             this.activeContext = this.dynamicContext;
             this.graphics = new BrowserLuaGraphics(this);
             this.host = this.createHost();
@@ -466,8 +466,8 @@
 
             const canvas = document.createElement('canvas');
             canvas.className = 'dashboard-render-layer';
-            canvas.width = RENDER_WIDTH;
-            canvas.height = RENDER_HEIGHT;
+            canvas.width = resolveCanvasDimension(this.globalConfig, 'CanvasWidth', 1280);
+            canvas.height = resolveCanvasDimension(this.globalConfig, 'CanvasHeight', 720);
             canvas.dataset.dashboardLayer = `browser-lua-${this.id}-${kind}`;
             layerStack.appendChild(canvas);
             return canvas;
@@ -901,14 +901,14 @@
 
         clipRegionStart(left, top, right, bottom) {
             const ctx = this.runtime.activeContext;
-            ctx.save();
+            saveTrackedCanvasState(ctx);
             ctx.beginPath();
             ctx.rect(left, top, right - left, bottom - top);
             ctx.clip();
         }
 
         clipRegionEnd() {
-            this.runtime.activeContext.restore();
+            restoreTrackedCanvasState(this.runtime.activeContext);
         }
     }
 
@@ -1395,16 +1395,84 @@
         }
     }
 
+    const canvasContextStates = new WeakMap();
+
+    function initializeCanvasContext(canvas) {
+        const ctx = canvas.getContext('2d');
+        const state = { canvas, ctx, baselineSaved: false, savedStateDepth: 0 };
+        canvasContextStates.set(ctx, state);
+        applyLogicalCanvasTransform(ctx, canvas);
+        ctx.save();
+        state.baselineSaved = true;
+        return ctx;
+    }
+
     function resetCanvasContext(canvas, ctx) {
+        const state = canvasContextStates.get(ctx);
         if (typeof ctx.reset === 'function') {
             ctx.reset();
+            applyLogicalCanvasTransform(ctx, canvas);
+            ctx.save();
+            if (state) {
+                state.baselineSaved = true;
+                state.savedStateDepth = 0;
+            }
             return ctx;
         }
 
-        // Resizing is the only standards-compatible way to discard an unknown
-        // clip or transform state on older browsers.
-        canvas.width = canvas.width;
-        return canvas.getContext('2d');
+        if (state) {
+            while (state.savedStateDepth > 0) {
+                ctx.restore();
+                state.savedStateDepth--;
+            }
+            if (state.baselineSaved) {
+                ctx.restore();
+            }
+        }
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        applyLogicalCanvasTransform(ctx, canvas);
+        ctx.beginPath();
+        ctx.save();
+        if (state) {
+            state.baselineSaved = true;
+        }
+        return ctx;
+    }
+
+    function applyLogicalCanvasTransform(ctx, canvas) {
+        ctx.setTransform(
+            canvas.width / RENDER_WIDTH,
+            0,
+            0,
+            canvas.height / RENDER_HEIGHT,
+            0,
+            0);
+    }
+
+    function saveTrackedCanvasState(ctx) {
+        ctx.save();
+        const state = canvasContextStates.get(ctx);
+        if (state) {
+            state.savedStateDepth++;
+        }
+    }
+
+    function restoreTrackedCanvasState(ctx) {
+        const state = canvasContextStates.get(ctx);
+        if (!state || state.savedStateDepth <= 0) {
+            return;
+        }
+
+        ctx.restore();
+        state.savedStateDepth--;
+    }
+
+    function resolveCanvasDimension(config, propertyName, fallback) {
+        const camelCaseName = `${propertyName.charAt(0).toLowerCase()}${propertyName.substring(1)}`;
+        const value = Number(config?.[propertyName] ?? config?.[camelCaseName]);
+        return Number.isInteger(value) && value > 0 ? value : fallback;
     }
 
     function readDashboardDescriptorValue(descriptor, camelCaseName) {
