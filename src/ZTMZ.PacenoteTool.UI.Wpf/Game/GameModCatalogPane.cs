@@ -36,14 +36,8 @@ public sealed class GameModCatalogPane : UserControl, IDisposable
         var root = new StackPanel();
         root.Children.Add(new TextBlock
         {
-            Text = Text("gameMods.title"),
-            FontSize = 18,
-            FontWeight = FontWeights.SemiBold
-        });
-        root.Children.Add(new TextBlock
-        {
             Text = Text("gameMods.subtitle"),
-            Margin = new Thickness(0, 3, 0, 10),
+            Margin = new Thickness(0, 0, 0, 10),
             Opacity = 0.72
         });
         _refreshButton = new Button
@@ -57,7 +51,34 @@ public sealed class GameModCatalogPane : UserControl, IDisposable
         _catalogStatus.Text = Text("gameMods.loading");
         root.Children.Add(_catalogStatus);
         root.Children.Add(_items);
-        Content = root;
+
+        var header = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        header.Children.Add(new Wpf.Ui.Controls.SymbolIcon
+        {
+            Symbol = Wpf.Ui.Controls.SymbolRegular.PuzzleCube24,
+            FontSize = 26,
+            Margin = new Thickness(0, 0, 10, 0),
+            VerticalAlignment = VerticalAlignment.Center
+        });
+        var headerText = new TextBlock
+        {
+            Text = Text("gameMods.title"),
+            FontWeight = FontWeights.SemiBold,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        headerText.SetResourceReference(TextBlock.FontSizeProperty, "AppBodyStrongFontSize");
+        header.Children.Add(headerText);
+        Content = new Wpf.Ui.Controls.CardExpander
+        {
+            Header = header,
+            Content = root,
+            IsExpanded = false,
+            Padding = new Thickness(16)
+        };
         Loaded += OnLoaded;
         Unloaded += (_, _) => _operationCancellation?.Cancel();
     }
@@ -109,7 +130,7 @@ public sealed class GameModCatalogPane : UserControl, IDisposable
 
     private FrameworkElement CreateRow(GameModDefinition mod, GameModStatus status)
     {
-        var body = new Grid { Margin = new Thickness(14) };
+        var body = new Grid();
         body.RowDefinitions.Add(new RowDefinition());
         body.RowDefinitions.Add(new RowDefinition());
         body.RowDefinitions.Add(new RowDefinition());
@@ -164,9 +185,8 @@ public sealed class GameModCatalogPane : UserControl, IDisposable
         return new Border
         {
             Child = body,
-            Margin = new Thickness(0, 0, 0, 8),
-            BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(0, 10, 0, 10),
+            BorderThickness = new Thickness(0, 0, 0, 1),
             BorderBrush = new SolidColorBrush(Color.FromArgb(55, 128, 128, 128))
         };
     }
