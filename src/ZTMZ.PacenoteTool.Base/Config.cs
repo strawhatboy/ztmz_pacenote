@@ -1196,6 +1196,7 @@ namespace ZTMZ.PacenoteTool.Base
             var content = File.ReadAllText(gameConfigPath);
             
             var gameConfig = new Dictionary<string, IGameConfig>();
+            var repairedGameConfig = false;
             var jObj = JObject.Parse(content);
             foreach (var kv in jObj) 
             {
@@ -1217,6 +1218,7 @@ namespace ZTMZ.PacenoteTool.Base
                 if (!gameConfig.ContainsKey(kv.Key))
                 {
                     gameConfig.Add(kv.Key, kv.Value);
+                    repairedGameConfig = true;
                 }
 
                 if (kv.Value is CommonGameConfigs commonGameConfigs)
@@ -1224,8 +1226,28 @@ namespace ZTMZ.PacenoteTool.Base
                     if (gameConfig[kv.Key] is CommonGameConfigs commonGameConfigs2)
                     {
                         // do not override the existing values
-                        commonGameConfigs2.Merge(commonGameConfigs, isOverride: false);
+                        repairedGameConfig |= commonGameConfigs2.Merge(commonGameConfigs, isOverride: false);
                     }
+                }
+            }
+
+            if (repairedGameConfig)
+            {
+                try
+                {
+                    var repairedContent = JsonConvert.SerializeObject(gameConfig, Formatting.Indented);
+                    lock (_lock)
+                    {
+                        File.WriteAllText(gameConfigPath, repairedContent);
+                    }
+                    _logger.Info("Repaired stale game config for {0}.", game.Name);
+                }
+                catch (Exception exception)
+                {
+                    _logger.Warn(
+                        exception,
+                        "Repaired stale game config for {0} in memory, but failed to save it.",
+                        game.Name);
                 }
             }
 

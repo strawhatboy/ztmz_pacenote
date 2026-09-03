@@ -82,4 +82,91 @@ public sealed class BuiltInGameSettingsProvidersTest
         Assert.Equal(18, configuration.PropertyValue[1]);
         Assert.Equal("new.zdb", configuration.PropertyValue[2]);
     }
+
+    [Fact]
+    public void CommonConfigMergeRepairsStaleParallelListsBySettingKey()
+    {
+        var stale = new CommonGameConfigs
+        {
+            PropertyName = new Dictionary<string, string>
+            {
+                ["setting.enabled"] = "old.enabled.tooltip",
+                ["setting.database"] = "old.database.tooltip"
+            },
+            PropertyValue = [false, "custom.zdb"],
+            PropertyType = [null!],
+            ValueRange = []
+        };
+        var defaults = new CommonGameConfigs
+        {
+            PropertyName = new Dictionary<string, string>
+            {
+                ["setting.enabled"] = "new.enabled.tooltip",
+                ["setting.database"] = "new.database.tooltip",
+                ["setting.auto"] = "new.auto.tooltip"
+            },
+            PropertyValue = [true, "default.zdb", true],
+            PropertyType = ["bool", "file:zdb", "bool"],
+            ValueRange = [[], [], []]
+        };
+
+        var changed = stale.Merge(defaults, isOverride: false);
+
+        Assert.True(changed);
+        Assert.Equal([false, "custom.zdb", true], stale.PropertyValue);
+        Assert.Equal(["bool", "file:zdb", "bool"], stale.PropertyType);
+        Assert.Equal(3, stale.ValueRange.Count);
+        Assert.Equal("new.database.tooltip", stale.PropertyName["setting.database"]);
+        Assert.False(stale.Merge(defaults, isOverride: false));
+
+        var provider = Assert.IsAssignableFrom<IGameSettingsProvider>(
+            BuiltInGameSettingsProviders.Find(stale));
+        Assert.Equal(GameSettingFieldKind.FilePath, provider.GetFields(stale)[1].Kind);
+    }
+
+    [Fact]
+    public void CommonConfigOverridePreservesCurrentSchemaMetadata()
+    {
+        var defaults = new CommonGameConfigs
+        {
+            PropertyName = new Dictionary<string, string> { ["setting.level"] = "new.tooltip" },
+            PropertyValue = [5],
+            PropertyType = ["number"],
+            ValueRange = [[1, 10]]
+        };
+        var user = new CommonGameConfigs
+        {
+            PropertyName = new Dictionary<string, string> { ["setting.level"] = "old.tooltip" },
+            PropertyValue = [8],
+            PropertyType = ["text"],
+            ValueRange = [[0, 100]]
+        };
+
+        defaults.Merge(user);
+
+        Assert.Equal(8, defaults.PropertyValue[0]);
+        Assert.Equal("new.tooltip", defaults.PropertyName["setting.level"]);
+        Assert.Equal("number", defaults.PropertyType[0]);
+        Assert.Equal([1d, 10d], defaults.ValueRange[0]);
+    }
+
+    [Fact]
+    public void CommonProviderToleratesNullLegacyMetadata()
+    {
+        var configuration = new CommonGameConfigs
+        {
+            PropertyName = new Dictionary<string, string> { ["setting.path"] = "setting.path.tooltip" },
+            PropertyValue = ["legacy-value"],
+            PropertyType = [null!],
+            ValueRange = [null!]
+        };
+        var provider = Assert.IsAssignableFrom<IGameSettingsProvider>(
+            BuiltInGameSettingsProviders.Find(configuration));
+
+        var field = Assert.Single(provider.GetFields(configuration));
+
+        Assert.Equal(GameSettingFieldKind.Text, field.Kind);
+        Assert.Null(field.Minimum);
+        Assert.Null(field.Maximum);
+    }
 }

@@ -101,16 +101,19 @@ public static class BuiltInGameSettingsProviders
         public IReadOnlyList<GameSettingField> GetFields(IGameConfig configuration)
         {
             var config = Require<CommonGameConfigs>(configuration);
-            var names = config.PropertyName.ToArray();
-            var count = Math.Min(names.Length, config.PropertyValue.Count);
+            var names = config.PropertyName?.ToArray() ?? [];
+            var values = config.PropertyValue ?? [];
+            var types = config.PropertyType ?? [];
+            var ranges = config.ValueRange ?? [];
+            var count = Math.Min(names.Length, values.Count);
             var fields = new List<GameSettingField>(count);
             for (var index = 0; index < count; index++)
             {
-                var value = config.PropertyValue[index];
-                var propertyType = index < config.PropertyType.Count
-                    ? config.PropertyType[index]
+                var value = values[index];
+                var propertyType = index < types.Count
+                    ? types[index] ?? string.Empty
                     : string.Empty;
-                var range = index < config.ValueRange.Count ? config.ValueRange[index] : null;
+                var range = index < ranges.Count ? ranges[index] : null;
                 var kind = value switch
                 {
                     bool => GameSettingFieldKind.Boolean,
@@ -123,7 +126,7 @@ public static class BuiltInGameSettingsProviders
                     index.ToString(CultureInfo.InvariantCulture),
                     names[index].Key,
                     kind,
-                    names[index].Value,
+                    names[index].Value ?? names[index].Key,
                     RequiresRestart: true,
                     Minimum: range is { Count: >= 2 } ? range[0] : null,
                     Maximum: range is { Count: >= 2 } ? range[1] : null,
@@ -136,15 +139,17 @@ public static class BuiltInGameSettingsProviders
         public object? GetFieldValue(IGameConfig configuration, string fieldId)
         {
             var config = Require<CommonGameConfigs>(configuration);
-            return config.PropertyValue[ParseIndex(fieldId, config.PropertyValue.Count)];
+            var values = config.PropertyValue ?? [];
+            return values[ParseIndex(fieldId, values.Count)];
         }
 
         public void SetFieldValue(IGameConfig configuration, string fieldId, object? value, IGame game)
         {
             var config = Require<CommonGameConfigs>(configuration);
-            var index = ParseIndex(fieldId, config.PropertyValue.Count);
-            var current = config.PropertyValue[index];
-            config.PropertyValue[index] = current is null || value is null
+            var values = config.PropertyValue ?? [];
+            var index = ParseIndex(fieldId, values.Count);
+            var current = values[index];
+            values[index] = current is null || value is null
                 ? value!
                 : Convert.ChangeType(value, current.GetType(), CultureInfo.InvariantCulture);
         }

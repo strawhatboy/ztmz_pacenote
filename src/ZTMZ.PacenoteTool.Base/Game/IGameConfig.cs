@@ -88,36 +88,122 @@ public class CommonGameConfigs: IGameConfig
         }
     }
 
-    // merge from another common config
-    public void Merge(CommonGameConfigs other, bool isOverride = true)
+    // Values come from the overriding side; labels, types, and ranges come from
+    // the current application schema. Rebuilding all parallel lists keeps stale
+    // user configurations aligned when settings and their metadata evolve.
+    public bool Merge(CommonGameConfigs other, bool isOverride = true)
     {
-        for(int i = 0; i < other.PropertyName.Count; i++)
+        ArgumentNullException.ThrowIfNull(other);
+
+        var currentNames = PropertyName ?? new Dictionary<string, string>();
+        var currentValues = PropertyValue ?? new List<object>();
+        var currentRanges = ValueRange ?? new List<List<double>>();
+        var currentTypes = PropertyType ?? new List<string>();
+        var incomingNames = other.PropertyName ?? new Dictionary<string, string>();
+        var incomingValues = other.PropertyValue ?? new List<object>();
+        var incomingRanges = other.ValueRange ?? new List<List<double>>();
+        var incomingTypes = other.PropertyType ?? new List<string>();
+        var incomingIndexes = incomingNames.Keys
+            .Select((key, index) => new { key, index })
+            .ToDictionary(item => item.key, item => item.index, StringComparer.Ordinal);
+
+        var mergedNames = new Dictionary<string, string>();
+        var mergedValues = new List<object>();
+        var mergedRanges = new List<List<double>>();
+        var mergedTypes = new List<string>();
+
+        var currentIndex = 0;
+        foreach (var current in currentNames)
         {
-            var kv = other.PropertyName.ElementAt(i);
-            if (!PropertyName.ContainsKey(kv.Key))
+            var hasIncoming = incomingIndexes.TryGetValue(current.Key, out var incomingIndex);
+            var schemaName = hasIncoming && !isOverride
+                ? incomingNames.ElementAt(incomingIndex).Value
+                : current.Value;
+            mergedNames.Add(current.Key, schemaName ?? current.Key);
+
+            var hasCurrentValue = currentIndex < currentValues.Count;
+            var hasIncomingValue = hasIncoming && incomingIndex < incomingValues.Count;
+            if (isOverride && hasIncomingValue)
             {
-                PropertyName.Add(kv.Key, kv.Value);
-                PropertyValue.Add(other.PropertyValue[i]);
-                if (other.PropertyType.Count > i) {
-                    PropertyType.Add(other.PropertyType[i]);
-                }
-                if (other.ValueRange.Count > i) {
-                    ValueRange.Add(other.ValueRange[i]);
-                }
-            } else {
-                if (isOverride) {
-                    var index = PropertyName.Keys.ToList().IndexOf(kv.Key);
-                    PropertyValue[index] = other.PropertyValue[i];
-                    if (other.PropertyType.Count > i) {
-                        if (PropertyType.Count <= index) {
-                            PropertyType.Add(other.PropertyType[i]);
-                        } else {
-                            PropertyType[index] = other.PropertyType[i];
-                        }
-                    }
-                }
-                // DO NOT OVERRIDE THE VALUE_RANGE ValueRange[index] = other.ValueRange[i];
+                mergedValues.Add(incomingValues[incomingIndex]);
             }
+            else if (hasCurrentValue)
+            {
+                mergedValues.Add(currentValues[currentIndex]);
+            }
+            else if (hasIncomingValue)
+            {
+                mergedValues.Add(incomingValues[incomingIndex]);
+            }
+            else
+            {
+                mergedValues.Add(null);
+            }
+
+            var currentType = currentIndex < currentTypes.Count
+                ? currentTypes[currentIndex] ?? string.Empty
+                : string.Empty;
+            var incomingType = hasIncoming && incomingIndex < incomingTypes.Count
+                ? incomingTypes[incomingIndex] ?? string.Empty
+                : string.Empty;
+            mergedTypes.Add(isOverride
+                ? FirstNonEmpty(currentType, incomingType)
+                : FirstNonEmpty(incomingType, currentType));
+
+            var currentRange = currentIndex < currentRanges.Count ? currentRanges[currentIndex] : null;
+            var incomingRange = hasIncoming && incomingIndex < incomingRanges.Count
+                ? incomingRanges[incomingIndex]
+                : null;
+            mergedRanges.Add((isOverride ? currentRange ?? incomingRange : incomingRange ?? currentRange)?.ToList()
+                ?? new List<double>());
+            currentIndex++;
         }
+
+        var existingKeys = new HashSet<string>(currentNames.Keys, StringComparer.Ordinal);
+        var nextIncomingIndex = 0;
+        foreach (var incoming in incomingNames)
+        {
+            if (!existingKeys.Contains(incoming.Key))
+            {
+                mergedNames.Add(incoming.Key, incoming.Value ?? incoming.Key);
+                mergedValues.Add(nextIncomingIndex < incomingValues.Count
+                    ? incomingValues[nextIncomingIndex]
+                    : null);
+                mergedTypes.Add(nextIncomingIndex < incomingTypes.Count
+                    ? incomingTypes[nextIncomingIndex] ?? string.Empty
+                    : string.Empty);
+                mergedRanges.Add(nextIncomingIndex < incomingRanges.Count
+                    ? incomingRanges[nextIncomingIndex]?.ToList() ?? new List<double>()
+                    : new List<double>());
+            }
+
+            nextIncomingIndex++;
+        }
+
+        var changed = !DictionaryEquals(currentNames, mergedNames)
+            || !currentValues.SequenceEqual(mergedValues)
+            || !currentTypes.SequenceEqual(mergedTypes, StringComparer.Ordinal)
+            || !RangesEqual(currentRanges, mergedRanges);
+
+        PropertyName = mergedNames;
+        PropertyValue = mergedValues;
+        PropertyType = mergedTypes;
+        ValueRange = mergedRanges;
+        return changed;
     }
+
+    private static string FirstNonEmpty(string preferred, string fallback) =>
+        !string.IsNullOrWhiteSpace(preferred) ? preferred : fallback;
+
+    private static bool DictionaryEquals(
+        IReadOnlyDictionary<string, string> left,
+        IReadOnlyDictionary<string, string> right) =>
+        left.Count == right.Count && left.SequenceEqual(right);
+
+    private static bool RangesEqual(
+        IReadOnlyList<List<double>> left,
+        IReadOnlyList<List<double>> right) =>
+        left.Count == right.Count && left
+            .Select((range, index) => (range, index))
+            .All(item => (item.range ?? new List<double>()).SequenceEqual(right[item.index]));
 }
