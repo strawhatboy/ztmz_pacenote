@@ -1,11 +1,9 @@
 v2.99.99.48-3.0-rc20
 
-* Fixes Jannemod custom Richard Burns Rally calls being interpreted as their standard compatibility calls (for example, a left-entry chicane as twisty); encoded custom call IDs and modifiers are now decoded correctly.
-* Fixes duplicate and incorrect Richard Burns Rally mappings, incorrect wall-position fallbacks, and fallback audio resolution that could accept empty results or skip repeated call components.
-* Adds an online game Mod catalog for Richard Burns Rally, with verified direct installation, updates, uninstall and backup restoration, plus JSGME import and enabled-state detection.
-* Adds initial Mod entries for the RBR Fluent Chase Cam, Controller Deadzone, and Luppis V3 Lao Wang Chinese co-driver; the compact Home-page Mod panel shows complete package and audio versions.
-* Fixes stale game configuration files from older versions crashing the game settings after an upgrade; settings are now realigned by key, missing defaults are restored, and existing user values are preserved.
-* Improves Web Dashboard efficiency on older Android and Chrome devices, adds a configurable rendering resolution, and uses the ZTMZ icon as the site icon.
+* Fixes incorrect custom pacenotes, direction calls, and duplicate playback in Richard Burns Rally, including left-entry chicanes being announced as twisty sections.
+* Adds Richard Burns Rally Mod management with install, update, uninstall, backup restoration, and JSGME import; initial Mods include Fluent Chase Cam, Controller Deadzone, and the Luppis V3 Lao Wang Chinese co-driver.
+* Fixes older game settings potentially crashing after an upgrade.
+* Improves the Web Dashboard on older Android and Chrome devices, with a rendering-resolution setting and the ZTMZ site icon.
 * Updates the sponsor acknowledgements.
 
 v2.99.99.47-3.0-rc19
