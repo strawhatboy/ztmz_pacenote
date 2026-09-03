@@ -36,6 +36,11 @@ internal static class ACRExperimentalBridgeController
 
     public static ACRExperimentalBridgeStatus Inspect()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return ACRProtonBridgeController.Inspect();
+        }
+
         var bundle = GetBundlePaths();
         if (!File.Exists(bundle.InjectorPath) || !File.Exists(bundle.BridgePath) || !File.Exists(bundle.ManifestPath))
         {
@@ -71,6 +76,11 @@ internal static class ACRExperimentalBridgeController
 
     public static async Task<ACRExperimentalBridgeResult> InjectAsync()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return await ACRProtonBridgeController.StartAsync();
+        }
+
         var status = Inspect();
         if (status.AlreadyInjected)
         {

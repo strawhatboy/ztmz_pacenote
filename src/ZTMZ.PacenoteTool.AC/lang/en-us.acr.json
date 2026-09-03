@@ -23,7 +23,8 @@
                 "launchPromptInject": "Inject bridge",
                 "launchPromptNotNow": "Not now",
                 "launchPromptFailure": "The live bridge was not injected:\n{0}",
-                "privilegeWarning": "ZTMZ and Assetto Corsa Rally must run at the same Windows privilege level or the bridge cannot deliver pacenotes. We recommend running both as a normal user; if one is run as administrator, run the other as administrator too."
+                "privilegeWarning": "ZTMZ and Assetto Corsa Rally must run at the same Windows privilege level or the bridge cannot deliver pacenotes. We recommend running both as a normal user; if one is run as administrator, run the other as administrator too.",
+                "protonWarning": "On Linux, ZTMZ starts the bundled Windows relay with the same Proton runner and prefix as ACR. Keep ACR running before using Inject bridge."
             },
             "diagnostics": {
                 "reader": "ACR shared memory",
@@ -33,7 +34,8 @@
                 "bridgeDisabled": "Disabled"
             },
             "prerequisite": {
-                "sharedMemoryReady": "Assetto Corsa Rally uses shared memory. No prerequisite check is required."
+                "sharedMemoryReady": "Assetto Corsa Rally uses shared memory. No prerequisite check is required.",
+                "protonBridgeReady": "Assetto Corsa Rally telemetry and live pacenotes are received through the local Proton relay."
             }
         }
     }

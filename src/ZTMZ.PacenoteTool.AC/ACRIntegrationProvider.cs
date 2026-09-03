@@ -32,10 +32,9 @@ public sealed class ACRIntegrationProvider : IGameIntegrationProvider
                 WhenEnablingOnly: true))
     ];
 
-    public IReadOnlyList<string> InformationKeys { get; } =
-    [
-        "game.acr.experimental.privilegeWarning"
-    ];
+    public IReadOnlyList<string> InformationKeys { get; } = OperatingSystem.IsWindows()
+        ? ["game.acr.experimental.privilegeWarning"]
+        : ["game.acr.experimental.protonWarning"];
 
     public IReadOnlyList<GameIntegrationAction> Actions { get; } =
     [

@@ -2,10 +2,11 @@
 
 ## Status
 
-Assetto Corsa Rally (ACR) is currently supported as a dashboard telemetry
-provider while its shared-memory pages are available. The public pages do not
-provide a reliable rally-stage lifecycle signal, so the provider must not
-claim dependable countdown, stage-start, or stage-finish detection.
+Assetto Corsa Rally (ACR) shared memory is sufficient for dashboard telemetry,
+but the public pages do not provide a reliable rally-stage lifecycle signal.
+The optional FMOD live bridge now supplies authoritative countdown, pacenote,
+damage, stage-start, and stage-finish events. Shared-memory-only operation must
+still remain dashboard-only.
 
 This conclusion is based on live ACR testing and a source-level comparison
 with SimHub's `ACSharedMemory.dll`, which contains a dedicated `ACRManager`.
@@ -73,12 +74,18 @@ between attempts, and false finishes whenever the vehicle stops.
 
 - Once valid ACR shared-memory data is available, Pacenote Tool may show
   dashboard telemetry.
-- The dashboard is not tied to a claimed rally-stage lifecycle.
-- Pacenotes, countdown audio, automatic stage-start actions, and automatic
-  stage-finish actions remain unsupported until an authoritative signal is
-  available.
+- Without the optional bridge, the dashboard is not tied to a claimed
+  rally-stage lifecycle.
+- With the bridge enabled, FMOD events provide countdown audio, translated
+  pacenotes, damage notifications, and authoritative stage transitions.
+- On Windows, Pacenote Tool reads shared memory and the bridge named pipe
+  directly. On Linux, `ACRProtonRelay.exe` remains inside ACR's Proton prefix
+  and forwards both sources to the native Avalonia process.
 - Pause remains a usable raw telemetry condition, but is not sufficient to
   establish the rest of the rally lifecycle.
+
+The Linux transport and security design is documented in
+`Docs/ACRProtonRelay.md`.
 
 ## Candidate Improvement: Progress Display
 
@@ -90,12 +97,14 @@ rally stages before adoption. It does not by itself solve lifecycle detection.
 
 ## What Would Enable Reliable Lifecycle Support
 
-Future work needs an ACR-specific authoritative source, for example:
+The FMOD live bridge is the currently implemented ACR-specific authoritative
+source. Future alternatives could include:
 
 1. A documented rally telemetry, timing, or SDK interface.
 2. A supported local bridge that receives explicit stage-state events from
    ACR.
 3. A stable, independently validated game-generated event or timing output.
 
-Until one of those is available, keep the dashboard-only behavior rather than
-introducing unsupported heuristics.
+If the live bridge is disabled, incompatible with a new ACR build, or cannot
+be started, keep dashboard-only behavior rather than introducing unsupported
+heuristics.

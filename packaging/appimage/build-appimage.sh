@@ -97,16 +97,23 @@ required_paths=(
     "$publish_dir/com.ztmz.PacenoteTool"
     "$publish_dir/FluentAvalonia.dll"
     "$publish_dir/games/ZTMZ.PacenoteTool.Codemasters.dll"
+    "$publish_dir/games/ZTMZ.PacenoteTool.AC.dll"
+    "$publish_dir/games/ACRExperimentalBridge/ACRProtonRelay.exe"
+    "$publish_dir/games/ACRExperimentalBridge/ACRPacenoteTraceInjector.exe"
+    "$publish_dir/games/ACRExperimentalBridge/ACRFmodLivePacenoteBridge.dll"
+    "$publish_dir/games/ACRExperimentalBridge/acr-live-bridge.manifest.json"
     "$publish_dir/wwwroot/index.html"
     "$publish_dir/dashboards"
     "$publish_dir/Assets/PacenoteIcons"
     "$publish_dir/Assets/Games/dirtrally.jpg"
+    "$publish_dir/Assets/Games/acr.jpg"
     "$appdir/usr/share/applications/com.ztmz.PacenoteTool.desktop"
     "$resource_dir/data.zdb"
     "$resource_dir/codrivers/default/info.json"
     "$resource_dir/profiles/default"
     "$resource_dir/lang/en-us.json"
     "$resource_dir/lang/en-us.cm.json"
+    "$publish_dir/games/lang/en-us.acr.json"
 )
 for required_path in "${required_paths[@]}"; do
     if [[ ! -e "$required_path" ]]; then

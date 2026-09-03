@@ -19,7 +19,9 @@ public class ACRGamePrerequisiteChecker : IGamePrerequisiteChecker
         {
             Code = PrerequisitesCheckResultCode.OK,
             IsOK = true,
-            Msg = I18NLoader.Instance["game.acr.prerequisite.sharedMemoryReady"]
+            Msg = I18NLoader.Instance[OperatingSystem.IsWindows()
+                ? "game.acr.prerequisite.sharedMemoryReady"
+                : "game.acr.prerequisite.protonBridgeReady"]
         };
     }
 

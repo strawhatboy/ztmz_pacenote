@@ -317,10 +317,11 @@ checker and XML repair implementation remain a single cross-platform code path.
 ### Tier 2: Proton relay candidates
 
 ACR uses Windows named shared-memory pages plus an injected DLL/named-pipe
-bridge. A native Linux process should not attempt to open these Windows IPC
-objects directly. Run a small Windows relay inside the same Proton prefix and
-forward versioned telemetry, lifecycle events, and live pacenotes to the native
-Linux host over localhost UDP or another explicit cross-boundary transport.
+bridge. A native Linux process does not attempt to open these Windows IPC
+objects directly. `ACRProtonRelay.exe` runs inside the same Proton prefix and
+forwards versioned telemetry, lifecycle events, and live pacenotes to the
+native Linux host over authenticated loopback TCP. See `ACRProtonRelay.md` for
+the implemented protocol, packaging, and remaining real-game validation.
 
 RBR should be split by capability. Reuse UDP telemetry where available, then
 relay registry-, process-memory-, or plugin-dependent data from the Proton
@@ -594,8 +595,9 @@ in-game Gamescope overlay.
 
 ### Phase 3: Proton relays
 
-- Build a versioned relay protocol.
-- Add the ACR shared-memory/live-pacenote relay.
+- [x] Build a versioned, authenticated loopback relay protocol.
+- [x] Add the ACR shared-memory/live-pacenote relay and portable provider.
+- [ ] Validate ACR injection and SteamOS pressure-vessel startup on real game hardware.
 - Add RBR relay capabilities incrementally.
 - Surface relay version, connection, and capability diagnostics in the UI.
 

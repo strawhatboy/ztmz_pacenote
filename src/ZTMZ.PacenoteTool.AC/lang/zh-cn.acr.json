@@ -23,7 +23,8 @@
                 "launchPromptInject": "注入桥接 DLL",
                 "launchPromptNotNow": "暂不注入",
                 "launchPromptFailure": "实时桥接未能注入：\n{0}",
-                "privilegeWarning": "ZTMZ 与 Assetto Corsa Rally 必须以相同的 Windows 权限级别运行，否则 bridge 无法传送路书。建议两者均以普通用户运行；如其中一个以管理员权限启动，另一个也必须以管理员权限启动。"
+                "privilegeWarning": "ZTMZ 与 Assetto Corsa Rally 必须以相同的 Windows 权限级别运行，否则 bridge 无法传送路书。建议两者均以普通用户运行；如其中一个以管理员权限启动，另一个也必须以管理员权限启动。",
+                "protonWarning": "在 Linux 上，ZTMZ 会使用 ACR 当前所用的 Proton 和 prefix 启动内置 Windows Relay。请先保持 ACR 运行，再执行“注入桥接 DLL”。"
             },
             "diagnostics": {
                 "reader": "ACR 共享内存",
@@ -33,7 +34,8 @@
                 "bridgeDisabled": "已关闭"
             },
             "prerequisite": {
-                "sharedMemoryReady": "Assetto Corsa Rally 使用共享内存，无需额外前置检查。"
+                "sharedMemoryReady": "Assetto Corsa Rally 使用共享内存，无需额外前置检查。",
+                "protonBridgeReady": "Assetto Corsa Rally 的遥测和实时路书将通过本机 Proton Relay 接收。"
             }
         }
     }

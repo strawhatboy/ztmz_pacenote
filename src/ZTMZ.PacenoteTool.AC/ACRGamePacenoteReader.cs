@@ -15,10 +15,10 @@ public sealed class ACRGamePacenoteReader : BasePacenoteReader
 {
     private const string TrackLengthHeader = "# ACR TrackLengthM: ";
     private static readonly Regex NonAlphaNumeric = new("[^\\p{L}\\p{N}]", RegexOptions.Compiled);
-    private readonly ACRGameDataReader _gameDataReader;
+    private readonly IGameDataReader _gameDataReader;
     private readonly Lazy<IReadOnlyList<StageAlias>> _stageAliases;
 
-    public ACRGamePacenoteReader(ACRGameDataReader gameDataReader)
+    public ACRGamePacenoteReader(IGameDataReader gameDataReader)
     {
         _gameDataReader = gameDataReader;
         _stageAliases = new Lazy<IReadOnlyList<StageAlias>>(LoadAliases);

@@ -46,6 +46,7 @@ popd
 mkdir "%BRIDGE_TARGET%"
 copy /Y "%BRIDGE_SOURCE%\ACRPacenoteTraceInjector.exe" "%BRIDGE_TARGET%\" >nul
 copy /Y "%BRIDGE_SOURCE%\ACRFmodLivePacenoteBridge.dll" "%BRIDGE_TARGET%\" >nul
+copy /Y "%BRIDGE_SOURCE%\ACRProtonRelay.exe" "%BRIDGE_TARGET%\" >nul
 copy /Y "%SOURCE_ROOT%\ZTMZ.PacenoteTool.AC\ExperimentalBridge\acr-live-bridge.manifest.json" "%BRIDGE_TARGET%\" >nul
 
 if not defined ZTMZ_PACKAGE_DATA_HOME (

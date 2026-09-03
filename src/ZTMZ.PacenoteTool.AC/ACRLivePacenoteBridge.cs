@@ -50,13 +50,20 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
     public ACRLivePacenoteBridge(
         Action<LivePacenoteEvent> publish,
         Action<GameState, Dictionary<string, object>?> publishGameState,
-        Action<CarDamageEvent> publishCarDamage)
+        Action<CarDamageEvent> publishCarDamage,
+        bool listenForNamedPipe = true)
     {
         _publish = publish;
         _publishGameState = publishGameState;
         _publishCarDamage = publishCarDamage;
-        _listenerTask = Task.Run(ListenAsync);
+        _listenerTask = listenForNamedPipe ? Task.Run(ListenAsync) : Task.CompletedTask;
         _messageProcessorTask = Task.Run(ProcessMessagesAsync);
+    }
+
+    internal bool EnqueueMessage(string line)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(line);
+        return _messageQueue.Writer.TryWrite(line);
     }
 
     private async Task ListenAsync()
@@ -135,6 +142,11 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
 
     private static string GetCurrentProcessIdentity()
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return Environment.UserName;
+        }
+
         try
         {
             using var identity = WindowsIdentity.GetCurrent();

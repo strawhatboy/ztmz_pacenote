@@ -6,7 +6,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.AC;
 
-public class ACRally : IGame, ILocalGameBridgeControl, IGameWithIntegrationProviders, IGameWithResourceLinks
+public class ACRally : IGame, ISteamGameIdentity, ILocalGameBridgeControl, IGameWithIntegrationProviders, IGameWithResourceLinks
 {
     public string WindowTitle => "Assetto Corsa Rally";
 
@@ -18,7 +18,9 @@ public class ACRally : IGame, ILocalGameBridgeControl, IGameWithIntegrationProvi
 
     public string Executable => "acr";
 
-    private readonly ACRGameDataReader _gameDataReader = new();
+    private readonly IGameDataReader _gameDataReader = OperatingSystem.IsWindows()
+        ? new ACRGameDataReader()
+        : new ACRProtonGameDataReader();
 
     public IGamePacenoteReader GamePacenoteReader { get; }
 
@@ -52,6 +54,8 @@ public class ACRally : IGame, ILocalGameBridgeControl, IGameWithIntegrationProvi
 
     public int Order => 4000;
 
+    public uint SteamApplicationId => 3917090;
+
 
     public event Action<int, string>? onCustomMessage;
 
@@ -72,12 +76,21 @@ public class ACRally : IGame, ILocalGameBridgeControl, IGameWithIntegrationProvi
         var enabled = GameConfigurations.TryGetValue(ACRExperimentalBridgeConfig.Name, out var config) &&
             config is ACRExperimentalBridgeConfig bridgeConfig && bridgeConfig.ControlsEnabled;
         var status = ACRExperimentalBridgeController.Inspect();
+        var detail = ACRExperimentalBridgeController.FormatStatus(status);
+        if (!OperatingSystem.IsWindows())
+        {
+            var relayStatus = ACRProtonBridgeRuntime.GetStatus();
+            if (!string.IsNullOrWhiteSpace(relayStatus.Detail))
+            {
+                detail = $"{detail} ({relayStatus.Detail})";
+            }
+        }
         return new LocalBridgeDiagnosticsInfo(
             "ACR live bridge",
             enabled,
             status.BundleAvailable,
             status.AlreadyInjected,
-            ACRExperimentalBridgeController.FormatStatus(status));
+            detail);
     }
 
     public async Task<LocalBridgeInjectionResult> InjectLocalBridgeAsync()

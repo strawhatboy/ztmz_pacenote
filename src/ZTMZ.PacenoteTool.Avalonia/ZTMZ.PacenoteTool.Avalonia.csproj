@@ -42,6 +42,7 @@
     <ProjectReference Include="..\ZTMZ.PacenoteTool.WebDashboard\ZTMZ.PacenoteTool.WebDashboard.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Codemasters\ZTMZ.PacenoteTool.Codemasters.csproj" ReferenceOutputAssembly="false" AdditionalProperties="TargetFramework=net10.0" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.BeamNG\ZTMZ.PacenoteTool.BeamNG.csproj" Condition="'$(OS)' == 'Windows_NT'" ReferenceOutputAssembly="false" AdditionalProperties="TargetFramework=net10.0" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.AC\ZTMZ.PacenoteTool.AC.csproj" ReferenceOutputAssembly="false" AdditionalProperties="TargetFramework=net10.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -162,6 +163,7 @@
     <PropertyGroup>
       <CodemastersOutput>$(MSBuildProjectDirectory)\..\ZTMZ.PacenoteTool.Codemasters\bin\$(Configuration)\net10.0</CodemastersOutput>
       <BeamNgOutput>$(MSBuildProjectDirectory)\..\ZTMZ.PacenoteTool.BeamNG\bin\$(Configuration)\net10.0</BeamNgOutput>
+      <AcrOutput>$(MSBuildProjectDirectory)\..\ZTMZ.PacenoteTool.AC\bin\$(Configuration)\net10.0</AcrOutput>
     </PropertyGroup>
     <ItemGroup>
       <GameProviderBinaries Include="$(CodemastersOutput)\ZTMZ.PacenoteTool.Codemasters.dll" />
@@ -169,11 +171,25 @@
       <GameProviderBinaries Include="$(BeamNgOutput)\ZTMZ.PacenoteTool.BeamNG.dll" Condition="'$(OS)' == 'Windows_NT'" />
       <GameProviderLanguages Include="$(BeamNgOutput)\lang\*.json" Condition="'$(OS)' == 'Windows_NT'" />
       <BeamNgModFiles Include="$(BeamNgOutput)\BeamNGMod\**\*" Condition="'$(OS)' == 'Windows_NT'" />
+      <GameProviderBinaries Include="$(AcrOutput)\ZTMZ.PacenoteTool.AC.dll" />
+      <GameProviderLanguages Include="$(AcrOutput)\lang\*.json" />
+      <AcrBridgeFiles Include="$(AcrOutput)\ACRExperimentalBridge\**\*" />
     </ItemGroup>
     <MakeDir Directories="$(OutDir)games;$(OutDir)games\lang" />
     <Copy SourceFiles="@(GameProviderBinaries)" DestinationFolder="$(OutDir)games" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(GameProviderLanguages)" DestinationFolder="$(OutDir)games\lang" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(BeamNgModFiles)" DestinationFiles="@(BeamNgModFiles->'$(OutDir)games\BeamNGMod\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" Condition="'@(BeamNgModFiles)' != ''" />
+    <Copy SourceFiles="@(AcrBridgeFiles)" DestinationFiles="@(AcrBridgeFiles->'$(OutDir)games\ACRExperimentalBridge\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" Condition="'@(AcrBridgeFiles)' != ''" />
+  </Target>
+
+  <Target Name="StageAvaloniaGameProvidersInPublish"
+          AfterTargets="Publish"
+          DependsOnTargets="StageAvaloniaGameProviders">
+    <MakeDir Directories="$(PublishDir)games;$(PublishDir)games\lang" />
+    <Copy SourceFiles="@(GameProviderBinaries)" DestinationFolder="$(PublishDir)games" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(GameProviderLanguages)" DestinationFolder="$(PublishDir)games\lang" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(BeamNgModFiles)" DestinationFiles="@(BeamNgModFiles->'$(PublishDir)games\BeamNGMod\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" Condition="'@(BeamNgModFiles)' != ''" />
+    <Copy SourceFiles="@(AcrBridgeFiles)" DestinationFiles="@(AcrBridgeFiles->'$(PublishDir)games\ACRExperimentalBridge\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" Condition="'@(AcrBridgeFiles)' != ''" />
   </Target>
 
 </Project>

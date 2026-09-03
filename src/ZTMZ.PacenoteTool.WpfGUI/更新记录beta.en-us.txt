@@ -6,8 +6,6 @@ v2.99.99.48-3.0-rc20
 * Adds initial Mod entries for the RBR Fluent Chase Cam, Controller Deadzone, and Luppis V3 Lao Wang Chinese co-driver; the compact Home-page Mod panel shows complete package and audio versions.
 * Fixes stale game configuration files from older versions crashing the game settings after an upgrade; settings are now realigned by key, missing defaults are restored, and existing user values are preserved.
 * Improves Web Dashboard efficiency on older Android and Chrome devices, adds a configurable rendering resolution, and uses the ZTMZ icon as the site icon.
-* Uses X11/XWayland by default for the Avalonia Linux app to improve desktop and window-icon reliability; native Wayland remains available as an explicit experimental option.
-* Adds an initial Avalonia Linux in-game dashboard overlay using an input-transparent XWayland window and Gamescope external-overlay integration; its renderer and local server are isolated from the LAN Web Dashboard.
 * Updates the sponsor acknowledgements.
 
 v2.99.99.47-3.0-rc19
