@@ -11,7 +11,9 @@ public sealed record WebDashboardRuntimeControllerOptions(
     string DashboardPackagesPath,
     string StaticAssetsRoot,
     bool BrowserLuaExecutionEnabled = true,
-    bool SupportsNativeOverlay = false);
+    bool SupportsNativeOverlay = false,
+    DashboardOutputTarget OutputTarget = DashboardOutputTarget.Web,
+    bool LoopbackOnly = false);
 
 public sealed class WebDashboardRuntimeController : IRuntimeDashboardController, IDisposable
 {
@@ -152,7 +154,9 @@ public sealed class WebDashboardRuntimeController : IRuntimeDashboardController,
                 targetFrameRate,
                 _options.BrowserLuaExecutionEnabled,
                 _options.SupportsNativeOverlay,
-                Config.Instance.WebDashboardCanvasResolution));
+                Config.Instance.WebDashboardCanvasResolution,
+                _options.OutputTarget,
+                _options.LoopbackOnly));
             _bridge = new WebDashboardGameSessionBridge(_tool, _runtime);
             return ConvertStatus(_runtime.Status);
         }
@@ -188,14 +192,16 @@ public sealed class WebDashboardRuntimeController : IRuntimeDashboardController,
             status.ErrorMessage,
             status.IsRunning);
 
-    private static RuntimeDashboardStatus CreateStatus(
+    private RuntimeDashboardStatus CreateStatus(
         WebDashboardServerState state,
         int port,
         string errorMessage) =>
         new(
             state.ToString(),
             port,
-            WebDashboardServer.GetDashboardUrl(port),
+            _options.LoopbackOnly
+                ? WebDashboardServer.GetLoopbackDashboardUrl(port)
+                : WebDashboardServer.GetDashboardUrl(port),
             errorMessage,
             state == WebDashboardServerState.Running);
 

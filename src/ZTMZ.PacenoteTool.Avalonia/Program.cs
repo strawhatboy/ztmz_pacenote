@@ -116,6 +116,21 @@ internal static class Program
             "wayland",
             StringComparison.OrdinalIgnoreCase);
 
+    internal static bool SupportsLinuxX11Overlay() => SupportsLinuxX11Overlay(
+        OperatingSystem.IsLinux(),
+        Environment.GetEnvironmentVariable("DISPLAY"),
+        Environment.GetEnvironmentVariable("WAYLAND_DISPLAY"),
+        Environment.GetEnvironmentVariable("ZTMZ_DISPLAY_BACKEND"));
+
+    internal static bool SupportsLinuxX11Overlay(
+        bool isLinux,
+        string? x11Display,
+        string? waylandDisplay,
+        string? requestedBackend) =>
+        isLinux &&
+        !string.IsNullOrWhiteSpace(x11Display) &&
+        !ShouldUseWayland(isLinux, waylandDisplay, requestedBackend);
+
     private static string GetDisplayBackend()
     {
         if (OperatingSystem.IsWindows())

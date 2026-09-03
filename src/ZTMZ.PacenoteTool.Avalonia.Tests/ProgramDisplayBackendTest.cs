@@ -32,4 +32,26 @@ public class ProgramDisplayBackendTest
             "wayland-0",
             requestedBackend));
     }
+
+    [Theory]
+    [InlineData(true, ":0", "wayland-0", null, true)]
+    [InlineData(true, ":0", "wayland-0", "x11", true)]
+    [InlineData(true, ":0", "wayland-0", "wayland", false)]
+    [InlineData(true, null, "wayland-0", null, false)]
+    [InlineData(false, ":0", null, null, false)]
+    public void LinuxOverlayRequiresTheX11Backend(
+        bool isLinux,
+        string? x11Display,
+        string? waylandDisplay,
+        string? requestedBackend,
+        bool expected)
+    {
+        Assert.Equal(
+            expected,
+            Program.SupportsLinuxX11Overlay(
+                isLinux,
+                x11Display,
+                waylandDisplay,
+                requestedBackend));
+    }
 }

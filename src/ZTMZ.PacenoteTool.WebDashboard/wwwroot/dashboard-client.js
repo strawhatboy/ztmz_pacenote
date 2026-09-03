@@ -43,6 +43,16 @@ const state = {
     browserLuaHybrid: false
 };
 
+const clientMode = document.documentElement.dataset.clientMode === 'overlay'
+    ? 'overlay'
+    : 'web';
+
+function isDashboardEnabledForClient(dashboard) {
+    return clientMode === 'overlay'
+        ? (dashboard.overlayEnabled ?? dashboard.enabled)
+        : (dashboard.webEnabled ?? dashboard.enabled);
+}
+
 const colorCssCache = new Map();
 const DASHBOARD_LAYER_Z_INDEX_STRIDE = 1000;
 
@@ -91,12 +101,14 @@ function renderDashboardList() {
     const listContainer = document.getElementById('dashboard-list');
     listContainer.innerHTML = '';
     
-    const webEnabledCount = state.dashboards.filter(d => d.webEnabled ?? d.enabled).length;
+    const enabledCount = state.dashboards.filter(isDashboardEnabledForClient).length;
+    const viewName = clientMode === 'overlay' ? 'Overlay Dashboard View' : 'Web Dashboard View';
+    const routeName = clientMode === 'overlay' ? 'Overlay' : 'Web';
     const card = document.createElement('div');
     card.className = 'dashboard-card';
     card.innerHTML = `
-        <h3>Web Dashboard View</h3>
-        <p><strong>${webEnabledCount} dashboard(s) routed to Web</strong></p>
+        <h3>${viewName}</h3>
+        <p><strong>${enabledCount} dashboard(s) routed to ${routeName}</strong></p>
         <p>Live dashboard data is streamed to your browser.</p>
         <p>Configured dashboards render automatically.</p>
     `;
@@ -104,7 +116,7 @@ function renderDashboardList() {
 }
 
 async function loadDashboardImages() {
-    for (const dashboardInfo of state.dashboards.filter(d => d.webEnabled ?? d.enabled)) {
+    for (const dashboardInfo of state.dashboards.filter(isDashboardEnabledForClient)) {
         try {
             const dashboard = await fetchDashboardPackage(dashboardInfo.id);
             

@@ -1,6 +1,6 @@
+using ZTMZ.PacenoteTool.Core;
 #if WINDOWS
 using ZTMZ.PacenoteTool.Base;
-using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.UI.Windows;
 #endif
 
@@ -16,11 +16,23 @@ internal sealed record DesktopNativeOverlaySnapshot(
     string State,
     bool IsVisible);
 
+internal interface IDesktopNativeOverlayHost : IDisposable
+{
+    event EventHandler? Changed;
+    DesktopNativeOverlaySnapshot GetSnapshot();
+    bool SetEnabled(bool enabled);
+    bool SetFrameRateLock(bool enabled);
+    bool SetFrameRate(int frameRate);
+    bool SetTopMost(bool enabled);
+    void ReloadDashboardConfigurations();
+    void HandleActivityChanged(GameActivitySessionChange change);
+}
+
 #if WINDOWS
 /// <summary>
 /// Avalonia presentation adapter for the shared Windows native-overlay session.
 /// </summary>
-internal sealed class WindowsNativeOverlayHost : IDisposable
+internal sealed class WindowsNativeOverlayHost : IDesktopNativeOverlayHost
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     private readonly NativeOverlaySessionController _session;

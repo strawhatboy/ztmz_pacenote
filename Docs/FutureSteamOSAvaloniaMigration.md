@@ -38,10 +38,18 @@ Linux host now has a PortAudio output implementation and loads co-driver
 packages through a cross-platform decoder boundary. WAV, AIFF, MP3, Ogg, FLAC,
 and Opus use libsndfile; WMA, AAC, MP4, and M4A fall back to FFmpeg. Audible
 playback inside the rebuilt Flatpak remains to be verified on the Arch VM. The
-native overlay still reports unavailable rather than invoking Win32 code.
+Avalonia host now has an X11/XWayland overlay implementation that reuses the
+Web Dashboard renderer in a transparent, input-pass-through window.
 The installed native Linux DR1 build is recognized through Steam/Feral paths,
 but a real rendered stage cannot yet be used for end-to-end telemetry and
 audible playback validation because the VMware guest exposes no Vulkan device.
+
+The overlay host was validated on an Arch KDE Wayland session on September 3,
+2026. ZTMZ selected XWayland, created its private loopback dashboard server,
+created the transparent overlay window, and applied
+`GAMESCOPE_EXTERNAL_OVERLAY=1`. The VM does not have Gamescope installed, so
+composition over a real game in SteamOS Gaming Mode still requires validation
+on Steam Deck hardware.
 
 ## Product Goal
 
@@ -66,7 +74,7 @@ Linux release. Each is a separate platform integration.
 | Main UI | WPF, WPF-UI, WinForms, `net10.0-windows` | Avalonia 12 desktop host with FluentAvalonia; browser remains the dashboard renderer |
 | Audio output | NAudio WASAPI | WASAPI remains on Windows; PortAudio is implemented for Linux |
 | Audio decoding and resampling | NAudio `AudioFileReader` and Media Foundation | `IAudioFileDecoder`, libsndfile, FFmpeg fallback, and managed WDL resampling on Linux |
-| Native overlay | GameOverlay.Net, SharpDX, Direct2D, `user32.dll`, HWND attachment | Keep the current external overlay on Windows; research an opt-in Vulkan Layer for supported Proton games separately |
+| Native overlay | GameOverlay.Net, SharpDX, Direct2D, `user32.dll`, HWND attachment | Keep the Windows renderer; on Linux render Overlay-routed browser dashboards in an input-transparent X11/XWayland window, mark it as a Gamescope external overlay, and retain a Vulkan Layer only as a fallback research route |
 | Web Dashboard | ASP.NET Core, WebSocket, browser JavaScript | Extracted into the platform-neutral `WebDashboard` project and hosted by the Linux runtime |
 | Script editor | Monaco hosted by WPF WebView2 | Shared Monaco protocol and catalog with Avalonia `NativeWebView`; WPE WebKit or WebKitGTK renders the loopback-hosted assets on Linux |
 | Game discovery and IPC | Windows process/window APIs, registry, named maps, named pipes, injection | Shared activity monitor implemented; native Linux uses `/proc`, while Flatpak and Windows-only IPC require Proton relays |
@@ -95,7 +103,7 @@ Windows platform services              Linux platform services
   - WASAPI output                        - PortAudio/ALSA output
   - WebView2                              - system browser/web UI
   - Win32 process/window access           - Linux process and path access
-  - Direct2D native overlay               - no native overlay initially
+  - Direct2D native overlay               - XWayland browser overlay
        |                                       |
        +---------- platform contracts --------+
                            |
@@ -248,7 +256,11 @@ assets. The project has no WPF, GameOverlay.Net, SharpDX, or WebView2 reference.
 
 Windows keeps its native overlay renderer in `Base.UI` and adapts the existing
 `Dashboard` objects to portable `WebDashboardDefinition` objects. Linux hosts
-`WebDashboardRuntime` directly. `WebDashboardGameSessionBridge` subscribes to
+`WebDashboardRuntime` directly for both LAN Web Dashboard clients and a separate
+loopback-only Overlay client. These runtimes filter `Web`, `Overlay`, and `Both`
+dashboard routes independently, so enabling the native overlay does not expose
+its private server to the LAN or change the public Web Dashboard port.
+`WebDashboardGameSessionBridge` subscribes to
 the shared core's track/car, game-state, pacenote, race, and telemetry events,
 so browser Lua dashboards receive the same evolving `GameContext` rather than
 an independent Linux-only telemetry model. `--web-dashboard` starts the server,
@@ -323,16 +335,42 @@ than silently treated as a supported full integration.
 - SteamOS notifications, autostart, packaging, and update integration.
 
 Gamescope is a compositor, and Steam Deck Gaming Mode isolates games in its
-own Xwayland environment. A normal Avalonia transparent window must not be
-assumed to behave like the current Win32 click-through overlay. Treat this as
-an independent feasibility project.
+own Xwayland environment. ZTMZ therefore runs its Avalonia host through XWayland
+by default and must be launched inside the same Gaming Mode session as the game.
+Native Wayland remains an explicit experimental UI option and does not expose
+the X11 window handle required by this overlay implementation.
+
+### X11/XWayland Gamescope overlay route
+
+The primary prototype reuses the existing browser dashboard renderer rather
+than maintaining a second Linux drawing implementation:
+
+```text
+ZTMZ game session -> private 127.0.0.1 dashboard runtime -> WPE WebView
+                                                        -> transparent X11 window
+                                                        -> Gamescope composition
+```
+
+The window has no decorations, does not activate or appear in the taskbar, and
+uses an empty XShape input region so controller, mouse, and touch input continue
+to reach the game. It is prewarmed while ZTMZ starts but only becomes visible
+during an active stage. The X11 property `GAMESCOPE_EXTERNAL_OVERLAY=1` follows
+the mechanism used by Gamescope and MangoHud's `mangoapp` implementation:
+
+- [Gamescope external-overlay handling](https://github.com/ValveSoftware/gamescope/blob/master/src/main.cpp)
+- [MangoHud mangoapp X11 overlay window](https://github.com/flightlessmango/MangoHud/blob/master/src/app/main.cpp)
+
+This source-visible atom is not a versioned public Gamescope API. ZTMZ must
+therefore detect failure, report the overlay as unavailable, and leave the Web
+Dashboard usable. Required hardware validation includes Gaming Mode startup,
+fullscreen composition, transparency, input passthrough, scaling, focus loss,
+suspend/resume, game restart, and multi-display behavior.
 
 ### Experimental Vulkan in-game overlay route
 
-The viable route for an actual SteamOS/Proton in-game overlay is a small native
-Vulkan Layer, not an always-on-top Avalonia window and not a dependency on a
-private Gamescope protocol. It is an optional post-MVP feature and is not part
-of the initial AppImage feature promise.
+If the XWayland external-overlay route proves unreliable for a supported title,
+the fallback route is a small native Vulkan Layer. It remains an optional
+post-MVP feature and is not part of the initial AppImage feature promise.
 
 ```text
 ZTMZ Linux host
@@ -571,13 +609,18 @@ in-game Gamescope overlay.
 
 ### Phase 5: SteamOS overlay and capture research
 
-- Prototype the opt-in Vulkan Layer route and its versioned local IPC protocol.
+- Validate the implemented X11/XWayland external-overlay route in SteamOS Gaming
+  Mode on real Steam Deck hardware.
+- Verify Gamescope composition, transparency, XShape input passthrough, scaling,
+  frame pacing, focus loss, suspend/resume, and application/game restart.
+- Prototype the opt-in Vulkan Layer and its versioned local IPC protocol only if
+  the external-overlay route cannot satisfy supported titles.
 - Verify actual renderer selection before treating a Proton title as a candidate.
 - Measure frame pacing, overlay latency, resize, suspend/resume, focus,
   controller input, and Gaming Mode lifecycle behavior on real Steam Deck
   hardware.
-- Keep Gamescope integration limited to normal Vulkan presentation; do not use
-  undocumented/private Gamescope protocols as a product dependency.
+- Treat the source-visible Gamescope external-overlay atom as a probed capability,
+  not a guaranteed API; preserve Web Dashboard fallback when it is unavailable.
 - Research PipeWire/FFmpeg replay capture independently.
 
 ## Acceptance Criteria
@@ -605,8 +648,8 @@ in-game Gamescope overlay.
 - Running the current WPF executable natively on Linux;
 - treating WebView2 as a Linux browser host;
 - opening Proton's Windows named maps directly from native Linux code;
-- promising a click-through in-game overlay merely because Avalonia opens a
-  desktop window;
+- claiming full SteamOS Gaming Mode overlay support before the XWayland window is
+  validated under Gamescope on real hardware;
 - auto-loading a Vulkan Layer for anti-cheat-protected or unverified games;
 - bypassing, concealing, or attempting to work around anti-cheat protections;
 - replacing the stable Windows WASAPI backend with PortAudio;

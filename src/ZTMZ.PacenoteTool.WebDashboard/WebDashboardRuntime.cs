@@ -16,7 +16,9 @@ public sealed record WebDashboardRuntimeOptions(
     int FrameRate,
     bool BrowserLuaExecutionEnabled = true,
     bool SupportsNativeOverlay = false,
-    string CanvasResolution = WebDashboardCanvasResolution.Default);
+    string CanvasResolution = WebDashboardCanvasResolution.Default,
+    DashboardOutputTarget OutputTarget = DashboardOutputTarget.Web,
+    bool LoopbackOnly = false);
 
 public sealed class WebDashboardRuntime : IDisposable
 {
@@ -27,6 +29,7 @@ public sealed class WebDashboardRuntime : IDisposable
     private int _targetFrameRate = Config.WebDashboardFrameRateDefault;
     private int _canvasWidth = WebDashboardCanvasResolution.DefaultWidth;
     private int _canvasHeight = WebDashboardCanvasResolution.DefaultHeight;
+    private DashboardOutputTarget _outputTarget = DashboardOutputTarget.Web;
     private long _frameCount;
     private DateTimeOffset? _lastFrameUtc;
 
@@ -70,20 +73,24 @@ public sealed class WebDashboardRuntime : IDisposable
         var server = new WebDashboardServer
         {
             Port = options.Port,
-            BrowserLuaExecutionEnabled = options.BrowserLuaExecutionEnabled
+            BrowserLuaExecutionEnabled = options.BrowserLuaExecutionEnabled,
+            LoopbackOnly = options.LoopbackOnly
         };
         server.Initialize(_dashboards, options.DashboardPackagesPath, options.StaticAssetsRoot);
         SetCanvasResolution(options.CanvasResolution);
         server.SetCanvasSize(_canvasWidth, _canvasHeight);
         server.Start();
         _server = server;
+        _outputTarget = NormalizeOutputTarget(options.OutputTarget);
         SetTargetFrameRate(options.FrameRate);
         _frameCount = 0;
         _lastFrameUtc = null;
         Status = new WebDashboardServerStatus(
             WebDashboardServerState.Running,
             options.Port,
-            WebDashboardServer.GetDashboardUrl(options.Port));
+            options.LoopbackOnly
+                ? WebDashboardServer.GetLoopbackDashboardUrl(options.Port)
+                : WebDashboardServer.GetDashboardUrl(options.Port));
     }
 
     public async Task PublishTelemetryAsync(GameData data, GameContext context)
@@ -98,7 +105,7 @@ public sealed class WebDashboardRuntime : IDisposable
         var enabledDashboards = _dashboards
             .Select((dashboard, index) => new { dashboard, index })
             .Where(item => item.dashboard.SupportsWebDashboardClientLua
-                && item.dashboard.GetOutputTarget().Includes(DashboardOutputTarget.Web))
+                && item.dashboard.GetOutputTarget().Includes(_outputTarget))
             .Select(item => new WebDashboardBrowserLuaDashboard(
                 item.index,
                 item.index,
@@ -159,6 +166,11 @@ public sealed class WebDashboardRuntime : IDisposable
     }
 
     public void Dispose() => Stop();
+
+    internal static DashboardOutputTarget NormalizeOutputTarget(DashboardOutputTarget target) =>
+        target is DashboardOutputTarget.Web or DashboardOutputTarget.Overlay
+            ? target
+            : DashboardOutputTarget.Web;
 
     private async Task PublishTelemetrySafelyAsync(GameData data, GameContext context)
     {

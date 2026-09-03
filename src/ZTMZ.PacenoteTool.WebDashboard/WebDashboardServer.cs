@@ -153,6 +153,7 @@ public class WebDashboardServer : IDisposable
     }
     
     public int Port { get; set; } = 8080;
+    public bool LoopbackOnly { get; set; }
     public bool IsRunning { get; private set; }
 
     public void SetCanvasSize(int width, int height)
@@ -226,6 +227,8 @@ public class WebDashboardServer : IDisposable
     {
         return GetDashboardUrls(port).FirstOrDefault() ?? string.Empty;
     }
+
+    public static string GetLoopbackDashboardUrl(int port) => $"http://127.0.0.1:{port}";
 
     public static string GetDashboardImageCacheKey(int dashboardId, string imageKey)
     {
@@ -385,7 +388,10 @@ public class WebDashboardServer : IDisposable
         try
         {
             var builder = WebApplication.CreateBuilder();
-            builder.WebHost.UseUrls($"http://*:{Port}");
+            builder.WebHost.UseUrls(
+                LoopbackOnly
+                    ? GetLoopbackDashboardUrl(Port)
+                    : $"http://*:{Port}");
             
             // Suppress default ASP.NET logging in console
             builder.Logging.ClearProviders();
@@ -608,7 +614,9 @@ public class WebDashboardServer : IDisposable
             // StartAsync completes only after Kestrel has bound the configured port.
             _app.StartAsync().GetAwaiter().GetResult();
             IsRunning = true;
-            _logger.Info("WebDashboard server started at {0}", GetDashboardUrl(Port));
+            _logger.Info(
+                "WebDashboard server started at {0}",
+                LoopbackOnly ? GetLoopbackDashboardUrl(Port) : GetDashboardUrl(Port));
         }
         catch (Exception ex)
         {

@@ -117,9 +117,7 @@ internal sealed class DesktopRuntime : IDesktopRuntime
     private CoDriverPackageUpdateService? _voicePackageUpdates;
     private GameActivitySessionCoordinator? _gameSessions;
     private ZtmzRuntimeState? _state;
-#if WINDOWS
-    private WindowsNativeOverlayHost? _nativeOverlay;
-#endif
+    private IDesktopNativeOverlayHost? _nativeOverlay;
     private IReadOnlyList<WebDashboardDefinition> _dashboards = [];
     private string _currentTrack = string.Empty;
     private string _status = "Initializing runtime...";
@@ -159,48 +157,30 @@ internal sealed class DesktopRuntime : IDesktopRuntime
         var resourceRoot = AvaloniaLocalization.ResourceRoot;
         _dashboards = new WebDashboardCatalog(Logger).Load(
             ResolveDashboardPackagesPath(resourceRoot),
-            supportsNativeOverlay: OperatingSystem.IsWindows());
+            supportsNativeOverlay: IsNativeOverlaySupported());
         _dashboard?.Reload();
-#if WINDOWS
         _nativeOverlay?.ReloadDashboardConfigurations();
-#endif
         RaiseSnapshotChanged();
     }
 
     public bool SetNativeOverlayEnabled(bool enabled)
     {
-#if WINDOWS
         return _nativeOverlay?.SetEnabled(enabled) ?? false;
-#else
-        return false;
-#endif
     }
 
     public bool SetNativeOverlayFrameRateLock(bool enabled)
     {
-#if WINDOWS
         return _nativeOverlay?.SetFrameRateLock(enabled) ?? false;
-#else
-        return false;
-#endif
     }
 
     public bool SetNativeOverlayFrameRate(int frameRate)
     {
-#if WINDOWS
         return _nativeOverlay?.SetFrameRate(frameRate) ?? false;
-#else
-        return false;
-#endif
     }
 
     public bool SetNativeOverlayTopMost(bool enabled)
     {
-#if WINDOWS
         return _nativeOverlay?.SetTopMost(enabled) ?? false;
-#else
-        return false;
-#endif
     }
 
     public async Task<IReadOnlyList<VoicePackageSnapshot>> GetVoicePackagesAsync(
@@ -410,22 +390,27 @@ internal sealed class DesktopRuntime : IDesktopRuntime
             var dashboardPackagesPath = ResolveDashboardPackagesPath(resourceRoot);
             _dashboards = new WebDashboardCatalog(Logger).Load(
                 dashboardPackagesPath,
-                supportsNativeOverlay: OperatingSystem.IsWindows());
+                supportsNativeOverlay: IsNativeOverlaySupported());
             _dashboard = new WebDashboardRuntimeController(
                 _tool,
                 new WebDashboardRuntimeControllerOptions(
                     dashboardPackagesPath,
                     AppContext.BaseDirectory,
                     Config.Instance.WebDashboardBrowserLuaEnabled,
-                    SupportsNativeOverlay: OperatingSystem.IsWindows()));
+                    SupportsNativeOverlay: IsNativeOverlaySupported()));
             _controls = new SharedRuntimeControlsService(_tool, _dashboard);
             _controls.StateChanged += (_, _) => RaiseSnapshotChanged();
 #if WINDOWS
             _nativeOverlay = new WindowsNativeOverlayHost(
                 _tool,
                 () => _controls?.GetSnapshot().SelectedCodriver);
-            _nativeOverlay.Changed += (_, _) => RaiseSnapshotChanged();
+#else
+            _nativeOverlay = new LinuxNativeOverlayHost(
+                _tool,
+                dashboardPackagesPath,
+                AppContext.BaseDirectory);
 #endif
+            _nativeOverlay.Changed += (_, _) => RaiseSnapshotChanged();
 
             _state = await _tool.InitAsync(
                 new ZtmzPacenoteToolInitializationOptions(
@@ -466,9 +451,7 @@ internal sealed class DesktopRuntime : IDesktopRuntime
                     _tool.Games);
                 _gameSessions.ActivityChanged += (_, change) =>
                 {
-#if WINDOWS
                     _nativeOverlay?.HandleActivityChanged(change);
-#endif
                     RaiseSnapshotChanged();
                 };
                 _gameSessions.Start();
@@ -503,9 +486,7 @@ internal sealed class DesktopRuntime : IDesktopRuntime
         }
 
         _dashboard?.Dispose();
-#if WINDOWS
         _nativeOverlay?.Dispose();
-#endif
         _tool?.Dispose();
         _voicePackageHttpClient?.Dispose();
         GC.SuppressFinalize(this);
@@ -521,13 +502,18 @@ internal sealed class DesktopRuntime : IDesktopRuntime
 
     private DesktopNativeOverlaySnapshot GetNativeOverlaySnapshot()
     {
-#if WINDOWS
         return _nativeOverlay?.GetSnapshot()
-            ?? new DesktopNativeOverlaySnapshot(true, Config.Instance.UI_ShowHud, false,
+            ?? new DesktopNativeOverlaySnapshot(IsNativeOverlaySupported(), Config.Instance.UI_ShowHud, false,
                 Config.Instance.HudFPS, Config.Instance.HudLockFPS, Config.Instance.HudTopMost,
                 "Unavailable", false);
+    }
+
+    private static bool IsNativeOverlaySupported()
+    {
+#if WINDOWS
+        return true;
 #else
-        return new DesktopNativeOverlaySnapshot(false, false, false, 0, false, false, "Unavailable", false);
+        return LinuxNativeOverlayHost.IsSupportedEnvironment;
 #endif
     }
 

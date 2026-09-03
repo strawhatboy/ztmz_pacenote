@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>ZTMZ Pacenote Dashboard</title>
     <link rel="icon" href="/favicon.ico" sizes="any">
+    <script>
+        document.documentElement.dataset.clientMode =
+            new URLSearchParams(window.location.search).get('mode') === 'overlay'
+                ? 'overlay'
+                : 'web';
+    </script>
     <style>
         @font-face {
             font-family: 'WRC Clean Roman';
@@ -66,6 +72,22 @@
             font-family: 'Segoe UI', Arial, sans-serif;
             overflow: hidden;
             touch-action: none;
+        }
+
+        html[data-client-mode="overlay"],
+        html[data-client-mode="overlay"] body,
+        html[data-client-mode="overlay"] #canvas-container,
+        html[data-client-mode="overlay"] #dashboard-layer-stack {
+            background: transparent !important;
+        }
+
+        html[data-client-mode="overlay"] #loading,
+        html[data-client-mode="overlay"] #dashboard-selector,
+        html[data-client-mode="overlay"] #menu-button,
+        html[data-client-mode="overlay"] #frame-rate,
+        html[data-client-mode="overlay"] #connection-status,
+        html[data-client-mode="overlay"] #error-message {
+            display: none !important;
         }
         
         #loading {
@@ -421,6 +443,6 @@
     <!-- Dashboard Client -->
     <script src="vendor/fengari-web.js?v=0.1.4"></script>
     <script src="browser-lua-dashboard.js?v=7"></script>
-    <script src="dashboard-client.js?v=6"></script>
+    <script src="dashboard-client.js?v=7"></script>
 </body>
 </html>
