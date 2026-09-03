@@ -1180,9 +1180,36 @@ namespace ZTMZ.PacenoteTool.Base
         public Dictionary<string, IGameConfig> LoadGameConfig(IGame game)
         {
             var gameConfigPath = AppLevelVariables.Instance.GetPath(Path.Join(Constants.PATH_GAMES, string.Format("{0}.json", game.Name)));
+            return LoadGameConfigCore(game, gameConfigPath, _logger, _lock, File.WriteAllText);
+        }
+
+        internal static Dictionary<string, IGameConfig> LoadGameConfigFromPath(
+            IGame game,
+            string gameConfigPath,
+            Action<string, string> writeAllText = null)
+        {
+            return LoadGameConfigCore(
+                game,
+                gameConfigPath,
+                NLog.LogManager.GetCurrentClassLogger(),
+                new object(),
+                writeAllText ?? File.WriteAllText);
+        }
+
+        private static Dictionary<string, IGameConfig> LoadGameConfigCore(
+            IGame game,
+            string gameConfigPath,
+            NLog.Logger logger,
+            object fileLock,
+            Action<string, string> writeAllText)
+        {
             if (!File.Exists(gameConfigPath)) 
             {
-                SaveGameConfig(game);
+                var defaultContent = JsonConvert.SerializeObject(game.GameConfigurations, Formatting.Indented);
+                lock (fileLock)
+                {
+                    writeAllText(gameConfigPath, defaultContent);
+                }
                 return game.GameConfigurations;
             }
 
@@ -1236,22 +1263,22 @@ namespace ZTMZ.PacenoteTool.Base
                 try
                 {
                     var repairedContent = JsonConvert.SerializeObject(gameConfig, Formatting.Indented);
-                    lock (_lock)
+                    lock (fileLock)
                     {
-                        File.WriteAllText(gameConfigPath, repairedContent);
+                        writeAllText(gameConfigPath, repairedContent);
                     }
-                    _logger.Info("Repaired stale game config for {0}.", game.Name);
+                    logger.Info("Repaired stale game config for {0}.", game.Name);
                 }
                 catch (Exception exception)
                 {
-                    _logger.Warn(
+                    logger.Warn(
                         exception,
                         "Repaired stale game config for {0} in memory, but failed to save it.",
                         game.Name);
                 }
             }
 
-            _logger.Debug($"Loaded game config for {game.Name}, content: {content}");
+            logger.Debug($"Loaded game config for {game.Name}, content: {content}");
             return gameConfig;
         }
 
