@@ -915,5 +915,45 @@
   },
   "codriverCatalog": {
     "packagesAvailable": "{0} Pakete verf\u00FCgbar"
+  },
+  "gameMods": {
+    "title": "Game Mods",
+    "subtitle": "Install directly with automatic backup, or add to the game's external Mod manager.",
+    "loading": "Loading Mod catalog...",
+    "cachedCatalog": "The online catalog is unavailable. Showing the last verified catalog.",
+    "catalogUnavailable": "The Mod catalog could not be loaded. {0}",
+    "author": "Author: {0}",
+    "confirm": "{0} {1}? Close the game before changing its files.",
+    "action": {
+      "install": "Install", "update": "Update", "uninstall": "Uninstall",
+      "addToJsgme": "Add to JSGME", "openJsgme": "Open JSGME",
+      "openRelease": "Release page", "refresh": "Refresh status", "cancel": "Cancel"
+    },
+    "status": {
+      "gamePathMissing": "Select the RBR executable before managing Mods.",
+      "jsgmeMissing": "JSGME was not found in the RBR installation.",
+      "notInstalled": "Not installed", "installed": "Installed by ZTMZ",
+      "updateAvailable": "An update is available",
+      "jsgmeReady": "Added to JSGME; enable it from JSGME",
+      "jsgmeEnabled": "Enabled by JSGME",
+      "conflict": "A conflicting Mod or duplicate installation is active",
+      "modified": "Installed files were changed outside ZTMZ",
+      "error": "Could not inspect this Mod: {0}"
+    },
+    "progress": {
+      "downloading": "Downloading package...", "verifying": "Verifying package...",
+      "installing": "Installing with backup...",
+      "uninstalling": "Restoring backed-up files...",
+      "addingToJsgme": "Adding package to JSGME..."
+    },
+    "result": {
+      "installed": "Mod installed.", "updated": "Mod updated.",
+      "uninstalled": "Mod uninstalled and original files restored.",
+      "addedToJsgme": "Mod added to JSGME. Open JSGME to enable it.",
+      "externalManagerOpened": "JSGME opened.", "cancelled": "Operation cancelled.",
+      "actionUnavailable": "This action is not currently available.",
+      "modifiedFilesRetained": "{0} modified files were retained; they were not deleted.",
+      "openedByUi": "The release page is opened by the app."
+    }
   }
 }

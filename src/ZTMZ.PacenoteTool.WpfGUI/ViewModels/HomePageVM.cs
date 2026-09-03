@@ -1046,9 +1046,19 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
                 }
             }
         }
-        CurrentGameResources = game.Game is IGameWithResourceLinks { ResourceLinks.Count: > 0 } resourceGame
-            ? new GameResourceLinksPane(resourceGame.ResourceLinks)
-            : null;
+        var gameResources = new StackPanel();
+        if (game.Game is IGameWithModCatalog modGame)
+        {
+            gameResources.Children.Add(new GameModCatalogPane(game.Game, modGame));
+        }
+        if (game.Game is IGameWithResourceLinks { ResourceLinks.Count: > 0 } resourceGame)
+        {
+            var links = new GameResourceLinksPane(resourceGame.ResourceLinks);
+            if (gameResources.Children.Count > 0)
+                links.Margin = new System.Windows.Thickness(0, 12, 0, 0);
+            gameResources.Children.Add(links);
+        }
+        CurrentGameResources = gameResources.Children.Count > 0 ? gameResources : null;
 
         ScheduleDiagnosticsRefresh(includePrerequisiteCheck: true);
     }

@@ -44,6 +44,12 @@ public static class GameSettingsPaneFactory
             if (pane is not null)
                 panes.Add(pane);
         }
+        if (game is IGameWithModCatalog modGame)
+        {
+            var modPane = new GameModCatalogPane(modGame);
+            modPane.InitializeWithGame(game);
+            panes.Add(modPane);
+        }
         if (game is IGameWithResourceLinks { ResourceLinks.Count: > 0 } resourceGame)
         {
             var resourcePane = new GameResourceLinksPane(resourceGame.ResourceLinks);

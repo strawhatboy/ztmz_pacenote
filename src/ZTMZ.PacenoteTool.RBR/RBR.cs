@@ -53,7 +53,8 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.RBR
 {
-    public class RBR : IGame, IGameConfigurationMigrator, IGameWithIntegrationProviders, IGamePacenoteAudioProvider
+    public class RBR : IGame, IGameConfigurationMigrator, IGameWithIntegrationProviders,
+        IGamePacenoteAudioProvider, IGameWithModCatalog
     {
         internal const string UseInstalledCodriverAudioConfigKey =
             "game.rbr.additional_settings.useInstalledCodriverAudio";
@@ -112,6 +113,13 @@ namespace ZTMZ.PacenoteTool.RBR
         [
             new RBRGameInstallationIntegrationProvider()
         ];
+
+        public string ModCatalogGameId => "rbr";
+
+        public Uri ModRepositoryUri { get; } =
+            new("https://gitee.com/ztmz/game-mods/raw/master/repo.json");
+
+        public IGameModManager ModManager { get; } = new RBRModManager();
 
         public Dictionary<string, IGameConfig> DefaultGameConfigurations { get; } = new() {
             { UdpGameConfig.Name, new UdpGameConfig() { IPAddress = System.Net.IPAddress.Loopback.ToString(), Port = 30001 } },

@@ -961,5 +961,54 @@
   },
   "codriverCatalog": {
     "packagesAvailable": "\u5171 {0} \u4E2A\u8BED\u97F3\u5305"
+  },
+  "gameMods": {
+    "title": "游戏 Mod",
+    "subtitle": "可由 ZTMZ 备份后直接安装，也可加入游戏已有的 Mod 管理器。",
+    "loading": "正在加载 Mod 目录...",
+    "cachedCatalog": "在线目录暂时不可用，当前显示上次验证过的目录。",
+    "catalogUnavailable": "无法加载 Mod 目录。{0}",
+    "author": "作者：{0}",
+    "confirm": "确定要{0}“{1}”吗？修改游戏文件前请关闭游戏。",
+    "action": {
+      "install": "安装",
+      "update": "更新",
+      "uninstall": "卸载",
+      "addToJsgme": "加入 JSGME",
+      "openJsgme": "打开 JSGME",
+      "openRelease": "发布页面",
+      "refresh": "刷新状态",
+      "cancel": "取消"
+    },
+    "status": {
+      "gamePathMissing": "请先选择 RBR 游戏程序，再管理 Mod。",
+      "jsgmeMissing": "RBR 目录中没有找到 JSGME。",
+      "notInstalled": "未安装",
+      "installed": "已由 ZTMZ 安装",
+      "updateAvailable": "有可用更新",
+      "jsgmeReady": "已加入 JSGME；请在 JSGME 中启用",
+      "jsgmeEnabled": "已由 JSGME 启用",
+      "conflict": "检测到冲突 Mod 或重复安装",
+      "modified": "已安装文件曾被其他程序修改",
+      "error": "无法检查此 Mod：{0}"
+    },
+    "progress": {
+      "downloading": "正在下载 Mod...",
+      "verifying": "正在校验 Mod...",
+      "installing": "正在备份并安装...",
+      "uninstalling": "正在恢复备份文件...",
+      "addingToJsgme": "正在加入 JSGME..."
+    },
+    "result": {
+      "installed": "Mod 已安装。",
+      "updated": "Mod 已更新。",
+      "uninstalled": "Mod 已卸载，并已恢复原文件。",
+      "addedToJsgme": "Mod 已加入 JSGME，请打开 JSGME 启用。",
+      "externalManagerOpened": "JSGME 已打开。",
+      "cancelled": "操作已取消。",
+      "actionUnavailable": "当前不能执行此操作。",
+      "modifiedFilesRetained": "有 {0} 个被修改的文件已保留，没有删除。",
+      "openedByUi": "发布页面由应用打开。"
+    }
   }
 }
