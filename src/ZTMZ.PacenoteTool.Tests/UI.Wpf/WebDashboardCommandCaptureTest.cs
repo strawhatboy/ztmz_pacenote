@@ -100,7 +100,7 @@ public class WebDashboardCommandCaptureTest
             normalizedPage);
         Assert.Contains("vendor/fengari-web.js?v=0.1.4", page);
         Assert.Contains("browser-lua-dashboard.js?v=7", page);
-        Assert.Contains("dashboard-client.js?v=6", page);
+        Assert.Contains("dashboard-client.js?v=7", page);
         Assert.Contains("cmd.fontWeight", clientScript);
         Assert.Contains("cmd.baseline", clientScript);
         Assert.Contains("layeredDrawCommands", clientScript);

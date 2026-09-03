@@ -53,6 +53,13 @@ public class RBRPacenoteMappingTest
 
         await RBRScriptResource.Instance.LoadData(rbrDatabasePath);
 
+        Assert.All(RBRScriptResource.Instance.Pacenotes, pacenote =>
+        {
+            Assert.NotNull(pacenote.name);
+            Assert.NotNull(pacenote.description);
+            Assert.NotNull(pacenote.category);
+        });
+
         var ztmzIds = Assert.Contains(392, RBRScriptResource.Instance.PacenoteId2ZTMZIds);
         var ztmzId = Assert.Single(ztmzIds);
         Assert.Equal(126, ztmzId);

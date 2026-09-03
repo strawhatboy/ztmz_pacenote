@@ -1,24 +1,16 @@
 v2.99.99.48-3.0-rc20
 ------
 [English]
-* Fixes Jannemod custom Richard Burns Rally calls being interpreted as their standard compatibility calls (for example, a left-entry chicane as twisty); encoded custom call IDs and modifiers are now decoded correctly.
-* Fixes duplicate and incorrect Richard Burns Rally mappings, incorrect wall-position fallbacks, and fallback audio resolution that could accept empty results or skip repeated call components.
-* Adds an online game Mod catalog for Richard Burns Rally, with verified direct installation, updates, uninstall and backup restoration, plus JSGME import and enabled-state detection.
-* Adds initial Mod entries for the RBR Fluent Chase Cam, Controller Deadzone, and Luppis V3 Lao Wang Chinese co-driver; the compact Home-page Mod panel shows complete package and audio versions.
-* Fixes stale game configuration files from older versions crashing the game settings after an upgrade; settings are now realigned by key, missing defaults are restored, and existing user values are preserved.
-* Improves Web Dashboard efficiency on older Android and Chrome devices, adds a configurable rendering resolution, and uses the ZTMZ icon as the site icon.
-* Uses X11/XWayland by default for the Avalonia Linux app to improve desktop and window-icon reliability; native Wayland remains available as an explicit experimental option.
-* Adds an initial Avalonia Linux in-game dashboard overlay using an input-transparent XWayland window and Gamescope external-overlay integration; its renderer and local server are isolated from the LAN Web Dashboard.
+* Fixes incorrect custom pacenotes, direction calls, and duplicate playback in Richard Burns Rally, including left-entry chicanes being announced as twisty sections.
+* Adds Richard Burns Rally Mod management with install, update, uninstall, backup restoration, and JSGME import; initial Mods include Fluent Chase Cam, Controller Deadzone, and the Luppis V3 Lao Wang Chinese co-driver.
+* Fixes older game settings potentially crashing after an upgrade.
+* Improves the Web Dashboard on older Android and Chrome devices, with a rendering-resolution setting and the ZTMZ site icon.
 * Updates the sponsor acknowledgements.
 [简体中文]
-* 修复 Richard Burns Rally 的 Jannemod 自定义路书被误识别为标准兼容路书的问题（例如左进减速弯被播报为“蛇形弯”）；现在会正确解码自定义路书类型和修饰词。
-* 修复 Richard Burns Rally 中重复及错误的路书映射、错误的墙体方位 fallback，以及可能接受空结果或跳过重复路书片段的 fallback 语音解析问题。
-* 新增 Richard Burns Rally 在线游戏 Mod 目录，支持校验后直接安装、更新、卸载及备份还原，并支持导入 JSGME 和检测启用状态。
-* 首批提供 RBR 流畅追尾视角、手柄死区修复和 Luppis V3 老王中文语音；主页使用紧凑的 Mod 折叠卡片，并完整显示路书包与语音版本。
-* 修复旧版本遗留的游戏配置可能在升级后导致游戏设置崩溃的问题；现在会按设置键重新对齐配置、补齐缺失的默认项，并保留用户已有设置值。
-* 优化旧版 Android 和 Chrome 设备上网页仪表盘的运行效率，新增可配置的渲染分辨率，并使用 ZTMZ 图标作为网页图标。
-* Avalonia Linux 程序默认使用 X11/XWayland，提高桌面及窗口图标的可靠性；原生 Wayland 仍可作为实验选项手动启用。
-* Avalonia Linux 程序新增初步的游戏内悬浮仪表盘：通过可穿透输入的 XWayland 窗口接入 Gamescope，并将其渲染器和本地服务与局域网页仪表盘隔离。
+* 修复 Richard Burns Rally 部分自定义路书、方位提示和重复播报错误，包括左进减速弯被误报为“蛇形弯”的问题。
+* 新增 Richard Burns Rally 游戏 Mod 管理，可安装、更新、卸载、备份恢复和导入 JSGME；首批支持流畅追尾视角、手柄死区修复和 Luppis V3 老王中文语音。
+* 修复升级后旧版游戏配置可能导致游戏设置崩溃的问题。
+* 优化旧版 Android 和 Chrome 设备上的网页仪表盘，新增渲染分辨率设置并补充网页图标。
 * 更新赞助鸣谢名单。
 
 v2.99.99.47-3.0-rc19

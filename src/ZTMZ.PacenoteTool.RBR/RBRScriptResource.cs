@@ -14,9 +14,9 @@ namespace ZTMZ.PacenoteTool.RBR;
 public class RBRPacenote
 {
     public int id;
-    public string name;
-    public string description;
-    public string category;
+    public string name = string.Empty;
+    public string description = string.Empty;
+    public string category = string.Empty;
 }
 
 public class RBRPacenote2ZTMZ
@@ -82,9 +82,26 @@ public class RBRScriptResource
         Connection = new SqliteConnection($"Data Source={dbPath}");
         await Connection.OpenAsync();
         Connection.EnableExtensions(true);
-        Pacenotes = (await Connection.QueryAsync<RBRPacenote>("SELECT * FROM pacenote")).ToList();
-        Pacenote2ZTMZs = (await Connection.QueryAsync<RBRPacenote2ZTMZ>("SELECT * FROM pacenote_ztmz")).ToList();
-        Modifier2ZTMZs = (await Connection.QueryAsync<RBRModifier2ZTMZ>("SELECT * FROM modifier_ztmz")).ToList();
+        Pacenotes = (await Connection.QueryAsync<RBRPacenote>(
+            """
+            SELECT id,
+                   COALESCE(name, '') AS name,
+                   COALESCE(description, '') AS description,
+                   COALESCE(category, '') AS category
+            FROM pacenote
+            """)).ToList();
+        Pacenote2ZTMZs = (await Connection.QueryAsync<RBRPacenote2ZTMZ>(
+            """
+            SELECT id, ztmz_id, COALESCE(order_id, 0) AS order_id
+            FROM pacenote_ztmz
+            WHERE id IS NOT NULL AND ztmz_id IS NOT NULL
+            """)).ToList();
+        Modifier2ZTMZs = (await Connection.QueryAsync<RBRModifier2ZTMZ>(
+            """
+            SELECT id, ztmz_id, COALESCE(order_id, 0) AS order_id
+            FROM modifier_ztmz
+            WHERE id IS NOT NULL AND ztmz_id IS NOT NULL
+            """)).ToList();
 
         PacenotesDict = Pacenotes.GroupBy(x => x.id).ToDictionary(x => x.Key, x => x.ToList());
         PacenoteId2ZTMZIds = Pacenote2ZTMZs.GroupBy(x => x.id).ToDictionary(x => x.Key, x => x.OrderBy(y => y.order_id).Select(y => y.ztmz_id).ToList());

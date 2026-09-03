@@ -23,7 +23,8 @@
                 "launchPromptInject": "브리지 주입",
                 "launchPromptNotNow": "나중에",
                 "launchPromptFailure": "라이브 브리지를 주입하지 못했습니다:\n{0}",
-                "privilegeWarning": "ZTMZ와 Assetto Corsa Rally는 동일한 Windows 권한 수준으로 실행해야 합니다. 그렇지 않으면 브리지가 페이스노트를 전달할 수 없습니다. 두 프로그램 모두 일반 사용자로 실행하는 것을 권장합니다. 하나를 관리자로 실행하면 다른 하나도 관리자로 실행하십시오."
+                "privilegeWarning": "ZTMZ와 Assetto Corsa Rally는 동일한 Windows 권한 수준으로 실행해야 합니다. 그렇지 않으면 브리지가 페이스노트를 전달할 수 없습니다. 두 프로그램 모두 일반 사용자로 실행하는 것을 권장합니다. 하나를 관리자로 실행하면 다른 하나도 관리자로 실행하십시오.",
+                "protonWarning": "Linux에서 ZTMZ는 ACR과 동일한 Proton 실행기 및 프리픽스를 사용하여 내장 Windows 릴레이를 시작합니다. 브리지를 주입하기 전에 ACR을 실행해 두십시오."
             },
             "diagnostics": {
                 "reader": "ACR 공유 메모리",
@@ -33,7 +34,8 @@
                 "bridgeDisabled": "비활성화됨"
             },
             "prerequisite": {
-                "sharedMemoryReady": "Assetto Corsa Rally는 공유 메모리를 사용합니다. 사전 요구 사항 검사는 필요하지 않습니다."
+                "sharedMemoryReady": "Assetto Corsa Rally는 공유 메모리를 사용합니다. 사전 요구 사항 검사는 필요하지 않습니다.",
+                "protonBridgeReady": "Assetto Corsa Rally 텔레메트리와 실시간 페이스노트는 로컬 Proton 릴레이를 통해 수신됩니다."
             }
         }
     }

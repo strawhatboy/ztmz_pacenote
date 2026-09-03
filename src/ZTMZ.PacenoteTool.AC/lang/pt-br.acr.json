@@ -23,7 +23,8 @@
                 "launchPromptInject": "Injetar ponte",
                 "launchPromptNotNow": "Agora não",
                 "launchPromptFailure": "A ponte em tempo real não foi injetada:\n{0}",
-                "privilegeWarning": "O ZTMZ e o Assetto Corsa Rally devem ser executados com o mesmo nível de privilégio do Windows; caso contrário, a ponte não poderá transmitir as notas. Recomendamos executar ambos como usuário normal. Se um deles for executado como administrador, execute o outro como administrador também."
+                "privilegeWarning": "O ZTMZ e o Assetto Corsa Rally devem ser executados com o mesmo nível de privilégio do Windows; caso contrário, a ponte não poderá transmitir as notas. Recomendamos executar ambos como usuário normal. Se um deles for executado como administrador, execute o outro como administrador também.",
+                "protonWarning": "No Linux, o ZTMZ inicia o relay do Windows incluído com o mesmo executor Proton e prefixo usados pelo ACR. Mantenha o ACR em execução antes de injetar a ponte."
             },
             "diagnostics": {
                 "reader": "Memoria compartilhada do ACR",
@@ -33,7 +34,8 @@
                 "bridgeDisabled": "Desativada"
             },
             "prerequisite": {
-                "sharedMemoryReady": "O Assetto Corsa Rally usa memória compartilhada. Nenhuma verificação de pré-requisito é necessária."
+                "sharedMemoryReady": "O Assetto Corsa Rally usa memória compartilhada. Nenhuma verificação de pré-requisito é necessária.",
+                "protonBridgeReady": "A telemetria e as notas em tempo real do Assetto Corsa Rally são recebidas pelo relay Proton local."
             }
         }
     }

@@ -56,6 +56,7 @@ popd
 mkdir "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\ACRExperimentalBridge"
 copy /Y "..\tools\ACRPacenoteTrace\ACRPacenoteTraceInjector.exe" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\ACRExperimentalBridge\" >nul
 copy /Y "..\tools\ACRPacenoteTrace\ACRFmodLivePacenoteBridge.dll" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\ACRExperimentalBridge\" >nul
+copy /Y "..\tools\ACRPacenoteTrace\ACRProtonRelay.exe" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\ACRExperimentalBridge\" >nul
 copy /Y "ZTMZ.PacenoteTool.AC\ExperimentalBridge\acr-live-bridge.manifest.json" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\ACRExperimentalBridge\" >nul
 
 echo copying i18n files to target folder

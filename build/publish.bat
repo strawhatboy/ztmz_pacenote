@@ -65,6 +65,7 @@ popd
 mkdir "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge"
 copy /Y "..\tools\ACRPacenoteTrace\ACRPacenoteTraceInjector.exe" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge\" >nul
 copy /Y "..\tools\ACRPacenoteTrace\ACRFmodLivePacenoteBridge.dll" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge\" >nul
+copy /Y "..\tools\ACRPacenoteTrace\ACRProtonRelay.exe" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge\" >nul
 copy /Y "..\src\ZTMZ.PacenoteTool.AC\ExperimentalBridge\acr-live-bridge.manifest.json" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge\" >nul
 
 rem stage only release defaults from the configured application-data directory
