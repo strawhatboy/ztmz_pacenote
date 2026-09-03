@@ -28,7 +28,7 @@ The manager receives the complete game catalog for status checks and operations.
 The catalog currently uses schema version 1. Each Mod contains:
 
 - Stable `id` and localized `names` / `descriptions`.
-- `author` and a stable display `version`; the original text is preserved (for example `1.069`).
+- `author` and a stable display `version`; the original text is preserved (for example `2026.8.27+1.069`, combining the package and bundled co-driver revisions).
 - HTTPS `downloadUrl` and `releasePageUrl`.
 - SHA256 of the exact release asset.
 - `packageRootDirectory`, or an empty value when files are directly in the ZIP root.

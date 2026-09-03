@@ -18,7 +18,7 @@ public class GameModRepositoryClientTest
               "names": { "en-us": "Co-driver", "zh-cn": "中文领航" },
               "descriptions": { "en-us": "Audio", "zh-cn": "语音" },
               "author": "author",
-              "version": "1.069",
+              "version": "2026.8.27+1.069",
               "downloadUrl": "https://example.com/mod.zip",
               "releasePageUrl": "https://example.com/release",
               "sha256": "4818B77E1E7349B9267FA45B0ED9988485A93C19D64750DE37F926FF862146DB",
@@ -35,7 +35,7 @@ public class GameModRepositoryClientTest
 
         Assert.Equal("中文领航", mod.GetName("zh-cn"));
         Assert.Equal("Co-driver", mod.GetName("fr-fr"));
-        Assert.Equal("1.069", mod.Version);
+        Assert.Equal("2026.8.27+1.069", mod.Version);
         Assert.Equal(string.Empty, mod.PackageRootDirectory);
         Assert.Equal(936, mod.ArchiveEntryCodePage);
         Assert.Equal("rbr-codriver", mod.ConflictGroup);
