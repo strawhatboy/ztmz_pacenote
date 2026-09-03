@@ -1,5 +1,6 @@
 v2.99.99.48-3.0-rc20
 
+* Fixes the native overlay sometimes being covered when a supported game gains focus.
 * Fixes incorrect custom pacenotes, direction calls, and duplicate playback in Richard Burns Rally, including left-entry chicanes being announced as twisty sections.
 * Adds Richard Burns Rally Mod management with install, update, uninstall, backup restoration, and JSGME import; initial Mods include Fluent Chase Cam, Controller Deadzone, and the Luppis V3 Lao Wang Chinese co-driver.
 * Fixes older game settings potentially crashing after an upgrade.
