@@ -20,6 +20,14 @@ public enum GameModActionKind
     OpenExternalManager, OpenReleasePage
 }
 
+public sealed record GameModCredit(
+    IReadOnlyDictionary<string, string> Roles,
+    IReadOnlyList<string> Names)
+{
+    public string GetRole(string cultureName) =>
+        GameModDefinition.GetLocalizedText(Roles, cultureName, string.Empty);
+}
+
 public sealed record GameModDefinition(
     string Id,
     IReadOnlyDictionary<string, string> Names,
@@ -34,14 +42,15 @@ public sealed record GameModDefinition(
     string? ExternalFolderPrefix = null,
     string? ConflictGroup = null,
     int? ArchiveEntryCodePage = null,
-    IReadOnlyList<string>? PreserveExistingPaths = null)
+    IReadOnlyList<string>? PreserveExistingPaths = null,
+    IReadOnlyList<GameModCredit>? Credits = null)
 {
     public string GetName(string cultureName) => GetLocalizedText(Names, cultureName, Id);
 
     public string GetDescription(string cultureName) =>
         GetLocalizedText(Descriptions, cultureName, string.Empty);
 
-    private static string GetLocalizedText(
+    internal static string GetLocalizedText(
         IReadOnlyDictionary<string, string> values,
         string cultureName,
         string fallback)

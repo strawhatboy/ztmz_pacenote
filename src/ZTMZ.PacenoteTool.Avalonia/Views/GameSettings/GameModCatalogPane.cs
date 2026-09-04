@@ -122,6 +122,21 @@ public sealed class GameModCatalogPane : GameSettingsPane
             Opacity = 0.72,
             TextWrapping = TextWrapping.Wrap
         });
+        if (mod.Credits is { Count: > 0 })
+        {
+            content.Children.Add(new Expander
+            {
+                Header = Text("gameMods.credits"),
+                Content = new TextBlock
+                {
+                    Text = FormatCredits(mod),
+                    Margin = new Thickness(12, 4, 0, 4),
+                    Opacity = 0.72,
+                    TextWrapping = TextWrapping.Wrap
+                },
+                IsExpanded = false
+            });
+        }
 
         var footer = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 8 };
         footer.Children.Add(new TextBlock
@@ -213,6 +228,14 @@ public sealed class GameModCatalogPane : GameSettingsPane
     private static string Text(string key) => I18NLoader.Instance[key];
     private static string Format(string key, params object[] arguments) =>
         string.Format(CultureInfo.CurrentCulture, Text(key), arguments);
+    private static string FormatCredits(GameModDefinition mod)
+    {
+        var culture = I18NLoader.Instance.CurrentCultureName;
+        var separator = culture.StartsWith("zh", StringComparison.OrdinalIgnoreCase) ? "、" : ", ";
+        var delimiter = culture.StartsWith("zh", StringComparison.OrdinalIgnoreCase) ? "：" : ": ";
+        return string.Join(Environment.NewLine, mod.Credits!.Select(credit =>
+            credit.GetRole(culture) + delimiter + string.Join(separator, credit.Names)));
+    }
 
     public override void Dispose()
     {

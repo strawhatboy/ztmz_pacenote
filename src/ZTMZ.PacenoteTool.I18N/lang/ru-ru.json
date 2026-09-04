@@ -923,6 +923,7 @@
     "cachedCatalog": "The online catalog is unavailable. Showing the last verified catalog.",
     "catalogUnavailable": "The Mod catalog could not be loaded. {0}",
     "author": "Author: {0}",
+    "credits": "Credits",
     "confirm": "{0} {1}? Close the game before changing its files.",
     "action": {
       "install": "Install", "update": "Update", "uninstall": "Uninstall",

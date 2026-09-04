@@ -969,6 +969,7 @@
     "cachedCatalog": "在线目录暂时不可用，当前显示上次验证过的目录。",
     "catalogUnavailable": "无法加载 Mod 目录。{0}",
     "author": "作者：{0}",
+    "credits": "制作人员",
     "confirm": "确定要{0}“{1}”吗？修改游戏文件前请关闭游戏。",
     "action": {
       "install": "安装",

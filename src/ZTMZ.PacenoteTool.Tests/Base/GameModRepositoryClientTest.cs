@@ -25,7 +25,17 @@ public class GameModRepositoryClientTest
               "packageRootDirectory": "",
               "externalFolderName": "Luppis 中文语音",
               "archiveEntryCodePage": 936,
-              "conflictGroup": "rbr-codriver"
+              "conflictGroup": "rbr-codriver",
+              "credits": [
+                {
+                  "roles": { "en-us": "Programming", "zh-cn": "程序作者" },
+                  "names": [ "Lw_Ziye" ]
+                },
+                {
+                  "roles": { "en-us": "Translation", "zh-cn": "翻译" },
+                  "names": [ "译者甲", "译者乙" ]
+                }
+              ]
             }]
           }]
         }
@@ -39,6 +49,19 @@ public class GameModRepositoryClientTest
         Assert.Equal(string.Empty, mod.PackageRootDirectory);
         Assert.Equal(936, mod.ArchiveEntryCodePage);
         Assert.Equal("rbr-codriver", mod.ConflictGroup);
+        Assert.Collection(
+            mod.Credits!,
+            credit =>
+            {
+                Assert.Equal("程序作者", credit.GetRole("zh-cn"));
+                Assert.Equal("Programming", credit.GetRole("fr-fr"));
+                Assert.Equal(["Lw_Ziye"], credit.Names);
+            },
+            credit =>
+            {
+                Assert.Equal("翻译", credit.GetRole("zh-cn"));
+                Assert.Equal(["译者甲", "译者乙"], credit.Names);
+            });
     }
 
     [Fact]

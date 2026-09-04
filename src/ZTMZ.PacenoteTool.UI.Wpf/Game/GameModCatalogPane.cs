@@ -153,6 +153,28 @@ public sealed class GameModCatalogPane : UserControl, IDisposable
         Grid.SetRow(description, 1);
         body.Children.Add(description);
 
+        var footerRow = 2;
+        if (mod.Credits is { Count: > 0 })
+        {
+            body.RowDefinitions.Add(new RowDefinition());
+            var credits = new Expander
+            {
+                Header = Text("gameMods.credits"),
+                Content = new TextBlock
+                {
+                    Text = FormatCredits(mod),
+                    Margin = new Thickness(12, 4, 0, 4),
+                    Opacity = 0.75,
+                    TextWrapping = TextWrapping.Wrap
+                },
+                Margin = new Thickness(0, 0, 0, 7),
+                IsExpanded = false
+            };
+            Grid.SetRow(credits, 2);
+            body.Children.Add(credits);
+            footerRow = 3;
+        }
+
         var footer = new Grid();
         footer.ColumnDefinitions.Add(new ColumnDefinition());
         footer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -179,7 +201,7 @@ public sealed class GameModCatalogPane : UserControl, IDisposable
         }
         Grid.SetColumn(actions, 1);
         footer.Children.Add(actions);
-        Grid.SetRow(footer, 2);
+        Grid.SetRow(footer, footerRow);
         body.Children.Add(footer);
 
         return new Border
@@ -270,6 +292,14 @@ public sealed class GameModCatalogPane : UserControl, IDisposable
     private static string Text(string key) => I18NLoader.Instance[key];
     private static string Format(string key, params object[] arguments) =>
         string.Format(CultureInfo.CurrentCulture, Text(key), arguments);
+    private static string FormatCredits(GameModDefinition mod)
+    {
+        var culture = I18NLoader.Instance.CurrentCultureName;
+        var separator = culture.StartsWith("zh", StringComparison.OrdinalIgnoreCase) ? "、" : ", ";
+        var delimiter = culture.StartsWith("zh", StringComparison.OrdinalIgnoreCase) ? "：" : ": ";
+        return string.Join(Environment.NewLine, mod.Credits!.Select(credit =>
+            credit.GetRole(culture) + delimiter + string.Join(separator, credit.Names)));
+    }
 
     public void Dispose()
     {

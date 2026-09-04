@@ -141,6 +141,14 @@ public sealed class GameModRepositoryClient
             ValidateArchiveRelativePath(dto.ExternalFolderName, false);
         foreach (var path in dto.PreserveExistingPaths)
             ValidateArchiveRelativePath(path, false);
+        foreach (var credit in dto.Credits)
+        {
+            if (credit.Roles.Count == 0 ||
+                credit.Roles.Values.Any(string.IsNullOrWhiteSpace) ||
+                credit.Names.Count == 0 ||
+                credit.Names.Any(string.IsNullOrWhiteSpace))
+                throw new InvalidDataException($"Mod '{dto.Id}' has invalid credit metadata.");
+        }
 
         return new GameModDefinition(
             dto.Id,
@@ -156,7 +164,10 @@ public sealed class GameModRepositoryClient
             dto.ExternalFolderPrefix,
             dto.ConflictGroup,
             dto.ArchiveEntryCodePage,
-            dto.PreserveExistingPaths);
+            dto.PreserveExistingPaths,
+            dto.Credits.Select(credit => new GameModCredit(
+                new Dictionary<string, string>(credit.Roles, StringComparer.OrdinalIgnoreCase),
+                credit.Names.ToList())).ToList());
     }
 
     private static void ValidateIdentifier(string value, string parameterName)
@@ -203,5 +214,12 @@ public sealed class GameModRepositoryClient
         public string? ConflictGroup { get; set; }
         public int? ArchiveEntryCodePage { get; set; }
         public List<string> PreserveExistingPaths { get; set; } = [];
+        public List<GameModCreditDto> Credits { get; set; } = [];
+    }
+
+    private sealed class GameModCreditDto
+    {
+        public Dictionary<string, string> Roles { get; set; } = [];
+        public List<string> Names { get; set; } = [];
     }
 }
