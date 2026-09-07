@@ -1262,7 +1262,26 @@ namespace ZTMZ.PacenoteTool.UI.Windows
                 // _logger.Debug("Setting up graphics..., the factory is: {0}, factory in LuaArgs is {1}", gfx.GetFactory().NativePointer, DashboardScriptArguments.Graphics.GetFactory().NativePointer);
                 // _logger.Debug("Setting up graphics..., the fontFactory is: {0}, fontfactory in LuaArgs is {1}", gfx.GetFontFactory().NativePointer, DashboardScriptArguments.Graphics.GetFontFactory().NativePointer);
                 // load custom fonts
-                gfx.LoadCustomFont(AppLevelVariables.Instance.GetPath(Constants.PATH_FONTS));
+                // Older installers only placed fonts beside the executable, not in the data directory.
+                var fontPaths = new[] {
+                    AppLevelVariables.Instance.GetPath(Constants.PATH_FONTS),
+                    Path.Combine(AppContext.BaseDirectory, Constants.PATH_FONTS)
+                };
+                var customFontsLoaded = false;
+                foreach (var fontPath in fontPaths.Distinct(StringComparer.OrdinalIgnoreCase)) {
+                    try {
+                        if (!Directory.Exists(fontPath) || !Directory.EnumerateFiles(fontPath, "*.ttf").Any())
+                            continue;
+                        gfx.LoadCustomFont(fontPath);
+                        customFontsLoaded = true;
+                        break;
+                    }
+                    catch (Exception ex) {
+                        _logger.Warn(ex, "Unable to load native-overlay fonts from {0}.", fontPath);
+                    }
+                }
+                if (!customFontsLoaded)
+                    _logger.Warn("No custom native-overlay fonts could be loaded; using system fonts.");
                 _brushes["clear"] = gfx.CreateSolidBrush(0x33, 0x36, 0x3F, 0);
                 for (int i = 0; i < Dashboards.Count; i++) {
                     var dashboard = Dashboards[i];

@@ -25,3 +25,8 @@ tools/ACRPacenoteTrace/*.obj
 tmp
 .tmp
 target/
+
+# Local PaceNote reverse-engineering probes and generated IDA output.
+/build/PaceNoteIdaProbe.py
+/build/SearchRbrPacenoteTitle.ps1
+/build/ida-pacenote/
