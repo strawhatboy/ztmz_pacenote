@@ -9,6 +9,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.RBR;
@@ -18,18 +19,28 @@ internal static class RBRModPackageInstaller
     private const string StateDirectoryName = ".ztmz-mods";
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
-    public static string ComputeSha256(string path)
+    public static string ComputeSha256(string path, CancellationToken cancellationToken = default)
     {
         using var stream = File.OpenRead(path);
-        return Convert.ToHexString(SHA256.HashData(stream));
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        var buffer = new byte[81920];
+        int read;
+        while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            hash.AppendData(buffer, 0, read);
+        }
+        return Convert.ToHexString(hash.GetHashAndReset());
     }
 
     public static string ExtractValidatedPackage(
         string archivePath,
         GameModDefinition mod,
-        string operationDirectory)
+        string operationDirectory,
+        CancellationToken cancellationToken = default)
     {
-        var actualHash = ComputeSha256(archivePath);
+        cancellationToken.ThrowIfCancellationRequested();
+        var actualHash = ComputeSha256(archivePath, cancellationToken);
         if (!string.Equals(actualHash, mod.Sha256, StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidDataException($"Package checksum mismatch. Expected {mod.Sha256}, got {actualHash}.");
@@ -50,6 +61,7 @@ internal static class RBRModPackageInstaller
             stream, ZipArchiveMode.Read, leaveOpen: false, entryNameEncoding);
         foreach (var entry in archive.Entries)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var entryPath = NormalizeArchivePath(entry.FullName);
             ValidateArchiveEntry(entryPath, expectedRoot);
             if (entryPath.EndsWith("/", StringComparison.Ordinal))
@@ -115,11 +127,16 @@ internal static class RBRModPackageInstaller
     public static bool HasManagedInstallation(string rbrRoot, GameModDefinition mod) =>
         File.Exists(GetManifestPath(rbrRoot, mod.Id));
 
-    public static void InstallManaged(string packageRoot, string rbrRoot, GameModDefinition mod)
+    public static void InstallManaged(
+        string packageRoot,
+        string rbrRoot,
+        GameModDefinition mod,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var manifestPath = GetManifestPath(rbrRoot, mod.Id);
         var previousManifest = ReadManifest(manifestPath);
-        EnsurePreviouslyManagedFilesAreSafe(rbrRoot, previousManifest);
+        EnsurePreviouslyManagedFilesAreSafe(rbrRoot, previousManifest, cancellationToken);
 
         var packageFiles = Directory.EnumerateFiles(packageRoot, "*", SearchOption.AllDirectories)
             .Select(path => new
@@ -151,6 +168,7 @@ internal static class RBRModPackageInstaller
         {
             foreach (var packageFile in packageFiles)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var relative = NormalizeRelativePath(packageFile.Relative);
                 var destination = ResolveGamePath(rbrRoot, relative);
                 var previous = previousManifest?.Files.FirstOrDefault(file =>
@@ -162,7 +180,7 @@ internal static class RBRModPackageInstaller
                     newManifest.Files.Add(previous ?? new RBRManagedModFile
                     {
                         RelativePath = relative,
-                        InstalledSha256 = ComputeSha256(destination),
+                        InstalledSha256 = ComputeSha256(destination, cancellationToken),
                         OwnedByZtmz = false
                     });
                     continue;
@@ -189,13 +207,15 @@ internal static class RBRModPackageInstaller
                 newManifest.Files.Add(new RBRManagedModFile
                 {
                     RelativePath = relative,
-                    InstalledSha256 = ComputeSha256(destination),
+                    InstalledSha256 = ComputeSha256(destination, cancellationToken),
                     OwnedByZtmz = true,
                     OriginalBackupRelativePath = originalBackupRelativePath
                 });
             }
 
-            RemoveObsoleteManagedFiles(rbrRoot, stateRoot, previousManifest, newManifest, transaction);
+            RemoveObsoleteManagedFiles(
+                rbrRoot, stateRoot, previousManifest, newManifest, transaction, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
             transaction.Capture(manifestPath);
             WriteManifest(manifestPath, newManifest);
             transaction.Commit();
@@ -210,8 +230,12 @@ internal static class RBRModPackageInstaller
         }
     }
 
-    public static int UninstallManaged(string rbrRoot, GameModDefinition mod)
+    public static int UninstallManaged(
+        string rbrRoot,
+        GameModDefinition mod,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var manifestPath = GetManifestPath(rbrRoot, mod.Id);
         var manifest = ReadManifest(manifestPath);
         if (manifest is null)
@@ -224,6 +248,7 @@ internal static class RBRModPackageInstaller
         using var transaction = new FileMutationTransaction();
         foreach (var file in manifest.Files.Where(file => file.OwnedByZtmz))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var destination = ResolveGamePath(rbrRoot, file.RelativePath);
             if (!File.Exists(destination))
             {
@@ -231,7 +256,7 @@ internal static class RBRModPackageInstaller
             }
 
             if (!string.Equals(
-                    ComputeSha256(destination),
+                    ComputeSha256(destination, cancellationToken),
                     file.InstalledSha256,
                     StringComparison.OrdinalIgnoreCase))
             {
@@ -271,8 +296,13 @@ internal static class RBRModPackageInstaller
         return retainedFiles;
     }
 
-    public static void AddToJsgme(string packageRoot, RBRJsgmeRepository repository, GameModDefinition mod)
+    public static void AddToJsgme(
+        string packageRoot,
+        RBRJsgmeRepository repository,
+        GameModDefinition mod,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         Directory.CreateDirectory(repository.ModsDirectory);
         var folderName = mod.ExternalFolderName;
         if (string.IsNullOrWhiteSpace(folderName))
@@ -293,7 +323,8 @@ internal static class RBRModPackageInstaller
         var staging = Path.Combine(repository.ModsDirectory, $".ztmz-stage-{Guid.NewGuid():N}");
         try
         {
-            CopyDirectory(packageRoot, staging);
+            CopyDirectory(packageRoot, staging, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
             Directory.Move(staging, destination);
         }
         finally
@@ -307,7 +338,8 @@ internal static class RBRModPackageInstaller
 
     private static void EnsurePreviouslyManagedFilesAreSafe(
         string rbrRoot,
-        RBRManagedModManifest? manifest)
+        RBRManagedModManifest? manifest,
+        CancellationToken cancellationToken)
     {
         if (manifest is null)
         {
@@ -316,6 +348,7 @@ internal static class RBRModPackageInstaller
 
         foreach (var file in manifest.Files.Where(file => file.OwnedByZtmz))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var destination = ResolveGamePath(rbrRoot, file.RelativePath);
             if (!File.Exists(destination))
             {
@@ -323,7 +356,7 @@ internal static class RBRModPackageInstaller
             }
 
             if (!string.Equals(
-                    ComputeSha256(destination),
+                    ComputeSha256(destination, cancellationToken),
                     file.InstalledSha256,
                     StringComparison.OrdinalIgnoreCase))
             {
@@ -337,7 +370,8 @@ internal static class RBRModPackageInstaller
         string stateRoot,
         RBRManagedModManifest? previous,
         RBRManagedModManifest current,
-        FileMutationTransaction transaction)
+        FileMutationTransaction transaction,
+        CancellationToken cancellationToken)
     {
         if (previous is null)
         {
@@ -349,6 +383,7 @@ internal static class RBRModPackageInstaller
         foreach (var oldFile in previous.Files.Where(file =>
                      file.OwnedByZtmz && !currentPaths.Contains(file.RelativePath)))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var destination = ResolveGamePath(rbrRoot, oldFile.RelativePath);
             if (!File.Exists(destination))
             {
@@ -356,7 +391,7 @@ internal static class RBRModPackageInstaller
             }
 
             if (!string.Equals(
-                    ComputeSha256(destination),
+                    ComputeSha256(destination, cancellationToken),
                     oldFile.InstalledSha256,
                     StringComparison.OrdinalIgnoreCase))
             {
@@ -456,15 +491,20 @@ internal static class RBRModPackageInstaller
         File.Move(temporaryPath, path, overwrite: true);
     }
 
-    private static void CopyDirectory(string source, string destination)
+    private static void CopyDirectory(
+        string source,
+        string destination,
+        CancellationToken cancellationToken)
     {
         foreach (var directory in Directory.EnumerateDirectories(source, "*", SearchOption.AllDirectories))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             Directory.CreateDirectory(Path.Combine(destination, Path.GetRelativePath(source, directory)));
         }
         Directory.CreateDirectory(destination);
         foreach (var file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var target = Path.Combine(destination, Path.GetRelativePath(source, file));
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
             File.Copy(file, target, overwrite: false);

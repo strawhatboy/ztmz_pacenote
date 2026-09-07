@@ -21,6 +21,15 @@ public sealed class GameModCatalogPane : UserControl, IDisposable
     private readonly IGameWithModCatalog _capability;
     private readonly StackPanel _items = new();
     private readonly TextBlock _catalogStatus = new() { Opacity = 0.72, TextWrapping = TextWrapping.Wrap };
+    private readonly ProgressBar _operationProgress = new()
+    {
+        Minimum = 0,
+        Maximum = 1,
+        IsIndeterminate = true,
+        Visibility = Visibility.Collapsed,
+        Height = 4,
+        Margin = new Thickness(0, 5, 0, 7)
+    };
     private readonly GameModRepositoryClient _repositoryClient = new();
     private readonly Button _refreshButton;
     private CancellationTokenSource? _operationCancellation;
@@ -50,6 +59,7 @@ public sealed class GameModCatalogPane : UserControl, IDisposable
         root.Children.Add(_refreshButton);
         _catalogStatus.Text = Text("gameMods.loading");
         root.Children.Add(_catalogStatus);
+        root.Children.Add(_operationProgress);
         root.Children.Add(_items);
 
         var header = new StackPanel
@@ -226,26 +236,42 @@ public sealed class GameModCatalogPane : UserControl, IDisposable
             return;
 
         SetEnabled(false);
+        _operationProgress.Value = 0;
+        _operationProgress.IsIndeterminate = true;
+        _operationProgress.Visibility = Visibility.Visible;
         _operationCancellation = new CancellationTokenSource();
         var progress = new Progress<GameModOperationProgress>(value =>
-            _catalogStatus.Text = Format(value.MessageKey, value.MessageArguments?.ToArray() ?? []));
+        {
+            _catalogStatus.Text = Format(value.MessageKey, value.MessageArguments?.ToArray() ?? []);
+            _operationProgress.IsIndeterminate = !value.Fraction.HasValue;
+            if (value.Fraction.HasValue)
+                _operationProgress.Value = Math.Clamp(value.Fraction.Value, 0, 1);
+        });
         var cancel = new Button
         {
             Content = Text("gameMods.action.cancel"),
             Margin = new Thickness(0, 6, 0, 6),
             HorizontalAlignment = HorizontalAlignment.Left
         };
-        cancel.Click += (_, _) => _operationCancellation.Cancel();
+        cancel.Click += (_, _) => _operationCancellation?.Cancel();
         _items.Children.Insert(0, cancel);
 
-        var result = await _capability.ModManager.ExecuteActionAsync(
-            request.Mod, _mods, request.Action, _game, progress, _operationCancellation.Token);
-        _operationCancellation.Dispose();
-        _operationCancellation = null;
+        GameModOperationResult result;
+        try
+        {
+            result = await _capability.ModManager.ExecuteActionAsync(
+                request.Mod, _mods, request.Action, _game, progress, _operationCancellation.Token);
+        }
+        finally
+        {
+            _operationCancellation.Dispose();
+            _operationCancellation = null;
+            _operationProgress.Visibility = Visibility.Collapsed;
+            SetEnabled(true);
+        }
         _catalogStatus.Text = result.MessageIsResourceKey
             ? Format(result.Message, result.MessageArguments?.ToArray() ?? [])
             : result.Message;
-        SetEnabled(true);
         await RefreshRowsAsync();
     }
 

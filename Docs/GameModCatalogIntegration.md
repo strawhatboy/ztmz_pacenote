@@ -43,6 +43,12 @@ The client accepts HTTPS catalogs only, limits the response to 1 MiB, validates 
 
 When a release asset is replaced, its catalog SHA256 must be updated. The Luppis V3 / Lao Wang package was repacked on 2026-09-03 to place `Audio/` and `Plugins/` directly at ZIP root. Its catalog entry consequently uses an empty `packageRootDirectory`, CP936 filename decoding, and SHA256 `4818B77E1E7349B9267FA45B0ED9988485A93C19D64750DE37F926FF862146DB`.
 
+## Operation progress
+
+Mod managers must keep hashing, extraction, backup, copying, and cleanup off the UI thread. They report a `GameModOperationProgress` fraction during downloads and a null fraction for stages whose length is not known. WPF and Avalonia show determinate or indeterminate progress accordingly.
+
+Cancellation must be checked between archive entries and file mutations. Direct-install operations remain transactional so cancellation or failure rolls back files already changed.
+
 ## RBR direct installation
 
 Direct installs are managed under `<RBR>/.ztmz-mods`:

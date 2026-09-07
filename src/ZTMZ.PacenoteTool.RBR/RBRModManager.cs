@@ -57,7 +57,9 @@ internal sealed class RBRModManager : IGameModManager
             if (!RBRGameInstallPathResolver.TryResolveRoot(game, out var rbrRoot, out _))
                 return new GameModOperationResult(false, "gameMods.status.gamePathMissing");
 
-            var status = GetStatus(mod, catalog, game);
+            var status = await Task.Run(
+                () => GetStatus(mod, catalog, game),
+                cancellationToken);
             if (status.EnabledActions?.Contains(action) != true)
                 return new GameModOperationResult(false, "gameMods.result.actionUnavailable");
 
@@ -76,7 +78,10 @@ internal sealed class RBRModManager : IGameModManager
             if (action == GameModActionKind.Uninstall)
             {
                 progress?.Report(new GameModOperationProgress(null, "gameMods.progress.uninstalling"));
-                var retained = RBRModPackageInstaller.UninstallManaged(rbrRoot, mod);
+                var retained = await Task.Run(
+                    () => RBRModPackageInstaller.UninstallManaged(
+                        rbrRoot, mod, cancellationToken),
+                    cancellationToken);
                 return retained == 0
                     ? new GameModOperationResult(true, "gameMods.result.uninstalled")
                     : new GameModOperationResult(false, "gameMods.result.modifiedFilesRetained", true, [retained]);
@@ -90,21 +95,28 @@ internal sealed class RBRModManager : IGameModManager
                 var archivePath = Path.Combine(operationDirectory, "package.zip");
                 await DownloadAsync(mod.DownloadUri, archivePath, progress, cancellationToken);
                 progress?.Report(new GameModOperationProgress(null, "gameMods.progress.verifying"));
-                var packageRoot = RBRModPackageInstaller.ExtractValidatedPackage(
-                    archivePath, mod, operationDirectory);
-                cancellationToken.ThrowIfCancellationRequested();
+                var packageRoot = await Task.Run(
+                    () => RBRModPackageInstaller.ExtractValidatedPackage(
+                        archivePath, mod, operationDirectory, cancellationToken),
+                    cancellationToken);
 
                 if (action == GameModActionKind.AddToExternalManager)
                 {
                     if (!RBRJsgmeRepositoryLocator.TryLocate(rbrRoot, out var repository))
                         return new GameModOperationResult(false, "gameMods.status.jsgmeMissing");
                     progress?.Report(new GameModOperationProgress(null, "gameMods.progress.addingToJsgme"));
-                    RBRModPackageInstaller.AddToJsgme(packageRoot, repository, mod);
+                    await Task.Run(
+                        () => RBRModPackageInstaller.AddToJsgme(
+                            packageRoot, repository, mod, cancellationToken),
+                        cancellationToken);
                     return new GameModOperationResult(true, "gameMods.result.addedToJsgme");
                 }
 
                 progress?.Report(new GameModOperationProgress(null, "gameMods.progress.installing"));
-                RBRModPackageInstaller.InstallManaged(packageRoot, rbrRoot, mod);
+                await Task.Run(
+                    () => RBRModPackageInstaller.InstallManaged(
+                        packageRoot, rbrRoot, mod, cancellationToken),
+                    cancellationToken);
                 return new GameModOperationResult(true,
                     action == GameModActionKind.Update
                         ? "gameMods.result.updated"
@@ -112,7 +124,7 @@ internal sealed class RBRModManager : IGameModManager
             }
             finally
             {
-                TryDeleteDirectory(operationDirectory);
+                await Task.Run(() => TryDeleteDirectory(operationDirectory));
             }
         }
         catch (OperationCanceledException)
@@ -204,6 +216,8 @@ internal sealed class RBRModManager : IGameModManager
         await using var output = File.Create(destination);
         var buffer = new byte[81920];
         long received = 0;
+        double lastReportedFraction = 0;
+        var lastUnknownLengthReport = Stopwatch.GetTimestamp();
         int read;
         while ((read = await input.ReadAsync(buffer, cancellationToken)) > 0)
         {
@@ -211,9 +225,21 @@ internal sealed class RBRModManager : IGameModManager
             received += read;
             if (received > MaximumPackageBytes)
                 throw new InvalidDataException("The Mod package is larger than the supported 1 GiB limit.");
-            progress?.Report(new GameModOperationProgress(
-                total > 0 ? (double)received / total.Value : null,
-                "gameMods.progress.downloading"));
+            if (total > 0)
+            {
+                var fraction = Math.Min(1, (double)received / total.Value);
+                if (fraction >= 1 || fraction - lastReportedFraction >= 0.005)
+                {
+                    progress?.Report(new GameModOperationProgress(
+                        fraction, "gameMods.progress.downloading"));
+                    lastReportedFraction = fraction;
+                }
+            }
+            else if (Stopwatch.GetElapsedTime(lastUnknownLengthReport) >= TimeSpan.FromMilliseconds(250))
+            {
+                progress?.Report(new GameModOperationProgress(null, "gameMods.progress.downloading"));
+                lastUnknownLengthReport = Stopwatch.GetTimestamp();
+            }
         }
     }
 

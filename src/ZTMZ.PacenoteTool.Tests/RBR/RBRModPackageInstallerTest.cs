@@ -90,6 +90,29 @@ public class RBRModPackageInstallerTest
     }
 
     [Fact]
+    public void ExtractionHonorsCancellationBeforeWritingFiles()
+    {
+        using var directory = new TemporaryDirectory();
+        var archivePath = Path.Combine(directory.Path, "mod.zip");
+        using (var archive = ZipFile.Open(archivePath, ZipArchiveMode.Create))
+        {
+            var entry = archive.CreateEntry("Plugins/plugin.dll");
+            using var writer = new StreamWriter(entry.Open());
+            writer.Write("plugin");
+        }
+        var mod = CreateMod(RBRModPackageInstaller.ComputeSha256(archivePath), packageRoot: string.Empty);
+        var operation = Path.Combine(directory.Path, "operation");
+        Directory.CreateDirectory(operation);
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+
+        Assert.Throws<OperationCanceledException>(() =>
+            RBRModPackageInstaller.ExtractValidatedPackage(
+                archivePath, mod, operation, cancellation.Token));
+        Assert.False(Directory.Exists(Path.Combine(operation, "extracted")));
+    }
+
+    [Fact]
     public void UninstallRetainsFilesChangedAfterManagedInstall()
     {
         using var directory = new TemporaryDirectory();

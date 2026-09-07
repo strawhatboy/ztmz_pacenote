@@ -24,6 +24,13 @@ public sealed class GameModCatalogPane : GameSettingsPane
     private readonly IGameWithModCatalog _capability;
     private readonly StackPanel _items = new() { Spacing = 8 };
     private readonly TextBlock _catalogStatus = new() { Opacity = 0.72, TextWrapping = TextWrapping.Wrap };
+    private readonly ProgressBar _operationProgress = new()
+    {
+        Minimum = 0,
+        Maximum = 1,
+        IsIndeterminate = true,
+        IsVisible = false
+    };
     private readonly GameModRepositoryClient _repositoryClient = new();
     private readonly Button _cancelButton;
     private readonly Button _refreshButton;
@@ -53,6 +60,7 @@ public sealed class GameModCatalogPane : GameSettingsPane
         root.Children.Add(_refreshButton);
         _catalogStatus.Text = Text("gameMods.loading");
         root.Children.Add(_catalogStatus);
+        root.Children.Add(_operationProgress);
         _cancelButton = new Button
         {
             Content = Text("gameMods.action.cancel"),
@@ -185,16 +193,32 @@ public sealed class GameModCatalogPane : GameSettingsPane
         _items.IsEnabled = false;
         _refreshButton.IsEnabled = false;
         _cancelButton.IsVisible = true;
+        _operationProgress.Value = 0;
+        _operationProgress.IsIndeterminate = true;
+        _operationProgress.IsVisible = true;
         _operationCancellation = new CancellationTokenSource();
         var progress = new Progress<GameModOperationProgress>(value =>
-            _catalogStatus.Text = Format(value.MessageKey, value.MessageArguments?.ToArray() ?? []));
-        var result = await _capability.ModManager.ExecuteActionAsync(
-            request.Mod, _mods, request.Action, _game, progress, _operationCancellation.Token);
-        _operationCancellation.Dispose();
-        _operationCancellation = null;
-        _items.IsEnabled = true;
-        _refreshButton.IsEnabled = true;
-        _cancelButton.IsVisible = false;
+        {
+            _catalogStatus.Text = Format(value.MessageKey, value.MessageArguments?.ToArray() ?? []);
+            _operationProgress.IsIndeterminate = !value.Fraction.HasValue;
+            if (value.Fraction.HasValue)
+                _operationProgress.Value = Math.Clamp(value.Fraction.Value, 0, 1);
+        });
+        GameModOperationResult result;
+        try
+        {
+            result = await _capability.ModManager.ExecuteActionAsync(
+                request.Mod, _mods, request.Action, _game, progress, _operationCancellation.Token);
+        }
+        finally
+        {
+            _operationCancellation.Dispose();
+            _operationCancellation = null;
+            _items.IsEnabled = true;
+            _refreshButton.IsEnabled = true;
+            _cancelButton.IsVisible = false;
+            _operationProgress.IsVisible = false;
+        }
         _catalogStatus.Text = result.MessageIsResourceKey
             ? Format(result.Message, result.MessageArguments?.ToArray() ?? [])
             : result.Message;
