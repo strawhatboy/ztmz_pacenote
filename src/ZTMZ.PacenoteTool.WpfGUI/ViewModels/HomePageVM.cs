@@ -728,24 +728,16 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         BindingOperations.EnableCollectionSynchronization(OutputDevices, _collectionLock);
         BindingOperations.EnableCollectionSynchronization(CurrentGameSettings, _collectionLock);
 
-        _tool.onCodriversRefreshed += () => {
-            RunOnUiThread(loadCodrivers);
-        };
-
         _tool.onToolInitialized += () => {
             // update new version settings
             updateConfigSetter.SetConfiguration(_tool);
 
-            // Application.Current.Dispatcher.Invoke(() => {
-                Games.Clear();
-                foreach (var game in _tool.Games) {
-                    Games.Add(new GameWithImage(game));
-                }
-                OutputDevices.Clear();
-                foreach (var device in _tool.OutputDevices) {
-                    OutputDevices.Add(device);
-                }
-            // });
+            Games.Clear();
+            foreach (var game in _tool.Games) {
+                Games.Add(new GameWithImage(game));
+            }
+            // ApplyRuntimeControls owns audio-device and co-driver list and selection updates,
+            // including the StateChanged notification raised during initialization.
             _logger.Info("Tool Initialized. in Home Page.");
             if (Games.Count == 0)
             {
@@ -756,15 +748,6 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
                 RunOnUiThread(InitializeGameSelection);
             }
 
-            if (OutputDevices.Count == 0)
-            {
-                _logger.Warn("No audio output devices were loaded.");
-            }
-            else
-            {
-                SelectedOutputDevice = OutputDevices[(Config.Instance.UI_SelectedPlaybackDevice < 0 || Config.Instance.UI_SelectedPlaybackDevice >= OutputDevices.Count) ? 0 : Config.Instance.UI_SelectedPlaybackDevice];
-            }
-            loadCodrivers();
             FactorToRemoveSpaceFromAudioFiles = _factorToIndex[Config.Instance.FactorToRemoveSpaceFromAudioFiles];
             PlaybackVolume = (float)(Config.Instance.UI_PlaybackVolume + 1000f) / 20f;  // [-1000, 1000] to [0, 100]
             PlaybackSpeed = Config.Instance.UI_PlaybackSpeed;
@@ -975,14 +958,6 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         }
     }
 
-    private void loadCodrivers() {
-        CodriverPackageInfos.Clear();
-        foreach (var codriverPackage in Tool.CoDriverPackages) {
-            CodriverPackageInfos.Add(codriverPackage.Info);
-        }
-        ApplyRuntimeControls();
-    }
-
     [RelayCommand]
     private void GameSelectionChanged()
     {
@@ -1144,7 +1119,11 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
     private void ApplyRuntimeControls()
     {
-        var snapshot = _runtimeControls.GetSnapshot();
+        ApplyRuntimeControls(_runtimeControls.GetSnapshot());
+    }
+
+    private void ApplyRuntimeControls(RuntimeControlsSnapshot snapshot)
+    {
         _isApplyingRuntimeControls = true;
         try
         {
@@ -1165,6 +1144,18 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
                     device.Id,
                     snapshot.SelectedOutputDevice.Id,
                     StringComparison.OrdinalIgnoreCase));
+            // A reinstalled package can retain its identity but have new metadata.
+            // Compare instances so refreshes replace stale entries without rebuilding
+            // the list on unrelated runtime state changes.
+            if (!CodriverPackageInfos.SequenceEqual(snapshot.Codrivers, ReferenceEqualityComparer.Instance))
+            {
+                CodriverPackageInfos.Clear();
+                foreach (var package in snapshot.Codrivers)
+                {
+                    CodriverPackageInfos.Add(package);
+                }
+            }
+
             if (snapshot.SelectedCodriver == null)
             {
                 SelectedCodriver = null;
