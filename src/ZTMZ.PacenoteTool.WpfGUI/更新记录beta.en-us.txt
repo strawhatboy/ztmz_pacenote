@@ -1,3 +1,8 @@
+v2.99.99.49-3.0-rc21
+
+* Fixes WPF startup crashes after a fresh install by installing dashboard fonts in the data folder and falling back safely when custom fonts are missing.
+* Keeps Richard Burns Rally Mod operations responsive, with download progress and cancellation during package processing.
+
 v2.99.99.48-3.0-rc20
 
 * Fixes the native overlay sometimes being covered when a supported game gains focus.
