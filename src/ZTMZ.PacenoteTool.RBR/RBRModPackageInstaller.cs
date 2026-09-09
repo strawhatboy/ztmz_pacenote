@@ -277,20 +277,26 @@ internal static class RBRModPackageInstaller
             }
         }
 
-        if (retainedFiles == 0)
+        var backupRoot = Path.Combine(stateRoot, "backups", mod.Id);
+        if (retainedFiles > 0)
         {
-            transaction.Capture(manifestPath);
-            File.Delete(manifestPath);
-            transaction.Commit();
-            var backupRoot = Path.Combine(stateRoot, "backups", mod.Id);
+            // Keep recovery information outside active installation state so a
+            // subsequent install cannot overwrite the original backups.
+            var archiveRoot = Path.Combine(stateRoot, "uninstalled", mod.Id, Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(archiveRoot);
             if (Directory.Exists(backupRoot))
             {
-                Directory.Delete(backupRoot, recursive: true);
+                CopyDirectory(backupRoot, Path.Combine(archiveRoot, "backup"), cancellationToken);
             }
+            File.Copy(manifestPath, Path.Combine(archiveRoot, "manifest.json"));
         }
-        else
+        cancellationToken.ThrowIfCancellationRequested();
+        transaction.Capture(manifestPath);
+        File.Delete(manifestPath);
+        transaction.Commit();
+        if (Directory.Exists(backupRoot))
         {
-            transaction.Commit();
+            Directory.Delete(backupRoot, recursive: true);
         }
 
         return retainedFiles;

@@ -130,7 +130,41 @@ public class RBRModPackageInstallerTest
 
         Assert.Equal(1, retained);
         Assert.Equal("user modified", File.ReadAllText(installedFile));
-        Assert.True(RBRModPackageInstaller.HasManagedInstallation(gameRoot, mod));
+        Assert.False(RBRModPackageInstaller.HasManagedInstallation(gameRoot, mod));
+        RBRModPackageInstaller.InstallManaged(packageRoot, gameRoot, mod);
+        Assert.True(RBRModPackageInstaller.InspectManagedInstallation(gameRoot, mod).IsIntact);
+        Assert.Equal(0, RBRModPackageInstaller.UninstallManaged(gameRoot, mod));
+        Assert.Equal("user modified", File.ReadAllText(installedFile));
+    }
+
+    [Fact]
+    public void UninstallRecoversPartialUninstallAndArchivesOriginalConfig()
+    {
+        using var directory = new TemporaryDirectory();
+        var gameRoot = Path.Combine(directory.Path, "game");
+        var packageRoot = Path.Combine(directory.Path, "package");
+        Directory.CreateDirectory(Path.Combine(packageRoot, "Plugins"));
+        Directory.CreateDirectory(Path.Combine(gameRoot, "Plugins"));
+        var config = Path.Combine(gameRoot, "Plugins", "settings.ini");
+        File.WriteAllText(config, "original");
+        File.WriteAllText(Path.Combine(packageRoot, "Plugins", "settings.ini"), "defaults");
+        File.WriteAllText(Path.Combine(packageRoot, "Plugins", "plugin.dll"), "binary");
+        var mod = CreateMod(new string('0', 64));
+        RBRModPackageInstaller.InstallManaged(packageRoot, gameRoot, mod);
+        File.WriteAllText(config, "user settings");
+        // Reproduce the previous uninstaller leaving only a changed config.
+        File.Delete(Path.Combine(gameRoot, "Plugins", "plugin.dll"));
+
+        Assert.Equal(1, RBRModPackageInstaller.UninstallManaged(gameRoot, mod));
+        Assert.False(RBRModPackageInstaller.HasManagedInstallation(gameRoot, mod));
+        Assert.Equal("user settings", File.ReadAllText(config));
+        var archivedConfig = Assert.Single(Directory.GetFiles(
+            Path.Combine(gameRoot, ".ztmz-mods", "uninstalled"), "settings.ini", SearchOption.AllDirectories));
+        Assert.Equal("original", File.ReadAllText(archivedConfig));
+        Assert.Equal(0, RBRModPackageInstaller.UninstallManaged(gameRoot, mod));
+        RBRModPackageInstaller.InstallManaged(packageRoot, gameRoot, mod);
+        Assert.True(RBRModPackageInstaller.InspectManagedInstallation(gameRoot, mod).IsIntact);
+        Assert.Equal("original", File.ReadAllText(archivedConfig));
     }
 
     [Fact]

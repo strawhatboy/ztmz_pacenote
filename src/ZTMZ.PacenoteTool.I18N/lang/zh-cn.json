@@ -990,7 +990,7 @@
       "jsgmeReady": "已加入 JSGME；请在 JSGME 中启用",
       "jsgmeEnabled": "已由 JSGME 启用",
       "conflict": "检测到冲突 Mod 或重复安装",
-      "modified": "已安装文件曾被其他程序修改",
+      "modified": "安装后的文件内容有变化（可能包含配置修改）",
       "error": "无法检查此 Mod：{0}"
     },
     "progress": {
@@ -1008,7 +1008,7 @@
       "externalManagerOpened": "JSGME 已打开。",
       "cancelled": "操作已取消。",
       "actionUnavailable": "当前不能执行此操作。",
-      "modifiedFilesRetained": "有 {0} 个被修改的文件已保留，没有删除。",
+      "modifiedFilesRetained": "已卸载；保留了 {0} 个修改过的文件，现在可以重新安装。原始备份已归档到游戏目录的 .ztmz-mods/uninstalled。",
       "openedByUi": "发布页面由应用打开。"
     }
   }

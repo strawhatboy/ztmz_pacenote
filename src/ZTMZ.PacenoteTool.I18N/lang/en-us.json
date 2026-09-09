@@ -992,7 +992,7 @@
       "jsgmeReady": "Added to JSGME; enable it from JSGME",
       "jsgmeEnabled": "Enabled by JSGME",
       "conflict": "A conflicting Mod or duplicate installation is active",
-      "modified": "Installed files were changed outside ZTMZ",
+      "modified": "Installed files have changed (this may include configuration changes)",
       "error": "Could not inspect this Mod: {0}"
     },
     "progress": {
@@ -1010,7 +1010,7 @@
       "externalManagerOpened": "JSGME opened.",
       "cancelled": "Operation cancelled.",
       "actionUnavailable": "This action is not currently available.",
-      "modifiedFilesRetained": "{0} modified files were retained; they were not deleted.",
+      "modifiedFilesRetained": "Uninstalled; {0} modified files were retained. You can install again. Original backups were archived under .ztmz-mods/uninstalled in the game folder.",
       "openedByUi": "The release page is opened by the app."
     }
   }

@@ -84,7 +84,7 @@ internal sealed class RBRModManager : IGameModManager
                     cancellationToken);
                 return retained == 0
                     ? new GameModOperationResult(true, "gameMods.result.uninstalled")
-                    : new GameModOperationResult(false, "gameMods.result.modifiedFilesRetained", true, [retained]);
+                    : new GameModOperationResult(true, "gameMods.result.modifiedFilesRetained", true, [retained]);
             }
 
             var operationDirectory = Path.Combine(
