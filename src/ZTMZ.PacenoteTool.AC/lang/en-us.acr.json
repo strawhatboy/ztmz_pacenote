@@ -7,6 +7,9 @@
                 "replacementChinesePacenotesDescription": "Download acr.7z, copy its acr folder into the game root, and replace all files when prompted."
             },
             "experimental": {
+                "unverifiedBuild": "This ACR version has not been verified. The required FMOD interface is present, but compatibility is not guaranteed and injection may crash the game. Try experimental injection for this session?",
+                "interfaceMissing": "The required FMOD interface is missing or the library is unsupported. Bridge injection was blocked.",
+                "tryUnverified": "Try experimental injection",
                 "enable": "Enable experimental live bridge",
                 "inject": "Inject bridge",
                 "disabled": "Experimental live bridge is not enabled.",

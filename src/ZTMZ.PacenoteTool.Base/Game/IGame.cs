@@ -92,7 +92,8 @@ namespace ZTMZ.PacenoteTool.Base.Game
         LocalBridgeDiagnosticsInfo GetLocalBridgeDiagnostics();
     }
 
-    public sealed record LocalBridgeInjectionResult(bool Succeeded, string Detail);
+    public sealed record LocalBridgeInjectionResult(bool Succeeded, string Detail,
+        Func<Task<LocalBridgeInjectionResult>> ConfirmAndRetry = null);
 
     /// <summary>Allows the desktop UI to request an explicitly opted-in local bridge injection.</summary>
     public interface ILocalGameBridgeControl : ILocalGameBridgeDiagnostics

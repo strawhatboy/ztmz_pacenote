@@ -121,11 +121,18 @@ public sealed class ACRIntegrationProvider : IGameIntegrationProvider
         }
 
         var result = await ACRExperimentalBridgeController.InjectAsync();
+        return WrapResult(result, game);
+    }
+
+    private static GameIntegrationActionResult WrapResult(ACRExperimentalBridgeResult result, IGame game)
+    {
         if (result.Succeeded)
         {
             GameRuntimeNotifications.NotifyLocalBridgeInjected(game);
         }
-        return new GameIntegrationActionResult(result.Succeeded, result.Message);
+        return new GameIntegrationActionResult(result.Succeeded, result.Message,
+            ConfirmAndRetry: result.ConfirmAndRetry is { } retry
+                ? async () => WrapResult(await retry(), game) : null);
     }
 
     private static ACRExperimentalBridgeConfig GetConfiguration(IGameConfig configuration)

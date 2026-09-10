@@ -96,6 +96,10 @@ public class ACRally : IGame, ISteamGameIdentity, ILocalGameBridgeControl, IGame
     public async Task<LocalBridgeInjectionResult> InjectLocalBridgeAsync()
     {
         var result = await ACRExperimentalBridgeController.InjectAsync();
-        return new LocalBridgeInjectionResult(result.Succeeded, result.Message);
+        return WrapInjectionResult(result);
     }
+
+    private static LocalBridgeInjectionResult WrapInjectionResult(ACRExperimentalBridgeResult result) =>
+        new(result.Succeeded, result.Message, result.ConfirmAndRetry is { } retry
+            ? async () => WrapInjectionResult(await retry()) : null);
 }

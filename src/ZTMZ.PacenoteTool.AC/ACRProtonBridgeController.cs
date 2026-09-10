@@ -43,7 +43,7 @@ internal static class ACRProtonBridgeController
             : new ACRExperimentalBridgeStatus(true, true, false, ACRExperimentalBridgeStatusKind.Ready);
     }
 
-    public static async Task<ACRExperimentalBridgeResult> StartAsync()
+    public static async Task<ACRExperimentalBridgeResult> StartAsync(string? approvedBuild = null)
     {
         var endpoint = ACRProtonBridgeRuntime.GetEndpoint();
         if (endpoint is null)
@@ -76,7 +76,9 @@ internal static class ACRProtonBridgeController
 
         var bundle = GetBundlePaths();
         var compatibility = await ValidateCompatibilityAsync(context, bundle.ManifestPath).ConfigureAwait(false);
-        if (!compatibility.Succeeded)
+        if (compatibility.UnverifiedBuild is { } build && build != approvedBuild)
+            return compatibility with { ConfirmAndRetry = () => StartAsync(build) };
+        if (!compatibility.Succeeded && compatibility.UnverifiedBuild is null)
         {
             return compatibility;
         }
@@ -234,6 +236,8 @@ internal static class ACRProtonBridgeController
 
         try
         {
+            if (!await Task.Run(() => ACRBridgeCompatibility.HasRequiredExport(fmodPath)).ConfigureAwait(false))
+                return new ACRExperimentalBridgeResult(false, ZTMZ.PacenoteTool.Base.I18NLoader.Instance["game.acr.experimental.interfaceMissing"]);
             var executableHash = CalculateSha256Async(context.ExecutablePath);
             var fmodHash = CalculateSha256Async(fmodPath);
             await Task.WhenAll(executableHash, fmodHash).ConfigureAwait(false);
@@ -241,7 +245,8 @@ internal static class ACRProtonBridgeController
                 !string.Equals(await fmodHash, manifest.FmodStudioSha256, StringComparison.OrdinalIgnoreCase))
             {
                 return new ACRExperimentalBridgeResult(false,
-                    "This ACR build does not match the bridge manifest. Injection was blocked.");
+                    ZTMZ.PacenoteTool.Base.I18NLoader.Instance["game.acr.experimental.unverifiedBuild"],
+                    $"{await executableHash}:{await fmodHash}");
             }
         }
         catch (Exception exception)

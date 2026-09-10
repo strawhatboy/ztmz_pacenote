@@ -23,7 +23,8 @@ internal enum ACRExperimentalBridgeStatusKind
     Ready
 }
 
-internal sealed record ACRExperimentalBridgeResult(bool Succeeded, string Message);
+internal sealed record ACRExperimentalBridgeResult(bool Succeeded, string Message,
+    string? UnverifiedBuild = null, Func<Task<ACRExperimentalBridgeResult>>? ConfirmAndRetry = null);
 
 internal static class ACRExperimentalBridgeController
 {
@@ -74,11 +75,11 @@ internal static class ACRExperimentalBridgeController
         return I18NLoader.Instance[key];
     }
 
-    public static async Task<ACRExperimentalBridgeResult> InjectAsync()
+    public static async Task<ACRExperimentalBridgeResult> InjectAsync(string? approvedBuild = null)
     {
         if (!OperatingSystem.IsWindows())
         {
-            return await ACRProtonBridgeController.StartAsync();
+            return await ACRProtonBridgeController.StartAsync(approvedBuild);
         }
 
         var status = Inspect();
@@ -100,7 +101,9 @@ internal static class ACRExperimentalBridgeController
 
         var bundle = GetBundlePaths();
         var compatibility = await ValidateCompatibilityAsync(process, bundle.ManifestPath);
-        if (!compatibility.Succeeded)
+        if (compatibility.UnverifiedBuild is { } build && build != approvedBuild)
+            return compatibility with { ConfirmAndRetry = () => InjectAsync(build) };
+        if (!compatibility.Succeeded && compatibility.UnverifiedBuild is null)
         {
             return compatibility;
         }
@@ -173,6 +176,8 @@ internal static class ACRExperimentalBridgeController
 
         try
         {
+            if (!await Task.Run(() => ACRBridgeCompatibility.HasRequiredExport(fmodPath)))
+                return new ACRExperimentalBridgeResult(false, I18NLoader.Instance["game.acr.experimental.interfaceMissing"]);
             var executableHashTask = CalculateSha256Async(executablePath);
             var fmodHashTask = CalculateSha256Async(fmodPath);
             await Task.WhenAll(executableHashTask, fmodHashTask);
@@ -180,7 +185,8 @@ internal static class ACRExperimentalBridgeController
                 !string.Equals(await fmodHashTask, manifest.FmodStudioSha256, StringComparison.OrdinalIgnoreCase))
             {
                 return new ACRExperimentalBridgeResult(false,
-                    "This ACR build does not match the internal bridge manifest. Do not inject until the bridge has been validated for this game update.");
+                    I18NLoader.Instance["game.acr.experimental.unverifiedBuild"],
+                    $"{await executableHashTask}:{await fmodHashTask}");
             }
         }
         catch (Exception exception)

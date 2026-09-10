@@ -871,6 +871,18 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         }
 
         var result = await bridgeControl.InjectLocalBridgeAsync();
+        if (result.ConfirmAndRetry is { } retry)
+        {
+            var unknownVersionConfirmation = await new Wpf.Ui.Controls.MessageBox
+            {
+                Title = I18NLoader.Instance["game.acr.experimental.launchPromptTitle"],
+                Content = result.Detail,
+                PrimaryButtonText = I18NLoader.Instance["game.acr.experimental.tryUnverified"],
+                CloseButtonText = I18NLoader.Instance["dialog.common.btn_cancel"]
+            }.ShowDialogAsync();
+            if (unknownVersionConfirmation != Wpf.Ui.Controls.MessageBoxResult.Primary) return;
+            result = await retry();
+        }
         if (result.Succeeded)
         {
             GameRuntimeNotifications.NotifyLocalBridgeInjected(game);

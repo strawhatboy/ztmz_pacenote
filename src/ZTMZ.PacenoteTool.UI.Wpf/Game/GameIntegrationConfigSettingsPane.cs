@@ -376,6 +376,18 @@ public sealed class GameIntegrationConfigSettingsPane : IGameConfigSettingsPane
                 _configuration,
                 _game,
                 CancellationToken.None);
+            if (result.ConfirmAndRetry is { } retry)
+            {
+                var confirmation = await new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = Localize(action.LabelKey),
+                    Content = result.Message,
+                    PrimaryButtonText = Localize("game.acr.experimental.tryUnverified"),
+                    CloseButtonText = Localize("dialog.common.btn_cancel")
+                }.ShowDialogAsync();
+                if (confirmation != Wpf.Ui.Controls.MessageBoxResult.Primary) return;
+                result = await retry();
+            }
         }
         catch (Exception exception)
         {

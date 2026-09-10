@@ -358,6 +358,19 @@ public sealed class GameIntegrationSettingsPane : GameSettingsPane
         {
             result = await _integrationProvider.ExecuteActionAsync(
                 action.Id, _configuration, _game, CancellationToken.None);
+            if (result.ConfirmAndRetry is { } retry)
+            {
+                var dialog = FaContentDialogFactory.Create(new FAContentDialog
+                {
+                    Title = I18NLoader.Instance[action.LabelKey],
+                    Content = result.Message,
+                    PrimaryButtonText = I18NLoader.Instance["game.acr.experimental.tryUnverified"],
+                    CloseButtonText = I18NLoader.Instance["dialog.common.btn_cancel"],
+                    DefaultButton = FAContentDialogButton.Close
+                });
+                if (await dialog.ShowAsync() != FAContentDialogResult.Primary) return;
+                result = await retry();
+            }
         }
         catch (Exception exception)
         {

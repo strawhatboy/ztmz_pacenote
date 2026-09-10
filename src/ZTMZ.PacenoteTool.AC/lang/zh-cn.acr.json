@@ -7,6 +7,9 @@
                 "replacementChinesePacenotesDescription": "下载 acr.7z，将其中的 acr 文件夹复制到游戏根目录，并在提示时选择全部替换。"
             },
             "experimental": {
+                "unverifiedBuild": "当前 ACR 版本尚未验证。所需 FMOD 接口存在，但不保证兼容，注入可能导致游戏崩溃。是否为本次游戏尝试实验性注入？",
+                "interfaceMissing": "所需 FMOD 接口缺失或库文件不受支持，已禁止注入桥接。",
+                "tryUnverified": "尝试实验性注入",
                 "enable": "启用实验性实时桥接",
                 "inject": "注入桥接 DLL",
                 "disabled": "实验性实时桥接未启用。",

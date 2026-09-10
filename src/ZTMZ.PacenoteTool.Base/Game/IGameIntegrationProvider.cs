@@ -51,7 +51,8 @@ public sealed record GameIntegrationActionResult(
     bool Succeeded,
     string Message,
     bool MessageIsResourceKey = false,
-    IReadOnlyList<object>? MessageArguments = null);
+    IReadOnlyList<object>? MessageArguments = null,
+    Func<Task<GameIntegrationActionResult>>? ConfirmAndRetry = null);
 
 /// <summary>
 /// Describes a game's configuration fields and setup commands without depending on a UI framework.
