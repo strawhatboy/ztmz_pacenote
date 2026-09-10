@@ -1,6 +1,7 @@
 v2.99.99.50-3.0-rc22
 
-* Supports the updated Assetto Corsa Rally live pacenote bridge; unverified game versions can now be tried after an interface check and user confirmation.
+* Adds RBRGAL LIGHTS and SimRallyCN to the online Mod catalog, available from Game Mods.
+* Updates the live pacenote bridge for Assetto Corsa Rally 0.6; unverified game versions can now be tried after an interface check and user confirmation.
 * Fixes RBR Mods becoming impossible to reinstall after uninstalling with modified configuration files; modified files are retained and original backups are archived.
 
 v2.99.99.49-3.0-rc21
