@@ -502,6 +502,7 @@
                 this.staticDirty = true;
             }
 
+            this.host.args.Self.AnimationTimeSeconds = performance.now() / 1000;
             this.host.args.GameData = frame.data;
             this.host.args.GameData.ToString = luaFunction(() =>
                 toJavaScriptString(frame.data.GameDataText));

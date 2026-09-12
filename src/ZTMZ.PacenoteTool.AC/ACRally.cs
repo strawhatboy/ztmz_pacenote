@@ -6,8 +6,11 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.AC;
 
-public class ACRally : IGame, ISteamGameIdentity, ILocalGameBridgeControl, IGameWithIntegrationProviders, IGameWithResourceLinks
+public class ACRally : IGame, ISteamGameIdentity, ILocalGameBridgeControl, IGameWithIntegrationProviders, IGameWithResourceLinks, IGamePacenoteSourcePolicy
 {
+    // Extracted distance tables were an experiment, not a supported fallback.
+    public bool UseLivePacenotesOnly => true;
+
     public string WindowTitle => "Assetto Corsa Rally";
 
     public string Name => "Assetto Corsa Rally";

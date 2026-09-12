@@ -190,8 +190,12 @@ public class NeoLuaRuntimeTest
         }
     }
 
-    [Fact]
-    public void PacenoteRoadbookDashboardRendersMultiTokenCallsAndFadedHistory()
+    [Theory]
+    [InlineData(-0.30)]
+    [InlineData(-0.10)]
+    [InlineData(0)]
+    [InlineData(0.08)]
+    public void PacenoteRoadbookDashboardRendersMultiTokenCallsAndFadedHistory(double rowGap)
     {
         var dashboardSourceDirectory = Path.Combine(AppContext.BaseDirectory, "dashboards", "pacenote_roadbook");
         var scriptPath = Path.Combine(dashboardSourceDirectory, "script.lua");
@@ -231,9 +235,10 @@ public class NeoLuaRuntimeTest
             Assert.Equal(0.05, Convert.ToDouble(dashboard.GetConfigByKey("dashboards.settings.backgroundOpacity")), 2);
             Assert.True(Convert.ToBoolean(dashboard.GetConfigByKey("dashboards.pacenoteRoadbook.showLabels")));
             Assert.Equal(1, Convert.ToInt32(dashboard.GetConfigByKey("dashboards.pacenoteRoadbook.historyRows")));
-            Assert.Equal(0.018, Convert.ToDouble(dashboard.GetConfigByKey("dashboards.pacenoteRoadbook.rowGap")), 3);
-            Assert.Equal(0.02, Convert.ToDouble(dashboard.GetConfigByKey("dashboards.pacenoteRoadbook.iconLabelGap")), 2);
+            Assert.Equal(-0.10, Convert.ToDouble(dashboard.GetConfigByKey("dashboards.pacenoteRoadbook.rowGap")), 3);
+            Assert.Equal(-0.25, Convert.ToDouble(dashboard.GetConfigByKey("dashboards.pacenoteRoadbook.iconLabelGap")), 2);
             dashboard.DashboardConfigurations["dashboards.pacenoteRoadbook.historyRows"] = 2;
+            dashboard.DashboardConfigurations["dashboards.pacenoteRoadbook.rowGap"] = rowGap;
 
             var capture = new DrawingCommandCapture { Width = 1920, Height = 1080 };
             var graphics = new GraphicsCommandProxy(capture);
@@ -289,7 +294,9 @@ public class NeoLuaRuntimeTest
             Assert.Empty(capture.GetCommands().OfType<DrawTextCommand>());
             dashboard.DashboardConfigurations["dashboards.pacenoteRoadbook.showLabels"] = true;
 
-            arguments.GameData = new GameData { Time = 11 };
+            // ACR's race clock stays at zero; animation must use an independent clock.
+            environment.DoChunk("animationClock = 11; function getAnimationTime(args) return animationClock end", "animation-clock.lua");
+            arguments.GameData = new GameData { Time = 0 };
             arguments.GameContext.CurrentPacenote = new PacenotePlaybackSnapshot(
                 140,
                 new[] { new PacenotePlaybackToken("corner_2_right", Array.Empty<string>()) },
@@ -304,7 +311,8 @@ public class NeoLuaRuntimeTest
             Assert.Contains(secondImages, command => command.ImageKey == "pacenote@2_right" && command.Opacity == 1.0f);
             Assert.Contains(secondImages, command => command.ImageKey == "pacenote@6_left" && command.Opacity == 1.0f);
 
-            arguments.GameData = new GameData { Time = 11.28f };
+            environment.DoChunk("animationClock = 11.28", "animation-clock.lua");
+            arguments.GameData = new GameData { Time = 0 };
             capture.ClearCommands();
             environment.CallMember("onUpdate", arguments);
             var settledImages = capture.GetCommands().OfType<DrawImageCommand>().ToList();
@@ -318,6 +326,23 @@ public class NeoLuaRuntimeTest
             Assert.All(
                 fadedHistorySlices.Zip(fadedHistorySlices.Skip(1)),
                 pair => Assert.True(pair.First < pair.Second));
+
+            // With zero history, an outgoing row animates out but is not retained.
+            dashboard.DashboardConfigurations["dashboards.pacenoteRoadbook.historyRows"] = 0;
+            environment.DoChunk("animationClock = 12", "animation-clock.lua");
+            arguments.GameContext.CurrentPacenote = new PacenotePlaybackSnapshot(
+                160, new[] { new PacenotePlaybackToken("6_left", Array.Empty<string>()) },
+                new DateTimeOffset(2026, 8, 17, 10, 0, 2, TimeSpan.Zero), "script", "test.txt", string.Empty);
+            environment.CallMember("onUpdate", arguments);
+            environment.DoChunk("animationClock = 12.14", "animation-clock.lua");
+            capture.ClearCommands();
+            environment.CallMember("onUpdate", arguments);
+            Assert.Contains(capture.GetCommands().OfType<DrawImageCommand>(),
+                image => image.ImageKey == "pacenote@2_right" && image.Opacity > 0 && image.Opacity < 1);
+            environment.DoChunk("animationClock = 12.3", "animation-clock.lua");
+            capture.ClearCommands();
+            environment.CallMember("onUpdate", arguments);
+            Assert.Single(capture.GetCommands().OfType<DrawImageCommand>());
 
             arguments.GameContext.CurrentPacenote = PacenotePlaybackSnapshot.Empty;
             capture.ClearCommands();

@@ -52,6 +52,8 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
     private DamageSoundPlaybackQueue _damageSoundPlaybackQueue;
     private long _damageSoundSession;
     private int _externalPacenoteSessionStarted;
+    private readonly object _liveDispatchLock = new();
+    private Task _liveDispatchTail = Task.CompletedTask;
 
     public IGame CurrentGame => _currentGame;
     public ProfileManager ProfileManager => _profileManager;
@@ -787,7 +789,8 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
 
         // TODO: update UI and Overlay telemetry data
         this.onNewGameData?.Invoke(_currentGame, msg);
-        if (!isRacing || !ShouldPlayExternalPacenotes(_currentGame))
+        if (!isRacing || !ShouldPlayExternalPacenotes(_currentGame) ||
+            !GamePacenoteSourcePolicy.AllowsDistancePlayback(_currentGame))
         {
             // wont play if it's not in racing state
             return;
@@ -798,7 +801,8 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
 
             // play in threads. why??? this may cost a lot !!!
             // play sound (maybe state not changed and audio files not loaded.)
-            if (this._profileManager.CurrentAudioFile != null)
+            if (GamePacenoteSourcePolicy.AllowsDistancePlayback(_currentGame) &&
+                this._profileManager.CurrentAudioFile != null)
             {
                 var spdMperS = msg.Speed / 3.6f;
                 var playPoint = this._profileManager.CurrentAudioFile.Distance + this._playpointAdjust;
@@ -876,11 +880,11 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
             return;
         }
 
-        _ = Task.Run(() =>
+        void DispatchLivePacenote()
         {
             try
             {
-                if (!ReferenceEquals(_currentGame, game) || game.GameDataReader.GameState != GameState.Racing)
+                if (_disposed || !ReferenceEquals(_currentGame, game) || game.GameDataReader.GameState != GameState.Racing)
                 {
                     return;
                 }
@@ -888,16 +892,28 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
                 if (_profileManager.PlayLivePacenote(evt.Record))
                 {
                     PublishPacenoteDispatch(PacenotePlaybackSnapshot.FromRecord(
-                        evt.Record,
+                        evt.DisplayRecord ?? evt.Record,
                         "live",
-                        stageId: evt.StageId));
+                        stageId: evt.StageId) with { GroupId = evt.DisplayGroupId });
                 }
             }
             catch (Exception exception)
             {
                 _logger.Error(exception, "Failed to play live pacenote {0} for {1}.", evt.Id, game.Name);
             }
-        });
+        }
+
+        if (!string.IsNullOrEmpty(evt.DisplayGroupId))
+        {
+            // ACR fragments and their accumulating display snapshots must retain arrival order.
+            lock (_liveDispatchLock)
+                _liveDispatchTail = _liveDispatchTail.ContinueWith(
+                    _ => DispatchLivePacenote(), TaskScheduler.Default);
+        }
+        else
+        {
+            _ = Task.Run(DispatchLivePacenote);
+        }
     }
 
     private void carDamagedEventHandler(CarDamageEvent evt)

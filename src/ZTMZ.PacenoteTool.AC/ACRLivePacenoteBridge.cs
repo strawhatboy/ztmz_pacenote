@@ -26,6 +26,7 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
         PropertyNameCaseInsensitive = true
     };
     private readonly Action<LivePacenoteEvent> _publish;
+    private readonly ACRPacenoteDisplayAssembler _displayAssembler = new();
     private readonly Action<GameState, Dictionary<string, object>?> _publishGameState;
     private readonly Action<CarDamageEvent> _publishCarDamage;
     private readonly CancellationTokenSource _cancellation = new();
@@ -200,9 +201,12 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
             EnsureActiveRaceAttached();
         }
 
+        var display = _displayAssembler.Append(record, message.Placement);
         _publish(new LivePacenoteEvent
         {
             Id = eventId,
+            DisplayRecord = display.Record,
+            DisplayGroupId = display.GroupId,
             StageId = message.StageId ?? string.Empty,
             Record = record,
             SourceResourceName = message.RawSoundName,
@@ -489,7 +493,8 @@ internal static class ACRPacenoteTokenTranslator
             ["DontCut"] = "dont_cut", ["Caution"] = "caution", ["SlowDown"] = "slow", ["Sudden"] = "sudden", ["Narrows"] = "narrows", ["KeepLeft"] = "keep_left", ["KeepIn"] = "keep_in", ["KeepOut"] = "keep_out",
             ["Finish"] = "finish", ["Inside"] = "inside", ["Late"] = "late", ["AfterEnd"] = "after", ["AfterFinish"] = "after,finish", ["AfterJunction"] = "after,junction", ["AtJunction"] = "at_junction", ["AtTheJunction"] = "at_junction",
             ["BadCamber"] = "bad_camber", ["BigCut"] = "big_cut", ["Blind"] = "unseen", ["Brake"] = "brake", ["Bumps"] = "bumps", ["Cut"] = "cut", ["DitchInside"] = "ditches_inside", ["DitchOutside"] = "ditches_outside",
-            ["GoLeft"] = "go,left", ["GoRight"] = "go,right", ["GoStraight"] = "go_straight", ["HeavyBrake"] = "hard,brake", ["IntoDip"] = "into,dip", ["JumpMaybe"] = "jump_maybe", ["Junction"] = "junction",
+            // Direction instructions at junctions; ZTMZ's "go" means the race-start cue.
+            ["GoLeft"] = "left", ["GoRight"] = "right", ["GoStraight"] = "go_straight", ["HeavyBrake"] = "hard,brake", ["IntoDip"] = "into,dip", ["JumpMaybe"] = "jump_maybe", ["Junction"] = "junction",
             ["KeepMiddle"] = "keep_middle", ["KeepRight"] = "keep_in,right", ["Kinks"] = "kinks", ["KinksStartingLeft"] = "kinks,slight_left", ["KinksStartingRight"] = "kinks,slight_right", ["LeftAcuteHP"] = "hairpin_left", ["LeftFlat"] = "flat_left", ["LeftKink"] = "kinks,slight_left", ["LeftOpenHP"] = "hairpin_left,opens", ["LeftSquare"] = "square_left",
             ["LogsInside"] = "logs_inside", ["LogsOutside"] = "logs_outside", ["OnAsphalt"] = "tarmac", ["OnGravel"] = "gravel", ["Over"] = "over", ["OverBridge"] = "over_bridge", ["OverBump"] = "over_bumps", ["OverJumpSmall"] = "over_small_jump",
             ["RightAcuteHP"] = "hairpin_right", ["RightChicane"] = "chicane", ["RightChicaneEntry"] = "right_entry_chicane", ["RightFlat"] = "flat_right", ["RightKink"] = "kinks,slight_right", ["RightOpenHP"] = "hairpin_right,opens", ["RightSquare"] = "square_right",

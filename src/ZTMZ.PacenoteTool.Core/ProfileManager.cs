@@ -382,6 +382,18 @@ namespace ZTMZ.PacenoteTool.Core
         {
             _logger.Trace("Start playing pacenotes: {0} {1}", game.Name, itinerary);
             SetActiveGameAudioProvider(game);
+            if (!GamePacenoteSourcePolicy.AllowsDistancePlayback(game))
+            {
+                this.AudioFiles.Clear();
+                this.AudioPacenoteCount = 0;
+                this.ScriptPacenoteCount = 0;
+                this.CurrentScriptReader = null;
+                this.CurrentScriptPath = string.Empty;
+                this.CurrentItineraryPath = string.Empty;
+                this.CurrentPlayIndex = 0;
+                _logger.Info("Using live pacenotes only for {0}; distance scripts are disabled.", game.Name);
+                return;
+            }
             // bydefault playMode=1, script mode, only.
             this.CurrentItineraryPath = this.GetRecordingsFolder(game, itinerary);
             // this.CurrentScriptPath = this.GetScriptFile(itinerary);

@@ -16,7 +16,7 @@
 #endif
 #define MyAppVersion GetVersionNumbersString(MyAppPublishPath)
 #ifndef MyAppReleaseSuffix
-  #define MyAppReleaseSuffix "-rc22"
+  #define MyAppReleaseSuffix "-rc23"
 #endif
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
@@ -411,7 +411,7 @@ Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\default";
 ; Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\*.json"; Excludes:"config.json,userconfig.json,*.deps.json,*.runtimeconfig.json"; DestDir: "{code:GetZTMZHome}"; Flags: ignoreversion
 ; Source: "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\*.csv"; DestDir: "{code:GetZTMZHome}"; Flags: ignoreversion
 Source: "{#MyAppPublishRoot}\codrivers\*"; DestDir: "{code:GetZTMZHome}\codrivers"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#MyAppPublishRoot}\profiles\*"; DestDir: "{code:GetZTMZHome}\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
+Source: "{#MyAppPublishRoot}\profiles\*"; Excludes: "default\Assetto Corsa Rally\*"; DestDir: "{code:GetZTMZHome}\profiles"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 Source: "{#MyAppPublishRoot}\lang\*"; DestDir: "{code:GetZTMZHome}\lang"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\games\*"; Excludes:"*.json,dashboards\*"; DestDir: "{code:GetInstallDir}\games"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\games\lang\*.json"; DestDir: "{code:GetInstallDir}\games\lang"; Flags: ignoreversion recursesubdirs createallsubdirs

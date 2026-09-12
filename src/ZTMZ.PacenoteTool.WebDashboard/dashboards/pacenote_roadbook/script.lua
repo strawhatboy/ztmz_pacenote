@@ -1,5 +1,7 @@
 local resources = {};
 local currentRow = nil;
+local outgoingRow = nil;
+local appendDuration = 0.15;
 local history = {};
 local lastDispatchSignature = nil;
 local transitionStartedAt = nil;
@@ -22,6 +24,7 @@ end
 
 function resetRoadbook()
     currentRow = nil;
+    outgoingRow = nil;
     history = {};
     lastDispatchSignature = nil;
     transitionStartedAt = nil;
@@ -76,10 +79,12 @@ function createRow(snapshot, self)
             end
         end
     end
-    return { items = items };
+    return { items = items, groupId = snapshot.GroupId };
 end
 
 function updateCurrentRow(args, historyRows)
+    while #history > historyRows do table.remove(history); end
+    if historyRows > 0 then outgoingRow = nil; end
     local snapshot = args.GameContext ~= nil and args.GameContext.CurrentPacenote or nil;
     if snapshot == nil or getCollectionCount(snapshot.Tokens) == 0 then
         if currentRow ~= nil or #history > 0 then
@@ -93,8 +98,20 @@ function updateCurrentRow(args, historyRows)
         return;
     end
 
+    if currentRow ~= nil and snapshot.GroupId ~= nil and snapshot.GroupId ~= ""
+        and currentRow.groupId == snapshot.GroupId then
+        local nextRow = createRow(snapshot, args.Self);
+        nextRow.fromLayout = currentRow.layout;
+        nextRow.appendStartedAt = getAnimationTime(args);
+        currentRow = nextRow;
+        lastDispatchSignature = signature;
+        return;
+    end
+
     if currentRow ~= nil and historyRows > 0 then
         table.insert(history, 1, currentRow);
+    elseif currentRow ~= nil then
+        outgoingRow = currentRow;
     end
     while #history > historyRows do
         table.remove(history);
@@ -102,16 +119,21 @@ function updateCurrentRow(args, historyRows)
 
     currentRow = createRow(snapshot, args.Self);
     lastDispatchSignature = signature;
-    transitionStartedAt = args.GameData ~= nil and args.GameData.Time or nil;
+    transitionStartedAt = getAnimationTime(args);
+end
+
+function getAnimationTime(args)
+    return args.Self.AnimationTimeSeconds;
 end
 
 function getTransitionProgress(args)
-    if transitionStartedAt == nil or args.GameData == nil or args.GameData.Time == nil then
+    local now = getAnimationTime(args);
+    if transitionStartedAt == nil or now == nil then
         return 1;
     end
-    local elapsed = args.GameData.Time - transitionStartedAt;
+    local elapsed = now - transitionStartedAt;
     if elapsed < 0 then
-        transitionStartedAt = args.GameData.Time;
+        transitionStartedAt = now;
         return 1;
     end
     local progress = math.max(0, math.min(1, elapsed / transitionDuration));
@@ -183,24 +205,46 @@ function drawRow(gfx, self, row, left, top, width, height, opacity, textBrush, s
     local iconSize = math.min(iconAreaHeight * 0.88, cellWidth * 0.86);
     local iconTop = top + (iconAreaHeight - iconSize) * 0.5;
 
+    local appendProgress = 1;
+    if row.appendStartedAt ~= nil and self.AnimationTimeSeconds ~= nil then
+        local p = math.max(0, math.min(1, (self.AnimationTimeSeconds - row.appendStartedAt) / appendDuration));
+        appendProgress = 1 - (1 - p) * (1 - p);
+    end
+    local layout = {};
+
     for index, item in ipairs(row.items) do
         local centerX = startX + (index - 0.5) * cellWidth;
+        local itemSize = iconSize;
+        local itemOpacity = 1;
+        if row.fromLayout ~= nil and appendProgress < 1 then
+            local previous = row.fromLayout[index];
+            if previous ~= nil then
+                centerX = left + previous.x + (centerX - left - previous.x) * appendProgress;
+                itemSize = previous.size + (iconSize - previous.size) * appendProgress;
+                itemOpacity = previous.opacity + (1 - previous.opacity) * appendProgress;
+            else
+                itemOpacity = appendProgress;
+            end
+        end
+        layout[index] = { x = centerX - left, size = itemSize, opacity = itemOpacity };
+        local drawOpacity = opacity * itemOpacity;
+        local itemTop = top + (iconAreaHeight - itemSize) * 0.5;
         local image = item.imageKey ~= nil and self.ImageResources[item.imageKey] or nil;
         if image ~= nil then
             gfx.DrawImage(
                 image,
-                centerX - iconSize * 0.5,
-                iconTop,
-                centerX + iconSize * 0.5,
-                iconTop + iconSize,
-                opacity);
+                centerX - itemSize * 0.5,
+                itemTop,
+                centerX + itemSize * 0.5,
+                itemTop + itemSize,
+                drawOpacity);
         else
             local fallbackSize = math.max(10, math.min(22, iconSize * 0.20));
             drawCenteredText(
                 gfx,
                 resources.font,
                 fallbackSize,
-                getUnknownTextBrush(gfx, opacity),
+                getUnknownTextBrush(gfx, drawOpacity),
                 centerX,
                 iconTop + iconSize * 0.38,
                 displayLabel(item),
@@ -213,13 +257,14 @@ function drawRow(gfx, self, row, left, top, width, height, opacity, textBrush, s
                 gfx,
                 resources.font,
                 labelSize,
-                textBrush,
+                itemOpacity < 1 and getHistoryTextBrush(gfx, drawOpacity) or textBrush,
                 centerX,
                 top + iconAreaHeight + iconLabelGap + labelHeight * 0.18,
                 displayLabel(item),
                 cellWidth * 0.92);
         end
     end
+    row.layout = layout;
 end
 
 function drawHistoryRow(
@@ -271,15 +316,19 @@ function onUpdate(args)
 
     local gfx = args.Graphics;
     local showLabels = self.GetConfigByKey("dashboards.pacenoteRoadbook.showLabels") ~= false;
-    local rowGapRatio = math.max(0, math.min(0.08, self.GetConfigByKey("dashboards.pacenoteRoadbook.rowGap") or 0.018));
-    local iconLabelGapRatio = math.max(0, math.min(0.12, self.GetConfigByKey("dashboards.pacenoteRoadbook.iconLabelGap") or 0.02));
+    local rowGapRatio = math.max(-0.30, math.min(0.08, self.GetConfigByKey("dashboards.pacenoteRoadbook.rowGap") or -0.10));
+    local iconLabelGapRatio = math.max(-0.40, math.min(0.30, self.GetConfigByKey("dashboards.pacenoteRoadbook.iconLabelGap") or -0.25));
     local left, top, width, height = getDashboardPositionStart(self, gfx, whRatio);
     local visibleHistoryRows = math.min(historyRows, #history);
     local totalSlots = math.max(1, historyRows + 1);
     local rowGap = height * rowGapRatio;
     local rowHeight = (height - rowGap * historyRows) / totalSlots;
     local currentTop = top + historyRows * (rowHeight + rowGap);
+    -- Negative gaps let history extend below currentTop; include that area in
+    -- the fade instead of clamping several lower slices to the same opacity.
+    local historyBottom = currentTop + math.max(0, -rowGap);
     local progress = getTransitionProgress(args);
+    if progress >= 1 then outgoingRow = nil; end
     local backgroundOpacity = math.max(0, math.min(1, self.GetConfigByKey("dashboards.settings.backgroundOpacity") or 0.42));
     local backgroundAlpha = math.floor(backgroundOpacity * 210 + 0.5);
     local backgroundBrush = resources.background[backgroundAlpha];
@@ -302,11 +351,18 @@ function onUpdate(args)
             width,
             rowHeight,
             top,
-            currentTop,
+            historyBottom,
             progress,
             slot == 1,
             showLabels,
             iconLabelGapRatio);
+    end
+
+    if historyRows == 0 and outgoingRow ~= nil then
+        gfx.ClipRegionStart(left, top, left + width, top + height);
+        drawRow(gfx, self, outgoingRow, left, currentTop - progress * (rowHeight + rowGap),
+            width, rowHeight, 1 - progress, getHistoryTextBrush(gfx, 1 - progress), showLabels, iconLabelGapRatio);
+        gfx.ClipRegionEnd();
     end
 
     drawRow(

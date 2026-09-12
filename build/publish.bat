@@ -88,7 +88,7 @@ if errorlevel 1 exit /b %errorlevel%
 
 if exist "%ZTMZ_PACKAGE_DATA_HOME%\profiles\default\" (
     mkdir "%RELEASE_DATA_ROOT%\profiles\default"
-    xcopy "%ZTMZ_PACKAGE_DATA_HOME%\profiles\default\*" "%RELEASE_DATA_ROOT%\profiles\default\" /E /I /Y /V /Q >nul
+    xcopy "%ZTMZ_PACKAGE_DATA_HOME%\profiles\default\*" "%RELEASE_DATA_ROOT%\profiles\default\" /E /I /Y /V /Q /EXCLUDE:"%~dp0release-profile-excludes.txt" >nul
     if errorlevel 1 exit /b %errorlevel%
 )
 

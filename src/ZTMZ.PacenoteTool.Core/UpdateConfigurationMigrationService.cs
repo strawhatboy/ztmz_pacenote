@@ -66,6 +66,7 @@ public sealed class UpdateConfigurationMigrationService
     {
         return new Dictionary<Version, Action<ZTMZPacenoteTool>>
         {
+            [new Version("2.99.99.51")] = _ => MispackagedAcrProfileMigration.Remove(_paths.GetPath("")),
             [new Version("2.99.99.20")] = tool =>
             {
                 SetUdpPort(tool, "Dirt Rally 1.0", 30000);

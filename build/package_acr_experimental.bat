@@ -66,7 +66,7 @@ if errorlevel 1 goto :failed
 
 if exist "%ZTMZ_PACKAGE_DATA_HOME%\profiles\default\" (
     mkdir "%RELEASE_ROOT%\profiles\default"
-    xcopy "%ZTMZ_PACKAGE_DATA_HOME%\profiles\default\*" "%RELEASE_ROOT%\profiles\default\" /E /I /Y /V /Q >nul
+    xcopy "%ZTMZ_PACKAGE_DATA_HOME%\profiles\default\*" "%RELEASE_ROOT%\profiles\default\" /E /I /Y /V /Q /EXCLUDE:"%~dp0release-profile-excludes.txt" >nul
     if errorlevel 1 goto :failed
 )
 

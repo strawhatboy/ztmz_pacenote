@@ -1,3 +1,14 @@
+v2.99.99.51-3.0-rc23
+------
+[English]
+* Fixes duplicate ACR pacenote calls by using only the live bridge; removes accidentally bundled local ACR pacenotes automatically on upgrade.
+* Fixes ACR junction direction calls incorrectly playing the race-start “Go” cue.
+* Groups ACR compound calls on one dashboard row and fixes overlapping current and previous calls.
+[简体中文]
+* 修复 ACR 路书重复播报：仅使用实时桥接播报，并在升级后自动删除误打包的 ACR 本地路书。
+* 修复 ACR 路口向左、向右指令被误播为“出发”的问题。
+* 改进 ACR 路书仪表盘：组合指令显示在同一行，并修复新旧路书重叠。
+
 v2.99.99.50-3.0-rc22
 ------
 [English]

@@ -15,6 +15,8 @@ public sealed record PacenotePlaybackSnapshot(
     string ScriptPath,
     string StageId)
 {
+    public string GroupId { get; init; } = string.Empty;
+
     public static readonly PacenotePlaybackSnapshot Empty = new(
         null,
         Array.Empty<PacenotePlaybackToken>(),

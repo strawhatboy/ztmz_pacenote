@@ -299,6 +299,9 @@ public class Dashboard {
                 : string.Empty;
     }
 
+    public double AnimationTimeSeconds =>
+        (double)System.Diagnostics.Stopwatch.GetTimestamp() / System.Diagnostics.Stopwatch.Frequency;
+
     public string ResolvePacenoteDisplayName(string token) {
         var canonicalToken = ResolvePacenoteIconToken(token);
         var labelToken = string.IsNullOrWhiteSpace(canonicalToken) ? token : canonicalToken;

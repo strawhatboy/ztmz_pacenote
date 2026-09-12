@@ -1,3 +1,9 @@
+v2.99.99.51-3.0-rc23
+
+* Fixes duplicate ACR pacenote calls by using only the live bridge; removes accidentally bundled local ACR pacenotes automatically on upgrade.
+* Fixes ACR junction direction calls incorrectly playing the race-start “Go” cue.
+* Groups ACR compound calls on one dashboard row and fixes overlapping current and previous calls.
+
 v2.99.99.50-3.0-rc22
 
 * Adds RBRGAL LIGHTS and SimRallyCN to the online Mod catalog, available from Game Mods.

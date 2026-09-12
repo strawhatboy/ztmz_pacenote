@@ -2,6 +2,11 @@
 setlocal
 cd /d "%~dp0"
 if errorlevel 1 exit /b 1
+if /I "%~1"=="bridge-pipe-trace" (
+    cl /nologo /std:c++20 /EHsc /LD /O2 /I third_party\minhook\include ACRBridgePipeTrace.cpp third_party\minhook\src\buffer.c third_party\minhook\src\hook.c third_party\minhook\src\trampoline.c third_party\minhook\src\hde\hde64.c /link /OUT:ACRBridgePipeTrace.dll
+    if errorlevel 1 exit /b 1
+    exit /b 0
+)
 set TRACE_OUTPUT=ACRPacenoteTrace.dll
 if not "%~1"=="" set TRACE_OUTPUT=%~1
 call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
