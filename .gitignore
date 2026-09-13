@@ -7,6 +7,10 @@ Output
 build/target
 build/target*
 build/avalonia-publish-probe/
+# Local build logs and Mod archives prepared for upload.
+/build/*.log
+/build/mod-uploads/**/*.zip
+/build/resource-cache/
 artifacts/
 # Monaco is vendored for the offline script editor. Keep its pinned runtime in
 # source control so publish output does not depend on a CDN or npm at build time.

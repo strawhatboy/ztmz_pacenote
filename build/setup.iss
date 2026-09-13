@@ -16,7 +16,7 @@
 #endif
 #define MyAppVersion GetVersionNumbersString(MyAppPublishPath)
 #ifndef MyAppReleaseSuffix
-  #define MyAppReleaseSuffix "-rc23"
+  #define MyAppReleaseSuffix "-rc24"
 #endif
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
@@ -232,6 +232,7 @@ end;
 procedure InitializeWizard;
 var
   ProjectLinkLabel: TNewLinkLabel;
+  ConfiguredDataHome: String;
 begin
   { the link label at bottom left}
   ProjectLinkLabel := TNewLinkLabel.Create(WizardForm);
@@ -257,11 +258,19 @@ begin
   { there are no data stored from the previous installation, use default folders }
   { of your choice }
   DirPage.Values[0] := GetPreviousData('InstallDir', ExpandConstant('{autopf}\{#MyAppInstallFolder}'));
-  try
-    DirPage.Values[1] := GetPreviousData('ZTMZHome', ExpandConstant('{userdocs}\My Games\{#FolderName}'));
-  except
-    { damn, some user has their documents folder interrputed, try appdata }
-    DirPage.Values[1] := GetPreviousData('ZTMZHome', ExpandConstant('{autoappdata}\{#FolderName}'));
+  { The application may have moved its data folder since the last installation. }
+  ConfiguredDataHome := '';
+  RegQueryStringValue(HKEY_CURRENT_USER, 'Software\{#MyAppName}', 'ZTMZHome', ConfiguredDataHome);
+  if Trim(ConfiguredDataHome) <> '' then
+    DirPage.Values[1] := ConfiguredDataHome
+  else
+  begin
+    try
+      DirPage.Values[1] := GetPreviousData('ZTMZHome', ExpandConstant('{userdocs}\My Games\{#FolderName}'));
+    except
+      { Fall back if the user's Documents folder cannot be resolved. }
+      DirPage.Values[1] := GetPreviousData('ZTMZHome', ExpandConstant('{autoappdata}\{#FolderName}'));
+    end;
   end;
 
   DirPage.Buttons[0].OnClick := @AppendDirBrowseClick;

@@ -49,26 +49,8 @@ copy /Y "%BRIDGE_SOURCE%\ACRFmodLivePacenoteBridge.dll" "%BRIDGE_TARGET%\" >nul
 copy /Y "%BRIDGE_SOURCE%\ACRProtonRelay.exe" "%BRIDGE_TARGET%\" >nul
 copy /Y "%SOURCE_ROOT%\ZTMZ.PacenoteTool.AC\ExperimentalBridge\acr-live-bridge.manifest.json" "%BRIDGE_TARGET%\" >nul
 
-if not defined ZTMZ_PACKAGE_DATA_HOME (
-    for /f "usebackq delims=" %%H in (`powershell -NoProfile -Command "$config = Get-ItemProperty -Path 'HKCU:\Software\ZTMZ Next Generation Pacenote Tool' -ErrorAction SilentlyContinue; if ($config -and $config.ZTMZHome) { [Console]::Write($config.ZTMZHome) }"`) do set "ZTMZ_PACKAGE_DATA_HOME=%%H"
-)
-if not defined ZTMZ_PACKAGE_DATA_HOME set "ZTMZ_PACKAGE_DATA_HOME=%USERPROFILE%\Documents\My Games\ZTMZClub_nextgen"
-
-set "DEFAULT_CODRIVER_SOURCE=%ZTMZ_PACKAGE_DATA_HOME%\codrivers\default"
-if not exist "%DEFAULT_CODRIVER_SOURCE%\info.json" (
-    echo Default co-driver package was not found: "%DEFAULT_CODRIVER_SOURCE%"
-    goto :failed
-)
-
-mkdir "%RELEASE_ROOT%\codrivers\default"
-xcopy "%DEFAULT_CODRIVER_SOURCE%\*" "%RELEASE_ROOT%\codrivers\default\" /E /I /Y /V /Q >nul
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\build\stage_release_resources.ps1" -DestinationRoot "%RELEASE_ROOT%"
 if errorlevel 1 goto :failed
-
-if exist "%ZTMZ_PACKAGE_DATA_HOME%\profiles\default\" (
-    mkdir "%RELEASE_ROOT%\profiles\default"
-    xcopy "%ZTMZ_PACKAGE_DATA_HOME%\profiles\default\*" "%RELEASE_ROOT%\profiles\default\" /E /I /Y /V /Q /EXCLUDE:"%~dp0release-profile-excludes.txt" >nul
-    if errorlevel 1 goto :failed
-)
 
 ISCC /V:1 /O"%ROOT%\Output" setup_acr_experimental.iss
 if errorlevel 1 goto :failed

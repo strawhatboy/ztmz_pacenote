@@ -1,6 +1,7 @@
 @echo off
 
 set currentDir=%cd%
+set "ZTMZ_RELEASE_SCRIPT_DIR=%~dp0"
 
 cd /D "%~dp0"
 rem clean publish folder
@@ -68,29 +69,10 @@ copy /Y "..\tools\ACRPacenoteTrace\ACRFmodLivePacenoteBridge.dll" "target\publis
 copy /Y "..\tools\ACRPacenoteTrace\ACRProtonRelay.exe" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge\" >nul
 copy /Y "..\src\ZTMZ.PacenoteTool.AC\ExperimentalBridge\acr-live-bridge.manifest.json" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge\" >nul
 
-rem stage only release defaults from the configured application-data directory
-if not defined ZTMZ_PACKAGE_DATA_HOME (
-    for /f "usebackq delims=" %%H in (`powershell -NoProfile -Command "$config = Get-ItemProperty -Path 'HKCU:\Software\ZTMZ Next Generation Pacenote Tool' -ErrorAction SilentlyContinue; if ($config -and $config.ZTMZHome) { [Console]::Write($config.ZTMZHome) }"`) do set "ZTMZ_PACKAGE_DATA_HOME=%%H"
-)
-if not defined ZTMZ_PACKAGE_DATA_HOME set "ZTMZ_PACKAGE_DATA_HOME=%USERPROFILE%\Documents\My Games\ZTMZClub_nextgen"
-
+rem Stage only pinned online release resources; never read personal application data.
 set "RELEASE_DATA_ROOT=target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64"
-set "DEFAULT_CODRIVER_SOURCE=%ZTMZ_PACKAGE_DATA_HOME%\codrivers\default"
-
-if not exist "%DEFAULT_CODRIVER_SOURCE%\info.json" (
-    echo Default co-driver package was not found: "%DEFAULT_CODRIVER_SOURCE%"
-    exit /b 1
-)
-
-mkdir "%RELEASE_DATA_ROOT%\codrivers\default"
-xcopy "%DEFAULT_CODRIVER_SOURCE%\*" "%RELEASE_DATA_ROOT%\codrivers\default\" /E /I /Y /V /Q >nul
-if errorlevel 1 exit /b %errorlevel%
-
-if exist "%ZTMZ_PACKAGE_DATA_HOME%\profiles\default\" (
-    mkdir "%RELEASE_DATA_ROOT%\profiles\default"
-    xcopy "%ZTMZ_PACKAGE_DATA_HOME%\profiles\default\*" "%RELEASE_DATA_ROOT%\profiles\default\" /E /I /Y /V /Q /EXCLUDE:"%~dp0release-profile-excludes.txt" >nul
-    if errorlevel 1 exit /b %errorlevel%
-)
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ZTMZ_RELEASE_SCRIPT_DIR%stage_release_resources.ps1" -DestinationRoot "%RELEASE_DATA_ROOT%"
+if errorlevel 1 goto :publish_failed
 
 cd /D "%currentDir%"
 

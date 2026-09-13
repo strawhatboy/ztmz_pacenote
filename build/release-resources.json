@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "audio": {
+    "url": "https://gitee.com/ztmz/ztmz_audio_pkgs/releases/download/v1.1/default.zpak",
+    "archiveSha256": "3b51c9c2982023ba7c4ad9cfe7be6b179688a229e89639ca8bd01a0017286ba0",
+    "files": 580,
+    "sha256": "a6041052da42484bfe7123d1f0496506f6c836e2db4675671139b4edea7f772a"
+  },
+  "profiles": {
+    "repository": "git@gitee.com:ztmz/dr2_pacenote_scripts.git",
+    "commit": "b7b914354eb0c413e20988c37919f8ded52c1d77",
+    "games": [
+      {
+        "name": "Dirt Rally 1.0",
+        "files": 72,
+        "sha256": "f98614049175d2b2bc2c5320a346fead6df08bb7699d038a2859743abbd5c172"
+      },
+      {
+        "name": "Dirt Rally 2.0",
+        "files": 157,
+        "sha256": "82b9065cfb52c342210eb8436f740287111616bc298a6c4961f06b1f8af5478c"
+      },
+      {
+        "name": "EA SPORTS\u2122 WRC",
+        "files": 265,
+        "sha256": "6bcf865a5f2e2dc11d45f524057153b21fd2da9af40f582f173788b070a58bc1"
+      }
+    ]
+  }
+}

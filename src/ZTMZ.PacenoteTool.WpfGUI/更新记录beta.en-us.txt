@@ -1,3 +1,8 @@
+v2.99.99.52-3.0-rc24
+
+* Restores bundled DiRT Rally, DiRT Rally 2.0, and EA SPORTS WRC pacenotes, using verified release resources to prevent missing or unintended files.
+* The installer now defaults to the application's current data folder, avoiding a switch back to an old folder during upgrades.
+
 v2.99.99.51-3.0-rc23
 
 * Fixes duplicate ACR pacenote calls by using only the live bridge; removes accidentally bundled local ACR pacenotes automatically on upgrade.
