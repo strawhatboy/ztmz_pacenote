@@ -399,7 +399,7 @@
                     if (entry) entries.push(entry);
                 }
                 const roadbookEntries = entries.map((entry, index) => {
-                    const distance = entry.distance ? `<span class="roadbook-distance">${escapeHtml(entry.distance)}<span class="roadbook-distance-unit">m</span></span>` : '<span class="roadbook-distance">-</span>';
+                    const distance = entry.distance ? `<span class="roadbook-distance">${escapeHtml(String(Math.round(Number(entry.distance))))}<span class="roadbook-distance-unit">m</span></span>` : '<span class="roadbook-distance">-</span>';
                     const distanceBlock = `<div class="roadbook-block roadbook-distance-card ${roadbookLineStates(entry.lineNumber)}" data-line="${entry.lineNumber}"><span class="roadbook-line">${entry.lineNumber}</span>${distance}</div>`;
                     const tokenBlocks = entry.calls.flat().map(tokenName => renderRoadbookToken(tokenName, entry.lineNumber)).join('');
                     const lineGap = index < entries.length - 1 ? '<div class="roadbook-line-gap" aria-hidden="true"></div>' : '';
