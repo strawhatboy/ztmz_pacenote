@@ -1,0 +1,11 @@
+# Cross-compile Windows x64 from macOS/Linux using an unpacked llvm-mingw toolchain.
+set(CMAKE_SYSTEM_NAME Windows)
+set(CMAKE_SYSTEM_PROCESSOR AMD64)
+set(ZTMZ_LLVM_MINGW_ROOT "$ENV{LLVM_MINGW_ROOT}" CACHE PATH "llvm-mingw toolchain directory")
+if(NOT EXISTS "${ZTMZ_LLVM_MINGW_ROOT}/bin/x86_64-w64-mingw32-clang")
+  message(FATAL_ERROR "Set LLVM_MINGW_ROOT or ZTMZ_LLVM_MINGW_ROOT to an unpacked llvm-mingw toolchain")
+endif()
+list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES ZTMZ_LLVM_MINGW_ROOT)
+set(CMAKE_C_COMPILER "${ZTMZ_LLVM_MINGW_ROOT}/bin/x86_64-w64-mingw32-clang")
+set(CMAKE_CXX_COMPILER "${ZTMZ_LLVM_MINGW_ROOT}/bin/x86_64-w64-mingw32-clang++")
+set(CMAKE_RC_COMPILER "${ZTMZ_LLVM_MINGW_ROOT}/bin/x86_64-w64-mingw32-windres")

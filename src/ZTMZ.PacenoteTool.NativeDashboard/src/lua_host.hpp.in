@@ -1,0 +1,2 @@
+#pragma once
+namespace ztmz { inline constexpr char luaHostSource[] = R"ZTMZ_LUA(@ZTMZ_LUA_HOST@)ZTMZ_LUA"; }
