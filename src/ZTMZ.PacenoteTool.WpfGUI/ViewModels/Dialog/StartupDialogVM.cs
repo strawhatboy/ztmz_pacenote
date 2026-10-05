@@ -1,40 +1,34 @@
-using System.Threading.Tasks;
-using Wpf.Ui;
-using Wpf.Ui.Controls;
-// using Wpf.Ui.Controls.IconElements;
-// using Wpf.Ui.Controls.Navigation;
-
+using System;
 using ZTMZ.PacenoteTool.Core;
-using ZTMZ.PacenoteTool.WpfGUI.Views;
 
 namespace ZTMZ.PacenoteTool.WpfGUI.ViewModels.Dialog;
 
-public partial class StartupDialogVM : ObservableObject
+public partial class StartupDialogVM : ObservableObject, IDisposable
 {
-    bool _isInitialized = false;
+    private readonly ZTMZPacenoteTool _tool;
+    private bool _disposed;
 
-
-    public StartupDialogVM(ContentDialog dialog, ZTMZPacenoteTool tool)
+    public StartupDialogVM(ZTMZPacenoteTool tool)
     {
-        if (!_isInitialized) {
+        _tool = tool;
+        _tool.onStatusReport += OnStatusReport;
+    }
 
-            tool.onStatusReport += s => {
-                var dispatcher = Application.Current.Dispatcher;
-                if (dispatcher.CheckAccess()) {
-                    Status = s;
-                } else {
-                    _ = dispatcher.BeginInvoke(() => Status = s);
-                }
-            };
-            tool.onToolInitialized += () => {
-                Application.Current.Dispatcher.Invoke(() => {
-                    dialog.Hide();
-                });
-            };
-            _isInitialized = true;
-        }
+    private void OnStatusReport(string status)
+    {
+        _ = Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (!_disposed)
+                Status = status;
+        }));
+    }
+
+    public void Dispose()
+    {
+        _disposed = true;
+        _tool.onStatusReport -= OnStatusReport;
     }
 
     [ObservableProperty]
-    private string _status = "The status";
+    private string _status = "Loading...";
 }

@@ -748,19 +748,23 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
                 RunOnUiThread(InitializeGameSelection);
             }
 
-            FactorToRemoveSpaceFromAudioFiles = _factorToIndex[Config.Instance.FactorToRemoveSpaceFromAudioFiles];
+            FactorToRemoveSpaceFromAudioFiles = _factorToIndex.TryGetValue(Config.Instance.FactorToRemoveSpaceFromAudioFiles, out var factorIndex)
+                ? factorIndex : 0;
             PlaybackVolume = (float)(Config.Instance.UI_PlaybackVolume + 1000f) / 20f;  // [-1000, 1000] to [0, 100]
             PlaybackSpeed = Config.Instance.UI_PlaybackSpeed;
             PlaybackAdjustSeconds = (float)Config.Instance.UI_PlaybackAdjustSeconds;
             IntercomEffect = Config.Instance.IntercomEffect;
         };
-        
-        _ = Task.Run(async () => {
-            // _tool.SetGame(theGame.Game);
-            await _tool.InitAsync();
-            _tool.SetFromConfiguration();
-        });
     }
+
+    private Task? _initializationTask;
+
+    // Called on the UI thread after construction has registered all startup callbacks.
+    internal Task InitializeAsync() => _initializationTask ??= Task.Run(async () =>
+    {
+        await _tool.InitAsync();
+        _tool.SetFromConfiguration();
+    });
 
     public Task OnNavigatedToAsync()
     {

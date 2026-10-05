@@ -1,3 +1,9 @@
+v2.99.99.53-3.0-rc25
+
+* Fixes the WPF loading dialog remaining open when startup or an initialization callback fails; startup errors are now displayed.
+* Safely handles unsupported silence-removal settings and prevents startup from repeating when restoring the window from the tray.
+* Adds loading progress, error feedback, and refresh for the online co-driver package catalog in WPF, with a 30-second timeout and continued access to installed packages.
+
 v2.99.99.52-3.0-rc24
 
 * Restores bundled DiRT Rally, DiRT Rally 2.0, and EA SPORTS WRC pacenotes, using verified release resources to prevent missing or unintended files.

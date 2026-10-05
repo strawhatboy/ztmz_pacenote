@@ -64,7 +64,8 @@ public partial class MainWindowVM : ObservableObject
 
     private readonly UpdateService _updateService;
 
-    private StartupDialog _startupDialog;
+    private StartupDialog? _startupDialog;
+    private bool _startupHandled;
     private UpdateFile? _pendingUpdate;
     private bool _isShowingPendingUpdate;
 
@@ -399,23 +400,74 @@ public partial class MainWindowVM : ObservableObject
 
     [RelayCommand]
     private async Task OnShowStartupDialog() {
+        // Loaded may fire again when the window is restored from the tray.
+        if (_startupHandled)
+            return;
+        _startupHandled = true;
+
         var shouldCheckForUpdate = Config.Instance.CheckUpdateWhenStartup || ToolUtils.GetToolVersion() != ToolVersion.STANDARD;
 
-        // A tray-only start should not be interrupted by startup dialogs. It still checks for
-        // updates so the tray icon can notify the user and offer the update from its menu.
-        if (Config.Instance.StartMinimizedToTray) {
-            if (shouldCheckForUpdate)
+        Task? dialogTask = null;
+        Exception? startupError = null;
+        try
+        {
+            // Resolve the home page first so all initialization callbacks are registered.
+            var home = App.GetService<HomePageVM>();
+            if (!Config.Instance.StartMinimizedToTray)
             {
-                await CheckForUpdateInTrayAsync();
+                _startupDialog = new StartupDialog(_contentDialogService.GetDialogHostEx()!, _tool);
+                dialogTask = _startupDialog.ShowAsync();
             }
 
+            // Observe the whole operation, including callbacks and configuration application.
+            await home.InitializeAsync();
+        }
+        catch (Exception ex)
+        {
+            startupError = ex;
+            _logger.Error(ex, "Application initialization failed.");
+        }
+        finally
+        {
+            if (_startupDialog != null)
+            {
+                _startupDialog.Hide();
+                _startupDialog.ViewModel.Dispose();
+                _startupDialog = null;
+            }
+        }
+
+        if (dialogTask != null)
+        {
+            try
+            {
+                await dialogTask;
+            }
+            catch (Exception ex)
+            {
+                startupError ??= ex;
+                _logger.Error(ex, "Failed to display the startup dialog.");
+            }
+        }
+
+        if (startupError != null)
+        {
+            await new Wpf.Ui.Controls.MessageBox
+            {
+                Title = I18NLoader.Instance["exception.unknown.title"],
+                Content = startupError.ToString(),
+                CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+            }.ShowDialogAsync();
             return;
         }
 
-        _startupDialog = new StartupDialog(_contentDialogService.GetDialogHostEx()!, _tool);
-        if (!_tool.IsInitialized) {
-            await _startupDialog.ShowAsync();
+        if (Config.Instance.StartMinimizedToTray)
+        {
+            if (shouldCheckForUpdate)
+                await CheckForUpdateInTrayAsync();
+            return;
         }
+
         if (shouldCheckForUpdate) {
             // force update if it is not standard version
             try {

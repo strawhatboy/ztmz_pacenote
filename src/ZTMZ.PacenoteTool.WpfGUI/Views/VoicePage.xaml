@@ -12,6 +12,11 @@
     xmlns:helpers="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
     FontFamily="{DynamicResource AppFontFamily}"
     mc:Ignorable="d">
+    <b:Interaction.Triggers>
+        <b:EventTrigger EventName="Loaded">
+            <b:InvokeCommandAction Command="{Binding ViewModel.RefreshCatalogCommand}" />
+        </b:EventTrigger>
+    </b:Interaction.Triggers>
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <helpers:PercentageToColorConverter x:Key="PercentageToColorConverter" />
@@ -78,10 +83,19 @@
             </Grid>
         </ui:CardAction>
         
-        <ui:TextBlock
-            Text="{DynamicResource ResourceKey=tabs.voices}"
-            Margin="0 0 0 5"
-            FontTypography="Subtitle" />
+        <DockPanel Margin="0 8 0 5">
+            <Button DockPanel.Dock="Right" Command="{Binding ViewModel.RefreshCatalogCommand}"
+                    Content="{DynamicResource voiceCatalog.refresh}" />
+            <ui:TextBlock Text="{DynamicResource tabs.voices}" FontTypography="Subtitle" />
+        </DockPanel>
+        <StackPanel Visibility="{Binding ViewModel.IsCatalogLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <ui:TextBlock Text="{DynamicResource voiceCatalog.loading}" Margin="0 0 0 4" />
+            <ProgressBar IsIndeterminate="True" Height="3" Margin="0 0 0 8" />
+        </StackPanel>
+        <ui:InfoBar IsOpen="{Binding ViewModel.HasCatalogError, Mode=OneWay}"
+                    IsClosable="False" Severity="Error"
+                    Title="{DynamicResource voiceCatalog.failureTitle}"
+                    Message="{Binding ViewModel.CatalogError}" Margin="0 0 0 8" />
 
         <!-- Create new -->
 

@@ -1,3 +1,14 @@
+v2.99.99.53-3.0-rc25
+------
+[English]
+* Fixes the WPF loading dialog remaining open when startup or an initialization callback fails; startup errors are now displayed.
+* Safely handles unsupported silence-removal settings and prevents startup from repeating when restoring the window from the tray.
+* Adds loading progress, error feedback, and refresh for the online co-driver package catalog in WPF, with a 30-second timeout and continued access to installed packages.
+[简体中文]
+* 修复 WPF 版启动或初始化回调失败时加载窗口无法关闭的问题，并显示启动错误。
+* 安全处理不受支持的静音移除设置，避免从托盘恢复窗口时重复执行启动流程。
+* WPF 版在线领航员语音包列表新增加载进度、错误提示和刷新功能；请求超过 30 秒自动超时，加载失败时仍可使用已安装的语音包。
+
 v2.99.99.52-3.0-rc24
 ------
 [English]

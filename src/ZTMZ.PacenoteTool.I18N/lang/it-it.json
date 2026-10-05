@@ -956,5 +956,12 @@
       "modifiedFilesRetained": "{0} modified files were retained; they were not deleted.",
       "openedByUi": "The release page is opened by the app."
     }
-  }
+  },
+  "voiceCatalog": {
+    "refresh": "Refresh packages",
+    "loading": "Loading online co-driver packages...",
+    "failureTitle": "Could not load online packages",
+    "failed": "Installed packages are still available. Use Refresh packages to try again. {0}",
+    "timeout": "The repository did not respond within 30 seconds."
+}
 }

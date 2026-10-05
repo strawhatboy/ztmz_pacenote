@@ -1011,5 +1011,12 @@
       "modifiedFilesRetained": "已卸载；保留了 {0} 个修改过的文件，现在可以重新安装。原始备份已归档到游戏目录的 .ztmz-mods/uninstalled。",
       "openedByUi": "发布页面由应用打开。"
     }
-  }
+  },
+  "voiceCatalog": {
+    "refresh": "刷新语音包",
+    "loading": "正在加载在线领航员语音包...",
+    "failureTitle": "无法加载在线语音包",
+    "failed": "已安装的语音包仍可使用。请点击“刷新语音包”重试。{0}",
+    "timeout": "仓库未能在 30 秒内响应。"
+}
 }

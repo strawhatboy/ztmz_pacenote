@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ZTMZ.PacenoteTool.Base;
 using System.Windows.Data;
 using System.Threading.Tasks;
+using System.Threading;
 using Wpf.Ui.Controls;
 using System.Linq;
 using Microsoft.Win32;
@@ -46,28 +47,77 @@ public partial class VoicePageVM : ObservableObject {
         // import/export can be done by file dialog or drag and drop
         // import/export support zip file format
 
-        VoicePackages.Clear();
-        Task.Run(async () => {
-            var updateStatuses = await packageUpdates.CheckForUpdatesAsync(
+    }
+
+    [ObservableProperty]
+    private bool _isCatalogLoading;
+
+    [ObservableProperty]
+    private bool _hasCatalogError;
+
+    [ObservableProperty]
+    private string _catalogError = string.Empty;
+
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+    [RelayCommand]
+    private async Task RefreshCatalog()
+    {
+        if (IsCatalogLoading)
+            return;
+
+        IsCatalogLoading = true;
+        HasCatalogError = false;
+        CatalogError = string.Empty;
+        try
+        {
+            // Local packages remain usable while the repository is unavailable.
+            if (VoicePackages.Count == 0)
+            {
+                foreach (var package in tool.CoDriverPackages)
+                    VoicePackages.Add(new CodriverPackageUpdateFile(package.Info)
+                    {
+                        NeedUpdate = false, NeedDownload = false,
+                        IsAvailable = true, Version = package.Info.version
+                    });
+            }
+
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            var statuses = await packageUpdates.CheckForUpdatesAsync(
                 Config.Instance.UpdateDefinitionUrl_AudioPkg,
-                tool.CoDriverPackages.Select(package => package.Info).ToList());
-            var needUpdateOrDownload = updateStatuses
+                tool.CoDriverPackages.Select(package => package.Info).ToList(),
+                timeout.Token);
+            var packages = statuses
                 .Where(status => status.NeedsUpdate || status.NeedsDownload)
-                .Select(CodriverPackageUpdateFile.FromStatus)
-                .ToList();
-            foreach (var pkg in needUpdateOrDownload) {
-                VoicePackages.Add(pkg);
-            }
+                .Select(CodriverPackageUpdateFile.FromStatus).ToList();
+            packages.AddRange(tool.CoDriverPackages
+                .Where(package => !packages.Any(item => item.Id == package.Info.id))
+                .Select(package => new CodriverPackageUpdateFile(package.Info)
+                {
+                    NeedUpdate = false, NeedDownload = false,
+                    IsAvailable = true, Version = package.Info.version
+                }).ToList());
 
-            // local
-            var local = (from p in tool.CoDriverPackages
-                where !needUpdateOrDownload.Any(x => x.Id == p.Info.id)
-                select new CodriverPackageUpdateFile(p.Info) { NeedUpdate = false, NeedDownload = false, IsAvailable = true, Version=p.Info.version }).ToList();
-            foreach (var pkg in local) {
-                VoicePackages.Add(pkg);
-            }
-
-        });
+            // Keep active installation/export models so refresh does not lose their progress.
+            var active = VoicePackages.Where(package => package.IsDownloading || package.IsInstalling || package.IsExporting).ToList();
+            VoicePackages.Clear();
+            foreach (var package in packages)
+                VoicePackages.Add(active.FirstOrDefault(item => item.Id == package.Id) ?? package);
+            foreach (var package in active.Where(item => !packages.Any(candidate => candidate.Id == item.Id)))
+                VoicePackages.Add(package);
+        }
+        catch (Exception exception)
+        {
+            Logger.Error(exception, "Failed to load the co-driver package catalog.");
+            CatalogError = string.Format(I18NLoader.Instance["voiceCatalog.failed"],
+                exception is OperationCanceledException
+                    ? I18NLoader.Instance["voiceCatalog.timeout"] : exception.Message);
+            HasCatalogError = true;
+        }
+        finally
+        {
+            IsCatalogLoading = false;
+        }
     }
 
     [RelayCommand]
