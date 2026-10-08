@@ -19,7 +19,15 @@ public static class WebDashboardServerExtensions
         ArgumentNullException.ThrowIfNull(server);
         ArgumentNullException.ThrowIfNull(dashboards);
 
-        var definitions = dashboards.Select(dashboard => new WebDashboardDefinition
+        server.Initialize(
+            CreateDefinitions(dashboards, outputTargetResolver),
+            AppLevelVariables.Instance.GetPath(Constants.PATH_DASHBOARDS),
+            AppContext.BaseDirectory);
+    }
+
+    public static IReadOnlyList<WebDashboardDefinition> CreateDefinitions(
+        IReadOnlyList<Dashboard> dashboards, Func<Dashboard, DashboardOutputTarget>? outputTargetResolver = null) =>
+        dashboards.Select(dashboard => new WebDashboardDefinition
         {
             Id = GetDashboardId(dashboard),
             PackagePath = dashboard.Descriptor.Path,
@@ -46,12 +54,6 @@ public static class WebDashboardServerExtensions
                     : DashboardOutputTarget.None),
             SettingsProvider = () => GetSettings(dashboard)
         }).ToList();
-
-        server.Initialize(
-            definitions,
-            AppLevelVariables.Instance.GetPath(Constants.PATH_DASHBOARDS),
-            AppContext.BaseDirectory);
-    }
 
     private static string GetDashboardId(Dashboard dashboard)
     {

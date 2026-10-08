@@ -957,6 +957,18 @@
       "openedByUi": "The release page is opened by the app."
     }
   },
+  "overlayBackend": {
+    "inGameActive": "게임 내 렌더링을 사용 중입니다.",
+    "title": "표시 방식",
+    "window": "별도 오버레이 창",
+    "inGame": "게임 내 렌더링 (실험적)",
+    "windowActive": "별도 오버레이 창을 사용 중입니다.",
+    "antiCheat": "별도 창 사용 중: 안티치트 호환성이 확인되지 않아 EA WRC의 게임 내 렌더링이 비활성화되었습니다.",
+    "platformUnavailable": "별도 창 사용 중: 이 플랫폼에는 네이티브 게임 내 렌더링이 아직 통합되지 않았습니다.",
+    "integrationPending": "별도 창 사용 중: 이 버전에서는 게임 내 렌더링을 아직 사용할 수 없습니다.",
+    "waitingForGame": "게임 대기 중. 그래픽 API는 자동으로 선택됩니다.",
+    "waitingForRenderer": "게임 렌더러 대기 중. 그래픽 API는 자동으로 선택됩니다."
+  },
   "voiceCatalog": {
     "refresh": "Refresh packages",
     "loading": "Loading online co-driver packages...",

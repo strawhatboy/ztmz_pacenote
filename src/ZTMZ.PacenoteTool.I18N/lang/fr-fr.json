@@ -957,6 +957,18 @@
       "openedByUi": "The release page is opened by the app."
     }
   },
+  "overlayBackend": {
+    "inGameActive": "Le rendu dans le jeu est utilisé.",
+    "title": "Mode d’affichage",
+    "window": "Fenêtre de superposition séparée",
+    "inGame": "Rendu dans le jeu (expérimental)",
+    "windowActive": "Une fenêtre de superposition séparée est utilisée.",
+    "antiCheat": "Fenêtre séparée : le rendu dans EA WRC est désactivé, car la compatibilité avec l’anti-triche n’est pas confirmée.",
+    "platformUnavailable": "Fenêtre séparée : le rendu natif dans le jeu n’est pas encore intégré sur cette plateforme.",
+    "integrationPending": "Fenêtre séparée : le rendu dans le jeu n’est pas encore disponible dans cette version.",
+    "waitingForGame": "En attente d’un jeu ; sélection automatique de l’API graphique.",
+    "waitingForRenderer": "En attente du moteur de rendu du jeu ; sélection automatique de l’API graphique."
+  },
   "voiceCatalog": {
     "refresh": "Refresh packages",
     "loading": "Loading online co-driver packages...",

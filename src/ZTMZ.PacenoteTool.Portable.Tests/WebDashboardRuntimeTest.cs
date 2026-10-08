@@ -1,8 +1,11 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Net.WebSockets;
+using System.Text;
 using System.Text.Json;
 using Xunit;
 using ZTMZ.PacenoteTool.Base;
+using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Core;
 using ZTMZ.PacenoteTool.WebDashboard;
 
@@ -10,6 +13,72 @@ namespace ZTMZ.PacenoteTool.Portable.Tests;
 
 public sealed class WebDashboardRuntimeTest
 {
+    [Fact]
+    public async Task PrivateOverlayRuntimeSurvivesWebStopAndSendsEmptyScenes()
+    {
+        using var files = new TemporaryDashboardFiles();
+        bool enabled = true;
+        var definitions = new[]
+        {
+            new WebDashboardDefinition { Id = "overlay", PackagePath = files.DashboardsPath,
+                SupportsWebDashboardClientLua = true,
+                OutputTargetProvider = () => enabled ? DashboardOutputTarget.Overlay : DashboardOutputTarget.None },
+            new WebDashboardDefinition { Id = "web", PackagePath = files.DashboardsPath,
+                SupportsWebDashboardClientLua = true, OutputTargetProvider = () => DashboardOutputTarget.Web }
+        };
+        using var overlay = new WebDashboardRuntime();
+        using var web = new WebDashboardRuntime();
+        overlay.Start(new(files.DashboardsPath, files.RootPath, 0, 60,
+            SupportsNativeOverlay: true, OutputTarget: DashboardOutputTarget.Overlay, LoopbackOnly: true), definitions);
+        web.Start(new(files.DashboardsPath, files.RootPath, 0, 60, LoopbackOnly: true), definitions);
+        Assert.InRange(overlay.Status.Port, 1, 65535);
+        Assert.NotEqual(overlay.Status.Port, web.Status.Port);
+        Assert.StartsWith("http://127.0.0.1:", overlay.Status.Url);
+        web.Stop();
+        using var visible = await ReadSceneAsync(overlay, true);
+        Assert.Single(visible.RootElement.GetProperty("dashboards").EnumerateArray());
+        using var hidden = await ReadSceneAsync(overlay, false);
+        Assert.Empty(hidden.RootElement.GetProperty("dashboards").EnumerateArray());
+        enabled = false;
+        using var disabled = await ReadSceneAsync(overlay, true);
+        Assert.Empty(disabled.RootElement.GetProperty("dashboards").EnumerateArray());
+        Assert.True(overlay.Status.IsRunning);
+    }
+
+    private static async Task<JsonDocument> ReadSceneAsync(WebDashboardRuntime runtime, bool visible)
+    {
+        using var socket = new ClientWebSocket();
+        using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        await socket.ConnectAsync(new Uri($"ws://127.0.0.1:{runtime.Status.Port}/ws"), deadline.Token);
+        await socket.SendAsync(Encoding.UTF8.GetBytes("{\"type\":\"browserLuaCapabilities\",\"supported\":true}"),
+            WebSocketMessageType.Text, true, deadline.Token);
+        var publisher = Task.Run(async () =>
+        {
+            try
+            {
+                while (!deadline.IsCancellationRequested)
+                {
+                    await runtime.PublishTelemetryAsync(new GameData(), new GameContext(), visible);
+                    await Task.Delay(20, deadline.Token);
+                }
+            }
+            catch (OperationCanceledException) when (deadline.IsCancellationRequested) { }
+        });
+        try
+        {
+            using var bytes = new MemoryStream();
+            var buffer = new byte[4096];
+            WebSocketReceiveResult part;
+            do
+            {
+                part = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), deadline.Token);
+                bytes.Write(buffer, 0, part.Count);
+            } while (!part.EndOfMessage);
+            return JsonDocument.Parse(bytes.ToArray());
+        }
+        finally {deadline.Cancel();await publisher;socket.Abort();}
+    }
+
     [Fact]
     public async Task RuntimeServesPortableDashboardCatalogAndStaticClient()
     {

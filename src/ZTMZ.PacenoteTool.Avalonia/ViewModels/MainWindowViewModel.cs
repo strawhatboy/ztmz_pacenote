@@ -834,6 +834,21 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
         }
     }
 
+    public int OverlayBackendIndex
+    {
+        get => (int)OverlayBackendSettings.Requested;
+        set
+        {
+            OverlayBackendSettings.SetRequested(value);
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(OverlayBackendStatus));
+        }
+    }
+
+    private string? _overlayBackendStatusKey;
+    public string OverlayBackendStatus => I18NLoader.Instance[
+        _overlayBackendStatusKey ?? OverlayBackendSettings.GetDecision(_runtime.CurrentGame).StatusKey];
+
     partial void OnIsNativeOverlayFrameRateLockedChanged(bool value)
     {
         if (!_applyingSnapshot && !_runtime.SetNativeOverlayFrameRateLock(value))
@@ -863,6 +878,8 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
 
     private void RefreshSnapshot()
     {
+        OnPropertyChanged(nameof(OverlayBackendIndex));
+        OnPropertyChanged(nameof(OverlayBackendStatus));
         var snapshot = _runtime.GetSnapshot();
         _applyingSnapshot = true;
         try
@@ -879,6 +896,8 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
             ErrorMessage = snapshot.ErrorMessage ?? string.Empty;
             ApplyDashboards(snapshot.Dashboards);
             IsNativeOverlaySupported = snapshot.NativeOverlay.IsSupported;
+            _overlayBackendStatusKey = snapshot.NativeOverlay.BackendStatusKey;
+            OnPropertyChanged(nameof(OverlayBackendStatus));
             IsNativeOverlayEnabled = snapshot.NativeOverlay.IsEnabled;
             IsNativeOverlayInitializing = snapshot.NativeOverlay.IsInitializing;
             NativeOverlayFrameRate = snapshot.NativeOverlay.FrameRate;

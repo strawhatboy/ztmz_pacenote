@@ -62,12 +62,12 @@ public sealed class WebDashboardRuntime : IDisposable
         _server?.SetCanvasSize(_canvasWidth, _canvasHeight);
     }
 
-    public void Start(WebDashboardRuntimeOptions options)
+    public void Start(WebDashboardRuntimeOptions options, IReadOnlyList<WebDashboardDefinition>? definitions = null)
     {
         ArgumentNullException.ThrowIfNull(options);
         Stop();
 
-        _dashboards = _catalog.Load(
+        _dashboards = definitions ?? _catalog.Load(
             options.DashboardPackagesPath,
             options.SupportsNativeOverlay);
         var server = new WebDashboardServer
@@ -87,13 +87,13 @@ public sealed class WebDashboardRuntime : IDisposable
         _lastFrameUtc = null;
         Status = new WebDashboardServerStatus(
             WebDashboardServerState.Running,
-            options.Port,
+            server.Port,
             options.LoopbackOnly
-                ? WebDashboardServer.GetLoopbackDashboardUrl(options.Port)
-                : WebDashboardServer.GetDashboardUrl(options.Port));
+                ? WebDashboardServer.GetLoopbackDashboardUrl(server.Port)
+                : WebDashboardServer.GetDashboardUrl(server.Port));
     }
 
-    public async Task PublishTelemetryAsync(GameData data, GameContext context)
+    public async Task PublishTelemetryAsync(GameData data, GameContext context, bool visible = true)
     {
         ArgumentNullException.ThrowIfNull(context);
         var server = _server;
@@ -104,7 +104,7 @@ public sealed class WebDashboardRuntime : IDisposable
 
         var enabledDashboards = _dashboards
             .Select((dashboard, index) => new { dashboard, index })
-            .Where(item => item.dashboard.SupportsWebDashboardClientLua
+            .Where(item => visible && item.dashboard.SupportsWebDashboardClientLua
                 && item.dashboard.GetOutputTarget().Includes(_outputTarget))
             .Select(item => new WebDashboardBrowserLuaDashboard(
                 item.index,
@@ -112,11 +112,7 @@ public sealed class WebDashboardRuntime : IDisposable
                 0,
                 item.dashboard.GetSettings()))
             .ToList();
-        if (enabledDashboards.Count == 0)
-        {
-            return;
-        }
-
+        // An empty scene clears stale drawings when all dashboards are disabled.
         var scene = new WebDashboardBrowserLuaScene(
             enabledDashboards,
             new WebDashboardBrowserLuaConfig(

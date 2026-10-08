@@ -14,7 +14,8 @@ internal sealed record DesktopNativeOverlaySnapshot(
     bool IsFrameRateLocked,
     bool IsTopMost,
     string State,
-    bool IsVisible);
+    bool IsVisible,
+    string? BackendStatusKey = null);
 
 internal interface IDesktopNativeOverlayHost : IDisposable
 {
@@ -55,7 +56,7 @@ internal sealed class WindowsNativeOverlayHost : IDesktopNativeOverlayHost
 
     public DesktopNativeOverlaySnapshot GetSnapshot()
     {
-        var status = _session.Overlay.CurrentNativeOverlayStatus;
+        var status = _session.CurrentStatus;
         return new DesktopNativeOverlaySnapshot(
             IsSupported: true,
             IsEnabled: Config.Instance.UI_ShowHud,
@@ -64,7 +65,8 @@ internal sealed class WindowsNativeOverlayHost : IDesktopNativeOverlayHost
             IsFrameRateLocked: Config.Instance.HudLockFPS,
             IsTopMost: Config.Instance.HudTopMost,
             State: status.State.ToString(),
-            IsVisible: status.IsVisible);
+            IsVisible: status.IsVisible,
+            BackendStatusKey: _session.BackendDecision.StatusKey);
     }
 
     public bool SetEnabled(bool enabled)

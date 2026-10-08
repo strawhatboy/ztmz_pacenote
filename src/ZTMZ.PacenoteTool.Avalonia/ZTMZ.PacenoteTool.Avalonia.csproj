@@ -192,4 +192,5 @@
     <Copy SourceFiles="@(AcrBridgeFiles)" DestinationFiles="@(AcrBridgeFiles->'$(PublishDir)games\ACRExperimentalBridge\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" Condition="'@(AcrBridgeFiles)' != ''" />
   </Target>
 
+  <Import Project="..\..\build\NativeDashboard.Development.targets" />
 </Project>

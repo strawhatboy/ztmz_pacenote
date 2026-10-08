@@ -2,6 +2,7 @@ using System.Diagnostics;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Core;
+using ZTMZ.PacenoteTool.Platform.Windows.NativeOverlay;
 
 namespace ZTMZ.PacenoteTool.UI.Windows;
 
@@ -23,6 +24,9 @@ public sealed class NativeOverlaySessionController : IDisposable
     private int _isInitializing;
     private int _stageActive;
     private bool _disposed;
+    private readonly SemaphoreSlim _backendGate = new(1, 1);
+    private InGameOverlaySession? _inGame;
+    private string? _backendError;
 
     public NativeOverlaySessionController(
         ZTMZPacenoteTool tool,
@@ -34,6 +38,7 @@ public sealed class NativeOverlaySessionController : IDisposable
         _selectedCoDriver = selectedCoDriver ?? throw new ArgumentNullException(nameof(selectedCoDriver));
         _overlay = overlay ?? throw new ArgumentNullException(nameof(overlay));
         _ownsOverlay = ownsOverlay;
+        OverlayBackendSettings.Changed += OnBackendChanged;
 
         _overlay.OnNativeOverlayStatusChanged += _ => RaiseChanged();
         _overlay.OnGameOverlayInitializingStateChanged += isInitializing =>
@@ -56,6 +61,35 @@ public sealed class NativeOverlaySessionController : IDisposable
     public event EventHandler? Changed;
 
     public GameOverlayManager Overlay => _overlay;
+
+    public OverlayBackendDecision BackendDecision => _inGame is { } session
+        ? new(OverlayBackendSettings.Requested, OverlayDisplayBackend.InGame,
+            session.IsActive ? "overlayBackend.inGameActive"
+                : string.IsNullOrEmpty(session.Error) ? "overlayBackend.waitingForRenderer"
+                : "settings.tooltip.overlayHudHomeStatusUnavailable", true)
+        : _backendError != null
+            ? new(OverlayBackendSettings.Requested, OverlayDisplayBackend.SeparateWindow,
+                "settings.tooltip.overlayHudHomeStatusUnavailable", false)
+            : OverlayBackendSettings.GetDecision(_tool.CurrentGame);
+
+    public NativeOverlayStatus CurrentStatus => _inGame is { } session
+        ? new(!Config.Instance.UI_ShowHud ? NativeOverlayState.Disabled
+            : session.IsActive ? NativeOverlayState.Active
+            : string.IsNullOrEmpty(session.Error) ? NativeOverlayState.Ready : NativeOverlayState.Unavailable,
+            session.IsActive)
+        : _overlay.CurrentNativeOverlayStatus;
+
+    private void OnBackendChanged()
+    {
+        IGame? game;int processId;
+        lock (_initializationLock)
+        {
+            game = _attachedGame;processId = _initializationProcessId;
+            _initializationProcessId = -1; // A backend change is a new attachment generation.
+        }
+        if (!_disposed && game != null && processId > 0) TryEnsureAttached(game, processId);
+        RaiseChanged();
+    }
 
     public bool IsInitializing => Volatile.Read(ref _isInitializing) != 0;
 
@@ -97,6 +131,7 @@ public sealed class NativeOverlaySessionController : IDisposable
 
         // A state reset belongs to the accepted new session only. A late duplicate
         // request must never blank a dashboard that is already active.
+        _inGame?.CancelPendingWork();
         SetStageActive(false);
         _ = Task.Run(() => InitializeOverlayAsync(game, process, processId, generation));
         return true;
@@ -134,6 +169,7 @@ public sealed class NativeOverlaySessionController : IDisposable
 
     public void Detach()
     {
+        _inGame?.CancelPendingWork();
         lock (_initializationLock)
         {
             _attachedGame = null;
@@ -143,6 +179,20 @@ public sealed class NativeOverlaySessionController : IDisposable
 
         SetStageActive(false);
         _overlay.UninitializeOverlay();
+        _ = StopInGameAsync();
+    }
+
+    private async Task StopInGameAsync()
+    {
+        await _backendGate.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            // A newer attachment owns cleanup if a game has already replaced this one.
+            lock (_initializationLock) { if (_attachedGame != null) return; }
+            if (_inGame != null) {await _inGame.StopAsync().ConfigureAwait(false);_inGame = null;}
+        }
+        catch (Exception error) {Logger.Error(error, "Could not confirm in-game overlay shutdown.");}
+        finally {_backendGate.Release();RaiseChanged();}
     }
 
     private void TryEnsureAttached(IGame game, int processId)
@@ -157,10 +207,53 @@ public sealed class NativeOverlaySessionController : IDisposable
         }
     }
 
-    private void InitializeOverlayAsync(IGame game, Process process, int processId, long generation)
+    private async Task InitializeOverlayAsync(IGame game, Process process, int processId, long generation)
     {
+        await _backendGate.WaitAsync().ConfigureAwait(false);
         try
         {
+            lock (_initializationLock)
+            {
+                if (_disposed || !IsCurrentInitialization(game, processId, generation)) return;
+            }
+            _backendError = null;
+            if (_inGame != null) {await _inGame.StopAsync().ConfigureAwait(false);_inGame = null;}
+            var decision = OverlayBackendPolicy.Evaluate(OverlayBackendSettings.Requested, game, true, true);
+            bool loaded = false;
+            var compatible = OverlayBackendPolicy.Evaluate(OverlayDisplayBackend.InGame, game, true, true).CanAttachInGame;
+            if (compatible)
+            {
+                try {loaded = InGameOverlaySession.IsLoaded(process);}
+                catch (Exception error) {Logger.Debug(error, "Cannot inspect experimental overlay module; retaining window backend.");}
+            }
+            if (!loaded && decision.CanAttachInGame && _overlay.CurrentNativeOverlayStatus.State != NativeOverlayState.Preview
+                && File.Exists(InGameOverlayLoader.LibraryPath))
+            {
+                lock (_initializationLock)
+                {
+                    if (_disposed || !IsCurrentInitialization(game, processId, generation)) return;
+                }
+                await InGameOverlayLoader.LoadAsync(process, InGameOverlayLoader.LibraryPath).ConfigureAwait(false);
+                loaded = true;
+            }
+            if (loaded && decision.CanAttachInGame && _overlay.CurrentNativeOverlayStatus.State != NativeOverlayState.Preview)
+            {
+                lock (_initializationLock)
+                {
+                    if (_disposed || !IsCurrentInitialization(game, processId, generation)) return;
+                    _overlay.UninitializeOverlay();
+                    SynchronizeStageState(game, "in-game backend attachment");
+                }
+                _inGame = new(process, _overlay, () => IsStageActive, RaiseChanged);
+                await _inGame.StartAsync().ConfigureAwait(false);
+                bool current;
+                lock (_initializationLock) {current = !_disposed && IsCurrentInitialization(game, processId, generation);}
+                if (!current) {await _inGame.StopAsync().ConfigureAwait(false);_inGame = null;}
+                RaiseChanged();
+                return;
+            }
+            // A DLL may outlive a previous ZTMZ process even when today's preference is Window.
+            if (loaded) await new InGameOverlayControlClient(process).StopAsync().ConfigureAwait(false);
             lock (_initializationLock)
             {
                 if (_disposed || !IsCurrentInitialization(game, processId, generation))
@@ -177,8 +270,10 @@ public sealed class NativeOverlaySessionController : IDisposable
         }
         catch (Exception exception)
         {
+            _backendError = exception.Message;
             Logger.Error(exception, "Failed to initialize native overlay for process {0}.", processId);
         }
+        finally {_backendGate.Release();RaiseChanged();}
     }
 
     private async Task ReconcileStageStateAsync(IGame game, int processId, long generation)
@@ -364,6 +459,7 @@ public sealed class NativeOverlaySessionController : IDisposable
         }
 
         _disposed = true;
+        OverlayBackendSettings.Changed -= OnBackendChanged;
         _tool.onGameEnded -= OnGameEnded;
         _tool.onGameUninitialized -= OnGameUninitialized;
         _tool.onRaceBegin -= OnRaceBegin;

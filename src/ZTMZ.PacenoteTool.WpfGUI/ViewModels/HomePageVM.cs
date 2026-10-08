@@ -119,7 +119,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
     private void RefreshNativeOverlayHomeStatus()
     {
-        var status = _gameOverlayManager.CurrentNativeOverlayStatus;
+        var status = _nativeOverlaySession.CurrentStatus;
         NativeOverlayHomeStatusBrush = status.State switch
         {
             NativeOverlayState.Active => Brushes.ForestGreen,
@@ -484,6 +484,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         {
             RefreshNativeOverlayHomeStatusOnUiThread();
         };
+        _nativeOverlaySession.Changed += (_, _) => RefreshNativeOverlayHomeStatusOnUiThread();
         RefreshNativeOverlayHomeStatus();
         _tool.onGameStarted += (game, p) => {
             ScheduleLocalBridgeInjectionPrompt(game);
@@ -762,8 +763,8 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     // Called on the UI thread after construction has registered all startup callbacks.
     internal Task InitializeAsync() => _initializationTask ??= Task.Run(async () =>
     {
-        await _tool.InitAsync();
-        _tool.SetFromConfiguration();
+        await Tool.InitAsync();
+        Tool.SetFromConfiguration();
     });
 
     public Task OnNavigatedToAsync()

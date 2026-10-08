@@ -15,6 +15,8 @@ public:
     virtual void installAuxiliaryHooks() = 0;
     virtual bool readyFor(IDXGISwapChain* swap) = 0;
     virtual void render(IDXGISwapChain* swap,const Scene& scene,const ImageAssets& images,float deltaSeconds) = 0;
+    // Opt-in acknowledgement: uninstrumented adapters must not claim submitted frames.
+    virtual uint64_t submittedFrames() const noexcept {return 0;}
     virtual void beforeResize() = 0;
     virtual void releaseDevice() noexcept = 0;
 };

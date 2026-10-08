@@ -23,6 +23,25 @@ public partial class HudPageVM : ObservableObject {
 
     private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
+    public int OverlayBackendIndex
+    {
+        get => (int)OverlayBackendSettings.Requested;
+        set => OverlayBackendSettings.SetRequested(value);
+    }
+
+    public string OverlayBackendStatusKey => _overlaySession.BackendDecision.StatusKey;
+
+    private readonly NativeOverlaySessionController _overlaySession;
+
+    private void RefreshOverlayBackendSettings()
+    {
+        Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+        {
+            OnPropertyChanged(nameof(OverlayBackendIndex));
+            OnPropertyChanged(nameof(OverlayBackendStatusKey));
+        }));
+    }
+
     [ObservableProperty]
     private float _hudFPS = Config.Instance.HudFPS;
 
@@ -269,9 +288,12 @@ public partial class HudPageVM : ObservableObject {
 
     public HudPageVM(
         GameOverlayManager gameOverlayManager,
+        NativeOverlaySessionController overlaySession,
         RuntimeControlsService runtimeControls,
         WpfNativeOverlayPreviewController previewController) {
         _gameOverlayManager = gameOverlayManager;
+        _overlaySession = overlaySession;
+        _overlaySession.Changed += (_, _) => RefreshOverlayBackendSettings();
         _runtimeControls = runtimeControls;
         _previewController = previewController;
         _runtimeControls.StateChanged += OnRuntimeControlsStateChanged;

@@ -33,23 +33,37 @@ class DxgiHook final : public OverlayHook {
     bool installed_=false,attempted_=false;
     std::recursive_mutex renderMutex_;
     IDXGISwapChain* selected_=nullptr; // identity only, not a retained game object
+    HWND selectedWindow_=nullptr;
     std::vector<std::unique_ptr<DxgiPresenter>> presenters_;
     std::vector<RenderApi> apis_;
     DxgiPresenter* presenter_=nullptr;
     std::chrono::steady_clock::time_point lastFrame_;
     void clearRenderer() noexcept {
         if(presenter_) {auto api=presenter_->api();presenter_->releaseDevice();router_.release(api);}
-        presenter_=nullptr;selected_=nullptr;
+        presenter_=nullptr;selected_=nullptr;selectedWindow_=nullptr;
     }
     bool render(IDXGISwapChain* swap) {
         std::lock_guard lock(renderMutex_);
-        if(!enabled_.load() || (selected_ && selected_!=swap)) return false;
+        if(!enabled_.load()) return false;
+        DXGI_SWAP_CHAIN_DESC desc{};
+        if(FAILED(swap->GetDesc(&desc)) || !IsWindowVisible(desc.OutputWindow)) return false;
+        auto target=shared_.targetWindow.load();
+        if(target && reinterpret_cast<uintptr_t>(desc.OutputWindow)!=target) return false;
+        if(selected_ && selected_!=swap) {
+            // Fullscreen/mode changes can replace both swap chain and device. Never
+            // dereference the previous chain: it may already have been destroyed.
+            if(desc.OutputWindow!=selectedWindow_) return false;
+            const auto candidates=router_.candidates();
+            bool supported=std::any_of(presenters_.begin(),presenters_.end(),[&](auto& candidate){
+                return std::find(candidates.begin(),candidates.end(),candidate->api())!=candidates.end() && candidate->readyFor(swap);
+            });
+            if(!supported) return false;
+            clearRenderer();
+        }
         if(!presenter_) {
-            DXGI_SWAP_CHAIN_DESC desc{};
-            if(FAILED(swap->GetDesc(&desc)) || !IsWindowVisible(desc.OutputWindow)) return false;
             for(auto& candidate:presenters_) {
                 if(std::find(apis_.begin(),apis_.end(),candidate->api())!=apis_.end() && candidate->readyFor(swap) && router_.tryActivate(candidate->api())) {
-                    presenter_=candidate.get();selected_=swap;lastFrame_=std::chrono::steady_clock::now();break;
+                    presenter_=candidate.get();selected_=swap;selectedWindow_=desc.OutputWindow;lastFrame_=std::chrono::steady_clock::now();break;
                 }
             }
             if(!presenter_) return false;
@@ -58,35 +72,48 @@ class DxgiHook final : public OverlayHook {
         auto delta=std::chrono::duration<float>(now-lastFrame_).count();lastFrame_=now;
         Scene scene;std::shared_ptr<const ImageAssets> images;
         {std::lock_guard shared(shared_.mutex);scene=shared_.scene;images=shared_.images;}
+        auto before=presenter_->submittedFrames();
         presenter_->render(swap,scene,*images,delta);
+        if(presenter_->submittedFrames()!=before) {
+            DXGI_SWAP_CHAIN_DESC desc{};
+            if(SUCCEEDED(swap->GetDesc(&desc))) {
+                auto& progress=shared_.progress;std::lock_guard status(progress.mutex);
+                ++progress.submittedFrames;progress.window=reinterpret_cast<uintptr_t>(desc.OutputWindow);
+                progress.lastFrameTick=GetTickCount64();progress.error.clear();
+            }
+        }
         return true;
+    }
+    void reportFailure(const char* error) {
+        auto& progress=shared_.progress;std::lock_guard status(progress.mutex);
+        progress.error=std::string(error).substr(0,512);progress.lastFrameTick=0;
     }
     static HRESULT STDMETHODCALLTYPE present(IDXGISwapChain* swap,UINT sync,UINT flags) {
         auto& self=*instance_;Guard guard;
         if(!guard.previous && !(flags&DXGI_PRESENT_TEST) && self.enabled_.load()) {
             try {self.render(swap);}
-            catch(const std::exception& e){OutputDebugStringA(e.what());self.stop();}
+            catch(const std::exception& e){OutputDebugStringA(e.what());self.reportFailure(e.what());self.stop();}
         }
         auto result=self.originalPresent_(swap,sync,flags);
         if(result==DXGI_ERROR_DEVICE_REMOVED || result==DXGI_ERROR_DEVICE_RESET) {
             std::lock_guard lock(self.renderMutex_);
-            if(self.selected_==swap) self.clearRenderer();
+            if(self.selected_==swap) {self.reportFailure("DXGI device removed or reset");self.clearRenderer();}
         }
         return result;
     }
     static HRESULT STDMETHODCALLTYPE present1(IDXGISwapChain1* swap,UINT sync,UINT flags,const DXGI_PRESENT_PARAMETERS* params) {
         auto& self=*instance_;Guard guard;bool overlaid=false;
         if(!guard.previous && !(flags&DXGI_PRESENT_TEST) && self.enabled_.load()) {
-            try{overlaid=self.render(swap);}catch(const std::exception& e){OutputDebugStringA(e.what());self.stop();}
+            try{overlaid=self.render(swap);}catch(const std::exception& e){OutputDebugStringA(e.what());self.reportFailure(e.what());self.stop();}
         }
         DXGI_PRESENT_PARAMETERS fullFrame{}; // HUD changes may fall outside the game's dirty rectangles.
         auto result=self.originalPresent1_(swap,sync,flags,overlaid?&fullFrame:params);
-        if(result==DXGI_ERROR_DEVICE_REMOVED || result==DXGI_ERROR_DEVICE_RESET){std::lock_guard lock(self.renderMutex_);if(self.selected_==swap) self.clearRenderer();}
+        if(result==DXGI_ERROR_DEVICE_REMOVED || result==DXGI_ERROR_DEVICE_RESET){std::lock_guard lock(self.renderMutex_);if(self.selected_==swap) {self.reportFailure("DXGI device removed or reset");self.clearRenderer();}}
         return result;
     }
     static HRESULT STDMETHODCALLTYPE resize1(IDXGISwapChain3* swap,UINT count,UINT width,UINT height,DXGI_FORMAT format,UINT flags,const UINT* masks,IUnknown* const* queues) {
         auto& self=*instance_;std::lock_guard lock(self.renderMutex_);
-        try{if(self.selected_==swap && self.presenter_) self.presenter_->beforeResize();}catch(const std::exception& e){OutputDebugStringA(e.what());self.enabled_=false;self.clearRenderer();}
+        try{if(self.selected_==swap && self.presenter_) self.presenter_->beforeResize();}catch(const std::exception& e){OutputDebugStringA(e.what());self.reportFailure(e.what());self.enabled_=false;self.clearRenderer();}
         auto result=self.originalResize1_(swap,count,width,height,format,flags,masks,queues);
 #ifdef ZTMZ_HAS_DX12
         if(SUCCEEDED(result) && queues) {
@@ -100,7 +127,7 @@ class DxgiHook final : public OverlayHook {
     static HRESULT STDMETHODCALLTYPE resize(IDXGISwapChain* swap,UINT count,UINT width,UINT height,DXGI_FORMAT format,UINT flags) {
         auto& self=*instance_;std::lock_guard lock(self.renderMutex_);
         try {if(self.selected_==swap && self.presenter_) self.presenter_->beforeResize();}
-        catch(const std::exception& e){OutputDebugStringA(e.what());self.enabled_.store(false);self.clearRenderer();}
+        catch(const std::exception& e){OutputDebugStringA(e.what());self.reportFailure(e.what());self.enabled_.store(false);self.clearRenderer();}
         return self.originalResize_(swap,count,width,height,format,flags);
     }
 public:

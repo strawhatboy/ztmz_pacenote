@@ -1,5 +1,6 @@
 // Graphics-neutral DLL lifecycle. API adapters/hooks are registered separately.
 #include "hooks/overlay_hook.hpp"
+#include "control_pipe_win32.hpp"
 #include <windows.h>
 #include <thread>
 #include <mutex>
@@ -13,6 +14,8 @@ struct State {
     ztmz::SharedScene shared;
     ztmz::RenderApiRouter router;
     std::vector<std::unique_ptr<ztmz::OverlayHook>> hooks;
+    unsigned short port=0;
+    ztmz::RenderApi preference=ztmz::RenderApi::Auto;
 };
 // Installed callbacks require process-lifetime storage; the module is pinned.
 State& state(){static auto* value=new State;return *value;}
@@ -25,17 +28,24 @@ ztmz::RenderApi requestedApi() {
     if(size>=sizeof(value)) throw std::invalid_argument("ZTMZ_RENDER_API is too long");
     return ztmz::parseRenderApi(value);
 }
+std::string controlRequest(std::string_view request);
+void ensureControl() {
+    static std::once_flag initialized;
+    std::call_once(initialized,[]{ztmz::startControlPipe(controlRequest);});
 }
-extern "C" __declspec(dllexport) BOOL WINAPI ZtmzDashboardStart(unsigned short port) {
+BOOL start(unsigned short port,ztmz::RenderApi preference,uintptr_t targetWindow=0) {
     try {
         if(!port) return FALSE;
         auto& s=state();std::lock_guard lock(s.controlMutex);
-        if(s.network.joinable()) return TRUE;
-        auto preference=requestedApi();
+        if(s.network.joinable()) {
+            if(s.port!=port || s.preference!=preference || s.shared.targetWindow.load()!=targetWindow) throw std::runtime_error("Stop before changing overlay configuration");
+            return TRUE;
+        }
         s.router.configure(preference,ztmz::compiledOverlayApis());
         HMODULE pinned=nullptr;
         if(!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,
-            reinterpret_cast<LPCWSTR>(&ZtmzDashboardStart),&pinned)) return FALSE;
+            reinterpret_cast<LPCWSTR>(&start),&pinned)) return FALSE;
+        ensureControl();
         if(s.hooks.empty()) s.hooks=ztmz::createOverlayHooks(s.shared,s.router);
         const auto candidates=s.router.candidates();
         try {
@@ -45,16 +55,75 @@ extern "C" __declspec(dllexport) BOOL WINAPI ZtmzDashboardStart(unsigned short p
                 catch(const std::exception& e){if(preference!=ztmz::RenderApi::Auto) throw;OutputDebugStringA(e.what());}
             }
             s.router.configure(preference,installed);
+            s.shared.progress.reset();
+            s.shared.targetWindow.store(targetWindow);
             s.network=std::jthread([&s,port](std::stop_token stop){ztmz::receive(stop,s.shared,port);});
             for(auto& hook:s.hooks) if(requested(*hook,s.router.candidates())) hook->enable();
-        } catch(...) {for(auto& hook:s.hooks) hook->stop();throw;}
+            s.port=port;s.preference=preference;
+        } catch(...) {
+            for(auto& hook:s.hooks) hook->stop();
+            s.network.request_stop();if(s.network.joinable()) s.network.join();
+            throw;
+        }
         return TRUE;
     } catch(const std::exception& e){OutputDebugStringA(e.what());return FALSE;}
+}
+}
+extern "C" __declspec(dllexport) BOOL WINAPI ZtmzDashboardStart(unsigned short port) {
+    try {return start(port,requestedApi());}
+    catch(const std::exception& e){OutputDebugStringA(e.what());return FALSE;}
 }
 extern "C" __declspec(dllexport) void WINAPI ZtmzDashboardStop() {
     auto& s=state();std::lock_guard lock(s.controlMutex);
     for(auto& hook:s.hooks) hook->stop();
     s.network.request_stop();if(s.network.joinable()) s.network.join();
+    s.shared.progress.reset();
+}
+namespace {
+std::string controlRequest(std::string_view wire) {
+    ztmz::Json response={{"version",1},{"moduleVersion",1},{"pid",GetCurrentProcessId()},{"instance",ztmz::controlInstance()},{"ok",false}};
+    try {
+        auto request=ztmz::Json::parse(wire);
+        if(!request.is_object() || !request.contains("version") || !request["version"].is_number_integer() || request["version"]!=1)
+            throw std::invalid_argument("Unsupported control protocol version");
+        auto command=request.at("command").get<std::string>();
+        if(command!="status") {
+            if(request.at("instance").get<std::string>()!=response["instance"].get<std::string>())
+                throw std::invalid_argument("Stale overlay process instance");
+            if(command=="start") {
+                const auto& port=request.at("port");
+                if(!port.is_number_integer() || port<1 || port>65535) throw std::invalid_argument("Invalid loopback port");
+                auto api=ztmz::parseRenderApi(request.at("api").get<std::string>());
+                uintptr_t target=0;
+                if(request.contains("targetWindow")) {
+                    const auto& value=request.at("targetWindow");
+                    if(!value.is_number_unsigned()) throw std::invalid_argument("Invalid target window");
+                    target=value.get<uintptr_t>();
+                    DWORD owner=0;
+                    if(target && (!GetWindowThreadProcessId(reinterpret_cast<HWND>(target),&owner) || owner!=GetCurrentProcessId()))
+                        throw std::invalid_argument("Target window does not belong to overlay process");
+                }
+                if(!start(port.get<unsigned short>(),api,target)) throw std::runtime_error("Overlay start failed; verify API availability and stop before reconfiguration");
+            } else if(command=="stop") ZtmzDashboardStop();
+            else throw std::invalid_argument("Unknown control command");
+        }
+        response["ok"]=true;
+    } catch(const std::exception& e) {response["error"]=std::string(e.what()).substr(0,512);}
+    auto& s=state();std::lock_guard lock(s.controlMutex);
+    response["started"]=s.network.joinable();
+    response["port"]=s.port;
+    response["requestedApi"]=ztmz::apiName(s.preference);
+    response["selectedApi"]=ztmz::apiName(s.router.active());
+    {
+        auto& progress=s.shared.progress;std::lock_guard frameLock(progress.mutex);
+        response["submittedFrames"]=progress.submittedFrames;
+        response["window"]=progress.window;
+        response["lastFrameAgeMs"]=progress.lastFrameTick?static_cast<int64_t>(GetTickCount64()-progress.lastFrameTick):-1;
+        response["renderError"]=progress.error;
+    }
+    // Submission acknowledges CPU/backend work, not display scan-out or dashboard data arrival.
+    return response.dump();
+}
 }
 #ifdef ZTMZ_NATIVE_HOOK_TEST
 // Only the controlled-host DLL exposes fixtures. Never compiled into the product DLL.
@@ -71,13 +140,13 @@ extern "C" __declspec(dllexport) void WINAPI ZtmzDashboardTestScene() {
 #endif
 namespace {
 DWORD WINAPI bootstrap(void*) {
-    unsigned short port=8080;wchar_t value[16]{};
-    auto length=GetEnvironmentVariableW(L"ZTMZ_DASHBOARD_PORT",value,16);
-    if(length>0 && length<16) {
-        wchar_t* end=nullptr;auto parsed=std::wcstoul(value,&end,10);
-        if(end!=value && *end==L'\0' && parsed>0 && parsed<=65535) port=static_cast<unsigned short>(parsed);
-    }
-    ZtmzDashboardStart(port);return 0;
+    try {
+        HMODULE pinned=nullptr;
+        if(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,
+            reinterpret_cast<LPCWSTR>(&bootstrap),&pinned)) ensureControl();
+    } catch(const std::exception& e){OutputDebugStringA(e.what());}
+    // Loading only opens control. The host must authorize endpoint/API/window before hooking.
+    return 0;
 }
 }
 BOOL WINAPI DllMain(HINSTANCE module,DWORD reason,LPVOID) {

@@ -21,6 +21,27 @@
         </Style> -->
     </Page.Resources>
     <StackPanel Orientation="Vertical">
+        <ui:Card Margin="0 0 0 3" Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="240" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="{DynamicResource overlayBackend.title}" VerticalAlignment="Center" />
+                <ComboBox Grid.Column="1" HorizontalAlignment="Stretch"
+                          SelectedIndex="{Binding ViewModel.OverlayBackendIndex, Mode=TwoWay}">
+                    <ComboBoxItem Content="{DynamicResource overlayBackend.window}" />
+                    <ComboBoxItem Content="{DynamicResource overlayBackend.inGame}" />
+                </ComboBox>
+                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Margin="0 8 0 0" TextWrapping="Wrap"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                           helper:DynamicResourceText.Key="{Binding ViewModel.OverlayBackendStatusKey}" />
+            </Grid>
+        </ui:Card>
         <!-- FPS -->
         <ui:Card Margin="0 0 0 3"
             Padding="0">

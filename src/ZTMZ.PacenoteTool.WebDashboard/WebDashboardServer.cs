@@ -613,6 +613,8 @@ public class WebDashboardServer : IDisposable
             
             // StartAsync completes only after Kestrel has bound the configured port.
             _app.StartAsync().GetAwaiter().GetResult();
+            if (Port == 0)
+                Port = new Uri(_app.Urls.Single()).Port;
             IsRunning = true;
             _logger.Info(
                 "WebDashboard server started at {0}",

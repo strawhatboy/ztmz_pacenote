@@ -957,6 +957,18 @@
       "openedByUi": "The release page is opened by the app."
     }
   },
+  "overlayBackend": {
+    "inGameActive": "Se está usando el renderizado dentro del juego.",
+    "title": "Modo de visualización",
+    "window": "Ventana superpuesta independiente",
+    "inGame": "Renderizado en el juego (experimental)",
+    "windowActive": "Se utiliza una ventana superpuesta independiente.",
+    "antiCheat": "Ventana independiente: el renderizado en EA WRC está desactivado porque no se ha confirmado la compatibilidad con el sistema antitrampas.",
+    "platformUnavailable": "Ventana independiente: el renderizado nativo en el juego aún no está integrado en esta plataforma.",
+    "integrationPending": "Ventana independiente: el renderizado en el juego aún no está disponible en esta versión.",
+    "waitingForGame": "Esperando un juego; la API gráfica se selecciona automáticamente.",
+    "waitingForRenderer": "Esperando al renderizador del juego; la API gráfica se selecciona automáticamente."
+  },
   "voiceCatalog": {
     "refresh": "Refresh packages",
     "loading": "Loading online co-driver packages...",

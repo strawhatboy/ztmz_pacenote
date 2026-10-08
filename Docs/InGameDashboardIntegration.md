@@ -15,7 +15,8 @@ injection or hook setup. This is a product compatibility decision, not a claim
 that the current DLL has been tested against its anti-cheat. Enabling the global
 experimental preference does not override this exclusion.
 
-Graphics API selection defaults to automatic. The renderer already selects from
+Standalone graphics API selection defaults to automatic; desktop attachment currently
+requests the validated DX11 adapter. The renderer already selects from
 observed presentation/device types. Desktop integration must additionally identify
 the game window/swap chain, rather than letting a launcher or auxiliary surface
 claim rendering. A loaded graphics DLL alone is not sufficient evidence.
@@ -26,9 +27,18 @@ claim rendering. A loaded graphics DLL alone is not sufficient evidence.
   localized fallback explanation. The default remains the separate window.
 - Windows session state exposes the shared policy; the Avalonia presentation
   uses the same policy on both platforms.
-- The experimental renderer is **not yet connected to either desktop host**.
-  `GetDecision` deliberately reports integration pending on Windows and platform
-  unavailable elsewhere. Merely copying an overlay DLL does not enable injection.
+- Both Windows hosts use the shared session controller and x64 loader to attach
+  the versioned DLL or reconnect to an existing one. Missing native bundles retain
+  the window backend and integration-pending status. EA WRC is excluded before load.
+- Backend transitions are serialized. Old drawing must acknowledge Stop before
+  the replacement starts; stale attachment generations are discarded. Failures
+  remain visible rather than starting an uncertain second renderer.
+- The in-game session owns a loopback-only runtime on an OS-assigned port. It
+  reuses live dashboard settings, Overlay routing and the existing pacenote/replay
+  context. The public Web toggle cannot stop it. Empty scenes clear hidden HUDs.
+- Attachment waits for a window and passes its HWND to the DXGI hook. Active
+  requires recent matching-window submissions and a connected telemetry client.
+  Window recreation currently requires reattachment.
 - Compatibility tests cover WRC exclusion, unsupported platforms, absent games,
   unknown preferences, and reevaluation when switching games.
 - MSVC 19.39 compiled the Windows x64 DX11 viewer and overlay DLL successfully.
@@ -39,7 +49,7 @@ claim rendering. A loaded graphics DLL alone is not sufficient evidence.
 Native build output belongs in `build/native-dashboard/` and is ignored by Git.
 The normal managed build and installer do not include these experimental binaries.
 
-## Remaining integration, in order
+## Integration status and remaining validation
 
 1. Controlled DX11 hook baseline passed: early/late DLL loading, automatic API
    selection, GPU pixel readback, render-target/viewport/topology restoration,
@@ -54,6 +64,13 @@ The normal managed build and installer do not include these experimental binarie
    process/session identity. Support reconnect after ZTMZ restarts while the
    pinned DLL remains loaded. Do not remotely invoke exports using guessed
    addresses or assume a successful load means rendering started.
+   The first native control-pipe implementation now supports bounded messages,
+   same-user/session access, instance validation, reconnect, start/stop and API
+   selection status. Shared managed control and DX11 window/submitted-frame/error
+   feedback are now implemented; controlled interoperability checks cover native
+   and managed clients. Shared host connection now supports preloaded DX11 modules;
+   the x64 loader is now connected; full real-game acceptance remains pending. See
+   [protocol details](../src/ZTMZ.PacenoteTool.NativeDashboard/docs/ControlProtocol.md).
 3. Introduce an overlay backend interface beneath the shared session controller.
    Adapt the existing window backend first, preserving its startup and stage
    synchronization. Add the Windows in-game backend only after the control
@@ -79,6 +96,36 @@ The normal managed build and installer do not include these experimental binarie
 
 WPF and Avalonia should only bind shared commands/state. Do not copy injection,
 compatibility, session coordination, or dashboard transport logic into either UI.
+
+The lifetime/transport/serialization work in items 3–5 is now connected in the
+shared Windows controller and `InGameOverlaySession`. It has not yet been validated
+as one complete game session: automated tests cover native/.NET control and GPU
+pixels separately from private transport routing, dynamic ports and empty scenes.
+The policy-gated x64 loader now checks PE architecture, file version/product identity,
+target architecture and process creation time. It resolves the actual system loader
+module and its export offset in the target rather than reusing a local address.
+It does not auto-elevate. A remote-load timeout is ambiguous: no thread termination
+or premature freeing of its argument is attempted; restart the game before retrying.
+Versioned DLL loading, inert bootstrap, explicit DX11 frame submission and Stop
+passed in a self-owned controlled process using the production DLL. DR2 is next.
+
+## DR2 E2E test
+
+Stage the native Release output into a built Windows host explicitly (not the installer):
+
+```powershell
+./build/stage_native_dashboard.ps1 -NativeOutputDirectory ./build/native-dashboard/hook-test -HostOutputDirectory ./src/ZTMZ.PacenoteTool.Avalonia/bin/Release/net10.0-windows
+```
+
+The same command accepts the WpfGUI output directory. It copies the production
+DLL and fonts under `native-dashboard/win-x64`; missing bundles keep window mode.
+Restart DR2 first if any earlier overlay DLL was loaded, then run only one ZTMZ host.
+Enable an Overlay-routed dashboard and choose experimental in-game rendering.
+Check late startup on a stage, both backend switch directions, public Web disabled,
+HUD disabled/re-enabled, and ZTMZ restart while DR2 stays running. The host must
+report Active only after the target HWND submits frames and telemetry is connected.
+Check icon/text/replay content and game responsiveness; report the log if attachment
+fails. Installer packaging remains intentionally unchanged during this validation.
 
 ## Acceptance scenarios
 

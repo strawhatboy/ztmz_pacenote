@@ -95,4 +95,5 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
+  <Import Project="..\..\build\NativeDashboard.Development.targets" />
 </Project>

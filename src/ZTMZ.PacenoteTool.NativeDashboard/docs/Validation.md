@@ -1,5 +1,13 @@
 # Native dashboard validation
 
+## User-confirmed DR2 checks (Windows, 2026-10-08)
+
+WPF passed startup while already on a stage, switching both overlay backends,
+in-game rendering with public Web disabled, and ZTMZ restart while DR2 stays open.
+After the swap-chain fix, window/fullscreen/window transitions recovered correctly.
+Avalonia backend selection worked after the native bundle was deployed to its
+actual Debug output. Its full four-scenario matrix has not yet been reported.
+
 ## Completed on macOS
 
 - CMake build with Apple Clang and address/undefined-behavior sanitizers.
@@ -47,6 +55,24 @@ The DLL uses the production hooks and start/stop lifecycle, with only network
 transport replaced by a stop-aware worker and a deterministic scene fixture.
 Test-only exports and disabled auto-bootstrap are confined to the test target.
 
+The same tests now use the control pipe for stop/start cycles and query status
+from a separate client process. They reject stale process instances, protocol
+version mismatch, malformed/oversized requests, invalid ports and reconfiguration
+while running. GPU readback verifies rejected commands leave drawing intact.
+
+The shared Platform.Windows .NET client also passed cross-process interoperability
+in both early and late loading cases. It verifies process identity, queries DX11
+submission/window feedback, stops/restarts rendering, preserves cancellation,
+times out an absent endpoint and expires cached frame status. The controlled host
+then resumes GPU pixel assertions. The Platform.Windows project builds successfully;
+managed-host attachment and actual game operation remain outside this validation.
+
+The production module's versioned x64 loading path also passed in a self-owned
+DX11 process. A separate C# process performs the same remote load used by the
+desktop controller, confirms bootstrap is inert, explicitly starts DX11 rendering,
+observes recent submissions and stops it. This is still not a real DR2 acceptance
+test, nor a full shared-session test with live game telemetry.
+
 GPU pixel readback verifies the overlay rectangle and untouched background.
 Both cases check automatic DX11 selection, restoration of the host render target,
 viewport and primitive topology, resize from 640x360 to 800x450, and three
@@ -64,6 +90,18 @@ Present1, concurrent stop/presentation, device loss, fullscreen or Alt-Tab.
 It does not validate production network transport or desktop-host attachment.
 
 ## Still required on Windows
+
+### Swap-chain replacement regression
+
+During the DR2 fullscreen disappearance report, read-only control status showed
+the worker and DX11 router still enabled, no renderer error, the same HWND as the
+game's current main window, and no new frame submission for over five minutes.
+The old hook unconditionally rejected any swap-chain pointer other than its first.
+A controlled same-HWND swap-chain/device replacement reproduced missing overlay
+pixels before the fix. Both early/late tests now pass two successive replacements,
+while rejecting an auxiliary window. The presenter also checks device identity
+in case a destroyed swap-chain address is reused. This validates that failure
+path; actual DR2 fullscreen transitions still require user retesting.
 
 Extend controlled validation to the other graphics paths and then selected games.
 Check transparent composition, images/colors, reset/resize,

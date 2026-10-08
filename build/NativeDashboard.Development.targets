@@ -1,0 +1,18 @@
+<Project>
+  <!-- Local native validation output, shared by Debug/Release and both Windows hosts.
+       This stages an already-built bundle; it does not build C++ or change publishing. -->
+  <PropertyGroup>
+    <NativeDashboardBuildDirectory Condition="'$(NativeDashboardBuildDirectory)' == ''">$(MSBuildThisFileDirectory)native-dashboard\hook-test</NativeDashboardBuildDirectory>
+  </PropertyGroup>
+  <Target Name="StageDevelopmentNativeDashboard" AfterTargets="Build"
+          Condition="'$(OS)' == 'Windows_NT' and '$(DesignTimeBuild)' != 'true' and ('$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'win-x64') and '$(PlatformTarget)' != 'x86' and '$(PlatformTarget)' != 'ARM64'">
+    <Warning Condition="!Exists('$(NativeDashboardBuildDirectory)\ztmz_dashboard_overlay.dll')"
+             Text="Native dashboard DLL not built at $(NativeDashboardBuildDirectory). In-game rendering will use the separate-window fallback. Build the native DX11 target to enable local testing." />
+    <ItemGroup Condition="Exists('$(NativeDashboardBuildDirectory)\ztmz_dashboard_overlay.dll')">
+      <_NativeDashboardDevelopmentFiles Include="$(NativeDashboardBuildDirectory)\ztmz_dashboard_overlay.dll" />
+      <_NativeDashboardDevelopmentFonts Include="$(NativeDashboardBuildDirectory)\fonts\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_NativeDashboardDevelopmentFiles)" DestinationFolder="$(OutDir)native-dashboard\win-x64" SkipUnchangedFiles="true" Condition="'@(_NativeDashboardDevelopmentFiles)' != ''" />
+    <Copy SourceFiles="@(_NativeDashboardDevelopmentFonts)" DestinationFiles="@(_NativeDashboardDevelopmentFonts->'$(OutDir)native-dashboard\win-x64\fonts\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" Condition="'@(_NativeDashboardDevelopmentFonts)' != ''" />
+  </Target>
+</Project>

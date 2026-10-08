@@ -957,6 +957,18 @@
       "openedByUi": "The release page is opened by the app."
     }
   },
+  "overlayBackend": {
+    "inGameActive": "ゲーム内描画を使用中です。",
+    "title": "表示方式",
+    "window": "独立したオーバーレイウィンドウ",
+    "inGame": "ゲーム内描画（実験的）",
+    "windowActive": "独立したオーバーレイウィンドウを使用中。",
+    "antiCheat": "独立ウィンドウを使用中：EA WRC のアンチチートとの互換性が未確認のため、ゲーム内描画は無効です。",
+    "platformUnavailable": "独立ウィンドウを使用中：このプラットフォームにはネイティブのゲーム内描画がまだ統合されていません。",
+    "integrationPending": "独立ウィンドウを使用中：このバージョンではゲーム内描画はまだ利用できません。",
+    "waitingForGame": "ゲームの起動待ち。グラフィックス API は自動選択されます。",
+    "waitingForRenderer": "ゲームのレンダラー待ち。グラフィックス API は自動選択されます。"
+  },
   "voiceCatalog": {
     "refresh": "Refresh packages",
     "loading": "Loading online co-driver packages...",

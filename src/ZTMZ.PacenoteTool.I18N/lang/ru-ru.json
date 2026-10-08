@@ -957,6 +957,18 @@
       "openedByUi": "The release page is opened by the app."
     }
   },
+  "overlayBackend": {
+    "inGameActive": "Используется отрисовка внутри игры.",
+    "title": "Способ отображения",
+    "window": "Отдельное окно оверлея",
+    "inGame": "Отрисовка в игре (экспериментальная)",
+    "windowActive": "Используется отдельное окно оверлея.",
+    "antiCheat": "Отдельное окно: отрисовка в EA WRC отключена, поскольку совместимость с античитом не подтверждена.",
+    "platformUnavailable": "Отдельное окно: нативная отрисовка в игре ещё не интегрирована на этой платформе.",
+    "integrationPending": "Отдельное окно: отрисовка в игре пока недоступна в этой версии.",
+    "waitingForGame": "Ожидание игры; графический API выбирается автоматически.",
+    "waitingForRenderer": "Ожидание рендерера игры; графический API выбирается автоматически."
+  },
   "voiceCatalog": {
     "refresh": "Refresh packages",
     "loading": "Loading online co-driver packages...",

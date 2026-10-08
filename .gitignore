@@ -7,6 +7,7 @@ Output
 build/target
 build/target*
 build/avalonia-publish-probe/
+build/native-dashboard/
 # Local build logs and Mod archives prepared for upload.
 /build/*.log
 /build/mod-uploads/**/*.zip

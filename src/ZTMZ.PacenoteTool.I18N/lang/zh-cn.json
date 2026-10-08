@@ -1012,6 +1012,18 @@
       "openedByUi": "发布页面由应用打开。"
     }
   },
+  "overlayBackend": {
+    "inGameActive": "当前使用游戏内渲染。",
+    "title": "显示方式",
+    "window": "独立悬浮窗口",
+    "inGame": "游戏内渲染（实验性）",
+    "windowActive": "当前使用独立悬浮窗口。",
+    "antiCheat": "当前使用独立窗口：EA WRC 的反作弊兼容性尚未确认，已禁用游戏内渲染。",
+    "platformUnavailable": "当前使用独立窗口：此平台尚未接入原生游戏内渲染。",
+    "integrationPending": "当前使用独立窗口：此版本尚未提供游戏内渲染。",
+    "waitingForGame": "等待游戏启动；图形接口自动识别。",
+    "waitingForRenderer": "等待游戏渲染器；图形接口自动识别。"
+  },
   "voiceCatalog": {
     "refresh": "刷新语音包",
     "loading": "正在加载在线领航员语音包...",

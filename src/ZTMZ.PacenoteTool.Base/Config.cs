@@ -412,6 +412,17 @@ namespace ZTMZ.PacenoteTool.Base
         #region HUD
 
         private bool _HudLockFPS = true;
+        private int _OverlayDisplayBackend;
+        public int OverlayDisplayBackend
+        {
+            get => _OverlayDisplayBackend;
+            set
+            {
+                _OverlayDisplayBackend = value == 1 ? 1 : 0;
+                _userconfig[nameof(OverlayDisplayBackend)] = _OverlayDisplayBackend;
+            }
+        }
+
         public bool HudLockFPS
         {
             set { this._HudLockFPS = value; this._userconfig["HudLockFPS"] = value; }

@@ -74,10 +74,10 @@ the server selects command mode.
 ## DLL behavior
 
 The DLL starts a bootstrap thread when loaded. Outside the loader lock, it pins
-itself for the process lifetime, installs compiled hook families, and
-connects to `127.0.0.1:8080`. Set `ZTMZ_DASHBOARD_PORT` in the game process's
-environment before launch to select another port. `ZTMZ_RENDER_API=auto` selects
-from verified presentation events; `ZTMZ_RENDER_API=dx11` requests DX11 explicitly.
+itself for the process lifetime and opens the control pipe without installing
+hooks or connecting to telemetry. The host explicitly starts it with a loopback
+port, API and target HWND. The legacy Start export uses `ZTMZ_RENDER_API` (default
+auto); desktop hosts use the control protocol and DX11 during this validation phase.
 Unavailable APIs fail startup. Auto selects a supported native presentation event;
 it skips hook families that fail initialization. DX12 requires loading before
 swap-chain creation, and Vulkan before graphics-object creation. Late injection
@@ -88,7 +88,13 @@ Exports `ZtmzDashboardStop()` and `ZtmzDashboardStart(unsigned short port)` allo
 host to stop/restart the client. Stop releases client/rendering resources while
 hooks remain pass-through. **Hot unloading is intentionally unsupported**; restart
 the process to unload the pinned module. Do not call these exports from DllMain.
-There is no process injector utility in this project yet.
+The shared Windows desktop library provides the loader; both UI hosts reuse it.
+
+A versioned local [control pipe](docs/ControlProtocol.md) now supports status,
+start and stop, including reconnection while the pinned DLL remains loaded.
+The shared Windows desktop session loads or reconnects to versioned x64 modules.
+API selection alone does not establish an Active rendering status. See the
+[DR2 E2E instructions](../../Docs/InGameDashboardIntegration.md#dr2-e2e-test).
 
 DX9/9Ex, DX10, DX11, DX12, and Vulkan now have native adapters. DXGI supports
 Present/Present1 and ResizeBuffers/ResizeBuffers1. Vulkan's initial implementation
