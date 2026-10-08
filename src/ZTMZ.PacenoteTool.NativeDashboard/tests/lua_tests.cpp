@@ -1,5 +1,7 @@
 #include "dashboard_client.hpp"
 #include "renderer.hpp"
+#include "font_atlas.hpp"
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -136,6 +138,15 @@ int main(int argc,char** argv) {
                     "FrontLeftTyre","FrontRightTyre","RearLeftTyre","RearRightTyre"}) damage[std::string(part)+"Severity"]=1;
             }
             std::size_t commands=0;
+            if(p.value("testName",std::string{})=="modern_wrc_2025v2") {
+                // A viewer may connect before the first usable engine telemetry.
+                for(const auto& values: {std::pair{0,0},std::pair{5000,0},std::pair{5000,-1},std::pair{9000,8000}}) {
+                    auto data=telemetry;data["RPM"]=values.first;data["MaxRPM"]=values.second;
+                    render(runtime.update(data,context,0,"12:34:56"));
+                }
+                auto missing=telemetry;missing.erase("MaxRPM");
+                render(runtime.update(missing,context,0,"12:34:56"));
+            }
             for(int frame=0;frame<4;++frame) {
                 auto data=telemetry;data["Speed"]=30+frame*5;data["LapTime"]=30+frame;data["LapDistance"]=1000+frame*30;
                 auto layers=runtime.update(data,context,frame*0.1,"12:34:56");
@@ -144,7 +155,57 @@ int main(int argc,char** argv) {
             }
             require(commands>0,"Built-in dashboard emitted no commands");runtime.shutdown();
             std::cout<<p.value("testName",std::string("dashboard"))<<": "<<commands<<" commands\n";
-        } else { runtimeTests();std::cout<<"Lua lifecycle, isolation, limits, package and telemetry checks passed\n"; }
+        } else {
+            runtimeTests();
+#ifdef _WIN32
+            {
+                auto roman=selectFont("WRC Clean",400,false),bold=selectFont("WRC Clean",700,false);
+                require(!roman.substituted && !bold.substituted,"Bundled WRC fonts were not resolved");
+                require(roman.faces.front()->identity!=bold.faces.front()->identity,"Bold WRC font was not selected");
+                Scene textScene;textScene.width=1920;textScene.height=1080;
+                Json command={{"type","drawText"},{"fontName","Consolas"},{"fontSize",24},
+                    {"fontWeight",400},{"text",std::string("RPM ")+"\xe5\xb7\xa6\xe5\x85\xad"},{"x",0},{"y",0}};
+                textScene.layers.push_back({"fonts","dynamic",Json::array({command})});
+                DashboardFonts fonts;require(fonts.collect(textScene),"Initial font atlas not requested");fonts.rebuild();
+                ImGui::GetIO().Fonts->SetTexID(1);
+                std::set<std::string> warnings;auto* font=fonts.lookup(command,warnings);
+                require(font && font->FindGlyphNoFallback(0x5de6) && font->FindGlyphNoFallback(0x516d),"System CJK fallback missing");
+                require(warnings.empty(),"Unexpected font substitution");
+                const auto text=command["text"].get<std::string>();
+                auto measured=measureText(selectFont("Consolas",400,false),24,text);
+                auto rendered=font->CalcTextSizeA(24,10000,0,text.c_str());
+                require(std::abs(measured.width-rendered.x)<1.1f,"Lua and ImGui text widths disagree");
+                require(!fonts.collect(textScene),"Unchanged text rebuilt font atlas");
+                ImGui::NewFrame();
+                require(draw(textScene,{},[&](const Json& c,std::set<std::string>& w){return fonts.lookup(c,w);}).empty(),"Font-aware rendering reported unsupported text");
+                ImGui::Render();
+            }
+#endif
+            Scene scene;scene.width=1920;scene.height=1080;
+            scene.layers.push_back({"compatibility", "dynamic", Json::parse(R"([
+                {"type":"clear","color":null},
+                {"type":"setClip","x":10,"y":20,"width":100,"height":80},
+                {"type":"fillGeometry","points":[0,0,200,0,200,200,0,200],"color":4294967295},
+                {"type":"releaseClip"},
+                {"type":"drawGeometry","points":[0,0,20,20],"color":4294967295}
+            ])")});
+            ImGui::NewFrame();
+            require(draw(scene,{}).empty(),"Compatibility geometry/clip commands rejected");
+            ImGui::Render();
+            bool clipped=false,unclipped=false;
+            const auto* draws=ImGui::GetDrawData();
+            for(int i=0;i<draws->CmdListsCount;++i) for(const auto& cmd:draws->CmdLists[i]->CmdBuffer) {
+                if(!cmd.ElemCount) continue;
+                if(cmd.ClipRect.x==10 && cmd.ClipRect.y==20 && cmd.ClipRect.z==110 && cmd.ClipRect.w==100) clipped=true;
+                if(cmd.ClipRect.x==0 && cmd.ClipRect.y==0 && cmd.ClipRect.z==1920 && cmd.ClipRect.w==1080) unclipped=true;
+            }
+            require(clipped && unclipped,"Compatibility clip was not applied and released");
+            scene.layers[0].commands=Json::parse(R"([{"type":"fillGeometry","points":[1,2,3]}])");
+            ImGui::NewFrame();auto warnings=draw(scene,{});ImGui::Render();
+            require(warnings.size()==1 && warnings.begin()->find("compatibility / fillGeometry")!=std::string::npos,
+                "Malformed command diagnostic lacks layer/type");
+            std::cout<<"Lua lifecycle, isolation, limits, telemetry and compatibility rendering checks passed\n";
+        }
         return 0;
     } catch(const std::exception& e){std::cerr<<e.what()<<"\n";return 1;}
 }

@@ -98,6 +98,15 @@ end)"}};
             require(rejected && log.calls.size()==count,"Wrong native frame reached GPU backend");
             session.render({0,0,0.01f},frame,scene,{});
             require(log.calls.size()==count,"Minimized surface submitted a frame");
+            auto withText=scene;
+            withText.layers.push_back({"text","dynamic",Json::array({{{"type","drawText"},
+                {"fontName","Arial"},{"text","new glyphs"},{"fontSize",18}}})});
+            session.render({1920,1080,0.01f},frame,withText,{});
+            auto invalidations=std::count(log.calls.begin(),log.calls.end(),"invalidate");
+            require(invalidations==1,"New font did not invalidate its GPU texture");
+            session.render({1920,1080,0.01f},frame,withText,{});
+            require(std::count(log.calls.begin(),log.calls.end(),"invalidate")==invalidations,
+                "Unchanged text invalidated font GPU resources again");
             session.invalidateDeviceObjects();
             require(log.calls.back()=="invalidate","Reset did not reach backend");
             bool threw=false;

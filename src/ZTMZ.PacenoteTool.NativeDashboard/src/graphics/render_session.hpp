@@ -1,6 +1,7 @@
 #pragma once
 #include "graphics/render_backend.hpp"
 #include <memory>
+#include "font_atlas.hpp"
 namespace ztmz {
 // One session per native graphics device. Lua/telemetry remain outside its lifetime.
 // Hosts serialize access; no backend/ImGui calls belong on the network thread.
@@ -20,5 +21,6 @@ public:
 private:
     std::unique_ptr<RenderBackend> backend_;
     ImGuiContext* context_ = nullptr;
+    DashboardFonts fonts_;
 };
 }

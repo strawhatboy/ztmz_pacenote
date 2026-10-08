@@ -31,7 +31,7 @@ struct Platform {
     }
     ~Platform(){inputSession=nullptr;session.withContext([]{ImGui_ImplWin32_Shutdown();});}
 };
-void run(HWND hwnd,unsigned short port) {
+void run(HWND hwnd,unsigned short port,bool smokeTest) {
     DXGI_SWAP_CHAIN_DESC desc{};desc.BufferCount=2;desc.BufferDesc.Format=DXGI_FORMAT_R8G8B8A8_UNORM;
     desc.BufferUsage=DXGI_USAGE_RENDER_TARGET_OUTPUT;desc.OutputWindow=hwnd;desc.SampleDesc.Count=1;
     desc.Windowed=TRUE;desc.SwapEffect=DXGI_SWAP_EFFECT_DISCARD;
@@ -50,8 +50,20 @@ void run(HWND hwnd,unsigned short port) {
     ztmz::RenderSession renderer(ztmz::createDx11Backend(device.Get(),context.Get()));
     Platform platform(renderer,hwnd);
     ztmz::SharedScene shared;
-    std::jthread network([&](std::stop_token stop){ztmz::receive(stop,shared,port);});
-    ShowWindow(hwnd,SW_SHOWDEFAULT);
+    if(smokeTest) {
+        shared.scene.layers.push_back({"font-smoke", "dynamic", ztmz::Json::array({
+            {{"type","drawText"},{"fontName","WRC Clean"},{"fontWeight",700},{"fontSize",32},
+             {"text","WRC 123"},{"x",20},{"y",20}},
+            {{"type","drawText"},{"fontName","Consolas"},{"fontSize",24},
+             {"text","RPM \xe5\xb7\xa6\xe5\x85\xad"},{"x",20},{"y",60}}
+        })});
+    }
+    std::jthread network;
+    if(!smokeTest) {
+        network=std::jthread([&](std::stop_token stop){ztmz::receive(stop,shared,port);});
+        ShowWindow(hwnd,SW_SHOWDEFAULT);
+    }
+    unsigned renderedFrames=0;
     auto previous=std::chrono::steady_clock::now();
     bool running=true;
     while(running){
@@ -60,7 +72,8 @@ void run(HWND hwnd,unsigned short port) {
         if(IsIconic(hwnd)){Sleep(20);continue;}
         if(pendingWidth && pendingHeight){
             context->OMSetRenderTargets(0,nullptr,nullptr);target.Reset();renderer.invalidateDeviceObjects();
-            if(FAILED(swap->ResizeBuffers(0,pendingWidth,pendingHeight,DXGI_FORMAT_UNKNOWN,0)) || !createTarget()) break;
+            if(FAILED(swap->ResizeBuffers(0,pendingWidth,pendingHeight,DXGI_FORMAT_UNKNOWN,0)) || !createTarget())
+                throw std::runtime_error("Cannot resize viewer render target");
             pendingWidth=pendingHeight=0;
         }
         ztmz::Scene scene;std::string status;std::shared_ptr<const ztmz::ImageAssets> assets;
@@ -71,19 +84,25 @@ void run(HWND hwnd,unsigned short port) {
         ztmz::Dx11Frame frame(target.Get());
         renderer.render({width,height,std::chrono::duration<float>(now-previous).count()},frame,scene,*assets,
             [&](const std::set<std::string>& warnings){
+                if(smokeTest && !warnings.empty()) throw std::runtime_error(*warnings.begin());
                 ImGui::Begin("Native dashboard status");ImGui::TextUnformatted(status.c_str());
                 ImGui::Text("Backend: %s | 127.0.0.1:%u | scene %lld",ztmz::apiName(renderer.api()).data(),port,static_cast<long long>(scene.revision));
                 for(const auto& warning:warnings) ImGui::Text("Unsupported: %s",warning.c_str());
                 ImGui::End();
             });
         previous=now;
-        if(FAILED(swap->Present(1,0))) break;
+        if(FAILED(swap->Present(1,0))) throw std::runtime_error("DX11 presentation failed");
+        if(smokeTest && ++renderedFrames==3) {
+            std::cout<<"DX11 hardware smoke test passed: 3 ImGui frames submitted and presented.\n";
+            break;
+        }
     }
 }
 }
 int main(int argc,char** argv) {
     unsigned short port=8080;
-    try {if(argc>1){auto value=std::stoi(argv[1]);if(value<1 || value>65535) throw std::runtime_error("Invalid port");port=static_cast<unsigned short>(value);}}
+    const bool smokeTest=argc>1 && std::string_view(argv[1])=="--smoke-test";
+    try {if(argc>1 && !smokeTest){auto value=std::stoi(argv[1]);if(value<1 || value>65535) throw std::runtime_error("Invalid port");port=static_cast<unsigned short>(value);}}
     catch(const std::exception& e){std::cerr<<e.what()<<"\n";return 1;}
     auto instance=GetModuleHandle(nullptr);
     WNDCLASS wc{};wc.lpfnWndProc=windowProc;wc.hInstance=instance;wc.lpszClassName=L"ZtmzDashboardViewer";
@@ -91,7 +110,7 @@ int main(int argc,char** argv) {
     auto hwnd=CreateWindow(wc.lpszClassName,L"ZTMZ Native Dashboard Viewer (DX11)",WS_OVERLAPPEDWINDOW,CW_USEDEFAULT,CW_USEDEFAULT,1280,720,nullptr,nullptr,instance,nullptr);
     if(!hwnd){UnregisterClass(wc.lpszClassName,instance);return 1;}
     int result=0;
-    try {run(hwnd,port);}
+    try {run(hwnd,port,smokeTest);}
     catch(const std::exception& e){std::cerr<<e.what()<<"\n";result=1;}
     if(IsWindow(hwnd)) DestroyWindow(hwnd);
     UnregisterClass(wc.lpszClassName,instance);return result;

@@ -5,6 +5,8 @@ local noop = function() end
 local static, dynamic, active = {}, {}, nil
 local commandCount, dirty = 0, true
 local args = {}
+local nativeMeasure = __ztmz_measure_text
+__ztmz_measure_text = nil
 local function emit(command)
     commandCount = commandCount + 1
     assert(commandCount <= 20000, 'dashboard exceeded drawing command limit')
@@ -101,11 +103,14 @@ function gfx.DrawImage(image,l,t,r,b,opacity)
     emit({type='drawImage',imageKey=image.CacheKey,imageUrl=image.Url,x=l,y=t,
         width=r and r-l or image.Width,height=b and b-t or image.Height,opacity=opacity or 1})
 end
--- A portable deterministic estimate; native font metrics can replace this callback.
--- Text commands retain the requested family/style for the renderer.
+-- Use the same font files and glyph advances as the native renderer when available.
 function gfx.MeasureString(font,size,text)
     if type(size)~='number' then text=size;size=font.Size end
     text=tostring(text or '')
+    if nativeMeasure then
+        local width,height=nativeMeasure(font.Name,size,text,font.Bold,font.Italic)
+        if width then return point(width,height) end
+    end
     local width,lines=0,0
     for line in (text..'\n'):gmatch('(.-)\n') do
         local count=utf8.len(line) or #line

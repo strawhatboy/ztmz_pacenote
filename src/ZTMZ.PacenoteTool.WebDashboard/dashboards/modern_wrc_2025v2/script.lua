@@ -110,8 +110,6 @@ function drawStaticFrames(gfx, self, data, helper, x, y, width, height)
 end
 
 function drawRPM(gfx, self, data, conf, helper, x, y, width, height)
-    local rpm = data.RPM;
-    local maxRPM = data.MaxRPM;
     local showRPMBlink = self.GetConfigByKey("dashboards.settings.showRPMBlink")
     local imageAspectRatio = 768 / 51;
     local targetWidth = width * 0.5; 
@@ -124,7 +122,7 @@ function drawRPM(gfx, self, data, conf, helper, x, y, width, height)
     local rpmStartY = centerY - targetHeight * 0.5;
     
     -- Calculate clip region based on RPM value
-    local rpmPercentage = rpm / maxRPM;
+    local rpmPercentage = math.max(0, math.min(1, getRPMPercentage(data)));
     local rpmClipWidth = targetWidth * rpmPercentage;
     
     -- Add blinking logic when RPM is over 90% and blinking is enabled

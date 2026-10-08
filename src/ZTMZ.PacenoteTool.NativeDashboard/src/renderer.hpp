@@ -6,5 +6,6 @@
 namespace ztmz {
 struct Texture { ImTextureID id = 0; unsigned width = 0, height = 0; };
 using TextureLookup = std::function<Texture(const std::string&)>;
-std::set<std::string> draw(const Scene& scene, const TextureLookup& textures = {});
+using FontLookup = std::function<ImFont*(const Json&,std::set<std::string>&)>;
+std::set<std::string> draw(const Scene& scene, const TextureLookup& textures = {},const FontLookup& fonts = {});
 }

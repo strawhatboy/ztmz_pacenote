@@ -56,6 +56,19 @@ extern "C" __declspec(dllexport) void WINAPI ZtmzDashboardStop() {
     for(auto& hook:s.hooks) hook->stop();
     s.network.request_stop();if(s.network.joinable()) s.network.join();
 }
+#ifdef ZTMZ_NATIVE_HOOK_TEST
+// Only the controlled-host DLL exposes fixtures. Never compiled into the product DLL.
+extern "C" __declspec(dllexport) int WINAPI ZtmzDashboardTestActiveApi() {
+    return static_cast<int>(state().router.active());
+}
+extern "C" __declspec(dllexport) void WINAPI ZtmzDashboardTestScene() {
+    auto& s=state();std::lock_guard lock(s.shared.mutex);
+    s.shared.scene.width=1920;s.shared.scene.height=1080;
+    s.shared.scene.layers={{"fixture","dynamic",ztmz::Json::array({
+        {{"type","fillRectangle"},{"x",96},{"y",96},{"width",192},{"height",192},{"color",0xffff0000u}}
+    })}};
+}
+#endif
 namespace {
 DWORD WINAPI bootstrap(void*) {
     unsigned short port=8080;wchar_t value[16]{};
@@ -70,8 +83,10 @@ DWORD WINAPI bootstrap(void*) {
 BOOL WINAPI DllMain(HINSTANCE module,DWORD reason,LPVOID) {
     if(reason==DLL_PROCESS_ATTACH) {
         DisableThreadLibraryCalls(module);
+#ifndef ZTMZ_NATIVE_HOOK_TEST
         auto thread=CreateThread(nullptr,0,bootstrap,nullptr,0,nullptr);
         if(thread) CloseHandle(thread);
+#endif
     }
     return TRUE;
 }

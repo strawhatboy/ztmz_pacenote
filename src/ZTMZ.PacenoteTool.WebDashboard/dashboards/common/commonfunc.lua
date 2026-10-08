@@ -108,6 +108,17 @@ function getGear(gear)
     return "";
 end
 
+-- Startup/menu telemetry may not contain a usable engine RPM range yet.
+function getRPMPercentage(data)
+    local rpm, maximum = data.RPM, data.MaxRPM;
+    if type(rpm) ~= "number" or type(maximum) ~= "number"
+        or rpm ~= rpm or maximum ~= maximum
+        or math.abs(rpm) == math.huge or maximum <= 0 or maximum == math.huge then
+        return 0;
+    end
+    return rpm / maximum;
+end
+
 function getRPMLevel(data, conf)
     local redZoneBlink = conf.HudShiftRedZone;
     local redZone = 0.7;
@@ -115,8 +126,8 @@ function getRPMLevel(data, conf)
     local greenZone = conf.HudShiftGreenZone;
 
     local rpm = data.RPM;
-    local maxRPM = data.MaxRPM;
-    local rpmPercentage = rpm / maxRPM;
+    if type(rpm) ~= "number" or rpm ~= rpm or math.abs(rpm) == math.huge then return 0 end
+    local rpmPercentage = getRPMPercentage(data);
     local rpmLevel = 0;
     if (rpmPercentage > redZoneBlink) then
         rpmLevel = 4;

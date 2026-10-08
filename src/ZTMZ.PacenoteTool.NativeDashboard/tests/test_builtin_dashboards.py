@@ -28,8 +28,8 @@ with tempfile.TemporaryDirectory(prefix="ztmz-lua-tests-") as temp:
             continue
         settings=read_json(dashboard/"settings.json")
         p={"id": 0, "testName": dashboard.name,
-           "luaScript": (dashboard/"script.lua").read_text(),
-           "commonScripts": [s.read_text() for s in sorted((web/"dashboards/common").glob("*.lua"))],
+           "luaScript": (dashboard/"script.lua").read_text(encoding="utf-8-sig"),
+           "commonScripts": [s.read_text(encoding="utf-8-sig") for s in sorted((web/"dashboards/common").glob("*.lua"))],
            "settings": dict(zip(settings["PropertyName"], settings["PropertyValue"])),
            "imageResources": {}, "imageMetadata": {}}
         def add_image(key,path):

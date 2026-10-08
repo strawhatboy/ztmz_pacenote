@@ -50,13 +50,17 @@ void gradientTriangle(ImDrawList* out,const ImDrawVert& a,const ImDrawVert& b,co
     }
 }
 }
-std::set<std::string> draw(const Scene& scene,const TextureLookup& textures) {
+std::set<std::string> draw(const Scene& scene,const TextureLookup& textures,const FontLookup& fonts) {
     auto* output=ImGui::GetBackgroundDrawList();
     const auto size=ImGui::GetIO().DisplaySize;
     float scale=std::min(size.x/std::max(1,scene.width),size.y/std::max(1,scene.height));
     if(scale<=0) return {};
     ImVec2 offset{(size.x-scene.width*scale)/2,(size.y-scene.height*scale)/2};
-    auto point=[&](float x,float y){return ImVec2{offset.x+x*scale,offset.y+y*scale};};
+    auto point=[&](float x,float y){
+        ImVec2 p{offset.x+x*scale,offset.y+y*scale};
+        if(!std::isfinite(p.x)||!std::isfinite(p.y)) throw std::runtime_error("Non-finite drawing coordinate");
+        return p;
+    };
     std::set<std::string> unsupported;
     std::size_t gradientBudget=250000;
     for(const auto& layer:scene.layers) {
@@ -66,15 +70,15 @@ std::set<std::string> draw(const Scene& scene,const TextureLookup& textures) {
             try {
                 const auto type=c.value("type",std::string{});
                 auto n=[&](const char* key,float fallback=0.f){return c.contains(key)&&!c[key].is_null()?c[key].get<float>():fallback;};
-                auto color=rgba(c.value("color",0xffffffffu));
+                auto color=rgba(c.contains("color")&&!c["color"].is_null()?c["color"].get<std::uint32_t>():0xffffffffu);
                 const bool gradient=c.contains("gradient")&&!c["gradient"].is_null();
                 ImDrawList scratch(ImGui::GetDrawListSharedData());
                 auto* dl=gradient?&scratch:output;
                 if(gradient) {scratch._ResetForNewFrame();scratch.PushClipRectFullScreen();scratch.PushTextureID(ImGui::GetIO().Fonts->TexID);color=IM_COL32_WHITE;}
                 auto a=point(n("x"),n("y")),b=point(n("x")+n("width"),n("y")+n("height"));
                 auto thickness=n("thickness",1)*scale;
-                if(type=="clipRegionStart") {output->PushClipRect(a,b,true);++clips;}
-                else if(type=="clipRegionEnd") {if(clips>0){output->PopClipRect();--clips;}}
+                if(type=="clipRegionStart" || type=="setClip") {output->PushClipRect(a,b,true);++clips;}
+                else if(type=="clipRegionEnd" || type=="releaseClip") {if(clips>0){output->PopClipRect();--clips;}}
                 else if(type=="drawLine") dl->AddLine(point(n("x1"),n("y1")),point(n("x2"),n("y2")),color,thickness);
                 else if(type=="fillRectangle") dl->AddRectFilled(a,b,color);
                 else if(type=="drawRectangle") dl->AddRect(a,b,color,0,0,thickness);
@@ -88,7 +92,16 @@ std::set<std::string> draw(const Scene& scene,const TextureLookup& textures) {
                     dl->AddConvexPolyFilled(points,64,color);
                 } else if(type=="fillGeometry" || type=="drawGeometry") {
                     std::vector<ImVec2> points;
-                    for(const auto& p:c.at("points")) points.push_back(point(p.at("x").get<float>(),p.at("y").get<float>()));
+                    const auto& coordinates=c.at("points");
+                    if(!coordinates.is_array()) throw std::runtime_error("Geometry points must be an array");
+                    if(!coordinates.empty() && coordinates.front().is_number()) {
+                        // Server compatibility commands use [x1,y1,x2,y2,...].
+                        if(coordinates.size()%2) throw std::runtime_error("Odd geometry coordinate count");
+                        for(std::size_t i=0;i<coordinates.size();i+=2)
+                            points.push_back(point(coordinates[i].get<float>(),coordinates[i+1].get<float>()));
+                    } else {
+                        for(const auto& p:coordinates) points.push_back(point(p.at("x").get<float>(),p.at("y").get<float>()));
+                    }
                     if(points.size()>1 && points.front().x==points.back().x && points.front().y==points.back().y) points.pop_back();
                     if(type=="fillGeometry" && points.size()>=3) {
                         // ImGui requires clockwise screen-space winding for filled polygons.
@@ -102,8 +115,9 @@ std::set<std::string> draw(const Scene& scene,const TextureLookup& textures) {
                         float padding=fontSize*0.25f;
                         dl->AddRectFilled({a.x-padding,a.y-padding},{a.x+n("textWidth")*scale+padding,a.y+n("textHeight")*scale+padding},rgba(c.value("bgColor",0u)));
                     }
-                    dl->AddText(ImGui::GetFont(),fontSize,a,color,c.value("text",std::string{}).c_str());
-                    unsupported.insert("font family/style and exact text metrics");
+                    auto* font=fonts?fonts(c,unsupported):ImGui::GetFont();
+                    dl->AddText(font,fontSize,a,color,c.value("text",std::string{}).c_str());
+                    if(!fonts) unsupported.insert("font family/style and exact text metrics");
                 } else if(type=="drawImage" || type=="drawImageRegion") {
                     auto texture=textures?textures(c.at("imageKey").get<std::string>()):Texture{};
                     if(!texture.id) unsupported.insert("image not loaded: "+c.at("imageKey").get<std::string>());
@@ -120,7 +134,11 @@ std::set<std::string> draw(const Scene& scene,const TextureLookup& textures) {
                         gradientTriangle(output,scratch.VtxBuffer[scratch.IdxBuffer[i]],scratch.VtxBuffer[scratch.IdxBuffer[i+1]],scratch.VtxBuffer[scratch.IdxBuffer[i+2]],c.at("gradient"),offset,scale,0,gradientBudget);
                     if(gradientBudget<3) unsupported.insert("gradient tessellation budget exceeded");
                 }
-            } catch(const std::exception&) {unsupported.insert("malformed command");}
+            } catch(const std::exception& e) {
+                const auto type=c.is_object() && c.contains("type") && c["type"].is_string()
+                    ? c["type"].get<std::string>() : std::string("unknown");
+                unsupported.insert("malformed command ["+layer.id+" / "+type+"]: "+e.what());
+            }
         }
         while(clips>0){output->PopClipRect();--clips;}
         output->PopClipRect();

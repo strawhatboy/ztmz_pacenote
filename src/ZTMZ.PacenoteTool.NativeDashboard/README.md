@@ -33,7 +33,8 @@ does not build it.
 
 See [graphics backend architecture](docs/RenderBackends.md) for the DX9/DX10/DX11/
 DX12/Vulkan implementations, loading requirements, and validation boundaries.
-All five adapters are implemented; native GPU/game behavior remains unverified.
+All five adapters are implemented; controlled Windows DX11 validation is described
+below. Other native GPU paths and game compatibility remain unverified.
 
 ## Build and test
 
@@ -109,11 +110,16 @@ clipping, text/background text, images, and opacity. Windows uses WIC to decode
 package images; the selected backend uploads GPU textures on the render thread. Gradients use
 bounded CPU tessellation; exact browser rasterization is not guaranteed.
 
-**Font parity remains incomplete:** text uses the default ImGui font, and Lua
-`MeasureString` uses a deterministic estimate. Custom font families/styles,
-non-Latin glyph coverage, and exact text layout need a shared font-metrics layer.
-The viewer displays this limitation. Transform commands from legacy server-only
-packages are also not implemented.
+On Windows, text resolves installed font families/styles through DirectWrite;
+the existing WRC Clean regular/bold files are copied beside the native binaries.
+Missing glyphs fall back to installed Segoe UI/CJK fonts. Only encountered glyphs
+are added to each session's atlas; GPU textures are rebuilt when its contents change.
+Lua measurement and ImGui rendering use the same font files and glyph advances.
+Missing families/glyphs are reported specifically. This does not implement complex
+text shaping, variable-font axes, or exact DirectWrite rasterization. Portable
+non-Windows tests retain estimated metrics/default fonts until that platform's
+font resolver is implemented. Transform commands from legacy server-only packages
+are also not implemented.
 
 The existing protocol names (`browserLuaCapabilities`, `browserLuaTelemetry`)
 are reused for interoperability; they do not imply browser execution. HTTP
@@ -151,7 +157,19 @@ all five adapters using llvm-mingw 20260922 (Clang 23). The Vulkan adapter also
 passes a native macOS syntax check against Vulkan 1.3.290 headers. The exported
 start/stop functions were verified in the resulting PE DLL.
 
-MSVC compilation, HTTP/WIC/WinHTTP runtime integration, actual GPU rendering,
-DLL injection, state restoration, and games remain **unverified**. Neither the
-portable tests nor cross-compilation substitute for Windows runtime checks.
+HTTP/WIC/WinHTTP runtime integration, DLL injection, in-game state restoration,
+and games remain **unverified**. Neither the portable tests nor cross-compilation
+substitute for Windows runtime checks. Basic Windows DX11 validation is below.
 See [validation notes](docs/Validation.md) for exact scope and reproduction.
+
+### Windows DX11 follow-up (2026-10-08)
+
+The DX11-only viewer and DLL now compile with MSVC 19.39 on Windows x64.
+`ztmz_dashboard_viewer.exe --smoke-test` also passed: it creates a hardware device
+and submits/presents three ImGui frames, without a network connection or visible
+window. Controlled `dx11_hook_early` and `dx11_hook_late` tests also pass using
+the actual hook code in our own host. GPU readback verifies drawing and stopped
+pass-through; both tests check API detection, selected host state restoration,
+resize and three stop/start cycles. Test transport is a deterministic fixture.
+Game injection, other GPU APIs, fullscreen/device-loss behavior and desktop-host
+integration remain pending. See the [desktop integration plan](../../Docs/InGameDashboardIntegration.md).

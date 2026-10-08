@@ -1,5 +1,6 @@
 #include "lua_dashboard.hpp"
 #include "lua_host.hpp"
+#include "font_catalog.hpp"
 extern "C" {
 #include <lua.h>
 #include <lauxlib.h>
@@ -157,6 +158,22 @@ LuaDashboard::LuaDashboard(const Json& package, const Json& config, LuaLimits li
         return 0;
     });
     vm.call(0, 0, "open dashboard libraries");
+    lua_pushcclosure(vm.state, [](lua_State* state)->int {
+        const auto* family=luaL_checkstring(state,1);
+        auto size=static_cast<float>(luaL_checknumber(state,2));
+        std::size_t length=0;const auto* text=luaL_checklstring(state,3,&length);
+        bool bold=lua_toboolean(state,4)!=0,italic=lua_toboolean(state,5)!=0;
+        if(!std::isfinite(size)||size<=0||size>1024||length>1024*1024)
+            return luaL_error(state,"Invalid text measurement input");
+        try {
+            auto fonts=selectFont(family,bold?700:400,italic);
+            if(fonts.faces.empty()) return 0;
+            auto result=measureText(fonts,size,std::string(text,length));
+            lua_pushnumber(state,result.width);lua_pushnumber(state,result.height);return 2;
+        } catch(const std::exception&) { }
+        return luaL_error(state,"Native font measurement failed");
+    },0);
+    lua_setglobal(vm.state,"__ztmz_measure_text");
     if (luaL_loadbufferx(vm.state, luaHostSource, sizeof(luaHostSource) - 1, "native-host.lua", "t") != LUA_OK)
         throw std::runtime_error("Cannot compile native Lua host");
     vm.push(package); vm.push(config); vm.call(2, 1, "create native host");

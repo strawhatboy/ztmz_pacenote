@@ -38,10 +38,35 @@ The llvm-mingw validation binaries depend on its `libc++.dll` and `libunwind.dll
 Windows graphics/system libraries, and (when enabled) `vulkan-1.dll`. They are
 validation artifacts, not a packaged distribution.
 
+## Controlled Windows DX11 validation (2026-10-08)
+
+MSVC 19.39 Release x64 build passed. Both `dx11_hook_early` and
+`dx11_hook_late` passed on a hardware D3D11 device. These load a test DLL into
+our own host before or after swap-chain creation; no game injection is involved.
+The DLL uses the production hooks and start/stop lifecycle, with only network
+transport replaced by a stop-aware worker and a deterministic scene fixture.
+Test-only exports and disabled auto-bootstrap are confined to the test target.
+
+GPU pixel readback verifies the overlay rectangle and untouched background.
+Both cases check automatic DX11 selection, restoration of the host render target,
+viewport and primitive topology, resize from 640x360 to 800x450, and three
+stop/start cycles. Stopped hooks produce no overlay pixels. Scene protocol, Lua
+runtime, all 17 built-in dashboard scripts and backend contract suites also pass.
+
+From the repository root, after configuring a DX11 build with testing enabled:
+
+```powershell
+ctest --test-dir build/native-dashboard -C Release -R 'dx11_hook_(late|early)' --output-on-failure
+```
+
+This exercises sequential-swap-chain Present/ResizeBuffers, not flip-model,
+Present1, concurrent stop/presentation, device loss, fullscreen or Alt-Tab.
+It does not validate production network transport or desktop-host attachment.
+
 ## Still required on Windows
 
-Compile with MSVC and run each graphics path against a controlled application,
-then selected games. Check transparent composition, images/colors, reset/resize,
+Extend controlled validation to the other graphics paths and then selected games.
+Check transparent composition, images/colors, reset/resize,
 Alt-Tab/fullscreen changes, device loss, other overlays, and start/stop. DX12 and
 Vulkan tests must load the DLL before the objects required by their tracking
 paths are created. Measure frame cost, especially Vulkan's synchronous fence
