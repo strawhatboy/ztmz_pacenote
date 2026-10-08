@@ -65,6 +65,15 @@ std::filesystem::path moduleDirectory() {
     std::wstring path(32768,L'\0');auto length=GetModuleFileNameW(module,path.data(),static_cast<DWORD>(path.size()));
     if(!length||length>=path.size()) return {};path.resize(length);return std::filesystem::path(path).parent_path();
 }
+std::filesystem::path bundledFontDirectory() {
+    const auto directory=moduleDirectory();
+    // The injected module is in <ZTMZ>/native-dashboard/win-x64. Resolve from
+    // that DLL, never the game executable or the game's working directory.
+    if(directory.filename()=="win-x64" && directory.parent_path().filename()=="native-dashboard")
+        return directory.parent_path().parent_path()/"fonts";
+    // Standalone native viewer and CMake test outputs keep fonts beside the module.
+    return directory/"fonts";
+}
 #endif
 }
 bool FontFace::contains(unsigned int cp) const {
@@ -84,7 +93,7 @@ FontSelection selectFont(const std::string& family,int weight,bool italic) {
 #ifdef _WIN32
     std::shared_ptr<const FontFace> primary;
     if(family=="WRC Clean") {
-        primary=load(moduleDirectory()/"fonts"/(weight>=600?"WRCCleanBold.ttf":"WRCCleanRoman.ttf"),0);
+        primary=load(bundledFontDirectory()/(weight>=600?"WRCCleanBold.ttf":"WRCCleanRoman.ttf"),0);
         result.substituted=italic;
     } else primary=systemFont(family,weight,italic);
     if(primary) result.faces.push_back(primary);

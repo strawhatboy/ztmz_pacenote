@@ -111,21 +111,41 @@ passed in a self-owned controlled process using the production DLL. DR2 is next.
 
 ## DR2 E2E test
 
-Stage the native Release output into a built Windows host explicitly (not the installer):
+Windows WPF and Avalonia builds now compile and stage the production DX11 DLL
+automatically through the shared `build/NativeDashboard.Development.targets`.
+This also applies to `build.bat`, `build_avalonia.bat` and direct `dotnet build`.
+Visual Studio 2022 C++ tools, a Windows SDK and CMake are required. The first build
+downloads hash-pinned native dependencies; subsequent builds reuse the CMake cache
+and compile only changed sources. Both hosts share a serialized build tree at
+`build/native-dashboard/production` (override `NativeDashboardBuildDirectory`).
+The DLL uses Release with a static C runtime even when the managed host is Debug.
+Only the production DX11 DLL is built, not the viewer or test binaries.
+
+`dotnet publish` (including `--no-build`) ensures the native bundle is built and
+includes the DLL under `native-dashboard/win-x64`, outside any single-file executable.
+The injected DLL resolves the existing `<host>/fonts` relative to its own module
+location, not the game executable. No duplicate fonts are staged in the native
+subdirectory. Standalone CMake viewer/test outputs still use their adjacent fonts.
+Native compilation failures fail the build/publish.
+The WPF Inno installer includes that directory and rejects missing DLL/font inputs.
+Non-Windows and non-x64 target builds skip this Windows-only integration.
+
+For a manually built native test bundle, the staging helper remains available:
 
 ```powershell
 ./build/stage_native_dashboard.ps1 -NativeOutputDirectory ./build/native-dashboard/hook-test -HostOutputDirectory ./src/ZTMZ.PacenoteTool.Avalonia/bin/Release/net10.0-windows
 ```
 
 The same command accepts the WpfGUI output directory. It copies the production
-DLL and fonts under `native-dashboard/win-x64`; missing bundles keep window mode.
+DLL under `native-dashboard/win-x64` and validates the existing shared host fonts;
+missing bundles keep window mode.
 Restart DR2 first if any earlier overlay DLL was loaded, then run only one ZTMZ host.
 Enable an Overlay-routed dashboard and choose experimental in-game rendering.
 Check late startup on a stage, both backend switch directions, public Web disabled,
 HUD disabled/re-enabled, and ZTMZ restart while DR2 stays running. The host must
 report Active only after the target HWND submits frames and telemetry is connected.
 Check icon/text/replay content and game responsiveness; report the log if attachment
-fails. Installer packaging remains intentionally unchanged during this validation.
+fails.
 
 ## Acceptance scenarios
 

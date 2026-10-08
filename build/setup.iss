@@ -15,6 +15,14 @@
   #error "Published pacenote icon assets were not found. Run build\publish.bat before packaging."
 #endif
 #define MyAppVersion GetVersionNumbersString(MyAppPublishPath)
+#define MyAppNativeDashboardPath AddBackslash(SourcePath) + MyAppPublishRoot + "\native-dashboard\win-x64\ztmz_dashboard_overlay.dll"
+#if !FileExists(MyAppNativeDashboardPath)
+  #error "Published native dashboard DLL is missing. Run build\publish.bat before packaging."
+#endif
+#define MyAppNativeFontPath AddBackslash(SourcePath) + MyAppPublishRoot + "\fonts\"
+#if !FileExists(MyAppNativeFontPath + "WRCCleanRoman.ttf") || !FileExists(MyAppNativeFontPath + "WRCCleanBold.ttf")
+  #error "Published native dashboard fonts are missing. Run build\publish.bat before packaging."
+#endif
 #ifndef MyAppReleaseSuffix
   #define MyAppReleaseSuffix "-rc24"
 #endif
@@ -435,6 +443,8 @@ Source: "{#MyAppPublishRoot}\dashboards\*"; DestDir: "{code:GetZTMZHome}\dashboa
 ; WebDashboardServer serves its static client and fonts beside the installed executable.
 Source: "{#MyAppPublishRoot}\wwwroot\*"; DestDir: "{code:GetInstallDir}\wwwroot"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\fonts\*"; DestDir: "{code:GetInstallDir}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
+; The in-game renderer reuses the shared fonts above.
+Source: "{#MyAppPublishRoot}\native-dashboard\win-x64\ztmz_dashboard_overlay.dll"; DestDir: "{code:GetInstallDir}\native-dashboard\win-x64"; Flags: ignoreversion
 ; Native overlays resolve fonts from the separately configured data directory.
 Source: "{#MyAppPublishRoot}\fonts\*"; DestDir: "{code:GetZTMZHome}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\x64\*"; DestDir: "{code:GetInstallDir}\x64"; Flags: ignoreversion recursesubdirs createallsubdirs
