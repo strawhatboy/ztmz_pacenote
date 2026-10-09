@@ -116,6 +116,7 @@ internal sealed class DesktopRuntime : IDesktopRuntime
     private CoDriverPackageCatalogService? _voicePackageCatalog;
     private CoDriverPackageUpdateService? _voicePackageUpdates;
     private GameActivitySessionCoordinator? _gameSessions;
+    private LocalBridgePromptCoordinator? _bridgePrompts;
     private ZtmzRuntimeState? _state;
     private IDesktopNativeOverlayHost? _nativeOverlay;
     private IReadOnlyList<WebDashboardDefinition> _dashboards = [];
@@ -373,6 +374,8 @@ internal sealed class DesktopRuntime : IDesktopRuntime
                 new PortAudioAudioOutputDeviceEnumerator(),
                 new PortAudioAudioPlaybackEngineFactory());
             _tool.onStatusReport += SetStatus;
+            _bridgePrompts = new LocalBridgePromptCoordinator(LocalBridgeDialogs.ConfirmAsync, LocalBridgeDialogs.ShowFailureAsync);
+            _tool.onGameInitialized += game => _bridgePrompts.Request(game);
             _tool.onGameInitialized += _ => RaiseSnapshotChanged();
             _tool.onGameUninitialized += _ =>
             {
@@ -451,6 +454,10 @@ internal sealed class DesktopRuntime : IDesktopRuntime
                     _tool.Games);
                 _gameSessions.ActivityChanged += (_, change) =>
                 {
+                    if (change.Kind == GameActivityChangeKind.Stopped)
+                        _bridgePrompts.Reset(change.Activity.Game);
+                    else
+                        _bridgePrompts.Request(change.Activity.Game);
                     _nativeOverlay?.HandleActivityChanged(change);
                     RaiseSnapshotChanged();
                 };
@@ -480,6 +487,7 @@ internal sealed class DesktopRuntime : IDesktopRuntime
         }
 
         _disposed = true;
+        _bridgePrompts?.Dispose();
         if (_gameSessions != null)
         {
             await _gameSessions.DisposeAsync().ConfigureAwait(false);

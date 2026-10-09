@@ -46,6 +46,12 @@ xcopy target\bin\ZTMZ.PacenoteTool.RBR\release_win-x64\ target\publish\ZTMZ.Pace
 copy /Y "target\bin\ZTMZ.PacenoteTool.BeamNG\release_win-x64\ZTMZ.PacenoteTool.BeamNG.dll" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\" >nul
 xcopy "target\bin\ZTMZ.PacenoteTool.BeamNG\release_win-x64\BeamNGMod\*" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\BeamNGMod\" /E /I /Y /V /Q
 xcopy "target\bin\ZTMZ.PacenoteTool.AC\release_win-x64\" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\" /Y /V /S /Q
+copy /Y "target\bin\ZTMZ.PacenoteTool.KT\release_win-x64\ZTMZ.PacenoteTool.KT.dll" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\" >nul
+if errorlevel 1 goto :publish_failed
+xcopy "target\bin\ZTMZ.PacenoteTool.KT\release_win-x64\WRCGBridge\*" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\WRCGBridge\" /E /I /Y /Q
+if errorlevel 1 goto :publish_failed
+xcopy "..\src\ZTMZ.PacenoteTool.KT\lang\*.json" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\" /I /Y /Q
+if errorlevel 1 goto :publish_failed
 
 rem the i18n
 mkdir target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang

@@ -98,6 +98,9 @@ namespace ZTMZ.PacenoteTool.Base.Game
     /// <summary>Allows the desktop UI to request an explicitly opted-in local bridge injection.</summary>
     public interface ILocalGameBridgeControl : ILocalGameBridgeDiagnostics
     {
+        string InjectionTitleKey => "game.acr.experimental.launchPromptTitle";
+        string InjectionWarningKey => "game.acr.experimental.launchPromptWarning";
+        string InjectionPrivilegeWarningKey => "game.acr.experimental.privilegeWarning";
         Task<LocalBridgeInjectionResult> InjectLocalBridgeAsync();
     }
 

@@ -44,6 +44,12 @@ copy /Y "ZTMZ.PacenoteTool.BeamNG\bin\Release\net10.0-windows\ZTMZ.PacenoteTool.
 xcopy "ZTMZ.PacenoteTool.BeamNG\bin\Release\net10.0-windows\BeamNGMod\*" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\BeamNGMod\" /E /I /Y /V /Q
 xcopy "ZTMZ.PacenoteTool.BeamNG\bin\Release\net10.0-windows\lang\*" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\lang\" /E /I /Y /V /Q
 xcopy ZTMZ.PacenoteTool.AC\bin\Release\net10.0-windows\ ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\ /Y /V /S /Q
+copy /Y "ZTMZ.PacenoteTool.KT\bin\Release\net10.0\ZTMZ.PacenoteTool.KT.dll" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\" >nul
+if errorlevel 1 goto :build_failed
+xcopy "ZTMZ.PacenoteTool.KT\bin\Release\net10.0\WRCGBridge\*" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\WRCGBridge\" /E /I /Y /Q
+if errorlevel 1 goto :build_failed
+xcopy "ZTMZ.PacenoteTool.KT\lang\*.json" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\lang\" /I /Y /Q
+if errorlevel 1 goto :build_failed
 
 pushd ..\tools\ACRPacenoteTrace
 call build.bat internal-bridge

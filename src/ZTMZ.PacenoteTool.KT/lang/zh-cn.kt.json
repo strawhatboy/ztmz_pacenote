@@ -1,0 +1,19 @@
+{
+  "game": { "wrcg": {
+    "description": "WRC Generations — 实验性遥测与实时路书",
+    "title": "WRC Generations 实时路书",
+    "enable": "启用实验性实时路书桥接",
+    "disabled": "实时路书桥接控件未启用",
+    "privilegeWarning": "ZTMZ 与 WRC Generations 应使用相同的 Windows 权限级别，建议两者均以普通用户运行。",
+    "forwarded": "接收转发的遥测",
+    "forwardedHint": "接收 SimHub 等软件转发的 UDP，ZTMZ 不会修改游戏的遥测目标地址。",
+    "limitations": "实验性 Windows 桥接，保留游戏原有领航员语音。目前尚不提供赛段/车辆名称和完赛检测；未映射的路书由游戏原有领航员播报。",
+    "inject": "连接实时路书",
+    "warning": "此实验性功能会向 WRC Generations 注入 DLL，可能影响游戏稳定性。请离线使用。DLL 会保持加载直到游戏退出。是否继续？",
+    "connected": "实时路书桥接已连接",
+    "disconnected": "实时路书桥接未连接",
+    "windowsOnly": "WRCG 实时路书桥接目前仅支持 Windows。",
+    "startGame": "请先启动 WRC Generations。",
+    "unsupportedFmod": "尚未验证此 FMOD 版本，未执行桥接注入。"
+  } }
+}

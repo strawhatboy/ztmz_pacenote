@@ -234,6 +234,7 @@ public sealed partial class MainWindow : FAAppWindow
 
     private void OnOpened(object? sender, EventArgs eventArgs)
     {
+        LocalBridgeDialogs.NotifyWindowReady();
 #if WINDOWS
         if (Config.Instance.StartMinimizedToTray && _trayService != null)
         {

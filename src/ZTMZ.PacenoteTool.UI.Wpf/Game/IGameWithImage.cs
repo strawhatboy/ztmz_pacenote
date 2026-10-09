@@ -18,9 +18,11 @@ public class GameWithImage
     {
         Game = game;
 
-        Image = new BitmapImage(new Uri(game.ImageUri));
+        var imageUri = string.IsNullOrWhiteSpace(game.ImageUri)
+            ? "pack://application:,,,/ZTMZ.PacenoteTool.UI.Wpf;component/pacenote.png"
+            : game.ImageUri;
+        Image = new BitmapImage(new Uri(imageUri));
         Image.Freeze(); // must freeze for different thread access.
     }
 }
-
 

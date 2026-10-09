@@ -1,0 +1,19 @@
+{
+  "game": { "wrcg": {
+    "description": "WRC Generations — experimental telemetry and live pacenotes",
+    "title": "WRC Generations live pacenotes",
+    "enable": "Enable experimental live pacenote bridge",
+    "disabled": "Live pacenote bridge controls disabled",
+    "privilegeWarning": "Run ZTMZ and WRC Generations at the same Windows privilege level, preferably both as a normal user.",
+    "forwarded": "Receive forwarded telemetry",
+    "forwardedHint": "Receive UDP from SimHub or another relay. ZTMZ will not change the game's telemetry destination.",
+    "limitations": "Experimental Windows bridge. Original game speech remains enabled. Stage/car names and finish detection are not available yet. Unmapped calls are left to the original co-driver.",
+    "inject": "Connect live pacenotes",
+    "warning": "This experimental feature injects a DLL into WRC Generations and may affect game stability. Use offline. It remains loaded until the game exits. Continue?",
+    "connected": "Live pacenote bridge connected",
+    "disconnected": "Live pacenote bridge not connected",
+    "windowsOnly": "The WRCG live bridge currently supports Windows only.",
+    "startGame": "Start WRC Generations first.",
+    "unsupportedFmod": "This FMOD version has not been verified; bridge injection was not performed."
+  } }
+}

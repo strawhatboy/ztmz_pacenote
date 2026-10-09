@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ZTMZ.PacenoteTool.Portable.Tests" />
+    <None Update="lang/*.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <ProjectReference Include="../ZTMZ.PacenoteTool.Base/ZTMZ.PacenoteTool.Base.csproj" />
+  </ItemGroup>
+  <Target Name="BuildWrcGenerationsBridge" BeforeTargets="CoreCompile" Condition="'$(OS)' == 'Windows_NT'" Inputs="$(MSBuildProjectDirectory)/../../tools/WrcGenerationsProbe/Bridge.cpp;$(MSBuildProjectDirectory)/../../tools/WrcGenerationsProbe/Inject.cpp;$(MSBuildProjectDirectory)/../../tools/WrcGenerationsProbe/build-live.bat" Outputs="$(MSBuildProjectDirectory)/../../tools/WrcGenerationsProbe/bin/WrcGenerationsBridge.dll;$(MSBuildProjectDirectory)/../../tools/WrcGenerationsProbe/bin/WrcGenerationsBridgeInject.exe">
+    <Exec Command="&quot;$(MSBuildProjectDirectory)\..\..\tools\WrcGenerationsProbe\build-live.bat&quot;" />
+  </Target>
+  <Target Name="StageWrcGenerationsBridge" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
+    <ItemGroup><WrcBridge Include="$(MSBuildProjectDirectory)/../../tools/WrcGenerationsProbe/bin/WrcGenerationsBridge.dll;$(MSBuildProjectDirectory)/../../tools/WrcGenerationsProbe/bin/WrcGenerationsBridgeInject.exe;$(MSBuildProjectDirectory)/../../tools/ACRPacenoteTrace/third_party/minhook/LICENSE.txt" /></ItemGroup>
+    <Copy SourceFiles="@(WrcBridge)" DestinationFolder="$(OutDir)WRCGBridge" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="PublishWrcGenerationsBridge" AfterTargets="Publish" DependsOnTargets="StageWrcGenerationsBridge" Condition="'$(OS)' == 'Windows_NT'">
+    <Copy SourceFiles="@(WrcBridge)" DestinationFolder="$(PublishDir)WRCGBridge" SkipUnchangedFiles="true" />
+  </Target>
+</Project>
