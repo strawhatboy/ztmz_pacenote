@@ -266,6 +266,9 @@ public sealed class GameIntegrationSettingsPane : GameSettingsPane
             return;
 
         var requestedValue = checkBox.IsChecked == true;
+        var requestedGame = _game;
+        using var promptLease = await InjectionConfirmationQueue.EnterAsync();
+        if (!ReferenceEquals(requestedGame, _game) || (checkBox.IsChecked == true) != requestedValue) return;
         var confirmation = field.Confirmation;
         if (confirmation is not null && (!confirmation.WhenEnablingOnly || requestedValue))
         {
@@ -279,6 +282,7 @@ public sealed class GameIntegrationSettingsPane : GameSettingsPane
             }
         }
 
+        if (!ReferenceEquals(requestedGame, _game) || (checkBox.IsChecked == true) != requestedValue) return;
         ApplyFieldValue(field, requestedValue);
     }
 
@@ -348,8 +352,17 @@ public sealed class GameIntegrationSettingsPane : GameSettingsPane
         if (_game is null || _integrationProvider is null || sender is not Button button || button.Tag is not GameIntegrationAction action)
             return;
 
+        var requestedGame = _game;
+        using var promptLease = await InjectionConfirmationQueue.EnterAsync();
+        if (!ReferenceEquals(requestedGame, _game)) return;
+        bool InjectionUnavailable() => requestedGame is ILocalGameBridgeControl bridge
+            && action.Id.Contains("inject", StringComparison.OrdinalIgnoreCase)
+            && (!requestedGame.IsRunning || !bridge.GetLocalBridgeDiagnostics().IsEnabled
+                || !bridge.GetLocalBridgeDiagnostics().IsAvailable || bridge.GetLocalBridgeDiagnostics().IsInjected);
+        if (InjectionUnavailable()) return;
         if (action.Confirmation is not null && !await ConfirmAsync(action.Confirmation))
             return;
+        if (!ReferenceEquals(requestedGame, _game) || InjectionUnavailable()) return;
 
         button.IsEnabled = false;
         _executingActionIds.Add(action.Id);

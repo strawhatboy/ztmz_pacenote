@@ -24,15 +24,22 @@ Start with:
 ```
 
 Responses include `version`, `pid`, `instance`, `ok`, `started`, `port`,
-`requestedApi`, and `selectedApi`. Failures add `error`. `instance` combines PID
+`requestedApi`, and `selectedApi`. `availableApis` lists compiled adapters,
+`candidateApis` lists installed hook candidates, and `hookWarnings` reports
+individual installation failures in auto mode. Failures add `error`. `instance` combines PID
 and process creation FILETIME, preventing commands for an old PID incarnation.
 The shared Windows `InGameOverlayControlClient` verifies the pipe server PID and
 process creation time before sending commands, and validates instance identity
 again in replies. It supports asynchronous cancellation, a total request deadline,
 bounded response reads and per-client serialization. A timed-out mutation has an
 unknown result; query status before retrying. The client lives in Platform.Windows
-for both UI hosts. Their shared Windows session loads the versioned x64 module
+for both UI hosts. Their shared Windows session loads the versioned x64 or x86 module
 or reconnects to an existing one. Responses also require `moduleVersion: 1`.
+
+The desktop host remains x64. For WOW64 games it starts the native x86 helper
+beside the x86 DLL with PID and creation FILETIME. The helper independently checks
+architecture and process identity, and only loads its adjacent overlay DLL.
+No .NET x86 runtime is required. Both architectures use the same control protocol.
 
 Use the returned instance for mutations:
 
@@ -45,23 +52,38 @@ The endpoint is always IPv4 loopback; arbitrary hosts/URLs are not accepted.
 Start accepts optional unsigned `targetWindow` (numeric HWND, zero for legacy
 automatic selection). Nonzero handles must belong to this DLL's process. The
 DXGI hook only selects a swap chain for that HWND. Desktop sessions wait for a
-window and pass its handle, requesting DX11 during this validation phase.
+window and pass its handle, requesting `auto`. DX9 and Vulkan also require the
+captured target window to match before drawing. DLL startup does not detect an
+API from module names; the presentation/device events select the renderer.
 Port must be an integer from 1 through 65535. API names use the existing renderer
 catalog. Repeating start with the same settings succeeds without restarting.
 Changing settings while started is rejected: stop, then start with new settings.
 Stopping retains the pipe, pinned DLL and pass-through hooks, allowing a new
-client connection after ZTMZ restarts. Bootstrap opens control only; hooks and
+client connection after ZTMZ restarts. Bootstrap opens control only; rendering and
 networking require an explicit Start command. Requests do not mutate environment variables.
 
+An optional native loader may call `BOOL WINAPI ZtmzDashboardPrepare(UINT version)`
+with version 1 outside DllMain/loader lock, before swapchain creation. This installs
+DX12 factory queue capture only, without networking, rendering or API selection.
+It is idempotent, rejects unknown ABI versions and returns false when DX12 was not
+compiled or capture failed. Status reports `dx12CapturePrepared`; this means the
+explicit preparation call succeeded, not that an existing game's queue was found.
+Stop preserves capture and swapchain-owned queue associations. No desktop host
+currently invokes this optional entry point; it does not itself solve late attachment.
+
 `started` means the worker/hooks were enabled; `selectedApi` means a presentation
-path claimed the router. Neither proves successful ongoing drawing. DX11 now
+path claimed the router. Neither proves successful ongoing drawing. All adapters
 reports `submittedFrames`, `window` (numeric HWND), `lastFrameAgeMs` (-1 when none),
 and `renderError`. Acknowledgement is recorded only after the backend render call
 submits work, not when its presenter silently returns early. It does not prove
-GPU completion, scan-out, successful presentation or telemetry arrival. Other
-adapters currently provide no submission acknowledgement.
+GPU completion, scan-out, successful presentation or telemetry arrival.
 
-The managed snapshot's `HasRecentSubmission` requires a started DX11 worker, a
+`queueSource` describes the DX12 association used for an acknowledged frame:
+`dxgi-creation-or-resize` or `calibrated-private-layout`; it is empty for other
+APIs and after Stop. The latter is a runtime-calibrated compatibility fallback,
+not a public DXGI contract. Missing or inconsistent matches do not activate it.
+
+The managed snapshot's `HasRecentSubmission` requires a started concrete API worker, a
 nonzero window/frame count, no renderer error and a frame age below one second.
 It also accounts for time elapsed since receiving the snapshot, so cached status
 cannot remain current indefinitely. Stop/restart resets acknowledgement; renderer

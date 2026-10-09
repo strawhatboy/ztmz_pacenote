@@ -31,6 +31,7 @@ public:
                 for(unsigned x=0;x<source->width;++x){dst[x*4]=src[x*4+2];dst[x*4+1]=src[x*4+1];dst[x*4+2]=src[x*4];dst[x*4+3]=src[x*4+3];}
             }
             check(texture->UnlockRect(0));image={source,std::move(texture)};
+            break; // Legacy device calls stay on Present; never upload the entire package in one frame.
         }
     }
     Texture texture(const std::string& key) const override {
@@ -52,7 +53,8 @@ public:
         } restore(device_.Get());
         for(DWORD i=1;i<restore.count;++i) check(device_->SetRenderTarget(i,nullptr));
         check(device_->SetRenderTarget(0,frame->target));check(device_->SetDepthStencilSurface(nullptr));
-        ImGui_ImplDX9_RenderDrawData(&data);
+          ImGui_ImplDX9_RenderDrawData(&data);
+          frame->submitted=true;
     }
     void invalidateDeviceObjects() override {images_.clear();if(initialized_) ImGui_ImplDX9_InvalidateDeviceObjects();}
     void shutdown() noexcept override {images_.clear();if(initialized_) ImGui_ImplDX9_Shutdown();initialized_=false;}

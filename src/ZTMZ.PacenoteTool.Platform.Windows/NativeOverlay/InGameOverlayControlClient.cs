@@ -113,10 +113,14 @@ public sealed record InGameOverlayStatus
     public required long LastFrameAgeMs { get; init; }
     public required string RenderError { get; init; }
     public string? Error { get; init; }
+    public string[] AvailableApis { get; init; } = [];
+    public string[] CandidateApis { get; init; } = [];
+    public string[] HookWarnings { get; init; } = [];
+    public string QueueSource { get; init; } = "";
     private readonly long receivedAt = Stopwatch.GetTimestamp();
 
     // A snapshot expires even if the caller stops polling. This does not prove telemetry arrival.
-    public bool HasRecentSubmission => Started && SelectedApi == "dx11" && Window != 0 && SubmittedFrames > 0
+    public bool HasRecentSubmission => Started && SelectedApi is ("dx9" or "dx10" or "dx11" or "dx12" or "vulkan") && Window != 0 && SubmittedFrames > 0
         && RenderError.Length == 0 && LastFrameAgeMs >= 0
         && LastFrameAgeMs + Stopwatch.GetElapsedTime(receivedAt).TotalMilliseconds < 1000;
 }

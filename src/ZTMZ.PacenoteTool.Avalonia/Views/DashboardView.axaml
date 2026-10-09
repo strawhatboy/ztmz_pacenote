@@ -71,7 +71,7 @@
               <TextBlock Text="{Binding NativeOverlayStatus}" />
             </StackPanel>
           </Grid>
-          <Grid Grid.Row="3" Grid.ColumnSpan="2" ColumnDefinitions="*,240" RowDefinitions="Auto,Auto"
+          <Grid Grid.Row="3" Grid.ColumnSpan="2" ColumnDefinitions="*,240" RowDefinitions="Auto,Auto,Auto"
                 RowSpacing="8" ColumnSpacing="12">
             <TextBlock Text="{DynamicResource overlayBackend.title}" VerticalAlignment="Center" />
             <ComboBox Grid.Column="1" HorizontalAlignment="Stretch"
@@ -80,6 +80,8 @@
               <ComboBoxItem Content="{DynamicResource overlayBackend.inGame}" />
             </ComboBox>
             <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding OverlayBackendStatus}"
+                       TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Text="{DynamicResource overlayBackend.injectionNote}"
                        TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
           </Grid>
         </Grid>

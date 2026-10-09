@@ -837,10 +837,16 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     public int OverlayBackendIndex
     {
         get => (int)OverlayBackendSettings.Requested;
-        set
+        set => _ = SelectOverlayBackendAsync(value);
+    }
+
+    private async Task SelectOverlayBackendAsync(int value)
+    {
+        try { await OverlayBackendSettings.SelectAsync(value); }
+        catch (Exception error) { NLog.LogManager.GetCurrentClassLogger().Error(error, "Could not change overlay display backend."); }
+        finally
         {
-            OverlayBackendSettings.SetRequested(value);
-            OnPropertyChanged();
+            OnPropertyChanged(nameof(OverlayBackendIndex));
             OnPropertyChanged(nameof(OverlayBackendStatus));
         }
     }

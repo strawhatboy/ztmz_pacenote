@@ -7,6 +7,9 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cwchar>
+#ifdef ZTMZ_HAS_DX12
+#include "hooks/dx12_queue.hpp"
+#endif
 namespace {
 struct State {
     std::mutex controlMutex;
@@ -16,6 +19,9 @@ struct State {
     std::vector<std::unique_ptr<ztmz::OverlayHook>> hooks;
     unsigned short port=0;
     ztmz::RenderApi preference=ztmz::RenderApi::Auto;
+    std::string startError;
+    std::vector<std::string> hookWarnings;
+    bool dx12CapturePrepared=false;
 };
 // Installed callbacks require process-lifetime storage; the module is pinned.
 State& state(){static auto* value=new State;return *value;}
@@ -37,6 +43,7 @@ BOOL start(unsigned short port,ztmz::RenderApi preference,uintptr_t targetWindow
     try {
         if(!port) return FALSE;
         auto& s=state();std::lock_guard lock(s.controlMutex);
+        s.startError.clear();s.hookWarnings.clear();
         if(s.network.joinable()) {
             if(s.port!=port || s.preference!=preference || s.shared.targetWindow.load()!=targetWindow) throw std::runtime_error("Stop before changing overlay configuration");
             return TRUE;
@@ -51,8 +58,12 @@ BOOL start(unsigned short port,ztmz::RenderApi preference,uintptr_t targetWindow
         try {
             std::vector<ztmz::RenderApi> installed;
             for(auto& hook:s.hooks) if(requested(*hook,candidates)) {
-                try {hook->install();for(auto api:hook->apis()) if(std::find(candidates.begin(),candidates.end(),api)!=candidates.end()) installed.push_back(api);}
-                catch(const std::exception& e){if(preference!=ztmz::RenderApi::Auto) throw;OutputDebugStringA(e.what());}
+                try {
+                    hook->install();
+                    for(const auto& warning:hook->warnings()) s.hookWarnings.push_back(warning);
+                    for(auto api:hook->apis()) if(std::find(candidates.begin(),candidates.end(),api)!=candidates.end()) installed.push_back(api);
+                }
+                catch(const std::exception& e){if(preference!=ztmz::RenderApi::Auto) throw;s.hookWarnings.push_back(std::string(e.what()).substr(0,256));}
             }
             s.router.configure(preference,installed);
             s.shared.progress.reset();
@@ -66,8 +77,29 @@ BOOL start(unsigned short port,ztmz::RenderApi preference,uintptr_t targetWindow
             throw;
         }
         return TRUE;
-    } catch(const std::exception& e){OutputDebugStringA(e.what());return FALSE;}
+    } catch(const std::exception& e){auto& s=state();std::lock_guard lock(s.controlMutex);s.startError=std::string(e.what()).substr(0,512);return FALSE;}
 }
+}
+// Called explicitly by a startup loader outside loader lock. Merely loading the
+// module still does not hook graphics, and preparation does not start rendering.
+extern "C" __declspec(dllexport) BOOL WINAPI ZtmzDashboardPrepare(UINT version) {
+    if(version!=1) return FALSE;
+#ifdef ZTMZ_HAS_DX12
+    try {
+        auto& s=state();std::lock_guard lock(s.controlMutex);
+        HMODULE pinned=nullptr;
+        if(!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,
+            reinterpret_cast<LPCWSTR>(&ZtmzDashboardPrepare),&pinned)) return FALSE;
+        ztmz::installDx12QueueCapture();
+        s.dx12CapturePrepared=true;
+        return TRUE;
+    } catch(const std::exception& e) {
+        auto& s=state();std::lock_guard lock(s.controlMutex);
+        s.startError=std::string(e.what()).substr(0,512);return FALSE;
+    }
+#else
+    return FALSE;
+#endif
 }
 extern "C" __declspec(dllexport) BOOL WINAPI ZtmzDashboardStart(unsigned short port) {
     try {return start(port,requestedApi());}
@@ -103,7 +135,10 @@ std::string controlRequest(std::string_view wire) {
                     if(target && (!GetWindowThreadProcessId(reinterpret_cast<HWND>(target),&owner) || owner!=GetCurrentProcessId()))
                         throw std::invalid_argument("Target window does not belong to overlay process");
                 }
-                if(!start(port.get<unsigned short>(),api,target)) throw std::runtime_error("Overlay start failed; verify API availability and stop before reconfiguration");
+                if(!start(port.get<unsigned short>(),api,target)) {
+                    auto& s=state();std::lock_guard lock(s.controlMutex);
+                    throw std::runtime_error(s.startError.empty()?"Overlay start failed":s.startError);
+                }
             } else if(command=="stop") ZtmzDashboardStop();
             else throw std::invalid_argument("Unknown control command");
         }
@@ -111,15 +146,22 @@ std::string controlRequest(std::string_view wire) {
     } catch(const std::exception& e) {response["error"]=std::string(e.what()).substr(0,512);}
     auto& s=state();std::lock_guard lock(s.controlMutex);
     response["started"]=s.network.joinable();
+    response["dx12CapturePrepared"]=s.dx12CapturePrepared;
     response["port"]=s.port;
     response["requestedApi"]=ztmz::apiName(s.preference);
     response["selectedApi"]=ztmz::apiName(s.router.active());
+    response["availableApis"]=ztmz::Json::array();
+    for(auto api:ztmz::compiledOverlayApis()) response["availableApis"].push_back(ztmz::apiName(api));
+    response["candidateApis"]=ztmz::Json::array();
+    for(auto api:s.router.candidates()) response["candidateApis"].push_back(ztmz::apiName(api));
+    response["hookWarnings"]=s.hookWarnings;
     {
         auto& progress=s.shared.progress;std::lock_guard frameLock(progress.mutex);
         response["submittedFrames"]=progress.submittedFrames;
         response["window"]=progress.window;
         response["lastFrameAgeMs"]=progress.lastFrameTick?static_cast<int64_t>(GetTickCount64()-progress.lastFrameTick):-1;
         response["renderError"]=progress.error;
+        response["queueSource"]=progress.queueSource;
     }
     // Submission acknowledges CPU/backend work, not display scan-out or dashboard data arrival.
     return response.dump();
@@ -136,6 +178,23 @@ extern "C" __declspec(dllexport) void WINAPI ZtmzDashboardTestScene() {
     s.shared.scene.layers={{"fixture","dynamic",ztmz::Json::array({
         {{"type","fillRectangle"},{"x",96},{"y",96},{"width",192},{"height",192},{"color",0xffff0000u}}
     })}};
+}
+extern "C" __declspec(dllexport) void WINAPI ZtmzDashboardTestTextures(UINT generation) {
+    auto& s=state();std::lock_guard lock(s.shared.mutex);
+    if(s.shared.images->empty()) {
+        auto assets=std::make_shared<ztmz::ImageAssets>();
+        auto green=std::make_shared<ztmz::ImageAsset>();green->width=green->height=2;
+        green->rgba={0,255,0,255,0,255,0,255,0,255,0,255,0,255,0,255};
+        (*assets)["a-green"]=green;
+        (*assets)["b-green"]=green;
+        s.shared.images=assets;
+    }
+    auto& commands=s.shared.scene.layers[0].commands;
+    commands=ztmz::Json::array({
+        {{"type","fillRectangle"},{"x",96},{"y",96},{"width",192},{"height",192},{"color",0xffff0000u}},
+        {{"type","drawImage"},{"imageKey","a-green"},{"x",800},{"y",400},{"width",400},{"height",300}},
+        {{"type","drawText"},{"text",generation?"\xe8\xaf\x95":"\xe6\xb5\x8b"},{"x",100},{"y",900},{"fontSize",24},{"color",0xffffffffu}}
+    });
 }
 #endif
 namespace {

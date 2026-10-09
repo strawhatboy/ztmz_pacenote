@@ -111,7 +111,7 @@ passed in a self-owned controlled process using the production DLL. DR2 is next.
 
 ## DR2 E2E test
 
-Windows WPF and Avalonia builds now compile and stage the production DX11 DLL
+Windows WPF and Avalonia builds now compile and stage the production multi-API DLL
 automatically through the shared `build/NativeDashboard.Development.targets`.
 This also applies to `build.bat`, `build_avalonia.bat` and direct `dotnet build`.
 Visual Studio 2022 C++ tools, a Windows SDK and CMake are required. The first build
@@ -119,7 +119,37 @@ downloads hash-pinned native dependencies; subsequent builds reuse the CMake cac
 and compile only changed sources. Both hosts share a serialized build tree at
 `build/native-dashboard/production` (override `NativeDashboardBuildDirectory`).
 The DLL uses Release with a static C runtime even when the managed host is Debug.
-Only the production DX11 DLL is built, not the viewer or test binaries.
+Only the production DLL is built, not the viewer or test binaries. DX9, DX10,
+DX11, DX12 and Vulkan adapters are included. Hash-pinned Vulkan headers and Volk
+are fetched by CMake; no Vulkan SDK is needed. Vulkan is loaded dynamically, so
+the overlay DLL does not require vulkan-1.dll in a DirectX game.
+
+The host requests `auto`. The DLL selects on actual presentation/device events
+after Start, not inside DllMain and not from loaded module names. Selection and
+submission acknowledgement are separate: all adapters must report real frames
+for the target window before the host reports Active. The host logs available and
+installed APIs, hook warnings, selected API, first/recovered/stalled frames and
+render errors on state transitions (not every frame). After 15 seconds without
+submission it shows a diagnostic instead of waiting silently. Previously injected
+DLLs without capability reporting require the game to exit before upgrading.
+
+DX12 now prefers exact creation/ResizeBuffers1 queue capture and can attempt late
+association through a separately calibrated private-layout compatibility resolver.
+It only accepts observed direct-queue submissions with matching device identity
+and agreeing calibrated slots; failure is reported rather than selecting the
+first queue. Controlled WARP/NVIDIA tests include actual late-hook GPU pixel
+readback, Stop/restart and resize. ACR gameplay and other driver/wrapper layouts
+remain unverified; this is not universal late-attachment support. See
+[attachment plan](InGameDashboardAttachmentPlan.md) for the implementation and
+acceptance boundaries. Vulkan still needs capture of device, queue, swapchain and
+window surface. Both x64 and x86 DLLs are now built and packaged. The x64 host
+uses IsWow64Process2 to select the target architecture; x86 games use the adjacent
+native x86 injector helper, which verifies PID creation time and resolves the
+32-bit system loader in a matching-bitness process. Both architectures reuse
+the host fonts. Cross-bitness loading, auto selection, frame acknowledgement and
+Stop have passed in controlled x86 DX9 and DX11 processes; actual RBR gameplay
+still requires validation. DX12/Vulkan game E2E success is not implied by a
+successful build or the DX11 harness.
 
 `dotnet publish` (including `--no-build`) ensures the native bundle is built and
 includes the DLL under `native-dashboard/win-x64`, outside any single-file executable.

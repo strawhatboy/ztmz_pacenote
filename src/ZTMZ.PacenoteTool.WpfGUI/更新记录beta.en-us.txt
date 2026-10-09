@@ -1,5 +1,6 @@
 v2.99.99.53-3.0-rc25
 
+* Adds an experimental in-game dashboard rendering mode, selectable alongside the separate overlay window in settings. A risk confirmation appears when enabling this mode, rather than each time a game starts.
 * Fixes the WPF loading dialog remaining open when startup or an initialization callback fails; startup errors are now displayed.
 * Safely handles unsupported silence-removal settings and prevents startup from repeating when restoring the window from the tray.
 * Adds loading progress, error feedback, and refresh for the online co-driver package catalog in WPF, with a 30-second timeout and continued access to installed packages.

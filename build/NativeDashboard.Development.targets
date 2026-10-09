@@ -6,23 +6,36 @@
   </PropertyGroup>
   <Target Name="BuildNativeDashboard" BeforeTargets="PrepareForBuild" Condition="'$(_NativeDashboardEnabled)' == 'true'">
     <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)build_native_dashboard.ps1&quot; -BuildDirectory &quot;$(NativeDashboardBuildDirectory)&quot;" />
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)build_native_dashboard.ps1&quot; -BuildDirectory &quot;$(NativeDashboardBuildDirectory)-x86&quot; -Architecture x86" />
   </Target>
   <Target Name="CollectNativeDashboard" DependsOnTargets="BuildNativeDashboard" Condition="'$(_NativeDashboardEnabled)' == 'true'">
     <Error Condition="!Exists('$(NativeDashboardBuildDirectory)\Release\ztmz_dashboard_overlay.dll')" Text="Production native dashboard DLL is missing." />
     <Error Condition="!Exists('$(MSBuildThisFileDirectory)..\src\ZTMZ.PacenoteTool.WebDashboard\fonts\WRCCleanRoman.ttf') or !Exists('$(MSBuildThisFileDirectory)..\src\ZTMZ.PacenoteTool.WebDashboard\fonts\WRCCleanBold.ttf')" Text="Native dashboard font bundle is incomplete." />
     <ItemGroup>
       <_NativeDashboardFiles Include="$(NativeDashboardBuildDirectory)\Release\ztmz_dashboard_overlay.dll">
-        <BundlePath>ztmz_dashboard_overlay.dll</BundlePath>
+        <BundlePath>win-x64\ztmz_dashboard_overlay.dll</BundlePath>
+      </_NativeDashboardFiles>
+      <_NativeDashboardFiles Include="$(NativeDashboardBuildDirectory)\Release\licenses\volk.txt">
+        <BundlePath>win-x64\licenses\volk.txt</BundlePath>
+      </_NativeDashboardFiles>
+      <_NativeDashboardFiles Include="$(NativeDashboardBuildDirectory)-x86\Release\ztmz_dashboard_overlay.dll">
+        <BundlePath>win-x86\ztmz_dashboard_overlay.dll</BundlePath>
+      </_NativeDashboardFiles>
+      <_NativeDashboardFiles Include="$(NativeDashboardBuildDirectory)-x86\Release\ztmz_dashboard_injector.exe">
+        <BundlePath>win-x86\ztmz_dashboard_injector.exe</BundlePath>
+      </_NativeDashboardFiles>
+      <_NativeDashboardFiles Include="$(NativeDashboardBuildDirectory)-x86\Release\licenses\volk.txt">
+        <BundlePath>win-x86\licenses\volk.txt</BundlePath>
       </_NativeDashboardFiles>
     </ItemGroup>
   </Target>
   <Target Name="StageDevelopmentNativeDashboard" AfterTargets="Build" DependsOnTargets="CollectNativeDashboard" Condition="'$(_NativeDashboardEnabled)' == 'true'">
-    <Copy SourceFiles="@(_NativeDashboardFiles)" DestinationFiles="@(_NativeDashboardFiles->'$(OutDir)native-dashboard\win-x64\%(BundlePath)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_NativeDashboardFiles)" DestinationFiles="@(_NativeDashboardFiles->'$(OutDir)native-dashboard\%(BundlePath)')" SkipUnchangedFiles="true" />
   </Target>
   <Target Name="PublishNativeDashboard" AfterTargets="ComputeResolvedFilesToPublishList" DependsOnTargets="CollectNativeDashboard" Condition="'$(_NativeDashboardEnabled)' == 'true'">
     <ItemGroup>
       <ResolvedFileToPublish Include="@(_NativeDashboardFiles)">
-        <RelativePath>native-dashboard\win-x64\%(_NativeDashboardFiles.BundlePath)</RelativePath>
+        <RelativePath>native-dashboard\%(_NativeDashboardFiles.BundlePath)</RelativePath>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </ResolvedFileToPublish>
@@ -31,6 +44,7 @@
   <!-- Check the actual output, not just source assets: both desktop hosts must
        publish the shared fonts beside the host, where the injected DLL finds them. -->
   <Target Name="ValidatePublishedNativeDashboard" AfterTargets="Publish" Condition="'$(_NativeDashboardEnabled)' == 'true'">
+    <Error Condition="!Exists('$(PublishDir)native-dashboard\win-x86\ztmz_dashboard_overlay.dll') or !Exists('$(PublishDir)native-dashboard\win-x86\ztmz_dashboard_injector.exe')" Text="Published x86 native dashboard DLL/injector is missing. Do not package this output." />
     <Error Condition="!Exists('$(PublishDir)native-dashboard\win-x64\ztmz_dashboard_overlay.dll')" Text="Published native dashboard DLL is missing. Do not package this output." />
     <Error Condition="!Exists('$(PublishDir)fonts\WRCCleanRoman.ttf') or !Exists('$(PublishDir)fonts\WRCCleanBold.ttf')" Text="Published shared WRC fonts are missing. Do not package this output." />
   </Target>

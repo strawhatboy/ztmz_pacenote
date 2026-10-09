@@ -834,6 +834,9 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
     private async Task ShowLocalBridgeInjectionPromptAsync(IGame game, ILocalGameBridgeControl bridgeControl)
     {
+        using var promptLease = await InjectionConfirmationQueue.EnterAsync();
+        var currentStatus = bridgeControl.GetLocalBridgeDiagnostics();
+        if (!game.IsRunning || !currentStatus.IsEnabled || !currentStatus.IsAvailable || currentStatus.IsInjected) return;
         var warningContent = new Grid { Margin = new System.Windows.Thickness(0, 4, 0, 0) };
         warningContent.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         warningContent.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -875,6 +878,8 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             return;
         }
 
+        currentStatus = bridgeControl.GetLocalBridgeDiagnostics();
+        if (!game.IsRunning || !currentStatus.IsEnabled || !currentStatus.IsAvailable || currentStatus.IsInjected) return;
         var result = await bridgeControl.InjectLocalBridgeAsync();
         if (result.ConfirmAndRetry is { } retry)
         {

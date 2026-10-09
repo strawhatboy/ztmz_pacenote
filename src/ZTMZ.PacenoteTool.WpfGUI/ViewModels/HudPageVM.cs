@@ -26,7 +26,14 @@ public partial class HudPageVM : ObservableObject {
     public int OverlayBackendIndex
     {
         get => (int)OverlayBackendSettings.Requested;
-        set => OverlayBackendSettings.SetRequested(value);
+        set => _ = SelectOverlayBackendAsync(value);
+    }
+
+    private async Task SelectOverlayBackendAsync(int value)
+    {
+        try { await OverlayBackendSettings.SelectAsync(value); }
+        catch (Exception error) { _logger.Error(error, "Could not change overlay display backend."); }
+        finally { RefreshOverlayBackendSettings(); }
     }
 
     public string OverlayBackendStatusKey => _overlaySession.BackendDecision.StatusKey;

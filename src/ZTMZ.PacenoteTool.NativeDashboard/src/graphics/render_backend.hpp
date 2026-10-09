@@ -22,6 +22,7 @@ public:
     virtual RenderApi api() const noexcept = 0;
     // All calls run with the owning RenderSession's ImGui context current.
     virtual void initialize() = 0;
+    virtual bool readyForFrame() const {return true;}
     virtual void newFrame() = 0;
     virtual void syncImages(const ImageAssets& images) = 0;
     virtual Texture texture(const std::string& key) const = 0;

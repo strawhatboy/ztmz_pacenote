@@ -1,6 +1,6 @@
 #pragma once
 #include "graphics/render_backend.hpp"
-#include <vulkan/vulkan.h>
+#include <volk.h>
 namespace ztmz {
 struct VulkanBackendInfo {
     VkInstance instance=VK_NULL_HANDLE;
@@ -15,8 +15,9 @@ struct VulkanFrame final:NativeFrame {
     VkImage image=VK_NULL_HANDLE;
     VkExtent2D extent{};
     std::vector<VkSemaphore> waits;
-    // This first implementation completes its overlay submission on a CPU fence.
-    // The hook then forwards presentation with no waits: original waits were consumed once.
+    // Owned per swap-chain image by the hook, surviving overlay stop/restart.
+    // Present waits on this semaphore instead of forcing a CPU fence wait.
+    VkSemaphore signal=VK_NULL_HANDLE;
     bool waitsConsumed=false;
     VkResult completion=VK_SUCCESS;
 };

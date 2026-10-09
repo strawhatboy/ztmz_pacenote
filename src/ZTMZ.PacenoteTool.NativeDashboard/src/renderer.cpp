@@ -72,6 +72,7 @@ std::set<std::string> draw(const Scene& scene,const TextureLookup& textures,cons
                 auto n=[&](const char* key,float fallback=0.f){return c.contains(key)&&!c[key].is_null()?c[key].get<float>():fallback;};
                 auto color=rgba(c.contains("color")&&!c["color"].is_null()?c["color"].get<std::uint32_t>():0xffffffffu);
                 const bool gradient=c.contains("gradient")&&!c["gradient"].is_null();
+                ImTextureID gradientTexture=ImGui::GetIO().Fonts->TexID;
                 ImDrawList scratch(ImGui::GetDrawListSharedData());
                 auto* dl=gradient?&scratch:output;
                 if(gradient) {scratch._ResetForNewFrame();scratch.PushClipRectFullScreen();scratch.PushTextureID(ImGui::GetIO().Fonts->TexID);color=IM_COL32_WHITE;}
@@ -110,13 +111,18 @@ std::set<std::string> draw(const Scene& scene,const TextureLookup& textures,cons
                         dl->AddConcavePolyFilled(points.data(),static_cast<int>(points.size()),color);
                     } else if(points.size()>=2) dl->AddPolyline(points.data(),static_cast<int>(points.size()),color,c.value("closed",false)?ImDrawFlags_Closed:0,thickness);
                 } else if(type=="drawText" || type=="drawTextWithBackground") {
-                    const float fontSize=std::max(1.f,n("fontSize",14))*scale;
+                    const float requestedSize=std::max(1.f,n("fontSize",14))*scale;
+                    const float fontSize=fonts&&requestedSize>=4&&requestedSize<=128?std::round(requestedSize):requestedSize;
+                    if(fonts) {a.x=std::round(a.x);a.y=std::round(a.y);}
                     if(type=="drawTextWithBackground") {
                         float padding=fontSize*0.25f;
                         dl->AddRectFilled({a.x-padding,a.y-padding},{a.x+n("textWidth")*scale+padding,a.y+n("textHeight")*scale+padding},rgba(c.value("bgColor",0u)));
                     }
                     auto* font=fonts?fonts(c,unsupported):ImGui::GetFont();
+                    gradientTexture=font->ContainerAtlas->TexID;
+                    dl->PushTextureID(font->ContainerAtlas->TexID);
                     dl->AddText(font,fontSize,a,color,c.value("text",std::string{}).c_str());
+                    dl->PopTextureID();
                     if(!fonts) unsupported.insert("font family/style and exact text metrics");
                 } else if(type=="drawImage" || type=="drawImageRegion") {
                     auto texture=textures?textures(c.at("imageKey").get<std::string>()):Texture{};
@@ -130,9 +136,11 @@ std::set<std::string> draw(const Scene& scene,const TextureLookup& textures,cons
                     }
                 } else if(type!="clear") unsupported.insert(type);
                 if(gradient) {
+                    output->PushTextureID(gradientTexture);
                     for(int i=0;i+2<scratch.IdxBuffer.Size;i+=3)
                         gradientTriangle(output,scratch.VtxBuffer[scratch.IdxBuffer[i]],scratch.VtxBuffer[scratch.IdxBuffer[i+1]],scratch.VtxBuffer[scratch.IdxBuffer[i+2]],c.at("gradient"),offset,scale,0,gradientBudget);
                     if(gradientBudget<3) unsupported.insert("gradient tessellation budget exceeded");
+                    output->PopTextureID();
                 }
             } catch(const std::exception& e) {
                 const auto type=c.is_object() && c.contains("type") && c["type"].is_string()

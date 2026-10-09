@@ -6,6 +6,18 @@ namespace ZTMZ.PacenoteTool.Portable.Tests;
 public sealed class OverlayBackendPolicyTest
 {
     [Theory]
+    [InlineData(284160u, "BeamNG.drive.x64")]
+    [InlineData(310560u, "drt")]
+    [InlineData(690790u, "dirtrally2")]
+    public void SavedInGameSelectionAppliesToEachCompatibleGame(uint id, string executable)
+    {
+        var result = OverlayBackendPolicy.Evaluate(OverlayDisplayBackend.InGame,
+            id, executable, true, true, true);
+        Assert.Equal(OverlayDisplayBackend.InGame, result.Effective);
+        Assert.True(result.CanAttachInGame);
+    }
+
+    [Theory]
     [InlineData(1849250u, "anything")]
     [InlineData(0u, "WRC")]
     [InlineData(0u, "wrc.exe")]

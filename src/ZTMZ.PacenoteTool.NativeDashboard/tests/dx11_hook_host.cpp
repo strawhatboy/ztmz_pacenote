@@ -103,7 +103,7 @@ struct Host {
             &desc,&swap,&device,nullptr,&context),"Recreate DX11 device/swap chain for the same window");
         createTarget();
     }
-    void frame(bool overlay) {
+    bool frame(bool overlay,bool waiting=false) {
         const float blue[]={0,0,1,1};context->ClearRenderTargetView(target.Get(),blue);
         auto* view=target.Get();context->OMSetRenderTargets(1,&view,nullptr);
         D3D11_VIEWPORT viewport{7,9,123,111,0.2f,0.8f};context->RSSetViewports(1,&viewport);
@@ -124,11 +124,18 @@ struct Host {
         auto pixel=[&](unsigned x,unsigned y){return static_cast<const unsigned char*>(data.pData)+y*data.RowPitch+x*4;};
         // Logical fixture [96,288] maps to [width/20, width*3/20].
         const auto* drawn=pixel(width/10,width/10);const auto* untouched=pixel(width/2,height/2);
-        bool correct=overlay?(drawn[0]>240 && drawn[1]<10 && drawn[2]<10):(drawn[0]<10 && drawn[1]<10 && drawn[2]>240);
+        bool red=drawn[0]>240 && drawn[1]<10 && drawn[2]<10;
+        bool bluePixel=drawn[0]<10 && drawn[1]<10 && drawn[2]>240;
+        bool correct=waiting?(red||bluePixel):(overlay?red:bluePixel);
         bool background=untouched[0]<10 && untouched[1]<10 && untouched[2]>240;
         context->Unmap(staging.Get(),0);
         require(correct,overlay?"Hook rectangle missing from GPU readback":"Stopped hook still drew pixels");
         require(background,"Hook damaged the host background");
+        return red;
+    }
+    void awaitOverlay() {
+        auto deadline=GetTickCount64()+10000;
+        while(!frame(false,true)){require(GetTickCount64()<deadline,"Background preparation timed out");Sleep(1);}
     }
 };
 }
@@ -169,6 +176,7 @@ int wmain(int argc,wchar_t** argv) {
         Host host;
         if(!hook) {host.frame(false);hook=std::make_unique<Hook>(argv[1]);hook->begin();}
         require(hook->api()==static_cast<int>(ztmz::RenderApi::Auto),"API selected before a presentation");
+        host.awaitOverlay();
         host.frame(true);
         require(hook->api()==static_cast<int>(ztmz::RenderApi::Dx11),"Auto detection did not select DX11");
         auto status=control(R"({"version":1,"command":"status"})");
@@ -190,8 +198,8 @@ int wmain(int argc,wchar_t** argv) {
         require(control(invalid.dump())["ok"]==false,"Running configuration silently changed");
         host.frame(true);
         host.resize();host.frame(true);
-        host.replaceSwapChain();host.frame(true);
-        host.replaceSwapChain();host.frame(true);
+        host.replaceSwapChain();host.awaitOverlay();host.frame(true);
+        host.replaceSwapChain();host.awaitOverlay();host.frame(true);
         {Host auxiliary;auxiliary.frame(false);host.frame(true);}
         for(int cycle=0;cycle<3;++cycle) {
             status=control(command("stop",instance).dump());
@@ -200,12 +208,14 @@ int wmain(int argc,wchar_t** argv) {
             host.frame(false);
             require(hook->api()==static_cast<int>(ztmz::RenderApi::Auto),"Stop retained renderer ownership");
             require(control(command("start",instance).dump())["ok"]==true,"Control restart failed");
+            host.awaitOverlay();
             host.frame(true);
         }
         hook->stop();host.frame(false);
         auto targeted=command("start",instance);
         targeted["targetWindow"]=reinterpret_cast<uintptr_t>(host.window);
         require(control(targeted.dump())["ok"]==true,"Valid target window rejected");
+        host.awaitOverlay();
         host.frame(true);
         require(control(command("stop",instance).dump())["ok"]==true,"Targeted stop failed");
         targeted["targetWindow"]=reinterpret_cast<uintptr_t>(GetDesktopWindow());

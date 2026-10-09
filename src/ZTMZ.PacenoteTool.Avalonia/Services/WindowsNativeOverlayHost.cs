@@ -48,7 +48,26 @@ internal sealed class WindowsNativeOverlayHost : IDesktopNativeOverlayHost
             tool,
             selectedCoDriver,
             new GameOverlayManager(manageWebDashboard: false),
-            ownsOverlay: true);
+            ownsOverlay: true,
+            confirmSelection: async isCurrent => await global::Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                if (!isCurrent()) return false;
+                var text = I18NLoader.Instance;
+                var dialog = FaContentDialogFactory.Create(new FluentAvalonia.UI.Controls.FAContentDialog
+                {
+                    Title = text["overlayBackend.warningTitle"],
+                    Content = new global::Avalonia.Controls.TextBlock
+                    {
+                        Text = text["overlayBackend.warningBody"],
+                        TextWrapping = global::Avalonia.Media.TextWrapping.Wrap,
+                        MaxWidth = 520
+                    },
+                    PrimaryButtonText = text["overlayBackend.warningEnable"],
+                    CloseButtonText = text["overlayBackend.warningKeepWindow"],
+                    DefaultButton = FluentAvalonia.UI.Controls.FAContentDialogButton.Close
+                });
+                return await dialog.ShowAsync() == FluentAvalonia.UI.Controls.FAContentDialogResult.Primary;
+            }));
         _session.Changed += (_, _) => Changed?.Invoke(this, EventArgs.Empty);
     }
 

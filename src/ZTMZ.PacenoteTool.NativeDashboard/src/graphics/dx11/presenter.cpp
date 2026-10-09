@@ -1,6 +1,7 @@
 #include "hooks/dxgi_presenter.hpp"
 #include "graphics/dx11/backend.hpp"
 #include "graphics/render_session.hpp"
+#include "graphics/async_preparation.hpp"
 #include <wrl/client.h>
 namespace ztmz {
 namespace {
@@ -9,6 +10,8 @@ class Dx11Presenter final : public DxgiPresenter {
     ComPtr<ID3D11Device> device_;
     ComPtr<ID3D11DeviceContext> context_;
     std::unique_ptr<RenderSession> renderer_;
+    AsyncPreparation<PreparedContext> contextPreparation_;
+    AsyncPreparation<RenderSession> preparation_;
     uint64_t submitted_=0;
 public:
     uint64_t submittedFrames() const noexcept override {return submitted_;}
@@ -27,7 +30,19 @@ public:
         if(!renderer_) {
             device_=currentDevice;
             device_->GetImmediateContext(&context_);
-            renderer_=std::make_unique<RenderSession>(createDx11Backend(device_.Get(),context_.Get()));
+            if(device_->GetCreationFlags()&D3D11_CREATE_DEVICE_SINGLETHREADED) {
+                if(!contextPreparation_.started())contextPreparation_.start([]{return std::make_unique<PreparedContext>();});
+                auto prepared=contextPreparation_.take();if(!prepared)return;
+                renderer_=std::make_unique<RenderSession>(createDx11Backend(device_.Get(),context_.Get()),std::move(prepared));
+            }else {
+                if(!preparation_.started())preparation_.start([device=device_,context=context_,images]{
+                    auto renderer=std::make_unique<RenderSession>(createDx11Backend(device.Get(),context.Get()),std::make_unique<PreparedContext>());
+                    // Init/NewFrame/syncImages create device resources only. Never
+                    // call the game's immediate context from this worker.
+                    renderer->warmup(images);return renderer;
+                });
+                renderer_=preparation_.take();if(!renderer_)return;
+            }
         }
         ComPtr<ID3D11Texture2D> buffer;
         if(FAILED(swap->GetBuffer(0,IID_PPV_ARGS(&buffer)))) return;
@@ -39,8 +54,8 @@ public:
         if(desc.Width && desc.Height) ++submitted_;
         // Release back-buffer references before returning to the game.
     }
-    void beforeResize() override {if(renderer_) renderer_->invalidateDeviceObjects();}
-    void releaseDevice() noexcept override {renderer_.reset();context_.Reset();device_.Reset();}
+    void beforeResize() override {} // no retained swap-chain targets
+    void releaseDevice() noexcept override {preparation_.cancel();contextPreparation_.cancel();renderer_.reset();context_.Reset();device_.Reset();}
 };
 }
 std::unique_ptr<DxgiPresenter> createDx11Presenter() {return std::make_unique<Dx11Presenter>();}

@@ -1,6 +1,7 @@
 #include "hooks/overlay_hook.hpp"
 #include "graphics/dx9/backend.hpp"
 #include "graphics/render_session.hpp"
+#include "graphics/async_preparation.hpp"
 #include <wrl/client.h>
 #include <MinHook.h>
 #include <atomic>
@@ -21,15 +22,22 @@ class Dx9Hook final:public OverlayHook {
     SharedScene& shared_;RenderApiRouter& router_;std::recursive_mutex mutex_;std::atomic<bool> enabled_{false};
     bool installed_=false;IDirect3DDevice9* selected_=nullptr;
     std::unique_ptr<RenderSession> renderer_;
+    AsyncPreparation<PreparedContext> preparation_;
     std::chrono::steady_clock::time_point previous_;
-    void clear() noexcept {renderer_.reset();selected_=nullptr;router_.release(RenderApi::Dx9);}
+    void clear() noexcept {preparation_.cancel();renderer_.reset();selected_=nullptr;router_.release(RenderApi::Dx9);}
     void render(IDirect3DDevice9* device) {
         std::lock_guard lock(mutex_);
         if(!enabled_ || (selected_ && selected_!=device) || FAILED(device->TestCooperativeLevel())) return;
+        D3DDEVICE_CREATION_PARAMETERS window{};
+        if(FAILED(device->GetCreationParameters(&window))) return;
+        if(auto target=shared_.targetWindow.load();target && target!=reinterpret_cast<uintptr_t>(window.hFocusWindow)) return;
         if(!renderer_) {
             D3DDEVICE_CREATION_PARAMETERS params{};
             if(FAILED(device->GetCreationParameters(&params)) || !IsWindowVisible(params.hFocusWindow) || !router_.tryActivate(RenderApi::Dx9)) return;
-            selected_=device;renderer_=std::make_unique<RenderSession>(createDx9Backend(device));previous_=std::chrono::steady_clock::now();
+            selected_=device;
+            if(!preparation_.started())preparation_.start([]{return std::make_unique<PreparedContext>();});
+            auto prepared=preparation_.take();if(!prepared)return;
+            renderer_=std::make_unique<RenderSession>(createDx9Backend(device),std::move(prepared));previous_=std::chrono::steady_clock::now();
         }
         ComPtr<IDirect3DSurface9> surface;if(FAILED(device->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&surface))) return;
         D3DSURFACE_DESC desc{};surface->GetDesc(&desc);
@@ -37,9 +45,17 @@ class Dx9Hook final:public OverlayHook {
         {std::lock_guard lock(shared_.mutex);scene=shared_.scene;images=shared_.images;}
         auto now=std::chrono::steady_clock::now();Dx9Frame frame(surface.Get());
         renderer_->render({desc.Width,desc.Height,std::chrono::duration<float>(now-previous_).count()},frame,scene,*images);previous_=now;
+        if(desc.Width && desc.Height && frame.submitted) {
+            auto& progress=shared_.progress;std::lock_guard status(progress.mutex);
+            ++progress.submittedFrames;progress.window=reinterpret_cast<uintptr_t>(window.hFocusWindow);
+            progress.lastFrameTick=GetTickCount64();progress.error.clear();
+        }
     }
     static void draw(IDirect3DDevice9* device) noexcept {
-        try{instance_->render(device);}catch(const std::exception& e){OutputDebugStringA(e.what());instance_->stop();}
+        try{instance_->render(device);}catch(const std::exception& e){
+            {auto& progress=instance_->shared_.progress;std::lock_guard status(progress.mutex);progress.error=e.what();progress.lastFrameTick=0;}
+            instance_->stop();
+        }
     }
     struct Guard {bool previous=inPresent_;Guard(){inPresent_=true;}~Guard(){inPresent_=previous;}};
     static HRESULT STDMETHODCALLTYPE present(IDirect3DDevice9* d,const RECT* a,const RECT* b,HWND w,const RGNDATA* dirty) {
@@ -65,10 +81,13 @@ public:
     void stop() noexcept override {enabled_=false;std::lock_guard lock(mutex_);clear();}
     void install() override {
         if(installed_) return;instance_=this;
-        struct Window {HWND h=CreateWindowExW(0,L"STATIC",L"ZTMZ DX9 probe",WS_OVERLAPPEDWINDOW,0,0,8,8,nullptr,nullptr,GetModuleHandleW(nullptr),nullptr);~Window(){if(h) DestroyWindow(h);}} window;
+        struct Window {HWND h=CreateWindowExW(0,L"STATIC",L"ZTMZ DX9 probe",WS_OVERLAPPEDWINDOW,0,0,128,128,nullptr,nullptr,GetModuleHandleW(nullptr),nullptr);~Window(){if(h) DestroyWindow(h);}} window;
         if(!window.h) throw std::runtime_error("Cannot create DX9 probe window");
         ComPtr<IDirect3D9> api;api.Attach(Direct3DCreate9(D3D_SDK_VERSION));if(!api) throw std::runtime_error("Cannot create D3D9");
         D3DPRESENT_PARAMETERS p{};p.Windowed=TRUE;p.SwapEffect=D3DSWAPEFFECT_DISCARD;p.hDeviceWindow=window.h;
+        // A tiny overlapped window can have a zero-sized client area. Do not
+        // let D3D9 infer an invalid back buffer from that non-visible probe.
+        p.BackBufferWidth=64;p.BackBufferHeight=64;
         ComPtr<IDirect3DDevice9> device;
         if(FAILED(api->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,window.h,D3DCREATE_SOFTWARE_VERTEXPROCESSING,&p,&device))) throw std::runtime_error("Cannot create D3D9 probe device");
         auto result=MH_Initialize();if(result!=MH_OK && result!=MH_ERROR_ALREADY_INITIALIZED) throw std::runtime_error("MinHook initialization failed");

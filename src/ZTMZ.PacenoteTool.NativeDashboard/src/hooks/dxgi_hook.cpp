@@ -36,6 +36,7 @@ class DxgiHook final : public OverlayHook {
     HWND selectedWindow_=nullptr;
     std::vector<std::unique_ptr<DxgiPresenter>> presenters_;
     std::vector<RenderApi> apis_;
+    std::vector<std::string> warnings_;
     DxgiPresenter* presenter_=nullptr;
     std::chrono::steady_clock::time_point lastFrame_;
     void clearRenderer() noexcept {
@@ -45,6 +46,7 @@ class DxgiHook final : public OverlayHook {
     bool render(IDXGISwapChain* swap) {
         std::lock_guard lock(renderMutex_);
         if(!enabled_.load()) return false;
+        if(auto active=router_.active();active==RenderApi::Dx9 || active==RenderApi::Vulkan) return false;
         DXGI_SWAP_CHAIN_DESC desc{};
         if(FAILED(swap->GetDesc(&desc)) || !IsWindowVisible(desc.OutputWindow)) return false;
         auto target=shared_.targetWindow.load();
@@ -66,7 +68,14 @@ class DxgiHook final : public OverlayHook {
                     presenter_=candidate.get();selected_=swap;selectedWindow_=desc.OutputWindow;lastFrame_=std::chrono::steady_clock::now();break;
                 }
             }
-            if(!presenter_) return false;
+            if(!presenter_) {
+#ifdef ZTMZ_HAS_DX12
+                Microsoft::WRL::ComPtr<ID3D12Device> dx12;
+                if(SUCCEEDED(swap->GetDevice(IID_PPV_ARGS(&dx12))) && !dx12QueueFor(swap))
+                    reportFailure("DX12 queue association pending or unavailable: no captured queue or calibrated match to an observed submission. No queue will be guessed.");
+#endif
+                return false;
+            }
         }
         auto now=std::chrono::steady_clock::now();
         auto delta=std::chrono::duration<float>(now-lastFrame_).count();lastFrame_=now;
@@ -80,6 +89,7 @@ class DxgiHook final : public OverlayHook {
                 auto& progress=shared_.progress;std::lock_guard status(progress.mutex);
                 ++progress.submittedFrames;progress.window=reinterpret_cast<uintptr_t>(desc.OutputWindow);
                 progress.lastFrameTick=GetTickCount64();progress.error.clear();
+                progress.queueSource=presenter_->queueSource();
             }
         }
         return true;
@@ -136,15 +146,23 @@ public:
         for(const auto& presenter:presenters_) apis_.push_back(presenter->api());
     }
     std::span<const RenderApi> apis() const noexcept override {return apis_;}
+    std::vector<std::string> warnings() const override {return warnings_;}
     void enable() noexcept override {enabled_.store(true);}
     void stop() noexcept override {
         enabled_.store(false);std::lock_guard lock(renderMutex_);clearRenderer();
     }
     void install() override {
+        warnings_.clear();
         const auto candidates=router_.candidates();
         for(auto& presenter:presenters_) if(std::find(candidates.begin(),candidates.end(),presenter->api())!=candidates.end()) {
-            try{presenter->installAuxiliaryHooks();}
-            catch(const std::exception& e){OutputDebugStringA(e.what());std::erase(apis_,presenter->api());}
+            try{
+                presenter->installAuxiliaryHooks();
+                if(std::find(apis_.begin(),apis_.end(),presenter->api())==apis_.end()) apis_.push_back(presenter->api());
+            }
+            catch(const std::exception& e){
+                warnings_.push_back(std::string(apiName(presenter->api()))+": "+std::string(e.what()).substr(0,200));
+                std::erase(apis_,presenter->api());
+            }
         }
         if(std::none_of(apis_.begin(),apis_.end(),[&](auto api){return std::find(candidates.begin(),candidates.end(),api)!=candidates.end();})) throw std::runtime_error("No DXGI presenter could install its required hooks");
         if(installed_) return;

@@ -14,6 +14,7 @@ void Dx11Images::sync(ID3D11Device* device,const ImageAssets& images) {
         entry.view.Reset();entry.image=image;
         if(FAILED(device->CreateTexture2D(&desc,&data,&texture))) continue;
         device->CreateShaderResourceView(texture.Get(),nullptr,&entry.view);
+        break; // New package/font textures must not all allocate in one Present.
     }
 }
 Texture Dx11Images::lookup(const std::string& key) const {

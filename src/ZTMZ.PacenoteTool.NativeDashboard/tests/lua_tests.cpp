@@ -176,6 +176,14 @@ int main(int argc,char** argv) {
                 auto rendered=font->CalcTextSizeA(24,10000,0,text.c_str());
                 require(std::abs(measured.width-rendered.x)<1.1f,"Lua and ImGui text widths disagree");
                 require(!fonts.collect(textScene),"Unchanged text rebuilt font atlas");
+                require(font->FontSize==24,"Font not rasterized at requested pixel size");
+                require(fonts.collect(textScene,0.5f),"Smaller viewport did not request a smaller font");
+                fonts.rebuild();
+                require(fonts.lookup(command,warnings)->FontSize==12,"Small font is still a scaled large atlas glyph");
+                require(!fonts.collect(textScene,0.501f),"Subpixel size variation rebuilt the atlas");
+                require(!fonts.collect(textScene,1.f),"Returning to a cached size rebuilt the atlas");
+                require(fonts.lookup(command,warnings)->FontSize==24,"Cached size not restored");
+                ImGui::GetIO().Fonts->SetTexID(1);
                 ImGui::NewFrame();
                 require(draw(textScene,{},[&](const Json& c,std::set<std::string>& w){return fonts.lookup(c,w);}).empty(),"Font-aware rendering reported unsupported text");
                 ImGui::Render();

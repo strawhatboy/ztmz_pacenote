@@ -14,6 +14,7 @@ void Dx10Images::sync(ID3D10Device* device,const ImageAssets& images) {
         entry.view.Reset();entry.image=image;
         if(FAILED(device->CreateTexture2D(&desc,&data,&texture))) continue;
         device->CreateShaderResourceView(texture.Get(),nullptr,&entry.view);
+        break; // Bound startup work on single-threaded legacy devices.
     }
 }
 Texture Dx10Images::lookup(const std::string& key) const {

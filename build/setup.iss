@@ -20,11 +20,15 @@
   #error "Published native dashboard DLL is missing. Run build\publish.bat before packaging."
 #endif
 #define MyAppNativeFontPath AddBackslash(SourcePath) + MyAppPublishRoot + "\fonts\"
+#define MyAppNativeX86Path AddBackslash(SourcePath) + MyAppPublishRoot + "\native-dashboard\win-x86\"
+#if !FileExists(MyAppNativeX86Path + "ztmz_dashboard_overlay.dll") || !FileExists(MyAppNativeX86Path + "ztmz_dashboard_injector.exe")
+  #error "Published x86 native dashboard DLL/injector is missing. Run build\publish.bat."
+#endif
 #if !FileExists(MyAppNativeFontPath + "WRCCleanRoman.ttf") || !FileExists(MyAppNativeFontPath + "WRCCleanBold.ttf")
   #error "Published native dashboard fonts are missing. Run build\publish.bat before packaging."
 #endif
 #ifndef MyAppReleaseSuffix
-  #define MyAppReleaseSuffix "-rc24"
+  #define MyAppReleaseSuffix "-rc25"
 #endif
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
@@ -445,6 +449,10 @@ Source: "{#MyAppPublishRoot}\wwwroot\*"; DestDir: "{code:GetInstallDir}\wwwroot"
 Source: "{#MyAppPublishRoot}\fonts\*"; DestDir: "{code:GetInstallDir}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; The in-game renderer reuses the shared fonts above.
 Source: "{#MyAppPublishRoot}\native-dashboard\win-x64\ztmz_dashboard_overlay.dll"; DestDir: "{code:GetInstallDir}\native-dashboard\win-x64"; Flags: ignoreversion
+Source: "{#MyAppPublishRoot}\native-dashboard\win-x64\licenses\volk.txt"; DestDir: "{code:GetInstallDir}\native-dashboard\win-x64\licenses"; Flags: ignoreversion
+Source: "{#MyAppPublishRoot}\native-dashboard\win-x86\ztmz_dashboard_overlay.dll"; DestDir: "{code:GetInstallDir}\native-dashboard\win-x86"; Flags: ignoreversion
+Source: "{#MyAppPublishRoot}\native-dashboard\win-x86\ztmz_dashboard_injector.exe"; DestDir: "{code:GetInstallDir}\native-dashboard\win-x86"; Flags: ignoreversion
+Source: "{#MyAppPublishRoot}\native-dashboard\win-x86\licenses\volk.txt"; DestDir: "{code:GetInstallDir}\native-dashboard\win-x86\licenses"; Flags: ignoreversion
 ; Native overlays resolve fonts from the separately configured data directory.
 Source: "{#MyAppPublishRoot}\fonts\*"; DestDir: "{code:GetZTMZHome}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\x64\*"; DestDir: "{code:GetInstallDir}\x64"; Flags: ignoreversion recursesubdirs createallsubdirs

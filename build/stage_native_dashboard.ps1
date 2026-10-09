@@ -1,6 +1,7 @@
 param(
     [Parameter(Mandatory = $true)][string]$NativeOutputDirectory,
-    [Parameter(Mandatory = $true)][string[]]$HostOutputDirectory
+    [Parameter(Mandatory = $true)][string[]]$HostOutputDirectory,
+    [ValidateSet('x64', 'x86')][string]$Architecture = 'x64'
 )
 $ErrorActionPreference = 'Stop'
 $nativeRoot = (Resolve-Path -LiteralPath $NativeOutputDirectory).Path
@@ -19,8 +20,12 @@ foreach ($hostDirectory in $HostOutputDirectory) {
             throw "Shared host font is missing: $hostRoot/fonts/$font. Build the host first."
         }
     }
-    $destination = Join-Path $hostRoot 'native-dashboard/win-x64'
+    $destination = Join-Path $hostRoot "native-dashboard/win-$Architecture"
     New-Item -ItemType Directory -Force -Path $destination | Out-Null
     Copy-Item -LiteralPath $library -Destination $destination -Force
+    if ($Architecture -eq 'x86') {
+        Copy-Item -LiteralPath (Join-Path $nativeRoot 'ztmz_dashboard_injector.exe') -Destination $destination -Force
+    }
+    Copy-Item -LiteralPath (Join-Path $nativeRoot 'licenses') -Destination $destination -Recurse -Force
     Write-Host "Staged native dashboard DLL in $destination (using shared host fonts)"
 }

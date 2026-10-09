@@ -1,0 +1,27 @@
+# Generate an adapted copy in the build tree; never modify the fetched dependency.
+# Fail on upstream call-signature changes instead of falling back to runtime compilation.
+function(ztmz_precompiled_imgui api model output)
+  set(original "${imgui_SOURCE_DIR}/backends/imgui_impl_${api}.cpp")
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${original}")
+  file(READ "${original}" source)
+  foreach(stage IN ITEMS vertex pixel)
+    if(stage STREQUAL "vertex")
+      set(profile "vs_${model}")
+    else()
+      set(profile "ps_${model}")
+    endif()
+    set(call "D3DCompile(${stage}Shader, strlen(${stage}Shader), nullptr, nullptr, nullptr, \"main\", \"${profile}\", 0, 0, &${stage}ShaderBlob, nullptr)")
+    string(FIND "${source}" "${call}" found)
+    if(found EQUAL -1)
+      message(FATAL_ERROR "ImGui ${api} ${stage} compile call changed; update bytecode adapter")
+    endif()
+    string(REPLACE "${call}" "ZtmzShaderBlob(${stage}ShaderBytecode, sizeof(${stage}ShaderBytecode), &${stage}ShaderBlob)" source "${source}")
+  endforeach()
+  set(header "${CMAKE_CURRENT_BINARY_DIR}/generated/${api}_shaders.hpp")
+  add_custom_command(OUTPUT "${header}"
+    COMMAND $<TARGET_FILE:ztmz_compile_imgui_shaders> "${original}" "${model}" "${header}"
+    DEPENDS ztmz_compile_imgui_shaders "${original}" VERBATIM)
+  set(adapter "${CMAKE_CURRENT_BINARY_DIR}/generated/imgui_impl_${api}.cpp")
+  file(WRITE "${adapter}" "#include <d3dcompiler.h>\n#include <cstring>\n#include \"${api}_shaders.hpp\"\nstatic HRESULT ZtmzShaderBlob(const void* data, size_t size, ID3DBlob** result) { auto hr=D3DCreateBlob(size,result); if(SUCCEEDED(hr)) std::memcpy((*result)->GetBufferPointer(),data,size); return hr; }\n${source}")
+  set(${output} "${adapter};${header}" PARENT_SCOPE)
+endfunction()

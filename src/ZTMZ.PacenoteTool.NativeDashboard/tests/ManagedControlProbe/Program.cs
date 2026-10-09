@@ -8,6 +8,25 @@ static void Require(bool condition, string message)
 
 try
 {
+    if (args[0] == "--status-tests")
+    {
+        foreach (var api in new[] { "dx9", "dx10", "dx11", "dx12", "vulkan" })
+        {
+            var status = new InGameOverlayStatus
+            {
+                Version = 1, ModuleVersion = 1, Pid = 1, Instance = "test", Ok = true,
+                Started = true, Port = 8080, RequestedApi = "auto", SelectedApi = api,
+                SubmittedFrames = 1, Window = 1, LastFrameAgeMs = 0, RenderError = ""
+            };
+            Require(status.HasRecentSubmission, $"{api} submission was not acknowledged.");
+            Require(!(status with { SubmittedFrames = 0 }).HasRecentSubmission, "Selected API alone claimed rendering.");
+            Require(!(status with { RenderError = "device lost" }).HasRecentSubmission, "Render error claimed rendering.");
+            Require(!(status with { SelectedApi = "auto" }).HasRecentSubmission, "Unselected API claimed rendering.");
+            Require(!(status with { LastFrameAgeMs = 1500 }).HasRecentSubmission, "Stale frame claimed rendering.");
+        }
+        Console.WriteLine("Multi-API frame status checks passed.");
+        return 0;
+    }
     using var process = Process.GetProcessById(int.Parse(args[1]));
     var client = new InGameOverlayControlClient(process);
     if (args[0] == "--inject-probe")
@@ -16,9 +35,16 @@ try
         var loaded = await client.QueryAsync();
         Require(!loaded.Started && loaded.SubmittedFrames == 0, "DLL started rendering before host configuration.");
         process.Refresh();
-        await client.StartAsync(9, "dx11", targetWindow: ulong.Parse(args[3]));
-        await Task.Delay(400);
-        Require((await client.QueryAsync()).HasRecentSubmission, "Injected module did not submit DX11 frames.");
+        await client.StartAsync(9, "auto", targetWindow: ulong.Parse(args[3]));
+        var frameDeadline = Stopwatch.StartNew();
+        var rendered = await client.QueryAsync();
+        while (!rendered.HasRecentSubmission && frameDeadline.Elapsed < TimeSpan.FromSeconds(5))
+        {
+            await Task.Delay(100);
+            rendered = await client.QueryAsync();
+        }
+        Require(rendered.HasRecentSubmission, "Injected module did not submit frames: " + System.Text.Json.JsonSerializer.Serialize(rendered));
+        Require(rendered.SelectedApi == (args.Length > 4 ? args[4] : "dx11"), "Auto selected the wrong graphics API.");
         Require(!(await client.StopAsync()).Started, "Injected module did not stop.");
         Console.WriteLine("Remote DLL load/control/frame probe passed.");
         return 0;
@@ -44,4 +70,9 @@ try
     Console.WriteLine("Managed control probe passed.");
     return 0;
 }
-catch (Exception error) { Console.Error.WriteLine(error);return 1; }
+catch (Exception error) {
+    Console.Error.WriteLine(error);
+    if (Environment.GetEnvironmentVariable("ZTMZ_OVERLAY_PROBE_LOG") is { Length: > 0 } log)
+        File.WriteAllText(log, error.ToString());
+    return 1;
+}

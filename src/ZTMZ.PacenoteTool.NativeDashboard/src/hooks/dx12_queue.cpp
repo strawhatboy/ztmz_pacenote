@@ -1,4 +1,5 @@
 #include "hooks/dx12_queue.hpp"
+#include "hooks/dx12_late_queue.hpp"
 #include <dxgi1_2.h>
 #include <MinHook.h>
 #include <mutex>
@@ -45,7 +46,12 @@ void installDx12QueueCapture() {
 }
 ComPtr<ID3D12CommandQueue> dx12QueueFor(IDXGISwapChain* swap) {
     ComPtr<ID3D12CommandQueue> queue;UINT size=sizeof(ID3D12CommandQueue*);
-    if(FAILED(swap->GetPrivateData(queueKey,&size,queue.GetAddressOf()))) return {};
+    if(FAILED(swap->GetPrivateData(queueKey,&size,queue.GetAddressOf()))) return findLateDx12Queue(swap);
     return queue;
+}
+const char* dx12QueueSource(IDXGISwapChain* swap) {
+    ComPtr<ID3D12CommandQueue> queue;UINT size=sizeof(ID3D12CommandQueue*);
+    return SUCCEEDED(swap->GetPrivateData(queueKey,&size,queue.GetAddressOf()))&&queue?
+        "dxgi-creation-or-resize":"calibrated-private-layout";
 }
 }

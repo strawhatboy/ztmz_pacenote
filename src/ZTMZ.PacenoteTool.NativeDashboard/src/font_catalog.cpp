@@ -69,7 +69,7 @@ std::filesystem::path bundledFontDirectory() {
     const auto directory=moduleDirectory();
     // The injected module is in <ZTMZ>/native-dashboard/win-x64. Resolve from
     // that DLL, never the game executable or the game's working directory.
-    if(directory.filename()=="win-x64" && directory.parent_path().filename()=="native-dashboard")
+    if((directory.filename()=="win-x64" || directory.filename()=="win-x86") && directory.parent_path().filename()=="native-dashboard")
         return directory.parent_path().parent_path()/"fonts";
     // Standalone native viewer and CMake test outputs keep fonts beside the module.
     return directory/"fonts";

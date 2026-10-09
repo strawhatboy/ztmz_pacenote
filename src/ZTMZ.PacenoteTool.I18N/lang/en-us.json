@@ -1015,6 +1015,14 @@
     }
   },
   "overlayBackend": {
+    "dx12ContextMissing": "DX12 detected, but its swap-chain queue predates attachment. This renderer cannot attach late; the graphics context must be recreated with hooks active.",
+    "vulkanContextMissing": "Vulkan rendering is unavailable. Device, queue or surface context may not have been captured; see the log for the specific reason.",
+    "noFrames": "No in-game frame received after 15 seconds. Check API compatibility and attachment timing in the log.",
+    "warningTitle": "Enable in-game rendering (experimental)?",
+    "injectionNote": "In-game rendering injects a DLL and may affect stability or anti-cheat compatibility. Switching back stops rendering; exit the game to unload the DLL.",
+    "warningBody": "Enabling this display mode allows ZTMZ to load its rendering DLL into supported games without asking again at injection time. It may affect stability or be blocked or disallowed by anti-cheat systems. Enable it only where the game and current mode permit this kind of tool.\n\nSwitching back to a separate overlay window stops rendering, but the DLL remains loaded until you exit the game.\n\nThis confirmation applies to the in-game rendering display mode and does not authorize the separate ACR pacenote bridge.",
+    "warningEnable": "Enable in-game rendering",
+    "warningKeepWindow": "Keep separate overlay window",
     "inGameActive": "Using in-game rendering.",
     "title": "Display method",
     "window": "Separate overlay window",

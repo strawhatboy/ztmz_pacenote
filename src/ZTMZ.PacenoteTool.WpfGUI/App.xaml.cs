@@ -112,7 +112,8 @@ public partial class App : Application
                     () => provider.GetRequiredService<RuntimeControlsService>()
                         .GetSnapshot()
                         .SelectedCodriver,
-                    provider.GetRequiredService<GameOverlayManager>()));
+                    provider.GetRequiredService<GameOverlayManager>(),
+                    confirmSelection: OverlayInjectionWarning.ShowAsync));
             services.AddSingleton<WpfNativeOverlayPreviewController>();
             services.AddSingleton<IRuntimeDashboardController, GameOverlayDashboardController>();
             services.AddSingleton<SharedRuntimeControlsService>();

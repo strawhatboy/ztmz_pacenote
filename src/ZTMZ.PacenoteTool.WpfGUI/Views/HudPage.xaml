@@ -30,6 +30,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <TextBlock Text="{DynamicResource overlayBackend.title}" VerticalAlignment="Center" />
                 <ComboBox Grid.Column="1" HorizontalAlignment="Stretch"
@@ -40,6 +41,9 @@
                 <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Margin="0 8 0 0" TextWrapping="Wrap"
                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                            helper:DynamicResourceText.Key="{Binding ViewModel.OverlayBackendStatusKey}" />
+                <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Margin="0 8 0 0" TextWrapping="Wrap"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                           Text="{DynamicResource overlayBackend.injectionNote}" />
             </Grid>
         </ui:Card>
         <!-- FPS -->

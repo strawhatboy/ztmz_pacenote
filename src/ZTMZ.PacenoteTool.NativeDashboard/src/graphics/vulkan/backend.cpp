@@ -13,6 +13,11 @@ class VulkanBackend final:public RenderBackend {
     VkCommandPool pool_=VK_NULL_HANDLE;VkCommandBuffer command_=VK_NULL_HANDLE;
     VkFence fence_=VK_NULL_HANDLE;VkSampler sampler_=VK_NULL_HANDLE;
     bool initialized_=false;
+    bool recording_=false,submitted_=false;
+    struct Staging {VkDevice d;VkBuffer b=VK_NULL_HANDLE;VkDeviceMemory m=VK_NULL_HANDLE;~Staging(){if(b) vkDestroyBuffer(d,b,nullptr);if(m) vkFreeMemory(d,m,nullptr);}};
+    std::vector<std::unique_ptr<Staging>> staging_;
+    struct Target {VkDevice d;VkImageView view=VK_NULL_HANDLE;VkFramebuffer framebuffer=VK_NULL_HANDLE;~Target(){if(framebuffer) vkDestroyFramebuffer(d,framebuffer,nullptr);if(view) vkDestroyImageView(d,view,nullptr);}};
+    std::unique_ptr<Target> target_;
     struct Image {
         VkDevice device=VK_NULL_HANDLE;VkImage image=VK_NULL_HANDLE;VkDeviceMemory memory=VK_NULL_HANDLE;
         VkImageView view=VK_NULL_HANDLE;VkDescriptorSet descriptor=VK_NULL_HANDLE;
@@ -20,26 +25,30 @@ class VulkanBackend final:public RenderBackend {
         ~Image(){if(descriptor) ImGui_ImplVulkan_RemoveTexture(descriptor);if(view) vkDestroyImageView(device,view,nullptr);if(image) vkDestroyImage(device,image,nullptr);if(memory) vkFreeMemory(device,memory,nullptr);}
     };
     std::map<std::string,std::unique_ptr<Image>> images_;
+    std::unique_ptr<Image> bootstrap_;
     uint32_t memoryType(uint32_t bits,VkMemoryPropertyFlags properties) {
         VkPhysicalDeviceMemoryProperties memory{};vkGetPhysicalDeviceMemoryProperties(info_.physicalDevice,&memory);
         for(uint32_t i=0;i<memory.memoryTypeCount;++i) if((bits&(1u<<i)) && (memory.memoryTypes[i].propertyFlags&properties)==properties) return i;
         throw std::runtime_error("No suitable Vulkan memory type");
     }
     void begin() {
+        if(recording_)return;
+        // readyForFrame has established completion before any resource reuse.
+        staging_.clear();target_.reset();
         check(vkResetCommandPool(info_.device,pool_,0));
         VkCommandBufferBeginInfo begin{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};begin.flags=VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         check(vkBeginCommandBuffer(command_,&begin));
+        recording_=true;
     }
     void finish(VulkanFrame* frame=nullptr) {
         check(vkEndCommandBuffer(command_));check(vkResetFences(info_.device,1,&fence_));
         std::vector<VkPipelineStageFlags> stages(frame?frame->waits.size():0,VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
         VkSubmitInfo submit{VK_STRUCTURE_TYPE_SUBMIT_INFO};submit.commandBufferCount=1;submit.pCommandBuffers=&command_;
         if(frame){submit.waitSemaphoreCount=static_cast<uint32_t>(frame->waits.size());submit.pWaitSemaphores=frame->waits.data();submit.pWaitDstStageMask=stages.data();}
+        if(frame&&frame->signal){submit.signalSemaphoreCount=1;submit.pSignalSemaphores=&frame->signal;}
         auto result=vkQueueSubmit(info_.queue,1,&submit,fence_);
+        recording_=false;submitted_=result==VK_SUCCESS;
         if(frame) {frame->completion=result;frame->waitsConsumed=result==VK_SUCCESS;}
-        check(result);
-        result=vkWaitForFences(info_.device,1,&fence_,VK_TRUE,UINT64_MAX);
-        if(frame) frame->completion=result;
         check(result);
     }
     std::unique_ptr<Image> upload(std::shared_ptr<const ImageAsset> source) {
@@ -49,7 +58,7 @@ class VulkanBackend final:public RenderBackend {
         VkMemoryRequirements requirements{};vkGetImageMemoryRequirements(info_.device,image->image,&requirements);
         VkMemoryAllocateInfo allocation{VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO};allocation.allocationSize=requirements.size;allocation.memoryTypeIndex=memoryType(requirements.memoryTypeBits,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         check(vkAllocateMemory(info_.device,&allocation,nullptr,&image->memory));check(vkBindImageMemory(info_.device,image->image,image->memory,0));
-        struct Staging {VkDevice d;VkBuffer b=VK_NULL_HANDLE;VkDeviceMemory m=VK_NULL_HANDLE;~Staging(){if(b) vkDestroyBuffer(d,b,nullptr);if(m) vkFreeMemory(d,m,nullptr);}} staging{info_.device};
+        auto pending=std::make_unique<Staging>();pending->d=info_.device;auto& staging=*pending;
         VkBufferCreateInfo buffer{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};buffer.size=image->source->rgba.size();buffer.usage=VK_BUFFER_USAGE_TRANSFER_SRC_BIT;buffer.sharingMode=VK_SHARING_MODE_EXCLUSIVE;
         check(vkCreateBuffer(info_.device,&buffer,nullptr,&staging.b));vkGetBufferMemoryRequirements(info_.device,staging.b,&requirements);
         allocation.allocationSize=requirements.size;allocation.memoryTypeIndex=memoryType(requirements.memoryTypeBits,VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
@@ -60,7 +69,8 @@ class VulkanBackend final:public RenderBackend {
         VkBufferImageCopy copy{};copy.imageSubresource={VK_IMAGE_ASPECT_COLOR_BIT,0,0,1};copy.imageExtent=create.extent;
         vkCmdCopyBufferToImage(command_,staging.b,image->image,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1,&copy);
         barrier.oldLayout=VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;barrier.newLayout=VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;barrier.srcAccessMask=VK_ACCESS_TRANSFER_WRITE_BIT;barrier.dstAccessMask=VK_ACCESS_SHADER_READ_BIT;
-        vkCmdPipelineBarrier(command_,VK_PIPELINE_STAGE_TRANSFER_BIT,VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,0,0,nullptr,0,nullptr,1,&barrier);finish();
+        vkCmdPipelineBarrier(command_,VK_PIPELINE_STAGE_TRANSFER_BIT,VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,0,0,nullptr,0,nullptr,1,&barrier);
+        staging_.push_back(std::move(pending)); // retained until this submission's fence completes
         VkImageViewCreateInfo view{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};view.image=image->image;view.viewType=VK_IMAGE_VIEW_TYPE_2D;view.format=create.format;view.subresourceRange={VK_IMAGE_ASPECT_COLOR_BIT,0,1,0,1};check(vkCreateImageView(info_.device,&view,nullptr,&image->view));
         image->descriptor=ImGui_ImplVulkan_AddTexture(sampler_,image->view,VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);if(!image->descriptor) throw std::runtime_error("Vulkan texture descriptor allocation failed");return image;
     }
@@ -82,24 +92,46 @@ public:
         ImGui_ImplVulkan_InitInfo init{};init.ApiVersion=VK_API_VERSION_1_0;init.Instance=info_.instance;init.PhysicalDevice=info_.physicalDevice;init.Device=info_.device;init.QueueFamily=info_.queueFamily;init.Queue=info_.queue;init.DescriptorPool=descriptors_;init.RenderPass=renderPass_;init.MinImageCount=info_.minImageCount;init.ImageCount=info_.imageCount;init.MSAASamples=VK_SAMPLE_COUNT_1_BIT;init.CheckVkResultFn=check;
         if(!ImGui_ImplVulkan_Init(&init)) throw std::runtime_error("ImGui Vulkan initialization failed");initialized_=true;
     }
-    void newFrame() override{ImGui_ImplVulkan_NewFrame();}
+    bool readyForFrame() const override {
+        if(!submitted_)return true;
+        auto result=vkGetFenceStatus(info_.device,fence_);
+        if(result==VK_NOT_READY)return false;
+        check(result);return true;
+    }
+    void newFrame() override {
+        begin();
+        if(!bootstrap_) {
+            unsigned char* pixels=nullptr;int width=0,height=0;
+            auto& atlas=*ImGui::GetIO().Fonts;atlas.GetTexDataAsRGBA32(&pixels,&width,&height);
+            auto image=std::make_shared<ImageAsset>();image->width=width;image->height=height;
+            image->rgba.assign(pixels,pixels+static_cast<size_t>(width)*height*4);
+            bootstrap_=upload(image);atlas.SetTexID(textureId(bootstrap_->descriptor));
+        }
+        // Do not call ImGui_ImplVulkan_NewFrame: its font upload submits and waits
+        // on the game queue. Our bootstrap texture joins the normal async batch.
+    }
     void syncImages(const ImageAssets& images) override {
-        // Every prior overlay submission completed before its Present was forwarded.
+        begin(); // previous fence is complete; texture retirement is now safe
         for(auto i=images_.begin();i!=images_.end();) {auto next=images.find(i->first);if(next==images.end() || next->second!=i->second->source) i=images_.erase(i);else ++i;}
-        for(const auto& [key,image]:images) if(!images_.contains(key)) images_.emplace(key,upload(image));
+        for(const auto& [key,image]:images) if(!images_.contains(key)){images_.emplace(key,upload(image));break;}
     }
     Texture texture(const std::string& key) const override{auto i=images_.find(key);if(i==images_.end()) return {};return {textureId(i->second->descriptor),i->second->source->width,i->second->source->height};}
     void submit(ImDrawData& data,NativeFrame& native) override {
         auto* frame=dynamic_cast<VulkanFrame*>(&native);if(!frame || !frame->image) throw std::invalid_argument("Vulkan present image missing");
-        struct Target {VkDevice d;VkImageView view=VK_NULL_HANDLE;VkFramebuffer framebuffer=VK_NULL_HANDLE;~Target(){if(framebuffer) vkDestroyFramebuffer(d,framebuffer,nullptr);if(view) vkDestroyImageView(d,view,nullptr);}} target{info_.device};
+        if(!frame->signal)throw std::invalid_argument("Vulkan presentation semaphore missing");
+        begin();target_=std::make_unique<Target>();target_->d=info_.device;auto& target=*target_;
         VkImageViewCreateInfo view{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};view.image=frame->image;view.viewType=VK_IMAGE_VIEW_TYPE_2D;view.format=info_.format;view.subresourceRange={VK_IMAGE_ASPECT_COLOR_BIT,0,1,0,1};check(vkCreateImageView(info_.device,&view,nullptr,&target.view));
         VkFramebufferCreateInfo framebuffer{VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO};framebuffer.renderPass=renderPass_;framebuffer.attachmentCount=1;framebuffer.pAttachments=&target.view;framebuffer.width=frame->extent.width;framebuffer.height=frame->extent.height;framebuffer.layers=1;check(vkCreateFramebuffer(info_.device,&framebuffer,nullptr,&target.framebuffer));
         begin();VkRenderPassBeginInfo beginPass{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};beginPass.renderPass=renderPass_;beginPass.framebuffer=target.framebuffer;beginPass.renderArea.extent=frame->extent;
         vkCmdBeginRenderPass(command_,&beginPass,VK_SUBPASS_CONTENTS_INLINE);ImGui_ImplVulkan_RenderDrawData(&data,command_);vkCmdEndRenderPass(command_);finish(frame);
     }
-    void invalidateDeviceObjects() override{images_.clear();if(initialized_) ImGui_ImplVulkan_DestroyFontsTexture();}
+    void invalidateDeviceObjects() override {
+        if(submitted_)check(vkWaitForFences(info_.device,1,&fence_,VK_TRUE,UINT64_MAX));
+        images_.clear();bootstrap_.reset();ImGui::GetIO().Fonts->SetTexID(0);
+    }
     void shutdown() noexcept override {
-        images_.clear();if(initialized_ || ImGui::GetIO().BackendRendererUserData) ImGui_ImplVulkan_Shutdown();initialized_=false;
+        if(submitted_&&fence_)vkWaitForFences(info_.device,1,&fence_,VK_TRUE,UINT64_MAX);
+        staging_.clear();target_.reset();images_.clear();bootstrap_.reset();if(initialized_ || ImGui::GetIO().BackendRendererUserData) ImGui_ImplVulkan_Shutdown();initialized_=false;
         if(sampler_) vkDestroySampler(info_.device,sampler_,nullptr);if(fence_) vkDestroyFence(info_.device,fence_,nullptr);if(pool_) vkDestroyCommandPool(info_.device,pool_,nullptr);if(descriptors_) vkDestroyDescriptorPool(info_.device,descriptors_,nullptr);if(renderPass_) vkDestroyRenderPass(info_.device,renderPass_,nullptr);
         sampler_=VK_NULL_HANDLE;fence_=VK_NULL_HANDLE;pool_=VK_NULL_HANDLE;descriptors_=VK_NULL_HANDLE;renderPass_=VK_NULL_HANDLE;
     }

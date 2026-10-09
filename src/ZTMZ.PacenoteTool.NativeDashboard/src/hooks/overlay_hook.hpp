@@ -11,6 +11,7 @@ public:
     virtual ~OverlayHook() = default;
     virtual std::span<const RenderApi> apis() const noexcept = 0;
     virtual void install() = 0;
+    virtual std::vector<std::string> warnings() const {return {};}
     virtual void enable() noexcept = 0;
     virtual void stop() noexcept = 0;
 };

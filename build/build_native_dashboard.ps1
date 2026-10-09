@@ -1,4 +1,5 @@
-param([Parameter(Mandatory = $true)][string]$BuildDirectory)
+param([Parameter(Mandatory = $true)][string]$BuildDirectory,
+    [ValidateSet('x64', 'x86')][string]$Architecture = 'x64')
 $ErrorActionPreference = 'Stop'
 $source = Join-Path $PSScriptRoot '../src/ZTMZ.PacenoteTool.NativeDashboard'
 $BuildDirectory = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($BuildDirectory)
@@ -22,7 +23,9 @@ try {
     if (!$held) { throw 'Timed out waiting for the other native dashboard build.' }
     # Release /MT also for Debug hosts: no debug CRT or separately installed VC runtime.
     # Tests/viewer are not shipping artifacts.
-    & $cmake -S $source -B $BuildDirectory -G 'Visual Studio 17 2022' -A x64 "-DCMAKE_GENERATOR_INSTANCE=$installation" '-DBUILD_TESTING=OFF' '-DZTMZ_RENDER_BACKENDS=dx11' '-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded'
+    Write-Host "Building native dashboard $Architecture (auto: DX9, DX10, DX11, DX12, Vulkan; incremental Release)..."
+    $cmakeArchitecture = if ($Architecture -eq 'x86') { 'Win32' } else { 'x64' }
+    & $cmake -S $source -B $BuildDirectory -G 'Visual Studio 17 2022' -A $cmakeArchitecture "-DCMAKE_GENERATOR_INSTANCE=$installation" '-DBUILD_TESTING=OFF' '-DZTMZ_RENDER_BACKENDS=dx9;dx10;dx11;dx12;vulkan' '-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded'
     if ($LASTEXITCODE -ne 0) { throw 'Native dashboard CMake configuration failed.' }
     & $cmake --build $BuildDirectory --config Release --target ztmz_dashboard_overlay --parallel 4
     if ($LASTEXITCODE -ne 0) { throw 'Native dashboard compilation failed.' }

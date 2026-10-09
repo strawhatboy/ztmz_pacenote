@@ -413,6 +413,18 @@ namespace ZTMZ.PacenoteTool.Base
 
         private bool _HudLockFPS = true;
         private int _OverlayDisplayBackend;
+        // Retained for reading old configurations only. OverlayDisplayBackend is
+        // now the authoritative selection; this list must not gate game attachment.
+        private string[] _inGameOverlayConsents = Array.Empty<string>();
+        public string[] InGameOverlayConsents
+        {
+            get => (string[])_inGameOverlayConsents.Clone();
+            set
+            {
+                _inGameOverlayConsents = value is null ? Array.Empty<string>() : (string[])value.Clone();
+                _userconfig[nameof(InGameOverlayConsents)] = _inGameOverlayConsents;
+            }
+        }
         public int OverlayDisplayBackend
         {
             get => _OverlayDisplayBackend;

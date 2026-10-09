@@ -27,17 +27,21 @@ public sealed class NativeOverlaySessionController : IDisposable
     private readonly SemaphoreSlim _backendGate = new(1, 1);
     private InGameOverlaySession? _inGame;
     private string? _backendError;
+    private readonly Func<Func<bool>, Task<bool>>? _confirmSelection;
 
     public NativeOverlaySessionController(
         ZTMZPacenoteTool tool,
         Func<CoDriverPackageInfo?> selectedCoDriver,
         GameOverlayManager overlay,
-        bool ownsOverlay = false)
+        bool ownsOverlay = false,
+        Func<Func<bool>, Task<bool>>? confirmSelection = null)
     {
         _tool = tool ?? throw new ArgumentNullException(nameof(tool));
         _selectedCoDriver = selectedCoDriver ?? throw new ArgumentNullException(nameof(selectedCoDriver));
         _overlay = overlay ?? throw new ArgumentNullException(nameof(overlay));
         _ownsOverlay = ownsOverlay;
+        _confirmSelection = confirmSelection;
+        OverlayBackendSettings.ConfirmSelection = confirmSelection;
         OverlayBackendSettings.Changed += OnBackendChanged;
 
         _overlay.OnNativeOverlayStatusChanged += _ => RaiseChanged();
@@ -66,7 +70,7 @@ public sealed class NativeOverlaySessionController : IDisposable
         ? new(OverlayBackendSettings.Requested, OverlayDisplayBackend.InGame,
             session.IsActive ? "overlayBackend.inGameActive"
                 : string.IsNullOrEmpty(session.Error) ? "overlayBackend.waitingForRenderer"
-                : "settings.tooltip.overlayHudHomeStatusUnavailable", true)
+                : session.FailureStatusKey, true)
         : _backendError != null
             ? new(OverlayBackendSettings.Requested, OverlayDisplayBackend.SeparateWindow,
                 "settings.tooltip.overlayHudHomeStatusUnavailable", false)
@@ -219,21 +223,33 @@ public sealed class NativeOverlaySessionController : IDisposable
             _backendError = null;
             if (_inGame != null) {await _inGame.StopAsync().ConfigureAwait(false);_inGame = null;}
             var decision = OverlayBackendPolicy.Evaluate(OverlayBackendSettings.Requested, game, true, true);
+            // The persisted mode is the user's selection, including configurations
+            // saved before confirmation moved to the GUI. Never override it using
+            // the obsolete per-game consent list when attaching a different game.
+            Logger.Info("Overlay backend for {0}, PID {1}: requested={2}, effective={3}, reason={4}.",
+                game.Name, processId, decision.Requested, decision.Effective, decision.StatusKey);
             bool loaded = false;
+            var libraryPath = decision.CanAttachInGame ? InGameOverlayLoader.GetLibraryPath(process) : null;
             var compatible = OverlayBackendPolicy.Evaluate(OverlayDisplayBackend.InGame, game, true, true).CanAttachInGame;
             if (compatible)
             {
                 try {loaded = InGameOverlaySession.IsLoaded(process);}
                 catch (Exception error) {Logger.Debug(error, "Cannot inspect experimental overlay module; retaining window backend.");}
             }
-            if (!loaded && decision.CanAttachInGame && _overlay.CurrentNativeOverlayStatus.State != NativeOverlayState.Preview
-                && File.Exists(InGameOverlayLoader.LibraryPath))
+            if (!loaded && decision.CanAttachInGame && _overlay.CurrentNativeOverlayStatus.State != NativeOverlayState.Preview)
             {
+                if (!File.Exists(libraryPath))
+                {
+                    _overlay.UninitializeOverlay();
+                    throw new FileNotFoundException("In-game overlay DLL is missing; cannot start the selected rendering backend.", libraryPath);
+                }
                 lock (_initializationLock)
                 {
                     if (_disposed || !IsCurrentInitialization(game, processId, generation)) return;
                 }
-                await InGameOverlayLoader.LoadAsync(process, InGameOverlayLoader.LibraryPath).ConfigureAwait(false);
+                Logger.Info("Loading in-game overlay DLL into {0}, PID {1}: {2}", game.Name, processId, libraryPath);
+                await InGameOverlayLoader.LoadAsync(process, libraryPath!).ConfigureAwait(false);
+                Logger.Info("In-game overlay DLL loaded for PID {0}; awaiting renderer frame acknowledgement.", processId);
                 loaded = true;
             }
             if (loaded && decision.CanAttachInGame && _overlay.CurrentNativeOverlayStatus.State != NativeOverlayState.Preview)
@@ -460,6 +476,8 @@ public sealed class NativeOverlaySessionController : IDisposable
 
         _disposed = true;
         OverlayBackendSettings.Changed -= OnBackendChanged;
+        if (OverlayBackendSettings.ConfirmSelection == _confirmSelection)
+            OverlayBackendSettings.ConfirmSelection = null;
         _tool.onGameEnded -= OnGameEnded;
         _tool.onGameUninitialized -= OnGameUninitialized;
         _tool.onRaceBegin -= OnRaceBegin;
