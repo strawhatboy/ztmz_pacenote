@@ -173,7 +173,7 @@ public sealed class SharedRuntimeControlsService
 
     public bool SetPlaybackAdjustSeconds(double seconds)
     {
-        var normalized = Math.Clamp(seconds, -4d, 4d);
+        var normalized = Math.Clamp(seconds, -8d, 4d);
         var previous = Config.Instance.UI_PlaybackAdjustSeconds;
         Config.Instance.UI_PlaybackAdjustSeconds = normalized;
         _tool.SetPlaybackAdjustSeconds((float)normalized);

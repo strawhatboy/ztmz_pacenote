@@ -264,7 +264,7 @@
                              VerticalAlignment="Center" />
                   <Slider Grid.Row="3"
                           Grid.Column="2"
-                          Minimum="-4"
+                          Minimum="-8"
                           Maximum="4"
                           Value="{Binding PlaybackAdjustSeconds, Mode=TwoWay}" />
 
