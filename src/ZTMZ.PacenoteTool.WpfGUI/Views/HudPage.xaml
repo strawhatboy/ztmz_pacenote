@@ -113,6 +113,7 @@
         
         <!-- HudTopMost -->
         <ui:Card Margin="0 0 0 3"
+            Visibility="{Binding ViewModel.ShowOverlayTopMost, Converter={StaticResource BooleanToVisibilityConverter}}"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>

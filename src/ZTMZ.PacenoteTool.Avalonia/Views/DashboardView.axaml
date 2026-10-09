@@ -56,9 +56,11 @@
           </Grid>
           <Grid Grid.Row="2" Grid.ColumnSpan="2" ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="10">
             <TextBlock Text="{DynamicResource settings.hudTopMost}"
+                       IsVisible="{Binding ShowOverlayTopMost}"
                        VerticalAlignment="Center" />
             <ToggleSwitch Grid.Column="1"
                           IsChecked="{Binding IsNativeOverlayTopMost, Mode=TwoWay}"
+                          IsVisible="{Binding ShowOverlayTopMost}"
                           OnContent=""
                           OffContent=""
                           ToolTip.Tip="{DynamicResource settings.tooltip.hudTopMost}" />

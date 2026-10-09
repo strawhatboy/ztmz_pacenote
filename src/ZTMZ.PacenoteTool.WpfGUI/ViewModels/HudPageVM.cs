@@ -37,6 +37,7 @@ public partial class HudPageVM : ObservableObject {
     }
 
     public string OverlayBackendStatusKey => _overlaySession.BackendDecision.StatusKey;
+    public bool ShowOverlayTopMost => OverlayBackendSettings.Requested == OverlayDisplayBackend.SeparateWindow;
 
     private readonly NativeOverlaySessionController _overlaySession;
 
@@ -45,6 +46,7 @@ public partial class HudPageVM : ObservableObject {
         Application.Current.Dispatcher.BeginInvoke(new Action(() =>
         {
             OnPropertyChanged(nameof(OverlayBackendIndex));
+            OnPropertyChanged(nameof(ShowOverlayTopMost));
             OnPropertyChanged(nameof(OverlayBackendStatusKey));
         }));
     }

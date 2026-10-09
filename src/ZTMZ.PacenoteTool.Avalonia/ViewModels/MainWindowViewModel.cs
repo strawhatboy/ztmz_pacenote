@@ -847,11 +847,13 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
         finally
         {
             OnPropertyChanged(nameof(OverlayBackendIndex));
+            OnPropertyChanged(nameof(ShowOverlayTopMost));
             OnPropertyChanged(nameof(OverlayBackendStatus));
         }
     }
 
     private string? _overlayBackendStatusKey;
+    public bool ShowOverlayTopMost => OverlayBackendSettings.Requested == OverlayDisplayBackend.SeparateWindow;
     public string OverlayBackendStatus => I18NLoader.Instance[
         _overlayBackendStatusKey ?? OverlayBackendSettings.GetDecision(_runtime.CurrentGame).StatusKey];
 
@@ -885,6 +887,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     private void RefreshSnapshot()
     {
         OnPropertyChanged(nameof(OverlayBackendIndex));
+        OnPropertyChanged(nameof(ShowOverlayTopMost));
         OnPropertyChanged(nameof(OverlayBackendStatus));
         var snapshot = _runtime.GetSnapshot();
         _applyingSnapshot = true;
