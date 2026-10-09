@@ -57,7 +57,11 @@ captured target window to match before drawing. DLL startup does not detect an
 API from module names; the presentation/device events select the renderer.
 Port must be an integer from 1 through 65535. API names use the existing renderer
 catalog. Repeating start with the same settings succeeds without restarting.
-Changing settings while started is rejected: stop, then start with new settings.
+Changing the port or API while started is rejected: stop, then start with new settings.
+Repeating start with the same port/API and a new validated `targetWindow` updates
+the target without reconnecting telemetry. Renderer selection and frame acknowledgement
+are reset. Hosts must send this update when a startup window becomes the game window;
+transient zero handles are ignored by the desktop host.
 Stopping retains the pipe, pinned DLL and pass-through hooks, allowing a new
 client connection after ZTMZ restarts. Bootstrap opens control only; rendering and
 networking require an explicit Start command. Requests do not mutate environment variables.

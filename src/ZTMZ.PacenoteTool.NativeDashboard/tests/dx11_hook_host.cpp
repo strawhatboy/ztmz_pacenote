@@ -213,8 +213,14 @@ int wmain(int argc,wchar_t** argv) {
         }
         hook->stop();host.frame(false);
         auto targeted=command("start",instance);
+        auto splash=CreateWindowExW(0,L"STATIC",L"Startup window",WS_POPUP|WS_VISIBLE,-30000,-30000,64,64,nullptr,nullptr,GetModuleHandleW(nullptr),nullptr);
+        require(splash!=nullptr,"Splash window");
+        targeted["targetWindow"]=reinterpret_cast<uintptr_t>(splash);
+        require(control(targeted.dump())["ok"]==true,"Splash target rejected");
+        host.frame(false);
+        DestroyWindow(splash);
         targeted["targetWindow"]=reinterpret_cast<uintptr_t>(host.window);
-        require(control(targeted.dump())["ok"]==true,"Valid target window rejected");
+        require(control(targeted.dump())["ok"]==true,"Live window handoff rejected");
         host.awaitOverlay();
         host.frame(true);
         require(control(command("stop",instance).dump())["ok"]==true,"Targeted stop failed");

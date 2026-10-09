@@ -109,6 +109,16 @@ internal sealed class InGameOverlaySession
                     var current = await client.QueryAsync(stopping.Token).ConfigureAwait(false);
                     if (current.Port != runtime.Status.Port || !current.Started)
                         throw new InvalidOperationException("In-game overlay control ownership changed.");
+                    process.Refresh();
+                    var currentWindow = process.MainWindowHandle.ToInt64();
+                    if (currentWindow != 0 && currentWindow != Volatile.Read(ref expectedWindow))
+                    {
+                        Logger.Info("In-game overlay PID {0}: target HWND changed from {1} to {2}; updating renderer target.",
+                            process.Id, expectedWindow, currentWindow);
+                        current = await client.StartAsync(runtime.Status.Port, "auto", stopping.Token, (ulong)currentWindow).ConfigureAwait(false);
+                        Volatile.Write(ref expectedWindow, currentWindow);
+                        firstFrameWait.Restart();
+                    }
                     Volatile.Write(ref status, current);
                     waitingDiagnostic = current.SubmittedFrames == 0 && firstFrameWait.Elapsed > TimeSpan.FromSeconds(15)
                         ? "No overlay frame submitted after 15 seconds. Check the selected API, hook warnings and render error in the log; the renderer may require attachment before device creation." : null;
@@ -122,8 +132,6 @@ internal sealed class InGameOverlaySession
                         if (!string.IsNullOrEmpty(current.RenderError) || waitingDiagnostic != null)
                             Logger.Warn("In-game overlay PID {0}: {1}", process.Id, string.IsNullOrEmpty(current.RenderError) ? waitingDiagnostic : current.RenderError);
                     }
-                    process.Refresh();
-                    Volatile.Write(ref expectedWindow, process.MainWindowHandle.ToInt64());
                     nextStatus.Restart();
                     changed();
                 }

@@ -50,7 +50,14 @@ class DxgiHook final : public OverlayHook {
         DXGI_SWAP_CHAIN_DESC desc{};
         if(FAILED(swap->GetDesc(&desc)) || !IsWindowVisible(desc.OutputWindow)) return false;
         auto target=shared_.targetWindow.load();
-        if(target && reinterpret_cast<uintptr_t>(desc.OutputWindow)!=target) return false;
+        if(target && reinterpret_cast<uintptr_t>(desc.OutputWindow)!=target) {
+            if(!selected_) {
+                auto message="DXGI window mismatch: target HWND="+std::to_string(target)+
+                    ", presenting HWND="+std::to_string(reinterpret_cast<uintptr_t>(desc.OutputWindow));
+                reportFailure(message.c_str());
+            }
+            return false;
+        }
         if(selected_ && selected_!=swap) {
             // Fullscreen/mode changes can replace both swap chain and device. Never
             // dereference the previous chain: it may already have been destroyed.

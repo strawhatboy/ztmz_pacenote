@@ -45,7 +45,15 @@ BOOL start(unsigned short port,ztmz::RenderApi preference,uintptr_t targetWindow
         auto& s=state();std::lock_guard lock(s.controlMutex);
         s.startError.clear();s.hookWarnings.clear();
         if(s.network.joinable()) {
-            if(s.port!=port || s.preference!=preference || s.shared.targetWindow.load()!=targetWindow) throw std::runtime_error("Stop before changing overlay configuration");
+            if(s.port!=port || s.preference!=preference) throw std::runtime_error("Stop before changing overlay configuration");
+            if(s.shared.targetWindow.load()!=targetWindow) {
+                // A game may replace its splash or render window without exiting.
+                // Release old renderer selection but retain the data connection.
+                for(auto& hook:s.hooks) hook->stop();
+                s.shared.progress.reset();
+                s.shared.targetWindow.store(targetWindow);
+                for(auto& hook:s.hooks) if(requested(*hook,s.router.candidates())) hook->enable();
+            }
             return TRUE;
         }
         s.router.configure(preference,ztmz::compiledOverlayApis());
