@@ -19,6 +19,10 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
     private int metadataPid;
     private long nextMetadataRead, nextDiscovery, lifetime, runGeneration;
     private float? pendingFinish;
+    private float rawLapTime;
+    private int? livePenaltyMilliseconds;
+    private float? publishedFinishTime;
+    private int invalidSilentSessionTicks;
     private string pendingIdentity = string.Empty;
     private string? preparedIdentity;
     private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
@@ -82,14 +86,49 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
         lock (dataLock) ProcessPacket(oldMsg, newMsg, next);
     }
 
+    protected override void UpdateStateForUdpSilence() => CheckTelemetrySilence();
+
+    internal void CheckTelemetrySilence()
+    {
+        lock (dataLock)
+        {
+            if (state is not (GameState.Racing or GameState.AdHocRaceBegin or GameState.Paused)) return;
+            if (_timerCount < 2) ++_timerCount;
+            if (_timerCount < 2) return;
+            // Silence alone also happens on race exit or transport failure.
+            // Only a live, matching, frozen race timer establishes pause.
+            var current = metadata?.Read();
+            if (current?.Identity == preparedIdentity && current?.Timing is { } timing &&
+                MathF.Abs(timing.RawLapMilliseconds / 1000f - rawLapTime) <= 0.5f)
+            {
+                invalidSilentSessionTicks = 0;
+                if (state != GameState.Paused)
+                    Log.Debug("WRCG telemetry suspended with a valid frozen race timer; preserving session");
+                GameState = GameState.Paused;
+                return;
+            }
+            // Tolerate torn reads. A different identity is immediate scene-exit
+            // evidence; missing timing must persist before invalidating a session.
+            if (current is not null && current.Identity != preparedIdentity || ++invalidSilentSessionTicks >= 10)
+            {
+                Log.Info("WRCG silent session is no longer verifiable; clearing active state without publishing a finish");
+                ResetResult();
+                snapshot = null;
+                preparedIdentity = null;
+                GameState = GameState.Unknown;
+            }
+        }
+    }
+
     private void ProcessPacket(byte[] oldMsg, byte[] newMsg, GameData next)
     {
         if (isInitialized && metadata is null) BeginMetadataDiscovery();
         // Discovery is off the UI/UDP/game thread. Wait for identity before the
         // first lifecycle event so the core does not prepare an unnamed replay.
         if (metadataLoading) return;
-        var restarting = next.LapTime < CurrentGameData.LapTime - 1 ||
-            (next.LapTime <= 0 && CurrentGameData.LapTime > 0);
+        var raw = next.LapTime;
+        var previousRaw = rawLapTime;
+        var restarting = raw < previousRaw - 1 || (raw <= 0 && previousRaw > 0);
         if (restarting) ResetResult();
         RefreshMetadata(restarting || state is GameState.Unknown or GameState.RaceBegin);
         if (snapshot is { } current && preparedIdentity != current.Identity)
@@ -105,6 +144,10 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
             preparedIdentity = current.Identity;
         }
         base.onNewUdpMessage(oldMsg, newMsg);
+        invalidSilentSessionTicks = 0;
+        rawLapTime = raw;
+        UpdateLivePenalty(raw);
+        next.LapTime = publishedFinishTime ?? (raw > 0 ? raw + (livePenaltyMilliseconds ?? 0) / 1000f : raw);
         LastGameData = CurrentGameData;
         CurrentGameData = next;
         if (WrcGenerationsTelemetry.TryGetFinishTime(newMsg, out var finishTime))
@@ -120,24 +163,24 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
                     else _ = AwaitFinalResultAsync(runGeneration, lifetime);
                 }
             }
-            onNewGameData?.Invoke(LastGameData, next);
+            onNewGameData?.Invoke(LastGameData, CurrentGameData);
             return;
         }
         // A first packet in a running stage must pass through AdHocRaceBegin so
         // the shared core prepares audio with the identity read above.
-        if (next.LapTime > 0)
+        if (raw > 0)
         {
             if (GameState == GameState.Unknown)
             {
                 lastProgress = clock();
                 GameState = GameState.AdHocRaceBegin;
             }
-            else if (next.LapTime != LastGameData.LapTime)
+            else if (raw != previousRaw)
             {
                 lastProgress = clock();
                 // WRCG corrects the final clock backwards by a few milliseconds.
                 // That must not be interpreted as a new race.
-                GameState = next.LapTime < LastGameData.LapTime - 1 ? GameState.AdHocRaceBegin : GameState.Racing;
+                GameState = restarting ? GameState.AdHocRaceBegin : GameState.Racing;
             }
             else if (clock() - lastProgress > 500) GameState = GameState.Paused;
         }
@@ -157,6 +200,7 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
             preparedIdentity = null;
             metadataLoading = false; metadataPid = 0; nextDiscovery = nextMetadataRead = 0;
             LastGameData = CurrentGameData = default;
+            rawLapTime = 0;
             GameState = GameState.Unknown;
         }
     }
@@ -216,6 +260,19 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
         ++runGeneration;
         pendingFinish = null;
         resultArmed = false;
+        livePenaltyMilliseconds = null;
+        publishedFinishTime = null;
+    }
+
+    private void UpdateLivePenalty(float raw)
+    {
+        // Metadata is sampled every 200 ms. Reject clocks from another run;
+        // retain an accepted cumulative value through transient read failures.
+        if (snapshot?.Timing is not { } timing ||
+            MathF.Abs(timing.RawLapMilliseconds / 1000f - raw) > 0.5f) return;
+        if (livePenaltyMilliseconds != timing.PenaltyMilliseconds)
+            Log.Info("WRCG cumulative penalty: {0} ms, raw lap time={1}s", timing.PenaltyMilliseconds, raw);
+        livePenaltyMilliseconds = timing.PenaltyMilliseconds;
     }
 
     private bool TryPublishOfficialResult()
@@ -253,6 +310,16 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
 
     private void PublishFinish(float time, float? penalty)
     {
+        var official = penalty.HasValue;
+        if (!official && livePenaltyMilliseconds is { } milliseconds)
+        {
+            penalty = milliseconds / 1000f;
+            time += penalty.Value;
+        }
+        publishedFinishTime = time;
+        var finalData = CurrentGameData;
+        finalData.LapTime = time;
+        CurrentGameData = finalData;
         var previous = state;
         state = GameState.RaceEnd;
         pendingFinish = null;
@@ -264,7 +331,8 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
         if (penalty is { } value) parameters[GameStateRaceEndProperty.FINISH_TIME_PANALTY] = value;
         Log.Info("WRCG finish result: time={0}s, penalty={1}, source={2}", time,
             penalty?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "unknown",
-            penalty.HasValue ? "player-profile (including penalties)" : "UDP raw time (penalties unavailable)");
+            official ? "player-profile (including penalties)" :
+            penalty.HasValue ? "UDP plus live cumulative penalty" : "UDP raw time (penalties unavailable)");
         onGameStateChanged?.Invoke(new() { LastGameState = previous, NewGameState = state, Parameters = parameters });
     }
 }

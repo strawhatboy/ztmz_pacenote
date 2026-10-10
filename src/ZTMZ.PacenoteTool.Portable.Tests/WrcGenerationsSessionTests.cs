@@ -66,6 +66,146 @@ public sealed class WrcGenerationsSessionTests
     }
 
     [Fact]
+    public void DecodesLivePenaltyAndRejectsReplacedRace()
+    {
+        var memory = new Memory();
+        foreach (var (address, size) in new (ulong, int)[] {
+            (0x11d61938, 8), (0x11bbf030, 8), (0x70000, 0x900),
+            (0x80000, 0xe0), (0x90000, 0x250), (0xa0000, 0x300), (0xb0000, 128) })
+            memory.Blocks[address] = new byte[size];
+        memory.Put64(0x20000, 0x48, 0x70000);
+        memory.Put64(0x11d61938, 0, 0x70000);
+        memory.Put64(0x11bbf030, 0, 0xb0000);
+        memory.Put64(0x70000, 0x4e8, 0x80000);
+        memory.Put64(0x70000, 0x898, 0xa0000);
+        memory.Put32(0x80000, 0x3c, 1);
+        memory.Put64(0x80000, 0x40, 0x90000);
+        void Protected(ulong block, int offset, uint index, int value)
+        {
+            memory.Put32(block, offset + 8, (int)index);
+            var mask = unchecked(((uint)(block + (ulong)offset + 8) + index) * 0x159a55e5u + 0x159ae628u);
+            memory.Put32(0xb0000, (int)index * 4, unchecked((int)((uint)value ^ (mask == 0 ? 0xb10be924u : mask))));
+        }
+        Protected(0x90000, 0x10, 1, 1000);
+        Protected(0x90000, 0x20, 2, 0);
+        Protected(0xa0000, 0x2f0, 3, 49530);
+        Protected(0x80000, 0xc8, 4, 10000);
+        var session = WrcGenerationsSessionMemory.Decode(memory.Read, 0x10000000, Catalog());
+        Assert.Equal(new WrcGenerationsTimingSnapshot(0x80000, 48530, 10000), session!.Timing);
+        memory.Put64(0x11d61938, 0, 0);
+        session = WrcGenerationsSessionMemory.Decode(memory.Read, 0x10000000, Catalog());
+        Assert.NotNull(session);
+        Assert.Null(session.Timing);
+    }
+
+    [Fact]
+    public void LivePenaltyIsCumulativeAndDoesNotDriveLifecycle()
+    {
+        long now = 0;
+        var source = new Source();
+        source.Value = source.Value! with { Timing = new(1, 10000, 10000) };
+        var reader = new WrcGenerationsGameDataReader(source, () => now);
+        var reported = new List<float>();
+        reader.onNewGameData += (_, current) => reported.Add(current.LapTime);
+        Send(reader, 10);
+        Assert.Equal(20f, reader.CurrentGameData.LapTime);
+        Assert.Equal(20f, ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool.CreateReplayDetailsPerTime(reader.CurrentGameData, true).time);
+        now = 250;
+        source.Value = source.Value! with { Timing = new(1, 10250, 10000) };
+        Send(reader, 10.25f);
+        Assert.Equal(20.25f, reader.CurrentGameData.LapTime);
+        Assert.Equal(GameState.Racing, reader.GameState);
+        now = 1000;
+        source.Value = source.Value! with { Timing = new(1, 10250, 20000) };
+        Send(reader, 10.25f);
+        Assert.Equal(GameState.Paused, reader.GameState);
+        Assert.Equal(30.25f, reported[^1]);
+        now = 1250;
+        source.Value = source.Value! with { Timing = null };
+        Send(reader, 10.5f);
+        Assert.Equal(30.5f, reported[^1]);
+        Send(reader, 0);
+        Send(reader, 0.25f);
+        Assert.Equal(0.25f, reported[^1]);
+    }
+
+    [Fact]
+    public void ReplaySamplingUsesElapsedTimeRatherThanSampleCountAfterPenaltyJump()
+    {
+        Assert.True(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool.IsReplaySampleDue(30, 10, 100));
+        Assert.False(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool.IsReplaySampleDue(30.01f, 30, 100));
+        Assert.True(ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool.IsReplaySampleDue(30.11f, 30, 100));
+    }
+
+    [Fact]
+    public void OfficialFinishDoesNotAddLivePenaltyTwice()
+    {
+        var source = new Source();
+        source.Value = source.Value! with { Timing = new(1, 379000, 20000) };
+        var reader = new WrcGenerationsGameDataReader(source);
+        Send(reader, 379);
+        source.Value = source.Value! with { ResultReady = true, RaceMilliseconds = 379457, ResultMilliseconds = 399457 };
+        Send(reader, 379.457f, true);
+        Assert.Equal(GameState.RaceEnd, reader.GameState);
+        Assert.Equal(399.457f, reader.CurrentGameData.LapTime);
+        Send(reader, 379.457f, true);
+        Assert.Equal(399.457f, reader.CurrentGameData.LapTime);
+    }
+
+    [Fact]
+    public void LongUdpSilencePreservesSessionAndPenaltyUntilResume()
+    {
+        var source = new Source();
+        source.Value = source.Value! with { Timing = new(1, 10000, 10000) };
+        var reader = new WrcGenerationsGameDataReader(source);
+        var transitions = new List<GameState>();
+        reader.onGameStateChanged += e => transitions.Add(e.NewGameState);
+        Send(reader, 10); Send(reader, 10.1f);
+        for (var second = 0; second < 120; second++) reader.CheckTelemetrySilence();
+        Assert.Equal(GameState.Paused, reader.GameState);
+        Assert.Equal(20.1f, reader.CurrentGameData.LapTime);
+        Assert.Equal("Finland - Harju", reader.TrackName);
+        Send(reader, 10.2f);
+        Assert.Equal(GameState.Racing, reader.GameState);
+        Assert.Equal(20.2f, reader.CurrentGameData.LapTime);
+        Assert.Equal(new[] { GameState.AdHocRaceBegin, GameState.Racing, GameState.Paused, GameState.Racing }, transitions);
+        Send(reader, 0);
+        Assert.Equal(GameState.RaceBegin, reader.GameState);
+        Assert.Equal(0f, reader.CurrentGameData.LapTime);
+    }
+
+    [Fact]
+    public void UdpSilenceDoesNotOverwriteConfirmedFinish()
+    {
+        var source = new Source();
+        var reader = new WrcGenerationsGameDataReader(source);
+        Send(reader, 100);
+        source.Value = source.Value! with { ResultReady = true, RaceMilliseconds = 379457, ResultMilliseconds = 399457 };
+        Send(reader, 379.457f, true);
+        for (var second = 0; second < 120; second++) reader.CheckTelemetrySilence();
+        Assert.Equal(GameState.RaceEnd, reader.GameState);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ExitingSilentSessionNeverPublishesNormalFinish(bool changedScene)
+    {
+        var source = new Source();
+        source.Value = source.Value! with { Timing = new(1, 10000, 10000) };
+        var reader = new WrcGenerationsGameDataReader(source);
+        var finishes = 0;
+        reader.onGameStateChanged += e => { if (e.NewGameState == GameState.RaceEnd) finishes++; };
+        Send(reader, 10); Send(reader, 10.1f);
+        reader.CheckTelemetrySilence(); reader.CheckTelemetrySilence();
+        Assert.Equal(GameState.Paused, reader.GameState);
+        source.Value = changedScene ? source.Value with { Identity = "other-stage" } : null;
+        for (var second = 0; second < 12; second++) reader.CheckTelemetrySilence();
+        Assert.Equal(GameState.Unknown, reader.GameState);
+        Assert.Equal(0, finishes);
+    }
+
+    [Fact]
     public void RejectsInvalidPlayerIndexAndChangingScene()
     {
         var memory = new Memory();
@@ -142,6 +282,7 @@ public sealed class WrcGenerationsSessionTests
         Assert.Equal(20f, result.Parameters[GameStateRaceEndProperty.FINISH_TIME_PANALTY]);
         Send(reader, 379.457f, true);
         Assert.Equal(1, count);
+        Assert.Equal(399.457f, reader.CurrentGameData.LapTime);
     }
 
     [Fact]

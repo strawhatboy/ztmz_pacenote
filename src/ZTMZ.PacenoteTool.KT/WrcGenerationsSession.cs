@@ -5,7 +5,10 @@ namespace ZTMZ.PacenoteTool.KT;
 
 internal sealed record WrcGenerationsSessionSnapshot(
     string Identity, string Track, string Car, string CarClass,
-    bool ResultReady, int RaceMilliseconds, int ResultMilliseconds);
+    bool ResultReady, int RaceMilliseconds, int ResultMilliseconds,
+    WrcGenerationsTimingSnapshot? Timing = null);
+
+internal sealed record WrcGenerationsTimingSnapshot(ulong TimerAddress, int RawLapMilliseconds, int PenaltyMilliseconds);
 
 internal interface IWrcGenerationsSessionSource : IDisposable
 {

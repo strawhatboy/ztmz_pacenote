@@ -108,8 +108,49 @@ identity, a total at least equal to raw time, and agreement with the UDP finish
 clock within 2 ms. It publishes one RaceEnd with total time and penalty seconds.
 If statistics lag UDP, a cancellable-by-generation asynchronous wait polls every
 50 ms for at most 2 seconds; restart, identity change or disposal invalidates it.
-Unavailable results retain the old raw-time fallback and explicitly log that
-penalties are unknown, rather than silently calling it a classified result.
+Unavailable official results use the accepted live cumulative penalty when
+available; otherwise they retain raw UDP time and explicitly log unknown penalties.
+
+### Live cumulative penalties
+
+WRCG stops UDP transmission while paused. The shared UDP watchdog now exposes
+a lifecycle-policy hook: after two silent watchdog ticks WRCG checks that the
+same session still has a valid frozen timer before marking it Paused, preserving
+identity, replay and penalties. It does not apply the
+default roughly ten-second transition to Unknown, which previously caused a new
+AdHocRaceBegin and reset the session on resume. Actual transport availability is
+still reported separately. A different session identity clears active state;
+unavailable or nonmatching timing must persist for ten watchdog checks to clear
+it, tolerating transient read failures. Neither case publishes a normal finish.
+Without verified memory timing, silence cannot establish pause and eventually
+falls back to Unknown. Other providers retain their existing watchdog policy;
+confirmed finish, real restart and process teardown remain separate transitions.
+
+The verified build's active-timer getter (`0x8176d0`) selects from race `+0x4e8`.
+Race must agree between manager `+0x48` and image RVA `0x1d61938`. Normally timer
+index is zero; mode 7 (manager `+0x12d0`) except submode 5 (`+0x12e0`) uses the
+player mapping byte `+0x1380`, bounded below 50. Timer `+0xc8` holds protected
+cumulative penalty milliseconds. We reproduce only the read portion of getter
+`0x415310`: object `+8` indexes the uint table at image RVA `0x1bbf030`; XOR mask
+is `((uint(object + 8) + index) * 0x159a55e5 + 0x159ae628)` modulo 2^32,
+substituting `0xb10be924` for zero. Slot/table stability is checked with at most
+three attempts. No game function is called and no memory is modified.
+
+UDP's raw lap getter `0x11607f0` uses the last interval in timer `+0x40`, count
+`+0x3c`, stride `0x250`. Protected start/end are interval `+0x10`/`+0x20`;
+an unfinished interval uses the protected clock at `*(race + 0x898) + 0x2f0`.
+Ownership/start are rechecked, retired/invalid timers and out-of-range values
+rejected. A timing snapshot must agree with raw UDP time within 500 ms (normal
+metadata sampling is every 200 ms). Transient read failures retain the accepted
+penalty; restart/identity changes clear it.
+
+GameData.LapTime is raw UDP lap time plus the cumulative penalty, never an
+incremental addition to the previous packet. Lifecycle decisions retain raw time.
+Replay samples/checkpoints consequently include penalties; sampling compares the
+last recorded time bucket, not the number of samples, so a penalty jump does not
+cause packet-rate recording. Official finish totals replace the adjusted time
+without adding penalties again. On 2026-10-10 the live read-only probe decoded
+15,791 ms raw time and 10,000 ms penalty, averaging 0.170 ms per snapshot.
 
 The 20-second result path, stale equal-time results, delayed statistics, restart,
 player-index bounds and scene replacement are covered by portable tests. A new

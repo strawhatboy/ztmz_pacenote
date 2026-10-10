@@ -98,6 +98,7 @@ internal static class WrcGenerationsSessionMemory
         var carName = catalog.Name(carNameId);
         if (stageIndex is < 0 or > 128 || rallyIndex is < 0 or > 128 ||
             trackName.Length == 0 || rallyName.Length == 0 || carName.Length == 0) return null;
+        var timing = ReadTiming(read, imageBase, manager, race);
         // Reject mixed snapshots while the game replaces scene/profile objects.
         if (Pointer(read(imageBase + 0x1c61660, 8)) != manager ||
             Pointer(read(manager + 0xd50, 8)) != stageAddress || Pointer(read(manager + 0xd58, 8)) != rallyAddress ||
@@ -107,6 +108,70 @@ internal static class WrcGenerationsSessionMemory
         var total = Integer(profile, 0x1a0);
         var ready = profile[0x1a4] == 1 && raw is > 0 and < 86_400_000 && total >= raw && total < 86_400_000;
         return new($"{rallyIndex}:{stageIndex}:{carNameId}:{profileAddress:x}",
-            $"{rallyName} - {trackName}", carName, catalog.Class(carNameId), ready, raw, total);
+            $"{rallyName} - {trackName}", carName, catalog.Class(carNameId), ready, raw, total, timing);
+    }
+
+    private static WrcGenerationsTimingSnapshot? ReadTiming(Func<ulong, int, byte[]> read, ulong imageBase,
+        ulong manager, byte[] managerData)
+    {
+        // Optional: a torn timing read must not discard otherwise valid names.
+        try
+        {
+            ulong Pointer(ulong p) => BinaryPrimitives.ReadUInt64LittleEndian(read(p, 8));
+            int Integer(ulong p) => BinaryPrimitives.ReadInt32LittleEndian(read(p, 4));
+            var race = BinaryPrimitives.ReadUInt64LittleEndian(managerData.AsSpan(0x48, 8));
+            if (race == 0 || Pointer(imageBase + 0x1d61938) != race) return null;
+            // Match the game's active-timer getter (0x8176d0), including its
+            // player mapping in mode 7 (except submode 5).
+            var mode = BinaryPrimitives.ReadInt32LittleEndian(managerData.AsSpan(0x12d0, 4));
+            var submode = BinaryPrimitives.ReadInt32LittleEndian(managerData.AsSpan(0x12e0, 4));
+            var index = mode == 7 && submode != 5 ? managerData[0x1380] : 0;
+            if (index >= 50) return null;
+            var slot = race + 0x4e8 + (ulong)index * 8;
+            var timer = Pointer(slot);
+            if (timer == 0) return null;
+            var timerData = read(timer, 0xe0);
+            if (timerData[0x9f] != 0) return null;
+            var count = BinaryPrimitives.ReadInt32LittleEndian(timerData.AsSpan(0x3c, 4));
+            var laps = BinaryPrimitives.ReadUInt64LittleEndian(timerData.AsSpan(0x40, 8));
+            if (count is < 1 or > 128 || laps == 0) return null;
+            var lap = checked(laps + (ulong)(count - 1) * 0x250);
+            var start = ReadProtectedInteger(read, imageBase, lap + 0x10);
+            var end = ReadProtectedInteger(read, imageBase, lap + 0x20);
+            var clock = Pointer(race + 0x898);
+            if (start is null || end is null || (end == 0 && clock == 0)) return null;
+            var now = end != 0 ? end : ReadProtectedInteger(read, imageBase, clock + 0x2f0);
+            var penalty = ReadProtectedInteger(read, imageBase, timer + 0xc8);
+            if (now is null || penalty is null || penalty < 0 || penalty >= 86_400_000) return null;
+            long raw = (long)now.Value - start.Value;
+            if (raw is < 0 or >= 86_400_000) return null;
+            // Validate ownership and lap identity again after the numeric reads.
+            if (Pointer(manager + 0x48) != race || Pointer(imageBase + 0x1d61938) != race ||
+                Pointer(slot) != timer || Integer(timer + 0x3c) != count || Pointer(timer + 0x40) != laps ||
+                ReadProtectedInteger(read, imageBase, lap + 0x10) != start) return null;
+            return new(timer, (int)raw, penalty.Value);
+        }
+        catch (IOException) { return null; }
+        catch (OverflowException) { return null; }
+    }
+
+    internal static int? ReadProtectedInteger(Func<ulong, int, byte[]> read, ulong imageBase, ulong address)
+    {
+        // Read-only equivalent of the value extraction in 0x415310. The game
+        // relocates slots even when reading them; never execute its getter or
+        // mutate its table. Retry boundedly if the slot moves during our read.
+        for (var attempt = 0; attempt < 3; attempt++)
+        {
+            var table = BinaryPrimitives.ReadUInt64LittleEndian(read(imageBase + 0x1bbf030, 8));
+            var index = BinaryPrimitives.ReadUInt32LittleEndian(read(address + 8, 4));
+            if (table == 0 || index >= 1_000_000) return null;
+            var value = BinaryPrimitives.ReadUInt32LittleEndian(read(checked(table + index * 4UL), 4));
+            if (BinaryPrimitives.ReadUInt32LittleEndian(read(address + 8, 4)) != index ||
+                BinaryPrimitives.ReadUInt64LittleEndian(read(imageBase + 0x1bbf030, 8)) != table ||
+                BinaryPrimitives.ReadUInt32LittleEndian(read(checked(table + index * 4UL), 4)) != value) continue;
+            var mask = unchecked(((uint)(address + 8) + index) * 0x159a55e5u + 0x159ae628u);
+            return unchecked((int)(value ^ (mask == 0 ? 0xb10be924u : mask)));
+        }
+        return null;
     }
 }

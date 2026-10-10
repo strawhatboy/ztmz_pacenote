@@ -1150,12 +1150,16 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         }
     }
 
+    internal static bool IsReplaySampleDue(float time, float? previousTime, int intervalMilliseconds) =>
+        previousTime is null || (int)(time * 1000) / Math.Max(1, intervalMilliseconds) >
+        (int)(previousTime.Value * 1000) / Math.Max(1, intervalMilliseconds);
+
     private bool TraceReplaySample(GameData msg) {
         var replaySaveInterval = Math.Max(1, Config.Instance.ReplaySaveInterval);
         var replaySaveGranularity = Math.Max(1, Config.Instance.ReplaySaveGranularity);
 
-        var index = (int)(msg.LapTime * 1000) / replaySaveInterval;
-        if (Config.Instance.ReplaySaveWithoutInterval || index >= this.ReplayDetailsPerTimes.Count)
+        if (Config.Instance.ReplaySaveWithoutInterval || IsReplaySampleDue(msg.LapTime,
+            this.ReplayDetailsPerTimes.Count == 0 ? null : this.ReplayDetailsPerTimes[^1].time, replaySaveInterval))
         {
             this.ReplayDetailsPerTimes.Add(CreateReplayDetailsPerTime(msg, Config.Instance.ReplaySave));
             InvalidateCurrentReplayLookup();
@@ -1183,7 +1187,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         return true;
     }
 
-    private ReplayDetailsPerTime CreateReplayDetailsPerTime(GameData msg, bool includeTelemetry) {
+    internal static ReplayDetailsPerTime CreateReplayDetailsPerTime(GameData msg, bool includeTelemetry) {
         var detail = new ReplayDetailsPerTime()
         {
             time = msg.LapTime,

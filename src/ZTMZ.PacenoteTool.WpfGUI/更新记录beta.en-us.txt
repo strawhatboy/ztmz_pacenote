@@ -1,6 +1,6 @@
 v2.99.99.53-3.0-rc25
 
-* Adds experimental WRC Generations support with live pacenotes, countdowns and telemetry dashboards; supported Windows builds also provide the selected car, stage and penalty-inclusive finish results.
+* Adds experimental WRC Generations support with live pacenotes, countdowns and telemetry dashboards; supported Windows builds also provide the selected car and stage, with penalties included in live timing, replays and finish results.
 * Extends the minimum pacenote playback timing adjustment from −4 to −8 seconds for players who prefer earlier calls.
 * Adds an experimental in-game dashboard rendering mode, selectable alongside the separate overlay window in settings. A risk confirmation appears when enabling this mode, rather than each time a game starts.
 * Fixes the WPF loading dialog remaining open when startup or an initialization callback fails; startup errors are now displayed.
