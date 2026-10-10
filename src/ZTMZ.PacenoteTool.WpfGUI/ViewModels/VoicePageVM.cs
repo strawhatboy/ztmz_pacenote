@@ -29,6 +29,10 @@ public partial class VoicePageVM : ObservableObject {
     private object _updateLock = new();
     private Queue<CodriverPackageUpdateFile> _updateQueue = new();
 
+    // UI-thread generation: an in-flight catalog response must not undo a completed import/install.
+    private long _installedPackagesRevision;
+    private int _localCatalogRefreshes;
+
     public VoicePageVM(Core.ZTMZPacenoteTool tool, 
     VoicePackagePageVM voicePackagePageVM,
     INavigationService navigationService,
@@ -83,10 +87,16 @@ public partial class VoicePageVM : ObservableObject {
             }
 
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            var installedPackagesRevision = _installedPackagesRevision;
             var statuses = await packageUpdates.CheckForUpdatesAsync(
                 Config.Instance.UpdateDefinitionUrl_AudioPkg,
                 tool.CoDriverPackages.Select(package => package.Info).ToList(),
                 timeout.Token);
+            // The core catalog can also lag behind an installation until all queued
+            // installations finish and RefreshCodriversAsync publishes the new list.
+            if (installedPackagesRevision != _installedPackagesRevision ||
+                _updateQueue.Count > 0 || _localCatalogRefreshes > 0)
+                return;
             var packages = statuses
                 .Where(status => status.NeedsUpdate || status.NeedsDownload)
                 .Select(CodriverPackageUpdateFile.FromStatus).ToList();
@@ -171,7 +181,10 @@ public partial class VoicePageVM : ObservableObject {
                     pkg.Path,
                     progress);
                 pkg.Path = installedPackage.Info.Path;
+                pkg.OriginalVersion = installedPackage.Info.version;
+                pkg.Version = installedPackage.Info.version;
                 pkg.IsAvailable = true;
+                _installedPackagesRevision++;
             } catch {
                 pkg.NeedUpdate = neededUpdate;
                 pkg.NeedDownload = neededDownload;
@@ -194,7 +207,13 @@ public partial class VoicePageVM : ObservableObject {
         }
 
         if (shouldRefresh) {
-            await tool.RefreshCodriversAsync();
+            _localCatalogRefreshes++;
+            try {
+                await tool.RefreshCodriversAsync();
+            } finally {
+                _installedPackagesRevision++;
+                _localCatalogRefreshes--;
+            }
         }
     }
 
@@ -250,6 +269,7 @@ public partial class VoicePageVM : ObservableObject {
             }
 
             var pkgLocal = await packageCatalog.ImportAsync(path);
+            _installedPackagesRevision++;
             var pkg = new CodriverPackageUpdateFile(pkgLocal.Info);
             lock (_updateLock) {
                 _updateQueue.Enqueue(pkg);
