@@ -151,6 +151,39 @@ Stop have passed in controlled x86 DX9 and DX11 processes; actual RBR gameplay
 still requires validation. DX12/Vulkan game E2E success is not implied by a
 successful build or the DX11 harness.
 
+### Streamline-wrapped DX12 objects (WRC Generations)
+
+WRCG's installed Streamline 1.3.3 wraps DX12/DXGI COM interfaces, including the
+temporary swapchains used by late-attachment calibration. Scanning the proxy's
+layout instead of DXGI's native object produced zero matching calibration slots,
+so injection succeeded but no dashboard frame was submitted. This was reproduced
+outside the game with its installed `sl.interposer.dll` before applying the fix.
+
+The resolver now uses Streamline's AddRef-returning native-interface QueryInterface
+contract (GUID `ADEC44E2-61F0-45C3-AD9F-1B37379284FF`) for both calibration and
+target objects. Rendering also uses a consistent native device/queue/swapchain,
+avoiding submission of proxy command lists to a native queue. It does not load,
+initialize, replace, or disable the game's Streamline library. See NVIDIA's
+[legacy contract](https://github.com/NVIDIA-RTX/Streamline/blob/v1.1.1/source/core/sl.api/internal.h)
+and [queue implementation](https://github.com/NVIDIA-RTX/Streamline/blob/v1.1.1/source/core/sl.interposer/d3d12/d3d12CommandQueue.cpp).
+
+Existing early capture still takes priority; calibrated-slot agreement, observed
+DIRECT submissions and device identity remain required. Ordinary DX12 objects
+return E_NOINTERFACE and keep their original identity. Error logs now distinguish
+calibration failure, implementation mismatch, slot disagreement, missing queue
+submissions and device mismatch instead of one generic timeout.
+
+The controlled GPU pixel test passes with Streamline 1.3.3 and without it on
+NVIDIA hardware, and without it on WARP. Tests cover late attachment, font/image
+updates, Stop/restart, ResizeBuffers and swapchain replacement. Separate queue
+association tests reject unrelated queues/devices on hardware and WARP. This is
+not a claim that ACR/BeamNG gameplay or WRCG exclusive fullscreen was rerun.
+
+For an optional local reproduction, configure CMake with
+`-DZTMZ_TEST_STREAMLINE_LEGACY_DLL=<absolute installed sl.interposer.dll path>`
+and run `ctest -C Release -R dx12_ --output-on-failure`. The fixture checks for
+Streamline 1.x before using its legacy ABI; NVIDIA game binaries are never bundled.
+
 `dotnet publish` (including `--no-build`) ensures the native bundle is built and
 includes the DLL under `native-dashboard/win-x64`, outside any single-file executable.
 The injected DLL resolves the existing `<host>/fonts` relative to its own module

@@ -1,5 +1,6 @@
 #include "hooks/dx12_queue.hpp"
 #include "hooks/dx12_late_queue.hpp"
+#include "hooks/native_dxgi_interface.hpp"
 #include <dxgi1_2.h>
 #include <MinHook.h>
 #include <mutex>
@@ -15,8 +16,12 @@ using Composition=HRESULT (STDMETHODCALLTYPE*)(IDXGIFactory2*,IUnknown*,const DX
 Create originalCreate=nullptr;Hwnd originalHwnd=nullptr;Core originalCore=nullptr;Composition originalComposition=nullptr;
 void attach(IUnknown* device,IDXGISwapChain* swap) noexcept {
     ComPtr<ID3D12CommandQueue> queue;
-    if(device && swap && SUCCEEDED(device->QueryInterface(IID_PPV_ARGS(&queue))) && queue->GetDesc().Type==D3D12_COMMAND_LIST_TYPE_DIRECT)
-        swap->SetPrivateDataInterface(queueKey,queue.Get()); // lifetime follows the actual swap chain
+    auto nativeSwap=nativeDxgiInterface(swap);
+    if(device && nativeSwap && SUCCEEDED(device->QueryInterface(IID_PPV_ARGS(&queue)))) {
+        queue=nativeDxgiInterface(queue.Get());
+        if(queue && queue->GetDesc().Type==D3D12_COMMAND_LIST_TYPE_DIRECT)
+            nativeSwap->SetPrivateDataInterface(queueKey,queue.Get()); // lifetime follows the actual swap chain
+    }
 }
 HRESULT STDMETHODCALLTYPE create(IDXGIFactory* f,IUnknown* d,DXGI_SWAP_CHAIN_DESC* desc,IDXGISwapChain** out){auto r=originalCreate(f,d,desc,out);if(SUCCEEDED(r)) attach(d,*out);return r;}
 HRESULT STDMETHODCALLTYPE hwnd(IDXGIFactory2* f,IUnknown* d,HWND w,const DXGI_SWAP_CHAIN_DESC1* desc,const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* full,IDXGIOutput* restrictOutput,IDXGISwapChain1** out){auto r=originalHwnd(f,d,w,desc,full,restrictOutput,out);if(SUCCEEDED(r)) attach(d,*out);return r;}
@@ -45,13 +50,15 @@ void installDx12QueueCapture() {
     });
 }
 ComPtr<ID3D12CommandQueue> dx12QueueFor(IDXGISwapChain* swap) {
+    auto nativeSwap=nativeDxgiInterface(swap);if(!nativeSwap) return {};
     ComPtr<ID3D12CommandQueue> queue;UINT size=sizeof(ID3D12CommandQueue*);
-    if(FAILED(swap->GetPrivateData(queueKey,&size,queue.GetAddressOf()))) return findLateDx12Queue(swap);
+    if(FAILED(nativeSwap->GetPrivateData(queueKey,&size,queue.GetAddressOf()))) return findLateDx12Queue(nativeSwap.Get());
     return queue;
 }
 const char* dx12QueueSource(IDXGISwapChain* swap) {
+    auto nativeSwap=nativeDxgiInterface(swap);if(!nativeSwap) return "unavailable";
     ComPtr<ID3D12CommandQueue> queue;UINT size=sizeof(ID3D12CommandQueue*);
-    return SUCCEEDED(swap->GetPrivateData(queueKey,&size,queue.GetAddressOf()))&&queue?
+    return SUCCEEDED(nativeSwap->GetPrivateData(queueKey,&size,queue.GetAddressOf()))&&queue?
         "dxgi-creation-or-resize":"calibrated-private-layout";
 }
 }

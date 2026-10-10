@@ -8,10 +8,23 @@
 #include <string>
 #include <chrono>
 #include <algorithm>
+#include "streamline_legacy_fixture.hpp"
 using Microsoft::WRL::ComPtr;
 namespace {
 void check(HRESULT hr){if(FAILED(hr)) throw std::runtime_error("DX12 HRESULT "+std::to_string(hr));}
 void require(bool ok,const char* msg){if(!ok)throw std::runtime_error(msg);}
+void printStatus() {
+    auto name=L"\\\\.\\pipe\\ztmz-dashboard-"+std::to_wstring(GetCurrentProcessId());
+    auto pipe=CreateFileW(name.c_str(),GENERIC_READ|GENERIC_WRITE,0,nullptr,OPEN_EXISTING,0,nullptr);
+    if(pipe==INVALID_HANDLE_VALUE)return;
+    const std::string request=R"({"version":1,"command":"status"})";
+    DWORD bytes=0;char buffer[4096]{};
+    if(WriteFile(pipe,request.data(),static_cast<DWORD>(request.size()),&bytes,nullptr)&&ReadFile(pipe,buffer,sizeof(buffer),&bytes,nullptr)) {
+        std::cerr<<std::string(buffer,bytes)<<std::endl;
+        char ack=1;WriteFile(pipe,&ack,1,&bytes,nullptr);
+    }
+    CloseHandle(pipe);
+}
 void barrier(ID3D12GraphicsCommandList* l,ID3D12Resource* r,D3D12_RESOURCE_STATES a,D3D12_RESOURCE_STATES b){
     D3D12_RESOURCE_BARRIER v{};v.Type=D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;v.Transition={r,D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,a,b};l->ResourceBarrier(1,&v);
 }
@@ -19,11 +32,13 @@ void barrier(ID3D12GraphicsCommandList* l,ID3D12Resource* r,D3D12_RESOURCE_STATE
 int wmain(int argc,wchar_t** argv){
     try {
         require(argc>=2,"Expected fixture DLL");
-        ComPtr<IDXGIFactory4> factory;check(CreateDXGIFactory1(IID_PPV_ARGS(&factory)));
+        auto createDevice=argc>3?legacyStreamlineDeviceFactory(argv[3]):&D3D12CreateDevice;
+        auto createFactory=argc>3?reinterpret_cast<HRESULT(WINAPI*)(REFIID,void**)>(GetProcAddress(GetModuleHandleW(L"sl.interposer.dll"),"CreateDXGIFactory1")):&CreateDXGIFactory1;
+        ComPtr<IDXGIFactory4> factory;check(createFactory(IID_PPV_ARGS(&factory)));
         ComPtr<IDXGIAdapter1> adapter;
         if(argc>2&&std::wstring_view(argv[2])==L"hardware") check(factory->EnumAdapters1(0,&adapter));
         else check(factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter)));
-        ComPtr<ID3D12Device> device;check(D3D12CreateDevice(adapter.Get(),D3D_FEATURE_LEVEL_11_0,IID_PPV_ARGS(&device)));
+        ComPtr<ID3D12Device> device;check(createDevice(adapter.Get(),D3D_FEATURE_LEVEL_11_0,IID_PPV_ARGS(&device)));
         D3D12_COMMAND_QUEUE_DESC q{};q.Type=D3D12_COMMAND_LIST_TYPE_DIRECT;
         ComPtr<ID3D12CommandQueue> queue;check(device->CreateCommandQueue(&q,IID_PPV_ARGS(&queue)));
         HWND window=CreateWindowExW(WS_EX_TOOLWINDOW|WS_EX_NOACTIVATE,L"STATIC",L"DX12 hook test",WS_POPUP|WS_VISIBLE,-30000,-30000,640,360,nullptr,nullptr,GetModuleHandleW(nullptr),nullptr);
@@ -109,5 +124,5 @@ int wmain(int argc,wchar_t** argv){
         stop();
         CloseHandle(event);DestroyWindow(window);
         std::cout<<"DX12 late hook GPU pixels, asynchronous font updates, Stop, restart and resize passed. Max startup Present: "<<maxStartupPresentMs<<" ms; max Present during text updates: "<<maxTextPresentMs<<" ms (controlled host).\n";return 0;
-    } catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
+    } catch(const std::exception& e){std::cerr<<e.what()<<'\n';printStatus();return 1;}
 }

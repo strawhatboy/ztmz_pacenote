@@ -1,4 +1,5 @@
 #include "hooks/dx12_late_queue.hpp"
+#include "hooks/native_dxgi_interface.hpp"
 #include <dxgi1_4.h>
 #include <MinHook.h>
 #include <array>
@@ -20,7 +21,9 @@ struct State {
     std::vector<ComPtr<ID3D12CommandQueue>> candidates;
     HMODULE dxgi=nullptr;
     std::atomic<bool> ready{false};
+    std::atomic<const char*> phase{"not started"};
 };
+thread_local const char* lastLookup="not checked";
 State& state(){static auto* s=new State;return *s;}
 bool sameObject(IUnknown* a,IUnknown* b) {
     ComPtr<IUnknown> x,y;
@@ -58,10 +61,15 @@ void initialize(ID3D12Device* device) {
     auto& s=state();
     // Failed calibration is terminal for this process, not a repeated frame stall.
     try {
+        s.phase="creating calibration queues/swapchains";
         ComPtr<IDXGIFactory4> factory;check(CreateDXGIFactory1(IID_PPV_ARGS(&factory)));
         std::array<ComPtr<ID3D12CommandQueue>,2> queues;
         D3D12_COMMAND_QUEUE_DESC q{};q.Type=D3D12_COMMAND_LIST_TYPE_DIRECT;
-        for(auto& queue:queues) check(device->CreateCommandQueue(&q,IID_PPV_ARGS(&queue)));
+        for(auto& queue:queues) {
+            check(device->CreateCommandQueue(&q,IID_PPV_ARGS(&queue)));
+            queue=nativeDxgiInterface(queue.Get());
+            if(!queue) throw std::runtime_error("Cannot resolve native calibration queue");
+        }
         struct Windows {
             HWND a=CreateWindowExW(0,L"STATIC",L"ZTMZ queue probe",WS_OVERLAPPEDWINDOW,-30000,-30000,128,128,nullptr,nullptr,GetModuleHandleW(nullptr),nullptr);
             HWND b=CreateWindowExW(0,L"STATIC",L"ZTMZ queue probe",WS_OVERLAPPEDWINDOW,-30000,-30000,128,128,nullptr,nullptr,GetModuleHandleW(nullptr),nullptr);
@@ -75,6 +83,10 @@ void initialize(ID3D12Device* device) {
         // Normalize the interface view used in both calibration and lookup.
         std::array<ComPtr<IDXGISwapChain>,2> base;
         check(chains[0].As(&base[0]));check(chains[1].As(&base[1]));
+        for(auto& chain:base) {
+            chain=nativeDxgiInterface(chain.Get());
+            if(!chain) throw std::runtime_error("Cannot resolve native calibration swapchain");
+        }
         for(size_t offset=sizeof(void*);offset<512*sizeof(void*);offset+=sizeof(void*)) {
             uintptr_t first=0,second=0;
             if(readPointer(base[0].Get(),offset,first)&&readPointer(base[1].Get(),offset,second)&&
@@ -82,39 +94,58 @@ void initialize(ID3D12Device* device) {
                 s.offsets.push_back(offset);
         }
         // A single incidental pointer is insufficient evidence for this fallback.
-        if(s.offsets.size()<2) return;
+        if(s.offsets.size()<2) {s.phase="insufficient matching calibration slots";return;}
         s.dxgi=ownerOfVtable(base[0].Get());
-        if(!s.dxgi||s.dxgi!=ownerOfVtable(base[1].Get())) return;
+        if(!s.dxgi||s.dxgi!=ownerOfVtable(base[1].Get())) {s.phase="calibration swapchain owner mismatch";return;}
+        s.phase="installing submission observer";
         auto status=MH_Initialize();if(status!=MH_OK&&status!=MH_ERROR_ALREADY_INITIALIZED) return;
         auto target=(*reinterpret_cast<void***>(queues[0].Get()))[10];
         if(MH_CreateHook(target,reinterpret_cast<void*>(&execute),reinterpret_cast<void**>(&s.original))!=MH_OK) return;
         if(MH_EnableHook(target)!=MH_OK) {MH_RemoveHook(target);return;}
         s.ready=true;
-    } catch(...) {OutputDebugStringA("ZTMZ: DX12 late queue calibration unavailable\n");}
+        s.phase="ready";
+    } catch(...) {s.phase="calibration API failed";OutputDebugStringA("ZTMZ: DX12 late queue calibration unavailable\n");}
 }
 }
 ComPtr<ID3D12CommandQueue> findLateDx12Queue(IDXGISwapChain* swap) {
     ComPtr<ID3D12Device> device;ComPtr<IDXGISwapChain> base;
-    if(!swap||FAILED(swap->GetDevice(IID_PPV_ARGS(&device)))||FAILED(swap->QueryInterface(IID_PPV_ARGS(&base)))) return {};
+    base=nativeDxgiInterface(swap);
+    if(!base||FAILED(base->GetDevice(IID_PPV_ARGS(&device)))) return {};
+    device=nativeDxgiInterface(device.Get());
+    if(!device) return {};
     auto& s=state();
     if(!s.started.exchange(true)) {
         try {std::thread([device]{initialize(device.Get());}).detach();}
         catch(...) {s.started=false;throw;}
     }
-    if(!s.ready||ownerOfVtable(base.Get())!=s.dxgi||FAILED(device->GetDeviceRemovedReason())) return {};
+    lastLookup="calibration pending/failed";
+    if(!s.ready) return {};
+    lastLookup="swapchain implementation differs from calibration";
+    if(ownerOfVtable(base.Get())!=s.dxgi) return {};
+    lastLookup="device removed";
+    if(FAILED(device->GetDeviceRemovedReason())) return {};
     // Every calibrated slot must agree; never chase or call an untrusted pointer.
     uintptr_t expected=0;
+    lastLookup="calibrated queue slots disagree";
     for(auto offset:s.offsets) {
         uintptr_t value=0;if(!readPointer(base.Get(),offset,value)||!value||(expected&&value!=expected)) return {};
         expected=value;
     }
     ComPtr<ID3D12CommandQueue> result;
+    lastLookup="matching queue has not submitted";
     {
         std::lock_guard lock(s.mutex);
         for(auto& queue:s.candidates) if(reinterpret_cast<uintptr_t>(queue.Get())==expected) {result=queue;break;}
     }
     ComPtr<ID3D12Device> queueDevice;
-    if(!result||FAILED(result->GetDevice(IID_PPV_ARGS(&queueDevice)))||!sameObject(device.Get(),queueDevice.Get())) return {};
+    if(!result) return {};
+    lastLookup="queue/device identity mismatch";
+    if(FAILED(result->GetDevice(IID_PPV_ARGS(&queueDevice)))||!sameObject(device.Get(),queueDevice.Get())) return {};
+    lastLookup="matched";
     return result;
+}
+std::string lateDx12QueueStatus() {
+    auto& s=state();std::lock_guard lock(s.mutex);
+    return std::string(s.phase.load())+"; "+lastLookup+"; observed direct queues="+std::to_string(s.candidates.size());
 }
 }

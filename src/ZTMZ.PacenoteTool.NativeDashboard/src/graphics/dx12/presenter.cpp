@@ -1,5 +1,6 @@
 #include "hooks/dxgi_presenter.hpp"
 #include "hooks/dx12_queue.hpp"
+#include "hooks/native_dxgi_interface.hpp"
 #include "graphics/dx12/backend.hpp"
 #include "graphics/render_session.hpp"
 #include "graphics/async_preparation.hpp"
@@ -23,10 +24,13 @@ public:
         return SUCCEEDED(swap->GetDevice(IID_PPV_ARGS(&device))) && SUCCEEDED(swap->QueryInterface(IID_PPV_ARGS(&modern))) && dx12QueueFor(swap)!=nullptr;
     }
     void render(IDXGISwapChain* swap,const Scene& scene,const ImageAssets& images,float dt) override {
+        auto nativeSwap=nativeDxgiInterface(swap);if(!nativeSwap)return;
+        swap=nativeSwap.Get();
         ComPtr<IDXGISwapChain3> modern;if(FAILED(swap->QueryInterface(IID_PPV_ARGS(&modern)))) return;
         if(!renderer_) {
             if(!preparation_.started()) {
                 ComPtr<ID3D12Device> device;if(FAILED(swap->GetDevice(IID_PPV_ARGS(&device)))) return;
+                device=nativeDxgiInterface(device.Get());if(!device)return;
                 auto queue=dx12QueueFor(swap);if(!queue) return;
                 source_=dx12QueueSource(swap);
                 DXGI_SWAP_CHAIN_DESC desc{};if(FAILED(swap->GetDesc(&desc))) return;

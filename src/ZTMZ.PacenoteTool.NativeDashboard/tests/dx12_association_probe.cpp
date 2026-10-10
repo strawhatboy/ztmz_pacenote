@@ -61,6 +61,13 @@ int wmain(int argc,wchar_t** argv) {
         for(auto& chain:chains) check(chain->ResizeBuffers(2,128,96,DXGI_FORMAT_UNKNOWN,0),"Resize");
         inspect("after-resize");
         if(ztmz::findLateDx12Queue(chains[0].Get())) throw std::runtime_error("Queue accepted before observation");
+        // Calibration runs off the render thread. Wait for its observer before
+        // testing one-shot submissions; otherwise this is only a startup race.
+        auto deadline=GetTickCount64()+5000;
+        while(!ztmz::lateDx12QueueStatus().starts_with("ready;")) {
+            if(GetTickCount64()>=deadline) throw std::runtime_error(ztmz::lateDx12QueueStatus());
+            Sleep(10);
+        }
         ComPtr<ID3D12CommandAllocator> allocator;ComPtr<ID3D12GraphicsCommandList> list;
         check(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,IID_PPV_ARGS(&allocator)),"Allocator");
         check(device->CreateCommandList(0,D3D12_COMMAND_LIST_TYPE_DIRECT,allocator.Get(),nullptr,IID_PPV_ARGS(&list)),"List");

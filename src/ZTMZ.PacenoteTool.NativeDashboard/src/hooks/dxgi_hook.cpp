@@ -6,6 +6,7 @@
 #include <dxgi1_4.h>
 #ifdef ZTMZ_HAS_DX12
 #include "hooks/dx12_queue.hpp"
+#include "hooks/dx12_late_queue.hpp"
 #endif
 #include <wrl/client.h>
 #include <MinHook.h>
@@ -79,7 +80,7 @@ class DxgiHook final : public OverlayHook {
 #ifdef ZTMZ_HAS_DX12
                 Microsoft::WRL::ComPtr<ID3D12Device> dx12;
                 if(SUCCEEDED(swap->GetDevice(IID_PPV_ARGS(&dx12))) && !dx12QueueFor(swap))
-                    reportFailure("DX12 queue association pending or unavailable: no captured queue or calibrated match to an observed submission. No queue will be guessed.");
+                    reportFailure(("DX12 queue association unavailable: "+lateDx12QueueStatus()+". No queue will be guessed.").c_str());
 #endif
                 return false;
             }
