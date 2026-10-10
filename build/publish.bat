@@ -54,7 +54,7 @@ xcopy "..\src\ZTMZ.PacenoteTool.KT\lang\*.json" "target\publish\ZTMZ.PacenoteToo
 if errorlevel 1 goto :publish_failed
 
 rem the i18n
-mkdir target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang
+if not exist "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang" mkdir "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang"
 xcopy target\bin\ZTMZ.PacenoteTool.Codemasters\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
 xcopy target\bin\ZTMZ.PacenoteTool.RBR\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
 xcopy target\bin\ZTMZ.PacenoteTool.BeamNG\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
@@ -64,6 +64,8 @@ xcopy target\bin\ZTMZ.PacenoteTool.AC\release_win-x64\lang\ target\publish\ZTMZ.
 rem Stage only pinned online release resources; never read personal application data.
 set "RELEASE_DATA_ROOT=target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64"
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ZTMZ_RELEASE_SCRIPT_DIR%stage_release_resources.ps1" -DestinationRoot "%RELEASE_DATA_ROOT%"
+if errorlevel 1 goto :publish_failed
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ZTMZ_RELEASE_SCRIPT_DIR%verify_release_payload.ps1" -DestinationRoot "%RELEASE_DATA_ROOT%"
 if errorlevel 1 goto :publish_failed
 
 cd /D "%currentDir%"

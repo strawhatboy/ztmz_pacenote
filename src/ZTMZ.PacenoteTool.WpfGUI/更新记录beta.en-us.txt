@@ -1,11 +1,16 @@
+v2.99.99.54-3.0-rc26
+
+* Adds experimental WRC 7 support with automatic game detection, live pacenotes, countdown and Go calls, plus dashboard data for the car, stage, speed, gear, RPM, pedals, handbrake and stage progress.
+* Fixes an error when historical split times are missing that could make in-game dashboards disappear.
+* Improves packaging checks for game resources and bridge components to prevent missing files after installation.
+
 v2.99.99.53-3.0-rc25
 
 * Adds experimental WRC Generations support with live pacenotes, countdowns and telemetry dashboards; supported Windows builds also provide the selected car and stage, with penalties included in live timing, replays and finish results.
 * Extends the minimum pacenote playback timing adjustment from −4 to −8 seconds for players who prefer earlier calls.
-* Adds an experimental in-game dashboard rendering mode, selectable alongside the separate overlay window in settings. A risk confirmation appears when enabling this mode, rather than each time a game starts.
-* Fixes the WPF loading dialog remaining open when startup or an initialization callback fails; startup errors are now displayed.
-* Safely handles unsupported silence-removal settings and prevents startup from repeating when restoring the window from the tray.
-* Adds loading progress, error feedback, and refresh for the online co-driver package catalog in WPF, with a 30-second timeout and continued access to installed packages.
+* Adds experimental in-game dashboard rendering for supported games, including fullscreen mode. Rendering directly inside the game reduces dashboards being hidden by window focus or stacking changes, providing more stable visibility than a separate overlay window. Switch between the two modes in settings; a risk confirmation appears when enabling in-game rendering, rather than each time a game starts.
+* Shows clearer startup errors instead of leaving the loading window open, and fixes repeated initialization when restoring the app from the tray.
+* Improves the online co-driver package list with loading progress, timeout feedback and retry; installed voice packages remain available when the network fails.
 
 v2.99.99.52-3.0-rc24
 

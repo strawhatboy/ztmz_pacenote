@@ -14,7 +14,7 @@ public static WrcGenerationsPacenoteCatalog Load(string game)
     return WrcGenerationsPacenoteCatalog.Parse(Encoding.UTF8.GetString(resources["PACENOTES.CFG"]), Encoding.UTF8.GetString(resources["PACENOTEBLOCKS.CFG"]));
 }
 
-internal static IReadOnlyDictionary<string, byte[]> ReadResources(string game, IReadOnlySet<string> requested)
+internal static IReadOnlyDictionary<string, byte[]> ReadResources(string game, IReadOnlySet<string> requested, bool legacyWrc7 = false)
 {
 var defaultKey = Encoding.ASCII.GetBytes("14F5FsyDFFUC4NVANPpYggyakreWkJfy");
 using var rsa = RSA.Create();
@@ -31,11 +31,19 @@ ywIDAQAB
 """);
 var pub = rsa.ExportParameters(false);
 var found = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
-foreach (var file in Directory.EnumerateFiles(Path.Combine(game,"WIN32","PKG"),"*.PKG",SearchOption.AllDirectories))
+var archives = Directory.EnumerateFiles(Path.Combine(game,"WIN32","PKG"),"*.PKG",SearchOption.AllDirectories);
+foreach (var file in legacyWrc7 ? archives.Order(StringComparer.Ordinal) : archives)
 {
     using var stream = File.OpenRead(file); using var reader = new BinaryReader(stream);
     var key = defaultKey; long headerOffset = 0;
-    var header = Read(reader,48); Xor(header,key,0);
+    var header = Read(reader,48);
+    if (legacyWrc7)
+    {
+        if (Encoding.ASCII.GetString(header, 0, 4) != "PPKG" || BitConverter.ToUInt32(header, 4) != 2)
+            throw new InvalidDataException("Unsupported WRC7 PKG header");
+        key = [0]; // Verified WRC7 v2 archives have an unencrypted header/index.
+    }
+    Xor(header,key,0);
     if (Encoding.ASCII.GetString(header,0,4) != "PPKG")
     {
         stream.Position=0;var encoded=Read(reader,256);Xor(encoded,key,0);
@@ -56,17 +64,19 @@ foreach (var file in Directory.EnumerateFiles(Path.Combine(game,"WIN32","PKG"),"
     {
         uint length=meta.ReadUInt32();if(length>32768)throw new InvalidDataException("Name size");
         var name=Encoding.UTF8.GetString(Read(meta,(int)length)).TrimEnd('\0');meta.ReadUInt32();
-        ulong offset=meta.ReadUInt64();meta.ReadUInt64();ulong packed=meta.ReadUInt64(),unpacked=meta.ReadUInt64();uint compression=meta.ReadUInt32();Read(meta,48);
+        ulong offset=meta.ReadUInt64();meta.ReadUInt64();ulong packed=meta.ReadUInt64(),unpacked=meta.ReadUInt64();uint compression=meta.ReadUInt32();Read(meta,legacyWrc7 ? 40 : 48);
         var leaf = Path.GetFileName(name.Replace('\\', '/'));
+        if (requested.Contains(name)) leaf = name;
         if(!requested.Contains(leaf)) continue;
         if(packed>64*1024*1024 || unpacked>64*1024*1024 || offset>(ulong)stream.Length || packed+8>(ulong)stream.Length-offset)throw new InvalidDataException("Payload bounds");
         stream.Position=(long)offset;if(Encoding.ASCII.GetString(Read(reader,4))!="PKGB")throw new InvalidDataException("Begin marker");
         var payload=Read(reader,(int)packed);if(Encoding.ASCII.GetString(Read(reader,4))!="PKGE")throw new InvalidDataException("End marker");
         var data=compression switch {0=>payload,2=>Lz4Frame(payload,(int)unpacked),_=>throw new InvalidDataException("Unsupported codec")};
         if(data.Length!=(int)unpacked)throw new InvalidDataException("Decoded size");
-        if (!found.TryAdd(leaf, data)) throw new InvalidDataException("Duplicate game definition: " + leaf);
+        if (legacyWrc7) found[leaf] = data; // PATCH archives follow PART/base archives in ordinal order.
+        else if (!found.TryAdd(leaf, data)) throw new InvalidDataException("Duplicate game definition: " + leaf);
     }
-    if (found.Count == requested.Count) break;
+    if (!legacyWrc7 && found.Count == requested.Count) break;
 
 }
 if (found.Count != requested.Count) throw new InvalidDataException("Missing game definitions: " + string.Join(", ", requested.Except(found.Keys)));

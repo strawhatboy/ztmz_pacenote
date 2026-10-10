@@ -29,11 +29,19 @@ try
     }
     using var process = Process.GetProcessById(int.Parse(args[1]));
     var client = new InGameOverlayControlClient(process);
-    if (args[0] == "--inject-probe")
+    if (args[0] is "--inject-probe" or "--load-probe")
     {
         await InGameOverlayLoader.LoadAsync(process, args[2]);
         var loaded = await client.QueryAsync();
         Require(!loaded.Started && loaded.SubmittedFrames == 0, "DLL started rendering before host configuration.");
+        if (args[0] == "--load-probe")
+        {
+            process.Refresh();
+            var module = process.Modules.Cast<ProcessModule>().Single(m => m.ModuleName == "ztmz_dashboard_overlay.dll");
+            Require(string.Equals(module.FileName, Path.GetFullPath(args[2]), StringComparison.OrdinalIgnoreCase), "Unexpected module path.");
+            Console.WriteLine("Remote DLL load/control probe passed: " + module.FileName);
+            return 0;
+        }
         process.Refresh();
         await client.StartAsync(9, "auto", targetWindow: ulong.Parse(args[3]));
         var frameDeadline = Stopwatch.StartNew();

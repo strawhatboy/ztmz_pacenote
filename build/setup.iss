@@ -15,6 +15,9 @@
   #error "Published pacenote icon assets were not found. Run build\publish.bat before packaging."
 #endif
 #define MyAppVersion GetVersionNumbersString(MyAppPublishPath)
+#if !FileExists(AddBackslash(SourcePath) + MyAppPublishRoot + "\Assets\Games\wrcg.jpg") || !FileExists(AddBackslash(SourcePath) + MyAppPublishRoot + "\games\WRCGBridge\WrcGenerationsBridge.dll") || !FileExists(AddBackslash(SourcePath) + MyAppPublishRoot + "\games\WRCGBridge\WrcGenerationsBridgeInject.exe")
+  #error "Published WRCG image or bridge is missing. Run build\publish.bat before packaging."
+#endif
 #define MyAppNativeDashboardPath AddBackslash(SourcePath) + MyAppPublishRoot + "\native-dashboard\win-x64\ztmz_dashboard_overlay.dll"
 #if !FileExists(MyAppNativeDashboardPath)
   #error "Published native dashboard DLL is missing. Run build\publish.bat before packaging."
@@ -458,6 +461,7 @@ Source: "{#MyAppPublishRoot}\fonts\*"; DestDir: "{code:GetZTMZHome}\fonts"; Flag
 Source: "{#MyAppPublishRoot}\x64\*"; DestDir: "{code:GetInstallDir}\x64"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\x86\*"; DestDir: "{code:GetInstallDir}\x86"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\Assets\ztmz_ngptool_3.0_help.png"; DestDir: "{code:GetInstallDir}\Assets"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyAppPublishRoot}\Assets\Games\*"; DestDir: "{code:GetInstallDir}\Assets\Games"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\Assets\Monaco\*"; DestDir: "{code:GetInstallDir}\Assets\Monaco"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\Assets\PacenoteIcons\*"; DestDir: "{code:GetInstallDir}\Assets\PacenoteIcons"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; db files

@@ -63,6 +63,7 @@
     <None Update="更新记录beta.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="更新记录beta.zh-cn.txt;更新记录beta.en-us.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Update="eula.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -6,6 +6,9 @@
 #ifndef WRCG_DLL_NAME
 #define WRCG_DLL_NAME L"WrcGenerationsTrace.dll"
 #endif
+#ifndef KT_TARGET_EXE
+#define KT_TARGET_EXE L"WRCG.exe"
+#endif
 namespace {
 void check(bool ok,const char* message){if(!ok)throw std::runtime_error(std::string(message)+"; Win32="+std::to_string(GetLastError()));}
 struct Handle {HANDLE h;~Handle(){if(h && h!=INVALID_HANDLE_VALUE)CloseHandle(h);}};
@@ -16,7 +19,7 @@ int wmain(int argc,wchar_t** argv){try{
     Handle process{OpenProcess(PROCESS_CREATE_THREAD|PROCESS_QUERY_INFORMATION|PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ,FALSE,pid)};
     check(process.h!=nullptr,"OpenProcess failed");
     wchar_t path[32768];DWORD size=32768;check(QueryFullProcessImageNameW(process.h,0,path,&size),"Cannot identify target");
-    check(_wcsicmp(std::filesystem::path(path).filename().c_str(),L"WRCG.exe")==0,"Only WRCG.exe is supported");
+    check(_wcsicmp(std::filesystem::path(path).filename().c_str(),KT_TARGET_EXE)==0,"Target executable does not match this bridge");
     USHORT machine=0,native=0;check(IsWow64Process2(process.h,&machine,&native)&&machine==IMAGE_FILE_MACHINE_UNKNOWN&&native==IMAGE_FILE_MACHINE_AMD64,"Target must be x64");
     check(GetModuleFileNameW(nullptr,path,32768)!=0,"Cannot locate probe");
     auto dll=std::filesystem::path(path).parent_path()/WRCG_DLL_NAME;

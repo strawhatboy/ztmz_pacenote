@@ -1,0 +1,16 @@
+{
+  "game": { "wrc7": {
+    "description": "WRC 7 — experimental live pacenotes",
+    "title": "WRC 7 live pacenotes",
+    "enable": "Enable experimental live pacenote bridge",
+    "disabled": "Live pacenote bridge controls disabled",
+    "privilegeWarning": "Run ZTMZ and WRC 7 at the same Windows privilege level, preferably both as a normal user.",
+    "limitations": "Experimental single-player support for the verified Windows build. Original game speech remains enabled. Vehicle physics telemetry, synchronized countdown and final results are not yet supported. Calls with unresolved voice-mode or token mapping are left to the original co-driver.",
+    "inject": "Connect live pacenotes",
+    "warning": "This experimental feature injects a DLL into WRC 7 and may affect game stability. Use offline. It remains loaded until the game exits. Continue?",
+    "connected": "Live pacenote bridge connected",
+    "disconnected": "Live pacenote bridge not connected",
+    "windowsOnly": "The WRC 7 live bridge currently supports Windows only.",
+    "startGame": "Start WRC 7 first."
+  } }
+}

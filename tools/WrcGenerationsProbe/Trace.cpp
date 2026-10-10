@@ -5,6 +5,13 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdint>
+#ifdef KT_WRC7
+#define KT_TRACE_EXE L"WRC7.exe"
+#define KT_FMOD_MODULE L"fmodstudio64.dll"
+#else
+#define KT_TRACE_EXE L"WRCG.exe"
+#define KT_FMOD_MODULE L"fmodstudio.dll"
+#endif
 
 namespace {
 // Bounded, non-waiting producer queue: never write files on the game's audio thread.
@@ -47,9 +54,21 @@ int __fastcall sound(void* system,const char* name,void* info) {
     enqueue("sound-info",name,result,system);return result;
 }
 int __fastcall start(void* instance) {
+#ifdef KT_WRC7
+    void* description=nullptr;char name[512]{};int length=0;
+    bool resolved=getDescription(instance,&description)==0 && description && getPath(description,name,sizeof(name),&length)==0;
+    // Capture order around start as WRC7 may perform the programmer lookup synchronously.
+    bool relevant=true; // Discover actual WRC7 paths, including banks with stripped path metadata.
+    if(!resolved)strcpy_s(name,"<event path unavailable>");
+    if(relevant)enqueue("start-enter",name,0,instance);
+    int result=startOriginal(instance);
+    if(relevant)enqueue("start-return",name,result,instance);
+    return result;
+#else
     bool relevant=pacenote(instance);int result=startOriginal(instance);
     if(relevant)enqueue("pacenote-start","event:/VOICE/Pacenotes",result,instance);
     return result;
+#endif
 }
 int __fastcall parameter(void* instance,const char* name,float value,bool ignore) {
     bool relevant=pacenote(instance);int result=parameterOriginal(instance,name,value,ignore);
@@ -63,15 +82,15 @@ int __fastcall parameterId(void* instance,ParameterId id,float value,bool ignore
 }
 DWORD WINAPI run(void*) {
     wchar_t exe[32768]{};GetModuleFileNameW(nullptr,exe,32768);
-    auto leaf=wcsrchr(exe,L'\\');if(_wcsicmp(leaf?leaf+1:exe,L"WRCG.exe")!=0)return 1;
+    auto leaf=wcsrchr(exe,L'\\');if(_wcsicmp(leaf?leaf+1:exe,KT_TRACE_EXE)!=0)return 1;
     wchar_t log[32768]{};GetModuleFileNameW(module,log,32768);
     auto end=wcsrchr(log,L'.');if(!end)return 2;wcscpy_s(end,static_cast<size_t>(log+32768-end),L".log");
     HANDLE file=CreateFileW(log,FILE_APPEND_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,nullptr);
     if(file==INVALID_HANDLE_VALUE)return 3;
     auto write=[&](const char* text){DWORD n=0;WriteFile(file,text,static_cast<DWORD>(strlen(text)),&n,nullptr);};
-    write("WRCG FMOD probe: tick-ms, thread, kind, instance, result, value, name. Original audio unchanged.\r\n");
+    write("KT FMOD probe: tick-ms, thread, kind, instance, result, value, name. Original audio unchanged.\r\n");
     HMODULE fmod=nullptr;
-    for(int i=0;i<600 && !(fmod=GetModuleHandleW(L"fmodstudio.dll"));++i)Sleep(100);
+    for(int i=0;i<600 && !(fmod=GetModuleHandleW(KT_FMOD_MODULE));++i)Sleep(100);
     if(!fmod){write("ERROR: fmodstudio.dll absent after 60 seconds\r\n");CloseHandle(file);return 4;}
     getDescription=reinterpret_cast<Description>(GetProcAddress(fmod,"?getDescription@EventInstance@Studio@FMOD@@QEBA?AW4FMOD_RESULT@@PEAPEAVEventDescription@23@@Z"));
     getPath=reinterpret_cast<Path>(GetProcAddress(fmod,"?getPath@EventDescription@Studio@FMOD@@QEBA?AW4FMOD_RESULT@@PEADHPEAH@Z"));
@@ -84,14 +103,19 @@ DWORD WINAPI run(void*) {
     void** originals[]{reinterpret_cast<void**>(&soundOriginal),reinterpret_cast<void**>(&startOriginal),reinterpret_cast<void**>(&parameterOriginal),reinterpret_cast<void**>(&parameterIdOriginal)};
     void* targets[4]{};int created=0;
     bool ok=getDescription && getPath && MH_Initialize()==MH_OK;
-    for(int i=0;ok && i<4;++i){targets[i]=reinterpret_cast<void*>(GetProcAddress(fmod,names[i]));ok=targets[i]&&MH_CreateHook(targets[i],callbacks[i],originals[i])==MH_OK;if(ok)++created;}
+#ifdef KT_WRC7
+    constexpr int hookCount=2; // FMOD 1.x has different parameter APIs; never use FMOD 2.x signatures.
+#else
+    constexpr int hookCount=4;
+#endif
+    for(int i=0;ok && i<hookCount;++i){targets[i]=reinterpret_cast<void*>(GetProcAddress(fmod,names[i]));ok=targets[i]&&MH_CreateHook(targets[i],callbacks[i],originals[i])==MH_OK;if(ok)++created;}
     // Keep hook code alive until game exit; no DLL unload while callbacks can run.
     HMODULE pinned=nullptr;
     if(ok)ok=GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,reinterpret_cast<LPCWSTR>(&run),&pinned)!=FALSE;
     for(int i=0;ok && i<created;++i)ok=MH_QueueEnableHook(targets[i])==MH_OK;
     if(ok)ok=MH_ApplyQueued()==MH_OK;
     if(!ok){for(int i=0;i<created;++i){MH_QueueDisableHook(targets[i]);MH_DisableHook(targets[i]);}write("ERROR: required export or hook setup failed\r\n");CloseHandle(file);return 5;}
-    write("READY: four FMOD C++ hooks installed; enter a stage and drive through several calls.\r\n");
+    write("READY: FMOD C++ hooks installed; enter a stage and drive through several calls.\r\n");
     for(;;){
         Record batch[64];size_t count=0;
         AcquireSRWLockExclusive(&lock);

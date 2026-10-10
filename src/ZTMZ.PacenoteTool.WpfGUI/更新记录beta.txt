@@ -1,19 +1,23 @@
+v2.99.99.54-3.0-rc26
+
+* 新增 WRC 7 实验性支持：自动识别游戏，提供实时路书、倒计时和出发播报，并向仪表盘提供车辆、赛段、车速、挡位、转速、踏板、手刹及赛段进度。
+* 修复进度条在缺少部分历史分段成绩时出错，导致游戏内仪表消失的问题。
+* 完善游戏资源和桥接组件的打包检查，避免安装后缺少必要文件。
+
 v2.99.99.53-3.0-rc25
 ------
 [English]
 * Adds experimental WRC Generations support with live pacenotes, countdowns and telemetry dashboards; supported Windows builds also provide the selected car and stage, with penalties included in live timing, replays and finish results.
 * Extends the minimum pacenote playback timing adjustment from −4 to −8 seconds for players who prefer earlier calls.
-* Adds an experimental in-game dashboard rendering mode, selectable alongside the separate overlay window in settings. A risk confirmation appears when enabling this mode, rather than each time a game starts.
-* Fixes the WPF loading dialog remaining open when startup or an initialization callback fails; startup errors are now displayed.
-* Safely handles unsupported silence-removal settings and prevents startup from repeating when restoring the window from the tray.
-* Adds loading progress, error feedback, and refresh for the online co-driver package catalog in WPF, with a 30-second timeout and continued access to installed packages.
+* Adds experimental in-game dashboard rendering for supported games, including fullscreen mode. Rendering directly inside the game reduces dashboards being hidden by window focus or stacking changes, providing more stable visibility than a separate overlay window. Switch between the two modes in settings; a risk confirmation appears when enabling in-game rendering, rather than each time a game starts.
+* Shows clearer startup errors instead of leaving the loading window open, and fixes repeated initialization when restoring the app from the tray.
+* Improves the online co-driver package list with loading progress, timeout feedback and retry; installed voice packages remain available when the network fails.
 [简体中文]
 * 新增 WRC Generations 实验性支持，提供实时路书、倒计时和遥测仪表盘；受支持的 Windows 游戏版本还可显示当前车辆、赛段，并在实时计时、回放和完赛成绩中计入罚时。
 * 将“预播放时间调整”的下限从 −4 秒扩展至 −8 秒，方便需要更早获知路况的玩家调整播报时机。
-* 新增实验性“游戏内渲染”仪表盘显示方式，可在设置中与独立悬浮窗口切换；选择启用时显示风险确认，后续启动游戏时不再重复询问。
-* 修复 WPF 版启动或初始化回调失败时加载窗口无法关闭的问题，并显示启动错误。
-* 安全处理不受支持的静音移除设置，避免从托盘恢复窗口时重复执行启动流程。
-* WPF 版在线领航员语音包列表新增加载进度、错误提示和刷新功能；请求超过 30 秒自动超时，加载失败时仍可使用已安装的语音包。
+* 新增实验性“游戏内渲染”仪表盘显示方式，支持在兼容游戏的全屏模式下显示仪表盘；直接在游戏画面内绘制，减少独立悬浮窗口因焦点切换或窗口层级变化而被遮挡的问题，显示更稳定。可在设置中切换两种显示方式；启用游戏内渲染时显示风险确认，后续启动游戏时不再重复询问。
+* 改善启动失败时的错误提示，避免加载窗口一直停留；修复从托盘恢复窗口时可能重复初始化的问题。
+* 改善在线领航员语音包列表的加载体验，增加进度提示、超时提醒和重试入口；网络异常时仍可使用已安装的语音包。
 
 v2.99.99.52-3.0-rc24
 ------

@@ -108,7 +108,12 @@ internal static class InGameOverlayLoader
                 throw new TimeoutException("Overlay loading did not finish. Restart the game before retrying.");
             process.Refresh();
             if (!process.Modules.Cast<ProcessModule>().Any(m => string.Equals(m.FileName, path, StringComparison.OrdinalIgnoreCase)))
-                throw new InvalidOperationException("Windows did not load the overlay DLL; check its dependencies.");
+            {
+                GetExitCodeThread(thread, out var result);
+                var loaded = string.Join(", ", process.Modules.Cast<ProcessModule>()
+                    .Where(m => string.Equals(m.ModuleName, Path.GetFileName(path), StringComparison.OrdinalIgnoreCase)).Select(m => m.FileName));
+                throw new InvalidOperationException($"Windows did not load the expected overlay DLL '{path}'; loader result=0x{result:X8}, matching modules=[{loaded}].");
+            }
         }
         finally
         {
@@ -130,4 +135,5 @@ internal static class InGameOverlayLoader
     [DllImport("kernel32.dll", SetLastError = true)] private static extern bool WriteProcessMemory(SafeProcessHandle process, nint address, byte[] buffer, nuint size, out nuint written);
     [DllImport("kernel32.dll", SetLastError = true)] private static extern SafeWaitHandle CreateRemoteThread(SafeProcessHandle process, nint attributes, nuint stack, nint start, nint argument, uint flags, out uint id);
     [DllImport("kernel32.dll", SetLastError = true)] private static extern uint WaitForSingleObject(SafeWaitHandle handle, uint milliseconds);
+    [DllImport("kernel32.dll", SetLastError = true)] private static extern bool GetExitCodeThread(SafeWaitHandle handle, out uint exitCode);
 }

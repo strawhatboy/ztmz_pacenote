@@ -163,8 +163,8 @@ function onUpdate(args)
                 timeUsedInSplit[i] = splitTime[i];
                 timeUsedInSplitBest[i] = bestTime[i];
                 if i ~= 1 then
-                    timeUsedInSplit[i] = splitTime[i] - splitTime[i-1];
-                    timeUsedInSplitBest[i] = bestTime[i] - bestTime[i-1];
+                    timeUsedInSplit[i] = splitTime[i] and splitTime[i-1] and (splitTime[i] - splitTime[i-1]) or nil;
+                    timeUsedInSplitBest[i] = bestTime[i] and bestTime[i-1] and (bestTime[i] - bestTime[i-1]) or nil;
                 end
                 -- print("time used in split " .. i .. ": " .. timeUsedInSplit[i]);
                 -- print("best time used in split " .. i .. ": " .. timeUsedInSplitBest[i]);
@@ -246,7 +246,7 @@ function onUpdate(args)
                 break;
             else
                 gfx.FillRectangle(_brushes["done"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], barEndPositions[i][2]);
-                if showBestReplay then
+                if showBestReplay and timeUsedInSplit[i] and timeUsedInSplitBest[i] then
                     if timeUsedInSplit[i] < timeUsedInSplitBest[i] then
                         gfx.FillRectangle(_brushes["done_faster"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], barEndPositions[i][2]);
                     else
@@ -262,7 +262,7 @@ function onUpdate(args)
                 break;
             else
                 gfx.FillRectangle(_brushes["done"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], barEndPositions[i][2]);
-                if showBestReplay then
+                if showBestReplay and timeUsedInSplit[i] and timeUsedInSplitBest[i] then
                     if timeUsedInSplit[i] < timeUsedInSplitBest[i] then
                         gfx.FillRectangle(_brushes["done_faster"], barStartPositions[i][1], barStartPositions[i][2], barEndPositions[i][1], barEndPositions[i][2]);
                     else

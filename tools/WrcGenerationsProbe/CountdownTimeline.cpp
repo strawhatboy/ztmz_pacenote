@@ -32,11 +32,12 @@ int main(int argc, char** argv) {
     if (argc != 2) return 1;
     try {
         std::string root = argv[1];
-        auto core = LoadLibraryExA((root+"/fmod.dll").c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
-        auto studio = LoadLibraryExA((root+"/fmodstudio.dll").c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+        const bool legacy = GetFileAttributesA((root+"/WRC7.exe").c_str()) != INVALID_FILE_ATTRIBUTES;
+        auto core = LoadLibraryExA((root+(legacy?"/fmod64.dll":"/fmod.dll")).c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+        auto studio = LoadLibraryExA((root+(legacy?"/fmodstudio64.dll":"/fmodstudio.dll")).c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
         void* system{}; void* low{};
-        check(load<int(*)(void**,unsigned)>(studio,"FMOD_Studio_System_Create")(&system,0x00020206));
-        check(load<Out>(studio,"FMOD_Studio_System_GetCoreSystem")(system,&low));
+        check(load<int(*)(void**,unsigned)>(studio,"FMOD_Studio_System_Create")(&system,legacy?0x00010905:0x00020206));
+        check(load<Out>(studio,legacy?"FMOD_Studio_System_GetLowLevelSystem":"FMOD_Studio_System_GetCoreSystem")(system,&low));
         check(load<int(*)(void*,int)>(core,"FMOD_System_SetOutput")(low,2)); // NOSOUND
         check(load<int(*)(void*,int,unsigned,unsigned,void*)>(studio,"FMOD_Studio_System_Initialize")(system,64,6,0,nullptr)); // ALLOW_MISSING_PLUGINS | SYNCHRONOUS_UPDATE
         for (auto bank : {"Common.bank", "Common.strings.bank", "GUI.bank"}) {

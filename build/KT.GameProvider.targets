@@ -8,18 +8,21 @@
     </MSBuild>
     <ItemGroup>
       <KTProviderLanguage Include="$(MSBuildThisFileDirectory)..\src\ZTMZ.PacenoteTool.KT\lang\*.json" />
-      <KTProviderImage Include="$(MSBuildThisFileDirectory)..\src\ZTMZ.PacenoteTool.KT\wrcg.jpg" />
+      <KTProviderImage Include="$(MSBuildThisFileDirectory)..\src\ZTMZ.PacenoteTool.KT\wrcg.jpg;$(MSBuildThisFileDirectory)..\src\ZTMZ.PacenoteTool.KT\wrc7.jpg" />
+      <KTWrc7Bridge Include="$(MSBuildThisFileDirectory)..\tools\Wrc7Probe\bin\Wrc7BridgeAbsolute.dll;$(MSBuildThisFileDirectory)..\tools\Wrc7Probe\bin\Wrc7BridgeAbsoluteInject.exe;$(MSBuildThisFileDirectory)..\tools\ACRPacenoteTrace\third_party\minhook\LICENSE.txt" Condition="'$(OS)' == 'Windows_NT'" />
       <KTNativeBridge Include="$(MSBuildThisFileDirectory)..\tools\WrcGenerationsProbe\bin\WrcGenerationsBridge.dll;$(MSBuildThisFileDirectory)..\tools\WrcGenerationsProbe\bin\WrcGenerationsBridgeInject.exe;$(MSBuildThisFileDirectory)..\tools\ACRPacenoteTrace\third_party\minhook\LICENSE.txt" Condition="'$(OS)' == 'Windows_NT'" />
     </ItemGroup>
     <Copy SourceFiles="@(KTProviderAssembly)" DestinationFolder="$(OutDir)games" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(KTProviderImage)" DestinationFolder="$(OutDir)Assets\Games" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(KTProviderLanguage)" DestinationFolder="$(OutDir)games\lang" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(KTNativeBridge)" DestinationFolder="$(OutDir)games\WRCGBridge" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(KTWrc7Bridge)" DestinationFolder="$(OutDir)games\WRC7Bridge" SkipUnchangedFiles="true" />
   </Target>
   <Target Name="PublishKTGameProvider" AfterTargets="Publish" DependsOnTargets="StageKTGameProvider">
     <Copy SourceFiles="@(KTProviderAssembly)" DestinationFolder="$(PublishDir)games" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(KTProviderImage)" DestinationFolder="$(PublishDir)Assets\Games" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(KTProviderLanguage)" DestinationFolder="$(PublishDir)games\lang" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(KTNativeBridge)" DestinationFolder="$(PublishDir)games\WRCGBridge" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(KTWrc7Bridge)" DestinationFolder="$(PublishDir)games\WRC7Bridge" SkipUnchangedFiles="true" />
   </Target>
 </Project>

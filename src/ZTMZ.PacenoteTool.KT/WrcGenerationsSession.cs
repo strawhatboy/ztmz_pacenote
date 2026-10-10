@@ -19,6 +19,7 @@ internal interface IWrcGenerationsSessionSource : IDisposable
 internal sealed class WrcGenerationsSessionCatalog
 {
     private readonly string[] names;
+    private readonly Dictionary<string, int> ids;
     private readonly Dictionary<int, string> classes = new();
 
     internal WrcGenerationsSessionCatalog(byte[] english, string localeIds, string cars)
@@ -29,9 +30,9 @@ internal sealed class WrcGenerationsSessionCatalog
         // PLOC: four-byte header followed by null-terminated UTF-16LE strings in LocalesId order.
         names = new UnicodeEncoding(false, false, true).GetString(english, 4, english.Length - 4).Split('\0');
         if (names.Length > 100_000) throw new InvalidDataException("Oversized WRCG localization table");
-        var ids = Matches(localeIds, @"(?m)^\s*(\w+)\s*=\s*(\d+)\s*,")
+        ids = Matches(localeIds, @"(?m)^\s*(\w+)\s*=\s*(\d+)\s*,")
             .ToDictionary(m => m.Groups[1].Value, m => int.Parse(m.Groups[2].Value), StringComparer.Ordinal);
-        foreach (Match table in Matches(cars, @"(?ms)^\w+\s*=\s*\{([^{}]*)"))
+        foreach (Match table in Matches(cars, @"(?ms)^[\t ]*\w+\s*=\s*\{(?=[^{}]*\bName\s*=)([^{}]*)"))
         {
             var name = Matches(table.Groups[1].Value, @"(?m)^\s*Name\s*=\s*LocalesId\.(\w+)").Cast<Match>().FirstOrDefault();
             var category = Matches(table.Groups[1].Value, @"(?m)^\s*Category\s*=\s*WrcChampionships\.(\w+)").Cast<Match>().FirstOrDefault();
@@ -50,6 +51,7 @@ internal sealed class WrcGenerationsSessionCatalog
     internal string Name(int id) => id >= 0 && id < names.Length - 1 && names[id].Length is > 0 and <= 256
         ? names[id] : string.Empty;
     internal string Class(int carNameId) => classes.GetValueOrDefault(carNameId, string.Empty);
+    internal string Name(string key) => ids.TryGetValue(key, out var id) ? Name(id) : string.Empty;
     private static MatchCollection Matches(string text, string pattern) =>
         Regex.Matches(text, pattern, RegexOptions.CultureInvariant, TimeSpan.FromSeconds(2));
 }

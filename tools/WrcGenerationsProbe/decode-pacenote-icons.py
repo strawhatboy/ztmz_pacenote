@@ -6,7 +6,8 @@ import sys
 from PIL import Image
 
 root = Path(sys.argv[1])
-data = (root / "CHUNK_0_PART0002-PACENOTES_ICONS.PTX").read_bytes()
+prefix = sys.argv[2] if len(sys.argv) > 2 else "CHUNK_0_PART0002-"
+data = (root / (prefix + "PACENOTES_ICONS.PTX")).read_bytes()
 assert data[:4] == b"RIFF" and data[60:64] == b"DXT5"
 width, height = struct.unpack_from("<II", data, 64)
 pixels = []
@@ -29,9 +30,10 @@ header = struct.pack("<7I", 124, 0x81007, height, width, len(pixels), 0, 1)
 header += bytes(44) + struct.pack("<II4s5I", 32, 4, b"DXT5", 0, 0, 0, 0, 0)
 header += struct.pack("<5I", 0x1000, 0, 0, 0, 0)
 atlas = Image.open(io.BytesIO(b"DDS " + header + pixels))
-skin = (root / "CHUNK_0_PART0002-PACENOTES_ICONS.PSK").read_bytes()
-count = struct.unpack_from("<I", skin, 104)[0]
-offset = 108
+skin = (root / (prefix + "PACENOTES_ICONS.PSK")).read_bytes()
+count_offset = int(sys.argv[3]) if len(sys.argv) > 3 else 104
+count = struct.unpack_from("<I", skin, count_offset)[0]
+offset = count_offset + 4
 for _ in range(count):
     length = struct.unpack_from("<I", skin, offset)[0]
     offset += 4
@@ -43,3 +45,6 @@ for _ in range(count):
         box = tuple(round(value * (width if i % 2 == 0 else height)) for i, value in enumerate(uv))
         print(name, uv, box)
         atlas.crop(box).save(root / (name + ".png"))
+        preview = Image.new("RGBA", (box[2] - box[0], box[3] - box[1]), "#303030")
+        preview.alpha_composite(atlas.crop(box).convert("RGBA"))
+        preview.save(root / (name + "-preview.png"))
