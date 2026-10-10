@@ -5,10 +5,16 @@ using System.Text;
 namespace ZTMZ.PacenoteTool.KT;
 
 // Format reference: https://github.com/Avery3R/WRCGModTools
-// Reads only the two pacenote definitions from the installed game; never writes game data.
+// Reads selected definitions from the installed game; never writes game data.
 public static class WrcGenerationsArchive
 {
 public static WrcGenerationsPacenoteCatalog Load(string game)
+{
+    var resources = ReadResources(game, new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "PACENOTES.CFG", "PACENOTEBLOCKS.CFG" });
+    return WrcGenerationsPacenoteCatalog.Parse(Encoding.UTF8.GetString(resources["PACENOTES.CFG"]), Encoding.UTF8.GetString(resources["PACENOTEBLOCKS.CFG"]));
+}
+
+internal static IReadOnlyDictionary<string, byte[]> ReadResources(string game, IReadOnlySet<string> requested)
 {
 var defaultKey = Encoding.ASCII.GetBytes("14F5FsyDFFUC4NVANPpYggyakreWkJfy");
 using var rsa = RSA.Create();
@@ -24,7 +30,7 @@ ywIDAQAB
 -----END PUBLIC KEY-----
 """);
 var pub = rsa.ExportParameters(false);
-var found = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+var found = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
 foreach (var file in Directory.EnumerateFiles(Path.Combine(game,"WIN32","PKG"),"*.PKG",SearchOption.AllDirectories))
 {
     using var stream = File.OpenRead(file); using var reader = new BinaryReader(stream);
@@ -52,19 +58,19 @@ foreach (var file in Directory.EnumerateFiles(Path.Combine(game,"WIN32","PKG"),"
         var name=Encoding.UTF8.GetString(Read(meta,(int)length)).TrimEnd('\0');meta.ReadUInt32();
         ulong offset=meta.ReadUInt64();meta.ReadUInt64();ulong packed=meta.ReadUInt64(),unpacked=meta.ReadUInt64();uint compression=meta.ReadUInt32();Read(meta,48);
         var leaf = Path.GetFileName(name.Replace('\\', '/'));
-        if(leaf != "PACENOTES.CFG" && leaf != "PACENOTEBLOCKS.CFG") continue;
-        if(!name.EndsWith(".CFG",StringComparison.OrdinalIgnoreCase))continue;
+        if(!requested.Contains(leaf)) continue;
         if(packed>64*1024*1024 || unpacked>64*1024*1024 || offset>(ulong)stream.Length || packed+8>(ulong)stream.Length-offset)throw new InvalidDataException("Payload bounds");
         stream.Position=(long)offset;if(Encoding.ASCII.GetString(Read(reader,4))!="PKGB")throw new InvalidDataException("Begin marker");
         var payload=Read(reader,(int)packed);if(Encoding.ASCII.GetString(Read(reader,4))!="PKGE")throw new InvalidDataException("End marker");
         var data=compression switch {0=>payload,2=>Lz4Frame(payload,(int)unpacked),_=>throw new InvalidDataException("Unsupported codec")};
         if(data.Length!=(int)unpacked)throw new InvalidDataException("Decoded size");
-        if (!found.TryAdd(leaf, Encoding.UTF8.GetString(data))) throw new InvalidDataException("Duplicate pacenote definition");
+        if (!found.TryAdd(leaf, data)) throw new InvalidDataException("Duplicate game definition: " + leaf);
     }
-    if (found.Count == 2) break;
+    if (found.Count == requested.Count) break;
 
 }
-return WrcGenerationsPacenoteCatalog.Parse(found["PACENOTES.CFG"], found["PACENOTEBLOCKS.CFG"]);
+if (found.Count != requested.Count) throw new InvalidDataException("Missing game definitions: " + string.Join(", ", requested.Except(found.Keys)));
+return found;
 }
 static byte[] Read(BinaryReader r,int n){var b=r.ReadBytes(n);if(b.Length!=n)throw new EndOfStreamException();return b;}
 static void Xor(byte[] data,byte[] key,long offset){for(int i=0;i<data.Length;i++)data[i]^=key[(i+offset)%key.Length];}

@@ -97,4 +97,5 @@
   </ItemGroup>
   <Import Project="..\..\build\NativeDashboard.Development.targets" />
   <Import Project="..\..\build\KT.GameProvider.targets" />
+  <Import Project="..\..\build\ACR.GameProvider.targets" />
 </Project>

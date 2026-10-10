@@ -51,19 +51,6 @@ if errorlevel 1 goto :build_failed
 xcopy "ZTMZ.PacenoteTool.KT\lang\*.json" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\lang\" /I /Y /Q
 if errorlevel 1 goto :build_failed
 
-pushd ..\tools\ACRPacenoteTrace
-call build.bat internal-bridge
-if errorlevel 1 (
-    popd
-    goto :build_failed
-)
-popd
-
-mkdir "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\ACRExperimentalBridge"
-copy /Y "..\tools\ACRPacenoteTrace\ACRPacenoteTraceInjector.exe" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\ACRExperimentalBridge\" >nul
-copy /Y "..\tools\ACRPacenoteTrace\ACRFmodLivePacenoteBridge.dll" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\ACRExperimentalBridge\" >nul
-copy /Y "..\tools\ACRPacenoteTrace\ACRProtonRelay.exe" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\ACRExperimentalBridge\" >nul
-copy /Y "ZTMZ.PacenoteTool.AC\ExperimentalBridge\acr-live-bridge.manifest.json" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\ACRExperimentalBridge\" >nul
 
 echo copying i18n files to target folder
 xcopy ZTMZ.PacenoteTool.I18N\lang\ "%userprofile%\Documents\My Games\ZTMZClub_nextgen\lang\" /Y /V /S /Q

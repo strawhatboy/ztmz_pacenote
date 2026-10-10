@@ -163,7 +163,12 @@
     <PropertyGroup>
       <CodemastersOutput>$(MSBuildProjectDirectory)\..\ZTMZ.PacenoteTool.Codemasters\bin\$(Configuration)\net10.0</CodemastersOutput>
       <BeamNgOutput>$(MSBuildProjectDirectory)\..\ZTMZ.PacenoteTool.BeamNG\bin\$(Configuration)\net10.0</BeamNgOutput>
-      <AcrOutput>$(MSBuildProjectDirectory)\..\ZTMZ.PacenoteTool.AC\bin\$(Configuration)\net10.0</AcrOutput>
+    </PropertyGroup>
+    <MSBuild Projects="$(MSBuildProjectDirectory)\..\ZTMZ.PacenoteTool.AC\ZTMZ.PacenoteTool.AC.csproj" Targets="GetTargetPath" Properties="Configuration=$(Configuration);TargetFramework=net10.0">
+      <Output TaskParameter="TargetOutputs" ItemName="AcrProviderTarget" />
+    </MSBuild>
+    <PropertyGroup>
+      <AcrOutput>@(AcrProviderTarget->'%(RootDir)%(Directory)')</AcrOutput>
     </PropertyGroup>
     <ItemGroup>
       <GameProviderBinaries Include="$(CodemastersOutput)\ZTMZ.PacenoteTool.Codemasters.dll" />
@@ -173,7 +178,7 @@
       <BeamNgModFiles Include="$(BeamNgOutput)\BeamNGMod\**\*" Condition="'$(OS)' == 'Windows_NT'" />
       <GameProviderBinaries Include="$(AcrOutput)\ZTMZ.PacenoteTool.AC.dll" />
       <GameProviderLanguages Include="$(AcrOutput)\lang\*.json" />
-      <AcrBridgeFiles Include="$(AcrOutput)\ACRExperimentalBridge\**\*" />
+      <AcrBridgeFiles Include="$(AcrOutput)\ACRExperimentalBridge\ACRFmodLivePacenoteBridge.dll;$(AcrOutput)\ACRExperimentalBridge\ACRPacenoteTraceInjector.exe;$(AcrOutput)\ACRExperimentalBridge\ACRProtonRelay.exe;$(AcrOutput)\ACRExperimentalBridge\acr-live-bridge.manifest.json" />
     </ItemGroup>
     <MakeDir Directories="$(OutDir)games;$(OutDir)games\lang" />
     <Copy SourceFiles="@(GameProviderBinaries)" DestinationFolder="$(OutDir)games" SkipUnchangedFiles="true" />

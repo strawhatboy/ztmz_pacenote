@@ -5,7 +5,12 @@ using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 
-if (args.Length != 2) throw new ArgumentException("Expected game directory and separate output directory");
+if (args.Length is < 2 or > 3) throw new ArgumentException("Expected game directory and separate output directory [--lifecycle|--list-icons|--icons|--session]");
+var lifecycle = args.Length == 3 && args[2] == "--lifecycle";
+var listIcons = args.Length == 3 && args[2] == "--list-icons";
+var icons = args.Length == 3 && args[2] == "--icons";
+var session = args.Length == 3 && args[2] == "--session";
+if (args.Length == 3 && !lifecycle && !listIcons && !icons && !session) throw new ArgumentException("Unknown extraction mode");
 var game = Path.GetFullPath(args[0]);
 var output = Path.GetFullPath(args[1]);
 if (output.Equals(game, StringComparison.OrdinalIgnoreCase) || output.StartsWith(game + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
@@ -52,10 +57,25 @@ foreach (var file in Directory.EnumerateFiles(Path.Combine(game,"WIN32","PKG"),"
         uint length=meta.ReadUInt32();if(length>32768)throw new InvalidDataException("Name size");
         var name=Encoding.UTF8.GetString(Read(meta,(int)length)).TrimEnd('\0');meta.ReadUInt32();
         ulong offset=meta.ReadUInt64();meta.ReadUInt64();ulong packed=meta.ReadUInt64(),unpacked=meta.ReadUInt64();uint compression=meta.ReadUInt32();Read(meta,48);
-        if(!name.Contains("PACENOTE",StringComparison.OrdinalIgnoreCase))continue;
+        if(listIcons && System.Text.RegularExpressions.Regex.IsMatch(name,"PACENOTE|DONUT|HUD|ICON",System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+            Console.WriteLine($"ICON-CANDIDATE {Path.GetFileName(file)}: {name} size={unpacked}");
+        if(session && name.Contains("LOCALISATION", StringComparison.OrdinalIgnoreCase))
+            Console.WriteLine($"LOCALE-CANDIDATE {Path.GetFileName(file)}: {name} size={unpacked}");
+        var iconAsset = icons && (name.EndsWith("PACENOTES_ICONS.PTX",StringComparison.OrdinalIgnoreCase) ||
+            name.EndsWith("PACENOTES_ICONS.PSK",StringComparison.OrdinalIgnoreCase) ||
+            name.EndsWith("HUD.UIBK",StringComparison.OrdinalIgnoreCase) ||
+            name.EndsWith("ELEMENT_PACENOTE_ICONES.FLS",StringComparison.OrdinalIgnoreCase));
+        iconAsset |= session && (name.EndsWith("LOCALISATION_EN.PLOC", StringComparison.OrdinalIgnoreCase) ||
+            name.EndsWith("LOCALISATION_CH_S.PLOC", StringComparison.OrdinalIgnoreCase) ||
+            name.EndsWith("LOCALISATION.LUA", StringComparison.OrdinalIgnoreCase));
+        if(!iconAsset && !name.Contains("PACENOTE",StringComparison.OrdinalIgnoreCase) &&
+            !(session && System.Text.RegularExpressions.Regex.IsMatch(name,
+                "SPECIAL|STAGE|RALL|VEHICLE|CARLIST|CARS\\.CFG|RACE|SECTION", System.Text.RegularExpressions.RegexOptions.IgnoreCase)) &&
+            !(lifecycle && System.Text.RegularExpressions.Regex.IsMatch(name,
+                "IMMERSION|COUNTDOWN|RACE|START|FINISH|VOICE|SOUND", System.Text.RegularExpressions.RegexOptions.IgnoreCase)))continue;
+        if(!iconAsset && !name.EndsWith(".CFG",StringComparison.OrdinalIgnoreCase))continue;
         Console.WriteLine($"{Path.GetFileName(file)}: {name} packed={packed} size={unpacked} codec={compression}");
-        if(!name.EndsWith(".CFG",StringComparison.OrdinalIgnoreCase))continue;
-        if(packed>64*1024*1024 || unpacked>64*1024*1024 || offset>(ulong)stream.Length || packed+8>(ulong)stream.Length-offset)throw new InvalidDataException("Payload bounds");
+        if(packed>128*1024*1024 || unpacked>128*1024*1024 || offset>(ulong)stream.Length || packed+8>(ulong)stream.Length-offset)throw new InvalidDataException("Payload bounds");
         stream.Position=(long)offset;if(Encoding.ASCII.GetString(Read(reader,4))!="PKGB")throw new InvalidDataException("Begin marker");
         var payload=Read(reader,(int)packed);if(Encoding.ASCII.GetString(Read(reader,4))!="PKGE")throw new InvalidDataException("End marker");
         var data=compression switch {0=>payload,2=>Lz4Frame(payload,(int)unpacked),_=>throw new InvalidDataException("Unsupported codec")};

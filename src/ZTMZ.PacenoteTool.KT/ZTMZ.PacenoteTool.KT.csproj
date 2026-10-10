@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="ZTMZ.PacenoteTool.Portable.Tests" />
+    <InternalsVisibleTo Include="ZTMZ.WrcGenerations.SessionProbe" />
     <None Update="lang/*.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <ProjectReference Include="../ZTMZ.PacenoteTool.Base/ZTMZ.PacenoteTool.Base.csproj" />
   </ItemGroup>

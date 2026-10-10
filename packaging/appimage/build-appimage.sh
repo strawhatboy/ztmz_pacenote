@@ -14,6 +14,17 @@ appimage_arch="${ARCH:-x86_64}"
 package_data_home="${ZTMZ_PACKAGE_DATA_HOME:-$HOME/.local/share/ztmz}"
 default_codriver_source="${ZTMZ_DEFAULT_CODRIVER_SOURCE:-$package_data_home/codrivers/default}"
 default_profile_source="${ZTMZ_DEFAULT_PROFILE_SOURCE:-$package_data_home/profiles/default}"
+acr_bridge_source="${ZTMZ_ACR_BRIDGE_SOURCE:-}"
+if [[ -z "$acr_bridge_source" || "$acr_bridge_source" != /* ]]; then
+    echo "Set ZTMZ_ACR_BRIDGE_SOURCE to the absolute path of a Windows-built ACRExperimentalBridge bundle (see Docs/ACRBridgeBuild.md)." >&2
+    exit 66
+fi
+for bridge_file in ACRFmodLivePacenoteBridge.dll ACRPacenoteTraceInjector.exe ACRProtonRelay.exe; do
+    if [[ ! -f "$acr_bridge_source/$bridge_file" ]]; then
+        echo "Missing ACR bridge artifact: $acr_bridge_source/$bridge_file" >&2
+        exit 66
+    fi
+done
 
 if [[ "$runtime_identifier" != "linux-x64" || "$appimage_arch" != "x86_64" ]]; then
     echo "Only the linux-x64 AppImage is currently supported." >&2
@@ -51,6 +62,7 @@ dotnet publish \
     --runtime "$runtime_identifier" \
     --self-contained true \
     --output "$publish_dir" \
+    "-p:AcrBridgePrebuiltDirectory=$acr_bridge_source" \
     --disable-build-servers \
     -m:1
 

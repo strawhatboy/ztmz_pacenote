@@ -35,19 +35,6 @@ xcopy "%ARTIFACT_ROOT%\bin\ZTMZ.PacenoteTool.RBR\release_win-x64\lang\" "%GAME_T
 xcopy "%ARTIFACT_ROOT%\bin\ZTMZ.PacenoteTool.BeamNG\release_win-x64\lang\" "%GAME_TARGET%\lang\" /Y /V /S /Q
 xcopy "%ARTIFACT_ROOT%\bin\ZTMZ.PacenoteTool.AC\release_win-x64\lang\" "%GAME_TARGET%\lang\" /Y /V /S /Q
 
-pushd "%BRIDGE_SOURCE%"
-call build.bat internal-bridge
-if errorlevel 1 (
-    popd
-    goto :failed
-)
-popd
-
-mkdir "%BRIDGE_TARGET%"
-copy /Y "%BRIDGE_SOURCE%\ACRPacenoteTraceInjector.exe" "%BRIDGE_TARGET%\" >nul
-copy /Y "%BRIDGE_SOURCE%\ACRFmodLivePacenoteBridge.dll" "%BRIDGE_TARGET%\" >nul
-copy /Y "%BRIDGE_SOURCE%\ACRProtonRelay.exe" "%BRIDGE_TARGET%\" >nul
-copy /Y "%SOURCE_ROOT%\ZTMZ.PacenoteTool.AC\ExperimentalBridge\acr-live-bridge.manifest.json" "%BRIDGE_TARGET%\" >nul
 
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\build\stage_release_resources.ps1" -DestinationRoot "%RELEASE_ROOT%"
 if errorlevel 1 goto :failed

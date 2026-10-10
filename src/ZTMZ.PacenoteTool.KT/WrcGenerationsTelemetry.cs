@@ -12,6 +12,20 @@ public static class WrcGenerationsTelemetry
 {
     public const int PacketSize = 280;
 
+    /// <summary>Observed result-time field: positive milliseconds at the finish,
+    /// negative while racing. Require agreement with the corrected lap clock.</summary>
+    public static bool TryGetFinishTime(ReadOnlySpan<byte> packet, out float seconds)
+    {
+        seconds = 0;
+        if (packet.Length != PacketSize) return false;
+        var milliseconds = BinaryPrimitives.ReadSingleLittleEndian(packet.Slice(62 * 4, 4));
+        var lap = BinaryPrimitives.ReadSingleLittleEndian(packet.Slice(4, 4));
+        if (!float.IsFinite(milliseconds) || !float.IsFinite(lap) || milliseconds <= 0 || lap <= 0 ||
+            milliseconds != MathF.Truncate(milliseconds)) return false;
+        seconds = milliseconds / 1000f;
+        return MathF.Abs(seconds - lap) <= 0.002f;
+    }
+
     public static bool TryDecode(ReadOnlySpan<byte> packet, out GameData data)
     {
         data = default;

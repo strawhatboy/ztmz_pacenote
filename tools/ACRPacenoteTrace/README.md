@@ -30,6 +30,8 @@ Run `build.bat internal-bridge` to build the release bridge bundle:
   plus named-pipe messages to the native Linux application over authenticated
   loopback TCP.
 
-The build copies all three files into the ACR provider's
-`ExperimentalBridge` directory. Protocol, launch, packaging, and validation
-details are documented in `Docs/ACRProtonRelay.md`.
+The native-only command writes all three files to `bin/internal-bridge`.
+Normal `dotnet build/publish` compiles them through the ACR project and copies
+them into its output bundle; generated binaries are not tracked in Git.
+See `Docs/ACRBridgeBuild.md` for build requirements and Linux artifact handoff,
+and `Docs/ACRProtonRelay.md` for protocol and launch details.

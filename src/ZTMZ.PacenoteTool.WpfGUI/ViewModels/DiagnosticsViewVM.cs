@@ -202,11 +202,7 @@ public partial class DiagnosticsViewVM : ObservableObject
         {
             TransportStatusLabel = I18NLoader.Instance["diagnostics.transportBridge"];
             UdpStatus = GetLocalBridgeLabel(snapshot.LocalBridge.Name);
-            UdpActivity = snapshot.LocalBridge.IsInjected
-                ? I18NLoader.Instance["game.acr.diagnostics.bridgeInjected"]
-                : snapshot.LocalBridge.IsEnabled
-                    ? I18NLoader.Instance["game.acr.diagnostics.bridgeNotInjected"]
-                    : I18NLoader.Instance["game.acr.diagnostics.bridgeDisabled"];
+            UdpActivity = GetLocalBridgeActivity(snapshot.LocalBridge);
             UdpTooltip = snapshot.LocalBridge.Detail;
             UdpStatusBrush = snapshot.LocalBridge.IsInjected
                 ? Brushes.ForestGreen
@@ -319,6 +315,18 @@ public partial class DiagnosticsViewVM : ObservableObject
             }
         }
 
+        if (snapshot.Udp is not null && snapshot.LocalBridge is { } localBridge)
+        {
+            TransportStatusLabel = $"UDP / {I18NLoader.Instance["diagnostics.transportBridge"]}";
+            // The bridge and UDP are independent transports (e.g. WRCG). Keep
+            // packet details in the tooltip and expose bridge health on the card.
+            UdpTooltip = string.Join(Environment.NewLine, UdpTooltip, UdpActivity,
+                GetLocalBridgeLabel(localBridge.Name), localBridge.Detail);
+            UdpActivity = $"{GetLocalBridgeActivity(localBridge)} | {GetLocalBridgeLabel(localBridge.Name)}";
+            if (localBridge.IsEnabled && !localBridge.IsInjected && UdpStatusBrush != Brushes.IndianRed)
+                UdpStatusBrush = localBridge.IsAvailable ? Brushes.DarkOrange : Brushes.IndianRed;
+        }
+
         AudioStatus = string.Join(
             " | ",
             snapshot.Audio.IsActive
@@ -390,10 +398,16 @@ public partial class DiagnosticsViewVM : ObservableObject
 
     private static string GetLocalBridgeLabel(string name)
     {
+        if (string.Equals(name, "WRCG live bridge", StringComparison.Ordinal))
+            return I18NLoader.Instance["game.wrcg.title"];
         return string.Equals(name, "ACR live bridge", StringComparison.Ordinal)
             ? I18NLoader.Instance["game.acr.diagnostics.liveBridge"]
             : name;
     }
+
+    private static string GetLocalBridgeActivity(LocalBridgeDiagnosticsInfo bridge) =>
+        I18NLoader.Instance[bridge.IsInjected ? "game.acr.diagnostics.bridgeInjected"
+            : bridge.IsEnabled ? "game.acr.diagnostics.bridgeNotInjected" : "game.acr.diagnostics.bridgeDisabled"];
 
     private static string GetUdpEndpoint(UdpListenerDiagnosticsInfo listener, string primaryFallbackEndpoint)
     {

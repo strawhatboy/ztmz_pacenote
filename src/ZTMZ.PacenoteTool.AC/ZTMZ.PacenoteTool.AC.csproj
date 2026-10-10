@@ -25,25 +25,11 @@
     <EmbeddedResource Include="stage-aliases.json" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="ExperimentalBridge\ACRPacenoteTraceInjector.exe">
-      <Link>ACRExperimentalBridge\ACRPacenoteTraceInjector.exe</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </None>
-    <None Update="ExperimentalBridge\ACRFmodLivePacenoteBridge.dll">
-      <Link>ACRExperimentalBridge\ACRFmodLivePacenoteBridge.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </None>
-    <None Update="ExperimentalBridge\ACRProtonRelay.exe">
-      <Link>ACRExperimentalBridge\ACRProtonRelay.exe</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </None>
     <None Update="ExperimentalBridge\acr-live-bridge.manifest.json">
       <Link>ACRExperimentalBridge\acr-live-bridge.manifest.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
   </ItemGroup>
+  <Import Project="..\..\build\ACR.NativeBridge.targets" />
 </Project>

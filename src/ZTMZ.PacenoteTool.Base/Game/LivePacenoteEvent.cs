@@ -29,10 +29,17 @@ public interface IGameLivePacenoteSource
 public interface IGamePacenoteSourcePolicy
 {
     bool UseLivePacenotesOnly { get; }
+    bool AllowLivePacenotesBeforeGo => false;
+    bool UseTelemetryGoSound => true;
 }
 
 public static class GamePacenoteSourcePolicy
 {
+    public static bool AllowsLivePlayback(IGame game, GameState state) =>
+        state == GameState.Racing ||
+        (game is IGamePacenoteSourcePolicy { AllowLivePacenotesBeforeGo: true } &&
+            state is GameState.RaceBegin or GameState.CountingDown);
+
     public static bool AllowsDistancePlayback(IGame game) =>
         game != null && game is not IGamePacenoteSourcePolicy { UseLivePacenotesOnly: true };
 }

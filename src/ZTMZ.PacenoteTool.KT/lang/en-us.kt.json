@@ -7,7 +7,7 @@
     "privilegeWarning": "Run ZTMZ and WRC Generations at the same Windows privilege level, preferably both as a normal user.",
     "forwarded": "Receive forwarded telemetry",
     "forwardedHint": "Receive UDP from SimHub or another relay. ZTMZ will not change the game's telemetry destination.",
-    "limitations": "Experimental Windows bridge. Original game speech remains enabled. Stage/car names and finish detection are not available yet. Unmapped calls are left to the original co-driver.",
+    "limitations": "Experimental Windows bridge. Original game speech remains enabled. Stage/car names and synchronized countdown are not available yet. Finish detection uses the telemetry result time; penalties are not included. Unmapped calls are left to the original co-driver.",
     "inject": "Connect live pacenotes",
     "warning": "This experimental feature injects a DLL into WRC Generations and may affect game stability. Use offline. It remains loaded until the game exits. Continue?",
     "connected": "Live pacenote bridge connected",

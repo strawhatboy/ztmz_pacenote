@@ -13,6 +13,8 @@ public sealed class WrcGenerations : IGame, ISteamGameIdentity, IGameWithIntegra
     public uint SteamApplicationId => 1953520;
     public int Order => 4100;
     public bool UseLivePacenotesOnly => true;
+    public bool AllowLivePacenotesBeforeGo => true;
+    public bool UseTelemetryGoSound => false;
     public bool IsRunning { get; set; }
     public bool IsInitialized { get; set; }
     public IGameDataReader GameDataReader { get; } = new WrcGenerationsGameDataReader();

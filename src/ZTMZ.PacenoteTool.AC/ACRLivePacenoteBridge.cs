@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO.Pipes;
 using System.IO;
@@ -292,19 +293,25 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
         try
         {
             Logger.Info("ACR EventCountdown received; publishing ZTMZ countdown 5 to 1.");
+            var started = Stopwatch.GetTimestamp();
             for (var number = 5; number >= 1; --number)
             {
+                var due = CountdownInterval * (5 - number);
+                var remaining = due - Stopwatch.GetElapsedTime(started);
+                while (remaining > TimeSpan.Zero)
+                {
+                    await Task.Delay(remaining, cancellation.Token);
+                    remaining = due - Stopwatch.GetElapsedTime(started);
+                }
                 cancellation.Token.ThrowIfCancellationRequested();
+                // After a scheduler stall, do not rapidly replay obsolete numbers.
+                if (Stopwatch.GetElapsedTime(started) - due >= CountdownInterval) continue;
                 _publish(CreateSystemSoundEvent(
                     source,
                     $"{eventId}-countdown-{number}",
                     Constants.SYSTEM_COUNTDOWNS[number - 1],
                     isSequential: false));
 
-                if (number > 1)
-                {
-                    await Task.Delay(CountdownInterval, cancellation.Token);
-                }
             }
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
@@ -342,6 +349,7 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
             }
 
             _lastCountdownGoAtUtc = now;
+            _countdownCancellation?.Cancel();
             joinedAfterCountdown = !_hasObservedRaceLifecycle;
         }
 

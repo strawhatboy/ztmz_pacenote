@@ -1,0 +1,28 @@
+<Project>
+  <PropertyGroup>
+    <AcrNativeSource>$(MSBuildThisFileDirectory)..\tools\ACRPacenoteTrace\</AcrNativeSource>
+  </PropertyGroup>
+  <Target Name="PrepareAcrNativeBridge" Condition="'$(DesignTimeBuild)' != 'true'">
+    <PropertyGroup>
+      <AcrNativeOutput Condition="'$(AcrBridgePrebuiltDirectory)' == ''">$([System.IO.Path]::GetFullPath('$(IntermediateOutputPath)acr-native'))</AcrNativeOutput>
+      <AcrNativeOutput Condition="'$(AcrBridgePrebuiltDirectory)' != ''">$([System.IO.Path]::GetFullPath('$(AcrBridgePrebuiltDirectory)'))</AcrNativeOutput>
+    </PropertyGroup>
+    <ItemGroup>
+      <AcrNativeInputs Include="$(AcrNativeSource)ACRFmodLivePacenoteBridge.cpp;$(AcrNativeSource)InjectTrace.cpp;$(AcrNativeSource)ACRProtonRelay.cpp;$(AcrNativeSource)*.h;$(AcrNativeSource)third_party\minhook\**\*.c;$(AcrNativeSource)third_party\minhook\**\*.h;$(AcrNativeSource)build-internal.bat;$(MSBuildThisFileFullPath)" />
+      <AcrNativeFiles Include="$(AcrNativeOutput)\ACRFmodLivePacenoteBridge.dll;$(AcrNativeOutput)\ACRPacenoteTraceInjector.exe;$(AcrNativeOutput)\ACRProtonRelay.exe" />
+    </ItemGroup>
+    <Error Condition="'$(OS)' != 'Windows_NT' and '$(AcrBridgePrebuiltDirectory)' == ''" Text="ACR requires Windows native bridge artifacts. Build ZTMZ.PacenoteTool.AC on Windows, then supply -p:AcrBridgePrebuiltDirectory=/absolute/path/to/ACRExperimentalBridge on this host." />
+  </Target>
+  <Target Name="CompileAcrNativeBridge" DependsOnTargets="PrepareAcrNativeBridge"
+          Condition="'$(DesignTimeBuild)' != 'true' and '$(OS)' == 'Windows_NT' and '$(AcrBridgePrebuiltDirectory)' == ''"
+          Inputs="@(AcrNativeInputs)" Outputs="@(AcrNativeFiles)">
+    <Message Importance="high" Text="Building ACR native bridge (Windows x64)..." />
+    <Exec Command="call &quot;$(AcrNativeSource)build-internal.bat&quot; &quot;$(AcrNativeOutput)&quot;" />
+  </Target>
+  <Target Name="IncludeAcrNativeBridge" BeforeTargets="AssignTargetPaths" DependsOnTargets="PrepareAcrNativeBridge;CompileAcrNativeBridge" Condition="'$(DesignTimeBuild)' != 'true'">
+    <Error Condition="!Exists('%(AcrNativeFiles.Identity)')" Text="Missing ACR native bridge artifact: %(AcrNativeFiles.Identity)" />
+    <ItemGroup>
+      <Content Include="@(AcrNativeFiles)" Link="ACRExperimentalBridge\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
+</Project>

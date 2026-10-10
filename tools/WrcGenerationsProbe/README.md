@@ -1,5 +1,40 @@
 # WRC Generations FMOD diagnostic probe
 
+## Read-only session diagnostics
+
+`dotnet run --project tools/WrcGenerationsProbe/Session -- <WRCG-PID> [UDP-port]`
+uses the production, executable-fingerprint-guarded metadata reader. It prints
+the selected special/car, result readiness and read cost. With a port it waits
+up to two minutes for one local UDP packet and prints the first lifecycle event's
+identity. Close ZTMZ before binding its port. Pause can stop UDP; a timeout does
+not mean the memory read failed. No game settings, assets or memory are changed.
+
+Extract `--session` reads local metadata definitions, including English/Chinese
+PLOC tables, for investigation. `inspect-session.py` inspects executable strings,
+references and disassembly with optional locally installed `pefile`/`capstone`.
+`read-session-memory.py` is a developer-only bounded raw inspector for the exact
+build documented in `Docs/WrcGenerationsLifecycle.md`; prefer the guarded Session
+probe for normal verification. None of these tools or extracted game resources
+are packaged in ZTMZ.
+
+For local icon verification, run Extract with `--icons` and a separate output
+directory, then `python decode-pacenote-icons.py <output-directory>`. This decodes
+the original BC3 PTX atlas and PSK regions; FLS labels identify the exact sprite.
+`--list-icons` lists candidate archive resources without extracting extra assets.
+Extracted game resources and derived images belong only in ignored local output,
+never in the distributed application. `update-token-database.py` maintains the
+five official WRCG token additions in the repository data.zdb. For a closed local
+test app, `--merge-test-data <data.zdb>` backs up that database and inserts only
+those definitions; it does not replace unrelated records or run at app startup.
+
+`CountdownTimeline.cpp` is a separate, silent bank inspector. Compile it with
+MSVC C++20, then pass the installed WRCG directory as its sole argument. It loads
+the game's FMOD DLLs and Common/GUI banks locally, prints the 54321Go/321Go sound
+callbacks and event lengths, and exits. It does not inject into a running game,
+modify assets, or redistribute banks. Missing vehicle DSP plugins are allowed
+only in this offline inspector. Callback positions precede audible playback due
+to FMOD buffering; do not use those positions as exact authored cue timestamps.
+
 This development tool observes the installed x64 WRCG FMOD 2.02.06 C++ exports.
 It does not implement a game provider, replace audio, mute the game, or infer tokens.
 It is not included in the installer. Close the game to unload the probe.

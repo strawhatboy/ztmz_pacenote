@@ -60,20 +60,6 @@ xcopy target\bin\ZTMZ.PacenoteTool.RBR\release_win-x64\lang\ target\publish\ZTMZ
 xcopy target\bin\ZTMZ.PacenoteTool.BeamNG\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
 xcopy target\bin\ZTMZ.PacenoteTool.AC\release_win-x64\lang\ target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\ /Y /V /Q
 
-pushd ..\tools\ACRPacenoteTrace
-call build.bat internal-bridge
-if errorlevel 1 (
-    popd
-    cd /D "%currentDir%"
-    exit /b 1
-)
-popd
-
-mkdir "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge"
-copy /Y "..\tools\ACRPacenoteTrace\ACRPacenoteTraceInjector.exe" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge\" >nul
-copy /Y "..\tools\ACRPacenoteTrace\ACRFmodLivePacenoteBridge.dll" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge\" >nul
-copy /Y "..\tools\ACRPacenoteTrace\ACRProtonRelay.exe" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge\" >nul
-copy /Y "..\src\ZTMZ.PacenoteTool.AC\ExperimentalBridge\acr-live-bridge.manifest.json" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\ACRExperimentalBridge\" >nul
 
 rem Stage only pinned online release resources; never read personal application data.
 set "RELEASE_DATA_ROOT=target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64"

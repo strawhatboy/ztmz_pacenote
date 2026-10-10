@@ -41,10 +41,31 @@ internal sealed class WrcGenerationsLiveSession : IDisposable
                         {
                             if (line.Length > 1024) throw new InvalidDataException("Oversized bridge message");
                             if (line.StartsWith("DROPPED ", StringComparison.Ordinal)) { Log.Warn("WRCG bridge queue: {0}", line); continue; }
+                            if (line.StartsWith("STATS ", StringComparison.Ordinal)) { Log.Debug("WRCG bridge {0}", line); continue; }
                             var fields = line.Split('\t', 2);
                             if (fields.Length != 2 || !long.TryParse(fields[0], out var tick)) continue;
                             var age = Environment.TickCount64 - tick;
-                            if (age < 0 || age > 500 || !catalog.TryResolve(fields[1], out var atoms)) continue;
+                            Log.Debug("WRCG sound received: tick={0}, ageMs={1}, resource={2}", tick, age, fields[1]);
+                            if (age < 0 || age > 500)
+                            {
+                                Log.Debug("WRCG sound rejected as stale: {0}", fields[1]);
+                                continue;
+                            }
+                            if (TryGetCountdownSound(fields[1], out var countdownSound))
+                            {
+                                Log.Info("WRCG countdown cue: {0}, ageMs={1}", fields[1], age);
+                                publish(new LivePacenoteEvent
+                                {
+                                    Id = $"{pid}:{tick}:countdown", SourceResourceName = fields[1],
+                                    SystemSoundToken = countdownSound, SystemSoundSequential = false
+                                });
+                                continue;
+                            }
+                            if (!catalog.TryResolve(fields[1], out var atoms))
+                            {
+                                Log.Debug("WRCG sound has no pacenote mapping (no lifecycle inferred): {0}", fields[1]);
+                                continue;
+                            }
                             var tokens = new List<string>();
                             var complete = true;
                             foreach (var atom in atoms)
@@ -58,6 +79,7 @@ internal sealed class WrcGenerationsLiveSession : IDisposable
                             }
                             // Never silently remove a warning/modifier from a partially mapped call.
                             if (!complete || tokens.Count == 0) continue;
+                            Log.Debug("WRCG sound mapped: {0} -> {1}", fields[1], string.Join('/', tokens));
                             publish(new LivePacenoteEvent
                             {
                                 Id = $"{pid}:{tick}", DisplayGroupId = $"{pid}:{tick}", SourceResourceName = fields[1],
@@ -77,6 +99,16 @@ internal sealed class WrcGenerationsLiveSession : IDisposable
                 Log.Error(error, "WRCG bridge session failed");
             }
         });
+    }
+
+    internal static bool TryGetCountdownSound(string resource, out string token)
+    {
+        const string prefix = "ztmz:/countdown/";
+        token = string.Empty;
+        if (!resource.StartsWith(prefix, StringComparison.Ordinal) ||
+            !int.TryParse(resource.AsSpan(prefix.Length), out var number) || number < 0 || number > 5) return false;
+        token = number == 0 ? Constants.SYSTEM_GO : Constants.SYSTEM_COUNTDOWNS[number - 1];
+        return true;
     }
 
     public void Dispose()

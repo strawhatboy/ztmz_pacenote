@@ -1,0 +1,22 @@
+<Project>
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\src\ZTMZ.PacenoteTool.AC\ZTMZ.PacenoteTool.AC.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+  <Target Name="StageACRGameProvider" AfterTargets="Build">
+    <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\ZTMZ.PacenoteTool.AC\ZTMZ.PacenoteTool.AC.csproj" Targets="GetTargetPath" Properties="Configuration=$(Configuration);TargetFramework=net10.0-windows">
+      <Output TaskParameter="TargetOutputs" ItemName="ACRProviderAssembly" />
+    </MSBuild>
+    <ItemGroup>
+      <ACRProviderLanguage Include="$(MSBuildThisFileDirectory)..\src\ZTMZ.PacenoteTool.AC\lang\*.json" />
+      <ACRProviderBundle Include="@(ACRProviderAssembly->'%(RootDir)%(Directory)ACRExperimentalBridge\ACRFmodLivePacenoteBridge.dll');@(ACRProviderAssembly->'%(RootDir)%(Directory)ACRExperimentalBridge\ACRPacenoteTraceInjector.exe');@(ACRProviderAssembly->'%(RootDir)%(Directory)ACRExperimentalBridge\ACRProtonRelay.exe');@(ACRProviderAssembly->'%(RootDir)%(Directory)ACRExperimentalBridge\acr-live-bridge.manifest.json')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ACRProviderAssembly)" DestinationFolder="$(OutDir)games" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ACRProviderLanguage)" DestinationFolder="$(OutDir)games\lang" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ACRProviderBundle)" DestinationFolder="$(OutDir)games\ACRExperimentalBridge" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="PublishACRGameProvider" AfterTargets="Publish" DependsOnTargets="StageACRGameProvider">
+    <Copy SourceFiles="@(ACRProviderAssembly)" DestinationFolder="$(PublishDir)games" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ACRProviderLanguage)" DestinationFolder="$(PublishDir)games\lang" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ACRProviderBundle)" DestinationFolder="$(PublishDir)games\ACRExperimentalBridge" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

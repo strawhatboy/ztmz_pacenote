@@ -52,6 +52,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
     private DamageSoundPlaybackQueue _damageSoundPlaybackQueue;
     private long _damageSoundSession;
     private int _externalPacenoteSessionStarted;
+    private TaskCompletionSource<bool> _externalPacenoteReady = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly object _liveDispatchLock = new();
     private Task _liveDispatchTail = Task.CompletedTask;
 
@@ -595,9 +596,17 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
                     shouldPlayExternalPacenotes);
                 if (lastState == GameState.RaceBegin || lastState == GameState.CountingDown)
                 {
-                    if (shouldPlayExternalPacenotes && Config.Instance.PlayGoSound) {
-                        // just go !
-                        this._profileManager.PlaySystem(Constants.SYSTEM_GO, true);
+                    if (shouldPlayExternalPacenotes && Config.Instance.PlayGoSound &&
+                        _currentGame is not IGamePacenoteSourcePolicy { UseTelemetryGoSound: false }) {
+                        _logger.Debug("Telemetry Go sound: game={0}, previousState={1}, lapTime={2}, distance={3}",
+                            _currentGame.Name, lastState, _currentGame.GameDataReader.CurrentGameData.LapTime,
+                            _currentGame.GameDataReader.CurrentGameData.LapDistance);
+                        // Games that call pacenotes before Go can already have a full call
+                        // queued here. The start cue must not wait behind that call, nor
+                        // should playing it discard the first pacenote.
+                        var sequentialGo = _currentGame is not IGamePacenoteSourcePolicy
+                            { AllowLivePacenotesBeforeGo: true };
+                        this._profileManager.PlaySystem(Constants.SYSTEM_GO, sequentialGo);
                     }
 
                     if (_enableReplayIntegration)
@@ -705,6 +714,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         }
 
         var trackName = _trackName;
+        var preparation = Volatile.Read(ref _externalPacenoteReady);
         _ = Task.Run(() =>
         {
             try
@@ -733,11 +743,14 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
                     _profileManager.ReIndex(distance);
                 }
 
+                preparation.TrySetResult(true);
                 this.onRaceBegined?.Invoke(game);
             }
             catch (Exception exception)
             {
-                ResetExternalPacenoteSession();
+                preparation.TrySetResult(false);
+                if (ReferenceEquals(preparation, Volatile.Read(ref _externalPacenoteReady)))
+                    ResetExternalPacenoteSession();
                 _logger.Error(
                     exception,
                     "Failed to prepare pacenotes for {0} on {1} ({2}).",
@@ -750,6 +763,8 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
 
     private void ResetExternalPacenoteSession()
     {
+        Interlocked.Exchange(ref _externalPacenoteReady,
+            new(TaskCreationOptions.RunContinuationsAsynchronously)).TrySetResult(false);
         Interlocked.Exchange(ref _externalPacenoteSessionStarted, 0);
     }
 
@@ -875,22 +890,31 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
             return;
         }
 
-        if (game.GameDataReader.GameState != GameState.Racing || evt.Record.Pacenotes.Count == 0)
+        if (!GamePacenoteSourcePolicy.AllowsLivePlayback(game, game.GameDataReader.GameState) || evt.Record.Pacenotes.Count == 0)
         {
+            _logger.Debug("Live pacenote rejected: game={0}, resource={1}, state={2}, tokens={3}",
+                game.Name, evt.SourceResourceName, game.GameDataReader.GameState, evt.Record.Pacenotes.Count);
             return;
         }
 
-        void DispatchLivePacenote()
+        var preparation = Volatile.Read(ref _externalPacenoteReady);
+        async Task DispatchLivePacenote()
         {
             try
             {
-                if (_disposed || !ReferenceEquals(_currentGame, game) || game.GameDataReader.GameState != GameState.Racing)
+                if (game is IGamePacenoteSourcePolicy { AllowLivePacenotesBeforeGo: true } &&
+                    !await preparation.Task.ConfigureAwait(false)) return;
+                if (_disposed || !ReferenceEquals(_currentGame, game) ||
+                    !ReferenceEquals(preparation, Volatile.Read(ref _externalPacenoteReady)) ||
+                    !GamePacenoteSourcePolicy.AllowsLivePlayback(game, game.GameDataReader.GameState))
                 {
                     return;
                 }
 
                 if (_profileManager.PlayLivePacenote(evt.Record))
                 {
+                    _logger.Debug("Live pacenote played: game={0}, resource={1}, state={2}",
+                        game.Name, evt.SourceResourceName, game.GameDataReader.GameState);
                     PublishPacenoteDispatch(PacenotePlaybackSnapshot.FromRecord(
                         evt.DisplayRecord ?? evt.Record,
                         "live",
@@ -908,7 +932,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
             // ACR fragments and their accumulating display snapshots must retain arrival order.
             lock (_liveDispatchLock)
                 _liveDispatchTail = _liveDispatchTail.ContinueWith(
-                    _ => DispatchLivePacenote(), TaskScheduler.Default);
+                    _ => DispatchLivePacenote(), TaskScheduler.Default).Unwrap();
         }
         else
         {
