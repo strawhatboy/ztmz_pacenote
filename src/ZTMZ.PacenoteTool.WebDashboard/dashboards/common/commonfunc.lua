@@ -129,18 +129,17 @@ function getRPMPercentage(data)
 end
 
 function getRPMLevel(data, conf)
-    local rpm, shift, maximum = finiteNumber(data.RPM), finiteNumber(data.ShiftLightsRPMEnd), finiteNumber(data.MaxRPM);
+    local rpm, shift, start = finiteNumber(data.RPM), finiteNumber(data.ShiftLightsRPMEnd), finiteNumber(data.ShiftLightsRPMStart);
     if rpm == nil then return 0 end
-    -- Shift advice and near-limit warning are separate thresholds. Levels are
-    -- cumulative: off, green, green+yellow, all steady, red blinking.
-    if data.ShiftLightsRPMValid and shift ~= nil
-        and shift > 0 then
-        if maximum ~= nil
-            and maximum >= shift
-            and rpm >= math.max(shift, maximum * 0.98) then return 4 end
-        if rpm >= shift then return 3 end
-        if rpm >= shift * 2 / 3 then return 2 end
-        if rpm >= shift / 3 then return 1 end
+    -- Use the provider's progressive light range (DR2: last 1000 RPM).
+    -- Flash at the shift point to prompt a gear change, not at the rev limit.
+    if data.ShiftLightsRPMValid and shift ~= nil and start ~= nil
+        and start >= 0 and shift > start then
+        local range = shift - start;
+        if rpm >= shift then return 4 end
+        if rpm >= start + range * 2 / 3 then return 3 end
+        if rpm >= start + range / 3 then return 2 end
+        if rpm >= start then return 1 end
         return 0;
     end
     local redZoneBlink = conf.HudShiftRedZone;

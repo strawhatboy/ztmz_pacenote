@@ -10,16 +10,17 @@ public class NeoLuaRuntimeTest
 {
     [Theory]
     [InlineData(0, 0)]
-    [InlineData(2399, 0)]
-    [InlineData(2400, 1)]
-    [InlineData(4799, 1)]
-    [InlineData(4800, 2)]
-    [InlineData(7199, 2)]
-    [InlineData(7200, 3)]
-    [InlineData(7839, 3)]
+    [InlineData(6199, 0)]
+    [InlineData(6200, 1)]
+    [InlineData(6533, 1)]
+    [InlineData(6534, 2)]
+    [InlineData(6866, 2)]
+    [InlineData(6867, 3)]
+    [InlineData(7199, 3)]
+    [InlineData(7200, 4)]
     [InlineData(7840, 4)]
     [InlineData(8000, 4)]
-    public void ShiftAdviceIsSeparateFromNearLimitWarning(int rpm, int expected)
+    public void ShiftLightsProgressWithinProviderRangeAndFlashAtShiftPoint(int rpm, int expected)
     {
         using var lua = new Lua();
         var environment = lua.CreateEnvironment();

@@ -34,7 +34,8 @@ $required = @(
     'Assets/Monaco/index.html', 'Assets/Monaco/min/vs/loader.js',
     'Assets/Monaco/min/vs/editor/editor.main.js',
     'wwwroot/index.html', 'wwwroot/dashboard-client.js', 'wwwroot/browser-lua-dashboard.js',
-    'wwwroot/vendor/fengari-web.js'
+    'wwwroot/vendor/fengari-web.js', 'wwwroot/screen-awake.js',
+    'wwwroot/vendor/nosleep-media.js', 'wwwroot/vendor/nosleep-LICENSE.txt'
 )
 foreach ($relative in $required) { $null = Require-File $relative }
 

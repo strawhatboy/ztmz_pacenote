@@ -84,6 +84,7 @@
         html[data-client-mode="overlay"] #loading,
         html[data-client-mode="overlay"] #dashboard-selector,
         html[data-client-mode="overlay"] #menu-button,
+        html[data-client-mode="overlay"] #screen-awake-button,
         html[data-client-mode="overlay"] #frame-rate,
         html[data-client-mode="overlay"] #connection-status,
         html[data-client-mode="overlay"] #error-message {
@@ -380,6 +381,12 @@
             50% { opacity: 1; transform: scale(1); }
         }
 
+        #dashboard-controls { max-width: calc(100vw - 24px); }
+        #fullscreen-button, #orientation-button { flex-shrink: 0; }
+        #screen-awake-button { width: 170px; min-width: 100px; padding: 0 12px; border-radius: 16px; font-size: 14px; }
+        #screen-awake-button[aria-pressed="true"] { color: #00ff88; border-color: #00ff88; }
+        #screen-awake-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
         #error-message {
             position: fixed;
             bottom: 20px;
@@ -426,7 +433,9 @@
     <div id="dashboard-controls" aria-hidden="true">
         <button id="fullscreen-button" class="dashboard-control" type="button" title="Enter fullscreen" aria-label="Enter fullscreen">&#x26F6;</button>
         <button id="orientation-button" class="dashboard-control" type="button" title="Switch to portrait layout" aria-label="Switch to portrait layout" aria-pressed="false">&#x21C4;</button>
+        <button id="screen-awake-button" class="dashboard-control" type="button" aria-pressed="false">Keep screen awake</button>
     </div>
+    <span id="screen-awake-status" role="status" aria-live="polite"></span>
     
     <!-- Menu Button -->
     <button id="menu-button" title="Back to Dashboard Selection">☰</button>
@@ -444,5 +453,7 @@
     <script src="vendor/fengari-web.js?v=0.1.4"></script>
     <script src="browser-lua-dashboard.js?v=7"></script>
     <script src="dashboard-client.js?v=7"></script>
+    <script src="vendor/nosleep-media.js?v=0.12.0"></script>
+    <script src="screen-awake.js?v=1"></script>
 </body>
 </html>

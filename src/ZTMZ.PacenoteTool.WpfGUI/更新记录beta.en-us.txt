@@ -1,7 +1,7 @@
 v2.99.99.55-3.0-rc27
 
+* Adds a "Keep screen awake" control to web dashboards for phones and tablets, with a video compatibility mode when native screen wake lock is unavailable.
 * Fixes missing shift lights and incorrect RPM proportions in the separate overlay, and prevents invalid RPM values from affecting dashboard rendering.
-* Updates shift indicators: green and yellow lights illuminate progressively, red stays on at the recommended shift RPM, and red flashes near maximum RPM.
 
 v2.99.99.54-3.0-rc26
 
