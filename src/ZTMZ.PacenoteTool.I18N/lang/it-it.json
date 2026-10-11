@@ -33,7 +33,7 @@
     "voices": "Voci",
     "playback": "Riproduzione",
     "scriptEditor": "Editor delle note",
-    "hud": "HUD",
+    "hud": "Visualizzazione in gioco",
     "dashboard": "Cruscotti",
     "game": "Gioco",
     "games": "Giochi",
@@ -183,7 +183,7 @@
       "voicePackage": "Voci",
       "misc": "Varie",
       "playback": "Riproduzione",
-      "hud": "HUD",
+      "hud": "Visualizzazione in gioco",
       "game": "Gioco",
       "vr": "VR"
     },

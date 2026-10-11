@@ -33,7 +33,7 @@
     "voices": "Voices",
     "playback": "Play",
     "scriptEditor": "Script Editor",
-    "hud": "Hud",
+    "hud": "In-game display",
     "dashboard": "Dashboards",
     "game": "Game",
     "games": "Games",
@@ -185,7 +185,7 @@
       "voicePackage": "Voices",
       "misc": "Misc",
       "playback": "Playback",
-      "hud": "Hud",
+      "hud": "In-game display",
       "game": "Game",
       "vr": "Vr"
     },

@@ -33,7 +33,7 @@
     "voices": "领航员",
     "playback": "播放",
     "scriptEditor": "路书编辑器",
-    "hud": "悬浮窗",
+    "hud": "游戏内显示",
     "dashboard": "仪表盘",
     "game": "当前游戏",
     "games": "游戏",
@@ -185,7 +185,7 @@
       "voicePackage": "语音包",
       "misc": "杂项",
       "playback": "播放",
-      "hud": "悬浮窗",
+      "hud": "游戏内显示",
       "game": "当前游戏",
       "vr": "虚拟现实"
     },

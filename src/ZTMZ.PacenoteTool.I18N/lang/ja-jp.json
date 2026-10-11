@@ -33,7 +33,7 @@
     "voices": "音声",
     "playback": "再生",
     "scriptEditor": "ペースノートエディター",
-    "hud": "HUD",
+    "hud": "ゲーム内表示",
     "dashboard": "ダッシュボード",
     "game": "ゲーム",
     "games": "ゲーム",
@@ -183,7 +183,7 @@
       "voicePackage": "音声",
       "misc": "その他",
       "playback": "再生",
-      "hud": "HUD",
+      "hud": "ゲーム内表示",
       "game": "ゲーム",
       "vr": "VR"
     },

@@ -33,7 +33,7 @@
     "voices": "Stimmen",
     "playback": "Wiedergabe",
     "scriptEditor": "Roadbook-Editor",
-    "hud": "HUD",
+    "hud": "Anzeige im Spiel",
     "dashboard": "Armaturen",
     "game": "Spiel",
     "games": "Spiele",
@@ -183,7 +183,7 @@
       "voicePackage": "Stimmen",
       "misc": "Verschiedenes",
       "playback": "Wiedergabe",
-      "hud": "HUD",
+      "hud": "Anzeige im Spiel",
       "game": "Spiel",
       "vr": "VR"
     },

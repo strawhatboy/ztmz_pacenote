@@ -1,5 +1,10 @@
 v2.99.99.54-3.0-rc26
 
+* Renames the HUD settings page to "In-game display" to cover both the separate overlay window and in-game rendering.
+* Improves DiRT Rally 2.0 car identification, RPM and shift-light data, and adds handbrake telemetry. Fixes countdown calls starting while waiting for the handbrake and incorrect timing of the Go call.
+* Adds DiRT Rally 2.0 damage displays for bodywork, engine, cooling, gearbox and individual wheel components, distinguishing healthy, punctured and blown tyres.
+* Improves the car damage dashboard with separate gearbox and bodywork indicators, corrected component classification, and hidden indicators for unavailable data instead of showing unsupported parts as healthy.
+
 * Fixes reversed steering in WRC Generations, adds handbrake and stage progress telemetry, and restores automatic recovery when car/stage information cannot be read during startup.
 * Adds experimental WRC 7 support with automatic game detection, live pacenotes, countdown and Go calls, plus dashboard data for the car, stage, speed, gear, RPM, pedals, handbrake and stage progress.
 * Fixes an error when historical split times are missing that could make in-game dashboards disappear.

@@ -33,7 +33,7 @@
     "voices": "음성",
     "playback": "재생",
     "scriptEditor": "페이스노트 편집기",
-    "hud": "HUD",
+    "hud": "게임 내 표시",
     "dashboard": "대시보드",
     "game": "게임",
     "games": "게임",
@@ -183,7 +183,7 @@
       "voicePackage": "음성",
       "misc": "기타",
       "playback": "재생",
-      "hud": "HUD",
+      "hud": "게임 내 표시",
       "game": "게임",
       "vr": "VR"
     },
