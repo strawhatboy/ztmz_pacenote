@@ -8,6 +8,87 @@ namespace ZTMZ.PacenoteTool.Tests.Base;
 
 public class NeoLuaRuntimeTest
 {
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(2399, 0)]
+    [InlineData(2400, 1)]
+    [InlineData(4799, 1)]
+    [InlineData(4800, 2)]
+    [InlineData(7199, 2)]
+    [InlineData(7200, 3)]
+    [InlineData(7839, 3)]
+    [InlineData(7840, 4)]
+    [InlineData(8000, 4)]
+    public void ShiftAdviceIsSeparateFromNearLimitWarning(int rpm, int expected)
+    {
+        using var lua = new Lua();
+        var environment = lua.CreateEnvironment();
+        environment.DoChunk(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
+            "dashboards", "common", "commonfunc.lua")), "commonfunc.lua");
+        var result = environment.DoChunk(
+            $"return getRPMLevel({{RPM={rpm}, MaxRPM=8000, ShiftLightsRPMValid=true, ShiftLightsRPMStart=6200, ShiftLightsRPMEnd=7200}}, {{}})",
+            "shift-level-test.lua");
+        Assert.Equal(expected, Convert.ToInt32(result[0]));
+        var data = new GameData
+        {
+            RPM = rpm, MaxRPM = 8000, ShiftLightsRPMValid = true,
+            ShiftLightsRPMStart = 6200, ShiftLightsRPMEnd = 7200
+        };
+        var nativeResult = environment.CallMember("getRPMLevel", data, new LuaTable());
+        Assert.Equal(expected, Convert.ToInt32(nativeResult[0]));
+    }
+
+    [Fact]
+    public void DashboardNumericHelpersAcceptClrTelemetry()
+    {
+        using var lua = new Lua();
+        var environment = lua.CreateEnvironment();
+        environment.DefaultCompileOptions = new LuaCompileOptions { ClrEnabled = false };
+        environment.DoChunk(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
+            "dashboards", "common", "commonfunc.lua")), "commonfunc.lua");
+        environment.DoChunk("""
+            function check(data)
+                assert(getGear(data.Gear) == '3', 'gear formatting')
+                assert(string.format('%03.0f', data.Speed) == '087', 'speed formatting')
+                assert(string.format('%04.0f', data.RPM) == '6000', 'rpm formatting')
+                assert(math.abs(getRPMPercentage(data) - 0.75) < 0.00001, 'rpm fraction')
+                assert(math.abs(data.Throttle * 100 - 75) < 0.00001, 'pedal arithmetic')
+                assert(getRPMLevel(data, {HudShiftRedZone=0.98, HudShiftYellowZone=0.7,
+                    HudShiftGreenZone=0.5}) == 2, 'fallback thresholds')
+            end
+            """, "numeric-helpers.lua");
+        environment.CallMember("check", new GameData
+        {
+            Gear = 3, Speed = 87.25f, RPM = 6000, MaxRPM = 8000, Throttle = .75f,
+            ShiftLightsRPMValid = false
+        });
+    }
+
+    [Theory]
+    [InlineData(float.NaN, 8000)]
+    [InlineData(float.PositiveInfinity, 8000)]
+    [InlineData(float.NegativeInfinity, 8000)]
+    [InlineData(6000, 0)]
+    [InlineData(6000, float.NaN)]
+    [InlineData(6000, float.PositiveInfinity)]
+    public void DashboardRpmPercentageRejectsInvalidClrTelemetry(float rpm, float maximum)
+    {
+        using var lua = new Lua();
+        var environment = lua.CreateEnvironment();
+        environment.DoChunk(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,
+            "dashboards", "common", "commonfunc.lua")), "commonfunc.lua");
+        var result = environment.CallMember("getRPMPercentage", new GameData { RPM = rpm, MaxRPM = maximum });
+        Assert.Equal(0, Convert.ToDouble(result[0]));
+        if (!float.IsFinite(rpm))
+        {
+            var lights = environment.CallMember("getRPMLevel", new GameData
+            {
+                RPM = rpm, MaxRPM = 8000, ShiftLightsRPMValid = true, ShiftLightsRPMEnd = 7200
+            }, new LuaTable());
+            Assert.Equal(0, Convert.ToInt32(lights[0]));
+        }
+    }
+
     [Fact]
     public void CanCreateLuaEnvironment()
     {

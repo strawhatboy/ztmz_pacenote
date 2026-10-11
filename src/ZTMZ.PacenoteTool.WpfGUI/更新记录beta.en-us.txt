@@ -1,3 +1,8 @@
+v2.99.99.55-3.0-rc27
+
+* Fixes missing shift lights and incorrect RPM proportions in the separate overlay, and prevents invalid RPM values from affecting dashboard rendering.
+* Updates shift indicators: green and yellow lights illuminate progressively, red stays on at the recommended shift RPM, and red flashes near maximum RPM.
+
 v2.99.99.54-3.0-rc26
 
 * Improves DiRT Rally 2.0 car identification, RPM and shift-light data, and adds handbrake telemetry. Fixes countdown calls starting while waiting for the handbrake and incorrect timing of the Go call.

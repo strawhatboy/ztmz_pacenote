@@ -108,25 +108,45 @@ function getGear(gear)
     return "";
 end
 
+-- Subtracting a non-finite value from itself yields NaN in both CLR-backed
+-- NeoLua and native Lua, without relying on boxed numeric equality to huge.
+local function finiteNumber(value)
+    local number = tonumber(value);
+    if number == nil or number - number ~= 0 then return nil end
+    return number;
+end
+
 -- Startup/menu telemetry may not contain a usable engine RPM range yet.
 function getRPMPercentage(data)
-    local rpm, maximum = data.RPM, data.MaxRPM;
-    if type(rpm) ~= "number" or type(maximum) ~= "number"
-        or rpm ~= rpm or maximum ~= maximum
-        or math.abs(rpm) == math.huge or maximum <= 0 or maximum == math.huge then
+    -- NeoLua receives CLR Single fields; browser/native Lua receives numbers.
+    -- Normalize both representations before validation and arithmetic.
+    local rpm, maximum = finiteNumber(data.RPM), finiteNumber(data.MaxRPM);
+    if rpm == nil or maximum == nil
+        or maximum <= 0 then
         return 0;
     end
-    return rpm / maximum;
+    return finiteNumber(rpm / maximum) or 0;
 end
 
 function getRPMLevel(data, conf)
+    local rpm, shift, maximum = finiteNumber(data.RPM), finiteNumber(data.ShiftLightsRPMEnd), finiteNumber(data.MaxRPM);
+    if rpm == nil then return 0 end
+    -- Shift advice and near-limit warning are separate thresholds. Levels are
+    -- cumulative: off, green, green+yellow, all steady, red blinking.
+    if data.ShiftLightsRPMValid and shift ~= nil
+        and shift > 0 then
+        if maximum ~= nil
+            and maximum >= shift
+            and rpm >= math.max(shift, maximum * 0.98) then return 4 end
+        if rpm >= shift then return 3 end
+        if rpm >= shift * 2 / 3 then return 2 end
+        if rpm >= shift / 3 then return 1 end
+        return 0;
+    end
     local redZoneBlink = conf.HudShiftRedZone;
-    local redZone = 0.7;
     local yellowZone = conf.HudShiftYellowZone;
     local greenZone = conf.HudShiftGreenZone;
 
-    local rpm = data.RPM;
-    if type(rpm) ~= "number" or rpm ~= rpm or math.abs(rpm) == math.huge then return 0 end
     local rpmPercentage = getRPMPercentage(data);
     local rpmLevel = 0;
     if (rpmPercentage > redZoneBlink) then
@@ -135,38 +155,6 @@ function getRPMLevel(data, conf)
         rpmLevel = 2;
     elseif (rpmPercentage > greenZone) then
         rpmLevel = 1;
-    end
-
-    if (data.ShiftLightsRPMValid) then
-        -- EA WRC Only
-        rpmLightOnRange = data.ShiftLightsRPMEnd - data.ShiftLightsRPMStart;
-        if (rpm >= (data.ShiftLightsRPMStart + 1 * rpmLightOnRange)) then
-        -- in EA WRC, this means the shift light is blinking
-        -- we blink if the rpm is very close to the ShiftLightsRPMEnd
-            rpmLevel = 4;
-        end
-
-        if (rpm >= data.ShiftLightsRPMStart and rpm < (data.ShiftLightsRPMStart + 0.33333 * rpmLightOnRange)) then
-            -- in EA WRC, this means the shift light is on, green
-            rpmLevel = 1;
-        end
-
-        if (rpm >= (data.ShiftLightsRPMStart + 0.33333 * rpmLightOnRange) and rpm < (data.ShiftLightsRPMStart + 0.66667 * rpmLightOnRange)) then
-            -- in EA WRC, this means the shift light is on, red
-            rpmLevel = 2;
-        end
-
-        if (rpm >= (data.ShiftLightsRPMStart + 0.66667 * rpmLightOnRange) and rpm < (data.ShiftLightsRPMStart + 1 * rpmLightOnRange)) then
-            -- in EA WRC, this means the shift light is on, red
-            rpmLevel = 3;
-        end
-
-        if (rpm < data.ShiftLightsRPMStart) then
-            -- in EA WRC, this means the shift light is off
-            rpmLevel = 0;
-        end
-
-        -- there's no red light in EA WRC, or there should not be red light
     end
 
     return rpmLevel
