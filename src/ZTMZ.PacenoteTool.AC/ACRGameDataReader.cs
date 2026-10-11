@@ -26,6 +26,8 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
     private int _lastProbedGreenFlag;
     private int _lastProbedChequeredFlag;
     private ACRLivePacenoteBridge? _livePacenoteBridge;
+    private ACRVehicleMemoryReader? _vehicleMemory;
+    private int _reading;
 
     public ACRGameDataReader() : base(
         (typeof(ACRGraphicsData), "Local\\acpmf_graphics"),
@@ -149,6 +151,7 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
                 PublishLivePacenote,
                 PublishBridgeGameState,
                 PublishBridgeCarDamage);
+            if (OperatingSystem.IsWindows()) _vehicleMemory ??= new ACRVehicleMemoryReader();
             _isInitialized = true;
             _readTimer.Start();
 
@@ -174,6 +177,8 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
     {
         _isInitialized = false;
         _readTimer.Stop();
+        var vehicleMemory = System.Threading.Interlocked.Exchange(ref _vehicleMemory, null);
+        if (OperatingSystem.IsWindows()) vehicleMemory?.Dispose();
         _livePacenoteBridge?.Dispose();
         _livePacenoteBridge = null;
         CloseAll();
@@ -205,13 +210,14 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
 
     private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
     {
-        if (!_isInitialized)
+        if (!_isInitialized || System.Threading.Interlocked.CompareExchange(ref _reading, 1, 0) != 0)
         {
             return;
         }
 
         try
         {
+            if (!_isInitialized) return;
             // Try to reconnect if disconnected
             if (!IsAllConnected)
             {
@@ -248,7 +254,8 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
 
             // Convert raw data to GameData
             _lastGameData = _currentGameData;
-            _currentGameData = ACRGameDataConverter.Convert(_currentRawGameData);
+            var vehicle = OperatingSystem.IsWindows() ? _vehicleMemory?.Read() : null;
+            _currentGameData = ACRGameDataConverter.Convert(_currentRawGameData, vehicle);
 
             // Update game state
             UpdateGameState();
@@ -263,6 +270,7 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
         {
             _logger.Error(ex, "Error in timer elapsed");
         }
+        finally { System.Threading.Volatile.Write(ref _reading, 0); }
     }
 
     private void UpdateGameState()
@@ -399,8 +407,11 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
 
     public new void Dispose()
     {
+        _isInitialized = false;
         _readTimer?.Stop();
         _readTimer?.Dispose();
+        var vehicleMemory = System.Threading.Interlocked.Exchange(ref _vehicleMemory, null);
+        if (OperatingSystem.IsWindows()) vehicleMemory?.Dispose();
         base.Dispose();
     }
 }

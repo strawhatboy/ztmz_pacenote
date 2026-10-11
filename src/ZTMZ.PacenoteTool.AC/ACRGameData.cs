@@ -378,7 +378,8 @@ public struct ACRPhysicsData
 
     public int PushToPassStatus;
 
-    public float MaximumRPM;
+    // ACR writes an int32 here (e.g. 7500), not the float used by some ACC layouts.
+    public int MaximumRPM;
 
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
     public float[] TyreMomentZ;

@@ -107,6 +107,8 @@ internal static class Wrc7VehicleTelemetry
         data.RPM = radians * radiansToRpm;
         data.MaxRPM = maximum * radiansToRpm;
         data.IdleRPM = idle * radiansToRpm;
-        return data;
+        // HUD 0x1313b7 uses omegaMax - 1 rad/s as its flashing threshold.
+        // This is the game's warning point, not an inferred optimal shift RPM.
+        return KtShiftLights.ApplyWarning(data, (maximum - 1f) * radiansToRpm);
     }
 }

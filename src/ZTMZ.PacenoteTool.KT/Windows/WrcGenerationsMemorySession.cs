@@ -133,6 +133,18 @@ internal static class WrcGenerationsSessionMemory
         var stage = read(stageAddress, 0x20);
         var rally = read(rallyAddress, 0x18);
         var car = read(carAddress, 0x20);
+        float? shiftWarning = null;
+        try
+        {
+            // CARS.CFG loader 0x51d6a5/0x51d6dd: HudMaxRpm/HudRedRpm.
+            // Tachometer 0x57de00 normalizes red/max; 0x57fe55 triggers
+            // its warning animation when the current ratio crosses red/max.
+            var hud = read(carAddress + 0x1f8, 8);
+            var hudMax = Integer(hud, 0);
+            var hudRed = Integer(hud, 4);
+            if (hudRed >= 100 && hudRed <= hudMax && hudMax <= 30000) shiftWarning = hudRed;
+        }
+        catch (IOException) { /* Optional HUD metadata must not suppress telemetry. */ }
         var stageIndex = Integer(stage, 8);
         var rallyIndex = Integer(rally, 8);
         var carNameId = Integer(car, 0x14);
@@ -151,7 +163,8 @@ internal static class WrcGenerationsSessionMemory
         var total = Integer(profile, 0x1a0);
         var ready = profile[0x1a4] == 1 && raw is > 0 and < 86_400_000 && total >= raw && total < 86_400_000;
         return new($"{rallyIndex}:{stageIndex}:{carNameId}:{profileAddress:x}",
-            $"{rallyName} - {trackName}", carName, catalog.Class(carNameId), ready, raw, total, timing);
+            $"{rallyName} - {trackName}", carName, catalog.Class(carNameId), ready, raw, total, timing)
+        { ShiftWarningRpm = shiftWarning };
     }
 
     private static WrcGenerationsTimingSnapshot? ReadTiming(Func<ulong, int, byte[]> read, ulong imageBase,

@@ -7,6 +7,29 @@ using ZTMZ.PacenoteTool.KT;
 public sealed class WrcGenerationsSessionTests
 {
     [Fact]
+    public void ShiftWarningUsesSelectedCarHudConfigAndClearsWhenUnavailable()
+    {
+        var memory = new Memory();
+        memory.Blocks[0x601f8] = new byte[8];
+        memory.Put32(0x601f8, 0, 8500);
+        memory.Put32(0x601f8, 4, 7500);
+        var snapshot = WrcGenerationsSessionMemory.Decode(memory.Read, 0x10000000, Catalog());
+        Assert.Equal(7500f, snapshot!.ShiftWarningRpm);
+        long now = 0;
+        var source = new Source { Value = snapshot };
+        using var reader = new WrcGenerationsGameDataReader(source, () => now);
+        Send(reader, 10);
+        Assert.True(reader.CurrentGameData.ShiftLightsRPMValid);
+        Assert.Equal(7500, reader.CurrentGameData.ShiftLightsRPMEnd);
+        source.Value = null;
+        now = 1000;
+        Send(reader, 11);
+        Assert.False(reader.CurrentGameData.ShiftLightsRPMValid);
+        memory.Put32(0x601f8, 4, 9000);
+        Assert.Null(WrcGenerationsSessionMemory.Decode(memory.Read, 0x10000000, Catalog())!.ShiftWarningRpm);
+    }
+
+    [Fact]
     public async Task MetadataFailureRetriesAfterBackoffAndRecoversWithoutGameRestart()
     {
         long now = 0;

@@ -19,7 +19,7 @@ does **not** establish support or mean that a measured input is released.
 | `Throttle`, `Brake`, `Clutch`, `Steering` | Implemented from drive analog channels. Steering channel 4 is negated to match the shared convention; user verified left/right after correction. Clutch includes automatic disengagement. |
 | `HandBrake`, `HandBrakeValid` | Independent channel 2 observed at 0 and 1. Valid is set only for finite in-range input. |
 | `MaxGears` | Physics gear count minus reverse and neutral; current Fiesta R2 reports 5. |
-| `ShiftLightsFraction`, `ShiftLightsRPMStart`, `ShiftLightsRPMEnd`, `ShiftLightsRPMValid` | Not implemented; valid remains false. Require actual thresholds or an explicitly documented calculation. |
+| `ShiftLightsFraction`, `ShiftLightsRPMStart`, `ShiftLightsRPMEnd`, `ShiftLightsRPMValid` | Native HUD warning point: `(omegaMax - 1 rad/s) * 60 / (2π)`. Equal start/end denote a single warning, with fraction 0/1; no invented progressive LED range. |
 | `G_long`, `G_lat` | Not implemented; acceleration candidates exist, but axes, signs and units require confirmation. |
 | `SpeedRearLeft`, `SpeedRearRight`, `SpeedFrontLeft`, `SpeedFrontRight` | Implemented from individual wheel radius times angular speed, converted to km/h; live dashboard comparison pending. |
 | `SuspensionRearLeft`, `SuspensionRearRight`, `SuspensionFrontLeft`, `SuspensionFrontRight` | Not implemented; physics writer exposes candidates, but travel meaning, units and wheel order are unverified. |

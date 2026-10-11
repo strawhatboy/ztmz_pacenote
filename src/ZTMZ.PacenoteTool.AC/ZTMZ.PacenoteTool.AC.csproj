@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="ZTMZ.PacenoteTool.Portable.Tests" />
+    <InternalsVisibleTo Include="ACRTelemetryProbe" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">

@@ -147,6 +147,7 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
         rawLapTime = raw;
         UpdateLivePenalty(raw);
         next.LapTime = publishedFinishTime ?? (raw > 0 ? raw + (livePenaltyMilliseconds ?? 0) / 1000f : raw);
+        next = KtShiftLights.ApplyWarning(next, snapshot?.ShiftWarningRpm ?? 0);
         // Inputs must be sampled per packet, not with the 200 ms name/result cache.
         if (snapshot is not null && metadata?.ReadHandBrake() is { } handBrake &&
             float.IsFinite(handBrake) && handBrake is >= 0 and <= 1)
