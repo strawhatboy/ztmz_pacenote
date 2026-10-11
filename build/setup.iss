@@ -31,7 +31,7 @@
   #error "Published native dashboard fonts are missing. Run build\publish.bat before packaging."
 #endif
 #ifndef MyAppReleaseSuffix
-  #define MyAppReleaseSuffix "-rc26"
+  #define MyAppReleaseSuffix "-rc27"
 #endif
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
