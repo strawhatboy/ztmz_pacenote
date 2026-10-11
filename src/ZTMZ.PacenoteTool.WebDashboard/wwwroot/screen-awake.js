@@ -125,10 +125,10 @@ window.addEventListener('DOMContentLoaded', () => {
     const chinese = (navigator.language || '').toLowerCase().startsWith('zh');
     const messages = chinese ? {
         off: '保持屏幕常亮', pending: '正在启用…', native: '常亮已启用',
-        video: '常亮兼容模式', paused: '常亮已暂停', retry: '常亮失败，点击重试'
+        video: '兼容尝试：可能仍会锁屏', paused: '常亮已暂停', retry: '常亮失败，点击重试'
     } : {
         off: 'Keep screen awake', pending: 'Enabling…', native: 'Screen wake lock on',
-        video: 'Keep awake: compatibility mode', paused: 'Keep awake paused', retry: 'Keep awake failed: tap to retry'
+        video: 'Compatibility attempt: screen may still lock', paused: 'Keep awake paused', retry: 'Keep awake failed: tap to retry'
     };
     const controller = new DashboardScreenAwake({
         document, navigator, secure: window.isSecureContext, media: window.ztmzWakeMedia,

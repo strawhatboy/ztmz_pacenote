@@ -728,30 +728,37 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         _tool.onToolInitialized += () => {
             // update new version settings
             updateConfigSetter.SetConfiguration(_tool);
-
-            Games.Clear();
-            foreach (var game in _tool.Games) {
-                Games.Add(new GameWithImage(game));
-            }
-            // ApplyRuntimeControls owns audio-device and co-driver list and selection updates,
-            // including the StateChanged notification raised during initialization.
-            _logger.Info("Tool Initialized. in Home Page.");
-            if (Games.Count == 0)
-            {
-                _logger.Error("No game providers were loaded. Skipping game selection.");
-            }
-            else
-            {
-                RunOnUiThread(InitializeGameSelection);
-            }
-
-            FactorToRemoveSpaceFromAudioFiles = _factorToIndex.TryGetValue(Config.Instance.FactorToRemoveSpaceFromAudioFiles, out var factorIndex)
-                ? factorIndex : 0;
-            PlaybackVolume = (float)(Config.Instance.UI_PlaybackVolume + 1000f) / 20f;  // [-1000, 1000] to [0, 100]
-            PlaybackSpeed = Config.Instance.UI_PlaybackSpeed;
-            PlaybackAdjustSeconds = (float)Config.Instance.UI_PlaybackAdjustSeconds;
-            IntercomEffect = Config.Instance.IntercomEffect;
+            RunOnUiThread(ApplyInitializedTool);
         };
+    }
+
+    private void ApplyInitializedTool()
+    {
+        // InitAsync raises onToolInitialized on a worker. Populate the bound
+        // collection and select the game together on the UI thread; registering
+        // collection synchronization alone does not synchronize these writes.
+        Games.Clear();
+        foreach (var game in Tool.Games) {
+            Games.Add(new GameWithImage(game));
+        }
+        // ApplyRuntimeControls owns audio-device and co-driver list and selection updates,
+        // including the StateChanged notification raised during initialization.
+        _logger.Info("Tool Initialized. in Home Page.");
+        if (Games.Count == 0)
+        {
+            _logger.Error("No game providers were loaded. Skipping game selection.");
+        }
+        else
+        {
+            InitializeGameSelection();
+        }
+
+        FactorToRemoveSpaceFromAudioFiles = _factorToIndex.TryGetValue(Config.Instance.FactorToRemoveSpaceFromAudioFiles, out var factorIndex)
+            ? factorIndex : 0;
+        PlaybackVolume = (float)(Config.Instance.UI_PlaybackVolume + 1000f) / 20f;  // [-1000, 1000] to [0, 100]
+        PlaybackSpeed = Config.Instance.UI_PlaybackSpeed;
+        PlaybackAdjustSeconds = (float)Config.Instance.UI_PlaybackAdjustSeconds;
+        IntercomEffect = Config.Instance.IntercomEffect;
     }
 
     private Task? _initializationTask;
