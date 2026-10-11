@@ -1,5 +1,6 @@
 v2.99.99.54-3.0-rc26
 
+* Fixes reversed steering in WRC Generations, adds handbrake and stage progress telemetry, and restores automatic recovery when car/stage information cannot be read during startup.
 * Adds experimental WRC 7 support with automatic game detection, live pacenotes, countdown and Go calls, plus dashboard data for the car, stage, speed, gear, RPM, pedals, handbrake and stage progress.
 * Fixes an error when historical split times are missing that could make in-game dashboards disappear.
 * Improves packaging checks for game resources and bridge components to prevent missing files after installation.

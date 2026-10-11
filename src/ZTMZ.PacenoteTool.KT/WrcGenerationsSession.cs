@@ -13,6 +13,7 @@ internal sealed record WrcGenerationsTimingSnapshot(ulong TimerAddress, int RawL
 internal interface IWrcGenerationsSessionSource : IDisposable
 {
     WrcGenerationsSessionSnapshot? Read();
+    float? ReadHandBrake() => null;
 }
 
 /// <summary>Installed game strings, not redistributed assets or executable Lua.</summary>

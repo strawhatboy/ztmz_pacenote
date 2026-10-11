@@ -13,7 +13,18 @@ WrcGenerationsSessionSnapshot? snapshot = null;
 for (var i = 0; i < 20; i++) snapshot = source.Read();
 Console.WriteLine($"Mean snapshot read: {watch.Elapsed.TotalMilliseconds / 20:F3} ms");
 Console.WriteLine(JsonSerializer.Serialize(snapshot, new JsonSerializerOptions { WriteIndented = true }));
-if (args.Length == 2)
+if (args.Length == 2 && args[1] == "--inputs")
+{
+    float? last = null;
+    for (var i = 0; i < 3000; i++)
+    {
+        var value = source.ReadHandBrake();
+        if (value != last) Console.WriteLine($"Handbrake {value?.ToString() ?? "unavailable"}");
+        last = value;
+        await Task.Delay(20);
+    }
+}
+else if (args.Length == 2)
 {
     using var udp = new System.Net.Sockets.UdpClient(new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, int.Parse(args[1])));
     using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(2));

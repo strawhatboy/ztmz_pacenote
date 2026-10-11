@@ -16,7 +16,6 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
     private IWrcGenerationsSessionSource? metadata;
     private WrcGenerationsSessionSnapshot? snapshot;
     private bool metadataLoading, resultArmed;
-    private int metadataPid;
     private long nextMetadataRead, nextDiscovery, lifetime, runGeneration;
     private float? pendingFinish;
     private float rawLapTime;
@@ -148,6 +147,13 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
         rawLapTime = raw;
         UpdateLivePenalty(raw);
         next.LapTime = publishedFinishTime ?? (raw > 0 ? raw + (livePenaltyMilliseconds ?? 0) / 1000f : raw);
+        // Inputs must be sampled per packet, not with the 200 ms name/result cache.
+        if (snapshot is not null && metadata?.ReadHandBrake() is { } handBrake &&
+            float.IsFinite(handBrake) && handBrake is >= 0 and <= 1)
+        {
+            next.HandBrake = handBrake;
+            next.HandBrakeValid = true;
+        }
         LastGameData = CurrentGameData;
         CurrentGameData = next;
         if (WrcGenerationsTelemetry.TryGetFinishTime(newMsg, out var finishTime))
@@ -198,7 +204,7 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
             ResetResult();
             metadata?.Dispose(); metadata = null; snapshot = null;
             preparedIdentity = null;
-            metadataLoading = false; metadataPid = 0; nextDiscovery = nextMetadataRead = 0;
+            metadataLoading = false; nextDiscovery = nextMetadataRead = 0;
             LastGameData = CurrentGameData = default;
             rawLapTime = 0;
             GameState = GameState.Unknown;
@@ -208,27 +214,32 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
     private void BeginMetadataDiscovery()
     {
         if (!OperatingSystem.IsWindows()) return;
+        _ = DiscoverMetadataAsync(() =>
+        {
+            if (!OperatingSystem.IsWindows()) return null;
+            using var process = System.Diagnostics.Process.GetProcessesByName("WRCG").FirstOrDefault();
+            return process is null ? null : new WrcGenerationsMemorySession(process);
+        });
+    }
+
+    internal Task DiscoverMetadataAsync(Func<IWrcGenerationsSessionSource?> create)
+    {
         lock (dataLock)
         {
-            if (metadata is not null || metadataLoading || Environment.TickCount64 < nextDiscovery) return;
-            nextDiscovery = Environment.TickCount64 + 1000;
-            var process = System.Diagnostics.Process.GetProcessesByName("WRCG").FirstOrDefault();
-            if (process is null) return;
-            if (process.Id == metadataPid) { process.Dispose(); return; }
-            metadataPid = process.Id;
+            if (metadata is not null || metadataLoading || clock() < nextDiscovery) return Task.CompletedTask;
             metadataLoading = true;
             var generation = lifetime;
-            _ = Task.Run(() =>
+            return Task.Run(() =>
             {
                 IWrcGenerationsSessionSource? source = null;
-                try { source = new WrcGenerationsMemorySession(process); }
-                catch (Exception error) { Log.Warn(error, "WRCG session metadata unavailable; UDP and live pacenotes remain available"); }
-                finally { process.Dispose(); }
+                try { source = create(); }
+                catch (Exception error) { Log.Warn(error, "WRCG session metadata unavailable; retrying in 5 seconds; UDP and live pacenotes remain available"); }
                 lock (dataLock)
                 {
                     if (generation != lifetime) { source?.Dispose(); return; }
                     metadata = source;
                     metadataLoading = false;
+                    if (source is null) nextDiscovery = clock() + 5000;
                     if (source is not null) Log.Info("WRCG read-only session metadata attached");
                 }
             });

@@ -157,3 +157,33 @@ player-index bounds and scene replacement are covered by portable tests. A new
 in-game penalty-inclusive finish has not yet been observed by this implementation;
 the old ghost/log evidence and synthetic lifecycle tests do not replace that E2E
 check. No additional full-stage run was required during development.
+
+### Telemetry completeness (2026-10-11)
+
+The verified game's UDP producer at RVA `0x911800` writes float index 3 from
+the active stage's length getter `0x529fc0` (`stage+0x98`, falling back to
+`stage+0x29c`). This is kilometres, not an unused field. The recorded Harju
+session reports 2.2662833; the provider converts it to 2266.2833 metres and
+computes bounded 0..1 completion from UDP index 2 (travelled metres). Index 61
+remains unused; it is not the length source. Invalid/absent lengths do not
+produce a fabricated completion value. UDP steering is negated to match the
+shared direction convention, following the user's in-game confirmation.
+
+Handbrake is absent from UDP. The read-only, executable-hash-guarded source
+uses the active timer selection described above, then `timer+0xa0` to its
+participant, requiring `participant+0x38 == timer`. The UDP producer establishes
+`participant+0x70 -> vehicle`, `vehicle+0xa0 -> drive`. The game's debug HUD
+at `0x1199dba` labels drive control index 2 as Handbrake; getter `0x11dce40`
+reads that float directly from `drive+0x170+2*4`. Roots, participant ownership,
+vehicle, drive, and player selection are rechecked after the read. Scene teardown,
+invalid pointers and non-finite/out-of-range values produce an unavailable
+handbrake, not a retained previous value. Sampling occurs per UDP packet, separate
+from the 200 ms metadata cache. Live attachment to Harju / Toyota GR Yaris Rally1
+verified the pointer chain and released value 0. The user subsequently confirmed
+that handbrake operation works in the deployed application.
+
+Metadata discovery no longer permanently excludes a PID after a failed attach.
+Discovery runs off-thread and retries after five seconds, with one attempt in
+flight and lifecycle-generation checks to discard stale completions. Tests cover
+retry recovery, fresh handbrake input, reciprocal ownership, torn scene reads,
+invalid input, steering sign, and metre/kilometre progress conversion.

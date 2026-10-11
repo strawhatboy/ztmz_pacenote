@@ -6,6 +6,80 @@ using ZTMZ.PacenoteTool.KT;
 
 public sealed class WrcGenerationsSessionTests
 {
+    [Fact]
+    public async Task MetadataFailureRetriesAfterBackoffAndRecoversWithoutGameRestart()
+    {
+        long now = 0;
+        using var reader = new WrcGenerationsGameDataReader(() => now);
+        var attempts = 0;
+        IWrcGenerationsSessionSource Create()
+        {
+            if (++attempts == 1) throw new IOException("Scene still loading");
+            return new Source();
+        }
+        await reader.DiscoverMetadataAsync(Create);
+        await reader.DiscoverMetadataAsync(Create);
+        Assert.Equal(1, attempts);
+        Send(reader, 10); // Failure still permits UDP.
+        Assert.Equal(10, reader.CurrentGameData.LapTime);
+        now = 5000;
+        await reader.DiscoverMetadataAsync(Create);
+        Send(reader, 11);
+        Assert.Equal(2, attempts);
+        Assert.NotEmpty(reader.TrackName);
+        await reader.DiscoverMetadataAsync(Create);
+        Assert.Equal(2, attempts);
+    }
+
+    [Fact]
+    public void HandBrakeIsFreshPerPacketAndNeverRetainedAfterUnavailableRead()
+    {
+        var source = new Source { HandBrake = 0 };
+        using var reader = new WrcGenerationsGameDataReader(source, () => 0);
+        Send(reader, 10);
+        Assert.True(reader.CurrentGameData.HandBrakeValid);
+        source.HandBrake = 0.75f;
+        Send(reader, 10.01f);
+        Assert.Equal(0.75f, reader.CurrentGameData.HandBrake);
+        source.HandBrake = null;
+        Send(reader, 10.02f);
+        Assert.False(reader.CurrentGameData.HandBrakeValid);
+        Assert.Equal(0, reader.CurrentGameData.HandBrake);
+    }
+
+    [Fact]
+    public void HandBrakeMemoryRequiresMatchingPlayerAndReciprocalOwnership()
+    {
+        var memory = new Memory();
+        foreach (var (address, size) in new (ulong, int)[] {
+            (0x11d61938, 8), (0x70000, 0x900), (0x80000, 0xe0),
+            (0x90000, 0x80), (0xa0000, 0xb0), (0xb0000, 0x190) })
+            memory.Blocks[address] = new byte[size];
+        memory.Put64(0x20000, 0x48, 0x70000);
+        memory.Put64(0x11d61938, 0, 0x70000);
+        memory.Put32(0x20000, 0x12d0, 7);
+        // Player mapping in the fixture is 1; timer 0 is deliberately missing.
+        memory.Put64(0x70000, 0x4f0, 0x80000);
+        memory.Put64(0x80000, 0xa0, 0x90000);
+        memory.Put64(0x90000, 0x38, 0x80000);
+        memory.Put64(0x90000, 0x70, 0xa0000);
+        memory.Put64(0xa0000, 0xa0, 0xb0000);
+        memory.Put32(0xb0000, 0x178, BitConverter.SingleToInt32Bits(0.8f));
+        Assert.Equal(0.8f, WrcGenerationsSessionMemory.ReadHandBrake(memory.Read, 0x10000000));
+        memory.Put32(0xb0000, 0x178, BitConverter.SingleToInt32Bits(float.NaN));
+        Assert.Null(WrcGenerationsSessionMemory.ReadHandBrake(memory.Read, 0x10000000));
+        memory.Put32(0xb0000, 0x178, 0);
+        memory.Put64(0x90000, 0x38, 0x80010);
+        Assert.Null(WrcGenerationsSessionMemory.ReadHandBrake(memory.Read, 0x10000000));
+        memory.Put64(0x90000, 0x38, 0x80000);
+        byte[] Torn(ulong address, int size)
+        {
+            var bytes = memory.Read(address, size);
+            if (address == 0xb0178) memory.Put64(0x70000, 0x4f0, 0);
+            return bytes;
+        }
+        Assert.Null(WrcGenerationsSessionMemory.ReadHandBrake(Torn, 0x10000000));
+    }
     private static WrcGenerationsSessionCatalog Catalog() => new(
         new byte[4].Concat(Encoding.Unicode.GetBytes("Finland\0Harju\0Ford Puma Rally1\0Reverse\0")).ToArray(),
         "LocalesId = {\n CAR_FORD = 2,\n}",
@@ -222,6 +296,8 @@ public sealed class WrcGenerationsSessionTests
 
     private sealed class Source : IWrcGenerationsSessionSource
     {
+        internal float? HandBrake;
+        public float? ReadHandBrake() => HandBrake;
         internal WrcGenerationsSessionSnapshot? Value = new("stage:car", "Finland - Harju", "Ford Puma Rally1", "WRC", false, 0, 0);
         public WrcGenerationsSessionSnapshot? Read() => Value;
         public void Dispose() { }

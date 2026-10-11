@@ -4,6 +4,37 @@ using ZTMZ.PacenoteTool.KT;
 
 public class WrcGenerationsTelemetryTests
 {
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(1133.14165f, 0.5f)]
+    [InlineData(2266.2833f, 1)]
+    [InlineData(2400, 1)]
+    [InlineData(-10, 0)]
+    public void HarjuLengthUsesKilometresWhileDistanceUsesMetres(float distance, float completion)
+    {
+        var packet = new byte[280];
+        BinaryPrimitives.WriteSingleLittleEndian(packet.AsSpan(8), distance);
+        BinaryPrimitives.WriteSingleLittleEndian(packet.AsSpan(12), 2.2662833f);
+        Assert.True(WrcGenerationsTelemetry.TryDecode(packet, out var data));
+        Assert.Equal(2266.2833f, data.TrackLength, 3);
+        Assert.Equal(distance, data.LapDistance);
+        Assert.Equal(completion, data.CompletionRate, 5);
+    }
+
+    [Theory]
+    [InlineData(-1, 1)]
+    [InlineData(0, 0)]
+    [InlineData(0.5f, -0.5f)]
+    [InlineData(2, -1)]
+    public void CorrectsWrcgSteeringSign(float input, float expected)
+    {
+        var packet = new byte[280];
+        BinaryPrimitives.WriteSingleLittleEndian(packet.AsSpan(120), input);
+        Assert.True(WrcGenerationsTelemetry.TryDecode(packet, out var data));
+        Assert.Equal(expected, data.Steering);
+        Assert.Equal(0, data.CompletionRate); // Unavailable length is not divided by zero.
+    }
+
     [Fact]
     public void ConvertsUnitsAndPublishesCurrentDataBeforeCallback()
     {
