@@ -1,3 +1,4 @@
 {
-    "dotnet-test-explorer.testProjectPath": "**/*Tests.@(csproj|vbproj|fsproj)"
+    "dotnet-test-explorer.testProjectPath": "**/*Tests.@(csproj|vbproj|fsproj)",
+    "cmake.sourceDirectory": "C:/Users/Admin/lab/ztmz/ztmz_pacenote/src/ZTMZ.PacenoteTool.NativeDashboard"
 }
