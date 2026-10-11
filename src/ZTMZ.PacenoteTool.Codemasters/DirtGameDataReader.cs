@@ -63,10 +63,15 @@ public class DirtGameDataReader : UdpGameDataReader
     private readonly Dr2Countdown _countdown = new();
     private bool _preStart;
     private bool _hasPacket;
+    private bool _observedInitialUdpWait;
     private string? _trackName;
 
     protected override void UpdateStateForUdpSilence()
     {
+        // A listener already waiting before the first grid packet has observed
+        // the start of the stream. No previous race/reset packet is required.
+        // Do not treat an immediate attachment to an existing stream this way.
+        if (_game is DirtRally2 && !_hasPacket) _observedInitialUdpWait = true;
         // DR2 stops UDP while waiting for the handbrake after its reset packet.
         // Transport availability is still reported by the base timer. Silence
         // here must not destroy an observed pre-start session.
@@ -82,6 +87,7 @@ public class DirtGameDataReader : UdpGameDataReader
         _nativeCarCode = null;
         _countdown.Reset();
         _preStart = _hasPacket = false;
+        _observedInitialUdpWait = false;
         _trackName = null;
         _lastValidLapTime = 0;
         _lastRawData = _currentRawData = default;
@@ -231,7 +237,14 @@ public class DirtGameDataReader : UdpGameDataReader
 
     private void UpdateDr2State(DirtRawData message, DirtRawData previous)
     {
-        if (message.TrackLength <= 0) return;
+        if (message.TrackLength <= 0)
+        {
+            // The menu/loading packet has no track. End the old pre-start
+            // context as well, including when leaving before the start.
+            _preStart = false;
+            _countdown.Reset();
+            return;
+        }
         if (message.LapTime > 0)
         {
             _lastValidLapTime = message.LapTime;
@@ -267,7 +280,8 @@ public class DirtGameDataReader : UdpGameDataReader
         {
             _preStart = true;
             _countdown.Begin(message.Time,
-                _hasPacket && (previous.LapTime > 0 || previous.Time == 0));
+                (!_hasPacket && _observedInitialUdpWait) ||
+                (_hasPacket && (previous.LapTime > 0 || previous.Time == 0 || previous.TrackLength <= 0)));
             GameState = GameState.RaceBegin;
         }
         if (_countdown.Update(message.Time) is { } number) SetCountdownState(number);

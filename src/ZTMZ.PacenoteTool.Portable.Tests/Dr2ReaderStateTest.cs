@@ -47,6 +47,62 @@ public sealed class Dr2ReaderStateTest
     }
 
     [Fact]
+    public void NewRaceAfterWaitingForFirstPacketCountsDown()
+    {
+        var reader = new Reader();
+        var numbers = new List<int>();
+        reader.onGameStateChanged += e =>
+        {
+            if (e.Parameters?.TryGetValue("number", out var number) == true)
+                numbers.Add((int)number);
+        };
+        reader.Silence(); // listener is ready during loading / handbrake wait
+        Assert.Empty(numbers);
+        byte[]? previous = null;
+        foreach (var time in new[] { 20.830814f, 20.848988f, 21.85f, 22.85f, 23.85f, 24.85f })
+        {
+            var packet = Packet(time, 0, -2.389556f);
+            reader.onNewUdpMessage(previous!, packet);
+            previous = packet;
+        }
+        Assert.Equal(new[] { 5, 4, 3, 2, 1 }, numbers);
+        reader.onNewUdpMessage(previous!, Packet(25.86649f, .016666f, -2.389556f));
+        Assert.Equal(GameState.Racing, reader.GameState);
+    }
+
+    [Fact]
+    public void ImmediateAttachmentDoesNotInventCountdown()
+    {
+        var reader = new Reader();
+        var changes = new List<GameStateChangeEvent>();
+        reader.onGameStateChanged += changes.Add;
+        var first = Packet(23.85f, 0, -2.389556f);
+        reader.onNewUdpMessage(null!, first);
+        reader.onNewUdpMessage(first, Packet(23.88f, 0, -2.389556f));
+        Assert.DoesNotContain(changes, e => e.NewGameState == GameState.CountingDown);
+    }
+
+    [Fact]
+    public void LeavingGridForMenuDoesNotKeepOldCountdown()
+    {
+        var reader = new Reader();
+        var numbers = new List<int>();
+        reader.onGameStateChanged += e =>
+        {
+            if (e.Parameters?.TryGetValue("number", out var number) == true)
+                numbers.Add((int)number);
+        };
+        var grid = Packet(90, 0, -2);
+        reader.onNewUdpMessage(null!, grid);
+        var menu = new byte[264];
+        reader.onNewUdpMessage(grid, menu);
+        var newGrid = Packet(20.830814f, 0, -2);
+        reader.onNewUdpMessage(menu, newGrid);
+        reader.onNewUdpMessage(newGrid, Packet(20.848988f, 0, -2));
+        Assert.Equal(new[] { 5 }, numbers);
+    }
+
+    [Fact]
     public void EmptyOrTruncatedPacketsDoNotFinishARaceOrPublishData()
     {
         var reader = new Reader();

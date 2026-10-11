@@ -50,6 +50,8 @@ copy /Y "target\bin\ZTMZ.PacenoteTool.KT\release_win-x64\ZTMZ.PacenoteTool.KT.dl
 if errorlevel 1 goto :publish_failed
 xcopy "target\bin\ZTMZ.PacenoteTool.KT\release_win-x64\WRCGBridge\*" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\WRCGBridge\" /E /I /Y /Q
 if errorlevel 1 goto :publish_failed
+xcopy "target\bin\ZTMZ.PacenoteTool.KT\release_win-x64\WRC7Bridge\*" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\WRC7Bridge\" /E /I /Y /Q
+if errorlevel 1 goto :publish_failed
 xcopy "..\src\ZTMZ.PacenoteTool.KT\lang\*.json" "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64\games\lang\" /I /Y /Q
 if errorlevel 1 goto :publish_failed
 
