@@ -630,6 +630,27 @@ public class BeamNGProtocolTest
     }
 
     [Fact]
+    public void BeamNGGameDataReader_SeparatesGearboxFromUnknownPowertrainDevices()
+    {
+        var reader = new BeamNGGameDataReader();
+        reader.ProcessBridgePacket(CreateDamagePacket(77,
+            new Dictionary<string, Dictionary<string, JsonElement>>
+            {
+                ["powertrain"] = new()
+                {
+                    ["gearbox"] = CreateJsonElement("true"),
+                    ["driveshaft"] = CreateJsonElement("true")
+                }
+            }, new Dictionary<string, Dictionary<string, JsonElement>>()));
+        var damage = reader.CurrentGameData.CarDamage;
+        Assert.True(damage.Dashboard.GearboxAvailable);
+        Assert.True(damage.Dashboard.GearboxSeverity > 0);
+        Assert.False(damage.Dashboard.EngineAvailable);
+        Assert.False(damage.Dashboard.DifferentialAvailable);
+        Assert.Contains(damage.RawComponents, p => p.SourceName == "driveshaft");
+    }
+
+    [Fact]
     public void BeamNGGameDataReader_KeepsAuxiliaryEngineTelemetryOutOfTheEngineFailureProjection()
     {
         var reader = new BeamNGGameDataReader();

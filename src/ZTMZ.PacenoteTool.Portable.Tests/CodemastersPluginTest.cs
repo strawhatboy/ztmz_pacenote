@@ -12,6 +12,15 @@ namespace ZTMZ.PacenoteTool.Portable.Tests;
 public sealed class CodemastersPluginTest
 {
     [Fact]
+    public void Dr2UsesItsOwnStageCatalog()
+    {
+        var helper = DRHelper.Instance;
+        Assert.Single(helper.ItineraryMap_DR2["10699.96"]);
+        Assert.Equal("DE_ Baumholder_ Ruschberg",
+            helper.GetItinerary(new DirtRally2(), "10699.96", 814.2765f));
+    }
+
+    [Fact]
     public void Loader_CreatesAllCodemastersGameProvidersFromPortableAssembly()
     {
         var games = GamePluginLoader.Load(
@@ -47,7 +56,14 @@ public sealed class CodemastersPluginTest
         var reader = Assert.IsType<DirtGameDataReader>(game.GameDataReader);
         var packetReceived = new TaskCompletionSource<GameData>(
             TaskCreationOptions.RunContinuationsAsynchronously);
-        reader.onNewGameData += (_, current) => packetReceived.TrySetResult(current);
+        var states = new List<GameState>();
+        reader.onGameStateChanged += change => states.Add(change.NewGameState);
+        reader.onNewGameData += (_, current) =>
+        {
+            Assert.Equal(current.RPM, reader.CurrentGameData.RPM);
+            Assert.Contains(GameState.AdHocRaceBegin, states);
+            packetReceived.TrySetResult(current);
+        };
 
         try
         {
@@ -70,8 +86,9 @@ public sealed class CodemastersPluginTest
             Assert.True(reader.UdpStatus.PacketCount > 0);
             Assert.Equal(124.2f, sample.Speed, precision: 1);
             Assert.Equal(4f, sample.Gear);
-            Assert.Equal(6200f, sample.RPM);
+            Assert.Equal(6200f, sample.RPM, precision: 2);
             Assert.Equal(1234.5f, sample.LapDistance);
+            Assert.InRange(sample.ShiftLightsFraction, 0f, 1f);
         }
         finally
         {
@@ -90,11 +107,12 @@ public sealed class CodemastersPluginTest
         WriteSingle(packet, 4, 12.5f);
         WriteSingle(packet, 8, lapDistance);
         WriteSingle(packet, 12, 0.25f);
+        WriteSingle(packet, 244, 4938f);
         WriteSingle(packet, 28, speedMetersPerSecond);
         WriteSingle(packet, 33 << 2, gear);
-        WriteSingle(packet, 37 << 2, rpm / 10f);
-        WriteSingle(packet, 63 << 2, 800f);
-        WriteSingle(packet, 64 << 2, 90f);
+        WriteSingle(packet, 37 << 2, rpm * (2f * MathF.PI) / 60f);
+        WriteSingle(packet, 63 << 2, 8000f * (2f * MathF.PI) / 60f);
+        WriteSingle(packet, 64 << 2, 900f * (2f * MathF.PI) / 60f);
         WriteSingle(packet, 65 << 2, 6f);
         return packet;
     }

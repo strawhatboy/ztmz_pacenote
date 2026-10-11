@@ -78,6 +78,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
 
         public Dictionary<string, CarNameAndShiftRPMPercentage> CarMap_DR1 { set; get; } = new();
         public Dictionary<string, CarNameAndShiftRPMPercentage> CarMap_DR2 { set; get; } = new();
+        public Dictionary<string, string[]> CarCodes_DR2 { get; }
         private DRHelper()
         {
             // load dict from json
@@ -86,12 +87,14 @@ namespace ZTMZ.PacenoteTool.Codemasters
             this.ItineraryMap_DR1 = JsonConvert.DeserializeObject<Dictionary<string, List<ItineraryProperty>>>(jsonContent);
             // File.ReadAllText(new Uri("pack://application:,,,/ZTMZ.PacenoteTool.Codemasters;component/track_dict_dr2.json").LocalPath);
             var jsonContent2 = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "track_dict_dr2.json");
-            this.ItineraryMap_DR2 = JsonConvert.DeserializeObject<Dictionary<string, List<ItineraryProperty>>>(jsonContent);
+            this.ItineraryMap_DR2 = JsonConvert.DeserializeObject<Dictionary<string, List<ItineraryProperty>>>(jsonContent2);
 
             var jsonContent3 = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "car_dict_dr1.json");
             this.CarMap_DR1 = JsonConvert.DeserializeObject<Dictionary<string, CarNameAndShiftRPMPercentage>>(jsonContent3);
             var jsonContent4 = StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "car_dict_dr2.json");
             this.CarMap_DR2 = JsonConvert.DeserializeObject<Dictionary<string, CarNameAndShiftRPMPercentage>>(jsonContent4);
+            CarCodes_DR2 = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(
+                StringHelper.ReadContentFromResource(Assembly.GetExecutingAssembly(), "car_codes_dr2.json"))!;
         }
 
         public string GetCarName(IGame game, float idleRPM, float maxRPM, float maxGears) {

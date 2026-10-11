@@ -2,6 +2,7 @@ local resources = {};
 local alertState = {};
 local whRatio = 0.80;
 local trackedDamageFields = {
+    "GearboxSeverity", "BodyworkSeverity",
     "FrontBumperSeverity", "RearBumperSeverity", "RadiatorSeverity", "EngineSeverity", "DifferentialSeverity",
     "LeftDoorSeverity", "RightDoorSeverity",
     "FrontLeftWheelSeverity", "FrontRightWheelSeverity", "RearLeftWheelSeverity", "RearRightWheelSeverity",
@@ -62,6 +63,8 @@ end
 
 function getDamageSeverities(state)
     return {
+        GearboxSeverity = state.GearboxSeverity,
+        BodyworkSeverity = state.BodyworkSeverity,
         FrontBumperSeverity = state.FrontBumperSeverity,
         RearBumperSeverity = state.RearBumperSeverity,
         RadiatorSeverity = state.RadiatorSeverity,
@@ -142,6 +145,7 @@ function getImageOpacity(severity, alertActive)
 end
 
 function drawAsset(gfx, self, key, severity, alertActive, clock, centerX, centerY, height, widthRatio)
+    if severity == nil or severity < 0 then return; end
     local image = self.ImageResources["images@" .. key];
     local width = height * (widthRatio or aspectRatios[key] or 1);
     local x = centerX - width * 0.5;
@@ -179,6 +183,32 @@ function onUpdate(args)
     local brushes = resources["brushes"];
     local alertDuration = self.GetConfigByKey("dashboards.carDamage.damageAlertDuration") or 10.0;
     local severities = getDamageSeverities(state);
+    if state.EngineAvailable == false then severities.EngineSeverity = -1; end
+    if state.RadiatorAvailable == false then severities.RadiatorSeverity = -1; end
+    if state.DifferentialAvailable == false then severities.DifferentialSeverity = -1; end
+    if state.FrontBumperAvailable == false then severities.FrontBumperSeverity = -1; end
+    if state.RearBumperAvailable == false then severities.RearBumperSeverity = -1; end
+    if state.LeftDoorAvailable == false then severities.LeftDoorSeverity = -1; end
+    if state.RightDoorAvailable == false then severities.RightDoorSeverity = -1; end
+    if state.FrontLeftWheelAvailable == false then severities.FrontLeftWheelSeverity = -1; end
+    if state.FrontLeftBrakeAvailable == false then severities.FrontLeftBrakeSeverity = -1; end
+    if state.FrontLeftSuspensionAvailable == false then severities.FrontLeftSuspensionSeverity = -1; end
+    if state.FrontLeftTyreAvailable == false then severities.FrontLeftTyreSeverity = -1; end
+    if state.FrontRightWheelAvailable == false then severities.FrontRightWheelSeverity = -1; end
+    if state.FrontRightBrakeAvailable == false then severities.FrontRightBrakeSeverity = -1; end
+    if state.FrontRightSuspensionAvailable == false then severities.FrontRightSuspensionSeverity = -1; end
+    if state.FrontRightTyreAvailable == false then severities.FrontRightTyreSeverity = -1; end
+    if state.RearLeftWheelAvailable == false then severities.RearLeftWheelSeverity = -1; end
+    if state.RearLeftBrakeAvailable == false then severities.RearLeftBrakeSeverity = -1; end
+    if state.RearLeftSuspensionAvailable == false then severities.RearLeftSuspensionSeverity = -1; end
+    if state.RearLeftTyreAvailable == false then severities.RearLeftTyreSeverity = -1; end
+    if state.RearRightWheelAvailable == false then severities.RearRightWheelSeverity = -1; end
+    if state.RearRightBrakeAvailable == false then severities.RearRightBrakeSeverity = -1; end
+    if state.RearRightSuspensionAvailable == false then severities.RearRightSuspensionSeverity = -1; end
+    if state.RearRightTyreAvailable == false then severities.RearRightTyreSeverity = -1; end
+    severities.GearboxAvailable = state.GearboxAvailable;
+    severities.BodyworkAvailable = state.BodyworkAvailable;
+    state = severities;
     local alertClock = updateDamageAlerts(data, args.GameContext, severities, alertDuration);
     local x, y, width, height = getDashboardPositionStart(self, gfx, whRatio);
     local centerX = x + width * 0.5;
@@ -211,6 +241,13 @@ function onUpdate(args)
 
     -- Keep a quiet drivetrain guide so the highlighted component is the primary signal.
     gfx.FillRoundedRectangle(brushes["chassis"], bodyLeft, bodyTop, bodyRight, bodyBottom, height * 0.06);
+    if state.BodyworkAvailable then
+        local bodyBrush = getStateBrush(state.BodyworkSeverity, isAlertActive("BodyworkSeverity", alertClock), alertClock);
+        if bodyBrush ~= nil then
+            gfx.DrawLine(bodyBrush, bodyLeft, bodyTop, bodyLeft, bodyBottom, height * 0.008);
+            gfx.DrawLine(bodyBrush, bodyRight, bodyTop, bodyRight, bodyBottom, height * 0.008);
+        end
+    end
     gfx.DrawLine(brushes["spine"], centerX, bodyTop + height * 0.10, centerX, bodyBottom - height * 0.10, height * 0.005);
     gfx.DrawLine(brushes["spine"], leftWheelX, frontWheelY, rightWheelX, frontWheelY, height * 0.004);
     gfx.DrawLine(brushes["spine"], leftWheelX, rearWheelY, rightWheelX, rearWheelY, height * 0.004);
@@ -219,6 +256,9 @@ function onUpdate(args)
     drawAsset(gfx, self, "rear_bumper", state.RearBumperSeverity, isAlertActive("RearBumperSeverity", alertClock), alertClock, centerX, y + height * 0.905, height * 0.08);
     drawAsset(gfx, self, "radiator_cooling", state.RadiatorSeverity, isAlertActive("RadiatorSeverity", alertClock), alertClock, centerX, y + height * 0.20, radiatorHeight);
     drawAsset(gfx, self, "engine_gearbox", state.EngineSeverity, isAlertActive("EngineSeverity", alertClock), alertClock, centerX, y + height * 0.405, engineHeight);
+    if state.GearboxAvailable then
+        drawAsset(gfx, self, "powertrain", state.GearboxSeverity, isAlertActive("GearboxSeverity", alertClock), alertClock, centerX, y + height * 0.52, height * 0.065);
+    end
     drawAsset(gfx, self, "differential", state.DifferentialSeverity, isAlertActive("DifferentialSeverity", alertClock), alertClock, centerX, y + height * 0.65, transmissionHeight);
     drawAsset(gfx, self, "left_door", state.LeftDoorSeverity, isAlertActive("LeftDoorSeverity", alertClock), alertClock, leftDoorX, doorY, doorHeight);
     drawAsset(gfx, self, "right_door", state.RightDoorSeverity, isAlertActive("RightDoorSeverity", alertClock), alertClock, rightDoorX, doorY, doorHeight);

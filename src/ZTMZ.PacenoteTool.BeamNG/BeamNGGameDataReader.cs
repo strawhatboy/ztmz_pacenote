@@ -1167,6 +1167,21 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
             return true;
         }
 
+        if (normalizedGroup == "powertrain")
+        {
+            location = string.Empty;
+            if (normalizedPart.Contains("gearbox", StringComparison.Ordinal))
+            {
+                kind = CarDamageIds.Gearbox;
+                return true;
+            }
+            if (!normalizedPart.Contains("differential", StringComparison.Ordinal))
+            {
+                kind = string.Empty;
+                return false; // Preserve unknown drive devices as raw telemetry.
+            }
+        }
+
         if (normalizedGroup is "powertrain" or "differential")
         {
             kind = CarDamageIds.Differential;
@@ -1176,7 +1191,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
 
         if (normalizedGroup == "gearbox")
         {
-            kind = CarDamageIds.Engine;
+            kind = CarDamageIds.Gearbox;
             location = string.Empty;
             return true;
         }

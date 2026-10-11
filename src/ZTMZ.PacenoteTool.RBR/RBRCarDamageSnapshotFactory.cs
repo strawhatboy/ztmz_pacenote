@@ -44,6 +44,15 @@ public static class RBRCarDamageSnapshotFactory
         IReadOnlyDictionary<string, RBRDamagePartTelemetry> rawByName,
         IReadOnlyList<CarDamageComponentSnapshot> components)
     {
+        // RBR's engine HUD group also includes transmission parts. Keep those
+        // raw parts, but do not light up the engine for a gearbox-only failure.
+        if (group.Name == "Engine")
+        {
+            var engineParts = components.Where(c => c.Kind == CarDamageIds.Engine && c.IsAvailable).ToArray();
+            return new CarDamageGroupSnapshot(CarDamageIds.Engine, engineParts.Length > 0,
+                group.IsComplete, engineParts.Select(c => c.Severity).DefaultIfEmpty(0).Max(),
+                engineParts.Where(c => c.IsActive).Select(c => c.Id).ToArray());
+        }
         var componentIds = group.PartNames
             .Select(TryGetComponentId)
             .Where(componentId => componentId is not null)
@@ -195,7 +204,14 @@ public static class RBRCarDamageSnapshotFactory
             return true;
         }
 
-        if (partName is "Gearbox" or "GearActuator" or "Starter" or "Clutch" or "Battery"
+        if (partName is "Gearbox" or "GearActuator" or "Clutch")
+        {
+            kind = CarDamageIds.Gearbox;
+            location = string.Empty;
+            return true;
+        }
+
+        if (partName is "Starter" or "Battery"
             or "HeadGasket" or "OilPump" or "OilCooler" or "Electrical" or "Hydraulics"
             or "Exhaust" or "ExhaustMount")
         {

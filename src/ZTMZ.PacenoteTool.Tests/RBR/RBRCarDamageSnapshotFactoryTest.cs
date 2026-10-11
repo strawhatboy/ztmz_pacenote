@@ -31,7 +31,8 @@ public class RBRCarDamageSnapshotFactoryTest
         Assert.NotNull(damage);
         Assert.Equal("rbr", damage!.Source);
         Assert.Equal(4, damage.Dashboard.RadiatorSeverity);
-        Assert.Equal(3, damage.Dashboard.EngineSeverity);
+        Assert.Equal(0, damage.Dashboard.EngineSeverity);
+        Assert.Equal(3, damage.Dashboard.GearboxSeverity);
         Assert.Equal(2, damage.Dashboard.FrontLeftSeverity);
         Assert.Equal(2, damage.Dashboard.FrontLeftWheelSeverity);
         Assert.Equal(1, damage.Dashboard.FrontLeftBrakeSeverity);

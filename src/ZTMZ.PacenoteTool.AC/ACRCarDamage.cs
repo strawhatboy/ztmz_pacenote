@@ -131,6 +131,7 @@ internal static class ACRCarDamage
         {
             "Engine" => (CarDamageIds.Engine, ""), "Radiator" => (CarDamageIds.Radiator, ""),
             "Bodywork" => (CarDamageIds.Bodywork, ""),
+            "Gearbox" or "GearBox" => (CarDamageIds.Gearbox, ""),
             "DifferentialFront" => (CarDamageIds.Differential, "front"),
             "DifferentialRear" => (CarDamageIds.Differential, "rear"),
             // Keep the remaining native components distinct. Do not label a

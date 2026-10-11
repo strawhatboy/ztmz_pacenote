@@ -22,7 +22,10 @@ public sealed class ACRCarDamageTests
         Assert.Equal(4, damage.Dashboard.RadiatorSeverity);
         Assert.Equal(3, damage.Dashboard.DifferentialSeverity);
         Assert.Equal(0, damage.Dashboard.FrontRightTyreSeverity);
-        Assert.Equal(4, damage.Components.Single(c => c.Id == "acr.gearbox").Severity);
+        Assert.Equal(4, damage.Components.Single(c => c.Id == CarDamageIds.Gearbox).Severity);
+        Assert.Equal(4, damage.Dashboard.GearboxSeverity);
+        Assert.True(damage.Dashboard.GearboxAvailable);
+        Assert.False(damage.Dashboard.FrontRightTyreAvailable);
         Assert.Equal(.01f, damage.Components.Single(c => c.Id == "engine").Magnitude, 5);
         Assert.All(damage.Groups, group => Assert.False(group.IsComplete));
         var converted = ACRGameDataConverter.Convert(new(), new(0, 0, 0) { Damage = damage });

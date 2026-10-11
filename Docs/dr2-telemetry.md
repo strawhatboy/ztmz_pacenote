@@ -1,0 +1,122 @@
+# DiRT Rally 2.0 telemetry
+
+## UDP and vehicle identity
+
+Extra-data 3 packets contain 66 floats (264 bytes). Truncated packets are ignored.
+DR2 exports engine speeds in radians/second; public GameData uses RPM, converted
+with `60 / (2 * PI)`. The legacy raw-data RPM fingerprint remains unchanged for
+compatibility with existing car lookup tables.
+
+On supported Windows builds, a read-only process reader supplements UDP with
+handbrake, the vehicle's actual shift warning threshold, and its three-character
+car code. This does not inject a DLL or run work on the game's rendering thread.
+The executable SHA-256 gate is:
+
+`C119F509FC315D8168AA7AAA5D0A1EE8E3570C7220BD6CBB2D337D6725D73442`
+
+Vehicle wrappers are found through RVA `0x201b7b0`, count `0x201b930`.
+The reader requires a unique mode-0 player wrapper, validates its vtable and
+checks decoded idle/max RPM against UDP before accepting supplemental values.
+Physics-relative fields are handbrake `0x390`, car code `0x4d0`, idle/max engine
+limits `0x6d0`/`0x6d4`, and encoded shift warning speed `0x804`.
+Pointers are re-read rather than retained across stage reloads.
+
+Unknown executable builds and non-Windows hosts retain UDP and existing car
+fingerprint fallback. They must not claim valid handbrake data. The car-code
+catalog distinguishes vehicles that share RPM fingerprints. Catalog reference:
+[RallyGamer DR2 car list](https://www.rallygamer.com/downloads/dirtrally2/tools/dirt_rally_2.0_car_list.pdf),
+cross-checked against installed car archive names.
+
+## Start sequence
+
+The captured time-trial restart began its pre-start stream at simulation time
+134.41861, with lap time zero and distance -2.38931 m. The first positive lap
+time arrived at simulation time 139.47037, still at that negative distance.
+Therefore crossing distance zero is not the Go signal: positive lap time is.
+
+The subsequent capture exposed an important earlier packet: at 14:07:50.998,
+DR2 sent a restart packet with simulation time 62.704605 and lap time zero,
+then stopped UDP while waiting for the handbrake. At 14:08:21.058 it resumed
+at simulation time 84.62696; Go followed at 89.67852 with lap time 0.033332.
+The reset packet must NOT emit 5 or anchor the countdown. Loading/waiting time
+between these streams must not be subtracted from five seconds.
+
+Countdown numbers require an observed restart followed by two adjacent advancing
+simulation frames (at most 250 ms apart). A discontinuity resets the candidate
+anchor; it cannot instantly consume the countdown. Pausing does not advance
+numbers, and missed numbers are not replayed in a burst. UDP silence during the
+handbrake wait preserves the pre-start session rather than changing it to Unknown.
+DR2 countdown and Go cues use immediate system playback rather than waiting
+behind ordinary pacenote audio. Session state is published before the first
+telemetry event, with the current GameData snapshot already available.
+
+This is an inferred five-second start sequence, not a native countdown field.
+Without an observed restart (including attaching to an already active stream),
+the reader conservatively skips countdown numbers instead of inventing five
+remaining seconds. It no longer uses a 500 ms listener wait as proof of a start.
+Packet loss and other event modes still require validation. Daily/online events
+have not been live verified.
+
+## Component damage
+
+Read-only Windows sampling uses the same hash-gated player-vehicle identification,
+at most five times per second. The damage interface at physics + `0x2bd0` points
+to itself; values start eight bytes later. Native component getter `0x751260`
+uses component 3 for engine (offset 0), 7 for radiator (offset `0x80`), and 6
+for gearbox (maximum of offsets `0x0c` and `0x84`). These identities are confirmed
+by the game's own engine/radiator/gearbox sound parameter consumers.
+
+The configuration pointer is at damage state + `0x440`. Engine effect onset is
+the minimum of configuration offsets `0x1f4`, `0x1fc`, `0x204`; radiator uses
+`0x1ec`; gearbox uses the minimum of `0x2a0`, `0x334`. Native `0x743570` maps
+raw damage to effect with clamp((damage - onset) / (1 - onset), 0, 1).
+ZTMZ retains raw damage and onset, and projects effect into four severity buckets.
+Those buckets are ZTMZ's convention, not a native severity enum or measured
+remaining component lifespan.
+
+Live Fiesta R5 values were engine 0, radiator 0, gearbox 0.000166667; their
+effect onset values were respectively 0.3, 0.7, 0.3, so all remain healthy in
+the dashboard projection. Damaged-state UI comparison has not been performed.
+Gearbox is retained as its own component, rather than falsely mapping it to
+differential damage.
+
+### Four corners and bodywork (2026-10-11)
+
+Offsets below are relative to `owner + 8`, except the discrete tyre states.
+The wheel order is rear-left, rear-right, front-left, front-right. The native
+puncture voice routing at `0xb2108e` distinguishes these positions; the live
+front-right state of 2 was independently confirmed by the user as a front-right
+blowout. Physics wheel records (`physics + 0x1480 + index * 0x420`) also carry
+the index at `+0x28` and separate front/rear and left/right coordinates.
+
+| Component | Value offset | Configuration onset | Provenance |
+| --- | --- | --- | --- |
+| Bodywork | max(`0xa4`, `0xa8`) | 0 | Native component 0, `0x751288`; Bodywork/Brakes/etc. component ordering in `0x11bda0` |
+| Damper | `0x10 + index*4` | `0x84` | Effect 0; native suspension combiner `0x751a60` |
+| Spring | `0x20 + index*4` | `0xb8` | Effect 1; same suspension combiner |
+| Brake | `0x30 + index*4` | `0x18c` | Effect 6; `0xb18375` feeds the `damage_brake` parameter |
+| Wheel geometry/impact | `0x8c + index*4` | min(`0xc0`, `0xec`, `0xf4`, `0xfc`) | Effects 2–5; effect 8 uses `0x104` as failure threshold |
+| Tyre state | **owner** `+0x120 + index` byte | discrete | `0x732190 -> 0x57d550`; voice consumers distinguish 1 (puncture) / 2 (blowout) |
+
+Damper and spring raw entries remain separate; shared suspension severity uses
+their maximum. Tyre states are not a remaining-tread percentage: ZTMZ maps 0 to
+healthy, 1 to severity 3 and 2 to severity 4, preserving the native integer.
+Invalid new component values are omitted rather than reported as healthy.
+The four corner groups remain marked incomplete; these fields do not expose
+every possible physical part in the game.
+
+The production reader was run against the paused live game: it reported 20
+normalized components, front-right tyre state 2, nonzero front-wheel geometry
+damage, and bodywork/radiator damage of 1. Healthy and damaged severity branches,
+corner isolation, invalid values and raw-value retention are covered offline.
+No memory writes, injected probes or render-thread callbacks are used.
+
+## Validation
+
+Twenty-one focused tests cover memory validation, UDP conversion, startup ordering,
+handbrake wait, countdown pause/restart, damage validation, and Go before crossing
+the starting line. A live sample
+identified Ford Fiesta R5 (`fr5`), R5 class, Fury Lake Depart, 7400 RPM maximum,
+7033 RPM shift warning, and valid handbrake input. The user confirmed Fiesta R5,
+not Fiesta R5 MKII. Final audible countdown synchronization still needs UI/game
+verification; packet timing alone is not an audio end-to-end test.

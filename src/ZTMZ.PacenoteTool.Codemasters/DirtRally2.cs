@@ -5,7 +5,7 @@ using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.Codemasters
 {
-    public class DirtRally2 : IGame, ISteamGameIdentity, IGameWithResourceLinks
+    public class DirtRally2 : IGame, ISteamGameIdentity, IGameWithResourceLinks, IGamePacenoteSourcePolicy
     {
 
         public string WindowTitle => "DiRT Rally 2.0";
@@ -14,6 +14,8 @@ namespace ZTMZ.PacenoteTool.Codemasters
         public static string GameName = "Dirt Rally 2.0";
         public const uint SteamAppId = 690790;
         public uint SteamApplicationId => SteamAppId;
+        public bool UseLivePacenotesOnly => false;
+        public bool UseImmediateRaceCues => true;
 
         public IReadOnlyList<GameResourceLink> ResourceLinks { get; } =
         [

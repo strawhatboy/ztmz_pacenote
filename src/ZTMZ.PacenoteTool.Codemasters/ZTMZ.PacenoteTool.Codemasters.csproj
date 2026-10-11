@@ -17,6 +17,7 @@
     <EmbeddedResource Include="track_dict_wrc.json" />
     <EmbeddedResource Include="car_dict_dr1.json" />
     <EmbeddedResource Include="car_dict_dr2.json" />
+    <EmbeddedResource Include="car_codes_dr2.json" />
     <EmbeddedResource Include="ztmz.json" />
     <EmbeddedResource Include="WRC_ids.json" />
   </ItemGroup>
@@ -46,6 +47,7 @@
     <Resource Include="car_dict_dr2.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="car_codes_dr2.json" />
     <Resource Include="ztmz.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>

@@ -70,9 +70,9 @@ public sealed record CarDamageSnapshot(
         return first with
         {
             IsAvailable = components.Any(component => component.IsAvailable),
-            IsActive = components.Any(component => component.IsActive),
-            Severity = components.Max(component => component.Severity),
-            Magnitude = components.Max(component => component.Magnitude)
+            IsActive = components.Any(component => component.IsAvailable && component.IsActive),
+            Severity = components.Where(c => c.IsAvailable).Select(c => c.Severity).DefaultIfEmpty(0).Max(),
+            Magnitude = components.Where(c => c.IsAvailable).Select(c => c.Magnitude).DefaultIfEmpty(0).Max()
         };
     }
 
@@ -84,7 +84,7 @@ public sealed record CarDamageSnapshot(
         {
             IsAvailable = groups.Any(group => group.IsAvailable),
             IsComplete = groups.All(group => group.IsComplete),
-            Severity = groups.Max(group => group.Severity),
+            Severity = groups.Where(g => g.IsAvailable).Select(g => g.Severity).DefaultIfEmpty(0).Max(),
             AffectedComponentIds = groups
                 .SelectMany(group => group.AffectedComponentIds)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -110,6 +110,33 @@ public sealed record CarDamageSnapshot(
         return new CarDamageDashboardState
         {
             IsAvailable = true,
+            EngineAvailable = components.Any(c => c.IsAvailable && c.Kind == "engine") || groups.Any(g => g.IsAvailable && g.Id == "engine"),
+            RadiatorAvailable = components.Any(c => c.IsAvailable && c.Kind == "radiator") || groups.Any(g => g.IsAvailable && g.Id == "radiator"),
+            DifferentialAvailable = components.Any(c => c.IsAvailable && c.Kind == "differential") || groups.Any(g => g.IsAvailable && g.Id == "differential"),
+            FrontBumperAvailable = components.Any(c => c.IsAvailable && c.Kind == "front-bumper"),
+            RearBumperAvailable = components.Any(c => c.IsAvailable && c.Kind == "rear-bumper"),
+            LeftDoorAvailable = components.Any(c => c.IsAvailable && c.Kind == "left-door"),
+            RightDoorAvailable = components.Any(c => c.IsAvailable && c.Kind == "right-door"),
+            FrontLeftWheelAvailable = components.Any(c => c.IsAvailable && c.Kind == "wheel" && c.Location == "front-left"),
+            FrontLeftBrakeAvailable = components.Any(c => c.IsAvailable && c.Kind == "brake" && c.Location == "front-left"),
+            FrontLeftSuspensionAvailable = components.Any(c => c.IsAvailable && c.Kind == "suspension" && c.Location == "front-left"),
+            FrontLeftTyreAvailable = components.Any(c => c.IsAvailable && c.Kind == "tyre" && c.Location == "front-left"),
+            FrontRightWheelAvailable = components.Any(c => c.IsAvailable && c.Kind == "wheel" && c.Location == "front-right"),
+            FrontRightBrakeAvailable = components.Any(c => c.IsAvailable && c.Kind == "brake" && c.Location == "front-right"),
+            FrontRightSuspensionAvailable = components.Any(c => c.IsAvailable && c.Kind == "suspension" && c.Location == "front-right"),
+            FrontRightTyreAvailable = components.Any(c => c.IsAvailable && c.Kind == "tyre" && c.Location == "front-right"),
+            RearLeftWheelAvailable = components.Any(c => c.IsAvailable && c.Kind == "wheel" && c.Location == "rear-left"),
+            RearLeftBrakeAvailable = components.Any(c => c.IsAvailable && c.Kind == "brake" && c.Location == "rear-left"),
+            RearLeftSuspensionAvailable = components.Any(c => c.IsAvailable && c.Kind == "suspension" && c.Location == "rear-left"),
+            RearLeftTyreAvailable = components.Any(c => c.IsAvailable && c.Kind == "tyre" && c.Location == "rear-left"),
+            RearRightWheelAvailable = components.Any(c => c.IsAvailable && c.Kind == "wheel" && c.Location == "rear-right"),
+            RearRightBrakeAvailable = components.Any(c => c.IsAvailable && c.Kind == "brake" && c.Location == "rear-right"),
+            RearRightSuspensionAvailable = components.Any(c => c.IsAvailable && c.Kind == "suspension" && c.Location == "rear-right"),
+            RearRightTyreAvailable = components.Any(c => c.IsAvailable && c.Kind == "tyre" && c.Location == "rear-right"),
+            GearboxSeverity = GetKindSeverity(components, CarDamageIds.Gearbox),
+            BodyworkSeverity = GetKindSeverity(components, CarDamageIds.Bodywork),
+            GearboxAvailable = components.Any(c => c.IsAvailable && c.Kind == CarDamageIds.Gearbox),
+            BodyworkAvailable = components.Any(c => c.IsAvailable && c.Kind == CarDamageIds.Bodywork),
             EngineSeverity = GetGroupOrComponentSeverity(
                 groupsById,
                 componentsById,
@@ -150,10 +177,14 @@ public sealed record CarDamageSnapshot(
             LeftDoorSeverity = GetComponentSeverity(componentsById, CarDamageIds.LeftDoor),
             RightDoorSeverity = GetComponentSeverity(componentsById, CarDamageIds.RightDoor),
             GeneralSeverity = Math.Max(
-                groups.DefaultIfEmpty().Max(group => group?.Severity ?? 0),
-                components.DefaultIfEmpty().Max(component => component?.Severity ?? 0))
+                groups.Where(group => group.IsAvailable).DefaultIfEmpty().Max(group => group?.Severity ?? 0),
+                components.Where(component => component.IsAvailable).DefaultIfEmpty().Max(component => component?.Severity ?? 0))
         };
     }
+
+    private static int GetKindSeverity(IEnumerable<CarDamageComponentSnapshot> components, string kind)
+        => components.Where(c => c.IsAvailable && string.Equals(c.Kind, kind, StringComparison.OrdinalIgnoreCase))
+            .Select(c => c.Severity).DefaultIfEmpty(0).Max();
 
     private static int GetGroupOrComponentSeverity(
         IReadOnlyDictionary<string, CarDamageGroupSnapshot> groups,
@@ -194,7 +225,34 @@ public sealed record CarDamageDashboardState
     public static CarDamageDashboardState Unavailable { get; } = new();
 
     public bool IsAvailable { get; init; }
+    public bool EngineAvailable { get; init; }
+    public bool RadiatorAvailable { get; init; }
+    public bool DifferentialAvailable { get; init; }
+    public bool FrontBumperAvailable { get; init; }
+    public bool RearBumperAvailable { get; init; }
+    public bool LeftDoorAvailable { get; init; }
+    public bool RightDoorAvailable { get; init; }
+    public bool FrontLeftWheelAvailable { get; init; }
+    public bool FrontLeftBrakeAvailable { get; init; }
+    public bool FrontLeftSuspensionAvailable { get; init; }
+    public bool FrontLeftTyreAvailable { get; init; }
+    public bool FrontRightWheelAvailable { get; init; }
+    public bool FrontRightBrakeAvailable { get; init; }
+    public bool FrontRightSuspensionAvailable { get; init; }
+    public bool FrontRightTyreAvailable { get; init; }
+    public bool RearLeftWheelAvailable { get; init; }
+    public bool RearLeftBrakeAvailable { get; init; }
+    public bool RearLeftSuspensionAvailable { get; init; }
+    public bool RearLeftTyreAvailable { get; init; }
+    public bool RearRightWheelAvailable { get; init; }
+    public bool RearRightBrakeAvailable { get; init; }
+    public bool RearRightSuspensionAvailable { get; init; }
+    public bool RearRightTyreAvailable { get; init; }
     public int GeneralSeverity { get; init; }
+    public int GearboxSeverity { get; init; }
+    public int BodyworkSeverity { get; init; }
+    public bool GearboxAvailable { get; init; }
+    public bool BodyworkAvailable { get; init; }
     public int EngineSeverity { get; init; }
     public int RadiatorSeverity { get; init; }
     public int DifferentialSeverity { get; init; }
@@ -270,6 +328,7 @@ public sealed record CarDamageRawComponentSnapshot(
 public static class CarDamageIds
 {
     public const string Engine = "engine";
+    public const string Gearbox = "gearbox";
     public const string Radiator = "radiator";
     public const string Differential = "differential";
     public const string Wheel = "wheel";

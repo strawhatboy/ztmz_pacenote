@@ -137,7 +137,7 @@ public class NeoLuaRuntimeTest
             environment.CallMember("onUpdate", arguments);
 
             var startImages = capture.GetCommands().OfType<DrawImageCommand>().ToList();
-            Assert.Equal(23, startImages.Count);
+            Assert.Single(startImages); // Unsupported components must not look healthy.
             Assert.All(startImages, image => Assert.Equal(0.78f, image.Opacity.GetValueOrDefault()));
 
             capture.ClearCommands();
@@ -147,7 +147,7 @@ public class NeoLuaRuntimeTest
 
             var expiredCommands = capture.GetCommands();
             var expiredImages = expiredCommands.OfType<DrawImageCommand>().ToList();
-            Assert.Equal(23, expiredImages.Count);
+            Assert.Single(expiredImages);
             var expiredEngineImage = Assert.Single(
                 expiredImages,
                 image => image.ImageKey == "images@engine_gearbox");
@@ -181,6 +181,16 @@ public class NeoLuaRuntimeTest
             Assert.Contains(
                 expiredCriticalCommands.OfType<FillRoundedRectangleCommand>(),
                 command => command.Color == 0xCCE13C36u);
+
+            capture.ClearCommands();
+            arguments.GameData = new GameData { Time = 30, CarDamage = CarDamageSnapshot.Create(
+                "test", DateTimeOffset.UtcNow, [],
+                [new("gearbox", "gearbox", "", true, true, 3, .8f),
+                 new("bodywork", "bodywork", "", true, true, 2, .5f)], []) };
+            environment.CallMember("onUpdate", arguments);
+            var componentCommands = capture.GetCommands();
+            Assert.Equal("images@powertrain", Assert.Single(componentCommands.OfType<DrawImageCommand>()).ImageKey);
+            Assert.True(componentCommands.OfType<DrawLineCommand>().Count() > 3);
 
             environment.CallMember("onExit");
         }
@@ -364,7 +374,7 @@ public class NeoLuaRuntimeTest
         foreach (var imageName in new[]
                  {
                      "brake", "differential", "engine_gearbox", "front_bumper", "left_door",
-                     "radiator_cooling", "rear_bumper", "right_door", "suspension", "tyre", "wheel"
+                     "radiator_cooling", "rear_bumper", "right_door", "suspension", "tyre", "wheel", "powertrain"
                  })
         {
             var key = "images@" + imageName;

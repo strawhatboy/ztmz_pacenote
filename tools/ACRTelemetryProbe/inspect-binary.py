@@ -13,6 +13,7 @@ p.add_argument("--rva", type=lambda s: int(s, 0), action='append')
 p.add_argument("--size", type=lambda s: int(s, 0), default=256)
 p.add_argument("--reference", type=lambda s: int(s, 0))
 p.add_argument("--table", type=lambda s: int(s, 0))
+p.add_argument("--dwords", type=lambda s: int(s, 0), help="Read RVA jump-table entries")
 p.add_argument("--strings-rva", type=lambda s: int(s, 0))
 p.add_argument("--call", type=lambda s: int(s, 0))
 p.add_argument('--filter')
@@ -85,6 +86,9 @@ if a.table is not None:
             raw = pe.get_data(value-base, 80).split(b'\0')[0]
             if raw and all(32 <= b < 127 for b in raw): label = raw.decode('ascii')
         print(hex(offset), hex(value-base), label)
+if a.dwords is not None:
+    for offset in range(0, a.size, 4):
+        print(offset // 4, hex(struct.unpack('<I', pe.get_data(a.dwords + offset, 4))[0]))
 if a.text:
     for section in pe.sections:
         data = section.get_data()

@@ -605,7 +605,8 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
                         // queued here. The start cue must not wait behind that call, nor
                         // should playing it discard the first pacenote.
                         var sequentialGo = _currentGame is not IGamePacenoteSourcePolicy
-                            { AllowLivePacenotesBeforeGo: true };
+                            { AllowLivePacenotesBeforeGo: true } &&
+                            _currentGame is not IGamePacenoteSourcePolicy { UseImmediateRaceCues: true };
                         this._profileManager.PlaySystem(Constants.SYSTEM_GO, sequentialGo);
                     }
 
@@ -640,7 +641,8 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
                     countdownValue is int countdownNumber &&
                     countdownNumber >= 1 && countdownNumber <= Constants.SYSTEM_COUNTDOWNS.Count)
                 {
-                    this._profileManager.PlaySystem(Constants.SYSTEM_COUNTDOWNS[countdownNumber - 1]);
+                    this._profileManager.PlaySystem(Constants.SYSTEM_COUNTDOWNS[countdownNumber - 1],
+                        _currentGame is not IGamePacenoteSourcePolicy { UseImmediateRaceCues: true });
                 }
                 break;
         }

@@ -17,6 +17,7 @@ public class DirtGameDataReader : UdpGameDataReader
         set
         {
             var lastGameState = this._gameState;
+            if (lastGameState == value) return;
             this._gameState = value;
             if (value == GameState.AdHocRaceBegin || value == GameState.RaceBegin)
             {
@@ -40,10 +41,13 @@ public class DirtGameDataReader : UdpGameDataReader
 
     public override GameData LastGameData { get => _lastGameData; set => _lastGameData = value; }
     public override GameData CurrentGameData { get => _currentGameData; set => _currentGameData = value; }
-    public override string TrackName => DRHelper.Instance.GetItinerary(_game, _currentRawData.TrackLength.ToString("f2", CultureInfo.InvariantCulture), _currentRawData.PosZ );
+    public override string TrackName => _trackName ??= DRHelper.Instance.GetItinerary(_game,
+        _currentRawData.TrackLength.ToString("f2", CultureInfo.InvariantCulture), _currentRawData.PosZ);
 
-    public override string CarName => DRHelper.Instance.GetCarName(_game, _currentRawData.IdleRPM, _currentRawData.MaxRPM, _currentRawData.MaxGears);
-    public override string CarClass => DRHelper.Instance.GetCarClass(_game, _currentRawData.IdleRPM, _currentRawData.MaxRPM, _currentRawData.MaxGears);
+    public override string CarName => _nativeCarCode is not null && DRHelper.Instance.CarCodes_DR2.TryGetValue(_nativeCarCode, out var car)
+        ? car[0] : DRHelper.Instance.GetCarName(_game, _currentRawData.IdleRPM, _currentRawData.MaxRPM, _currentRawData.MaxGears);
+    public override string CarClass => _nativeCarCode is not null && DRHelper.Instance.CarCodes_DR2.TryGetValue(_nativeCarCode, out var car)
+        ? car[1] : DRHelper.Instance.GetCarClass(_game, _currentRawData.IdleRPM, _currentRawData.MaxRPM, _currentRawData.MaxGears);
 
     public GameState _gameState;
     private GameData _lastGameData;
@@ -54,6 +58,36 @@ public class DirtGameDataReader : UdpGameDataReader
     private DirtRawData _currentRawData;
 
     private float _currentCarShiftPercentage = 0.9f;
+    private Dr2VehicleMemoryReader? _vehicleMemory;
+    private string? _nativeCarCode;
+    private readonly Dr2Countdown _countdown = new();
+    private bool _preStart;
+    private bool _hasPacket;
+    private string? _trackName;
+
+    protected override void UpdateStateForUdpSilence()
+    {
+        // DR2 stops UDP while waiting for the handbrake after its reset packet.
+        // Transport availability is still reported by the base timer. Silence
+        // here must not destroy an observed pre-start session.
+        if (_game is DirtRally2 && _preStart) return;
+        base.UpdateStateForUdpSilence();
+    }
+
+    public override void Uninitialize(IGame game)
+    {
+        base.Uninitialize(game);
+        if (OperatingSystem.IsWindows()) _vehicleMemory?.Dispose();
+        _vehicleMemory = null;
+        _nativeCarCode = null;
+        _countdown.Reset();
+        _preStart = _hasPacket = false;
+        _trackName = null;
+        _lastValidLapTime = 0;
+        _lastRawData = _currentRawData = default;
+        _lastGameData = _currentGameData = default;
+        _gameState = GameState.Unknown;
+    }
 
     private event Action<GameData, GameData> _onNewGameData;
 
@@ -89,21 +123,28 @@ public class DirtGameDataReader : UdpGameDataReader
 
     public override void onNewUdpMessage(byte[] lastMsg, byte[] newMsg)
     {
+        // Extra-data 3 contains 66 floats. Do not parse or publish truncated packets.
+        if (newMsg is null || newMsg.Length < 264) return;
         base.onNewUdpMessage(lastMsg, newMsg);
         DirtRawData message = RawBytesData2RawData(newMsg);
         DirtRawData lastMessage = RawBytesData2RawData(lastMsg);
 
+        if (!_hasPacket || message.TrackLength != _currentRawData.TrackLength ||
+            (message.LapTime == 0 && _currentRawData.LapTime > 0)) _trackName = null;
         _currentRawData = message;
+
+        // Select the current vehicle before converting even its first packet.
+        _currentCarShiftPercentage = DRHelper.Instance.GetCarShiftPercentage(
+            _game, message.IdleRPM, message.MaxRPM, message.MaxGears);
 
         var newGameData = RawData2GameData(message);
 
-        _onNewGameData?.Invoke(_lastGameData, newGameData);
         _currentGameData = newGameData;
 
         if (!message.Equals(lastMessage))
         {
             var spdDiff = _lastGameData.Speed - newGameData.Speed;
-            if (Config.Instance.PlayCollisionSound && newGameData.Speed != 0)
+            if (lastMsg?.Length >= 264 && Config.Instance.PlayCollisionSound && newGameData.Speed != 0)
             {
                 CollisionSeverity severity = CarEventDetector.DetectCollision(_lastGameData, newGameData);
 
@@ -117,12 +158,16 @@ public class DirtGameDataReader : UdpGameDataReader
                 }
             }
 
-            if (CarEventDetector.IsCarReset(_lastGameData, newGameData))
+            if (lastMsg?.Length >= 264 && CarEventDetector.IsCarReset(_lastGameData, newGameData))
             {
                 _onCarReset?.Invoke();
             }
 
-            if (newGameData.LapTime > 0 && this.GameState != GameState.Racing)
+            if (_game is DirtRally2)
+            {
+                UpdateDr2State(message, lastMessage);
+            }
+            else if (newGameData.LapTime > 0 && this.GameState != GameState.Racing)
             {
                 if (this.GameState == GameState.Unknown)
                 {
@@ -144,11 +189,12 @@ public class DirtGameDataReader : UdpGameDataReader
                 if (newGameData.Time == 0 && this.GameState != GameState.RaceEnd)
                 {
                     // this should be normal race end for DR2
-                    if (_game is DirtRally2) {
+                    if (_game is DirtRally2 && _lastValidLapTime > 0 && lastMessage.LastLapTime > 0) {
                         onGameStateRaceEnd(new Dictionary<string, object> { 
                             { GameStateRaceEndProperty.FINISH_TIME, lastMessage.LastLapTime },
                             { GameStateRaceEndProperty.FINISH_STATE, GameStateRaceEnd.Normal }
                         });
+                        _lastValidLapTime = 0;
                     }
                 }
                 else if (this.GameState != GameState.RaceBegin)
@@ -168,15 +214,75 @@ public class DirtGameDataReader : UdpGameDataReader
         }
         else
         {
-            if (this.GameState == GameState.Racing || this.GameState == GameState.RaceBegin ||
+            if (this.GameState == GameState.Racing || this.GameState == GameState.AdHocRaceBegin || this.GameState == GameState.RaceBegin ||
                 this.GameState == GameState.CountingDown)
             {
                 this.GameState = GameState.Paused;
             }
         }
 
+        // Session listeners must see the current snapshot and prepare the session
+        // before its first telemetry notification reaches dashboards / replay.
+        _onNewGameData?.Invoke(_lastGameData, newGameData);
         _lastGameData = newGameData;
         _lastRawData = message;
+        _hasPacket = true;
+    }
+
+    private void UpdateDr2State(DirtRawData message, DirtRawData previous)
+    {
+        if (message.TrackLength <= 0) return;
+        if (message.LapTime > 0)
+        {
+            _lastValidLapTime = message.LapTime;
+            if (_preStart)
+            {
+                // A pause on the grid must not turn the actual Go into a resume.
+                if (GameState is not (GameState.RaceBegin or GameState.CountingDown)) SetCountdownState(null);
+                _preStart = false;
+                _countdown.Reset();
+                GameState = GameState.Racing;
+            }
+            else if (!_hasPacket || GameState is GameState.Unknown or GameState.RaceEnd)
+                GameState = GameState.AdHocRaceBegin;
+            else GameState = GameState.Racing;
+            return;
+        }
+        if (message.Time == 0)
+        {
+            var finish = Math.Max(message.LastLapTime, previous.LastLapTime);
+            if (_lastValidLapTime > 0 && finish > 0 && GameState != GameState.RaceEnd)
+                onGameStateRaceEnd(new Dictionary<string, object>
+                {
+                    [GameStateRaceEndProperty.FINISH_TIME] = finish,
+                    [GameStateRaceEndProperty.FINISH_STATE] = GameStateRaceEnd.Normal
+                });
+            _lastValidLapTime = 0;
+            _preStart = false;
+            _countdown.Reset();
+            return;
+        }
+        if (message.LapDistance > 0) return;
+        if (!_preStart)
+        {
+            _preStart = true;
+            _countdown.Begin(message.Time,
+                _hasPacket && (previous.LapTime > 0 || previous.Time == 0));
+            GameState = GameState.RaceBegin;
+        }
+        if (_countdown.Update(message.Time) is { } number) SetCountdownState(number);
+    }
+
+    private void SetCountdownState(int? number)
+    {
+        var last = _gameState;
+        _gameState = GameState.CountingDown;
+        _onGameStateChanged?.Invoke(new GameStateChangeEvent
+        {
+            LastGameState = last,
+            NewGameState = GameState.CountingDown,
+            Parameters = number.HasValue ? new Dictionary<string, object> { ["number"] = number.Value } : null
+        });
     }
 
     private GameData RawData2GameData(DirtRawData data) 
@@ -205,6 +311,15 @@ public class DirtGameDataReader : UdpGameDataReader
         gameData.RPM = data.RPM;
         gameData.MaxRPM = data.MaxRPM;
         gameData.IdleRPM = data.IdleRPM;
+        if (_game is DirtRally2)
+        {
+            // DR2 exports radians/second. Keep the legacy raw fingerprint used
+            // by car_dict_dr2, but publish actual revolutions/minute to GameData.
+            var correction = Dr2VehicleMemory.AngularVelocityToRPM / 10f;
+            gameData.RPM *= correction;
+            gameData.MaxRPM *= correction;
+            gameData.IdleRPM *= correction;
+        }
         gameData.G_lat = data.G_lat;
         gameData.G_long = data.G_long;
 
@@ -227,11 +342,26 @@ public class DirtGameDataReader : UdpGameDataReader
         gameData.PosY = data.PosY;
         gameData.PosZ = data.PosZ;
         gameData.HandBrakeValid = false;
+        _nativeCarCode = null;
 
-        gameData.ShiftLightsRPMValid = true;
-        gameData.ShiftLightsRPMEnd = data.MaxRPM * _currentCarShiftPercentage;
-        gameData.ShiftLightsRPMStart = gameData.ShiftLightsRPMEnd - 1000;
-        gameData.ShiftLightsFraction = (data.RPM - gameData.ShiftLightsRPMStart) / (gameData.ShiftLightsRPMEnd - gameData.ShiftLightsRPMStart);
+        gameData.ShiftLightsRPMValid = float.IsFinite(gameData.MaxRPM) && gameData.MaxRPM > 1000;
+        gameData.ShiftLightsRPMEnd = gameData.MaxRPM * _currentCarShiftPercentage;
+        if (_game is DirtRally2 && OperatingSystem.IsWindows())
+        {
+            _vehicleMemory ??= new Dr2VehicleMemoryReader();
+            if (_vehicleMemory.Read(data.IdleRPM / 10f, data.MaxRPM / 10f) is { } vehicle)
+            {
+                gameData.HandBrake = vehicle.HandBrake;
+                gameData.HandBrakeValid = true;
+                gameData.ShiftLightsRPMEnd = vehicle.ShiftRPM;
+                _nativeCarCode = vehicle.CarCode;
+                gameData.CarDamage = vehicle.Damage ?? CarDamageSnapshot.Unavailable("DR2");
+            }
+        }
+        gameData.ShiftLightsRPMStart = Math.Max(0, gameData.ShiftLightsRPMEnd - 1000);
+        gameData.ShiftLightsFraction = gameData.ShiftLightsRPMValid && float.IsFinite(gameData.RPM)
+            ? Math.Clamp((gameData.RPM - gameData.ShiftLightsRPMStart) /
+                (gameData.ShiftLightsRPMEnd - gameData.ShiftLightsRPMStart), 0f, 1f) : 0f;
 
         gameData.GameSpecificData = data;
 
@@ -241,7 +371,7 @@ public class DirtGameDataReader : UdpGameDataReader
     private DirtRawData RawBytesData2RawData(byte[] raw)
     {
         DirtRawData message = new DirtRawData();
-        if (raw == null || raw.Length == 0) 
+        if (raw == null || raw.Length < 264)
         {
             return message;
         }
