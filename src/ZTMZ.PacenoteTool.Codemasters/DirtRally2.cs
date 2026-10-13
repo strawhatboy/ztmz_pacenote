@@ -20,7 +20,7 @@ namespace ZTMZ.PacenoteTool.Codemasters
         public IReadOnlyList<GameResourceLink> ResourceLinks { get; } =
         [
             new("chinese-localization", "game.resources.chineseLocalization",
-                new Uri("https://gitee.com/ztmz/dr2_-chinese_localization/releases#release-v1.0.1"),
+                new Uri("https://gitee.com/ztmz/dr2_-chinese_localization/releases"),
                 GameResourceKind.Localization,
                 DescriptionKey: "game.resources.dr2ChineseLocalizationDescription")
         ];

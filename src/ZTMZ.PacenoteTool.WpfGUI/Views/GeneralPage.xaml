@@ -255,7 +255,8 @@
                         </Grid>
                     </StackPanel>
                     <Grid Grid.Column="1">
-                        <ToggleButton x:Name="AccentColorButton" Padding="4" MinHeight="36"
+                        <ToggleButton x:Name="AccentColorButton" Padding="4" MinHeight="36" Width="160"
+                                      HorizontalAlignment="Stretch"
                                       HorizontalContentAlignment="Stretch"
                                       ToolTip="{DynamicResource settings.accentColor}"
                                       AutomationProperties.Name="{DynamicResource settings.accentColor}">
@@ -266,7 +267,7 @@
                             </Grid>
                         </ToggleButton>
                         <Popup x:Name="AccentColorPopup" PlacementTarget="{Binding ElementName=AccentColorButton}"
-                               Placement="Bottom" VerticalOffset="4" StaysOpen="False" AllowsTransparency="True"
+                               Placement="Custom" StaysOpen="False" AllowsTransparency="True"
                                IsOpen="{Binding IsChecked, ElementName=AccentColorButton, Mode=TwoWay}"
                                PreviewKeyDown="OnAccentColorPopupKeyDown">
                             <Border Background="{DynamicResource ApplicationBackgroundBrush}" Padding="8"

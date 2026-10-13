@@ -37,7 +37,7 @@ public sealed class CodemastersResourceLinksTest
         Assert.Equal(GameResourceKind.Localization, localization.Kind);
         Assert.Equal("game.resources.dr2ChineseLocalizationDescription", localization.DescriptionKey);
         Assert.Equal(
-            "https://gitee.com/ztmz/dr2_-chinese_localization/releases#release-v1.0.1",
+            "https://gitee.com/ztmz/dr2_-chinese_localization/releases",
             localization.Uri.AbsoluteUri);
     }
 

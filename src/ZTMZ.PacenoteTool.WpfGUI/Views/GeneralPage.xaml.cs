@@ -1,3 +1,5 @@
+using System.Windows;
+using System.Windows.Controls.Primitives;
 using Wpf.Ui.Controls;
 using ZTMZ.PacenoteTool.WpfGUI.ViewModels;
 
@@ -13,6 +15,18 @@ public partial class GeneralPage : INavigableView<GeneralPageVM>
         DataContext = this;
 
         InitializeComponent();
+        AccentColorPopup.CustomPopupPlacementCallback = PlaceAccentColorPopup;
+    }
+
+    private static CustomPopupPlacement[] PlaceAccentColorPopup(Size popupSize, Size targetSize, Point offset)
+    {
+        // Keep the wider palette inside the card; allow WPF to place it above near a screen edge.
+        double left = targetSize.Width - popupSize.Width + offset.X;
+        return
+        [
+            new(new Point(left, targetSize.Height + 4 + offset.Y), PopupPrimaryAxis.Horizontal),
+            new(new Point(left, -popupSize.Height - 4 + offset.Y), PopupPrimaryAxis.Horizontal)
+        ];
     }
 
     private void OnAccentColorPresetClick(object sender, System.Windows.RoutedEventArgs e)
