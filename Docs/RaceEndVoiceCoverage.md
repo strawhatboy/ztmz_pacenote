@@ -68,6 +68,9 @@ VAs for image base `0x400000`, not RVAs. The local executable's SHA-256 is
 `5BB1B0C8F6719FAECAD63B0AAFD7541089D1D1FF7A4C9BB68ED49BB53DC6F63B`.
 Some database calls point outside the original image, so this database must not
 be treated as proof of an unmodified executable or universal plugin behavior.
+The follow-up restored executable code from disk into a separate analysis copy
+and invalidated cached decompilations. See [RBRRaceResultInvestigation.md](RBRRaceResultInvestigation.md)
+for the corrected native paths, result-menu identity and RSF callback storage.
 
 Confirmed control-flow evidence:
 
@@ -83,8 +86,10 @@ Confirmed control-flow evidence:
   and chooses different completion versus unsuccessful-end paths. This is an
   event argument, not a global flag that can simply be polled.
 - For gameflow modes 0/1, the unsuccessful path selects result UI 18; normal
-  completion selects UI 16. Other modes select different UIs, and mode 7 takes
-  a separate path with an external call in this database. `0x47f3a0` changes
+  completion selects UI 16. Other modes select different UIs. The original
+  mode-7 call is `0x5693f0`; the external target in the older database was a
+  runtime patch, not the original call. Mode 7 must not be assumed to mean
+  plugin racing. `0x47f3a0` changes
   the application state to **9 in both cases** and sets the public
   `raceFinished` flag. UI IDs passed to that function are **not** the
   `RBRGameState` values read at `*(0x7eac48)+0x728`.
@@ -96,11 +101,21 @@ Rejected lead: getter `0x47ca00` returns application `+0x70`. Gameflow's
 `0x487680` establish that this is **camera state**, not a race result. Do not
 interpret its values 1/3/4/5/7 as retirement causes.
 
-Next useful step is to trace persistent result-screen identity or a plugin's
-explicit result record, including the tournament/plugin mode and its reset on
-restart. A transient signal, generic state 9, incomplete progress, or damage
-alone is insufficient. Until that is established, RBR's existing unknown-end
-behavior remains silent. No new RBR retirement detector is claimed here.
+Result-menu pointers and RSF's saved `HandleResults` values have now been traced.
+Neither is an unconditional retirement flag: menu transitions can be short, and
+RSF's finish-time value needs proof of a fresh result for this attempt. The
+linked investigation specifies the required guards and unresolved validation.
+RBR's existing unknown-end behavior remains silent; no new detector is claimed.
+The standalone `tools/RbrResultProbe` now captures native result-page ownership,
+transitions and hash-verified RSF saved results without injection or writes.
+Its build, one live RSF manual retirement and a restart were checked: failure page 18
+appeared about 126 ms after the first sampled end state and remained as a stale
+pointer after returning to the main menu. RSF result times stayed zero throughout.
+The restart instead used transition 3 and loading states, without the observed
+failure-page sequence; RSF's stage-start flag stayed set through the new start.
+The detailed document includes both sequences and remaining normal-finish,
+pre-start-exit, replay and repeated-failure validation. No production detector
+has been added yet.
 
 ## WRC 7 / Generations follow-up prerequisites
 
