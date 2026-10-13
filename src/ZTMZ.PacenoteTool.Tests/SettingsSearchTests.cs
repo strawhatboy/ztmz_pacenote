@@ -55,6 +55,16 @@ public class SettingsSearchTests
                 window.Show();
                 window.UpdateLayout();
                 var box = (System.Windows.Controls.TextBox)host.FindName("SettingsSearchBox");
+                box.FontFamily = new System.Windows.Media.FontFamily("Microsoft YaHei UI");
+                box.SetCurrentValue(System.Windows.Controls.TextBox.TextProperty, "播放设置");
+                foreach (var fontSize in new[] { 14d, 16d, 18d })
+                {
+                    box.FontSize = fontSize;
+                    window.UpdateLayout();
+                    var content = (ScrollViewer)box.Template.FindName("PART_ContentHost", box);
+                    Assert.True(content.ViewportHeight + 0.1 >= content.ExtentHeight,
+                        $"Search text clipped at font size {fontSize}: viewport={content.ViewportHeight}, text={content.ExtentHeight}, padding={box.Padding}");
+                }
                 var popup = (System.Windows.Controls.Primitives.Popup)host.FindName("SettingsSearchPopup");
                 var titleBar = host.Children.OfType<Wpf.Ui.Controls.TitleBar>().Single();
                 Assert.True(System.Windows.Shell.WindowChrome.GetIsHitTestVisibleInChrome((Grid)titleBar.CenterContent));

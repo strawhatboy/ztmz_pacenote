@@ -86,12 +86,17 @@
       </Grid>
       <Grid Grid.Column="1" Margin="8,0" VerticalAlignment="Center"
             WindowDecorationProperties.ElementRole="User">
-        <TextBox x:Name="SettingsSearchBox" Height="32" MinHeight="32"
+        <TextBox x:Name="SettingsSearchBox" MinHeight="32" Padding="8,2"
                  VerticalContentAlignment="Center"
                  AutomationProperties.Name="{DynamicResource settingsSearch.title}"
                  Watermark="{DynamicResource settingsSearch.hint}"
                  TextChanged="OnSettingsSearchChanged" GotFocus="OnSettingsSearchFocus"
-                 KeyDown="OnSettingsSearchKeyDown" />
+                 KeyDown="OnSettingsSearchKeyDown">
+          <TextBox.InnerLeftContent>
+            <materialIcons:MaterialIcon Kind="Magnify" Width="16" Height="16" Margin="10,0,0,0"
+                                        Opacity="0.65" IsHitTestVisible="False" />
+          </TextBox.InnerLeftContent>
+        </TextBox>
         <Popup x:Name="SettingsSearchPopup" PlacementTarget="{Binding #SettingsSearchBox}"
                Placement="Bottom" IsLightDismissEnabled="True" VerticalOffset="4">
           <Border Width="{Binding #SettingsSearchBox.Bounds.Width}" Padding="4" CornerRadius="6"

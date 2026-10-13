@@ -51,7 +51,8 @@
             <ui:TitleBar.CenterContent>
                 <Grid Width="360" Margin="12,0" VerticalAlignment="Center"
                       shell:WindowChrome.IsHitTestVisibleInChrome="True">
-                    <ui:TextBox x:Name="SettingsSearchBox" Height="32" MinHeight="32" VerticalContentAlignment="Center"
+                    <ui:TextBox x:Name="SettingsSearchBox" MinHeight="32" Padding="8,2" VerticalContentAlignment="Center"
+                                Icon="{ui:SymbolIcon Search20}" IconPlacement="Left"
                                 PlaceholderText="{DynamicResource settingsSearch.hint}"
                                 AutomationProperties.Name="{DynamicResource settingsSearch.title}"
                                 Text="{Binding ViewModel.SettingsQuery, UpdateSourceTrigger=PropertyChanged}"
