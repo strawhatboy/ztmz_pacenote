@@ -4,7 +4,7 @@
   "tag_line": "Rally Mode integration for ZTMZ Pacenote Tool",
   "message": "[B]ZTMZ Pacenote Rally Bridge[/B]\nProvides a local UDP bridge for Rally Mode telemetry, external co-driver calls, and vehicle damage.\n[url=https://gitee.com/ztmz/ztmz_pacenote]ZTMZ Pacenote Tool on Gitee[/url]",
   "username": "草帽不是猫 with Codex",
-  "version_string": "1.1.10",
+  "version_string": "1.1.11",
   "filename": "ztmz_pacenote_rally_bridge.zip",
   "via": "Bundled with ZTMZ Pacenote Tool"
 }

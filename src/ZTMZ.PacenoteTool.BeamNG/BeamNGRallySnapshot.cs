@@ -16,6 +16,7 @@ public sealed class BeamNGRallySnapshot
     public bool StageCountingDown;
     public int StageCountdownNumber;
     public bool StageFinished;
+    public string StageResult = string.Empty;
     public float StageTimeSeconds;
     public float DistanceMeters;
     public float TotalDistanceMeters;
@@ -54,6 +55,7 @@ public sealed class BeamNGRallySnapshot
         StageCountingDown = false;
         StageCountdownNumber = 0;
         StageFinished = false;
+        StageResult = string.Empty;
         StageTimeSeconds = 0;
         DistanceMeters = 0;
         TotalDistanceMeters = 0;

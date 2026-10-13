@@ -1,6 +1,33 @@
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Codemasters;
 
+// Same hash-gated production memory reader, independent of UDP (which can stop
+// on result screens). Keep the capture local; never writes to the game.
+if (args.FirstOrDefault() == "--race")
+{
+    var type = typeof(DirtRally2).Assembly.GetType("ZTMZ.PacenoteTool.Codemasters.Dr2VehicleMemoryReader", true)!;
+    using var memoryReader = (IDisposable)Activator.CreateInstance(type)!;
+    var read = type.GetMethod("ReadRaceState")!;
+    var seconds = args.Length > 1 ? int.Parse(args[1]) : 300;
+    using var output = args.Length > 2 ? new StreamWriter(new FileStream(args[2], FileMode.CreateNew)) { AutoFlush = true } : null;
+    var end = Environment.TickCount64 + seconds * 1000L;
+    string? previous = null;
+    while (Environment.TickCount64 < end)
+    {
+        var snapshot = (Dr2RaceStateSnapshot?)read.Invoke(memoryReader, null);
+        var value = snapshot is { } state ? $"record=0x{state.RecordAddress:x} state={(int)state.State} ({state.State})" : "unavailable";
+        if (value != previous)
+        {
+            var line = $"{DateTimeOffset.Now:O} {value}";
+            Console.WriteLine(line);
+            output?.WriteLine(line);
+            previous = value;
+        }
+        await Task.Delay(50);
+    }
+    return;
+}
+
 // Inspect the production reader while paused, without requiring UDP or driving.
 if (args.FirstOrDefault() == "--damage")
 {

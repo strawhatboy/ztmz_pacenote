@@ -26,22 +26,37 @@ internal sealed class Dr2VehicleMemoryReader : IDisposable
     private long nextDamageRead;
     private CarDamageSnapshot? damage;
 
+    public Dr2RaceStateSnapshot? ReadRaceState()
+    {
+        lock (gate)
+        {
+            if (disposed) return null;
+            UpdateSession();
+            if (session is null) return null;
+            try { return Dr2RaceStateMemory.Read(session.Read, session.ImageBase); }
+            catch (IOException) { return null; }
+        }
+    }
+
+    private void UpdateSession()
+    {
+        if (opening?.IsCompleted == true)
+        {
+            session = opening.GetAwaiter().GetResult();
+            opening = null;
+        }
+        if (Environment.TickCount64 < nextDiscovery) return;
+        nextDiscovery = Environment.TickCount64 + 5000;
+        if (session?.Process.HasExited == true) { session.Dispose(); session = null; }
+        if (session is null && opening is null) opening = Task.Run(Open);
+    }
+
     public Dr2VehicleTelemetry? Read(float idle, float maximum)
     {
         lock (gate)
         {
             if (disposed) return null;
-            if (opening?.IsCompleted == true)
-            {
-                session = opening.GetAwaiter().GetResult();
-                opening = null;
-            }
-            if (Environment.TickCount64 >= nextDiscovery)
-            {
-                nextDiscovery = Environment.TickCount64 + 5000;
-                if (session?.Process.HasExited == true) { session.Dispose(); session = null; }
-                if (session is null && opening is null) opening = Task.Run(Open);
-            }
+            UpdateSession();
             Dr2VehicleTelemetry? snapshot = null;
             if (session is not null)
             {

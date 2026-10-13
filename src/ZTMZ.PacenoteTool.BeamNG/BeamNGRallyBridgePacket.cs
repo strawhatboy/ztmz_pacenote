@@ -97,6 +97,8 @@ public sealed class BeamNGRallyDamage
 
 public sealed class BeamNGRallyStage
 {
+    // Optional in protocol v1; old bridges still use IsFinished.
+    public string Result { get; init; } = string.Empty;
     public string Id { get; init; } = string.Empty;
     public string Name { get; init; } = string.Empty;
     public bool IsActive { get; init; }

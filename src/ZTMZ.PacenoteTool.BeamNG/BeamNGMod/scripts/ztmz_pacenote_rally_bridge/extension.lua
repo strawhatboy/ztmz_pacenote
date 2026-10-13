@@ -34,6 +34,8 @@ local vehicleTelemetry = {
 local damageReporterVehicleId = 0
 local telemetryReporterVehicleId = 0
 local rallyRuntime = {activeState = "", countdownNumber = 0}
+local stageManager = nil
+local terminalStage = nil
 
 local function asString(value)
   local valueType = type(value)
@@ -376,12 +378,87 @@ local function sendStatus(status, errorMessage)
   })
 end
 
+local function currentStage()
+  local manager = getRallyManager()
+  if manager ~= stageManager then
+    stageManager = manager
+    terminalStage = nil
+    lastExportedStageId = nil
+    rallyRuntime = {activeState = "", countdownNumber = 0}
+  end
+  if manager == nil then return nil end
+  return terminalStage or buildStage(manager, getActiveStageData(manager))
+end
+
+local function getLoopManager()
+  return readMember(rawget(_G, "gameplay_rallyLoop"), {"getManager"})
+end
+
+local function matchesStageMission(stage, mission)
+  local missionId = asString(readMember(mission, {"id"}))
+  if stage == nil or stage.id == "" or missionId == "" then return false end
+  local loop = getLoopManager()
+  if loop ~= nil and readMember(loop, {"getCurrentMissionId"}) == "serviceOut" then
+    return false
+  end
+  return missionId == stage.id or (loop ~= nil and
+    readMember(loop, {"getCurrentMissionId"}) == stage.id and
+    readMember(loop, {"getRallyLoopMissionId"}) == missionId)
+end
+
+local function endStage(stage, result)
+  if terminalStage ~= nil then return end
+  -- Completion is authoritative even if the player leaves the result screen.
+  stage.result = stage.isFinished and "finished" or result
+  stage.isActive = false
+  stage.isCountingDown = false
+  stage.countdownNumber = 0
+  terminalStage = stage
+  sendPacket({type = "stage", status = "active", stage = stage})
+end
+
+function M.onAnyMissionWillChange(state, mission, abandoned)
+  if state ~= "stopped" then return end
+  local stage = currentStage()
+  if not matchesStageMission(stage, mission) then return end
+  -- A stop without the explicit abandon flag can be a restart or a mission
+  -- transfer. End the session silently; never infer retirement from this alone.
+  endStage(stage, abandoned == true and "retired" or "interrupted")
+end
+
+function M.onMissionAttemptAggregated(attempt, mission)
+  if type(attempt) ~= "table" or attempt.dnf ~= true or type(attempt.data) ~= "table" then return end
+  local stage = currentStage()
+  if not matchesStageMission(stage, mission) or attempt.data.dnfMissionId ~= stage.id then return end
+  if attempt.data.dnfType == "abandon" then
+    endStage(stage, "retired")
+  elseif attempt.data.dnfType == "restart" then
+    endStage(stage, "restart")
+  end
+end
+
+function M.onAnyMissionChanged(state, mission)
+  if state ~= "started" then return end
+  local stage = currentStage()
+  if matchesStageMission(stage, mission) then
+    terminalStage = nil
+    lastExportedStageId = nil
+    rallyRuntime = {activeState = "", countdownNumber = 0}
+  end
+end
+
 function M.onRallyDataUpdated(data)
   if type(data) ~= "table" then
     return
   end
 
-  rallyRuntime.activeState = asString(data.activeState)
+  currentStage() -- Synchronize manager ownership before accepting its countdown.
+  local activeState = asString(data.activeState)
+  if activeState == "countdown" and rallyRuntime.activeState ~= "countdown" then
+    terminalStage = nil
+    lastExportedStageId = nil
+  end
+  rallyRuntime.activeState = activeState
   local countdownData = data.countdownData
   rallyRuntime.countdownNumber = type(countdownData) == "table" and
     math.floor(asNumber(countdownData.countdown)) or 0
@@ -397,6 +474,8 @@ function M.onExtensionLoaded()
   damageReporterVehicleId = 0
   telemetryReporterVehicleId = 0
   rallyRuntime = {activeState = "", countdownNumber = 0}
+  stageManager = nil
+  terminalStage = nil
   sendStatus("started", "")
 end
 
@@ -464,7 +543,8 @@ function M.onUpdate(dtReal)
   end
   elapsed = 0
 
-  local manager = getRallyManager()
+  local stage = currentStage()
+  local manager = stageManager
   if manager == nil then
     lastExportedStageId = nil
     if statusElapsed >= STATUS_INTERVAL_SECONDS then
@@ -474,8 +554,6 @@ function M.onUpdate(dtReal)
     return
   end
 
-  local stageData = getActiveStageData(manager)
-  local stage = buildStage(manager, stageData)
   if stage.id == "" then
     if statusElapsed >= STATUS_INTERVAL_SECONDS then
       statusElapsed = 0
@@ -489,7 +567,7 @@ function M.onUpdate(dtReal)
     status = "active",
     telemetry = vehicleTelemetry,
     stage = stage,
-    pacenote = normalizePacenote(getCurrentPacenote(manager))
+    pacenote = terminalStage == nil and normalizePacenote(getCurrentPacenote(manager)) or nil
   })
 
   if stage.id ~= lastExportedStageId then

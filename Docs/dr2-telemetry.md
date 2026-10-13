@@ -113,6 +113,71 @@ No memory writes, injected probes or render-thread callbacks are used.
 
 ## Validation
 
+### Native retirement/result state (2026-10-13)
+
+The 264-byte UDP packet has no verified retirement field. Do not turn silence,
+zero speed, a damaged engine, or incomplete stage distance into retirement.
+The supplemental **Windows** reader now uses the game's local-player result
+record, under the same executable SHA-256 gate above. WPF and Windows Avalonia
+share it; Linux and unverified builds retain UDP without invented retirements.
+
+Native evidence (all addresses are RVAs in that verified executable):
+
+- `0x559f10` returns the player manager at `0x16951e8`.
+- `0x42abc0` locates the local player in manager `+0x30` (pointer array),
+  `+0x40` (count). The entry must have type 3 at `+0x2c` and the local ID at
+  `+0xbc`. The local ID comes from `*( *( *(image+0x1695150)+8 ) +
+  8 * *(int32*)(image+0x16940c4) ) + 0x2a` (uint16).
+- `0x509bd0` searches the race manager at `0x1695240`, array `+0xaca0`,
+  uint64 count `+0xacb0`, for a result record whose `+0x40` equals that player.
+- `0x4c5110` decodes result-record `+0x18` by XOR with the low 32 bits of
+  the process key at `0x15d8510`; key accessor is `0xa0c00`.
+- `0x4c6060` maps the decoded enum to names: 0 Finished, 1 TimedOut,
+  2 Eliminated, 3 Racing, 4 TerminalDamage, 5 Retired, 6 Disqualified,
+  7 Griefing, 8 Disconnected, 9 Spectated, 10 None. The UI consumer at
+  `0x280bc0` also compares the decoded value with 5 before selecting `retired`.
+
+The reader bounds pointers/counts, requires an unambiguous matching player/result,
+rejects unknown state values, and rechecks ownership during a snapshot. It reads
+at most five times/second with UDP, and through the existing one-second timer
+when UDP stops. A UDP end/reset packet also triggers a fresh state read so a stale
+LastLapTime cannot override an already reported native retirement.
+
+Only a terminal state **after observed Racing and a started stage in the same
+record** emits a result. Native Retired/TerminalDamage/Disqualified/TimedOut map
+to shared Retired/Crashed/Disqualified/TimeOut and the existing `system_retired`
+voice. No finish time is fabricated and no completed replay is saved. Repeated
+results are latched; delayed UDP racing packets cannot revive the ended attempt.
+Restart/grid/menu transitions clear the old racing observation. Attaching to an
+old result screen, changing player records, or losing memory reads does not
+fabricate a new result. Other native statuses remain unhandled, and normal
+finish timing keeps its existing UDP path.
+
+Live validation: during the user's 2026-10-13 test, the same player result record
+reported **Racing at 18:35:00.054** and **Retired at 18:36:12.235 (+08:00)**,
+matching the user's manual retirement. Earlier time-trial entry/menu transitions
+produced None/Racing/unavailable, not Retired. Raw local evidence is in the ignored
+`tmp/dr2-race-state-20261013.log`. This validates the native signal; audible
+end-to-end playback still requires running the rebuilt application. Terminal
+damage, timeout and disqualification mappings are source-backed and tested
+offline, but have not been live reproduced.
+
+`tools/Dr2Probe` supports `--race <seconds> <new-log-path>` to capture only
+changes through the same hash-gated production memory reader, independent of
+UDP. It never writes to the game. Example:
+
+```powershell
+dotnet run --project tools/Dr2Probe -- --race 300 tmp/dr2-race-validation.log
+```
+
+`Dr2RaceStateMemoryTest` and `Dr2RetirementTest` cover decoding, player isolation,
+ambiguous/changed ownership, unknown values, UDP-stop polling, result deduplication,
+stale finish-time precedence, pause, restart, a second attempt, pre-start exit,
+normal completion and DR1 isolation. Together with the existing DR2 and shared
+ending-voice tests, 73 focused cases pass.
+
+### Previous telemetry validation
+
 Twenty-one focused tests cover memory validation, UDP conversion, startup ordering,
 handbrake wait, countdown pause/restart, damage validation, and Go before crossing
 the starting line. A live sample

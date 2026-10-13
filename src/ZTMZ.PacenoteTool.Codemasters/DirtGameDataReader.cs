@@ -12,6 +12,7 @@ namespace ZTMZ.PacenoteTool.Codemasters;
 
 public class DirtGameDataReader : UdpGameDataReader
 {
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     public override GameState GameState
     {
         set
@@ -65,8 +66,49 @@ public class DirtGameDataReader : UdpGameDataReader
     private bool _hasPacket;
     private bool _observedInitialUdpWait;
     private string? _trackName;
+    private readonly object _stateGate = new();
+    private readonly Dr2RaceResultTracker _dr2RaceResult = new();
+    private long _nextRaceStateRead;
+
+    protected virtual Dr2RaceStateSnapshot? ReadDr2RaceState()
+    {
+        if (!OperatingSystem.IsWindows() || !isInitialized) return null;
+        _vehicleMemory ??= new Dr2VehicleMemoryReader();
+        return _vehicleMemory.ReadRaceState();
+    }
+
+    private void UpdateDr2RaceResult(bool force)
+    {
+        if (_game is not DirtRally2 || !_hasPacket) return;
+        if (!force && Environment.TickCount64 < _nextRaceStateRead) return;
+        _nextRaceStateRead = Environment.TickCount64 + 200;
+        var result = _dr2RaceResult.Observe(ReadDr2RaceState(), _lastValidLapTime > 0);
+        if (result.HasValue && GameState != GameState.RaceEnd)
+        {
+            Logger.Info("DR2 native race result: {0}.", result.Value);
+            onGameStateRaceEnd(new Dictionary<string, object>
+            {
+                [GameStateRaceEndProperty.FINISH_STATE] = result.Value
+            });
+            _lastValidLapTime = 0;
+            _preStart = false;
+            _countdown.Reset();
+        }
+    }
 
     protected override void UpdateStateForUdpSilence()
+    {
+        lock (_stateGate)
+        {
+            // DR2 can stop sending UDP on a retirement/result screen. The base
+            // timer keeps this read alive without treating silence as a result.
+            UpdateDr2RaceResult(true);
+            if (_dr2RaceResult.HasAbnormalResult) return;
+            UpdateDr2StateForUdpSilence();
+        }
+    }
+
+    private void UpdateDr2StateForUdpSilence()
     {
         // A listener already waiting before the first grid packet has observed
         // the start of the stream. No previous race/reset packet is required.
@@ -82,17 +124,22 @@ public class DirtGameDataReader : UdpGameDataReader
     public override void Uninitialize(IGame game)
     {
         base.Uninitialize(game);
-        if (OperatingSystem.IsWindows()) _vehicleMemory?.Dispose();
-        _vehicleMemory = null;
-        _nativeCarCode = null;
-        _countdown.Reset();
-        _preStart = _hasPacket = false;
-        _observedInitialUdpWait = false;
-        _trackName = null;
-        _lastValidLapTime = 0;
-        _lastRawData = _currentRawData = default;
-        _lastGameData = _currentGameData = default;
-        _gameState = GameState.Unknown;
+        lock (_stateGate)
+        {
+            if (OperatingSystem.IsWindows()) _vehicleMemory?.Dispose();
+            _vehicleMemory = null;
+            _nativeCarCode = null;
+            _countdown.Reset();
+            _preStart = _hasPacket = false;
+            _observedInitialUdpWait = false;
+            _trackName = null;
+            _lastValidLapTime = 0;
+            _lastRawData = _currentRawData = default;
+            _lastGameData = _currentGameData = default;
+            _gameState = GameState.Unknown;
+            _dr2RaceResult.Reset();
+            _nextRaceStateRead = 0;
+        }
     }
 
     private event Action<GameData, GameData> _onNewGameData;
@@ -129,6 +176,11 @@ public class DirtGameDataReader : UdpGameDataReader
 
     public override void onNewUdpMessage(byte[] lastMsg, byte[] newMsg)
     {
+        lock (_stateGate) ProcessUdpMessage(lastMsg, newMsg);
+    }
+
+    private void ProcessUdpMessage(byte[] lastMsg, byte[] newMsg)
+    {
         // Extra-data 3 contains 66 floats. Do not parse or publish truncated packets.
         if (newMsg is null || newMsg.Length < 264) return;
         base.onNewUdpMessage(lastMsg, newMsg);
@@ -146,6 +198,9 @@ public class DirtGameDataReader : UdpGameDataReader
         var newGameData = RawData2GameData(message);
 
         _currentGameData = newGameData;
+        // Do not let a cached native Racing sample allow a stale UDP finish
+        // time to win over a retirement that just happened.
+        UpdateDr2RaceResult(message.Time == 0 && _lastValidLapTime > 0);
 
         if (!message.Equals(lastMessage))
         {
@@ -171,7 +226,7 @@ public class DirtGameDataReader : UdpGameDataReader
 
             if (_game is DirtRally2)
             {
-                UpdateDr2State(message, lastMessage);
+                if (!_dr2RaceResult.HasAbnormalResult) UpdateDr2State(message, lastMessage);
             }
             else if (newGameData.LapTime > 0 && this.GameState != GameState.Racing)
             {
@@ -243,6 +298,8 @@ public class DirtGameDataReader : UdpGameDataReader
             // context as well, including when leaving before the start.
             _preStart = false;
             _countdown.Reset();
+            _lastValidLapTime = 0;
+            _dr2RaceResult.Reset();
             return;
         }
         if (message.LapTime > 0)
@@ -278,6 +335,8 @@ public class DirtGameDataReader : UdpGameDataReader
         if (message.LapDistance > 0) return;
         if (!_preStart)
         {
+            _lastValidLapTime = 0;
+            _dr2RaceResult.Reset();
             _preStart = true;
             _countdown.Begin(message.Time,
                 (!_hasPacket && _observedInitialUdpWait) ||

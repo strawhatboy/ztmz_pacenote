@@ -18,3 +18,10 @@ initializes BeamNG. When BeamNG reports a built-in co-driver call, the desktop
 tool plays the corresponding ZTMZ co-driver tokens through its selected output
 device. The bridge remains read-only: it does not control the stage, timer,
 vehicle, or BeamNG audio.
+
+Version 1.1.11 also reports explicit Rally mission abandonment and Rally Loop
+restart results. Retirement plays the tool's retirement call; restarting or
+stopping for an unknown reason does not play a finish congratulation. Leaving
+the service area, pausing, losing telemetry, or damaging the vehicle alone is
+not treated as retirement. Update the installed mod and restart BeamNG to use
+these events.

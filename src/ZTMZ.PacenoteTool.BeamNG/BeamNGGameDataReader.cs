@@ -524,6 +524,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
             _rallySnapshot.StageCountingDown = packet.Stage.IsCountingDown;
             _rallySnapshot.StageCountdownNumber = packet.Stage.CountdownNumber;
             _rallySnapshot.StageFinished = packet.Stage.IsFinished;
+            _rallySnapshot.StageResult = packet.Stage.Result;
             _rallySnapshot.StageTimeSeconds = Normalize(packet.Stage.StageTimeSeconds);
             _rallySnapshot.DistanceMeters = Normalize(packet.Stage.DistanceMeters);
             _rallySnapshot.TotalDistanceMeters = Normalize(packet.Stage.TotalDistanceMeters);
@@ -1291,7 +1292,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
         {
             targetState = GameState.Unknown;
         }
-        else if (_rallySnapshot.StageFinished)
+        else if (_rallySnapshot.StageFinished || !string.IsNullOrEmpty(_rallySnapshot.StageResult))
         {
             targetState = GameState.RaceEnd;
         }
@@ -1358,8 +1359,17 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
         }
         if (state == GameState.RaceEnd)
         {
-            parameters[GameStateRaceEndProperty.FINISH_TIME] = _rallySnapshot.StageTimeSeconds;
-            parameters[GameStateRaceEndProperty.FINISH_STATE] = GameStateRaceEnd.Normal;
+            if (_rallySnapshot.StageFinished || _rallySnapshot.StageResult == "finished")
+            {
+                parameters[GameStateRaceEndProperty.FINISH_TIME] = _rallySnapshot.StageTimeSeconds;
+                parameters[GameStateRaceEndProperty.FINISH_STATE] = GameStateRaceEnd.Normal;
+            }
+            else if (_rallySnapshot.StageResult == "retired")
+            {
+                parameters[GameStateRaceEndProperty.FINISH_STATE] = GameStateRaceEnd.Retired;
+            }
+            // Restart, interruption and future unknown results end the session
+            // without an ending voice or a completed replay.
         }
 
         return new GameStateChangeEvent
