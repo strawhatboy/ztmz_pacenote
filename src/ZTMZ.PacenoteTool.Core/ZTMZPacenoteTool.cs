@@ -523,20 +523,15 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
                 // end recording, unload trace loaded?
                 ResetExternalPacenoteSession();
                 
-                if (lastState == GameState.Racing) {
+                if (lastState is GameState.Racing or GameState.Paused or GameState.AdHocRaceBegin) {
                     
                     // GoogleAnalyticsHelper.Instance.TrackRaceEvent("race_end");
                     this.onRaceEnd?.Invoke(_currentGame);
                     if (shouldPlayExternalPacenotes && Config.Instance.PlayStartAndEndSound)
                     {
-                        var finishState = evt.Parameters.TryGetValue(GameStateRaceEndProperty.FINISH_STATE, out var finishStateValue)
-                            && finishStateValue is GameStateRaceEnd typedFinishState
-                            ? typedFinishState
-                            : GameStateRaceEnd.Unknown;
-                        var endSound = finishState == GameStateRaceEnd.Disqualified
-                            ? Constants.SYSTEM_RETIRED
-                            : Constants.SYSTEM_END_STAGE;
-                        this._profileManager.PlaySystem(endSound, true, false);
+                        var endSound = RaceEndPlaybackPolicy.GetSoundToken(evt);
+                        if (endSound is not null)
+                            this._profileManager.PlaySystem(endSound, true, false);
                     }
 
                     if (_enableReplayIntegration)
@@ -1233,38 +1228,29 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
     }
 
     private void saveReplay(GameStateChangeEvent evt) {
-        if (evt.Parameters.ContainsKey(GameStateRaceEndProperty.FINISH_STATE)) {
-            // finished with state, check if it's normal finish, if so, save the replay
-            var finishState = (GameStateRaceEnd)evt.Parameters[GameStateRaceEndProperty.FINISH_STATE];
-            if (finishState == GameStateRaceEnd.Normal) {
-                if (Config.Instance.ReplaySave) {
-                    // save replay
-                    var replay = new Replay();
-                    replay.car = this._carName;
-                    replay.track = this._trackName;
-                    replay.checkpoints = Math.Max(1, Config.Instance.ReplaySaveGranularity);
-                    replay.date = DateTime.UtcNow;
-                    replay.locked = false;
-                    replay.track_length = this._trackLength;
-                    replay.finish_time = (float)evt.Parameters[GameStateRaceEndProperty.FINISH_TIME];
-                    replay.retired = false;
-                    replay.car_class = this._carClass;
-                    replay.comment = "";
-                    replay.video_path = _enableObsIntegration
-                        ? ObsManager.Instance.StopRecording()
-                        : string.Empty;
-                    replay.video_begin_timestamp = _enableObsIntegration && Config.Instance.ReplayOBSSave
-                        ? this._obsStartTimestamp
-                        : 0;
-                    // replay.video_end_timestamp = this._obsStopTimestamp;
-                    _ = ReplayManager.Instance.SaveReplayAsync(CurrentGame, replay, this.ReplayDetailsPerTimes, this.ReplayDetailsPerCheckpoints);
-                }
-            }
-            else if (_enableObsIntegration) {
-                ObsManager.Instance.AbnormallyStopRecording();
+        if (RaceEndPlaybackPolicy.TryGetReplayFinishTime(evt, out var finishTime)) {
+            if (Config.Instance.ReplaySave) {
+                var replay = new Replay();
+                replay.car = this._carName;
+                replay.track = this._trackName;
+                replay.checkpoints = Math.Max(1, Config.Instance.ReplaySaveGranularity);
+                replay.date = DateTime.UtcNow;
+                replay.locked = false;
+                replay.track_length = this._trackLength;
+                replay.finish_time = finishTime;
+                replay.retired = false;
+                replay.car_class = this._carClass;
+                replay.comment = "";
+                replay.video_path = _enableObsIntegration
+                    ? ObsManager.Instance.StopRecording()
+                    : string.Empty;
+                replay.video_begin_timestamp = _enableObsIntegration && Config.Instance.ReplayOBSSave
+                    ? this._obsStartTimestamp
+                    : 0;
+                _ = ReplayManager.Instance.SaveReplayAsync(CurrentGame, replay, this.ReplayDetailsPerTimes, this.ReplayDetailsPerCheckpoints);
             }
         } else if (_enableObsIntegration) {
-            // not normal finish, stop recording
+            // Abnormal/unknown result, or a finish cue without an official result time.
             ObsManager.Instance.AbnormallyStopRecording();
         }
     }

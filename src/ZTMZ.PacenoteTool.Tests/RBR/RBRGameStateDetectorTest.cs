@@ -104,6 +104,19 @@ public class RBRGameStateDetectorTest
         Assert.Equal(GameState.RaceEnd, raceEnd.State);
     }
 
+    [Fact]
+    public void EarlyRaceEndFlagIsNotEvidenceOfNormalCompletion()
+    {
+        var detector = new RBRGameStateDetector();
+        detector.Detect(Data(RBRGameState.Racing), false, GameState.Unknown, 0.4f, 35);
+        detector.Detect(Data(RBRGameState.Racing, raceEnded: true), false, GameState.AdHocRaceBegin, 0.4f, 35);
+        var end = detector.Detect(Data(RBRGameState.RaceEnd), false, GameState.Paused, 0, 0);
+        Assert.Equal(GameState.RaceEnd, end.State);
+        Assert.True(detector.SawRaceEnded);
+        Assert.False(detector.IsPostGame);
+        Assert.Equal(0, detector.FinishTime);
+    }
+
     private static RBRMemData Data(
         RBRGameState state,
         float countdown = -1,

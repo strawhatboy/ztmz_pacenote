@@ -234,7 +234,7 @@ internal sealed class ACRLivePacenoteBridge : IDisposable
         }
         else if (string.Equals(token, "StopAtMarshals", StringComparison.OrdinalIgnoreCase))
         {
-            PublishRaceEnd(null);
+            PublishRaceEnd(GameStateRaceEnd.Normal);
         }
         else if (IsDisqualifiedToken(token))
         {

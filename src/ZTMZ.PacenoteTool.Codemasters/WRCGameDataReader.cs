@@ -52,6 +52,16 @@ public class WRCGameDataReader : UdpGameDataReader
         this._onGameStateChanged?.Invoke(new GameStateChangeEvent { LastGameState = lastGameState, NewGameState = GameState.RaceEnd, Parameters = Parameters });
     }
 
+    internal static GameStateRaceEnd GetFinishState(WRCStageResultStatus status) => status switch
+    {
+        WRCStageResultStatus.FINISHED => GameStateRaceEnd.Normal,
+        WRCStageResultStatus.TIME_OUT_STAGE => GameStateRaceEnd.TimeOut,
+        WRCStageResultStatus.TERMINALLY_DAMAGED => GameStateRaceEnd.Crashed,
+        WRCStageResultStatus.RETIRED => GameStateRaceEnd.Retired,
+        WRCStageResultStatus.DISQUALIFIED => GameStateRaceEnd.Disqualified,
+        _ => GameStateRaceEnd.Unknown
+    };
+
     public override GameData LastGameData { get => _lastGameData; set => _lastGameData = value; }
     public override GameData CurrentGameData { get => _currentGameData; set => _currentGameData = value; }
 
@@ -125,35 +135,26 @@ public class WRCGameDataReader : UdpGameDataReader
                 _onCarReset?.Invoke();
             }
 
-            if (CurrentGameData.CompletionRate <= 0.0f && CurrentGameData.LapTime <= 0.0f) {
+            // Explicit results take precedence over distance/timer values, which may
+            // already be reset on retirement or be just below 100% at the finish.
+            var finishState = GetFinishState((WRCStageResultStatus)_currentPacket.stage_result_status);
+            if (finishState != GameStateRaceEnd.Unknown)
+            {
+                if (this.GameState != GameState.RaceEnd)
+                    this.onGameStateRaceEnd(new Dictionary<string, object>
+                    {
+                        [GameStateRaceEndProperty.FINISH_STATE] = finishState,
+                        [GameStateRaceEndProperty.FINISH_TIME] = _currentPacket.stage_result_time,
+                        [GameStateRaceEndProperty.FINISH_TIME_PANALTY] = _currentPacket.stage_result_time_penalty
+                    });
+            }
+            else if (CurrentGameData.CompletionRate <= 0.0f && CurrentGameData.LapTime <= 0.0f) {
                 if (this.GameState != GameState.RaceBegin)
                 {
                     this.GameState = GameState.RaceBegin;
                 }
             } else if (CurrentGameData.CompletionRate >= 1.0f) {
-                if (this.GameState != GameState.RaceEnd)
-                {
-                    if (_currentPacket.stage_result_status == (byte)WRCStageResultStatus.FINISHED)
-                    {
-                        this.onGameStateRaceEnd(new Dictionary<string, object> { 
-                            { GameStateRaceEndProperty.FINISH_STATE, WRCStageResultStatus.FINISHED },
-                            { GameStateRaceEndProperty.FINISH_TIME, _currentPacket.stage_result_time },
-                            { GameStateRaceEndProperty.FINISH_TIME_PANALTY, _currentPacket.stage_result_time_penalty }
-                        });
-                    }
-                }
-            } else if (_currentPacket.stage_result_status == (byte)WRCStageResultStatus.TIME_OUT_STAGE ||
-                    _currentPacket.stage_result_status == (byte)WRCStageResultStatus.TERMINALLY_DAMAGED ||
-                    _currentPacket.stage_result_status == (byte)WRCStageResultStatus.DISQUALIFIED ||
-                    _currentPacket.stage_result_status == (byte)WRCStageResultStatus.RETIRED) {
-                // raceend with reason
-                if (this.GameState != GameState.RaceEnd) {
-                    this.onGameStateRaceEnd(new Dictionary<string, object> { 
-                        { GameStateRaceEndProperty.FINISH_STATE, (GameStateRaceEnd)_currentPacket.stage_result_status },
-                        { GameStateRaceEndProperty.FINISH_TIME, _currentPacket.stage_result_time },
-                        { GameStateRaceEndProperty.FINISH_TIME_PANALTY, _currentPacket.stage_result_time_penalty }
-                    });
-                }
+                // Wait for the actual result; distance alone is not a finish reason.
             } else {
                 if (this.GameState == GameState.Unknown)
                 {

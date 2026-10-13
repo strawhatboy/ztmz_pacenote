@@ -11,6 +11,31 @@ namespace ZTMZ.PacenoteTool.Tests.BeamNG;
 public class BeamNGProtocolTest
 {
     [Fact]
+    public void StageCompletePublishesOneTypedNormalResultButInactiveStageDoesNot()
+    {
+        var reader = new BeamNGGameDataReader();
+        var changes = new List<GameStateChangeEvent>();
+        reader.onGameStateChanged += changes.Add;
+        void Send(bool active, bool finished) => reader.ProcessBridgePacket(new BeamNGRallyBridgePacket
+        {
+            Stage = new BeamNGRallyStage
+            {
+                Id = "test-result-stage", IsActive = active, IsFinished = finished, StageTimeSeconds = 123.45f
+            }
+        });
+        Send(true, false);
+        Send(true, false);
+        Send(false, false);
+        Assert.DoesNotContain(changes, e => e.NewGameState == GameState.RaceEnd);
+        Send(true, false);
+        Send(false, true);
+        Send(false, true);
+        var end = Assert.Single(changes.Where(e => e.NewGameState == GameState.RaceEnd));
+        Assert.Equal(GameStateRaceEnd.Normal, Assert.IsType<GameStateRaceEnd>(end.Parameters[GameStateRaceEndProperty.FINISH_STATE]));
+        Assert.Equal(123.45f, Assert.IsType<float>(end.Parameters[GameStateRaceEndProperty.FINISH_TIME]));
+    }
+
+    [Fact]
     public void TryParseOutGauge_MapsBeamNGTelemetryFields()
     {
         var packetBytes = new byte[BeamNGOutGaugePacket.MinimumPacketLength];
