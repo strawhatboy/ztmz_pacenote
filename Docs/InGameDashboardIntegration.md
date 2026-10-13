@@ -114,7 +114,15 @@ passed in a self-owned controlled process using the production DLL. DR2 is next.
 Windows WPF and Avalonia builds now compile and stage the production multi-API DLL
 automatically through the shared `build/NativeDashboard.Development.targets`.
 This also applies to `build.bat`, `build_avalonia.bat` and direct `dotnet build`.
-Visual Studio 2022 C++ tools, a Windows SDK and CMake are required. The first build
+Visual Studio 2022 C++ tools, a Windows SDK and CMake 3.24 or newer are required.
+To provide CMake, enable **C++ CMake tools for Windows** in Visual Studio
+Installer, install standalone CMake on PATH (or under Program Files), or unpack a
+portable copy to `build/native-dashboard/tools/cmake` (so `bin/cmake.exe` exists).
+The ignored project-local copy does not change system PATH or get packaged.
+For another location set `ZTMZ_CMAKE_PATH` to the executable, or pass
+`-CMakePath` when running `build_native_dashboard.ps1` directly.
+Missing/old CMake now produces an explicit MSBuild error rather than just exit code 1.
+The first build
 downloads hash-pinned native dependencies; subsequent builds reuse the CMake cache
 and compile only changed sources. Both hosts share a serialized build tree at
 `build/native-dashboard/production` (override `NativeDashboardBuildDirectory`).
