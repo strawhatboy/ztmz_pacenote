@@ -26,6 +26,12 @@
                 }
             },
             "message": {
+                "selection_NotConfigured": "Especial {0}: caminho de notas personalizadas não configurado no NGPCarMenu. Usando o mapeamento padrão; Luppis pode estar instalado.",
+                "selection_Disabled": "Especial {0}: notas personalizadas desativadas no NGPCarMenu. Usando o mapeamento padrão.",
+                "selection_DirectoryMissing": "Especial {0}: pasta de notas configurada não encontrada. Verifique MyPacenotesPath; usando o mapeamento padrão.",
+                "selection_StageMissing": "Especial {0}: não há pasta para esta especial nas notas personalizadas. Ela pode não estar incluída; usando o mapeamento padrão.",
+                "selection_DefaultSelected": "Especial {0}: notas padrão selecionadas no NGPCarMenu. Altere a seleção no jogo se desejar.",
+                "selection_Unknown": "Especial {0}: seleção de notas incerta. Verifique marcadores, arquivos, datas iguais e a seleção no jogo. Isso não significa que Luppis esteja ausente.",
                 "custom_pacenote_not_used": "As notas padrão estão sendo usadas na pista atual {0}. Isso funciona, mas as notas Luppis V3 são recomendadas. Também é possível que o Luppis V3 não contenha um roteiro de notas para a pista atual."
             }
         }

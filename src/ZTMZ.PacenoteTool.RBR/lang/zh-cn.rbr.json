@@ -26,6 +26,12 @@
                 }
             },
             "message": {
+                "selection_NotConfigured": "赛道 {0}：未找到 NGPCarMenu 的自定义路书目录配置，暂用默认映射；这不代表没有安装老王/Luppis 路书。",
+                "selection_Disabled": "赛道 {0}：NGPCarMenu 已禁用自定义路书，暂用默认映射。",
+                "selection_DirectoryMissing": "赛道 {0}：配置的自定义路书目录不存在，请检查 MyPacenotesPath，暂用默认映射。",
+                "selection_StageMissing": "赛道 {0}：自定义路书目录存在，但未找到本赛道的文件夹；可能尚未覆盖此赛道，暂用默认映射，无需重装整个路书包。",
+                "selection_DefaultSelected": "赛道 {0}：NGPCarMenu 当前选择了默认路书；如需自定义路书，请在游戏中切换。",
+                "selection_Unknown": "赛道 {0}：无法确认自定义路书选择（标记缺失、冲突、文件缺失或时间相同）。请检查游戏中的路书选择；不据此判断老王/Luppis 未安装。",
                 "custom_pacenote_not_used": "当前赛道 {0} 使用的是默认路书，虽然可以用，但建议给RBR安装LuppisV3/老王路书mod后再使用本工具。也有可能LuppisV3/老王路书mod中不包含当前赛道的路书脚本"
             }
         }

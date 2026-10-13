@@ -43,6 +43,7 @@
     "about": "Sobre"
   },
   "replay": {
+    "motecExported": "Exportado: {0}\nFrequência: {1} Hz (reamostragem dos registros).\nConfira tempos e unidades no MoTeC i2.",
     "title": "Replays",
     "browserSubtitle": "Veja as passagens salvas do jogo atual",
     "searchTooltip": "Pesquisar trecho, carro, classe ou observação",
@@ -171,6 +172,7 @@
     "errorTitle": "Editor de notas"
   },
   "settings": {
+    "replayExportMotec": "Exportar telemetria MoTeC (experimental)",
     "more": "Mais",
     "title": "Configurações",
     "export": "Exportar",

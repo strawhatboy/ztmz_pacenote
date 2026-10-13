@@ -77,6 +77,20 @@ public sealed class ReplayCatalogService
         return _replayManager.FlushPendingSavesAsync();
     }
 
+    public Task<MotecReplayExportResult> ExportMotecAsync(int replayId, string destinationDirectory,
+        System.Threading.CancellationToken cancellationToken = default)
+    {
+        // Microsoft.Data.Sqlite async reads may complete synchronously: move the database
+        // reads as well as resampling/writing off the host UI thread.
+        return Task.Run(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var replay = await RequireReplayAsync(replayId).ConfigureAwait(false);
+            var details = await GetDetailsPerTimeAsync(replayId).ConfigureAwait(false);
+            return MotecReplayExporter.Export(replay, details, destinationDirectory, cancellationToken);
+        }, cancellationToken);
+    }
+
     private async Task<Replay> RequireReplayAsync(int replayId)
     {
         return await GetReplayAsync(replayId)

@@ -26,6 +26,12 @@
                 }
             },
             "message": {
+                "selection_NotConfigured": "ステージ {0}：NGPCarMenu のカスタムノートのパスが未設定です。標準マッピングを使用します。Luppis 未導入とは限りません。",
+                "selection_Disabled": "ステージ {0}：NGPCarMenu のカスタムノートが無効です。標準マッピングを使用します。",
+                "selection_DirectoryMissing": "ステージ {0}：設定されたノートフォルダーが見つかりません。MyPacenotesPath を確認してください。標準マッピングを使用します。",
+                "selection_StageMissing": "ステージ {0}：カスタムノート内にこのステージのフォルダーがありません。未収録の可能性があります。標準マッピングを使用します。",
+                "selection_DefaultSelected": "ステージ {0}：NGPCarMenu で標準ノートが選択されています。必要に応じてゲーム内で変更してください。",
+                "selection_Unknown": "ステージ {0}：ノートの選択を確認できません。マーカー、ファイル、同一更新日時とゲーム内の選択を確認してください。Luppis 未導入とは判断しません。",
                 "custom_pacenote_not_used": "現在のコース {0} では標準ペースノートが使用されています。そのままでも利用できますが、Luppis V3 ペースノートを推奨します。Luppis V3 に現在のコース用ペースノートスクリプトが含まれていない可能性もあります。"
             }
         }

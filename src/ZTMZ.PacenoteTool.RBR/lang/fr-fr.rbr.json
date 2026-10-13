@@ -26,6 +26,12 @@
                 }
             },
             "message": {
+                "selection_NotConfigured": "Spéciale {0} : aucun chemin de notes personnalisées configuré dans NGPCarMenu. Correspondance par défaut utilisée ; Luppis peut être installé.",
+                "selection_Disabled": "Spéciale {0} : notes personnalisées désactivées dans NGPCarMenu. Correspondance par défaut utilisée.",
+                "selection_DirectoryMissing": "Spéciale {0} : dossier de notes configuré introuvable. Vérifiez MyPacenotesPath ; correspondance par défaut utilisée.",
+                "selection_StageMissing": "Spéciale {0} : aucun dossier pour cette spéciale dans les notes personnalisées. Elle peut ne pas être couverte ; correspondance par défaut utilisée.",
+                "selection_DefaultSelected": "Spéciale {0} : notes par défaut sélectionnées dans NGPCarMenu. Changez la sélection dans le jeu si nécessaire.",
+                "selection_Unknown": "Spéciale {0} : sélection incertaine. Vérifiez les marqueurs, fichiers, dates identiques et la sélection en jeu. Cela ne signifie pas que Luppis est absent.",
                 "custom_pacenote_not_used": "Les notes par défaut sont utilisées pour l'étape actuelle {0}. Cela fonctionne, mais les notes Luppis V3 sont recommandées. Il est également possible que Luppis V3 ne contienne pas de script de notes pour cette étape."
             }
         }

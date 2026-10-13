@@ -26,6 +26,12 @@
                 }
             },
             "message": {
+                "selection_NotConfigured": "Stage {0}: NGPCarMenu's custom pacenote path is not configured. Using the default mapping; this does not mean Luppis is not installed.",
+                "selection_Disabled": "Stage {0}: custom pacenotes are disabled in NGPCarMenu. Using the default mapping.",
+                "selection_DirectoryMissing": "Stage {0}: the configured custom pacenote directory is missing. Check MyPacenotesPath; using the default mapping.",
+                "selection_StageMissing": "Stage {0}: the custom pacenote directory exists but has no folder for this stage. It may not be covered; using the default mapping. Reinstalling the entire pack is not necessary.",
+                "selection_DefaultSelected": "Stage {0}: NGPCarMenu has default pacenotes selected. Select custom pacenotes in the game if desired.",
+                "selection_Unknown": "Stage {0}: custom pacenote selection is uncertain (missing/conflicting markers, missing file or tied timestamps). Check the in-game selection; this does not establish whether Luppis is installed.",
                 "custom_pacenote_not_used": "Default pacenote is used for current track {0}. It's ok, but Luppis V3 pacenote is recommended. It's also possible that Luppis V3 pacenote doesn't contain the pacenote script for the current track."
             }
         }

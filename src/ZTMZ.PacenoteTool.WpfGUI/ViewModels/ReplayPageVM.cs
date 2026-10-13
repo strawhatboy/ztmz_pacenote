@@ -169,6 +169,28 @@ public partial class ReplayPageVM : ObservableObject, INavigationAware
     }
 
     [RelayCommand]
+    private async Task ReplayExportMotec(int id)
+    {
+        if (Replays.FirstOrDefault(replay => replay.Id == id)?.Available != true) return;
+        var folder = GetExportFolder();
+        if (string.IsNullOrEmpty(folder)) return;
+        try
+        {
+            var result = await _replayCatalog.ExportMotecAsync(id, folder);
+            await new Wpf.Ui.Controls.MessageBox
+            {
+                Title = I18NLoader.Instance["settings.replayExportMotec"],
+                Content = string.Format(I18NLoader.Instance["replay.motecExported"], result.LogPath, result.Frequency),
+                CloseButtonText = I18NLoader.Instance["dialog.common.btn_ok"]
+            }.ShowDialogAsync();
+        }
+        catch (Exception ex)
+        {
+            await ShowReplayActionErrorAsync(ex);
+        }
+    }
+
+    [RelayCommand]
     private async Task ReplayLock(int id)
     {
         var replay = Replays.FirstOrDefault(item => item.Id == id);

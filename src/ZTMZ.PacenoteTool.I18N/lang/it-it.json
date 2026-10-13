@@ -43,6 +43,7 @@
     "about": "Informazioni"
   },
   "replay": {
+    "motecExported": "Esportato: {0}\nFrequenza: {1} Hz (ricampionamento dei dati registrati).\nVerifica tempi e unità in MoTeC i2.",
     "title": "Replay",
     "browserSubtitle": "Esamina le prove salvate per il gioco attuale",
     "searchTooltip": "Cerca prova speciale, auto, classe o nota",
@@ -171,6 +172,7 @@
     "errorTitle": "Editor delle note"
   },
   "settings": {
+    "replayExportMotec": "Esporta telemetria MoTeC (sperimentale)",
     "more": "Altro",
     "title": "Impostazioni",
     "export": "Esporta",

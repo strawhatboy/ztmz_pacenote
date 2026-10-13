@@ -26,6 +26,12 @@
                 }
             },
             "message": {
+                "selection_NotConfigured": "Strecke {0}: Kein eigener Pacenote-Pfad in NGPCarMenu konfiguriert. Standardzuordnung wird verwendet; Luppis kann trotzdem installiert sein.",
+                "selection_Disabled": "Strecke {0}: Eigene Pacenotes sind in NGPCarMenu deaktiviert. Standardzuordnung wird verwendet.",
+                "selection_DirectoryMissing": "Strecke {0}: Das konfigurierte Pacenote-Verzeichnis fehlt. MyPacenotesPath prüfen; Standardzuordnung wird verwendet.",
+                "selection_StageMissing": "Strecke {0}: Kein Ordner für diese Strecke im eigenen Pacenote-Verzeichnis. Die Strecke ist möglicherweise nicht enthalten; Standardzuordnung wird verwendet.",
+                "selection_DefaultSelected": "Strecke {0}: In NGPCarMenu sind Standard-Pacenotes ausgewählt. Bei Bedarf im Spiel wechseln.",
+                "selection_Unknown": "Strecke {0}: Pacenote-Auswahl unklar. Markierungen, Dateien und Zeitstempel sowie die Auswahl im Spiel prüfen. Dies bedeutet nicht, dass Luppis fehlt.",
                 "custom_pacenote_not_used": "Für die aktuelle Strecke {0} werden die Standard-Pacenotes verwendet. Das ist in Ordnung, empfohlen werden jedoch Luppis-V3-Pacenotes. Möglicherweise enthält Luppis V3 auch kein Pacenote-Skript für die aktuelle Strecke."
             }
         }

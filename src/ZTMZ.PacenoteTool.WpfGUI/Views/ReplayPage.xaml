@@ -47,6 +47,8 @@
           <Run Text=": " />
           <Run Text="{Binding ViewModel.CurrentGameName}" FontWeight="SemiBold" />
         </TextBlock>
+        <ProgressBar Height="3" Margin="0 6 12 0" IsIndeterminate="True"
+                     Visibility="{Binding ViewModel.ReplayExportMotecCommand.IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}" />
       </StackPanel>
       <TextBox Grid.Column="1"
                Text="{Binding ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -92,7 +94,7 @@
         <DataGridTextColumn Header="{DynamicResource replay.finishTime}" Binding="{Binding FinishTimeDisplay}" Width="110" SortMemberPath="Finish_time" />
         <DataGridTextColumn Header="{DynamicResource replay.recorded}" Binding="{Binding RecordedDisplay}" Width="145" SortMemberPath="Date" />
         <DataGridTextColumn Header="{DynamicResource replay.note}" Binding="{Binding Comment}" Width="*" MinWidth="150" />
-        <DataGridTemplateColumn Header="{DynamicResource replay.actions}" Width="180" CanUserSort="False">
+        <DataGridTemplateColumn Header="{DynamicResource replay.actions}" Width="210" CanUserSort="False">
           <DataGridTemplateColumn.CellTemplate>
             <DataTemplate>
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MinWidth="135">
@@ -124,6 +126,15 @@
                            IsEnabled="{Binding Available}"
                            CommandParameter="{Binding Id}"
                            Command="{Binding ViewModel.ReplayExportAudioCommand, RelativeSource={RelativeSource AncestorType=Page}}" />
+                <ui:Button Margin="0 0 5 0"
+                           Padding="0"
+                           Width="30"
+                           Height="30"
+                           Icon="{ui:SymbolIcon Save20}"
+                           ToolTip="{DynamicResource settings.replayExportMotec}"
+                           IsEnabled="{Binding Available}"
+                           CommandParameter="{Binding Id}"
+                           Command="{Binding ViewModel.ReplayExportMotecCommand, RelativeSource={RelativeSource AncestorType=Page}}" />
                 <ui:Button Padding="0"
                            Width="30"
                            Height="30"

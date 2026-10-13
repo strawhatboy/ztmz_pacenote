@@ -43,6 +43,7 @@
     "about": "关于"
   },
   "replay": {
+    "motecExported": "已导出：{0}\n采样率：{1} Hz（按原始记录间隔重采样）。\n首次使用请在 MoTeC i2 中核对时间轴和单位。",
     "title": "回放",
     "browserSubtitle": "查看当前游戏已保存的赛段记录",
     "searchTooltip": "搜索赛段、车辆、组别或备注",
@@ -171,6 +172,7 @@
     "errorTitle": "路书编辑器"
   },
   "settings": {
+    "replayExportMotec": "导出 MoTeC 遥测（实验性）",
     "more": "更多",
     "title": "设置",
     "export": "导出",

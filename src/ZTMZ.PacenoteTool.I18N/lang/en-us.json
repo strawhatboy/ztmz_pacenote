@@ -43,6 +43,7 @@
     "about": "About"
   },
   "replay": {
+    "motecExported": "Exported: {0}\nSample rate: {1} Hz (resampled from recorded intervals).\nOn first use, verify the timeline and units in MoTeC i2.",
     "title": "Replays",
     "browserSubtitle": "Review saved runs for the current game",
     "searchTooltip": "Search stage, car, class, or note",
@@ -171,6 +172,7 @@
     "errorTitle": "Script editor"
   },
   "settings": {
+    "replayExportMotec": "Export MoTeC telemetry (experimental)",
     "more": "More",
     "title": "Settings",
     "export": "导出",

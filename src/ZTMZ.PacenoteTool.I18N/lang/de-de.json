@@ -43,6 +43,7 @@
     "about": "Info"
   },
   "replay": {
+    "motecExported": "Exportiert: {0}\nAbtastrate: {1} Hz (aus aufgezeichneten Intervallen).\nZeitachse und Einheiten in MoTeC i2 prüfen.",
     "title": "Aufzeichnungen",
     "browserSubtitle": "Gespeicherte Läufe des aktuellen Spiels ansehen",
     "searchTooltip": "Nach Wertungsprüfung, Fahrzeug, Klasse oder Notiz suchen",
@@ -171,6 +172,7 @@
     "errorTitle": "Roadbook-Editor"
   },
   "settings": {
+    "replayExportMotec": "MoTeC-Telemetrie exportieren (experimentell)",
     "more": "Mehr",
     "title": "Einstellungen",
     "export": "Exportieren",

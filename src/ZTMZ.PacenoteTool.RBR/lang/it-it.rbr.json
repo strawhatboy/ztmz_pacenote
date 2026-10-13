@@ -26,6 +26,12 @@
                 }
             },
             "message": {
+                "selection_NotConfigured": "Prova {0}: percorso delle note personalizzate non configurato in NGPCarMenu. Si usa la mappatura predefinita; Luppis potrebbe essere installato.",
+                "selection_Disabled": "Prova {0}: note personalizzate disattivate in NGPCarMenu. Si usa la mappatura predefinita.",
+                "selection_DirectoryMissing": "Prova {0}: cartella delle note configurata non trovata. Controlla MyPacenotesPath; si usa la mappatura predefinita.",
+                "selection_StageMissing": "Prova {0}: nessuna cartella per questa prova nelle note personalizzate. Potrebbe non essere inclusa; si usa la mappatura predefinita.",
+                "selection_DefaultSelected": "Prova {0}: NGPCarMenu ha selezionato le note predefinite. Cambia selezione nel gioco se necessario.",
+                "selection_Unknown": "Prova {0}: selezione incerta. Controlla marcatori, file, date uguali e selezione nel gioco. Non significa che Luppis sia assente.",
                 "custom_pacenote_not_used": "Per la prova corrente {0} vengono usate le note predefinite. Va bene, ma sono consigliate le note Luppis V3. È anche possibile che Luppis V3 non contenga uno script di note per la prova corrente."
             }
         }

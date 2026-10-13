@@ -43,6 +43,7 @@
     "about": "정보"
   },
   "replay": {
+    "motecExported": "내보냄: {0}\n샘플 레이트: {1} Hz (기록 간격에서 재샘플링).\nMoTeC i2에서 시간축과 단위를 확인하세요.",
     "title": "리플레이",
     "browserSubtitle": "현재 게임에서 저장한 주행을 확인합니다",
     "searchTooltip": "스테이지, 차량, 클래스 또는 메모 검색",
@@ -171,6 +172,7 @@
     "errorTitle": "페이스노트 편집기"
   },
   "settings": {
+    "replayExportMotec": "MoTeC 텔레메트리 내보내기 (실험적)",
     "more": "더 보기",
     "title": "설정",
     "export": "내보내기",

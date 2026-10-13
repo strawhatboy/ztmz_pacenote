@@ -12,5 +12,6 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="ZTMZ.PacenoteTool.Portable.Tests" />
+    <None Update="ThirdPartyNotices\Aim_2_MoTeC.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

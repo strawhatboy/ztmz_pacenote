@@ -26,6 +26,12 @@
                 }
             },
             "message": {
+                "selection_NotConfigured": "스테이지 {0}: NGPCarMenu의 사용자 노트 경로가 설정되지 않았습니다. 기본 매핑을 사용하며, Luppis 미설치를 뜻하지는 않습니다.",
+                "selection_Disabled": "스테이지 {0}: NGPCarMenu에서 사용자 노트가 비활성화되었습니다. 기본 매핑을 사용합니다.",
+                "selection_DirectoryMissing": "스테이지 {0}: 설정된 노트 폴더가 없습니다. MyPacenotesPath를 확인하세요. 기본 매핑을 사용합니다.",
+                "selection_StageMissing": "스테이지 {0}: 사용자 노트 폴더에 이 스테이지의 폴더가 없습니다. 미포함 스테이지일 수 있습니다. 기본 매핑을 사용합니다.",
+                "selection_DefaultSelected": "스테이지 {0}: NGPCarMenu에서 기본 노트가 선택되었습니다. 필요하면 게임에서 변경하세요.",
+                "selection_Unknown": "스테이지 {0}: 노트 선택을 확인할 수 없습니다. 마커, 파일, 동일한 수정 시간과 게임 내 선택을 확인하세요. Luppis 미설치를 뜻하지는 않습니다.",
                 "custom_pacenote_not_used": "현재 트랙 {0}에 기본 페이스노트가 사용됩니다. 그대로 사용할 수 있지만 Luppis V3 페이스노트를 권장합니다. Luppis V3에 현재 트랙의 페이스노트 스크립트가 없을 수도 있습니다."
             }
         }

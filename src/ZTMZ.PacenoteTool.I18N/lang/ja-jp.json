@@ -43,6 +43,7 @@
     "about": "情報"
   },
   "replay": {
+    "motecExported": "書き出し先：{0}\nサンプルレート：{1} Hz（記録間隔から再サンプリング）。\nMoTeC i2 で時間軸と単位を確認してください。",
     "title": "リプレイ",
     "browserSubtitle": "現在のゲームで保存された走行を確認します",
     "searchTooltip": "ステージ、車両、クラス、メモを検索",
@@ -171,6 +172,7 @@
     "errorTitle": "ペースノートエディター"
   },
   "settings": {
+    "replayExportMotec": "MoTeC テレメトリーを書き出す（試験的）",
     "more": "その他",
     "title": "設定",
     "export": "エクスポート",
