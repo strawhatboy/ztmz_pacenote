@@ -78,7 +78,7 @@ public sealed class GameModRepositoryClient
             }
             return new GameModCatalogLoadResult(mods, false);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             throw;
         }

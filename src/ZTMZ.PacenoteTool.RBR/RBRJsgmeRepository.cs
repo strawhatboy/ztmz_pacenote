@@ -41,7 +41,7 @@ internal static class RBRJsgmeRepositoryLocator
             repository = new RBRJsgmeRepository(
                 executable,
                 Path.Combine(root, "MODS"),
-                new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+                ReadEnabledMods(Path.Combine(root, "MODS", MainIniFileName), Encoding.Default));
             return true;
         }
 

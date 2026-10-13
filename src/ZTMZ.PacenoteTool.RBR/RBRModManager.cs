@@ -146,7 +146,12 @@ internal sealed class RBRModManager : IGameModManager
             return Status(GameModInstallState.Unavailable, "gameMods.status.gamePathMissing",
                 GameModActionKind.OpenReleasePage);
 
-        var running = IsRbrRunning(game);
+        return GetStatus(rbrRoot, mod, catalog, IsRbrRunning(game));
+    }
+
+    internal static GameModStatus GetStatus(
+        string rbrRoot, GameModDefinition mod, IReadOnlyList<GameModDefinition> catalog, bool running)
+    {
         var managed = RBRModPackageInstaller.InspectManagedInstallation(rbrRoot, mod);
         var hasJsgme = RBRJsgmeRepositoryLocator.TryLocate(rbrRoot, out var repository);
         var exactExternalName = GetExternalFolderName(mod);
@@ -167,23 +172,38 @@ internal sealed class RBRModManager : IGameModManager
 
         if (managed.Exists)
         {
+            var update = RBRModUpdateDetection.HasManagedUpdate(managed.Version, managed.PackageSha256, mod);
             if (!managed.IsIntact)
                 return Status(GameModInstallState.Conflict, "gameMods.status.modified",
-                    running ? [GameModActionKind.OpenReleasePage] : ManagedActions(hasJsgme, false));
-            var update = managed.Version is null ||
-                         CompareVersions(managed.Version, mod.Version) < 0 ||
-                         !string.Equals(managed.PackageSha256, mod.Sha256, StringComparison.OrdinalIgnoreCase);
+                    running ? [GameModActionKind.OpenReleasePage] : ManagedActions(hasJsgme, false))
+                    with { HasNewerPackage = update };
             return Status(update ? GameModInstallState.UpdateAvailable : GameModInstallState.Installed,
                 update ? "gameMods.status.updateAvailable" : "gameMods.status.installed",
                 running ? [GameModActionKind.OpenReleasePage] : ManagedActions(hasJsgme, update));
         }
 
         if (externalEnabled)
-            return Status(GameModInstallState.ExternalManagerEnabled, "gameMods.status.jsgmeEnabled",
-                running ? [GameModActionKind.OpenReleasePage] : ExternalActions(hasJsgme));
+        {
+            var update = repository!.EnabledMods.Any(name => RBRModUpdateDetection.IsOlderExternalFolder(mod, name));
+            return Status(GameModInstallState.ExternalManagerEnabled,
+                update ? "gameMods.status.jsgmeUpdateEnabled" : "gameMods.status.jsgmeEnabled",
+                running ? [GameModActionKind.OpenReleasePage] : ExternalActions(hasJsgme))
+                with { HasNewerPackage = update };
+        }
         if (externalReady)
             return Status(GameModInstallState.ExternalManagerReady, "gameMods.status.jsgmeReady",
                 running ? [GameModActionKind.OpenReleasePage] : ExternalActions(hasJsgme));
+
+        if (hasJsgme && Directory.Exists(repository!.ModsDirectory) &&
+            Directory.EnumerateDirectories(repository.ModsDirectory)
+                .Any(path => RBRModUpdateDetection.IsOlderExternalFolder(mod, Path.GetFileName(path))))
+        {
+            var externalActions = ExternalActions(true);
+            externalActions.Add(GameModActionKind.AddToExternalManager);
+            return Status(GameModInstallState.ExternalManagerReady, "gameMods.status.jsgmeUpdateReady",
+                running ? Actions(GameModActionKind.OpenReleasePage) : externalActions)
+                with { HasNewerPackage = true };
+        }
 
         var actions = new HashSet<GameModActionKind>
         {
@@ -269,14 +289,6 @@ internal sealed class RBRModManager : IGameModManager
         {
             // Temporary cleanup must not turn a completed install into a reported failure.
         }
-    }
-
-    private static int CompareVersions(string left, string right)
-    {
-        if (Version.TryParse(left, out var leftVersion) &&
-            Version.TryParse(right, out var rightVersion))
-            return leftVersion.CompareTo(rightVersion);
-        return StringComparer.OrdinalIgnoreCase.Compare(left, right);
     }
 
     private static bool MatchesExternalFolder(GameModDefinition mod, string name) =>

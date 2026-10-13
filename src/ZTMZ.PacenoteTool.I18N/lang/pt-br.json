@@ -962,6 +962,8 @@
       "updateAvailable": "An update is available",
       "jsgmeReady": "Added to JSGME; enable it from JSGME",
       "jsgmeEnabled": "Enabled by JSGME",
+      "jsgmeUpdateEnabled": "Update available. Disable the old version in JSGME, refresh, then add and enable the new version.",
+      "jsgmeUpdateReady": "Update available. Add the new version, then enable it in JSGME.",
       "conflict": "A conflicting Mod or duplicate installation is active",
       "modified": "Installed files were changed outside ZTMZ",
       "error": "Could not inspect this Mod: {0}"

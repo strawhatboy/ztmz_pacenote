@@ -43,6 +43,18 @@ The client accepts HTTPS catalogs only, limits the response to 1 MiB, validates 
 
 When a release asset is replaced, its catalog SHA256 must be updated. The Luppis V3 / Lao Wang package was repacked on 2026-09-03 to place `Audio/` and `Plugins/` directly at ZIP root. Its catalog entry consequently uses an empty `packageRootDirectory`, CP936 filename decoding, and SHA256 `4818B77E1E7349B9267FA45B0ED9988485A93C19D64750DE37F926FF862146DB`.
 
+## Update indicators
+
+WPF shows an update count on the collapsed Game Mods card; Avalonia shows the same count beside the section title. Both show a red update label beside each affected Mod, whose heading includes the catalog's complete version. Opening the section does not dismiss updates. A successful install/uninstall or an explicit refresh rechecks installed state and recomputes the count. Uninstalled catalog entries do not count.
+
+The initial pane load and Refresh fetch the online catalog, falling back to the last verified cache on network failure (including timeout). Refresh is serialized with Mod operations, retains the previous rows/count when the catalog cannot be loaded, and checks filesystem state off the UI thread. No update is installed automatically.
+
+Direct-install comparisons include all numeric version components, including dates and bundled audio revisions such as `2026.8.27+1.069`. A changed package hash at the same version is an update; a catalog older than the installed version is not a downgrade offer. Modified installed files retain the update indicator but still block direct replacement.
+
+JSGME has no package-version manifest. Updates are detected conservatively from folders matching the catalog's `externalFolderPrefix` and the same naming pattern with older numeric components. Renamed folders or same-name replaced archives cannot be reliably versioned this way. An enabled old copy keeps its update indicator even if the new copy is already staged. Users must disable the old copy in JSGME, refresh, add the new package if necessary, and enable it in JSGME. Staging leaves the old folder intact and never overwrites an enabled package.
+
+Regression coverage: `RBRModUpdatesTest` covers numeric/date versions, replacement hashes, avoiding downgrade offers, modified files, running-game action restrictions, and the JSGME disable/stage/enable sequence.
+
 ## Operation progress
 
 Mod managers must keep hashing, extraction, backup, copying, and cleanup off the UI thread. They report a `GameModOperationProgress` fraction during downloads and a null fraction for stages whose length is not known. WPF and Avalonia show determinate or indeterminate progress accordingly.

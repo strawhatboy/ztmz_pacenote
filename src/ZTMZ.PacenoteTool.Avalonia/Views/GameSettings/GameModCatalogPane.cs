@@ -34,6 +34,7 @@ public sealed class GameModCatalogPane : GameSettingsPane
     private readonly GameModRepositoryClient _repositoryClient = new();
     private readonly Button _cancelButton;
     private readonly Button _refreshButton;
+    private readonly Border _updateBadge = CreateUpdateBadge();
     private IGame? _game;
     private IReadOnlyList<GameModDefinition> _mods = [];
     private CancellationTokenSource? _operationCancellation;
@@ -44,19 +45,22 @@ public sealed class GameModCatalogPane : GameSettingsPane
     {
         _capability = capability;
         var root = new StackPanel { Spacing = 5 };
-        root.Children.Add(new TextBlock
+        var header = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        header.Children.Add(new TextBlock
         {
             Text = Text("gameMods.title"),
             FontSize = 18,
             FontWeight = FontWeight.SemiBold
         });
+        header.Children.Add(_updateBadge);
+        root.Children.Add(header);
         root.Children.Add(new TextBlock { Text = Text("gameMods.subtitle"), Opacity = 0.72 });
         _refreshButton = new Button
         {
             Content = Text("gameMods.action.refresh"),
             HorizontalAlignment = HorizontalAlignment.Left
         };
-        _refreshButton.Click += async (_, _) => await RefreshRowsAsync();
+        _refreshButton.Click += async (_, _) => await RefreshRowsAsync(reloadCatalog: true);
         root.Children.Add(_refreshButton);
         _catalogStatus.Text = Text("gameMods.loading");
         root.Children.Add(_catalogStatus);
@@ -82,48 +86,77 @@ public sealed class GameModCatalogPane : GameSettingsPane
         if (_loaded || _game is null)
             return;
         _loaded = true;
-        var result = await _repositoryClient.LoadAsync(
-            _capability.ModRepositoryUri, _capability.ModCatalogGameId, CancellationToken.None);
-        _mods = result.Mods;
-        _catalogStatus.Text = _mods.Count == 0
-            ? Format("gameMods.catalogUnavailable", result.Error ?? string.Empty)
-            : result.IsCached ? Text("gameMods.cachedCatalog") : string.Empty;
-        await RefreshRowsAsync();
+        await RefreshRowsAsync(reloadCatalog: true);
     }
 
-    private async Task RefreshRowsAsync()
+    private async Task RefreshRowsAsync(bool reloadCatalog = false)
     {
         if (_game is null || _isRefreshing || _operationCancellation is not null)
             return;
 
         _isRefreshing = true;
         _refreshButton.IsEnabled = false;
+        _items.IsEnabled = false;
         try
         {
-            _items.Children.Clear();
-            foreach (var mod in _mods)
+            var mods = _mods;
+            if (reloadCatalog)
+            {
+                var result = await _repositoryClient.LoadAsync(
+                    _capability.ModRepositoryUri, _capability.ModCatalogGameId, CancellationToken.None);
+                _catalogStatus.Text = result.Mods.Count == 0
+                    ? Format("gameMods.catalogUnavailable", result.Error ?? string.Empty)
+                    : result.IsCached ? Text("gameMods.cachedCatalog") : string.Empty;
+                if (result.Mods.Count == 0 && result.Error is not null)
+                    return;
+                mods = result.Mods;
+            }
+            var rows = new List<Control>();
+            int updates = 0;
+            foreach (var mod in mods)
             {
                 var status = await _capability.ModManager.GetStatusAsync(
-                    mod, _mods, _game, CancellationToken.None);
-                _items.Children.Add(CreateRow(mod, status));
+                    mod, mods, _game, CancellationToken.None);
+                rows.Add(CreateRow(mod, status));
+                if (status.IsUpdateAvailable)
+                    updates++;
             }
+            _mods = mods;
+            _items.Children.Clear();
+            foreach (var row in rows)
+                _items.Children.Add(row);
+            ((TextBlock)_updateBadge.Child!).Text = updates.ToString(CultureInfo.CurrentCulture);
+            _updateBadge.IsVisible = updates > 0;
+        }
+        catch (Exception exception)
+        {
+            _catalogStatus.Text = Format("gameMods.catalogUnavailable", exception.Message);
         }
         finally
         {
             _isRefreshing = false;
             _refreshButton.IsEnabled = _operationCancellation is null;
+            _items.IsEnabled = _operationCancellation is null;
         }
     }
 
     private Control CreateRow(GameModDefinition mod, GameModStatus status)
     {
         var content = new StackPanel { Spacing = 5 };
-        content.Children.Add(new TextBlock
+        var headingRow = new DockPanel();
+        if (status.IsUpdateAvailable)
+        {
+            var badge = CreateUpdateBadge(Text("gameMods.status.updateAvailable"));
+            DockPanel.SetDock(badge, Dock.Right);
+            headingRow.Children.Add(badge);
+        }
+        headingRow.Children.Add(new TextBlock
         {
             Text = $"{mod.GetName(I18NLoader.Instance.CurrentCultureName)}  {mod.Version}",
             FontWeight = FontWeight.SemiBold,
             TextWrapping = TextWrapping.Wrap
         });
+        content.Children.Add(headingRow);
         content.Children.Add(new TextBlock
         {
             Text = $"{mod.GetDescription(I18NLoader.Instance.CurrentCultureName)}\n{Format("gameMods.author", mod.Author)}",
@@ -250,6 +283,23 @@ public sealed class GameModCatalogPane : GameSettingsPane
     };
 
     private static string Text(string key) => I18NLoader.Instance[key];
+    private static Border CreateUpdateBadge(string? label = null)
+    {
+        var badge = new Border
+        {
+            Background = new SolidColorBrush(Color.FromRgb(209, 52, 56)),
+            CornerRadius = new CornerRadius(10),
+            MinWidth = 20,
+            Padding = new Thickness(6, 1, 6, 1),
+            Margin = new Thickness(8, 0, 0, 0),
+            VerticalAlignment = VerticalAlignment.Center,
+            IsVisible = label is not null,
+            Child = new TextBlock { Text = label, Foreground = Brushes.White, FontSize = 12,
+                HorizontalAlignment = HorizontalAlignment.Center }
+        };
+        ToolTip.SetTip(badge, Text("gameMods.status.updateAvailable"));
+        return badge;
+    }
     private static string Format(string key, params object[] arguments) =>
         string.Format(CultureInfo.CurrentCulture, Text(key), arguments);
     private static string FormatCredits(GameModDefinition mod)

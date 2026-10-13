@@ -74,7 +74,12 @@ public sealed record GameModStatus(
     GameModInstallState State,
     string MessageKey,
     IReadOnlyList<object>? MessageArguments = null,
-    IReadOnlySet<GameModActionKind>? EnabledActions = null);
+    IReadOnlySet<GameModActionKind>? EnabledActions = null)
+{
+    // An update can exist even when a conflict or an external manager prevents direct installation.
+    public bool HasNewerPackage { get; init; }
+    public bool IsUpdateAvailable => HasNewerPackage || State == GameModInstallState.UpdateAvailable;
+}
 
 public sealed record GameModOperationProgress(
     double? Fraction,

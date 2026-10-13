@@ -1014,6 +1014,8 @@
       "updateAvailable": "有可用更新",
       "jsgmeReady": "已加入 JSGME；请在 JSGME 中启用",
       "jsgmeEnabled": "已由 JSGME 启用",
+      "jsgmeUpdateEnabled": "有更新；请先在 JSGME 停用旧版，刷新后加入并启用新版。",
+      "jsgmeUpdateReady": "有更新；可加入新版，再在 JSGME 中启用。",
       "conflict": "检测到冲突 Mod 或重复安装",
       "modified": "安装后的文件内容有变化（可能包含配置修改）",
       "error": "无法检查此 Mod：{0}"
