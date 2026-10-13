@@ -1,4 +1,22 @@
 {
+  "voiceStartup": {
+    "setting": "Buscar actualizaciones de voces al iniciar",
+    "description": "Comprueba las voces instaladas en segundo plano. Tú decides cuándo descargarlas.",
+    "available": "Hay actualizaciones para {0} voces instaladas.",
+    "review": "Ver actualizaciones de voces"
+  },
+  "settingsSearch": {
+    "title": "Buscar ajustes",
+    "hint": "Buscar por nombre o descripción",
+    "noResults": "No se encontraron ajustes"
+  },
+  "replayTelemetry": {
+    "title": "Telemetría de carreras",
+    "description": "Selecciona una carrera grabada y exporta archivos .ld / .ldx para MoTeC i2. No requiere vídeo.",
+    "record": "Guardar telemetría",
+    "refresh": "Actualizar grabaciones",
+    "empty": "Aún no hay grabaciones para este juego."
+  },
   "application": {
     "title": "ZTMZ Club Pacenote Tool",
     "title_dev": "ZTMZ Club Pacenote Tool (Desarrollo)",

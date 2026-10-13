@@ -38,7 +38,7 @@
         </StackPanel>
         
         <!-- data folder related -->
-        <StackPanel Margin="0,20,0,0" Orientation="Horizontal" HorizontalAlignment="Center"
+        <StackPanel helpers:SettingsSearch.Anchor="ui.moveDataFolder" Margin="0,20,0,0" Orientation="Horizontal" HorizontalAlignment="Center"
             VerticalAlignment="Center">
             <ui:TextBlock FontTypography="Caption" Text="{DynamicResource ui.data_folder_size}"
                 Margin="0 0 10 0" VerticalAlignment="Center" />

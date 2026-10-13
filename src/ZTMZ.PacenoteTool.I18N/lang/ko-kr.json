@@ -1,4 +1,22 @@
 {
+  "voiceStartup": {
+    "setting": "시작 시 음성 패키지 업데이트 확인",
+    "description": "설치된 음성을 백그라운드에서 확인합니다. 다운로드는 직접 선택합니다.",
+    "available": "설치된 음성 패키지 {0}개에 업데이트가 있습니다.",
+    "review": "음성 업데이트 보기"
+  },
+  "settingsSearch": {
+    "title": "설정 검색",
+    "hint": "설정 이름이나 설명으로 검색",
+    "noResults": "일치하는 설정이 없습니다"
+  },
+  "replayTelemetry": {
+    "title": "리플레이 텔레메트리",
+    "description": "저장된 주행을 선택하고 MoTeC i2용 .ld / .ldx 파일을 내보냅니다. 동영상 녹화는 필요 없습니다.",
+    "record": "주행 텔레메트리 저장",
+    "refresh": "기록 새로 고침",
+    "empty": "이 게임의 주행 기록이 없습니다."
+  },
   "application": {
     "title": "ZTMZ Club Pacenote Tool",
     "title_dev": "ZTMZ Club Pacenote Tool (개발)",

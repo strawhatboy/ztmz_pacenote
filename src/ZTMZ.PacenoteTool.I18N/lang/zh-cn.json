@@ -1,4 +1,22 @@
 {
+  "voiceStartup": {
+    "setting": "启动时检查领航员语音包更新",
+    "description": "在后台检查已安装的语音包，由你选择是否下载安装。",
+    "available": "{0} 个已安装的领航员语音包可更新。",
+    "review": "查看语音包更新"
+  },
+  "settingsSearch": {
+    "title": "搜索设置",
+    "hint": "输入设置名称或说明中的关键词",
+    "noResults": "没有找到匹配的设置"
+  },
+  "replayTelemetry": {
+    "title": "回放遥测",
+    "description": "记录比赛后，在此选择记录并导出 MoTeC i2 的 .ld / .ldx 文件，无需录制视频。",
+    "record": "保存比赛遥测",
+    "refresh": "刷新记录",
+    "empty": "此游戏尚无比赛记录。"
+  },
   "application": {
     "title": "ZTMZ Club 路书工具",
     "title_dev": "ZTMZ Club 路书工具开发版",

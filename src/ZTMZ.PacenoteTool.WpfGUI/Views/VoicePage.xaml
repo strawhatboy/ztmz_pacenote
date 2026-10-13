@@ -159,6 +159,9 @@
                                             <ui:TextBlock
                                                 Text="{Binding Name}" 
                                                 VerticalAlignment="Center"/>
+                                            <ui:InfoBadge Severity="Critical" Style="{DynamicResource DotInfoBadgeStyle}" Margin="8,0,0,0"
+                                                ToolTip="{DynamicResource voiceStartup.review}"
+                                                Visibility="{Binding NeedUpdate, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                             <ui:TextBlock
                                                 Padding="5 0 0 0"
                                                 Text="{Binding Language}" Foreground="{DynamicResource TextFillColorSecondaryBrush}"

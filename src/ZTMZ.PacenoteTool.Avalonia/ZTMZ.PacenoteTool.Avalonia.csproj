@@ -38,6 +38,7 @@
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" AdditionalProperties="ExcludeSevenZipAssemblies=true" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Audio.PortAudio\ZTMZ.PacenoteTool.Audio.PortAudio.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Core\ZTMZ.PacenoteTool.Core.csproj" />
+    <ProjectReference Include="..\ZTMZ.PacenoteTool.RBR\ZTMZ.PacenoteTool.RBR.csproj" Condition="'$(OS)' == 'Windows_NT'" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.ScriptEditor.Core\ZTMZ.PacenoteTool.ScriptEditor.Core.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.WebDashboard\ZTMZ.PacenoteTool.WebDashboard.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Codemasters\ZTMZ.PacenoteTool.Codemasters.csproj" ReferenceOutputAssembly="false" AdditionalProperties="TargetFramework=net10.0" />
@@ -48,6 +49,11 @@
   <ItemGroup>
     <Content Include="lang\*.json">
       <Link>resources\lang\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="..\ZTMZ.PacenoteTool.RBR\default.zdb;..\ZTMZ.PacenoteTool.RBR\jannemod_v3.zdb" Condition="'$(OS)' == 'Windows_NT'">
+      <Link>resources\games\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
@@ -172,6 +178,8 @@
     </PropertyGroup>
     <ItemGroup>
       <GameProviderBinaries Include="$(CodemastersOutput)\ZTMZ.PacenoteTool.Codemasters.dll" />
+      <GameProviderBinaries Include="$(MSBuildProjectDirectory)\..\ZTMZ.PacenoteTool.RBR\bin\$(Configuration)\net10.0-windows\ZTMZ.PacenoteTool.RBR.dll" Condition="'$(OS)' == 'Windows_NT'" />
+      <GameProviderLanguages Include="$(MSBuildProjectDirectory)\..\ZTMZ.PacenoteTool.RBR\lang\*.json" Condition="'$(OS)' == 'Windows_NT'" />
       <GameProviderLanguages Include="$(CodemastersOutput)\lang\*.json" />
       <GameProviderBinaries Include="$(BeamNgOutput)\ZTMZ.PacenoteTool.BeamNG.dll" Condition="'$(OS)' == 'Windows_NT'" />
       <GameProviderLanguages Include="$(BeamNgOutput)\lang\*.json" Condition="'$(OS)' == 'Windows_NT'" />

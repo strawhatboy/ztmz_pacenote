@@ -14,7 +14,11 @@
 
 ## MoTeC 导出
 
-WPF 回放列表增加“导出 MoTeC 遥测（实验性）”，选择输出目录后生成独立的 `MoTeC-<回放ID>-<唯一标识>/telemetry.ld` 和 `telemetry.ldx`。不会覆盖现有导出和 i2 用户批注，不依赖视频或 FFmpeg。数据库读取、重采样和写文件全部在后台执行，界面显示忙碌条。跨平台逻辑位于 Core，Avalonia 暂无回放页面，因此本次不添加 Avalonia 入口。
+WPF 回放列表增加“导出 MoTeC 遥测（实验性）”，选择输出目录后生成独立的 `MoTeC-<回放ID>-<唯一标识>/telemetry.ld` 和 `telemetry.ldx`。不会覆盖现有导出和 i2 用户批注，不依赖视频或 FFmpeg。数据库读取、重采样和写文件全部在后台执行，界面显示忙碌条。
+
+Avalonia 的“回放”页面使用相同 Core 导出器：可选择游戏、刷新已保存比赛、选择记录及输出目录，并显示导出路径与错误。运行时启用共享回放记录，遵循 `ReplaySave`，页面提供保存遥测开关；OBS 视频录制仍关闭。两端导出格式、校验与限制相同。比赛完成后保存，未完成的当前比赛不会出现在列表中。
+
+Avalonia Windows 构建/发布现包含 RBR DLL、插件语言及 `default.zdb` / `jannemod_v3.zdb`，启动时使用已有 PackagedFileProvisioner 更新内置映射。运行时订阅游戏 `onCustomMessage`，主页保留普通信息/警告/错误的级别。RBR 提示逻辑共享同一 DLL；Linux 的 RBR 进程读取尚未移植，因此不打包 Windows RBR DLL，也不声称支持 Linux RBR。MoTeC 与搜索/语音更新不受此限制。
 
 初版通道：赛段时间（秒）、距离（米）、速度（km/h）、RPM、档位、油门/刹车/离合/手刹/转向（归一化值转百分比）、位置 XYZ（米）。保持原有转向符号，不把它假装成方向盘角度。暂不导出单位尚未统一核实的 G 值、悬架及温度字段。
 
@@ -35,4 +39,4 @@ WPF 回放列表增加“导出 MoTeC 遥测（实验性）”，选择输出目
 - 尚未在真正 MoTeC i2 中打开验收，故入口保留“实验性”。人工验收应检查时间轴、速度/RPM/档位/踏板、部分记录、长赛段以及非英文赛道名，再考虑结束实验状态。
 - Windows 托管编译/测试使用 `-p:_NativeDashboardEnabled=false` 跳过本次无改动的原生仪表盘构建；这不构成安装包或原生 DLL 的发布验证。
 
-后续两项没有混入本次实现：语音包启动更新检查可复用现有 VoicePackageService（启动时异步检查，失败不阻塞，不擅自下载）；设置搜索需要设置元数据索引、翻译关键词、结果导航及定位，建议先覆盖通用设置，再接各游戏提供的设置描述。
+语音包启动更新检查、导航角标及设置搜索已在后续改动实现，见 [StartupVoiceUpdatesAndSettingsSearch.md](StartupVoiceUpdatesAndSettingsSearch.md)。

@@ -1,4 +1,22 @@
 {
+  "voiceStartup": {
+    "setting": "Check co-driver package updates on startup",
+    "description": "Checks installed voice packages in the background; downloads require your action.",
+    "available": "{0} installed co-driver packages have updates.",
+    "review": "View voice package updates"
+  },
+  "settingsSearch": {
+    "title": "Search settings",
+    "hint": "Search settings by name or description",
+    "noResults": "No matching settings"
+  },
+  "replayTelemetry": {
+    "title": "Replay telemetry",
+    "description": "Record a run, select it here and export .ld / .ldx files for MoTeC i2. Video recording is not required.",
+    "record": "Save race telemetry",
+    "refresh": "Refresh recordings",
+    "empty": "No recordings for this game yet."
+  },
   "application": {
     "title": "ZTMZ Club Pacenote Tool",
     "title_dev": "ZTMZ Club Pacenote Tool (Dev)",

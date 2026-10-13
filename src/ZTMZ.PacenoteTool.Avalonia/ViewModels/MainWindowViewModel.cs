@@ -68,9 +68,12 @@ internal sealed partial class VoicePackageChoice : ObservableObject
     public string OriginalVersion { get; }
     public string PackagePath { get; set; }
     public string DownloadUrl { get; }
-    public bool NeedsUpdate { get; set; }
-    public bool NeedsDownload { get; set; }
-    public bool IsInstalled { get; set; }
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(NeedsAction))]
+    private bool _needsUpdate;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(NeedsAction)), NotifyPropertyChangedFor(nameof(ActionLabel))]
+    private bool _needsDownload;
+    [ObservableProperty]
+    private bool _isInstalled;
     public float IntegritySimple { get; }
     public float IntegrityNormal { get; }
     public float IntegrityComplex { get; }
@@ -586,6 +589,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
                 "games" => "tabs.games",
                 "play" => "tabs.playback",
                 "dashboard" => "tabs.dashboard",
+                "replay" => "tabs.replay",
                 "scriptEditor" => "tabs.scriptEditor",
                 "about" => "tabs.about",
                 _ => "tabs.home"
@@ -603,6 +607,17 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     public bool ShowsGamePlaceholder => ActiveGameImage == null;
 
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasVoiceUpdates))]
+    private int _voiceUpdateCount;
+    public bool HasVoiceUpdates => VoiceUpdateCount > 0;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasGameMessage))]
+    private string _gameMessage = string.Empty;
+    public bool HasGameMessage => !string.IsNullOrWhiteSpace(GameMessage);
+    [ObservableProperty]
+    private FluentAvalonia.UI.Controls.FAInfoBarSeverity _gameMessageSeverity;
+    internal IDesktopRuntime Runtime => _runtime;
 
     public string CoDriverPackageSummary =>
         AvaloniaLocalization.Format("codriverCatalog.packagesAvailable", CoDriverCount);
@@ -616,7 +631,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
         await _runtime.InitializeAsync(cancellationToken);
         RebuildGameSettingsPanes();
         RefreshSnapshot();
-        _ = RefreshVoicePackagesAsync();
+        _ = LoadStartupVoicePackagesAsync();
     }
 
     public async ValueTask DisposeAsync()
@@ -903,6 +918,9 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
             OutputDeviceCount = snapshot.OutputDeviceCount;
             IsReady = snapshot.IsReady;
             ErrorMessage = snapshot.ErrorMessage ?? string.Empty;
+            VoiceUpdateCount = snapshot.VoiceUpdateCount;
+            GameMessage = snapshot.GameMessage ?? string.Empty;
+            GameMessageSeverity = (FluentAvalonia.UI.Controls.FAInfoBarSeverity)Math.Clamp(snapshot.GameMessageLevel, 0, 3);
             ApplyDashboards(snapshot.Dashboards);
             IsNativeOverlaySupported = snapshot.NativeOverlay.IsSupported;
             _overlayBackendStatusKey = snapshot.NativeOverlay.BackendStatusKey;
@@ -1325,16 +1343,39 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
         }
     }
 
+    private bool _startupVoiceCheckStarted;
+    private async Task LoadStartupVoicePackagesAsync()
+    {
+        if (_startupVoiceCheckStarted) return;
+        _startupVoiceCheckStarted = true;
+        await LoadVoicePackagesAsync(false);
+        if (Config.Instance.CheckVoicePackageUpdatesOnStartup && VoicePackages.Any(p => p.IsInstalled))
+            await LoadVoicePackagesAsync(true);
+        if (Volatile.Read(ref _isDisposing) != 0) return;
+        RefreshSnapshot();
+        if (HasVoiceUpdates && Config.Instance.EnableWindowsNotifications)
+            PublishNotification("voiceStartup.available", VoiceUpdateCount.ToString());
+    }
+
     [RelayCommand]
-    private async Task RefreshVoicePackagesAsync()
+    private Task RefreshVoicePackagesAsync() => LoadVoicePackagesAsync(true);
+
+    private int _voiceCatalogRevision;
+    [ObservableProperty]
+    private string _voiceCatalogError = string.Empty;
+
+    private async Task LoadVoicePackagesAsync(bool checkOnline)
     {
         if (IsVoicePackageCatalogLoading)
             return;
 
         IsVoicePackageCatalogLoading = true;
+        var revision = _voiceCatalogRevision;
         try
         {
-            var packages = await _runtime.GetVoicePackagesAsync();
+            var packages = await _runtime.GetVoicePackagesAsync(checkOnline: checkOnline);
+            if (revision != _voiceCatalogRevision || Volatile.Read(ref _isDisposing) != 0) return;
+            VoiceCatalogError = string.Empty;
             VoicePackages.Clear();
             foreach (var package in packages.OrderBy(item => item.Name, StringComparer.CurrentCultureIgnoreCase))
             {
@@ -1343,11 +1384,13 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
         }
         catch (Exception exception)
         {
-            ErrorMessage = exception.Message;
+            VoiceCatalogError = exception.Message;
         }
         finally
         {
             IsVoicePackageCatalogLoading = false;
+            if (revision != _voiceCatalogRevision && Volatile.Read(ref _isDisposing) == 0)
+                await LoadVoicePackagesAsync(true);
         }
     }
 
@@ -1371,6 +1414,10 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
                 package.Homepage, package.Version, package.OriginalVersion, package.PackagePath,
                 package.DownloadUrl, package.NeedsUpdate, package.NeedsDownload, package.IsInstalled,
                 package.IntegritySimple, package.IntegrityNormal, package.IntegrityComplex), progress);
+            _voiceCatalogRevision++;
+            package.NeedsUpdate = false;
+            package.NeedsDownload = false;
+            package.IsInstalled = true;
             await RefreshVoicePackagesAsync();
         }
         catch (Exception exception)
@@ -1390,6 +1437,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     internal async Task ImportVoicePackageAsync(string archivePath, string? existingPackagePath = null)
     {
         await _runtime.ImportVoicePackageAsync(archivePath, existingPackagePath);
+        _voiceCatalogRevision++;
         await RefreshVoicePackagesAsync();
     }
 

@@ -269,6 +269,7 @@ public partial class VoicePageVM : ObservableObject {
             }
 
             var pkgLocal = await packageCatalog.ImportAsync(path);
+            App.GetService<CoDriverPackageUpdateService>().Notifications.Installed(pkgLocal.Info);
             _installedPackagesRevision++;
             var pkg = new CodriverPackageUpdateFile(pkgLocal.Info);
             lock (_updateLock) {

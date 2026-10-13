@@ -64,10 +64,11 @@
     <Grid x:Name="CustomTitleBar"
           Grid.Row="0"
           Height="48"
-          ColumnDefinitions="Auto,*,Auto"
+          ColumnDefinitions="*,360,*"
           Background="Transparent"
           PointerPressed="OnTitleBarPointerPressed"
           WindowDecorationProperties.ElementRole="TitleBar">
+      <Grid ColumnDefinitions="Auto,*" Margin="0,0,12,0">
       <Image Width="22"
              Height="22"
              Margin="14,0,10,0"
@@ -78,11 +79,42 @@
              VerticalAlignment="Center" />
       <TextBlock Grid.Column="1"
                  Text="{Binding WindowTitle}"
+                 TextTrimming="CharacterEllipsis"
                  FontSize="12"
                  IsHitTestVisible="False"
                  VerticalAlignment="Center" />
+      </Grid>
+      <Grid Grid.Column="1" Margin="8,0" VerticalAlignment="Center"
+            WindowDecorationProperties.ElementRole="User">
+        <TextBox x:Name="SettingsSearchBox" Height="32" MinHeight="32"
+                 VerticalContentAlignment="Center"
+                 AutomationProperties.Name="{DynamicResource settingsSearch.title}"
+                 Watermark="{DynamicResource settingsSearch.hint}"
+                 TextChanged="OnSettingsSearchChanged" GotFocus="OnSettingsSearchFocus"
+                 KeyDown="OnSettingsSearchKeyDown" />
+        <Popup x:Name="SettingsSearchPopup" PlacementTarget="{Binding #SettingsSearchBox}"
+               Placement="Bottom" IsLightDismissEnabled="True" VerticalOffset="4">
+          <Border Width="{Binding #SettingsSearchBox.Bounds.Width}" Padding="4" CornerRadius="6"
+                  Background="{DynamicResource ApplicationPageBackgroundThemeBrush}"
+                  BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1"
+                  KeyDown="OnSettingsSearchKeyDown">
+            <StackPanel>
+              <TextBlock x:Name="SettingsSearchEmpty" Margin="8" TextWrapping="Wrap"
+                         Text="{DynamicResource settingsSearch.noResults}" IsVisible="False" />
+              <ListBox x:Name="SettingsSearchResults" MaxHeight="300" IsVisible="False"
+                       SelectionChanged="OnSettingsSearchSelected">
+                <ListBox.ItemTemplate><DataTemplate>
+                  <StackPanel><TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding PageTitle}" Opacity="0.65" /></StackPanel>
+                </DataTemplate></ListBox.ItemTemplate>
+              </ListBox>
+            </StackPanel>
+          </Border>
+        </Popup>
+      </Grid>
       <StackPanel x:Name="TitleBarActions"
                   Grid.Column="2"
+                  HorizontalAlignment="Right"
                   Margin="0,0,142,0"
                   Orientation="Horizontal"
                   Spacing="2"
@@ -95,7 +127,6 @@
                 VerticalAlignment="Top">
           <StackPanel Orientation="Horizontal" Spacing="6">
             <materialIcons:MaterialIcon Kind="HelpCircleOutline" Width="16" Height="16" />
-            <TextBlock Text="{DynamicResource ui.tb_qanda}" />
           </StackPanel>
         </Button>
         <Button Command="{Binding RaiseIssueCommand}"
@@ -105,7 +136,6 @@
                 VerticalAlignment="Top">
           <StackPanel Orientation="Horizontal" Spacing="6">
             <materialIcons:MaterialIcon Kind="BugOutline" Width="16" Height="16" />
-            <TextBlock Text="{DynamicResource ui.raise_issue}" />
           </StackPanel>
         </Button>
         <Button Command="{Binding BuyMeACoffeeCommand}"
@@ -162,7 +192,14 @@
                        ToolTip.Tip="{DynamicResource tabs.voices}"
                        ToolTip.ShowDelay="100">
             <StackPanel Spacing="3" HorizontalAlignment="Center">
-              <materialIcons:MaterialIcon Kind="AccountVoice" Width="23" Height="23" />
+              <Grid>
+                <materialIcons:MaterialIcon Kind="AccountVoice" Width="23" Height="23" />
+                <Border x:Name="VoiceUpdateBadge" Background="#D13438" CornerRadius="9" Padding="4,0" MinWidth="18"
+                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="20,-5,-12,0"
+                        IsVisible="{Binding HasVoiceUpdates}" ToolTip.Tip="{DynamicResource voiceStartup.review}">
+                  <TextBlock Text="{Binding VoiceUpdateCount}" Foreground="White" FontSize="11" TextAlignment="Center" />
+                </Border>
+              </Grid>
               <TextBlock Text="{DynamicResource tabs.voices}" />
             </StackPanel>
           </ListBoxItem>
@@ -196,6 +233,12 @@
                          TextWrapping="Wrap" />
             </StackPanel>
           </ListBoxItem>
+          <ListBoxItem Classes="left-fluent-nav-item" Tag="replay" ToolTip.Tip="{DynamicResource replayTelemetry.title}">
+            <StackPanel Spacing="3" HorizontalAlignment="Center">
+              <materialIcons:MaterialIcon Kind="Replay" Width="23" Height="23" />
+              <TextBlock Text="{DynamicResource tabs.replay}" />
+            </StackPanel>
+          </ListBoxItem>
           </ListBox>
         </Border>
         <Border Grid.Row="1"
@@ -215,12 +258,14 @@
       </Grid>
 
       <Grid Grid.Column="1" RowDefinitions="Auto,*">
+        <StackPanel>
         <fa:FABreadcrumbBar x:Name="NavigationBreadcrumb"
                             Margin="42,20,42,0"
                             ItemsSource="{Binding NavigationBreadcrumbItems}"
                             IsVisible="{Binding HasNavigationBreadcrumb}"
                             FontFamily="{DynamicResource AppFontFamily}"
                             FontSize="{DynamicResource AppFontSize}" />
+        </StackPanel>
         <Grid x:Name="PageHost" Grid.Row="1" />
       </Grid>
     </Grid>

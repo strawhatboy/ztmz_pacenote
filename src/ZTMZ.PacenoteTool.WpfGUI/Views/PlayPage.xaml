@@ -1,6 +1,7 @@
 <Page x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.PlayPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:search="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -19,7 +20,7 @@
     </Page.Resources>
     <StackPanel Orientation="Vertical">
         <!-- useDynamicPlaybackSpeed -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.useDynamicPlaybackSpeed" Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -49,7 +50,7 @@
         </ui:Card>
 
         <!-- dynamicPlaybackMaxSpeed -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.dynamicPlaybackMaxSpeed" Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -87,7 +88,7 @@
         </ui:Card>
 
         <!-- useDynamicVolume -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.useDynamicVolume" Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -117,7 +118,7 @@
         </ui:Card>
 
         <!-- dynamicVolumePerturbationFrequency -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.dynamicVolumePerturbationFrequency" Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -147,7 +148,7 @@
         </ui:Card>
 
         <!-- dynamicVolumePerturbationAmplitude -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.dynamicVolumePerturbationAmplitude" Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -185,7 +186,7 @@
         </ui:Card>
         
         <!-- playbackDeviceDesiredLatency -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.playbackDeviceDesiredLatency" Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -215,7 +216,7 @@
         </ui:Card>
 
         <!-- connectCloseDistanceCallToNextPacenote -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.connectCloseDistanceCallToNextPacenote" Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -245,7 +246,7 @@
         </ui:Card>
 
         <!-- connectNumericDistanceCallToPreviousPacenote -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.connectNumericDistanceCallToPreviousPacenote" Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -275,7 +276,7 @@
         </ui:Card>
 
         <!-- examplePacenoteString -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.examplePacenoteString" Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>

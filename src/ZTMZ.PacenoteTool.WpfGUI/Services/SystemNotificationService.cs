@@ -61,6 +61,8 @@ public sealed class SystemNotificationService : IHostedService, IDisposable
         Publish("notification.test");
     }
 
+    public void ShowVoicePackageUpdates(int count) => Publish("voiceStartup.available", count);
+
     private void OnGameStarted(IGame game, Process process)
     {
         Publish("notification.gameStarted", game.Name);

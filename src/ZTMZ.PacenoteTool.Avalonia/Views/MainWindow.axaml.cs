@@ -11,6 +11,9 @@ using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.VisualTree;
+using Avalonia.LogicalTree;
+using Avalonia.Threading;
+using ZTMZ.PacenoteTool.Core;
 using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Windowing;
 using ZTMZ.PacenoteTool.Avalonia.Services;
@@ -81,6 +84,7 @@ public sealed partial class MainWindow : FAAppWindow
             ["codriver"] = new CoDriverView(),
             ["dashboard"] = new DashboardView(),
             ["play"] = new PlayView { DataContext = _playSettingsViewModel },
+            ["replay"] = new ReplayExportView { DataContext = new ReplayExportViewModel(viewModel.Runtime) },
             ["about"] = new AboutView()
         };
 
@@ -128,11 +132,11 @@ public sealed partial class MainWindow : FAAppWindow
         eventArgs.Handled = true;
     }
 
-    private static bool IsInteractiveTitleBarElement(object? source)
+    internal static bool IsInteractiveTitleBarElement(object? source)
     {
         for (var visual = source as Visual; visual != null; visual = visual.GetVisualParent())
         {
-            if (visual is Button)
+            if (visual is Button or TextBox)
             {
                 return true;
             }
@@ -185,7 +189,105 @@ public sealed partial class MainWindow : FAAppWindow
         }
 
         page.IsVisible = true;
+        if (page.DataContext is ReplayExportViewModel replay) _ = replay.RefreshAsync();
         _viewModel?.SetActiveNavigationPage(pageKey);
+    }
+
+    private readonly Dictionary<string, Border> _searchTargets = new();
+    private Action? _clearSearchHighlight;
+    private int _searchHighlightVersion;
+
+    private void OnSettingsSearchFocus(object? sender, global::Avalonia.Interactivity.RoutedEventArgs args)
+    {
+        this.FindControl<Popup>("SettingsSearchPopup")!.IsOpen =
+            !string.IsNullOrWhiteSpace(this.FindControl<TextBox>("SettingsSearchBox")!.Text);
+    }
+
+    private void OnSettingsSearchKeyDown(object? sender, KeyEventArgs args)
+    {
+        if (args.Key == Key.Escape)
+        {
+            this.FindControl<Popup>("SettingsSearchPopup")!.IsOpen = false;
+            args.Handled = true;
+        }
+        else if (sender == this.FindControl<TextBox>("SettingsSearchBox") && args.Key == Key.Enter)
+        {
+            var results = this.FindControl<ListBox>("SettingsSearchResults")!;
+            if (results.Items.Count > 0)
+            {
+                results.SelectedIndex = 0;
+                args.Handled = true;
+            }
+        }
+    }
+
+    private void OnSettingsSearchChanged(object? sender, TextChangedEventArgs args)
+    {
+        if (_pages == null || sender is not TextBox box) return;
+        var list = this.FindControl<ListBox>("SettingsSearchResults")!;
+        var query = box.Text ?? string.Empty;
+        _searchTargets.Clear();
+        var entries = new List<SettingSearchEntry>();
+        var titles = new Dictionary<string, string>();
+        var pages = new[] { ("general", "tabs.general"), ("play", "tabs.playback"),
+            ("codriver", "tabs.voices"), ("dashboard", "tabs.dashboard"), ("replay", "tabs.replay") };
+        var localized = I18NLoader.Instance.Resources?.GetValueOrDefault(I18NLoader.Instance.CurrentCultureName);
+        foreach (var (page, title) in pages)
+        {
+            foreach (var border in _pages[page].GetLogicalDescendants().OfType<Border>()
+                         .Where(b => b.Classes.Contains("setting-card") || b.Classes.Contains("search-setting")))
+            {
+                var labels = border.GetLogicalDescendants().OfType<TextBlock>().Select(t => t.Text)
+                    .Where(t => !string.IsNullOrWhiteSpace(t)).Cast<string>().ToArray();
+                if (labels.Length == 0) continue;
+                var anchor = $"{page}:{entries.Count}";
+                titles[anchor] = labels[0];
+                _searchTargets[anchor] = border;
+                // Include resource keys so English searches work in a translated UI too.
+                var keys = labels.Concat(localized?.Where(p => labels.Contains(p.Value)).Select(p => p.Key)
+                    ?? Enumerable.Empty<string>()).ToArray();
+                entries.Add(new(page, title, anchor, keys));
+            }
+        }
+        string Translate(string key) => titles.GetValueOrDefault(key) ?? AvaloniaLocalization.Get(key);
+        var english = I18NLoader.Instance.Resources?.GetValueOrDefault("en-us");
+        var results = SettingsSearchIndex.Search(entries, query, Translate,
+            key => english?.GetValueOrDefault(key) ?? key);
+        list.ItemsSource = results;
+        list.IsVisible = !string.IsNullOrWhiteSpace(query) && results.Count > 0;
+        this.FindControl<TextBlock>("SettingsSearchEmpty")!.IsVisible = !string.IsNullOrWhiteSpace(query) && results.Count == 0;
+        this.FindControl<Popup>("SettingsSearchPopup")!.IsOpen = !string.IsNullOrWhiteSpace(query) && box.IsFocused;
+    }
+
+    private async void OnSettingsSearchSelected(object? sender, SelectionChangedEventArgs args)
+    {
+        if (sender is not ListBox { SelectedItem: SettingSearchResult result } ||
+            !_searchTargets.TryGetValue(result.Entry.Anchor, out var target)) return;
+        this.FindControl<Popup>("SettingsSearchPopup")!.IsOpen = false;
+        ShowPage(result.Entry.PageId);
+        _navigationList.SelectedItem = _navigationList.Items.OfType<ListBoxItem>()
+            .FirstOrDefault(i => Equals(i.Tag, result.Entry.PageId));
+        if (result.Entry.PageId == "codriver") _viewModel?.OpenVoiceSettingsCommand.Execute(null);
+        this.FindControl<TextBox>("SettingsSearchBox")!.Text = string.Empty;
+        await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Loaded);
+        target.BringIntoView();
+        _clearSearchHighlight?.Invoke();
+        var highlightVersion = ++_searchHighlightVersion;
+        var oldBrush = target.BorderBrush;
+        var oldThickness = target.BorderThickness;
+        target.SetCurrentValue(Border.BorderBrushProperty, Brushes.Goldenrod);
+        target.SetCurrentValue(Border.BorderThicknessProperty, new Thickness(2));
+        _clearSearchHighlight = () =>
+        {
+            target.SetCurrentValue(Border.BorderBrushProperty, oldBrush);
+            target.SetCurrentValue(Border.BorderThicknessProperty, oldThickness);
+        };
+        await System.Threading.Tasks.Task.Delay(2000);
+        if (highlightVersion == _searchHighlightVersion)
+        {
+            _clearSearchHighlight?.Invoke();
+            _clearSearchHighlight = null;
+        }
     }
 
     private void OnNavigationBreadcrumbItemClicked(

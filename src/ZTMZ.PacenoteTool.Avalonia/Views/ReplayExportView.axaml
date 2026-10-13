@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ZTMZ.PacenoteTool.Avalonia.Views.ReplayExportView">
+  <ScrollViewer>
+    <StackPanel Margin="42,30,42,42" Spacing="16">
+      <TextBlock Text="{DynamicResource replayTelemetry.title}" FontSize="24" FontWeight="SemiBold" />
+      <TextBlock Text="{DynamicResource replayTelemetry.description}" TextWrapping="Wrap" />
+      <Border Classes="search-setting">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="{DynamicResource replayTelemetry.record}" VerticalAlignment="Center" />
+          <ToggleSwitch Grid.Column="1" IsChecked="{Binding RecordTelemetry}" />
+        </Grid>
+      </Border>
+      <ComboBox ItemsSource="{Binding Games}" SelectedItem="{Binding SelectedGame}" HorizontalAlignment="Stretch">
+        <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate>
+      </ComboBox>
+      <Button Content="{DynamicResource replayTelemetry.refresh}" Command="{Binding RefreshCommand}" />
+      <ListBox ItemsSource="{Binding Replays}" SelectedItem="{Binding SelectedReplay}" MaxHeight="360">
+        <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Label}" TextWrapping="Wrap" /></DataTemplate></ListBox.ItemTemplate>
+      </ListBox>
+      <Button Content="{DynamicResource ui.replayExportMotec}" Click="OnExportClick" IsEnabled="{Binding CanExport}" />
+      <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+      <TextBox Text="{Binding Message, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" />
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

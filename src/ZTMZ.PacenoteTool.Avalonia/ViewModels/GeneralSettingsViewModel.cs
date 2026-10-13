@@ -25,6 +25,10 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
     private readonly AvaloniaAppearanceService _appearanceService = new();
     private bool _initializing = true;
     private bool _refreshingFonts;
+    [ObservableProperty]
+    private bool _checkVoicePackageUpdatesOnStartup = Config.Instance.CheckVoicePackageUpdatesOnStartup;
+    partial void OnCheckVoicePackageUpdatesOnStartupChanged(bool value) => Save(value,
+        setting => Config.Instance.CheckVoicePackageUpdatesOnStartup = setting);
 
     public GeneralSettingsViewModel()
     {
@@ -86,6 +90,7 @@ internal sealed partial class GeneralSettingsViewModel : ObservableObject, IDisp
                                    StringComparison.OrdinalIgnoreCase))
                                ?? Languages.FirstOrDefault();
             IsAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
+            CheckVoicePackageUpdatesOnStartup = Config.Instance.CheckVoicePackageUpdatesOnStartup;
             IsStartWithSystem = Config.Instance.StartWithWindows;
             IsStartMinimizedToTray = Config.Instance.StartMinimizedToTray;
             IsWindowsNotificationsEnabled = Config.Instance.EnableWindowsNotifications;

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
@@ -27,8 +28,12 @@
             Command="{Binding ViewModel.ShowStartupDialogCommand}"/>
     </b:EventTrigger>
     </b:Interaction.Triggers>
+    <ui:FluentWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="SearchVisibility" />
+    </ui:FluentWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
@@ -36,10 +41,54 @@
         <ui:TitleBar
             Title="{Binding ViewModel.Title, Mode=OneWay}"
             Grid.Row="0"
-            CloseWindowByDoubleClickOnIcon="True">
+            CloseWindowByDoubleClickOnIcon="True" HorizontalContentAlignment="Center">
+            <ui:TitleBar.Header>
+                <TextBlock Text="{Binding ViewModel.Title}" MaxWidth="240" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+            </ui:TitleBar.Header>
             <ui:TitleBar.Icon>
                 <ui:ImageIcon Source="pack://application:,,,/Assets/app.ico" />
             </ui:TitleBar.Icon>
+            <ui:TitleBar.CenterContent>
+                <Grid Width="360" Margin="12,0" VerticalAlignment="Center"
+                      shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                    <ui:TextBox x:Name="SettingsSearchBox" Height="32" MinHeight="32" VerticalContentAlignment="Center"
+                                PlaceholderText="{DynamicResource settingsSearch.hint}"
+                                AutomationProperties.Name="{DynamicResource settingsSearch.title}"
+                                Text="{Binding ViewModel.SettingsQuery, UpdateSourceTrigger=PropertyChanged}"
+                                TextChanged="OnSettingsSearchChanged" GotKeyboardFocus="OnSettingsSearchFocus"
+                                PreviewKeyDown="OnSettingsSearchKeyDown" />
+                    <Popup x:Name="SettingsSearchPopup" PlacementTarget="{Binding ElementName=SettingsSearchBox}"
+                           Placement="Bottom" VerticalOffset="4" StaysOpen="False" AllowsTransparency="True"
+                           DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                        <Border Width="{Binding PlacementTarget.ActualWidth, ElementName=SettingsSearchPopup}"
+                                Padding="4" CornerRadius="6" BorderThickness="1"
+                                Background="{DynamicResource ApplicationBackgroundBrush}"
+                                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                PreviewKeyDown="OnSettingsSearchKeyDown">
+                            <ScrollViewer MaxHeight="300" VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <TextBlock Margin="8" TextWrapping="Wrap" Text="{DynamicResource settingsSearch.noResults}"
+                                               Visibility="{Binding ViewModel.NoSettingsResults, Converter={StaticResource SearchVisibility}}" />
+                                    <ItemsControl x:Name="SettingsSearchResults" ItemsSource="{Binding ViewModel.SettingsResults}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <ui:Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0 2" Padding="8"
+                                                           Command="{Binding DataContext.ViewModel.OpenSettingCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                           CommandParameter="{Binding}">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+                                                        <TextBlock Text="{Binding PageTitle}" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                                                    </StackPanel>
+                                                </ui:Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+                    </Popup>
+                </Grid>
+            </ui:TitleBar.CenterContent>
             <ui:TitleBar.TrailingContent>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
                     <ui:Button Icon="{ui:SymbolIcon ChatHelp20}" Command="{Binding ViewModel.ShowHelpCommand}"      ToolTip="{DynamicResource ResourceKey=ui.tb_qanda}" FontSize="16"
@@ -47,13 +96,13 @@
                     SnapsToDevicePixels="True"
                     Background="Transparent"
                     ToolTipService.InitialShowDelay="100"
-                    Content="{DynamicResource ResourceKey=ui.tb_qanda}" />
+                    AutomationProperties.Name="{DynamicResource ResourceKey=ui.tb_qanda}" />
                     <ui:Button Icon="{ui:SymbolIcon Lightbulb20}" Command="{Binding ViewModel.RaiseIssueCommand}" ToolTip="{DynamicResource ResourceKey=ui.raise_issue}"
                     FontSize="16"
                     VerticalAlignment="Top"
                     SnapsToDevicePixels="True"
                     Background="Transparent"
-                    ToolTipService.InitialShowDelay="100" Content="{DynamicResource ResourceKey=ui.raise_issue}" />
+                    ToolTipService.InitialShowDelay="100" AutomationProperties.Name="{DynamicResource ResourceKey=ui.raise_issue}" />
                     <!-- ButtonsForeground="{Binding Path=ButtonsForeground, RelativeSource={RelativeSource AncestorType={x:Type ui:TitleBar}}}"
                     MouseOverButtonsForeground="{Binding Path=MouseOverButtonsForeground, RelativeSource={RelativeSource AncestorType={x:Type ui:TitleBar}}}"
                     MouseOverBackground="{Binding Path=ButtonsBackground, RelativeSource={RelativeSource AncestorType={x:Type ui:TitleBar}}}"
@@ -70,9 +119,16 @@
                 </StackPanel>
             </ui:TitleBar.TrailingContent>
         </ui:TitleBar>
+        <ui:InfoBar Grid.Row="1" Margin="42 0 42 0" IsOpen="{Binding ViewModel.VoiceUpdatesAvailable, Mode=TwoWay}"
+                    Severity="Informational" Message="{Binding ViewModel.VoiceUpdatesMessage}">
+            <ui:InfoBar.Content>
+                <ui:Button Content="{DynamicResource voiceStartup.review}" Command="{Binding ViewModel.ReviewVoiceUpdatesCommand}" />
+            </ui:InfoBar.Content>
+        </ui:InfoBar>
+
         <ui:NavigationView
             x:Name="RootNavigation"
-            Grid.Row="1"
+            Grid.Row="2"
             FooterMenuItemsSource="{Binding ViewModel.NavigationFooter, Mode=OneWay}"
             MenuItemsSource="{Binding ViewModel.NavigationItems, Mode=OneWay, diag:PresentationTraceSources.TraceLevel=High}"
             Padding="42,0,42,0"
@@ -93,6 +149,6 @@
             </ui:NavigationView.Header> -->
         </ui:NavigationView>
 
-        <ui:ContentDialogHost x:Name="RootContentDialog" Grid.Row="0" Grid.RowSpan="2"/>
+        <ui:ContentDialogHost x:Name="RootContentDialog" Grid.Row="0" Grid.RowSpan="3"/>
     </Grid>
 </ui:FluentWindow>

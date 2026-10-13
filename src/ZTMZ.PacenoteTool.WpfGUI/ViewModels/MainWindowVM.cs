@@ -40,6 +40,32 @@ public partial class MainWindowVM : ObservableObject
     public event Action OnInitialized;
     internal event Action<TrayWindowAction>? TrayWindowActionRequested;
     internal event Action<string>? UpdateAvailableInTray;
+    internal event Action<SettingSearchResult>? SettingSearchRequested;
+    private readonly Lazy<IReadOnlyList<SettingSearchEntry>> _settingsIndex = new(SettingsSearchCatalog.Load);
+
+    [ObservableProperty]
+    private string _settingsQuery = string.Empty;
+    [ObservableProperty]
+    private IReadOnlyList<SettingSearchResult> _settingsResults = Array.Empty<SettingSearchResult>();
+    public bool HasSettingsQuery => !string.IsNullOrWhiteSpace(SettingsQuery);
+    public bool NoSettingsResults => HasSettingsQuery && SettingsResults.Count == 0;
+
+    partial void OnSettingsQueryChanged(string value)
+    {
+        var i18n = I18NLoader.Instance;
+        SettingsResults = SettingsSearchIndex.Search(_settingsIndex.Value, value, key => i18n[key],
+            key => i18n.Resources != null && i18n.Resources.TryGetValue("en-us", out var english) && english.TryGetValue(key, out var text) ? text : key);
+        OnPropertyChanged(nameof(HasSettingsQuery));
+        OnPropertyChanged(nameof(NoSettingsResults));
+    }
+
+    [RelayCommand]
+    private void OpenSetting(SettingSearchResult result)
+    {
+        if (result == null) return;
+        SettingSearchRequested?.Invoke(result);
+        SettingsQuery = string.Empty;
+    }
 
     public MainWindowVM(
         ZTMZPacenoteTool tool,
@@ -66,6 +92,48 @@ public partial class MainWindowVM : ObservableObject
 
     private StartupDialog? _startupDialog;
     private bool _startupHandled;
+    [ObservableProperty]
+    private bool _voiceUpdatesAvailable;
+    private InfoBadge _voiceBadge;
+    private void OnVoiceUpdatesChanged(object sender, EventArgs args)
+    {
+        if (Application.Current?.Dispatcher is { HasShutdownStarted: false } dispatcher)
+            dispatcher.BeginInvoke(UpdateVoiceBadge);
+    }
+    private void UpdateVoiceBadge()
+    {
+        if (_voiceBadge == null) return;
+        var count = App.GetService<CoDriverPackageUpdateService>().Notifications.Count;
+        _voiceBadge.Value = count.ToString();
+        _voiceBadge.Visibility = count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        if (count == 0) VoiceUpdatesAvailable = false;
+        else VoiceUpdatesMessage = string.Format(I18NLoader.Instance["voiceStartup.available"], count);
+    }
+    [ObservableProperty]
+    private string _voiceUpdatesMessage = string.Empty;
+
+    [RelayCommand]
+    private void ReviewVoiceUpdates()
+    {
+        VoiceUpdatesAvailable = false;
+        App.GetService<INavigationService>().Navigate(typeof(VoicePage));
+    }
+
+    private async Task CheckVoiceUpdatesAsync()
+    {
+        try
+        {
+            await App.GetService<StartupCoDriverUpdateCheck>().CheckOnceAsync(
+                Config.Instance.CheckVoicePackageUpdatesOnStartup, Config.Instance.UpdateDefinitionUrl_AudioPkg,
+                System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(_tool.CoDriverPackages, p => p.Info)));
+            var count = App.GetService<CoDriverPackageUpdateService>().Notifications.Count;
+            if (count == 0 || Application.Current.Dispatcher.HasShutdownStarted) return;
+            VoiceUpdatesMessage = string.Format(I18NLoader.Instance["voiceStartup.available"], count);
+            VoiceUpdatesAvailable = true;
+            App.GetService<SystemNotificationService>().ShowVoicePackageUpdates(count);
+        }
+        catch (Exception ex) { _logger.Warn(ex, "Unable to present co-driver update notice."); }
+    }
     private UpdateFile? _pendingUpdate;
     private bool _isShowingPendingUpdate;
 
@@ -91,6 +159,7 @@ public partial class MainWindowVM : ObservableObject
         // The application may start slowly, but it will be more stable.
 
         InitNavigationItemsAndFooter();
+        App.GetService<CoDriverPackageUpdateService>().Notifications.Changed += OnVoiceUpdatesChanged;
 
         // I know it's ugly to set i18n here... but it's the only way to get it working... for now
         I18NHelper.ApplyI18NToApplication();
@@ -122,6 +191,9 @@ public partial class MainWindowVM : ObservableObject
             TargetPageType = typeof(Views.VoicePage)
         };
         voices.SetResourceReference(NavigationViewItem.ContentProperty, "tabs.voices");
+        _voiceBadge = new InfoBadge { Severity = InfoBadgeSeverity.Critical, Visibility = Visibility.Collapsed };
+        voices.InfoBadge = _voiceBadge;
+        UpdateVoiceBadge();
         items.Add(voices);
 
         var playback = new NavigationViewItem() {
@@ -460,6 +532,8 @@ public partial class MainWindowVM : ObservableObject
             }.ShowDialogAsync();
             return;
         }
+
+        _ = CheckVoiceUpdatesAsync();
 
         if (Config.Instance.StartMinimizedToTray)
         {

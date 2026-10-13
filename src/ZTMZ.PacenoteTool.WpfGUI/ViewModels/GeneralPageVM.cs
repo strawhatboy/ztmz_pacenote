@@ -67,6 +67,15 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
     private bool _isAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
 
     [ObservableProperty]
+    private bool _checkVoicePackageUpdatesOnStartup = Config.Instance.CheckVoicePackageUpdatesOnStartup;
+
+    partial void OnCheckVoicePackageUpdatesOnStartupChanged(bool value)
+    {
+        Config.Instance.CheckVoicePackageUpdatesOnStartup = value;
+        Config.Instance.SaveUserConfig();
+    }
+
+    [ObservableProperty]
     private bool _isStartWithWindows = Config.Instance.StartWithWindows;
 
     [ObservableProperty]

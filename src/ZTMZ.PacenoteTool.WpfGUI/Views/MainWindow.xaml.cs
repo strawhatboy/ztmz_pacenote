@@ -69,6 +69,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             _systemNotificationService.NotificationRequested += OnSystemNotificationRequested;
             ViewModel.TrayWindowActionRequested += OnTrayWindowActionRequested;
             ViewModel.UpdateAvailableInTray += OnUpdateAvailableInTray;
+            ViewModel.SettingSearchRequested += OnSettingSearchRequested;
             SetPageService(pageService);
             contentDialogService.SetDialogHost(RootContentDialog);
             navigationService.SetNavigationControl(RootNavigation);
@@ -104,6 +105,56 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             }
 
             _ = Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(RegisterTrayIcon));
+        }
+
+        private void OnSettingsSearchChanged(object sender, TextChangedEventArgs e)
+        {
+            if (SettingsSearchPopup == null) return;
+            SettingsSearchBox.GetBindingExpression(System.Windows.Controls.TextBox.TextProperty)?.UpdateSource();
+            SettingsSearchPopup.IsOpen = ViewModel.HasSettingsQuery && SettingsSearchBox.IsKeyboardFocusWithin;
+        }
+
+        private void OnSettingsSearchFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            SettingsSearchPopup.IsOpen = ViewModel.HasSettingsQuery;
+        }
+
+        private void OnSettingsSearchKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                SettingsSearchPopup.IsOpen = false;
+                e.Handled = true;
+            }
+            else if (sender == SettingsSearchBox && e.Key == Key.Enter && ViewModel.SettingsResults.Count > 0)
+            {
+                ViewModel.OpenSettingCommand.Execute(ViewModel.SettingsResults[0]);
+                e.Handled = true;
+            }
+            else if (sender == SettingsSearchBox && e.Key == Key.Down && ViewModel.HasSettingsQuery)
+            {
+                SettingsSearchPopup.IsOpen = true;
+                SettingsSearchResults.UpdateLayout();
+                SettingsSearchResults.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+                e.Handled = true;
+            }
+        }
+
+        private async void OnSettingSearchRequested(ZTMZ.PacenoteTool.Core.SettingSearchResult result)
+        {
+            SettingsSearchPopup.IsOpen = false;
+            try
+            {
+                var pageType = typeof(MainWindow).Assembly.GetType("ZTMZ.PacenoteTool.WpfGUI.Views." + result.Entry.PageId);
+                if (pageType == null) return;
+                Navigate(pageType);
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    var target = Helpers.SettingsSearch.Find(RootNavigation, result.Entry.Anchor);
+                    if (target != null) Helpers.SettingsSearch.Reveal(target);
+                }, DispatcherPriority.ContextIdle);
+            }
+            catch (Exception ex) { Logger.Warn(ex, "Unable to navigate to setting {0}", result.Entry.Anchor); }
         }
 
         private static BitmapImage CreateTrayIcon()
@@ -309,6 +360,7 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
         }
         protected override void OnClosed(EventArgs e)
         {
+            ViewModel.SettingSearchRequested -= OnSettingSearchRequested;
             _isClosed = true;
             ViewModel.TrayWindowActionRequested -= OnTrayWindowActionRequested;
             ViewModel.UpdateAvailableInTray -= OnUpdateAvailableInTray;

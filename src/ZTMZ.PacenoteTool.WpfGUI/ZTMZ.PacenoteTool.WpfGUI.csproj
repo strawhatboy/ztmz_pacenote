@@ -14,6 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="ZTMZ.PacenoteTool.Tests" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.10" />
   </ItemGroup>
 
@@ -97,6 +98,11 @@
     </Content>
   </ItemGroup>
   <Import Project="..\..\build\NativeDashboard.Development.targets" />
+  <ItemGroup>
+    <EmbeddedResource Include="Views\GeneralPage.xaml;Views\PlayPage.xaml;Views\VoiceSettingsPage.xaml;Views\HudPage.xaml;Views\VrPage.xaml;Views\ReplaySettingsPage.xaml;Views\SettingsPage.xaml">
+      <LogicalName>SettingsSearch.%(Filename).xaml</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="..\..\build\KT.GameProvider.targets" />
   <Import Project="..\..\build\ACR.GameProvider.targets" />
 </Project>

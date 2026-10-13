@@ -56,6 +56,7 @@ public sealed class CoDriverPackageUpdateService
     private readonly HttpClient _httpClient;
     private readonly TemporaryFileDownloadService _downloads;
     private readonly CoDriverPackageCatalogService _packages;
+    public CoDriverUpdateNotifications Notifications { get; } = new();
 
     public CoDriverPackageUpdateService(
         HttpClient httpClient,
@@ -74,6 +75,7 @@ public sealed class CoDriverPackageUpdateService
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(catalogUrl);
         ArgumentNullException.ThrowIfNull(installedPackages);
+        var revision = Notifications.Revision;
 
         using var response = await _httpClient.GetAsync(
             catalogUrl,
@@ -86,7 +88,7 @@ public sealed class CoDriverPackageUpdateService
             JsonOptions,
             cancellationToken) ?? [];
 
-        return definitions.Select(definition =>
+        var statuses = definitions.Select(definition =>
         {
             var installed = installedPackages.FirstOrDefault(package =>
                 string.Equals(package.id, definition.id, StringComparison.Ordinal));
@@ -109,6 +111,8 @@ public sealed class CoDriverPackageUpdateService
                 installed.Path ?? string.Empty,
                 installed.version ?? string.Empty);
         }).ToList();
+        Notifications.Replace(statuses, revision);
+        return statuses;
     }
 
     public async Task<CoDriverPackage> DownloadAndInstallAsync(
@@ -133,7 +137,9 @@ public sealed class CoDriverPackageUpdateService
         {
             progress?.Report(new CoDriverPackageUpdateProgress(
                 CoDriverPackageUpdatePhase.Installing));
-            return await _packages.ImportAsync(archivePath, existingPackagePath);
+            var package = await _packages.ImportAsync(archivePath, existingPackagePath);
+            Notifications.Installed(package.Info);
+            return package;
         }
         finally
         {

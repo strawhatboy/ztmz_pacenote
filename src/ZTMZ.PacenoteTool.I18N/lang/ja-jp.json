@@ -1,4 +1,22 @@
 {
+  "voiceStartup": {
+    "setting": "起動時に音声パッケージの更新を確認",
+    "description": "インストール済み音声をバックグラウンドで確認します。ダウンロードは手動です。",
+    "available": "{0} 個の音声パッケージに更新があります。",
+    "review": "音声の更新を表示"
+  },
+  "settingsSearch": {
+    "title": "設定を検索",
+    "hint": "設定名や説明のキーワードを入力",
+    "noResults": "一致する設定はありません"
+  },
+  "replayTelemetry": {
+    "title": "リプレイテレメトリ",
+    "description": "記録した走行を選び、MoTeC i2 用の .ld / .ldx を出力します。動画の録画は不要です。",
+    "record": "走行テレメトリを保存",
+    "refresh": "記録を更新",
+    "empty": "このゲームの走行記録はありません。"
+  },
   "application": {
     "title": "ZTMZ Club Pacenote Tool",
     "title_dev": "ZTMZ Club Pacenote Tool (開発版)",

@@ -1,6 +1,7 @@
 <Page x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.GeneralPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:search="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -19,8 +20,18 @@
         </Style> -->
     </Page.Resources>
     <StackPanel Orientation="Vertical">
+        <ui:Card search:SettingsSearch.Anchor="voiceStartup.setting" Margin="0 0 0 3" Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="{DynamicResource voiceStartup.setting}" />
+                    <TextBlock Text="{DynamicResource voiceStartup.description}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding ViewModel.CheckVoicePackageUpdatesOnStartup, Mode=TwoWay}" />
+            </Grid>
+        </ui:Card>
         <!-- theme -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.theme" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -62,7 +73,7 @@
         </ui:Card>
 
         <!-- application font -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="font.systemFont" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -95,7 +106,7 @@
         </ui:Card>
 
         <!-- application font size -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="font.size" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -146,7 +157,7 @@
         </ui:Card>
 
         <!-- suggested downloadable font -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="font.suggestedFont" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.RowDefinitions>
@@ -210,7 +221,7 @@
             </Grid>
         </ui:Card>
         <!-- accent color -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.accentColor" Margin="0 0 0 3"
                  Visibility="{Binding Path=ViewModel.AccentColorPickerVisibility, Mode=OneWay}"
                  Padding="0">
             <Grid>
@@ -302,7 +313,7 @@
         </ui:Card>
 
         <!-- language -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.language" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -333,7 +344,7 @@
         </ui:Card>
 
         <!-- startup check update -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.checkUpdateWhenStartup" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -363,7 +374,7 @@
         </ui:Card>
 
         <!-- startWithSystem -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.startWithSystem" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -396,7 +407,7 @@
             Description="{DynamicResource ResourceKey=settings.tooltip.startWithSystem}" SettingsPropertyName="StartWithWindows" /> -->
 
         <!-- start minimized to tray -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.startMinimizedToTray" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -426,7 +437,7 @@
         </ui:Card>
 
         <!-- Windows event notifications -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.windowsNotifications" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -462,7 +473,7 @@
         </ui:Card>
 
         <!-- OptInBetaPlan -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.optInBetaPlan" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -492,7 +503,7 @@
         </ui:Card>
 
         <!-- LogLevel -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.logLevel" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -537,7 +548,7 @@
         </ui:Card>
 
         <!-- show close behavior dialog -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="ui.showClosePrompt" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -567,7 +578,7 @@
         </ui:Card>
 
         <!-- close button behavior -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="ui.closeBehavior" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>

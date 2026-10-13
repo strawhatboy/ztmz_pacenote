@@ -43,7 +43,10 @@ internal sealed record DesktopRuntimeSnapshot(
     SharedRuntimeControlsSnapshot? Controls,
     DesktopNativeOverlaySnapshot NativeOverlay,
     bool IsReady,
-    string? ErrorMessage);
+    string? ErrorMessage,
+    int VoiceUpdateCount = 0,
+    string? GameMessage = null,
+    int GameMessageLevel = 0);
 
 internal sealed record VoicePackageSnapshot(
     string Id,
@@ -94,7 +97,7 @@ internal interface IDesktopRuntime : IAsyncDisposable
     bool SetIntercomEffect(int effect);
     bool TryPlayExample();
     Task<IReadOnlyList<VoicePackageSnapshot>> GetVoicePackagesAsync(
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default, bool checkOnline = true);
     Task InstallVoicePackageAsync(
         VoicePackageSnapshot package,
         IProgress<CoDriverPackageUpdateProgress>? progress = null,
@@ -123,6 +126,8 @@ internal sealed class DesktopRuntime : IDesktopRuntime
     private string _currentTrack = string.Empty;
     private string _status = "Initializing runtime...";
     private string? _errorMessage;
+    private string? _gameMessage;
+    private int _gameMessageLevel;
     private bool _disposed;
 
     public event EventHandler? SnapshotChanged;
@@ -185,7 +190,7 @@ internal sealed class DesktopRuntime : IDesktopRuntime
     }
 
     public async Task<IReadOnlyList<VoicePackageSnapshot>> GetVoicePackagesAsync(
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default, bool checkOnline = true)
     {
         if (_tool == null || _voicePackageUpdates == null)
         {
@@ -193,10 +198,14 @@ internal sealed class DesktopRuntime : IDesktopRuntime
         }
 
         var localPackages = _tool.CoDriverPackages.Select(package => package.Info).ToArray();
-        var updateStatuses = await _voicePackageUpdates.CheckForUpdatesAsync(
-            Config.Instance.UpdateDefinitionUrl_AudioPkg,
-            localPackages,
-            cancellationToken);
+        IReadOnlyList<CoDriverPackageUpdateStatus> updateStatuses = [];
+        if (checkOnline)
+        {
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeout.CancelAfter(TimeSpan.FromSeconds(30));
+            updateStatuses = await _voicePackageUpdates.CheckForUpdatesAsync(
+                Config.Instance.UpdateDefinitionUrl_AudioPkg, localPackages, timeout.Token);
+        }
         var snapshots = updateStatuses.Select(status => new VoicePackageSnapshot(
             status.Definition.id,
             status.Definition.name,
@@ -262,7 +271,8 @@ internal sealed class DesktopRuntime : IDesktopRuntime
         if (_tool == null || _voicePackageCatalog == null)
             throw new InvalidOperationException("The runtime is not ready.");
 
-        await _voicePackageCatalog.ImportAsync(archivePath, existingPackagePath);
+        var installed = await _voicePackageCatalog.ImportAsync(archivePath, existingPackagePath);
+        _voicePackageUpdates?.Notifications.Installed(installed.Info);
         await _tool.RefreshCodriversAsync();
         RaiseSnapshotChanged();
     }
@@ -348,7 +358,9 @@ internal sealed class DesktopRuntime : IDesktopRuntime
             _controls?.GetSnapshot(),
             GetNativeOverlaySnapshot(),
             _state != null && _errorMessage == null,
-            _errorMessage);
+            _errorMessage,
+            _voicePackageUpdates?.Notifications.Count ?? 0,
+            _gameMessage, _gameMessageLevel);
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
@@ -368,7 +380,11 @@ internal sealed class DesktopRuntime : IDesktopRuntime
                 _voicePackageHttpClient,
                 new TemporaryFileDownloadService(_voicePackageHttpClient),
                 _voicePackageCatalog);
+            _voicePackageUpdates.Notifications.Changed += OnVoiceNotificationsChanged;
             var resourceRoot = AvaloniaLocalization.ResourceRoot;
+#if WINDOWS
+            ProvisionRbrMappings(Path.Combine(AppContext.BaseDirectory, "resources"), paths);
+#endif
             var gamesDirectory = Path.Combine(AppContext.BaseDirectory, Constants.PATH_GAMES);
             _tool = new ZTMZPacenoteTool(
                 new PortAudioAudioOutputDeviceEnumerator(),
@@ -379,6 +395,7 @@ internal sealed class DesktopRuntime : IDesktopRuntime
             _tool.onGameInitialized += _ => RaiseSnapshotChanged();
             _tool.onGameUninitialized += _ =>
             {
+                _gameMessage = null;
                 _currentTrack = string.Empty;
                 RaiseSnapshotChanged();
             };
@@ -437,9 +454,11 @@ internal sealed class DesktopRuntime : IDesktopRuntime
                         CheckPrerequisites: true),
                     InitializeProcessWatcher: false,
                     EnableObsIntegration: false,
-                    EnableReplayIntegration: false),
+                    EnableReplayIntegration: true),
                 cancellationToken);
             _tool.SetFromConfiguration();
+            foreach (var game in _tool.Games)
+                game.onCustomMessage += OnGameCustomMessage;
             _controls.SetWebDashboardEnabled(Config.Instance.WebDashboardEnabled);
 
             if (_tool.Games.Count > 0)
@@ -487,6 +506,11 @@ internal sealed class DesktopRuntime : IDesktopRuntime
         }
 
         _disposed = true;
+        if (_tool != null)
+            foreach (var game in _tool.Games)
+                game.onCustomMessage -= OnGameCustomMessage;
+        if (_voicePackageUpdates != null)
+            _voicePackageUpdates.Notifications.Changed -= OnVoiceNotificationsChanged;
         _bridgePrompts?.Dispose();
         if (_gameSessions != null)
         {
@@ -507,6 +531,22 @@ internal sealed class DesktopRuntime : IDesktopRuntime
     }
 
     private void RaiseSnapshotChanged() => SnapshotChanged?.Invoke(this, EventArgs.Empty);
+    private void OnVoiceNotificationsChanged(object? sender, EventArgs args) => RaiseSnapshotChanged();
+    private void OnGameCustomMessage(int level, string message)
+    {
+        Logger.Info("Game message: {0}", message);
+        _gameMessage = message;
+        _gameMessageLevel = level;
+        RaiseSnapshotChanged();
+    }
+
+    internal static void ProvisionRbrMappings(string packagedResources, IApplicationPaths paths)
+    {
+        foreach (var database in new[] { "default.zdb", "jannemod_v3.zdb" })
+            PackagedFileProvisioner.EnsureCurrent(
+                Path.Combine(packagedResources, Constants.PATH_GAMES, database),
+                paths.GetPath(Path.Combine(Constants.PATH_GAMES, database)));
+    }
 
     private DesktopNativeOverlaySnapshot GetNativeOverlaySnapshot()
     {

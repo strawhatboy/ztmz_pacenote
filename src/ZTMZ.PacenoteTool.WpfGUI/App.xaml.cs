@@ -125,6 +125,7 @@ public partial class App : Application
             services.AddSingleton<ReplayCatalogService>();
             services.AddSingleton<CoDriverPackageCatalogService>();
             services.AddSingleton<CoDriverPackageUpdateService>();
+            services.AddSingleton<StartupCoDriverUpdateCheck>();
             services.AddSingleton<SupportDiagnosticsService>();
             services.AddSingleton<ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool>(provider =>
                 new ZTMZ.PacenoteTool.Core.ZTMZPacenoteTool(

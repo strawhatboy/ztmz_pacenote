@@ -47,6 +47,7 @@
           </Button>
         </Grid>
         <ProgressBar IsVisible="{Binding IsVoicePackageCatalogLoading}" IsIndeterminate="True" Height="3" />
+        <TextBlock Text="{Binding VoiceCatalogError}" TextWrapping="Wrap" Foreground="{DynamicResource SystemFillColorCautionBrush}" />
         <ItemsControl ItemsSource="{Binding VoicePackages}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
@@ -63,6 +64,8 @@
                       <StackPanel Grid.Column="1" Spacing="3">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                           <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                          <Ellipse Width="8" Height="8" Fill="#D13438" IsVisible="{Binding NeedsUpdate}"
+                                   ToolTip.Tip="{DynamicResource voiceStartup.review}" />
                           <TextBlock Text="{Binding Language}"
                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
                           <TextBlock Text="{Binding Version}"
@@ -131,68 +134,68 @@
       </StackPanel>
 
       <StackPanel IsVisible="{Binding IsVoiceSettingsOpen}" Spacing="3">
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,160" ColumnSpacing="16">
             <StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.playStartAndEndSound}" /><TextBlock Text="{DynamicResource settings.tooltip.playStartAndEndSound}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel>
             <ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.PlayStartAndEndSound, Mode=TwoWay}" OnContent="" OffContent="" />
           </Grid>
         </Border>
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,160" ColumnSpacing="16">
             <StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.playGoSound}" /><TextBlock Text="{DynamicResource settings.tooltip.playGoSound}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel>
             <ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.PlayGoSound, Mode=TwoWay}" OnContent="" OffContent="" />
           </Grid>
         </Border>
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,56,160" ColumnSpacing="12">
             <StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.pacenoteDropoutPercentage}" /><TextBlock Text="{DynamicResource settings.tooltip.pacenoteDropoutPercentage}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel>
             <TextBlock Grid.Column="1" Text="{Binding VoiceSettings.PacenoteDropoutPercentage, StringFormat={}{0}%}" VerticalAlignment="Center" />
             <Slider Grid.Column="2" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding VoiceSettings.PacenoteDropoutPercentage, Mode=TwoWay}" VerticalAlignment="Center" />
           </Grid>
         </Border>
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,160" ColumnSpacing="16">
             <StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.removeIntoAndOnto}" /><TextBlock Text="{DynamicResource settings.tooltip.removeIntoAndOnto}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel>
             <ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.RemoveIntoAndOnto, Mode=TwoWay}" OnContent="" OffContent="" />
           </Grid>
         </Border>
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,160" ColumnSpacing="16">
             <StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.useReversePacenote}" /><TextBlock Text="{DynamicResource settings.tooltip.useReversePacenote}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel>
             <ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.UseReversePacenote, Mode=TwoWay}" OnContent="" OffContent="" />
           </Grid>
         </Border>
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,160" ColumnSpacing="16">
             <StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.playCollisionSound}" /><TextBlock Text="{DynamicResource settings.tooltip.playCollisionSound}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel>
             <ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.PlayCollisionSound, Mode=TwoWay}" OnContent="" OffContent="" />
           </Grid>
         </Border>
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,160" ColumnSpacing="16"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.collision_slight}" /><TextBlock Text="{DynamicResource settings.tooltip.collision_slight}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><NumericUpDown Grid.Column="1" Value="{Binding VoiceSettings.CollisionSpeedChangeThresholdSlight, Mode=TwoWay}" /></Grid>
         </Border>
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,160" ColumnSpacing="16"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.collision_medium}" /><TextBlock Text="{DynamicResource settings.tooltip.collision_medium}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><NumericUpDown Grid.Column="1" Value="{Binding VoiceSettings.CollisionSpeedChangeThresholdMedium, Mode=TwoWay}" /></Grid>
         </Border>
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,160" ColumnSpacing="16"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.collision_severe}" /><TextBlock Text="{DynamicResource settings.tooltip.collision_severe}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><NumericUpDown Grid.Column="1" Value="{Binding VoiceSettings.CollisionSpeedChangeThresholdSevere, Mode=TwoWay}" /></Grid>
         </Border>
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,160" ColumnSpacing="16"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.useDefaultSoundPackageByDefault}" /><TextBlock Text="{DynamicResource settings.tooltip.useDefaultSoundPackageByDefault}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.UseDefaultSoundPackageByDefault, Mode=TwoWay}" OnContent="" OffContent="" /></Grid>
         </Border>
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,160" ColumnSpacing="16"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.useDefaultSoundPackageForFallback}" /><TextBlock Text="{DynamicResource settings.tooltip.useDefaultSoundPackageForFallback}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.UseDefaultSoundPackageForFallback, Mode=TwoWay}" OnContent="" OffContent="" /></Grid>
         </Border>
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,160" ColumnSpacing="16"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.preloadSounds}" /><TextBlock Text="{DynamicResource settings.tooltip.preloadSounds}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><ToggleSwitch Grid.Column="1" HorizontalAlignment="Right" IsChecked="{Binding VoiceSettings.PreloadSounds, Mode=TwoWay}" OnContent="" OffContent="" /></Grid>
         </Border>
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,300,40" ColumnSpacing="10"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.additionalCoDriverPackagesSearchPath}" /><TextBlock Text="{DynamicResource settings.tooltip.additionalCoDriverPackagesSearchPath}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><TextBox Grid.Column="1" Text="{Binding VoiceSettings.AdditionalCoDriverPackagesSearchPath, Mode=TwoWay}" /><Button Grid.Column="2" Click="OnPickAdditionalCoDriverDirectoryClick"><materialIcons:MaterialIcon Kind="FolderOpen" Width="17" Height="17" /></Button></Grid>
         </Border>
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,300,40" ColumnSpacing="10"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.additionalPacenotesDefinitionSearchPath}" /><TextBlock Text="{DynamicResource settings.tooltip.additionalPacenotesDefinitionSearchPath}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><TextBox Grid.Column="1" Text="{Binding VoiceSettings.AdditionalPacenotesDefinitionSearchPath, Mode=TwoWay}" /><Button Grid.Column="2" Click="OnPickAdditionalPacenotesDirectoryClick"><materialIcons:MaterialIcon Kind="FolderOpen" Width="17" Height="17" /></Button></Grid>
         </Border>
-        <Border Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
+        <Border Classes="search-setting" Padding="16" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4">
           <Grid ColumnDefinitions="*,300,40" ColumnSpacing="10"><StackPanel Spacing="3"><TextBlock Text="{DynamicResource settings.customPacenoteDatabasePath}" /><TextBlock Text="{DynamicResource settings.tooltip.customPacenoteDatabasePath}" FontSize="{DynamicResource AppSmallFontSize}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" /></StackPanel><TextBox Grid.Column="1" Text="{Binding VoiceSettings.CustomPacenoteDatabasePath, Mode=TwoWay}" /><Button Grid.Column="2" Click="OnPickCustomPacenoteDatabaseClick"><materialIcons:MaterialIcon Kind="File" Width="17" Height="17" /></Button></Grid>
         </Border>
       </StackPanel>

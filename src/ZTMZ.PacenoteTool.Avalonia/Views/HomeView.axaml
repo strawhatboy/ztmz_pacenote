@@ -4,11 +4,15 @@
              xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="ZTMZ.PacenoteTool.Avalonia.Views.HomeView">
   <Grid RowDefinitions="Auto,*,Auto">
+    <StackPanel>
     <fa:FAInfoBar Margin="42,0"
                   IsOpen="{Binding HasError}"
                   Severity="Error"
                   Title="{DynamicResource runtime.initializationFailed}"
                   Message="{Binding ErrorMessage}" />
+    <fa:FAInfoBar Margin="42,0" IsOpen="{Binding HasGameMessage, Mode=OneWay}"
+                  Severity="{Binding GameMessageSeverity}" Message="{Binding GameMessage}" />
+    </StackPanel>
 
     <ScrollViewer Grid.Row="1"
                   HorizontalScrollBarVisibility="Disabled"

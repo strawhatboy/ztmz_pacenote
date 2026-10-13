@@ -990,6 +990,13 @@ namespace ZTMZ.PacenoteTool.Base
         }
 
         private bool _CheckUpdateWhenStartup = true;
+        private bool _CheckVoicePackageUpdatesOnStartup = true;
+        public bool CheckVoicePackageUpdatesOnStartup
+        {
+            get => _CheckVoicePackageUpdatesOnStartup;
+            set { _CheckVoicePackageUpdatesOnStartup = value; _userconfig["CheckVoicePackageUpdatesOnStartup"] = value; }
+        }
+
         public bool CheckUpdateWhenStartup
         {
             set { this._CheckUpdateWhenStartup = value; this._userconfig["CheckUpdateWhenStartup"] = value; }

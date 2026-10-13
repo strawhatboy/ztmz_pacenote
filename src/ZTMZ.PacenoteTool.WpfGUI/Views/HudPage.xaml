@@ -1,6 +1,7 @@
 <Page x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.HudPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:search="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -21,7 +22,7 @@
         </Style> -->
     </Page.Resources>
     <StackPanel Orientation="Vertical">
-        <ui:Card Margin="0 0 0 3" Padding="16">
+        <ui:Card search:SettingsSearch.Anchor="overlayBackend.title" Margin="0 0 0 3" Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -47,7 +48,7 @@
             </Grid>
         </ui:Card>
         <!-- FPS -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.hudFPS" Margin="0 0 0 3"
             Padding="0">
             <Grid>
                 <Grid.RowDefinitions>
@@ -112,7 +113,7 @@
         </ui:Card>
         
         <!-- HudTopMost -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.hudTopMost" Margin="0 0 0 3"
             Visibility="{Binding ViewModel.ShowOverlayTopMost, Converter={StaticResource BooleanToVisibilityConverter}}"
             Padding="16">
             <Grid>
@@ -173,7 +174,7 @@
         </ui:CardAction>
 
         <!-- Web Dashboard -->
-        <ui:Card Margin="0 0 0 3" Padding="16">
+        <ui:Card search:SettingsSearch.Anchor="settings.tooltip.webDashboardTitle" Margin="0 0 0 3" Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />

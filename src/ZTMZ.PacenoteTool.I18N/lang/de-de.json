@@ -1,4 +1,22 @@
 {
+  "voiceStartup": {
+    "setting": "Beim Start nach Beifahrer-Updates suchen",
+    "description": "Prüft installierte Sprachpakete im Hintergrund. Downloads starten Sie selbst.",
+    "available": "Updates für {0} installierte Beifahrerpakete verfügbar.",
+    "review": "Sprachpaket-Updates anzeigen"
+  },
+  "settingsSearch": {
+    "title": "Einstellungen suchen",
+    "hint": "Nach Name oder Beschreibung suchen",
+    "noResults": "Keine passenden Einstellungen"
+  },
+  "replayTelemetry": {
+    "title": "Replay-Telemetrie",
+    "description": "Aufzeichnung auswählen und .ld / .ldx für MoTeC i2 exportieren. Keine Videoaufnahme erforderlich.",
+    "record": "Renntelemetrie speichern",
+    "refresh": "Aufzeichnungen aktualisieren",
+    "empty": "Noch keine Aufzeichnungen für dieses Spiel."
+  },
   "application": {
     "title": "ZTMZ Club Pacenote Tool",
     "title_dev": "ZTMZ Club Pacenote Tool (Entwicklung)",

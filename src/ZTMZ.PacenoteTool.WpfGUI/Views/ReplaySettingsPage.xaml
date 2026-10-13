@@ -1,6 +1,7 @@
 <Page x:Class="ZTMZ.PacenoteTool.WpfGUI.Views.ReplaySettingsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:search="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -23,7 +24,7 @@
     <StackPanel Orientation="Vertical">
               
         <!-- _replayFFmpegPath -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.replayFFmpegPath" Margin="0 0 0 3"
             Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -70,7 +71,7 @@
         </ui:Card>
 
         <!-- _replaySave -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.replaySave" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -100,7 +101,7 @@
         </ui:Card>
 
         <!-- _replayPreferredFilter -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.replayPreferredFilter" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -141,7 +142,7 @@
         </ui:Card>
         
         <!-- _replayStoredCountLimit -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.replayStoredCountLimit" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -181,7 +182,7 @@
         </ui:Card>
 
         <!-- ReplaySaveWithoutInterval -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.replaySaveWithoutInterval" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -211,7 +212,7 @@
         </ui:Card>
         
         <!-- _replaySaveInterval -->
-        <ui:Card Margin="0 0 0 3" Visibility="{Binding Path=ViewModel.ReplaySaveIntervalVisibility}"
+        <ui:Card search:SettingsSearch.Anchor="settings.replaySaveInterval" Margin="0 0 0 3" Visibility="{Binding Path=ViewModel.ReplaySaveIntervalVisibility}"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -241,7 +242,7 @@
         </ui:Card>
         
         <!-- _onlineRivalsEnabled -->
-        <ui:Card Margin="0 0 0 3" Visibility="Collapsed"
+        <ui:Card search:SettingsSearch.Anchor="settings.onlineRivalsEnabled" Margin="0 0 0 3" Visibility="Collapsed"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -271,7 +272,7 @@
         </ui:Card>
         
         <!-- _ReplayOBSSave -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.replayOBSSave" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.RowDefinitions>
@@ -335,7 +336,7 @@
         </ui:Card>
 
         <!-- _ReplayOBSWebsocketUrl -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.replayOBSWebsocketUrl" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -365,7 +366,7 @@
         </ui:Card>
         
         <!-- ReplayOBSWebsocketPassword -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.replayOBSWebsocketPassword" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -395,7 +396,7 @@
         </ui:Card>
 
         <!-- ReplayOBSWebsocketTimeout -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.replayOBSWebsocketTimeout" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -425,7 +426,7 @@
         </ui:Card>
         
         <!-- ReplayDeleteRelatedVideo -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.replayDeleteRelatedVideo" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -455,7 +456,7 @@
         </ui:Card>
 
         <!-- ReplayShowDiagrams -->
-        <ui:Card Margin="0 0 0 3"
+        <ui:Card search:SettingsSearch.Anchor="settings.replayCleanUpAbnormalVideo" Margin="0 0 0 3"
                  Padding="16">
             <Grid>
                 <Grid.ColumnDefinitions>

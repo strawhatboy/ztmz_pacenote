@@ -14,7 +14,7 @@
                    Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
       </StackPanel>
 
-      <Border Grid.Row="1"
+      <Border Grid.Row="1" Classes="search-setting"
               Margin="0,28,0,0"
               Padding="16"
               IsVisible="{Binding IsNativeOverlaySupported}"
@@ -89,7 +89,7 @@
         </Grid>
       </Border>
 
-      <Border Grid.Row="2"
+      <Border Grid.Row="2" Classes="search-setting"
               Margin="0,28,0,0"
               Padding="16"
               Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
