@@ -26,16 +26,6 @@
       </Border>
 
       <Border Classes="setting-card">
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
-          <StackPanel>
-            <TextBlock Classes="setting-title" Text="{DynamicResource voiceStartup.setting}" />
-            <TextBlock Classes="setting-description" Text="{DynamicResource voiceStartup.description}" TextWrapping="Wrap" />
-          </StackPanel>
-          <ToggleSwitch Grid.Column="1" IsChecked="{Binding CheckVoicePackageUpdatesOnStartup, Mode=TwoWay}" />
-        </Grid>
-      </Border>
-
-      <Border Classes="setting-card">
         <Grid ColumnDefinitions="*,260">
           <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
             <materialIcons:MaterialIcon Kind="ThemeLightDark" Width="26" Height="26" />

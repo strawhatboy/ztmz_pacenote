@@ -1,4 +1,9 @@
 {
+  "aboutVersion": {
+    "copy": "Copia versione",
+    "copied": "Versione copiata",
+    "copyFailed": "Impossibile copiare la versione. Riprova."
+  },
   "voiceStartup": {
     "setting": "Controlla le voci all'avvio",
     "description": "Controlla le voci installate in background. I download richiedono una tua azione.",

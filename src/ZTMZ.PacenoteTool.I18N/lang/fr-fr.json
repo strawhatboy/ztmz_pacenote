@@ -1,4 +1,9 @@
 {
+  "aboutVersion": {
+    "copy": "Copier la version",
+    "copied": "Version copiée",
+    "copyFailed": "Impossible de copier la version. Veuillez réessayer."
+  },
   "voiceStartup": {
     "setting": "Vérifier les voix au démarrage",
     "description": "Vérifie les voix installées en arrière-plan. Vous décidez du téléchargement.",

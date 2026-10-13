@@ -122,7 +122,24 @@ public partial class GeneralPageVM : ObservableObject, INavigationAware {
     private Wpf.Ui.Appearance.ApplicationTheme CurrentTheme = Config.Instance.UseSystemTheme ? Wpf.Ui.Appearance.ApplicationTheme.Unknown : 
         (Config.Instance.IsDarkTheme ? Wpf.Ui.Appearance.ApplicationTheme.Dark : Wpf.Ui.Appearance.ApplicationTheme.Light);
 
+    private bool _isSettingAccentColor;
+
+    public void SetAccentColor(Color color)
+    {
+        // Apply the three channels together, avoiding three theme refreshes and config writes.
+        _isSettingAccentColor = true;
+        try
+        {
+            AccentColorR = color.R;
+            AccentColorG = color.G;
+            AccentColorB = color.B;
+        }
+        finally { _isSettingAccentColor = false; }
+        updateAccentColor();
+    }
+
     private void updateAccentColor() {
+        if (_isSettingAccentColor) return;
         Config.Instance.SaveUserConfig();
         AccentColor.Color = ThemeHelper.GetAccentColor();
         if (!Config.Instance.UseSystemTheme) {

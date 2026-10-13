@@ -28,11 +28,19 @@
                   HorizontalAlignment="Center"
                   Orientation="Horizontal"
                   Spacing="10">
-        <TextBlock VerticalAlignment="Center" Text="{Binding VersionText}" />
+        <Button Click="CopyVersion_Click" Background="Transparent" BorderThickness="0" Padding="8,4"
+                ToolTip.Tip="{DynamicResource aboutVersion.copy}" AutomationProperties.Name="{DynamicResource aboutVersion.copy}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <materialIcons:MaterialIcon Kind="ContentCopy" Width="16" Height="16" />
+            <TextBlock VerticalAlignment="Center" Text="{Binding VersionText}" />
+          </StackPanel>
+        </Button>
         <ToggleSwitch IsChecked="{Binding IsAutoUpdate, Mode=TwoWay}"
                       OnContent="{DynamicResource settings.checkUpdateWhenStartup_On}"
                       OffContent="{DynamicResource settings.checkUpdateWhenStartup_Off}" />
       </StackPanel>
+      <TextBlock Text="{Binding VersionCopyStatus}" HorizontalAlignment="Center" TextWrapping="Wrap"
+                 Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
 
       <StackPanel Margin="0,20,0,0"
                   HorizontalAlignment="Center"

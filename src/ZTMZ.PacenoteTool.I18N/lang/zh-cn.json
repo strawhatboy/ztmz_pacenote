@@ -1,4 +1,9 @@
 {
+  "aboutVersion": {
+    "copy": "复制版本号",
+    "copied": "版本号已复制",
+    "copyFailed": "无法复制版本号，请重试。"
+  },
   "voiceStartup": {
     "setting": "启动时检查领航员语音包更新",
     "description": "在后台检查已安装的语音包，由你选择是否下载安装。",

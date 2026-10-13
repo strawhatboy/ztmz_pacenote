@@ -30,12 +30,16 @@
         <!-- Version and autoupdate toggle -->
         <StackPanel Margin="0,20,0,0" Orientation="Horizontal" HorizontalAlignment="Center"
             VerticalAlignment="Center">
-            <ui:TextBlock FontTypography="Caption" Text="{Binding ViewModel.AppVersion}"
-                Margin="0 0 10 0" VerticalAlignment="Center" />
+            <ui:Button Content="{Binding ViewModel.AppVersion}" Icon="{ui:SymbolIcon Copy20}"
+                       Command="{Binding ViewModel.CopyVersionCommand}" Background="Transparent" BorderThickness="0"
+                       ToolTip="{DynamicResource aboutVersion.copy}" AutomationProperties.Name="{DynamicResource aboutVersion.copy}"
+                       Margin="0 0 10 0" Padding="8,4" VerticalAlignment="Center" />
             <ui:ToggleSwitch OnContent="{DynamicResource settings.checkUpdateWhenStartup_On}"
                 OffContent="{DynamicResource settings.checkUpdateWhenStartup_Off}"
                 IsChecked="{Binding ViewModel.IsAutoUpdate, Mode=TwoWay}" />
         </StackPanel>
+        <TextBlock Text="{Binding ViewModel.VersionCopyStatus}" HorizontalAlignment="Center"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
         
         <!-- data folder related -->
         <StackPanel helpers:SettingsSearch.Anchor="ui.moveDataFolder" Margin="0,20,0,0" Orientation="Horizontal" HorizontalAlignment="Center"

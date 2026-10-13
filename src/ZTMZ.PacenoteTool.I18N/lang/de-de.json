@@ -1,4 +1,9 @@
 {
+  "aboutVersion": {
+    "copy": "Version kopieren",
+    "copied": "Version kopiert",
+    "copyFailed": "Die Version konnte nicht kopiert werden. Bitte erneut versuchen."
+  },
   "voiceStartup": {
     "setting": "Beim Start nach Beifahrer-Updates suchen",
     "description": "Prüft installierte Sprachpakete im Hintergrund. Downloads starten Sie selbst.",

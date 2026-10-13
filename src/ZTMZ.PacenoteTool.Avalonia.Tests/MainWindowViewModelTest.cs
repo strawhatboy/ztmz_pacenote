@@ -33,6 +33,11 @@ public class MainWindowViewModelTest
             Assert.False(window.FindControl<Border>("VoiceUpdateBadge")!.IsVisible);
             var box = window.FindControl<global::Avalonia.Controls.TextBox>("SettingsSearchBox")!;
             var titleBar = window.FindControl<Grid>("CustomTitleBar")!;
+            var titleLabel = window.FindControl<TextBlock>("TitleBarLabel")!;
+            Assert.Equal("ZTMZ Next Generation Pacenote Tool", titleLabel.Text);
+            Assert.Equal(vm.WindowTitle, ToolTip.GetTip(titleLabel));
+            Assert.Equal(vm.WindowTitle, window.Title);
+            Assert.False(Views.MainWindow.IsInteractiveTitleBarElement(titleLabel));
             Assert.Contains(titleBar, global::Avalonia.VisualTree.VisualExtensions.GetVisualAncestors(box));
             Assert.True(Views.MainWindow.IsInteractiveTitleBarElement(box));
             Assert.False(Views.MainWindow.IsInteractiveTitleBarElement(titleBar));
@@ -41,6 +46,8 @@ public class MainWindowViewModelTest
                 window.Width = width;
                 global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
                 var origin = global::Avalonia.VisualExtensions.TranslatePoint(box, default, titleBar)!.Value;
+                var titleOrigin = global::Avalonia.VisualExtensions.TranslatePoint(titleLabel, default, titleBar)!.Value;
+                Assert.True(titleOrigin.X + titleLabel.Bounds.Width <= origin.X);
                 Assert.InRange(Math.Abs(origin.X + box.Bounds.Width / 2 - titleBar.Bounds.Width / 2), 0, 1);
                 Assert.InRange(origin.Y + box.Bounds.Height, 0, 48);
                 var actions = window.FindControl<StackPanel>("TitleBarActions")!;

@@ -107,6 +107,15 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views
             _ = Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(RegisterTrayIcon));
         }
 
+        private void OnTitleLabelMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+            else
+                DragMove();
+            e.Handled = true;
+        }
+
         private void OnSettingsSearchChanged(object sender, TextChangedEventArgs e)
         {
             if (SettingsSearchPopup == null) return;

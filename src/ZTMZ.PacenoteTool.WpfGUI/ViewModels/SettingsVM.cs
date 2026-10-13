@@ -26,6 +26,24 @@ public partial class SettingsVM : ObservableObject, INavigationAware
     private string _appVersion = String.Empty;
 
     [ObservableProperty]
+    private string _versionCopyStatus = String.Empty;
+
+    [RelayCommand]
+    private void CopyVersion()
+    {
+        try
+        {
+            System.Windows.Clipboard.SetDataObject(AppVersion, true);
+            VersionCopyStatus = I18NLoader.Instance["aboutVersion.copied"];
+        }
+        catch (Exception exception)
+        {
+            _logger.Warn(exception, "Unable to copy application version");
+            VersionCopyStatus = I18NLoader.Instance["aboutVersion.copyFailed"];
+        }
+    }
+
+    [ObservableProperty]
     private bool _isAutoUpdate = Config.Instance.CheckUpdateWhenStartup;
 
     [ObservableProperty]

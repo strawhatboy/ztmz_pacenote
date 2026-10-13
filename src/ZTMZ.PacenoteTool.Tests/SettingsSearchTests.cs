@@ -30,7 +30,7 @@ public class SettingsSearchTests
                 System.Xml.Linq.XNamespace p = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
                 var titleMarkup = new System.Xml.Linq.XElement(document.Descendants(ui + "TitleBar").Single());
                 foreach (var attribute in titleMarkup.DescendantsAndSelf().Attributes()
-                             .Where(a => a.Name.LocalName is "TextChanged" or "GotKeyboardFocus" or "PreviewKeyDown").ToArray())
+                             .Where(a => a.Name.LocalName is "TextChanged" or "GotKeyboardFocus" or "PreviewKeyDown" or "MouseLeftButtonDown").ToArray())
                     attribute.Remove();
                 titleMarkup.Descendants(ui + "ImageIcon").Single().SetAttributeValue("Source",
                     "pack://application:,,,/ZTMZ.PacenoteTool.WpfGUI;component/Assets/app.ico");
@@ -67,6 +67,10 @@ public class SettingsSearchTests
                 }
                 var popup = (System.Windows.Controls.Primitives.Popup)host.FindName("SettingsSearchPopup");
                 var titleBar = host.Children.OfType<Wpf.Ui.Controls.TitleBar>().Single();
+                var titleLabel = (TextBlock)titleBar.Header;
+                Assert.Equal("ZTMZ Next Generation Pacenote Tool", titleLabel.Text);
+                Assert.Equal(titleBar.Title, titleLabel.ToolTip);
+                Assert.Equal(TextTrimming.None, titleLabel.TextTrimming);
                 Assert.True(System.Windows.Shell.WindowChrome.GetIsHitTestVisibleInChrome((Grid)titleBar.CenterContent));
                 foreach (var width in new[] { 1180d, 1600d })
                 {
@@ -115,7 +119,7 @@ public class SettingsSearchTests
         Assert.Equal(7, entries.Select(e => e.PageId).Distinct().Count());
         Assert.True(entries.Count >= 60);
         Assert.Equal(entries.Count, entries.Select(e => (e.PageId, e.Anchor)).Distinct().Count());
-        Assert.Contains(entries, e => e.Anchor == "voiceStartup.setting" && e.PageId == "GeneralPage");
+        Assert.DoesNotContain(entries, e => e.Anchor == "voiceStartup.setting");
         Assert.Contains(entries, e => e.ResourceKeys.Contains("settings.tooltip.playCollisionSound"));
         Assert.All(entries, e => Assert.False(string.IsNullOrWhiteSpace(e.Anchor)));
     }

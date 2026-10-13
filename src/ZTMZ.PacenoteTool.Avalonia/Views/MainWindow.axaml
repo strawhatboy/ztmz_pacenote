@@ -77,11 +77,11 @@
              RenderOptions.BitmapInterpolationMode="HighQuality"
              IsHitTestVisible="False"
              VerticalAlignment="Center" />
-      <TextBlock Grid.Column="1"
-                 Text="{Binding WindowTitle}"
-                 TextTrimming="CharacterEllipsis"
+      <TextBlock x:Name="TitleBarLabel" Grid.Column="1"
+                 Text="ZTMZ Next Generation Pacenote Tool"
+                 ToolTip.Tip="{Binding WindowTitle}" ToolTip.ShowDelay="500"
+                 WindowDecorationProperties.ElementRole="User"
                  FontSize="12"
-                 IsHitTestVisible="False"
                  VerticalAlignment="Center" />
       </Grid>
       <Grid Grid.Column="1" Margin="8,0" VerticalAlignment="Center"

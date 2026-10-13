@@ -14,6 +14,25 @@ public partial class GeneralPage : INavigableView<GeneralPageVM>
 
         InitializeComponent();
     }
+
+    private void OnAccentColorPresetClick(object sender, System.Windows.RoutedEventArgs e)
+    {
+        if (sender is System.Windows.FrameworkElement { Tag: System.Windows.Media.Color color })
+        {
+            AccentColorButton.IsChecked = false;
+            ViewModel.SetAccentColor(color);
+        }
+    }
+
+    private void OnAccentColorPopupKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.Escape)
+        {
+            AccentColorButton.IsChecked = false;
+            AccentColorButton.Focus();
+            e.Handled = true;
+        }
+    }
 }
 
 

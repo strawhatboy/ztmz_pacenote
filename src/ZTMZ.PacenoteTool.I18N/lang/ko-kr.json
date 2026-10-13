@@ -1,4 +1,9 @@
 {
+  "aboutVersion": {
+    "copy": "버전 복사",
+    "copied": "버전을 복사했습니다",
+    "copyFailed": "버전을 복사하지 못했습니다. 다시 시도하세요."
+  },
   "voiceStartup": {
     "setting": "시작 시 음성 패키지 업데이트 확인",
     "description": "설치된 음성을 백그라운드에서 확인합니다. 다운로드는 직접 선택합니다.",

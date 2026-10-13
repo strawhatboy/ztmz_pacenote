@@ -14,22 +14,26 @@
       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
       mc:Ignorable="d">
     <Page.Resources>
+        <x:Array x:Key="AccentColorPresets" Type="{x:Type Color}">
+            <Color>#DE9C12</Color>
+            <Color>#F7630C</Color>
+            <Color>#D13438</Color>
+            <Color>#E3008C</Color>
+            <Color>#8764B8</Color>
+            <Color>#744DA9</Color>
+            <Color>#0078D4</Color>
+            <Color>#0099BC</Color>
+            <Color>#00B7C3</Color>
+            <Color>#008272</Color>
+            <Color>#107C10</Color>
+            <Color>#68768A</Color>
+        </x:Array>
         <!-- <Style TargetType="ui:Card">
             <Setter Property="Padding" Value="16"></Setter>
             <Setter Property="Margin" Value="0 0 0 5"></Setter>
         </Style> -->
     </Page.Resources>
     <StackPanel Orientation="Vertical">
-        <ui:Card search:SettingsSearch.Anchor="voiceStartup.setting" Margin="0 0 0 3" Padding="16">
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                <StackPanel Margin="0 0 16 0">
-                    <TextBlock Text="{DynamicResource voiceStartup.setting}" />
-                    <TextBlock Text="{DynamicResource voiceStartup.description}" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
-                </StackPanel>
-                <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding ViewModel.CheckVoicePackageUpdatesOnStartup, Mode=TwoWay}" />
-            </Grid>
-        </ui:Card>
         <!-- theme -->
         <ui:Card search:SettingsSearch.Anchor="settings.theme" Margin="0 0 0 3"
                  Padding="16">
@@ -250,10 +254,42 @@
                                           FontTypography="Caption"/>
                         </Grid>
                     </StackPanel>
-                    <ui:Card HorizontalAlignment="Stretch"
-                             VerticalAlignment="Stretch"
-                             Grid.Column="1"
-                             Background="{Binding Path=ViewModel.AccentColor, Mode=OneWay}"/>
+                    <Grid Grid.Column="1">
+                        <ToggleButton x:Name="AccentColorButton" Padding="4" MinHeight="36"
+                                      HorizontalContentAlignment="Stretch"
+                                      ToolTip="{DynamicResource settings.accentColor}"
+                                      AutomationProperties.Name="{DynamicResource settings.accentColor}">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <Border Background="{Binding ViewModel.AccentColor}" CornerRadius="3" MinHeight="24" />
+                                <ui:SymbolIcon Grid.Column="1" Symbol="ChevronDown20" FontSize="16" Margin="8,0,4,0" />
+                            </Grid>
+                        </ToggleButton>
+                        <Popup x:Name="AccentColorPopup" PlacementTarget="{Binding ElementName=AccentColorButton}"
+                               Placement="Bottom" VerticalOffset="4" StaysOpen="False" AllowsTransparency="True"
+                               IsOpen="{Binding IsChecked, ElementName=AccentColorButton, Mode=TwoWay}"
+                               PreviewKeyDown="OnAccentColorPopupKeyDown">
+                            <Border Background="{DynamicResource ApplicationBackgroundBrush}" Padding="8"
+                                    CornerRadius="6" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1">
+                                <ItemsControl ItemsSource="{StaticResource AccentColorPresets}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate><UniformGrid Columns="6" /></ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <ui:Button Width="36" Height="36" Margin="2" Padding="3"
+                                                       Tag="{Binding}" ToolTip="{Binding}" AutomationProperties.Name="{Binding}"
+                                                       Click="OnAccentColorPresetClick">
+                                                <Border Width="28" Height="28" CornerRadius="3">
+                                                    <Border.Background><SolidColorBrush Color="{Binding}" /></Border.Background>
+                                                </Border>
+                                            </ui:Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Border>
+                        </Popup>
+                    </Grid>
                 </Grid>
                 <Border Grid.Row="1"
                         BorderThickness="0,1,0,0"

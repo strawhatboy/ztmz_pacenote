@@ -43,7 +43,10 @@
             Grid.Row="0"
             CloseWindowByDoubleClickOnIcon="True" HorizontalContentAlignment="Center">
             <ui:TitleBar.Header>
-                <TextBlock Text="{Binding ViewModel.Title}" MaxWidth="240" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                <TextBlock x:Name="TitleBarLabel" Text="ZTMZ Next Generation Pacenote Tool" FontSize="12" VerticalAlignment="Center"
+                           ToolTip="{Binding ViewModel.Title}" ToolTipService.InitialShowDelay="500"
+                           shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                           MouseLeftButtonDown="OnTitleLabelMouseLeftButtonDown" />
             </ui:TitleBar.Header>
             <ui:TitleBar.Icon>
                 <ui:ImageIcon Source="pack://application:,,,/Assets/app.ico" />

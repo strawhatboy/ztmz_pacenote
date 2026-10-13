@@ -1,4 +1,9 @@
 {
+  "aboutVersion": {
+    "copy": "Copy version",
+    "copied": "Version copied",
+    "copyFailed": "Could not copy the version. Please try again."
+  },
   "voiceStartup": {
     "setting": "Check co-driver package updates on startup",
     "description": "Checks installed voice packages in the background; downloads require your action.",

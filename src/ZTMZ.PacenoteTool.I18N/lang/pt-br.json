@@ -1,4 +1,9 @@
 {
+  "aboutVersion": {
+    "copy": "Copiar versão",
+    "copied": "Versão copiada",
+    "copyFailed": "Não foi possível copiar a versão. Tente novamente."
+  },
   "voiceStartup": {
     "setting": "Verificar atualizações de vozes ao iniciar",
     "description": "Verifica as vozes instaladas em segundo plano. Você decide quando baixar.",

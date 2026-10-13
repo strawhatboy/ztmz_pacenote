@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -42,6 +43,25 @@ public sealed partial class AboutView : UserControl, INotifyPropertyChanged
     public Bitmap? AppLogo { get; }
 
     public string VersionText => $"{Assembly.GetEntryAssembly()?.GetName().Version} [{ToolUtils.GetToolVersion()}]";
+
+    public string VersionCopyStatus { get; private set; } = string.Empty;
+
+    private async void CopyVersion_Click(object? sender, RoutedEventArgs eventArgs)
+    {
+        try
+        {
+            var clipboard = TopLevel.GetTopLevel(this)?.Clipboard
+                ?? throw new InvalidOperationException("Clipboard is unavailable");
+            await clipboard.SetTextAsync(VersionText);
+            VersionCopyStatus = AvaloniaLocalization.Get("aboutVersion.copied");
+        }
+        catch (Exception exception)
+        {
+            NLog.LogManager.GetCurrentClassLogger().Warn(exception, "Unable to copy application version");
+            VersionCopyStatus = AvaloniaLocalization.Get("aboutVersion.copyFailed");
+        }
+        ViewPropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(VersionCopyStatus)));
+    }
 
     public string DataFolderSize
     {
