@@ -26,6 +26,9 @@
                 }
             },
             "message": {
+                "selection_LoadedLuppis": "赛道 {0}：已确认游戏加载了 Luppis 路书“{1}”。",
+                "selection_LoadedDefault": "赛道 {0}：游戏当前已加载默认路书“{1}”；如需 Luppis 路书，请在游戏中切换。",
+                "selection_LoadedOther": "赛道 {0}：游戏当前已加载“{1}”，名称中未标注 Luppis；这不代表没有安装 Luppis 路书。",
                 "selection_NotConfigured": "赛道 {0}：未找到 NGPCarMenu 的自定义路书目录配置，暂用默认映射；这不代表没有安装老王/Luppis 路书。",
                 "selection_Disabled": "赛道 {0}：NGPCarMenu 已禁用自定义路书，暂用默认映射。",
                 "selection_DirectoryMissing": "赛道 {0}：配置的自定义路书目录不存在，请检查 MyPacenotesPath，暂用默认映射。",

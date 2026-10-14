@@ -17,7 +17,7 @@ Related issue: https://gitee.com/ztmz/ztmz_pacenote/issues/I5X2KQ
 | --- | --- | --- |
 | EA SPORTS WRC | Explicit `stage_result_status` maps to all five shared result values. Result status takes precedence over zeroed clocks and progress, and all emitted values use the shared enum. | Validate normal finish, terminal damage and retirement with live telemetry after the change. |
 | Assetto Corsa Rally | Bridge `StopAtMarshals` marks normal finish; `EventDisqualified`, `EventDisqualified1` and `EventDisqualified2` retain disqualification/retired audio. | Other retirement causes have no verified bridge cue. Shared-memory replay status alone has no finish reason and stays silent. Finish audio supplies no official result time. |
-| RBR | Existing detector publishes Normal only after observed stage completion outside replay and without false-start state. Other end states have no verified reason and now stay silent. | `RaceEnded` and end/replay game states alone cannot distinguish completion, retirement and replay transitions. No crash/retire reason is invented from damage or incomplete progress. |
+| RBR | Hash-gated Windows native reader identifies an active failed result for an observed started RSF stage; emits Retired without a finish time. Practice, Hotlap and online manual-retirement signals were captured. Existing Normal completion remains unchanged. | Waits at most 2 seconds for delayed results; unknown layouts/results, restart and replay stay silent. No specific crash reason inferred. Final audible behavior in a rebuilt app still needs live validation. |
 | DiRT Rally | Existing lap-completion event publishes Normal. | No explicit retirement reason in the current reader. |
 | DiRT Rally 2.0 | Hash-gated Windows memory reader observes the local player's native Retired, TerminalDamage, Disqualified and TimedOut results; polling continues when UDP stops. Explicit manual retirement was live captured. Normal finish retains UDP timing. | Linux/unknown executable builds have no native result reader. Terminal damage, timeout and disqualification still need live validation. See `dr2-telemetry.md`; damage/silence alone never imply retirement. |
 | BeamNG.drive | Bridge 1.1.11 publishes Retired for an explicit matching mission abandon; Rally Loop DNF attempts distinguish abandon from restart. Stage completion still publishes Normal. Restart and other mission stops end silently. | Requires the updated bridge and a game restart. Damage, pauses and missing telemetry are not retirement evidence. Flows without a verified abandon event remain silent. Live validation is still required. |
@@ -105,7 +105,8 @@ Result-menu pointers and RSF's saved `HandleResults` values have now been traced
 Neither is an unconditional retirement flag: menu transitions can be short, and
 RSF's finish-time value needs proof of a fresh result for this attempt. The
 linked investigation specifies the required guards and unresolved validation.
-RBR's existing unknown-end behavior remains silent; no new detector is claimed.
+RBR's unknown-end behavior remains silent. The subsequent bounded production
+implementation is documented at the end of the linked investigation.
 The standalone `tools/RbrResultProbe` now captures native result-page ownership,
 transitions and hash-verified RSF saved results without injection or writes.
 Its build, one live RSF manual retirement and a restart were checked: failure page 18
@@ -113,9 +114,18 @@ appeared about 126 ms after the first sampled end state and remained as a stale
 pointer after returning to the main menu. RSF result times stayed zero throughout.
 The restart instead used transition 3 and loading states, without the observed
 failure-page sequence; RSF's stage-start flag stayed set through the new start.
-The detailed document includes both sequences and remaining normal-finish,
-pre-start-exit, replay and repeated-failure validation. No production detector
-has been added yet.
+On 2026-10-14, a separate Hotlap manual retirement also used native mode 1 and
+failure page 18, appearing 94 ms after the first sampled end state before
+automatically returning to the Hotlap menu. A subsequent online retirement in
+the same process also used native mode 1 and failure page 18, appearing 155 ms
+after the first sampled end state. All three modes now have one observed manual
+retirement; this does not establish crash-specific causes or every plugin flow.
+The detailed document includes these sequences and remaining normal-finish,
+pre-start-exit, replay and repeated-failure validation. The production detector
+now uses native mode/page/ownership plus the observed attempt, with bounded
+waiting for a delayed result and one typed retirement event. It does not rely
+on RSF's saved result floats. 33 focused regression tests pass; final live audio
+verification requires a rebuilt app. WPF and Windows Avalonia share this module.
 
 ## WRC 7 / Generations follow-up prerequisites
 

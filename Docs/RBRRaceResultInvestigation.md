@@ -1,8 +1,11 @@
 # RBR race-result investigation
 
-2026-10-13. Static analysis and a standalone read-only capture tool; no production
-detector added, no game-memory writes or plugin installation. RSF manual
-retirement and restart were subsequently captured live; see observations below.
+Investigation began 2026-10-13 with static analysis and a standalone read-only
+capture tool. Practice retirement/restart, Hotlap retirement and online retirement
+were subsequently captured live. On 2026-10-14 the bounded production detector
+was implemented; see the final section for current behavior and verification.
+Historical sections describe evidence and limitations at each investigation step.
+No game-memory writes or plugin installation were used.
 
 ## Conclusion
 
@@ -313,8 +316,9 @@ live; production retirement detection is still not implemented.
 
 ## RSF Practice, Hotlap and online competition coverage
 
-The user identified the live tests above as **RSF Practice**. Do not label them
-as validation of Hotlap or online competition. RSF's user-facing modes and the
+The user identified the 2026-10-13 live tests above as **RSF Practice**. Hotlap
+and online competition were subsequently captured separately below.
+RSF's user-facing modes and the
 native RBR gameflow mode are different domains; the observed native value 1 does
 not mean "Practice" and must not be named as such in code.
 
@@ -328,14 +332,15 @@ that interface's first virtual method with five arguments, matching the public
 contains no Practice/Hotlap/online mode parameter.
 
 This provides a reason that different RSF modes **could share** native result
-page 18, not proof that all modes use this path unchanged. RSF also dispatches
+page 18; the later captures below confirm one manual retirement in each of the
+three modes for the installed version. RSF also dispatches
 its common result callback into Lua, and mode-specific control flow or runtime
 hooks may affect the visible result sequence. This inspection has not mapped
 every Hotlap/online launch and retirement branch. The private mode-like field
 at RVA `0x3bdd88` still has no verified mapping to all user-facing mode names.
 
-Before claiming all three modes supported, either establish their complete
-launch/end paths statically or capture a retirement in each remaining mode.
+Before broadening coverage beyond the observed manual-retirement paths,
+establish the other launch/end paths statically or capture them directly.
 Record native mode, plugin flag, active page/owner and attempt lifecycle; compare
 the whole sequence rather than just page 18. Online-event retirement is a real
 user action affecting its result and should only be tested in an event the user
@@ -344,4 +349,145 @@ or an invented failure cause.
 
 The initial 30-minute probe ended normally at 20:31:35 China time: 57,722 read
 attempts, 1,783 recorded samples, zero read errors and zero detected coherence
-changes. A further live test requires starting a new capture first.
+changes. A new capture was started for Hotlap on 2026-10-14.
+
+## Live RSF Hotlap retirement (2026-10-14, 13:53 China time)
+
+User identified the starting menu as Hotlap, drove, selected retirement, and
+reported that the game returned directly to the Hotlap menu. Capture:
+`tmp/rbr-hotlap-20261014-134928.jsonl`, PID 30452, map ID 505, same verified
+executable and RSF hashes. Native mode=1 and plugin-stage flag=1 during the stage.
+
+| Capture ms | Raw state | Transition | Current / underlying page | Observation |
+| --- | --- | --- | --- | --- |
+| 159595 | 1 | 0 | 0 / 0 | Countdown passed zero; raceFinished=0, RSF start flag=1 |
+| 204178 | 2 | 0 | 1 / 1 | Paused after 44.57721 s of racing |
+| 211993 | 9 | 0 | 1 / 1 | End state appeared while the old pause page remained current |
+| 212056 | 9 | 0 | 1 / 1 | RSF start flag cleared before failure-page selection |
+| 212087 | 9 | 2 | 18 / 18 | Native failure page selected, active menu owned; raceFinished=1 |
+| 212490 | 6 | 0 | 18 / 18 | Leaving stage |
+| 212863 | 12 | 0 | 18 / 18 | Race time reset to zero and countdown to 7 |
+| 218870 | 3 | 0 | 18 / 18 | Hotlap menu: native mode/plugin flag=0, active menu owner changed |
+
+The first sampled failure page arrived 94 ms after the first sampled raw state
+9; the first sampled state 6 followed 403 ms later. These are sampled timings,
+not exact event durations. The user need not see a persistent result screen:
+the native failure page was readable during automatic departure to the Hotlap
+menu. It later persisted as stale data, just as in Practice. RSF saved checkpoint
+and finish times stayed zero; finish-line/false-start/warning-end flags stayed
+zero. All listed samples passed the coherence recheck.
+
+Practice and Hotlap therefore have matching observed manual-retirement paths
+for this installed version, while Practice restart used a different path. The
+online-competition follow-up is recorded below. No production detector has been
+added; the observations do not establish every failure cause.
+
+## Live RSF online retirement (2026-10-14, 13:57 China time)
+
+User confirmed retiring an online game with ZTMZ running. The same active
+capture `tmp/rbr-hotlap-20261014-134928.jsonl` recorded this new attempt on map
+ID 151, PID 30452, with the same executable and RSF versions. The filename
+reflects where collection began, not the mode of every subsequent attempt.
+
+| Capture ms | Raw state | Transition | Current / underlying page | Observation |
+| --- | --- | --- | --- | --- |
+| 433282 | 3 | 1 | 18 / 18 | Starting online stage; old Hotlap failure page remains, owner inactive |
+| 443342 | 10 | 0 | 0 / 0 | New stage/start UI; result-menu owner active |
+| 460863 | 1 | 0 | 0 / 0 | Countdown passed zero; raceFinished=0, RSF start flag=1 |
+| 465498 | 2 | 0 | 1 / 1 | Paused after 4.6359334 s of racing |
+| 469797 | 9 | 0 | 1 / 1 | End state before native failure-page selection |
+| 469921 | 9 | 0 | 1 / 1 | RSF start flag cleared |
+| 469952 | 9 | 2 | 18 / 18 | Failure page selected; raceFinished=1, owner active |
+| 470330 | 9 | 0 | 18 / 18 | Departure transition cleared, result page still current |
+| 470362 | 6 | 0 | 18 / 18 | Leaving stage |
+| 471048 | 12 | 0 | 18 / 18 | Race clock reset to zero and countdown reset to 7 |
+| 474327 | 3 | 0 | 18 / 18 | Initial menu-state sample still has native mode/plugin flag=1 and owner active |
+| 474358 | 3 | 0 | 18 / 18 | Native mode/plugin flag=0 and owner inactive |
+
+Native gameflow mode and plugin-stage flag were both 1 during the attempt.
+The first sampled failure page followed the first sampled end state by 155 ms;
+state 6 followed the first failure-page observation by 410 ms. All listed
+samples passed the coherence recheck. Finish-line, false-start and warning-end
+latch fields remained zero; RSF checkpoint and finish times stayed zero.
+
+The first raw-state-3 sample still had an active result-menu owner, which is
+another reason to require the appropriate raw end state and attempt lifecycle
+rather than treating page identity plus ownership as sufficient on their own.
+Loading this attempt also retained the previous Hotlap failure page until the
+new start UI was selected. This is direct evidence of stale-result carry-over
+between two user-confirmed retirements in different modes.
+
+### Validated scope and implementation direction
+
+| User-confirmed RSF mode/action | Native mode | Observed outcome |
+| --- | --- | --- |
+| Practice manual retirement | 1 | End state, then failure page 18, then menu |
+| Hotlap manual retirement | 1 | Same failure page and departure path |
+| Online manual retirement | 1 | Same failure page and departure path |
+| Practice restart | 1 | Restart transition 3, loading, new start; no observed failure-page sequence |
+
+For this version, three modes now support a common **bounded native-result
+reader**, rather than a different page-ID guess for each RSF mode. Require an
+observed started non-replay attempt, a verified native layout, matching stage
+identity, appropriate raw end state, current failure page and active menu owner.
+Handle delayed result selection without dropping the pending attempt, and clear
+that attempt on restart/loading/new countdown. Deduplicate terminal results.
+Do not use the observed 94/126/155 ms delays as a universal hard-coded timeout.
+
+Normal finish must retain precedence once confirmed; missing/unrecognized
+evidence remains unknown and silent. No crash/disqualification-specific enum
+has been verified. The two consecutive Hotlap/online retirements in one process
+exercise stale result carry-over, but same-stage repeated retirements, normal
+finish, pre-start exit and replay remain separate regression cases. This is
+validation evidence and an implementation plan; the production RBR detector
+has not yet been changed.
+
+## Production implementation (2026-10-14)
+
+`RBRNativeResultReader` now reads the native layout after verifying the executable
+SHA-256 once per process attachment. Unknown binaries disable this supplement,
+not the existing telemetry. Native reads check complete byte counts, pointer
+bounds and repeated roots/state/page identity; unavailable or visibly changing
+snapshots are discarded. No RSF-private offsets or stale saved result times are
+needed in production. The reader polls end/menu states as well as racing, with
+the existing RBR timer, and is released on detach.
+
+`RBRGameStateDetector` arms the result check only after observing a non-replay
+native mode-1/plugin stage actually start (finite nonpositive countdown and
+raceFinished=0). It requires the same race-data pointer and map ID, raw end state
+9 or 6, active result-menu ownership, current **and underlying** page 18,
+raceFinished=1 and finishLinePassed=0. Departure transition 2 is allowed; a
+queued page alone is not sufficient. This covers the three observed RSF manual
+retirement paths without assuming that RSF mode names equal native mode IDs.
+
+An eligible unfinished attempt may wait up to **2 seconds** for its native
+result after the first raw end state. While waiting it reports Paused, so it
+does not keep processing the stage as Racing. The 2-second bound limits delayed
+cleanup; it is not a guarantee of result delivery. The observed 94/126/155 ms
+delays are regression inputs, not a hard-coded game timing rule. Confirmed
+normal completion ends immediately via the existing policy. Missing evidence
+at the bound, leaving the stage before a result, unsupported layouts, or a
+changed stage identity end silently with no invented result. Loading, restart
+transition 3 and a new countdown invalidate the prior attempt. Replay and
+attach-on-results cannot arm a failure announcement.
+
+One typed `GameStateRaceEnd.Retired` is sent through `RBRGameDataReader` after a
+verified failure. It has no normal finish time, uses the existing shared
+`system_retired` policy, and cannot create a completed replay. Subsequent end
+samples are deduplicated. The shared Core playback contract and other game
+providers were not changed. WPF and Windows Avalonia load this same RBR module;
+this change does not add Linux RBR support or a more specific crash-reason enum.
+
+Validation: 33 focused tests cover native decoding, unsupported executable,
+unavailable/torn reads, queued-versus-current pages, the three captured delays,
+restart and consecutive attempts, stale results, identity changes, pre-start
+exit, replay, normal-finish precedence, timeout, and actual reader event payloads
+and deduplication. Existing state-detector and process-close tests pass too.
+The Windows test graph (including WPF) was built to an isolated artifacts path
+because the current app held its normal output DLLs open; unrelated native
+dashboard build targets were disabled for that isolated test run.
+
+The new production code has **not yet been exercised through a rebuilt running
+ZTMZ instance**. Earlier live captures validated the game signals using the
+diagnostic tool. Restart/rebuild ZTMZ to verify the final audible retirement
+call; the existing running instance cannot use the newly built DLL automatically.

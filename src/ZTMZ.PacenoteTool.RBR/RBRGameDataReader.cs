@@ -462,7 +462,7 @@ public class RBRGameDataReader : UdpGameDataReader, IGameRuntimeDiagnosticsProvi
         }
     }
 
-    private void UpdateGameStateFromMemory(RBRMemData memData)
+    internal void UpdateGameStateFromMemory(RBRMemData memData)
     {
         var rawState = (RBRGameState)memData.GameStateId;
         if (_lastLoggedRawGameState != rawState)
@@ -493,7 +493,18 @@ public class RBRGameDataReader : UdpGameDataReader, IGameRuntimeDiagnosticsProvi
             return;
         }
 
-        GameState = detection.State;
+        if (detection.FinishState is { } finishState)
+        {
+            _logger.Debug("RBR native result: {0}", finishState);
+            SetGameState(detection.State, new Dictionary<string, object>
+            {
+                { GameStateRaceEndProperty.FINISH_STATE, finishState }
+            });
+        }
+        else
+        {
+            GameState = detection.State;
+        }
     }
 
     private bool GetPlayWhenReplay()

@@ -1,6 +1,7 @@
 namespace ZTMZ.PacenoteTool.RBR;
 public struct RBRMemData
 {
+	internal RBRNativeResultSnapshot? NativeResult;
 	public float TrackLength;
 
 	public float SpeedKMH;

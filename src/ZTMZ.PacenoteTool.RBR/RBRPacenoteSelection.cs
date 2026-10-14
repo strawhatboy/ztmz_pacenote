@@ -7,21 +7,35 @@ namespace ZTMZ.PacenoteTool.RBR;
 
 internal enum RBRPacenoteSelectionStatus
 {
-    NotConfigured, Disabled, DirectoryMissing, StageMissing, DefaultSelected, CustomSelected, Unknown
+    NotConfigured, Disabled, DirectoryMissing, StageMissing, DefaultSelected, CustomSelected, Unknown,
+    LoadedLuppis, LoadedDefault, LoadedOther
 }
 
-// This describes NGPCarMenu's on-disk selection, not proof of what PaceNote.dll loaded.
-internal sealed record RBRPacenoteSelection(RBRPacenoteSelectionStatus Status, string FilePath = "")
+// Runtime evidence takes precedence; disk-only states do not prove what the plugin loaded.
+internal sealed record RBRPacenoteSelection(RBRPacenoteSelectionStatus Status, string FilePath = "", string LoadedTitle = "")
 {
-    public bool UseCustomDefinition => FilePath.Length > 0 &&
+    public bool UseCustomDefinition => Status == RBRPacenoteSelectionStatus.LoadedLuppis || FilePath.Length > 0 &&
         !Path.GetFileNameWithoutExtension(FilePath).EndsWith("_default", StringComparison.OrdinalIgnoreCase);
 
+    // Publish runtime success too: the UI's single message slot may still contain the previous stage's warning.
+    public bool ShowMessage => Status != RBRPacenoteSelectionStatus.CustomSelected;
+
     public string MessageKey => "game.rbr.message.selection_" + Status.ToString();
-    public int MessageLevel => Status is RBRPacenoteSelectionStatus.Unknown or RBRPacenoteSelectionStatus.DirectoryMissing ? 2 : 0;
+    public int MessageLevel => Status == RBRPacenoteSelectionStatus.LoadedLuppis ? 1
+        : Status is RBRPacenoteSelectionStatus.Unknown or RBRPacenoteSelectionStatus.DirectoryMissing ? 2 : 0;
 }
 
 internal static class RBRPacenoteSelectionResolver
 {
+    internal static RBRPacenoteSelection PreferLoaded(RBRPacenoteSelection disk, RBRLoadedPacenote? loaded, int expectedMapId)
+    {
+        if (loaded == null || loaded.MapId != expectedMapId) return disk;
+        var status = loaded.IsLuppis ? RBRPacenoteSelectionStatus.LoadedLuppis
+            : loaded.Title.EndsWith("_default", StringComparison.OrdinalIgnoreCase)
+                ? RBRPacenoteSelectionStatus.LoadedDefault : RBRPacenoteSelectionStatus.LoadedOther;
+        return new(status, loaded.FilePath, loaded.Title);
+    }
+
     public static RBRPacenoteSelection Resolve(string root, string trackName)
     {
         try

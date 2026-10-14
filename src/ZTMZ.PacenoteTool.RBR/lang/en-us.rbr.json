@@ -26,6 +26,9 @@
                 }
             },
             "message": {
+                "selection_LoadedLuppis": "Stage {0}: confirmed the game has loaded Luppis pacenotes \"{1}\".",
+                "selection_LoadedDefault": "Stage {0}: the game has loaded default pacenotes \"{1}\". Select Luppis pacenotes in-game if desired.",
+                "selection_LoadedOther": "Stage {0}: the game has loaded \"{1}\", whose name does not identify it as Luppis. This does not mean Luppis is not installed.",
                 "selection_NotConfigured": "Stage {0}: NGPCarMenu's custom pacenote path is not configured. Using the default mapping; this does not mean Luppis is not installed.",
                 "selection_Disabled": "Stage {0}: custom pacenotes are disabled in NGPCarMenu. Using the default mapping.",
                 "selection_DirectoryMissing": "Stage {0}: the configured custom pacenote directory is missing. Check MyPacenotesPath; using the default mapping.",

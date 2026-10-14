@@ -1,10 +1,12 @@
+using System;
 using ZTMZ.PacenoteTool.Base.Game;
 
 namespace ZTMZ.PacenoteTool.RBR;
 
 internal readonly record struct RBRGameStateDetection(
     GameState State,
-    int? CountdownNumber = null);
+    int? CountdownNumber = null,
+    GameStateRaceEnd? FinishState = null);
 
 internal sealed class RBRGameStateDetector
 {
@@ -13,6 +15,14 @@ internal sealed class RBRGameStateDetector
     private bool _hasActiveStage;
     private bool _countdownActive;
     private float? _previousCountdown;
+    private readonly Func<long> _clock;
+    private RBRNativeResultSnapshot? _startedNativeStage;
+    private long? _pendingEndSince;
+    private bool _endResolved;
+    // A responsiveness bound, not an assumption that the game always resolves within this time.
+    internal const int ResultWaitMilliseconds = 2000;
+
+    public RBRGameStateDetector(Func<long>? clock = null) => _clock = clock ?? (() => Environment.TickCount64);
 
     public bool IsReplaySession { get; private set; }
     public bool IsRacing { get; private set; }
@@ -29,6 +39,13 @@ internal sealed class RBRGameStateDetector
         float lapTime)
     {
         var rawState = (RBRGameState)memData.GameStateId;
+        var native = memData.NativeResult is { } sample && sample.RawState == memData.GameStateId
+            ? sample : (RBRNativeResultSnapshot?)null;
+        if (native is { Transition: 3 })
+        {
+            _startedNativeStage = null;
+            _pendingEndSince = null;
+        }
 
         if (IsCountdownState(rawState, memData.StageStartCountdown, playWhenReplay))
         {
@@ -45,12 +62,15 @@ internal sealed class RBRGameStateDetector
         if (rawState == RBRGameState.Racing ||
             (rawState == RBRGameState.Replay && playWhenReplay))
         {
-            return DetectRacing(
+            var detection = DetectRacing(
                 rawState == RBRGameState.Replay,
                 memData,
                 lastGameState,
                 completionRate,
                 lapTime);
+            if (!IsReplaySession && native is { Started: true } started)
+                _startedNativeStage = started;
+            return detection;
         }
 
         if (rawState == RBRGameState.Paused)
@@ -62,12 +82,34 @@ internal sealed class RBRGameStateDetector
         {
             ClearCountdown();
             IsRacing = false;
-            _hasActiveStage = false;
-            return new RBRGameStateDetection(GameState.RaceEnd);
+            if (!_endResolved && !IsPostGame && !IsReplaySession && _startedNativeStage is { } started)
+            {
+                // A different stage identity invalidates this pending result, never re-arms it.
+                if (native is { } current && (current.MapId != started.MapId || current.RaceData != started.RaceData))
+                    return ResolveEnd();
+                _pendingEndSince ??= _clock();
+                if (_clock() - _pendingEndSince.Value < ResultWaitMilliseconds)
+                {
+                    if (native is { Failed: true }) return ResolveEnd(GameStateRaceEnd.Retired);
+                    // Stop racing/pacenote updates while waiting; publish only one terminal event.
+                    return new RBRGameStateDetection(GameState.Paused);
+                }
+            }
+            return ResolveEnd();
         }
 
+        var pendingEnd = _pendingEndSince.HasValue;
         Reset();
-        return new RBRGameStateDetection(GameState.Unknown);
+        return new RBRGameStateDetection(pendingEnd ? GameState.RaceEnd : GameState.Unknown);
+    }
+
+    private RBRGameStateDetection ResolveEnd(GameStateRaceEnd? result = null)
+    {
+        _hasActiveStage = false;
+        _startedNativeStage = null;
+        _pendingEndSince = null;
+        _endResolved = true;
+        return new RBRGameStateDetection(GameState.RaceEnd, FinishState: result);
     }
 
     public void Reset()
@@ -80,6 +122,9 @@ internal sealed class RBRGameStateDetector
         FinishTime = 0;
         SawRaceEnded = false;
         SawFalseStart = false;
+        _startedNativeStage = null;
+        _pendingEndSince = null;
+        _endResolved = false;
     }
 
     private RBRGameStateDetection DetectCountdown(bool isReplay, float countdown, GameState lastGameState)
@@ -122,6 +167,7 @@ internal sealed class RBRGameStateDetector
 
         ClearCountdown();
         IsRacing = true;
+        _pendingEndSince = null;
         SawRaceEnded |= memData.RaceEnded;
         SawFalseStart |= memData.FalseStart;
 
@@ -147,6 +193,9 @@ internal sealed class RBRGameStateDetector
 
     private void BeginStageSession(bool isReplay)
     {
+        _startedNativeStage = null;
+        _pendingEndSince = null;
+        _endResolved = false;
         _hasActiveStage = true;
         IsReplaySession = isReplay;
         IsRacing = false;

@@ -198,6 +198,8 @@ public class RBRGamePacenoteReader : BasePacenoteReader
         }
 
         var selection = RBRPacenoteSelectionResolver.Resolve(RBRRootDir, trackName);
+        var rbrMemReader = ((RBRGameDataReader)game.GameDataReader).memDataReader;
+        selection = RBRPacenoteSelectionResolver.PreferLoaded(selection, rbrMemReader.ReadLoadedPacenote(trackNo), trackNo);
         var fileName = GetScriptFileForReplaying(profile, game, track, true, selection);
         if (fileName.EndsWith(FILE_EXTENSION_PACENOTE)) {
             // *.pacenote
@@ -205,18 +207,16 @@ public class RBRGamePacenoteReader : BasePacenoteReader
         } else {
             // should read pacenote from memory, even custom pacenote is loaded in memory.
             _logger.Info("Reading pacenote from memory for track {0}", track);
-            _logger.Info("RBR pacenote selection for {0}: {1}, file: {2}", track, selection.Status, selection.FilePath);
-            if (selection.Status != RBRPacenoteSelectionStatus.CustomSelected)
-                game.OnCustomMessage(selection.MessageLevel, string.Format(I18NLoader.Instance[selection.MessageKey], track));
+            _logger.Info("RBR pacenote selection for {0}: {1}, file: {2}, loaded title: {3}", track, selection.Status, selection.FilePath, selection.LoadedTitle);
+            if (selection.ShowMessage)
+                game.OnCustomMessage(selection.MessageLevel, string.Format(I18NLoader.Instance[selection.MessageKey], track, selection.LoadedTitle));
             var pacenoteDef = selection.UseCustomDefinition
                 ? ((CommonGameConfigs)game.GameConfigurations[CommonGameConfigs.Name])["game.rbr.additional_settings.additional_pacenote_def"].ToString()
                 : AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, "default.zdb"));
             if (RBRScriptResource.Instance.DBPath != pacenoteDef)
                 Task.Run(() => RBRScriptResource.Instance.LoadData(pacenoteDef)).Wait();
-            var rbrMemReader = ((RBRGameDataReader)game.GameDataReader).memDataReader;
-
             var sr = rbrMemReader.ReadPacenotesFromMemory();
-            if (sr.PacenoteRecords.Count > 0) 
+            if (sr?.PacenoteRecords.Count > 0)
             {
                 _logger.Info("Pacenotes from memory found for track {0}, {1} records", track, sr.PacenoteRecords.Count);
                 return sr;

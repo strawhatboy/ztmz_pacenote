@@ -18,6 +18,8 @@ public class RBRMemDataReader
     private readonly RBRDamageTelemetryProbe _damageTelemetryProbe = new();
     private bool _isProcessOpened = false;
     private Process? _theProcess;
+    private RBRNativeResultReader? _nativeResultReader;
+    private RBRLoadedPacenoteReader? _loadedPacenoteReader;
     private IntPtr _processHandle = IntPtr.Zero;
     private DateTimeOffset _nextDamageTelemetrySampleUtc = DateTimeOffset.MinValue;
 
@@ -59,6 +61,16 @@ public class RBRMemDataReader
                 _theProcess = rbrProcess;
                 _processHandle = processHandle;
                 _isProcessOpened = true;
+                _nativeResultReader = null;
+                try
+                {
+                    _nativeResultReader = RBRNativeResultReader.Create(rbrProcess, processHandle);
+                    _logger.Info("RBR native retirement result reader enabled: {0}", _nativeResultReader != null);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warn(ex, "RBR native result layout could not be verified; retirement reason remains unknown.");
+                }
                 _logger.Info("RBR process opened.");
                 return true;
             }
@@ -91,6 +103,8 @@ public class RBRMemDataReader
             memData.IsRunning = true;
             memData.IsRendering = MemoryReader.Read<byte>(pHandle, 0x7C0BBC) > 0;
             memData.GameStateId = MemoryReader.Read<byte>(pHandle, 0x7EAC48, 0x728);
+            // Poll menus as well as racing: failure results arrive after the raw end state.
+            memData.NativeResult = _nativeResultReader?.Read();
 
             var rbrGameState = (RBRGameState)memData.GameStateId;
 
@@ -365,6 +379,29 @@ public class RBRMemDataReader
         }
     }
 
+    internal RBRLoadedPacenote? ReadLoadedPacenote(int trackId)
+    {
+        lock (_syncRoot)
+        {
+            if (!_isProcessOpened || _theProcess == null) return null;
+            try
+            {
+                // Discover lazily: RSF may not yet be loaded when the process is first detected.
+                if (_loadedPacenoteReader == null)
+                {
+                    _theProcess.Refresh();
+                    _loadedPacenoteReader = RBRLoadedPacenoteReader.Create(_theProcess, _processHandle);
+                }
+                return _loadedPacenoteReader?.Read(trackId);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn(ex, "Unable to read RBR's loaded pacenote title; using disk selection evidence.");
+                return null;
+            }
+        }
+    }
+
     public void CloseProgress()
     {
         lock (_syncRoot)
@@ -374,6 +411,8 @@ public class RBRMemDataReader
 
             _isProcessOpened = false;
             _theProcess = null;
+            _nativeResultReader = null;
+            _loadedPacenoteReader = null;
             _processHandle = IntPtr.Zero;
             _damageTelemetryProbe.SetStopped();
             _nextDamageTelemetrySampleUtc = DateTimeOffset.MinValue;
