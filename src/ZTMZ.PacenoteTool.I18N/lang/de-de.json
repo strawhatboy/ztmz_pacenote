@@ -945,6 +945,8 @@
     "title": "Game Mods",
     "subtitle": "Install directly with automatic backup, or add to the game's external Mod manager.",
     "loading": "Loading Mod catalog...",
+    "checkingInstalled": "Installierte Mods werden überprüft...",
+    "checkingMod": "Mod {0} von {1} wird überprüft: {2}",
     "cachedCatalog": "The online catalog is unavailable. Showing the last verified catalog.",
     "catalogUnavailable": "The Mod catalog could not be loaded. {0}",
     "author": "Author: {0}",

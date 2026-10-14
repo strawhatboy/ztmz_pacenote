@@ -991,6 +991,8 @@
     "title": "游戏 Mod",
     "subtitle": "可由 ZTMZ 备份后直接安装，也可加入游戏已有的 Mod 管理器。",
     "loading": "正在加载 Mod 目录...",
+    "checkingInstalled": "正在检查已安装的 Mod...",
+    "checkingMod": "正在检查 Mod（{0}/{1}）：{2}",
     "cachedCatalog": "在线目录暂时不可用，当前显示上次验证过的目录。",
     "catalogUnavailable": "无法加载 Mod 目录。{0}",
     "author": "作者：{0}",

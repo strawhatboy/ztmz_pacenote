@@ -945,6 +945,8 @@
     "title": "Game Mods",
     "subtitle": "Install directly with automatic backup, or add to the game's external Mod manager.",
     "loading": "Loading Mod catalog...",
+    "checkingInstalled": "설치된 모드 확인 중...",
+    "checkingMod": "모드 확인 중 ({0}/{1}): {2}",
     "cachedCatalog": "The online catalog is unavailable. Showing the last verified catalog.",
     "catalogUnavailable": "The Mod catalog could not be loaded. {0}",
     "author": "Author: {0}",

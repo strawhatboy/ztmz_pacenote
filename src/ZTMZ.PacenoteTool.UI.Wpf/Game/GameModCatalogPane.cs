@@ -111,6 +111,10 @@ public sealed class GameModCatalogPane : UserControl, IDisposable
         _isRefreshing = true;
         _refreshButton.IsEnabled = false;
         _items.IsEnabled = false;
+        var completionMessage = _catalogStatus.Text;
+        _catalogStatus.Text = Text(reloadCatalog ? "gameMods.loading" : "gameMods.checkingInstalled");
+        _operationProgress.IsIndeterminate = true;
+        _operationProgress.Visibility = Visibility.Visible;
         try
         {
             var mods = _mods;
@@ -118,17 +122,22 @@ public sealed class GameModCatalogPane : UserControl, IDisposable
             {
                 var result = await _repositoryClient.LoadAsync(
                     _capability.ModRepositoryUri, _capability.ModCatalogGameId, CancellationToken.None);
-                _catalogStatus.Text = result.Mods.Count == 0
+                completionMessage = result.Mods.Count == 0
                     ? Format("gameMods.catalogUnavailable", result.Error ?? string.Empty)
                     : result.IsCached ? Text("gameMods.cachedCatalog") : string.Empty;
                 if (result.Mods.Count == 0 && result.Error is not null)
+                {
+                    _catalogStatus.Text = completionMessage;
                     return;
+                }
                 mods = result.Mods;
             }
             var rows = new List<FrameworkElement>();
             int updates = 0;
             foreach (var mod in mods)
             {
+                _catalogStatus.Text = Format("gameMods.checkingMod",
+                    rows.Count + 1, mods.Count, mod.GetName(I18NLoader.Instance.CurrentCultureName));
                 var status = await _capability.ModManager.GetStatusAsync(
                     mod, mods, _game, CancellationToken.None);
                 rows.Add(CreateRow(mod, status));
@@ -141,6 +150,7 @@ public sealed class GameModCatalogPane : UserControl, IDisposable
                 _items.Children.Add(row);
             ((TextBlock)_updateBadge.Child).Text = updates.ToString(CultureInfo.CurrentCulture);
             _updateBadge.Visibility = updates > 0 ? Visibility.Visible : Visibility.Collapsed;
+            _catalogStatus.Text = completionMessage;
         }
         catch (Exception exception)
         {
@@ -149,6 +159,7 @@ public sealed class GameModCatalogPane : UserControl, IDisposable
         finally
         {
             _isRefreshing = false;
+            _operationProgress.Visibility = Visibility.Collapsed;
             _refreshButton.IsEnabled = _operationCancellation is null;
             _items.IsEnabled = _operationCancellation is null;
         }
