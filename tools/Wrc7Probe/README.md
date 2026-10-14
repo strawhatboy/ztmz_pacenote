@@ -1,5 +1,26 @@
 # WRC 7 investigation and implementation
 
+## Read-only retirement capture
+
+`capture-results.py <PID> <image-base> --output <new-file.jsonl> [--seconds 600]`
+checks the executable hash, single-player profile layout and reciprocal stats
+ownership. It samples raw result flags every 20 ms and flushes changes plus
+one-second timer snapshots directly to the new output file. It does not bind a
+UDP port, inject, or modify game memory/assets; ZTMZ can remain running.
+Use `--seconds 0` for an interactive test: capture continues until this game
+process exits or the probe is stopped with Ctrl+C. Finite captures default to
+600 seconds (maximum 1800); always check for `capture-ended` before claiming
+an action was recorded. The file is flushed immediately in both modes.
+
+```powershell
+$wrc7Process = Get-Process WRC7
+python tools/Wrc7Probe/capture-results.py $wrc7Process.Id $wrc7Process.MainModule.BaseAddress.ToInt64() --output tmp/wrc7-results.jsonl
+```
+
+Start before driving, capture an explicit Give up, and compare Restart separately.
+Raw flag capture does not itself enable retirement detection in the application.
+Decoder checks: `python -m unittest discover -s tools/Wrc7Probe -p test_capture_results.py`.
+
 This is development tooling, not a completed game provider. Do not advertise
 WRC 7 support or ship the observation DLLs in the installer yet.
 

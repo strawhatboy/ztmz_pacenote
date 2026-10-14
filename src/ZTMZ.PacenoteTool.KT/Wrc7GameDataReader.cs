@@ -104,17 +104,12 @@ public sealed class Wrc7GameDataReader : IGameDataReader
                             {
                                 var oldState = state;
                                 state = GameState.RaceEnd;
-                                Log.Info("WRC7 verified finish: raw={0} ms, penalty={1} ms, total={2} ms",
-                                    current!.RawMilliseconds, current.PenaltyMilliseconds, current.ResultMilliseconds);
+                                Log.Info("WRC7 verified finish: state={0}, raw={1} ms, penalty={2} ms, total={3} ms",
+                                    session.FinishState, current!.RawMilliseconds, current.PenaltyMilliseconds, current.ResultMilliseconds);
                                 onGameStateChanged?.Invoke(new()
                                 {
                                     LastGameState = oldState, NewGameState = state,
-                                    Parameters = new Dictionary<string, object>
-                                    {
-                                        [GameStateRaceEndProperty.FINISH_STATE] = GameStateRaceEnd.Normal,
-                                        [GameStateRaceEndProperty.FINISH_TIME] = CurrentGameData.LapTime,
-                                        [GameStateRaceEndProperty.FINISH_TIME_PANALTY] = current.PenaltyMilliseconds / 1000f
-                                    }
+                                    Parameters = session.EndParameters(current)
                                 });
                             }
                             else GameState = nextState;

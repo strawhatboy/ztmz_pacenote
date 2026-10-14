@@ -14,6 +14,7 @@ internal sealed record Wrc7Snapshot(string Identity, string Track, string Car, s
     public ZTMZ.PacenoteTool.Base.Game.GameData Telemetry { get; init; }
     public int? ResultMilliseconds { get; init; }
     public int PenaltyMilliseconds { get; init; }
+    public Wrc7NativeResult? NativeResult { get; init; }
 }
 
 /// <summary>Read-only metadata for the verified single-player WRC7 build.</summary>
@@ -99,11 +100,19 @@ internal sealed class Wrc7MemorySession : IDisposable
             var penalty = Integer(stats + 0x92c);
             var finish = Read(stats + 0x8c8, 3);
             var result = Read(begin + 0x154, 14);
+            // Reject mixed owners or a result being updated during this read.
+            if (Pointer(imageBase + 0x1091b80) != manager ||
+                Pointer(manager + 0x17798) != begin || Pointer(manager + 0x177a0) != begin + 0x170 ||
+                Pointer(manager + 0xb0) != participants || Pointer(participants) != vehicle ||
+                Pointer(vehicle + 0x38) != stats || Pointer(stats + 0x908) != vehicle ||
+                !finish.AsSpan().SequenceEqual(Read(stats + 0x8c8, 3)) ||
+                !result.AsSpan().SequenceEqual(Read(begin + 0x154, 14))) return null;
             var finalTime = Wrc7RaceSession.VerifiedResult(time, penalty, finish, result);
             if (finalTime.HasValue) telemetry.LapTime = finalTime.Value / 1000f;
-            return new($"{stats:x}:{levelName}:{mask}", track, names.Name(carId), names.Class(carId), time)
+            return new($"{begin:x}:{vehicle:x}:{stats:x}:{levelName}:{mask}", track, names.Name(carId), names.Class(carId), time)
             {
-                Telemetry = telemetry, ResultMilliseconds = finalTime, PenaltyMilliseconds = Math.Max(0, penalty)
+                Telemetry = telemetry, ResultMilliseconds = finalTime, PenaltyMilliseconds = Math.Max(0, penalty),
+                NativeResult = Wrc7NativeResult.Decode(finish, result)
             };
         }
         catch (IOException) { return null; }
