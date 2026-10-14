@@ -9,6 +9,14 @@ internal sealed record WrcGenerationsSessionSnapshot(
     WrcGenerationsTimingSnapshot? Timing = null)
 {
     public float? ShiftWarningRpm { get; init; }
+    public WrcGenerationsNativeResult? NativeResult { get; init; }
+}
+
+internal sealed record WrcGenerationsNativeResult(ulong RaceAddress, ulong TimerAddress,
+    bool TimerStarted, bool TimerEnded, bool TimerFailed, bool ProfileReady, bool ProfileFailed)
+{
+    public bool Pending => !TimerEnded && !TimerFailed && !ProfileReady && !ProfileFailed;
+    public bool Retired => TimerEnded && TimerFailed && ProfileReady && ProfileFailed;
 }
 
 internal sealed record WrcGenerationsTimingSnapshot(ulong TimerAddress, int RawLapMilliseconds, int PenaltyMilliseconds);

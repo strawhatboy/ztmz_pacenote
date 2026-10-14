@@ -2,6 +2,23 @@
 
 ## Read-only session diagnostics
 
+`capture-results.py <PID> <image-base> [--seconds 300]` is a separate read-only
+result investigation capture. It verifies the executable SHA-256 and loaded
+getter, samples at 20 ms intervals, and emits changed raw timer/profile flags
+as JSON lines. It neither binds UDP nor injects, so ZTMZ may remain running.
+It does not classify those flags as production retirement events. Start capture
+before driving/retiring; compare manual retire with restart and normal finish.
+
+```powershell
+$wrcgProcess = Get-Process WRCG
+python tools/WrcGenerationsProbe/capture-results.py $wrcgProcess.Id $wrcgProcess.MainModule.BaseAddress.ToInt64() --seconds 300 --output tmp/wrcg-results.jsonl
+```
+
+Use a new output filename for each capture. `--output` flushes each JSON line
+immediately, avoiding shell redirection buffering during interactive validation.
+
+Verify the decoder with `python -m unittest discover -s tools/WrcGenerationsProbe -p test_capture_results.py`.
+
 `dotnet run --project tools/WrcGenerationsProbe/Session -- <WRCG-PID> [UDP-port]`
 uses the production, executable-fingerprint-guarded metadata reader. It prints
 the selected special/car, result readiness and read cost. With a port it waits

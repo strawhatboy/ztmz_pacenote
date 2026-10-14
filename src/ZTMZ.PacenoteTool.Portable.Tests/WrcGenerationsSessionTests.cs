@@ -109,6 +109,71 @@ public sealed class WrcGenerationsSessionTests
         "Ford =\n{\n Name = LocalesId.CAR_FORD,\n Category = WrcChampionships.WRC,\n Wheels = { \"ignore\" },\n}");
 
     [Fact]
+    public void NativeFailureIsDecodedDespiteZeroResultTimesAndRequiresOwnership()
+    {
+        var memory = ResultMemory();
+        var result = WrcGenerationsSessionMemory.Decode(memory.Read, 0x10000000, Catalog());
+        Assert.True(result!.NativeResult!.Retired);
+        Assert.False(result.ResultReady);
+        Assert.Equal(0, result.RaceMilliseconds);
+        memory.Put64(0x90000, 0x38, 0x80010);
+        Assert.Null(WrcGenerationsSessionMemory.Decode(memory.Read, 0x10000000, Catalog())!.NativeResult);
+    }
+
+    [Fact]
+    public void NativeFailureRejectsTornFlagsAndUnverifiedPlayerSelection()
+    {
+        var memory = ResultMemory();
+        byte[] Torn(ulong address, int size)
+        {
+            var data = memory.Read(address, size);
+            if (address == 0x8009c) memory.Blocks[0x80000][0x9f] = 0;
+            return data;
+        }
+        Assert.Null(WrcGenerationsSessionMemory.Decode(Torn, 0x10000000, Catalog())!.NativeResult);
+        memory = ResultMemory();
+        memory.Put32(0x20000, 0x12d0, 5);
+        Assert.Null(WrcGenerationsSessionMemory.Decode(memory.Read, 0x10000000, Catalog())!.NativeResult);
+    }
+
+    [Fact]
+    public void FailedProfileIsNotNormalEvenIfItContainsPositiveTimes()
+    {
+        var memory = ResultMemory();
+        memory.Put32(0x30000, 0x210 + 0x19c, 10000);
+        memory.Put32(0x30000, 0x210 + 0x1a0, 10000);
+        Assert.False(WrcGenerationsSessionMemory.Decode(memory.Read, 0x10000000, Catalog())!.ResultReady);
+    }
+
+    [Fact]
+    public void NativeFailureUsesPlayerMappedTimerInModeSeven()
+    {
+        var memory = ResultMemory();
+        memory.Put32(0x20000, 0x12d0, 7);
+        memory.Put64(0x70000, 0x4e8, 0);
+        memory.Put64(0x70000, 0x4f0, 0x80000);
+        Assert.True(WrcGenerationsSessionMemory.Decode(memory.Read, 0x10000000, Catalog())!.NativeResult!.Retired);
+    }
+
+    private static Memory ResultMemory()
+    {
+        var memory = new Memory();
+        foreach (var (address, size) in new (ulong, int)[] {
+            (0x11d61938, 8), (0x70000, 0x900), (0x80000, 0xe0), (0x90000, 0x80) })
+            memory.Blocks[address] = new byte[size];
+        memory.Put64(0x20000, 0x48, 0x70000);
+        memory.Put64(0x11d61938, 0, 0x70000);
+        memory.Put64(0x70000, 0x4e8, 0x80000);
+        memory.Put64(0x80000, 0xa0, 0x90000);
+        memory.Put64(0x90000, 0x38, 0x80000);
+        memory.Blocks[0x80000][0x9c] = memory.Blocks[0x80000][0x9d] = memory.Blocks[0x80000][0x9f] = 1;
+        memory.Put32(0x30000, 0x210 + 0x19c, 0);
+        memory.Put32(0x30000, 0x210 + 0x1a0, 0);
+        memory.Blocks[0x30000][0x210 + 0x1a5] = 1;
+        return memory;
+    }
+
+    [Fact]
     public void InstalledNamesAndCategoryAreReadWithoutEvaluatingLua()
     {
         var catalog = Catalog();

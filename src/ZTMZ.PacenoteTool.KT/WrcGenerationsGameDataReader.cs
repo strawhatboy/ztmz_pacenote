@@ -24,6 +24,8 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
     private int invalidSilentSessionTicks;
     private string pendingIdentity = string.Empty;
     private string? preparedIdentity;
+    private (string Identity, ulong Race, ulong Timer)? retirementAttempt;
+    private bool retirementPublished;
     private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
     public WrcGenerationsGameDataReader(Func<long>? monotonicMilliseconds = null) => clock = monotonicMilliseconds ?? (() => Environment.TickCount64);
     internal WrcGenerationsGameDataReader(IWrcGenerationsSessionSource source, Func<long>? monotonicMilliseconds = null)
@@ -97,6 +99,7 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
             // Silence alone also happens on race exit or transport failure.
             // Only a live, matching, frozen race timer establishes pause.
             var current = metadata?.Read();
+            if (TryPublishRetirement(current)) return;
             if (current?.Identity == preparedIdentity && current?.Timing is { } timing &&
                 MathF.Abs(timing.RawLapMilliseconds / 1000f - rawLapTime) <= 0.5f)
             {
@@ -128,8 +131,24 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
         var raw = next.LapTime;
         var previousRaw = rawLapTime;
         var restarting = raw < previousRaw - 1 || (raw <= 0 && previousRaw > 0);
-        if (restarting) ResetResult();
+        if (restarting && !retirementPublished)
+        {
+            // Some end screens zero UDP clocks. A verified current failure
+            // takes precedence; an actual restart has cleared native flags.
+            RefreshMetadata(true);
+            if (TryPublishRetirement(snapshot)) return;
+        }
+        if (restarting && !retirementPublished) ResetResult();
         RefreshMetadata(restarting || state is GameState.Unknown or GameState.RaceBegin);
+        if (retirementPublished)
+        {
+            // Results may continue sending frozen UDP packets. Do not reopen
+            // the race or turn an already reported retirement into a finish.
+            if (snapshot?.NativeResult?.Pending != true && snapshot?.Identity == preparedIdentity) return;
+            if (snapshot is null) return;
+            ResetResult();
+            state = GameState.Unknown;
+        }
         if (snapshot is { } current && preparedIdentity != current.Identity)
         {
             // Also recover if metadata was briefly unavailable at initial attach.
@@ -157,6 +176,21 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
         }
         LastGameData = CurrentGameData;
         CurrentGameData = next;
+        if (TryPublishRetirement(snapshot))
+        {
+            onNewGameData?.Invoke(LastGameData, CurrentGameData);
+            return;
+        }
+        // A failed native result at late attachment is not a fresh retirement,
+        // but it must not be reinterpreted as a successful UDP finish either.
+        if (snapshot?.NativeResult?.Retired == true)
+        {
+            onNewGameData?.Invoke(LastGameData, CurrentGameData);
+            return;
+        }
+        if (raw > 0 && snapshot is { NativeResult: { Pending: true, TimerStarted: true } native, Timing: { } timing } observed &&
+            timing.TimerAddress == native.TimerAddress && MathF.Abs(timing.RawLapMilliseconds / 1000f - raw) <= 0.5f)
+            retirementAttempt = (observed.Identity, native.RaceAddress, native.TimerAddress);
         if (WrcGenerationsTelemetry.TryGetFinishTime(newMsg, out var finishTime))
         {
             if (state != GameState.RaceEnd && pendingFinish is null)
@@ -274,6 +308,34 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
         resultArmed = false;
         livePenaltyMilliseconds = null;
         publishedFinishTime = null;
+        retirementAttempt = null;
+        retirementPublished = false;
+    }
+
+    private bool TryPublishRetirement(WrcGenerationsSessionSnapshot? current)
+    {
+        if (retirementAttempt is { } armed && current is not null &&
+            (current.Identity != armed.Identity ||
+             current.NativeResult is { } live && (!live.TimerStarted || live.RaceAddress != armed.Race || live.TimerAddress != armed.Timer) ||
+             current.Timing is { } timing && timing.RawLapMilliseconds / 1000f < rawLapTime - 1))
+            retirementAttempt = null;
+        if (state is not (GameState.Racing or GameState.AdHocRaceBegin or GameState.Paused) ||
+            pendingFinish is not null || retirementPublished || retirementAttempt is not { } attempt ||
+            current is not { NativeResult: { Retired: true } result } ||
+            current.Identity != preparedIdentity || current.Identity != attempt.Identity ||
+            result.RaceAddress != attempt.Race || result.TimerAddress != attempt.Timer) return false;
+        var previous = state;
+        ResetResult();
+        snapshot = current;
+        retirementPublished = true;
+        state = GameState.RaceEnd;
+        Log.Info("WRCG retirement: verified current timer and player-profile failure result; track={0}", current.Track);
+        onGameStateChanged?.Invoke(new()
+        {
+            LastGameState = previous, NewGameState = state,
+            Parameters = new() { [GameStateRaceEndProperty.FINISH_STATE] = GameStateRaceEnd.Retired }
+        });
+        return true;
     }
 
     private void UpdateLivePenalty(float raw)

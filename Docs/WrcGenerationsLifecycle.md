@@ -1,5 +1,75 @@
 # WRC Generations lifecycle evidence
 
+## Retirement detection (2026-10-14)
+
+Located the game at `N:\SteamLibrary\steamapps\common\WRC Generations - The FIA WRC Official Game`.
+The executable matches the SHA-256 already supported by the memory reader below.
+All addresses in this section are RVAs in that exact image.
+
+- The routine at `0x66f160` references the diagnostic name
+  `WrcPauseScreen::Giveup` and calls `0x5a94a0`.
+- `0x5a94a0` obtains the active timer via `0x8176d0` (mode 5 instead uses
+  the player-specific getter `0x817830`) and writes byte `timer+0x9f = 1`
+  at `0x5a94f2`.
+- `WrcPlayerProfile::ProcessRaceStats`, `0x814680`, sets profile `+0x1a4`
+  to 1, then copies timer `+0x9f` to profile `+0x1a5` at `0x814732/0x81473e`.
+  The previous result handling only read readiness and positive result times;
+  zero-time failure results could therefore be excluded instead of producing
+  a retirement event. The reader now samples the copied failure flag separately.
+- Profile reset `0x814930` clears both bytes at `+0x1a4/+0x1a5` and result times.
+- Other writers of timer `+0x9f = 1` exist, including `0x7df107`, `0x7e16b4`,
+  `0x8594ca`, `0x115baf9`, `0x115bbf8` and `0x115cddf`. Their complete event
+  semantics are not yet verified; do not label the flag as a specific crash cause
+  or assume it uniquely means a local player's manual retirement.
+
+`tools/WrcGenerationsProbe/capture-results.py` samples bounded, hash-gated raw
+flags independently of UDP. It verifies timer/participant ownership and rereads
+roots/results to reject visible scene changes. The user confirmed a manual
+abandonment and then a restart in the same running process (mode 2, submode 1).
+The ignored local capture is `tmp/wrcg-retire-live-flushed.jsonl`:
+
+- At 15 ms, timer bytes `+0x9c..+0x9f` were `[1,0,0,0]`, profile readiness/failure
+  were both 0. At 77,750 ms, abandonment changed them to `[1,1,0,1]` and `[1,1]`;
+  both result times were 0. This is an unsuccessful result, not a zero-second finish.
+- Selecting the next stage briefly retained the old failed timer/profile even
+  after the stage pointer changed (199,093 ms). Profile flags cleared at 202,187 ms,
+  before the old race was removed. New race/timer objects followed.
+- After driving, restart cleared the timer slot at 253,281 ms. At 253,297 ms
+  the same timer address reappeared with `[0,0,0,0]`; profile flags stayed `[0,0]`.
+  Timer address alone does not identify an attempt across restart.
+
+The production provider requires a previously observed running attempt with
+matching native/UDP timing, pending native result flags, and matching identity,
+race and timer. It publishes one typed `Retired` only when both native timer and
+profile contain the completed failure combination. No finish time is attached.
+The existing UDP watchdog also reads the result when packets stop; pause or
+missing timing alone never establishes retirement. Observed native start reset,
+clock reset, scene/owner changes and teardown invalidate the armed attempt.
+Late attachment to old failed results stays silent, and repeated result packets
+cannot reopen that attempt or turn it into a normal finish.
+
+The normal positive-time path remains separate and rejects a failed profile.
+Known normal completion is not overwritten by later failure flags. Mode 5 is
+excluded because Giveup uses a different player selection there; other unverified
+builds retain their existing behavior. The shared provider serves WPF and Windows
+Avalonia. No new injection or game-file change is needed.
+
+Automated coverage exercises retired/zeroed UDP, stopped UDP, pause, duplicate
+results, stale results at attachment, changed stage/race/timer, restart with timer
+reuse, pre-start exit, successive attempts, normal finish, torn memory and ownership.
+This live capture validates manual abandonment and restart in mode 2/submode 1;
+other modes, terminal damage, pre-start exit and normal finish have not received a
+new live capture in this investigation. Audible behavior still needs a rebuilt app.
+
+Validation: 99 WRC Generations portable tests and 4 Python capture-decoder tests
+pass. An initial countdown pipe test delivered 3 of 4 cues under its existing
+500 ms expiry window; a rerun passed without changing countdown code. The existing
+Session probe was also built in isolated outputs and run against the restarted
+live stage: it resolved `EKO Acropolis Rally Greece - Psatha reverse`,
+`Ford Fiesta Rally3`, `JWRC`, with all native start/end/failure/profile flags false.
+Twenty production snapshot reads averaged 0.281 ms on this machine. This checks
+the actual decoder at the restart point, not the rebuilt application's audio path.
+
 ## Countdown
 
 Read-only extraction of the installed `IMMERSIVEVOICES.CFG` identifies

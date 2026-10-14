@@ -22,7 +22,7 @@ Related issue: https://gitee.com/ztmz/ztmz_pacenote/issues/I5X2KQ
 | DiRT Rally 2.0 | Hash-gated Windows memory reader observes the local player's native Retired, TerminalDamage, Disqualified and TimedOut results; polling continues when UDP stops. Explicit manual retirement was live captured. Normal finish retains UDP timing. | Linux/unknown executable builds have no native result reader. Terminal damage, timeout and disqualification still need live validation. See `dr2-telemetry.md`; damage/silence alone never imply retirement. |
 | BeamNG.drive | Bridge 1.1.11 publishes Retired for an explicit matching mission abandon; Rally Loop DNF attempts distinguish abandon from restart. Stage completion still publishes Normal. Restart and other mission stops end silently. | Requires the updated bridge and a game restart. Damage, pauses and missing telemetry are not retirement evidence. Flows without a verified abandon event remain silent. Live validation is still required. |
 | WRC 7 | Verified result data publishes Normal. | No verified retirement reason in the current integration. |
-| WRC Generations | Validated result time publishes Normal; pause/reset are not used as finish evidence. | No verified retirement reason in the current integration. |
+| WRC Generations | Validated result time publishes Normal. Hash-gated timer/profile failure flags publish Retired for an observed started attempt, including when UDP stops. Manual abandonment and restart were captured in mode 2/submode 1. | Mode 5 uses unverified player selection and stays excluded. Other modes/causes and final audible behavior still need live validation; unknown results stay silent. |
 
 The shared playback fix covers every provider; **automatic retirement detection is not complete for every game**. Extending those providers requires a verified game result signal and lifecycle capture, not a damage percentage heuristic.
 
@@ -129,6 +129,13 @@ verification requires a rebuilt app. WPF and Windows Avalonia share this module.
 
 ## WRC 7 / Generations follow-up prerequisites
 
+Follow-up scope agreed on 2026-10-14: do not add a separate RBR terminal-damage
+detector. The user's RBR flow still requires manually choosing Retire after
+terminal damage; use the existing verified manual-retirement path. WRC
+Generations retirement is the next investigation target. Its timer `+0x9f`
+flag is not yet a verified retirement reason: trace its writers and compare
+manual retirement, restart and normal finish before changing production behavior.
+
 The current workspace readers provide investigation entry points, not verified
 retirement enums:
 
@@ -142,8 +149,13 @@ retirement enums:
   result fields `+0x19c/+0x1a0/+0x1a4`. Rejected timing alone does not justify
   a retirement event. Native result polling must also work when UDP stops.
 
-On this machine, the previous `L:\SteamLibrary\steamapps\common\WRC 7`
+During the earlier search, the previous `L:\SteamLibrary\steamapps\common\WRC 7`
 directory no longer contains `WRC7.exe`; no current WRC Generations executable
 was located in the checked game-library paths. Obtain their current install
-paths and verify executable hashes before continuing native analysis. Existing
-normal-result handling is unchanged.
+paths and verify executable hashes before continuing native analysis. On
+2026-10-14, WRC Generations was located in the N: Steam library and its hash
+matched the supported build. The Giveup-to-timer-to-profile flag chain and live
+manual-abandon/restart captures are documented in `WrcGenerationsLifecycle.md`.
+The bounded production reader now uses those failure flags for the observed
+attempt; no specific damage cause is inferred. Normal-result handling additionally
+rejects a profile explicitly marked failed. Mode 5 and unknown builds are excluded.

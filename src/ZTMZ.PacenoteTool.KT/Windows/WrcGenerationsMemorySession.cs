@@ -154,6 +154,7 @@ internal static class WrcGenerationsSessionMemory
         if (stageIndex is < 0 or > 128 || rallyIndex is < 0 or > 128 ||
             trackName.Length == 0 || rallyName.Length == 0 || carName.Length == 0) return null;
         var timing = ReadTiming(read, imageBase, manager, race);
+        var nativeResult = ReadNativeResult(read, imageBase, manager, profileAddress, profile);
         // Reject mixed snapshots while the game replaces scene/profile objects.
         if (Pointer(read(imageBase + 0x1c61660, 8)) != manager ||
             Pointer(read(manager + 0xd50, 8)) != stageAddress || Pointer(read(manager + 0xd58, 8)) != rallyAddress ||
@@ -161,10 +162,48 @@ internal static class WrcGenerationsSessionMemory
             Pointer(read(profileAddress + 0x30, 8)) != carAddress) return null;
         var raw = Integer(profile, 0x19c);
         var total = Integer(profile, 0x1a0);
-        var ready = profile[0x1a4] == 1 && raw is > 0 and < 86_400_000 && total >= raw && total < 86_400_000;
+        var ready = profile[0x1a4] == 1 && profile[0x1a5] == 0 && raw is > 0 and < 86_400_000 && total >= raw && total < 86_400_000;
         return new($"{rallyIndex}:{stageIndex}:{carNameId}:{profileAddress:x}",
             $"{rallyName} - {trackName}", carName, catalog.Class(carNameId), ready, raw, total, timing)
-        { ShiftWarningRpm = shiftWarning };
+        { ShiftWarningRpm = shiftWarning, NativeResult = nativeResult };
+    }
+
+    private static WrcGenerationsNativeResult? ReadNativeResult(Func<ulong, int, byte[]> read,
+        ulong imageBase, ulong manager, ulong profileAddress, byte[] profile)
+    {
+        try
+        {
+            ulong Pointer(ulong address) => BinaryPrimitives.ReadUInt64LittleEndian(read(address, 8));
+            int Integer(ulong address) => BinaryPrimitives.ReadInt32LittleEndian(read(address, 4));
+            var race = Pointer(manager + 0x48);
+            if (race == 0 || Pointer(imageBase + 0x1d61938) != race) return null;
+            var mode = Integer(manager + 0x12d0);
+            var submode = Integer(manager + 0x12e0);
+            // Giveup uses another player's timer selection in mode 5. Until
+            // that mapping is verified, never classify that mode's failure.
+            if (mode == 5) return null;
+            var index = mode == 7 && submode != 5 ? read(manager + 0x1380, 1)[0] : 0;
+            if (index >= 50) return null;
+            var slot = race + 0x4e8 + (ulong)index * 8;
+            var timer = Pointer(slot);
+            if (timer == 0) return null;
+            var participant = Pointer(timer + 0xa0);
+            if (participant == 0 || Pointer(participant + 0x38) != timer) return null;
+            var flags = read(timer + 0x9c, 4);
+            if (flags[0] > 1 || flags[1] > 1 || flags[3] > 1 || profile[0x1a4] > 1 || profile[0x1a5] > 1) return null;
+            // Giveup writes timer+9f; ProcessRaceStats copies it to profile+1a5.
+            // Read failures/torn results must not manufacture a retirement.
+            if (Pointer(manager + 0x48) != race || Pointer(imageBase + 0x1d61938) != race ||
+                Pointer(slot) != timer || Pointer(timer + 0xa0) != participant ||
+                Pointer(participant + 0x38) != timer || Integer(manager + 0x12d0) != mode ||
+                Integer(manager + 0x12e0) != submode ||
+                (mode == 7 && submode != 5 && read(manager + 0x1380, 1)[0] != index) ||
+                !read(timer + 0x9c, 4).AsSpan().SequenceEqual(flags) ||
+                !read(profileAddress + 0x19c, 10).AsSpan().SequenceEqual(profile.AsSpan(0x19c, 10))) return null;
+            return new(race, timer, flags[0] == 1, flags[1] == 1, flags[3] == 1, profile[0x1a4] == 1, profile[0x1a5] == 1);
+        }
+        catch (IOException) { return null; }
+        catch (OverflowException) { return null; }
     }
 
     private static WrcGenerationsTimingSnapshot? ReadTiming(Func<ulong, int, byte[]> read, ulong imageBase,
