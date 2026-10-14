@@ -14,6 +14,51 @@ try
     using var physicsView = physicsMap.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
     using var staticView = staticMap.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
 
+    if (args.Length == 3 && args[0] == "--watch-session")
+    {
+        using var process = System.Diagnostics.Process.GetProcessById(int.Parse(args[1]));
+        if (!process.ProcessName.Equals("acr", StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Expected the running acr.exe PID");
+        using var output = new StreamWriter(new FileStream(args[2], FileMode.CreateNew, FileAccess.Write, FileShare.Read))
+        { AutoFlush = true };
+        var options = new System.Text.Json.JsonSerializerOptions
+        {
+            IncludeFields = true,
+            NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals
+        };
+        void Write(object value) => output.WriteLine(System.Text.Json.JsonSerializer.Serialize(value, options));
+        Write(new { kind = "ready", pid = process.Id, utc = DateTime.UtcNow, tickMs = Environment.TickCount64,
+            graphicsSize = Marshal.SizeOf<ACRGraphicsData>(), physicsSize = Marshal.SizeOf<ACRPhysicsData>(),
+            staticSize = Marshal.SizeOf<ACRStaticInfo>() });
+        string? previous = null;
+        long lastWrite = 0;
+        while (!process.HasExited)
+        {
+            var graphics = Read<ACRGraphicsData>(graphicsView);
+            var physics = Read<ACRPhysicsData>(physicsView);
+            var info = Read<ACRStaticInfo>(staticView);
+            var key = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                graphics.CurrentStatus, graphics.SessionType, graphics.CurrentFlag, graphics.PenaltyType,
+                graphics.LapsCompleted, graphics.LapIsValid, graphics.SetupMenuVisible,
+                graphics.ChequeredFlagGlobal, graphics.RedFlagGlobal, graphics.TrackStatusString,
+                graphics.AccumulatedPenaltyTime, info.TrackName, info.TrackLayoutConfiguration
+            }, options);
+            var now = Environment.TickCount64;
+            if (key != previous || now - lastWrite >= 250)
+            {
+                Write(new { kind = "sample", utc = DateTime.UtcNow, tickMs = now, graphics,
+                    speed = physics.SpeedKilometersPerHour, throttle = physics.ThrottleInput,
+                    brake = physics.BrakeInput, info.TrackName, info.TrackLayoutConfiguration });
+                previous = key;
+                lastWrite = now;
+            }
+            await Task.Delay(50);
+        }
+        Write(new { kind = "game-exited", utc = DateTime.UtcNow, tickMs = Environment.TickCount64 });
+        return;
+    }
+
     if (args.Contains("--watch-controls"))
     {
         using var supplement = new ACRVehicleMemoryReader();

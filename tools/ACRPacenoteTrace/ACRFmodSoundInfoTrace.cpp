@@ -28,7 +28,8 @@ void WriteTrace(const char* nameOrId)
     {
     }
 
-    const std::string line = std::to_string(++Sequence) + " | sound=" + (nameOrId ? nameOrId : "<null>") + "\r\n";
+    const std::string line = std::to_string(++Sequence) + " | pid=" + std::to_string(GetCurrentProcessId()) +
+        " tickMs=" + std::to_string(GetTickCount64()) + " | sound=" + (nameOrId ? nameOrId : "<null>") + "\r\n";
     DWORD written = 0;
     WriteFile(LogFile, line.data(), static_cast<DWORD>(line.size()), &written, nullptr);
     LogLock.clear(std::memory_order_release);

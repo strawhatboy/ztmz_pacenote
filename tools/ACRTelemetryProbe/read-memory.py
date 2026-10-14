@@ -4,6 +4,7 @@ import ctypes as c
 from ctypes import wintypes as w
 import struct
 import time
+import hashlib
 
 p = argparse.ArgumentParser()
 p.add_argument('pid', type=int)
@@ -12,6 +13,7 @@ p.add_argument('--size', type=lambda x: int(x, 0), default=256)
 p.add_argument('--controls', action='store_true')
 p.add_argument('--simulation', action='store_true')
 p.add_argument('--damage', action='store_true')
+p.add_argument('--race', action='store_true', help='Inspect local-controller race components; candidate offsets only')
 a = p.parse_args()
 k = c.WinDLL('kernel32', use_last_error=True)
 k.OpenProcess.argtypes = [w.DWORD, w.BOOL, w.DWORD]
@@ -28,6 +30,10 @@ try:
     length = w.DWORD(len(path))
     if not k.QueryFullProcessImageNameW(h, 0, path, c.byref(length)) or not path.value.lower().endswith('\\acr.exe'):
         raise ValueError('Not ACR')
+    if a.race:
+        with open(path.value, 'rb') as executable:
+            if hashlib.file_digest(executable, 'sha256').hexdigest().upper() != '42C359B0CD24774A86441710FDC7D7DB3BC06B57B3FF30CB9EA5D56FB71448FB':
+                raise ValueError('Unverified ACR build for race inspection')
     modules = (c.c_void_p * 1024)()
     needed = w.DWORD()
     if not ps.EnumProcessModulesEx(h, modules, c.sizeof(modules), c.byref(needed), 3):
@@ -57,6 +63,18 @@ try:
             value = struct.unpack_from('<Q', data, offset)[0]
             if value:
                 print(f'+{offset:04x} {value:016x} floats={struct.unpack_from("<ff", data, offset)}')
+    def owned_components(actor):
+        # GetComponentByClass RVA 0x39e8a60 walks the sparse set at actor+0x230.
+        array, count, capacity = struct.unpack('<Qii', read(actor + 0x230, 16))
+        bits_count = struct.unpack('<i', read(actor + 0x258, 4))[0]
+        if not 0 <= bits_count == count <= capacity <= 1024:
+            raise ValueError('Invalid owned component set')
+        flags = ptr(actor + 0x250) or actor + 0x240
+        for i in range(count):
+            word = struct.unpack('<I', read(flags + (i // 32) * 4, 4))[0]
+            if word & (1 << (i % 32)):
+                component = ptr(array + i * 16)
+                if ptr(component + 0xa0) == actor: yield component
     if a.address:
         dump(a.address, a.size)
     else:
@@ -69,7 +87,47 @@ try:
         controller = ptr(player + 0x30)
         pawn = ptr(controller + 0x2e8)
         print('PLAYER', hex(player), 'CONTROLLER', hex(controller), 'PAWN', hex(pawn))
-        if a.damage:
+        if a.race:
+            seen = set()
+            for offset in (0x280, 0x290):
+                array, count, capacity = struct.unpack('<Qii', read(controller + offset, 16))
+                if not 0 <= count <= capacity <= 1024:
+                    raise ValueError('Invalid controller component array')
+                for index in range(count):
+                    component = ptr(array + index * 8)
+                    if component in seen: continue
+                    seen.add(component)
+                    class_name = name(ptr(component + 0x10) + 0x18)
+                    if 'Race' not in class_name and 'Rally' not in class_name: continue
+                    owner = ptr(component + 0xa0)
+                    print('COMPONENT', class_name, hex(component), 'owner', hex(owner), 'vtable', hex(ptr(component)-base))
+                    if owner != controller: continue
+                    if class_name == 'RaceStateData':
+                        print('CANDIDATE STATE', struct.unpack('<iiffi', read(component + 0x110, 20)))
+                    elif class_name in ('RaceManager', 'RallyManager'):
+                        # Current executable FObjectPropertyParams at RVA 0x9dccaa0.
+                        state = ptr(component + 0x200)
+                        state_class = name(ptr(state + 0x10) + 0x18) if state else None
+                        print('CANDIDATE RaceStateData pointer', hex(state), state_class)
+                        if state_class == 'RaceStateData':
+                            print('CANDIDATE STATE', struct.unpack('<iiffi', read(state + 0x110, 20)),
+                                  'owner', hex(ptr(state + 0xa0)), 'vtable', hex(ptr(state)-base))
+                            dump(state + 0xf8, 0x50)
+            game_state = ptr(world + 0x1b0)
+            print('GAME STATE', hex(game_state), name(ptr(game_state + 0x10) + 0x18))
+            for component in owned_components(game_state):
+                class_name = name(ptr(component + 0x10) + 0x18)
+                print('GAME COMPONENT', class_name, hex(component), 'vtable', hex(ptr(component)-base))
+                if class_name == 'RaceEventManagerComponent':
+                    event = ptr(component + 0xd0)
+                    print('EVENT ACTOR', hex(event))
+                    if not event: continue
+                    for sub in owned_components(event):
+                        subname = name(ptr(sub + 0x10) + 0x18)
+                        print('EVENT COMPONENT', subname, hex(sub), 'vtable', hex(ptr(sub)-base))
+                        if subname == 'RaceEventRallyResultsComponent':
+                            dump(sub + 0xe8, 0x38)
+        elif a.damage:
             print('GET COMPONENT RVA', hex(ptr(ptr(pawn) + 0x720) - base))
             for offset in (0x280, 0x290):
                 array, count, capacity = struct.unpack('<Qii', read(pawn + offset, 16))

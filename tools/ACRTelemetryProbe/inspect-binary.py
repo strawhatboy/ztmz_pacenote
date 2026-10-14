@@ -25,9 +25,11 @@ import pefile
 import capstone
 
 pe = pefile.PE(a.executable, fast_load=True)
-pe.parse_data_directories(directories=[pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_EXCEPTION']])
 base = pe.OPTIONAL_HEADER.ImageBase
-functions = sorted((e.struct.BeginAddress, e.struct.EndAddress) for e in pe.DIRECTORY_ENTRY_EXCEPTION)
+functions = []
+if a.text or a.reference is not None or a.call is not None or a.displacement is not None:
+    pe.parse_data_directories(directories=[pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_EXCEPTION']])
+    functions = sorted((e.struct.BeginAddress, e.struct.EndAddress) for e in pe.DIRECTORY_ENTRY_EXCEPTION)
 begins = [s for s, _ in functions]
 if a.properties is not None:
     for offset in range(0, a.size, 8):
@@ -39,7 +41,7 @@ if a.properties is not None:
         if not name or not all(32 <= b < 127 for b in name): continue
         kind = struct.unpack_from('<I', record, 24)[0]
         dim, field = struct.unpack_from('<HH', record, 48)
-        if kind > 0x40 or dim != 1: continue
+        if kind > 0xff or dim != 1: continue
         print(hex(rva), name.decode('ascii'), 'kind', hex(kind), 'offset', hex(field), 'extra', hex(struct.unpack_from('<Q', record, 56)[0]-base))
 if a.displacement is not None:
     md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_64)
