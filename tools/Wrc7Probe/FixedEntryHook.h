@@ -6,9 +6,9 @@
 #include <cstring>
 #include <cstdint>
 
-// This is NOT a general instruction relocator. It accepts only the exact WRC7
-// entry below: mov r11,rsp; push rbp; push rsi; lea rbp,[rsp-78h]; sub rsp,178h.
-// All 17 bytes are position-independent. An indirect absolute jump uses no
+// This is NOT a general instruction relocator. Each caller must supply verified,
+// whole, position-independent instructions (WRC7: 17 bytes; WRC9: 19 bytes).
+// The installed bytes must match exactly. An indirect absolute jump uses no
 // scratch register and does not require executable memory near the game image.
 namespace Wrc7FixedEntry {
 inline constexpr unsigned char Entry[] = {0x4c,0x8b,0xdc,0x55,0x56,0x48,0x8d,0x6c,0x24,0x88,0x48,0x81,0xec,0x78,0x01,0,0};
@@ -18,18 +18,20 @@ inline void jump(unsigned char* destination, const void* target) {
     memcpy(destination + sizeof(opcode), &target, sizeof(target));
 }
 struct Thread { HANDLE handle; bool suspended = false; };
-inline bool install(unsigned char* target, void* replacement, void** original, HMODULE owner) {
-    if (memcmp(target, Entry, sizeof(Entry))) { SetLastError(ERROR_REVISION_MISMATCH); return false; }
+template<size_t N>
+inline bool installVerifiedEntry(unsigned char* target, void* replacement, void** original, HMODULE owner, const unsigned char (&entryBytes)[N]) {
+    static_assert(N >= 14);
+    if (memcmp(target, entryBytes, sizeof(entryBytes))) { SetLastError(ERROR_REVISION_MISMATCH); return false; }
     auto trampoline = static_cast<unsigned char*>(VirtualAlloc(nullptr, 4096, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE));
     if (!trampoline) return false;
-    memcpy(trampoline, Entry, sizeof(Entry));
-    jump(trampoline + sizeof(Entry), target + sizeof(Entry));
+    memcpy(trampoline, entryBytes, sizeof(entryBytes));
+    jump(trampoline + sizeof(entryBytes), target + sizeof(entryBytes));
     DWORD protection;
     if (!VirtualProtect(trampoline, 4096, PAGE_EXECUTE_READ, &protection)) {
         auto error = GetLastError(); VirtualFree(trampoline, 0, MEM_RELEASE); SetLastError(error); return false;
     }
-    FlushInstructionCache(GetCurrentProcess(), trampoline, sizeof(Entry) + 14);
-    std::array<unsigned char, sizeof(Entry)> patch;
+    FlushInstructionCache(GetCurrentProcess(), trampoline, sizeof(entryBytes) + 14);
+    std::array<unsigned char, sizeof(entryBytes)> patch;
     patch.fill(0x90); jump(patch.data(), replacement);
     std::vector<Thread> threads;
     HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
@@ -48,7 +50,7 @@ inline bool install(unsigned char* target, void* replacement, void** original, H
     if (!error && !GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_PIN,
             reinterpret_cast<LPCWSTR>(owner), &pinned)) error = GetLastError();
     DWORD oldProtection = 0;
-    if (!error && !VirtualProtect(target, sizeof(Entry), PAGE_EXECUTE_READWRITE, &oldProtection)) error = GetLastError();
+    if (!error && !VirtualProtect(target, sizeof(entryBytes), PAGE_EXECUTE_READWRITE, &oldProtection)) error = GetLastError();
     // Allocate/enumerate/open everything before freezing threads. No heap, file,
     // loader or logging operations are allowed while another thread is frozen.
     if (!error) {
@@ -61,9 +63,9 @@ inline bool install(unsigned char* target, void* replacement, void** original, H
             if (!GetThreadContext(thread.handle, &context)) { error = GetLastError(); break; }
             auto ip = static_cast<uintptr_t>(context.Rip);
             auto start = reinterpret_cast<uintptr_t>(target);
-            if (ip >= start && ip < start + sizeof(Entry)) { error = ERROR_BUSY; break; }
+            if (ip >= start && ip < start + sizeof(entryBytes)) { error = ERROR_BUSY; break; }
         }
-        if (!error && memcmp(target, Entry, sizeof(Entry))) error = ERROR_REVISION_MISMATCH;
+        if (!error && memcmp(target, entryBytes, sizeof(entryBytes))) error = ERROR_REVISION_MISMATCH;
         if (!error) {
             *original = trampoline;
             MemoryBarrier();
@@ -72,9 +74,13 @@ inline bool install(unsigned char* target, void* replacement, void** original, H
         }
         for (auto& thread : threads) if (thread.suspended) ResumeThread(thread.handle);
     }
-    if (oldProtection) { DWORD ignored; VirtualProtect(target, sizeof(Entry), oldProtection, &ignored); }
+    if (oldProtection) { DWORD ignored; VirtualProtect(target, sizeof(entryBytes), oldProtection, &ignored); }
     for (auto& thread : threads) CloseHandle(thread.handle);
     if (error) { VirtualFree(trampoline, 0, MEM_RELEASE); SetLastError(error); return false; }
     return true; // Deliberately retained until game exit, together with pinned DLL.
 }
+inline bool install(unsigned char* target, void* replacement, void** original, HMODULE owner) {
+    return installVerifiedEntry(target, replacement, original, owner, Entry);
+}
+
 }

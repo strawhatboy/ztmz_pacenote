@@ -8,6 +8,9 @@
 #ifdef KT_WRC7
 #define KT_TRACE_EXE L"WRC7.exe"
 #define KT_FMOD_MODULE L"fmodstudio64.dll"
+#elif defined(KT_WRC9)
+#define KT_TRACE_EXE L"WRC9.exe"
+#define KT_FMOD_MODULE L"fmodstudio.dll"
 #else
 #define KT_TRACE_EXE L"WRCG.exe"
 #define KT_FMOD_MODULE L"fmodstudio.dll"
@@ -54,10 +57,10 @@ int __fastcall sound(void* system,const char* name,void* info) {
     enqueue("sound-info",name,result,system);return result;
 }
 int __fastcall start(void* instance) {
-#ifdef KT_WRC7
+#if defined(KT_WRC7) || defined(KT_WRC9)
     void* description=nullptr;char name[512]{};int length=0;
     bool resolved=getDescription(instance,&description)==0 && description && getPath(description,name,sizeof(name),&length)==0;
-    // Capture order around start as WRC7 may perform the programmer lookup synchronously.
+    // Capture order around start as these games may perform the programmer lookup synchronously.
     bool relevant=true; // Discover actual WRC7 paths, including banks with stripped path metadata.
     if(!resolved)strcpy_s(name,"<event path unavailable>");
     if(relevant)enqueue("start-enter",name,0,instance);
@@ -103,7 +106,7 @@ DWORD WINAPI run(void*) {
     void** originals[]{reinterpret_cast<void**>(&soundOriginal),reinterpret_cast<void**>(&startOriginal),reinterpret_cast<void**>(&parameterOriginal),reinterpret_cast<void**>(&parameterIdOriginal)};
     void* targets[4]{};int created=0;
     bool ok=getDescription && getPath && MH_Initialize()==MH_OK;
-#ifdef KT_WRC7
+#if defined(KT_WRC7) || defined(KT_WRC9)
     constexpr int hookCount=2; // FMOD 1.x has different parameter APIs; never use FMOD 2.x signatures.
 #else
     constexpr int hookCount=4;

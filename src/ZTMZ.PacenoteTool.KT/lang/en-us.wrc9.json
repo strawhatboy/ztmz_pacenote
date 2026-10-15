@@ -1,0 +1,18 @@
+{
+  "game": {
+    "wrc9": {
+      "description": "WRC 9 — experimental live pacenotes",
+      "title": "WRC 9 live pacenotes",
+      "enable": "Enable experimental live pacenote bridge",
+      "disabled": "Live pacenote bridge controls disabled",
+      "privilegeWarning": "Run ZTMZ and WRC 9 at the same Windows privilege level, preferably both as a normal user.",
+      "limitations": "Experimental single-player support for the verified Steam build. Original game speech remains enabled. Basic vehicle telemetry and live calls are available. Some directional calls and advanced telemetry are not yet mapped.",
+      "inject": "Connect live pacenotes",
+      "warning": "This experimental feature injects a DLL into WRC 9 and may affect game stability. Use offline. It remains loaded until the game exits. Continue?",
+      "connected": "Live pacenote bridge connected",
+      "disconnected": "Live pacenote bridge not connected",
+      "windowsOnly": "The WRC 9 live bridge currently supports Windows only.",
+      "startGame": "Start WRC 9 first."
+    }
+  }
+}

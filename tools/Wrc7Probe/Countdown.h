@@ -35,8 +35,8 @@ inline int __fastcall start(void* event) {
     return result;
 }
 
-inline bool install() {
-    const auto module = GetModuleHandleW(L"fmodstudio64.dll");
+inline bool install(const wchar_t* moduleName = L"fmodstudio64.dll") {
+    const auto module = GetModuleHandleW(moduleName);
     if (!module) return false;
     description = reinterpret_cast<Description>(GetProcAddress(module, "FMOD_Studio_EventInstance_GetDescription"));
     path = reinterpret_cast<Path>(GetProcAddress(module, "FMOD_Studio_EventDescription_GetPath"));

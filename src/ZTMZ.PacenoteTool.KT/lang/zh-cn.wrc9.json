@@ -1,0 +1,18 @@
+{
+  "game": {
+    "wrc9": {
+      "description": "WRC 9 — 实验性实时路书",
+      "title": "WRC 9 实时路书",
+      "enable": "启用实验性实时路书桥接",
+      "disabled": "实时路书桥接控制已关闭",
+      "privilegeWarning": "请让 ZTMZ 和 WRC 9 使用相同的 Windows 权限，建议均以普通用户运行。",
+      "limitations": "实验性支持已验证的 Steam 版本单人模式，保留游戏原声。支持基础车辆遥测和实时路书，部分方向提示及高级遥测尚未映射。",
+      "inject": "连接实时路书",
+      "warning": "此实验功能会向 WRC 9 注入 DLL，可能影响游戏稳定性。请在离线模式使用；退出游戏后才会卸载。是否继续？",
+      "connected": "实时路书桥接已连接",
+      "disconnected": "实时路书桥接未连接",
+      "windowsOnly": "WRC 9 实时路书桥接目前仅支持 Windows。",
+      "startGame": "请先启动 WRC 9。"
+    }
+  }
+}

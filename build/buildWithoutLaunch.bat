@@ -50,6 +50,8 @@ xcopy "ZTMZ.PacenoteTool.KT\bin\Release\net10.0\WRCGBridge\*" "ZTMZ.PacenoteTool
 if errorlevel 1 goto :build_failed
 xcopy "ZTMZ.PacenoteTool.KT\bin\Release\net10.0\WRC7Bridge\*" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\WRC7Bridge\" /E /I /Y /Q
 if errorlevel 1 goto :build_failed
+xcopy "ZTMZ.PacenoteTool.KT\bin\Release\net10.0\WRC9Bridge\*" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\WRC9Bridge\" /E /I /Y /Q
+if errorlevel 1 goto :build_failed
 xcopy "ZTMZ.PacenoteTool.KT\lang\*.json" "ZTMZ.PacenoteTool.WpfGUI\bin\Release\net10.0-windows\games\lang\" /I /Y /Q
 if errorlevel 1 goto :build_failed
 

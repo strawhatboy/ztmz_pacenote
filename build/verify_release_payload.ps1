@@ -20,6 +20,7 @@ $required = @(
     'games/ZTMZ.PacenoteTool.BeamNG.dll', 'games/ZTMZ.PacenoteTool.AC.dll',
     'games/ZTMZ.PacenoteTool.KT.dll', 'Assets/Games/wrcg.jpg',
     'games/WRCGBridge/WrcGenerationsBridge.dll', 'games/WRCGBridge/WrcGenerationsBridgeInject.exe',
+    'Assets/Games/wrc9.jpg', 'games/WRC9Bridge/Wrc9Bridge.dll', 'games/WRC9Bridge/Wrc9BridgeInject.exe', 'games/WRC9Bridge/LICENSE.txt',
     'Assets/Games/wrc7.jpg', 'games/WRC7Bridge/Wrc7BridgeAbsolute.dll', 'games/WRC7Bridge/Wrc7BridgeAbsoluteInject.exe',
     'games/WRCGBridge/LICENSE.txt', 'games/WRC7Bridge/LICENSE.txt',
     'games/ACRExperimentalBridge/ACRFmodLivePacenoteBridge.dll',
@@ -87,7 +88,7 @@ foreach ($icon in $manifest.icons.PSObject.Properties) {
 }
 
 # Catch an x64 artifact accidentally copied into the RBR/x86 payload (or vice versa).
-foreach ($relative in $required | Where-Object { $_ -match '(WRCGBridge|ACRExperimentalBridge|native-dashboard)/.*\.(dll|exe)$' }) {
+foreach ($relative in $required | Where-Object { $_ -match '(WRCGBridge|WRC7Bridge|WRC9Bridge|ACRExperimentalBridge|native-dashboard)/.*\.(dll|exe)$' }) {
     $stream = [IO.File]::OpenRead((Join-Path $root $relative))
     $reader = New-Object IO.BinaryReader($stream)
     try {

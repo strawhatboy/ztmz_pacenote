@@ -3,6 +3,9 @@
   #define MyAppPublishRoot "target\publish\ZTMZ.PacenoteTool.WpfGUI\release_win-x64"
 #endif
 #define MyAppPublishPath AddBackslash(SourcePath) + MyAppPublishRoot + "\ZTMZ.PacenoteTool.WpfGUI.exe"
+#if !FileExists(AddBackslash(SourcePath) + MyAppPublishRoot + "\Assets\Games\wrc9.jpg") || !FileExists(AddBackslash(SourcePath) + MyAppPublishRoot + "\games\WRC9Bridge\Wrc9Bridge.dll") || !FileExists(AddBackslash(SourcePath) + MyAppPublishRoot + "\games\WRC9Bridge\Wrc9BridgeInject.exe")
+  #error "WRC9 provider payload is missing. Run the release build and payload verification first."
+#endif
 #if !FileExists(MyAppPublishPath)
   #error "Published WPF executable was not found. Run build\publish.bat before packaging."
 #endif

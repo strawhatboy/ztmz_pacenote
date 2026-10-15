@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace ZTMZ.PacenoteTool.KT;
 
-/// <summary>Reads WRCG data, never evaluates configuration as executable Lua.</summary>
+/// <summary>Reads WRCG/WRC9 pacenote tables, never evaluates configuration as executable Lua.</summary>
 public sealed class WrcGenerationsPacenoteCatalog
 {
     private readonly Dictionary<string, IReadOnlyList<string>> sounds = new(StringComparer.Ordinal);
@@ -47,6 +47,20 @@ public sealed class WrcGenerationsPacenoteCatalog
         if (sounds.TryGetValue(name, out var value)) { atoms = value; return true; }
         atoms = Array.Empty<string>();
         return false;
+    }
+
+    internal bool TryResolveIgnoringCase(string name, out IReadOnlyList<string> atoms)
+    {
+        atoms = Array.Empty<string>();
+        bool found = false;
+        foreach (var pair in sounds)
+        {
+            if (!pair.Key.Equals(name, StringComparison.OrdinalIgnoreCase)) continue;
+            if (found && !atoms.SequenceEqual(pair.Value)) { atoms = Array.Empty<string>(); return false; }
+            found = true;
+            atoms = pair.Value;
+        }
+        return found;
     }
 
     private static MatchCollection Matches(string input, string pattern) =>

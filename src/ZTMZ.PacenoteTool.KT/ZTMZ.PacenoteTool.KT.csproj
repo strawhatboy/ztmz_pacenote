@@ -8,6 +8,7 @@
     <InternalsVisibleTo Include="ZTMZ.PacenoteTool.Portable.Tests" />
     <InternalsVisibleTo Include="ZTMZ.WrcGenerations.SessionProbe" />
     <InternalsVisibleTo Include="ZTMZ.Wrc7.Probe" />
+    <InternalsVisibleTo Include="ZTMZ.Wrc9.Probe" />
     <None Update="lang/*.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <ProjectReference Include="../ZTMZ.PacenoteTool.Base/ZTMZ.PacenoteTool.Base.csproj" />
   </ItemGroup>
@@ -32,5 +33,17 @@
   </Target>
   <Target Name="PublishWrc7Bridge" AfterTargets="Publish" DependsOnTargets="StageWrc7Bridge" Condition="'$(OS)' == 'Windows_NT'">
     <Copy SourceFiles="@(Wrc7Bridge)" DestinationFolder="$(PublishDir)WRC7Bridge" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="BuildWrc9Bridge" BeforeTargets="CoreCompile" Condition="'$(OS)' == 'Windows_NT'"
+          Inputs="$(MSBuildProjectDirectory)/../../tools/Wrc9Probe/Bridge.cpp;$(MSBuildProjectDirectory)/../../tools/Wrc7Probe/Countdown.h;$(MSBuildProjectDirectory)/../../tools/Wrc7Probe/FixedEntryHook.h;$(MSBuildProjectDirectory)/../../tools/Wrc9Probe/FixedEntryHookTest.cpp;$(MSBuildProjectDirectory)/../../tools/WrcGenerationsProbe/Inject.cpp;$(MSBuildProjectDirectory)/../../tools/Wrc9Probe/build-live.bat"
+          Outputs="$(MSBuildProjectDirectory)/../../tools/Wrc9Probe/bin/Wrc9Bridge.dll;$(MSBuildProjectDirectory)/../../tools/Wrc9Probe/bin/Wrc9BridgeInject.exe">
+    <Exec Command="&quot;$(MSBuildProjectDirectory)\..\..\tools\Wrc9Probe\build-live.bat&quot;" />
+  </Target>
+  <Target Name="StageWrc9Bridge" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
+    <ItemGroup><Wrc9Bridge Include="$(MSBuildProjectDirectory)/../../tools/Wrc9Probe/bin/Wrc9Bridge.dll;$(MSBuildProjectDirectory)/../../tools/Wrc9Probe/bin/Wrc9BridgeInject.exe;$(MSBuildProjectDirectory)/../../tools/ACRPacenoteTrace/third_party/minhook/LICENSE.txt" /></ItemGroup>
+    <Copy SourceFiles="@(Wrc9Bridge)" DestinationFolder="$(OutDir)WRC9Bridge" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="PublishWrc9Bridge" AfterTargets="Publish" DependsOnTargets="StageWrc9Bridge" Condition="'$(OS)' == 'Windows_NT'">
+    <Copy SourceFiles="@(Wrc9Bridge)" DestinationFolder="$(PublishDir)WRC9Bridge" SkipUnchangedFiles="true" />
   </Target>
 </Project>
