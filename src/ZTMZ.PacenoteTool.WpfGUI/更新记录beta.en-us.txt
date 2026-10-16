@@ -1,5 +1,6 @@
 v2.99.99.56-3.0-rc28
 
+* Adds WRC 7 mechanical damage and wear data, with collision and engine warnings that suppress old damage after restart, pause or reconnection.
 * Adds experimental WRC 9 support for the verified Windows Steam build in WPF and Avalonia, including live pacenotes, countdown calls, basic telemetry and in-game dashboards, with normal finish, penalty and retirement detection.
 * WRC 9 voice playback requires enabling and connecting the voice bridge after each game launch; enabling the dashboard alone does not connect it. Original game speech remains enabled; some pacenotes, tyre punctures and manual car-reset events are not yet supported.
 * Expands WRC 9 telemetry with steering, clutch, gear/RPM limits, shift warning, stage progress, four wheel speeds, brake temperatures, suspension and G forces. Adds body/mechanical damage displays and collision/engine damage calls, without repeating existing damage after pause, restart or reconnection.

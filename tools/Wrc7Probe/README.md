@@ -212,3 +212,10 @@ its current raw timing fields into GameData as validated final results.
    the final installer payload when preparing an actual release.
 5. Only after end-to-end playback/dashboard verification, add a user-facing
    release-note entry. Keep WRCG's existing archive and audio behavior intact.
+
+## Mechanical damage (2026-10-16)
+
+The production provider now reads verified mechanical damage and wear. See
+[WRC7 damage evidence](../../Docs/Wrc7Damage.md) for layouts, supported parts,
+limitations and live regression coverage. `capture <PID> <seconds> <new.jsonl>`
+records production telemetry/lifecycle/damage events without an audio hook.

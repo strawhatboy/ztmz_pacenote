@@ -128,6 +128,7 @@ internal sealed class Wrc7MemorySession : IDisposable
             // The debug telemetry buffer itself is disabled in an unpatched game.
             var physics = Pointer(vehicle + 0x80);
             if (Pointer(physics) != imageBase + 0xdb8ea0 || Pointer(physics + 0x68) != vehicle) return data;
+            data.CarDamage = Wrc7Damage.Read(Read, imageBase, vehicle, physics);
             var engine = Pointer(physics + 0x90);
             var values = Read(engine + 0x118, 0xb0);
             var limits = Read(physics + 0xaa4, 8);

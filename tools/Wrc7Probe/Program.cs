@@ -1,5 +1,33 @@
 using ZTMZ.PacenoteTool.KT;
 using Microsoft.Data.Sqlite;
+using System.Text.Json;
+using System.Diagnostics;
+
+try
+{
+if (args.Length == 4 && args[0] == "capture")
+{
+    if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException();
+    var seconds = int.Parse(args[2]);
+    if (seconds is < 1 or > 1800) throw new ArgumentOutOfRangeException("seconds");
+    using var process = Process.GetProcessById(int.Parse(args[1]));
+    using var memory = new Wrc7MemorySession(process);
+    using var outputFile = new StreamWriter(new FileStream(args[3], FileMode.CreateNew));
+    var watch = Stopwatch.StartNew(); var lifecycle = new Wrc7RaceSession();
+    var damageEvents = new Wrc7DamageEvents();
+    var json = new JsonSerializerOptions { IncludeFields = true };
+    Console.WriteLine("READY: read-only WRC7 capture");
+    while (!process.HasExited && watch.Elapsed.TotalSeconds < seconds)
+    {
+        var snapshot = memory.Read(); var state = lifecycle.Update(snapshot, Environment.TickCount64);
+        var damage = damageEvents.Update(snapshot, state, lifecycle.IsNewSession);
+        await outputFile.WriteLineAsync(JsonSerializer.Serialize(new { elapsedMs = watch.ElapsedMilliseconds, state = state.ToString(), snapshot, damage }, json));
+        await outputFile.FlushAsync();
+        await Task.Delay(100);
+    }
+    Console.WriteLine("Capture ended");
+    return;
+}
 
 
 if (args.Length == 2 && args[0] == "session")
@@ -87,3 +115,10 @@ foreach (var (name, bytes) in resources)
 if (args.Length == 3) return;
 var catalog = Wrc7PacenoteCatalog.Parse(System.Text.Encoding.UTF8.GetString(resources["PACENOTES.CFG"]));
 Console.WriteLine($"WRC7 catalog: {catalog.AtomCount} atoms (sound variants kept separate)");
+
+}
+catch (Exception error)
+{
+    Console.Error.WriteLine($"WRC7 diagnostic stopped: {error.GetType().Name}: {error.Message}");
+    Environment.ExitCode = 1;
+}
