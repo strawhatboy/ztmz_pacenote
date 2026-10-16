@@ -64,11 +64,13 @@ var seconds = int.Parse(args[2]);
 if (seconds is < 1 or > 1800) throw new ArgumentOutOfRangeException("seconds");
 using var outputFile = new StreamWriter(new FileStream(args[3], FileMode.CreateNew));
 var watch = Stopwatch.StartNew(); var lifecycle = new Wrc9RaceSession();
+var damageEvents = new Wrc9DamageEvents();
 Console.WriteLine("READY: read-only WRC9 capture");
 while (!process.HasExited && watch.Elapsed.TotalSeconds < seconds)
 {
     var snapshot = memory.Read(); var state = lifecycle.Update(snapshot, Environment.TickCount64);
-    await outputFile.WriteLineAsync(JsonSerializer.Serialize(new { elapsedMs = watch.ElapsedMilliseconds, state = state.ToString(), snapshot }, new JsonSerializerOptions { IncludeFields = true }));
+    var damage = damageEvents.Update(snapshot, state, lifecycle.IsNewSession);
+    await outputFile.WriteLineAsync(JsonSerializer.Serialize(new { elapsedMs = watch.ElapsedMilliseconds, state = state.ToString(), snapshot, damage }, new JsonSerializerOptions { IncludeFields = true }));
     await outputFile.FlushAsync();
     await Task.Delay(100);
 }

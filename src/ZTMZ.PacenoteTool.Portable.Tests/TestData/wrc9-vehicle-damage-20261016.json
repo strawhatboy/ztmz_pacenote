@@ -1,0 +1,972 @@
+[
+  {
+    "label": "damaged-before-restart",
+    "controls": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "gear": 7,
+    "gearCount": 8,
+    "omega": 221.7075653076172,
+    "maximumOmega": 840.0,
+    "idleOmega": 235.0,
+    "acceleration": [
+      -0.09916087985038757,
+      -0.5041812062263489
+    ],
+    "wheels": [
+      {
+        "radius": 0.3199999928474426,
+        "omega": -9.692230224609375,
+        "jounce": 0.1455438733100891,
+        "rest": 0.012463895604014397,
+        "velocity": 0.05286610126495361,
+        "temperature": 42.4041748046875,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": -9.606513977050781,
+        "jounce": 0.15469229221343994,
+        "rest": 0.01346592791378498,
+        "velocity": 0.0456036739051342,
+        "temperature": 42.39809799194336,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": -9.690258026123047,
+        "jounce": 0.16530704498291016,
+        "rest": 0.013715949840843678,
+        "velocity": -0.023468002676963806,
+        "temperature": 42.15415573120117,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": -9.607831954956055,
+        "jounce": 0.1506519913673401,
+        "rest": 0.01263118814677,
+        "velocity": -0.013189843855798244,
+        "temperature": 42.24030685424805,
+        "temperatureFlag": 1
+      }
+    ],
+    "parts": [
+      {
+        "name": "Susp_FL",
+        "maximum": 100.0,
+        "damage": 14.988964080810547,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 0,
+        "kind": 1
+      },
+      {
+        "name": "Gearbox",
+        "maximum": 100.0,
+        "damage": 13.913414001464844,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 4,
+        "kind": 4
+      },
+      {
+        "name": "Brake_RL",
+        "maximum": 100.0,
+        "damage": 10.282673835754395,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 2,
+        "kind": 0
+      },
+      {
+        "name": "Brake_FL",
+        "maximum": 100.0,
+        "damage": 11.387788772583008,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 0,
+        "kind": 0
+      },
+      {
+        "name": "Body",
+        "maximum": 100.0,
+        "damage": 10.413642883300781,
+        "warning": 0.75,
+        "critical": 0.25,
+        "location": 4,
+        "kind": 6
+      },
+      {
+        "name": "Brake_FR",
+        "maximum": 100.0,
+        "damage": 2.20527982711792,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 1,
+        "kind": 0
+      },
+      {
+        "name": "Engine",
+        "maximum": 100.0,
+        "damage": 12.825179100036621,
+        "warning": 0.699999988079071,
+        "critical": 0.30000001192092896,
+        "location": 4,
+        "kind": 3
+      },
+      {
+        "name": "Brake_RR",
+        "maximum": 100.0,
+        "damage": 9.795037269592285,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 3,
+        "kind": 0
+      },
+      {
+        "name": "Steering_FR",
+        "maximum": 100.0,
+        "damage": 8.346541404724121,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 1,
+        "kind": 5
+      },
+      {
+        "name": "Steering_FL",
+        "maximum": 100.0,
+        "damage": 13.712942123413086,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 0,
+        "kind": 5
+      },
+      {
+        "name": "Susp_RR",
+        "maximum": 100.0,
+        "damage": 13.7271728515625,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 3,
+        "kind": 1
+      },
+      {
+        "name": "Susp_RL",
+        "maximum": 100.0,
+        "damage": 15.313485145568848,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 2,
+        "kind": 1
+      },
+      {
+        "name": "Susp_FR",
+        "maximum": 100.0,
+        "damage": 8.114506721496582,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 1,
+        "kind": 1
+      },
+      {
+        "name": "Turbo",
+        "maximum": 100.0,
+        "damage": 11.715824127197266,
+        "warning": 0.699999988079071,
+        "critical": 0.30000001192092896,
+        "location": 4,
+        "kind": 2
+      }
+    ]
+  },
+  {
+    "label": "healthy-after-restart",
+    "controls": [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "gear": 1,
+    "gearCount": 8,
+    "omega": 233.17636108398438,
+    "maximumOmega": 840.0,
+    "idleOmega": 235.0,
+    "acceleration": [
+      -0.26281431317329407,
+      -0.012291043996810913
+    ],
+    "wheels": [
+      {
+        "radius": 0.3199999928474426,
+        "omega": -0.0036760682705789804,
+        "jounce": 0.07997924089431763,
+        "rest": 0.005107549950480461,
+        "velocity": 0.06841432303190231,
+        "temperature": 42.356590270996094,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": -0.005651771556586027,
+        "jounce": 0.08622461557388306,
+        "rest": 0.005521572194993496,
+        "velocity": 0.0634990856051445,
+        "temperature": 42.350528717041016,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": 0.0,
+        "jounce": 0.08256316184997559,
+        "rest": 0.005292828660458326,
+        "velocity": 0.06350255757570267,
+        "temperature": 42.10763168334961,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": 0.0,
+        "jounce": 0.08269929885864258,
+        "rest": 0.005262100137770176,
+        "velocity": 0.0714503675699234,
+        "temperature": 42.19342041015625,
+        "temperatureFlag": 1
+      }
+    ],
+    "parts": [
+      {
+        "name": "Susp_FL",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 0,
+        "kind": 1
+      },
+      {
+        "name": "Gearbox",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 4,
+        "kind": 4
+      },
+      {
+        "name": "Brake_RL",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 2,
+        "kind": 0
+      },
+      {
+        "name": "Brake_FL",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 0,
+        "kind": 0
+      },
+      {
+        "name": "Body",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.25,
+        "location": 4,
+        "kind": 6
+      },
+      {
+        "name": "Brake_FR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 1,
+        "kind": 0
+      },
+      {
+        "name": "Engine",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.699999988079071,
+        "critical": 0.30000001192092896,
+        "location": 4,
+        "kind": 3
+      },
+      {
+        "name": "Brake_RR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 3,
+        "kind": 0
+      },
+      {
+        "name": "Steering_FR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 1,
+        "kind": 5
+      },
+      {
+        "name": "Steering_FL",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 0,
+        "kind": 5
+      },
+      {
+        "name": "Susp_RR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 3,
+        "kind": 1
+      },
+      {
+        "name": "Susp_RL",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 2,
+        "kind": 1
+      },
+      {
+        "name": "Susp_FR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 1,
+        "kind": 1
+      },
+      {
+        "name": "Turbo",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.699999988079071,
+        "critical": 0.30000001192092896,
+        "location": 4,
+        "kind": 2
+      }
+    ]
+  },
+  {
+    "label": "accelerating",
+    "controls": [
+      0.9999977946281433,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gear": 3,
+    "gearCount": 8,
+    "omega": 587.7305297851562,
+    "maximumOmega": 840.0,
+    "idleOmega": 235.0,
+    "acceleration": [
+      0.3011007010936737,
+      -8.786453247070312
+    ],
+    "wheels": [
+      {
+        "radius": 0.3199999928474426,
+        "omega": 55.81886291503906,
+        "jounce": 0.10256218910217285,
+        "rest": 0.012437084689736366,
+        "velocity": 0.1531807780265808,
+        "temperature": 42.23491287231445,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": 59.36526107788086,
+        "jounce": 0.1069532036781311,
+        "rest": 0.00714322691783309,
+        "velocity": -0.10061059892177582,
+        "temperature": 42.22890853881836,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": 58.94846725463867,
+        "jounce": 0.17974412441253662,
+        "rest": 0.012537946924567223,
+        "velocity": -0.08801022171974182,
+        "temperature": 41.988529205322266,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": 60.23572540283203,
+        "jounce": 0.171400249004364,
+        "rest": 0.011735793203115463,
+        "velocity": -0.14199680089950562,
+        "temperature": 42.07337951660156,
+        "temperatureFlag": 1
+      }
+    ],
+    "parts": [
+      {
+        "name": "Susp_FL",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 0,
+        "kind": 1
+      },
+      {
+        "name": "Gearbox",
+        "maximum": 100.0,
+        "damage": 0.009341476485133171,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 4,
+        "kind": 4
+      },
+      {
+        "name": "Brake_RL",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 2,
+        "kind": 0
+      },
+      {
+        "name": "Brake_FL",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 0,
+        "kind": 0
+      },
+      {
+        "name": "Body",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.25,
+        "location": 4,
+        "kind": 6
+      },
+      {
+        "name": "Brake_FR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 1,
+        "kind": 0
+      },
+      {
+        "name": "Engine",
+        "maximum": 100.0,
+        "damage": 0.014292399398982525,
+        "warning": 0.699999988079071,
+        "critical": 0.30000001192092896,
+        "location": 4,
+        "kind": 3
+      },
+      {
+        "name": "Brake_RR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 3,
+        "kind": 0
+      },
+      {
+        "name": "Steering_FR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 1,
+        "kind": 5
+      },
+      {
+        "name": "Steering_FL",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 0,
+        "kind": 5
+      },
+      {
+        "name": "Susp_RR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 3,
+        "kind": 1
+      },
+      {
+        "name": "Susp_RL",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 2,
+        "kind": 1
+      },
+      {
+        "name": "Susp_FR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 1,
+        "kind": 1
+      },
+      {
+        "name": "Turbo",
+        "maximum": 100.0,
+        "damage": 0.0188400037586689,
+        "warning": 0.699999988079071,
+        "critical": 0.30000001192092896,
+        "location": 4,
+        "kind": 2
+      }
+    ]
+  },
+  {
+    "label": "braking",
+    "controls": [
+      0.15230703353881836,
+      0.9049296975135803,
+      0.0,
+      0.0,
+      -0.16230465471744537,
+      0.0
+    ],
+    "gear": 7,
+    "gearCount": 8,
+    "omega": 518.4548950195312,
+    "maximumOmega": 840.0,
+    "idleOmega": 235.0,
+    "acceleration": [
+      -8.372444152832031,
+      11.728813171386719
+    ],
+    "wheels": [
+      {
+        "radius": 0.3199999928474426,
+        "omega": 109.95185089111328,
+        "jounce": 0.22284835577011108,
+        "rest": 0.030831167474389076,
+        "velocity": 0.08544128388166428,
+        "temperature": 333.36395263671875,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": 109.71343231201172,
+        "jounce": 0.16638225317001343,
+        "rest": 0.01701749674975872,
+        "velocity": 0.26819124817848206,
+        "temperature": 333.2025146484375,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": 114.77249145507812,
+        "jounce": 0.208301842212677,
+        "rest": 0.014615485444664955,
+        "velocity": -0.6174233555793762,
+        "temperature": 243.2095489501953,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": 114.22042083740234,
+        "jounce": 0.15268754959106445,
+        "rest": 0.01150498166680336,
+        "velocity": -0.2407573014497757,
+        "temperature": 242.61007690429688,
+        "temperatureFlag": 1
+      }
+    ],
+    "parts": [
+      {
+        "name": "Susp_FL",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 0,
+        "kind": 1
+      },
+      {
+        "name": "Gearbox",
+        "maximum": 100.0,
+        "damage": 0.19202616810798645,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 4,
+        "kind": 4
+      },
+      {
+        "name": "Brake_RL",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 2,
+        "kind": 0
+      },
+      {
+        "name": "Brake_FL",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 0,
+        "kind": 0
+      },
+      {
+        "name": "Body",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.25,
+        "location": 4,
+        "kind": 6
+      },
+      {
+        "name": "Brake_FR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 1,
+        "kind": 0
+      },
+      {
+        "name": "Engine",
+        "maximum": 100.0,
+        "damage": 0.25796106457710266,
+        "warning": 0.699999988079071,
+        "critical": 0.30000001192092896,
+        "location": 4,
+        "kind": 3
+      },
+      {
+        "name": "Brake_RR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 3,
+        "kind": 0
+      },
+      {
+        "name": "Steering_FR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 1,
+        "kind": 5
+      },
+      {
+        "name": "Steering_FL",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 0,
+        "kind": 5
+      },
+      {
+        "name": "Susp_RR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 3,
+        "kind": 1
+      },
+      {
+        "name": "Susp_RL",
+        "maximum": 100.0,
+        "damage": 0.10000000149011612,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 2,
+        "kind": 1
+      },
+      {
+        "name": "Susp_FR",
+        "maximum": 100.0,
+        "damage": 0.0,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 1,
+        "kind": 1
+      },
+      {
+        "name": "Turbo",
+        "maximum": 100.0,
+        "damage": 0.2389492392539978,
+        "warning": 0.699999988079071,
+        "critical": 0.30000001192092896,
+        "location": 4,
+        "kind": 2
+      }
+    ]
+  },
+  {
+    "label": "damaged-after-collisions",
+    "controls": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "gear": 2,
+    "gearCount": 8,
+    "omega": 221.7075653076172,
+    "maximumOmega": 840.0,
+    "idleOmega": 235.0,
+    "acceleration": [
+      0.0018108735093846917,
+      0.01126270741224289
+    ],
+    "wheels": [
+      {
+        "radius": 0.3199999928474426,
+        "omega": -0.011986757628619671,
+        "jounce": 0.228094220161438,
+        "rest": 0.01245035044848919,
+        "velocity": 0.007827899418771267,
+        "temperature": 69.44917297363281,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": -0.009145956486463547,
+        "jounce": 0.17180609703063965,
+        "rest": 0.014005818404257298,
+        "velocity": 0.0063092829659581184,
+        "temperature": 69.00244140625,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": -0.011630220338702202,
+        "jounce": 0.18645328283309937,
+        "rest": 0.013831911608576775,
+        "velocity": -0.006202197168022394,
+        "temperature": 66.03738403320312,
+        "temperatureFlag": 1
+      },
+      {
+        "radius": 0.3199999928474426,
+        "omega": -0.010107467882335186,
+        "jounce": 0.16117322444915771,
+        "rest": 0.01244348380714655,
+        "velocity": -0.002064563101157546,
+        "temperature": 65.81346130371094,
+        "temperatureFlag": 1
+      }
+    ],
+    "parts": [
+      {
+        "name": "Susp_FL",
+        "maximum": 100.0,
+        "damage": 59.2244758605957,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 0,
+        "kind": 1
+      },
+      {
+        "name": "Gearbox",
+        "maximum": 100.0,
+        "damage": 61.04252243041992,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 4,
+        "kind": 4
+      },
+      {
+        "name": "Brake_RL",
+        "maximum": 100.0,
+        "damage": 27.616867065429688,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 2,
+        "kind": 0
+      },
+      {
+        "name": "Brake_FL",
+        "maximum": 100.0,
+        "damage": 49.64268493652344,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 0,
+        "kind": 0
+      },
+      {
+        "name": "Body",
+        "maximum": 100.0,
+        "damage": 33.220001220703125,
+        "warning": 0.75,
+        "critical": 0.25,
+        "location": 4,
+        "kind": 6
+      },
+      {
+        "name": "Brake_FR",
+        "maximum": 100.0,
+        "damage": 14.227544784545898,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 1,
+        "kind": 0
+      },
+      {
+        "name": "Engine",
+        "maximum": 100.0,
+        "damage": 60.38632583618164,
+        "warning": 0.699999988079071,
+        "critical": 0.30000001192092896,
+        "location": 4,
+        "kind": 3
+      },
+      {
+        "name": "Brake_RR",
+        "maximum": 100.0,
+        "damage": 19.475406646728516,
+        "warning": 0.75,
+        "critical": 0.30000001192092896,
+        "location": 3,
+        "kind": 0
+      },
+      {
+        "name": "Steering_FR",
+        "maximum": 100.0,
+        "damage": 37.40275192260742,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 1,
+        "kind": 5
+      },
+      {
+        "name": "Steering_FL",
+        "maximum": 100.0,
+        "damage": 58.34770202636719,
+        "warning": 0.5,
+        "critical": 0.25,
+        "location": 0,
+        "kind": 5
+      },
+      {
+        "name": "Susp_RR",
+        "maximum": 100.0,
+        "damage": 36.41324234008789,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 3,
+        "kind": 1
+      },
+      {
+        "name": "Susp_RL",
+        "maximum": 100.0,
+        "damage": 42.138771057128906,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 2,
+        "kind": 1
+      },
+      {
+        "name": "Susp_FR",
+        "maximum": 100.0,
+        "damage": 30.592525482177734,
+        "warning": 0.75,
+        "critical": 0.4000000059604645,
+        "location": 1,
+        "kind": 1
+      },
+      {
+        "name": "Turbo",
+        "maximum": 100.0,
+        "damage": 55.50859832763672,
+        "warning": 0.699999988079071,
+        "critical": 0.30000001192092896,
+        "location": 4,
+        "kind": 2
+      }
+    ]
+  },
+  {
+    "label": "full-left",
+    "controls": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "gear": 2,
+    "gearCount": 8,
+    "omega": 221.7075653076172,
+    "maximumOmega": 840.0,
+    "idleOmega": 235.0,
+    "acceleration": [
+      -0.48312094807624817,
+      0.3921354115009308
+    ]
+  },
+  {
+    "label": "full-right",
+    "controls": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -1.0,
+      1.0
+    ],
+    "gear": 2,
+    "gearCount": 8,
+    "omega": 221.7075653076172,
+    "maximumOmega": 840.0,
+    "idleOmega": 235.0,
+    "acceleration": [
+      0.0008819499053061008,
+      0.00021721857774537057
+    ]
+  }
+]

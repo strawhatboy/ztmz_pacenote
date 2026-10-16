@@ -9,10 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\ZTMZ.PacenoteTool.WebDashboard\dashboards\common\commonfunc.lua" Link="TestData\commonfunc.lua" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\ZTMZ.PacenoteTool.Base\data.zdb" Link="TestData\official-data.zdb" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData\wrc7-restart-retire-20261014.jsonl" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData\wrc9-restart-retire-20261015.jsonl" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData\wrc9-finish-penalty-20261015.jsonl" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="TestData\wrc9-vehicle-damage-20261016.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="TestData\wrc9-damage-restart-20261016.json" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.KT\ZTMZ.PacenoteTool.KT.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Base\ZTMZ.PacenoteTool.Base.csproj" />
     <ProjectReference Include="..\ZTMZ.PacenoteTool.Core\ZTMZ.PacenoteTool.Core.csproj" />

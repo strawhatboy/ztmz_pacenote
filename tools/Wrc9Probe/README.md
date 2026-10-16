@@ -56,8 +56,8 @@ Agnières-en-Devoluy. The final timing run used Hyundai i20 R5 on Rally Sweden, 
   connected for each new game process, independently of dashboard injection.
   Audible playback through Avalonia has not yet been checked.
 
-Still unverified: actual DX12 rendering/device switching, multiplayer, multi-lap/split-screen, damage/reset events,
-steering/clutch, stage distance and some directional pacenote conventions.
+Still unverified: actual DX12 rendering/device switching, multiplayer, multi-lap/split-screen,
+manual car-reset events, tyre punctures, race position and some directional pacenote conventions.
 The captured GO transition sets `TimerStarted` while lap count is still zero
 for roughly 1.4 seconds. The reader now keeps that pending state in countdown;
 a regression test covers the transition into the first timed lap.
@@ -81,8 +81,83 @@ All reads are external and read-only; no game functions are called.
 | Running clock | Race+`0x898` → protected +`0x2e0`; **main-thread TLS table**, not the global table |
 | Clock TLS | TEB+`0x58` → TLS array; index EXE+`0x1b0eb38`; slot+`0x40` → table |
 | Vehicle | Participant+`0x70`, vtable `0x13feda8`, reciprocal +`0x60`; drive +`0x80` |
-| Scalars | Drive gear +`0x128`, engine angular speed +`0x134`, maximum +`0x448`; controls +`0xe0` (throttle/brake/handbrake) |
+| Scalars | Drive gear +`0x128`, engine angular speed +`0x134`, maximum +`0x448`; controls +`0xe0` (throttle/brake/handbrake/steering/clutch) |
 | Motion | Drive rigid body +`0xc0`; verified PhysX vtable/getters, shared WRC7 pose/velocity decoder |
+
+## Expanded vehicle telemetry, 2026-10-16
+
+Live checks used the Ford Fiesta WRC on XION Rally Argentina, El Condor reverse.
+Three read-only captures cover full left/right steering, clutch, acceleration,
+braking, reverse, collisions, pause and stage restart. The production capture
+completed 600 seconds without a missing session sample. No game memory is written.
+
+| GameData fields | Source and units |
+| --- | --- |
+| Time, LapTime | Native stage clock in seconds; LapTime includes penalties in a verified final result, Time stays raw |
+| TrackLength, LapDistance, CompletionRate | Native route length and projected route progress in metres, ratio 0–1; not the vehicle odometer |
+| Throttle, Brake, HandBrake/Valid, Steering, Clutch | Drive+`0xe0` channels 0/1/2/4/5; negate steering for left-negative/right-positive; clutch includes auto-clutch |
+| Gear, MaxGears | Drive+`0x128` and gear-table count +`0x534`, removing reverse/neutral from the maximum count |
+| RPM, MaxRPM, IdleRPM | Drive +`0x134`/`0x448`/`0x44c`, radians/s converted to RPM |
+| ShiftLightsFraction, ShiftLightsRPMStart/End/Valid | Car metadata +`0x15c` (`HudRedRpm`) is the flash point; ZTMZ adds its RBR/DR2-style 1000-RPM lead-in for green/yellow/red |
+| Speed, PosX/Y/Z | Verified PhysX world velocity and actor pose; speed in km/h |
+| G_lat, G_long | Drive local acceleration +`0x29c` and negated +`0x2a0`, divided by 9.80665; positive longitudinal acceleration and negative braking confirmed in captures |
+| Four wheel speeds | Radius at `*(drive+0x30)+0x1c0+i*0x30`, angular speed at `*(drive+0x60)+0x10+i*4`, converted to km/h |
+| Four suspension positions/speeds | `*(vehicle+0x88)+i*0xa0+0x5c` minus drive+`0x1e0+i*4`, in metres; drive+`0x200+i*4` in m/s |
+| Four brake temperatures | Vehicle+`0x118c+i*0x24`, or 20 bytes earlier when the byte 12 bytes after that address is 1; degrees C |
+| CarDamage | Native mechanical damage table: body, engine, gearbox, turbo, four brakes, four suspension units and two steering components |
+| TimeStamp | Local capture time |
+| CarPos, GameSpecificData | Race position is unverified and remains 0; no additional game-specific payload is fabricated |
+
+Wheel order is FL, FR, RL, RR. The debug HUD at `0xf9d835` labels the analog
+channels; `0xf9fcab`, `0xf9fdd2`, `0xf9fe77` and `0xf9ff5b` supply the wheel
+calculations. Native `0x102a7b5` differentiates velocity and `0x102a8f8` rotates
+acceleration into the car frame. Impacts can produce very large instantaneous G;
+these are not smoothed into ordinary driving acceleration.
+
+Native route length getter `0xf5cc30` follows race+`0x848`, indexed by timer+`0x70`
+(count race+`0x844`, 16-byte entries), then entry+8 → +`0x38` → +`0x178` →
+float+`0x8c`. Timer+`0x88` is current route progress. The verified single-lap
+case requires race+`0x808` == 1. A paused capture reports 2684.9316 / 7112.941 m.
+Pointer ownership is rechecked; unavailable optional data does not discard the clock.
+
+The Fiesta's native `HudRedRpm` is 7500, mechanical maximum is approximately
+8021 RPM and `HudMaxRpm` (tachometer scale) is 8500. HUD setup `0x3f966d` passes
+the red RPM to `0x40ea00`, which stores red/max as its red-zone threshold;
+`0x411a64` compares the displayed RPM fraction against it. ZTMZ uses the same
+1000-RPM lead-in as RBR/DR2, with blank below 6500, green from 6500, yellow
+from 6833.333…, solid red from 7166.666…, and flashing red from 7500 RPM for
+this car. The lead-in is an application display convention, not additional
+native LED telemetry. EA WRC instead supplies its own start/end range.
+The shared KT helper now supplies a nonzero range for WRC 7/9/Generations: equal
+endpoints previously sent the dashboard into its percentage fallback and skipped
+solid red. Tests execute the actual shared Lua helper with CLR and Lua values
+at every boundary. Native needle smoothing and cockpit animation are not copied.
+Captured samples immediately below/above the flash point were 7489.579 / 7500.075 RPM.
+
+Damage owner: participant+`0xc78`, vtable EXE+`0x1401488`, reciprocal vehicle at
++`0x40` and participant at +`0xf8`. Its bounded map uses head +`0xd0`, count
++`0xd8`, node part pointer +`0x28`. A part has name pointer +0, maximum life +8,
+**lost life** +12, warning/critical remaining-health thresholds +16/+20.
+Native `0x727540` accumulates lost life; `0x7287fc` derives severity from remaining
+health. Captured body/engine loss reached 33.22% / 60.39%, then returned to zero
+on restart. No tyre puncture was established; unsupported tyre/radiator indicators
+remain unavailable, not healthy. Turbo and steering retain their named components
+even where dashboard artwork has no dedicated indicator.
+
+Damage announcements use the existing application setting, queue and cooldown:
+engine warnings on native severity increases, collision warnings for a body-life
+loss of at least 1% between advancing samples at most 500 ms apart. Collision
+severity bands (1%/5%/15%) are an application policy, not native severity values.
+Attachment, pause, missing data, repair, restart and owner changes establish a
+fresh baseline. Existing damage is never announced merely because it was read.
+Other mechanical damage is available to dashboards; there are no dedicated shared
+voice tokens for gearbox, suspension, steering or turbo failures.
+
+Regression fixtures contain only selected numeric telemetry and named damage
+values. They exclude pointers, raw memory, game assets and unrelated process data.
+`wrc9-vehicle-damage-20261016.json` preserves raw values for decoder checks;
+`wrc9-damage-restart-20261016.json` preserves production damage/lifecycle edges
+with adjacent samples and replays five new collision events after restart.
 
 Protected integers use the index at field+8 and the mask
 `((uint)(field + 8) + index) * 0x159a55e5 + 0x159ae628` (unchecked), replacing

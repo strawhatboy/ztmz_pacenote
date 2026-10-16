@@ -157,6 +157,13 @@ internal static class Wrc9SessionMemory
         if (native.TimerEnded && !native.TimerFailed && native.ProfileReady && !native.ProfileFailed && raw > 0 &&
             recordedRaw == raw && (long)raw + penalty == recordedTotal) final = recordedTotal;
         var data = ReadVehicle(read, imageBase, physicsBase, participant, (final ?? raw) / 1000f);
+        data.Time = raw / 1000f;
+        data = ReadProgress(read, imageBase, race, timer, data);
+        // HUD setup 0x3f966d passes HudRedRpm to 0x40ea00; its red-zone
+        // threshold is compared at 0x411a64. The shared helper adds ZTMZ's
+        // progressive display lead-in; this is not a native LED start value.
+        try { if (data.MaxRPM > 0) data = KtShiftLights.ApplyWarning(data, Integer(car + 0x15c)); }
+        catch (IOException) { } // Optional HUD metadata must not discard a valid clock.
         if (Pointer(imageBase + 0x1a4e820) != manager || Pointer(manager + 0x48) != race || Pointer(imageBase + 0x1b024e8) != race ||
             Integer(manager + 0x1124) != 1 || read(manager + 0x1130, 1)[0] != 0 || Pointer(manager + 0x1128) != profile ||
             Pointer(manager + 0xbc8) != stage || Pointer(manager + 0xbd0) != rally || Pointer(profile + 0x30) != car ||
@@ -183,43 +190,68 @@ internal static class Wrc9SessionMemory
         return null;
     }
 
-    private static GameData ReadVehicle(Func<ulong, int, byte[]> read, ulong imageBase, ulong physicsBase, ulong participant, float time)
+    internal static GameData ReadProgress(Func<ulong, int, byte[]> read, ulong image, ulong race, ulong timer, GameData data)
+    {
+        try
+        {
+            ulong Pointer(ulong p) => BinaryPrimitives.ReadUInt64LittleEndian(read(p, 8));
+            int Integer(ulong p) => BinaryPrimitives.ReadInt32LittleEndian(read(p, 4));
+            float Single(ulong p) => BinaryPrimitives.ReadSingleLittleEndian(read(p, 4));
+            // Native route-length getter 0xf5cc30 and progress getter 0x67f470.
+            // Only the verified single-lap case is supported.
+            if (Pointer(timer) != image + 0x13f6f98 || Integer(race + 0x808) != 1) return data;
+            var count = Integer(race + 0x844); var index = Integer(timer + 0x70);
+            if (count is < 1 or > 128 || index < 0 || index >= count) return data;
+            var routes = Pointer(race + 0x848);
+            var reference = Pointer(routes + (ulong)index * 16 + 8);
+            var route = Pointer(reference + 0x38); var shape = Pointer(route + 0x178);
+            var length = Single(shape + 0x8c); var distance = Single(timer + 0x88);
+            if (Pointer(race + 0x848) != routes || Integer(race + 0x844) != count || Integer(timer + 0x70) != index ||
+                Pointer(routes + (ulong)index * 16 + 8) != reference || Pointer(reference + 0x38) != route || Pointer(route + 0x178) != shape ||
+                Integer(race + 0x808) != 1) return data;
+            return Wrc9VehicleTelemetry.DecodeProgress(length, distance, data);
+        }
+        catch (IOException) { return data; }
+    }
+
+    internal static GameData ReadVehicle(Func<ulong, int, byte[]> read, ulong imageBase, ulong physicsBase, ulong participant, float time)
     {
         var data = new GameData { LapTime = time, TimeStamp = DateTime.Now };
         try
         {
             ulong Pointer(ulong p) => BinaryPrimitives.ReadUInt64LittleEndian(read(p, 8));
             int Integer(ulong p) => BinaryPrimitives.ReadInt32LittleEndian(read(p, 4));
-            float Single(ulong p) => BinaryPrimitives.ReadSingleLittleEndian(read(p, 4));
             var vehicle = Pointer(participant + 0x70);
             if (vehicle == 0 || Pointer(vehicle) != imageBase + 0x13feda8 || Pointer(vehicle + 0x60) != participant) return data;
             var drive = Pointer(vehicle + 0x80);
             if (drive == 0) return data;
-            var gear = Integer(drive + 0x128); var omega = Single(drive + 0x134); var maxOmega = Single(drive + 0x448);
-            if (gear is >= 0 and <= 12 && float.IsFinite(omega) && omega is >= 0 and < 3000 && float.IsFinite(maxOmega) && maxOmega is > 100 and < 3000)
-            { data.Gear = gear - 1; data.RPM = omega * 60 / (2 * MathF.PI); data.MaxRPM = maxOmega * 60 / (2 * MathF.PI); }
-            // WRC9 debug HUD 0xf9d835 explicitly labels channels 2/1/0 as
-            // handbrake/brake/throttle. Steering sign remains unverified.
-            var controls = read(drive + 0xe0, 12);
-            for (var i = 0; i < 3; i++)
+            var driveBytes = read(drive, 0x538);
+            data = Wrc9VehicleTelemetry.DecodeDrive(driveBytes, data);
+            try
             {
-                var value = BinaryPrimitives.ReadSingleLittleEndian(controls.AsSpan(i * 4));
-                if (!float.IsFinite(value) || value is < 0 or > 1) continue;
-                if (i == 0) data.Throttle = value;
-                else if (i == 1) data.Brake = value;
-                else { data.HandBrake = value; data.HandBrakeValid = true; }
+                var query = Pointer(vehicle + 0x88); var config = Pointer(drive + 0x30); var dynamics = Pointer(drive + 0x60);
+                var wheels = Wrc9VehicleTelemetry.DecodeWheels(read(vehicle, 0x1208), driveBytes,
+                    read(query, 0x280), read(config + 0x1c0, 0xc0), read(dynamics, 0x20), data);
+                if (Pointer(vehicle + 0x88) == query && Pointer(drive + 0x30) == config && Pointer(drive + 0x60) == dynamics) data = wheels;
             }
-            var body = Pointer(drive + 0xc0);
-            if (physicsBase != 0 && body != 0 && Pointer(body) == physicsBase + 0x176820)
+            catch (IOException) { }
+            data.CarDamage = Wrc9Damage.Read(read, imageBase, participant, vehicle)!;
+            try
             {
-                // Verified PhysX getters 0xe1d0, 0xda30 and 0x2cfd0.
-                var local = (Integer(body + 0x17c) & 0x200) != 0 ? Pointer(body + 0x70) + 0xe0 : body + 0xb0;
-                data = Wrc7VehicleTelemetry.DecodeMotion(read(body + 0x140, 40), read(local, 28), data);
+                var body = Pointer(drive + 0xc0);
+                if (physicsBase != 0 && body != 0 && Pointer(body) == physicsBase + 0x176820)
+                {
+                    // Verified PhysX getters 0xe1d0, 0xda30 and 0x2cfd0.
+                    var local = (Integer(body + 0x17c) & 0x200) != 0 ? Pointer(body + 0x70) + 0xe0 : body + 0xb0;
+                    var motion = Wrc7VehicleTelemetry.DecodeMotion(read(body + 0x140, 40), read(local, 28), data);
+                    if (Pointer(drive + 0xc0) == body) data = motion;
+                }
             }
+            catch (IOException) { }
             if (Pointer(participant + 0x70) != vehicle || Pointer(vehicle + 0x60) != participant || Pointer(vehicle + 0x80) != drive)
                 return new() { LapTime = time, TimeStamp = DateTime.Now };
         }
-        catch (IOException) { }
+        catch (IOException) { return new() { LapTime = time, TimeStamp = DateTime.Now }; }
         return data;
     }
 }

@@ -33,8 +33,8 @@ public sealed class Wrc9GameDataReader : IGameDataReader
     public event Action<bool>? onGameDataAvailabilityChanged;
     public event Action<GameStateChangeEvent>? onGameStateChanged;
     public event Action<LivePacenoteEvent>? onLivePacenote;
-    // WRC9 damage/reset signals are not yet verified.
-    public event Action<CarDamageEvent>? onCarDamaged { add { } remove { } }
+    public event Action<CarDamageEvent>? onCarDamaged;
+    // Manual car-reset signals remain unverified.
     public event Action? onCarReset { add { } remove { } }
 
     public bool Initialize(IGame game)
@@ -78,6 +78,7 @@ public sealed class Wrc9GameDataReader : IGameDataReader
                             live = receiver; listening.TrySetResult();
                         }
                         var session = new Wrc9RaceSession();
+                        var damageEvents = new Wrc9DamageEvents();
                         var available = false;
                         var vehicleTelemetryAvailable = false;
                         while (!lifetime.IsCancellationRequested && !process.HasExited)
@@ -114,6 +115,7 @@ public sealed class Wrc9GameDataReader : IGameDataReader
                                 }
                                 else GameState = nextState;
                                 if (current is not null) onNewGameData?.Invoke(LastGameData, CurrentGameData);
+                                foreach (var damage in damageEvents.Update(current, nextState, session.IsNewSession)) onCarDamaged?.Invoke(damage);
                             }
                             await Task.Delay(50, lifetime.Token);
                         }

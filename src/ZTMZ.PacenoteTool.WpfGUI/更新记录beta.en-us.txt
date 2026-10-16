@@ -1,7 +1,9 @@
 v2.99.99.56-3.0-rc28
 
 * Adds experimental WRC 9 support for the verified Windows Steam build in WPF and Avalonia, including live pacenotes, countdown calls, basic telemetry and in-game dashboards, with normal finish, penalty and retirement detection.
-* WRC 9 voice playback requires enabling and connecting the voice bridge after each game launch; enabling the dashboard alone does not connect it. Original game speech remains enabled, and some pacenotes and advanced telemetry are not yet supported.
+* WRC 9 voice playback requires enabling and connecting the voice bridge after each game launch; enabling the dashboard alone does not connect it. Original game speech remains enabled; some pacenotes, tyre punctures and manual car-reset events are not yet supported.
+* Expands WRC 9 telemetry with steering, clutch, gear/RPM limits, shift warning, stage progress, four wheel speeds, brake temperatures, suspension and G forces. Adds body/mechanical damage displays and collision/engine damage calls, without repeating existing damage after pause, restart or reconnection.
+* Fixes shift-light progression in WRC 7, WRC 9 and WRC Generations: green/yellow/red cover the final 1000 RPM before the native warning point, with flashing red at that point instead of skipping solid red.
 * Adds settings search in the title bar to quickly find and open relevant settings.
 * Checks installed co-driver voice packages for updates at startup and shows update badges on the co-driver navigation entry and affected packages.
 * Adds update counts and badges for game Mods, with guidance for updating older Mods managed by JSGME.
