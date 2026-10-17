@@ -43,10 +43,14 @@
                 "glassRefraction": "Edge displacement in dashboard pixels. Requires native in-game rendering and a readable game backdrop.",
                 "glassBlur": "Background diffusion in dashboard pixels. Requires native in-game rendering and a readable game backdrop.",
                 "glassEnabled": "Apply refraction to this dashboard’s panels. Disable to skip its backdrop capture and glass shader. Unsupported surfaces use a translucent tint.",
-                "glassOpacity": "Panel tint from transparent (0) to opaque (1); applies to the fallback too."
+                "glassOpacity": "Panel tint from transparent (0) to opaque (1); applies to the fallback too.",
+                "turboGaugeMaxBar": "Upper end of the fixed gauge-pressure scale; minimum is -1 bar. Default 4 matches the DR2 HUD. This is a display scale, not a warning threshold.",
+                "turboAbsoluteMaxBar": "Upper end of the fixed absolute-pressure scale; minimum is 0 bar abs. Does not convert absolute pressure into boost. This is a display scale, not a warning threshold."
             },
             "glassEnabled": "Enable glass effect",
-            "glassOpacity": "Glass tint opacity"
+            "glassOpacity": "Glass tint opacity",
+            "turboGaugeMaxBar": "Turbo gauge maximum (bar)",
+            "turboAbsoluteMaxBar": "Intake gauge maximum (bar abs)"
         }
     }
 }

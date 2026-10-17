@@ -7,6 +7,112 @@ public class LiquidGlassDashboardTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
+    public void ShiftLightsFillOneByOneAndDropImmediatelyWithRpm(bool providerRange)
+    {
+        using var lua = new Lua(); var env = Load(lua); var data = Sample();
+        data.ShiftLightsRPMValid = providerRange;
+        data.ShiftLightsRPMStart = 6000; data.ShiftLightsRPMEnd = 7800;
+        var start = providerRange ? 6000f : 4000f;
+        var end = providerRange ? 7800f : 7200f;
+        data.Time = 0;
+        foreach (var portable in new[] { true, false })
+        {
+            for (var count = 0; count <= 18; count++)
+            {
+                data.RPM = count == 0 ? start - 1 : start + (count - .5f) / 18 * (end - start);
+                env.CallMember("render", data, portable);
+                Assert.Equal(new string('G', Math.Min(count, 6))
+                    + new string('Y', Math.Clamp(count - 6, 0, 6))
+                    + new string('R', Math.Max(count - 12, 0)) + new string('.', 18 - count),
+                    (string)env.CallMember("shiftLights")[0]);
+            }
+            data.RPM = start;
+            env.CallMember("render", data, portable);
+            Assert.Equal("G.................", (string)env.CallMember("shiftLights")[0]);
+        }
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void ShiftPointFlashesAllLightsRedAndInvalidRpmClearsThem(bool providerRange)
+    {
+        using var lua = new Lua(); var env = Load(lua); var data = Sample();
+        data.ShiftLightsRPMValid = providerRange;
+        data.ShiftLightsRPMStart = 6000; data.ShiftLightsRPMEnd = 7800;
+        data.RPM = providerRange ? 7800 : 7200;
+        data.Time = 0;
+        env.CallMember("render", data, true);
+        Assert.Equal(new string('R', 18), (string)env.CallMember("shiftLights")[0]);
+        data.Time = .125f;
+        env.CallMember("render", data, true);
+        Assert.Equal(new string('.', 18), (string)env.CallMember("shiftLights")[0]);
+        foreach (var rpm in new[] { 0, -1, float.NaN, float.PositiveInfinity })
+        {
+            data.RPM = rpm;
+            env.CallMember("render", data, true);
+            Assert.Equal(new string('.', 18), (string)env.CallMember("shiftLights")[0]);
+        }
+    }
+
+    [Theory]
+    [InlineData(-1, true)]
+    [InlineData(-.99, true)]
+    [InlineData(-.98, false)]
+    [InlineData(-.5, false)]
+    [InlineData(0, false)]
+    [InlineData(.5, false)]
+    [InlineData(.98, false)]
+    [InlineData(.99, true)]
+    [InlineData(1, true)]
+    public void ForceFeedbackPreservesSignAndZeroWithoutChangingPanelBounds(double output, bool atLimit)
+    {
+        using var lua = new Lua(); var env = Load(lua); var data = Sample();
+        foreach (var portable in new[] { true, false })
+        {
+            data.ForceFeedback = null;
+            var empty = RenderBounds(env, data, portable);
+            data.Steering = .25f;
+            data.ForceFeedback = new("test", default) { OutputFraction = (float)output };
+            var state = Assert.IsType<LuaTable>(env.CallMember("getForceFeedbackDisplayState", data)[0]);
+            Assert.Equal(output, Convert.ToDouble(state["output"]), 5);
+            Assert.Equal(Math.Abs(output), Convert.ToDouble(state["magnitude"]), 5);
+            Assert.Equal(empty, RenderBounds(env, data, portable));
+            Assert.DoesNotContain("FFB", (string)env.CallMember("render", data, portable)[0]);
+            Assert.Equal(output, Convert.ToDouble(env["forceFeedbackMarkerOutput"]), 5);
+            Assert.Equal(output == 0 ? 2 : 3, Convert.ToInt32(env["forceFeedbackLineCount"]));
+            Assert.Equal(atLimit ? "255,204,115" : "247,251,255", env["forceFeedbackColor"]);
+            Assert.True((bool)env.CallMember("forceFeedbackInsidePanel")[0]);
+            Assert.True((bool)env.CallMember("steeringSharesForceFeedbackTrack", data.Steering)[0]);
+
+            data.ForceFeedback = null;
+            Assert.DoesNotContain("FFB", (string)env.CallMember("render", data, portable)[0]);
+            Assert.Equal(0, Convert.ToInt32(env["forceFeedbackLineCount"]));
+            Assert.Null(env.CallMember("getForceFeedbackDisplayState", data)[0]);
+            Assert.Equal(empty, RenderBounds(env, data, portable));
+        }
+    }
+
+    [Theory]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    [InlineData(double.NegativeInfinity)]
+    [InlineData(-1.001)]
+    [InlineData(1.001)]
+    public void InvalidForceFeedbackHidesLabelAndTrackWithoutReservingSpace(double output)
+    {
+        using var lua = new Lua(); var env = Load(lua); var data = Sample();
+        var empty = RenderBounds(env, data);
+        data.ForceFeedback = new("test", default) { OutputFraction = (float)output };
+        Assert.Null(env.CallMember("getForceFeedbackDisplayState", data)[0]);
+        Assert.DoesNotContain("FFB", (string)env.CallMember("render", data, true)[0]);
+        Assert.Equal(0, Convert.ToInt32(env["forceFeedbackLineCount"]));
+        Assert.Equal(empty, RenderBounds(env, data));
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
     public void ClrSnapshotsRenderAndDisappearWithoutStaleReadings(bool portable)
     {
         using var lua = new Lua();
@@ -42,6 +148,54 @@ public class LiquidGlassDashboardTests
         if (reference != "gauge") Assert.DoesNotContain("TURBO / bar", text);
         data.Turbo = data.Turbo with { PressureBar = float.NaN };
         Assert.DoesNotContain(label, (string)env.CallMember("render", data, true)[0]);
+    }
+
+    [Theory]
+    [InlineData("gauge", -1, 240, 180)]
+    [InlineData("gauge", -.5, 210, 180)]
+    [InlineData("gauge", 1, 180, 120)]
+    [InlineData("gauge", 4, 180, -60)]
+    [InlineData("gauge", 9, 180, -60)] // Clamp drawing, preserve the actual number.
+    [InlineData("absolute", 1, 240, 180)]
+    [InlineData("absolute", 5, 240, -60)]
+    public void TurboArcUsesTheCorrectReferenceAndStableScale(string reference, float pressure, double startDegrees, double endDegrees)
+    {
+        using var lua = new Lua(); var env = Load(lua); var data = Sample();
+        data.Hybrid = null; data.Engine = null; data.CarDamage = null;
+        data.Turbo = new("test", default) { PressureBar = pressure, PressureReference = reference };
+        foreach (var portable in new[] { true, false })
+        {
+            var bounds = RenderBounds(env, data, portable);
+            var text = (string)env.CallMember("render", data, portable)[0];
+            Assert.Contains(pressure.ToString("F2", System.Globalization.CultureInfo.InvariantCulture), text);
+            var arc = env.CallMember("pressureArc");
+            Assert.Equal(startDegrees, Convert.ToDouble(arc[0]), 4);
+            Assert.Equal(endDegrees, Convert.ToDouble(arc[1]), 4);
+            data.Turbo = data.Turbo with { PressureBar = 0 };
+            Assert.Equal(bounds, RenderBounds(env, data, portable));
+            Assert.Null(env.CallMember("pressureArc")[0]);
+            data.Turbo = data.Turbo with { PressureBar = pressure };
+        }
+    }
+
+    [Fact]
+    public void TurboScaleConfigurationDoesNotConvertUnknownPressureOrFollowPeakValues()
+    {
+        using var lua = new Lua(); var env = Load(lua); var data = Sample();
+        data.Hybrid = null; data.Engine = null; data.CarDamage = null;
+        SetSetting(env, "turboGaugeMaxBar", 2);
+        data.Turbo = new("test", default) { PressureBar = 1, PressureReference = "gauge" };
+        env.CallMember("render", data, true);
+        var arc = env.CallMember("pressureArc");
+        Assert.Equal(140, Convert.ToDouble(arc[0]), 4);
+        Assert.Equal(40, Convert.ToDouble(arc[1]), 4);
+        data.Turbo = data.Turbo with { PressureReference = "unknown" };
+        Assert.Contains("PRESSURE / bar", (string)env.CallMember("render", data, true)[0]);
+        Assert.Null(env.CallMember("pressureArc")[0]);
+        SetSetting(env, "turboGaugeMaxBar", double.NaN);
+        data.Turbo = data.Turbo with { PressureReference = "gauge" };
+        env.CallMember("render", data, true);
+        Assert.Equal(120, Convert.ToDouble(env.CallMember("pressureArc")[1]), 4);
     }
 
     [Fact]
@@ -327,8 +481,13 @@ public class LiquidGlassDashboardTests
                     if c.R==255 and c.G==69 and c.B==86 then redIconLines=redIconLines+1 end
                 end,FillGeometry=noop,FillRectangle=noop,DrawRoundedRectangle=noop,
                 FillRoundedRectangle=function(brush,x1,y1,x2,y2)
-                    table.insert(roundedFills,bounds(brush,x1,y1,x2,y2))
-                end,FillCircle=noop,
+                    local fill=bounds(brush,x1,y1,x2,y2)
+                    fill.color=brush.Color
+                    table.insert(roundedFills,fill)
+                end,FillCircle=function(brush,x,y,radius)
+                    local c=brush.Color
+                    if c.R==255 and c.G==69 and c.B==86 then steeringMarker={x=x,y=y} end
+                end,
                 DrawGlassPanel=function(brush,x1,y1,x2,y2)
                     glassCalls=glassCalls+1;table.insert(glassPanels,bounds(brush,x1,y1,x2,y2))
                 end,
@@ -344,6 +503,52 @@ public class LiquidGlassDashboardTests
                 I18NLoader={ResolveByKey=function(key) return key end},
                 Config={HudShiftGreenZone=.5,HudShiftYellowZone=.7,HudShiftRedZone=.9},GameContext={}}
             onInit(args)
+            local originalGeo=drawGeo
+            function drawGeo(graphics,helper,cx,cy,first,last,outer,inner,arcSize,brush)
+                local c=brush.Color
+                if c.R==247 and c.G==251 and c.B==255 then
+                    pressureArcAngles={first*180/math.pi,last*180/math.pi}
+                end
+                originalGeo(graphics,helper,cx,cy,first,last,outer,inner,arcSize,brush)
+            end
+            function pressureArc()
+                if pressureArcAngles==nil then return nil end
+                return pressureArcAngles[1],pressureArcAngles[2]
+            end
+            local originalRail=drawForceFeedbackRail
+            function drawForceFeedbackRail(graphics,state,font,track,active,limit,background,x,y,width,size)
+                local spy={
+                    DrawLine=function(brush,x1,y1,x2,y2,thickness)
+                        forceFeedbackLineCount=forceFeedbackLineCount+1
+                        if forceFeedbackLineCount==3 then
+                            forceFeedbackMarkerOutput=(x2-(x+width/2))/(width/2)
+                            local c=brush.Color
+                            forceFeedbackColor=c.R..','..c.G..','..c.B
+                        end
+                        graphics.DrawLine(brush,x1,y1,x2,y2,thickness)
+                    end,
+                    drawTextWithBackgroundCentered=graphics.drawTextWithBackgroundCentered
+                }
+                if state~=nil then
+                    forceFeedbackMarkerOutput=0
+                    local c=active.Color
+                    forceFeedbackColor=c.R..','..c.G..','..c.B
+                end
+                originalRail(spy,state,font,track,active,limit,background,x,y,width,size)
+                forceFeedbackTrack={x=x,y=y,width=width}
+                forceFeedbackBounds={x=x,y=y-size*.5,right=x+width+size*.18,bottom=y+size*.5}
+            end
+            function steeringSharesForceFeedbackTrack(steering)
+                local track=forceFeedbackTrack
+                return steeringMarker~=nil and math.abs(steeringMarker.y-track.y)<.00001
+                    and math.abs(steeringMarker.x-(track.x+track.width*.5*(1+steering)))<.00001
+            end
+            function forceFeedbackInsidePanel()
+                local panel=glassPanels[1] or roundedFills[1]
+                local rail=forceFeedbackBounds
+                return rail.x>=panel.x and rail.y>=panel.y
+                    and rail.right<=panel.x+panel.width and rail.bottom<=panel.y+panel.height
+            end
             function setLanguage(culture,coolant)
                 args.I18NLoader={CurrentCultureName=culture,ResolveByKey=function(key)
                     if key=='dashboards.liquidGlass.labels.coolant' then return coolant end
@@ -358,6 +563,18 @@ public class LiquidGlassDashboardTests
                     LocalReplayComparison={Valid=true,DeltaAtCurrentProgress=value}}
             end
             function textY(value) return textPositions[value].y end
+            function shiftLights()
+                local lights={}
+                -- LED rectangles have a 10:6 aspect ratio; neither the panels nor
+                -- pedals match it. Inspect actual draw commands, including color.
+                for _,fill in ipairs(roundedFills) do
+                    if math.abs(fill.width/fill.height-10/6)<.00001 then
+                        local c=fill.color
+                        table.insert(lights,c.A==32 and '.' or (c.G==236 and 'G' or (c.G==204 and 'Y' or 'R')))
+                    end
+                end
+                return table.concat(lights)
+            end
             function mainBounds()
                 local main=glassPanels[1]
                 if main==nil then
@@ -383,7 +600,8 @@ public class LiquidGlassDashboardTests
                 return matches
             end
             function render(data,portable)
-                texts={};glassCalls=0;handbrakeColor='';glassPanels={};roundedFills={};redIconLines=0;textPositions={}
+                pressureArcAngles=nil;texts={};glassCalls=0;handbrakeColor='';glassPanels={};roundedFills={};redIconLines=0;textPositions={}
+                forceFeedbackLineCount=0;forceFeedbackMarkerOutput=nil;forceFeedbackColor=nil;forceFeedbackBounds=nil
                 args.GameData=data;args.IsWebDashboard=portable
                 onUpdate(args)
                 return table.concat(texts,'|')

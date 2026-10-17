@@ -39,6 +39,7 @@ function onInit(args)
     _brushes["white_transparent"] = gfx.CreateSolidBrush(255, 255, 255, 255*0.3);
     _brushes["red"] = gfx.CreateSolidBrush(255, 0, 0, 200);
     _brushes["grey"] = gfx.CreateSolidBrush(64, 64, 64);
+    _brushes["ffbLimit"] = gfx.CreateSolidBrush(255, 204, 115);
     _brushes["rpm_low"] = gfx.CreateSolidBrush(0x60, 0x9d, 0x51);
     _brushes["rpm_medium"] = gfx.CreateSolidBrush(0xd3, 0xa9, 0x5b);
     _brushes["delta_ahead"] = gfx.CreateSolidBrush(0, 128, 0);    -- 绿色
@@ -72,13 +73,13 @@ function onInit(args)
     );
     _brushes["brake"] = gfx.CreateSolidBrush(0xd2, 0x18, 0x1d, 255)
     _brushes["throttle"] = gfx.CreateSolidBrush(0xc3, 0xe1, 0x67, 255)
-    -- _brushes["clutch"] = gfx.CreateSolidBrush(0x2a, 0xb4, 0x5d, 255)
+    -- _brushes["clutch"] = gfx.CreateSolidBrush(112, 170, 255, 255)
     -- _brushes["hybrid"] = gfx.CreateSolidBrush(0x45, 0xf2, 0xee, 255)
     
     _brushes["hybridTrack"] = gfx.CreateSolidBrush(126, 154, 187, 120);
-    _brushes["hybridBattery"] = gfx.CreateSolidBrush(116, 220, 239, 255);
-    _brushes["hybridBoost"] = gfx.CreateSolidBrush(239, 201, 129, 255);
-    _brushes["hybridReady"] = gfx.CreateSolidBrush(155, 232, 184, 255);
+    _brushes["hybridBattery"] = gfx.CreateSolidBrush(225, 234, 242, 255);
+    _brushes["hybridBoost"] = gfx.CreateSolidBrush(166, 242, 250, 255);
+    _brushes["hybridReady"] = gfx.CreateSolidBrush(114, 218, 232, 255);
     _brushes["hybridRegen"] = gfx.CreateSolidBrush(116, 220, 239, 255);
     _brushes["hybridStandby"] = gfx.CreateSolidBrush(164, 179, 195, 220);
     _brushes["hybridUnknown"] = gfx.CreateSolidBrush(164, 179, 195, 220);
@@ -383,13 +384,19 @@ function drawGear(gfx, self, data, conf, helper, x, y, width, height, switchGear
 end
 
 function drawSteeringIndicator(gfx, self, data, helper, x, y, width, height)
-    local steeringInput = data.Steering;
+    local steeringInput = tonumber(data.Steering) or 0;
+    if steeringInput-steeringInput ~= 0 then steeringInput=0 end
+    steeringInput=math.max(-1,math.min(1,steeringInput));
     local indicatorRadius = height * 0.01; -- Adjust the size of the red dot
     local initY = y + height * 0.3;
     local centerX = x + width * 0.5;
     local arcWidth = width * 0.33;
     local arcHeight = height * 0.03; -- Adjust the height of the arc
     local centerY = initY - (arcHeight * (1 - (0 * 0))); -- Center position for the arc
+
+    drawForceFeedbackCurve(gfx, getForceFeedbackDisplayState(data),
+        resources.brushes.hybridTrack, resources.brushes.white, resources.brushes.ffbLimit,
+        centerX, centerY, arcWidth, arcHeight, height*.028);
 
     -- Draw the gray dot at the center
     gfx.FillCircle(resources["brushes"]["grey"], centerX, centerY, indicatorRadius);

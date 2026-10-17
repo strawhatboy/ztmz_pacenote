@@ -3,6 +3,8 @@
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
+#include <source_location>
+#include <sstream>
 #ifdef TEST_DX9
 #include <d3d9.h>
 #else
@@ -11,7 +13,12 @@
 #endif
 using Microsoft::WRL::ComPtr;
 void require(bool ok,const char* message){if(!ok)throw std::runtime_error(message);}
-void check(HRESULT hr){require(SUCCEEDED(hr),"Legacy graphics operation failed");}
+void check(HRESULT hr,const std::source_location location=std::source_location::current()) {
+    if(FAILED(hr)) {
+        std::ostringstream message;message<<"Legacy graphics operation failed at line "<<location.line()<<": HRESULT 0x"<<std::hex<<static_cast<unsigned long>(hr);
+        throw std::runtime_error(message.str());
+    }
+}
 int wmain(int argc,wchar_t** argv) {
     try {
         require(argc==2,"Expected fixture DLL");

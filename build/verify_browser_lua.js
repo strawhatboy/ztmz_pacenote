@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const fs = require('fs');
 const path = require('path');
@@ -201,6 +201,115 @@ const browserConfig = {
     FrameRate: 60
 };
 
+const steeringDashboards = ['classic_dashboard', 'modern_wrc_2025', 'modern_wrc_2025v2', 'liquid_glass'];
+
+// Run inside the actual browser Lua VM. Non-finite Lua values cannot be sent in JSON.
+const forceFeedbackProbe = `
+for _,value in ipairs({-1,-.99,-.5,0,.5,.99,1}) do
+    local state=getForceFeedbackDisplayState({ForceFeedback={OutputFraction=value}})
+    assert(state.output==value and state.magnitude==math.abs(value), 'FFB signed state')
+end
+for _,value in ipairs({-1.001,1.001,0/0,math.huge,-math.huge,'invalid',false}) do
+    assert(getForceFeedbackDisplayState({ForceFeedback={OutputFraction=value}})==nil, 'FFB invalid state')
+end
+assert(getForceFeedbackDisplayState(nil)==nil, 'FFB missing data')
+assert(getForceFeedbackDisplayState({})==nil, 'FFB missing snapshot')
+assert(getForceFeedbackDisplayState({ForceFeedback={}})==nil, 'FFB missing output')
+
+local originalRail=drawForceFeedbackRail
+local visibleRails=0
+function drawForceFeedbackRail(gfx,state,font,track,active,limit,background,x,y,width,size)
+    local lines,circles,labels={},{},{}
+    local spy={
+        DrawLine=function(...) table.insert(lines,{...});gfx.DrawLine(...) end,
+        FillCircle=function(...) table.insert(circles,{...});gfx.FillCircle(...) end,
+        drawTextWithBackgroundCentered=function(...) table.insert(labels,{...});gfx.drawTextWithBackgroundCentered(...) end
+    }
+    originalRail(spy,state,font,track,active,limit,background,x,y,width,size)
+    if state==nil then
+        assert(#lines==0 and #circles==0 and #labels==0, 'Unavailable FFB drew a placeholder')
+        return
+    end
+    visibleRails=visibleRails+1
+    assert(#lines==(state.output==0 and 2 or 3) and #circles==0 and #labels==0, 'FFB rail primitives')
+    for _,line in ipairs(lines) do
+        assert(line[6]>=1 and line[1].Color.A>0, 'FFB subpixel or invisible rail')
+    end
+    assert(lines[1][2]==x and lines[1][4]==x+width, 'FFB track bounds')
+    local center=x+width/2
+    assert(lines[2][2]==center and lines[2][4]==center, 'FFB center tick')
+    local endpoint=center+width/2*state.output
+    if state.output~=0 then
+        assert(lines[3][2]==center and math.abs(lines[3][4]-endpoint)<.00001, 'FFB signed fill')
+    end
+    local color=lines[#lines][1].Color
+    local expected=(state.magnitude>=.99 and limit or active).Color
+    assert(color.R==expected.R and color.G==expected.G and color.B==expected.B, 'FFB output-limit color')
+    local margin=math.max(1,size*.5)
+    assert(x-size*3.5>=0 and x+width+math.max(1,size*.18)<=gfx.Width and y-margin>=0 and y+margin<=gfx.Height,
+        'FFB outside canvas')
+end
+local originalArc=drawForceFeedbackArc
+function drawForceFeedbackArc(gfx,state,font,track,active,limit,background,x,y,radius,size)
+    local lines,labels={},{}
+    local spy={
+        DrawLine=function(...) table.insert(lines,{...});gfx.DrawLine(...) end,
+        drawTextWithBackgroundCentered=function(...) table.insert(labels,{...});gfx.drawTextWithBackgroundCentered(...) end
+    }
+    originalArc(spy,state,font,track,active,limit,background,x,y,radius,size)
+    if state==nil then
+        assert(#lines==0 and #labels==0, 'Unavailable FFB drew an arc')
+        return
+    end
+    visibleRails=visibleRails+1
+    assert(#labels==0, 'FFB arc has unwanted text')
+    local fills={}
+    for _,line in ipairs(lines) do
+        assert(line[6]>=1, 'FFB arc subpixel stroke')
+        if line[1]~=track and line[2]~=line[4] then table.insert(fills,line) end
+        for _,i in ipairs({2,4}) do assert(line[i]>=0 and line[i]<=gfx.Width, 'FFB arc horizontal bounds') end
+        for _,i in ipairs({3,5}) do assert(line[i]>=0 and line[i]<=gfx.Height, 'FFB arc vertical bounds') end
+    end
+    if state.output==0 then assert(#fills==0, 'Zero FFB filled an arc')
+    else
+        assert(#fills>0 and math.abs(fills[1][2]-x)<.00001, 'FFB arc starts at center')
+        local last=fills[#fills]
+        local angle=math.pi*5/6*state.output
+        assert(math.abs(last[4]-(x+radius*math.sin(angle)))<.00001 and
+            math.abs(last[5]-(y-radius*math.cos(angle)))<.00001, 'FFB signed arc endpoint')
+        assert(last[1]==(state.magnitude>=.99 and limit or active), 'FFB arc limit color')
+    end
+end
+local originalCurve=drawForceFeedbackCurve
+function drawForceFeedbackCurve(gfx,state,track,active,limit,x,y,halfWidth,height,size)
+    local lines={}
+    local spy={DrawLine=function(...) table.insert(lines,{...});gfx.DrawLine(...) end}
+    originalCurve(spy,state,track,active,limit,x,y,halfWidth,height,size)
+    if state==nil then assert(#lines==0,'Unavailable FFB drew a curve');return end
+    visibleRails=visibleRails+1
+    local fills={}
+    for _,line in ipairs(lines) do
+        assert(line[6]>=1,'FFB curve subpixel stroke')
+        if line[1]~=track then table.insert(fills,line) end
+    end
+    if state.output==0 then assert(#fills==0,'Zero FFB filled a curve')
+    else
+        local last=fills[#fills]
+        assert(#fills>0 and math.abs(fills[1][2]-x)<.00001,'FFB curve starts at center')
+        assert(math.abs(last[4]-(x+halfWidth*state.output))<.00001 and
+            math.abs(last[5]-(y+height*state.output*state.output))<.00001,'FFB curve signed endpoint')
+        assert(last[1]==(state.magnitude>=.99 and limit or active),'FFB curve limit color')
+    end
+end
+local originalUpdate=onUpdate
+function onUpdate(args)
+    visibleRails=0
+    originalUpdate(args)
+    local expected=args.GameData.TestExpectedForceFeedback
+    if expected~=nil then assert(visibleRails==expected, 'FFB availability/steering switch') end
+end
+`;
+
 async function verifyDashboard(folder, id, commonScripts) {
     const scriptPath = path.join(dashboardsRoot, folder, 'script.lua');
     const descriptor = readDescriptor(folder);
@@ -213,7 +322,8 @@ async function verifyDashboard(folder, id, commonScripts) {
         layerStack: () => ({ appendChild() {} }),
         fetchPackage: async () => ({
             supportsWebDashboardClientLua: descriptor.SupportsWebDashboardClientLua,
-            luaScript: fs.readFileSync(scriptPath, 'utf8'),
+            luaScript: fs.readFileSync(scriptPath, 'utf8') +
+                (steeringDashboards.includes(folder) ? forceFeedbackProbe : ''),
             commonScripts,
             imageResources: {},
             pacenoteIconTokenMap: {
@@ -303,6 +413,59 @@ async function verifyDashboard(folder, id, commonScripts) {
                     'dashboards.settings.switchGearNSpeed': !settings['dashboards.settings.switchGearNSpeed'] });
             if (!zero.includes('0%')) throw new Error(`${folder}: zero charge was treated as unavailable.`);
         }
+    }
+    if (steeringDashboards.includes(folder)) {
+        let revision = 100;
+        const settings = readSettings(folder);
+        const switchKey = folder === 'classic_dashboard' ? 'showSteering' : 'showSteeringIndicator';
+        const drawFeedback = async (snapshot, visible, changedSettings) => {
+            const nextFrame = renderedFrames + 1;
+            renderedTextLines = [];
+            renderedTextRectangles = [];
+            const data = { ...telemetry, TestExpectedForceFeedback: visible ? 1 : 0 };
+            if (snapshot !== undefined) data.ForceFeedback = snapshot;
+            manager.handleTelemetry({
+                sceneRevision: 1, data, context: telemetryContext,
+                ...(changedSettings ? { dashboards: [{ id, order: id, configurationRevision: ++revision,
+                    settings: { ...settings, ...changedSettings } }] } : {})
+            });
+            await waitFor(() => renderedFrames >= nextFrame || failures.length > 0,
+                `${folder}: FFB frame did not render.`);
+            if (failures.length) throw new Error(`${folder}: ${failures.join(' | ')}`);
+            const shown = renderedTextLines.some(line => line.text.trim() === 'FFB');
+            if (shown) throw new Error(`${folder}: FFB label should be absent.`);
+            return renderedTextRectangles.reduce((largest, rectangle) =>
+                !largest || rectangle.width * rectangle.height > largest.width * largest.height
+                    ? rectangle : largest, null);
+        };
+        const emptyBounds = await drawFeedback(undefined, false, {});
+        for (const output of [-1, -.99, -.989, -.5, 0, .5, .989, .99, 1]) {
+            const bounds = await drawFeedback({ OutputFraction: output }, true);
+            if (folder === 'classic_dashboard' && (!emptyBounds || JSON.stringify(bounds) !== JSON.stringify(emptyBounds))) {
+                throw new Error('classic_dashboard: FFB added space outside the existing instrument cells.');
+            }
+        }
+        for (const snapshot of [undefined, null, {}, { OutputFraction: null },
+            { OutputFraction: -1.001 }, { OutputFraction: 1.001 }, { OutputFraction: 'invalid' }]) {
+            await drawFeedback(snapshot, false);
+        }
+        if (folder !== 'liquid_glass') {
+            await drawFeedback({ OutputFraction: .5 }, false, { [`dashboards.settings.${switchKey}`]: false });
+        }
+        // Classic's six square cells must fit the existing 1280x720 canvas.
+        for (const size of [.1, folder === 'classic_dashboard' ? .24 : .32]) {
+            for (const position of [-1, 0, 1]) {
+                await drawFeedback({ OutputFraction: -.5 }, true, {
+                    'dashboards.settings.size': size,
+                    'dashboards.settings.positionH': position,
+                    'dashboards.settings.positionV': position,
+                    'dashboards.settings.switchGearNSpeed': true
+                });
+            }
+        }
+        // Remove on the same runtime after rendering, then restore a valid zero.
+        await drawFeedback(undefined, false);
+        await drawFeedback({ OutputFraction: 0 }, true);
     }
     manager.suspend();
 

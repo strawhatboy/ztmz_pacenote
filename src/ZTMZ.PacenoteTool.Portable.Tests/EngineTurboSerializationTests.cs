@@ -40,6 +40,33 @@ public sealed class EngineTurboSerializationTests
         Assert.False(empty.RootElement.GetProperty("data").TryGetProperty("Turbo", out _));
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ForceFeedbackWirePathsPreserveSignAndZeroAndOmitUnavailableOrInvalid(bool browserLua)
+    {
+        using var server = new WebDashboardServer { Port = 0, LoopbackOnly = true };
+        server.Initialize([], AppContext.BaseDirectory, AppContext.BaseDirectory);
+        server.Start();
+        var now = DateTimeOffset.UtcNow;
+        foreach (var output in new[] { -.5f, 0f, 1f })
+        {
+            using var scene = await Receive(server, new()
+            { ForceFeedback = new("ACR", now) { OutputFraction = output } }, browserLua);
+            var wire = scene.RootElement.GetProperty("data").GetProperty("ForceFeedback");
+            Assert.Equal(output, wire.GetProperty("OutputFraction").GetSingle());
+            Assert.Equal(now, wire.GetProperty("CapturedAtUtc").GetDateTimeOffset());
+        }
+        foreach (var output in new[] { float.NaN, float.PositiveInfinity, -1.01f })
+        {
+            using var scene = await Receive(server, new()
+            { ForceFeedback = new("ACR", now) { OutputFraction = output } }, browserLua);
+            Assert.False(scene.RootElement.GetProperty("data").TryGetProperty("ForceFeedback", out _));
+        }
+        using var missing = await Receive(server, default, browserLua);
+        Assert.False(missing.RootElement.GetProperty("data").TryGetProperty("ForceFeedback", out _));
+    }
+
     private static async Task<JsonDocument> Receive(WebDashboardServer server, GameData data, bool browserLua)
     {
         using var socket = new ClientWebSocket();

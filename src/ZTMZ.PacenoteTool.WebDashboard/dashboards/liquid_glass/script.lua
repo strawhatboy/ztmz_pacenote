@@ -10,6 +10,24 @@ local function fraction(value)
     return math.max(0, math.min(1, number(value) or 0));
 end
 
+-- Eighteen independent LEDs across the car's shift-light range. When the
+-- provider has no range, use the configured green-to-red RPM thresholds.
+local function shiftLightState(data, config)
+    local rpm=number(data.RPM);
+    if rpm == nil or rpm <= 0 then return 0,false end
+    local start,finish=number(data.ShiftLightsRPMStart),number(data.ShiftLightsRPMEnd);
+    if not (data.ShiftLightsRPMValid and start ~= nil and finish ~= nil and start >= 0 and finish > start) then
+        local maximum=number(data.MaxRPM);
+        local green,red=number(config.HudShiftGreenZone),number(config.HudShiftRedZone);
+        if maximum == nil or maximum <= 0 or green == nil or red == nil
+            or green < 0 or red <= green then return 0,false end
+        start,finish=maximum*green,maximum*red;
+    end
+    if rpm < start then return 0,false end
+    if rpm >= finish then return 18,true end
+    return math.min(18,math.floor((rpm-start)/(finish-start)*18)+1),false;
+end
+
 local function refreshLabels(args)
     local culture=args.I18NLoader.CurrentCultureName;
     if resources.labels ~= nil and resources.labelCulture == culture then return end
@@ -58,6 +76,31 @@ local function ring(gfx, helper, brush, x, y, r, value, width)
         local sweep = span*fraction(value);
         drawGeo(gfx,helper,x,y,start,start-sweep,r,r-width,
             sweep > math.pi and ARCSIZE_LARGE or ARCSIZE_SMALL,brush);
+    end
+end
+
+-- Fixed, user-configured scales: never rescale from the current pressure.
+-- Gauge pressure fills away from zero in either direction; absolute pressure
+-- fills from zero. Keep unknown-reference values numeric instead of guessing.
+local function pressureGauge(gfx,helper,brushes,cx,cy,radius,scale,pressure,reference,maximum)
+    local minimum=reference=="gauge" and -1 or 0;
+    local start,span=4*math.pi/3,5*math.pi/3;
+    local function angle(value) return start-span*(value-minimum)/(maximum-minimum) end
+    drawGeo(gfx,helper,cx,cy,start,start-span,radius,radius-2*scale,ARCSIZE_LARGE,brushes.track);
+    local zero=angle(0);
+    local value=angle(math.max(minimum,math.min(maximum,pressure)));
+    local sweep=math.abs(value-zero);
+    if sweep>0.000001 then
+        drawGeo(gfx,helper,cx,cy,math.max(zero,value),math.min(zero,value),radius,radius-2.5*scale,
+            sweep>math.pi and ARCSIZE_LARGE or ARCSIZE_SMALL,brushes.white);
+    end
+    -- The zero tick separates vacuum from boost; the remaining ticks give scale.
+    for tick=math.ceil(minimum),math.floor(maximum) do
+        local a=angle(tick);
+        local inside=radius-(tick==0 and 5 or 3)*scale;
+        gfx.DrawLine(tick==0 and brushes.white or brushes.muted,
+            cx+inside*math.cos(a),cy-inside*math.sin(a),
+            cx+(radius+2*scale)*math.cos(a),cy-(radius+2*scale)*math.sin(a),math.max(1,scale));
     end
 end
 
@@ -189,12 +232,12 @@ function onUpdate(args)
         gfx.DrawRoundedRectangle(b.rim,tx(px),ty(py),tx(px+pw),ty(py+ph),r*s,s);
     end
     glass(0,0,width,panelHeight,24);
-    local level=getRPMLevel(data,args.Config);
-    local blink=level ~= 4 or math.floor((number(data.Time) or 0)*8)%2==0;
+    local lightCount,atShiftPoint=shiftLightState(data,args.Config);
+    local blink=not atShiftPoint or math.floor((number(data.Time) or 0)*8)%2==0;
     for i=0,17 do
         local brush=b.track;
-        if level>0 and i<math.min(level,3)*6 and blink then
-            brush=i<6 and b.green or (i<12 and b.amber or b.red);
+        if i<lightCount and blink then
+            brush=atShiftPoint and b.red or (i<6 and b.green or (i<12 and b.amber or b.red));
         end
         gfx.FillRoundedRectangle(brush,tx(106+i*14),ty(12),tx(116+i*14),ty(18),2*s);
     end
@@ -211,9 +254,18 @@ function onUpdate(args)
         if amount>0 then gfx.FillRoundedRectangle(p[3],tx(px),ty(100-62*amount),tx(px+8),ty(100),4*s) end
         text(p[1],px+4,112,9,b.muted,true);
     end
-    line(115,132,320,132,b.line,2);
-    line(217.5,128,217.5,136,b.muted);
-    gfx.FillCircle(b.white,tx(217.5+102.5*math.max(-1,math.min(1,number(data.Steering) or 0))),ty(132),2.5*s);
+    local feedback=getForceFeedbackDisplayState(data);
+    if feedback ~= nil then
+        drawForceFeedbackRail(gfx, feedback, resources.font,
+            b.line, b.white, b.amber, b.clear, tx(115), ty(132), 205*s, 7*s);
+    else
+        line(115,132,320,132,b.line,2);
+        line(217.5,128,217.5,136,b.muted);
+    end
+    -- Draw steering last so its red marker stays distinct over the FFB fill.
+    local steeringX=tx(217.5+102.5*math.max(-1,math.min(1,number(data.Steering) or 0)));
+    gfx.FillCircle(b.track,steeringX,ty(132),3.5*s);
+    gfx.FillCircle(b.red,steeringX,ty(132),2.5*s);
     if data.HandBrakeValid == true then
         local brush=(number(data.HandBrake) or 0)>0 and b.red or b.muted;
         gfx.DrawCircle(brush,tx(50),ty(131),9*s,1.4*s);
@@ -225,11 +277,11 @@ function onUpdate(args)
     if hybrid ~= nil then
         local px=nextColumn+42;
         line(nextColumn-8,36,nextColumn-8,137,b.line);
-        local active=({boost=b.amber,ready=b.green,regen=b.cyan,standby=b.muted,hybrid=b.muted})[hybrid.state];
-        ring(gfx,helper,b.cyan,tx(px),ty(72),29*s,hybrid.battery,2.5*s);
+        local active=({boost=b.cyan,ready=b.cyan,regen=b.cyan,standby=b.muted,hybrid=b.muted})[hybrid.state];
+        ring(gfx,helper,b.white,tx(px),ty(72),29*s,hybrid.battery,2.5*s);
         ring(gfx,helper,active,tx(px),ty(72),22*s,hybrid.progress,2.5*s);
         bolt(gfx,helper,active,tx(px),ty(72),17*s);
-        if hybrid.battery ~= nil then text(string.format("%.0f%%",hybrid.battery*100),px,112,18,b.cyan,true) end
+        if hybrid.battery ~= nil then text(string.format("%.0f%%",hybrid.battery*100),px,112,18,b.white,true) end
         local label=resources.labels[hybrid.state];
         if hybrid.map ~= nil then label=label.."  "..resources.labels.map..string.format("%.0f",hybrid.map) end
         text(label,px,132,9,active);
@@ -241,7 +293,21 @@ function onUpdate(args)
         local label=resources.labels.pressure;
         if turbo.PressureReference=="gauge" then label=resources.labels.turbo
         elseif turbo.PressureReference=="absolute" then label=resources.labels.absolute end
-        gfx.DrawCircle(b.track,tx(px),ty(72),32*s,1.5*s);
+        local reference=turbo.PressureReference;
+        if reference=="gauge" or reference=="absolute" then
+            local configured=number(setting(reference=="gauge" and "turboGaugeMaxBar" or "turboAbsoluteMaxBar"));
+            local maximum=reference=="gauge" and 4 or 5;
+            if configured ~= nil and configured>=1 and configured<=10 then maximum=configured end
+            pressureGauge(gfx,helper,b,tx(px),ty(72),32*s,s,pressure,reference,maximum);
+            text(reference=="gauge" and "-1" or "0",px-21,108,8,b.muted);
+            text(string.format("%g",maximum),px+21,108,8,b.muted);
+            if reference=="gauge" then
+                local zeroAngle=4*math.pi/3-5*math.pi/3/(maximum+1);
+                text("0",px+40*math.cos(zeroAngle),72-40*math.sin(zeroAngle),8,b.muted);
+            end
+        else
+            gfx.DrawCircle(b.track,tx(px),ty(72),32*s,1.5*s);
+        end
         text(string.format("%.2f",pressure),px,72,24,b.white,true);
         text(label,px,124,9,b.muted);
     end

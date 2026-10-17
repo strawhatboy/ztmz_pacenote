@@ -58,7 +58,7 @@ function onInit(args)
         -- red
         helper.getColor(0xfb, 0x21, 0x0d, 255)
     );
-    _brushes["clutch"] = gfx.CreateSolidBrush(210, 186, 27, 255)
+    _brushes["clutch"] = gfx.CreateSolidBrush(112, 170, 255, 255)
     
     local _fonts = {};
     _fonts["rpm"] = gfx.CreateCustomFont("WRC Clean Roman", 12);

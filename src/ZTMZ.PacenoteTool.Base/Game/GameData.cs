@@ -29,6 +29,8 @@ public struct GameData
     public bool HandBrakeValid;
 
     public float Steering;
+    /// <summary>Signed game-reported FFB output; null when unsupported/unavailable.</summary>
+    public ForceFeedbackTelemetrySnapshot ForceFeedback;
     public float Gear;
     public float MaxGears;
     public float RPM;

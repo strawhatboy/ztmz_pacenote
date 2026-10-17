@@ -14,7 +14,9 @@
         "dashboards.settings.glassBlur": "dashboards.settings.tooltip.glassBlur",
         "dashboards.settings.showLocalBest": "dashboards.settings.tooltip.showLocalBest",
         "dashboards.settings.glassEnabled": "dashboards.settings.tooltip.glassEnabled",
-        "dashboards.settings.glassOpacity": "dashboards.settings.tooltip.glassOpacity"
+        "dashboards.settings.glassOpacity": "dashboards.settings.tooltip.glassOpacity",
+        "dashboards.settings.turboGaugeMaxBar": "dashboards.settings.tooltip.turboGaugeMaxBar",
+        "dashboards.settings.turboAbsoluteMaxBar": "dashboards.settings.tooltip.turboAbsoluteMaxBar"
     },
     "PropertyValue": [
         false,
@@ -31,7 +33,9 @@
         4,
         true,
         true,
-        0.44
+        0.44,
+        4,
+        5
     ],
     "ValueRange": [
         [],
@@ -66,6 +70,14 @@
         [
             0,
             1
+        ],
+        [
+            1,
+            10
+        ],
+        [
+            1,
+            10
         ]
     ]
 }

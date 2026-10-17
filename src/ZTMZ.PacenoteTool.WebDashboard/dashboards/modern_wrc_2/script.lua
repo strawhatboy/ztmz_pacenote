@@ -57,15 +57,15 @@ function onInit(args)
     );
     _brushes["brake"] = gfx.CreateSolidBrush(0xd2, 0x18, 0x1d, 255)
     _brushes["throttle"] = gfx.CreateSolidBrush(0xc3, 0xe1, 0x67, 255)
-    _brushes["clutch"] = gfx.CreateSolidBrush(0x2a, 0xb4, 0x5d, 255)
+    _brushes["clutch"] = gfx.CreateSolidBrush(112, 170, 255, 255)
     _brushes["handbrake"] = gfx.CreateSolidBrush(0xff, 0x35, 0x40, 255)
     
     _brushes["panelFill"] = gfx.CreateSolidBrush(30, 42, 62, 102);
     _brushes["slotOutline"] = gfx.CreateSolidBrush(210, 214, 220, 200);
     _brushes["hybridTrack"] = gfx.CreateSolidBrush(92, 105, 115, 190);
-    _brushes["hybridBattery"] = gfx.CreateSolidBrush(32, 122, 116, 255);
-    _brushes["hybridBoost"] = gfx.CreateSolidBrush(206, 232, 107, 255);
-    _brushes["hybridReady"] = gfx.CreateSolidBrush(160, 224, 129, 255);
+    _brushes["hybridBattery"] = gfx.CreateSolidBrush(75, 85, 96, 255);
+    _brushes["hybridBoost"] = gfx.CreateSolidBrush(166, 242, 250, 255);
+    _brushes["hybridReady"] = gfx.CreateSolidBrush(114, 218, 232, 255);
     _brushes["hybridRegen"] = gfx.CreateSolidBrush(94, 224, 208, 255);
     _brushes["hybridStandby"] = gfx.CreateSolidBrush(164, 179, 195, 220);
     _brushes["hybridUnknown"] = gfx.CreateSolidBrush(164, 179, 195, 220);
@@ -205,7 +205,21 @@ function drawClutch(gfx, self, data, helper, x, y, width, height)
     local heightStart = y + height * 0.54;
 
     gfx.ClipRegionStart(widthStart, heightStart + clutchClipHeight, widthStart + clutchWidth, heightStart + clutchHeightTotal);
-    gfx.DrawImage(self.ImageResources["images@clutch"], widthStart, heightStart, widthStart + clutchWidth, heightStart + clutchHeightTotal);
+    -- Follow the original 71x145 curved segment column with blue vector
+    -- fills, so the clutch color is not baked into amber artwork.
+    local segments={{19,8,-10},{18,22,-4},{18,36,0},{19,50,3},{21,64,8},
+        {25,78,14},{30,91,20},{36,104,26},{43,116,31},{51,128,36},{60,139,40}};
+    for _,segment in ipairs(segments) do
+        local angle=segment[3]*math.pi/180;
+        local shape=gfx.CreateGeometry();
+        for index,p in ipairs({{-9,-5},{9,-5},{9,5},{-9,5}}) do
+            local px=segment[1]+p[1]*math.cos(angle)-p[2]*math.sin(angle);
+            local py=segment[2]+p[1]*math.sin(angle)+p[2]*math.cos(angle);
+            local point=helper.getPoint(widthStart+px/71*clutchWidth,heightStart+py/145*clutchHeightTotal);
+            if index==1 then shape.BeginFigure(point,true) else shape.AddPoint(point) end
+        end
+        shape.EndFigure();shape.Close();gfx.FillGeometry(shape,resources.brushes.clutch);shape.Dispose();
+    end
     gfx.ClipRegionEnd();
 end
 
@@ -330,6 +344,18 @@ local function drawHybridSlots(gfx, self, data, helper, x, y, width, height)
     local active = ({boost=b.hybridBoost, ready=b.hybridReady, regen=b.hybridRegen,
         standby=b.hybridStandby, hybrid=b.hybridUnknown})[state.state];
     local sx, sy = width / 1278, height / 352;
+    -- The narrow boost slot has no text label. Keep states distinguishable
+    -- within the cyan family: up=deploying, down=regenerating, ring=ready.
+    local stateX,stateY=x+551*sx,y+272.5*sy;
+    if state.state=="boost" or state.state=="regen" then
+        local direction=state.state=="boost" and -1 or 1;
+        gfx.DrawLine(active,stateX-4*sx,stateY-direction*2*sy,stateX,stateY+direction*2*sy,math.max(1,sy));
+        gfx.DrawLine(active,stateX,stateY+direction*2*sy,stateX+4*sx,stateY-direction*2*sy,math.max(1,sy));
+    elseif state.state=="ready" then
+        gfx.DrawCircle(active,stateX,stateY,3*sy,math.max(1,sy));
+    else
+        gfx.DrawLine(active,stateX-3*sx,stateY,stateX+3*sx,stateY,math.max(1,sy));
+    end
     local left, right = x + 566 * sx, x + 632 * sx;
     local top, bottom = y + 269 * sy, y + 276 * sy;
     gfx.FillRoundedRectangle(b.hybridTrack, left, top, right, bottom, 3 * sy);

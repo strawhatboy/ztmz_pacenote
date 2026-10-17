@@ -268,3 +268,66 @@ function getHybridDisplayState(data)
     if battery == nil and progress == nil and map == nil and state == "hybrid" then return nil end
     return { battery = battery, progress = progress, map = map, state = state };
 end
+
+-- Missing/invalid output is unavailable; zero is a valid centered reading.
+function getForceFeedbackDisplayState(data)
+    local feedback = data and data.ForceFeedback;
+    if feedback == nil then return nil end
+    -- Fengari exposes explicit JSON null as userdata rather than Lua nil.
+    if type(feedback) == "userdata" and tostring(feedback) == "null" then return nil end
+    local output = finiteNumber(feedback.OutputFraction);
+    if output == nil or output < -1 or output > 1 then return nil end
+    return { output = output, magnitude = math.abs(output) };
+end
+
+-- x/width bound the rail. The limit brush denotes normalized
+-- output at its limit, not physical torque or a claim of hardware clipping.
+function drawForceFeedbackRail(gfx, state, font, track, active, limit, background, x, y, width, size)
+    if state == nil then return end
+    local brush = state.magnitude >= .99 and limit or active;
+    local center = x + width * .5;
+    local endpoint = center + width * .5 * state.output;
+    -- Keep small dashboard scales from reducing the rail to subpixel strokes.
+    gfx.DrawLine(track, x, y, x + width, y, math.max(1, size * .18));
+    gfx.DrawLine(active, center, y - size * .3, center, y + size * .3, math.max(1, size * .12));
+    if state.magnitude > 0 then
+        gfx.DrawLine(brush, center, y, endpoint, y, math.max(1, size * .24));
+    end
+end
+
+-- Classic uses an outer arc centered at twelve o'clock: signed output sweeps
+-- left/right through 150 degrees. Segment lines work in every dashboard renderer.
+function drawForceFeedbackArc(gfx, state, font, track, active, limit, background, x, y, radius, size)
+    if state == nil then return end
+    local span=math.pi*5/6;
+    local function arc(brush, first, last, thickness)
+        local count=math.max(1,math.ceil(math.abs(last-first)*24));
+        for i=1,count do
+            local a=first+(last-first)*(i-1)/count;
+            local b=first+(last-first)*i/count;
+            gfx.DrawLine(brush,x+radius*math.sin(a),y-radius*math.cos(a),
+                x+radius*math.sin(b),y-radius*math.cos(b),thickness);
+        end
+    end
+    arc(track,-span,span,math.max(1,size*.18));
+    if state.magnitude>0 then arc(state.magnitude>=.99 and limit or active,0,span*state.output,math.max(1,size*.30)) end
+    gfx.DrawLine(active,x,y-radius-size*.2,x,y-radius+size*.2,math.max(1,size*.12));
+end
+
+-- Follow the WRC dashboards' original shallow steering curve. FFB stays on
+-- that path, behind the original red steering dot and its fading trail.
+function drawForceFeedbackCurve(gfx,state,track,active,limit,x,y,halfWidth,height,size)
+    if state == nil then return end
+    local function curve(brush,first,last,thickness)
+        local count=math.max(1,math.ceil(math.abs(last-first)*24));
+        for i=1,count do
+            local a=first+(last-first)*(i-1)/count;
+            local b=first+(last-first)*i/count;
+            gfx.DrawLine(brush,x+halfWidth*a,y+height*a*a,x+halfWidth*b,y+height*b*b,thickness);
+        end
+    end
+    curve(track,-1,1,math.max(1,size*.18));
+    if state.magnitude>0 then
+        curve(state.magnitude>=.99 and limit or active,0,state.output,math.max(1,size*.24));
+    end
+end

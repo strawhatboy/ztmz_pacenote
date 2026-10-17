@@ -2,6 +2,7 @@
 #include "graphics/dx9/backend.hpp"
 #include "graphics/render_session.hpp"
 #include "graphics/async_preparation.hpp"
+#include "hooks/rbr_dx9_device.hpp"
 #include <wrl/client.h>
 #include <MinHook.h>
 #include <atomic>
@@ -81,26 +82,38 @@ public:
     void stop() noexcept override {enabled_=false;std::lock_guard lock(mutex_);clear();}
     void install() override {
         if(installed_) return;instance_=this;
-        struct Window {HWND h=CreateWindowExW(0,L"STATIC",L"ZTMZ DX9 probe",WS_OVERLAPPEDWINDOW,0,0,128,128,nullptr,nullptr,GetModuleHandleW(nullptr),nullptr);~Window(){if(h) DestroyWindow(h);}} window;
-        if(!window.h) throw std::runtime_error("Cannot create DX9 probe window");
-        ComPtr<IDirect3D9> api;api.Attach(Direct3DCreate9(D3D_SDK_VERSION));if(!api) throw std::runtime_error("Cannot create D3D9");
+        // Do this before either Direct3DCreate9 variant: GaugerPlugin re-hooks
+        // CreateDevice on every API creation and can destroy its own trampoline.
+        const auto existing=existingRbrDx9Targets();
+        struct Window {HWND h=nullptr;~Window(){if(h) DestroyWindow(h);}} window;
+        ComPtr<IDirect3D9> api;
         D3DPRESENT_PARAMETERS p{};p.Windowed=TRUE;p.SwapEffect=D3DSWAPEFFECT_DISCARD;p.hDeviceWindow=window.h;
         // A tiny overlapped window can have a zero-sized client area. Do not
         // let D3D9 infer an invalid back buffer from that non-visible probe.
         p.BackBufferWidth=64;p.BackBufferHeight=64;
         ComPtr<IDirect3DDevice9> device;
-        if(FAILED(api->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,window.h,D3DCREATE_SOFTWARE_VERTEXPROCESSING,&p,&device))) throw std::runtime_error("Cannot create D3D9 probe device");
+        if(!existing) {
+            window.h=CreateWindowExW(0,L"STATIC",L"ZTMZ DX9 probe",WS_OVERLAPPEDWINDOW,0,0,128,128,nullptr,nullptr,GetModuleHandleW(nullptr),nullptr);
+            if(!window.h) throw std::runtime_error("Cannot create DX9 probe window");
+            p.hDeviceWindow=window.h;
+            api.Attach(Direct3DCreate9(D3D_SDK_VERSION));if(!api) throw std::runtime_error("Cannot create D3D9");
+            if(FAILED(api->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,window.h,D3DCREATE_SOFTWARE_VERTEXPROCESSING,&p,&device))) throw std::runtime_error("Cannot create D3D9 probe device");
+        }
         auto result=MH_Initialize();if(result!=MH_OK && result!=MH_ERROR_ALREADY_INITIALIZED) throw std::runtime_error("MinHook initialization failed");
         std::vector<void*> addresses;
         auto hook=[&](void* target,void* callback,void** original){
             if(MH_CreateHook(target,callback,original)!=MH_OK) throw std::runtime_error("Cannot create D3D9 hook");addresses.push_back(target);
         };
         try {
-            auto** v=*reinterpret_cast<void***>(device.Get());
-            hook(v[17],reinterpret_cast<void*>(&present),reinterpret_cast<void**>(&present_));
-            hook(v[16],reinterpret_cast<void*>(&reset),reinterpret_cast<void**>(&reset_));
+            auto targets=existing.value_or(Dx9DeviceTargets{});
+            if(!existing) {
+                auto** v=*reinterpret_cast<void***>(device.Get());
+                targets={reinterpret_cast<uintptr_t>(v[16]),reinterpret_cast<uintptr_t>(v[17])};
+            }
+            hook(reinterpret_cast<void*>(targets.present),reinterpret_cast<void*>(&present),reinterpret_cast<void**>(&present_));
+            hook(reinterpret_cast<void*>(targets.reset),reinterpret_cast<void*>(&reset),reinterpret_cast<void**>(&reset_));
             ComPtr<IDirect3D9Ex> ex;ComPtr<IDirect3DDevice9Ex> exDevice;
-            if(SUCCEEDED(Direct3DCreate9Ex(D3D_SDK_VERSION,&ex)) && SUCCEEDED(ex->CreateDeviceEx(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,window.h,D3DCREATE_SOFTWARE_VERTEXPROCESSING,&p,nullptr,&exDevice))) {
+            if(!existing && SUCCEEDED(Direct3DCreate9Ex(D3D_SDK_VERSION,&ex)) && SUCCEEDED(ex->CreateDeviceEx(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,window.h,D3DCREATE_SOFTWARE_VERTEXPROCESSING,&p,nullptr,&exDevice))) {
                 auto** ev=*reinterpret_cast<void***>(exDevice.Get());
                 hook(ev[121],reinterpret_cast<void*>(&presentEx),reinterpret_cast<void**>(&presentEx_));
                 hook(ev[132],reinterpret_cast<void*>(&resetEx),reinterpret_cast<void**>(&resetEx_));
@@ -108,7 +121,7 @@ public:
             for(auto address:addresses) if(MH_QueueEnableHook(address)!=MH_OK) throw std::runtime_error("Cannot queue D3D9 hook");
             if(MH_ApplyQueued()!=MH_OK) throw std::runtime_error("Cannot enable D3D9 hooks");
             installed_=true;
-        } catch(...) {for(auto address:addresses){MH_QueueDisableHook(address);MH_DisableHook(address);}throw;}
+        } catch(...) {for(auto address:addresses){MH_QueueDisableHook(address);MH_DisableHook(address);MH_RemoveHook(address);}throw;}
     }
 };
 }

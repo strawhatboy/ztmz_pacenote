@@ -116,5 +116,8 @@ public struct RBRMemData
 
 	public float FFBValue;
 
+	// Availability is carried separately from the legacy scalar's default zero.
+	public ZTMZ.PacenoteTool.Base.Game.ForceFeedbackTelemetrySnapshot? ForceFeedback;
+
 	public RBRDamageTelemetrySnapshot? DamageTelemetry;
 }

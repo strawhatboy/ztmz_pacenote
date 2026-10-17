@@ -59,6 +59,30 @@ try
         return;
     }
 
+    if (args.Length == 2 && args[0] == "--watch-ffb")
+    {
+        using var reader = new ACRGameDataReader();
+        reader.TryOpenAll(); // Read-only production maps; do not initialize the voice bridge.
+        using var output = new StreamWriter(new FileStream(args[1], FileMode.CreateNew, FileAccess.Write, FileShare.Read))
+        { AutoFlush = true };
+        var options = new System.Text.Json.JsonSerializerOptions
+        { NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals };
+        output.WriteLine(System.Text.Json.JsonSerializer.Serialize(new { kind = "ready", utc = DateTime.UtcNow,
+            offset = Marshal.OffsetOf<ACRPhysicsData>(nameof(ACRPhysicsData.ForceFeedbackValue)).ToInt32() }));
+        for (var sample = 0; sample < 6000; sample++)
+        {
+            var raw = reader.ReadAll();
+            var physics = raw.PhysicsData;
+            var converted = ACRGameDataConverter.Convert(raw);
+            output.WriteLine(System.Text.Json.JsonSerializer.Serialize(new { kind = "sample", utc = DateTime.UtcNow,
+                physics.ForceFeedbackValue, physics.SteeringAngle, physics.SpeedKilometersPerHour,
+                physics.ThrottleInput, physics.BrakeInput, raw.PhysicsDataValid,
+                output = converted.ForceFeedback?.OutputFraction }, options));
+            await Task.Delay(20);
+        }
+        return;
+    }
+
     if (args.Contains("--watch-controls"))
     {
         using var supplement = new ACRVehicleMemoryReader();

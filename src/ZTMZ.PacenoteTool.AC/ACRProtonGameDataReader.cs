@@ -212,6 +212,7 @@ internal sealed class ACRProtonGameDataReader : IGameDataReader, IGameLivePaceno
             PhysicsData = ReadStructure<ACRPhysicsData>(payload.AsSpan(
                 ACRRelayProtocol.GraphicsSize,
                 ACRRelayProtocol.PhysicsSize)),
+            PhysicsDataValid = true,
             StaticInfo = ReadStructure<ACRStaticInfo>(payload.AsSpan(
                 ACRRelayProtocol.GraphicsSize + ACRRelayProtocol.PhysicsSize,
                 ACRRelayProtocol.StaticSize))
@@ -305,6 +306,15 @@ internal sealed class ACRProtonGameDataReader : IGameDataReader, IGameLivePaceno
 
     private void SetDataAvailable(bool available)
     {
+        if (!available)
+        {
+            lock (_stateLock)
+            {
+                var current = CurrentGameData;
+                current.ForceFeedback = null;
+                CurrentGameData = current;
+            }
+        }
         if (_dataAvailable == available)
         {
             return;

@@ -1,5 +1,10 @@
 v2.99.99.56-3.0-rc28
 
+* Adds RBR processed force-feedback telemetry for the verified SSE build, including NGP-shaped force, with pause/replay/calibration and failed-read safeguards; no FFB wheel is required to read the game signal.
+* Fixes an RBR startup crash with GaugerPlugin by discovering the existing DX9 device instead of creating a second probe device; unsupported layouts fail safely.
+* Adds a compact Liquid Glass turbo pressure arc with a zero marker, vacuum/boost display and separate configurable gauge/absolute-pressure scales; unknown-reference pressure stays numeric.
+* Unifies dashboard colors: green throttle, red brake/handbrake, blue clutch, neutral battery charge and cyan hybrid activity. Keeps red steering markers, removes FFB text labels, and fills Liquid Glass shift LEDs individually within the existing shift-light RPM range.
+* Adds ACR force-feedback telemetry and compact signed FFB indicators beside steering in Classic, WRC 2025, WRC 2025 v2 and Liquid Glass. Preserves valid zero, hides unavailable output, and supports the Proton shared-memory relay.
 * Fixes dashboard labels following the selected WPF/Avalonia language in browser, in-game and standalone rendering, including live language changes.
 * Fixes clean WPF release builds omitting the WRC 7/9/Generations provider; verifies bundled dashboard scripts, translations and fonts against source.
 * Adds DiRT Rally 2.0 turbo boost pressure for the verified Windows build, using the native HUD reading and preserving vacuum and zero. The gauge hides for non-turbo cars or unavailable data.

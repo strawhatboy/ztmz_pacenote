@@ -43,7 +43,7 @@ function onInit(args)
     _brushes["rpm"] = gfx.CreateSolidBrush(0x9c, 0x9e, 0x5c, 255)
     _brushes["brake"] = gfx.CreateSolidBrush(0xd2, 0x18, 0x1d, 255)
     _brushes["throttle"] = gfx.CreateSolidBrush(0xc3, 0xe1, 0x67, 255)
-    _brushes["clutch"] = gfx.CreateSolidBrush(0x2a, 0xb4, 0x5d, 255)
+    _brushes["clutch"] = gfx.CreateSolidBrush(112, 170, 255, 255)
     _brushes["hybrid"] = gfx.CreateSolidBrush(0x45, 0xf2, 0xee, 255)
 
     _brushes["rpm_low"] = gfx.CreateSolidBrush(28, 202, 112);

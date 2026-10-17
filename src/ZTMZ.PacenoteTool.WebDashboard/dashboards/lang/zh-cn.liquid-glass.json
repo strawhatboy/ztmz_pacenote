@@ -43,10 +43,14 @@
                 "glassRefraction": "玻璃边缘位移（仪表像素），需要游戏内原生渲染且可读取游戏背景。",
                 "glassBlur": "背景散射半径（仪表像素），需要游戏内原生渲染且可读取游戏背景。",
                 "glassEnabled": "为此仪表盘面板启用折射。关闭后不再为此仪表盘捕获背景或运行玻璃着色器。不支持的画面使用半透明底色。",
-                "glassOpacity": "面板底色从透明（0）到不透明（1）；同样适用于不支持折射的渲染方式。"
+                "glassOpacity": "面板底色从透明（0）到不透明（1）；同样适用于不支持折射的渲染方式。",
+                "turboGaugeMaxBar": "固定表压刻度的上限，下限为 -1 bar。默认 4 与 DR2 仪表一致。这是显示刻度，不是报警阈值。",
+                "turboAbsoluteMaxBar": "固定绝对压力刻度的上限，下限为 0 bar abs。不将绝压换算为增压表压。这是显示刻度，不是报警阈值。"
             },
             "glassEnabled": "启用玻璃效果",
-            "glassOpacity": "玻璃底色不透明度"
+            "glassOpacity": "玻璃底色不透明度",
+            "turboGaugeMaxBar": "涡轮表压刻度上限（bar）",
+            "turboAbsoluteMaxBar": "进气绝压刻度上限（bar abs）"
         }
     }
 }

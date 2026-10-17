@@ -165,6 +165,38 @@ int main(int argc,char** argv) {
                 LuaDashboard hidden(disabled,config);data["Hybrid"]={{"BatteryChargeFraction",0.8}};
                 require(!hasText(hidden.update(data,context,0,""),"80%"),"Hybrid setting ignored");
             }
+            if(name=="classic_dashboard" || name=="modern_wrc_2025" || name=="modern_wrc_2025v2" || name=="liquid_glass") {
+                auto fingerprint=[](const std::vector<Layer>& layers) {
+                    std::string result;
+                    for(const auto& layer:layers) for(const auto& command:layer.commands) {
+                        require(command.value("text",std::string{})!="FFB","Unwanted FFB label");
+                        result+=command.dump();
+                    }
+                    return result;
+                };
+                auto enabled=p;
+                enabled["settings"]["dashboards.settings.showSteering"]=true;
+                enabled["settings"]["dashboards.settings.showSteeringIndicator"]=true;
+                LuaDashboard ffb(enabled,config);
+                const auto withoutFfb=fingerprint(ffb.update(telemetry,context,0,""));
+                for(double value:{-1.,-.4,0.,.6,1.}) {
+                    auto data=telemetry;data["ForceFeedback"]={{"OutputFraction",value}};
+                    auto layers=ffb.update(data,context,0,"");render(layers);
+                    require(fingerprint(layers)!=withoutFfb,"Valid signed/zero FFB missing from steering dashboard");
+                }
+                for(auto missing:{Json(),Json::object(),Json{{"OutputFraction",1.01}},Json{{"OutputFraction",-1.01}}}) {
+                    auto data=telemetry;data["ForceFeedback"]=missing;
+                    auto layers=ffb.update(data,context,0,"");render(layers);
+                    require(fingerprint(layers)==withoutFfb,"Unavailable/invalid FFB retained its indicator");
+                }
+                if(name!="liquid_glass") {
+                    enabled["settings"]["dashboards.settings.showSteering"]=false;
+                    enabled["settings"]["dashboards.settings.showSteeringIndicator"]=false;
+                    LuaDashboard hidden(enabled,config);auto data=telemetry;
+                    data["ForceFeedback"]={{"OutputFraction",.5}};
+                    require(fingerprint(hidden.update(data,context,0,""))==fingerprint(hidden.update(telemetry,context,0,"")),"FFB ignored steering visibility setting");
+                }
+            }
             if(p.value("testName",std::string{})=="modern_wrc_2025v2") {
                 // A viewer may connect before the first usable engine telemetry.
                 for(const auto& values: {std::pair{0,0},std::pair{5000,0},std::pair{5000,-1},std::pair{9000,8000}}) {

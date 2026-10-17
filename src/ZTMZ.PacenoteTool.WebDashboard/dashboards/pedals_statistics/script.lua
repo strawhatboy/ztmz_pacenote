@@ -24,7 +24,7 @@ function onInit(args)
     _brushes["red"] = gfx.CreateSolidBrush(255, 0, 0, 150);
     _brushes["green"] = gfx.CreateSolidBrush(0, 255, 0, 150);
     _brushes["blue"] = gfx.CreateSolidBrush(0, 0, 255, 150);
-    _brushes["yellow"] = gfx.CreateSolidBrush(255, 255, 0, 150);
+    _brushes["handbrake"] = gfx.CreateSolidBrush(255, 90, 90, 220);
 
     _brushes["telemetryBackground"] = gfx.CreateSolidBrush(0x2c, 0x33, 0x3c, 100);
     
@@ -166,8 +166,9 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
             if (showClutchPedal) then
                 gfx.DrawLine(_brushes["blue"], lastX, lastClutchY, lastX + step, clutchY, lineWeight);
             end
-            if (showHandBrakePedal and data.HandBrakeValid) then
-                gfx.DrawLine(_brushes["yellow"], lastX, lastHandBrakeY, lastX + step, handBrakeY, lineWeight);
+            -- Dashed red separates the handbrake history from the solid brake trace.
+            if (showHandBrakePedal and data.HandBrakeValid and i % 2 == 0) then
+                gfx.DrawLine(_brushes["handbrake"], lastX, lastHandBrakeY, lastX + step, handBrakeY, lineWeight);
             end
         end
 
@@ -200,7 +201,7 @@ function drawLines(gfx, self, data, helper, x, y, width, height)
     -- end
 
     -- if (showHandBrakePedal and data.HandBrakeValid) then    -- handbrake data should be available
-    --     gfx.DrawGeometry(geoHandBrake, _brushes["yellow"], lineWeight);
+    --     gfx.DrawGeometry(geoHandBrake, _brushes["handbrake"], lineWeight);
     -- end
 end
 

@@ -19,6 +19,7 @@ public class RBRMemDataReader
     private bool _isProcessOpened = false;
     private Process? _theProcess;
     private RBRNativeResultReader? _nativeResultReader;
+    private RBRForceFeedbackReader? _forceFeedbackReader;
     private RBRLoadedPacenoteReader? _loadedPacenoteReader;
     private IntPtr _processHandle = IntPtr.Zero;
     private DateTimeOffset _nextDamageTelemetrySampleUtc = DateTimeOffset.MinValue;
@@ -62,6 +63,7 @@ public class RBRMemDataReader
                 _processHandle = processHandle;
                 _isProcessOpened = true;
                 _nativeResultReader = null;
+                _forceFeedbackReader = null;
                 try
                 {
                     _nativeResultReader = RBRNativeResultReader.Create(rbrProcess, processHandle);
@@ -70,6 +72,15 @@ public class RBRMemDataReader
                 catch (Exception ex)
                 {
                     _logger.Warn(ex, "RBR native result layout could not be verified; retirement reason remains unknown.");
+                }
+                try
+                {
+                    _forceFeedbackReader = RBRForceFeedbackReader.Create(rbrProcess, processHandle);
+                    _logger.Info("RBR force-feedback layout verified: {0}", _forceFeedbackReader != null);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warn(ex, "RBR force-feedback layout could not be verified; feedback remains unavailable.");
                 }
                 _logger.Info("RBR process opened.");
                 return true;
@@ -105,6 +116,8 @@ public class RBRMemDataReader
             memData.GameStateId = MemoryReader.Read<byte>(pHandle, 0x7EAC48, 0x728);
             // Poll menus as well as racing: failure results arrive after the raw end state.
             memData.NativeResult = _nativeResultReader?.Read();
+            memData.ForceFeedback = _forceFeedbackReader?.Read();
+            memData.FFBValue = memData.ForceFeedback?.OutputFraction ?? 0;
 
             var rbrGameState = (RBRGameState)memData.GameStateId;
 
@@ -414,6 +427,7 @@ public class RBRMemDataReader
             _isProcessOpened = false;
             _theProcess = null;
             _nativeResultReader = null;
+            _forceFeedbackReader = null;
             _loadedPacenoteReader = null;
             _processHandle = IntPtr.Zero;
             _damageTelemetryProbe.SetStopped();

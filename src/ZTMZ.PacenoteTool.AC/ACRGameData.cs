@@ -548,6 +548,8 @@ public class ACRGameRawData
 {
     public ACRGraphicsData GraphicsData;
     public ACRPhysicsData PhysicsData;
+    // Kept outside the packed shared-memory ABI. Failed reads must not manufacture zero FFB.
+    public bool PhysicsDataValid;
     public ACRStaticInfo StaticInfo;
 }
 

@@ -417,6 +417,7 @@ public class RBRGameDataReader : UdpGameDataReader, IGameRuntimeDiagnosticsProvi
         _timer.Stop();
         _timer.Elapsed -= MemDataPullHandler;
         memDataReader.CloseProgress();
+        _currentGameData.ForceFeedback = null;
         _stateDetector.Reset();
         _lastLoggedRawGameState = null;
         _gameState = GameState.Unknown;
@@ -451,6 +452,7 @@ public class RBRGameDataReader : UdpGameDataReader, IGameRuntimeDiagnosticsProvi
         }
         catch (Exception ex)
         {
+            _currentGameData.ForceFeedback = null;
             _logger.Error(ex, "Failed to poll RBR memory data.");
         }
         finally
@@ -663,6 +665,7 @@ public class RBRGameDataReader : UdpGameDataReader, IGameRuntimeDiagnosticsProvi
         gameData.CarDamage = RBRCarDamageSnapshotFactory.Create(data.DamageTelemetry);
         gameData.Engine = data.Engine;
         gameData.Turbo = data.Turbo;
+        gameData.ForceFeedback = data.ForceFeedback;
 
         return gameData;
     }

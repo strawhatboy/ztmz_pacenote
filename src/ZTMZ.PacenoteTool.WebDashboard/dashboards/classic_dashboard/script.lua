@@ -23,6 +23,7 @@ function onInit(args)
     _brushes["red"] = gfx.CreateSolidBrush(255, 0, 0);
     _brushes["yellow"] = gfx.CreateSolidBrush(255, 255, 0);
     _brushes["grey"] = gfx.CreateSolidBrush(64, 64, 64);
+    _brushes["ffbLimit"] = gfx.CreateSolidBrush(255, 204, 115);
     if (conf.HudChromaKeyMode) then
         _brushes["green"] = gfx.CreateSolidBrush(0, 0, 255);
         _brushes["blue"] = gfx.CreateSolidBrush(255, 0, 255);
@@ -90,10 +91,12 @@ function drawPedals(gfx, conf, self, data, helper, x, y, width, height)
 
     gfx.FillRectangle(_brushes["blue"], 1 + x, 1 + y + height * (1-data.Clutch), x + pedalWidth - 1, y + height - 1);
     if (data.HandBrakeValid) then
-        -- left half is handbrake
-        -- right half is brake
-        gfx.FillRectangle(_brushes["red"], 1 + x + pedalWidth + spacing, 1 + y + height * (1-data.Brake), x + 2 * pedalWidth + spacing - 1, y + height - 1);
-        gfx.FillRectangle(_brushes["yellow"], 1 + x + pedalWidth + spacing, 1 + y + height * (1-data.HandBrake), x + 1.5 * pedalWidth + spacing, y + height - 1);
+        -- Independent red fills: handbrake left, service brake right. The
+        -- divider keeps them distinguishable without assigning a warning color.
+        local split=x+1.5*pedalWidth+spacing;
+        gfx.FillRectangle(_brushes["red"], split+1, 1+y+height*(1-data.Brake), x+2*pedalWidth+spacing-1, y+height-1);
+        gfx.FillRectangle(_brushes["red"], 1+x+pedalWidth+spacing, 1+y+height*(1-data.HandBrake), split-1, y+height-1);
+        gfx.DrawLine(_brushes["black"],split,y,split,y+height,1);
     else
         gfx.FillRectangle(_brushes["red"], 1 + x + pedalWidth + spacing, 1 + y + height * (1-data.Brake), x + 2 * pedalWidth + spacing - 1, y + height - 1);
     end
@@ -168,9 +171,15 @@ end
 function drawSteering(gfx, conf, self, data, helper, x, y, width, height)
     local _brushes = resources["brushes"];
     local _fonts = resources["fonts"];
+    local feedback = getForceFeedbackDisplayState(data);
     local centerX = x + 0.5 * width;
     local centerY = y + 0.5 * height;
     local radiusOuter = math.min(width, height) * 0.5;
+    if feedback ~= nil then
+        drawForceFeedbackArc(gfx, feedback, _fonts.wrc, _brushes.grey, _brushes.white,
+            _brushes.ffbLimit, _brushes.clear, centerX, centerY, radiusOuter*.94, radiusOuter*.16);
+        radiusOuter = radiusOuter * .80;
+    end
     local radiusInner = radiusOuter * (1 - self.GetConfigByKey("dashboards.settings.sectorThicknessRatio"));
     local radiusWidth = radiusOuter - radiusInner;
 

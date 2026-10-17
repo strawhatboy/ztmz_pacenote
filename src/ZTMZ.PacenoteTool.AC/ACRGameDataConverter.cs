@@ -42,6 +42,9 @@ internal static class ACRGameDataConverter
             HandBrake = vehicle is null ? 0 : Pedal(vehicle.HandBrake),
             HandBrakeValid = vehicle is not null,
             Steering = Math.Clamp(Finite(rawData.PhysicsData.SteeringAngle), -1, 1),
+            ForceFeedback = rawData.PhysicsDataValid
+                ? ForceFeedbackTelemetrySnapshot.FromNormalizedOutput("ACR", rawData.PhysicsData.ForceFeedbackValue)
+                : null,
             Gear = rawData.PhysicsData.CurrentGear - 1,
             MaxGears = vehicle?.MaxGears ?? 0,
             RPM = rawData.PhysicsData.EngineRPM,

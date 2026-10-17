@@ -855,6 +855,7 @@ public class WebDashboardServer : IDisposable
                     HandBrake = data.HandBrake,
                     HandBrakeValid = data.HandBrakeValid,
                     Steering = data.Steering,
+                    ForceFeedback = ValidForceFeedback(data.ForceFeedback),
 
                     // Engine
                     Gear = DiscreteTelemetryValue(data.Gear),
@@ -1064,6 +1065,9 @@ public class WebDashboardServer : IDisposable
         }
     }
 
+    private static ForceFeedbackTelemetrySnapshot? ValidForceFeedback(ForceFeedbackTelemetrySnapshot? value)
+        => value is { OutputFraction: >= -1 and <= 1 } ? value : null;
+
     private static object CreateBrowserLuaTelemetry(GameData data)
     {
         return new
@@ -1086,6 +1090,7 @@ public class WebDashboardServer : IDisposable
             data.ShiftLightsRPMValid,
             Speed = FiniteTelemetryValue(data.Speed),
             Steering = FiniteTelemetryValue(data.Steering),
+            ForceFeedback = ValidForceFeedback(data.ForceFeedback),
             Throttle = FiniteTelemetryValue(data.Throttle),
             TrackLength = FiniteTelemetryValue(data.TrackLength),
             Time = FiniteTelemetryValue(data.Time),

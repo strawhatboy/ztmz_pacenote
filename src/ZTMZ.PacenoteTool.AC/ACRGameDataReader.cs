@@ -198,6 +198,7 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
         if (TryReadUnsafe<ACRPhysicsData>(out var physicsData))
         {
             data.PhysicsData = physicsData;
+            data.PhysicsDataValid = true;
         }
         
         if (TryReadUnsafe<ACRStaticInfo>(out var staticInfo))
@@ -245,6 +246,7 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
 
             if (!hasData)
             {
+                _currentGameData.ForceFeedback = null;
                 return;
             }
 
