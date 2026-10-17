@@ -148,7 +148,7 @@ The archive verifier rejects unexpected satellite DLLs to preserve this packagin
 decision. These installer rules are used by `build/onekey.bat` through
 `publish.bat` and `package_signed.bat`; no manual file copying is required.
 
-Final artifact:
+Historical rc28 artifact before the native launcher:
 
 - `Output/ZTMZClub_PacenoteTool_Installer_2.99.99.56-rc28.exe`
 - Product version `2.99.99.56`; **32,887,184 bytes**.
@@ -209,3 +209,53 @@ installer, not bundled as offline runtime installers. The latest gameplay fixes 
 still warrant a short installed-build smoke test. At audit completion the changes
 were uncommitted and no installer had been uploaded. `autoupdate_beta.json` still
 advertises `2.99.99.55` until the release asset is published.
+
+
+## Native startup launcher: 2.99.99.57-rc29 (2026-10-17)
+
+The WPF payload now includes `ZTMZ.Launcher.exe`, `ZTMZ.startup.json`, and
+`ThirdPartyNotices/Launcher-nlohmann-json.txt`. The launcher is built and staged
+by the WPF project, so the existing `onekey.bat` workflow includes it. Installer
+shortcuts and the post-install launch action target the launcher. Third-party
+satellite language DLLs remain excluded.
+
+The launcher belongs to the next release, `2.99.99.57-rc29`; rc28 is already
+released. The initial local launcher test artifact had incorrectly reused the rc28
+filename and has been moved out of `Output` to prevent distribution. The correctly
+versioned installer is:
+
+- `Output/ZTMZClub_PacenoteTool_Installer_2.99.99.57-rc29.exe`
+- **32,999,176 bytes**; SHA256 `5b3f9aa2c8c15791305d10dc97bea7a23485b29e48e083bd2f58b5a9c946779e`.
+- Signed using the existing `CN=ZTMZClub` certificate and DigiCert timestamp.
+  The existing self-signed certificate's trust limitations still apply.
+
+Validation for this follow-up:
+
+- Native policy tests: **39 checks passed**, including configuration precedence,
+  missing-folder behavior, UTF-16 settings, argument quoting, safe backup and
+  collision handling, manifest traversal rejection, readiness/exit ordering,
+  and a temporary file lock during atomic report replacement.
+- Process integration: **11 scenarios / 19 assertions passed** with a harmless
+  child process and an isolated mutex. Covers missing data/settings/files/runtime,
+  accepted legacy Json.NET syntax, healthy preflight, readiness, explicit failure,
+  early exit, slow startup and rejection of another PID's status.
+- Managed startup reporting: **6 tests passed**, including terminal-state ordering,
+  concurrent callbacks, direct launch, unwritable output and a transient reader lock.
+- Official `publish.bat` and `package_signed.bat` passed. The new executable is a
+  native x64 PE without a CLR header and imports only Windows system DLLs.
+- Extracted installer: **2,137 destination/content comparisons passed**, including
+  the three new payload files. No third-party satellite resource DLLs were installed.
+- Ran the extracted production launcher with `--diagnose` and `ZTMZ_DATA_HOME`
+  pointing to the extracted data: **checks_passed**, runtime resolver result 0,
+  WebView2 available. The corrected rc29 installer was re-extracted and passed
+  the same 2,137 comparisons and preflight; its packaged WPF file version is
+  `2.99.99.57`. No installed data or registry setting was changed.
+
+The user's installed ZTMZ instance remained running. A full new WPF UI launch
+through this launcher has therefore not been exercised in this follow-up; the
+process protocol was tested using fixtures. A clean-machine install/upgrade and
+that final interactive startup check remain release checks. The installer was
+not uploaded. `autoupdate_beta.json` continues advertising the released
+`2.99.99.56-rc28`; the new launcher notes are in a separate rc29 section in all
+three changelog files, with released rc28 notes preserved. See
+[startup-launcher.md](startup-launcher.md) for behavior and recovery details.

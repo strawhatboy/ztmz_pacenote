@@ -47,6 +47,7 @@ internal static class DataFolderMigrationLauncher
         {
             UseShellExecute = false
         };
+        startInfo.Environment.Remove("ZTMZ_STARTUP_STATUS");
         startInfo.ArgumentList.Add(DataFolderMigrationRequest.CommandLineArgument);
         startInfo.ArgumentList.Add(request.SourcePath);
         startInfo.ArgumentList.Add(request.DestinationPath);
@@ -61,10 +62,16 @@ internal static class DataFolderMigrationLauncher
 
     public static void RestartApplication()
     {
-        Process.Start(new ProcessStartInfo(GetExecutablePath())
+        Process.Start(new ProcessStartInfo(GetNormalLaunchPath())
         {
             UseShellExecute = true
         });
+    }
+
+    internal static string GetNormalLaunchPath()
+    {
+        var launcher = Path.Combine(AppContext.BaseDirectory, "ZTMZ.Launcher.exe");
+        return File.Exists(launcher) ? launcher : GetExecutablePath();
     }
 
     private static string GetExecutablePath()

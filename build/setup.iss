@@ -34,11 +34,15 @@
   #error "Published native dashboard fonts are missing. Run build\publish.bat before packaging."
 #endif
 #ifndef MyAppReleaseSuffix
-  #define MyAppReleaseSuffix "-rc28"
+  #define MyAppReleaseSuffix "-rc29"
 #endif
 #define MyAppPublisher "ZTMZ Club"
 #define MyAppURL "https://gitee.com/ztmz/ztmz_pacenote"
 #define MyAppExeName "ZTMZ.PacenoteTool.WpfGUI.exe"
+#define MyLauncherExeName "ZTMZ.Launcher.exe"
+#if !FileExists(AddBackslash(SourcePath) + MyAppPublishRoot + "\ZTMZ.Launcher.exe") || !FileExists(AddBackslash(SourcePath) + MyAppPublishRoot + "\ZTMZ.startup.json")
+  #error "Native startup launcher/manifest is missing. Run build\publish.bat."
+#endif
 #define FolderName "ZTMZClub_nextgen"
 #ifndef MyAppDisplayName
   #define MyAppDisplayName MyAppName
@@ -489,11 +493,11 @@ Source: "..\src\ZTMZ.PacenoteTool.RBR\*.zdb"; DestDir: "{code:GetZTMZHome}\games
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{code:GetInstallDir}\{#MyAppExeName}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{code:GetInstallDir}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autoprograms}\{#MyAppName}"; Filename: "{code:GetInstallDir}\{#MyLauncherExeName}"
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{code:GetInstallDir}\{#MyLauncherExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{code:GetInstallDir}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{code:GetInstallDir}\{#MyLauncherExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [Registry]
 Root: HKCU; Subkey: "Software\{#MyAppName}"; Flags: uninsdeletekeyifempty

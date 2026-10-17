@@ -36,6 +36,7 @@ public partial class App : Application
     }
 
     public App() {
+        StartupProgress.Report.Progress("data_folder");
         AppLevelVariables.Configure(new WindowsRegistryConfigurationLocation());
 
         if (DataFolderMigrationLauncher.TryParseRequest(Environment.GetCommandLineArgs(), out var migrationRequest))
@@ -47,6 +48,7 @@ public partial class App : Application
         // Ensure only one instance of the application is running
         if (!mutex.WaitOne(TimeSpan.FromMilliseconds(500), true))
         {
+            StartupProgress.Report.AlreadyRunning();
             MessageBox.Show("有个路书工具进程已经在运行中了，不能再运行另外一个，会引发端口冲突\nAnother instance of the application is already running.");
             Current.Shutdown();
             return;
@@ -57,8 +59,10 @@ public partial class App : Application
         // patch ZTMZ.PacenoteTool.Base to fix the SevenZipExtractor issue
         ArchiveFilePatch.Patch(harmony);
 
+        StartupProgress.Report.Progress("configuration");
         NLogManager.init(ToolUtils.GetToolVersion());
         _logger.Info("Application started");
+        StartupProgress.Report.Progress("localization");
         ResourceBootstrapService.InitializeLocalization(
             [AppContext.BaseDirectory, AppLevelVariables.Instance.AppConfigFolder],
             Config.Instance.Language);
@@ -210,6 +214,7 @@ public partial class App : Application
             return;
         }
 
+        StartupProgress.Report.Progress("main_window");
         SetupExceptionHandling();
         GetService<AppFontService>()?.ApplyConfiguredFont();
         GetService<AppFontService>()?.ApplyConfiguredFontSize();
@@ -250,6 +255,14 @@ public partial class App : Application
             return;
         }
 
+        if (StartupProgress.HasLauncher && !StartupProgress.Report.IsReady)
+        {
+            StartupProgress.Report.Failed(e.Exception);
+            e.Handled = true;
+            Shutdown(1);
+            return;
+        }
+
         _logger.Error(e.Exception, "Unhandled exception occurred.");
         // For more info see https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.dispatcherunhandledexception?view=windowsdesktop-6.0
         GetService<AzureAppInsightsManager>().TrackException(e.Exception);
@@ -270,6 +283,7 @@ public partial class App : Application
 
         DispatcherUnhandledException += (s, e) =>
         {
+            if (e.Handled) return;
             LogUnhandledException(e.Exception, "Application.Current.DispatcherUnhandledException");
             e.Handled = true;
         };
@@ -289,6 +303,13 @@ public partial class App : Application
 
     private void LogUnhandledException(Exception exception, string source)
     {
+        if (StartupProgress.HasLauncher && !StartupProgress.Report.IsReady)
+        {
+            StartupProgress.Report.Failed(exception);
+            // This can run on a failing worker thread; do not wait on the UI thread.
+            Environment.Exit(1);
+            return;
+        }
         string message = $"Unhandled exception ({source})";
         try
         {

@@ -1,7 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <StartupObject>ZTMZ.PacenoteTool.WpfGUI.Program</StartupObject>
     <TargetFramework>net10.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
@@ -105,4 +106,5 @@
   </ItemGroup>
   <Import Project="..\..\build\KT.GameProvider.targets" />
   <Import Project="..\..\build\ACR.GameProvider.targets" />
+  <Import Project="..\..\build\StartupLauncher.targets" />
 </Project>

@@ -1,0 +1,28 @@
+<Project>
+  <PropertyGroup>
+    <_StartupLauncherEnabled Condition="'$(OS)' == 'Windows_NT' and '$(DesignTimeBuild)' != 'true' and '$(TargetFramework)' == 'net10.0-windows' and ('$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'win-x64')">true</_StartupLauncherEnabled>
+    <StartupLauncherBuildDirectory>$(MSBuildThisFileDirectory)startup-launcher</StartupLauncherBuildDirectory>
+  </PropertyGroup>
+  <Target Name="BuildStartupLauncher" BeforeTargets="PrepareForBuild" Condition="'$(_StartupLauncherEnabled)' == 'true'">
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)build_startup_launcher.ps1&quot; -BuildDirectory &quot;$(StartupLauncherBuildDirectory)&quot;" />
+    <ItemGroup>
+      <_StartupLauncherFile Include="$(StartupLauncherBuildDirectory)\Release\ZTMZ.Launcher.exe"><BundlePath>ZTMZ.Launcher.exe</BundlePath></_StartupLauncherFile>
+      <_StartupLauncherFile Include="$(StartupLauncherBuildDirectory)\Release\ThirdPartyNotices\Launcher-nlohmann-json.txt"><BundlePath>ThirdPartyNotices\Launcher-nlohmann-json.txt</BundlePath></_StartupLauncherFile>
+    </ItemGroup>
+  </Target>
+  <Target Name="StageStartupLauncher" AfterTargets="Build" DependsOnTargets="BuildStartupLauncher" Condition="'$(_StartupLauncherEnabled)' == 'true'">
+    <Copy SourceFiles="@(_StartupLauncherFile)" DestinationFiles="@(_StartupLauncherFile->'$(OutDir)%(BundlePath)')" SkipUnchangedFiles="true" />
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)write_startup_manifest.ps1&quot; -DestinationRoot &quot;$(OutDir).&quot;" />
+  </Target>
+  <Target Name="PublishStartupLauncher" AfterTargets="ComputeResolvedFilesToPublishList" DependsOnTargets="BuildStartupLauncher" Condition="'$(_StartupLauncherEnabled)' == 'true'">
+    <ItemGroup>
+      <ResolvedFileToPublish Include="@(_StartupLauncherFile)">
+        <RelativePath>%(_StartupLauncherFile.BundlePath)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+  <Target Name="WritePublishedStartupManifest" AfterTargets="Publish" Condition="'$(_StartupLauncherEnabled)' == 'true'">
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)write_startup_manifest.ps1&quot; -DestinationRoot &quot;$(PublishDir).&quot;" />
+  </Target>
+</Project>

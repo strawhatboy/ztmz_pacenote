@@ -1,4 +1,4 @@
-param([Parameter(Mandatory = $true)][string]$DestinationRoot)
+﻿param([Parameter(Mandatory = $true)][string]$DestinationRoot)
 
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'release_resource_helpers.ps1')
@@ -12,6 +12,7 @@ function Require-File([string]$RelativePath) {
 }
 
 $required = @(
+    'ZTMZ.Launcher.exe', 'ZTMZ.startup.json', 'ThirdPartyNotices/Launcher-nlohmann-json.txt',
     'ZTMZ.PacenoteTool.WpfGUI.exe', 'ZTMZ.PacenoteTool.WpfGUI.dll',
     'ZTMZ.PacenoteTool.WpfGUI.deps.json', 'ZTMZ.PacenoteTool.WpfGUI.runtimeconfig.json',
     'ZTMZ.PacenoteTool.Base.dll', 'ZTMZ.PacenoteTool.Core.dll',
@@ -41,6 +42,26 @@ $required = @(
 )
 foreach ($relative in $required) { $null = Require-File $relative }
 
+# The launcher must be a native x64 executable, usable before .NET loads.
+$launcherStream = [IO.File]::OpenRead((Join-Path $root 'ZTMZ.Launcher.exe'))
+$launcherReader = New-Object IO.BinaryReader($launcherStream)
+try {
+    $launcherStream.Position = 0x3c
+    $peOffset = $launcherReader.ReadInt32()
+    $launcherStream.Position = $peOffset
+    if ($launcherReader.ReadUInt32() -ne 0x4550 -or $launcherReader.ReadUInt16() -ne 0x8664) { throw 'Startup launcher is not an x64 PE.' }
+    $launcherStream.Position = $peOffset + 24
+    if ($launcherReader.ReadUInt16() -ne 0x20b) { throw 'Startup launcher is not PE32+.' }
+    $launcherStream.Position = $peOffset + 24 + 112 + (14 * 8)
+    if ($launcherReader.ReadUInt64() -ne 0) { throw 'Startup launcher depends on the CLR.' }
+} finally { $launcherReader.Dispose(); $launcherStream.Dispose() }
+$startupManifest = Get-Content -LiteralPath (Join-Path $root 'ZTMZ.startup.json') -Raw | ConvertFrom-Json
+if ($startupManifest.schemaVersion -ne 1) { throw 'Invalid startup manifest schema.' }
+foreach ($relative in $startupManifest.applicationFiles) {
+    if ([IO.Path]::IsPathRooted($relative) -or ($relative -split '[/\\]') -contains '..' -or $relative -like '*.resources.dll') { throw "Invalid startup requirement: $relative" }
+    $null = Require-File $relative
+}
+
 # RID-specific publish flattens runtime/native dependencies into the host folder.
 $deps = Get-Content -LiteralPath (Join-Path $root 'ZTMZ.PacenoteTool.WpfGUI.deps.json') -Raw | ConvertFrom-Json
 $target = $deps.targets.PSObject.Properties[$deps.runtimeTarget.name].Value
@@ -49,7 +70,9 @@ foreach ($library in $target.PSObject.Properties) {
         if ($null -eq $library.Value.$kind) { continue }
         foreach ($asset in $library.Value.$kind.PSObject.Properties) {
             if ($asset.Name.EndsWith('/_._')) { continue }
-            $null = Require-File ([IO.Path]::GetFileName($asset.Name))
+            $requiredAsset = [IO.Path]::GetFileName($asset.Name)
+            $null = Require-File $requiredAsset
+            if ($startupManifest.applicationFiles -notcontains $requiredAsset) { throw "Startup manifest omits dependency: $requiredAsset" }
         }
     }
     # Third-party localized resource assemblies are intentionally not shipped.

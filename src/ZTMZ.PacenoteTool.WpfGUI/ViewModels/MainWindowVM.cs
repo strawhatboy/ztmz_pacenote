@@ -481,6 +481,8 @@ public partial class MainWindowVM : ObservableObject
 
         Task? dialogTask = null;
         Exception? startupError = null;
+        StartupProgress.Report.Progress("initialization");
+        _tool.onStatusReport += StartupProgress.Report.Progress;
         try
         {
             // Resolve the home page first so all initialization callbacks are registered.
@@ -491,8 +493,10 @@ public partial class MainWindowVM : ObservableObject
                 dialogTask = _startupDialog.ShowAsync();
             }
 
-            // Observe the whole operation, including callbacks and configuration application.
+            // Observe initialization, then drain queued UI initialization callbacks before reporting ready.
             await home.InitializeAsync();
+            await System.Windows.Application.Current.Dispatcher.InvokeAsync(
+                () => { }, System.Windows.Threading.DispatcherPriority.ContextIdle);
         }
         catch (Exception ex)
         {
@@ -501,6 +505,7 @@ public partial class MainWindowVM : ObservableObject
         }
         finally
         {
+            _tool.onStatusReport -= StartupProgress.Report.Progress;
             if (_startupDialog != null)
             {
                 _startupDialog.Hide();
@@ -524,6 +529,12 @@ public partial class MainWindowVM : ObservableObject
 
         if (startupError != null)
         {
+            StartupProgress.Report.Failed(startupError);
+            if (StartupProgress.HasLauncher)
+            {
+                System.Windows.Application.Current.Shutdown(1);
+                return;
+            }
             await new Wpf.Ui.Controls.MessageBox
             {
                 Title = I18NLoader.Instance["exception.unknown.title"],
@@ -533,6 +544,13 @@ public partial class MainWindowVM : ObservableObject
             return;
         }
 
+        // Upgrade an existing Windows-startup shortcut to the native launcher too.
+        if (Config.Instance.StartWithWindows)
+        {
+            try { App.GetService<StartupService>().AddApplicationToCurrentUserStartup(); }
+            catch (Exception ex) { _logger.Warn(ex, "Could not update Windows startup shortcut."); }
+        }
+        StartupProgress.Report.Ready();
         _ = CheckVoiceUpdatesAsync();
 
         if (Config.Instance.StartMinimizedToTray)

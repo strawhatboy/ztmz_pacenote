@@ -1,3 +1,9 @@
+v2.99.99.57-3.0-rc29
+
+* WPF startup checks and diagnostics
+  - Checks the data folder, settings, installed files and runtimes before startup, with explanations and recovery options when a problem is found.
+  - Provides a local diagnostic report if startup fails or takes too long. Damaged settings can be backed up before resetting.
+
 v2.99.99.56-3.0-rc28
 
 * Stability and installation

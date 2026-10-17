@@ -42,7 +42,7 @@ public class StartupService {
     private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
     public void AddApplicationToCurrentUserStartup() {
         string applicationName = Assembly.GetExecutingAssembly().GetName().Name;
-        string applicationPath = Environment.ProcessPath;
+        string applicationPath = DataFolderMigrationLauncher.GetNormalLaunchPath();
         string startupPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
         string shortcutPath = Path.Combine(startupPath, applicationName + ".lnk");
 
