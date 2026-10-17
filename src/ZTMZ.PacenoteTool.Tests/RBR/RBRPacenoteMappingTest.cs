@@ -7,6 +7,36 @@ namespace ZTMZ.PacenoteTool.Tests.RBR;
 public class RBRPacenoteMappingTest
 {
     [Fact]
+    public void MissingConfiguredDefinitionDoesNotAbortGameInitializationAndCanRecover()
+    {
+        var game = new ZTMZ.PacenoteTool.RBR.RBR();
+        var configurations = game.DefaultGameConfigurations;
+        var common = (ZTMZ.PacenoteTool.Base.Game.CommonGameConfigs)
+            configurations[ZTMZ.PacenoteTool.Base.Game.CommonGameConfigs.Name];
+        var settingIndex = common.PropertyName.Keys.ToList().IndexOf(
+            "game.rbr.additional_settings.additional_pacenote_def");
+        var missing = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"), "missing.zdb");
+        common.PropertyValue[settingIndex] = missing;
+
+        game.GameConfigurations = configurations;
+
+        Assert.Equal(missing, common.PropertyValue[settingIndex]);
+        Assert.Null(RBRScriptResource.Instance.DBPath);
+        var warnings = new List<int>();
+        game.onCustomMessage += (level, _) => warnings.Add(level);
+        Assert.False(RBRGamePacenoteReader.EnsurePacenoteDefinition(game, missing));
+        Assert.Equal(new[] { 2 }, warnings);
+        Assert.False(File.Exists(missing));
+
+        common.PropertyValue[settingIndex] = GetRbrDatabasePath("jannemod_v3.zdb");
+        game.GameConfigurations = configurations;
+        Assert.True(RBRGamePacenoteReader.EnsurePacenoteDefinition(game,
+            GetRbrDatabasePath("jannemod_v3.zdb")));
+        Assert.NotEmpty(RBRScriptResource.Instance.PacenoteId2ZTMZIds);
+        Assert.Single(warnings);
+    }
+
+    [Fact]
     public void JannemodEncodingCarriesCustomTypeAndModifiersInTheFlag()
     {
         var encoding = RBRGamePacenoteReader.DecodePacenoteEncoding(

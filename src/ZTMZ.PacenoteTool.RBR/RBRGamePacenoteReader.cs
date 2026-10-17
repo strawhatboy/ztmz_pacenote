@@ -18,7 +18,6 @@ using System;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using CsvHelper.Expressions;
-using System.Threading.Tasks;
 using Neo.IronLua;
 
 namespace ZTMZ.PacenoteTool.RBR;
@@ -211,10 +210,10 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             if (selection.ShowMessage)
                 game.OnCustomMessage(selection.MessageLevel, string.Format(I18NLoader.Instance[selection.MessageKey], track, selection.LoadedTitle));
             var pacenoteDef = selection.UseCustomDefinition
-                ? ((CommonGameConfigs)game.GameConfigurations[CommonGameConfigs.Name])["game.rbr.additional_settings.additional_pacenote_def"].ToString()
+                ? Convert.ToString(((CommonGameConfigs)game.GameConfigurations[CommonGameConfigs.Name])["game.rbr.additional_settings.additional_pacenote_def"])
                 : AppLevelVariables.Instance.GetPath(Path.Combine(Constants.PATH_GAMES, "default.zdb"));
-            if (RBRScriptResource.Instance.DBPath != pacenoteDef)
-                Task.Run(() => RBRScriptResource.Instance.LoadData(pacenoteDef)).Wait();
+            if (!EnsurePacenoteDefinition(game, pacenoteDef))
+                return null;
             var sr = rbrMemReader.ReadPacenotesFromMemory();
             if (sr?.PacenoteRecords.Count > 0)
             {
@@ -235,6 +234,18 @@ public class RBRGamePacenoteReader : BasePacenoteReader
             return null;    
         }
         
+    }
+
+    internal static bool EnsurePacenoteDefinition(IGame game, string? path)
+    {
+        if (!string.IsNullOrWhiteSpace(path) && RBRScriptResource.Instance.DBPath == path)
+            return true;
+        if (RBRScriptResource.Instance.LoadData(path).GetAwaiter().GetResult())
+            return true;
+
+        game.OnCustomMessage(2, string.Format(
+            I18NLoader.Instance["game.rbr.message.pacenote_definition_unavailable"], path ?? string.Empty));
+        return false;
     }
 
     private Tuple<int, string> extractTrackNoAndName(string track)

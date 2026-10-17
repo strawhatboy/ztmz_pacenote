@@ -3,6 +3,7 @@
 #define MyAppReleaseSuffix "-acr-experimental"
 #define MyAppId "{{F3C27DA8-3DE5-4F97-AB35-16C6BB98E8E1}"
 #define MyAppInstallFolder "ztmzclub_pacenotetool_acr_experimental"
+#define MyAppInstallDirValueName "ACRExperimentalInstallDir"
 
 #include "setup.iss"
 

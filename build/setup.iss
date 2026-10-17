@@ -49,6 +49,9 @@
 #ifndef MyAppInstallFolder
   #define MyAppInstallFolder "ztmzclub_pacenotetool_nextgen"
 #endif
+#ifndef MyAppInstallDirValueName
+  #define MyAppInstallDirValueName "InstallDir"
+#endif
 
 [Components]
 Name: "ztmz_ngptool"; Description: "ZTMZ Next Generation Pacenote Tool"; Types: full compact custom; Flags: fixed
@@ -66,6 +69,8 @@ var
   HiddenPage2: TInputDirWizardPage;
   InstallWebView2: Boolean;
   WebView2InstallerDownloaded: Boolean;
+
+#include "installer_paths.iss"
 
 procedure AppendDirBrowseClick(Sender: TObject);
 begin
@@ -250,6 +255,7 @@ end;
 procedure InitializeWizard;
 var
   ProjectLinkLabel: TNewLinkLabel;
+  ConfiguredInstallDir: String;
   ConfiguredDataHome: String;
 begin
   { the link label at bottom left}
@@ -272,10 +278,16 @@ begin
   DirPage.Add(ExpandConstant('{cm:ZTMZInstallFolder}'));
   DirPage.Add(ExpandConstant('{cm:ZTMZFolder}'));
 
-  { assign default directories for the items from the previously stored data; if }
-  { there are no data stored from the previous installation, use default folders }
-  { of your choice }
-  DirPage.Values[0] := GetPreviousData('InstallDir', ExpandConstant('{autopf}\{#MyAppInstallFolder}'));
+  { GetPreviousData reads Inno's uninstall data, not our application registry key. }
+  ConfiguredInstallDir := '';
+  RegQueryStringValue(HKEY_CURRENT_USER, 'Software\{#MyAppName}',
+    '{#MyAppInstallDirValueName}', ConfiguredInstallDir);
+  DirPage.Values[0] := ResolveInstallDirectory(
+    ExpandConstant('{param:DIR|}'), ConfiguredInstallDir,
+    GetPreviousData('InstallDir', ''), WizardDirValue);
+  { Keep Inno's app directory, Ready page and uninstaller beside the program. }
+  WizardForm.DirEdit.Text := DirPage.Values[0];
+  Log('Selected ZTMZ installation directory: ' + DirPage.Values[0]);
   { The application may have moved its data folder since the last installation. }
   ConfiguredDataHome := '';
   RegQueryStringValue(HKEY_CURRENT_USER, 'Software\{#MyAppName}', 'ZTMZHome', ConfiguredDataHome);
@@ -311,6 +323,7 @@ var
   ResultCode: Integer;
   WebView2Installer: String;
 begin
+  WizardForm.DirEdit.Text := DirPage.Values[0];
   if (CurPageID = wpReady) then
   begin
     DownloadPage.Clear;
@@ -481,6 +494,6 @@ Filename: "{code:GetInstallDir}\{#MyAppExeName}"; Description: "{cm:LaunchProgra
 
 [Registry]
 Root: HKCU; Subkey: "Software\{#MyAppName}"; Flags: uninsdeletekeyifempty
-Root: HKCU; Subkey: "Software\{#MyAppName}"; ValueType: string; ValueName: "InstallDir"; ValueData: "{code:GetInstallDir}"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\{#MyAppName}"; ValueType: string; ValueName: "{#MyAppInstallDirValueName}"; ValueData: "{code:GetInstallDir}"; Flags: uninsdeletevalue
 Root: HKCU; Subkey: "Software\{#MyAppName}"; ValueType: string; ValueName: "ZTMZHome"; ValueData: "{code:GetZTMZHome}"; Flags: uninsdeletevalue
 Root: HKCU; Subkey: "Software\{#MyAppName}"; ValueType: string; ValueName: "AppVersion"; ValueData: "{#MyAppVersion}"; Flags: uninsdeletevalue

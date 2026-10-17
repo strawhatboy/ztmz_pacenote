@@ -46,7 +46,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.Base.Game;
@@ -95,7 +94,7 @@ namespace ZTMZ.PacenoteTool.RBR
                 var commonConfiguration = (CommonGameConfigs)_gameConfigurations[CommonGameConfigs.Name];
                 var pacenoteDef = Convert.ToString(
                     commonConfiguration["game.rbr.additional_settings.additional_pacenote_def"]) ?? string.Empty;
-                Task.Run(() => RBRScriptResource.Instance.LoadData(pacenoteDef)).Wait();
+                RBRScriptResource.Instance.LoadData(pacenoteDef).GetAwaiter().GetResult();
                 _installedCodriverAudioProvider.Configure(
                     installationConfiguration as RBRGameInstallationConfig,
                     commonConfiguration[UseInstalledCodriverAudioConfigKey] is true);

@@ -26,6 +26,7 @@
                 }
             },
             "message": {
+                "pacenote_definition_unavailable": "无法加载 RBR 路书定义文件：{0}。请恢复该文件，或在 RBR 设置中选择有效的定义文件。依赖此定义的路书暂不可用，工具仍可继续运行。",
                 "selection_LoadedLuppis": "赛道 {0}：已确认游戏加载了 Luppis 路书“{1}”。",
                 "selection_LoadedDefault": "赛道 {0}：游戏当前已加载默认路书“{1}”；如需 Luppis 路书，请在游戏中切换。",
                 "selection_LoadedOther": "赛道 {0}：游戏当前已加载“{1}”，名称中未标注 Luppis；这不代表没有安装 Luppis 路书。",

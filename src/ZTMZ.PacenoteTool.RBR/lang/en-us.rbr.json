@@ -26,6 +26,7 @@
                 }
             },
             "message": {
+                "pacenote_definition_unavailable": "Cannot load RBR pacenote definition: {0}. Restore the file or select a valid definition in RBR settings. Calls requiring this definition are unavailable; ZTMZ can continue running.",
                 "selection_LoadedLuppis": "Stage {0}: confirmed the game has loaded Luppis pacenotes \"{1}\".",
                 "selection_LoadedDefault": "Stage {0}: the game has loaded default pacenotes \"{1}\". Select Luppis pacenotes in-game if desired.",
                 "selection_LoadedOther": "Stage {0}: the game has loaded \"{1}\", whose name does not identify it as Luppis. This does not mean Luppis is not installed.",
