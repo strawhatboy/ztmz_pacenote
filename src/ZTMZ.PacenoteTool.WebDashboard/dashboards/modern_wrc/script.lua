@@ -63,11 +63,13 @@ function onInit(args)
     );
     _brushes["throttle"] = gfx.CreateSolidBrush(0xc3, 0xe1, 0x67, 255)
     _brushes["clutch"] = gfx.CreateSolidBrush(0x2a, 0xb4, 0x5d, 255)
-    _brushes["hybrid"] = gfx.CreateLinearGradientBrush(
-        helper.getColor(0x15, 0xa2, 0xae, 255),
-        helper.getColor(0x3a, 0xe3, 0xf2, 255)
+    _brushes["handbrake"] = gfx.CreateLinearGradientBrush(
+        helper.getColor(0xb8, 0x18, 0x24, 255),
+        helper.getColor(0xff, 0x35, 0x40, 255)
     );
     
+    _brushes["handbrakeActive"] = gfx.CreateSolidBrush(0xff, 0x35, 0x40);
+    _brushes["handbrakeIdle"] = gfx.CreateSolidBrush(145, 156, 167);
     _brushes["hybridTrack"] = gfx.CreateSolidBrush(78, 89, 99, 170);
     _brushes["hybridBattery"] = gfx.CreateSolidBrush(136, 215, 216, 255);
     _brushes["hybridBoost"] = gfx.CreateSolidBrush(233, 192, 111, 255);
@@ -269,14 +271,26 @@ function drawHandBrake(gfx, data, helper, x, y, radius, padding)
         if (arcAngle > math.pi) then
             arcSize = ARCSIZE_LARGE;
         end
-        _brushes["hybrid"].SetRange(
+        _brushes["handbrake"].SetRange(
             x + telemetryRadius * math.cos(-math.pi / 6),
             y - telemetryRadius * math.sin(-math.pi / 6),
             x + telemetryRadius * math.cos(-math.pi / 6 + math.pi),
             y - telemetryRadius * math.sin(-math.pi / 6 + math.pi)
         );
-        drawGeo(gfx, helper, x, y, -math.pi / 6 + arcAngle, -math.pi / 6, telemetryRadius, telemetryRadius - handBrakeWeight, arcSize, _brushes["hybrid"]);
+        drawGeo(gfx, helper, x, y, -math.pi / 6 + arcAngle, -math.pi / 6, telemetryRadius, telemetryRadius - handBrakeWeight, arcSize, _brushes["handbrake"]);
     end
+
+    -- An always-visible parking-brake symbol identifies the existing input arc.
+    -- Keep it above the lower-left hybrid dial, clear of both speed/gear layouts.
+    local cx, cy, r = x - radius * 0.35, y + radius * 0.16, radius * 0.045;
+    local brush = handBrake > 0 and _brushes.handbrakeActive or _brushes.handbrakeIdle;
+    gfx.DrawCircle(brush, cx, cy, r, radius * 0.007);
+    drawGeo(gfx, helper, cx, cy, 5 * math.pi / 4, 3 * math.pi / 4,
+        r * 1.5, r * 1.5 - radius * 0.007, ARCSIZE_SMALL, brush);
+    drawGeo(gfx, helper, cx, cy, math.pi / 4, -math.pi / 4,
+        r * 1.5, r * 1.5 - radius * 0.007, ARCSIZE_SMALL, brush);
+    gfx.drawTextWithBackgroundCentered(_fonts.wrc, radius * 0.064, brush,
+        _brushes.transparent, cx, cy, "P");
 end
 
 function drawSpeed(gfx, data, conf, helper, x, y, radius, padding, switchGearNSpeed)

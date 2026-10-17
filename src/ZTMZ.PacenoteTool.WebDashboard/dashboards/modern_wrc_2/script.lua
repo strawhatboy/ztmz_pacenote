@@ -58,21 +58,17 @@ function onInit(args)
     _brushes["brake"] = gfx.CreateSolidBrush(0xd2, 0x18, 0x1d, 255)
     _brushes["throttle"] = gfx.CreateSolidBrush(0xc3, 0xe1, 0x67, 255)
     _brushes["clutch"] = gfx.CreateSolidBrush(0x2a, 0xb4, 0x5d, 255)
-    _brushes["hybrid"] = gfx.CreateSolidBrush(0x45, 0xf2, 0xee, 255)
+    _brushes["handbrake"] = gfx.CreateSolidBrush(0xff, 0x35, 0x40, 255)
     
+    _brushes["panelFill"] = gfx.CreateSolidBrush(30, 42, 62, 102);
+    _brushes["slotOutline"] = gfx.CreateSolidBrush(210, 214, 220, 200);
     _brushes["hybridTrack"] = gfx.CreateSolidBrush(92, 105, 115, 190);
-    _brushes["hybridBattery"] = gfx.CreateSolidBrush(94, 224, 208, 255);
+    _brushes["hybridBattery"] = gfx.CreateSolidBrush(32, 122, 116, 255);
     _brushes["hybridBoost"] = gfx.CreateSolidBrush(206, 232, 107, 255);
     _brushes["hybridReady"] = gfx.CreateSolidBrush(160, 224, 129, 255);
     _brushes["hybridRegen"] = gfx.CreateSolidBrush(94, 224, 208, 255);
     _brushes["hybridStandby"] = gfx.CreateSolidBrush(164, 179, 195, 220);
     _brushes["hybridUnknown"] = gfx.CreateSolidBrush(164, 179, 195, 220);
-    resources.hybridLabels = {};
-    for key, fallback in pairs({boost="BOOST", ready="READY", regen="REGEN", standby="STANDBY", hybrid="HYBRID"}) do
-        local id = "dashboards.hybrid." .. key;
-        local label = args.I18NLoader.ResolveByKey(id);
-        resources.hybridLabels[key] = (label ~= nil and label ~= "" and label ~= id) and label or fallback;
-    end
 
     local _fonts = {};
     _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
@@ -113,7 +109,21 @@ function drawStaticFrames(gfx, self, data, helper, x, y, width, height)
     _brushes["telemetryBackground"].SetRadius(radius, radius);
     -- 2. just draw the background (1278x352)
     gfx.FillCircle(_brushes["telemetryBackground"], centerX, centerY, radius);
-    gfx.DrawImage(self.ImageResources["images@background"], x, y, x + width, y + height);
+    -- Exclude the baked BOOST lettering, including when hybrid data is absent.
+    -- Recreate only that small patch with the artwork's translucent panel color.
+    local sx, sy = width / 1278, height / 352;
+    local left, top, right, bottom = x + 582 * sx, y + 257 * sy, x + 618 * sx, y + 269 * sy;
+    local function backgroundRegion(l, t, r, b)
+        gfx.ClipRegionStart(l, t, r, b);
+        gfx.DrawImage(self.ImageResources["images@background"], x, y, x + width, y + height);
+        gfx.ClipRegionEnd();
+    end
+    backgroundRegion(x, y, x + width, top);
+    backgroundRegion(x, top, left, bottom);
+    backgroundRegion(right, top, x + width, bottom);
+    backgroundRegion(x, bottom, x + width, y + height);
+    gfx.FillRectangle(_brushes.panelFill, left, top, right, bottom);
+    gfx.DrawLine(_brushes.slotOutline, left, y + 266 * sy, right, y + 266 * sy, 2 * sy);
 end
 
 function drawRPM(gfx, self, data, conf, helper, x, y, width, height)
@@ -217,7 +227,7 @@ function drawHandBrake(gfx, self, data, helper, x, y, width, height)
         if (totalArcAngle - arcAngle > math.pi) then
             arcSize = ARCSIZE_LARGE;
         end
-        drawGeo(gfx, helper, widthStart, heightStart, 43 * math.pi / 48 - arcAngle, -5.0 * math.pi / 24, telemetryRadius, telemetryRadius - handBrakeWeight, arcSize, _brushes["hybrid"]);
+        drawGeo(gfx, helper, widthStart, heightStart, 43 * math.pi / 48 - arcAngle, -5.0 * math.pi / 24, telemetryRadius, telemetryRadius - handBrakeWeight, arcSize, _brushes["handbrake"]);
     end
 
     -- draw icon 40x33
@@ -310,46 +320,43 @@ function drawGear(gfx, self, data, conf, helper, x, y, width, height, switchGear
 end
 
 
--- Match this dashboard's thin outlines and slanted pedal segments: a battery
--- cell in the left wing and a segmented boost dial above the right pedal.
-local function drawHybridWings(gfx, self, data, helper, x, y, width, height)
+-- Fill the original BOOST capsule and the taller battery slot below it.
+-- Coordinates follow the 1278x352 background artwork so borders stay visible.
+local function drawHybridSlots(gfx, self, data, helper, x, y, width, height)
     if self.GetConfigByKey("dashboards.settings.showHybrid") == false then return end
     local state = getHybridDisplayState(data);
     if state == nil then return end
     local b, f = resources.brushes, resources.fonts;
     local active = ({boost=b.hybridBoost, ready=b.hybridReady, regen=b.hybridRegen,
         standby=b.hybridStandby, hybrid=b.hybridUnknown})[state.state];
-    local bx, by = x + width * 0.225, y + height * 0.55;
-    local cellW, cellH = height * 0.24, height * 0.105;
-    gfx.DrawRectangle(b.hybridTrack, bx, by - cellH / 2, bx + cellW, by + cellH / 2, height * 0.006);
-    gfx.FillRectangle(b.hybridTrack, bx + cellW, by - cellH * 0.18, bx + cellW + height * 0.012, by + cellH * 0.18);
-    for i = 0, 7 do
-        local left = bx + cellW * (0.06 + i * 0.113);
-        local fill = state.battery ~= nil and math.max(0, math.min(1, state.battery * 8 - i)) or 0;
-        gfx.FillRectangle(b.hybridTrack, left, by - cellH * 0.32, left + cellW * 0.075, by + cellH * 0.32);
-        if fill > 0 then
-            gfx.FillRectangle(b.hybridBattery, left, by - cellH * 0.32,
-                left + cellW * 0.075 * fill, by + cellH * 0.32);
-        end
+    local sx, sy = width / 1278, height / 352;
+    local left, right = x + 566 * sx, x + 632 * sx;
+    local top, bottom = y + 269 * sy, y + 276 * sy;
+    gfx.FillRoundedRectangle(b.hybridTrack, left, top, right, bottom, 3 * sy);
+    if state.progress ~= nil and state.progress > 0 then
+        gfx.ClipRegionStart(left, top, left + (right - left) * state.progress, bottom);
+        gfx.FillRoundedRectangle(active, left, top, right, bottom, 3 * sy);
+        gfx.ClipRegionEnd();
     end
-    gfx.drawTextWithBackgroundCentered(f.wrc, height * 0.072, b.hybridBattery, b.transparent,
-        bx + cellW * 0.5, by + height * 0.115, hybridPercent(state.battery));
+    -- Unknown progress must not look like an empty boost budget.
+    if state.progress == nil then
+        gfx.drawTextWithBackgroundCentered(f.wrc, 9 * sy, b.white, b.transparent,
+            x + 599 * sx, y + 273 * sy, "--");
+    end
 
-    local cx, cy, r = x + width * 0.70, by, height * 0.10;
-    for i = 0, 11 do
-        local start = 4 * math.pi / 3 - i * (5 * math.pi / 3) / 12;
-        local span = (5 * math.pi / 3) / 12 * 0.72;
-        drawGeo(gfx, helper, cx, cy, start, start - span, r, r * 0.86, ARCSIZE_SMALL, b.hybridTrack);
-        local fill = state.progress ~= nil and math.max(0, math.min(1, state.progress * 12 - i)) or 0;
-        if fill > 0 then
-            drawGeo(gfx, helper, cx, cy, start, start - span * fill, r, r * 0.86, ARCSIZE_SMALL, active);
-        end
+    left, right, top, bottom = x + 565 * sx, x + 633 * sx, y + 286 * sy, y + 308 * sy;
+    gfx.FillRectangle(b.hybridTrack, left, top, right, bottom);
+    if state.battery ~= nil and state.battery > 0 then
+        gfx.FillRectangle(b.hybridBattery, left, top,
+            left + (right - left) * state.battery, bottom);
     end
-    hybridBolt(gfx, helper, active, cx, cy, r * 0.95);
-    gfx.DrawText(f.wrc, height * 0.055, active, cx + r * 1.45, cy - height * 0.045, resources.hybridLabels[state.state]);
+    -- White charge text remains legible over both the muted fill and empty track.
+    hybridBolt(gfx, helper, b.white, x + 574 * sx, y + 297 * sy, 12 * sy);
+    gfx.drawTextWithBackgroundCentered(f.wrc, 17 * sy, b.white, b.transparent,
+        x + 607 * sx, y + 297 * sy, hybridPercent(state.battery));
     if state.map ~= nil then
-        gfx.DrawText(f.wrc, height * 0.055, b.white, cx + r * 1.45, cy + height * 0.025,
-            "M" .. string.format("%.0f", state.map));
+        gfx.drawTextWithBackgroundCentered(f.wrc, 12 * sy, b.white, b.transparent,
+            x + 599 * sx, y + 323 * sy, "M" .. string.format("%.0f", state.map));
     end
 end
 
@@ -396,7 +403,7 @@ function onUpdate(args)
 
     drawSpeed(gfx, self, data, conf, helper, telemetryStartX, telemetryStartY, width, height, switchGearNSpeed);
     drawGear(gfx, self, data, conf, helper, telemetryStartX, telemetryStartY, width, height, switchGearNSpeed);
-    drawHybridWings(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
+    drawHybridSlots(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
 end
 
 function onExit()

@@ -153,7 +153,7 @@ int main(int argc,char** argv) {
                     data["Hybrid"]["BoostReady"]=std::string(state)=="READY";
                     data["Hybrid"]["RegenerationActive"]=std::string(state)=="REGEN";
                     auto layers=runtime.update(data,context,0,"12:34:56");render(layers);
-                    require(hasText(layers,"80%") && hasText(layers,state) && hasText(layers,"M2"),"Hybrid readings missing/wrong");
+                    require(hasText(layers,"80%") && (name=="modern_wrc_2" ? !hasText(layers,state) : hasText(layers,state)) && hasText(layers,"M2"),"Hybrid readings missing/wrong");
                     require(!hasText(layers,"M2.0"),"Hybrid map has a fractional suffix");
                 }
                 data["Hybrid"].erase("BatteryChargeFraction");

@@ -285,7 +285,7 @@ async function verifyDashboard(folder, id, commonScripts) {
             const lines = await drawHybrid({ BatteryChargeFraction: .8, BoostProgressFraction: .55,
                 BoostMap: 2, BoostActive: state === 'BOOST', BoostReady: state === 'READY',
                 RegenerationActive: state === 'REGEN' });
-            if (!lines.includes('80%') || !lines.includes(state) || !lines.includes('M2'))
+            if (!lines.includes('80%') || (folder === 'modern_wrc_2' ? lines.includes(state) : !lines.includes(state)) || !lines.includes('M2'))
                 throw new Error(`${folder}: missing hybrid battery/state/map: ${lines.join(' | ')}`);
         }
         const partial = await drawHybrid({ BoostProgressFraction: .5, BoostActive: true });

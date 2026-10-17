@@ -28,14 +28,15 @@ These readings are sampled for every UDP packet, independently of the 200 ms
 session/name cache. The shared snapshot reaches WPF/Avalonia Lua and browser/native
 dashboard telemetry. Each modern WRC dashboard owns its hybrid drawing code,
 colors and placement; only snapshot normalization is shared in `commonfunc.lua`.
-The round `modern_wrc` dial uses concentric battery/boost arcs in its lower opening.
-`modern_wrc_2` pairs a segmented battery cell with a segmented boost dial in its
-horizontal wings. `modern_wrc_2025` puts a lightning/boost ring beside the
-handbrake and battery charge/map below Km/h; the live time comparison moves below
+The round `modern_wrc` dial uses concentric battery/boost arcs in its lower opening,
+with a separate handbrake icon above them that lights red when the handbrake is applied.
+`modern_wrc_2` fills the existing thin BOOST capsule and the taller battery slot
+below it, with the selected map underneath and no boost text label. `modern_wrc_2025` puts a lightning/boost
+ring beside the handbrake and battery charge/map below Km/h; the live time comparison moves below
 the handbrake so both remain visible. The wider `modern_wrc_2025v2` uses thin
-circular gauges in its side wings. Progress is encoded by the arcs, battery
-percentage and selected map remain numeric, and state labels distinguish boost,
-ready, regeneration and standby. There is no shared rectangular hybrid panel.
+circular gauges in its side wings. Progress is encoded by arcs or the existing
+slots, battery percentage and selected map remain numeric. State colors distinguish boost,
+ready, regeneration and standby; all but `modern_wrc_2` also display state labels. There is no shared rectangular hybrid panel.
 Hybrid graphics are hidden when readings are unavailable, with a
 `Show hybrid telemetry` setting enabled by default. The handbrake indicators
 remain separate. Browser/native runtimes use English fallback labels; desktop
