@@ -131,16 +131,14 @@ namespace ZTMZ.PacenoteTool.Base
 
             foreach (var f in filePaths)
             {
+                // Detail pages need source paths even when playback uses preloaded audio.
+                package.tokensPath[Path.GetFileNameWithoutExtension(f)] =
+                    new ConcurrentBag<string>() { f };
                 if (Config.Instance.PreloadSounds)
                 {
                     _logger.Trace("preloading sound from file {0}", f);
                     package.tokens[Path.GetFileNameWithoutExtension(f)] =
                         new ConcurrentBag<AutoResampledCachedSound>() { new AutoResampledCachedSound(f) };
-                }
-                else
-                {
-                    package.tokensPath[Path.GetFileNameWithoutExtension(f)] =
-                        new ConcurrentBag<string>() { f };
                 }
             }
             // _logger.Debug("loaded {0} sounds from files directly", filePaths.Count);
@@ -154,13 +152,10 @@ namespace ZTMZ.PacenoteTool.Base
                 //var soundFilePath = string.Format("{0}/{1}", codriverPath, keyword);
                 if (Directory.Exists(soundFilePath))
                 {
+                    package.tokensPath[Path.GetFileName(soundFilePath)] = new ConcurrentBag<string>();
                     if (Config.Instance.PreloadSounds)
                     {
                         package.tokens[Path.GetFileName(soundFilePath)] = new ConcurrentBag<AutoResampledCachedSound>();
-                    }
-                    else
-                    {
-                        package.tokensPath[Path.GetFileName(soundFilePath)] = new ConcurrentBag<string>();
                     }
                     // load all files
                     foreach (var supportedFilter in Constants.SupportedAudioTypes)
@@ -170,13 +165,10 @@ namespace ZTMZ.PacenoteTool.Base
 
                     foreach (var filePath in filePaths)
                     {
+                        package.tokensPath[Path.GetFileName(soundFilePath)].Add(filePath);
                         if (Config.Instance.PreloadSounds)
                         {
                             package.tokens[Path.GetFileName(soundFilePath)].Add(new AutoResampledCachedSound(filePath));
-                        }
-                        else
-                        {
-                            package.tokensPath[Path.GetFileName(soundFilePath)].Add(filePath);
                         }
                     }
                 }
