@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 using ZTMZ.PacenoteTool.Base;
 
 namespace ZTMZ.PacenoteTool.WebDashboard;
@@ -9,6 +11,11 @@ namespace ZTMZ.PacenoteTool.WebDashboard;
 /// </summary>
 public sealed class WebDashboardBrowserLuaConfig
 {
+    // SetCulture replaces the effective dictionary. Reuse its immutable wire snapshot
+    // across telemetry frames; a language change naturally changes the scene signature.
+    private static readonly ConditionalWeakTable<IDictionary<string, string>, ReadOnlyDictionary<string, string>> TranslationCache = new();
+    private static readonly IReadOnlyDictionary<string, string> EmptyTranslations = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
+
     public WebDashboardBrowserLuaConfig(
         bool hudChromaKeyMode,
         float hudShiftGreenZone,
@@ -28,6 +35,11 @@ public sealed class WebDashboardBrowserLuaConfig
             Config.WebDashboardFrameRateMaximum);
         CanvasWidth = Math.Max(1, canvasWidth);
         CanvasHeight = Math.Max(1, canvasHeight);
+        var loader = I18NLoader.Instance;
+        CultureName = loader.CurrentCultureName ?? I18NLoader.FallbackCultureName;
+        Translations = loader.CurrentCulture is { } culture
+            ? TranslationCache.GetValue(culture, CreateTranslations)
+            : EmptyTranslations;
     }
 
     public bool HudChromaKeyMode { get; }
@@ -43,6 +55,24 @@ public sealed class WebDashboardBrowserLuaConfig
     public int CanvasWidth { get; }
 
     public int CanvasHeight { get; }
+
+    public string CultureName { get; }
+
+    public IReadOnlyDictionary<string, string> Translations { get; }
+
+    private static ReadOnlyDictionary<string, string> CreateTranslations(IDictionary<string, string> culture)
+    {
+        var translations = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach (var entry in culture)
+        {
+            if (entry.Key.StartsWith("dashboards.", StringComparison.OrdinalIgnoreCase)
+                || entry.Key.StartsWith("dashboard.", StringComparison.OrdinalIgnoreCase)
+                || entry.Key.StartsWith("overlay.", StringComparison.OrdinalIgnoreCase)
+                || entry.Key.Equals("ui.tb_gamestate", StringComparison.OrdinalIgnoreCase))
+                translations[entry.Key] = entry.Value;
+        }
+        return new ReadOnlyDictionary<string, string>(translations);
+    }
 }
 
 /// <summary>

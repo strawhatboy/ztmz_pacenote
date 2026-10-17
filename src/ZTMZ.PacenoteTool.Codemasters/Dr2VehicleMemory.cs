@@ -8,6 +8,7 @@ public readonly record struct Dr2VehicleTelemetry(float HandBrake, float ShiftRP
 {
     public ulong PhysicsAddress { get; init; }
     public CarDamageSnapshot? Damage { get; init; }
+    public TurboTelemetrySnapshot? Turbo { get; init; }
 }
 
 /// <summary>Verified DR2 vehicle data absent from the legacy UDP packet.</summary>
@@ -54,7 +55,11 @@ public static class Dr2VehicleMemory
         var codeBytes = read(physics + 0x4d0, 4);
         var code = System.Text.Encoding.ASCII.GetString(codeBytes, 0, 3);
         if (codeBytes[3] != 0 || !System.Text.RegularExpressions.Regex.IsMatch(code, "^[a-z0-9]{3}$")) return null;
-        return new(handBrake, shift * AngularVelocityToRPM, code) { PhysicsAddress = physics };
+        TurboTelemetrySnapshot? turbo = null;
+        try { turbo = Dr2TurboTelemetry.Read(read, physics); }
+        catch (IOException) { /* Optional turbo reads must not disable handbrake/RPM. */ }
+        if (Ptr(vehicle + 8) != physics) return null;
+        return new(handBrake, shift * AngularVelocityToRPM, code) { PhysicsAddress = physics, Turbo = turbo };
     }
 
     private static float Decode(byte[] bytes, int offset, uint multiplier) =>

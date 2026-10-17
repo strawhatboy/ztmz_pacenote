@@ -27,6 +27,37 @@ catalog distinguishes vehicles that share RPM fingerprints. Catalog reference:
 [RallyGamer DR2 car list](https://www.rallygamer.com/downloads/dirtrally2/tools/dirt_rally_2.0_car_list.pdf),
 cross-checked against installed car archive names.
 
+## Turbo pressure (2026-10-17)
+
+The verified Windows memory reader now supplies `GameData.Turbo` alongside UDP.
+The in-game HUD getter at RVA `0x7313f0` reads physics `+0x2538`. Its update at
+`0x74e750` smooths physics `+0x1388` minus `1.0` into that field. Publish this
+displayed gauge pressure in bar directly; do not subtract atmosphere again or
+use the normalized `turbo_pressure` audio parameter.
+
+Turbo availability follows the game's HUD check (`0x1a6720` calling `0x7336c0`):
+read the parameter pointer at physics `+0x1378`, decode its `+0x344` float by
+multiplying its stored uint32 by `0x16889185` modulo 2^32, and require a finite
+positive value. A non-turbo car is unavailable even if a pressure field contains
+an old value. The native `-1` initialization sentinel, nonfinite readings and
+readings above the decoded pressure limit (allowing 0.01 bar rounding tolerance)
+are omitted. Valid negative gauge pressure and zero remain visible.
+
+Read failures or partial reads omit only turbo telemetry, preserving handbrake
+and shift RPM. Parameter and player-physics pointers are rechecked after sampling.
+The existing executable hash and unique player/UDP RPM checks still apply.
+Unsupported builds and non-Windows readers leave turbo unavailable.
+
+A read-only Fiesta R5 capture observed a decoded pressure limit of 3.5 and HUD
+pressure from about -0.13 at low load to +2.50 at full boost. A subsequent recording
+through the production C# reader, with a user-confirmed stage restart and drive,
+reported -0.742 to +2.500 and returned to approximately -0.113 when paused at idle.
+The user confirmed the native gauge spans -1 to 4. A non-turbo car has unit-test
+coverage but has not been live driven for this change. Tests cover negative/zero/positive pressure,
+non-turbo cars, invalid values, reset sentinels, failed/partial reads and pointer
+replacement. `tools/Dr2Probe --turbo <idle-rad/s> <max-rad/s> [seconds] [log-path]`
+records the production memory reader without changing game UDP configuration.
+
 ## Start sequence
 
 The captured time-trial restart began its pre-start stream at simulation time

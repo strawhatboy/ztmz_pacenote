@@ -19,7 +19,15 @@
                 "regen": "REGEN",
                 "standby": "STANDBY",
                 "hybrid": "HYBRID",
-                "oilPressure": "OIL PRESSURE"
+                "oilPressure": "OIL PRESSURE",
+                "frontLeft": "FL",
+                "frontRight": "FR",
+                "rearLeft": "RL",
+                "rearRight": "RR",
+                "throttle": "T",
+                "brake": "B",
+                "clutch": "C",
+                "map": "M"
             }
         },
         "settings": {

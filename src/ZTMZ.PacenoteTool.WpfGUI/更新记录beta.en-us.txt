@@ -1,5 +1,8 @@
 v2.99.99.56-3.0-rc28
 
+* Fixes dashboard labels following the selected WPF/Avalonia language in browser, in-game and standalone rendering, including live language changes.
+* Fixes clean WPF release builds omitting the WRC 7/9/Generations provider; verifies bundled dashboard scripts, translations and fonts against source.
+* Adds DiRT Rally 2.0 turbo boost pressure for the verified Windows build, using the native HUD reading and preserving vacuum and zero. The gauge hides for non-turbo cars or unavailable data.
 * Adds a compact Liquid Glass dashboard with speed, gear, shift lights, pedals, steering and handbrake. Hybrid, boost/intake pressure, engine temperatures, time delta and key damage indicators appear only when data is available, with unused space collapsed.
 * Adds in-game background refraction and diffusion on DX9, DX10, DX11, DX12 and Vulkan, with per-dashboard effect, tint opacity, refraction and diffusion controls. Defaults of 8 refraction and 4 diffusion soften the backdrop and reduce edge distortion. Separate overlays and browser dashboards use a translucent fallback; other dashboards are unaffected.
 * Adds shared engine temperature and boost/intake pressure readings for RBR and BeamNG.drive, retaining pressure-reference information and hiding invalid or stale readings instead of presenting missing data as healthy or zero.

@@ -259,6 +259,24 @@ public class LiquidGlassDashboardTests
         }
     }
 
+    [Fact]
+    public void StandaloneLabelsFollowLanguageChangesWithoutReallocatingBrushes()
+    {
+        using var lua = new Lua(); var env = Load(lua); var data = Sample();
+        Assert.Contains("COOLANT", (string)env.CallMember("render", data, false)[0]);
+        var brushes = env["brushCreates"];
+        env.CallMember("setLanguage", "zh-cn", "水温");
+        var chinese = (string)env.CallMember("render", data, false)[0];
+        Assert.Contains("水温", chinese);
+        Assert.DoesNotContain("COOLANT", chinese);
+        Assert.Contains("TURBO / bar", chinese); // Missing translations retain a readable fallback.
+        env.CallMember("setLanguage", "en-us", "COOLANT");
+        var english = (string)env.CallMember("render", data, false)[0];
+        Assert.Contains("COOLANT", english);
+        Assert.DoesNotContain("水温", english);
+        Assert.Equal(brushes, env["brushCreates"]);
+    }
+
     private static void SetSetting(LuaGlobal env, string name, object value) =>
         env.CallMember("setSetting", "dashboards.settings." + name, value);
 
@@ -326,6 +344,12 @@ public class LiquidGlassDashboardTests
                 I18NLoader={ResolveByKey=function(key) return key end},
                 Config={HudShiftGreenZone=.5,HudShiftYellowZone=.7,HudShiftRedZone=.9},GameContext={}}
             onInit(args)
+            function setLanguage(culture,coolant)
+                args.I18NLoader={CurrentCultureName=culture,ResolveByKey=function(key)
+                    if key=='dashboards.liquidGlass.labels.coolant' then return coolant end
+                    return key
+                end}
+            end
             function setSetting(key,value)
                 settings[key]=value
             end

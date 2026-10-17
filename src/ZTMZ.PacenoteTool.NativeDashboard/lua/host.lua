@@ -229,7 +229,9 @@ local translations={
     ['overlay.gameStateAdHocRaceBegin']='Racing (joined late)'
 }
 for key,value in pairs(package.translations or {}) do translations[key]=value end
-args.I18NLoader={ResolveByKey=function(key) return translations[key] or key end}
+for key,value in pairs(config.Translations or {}) do translations[key]=value end
+args.I18NLoader={CurrentCultureName=config.CultureName or 'en-us',
+    ResolveByKey=function(key) return translations[key] or translations[key:lower()] or key end}
 local images={}
 for cacheKey,url in pairs(package.imageResources or {}) do
     local key=cacheKey:gsub('^'..tostring(package.id)..':','')

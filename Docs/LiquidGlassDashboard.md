@@ -50,6 +50,21 @@ Coolant temperature is separate from radiator damage; its warning color uses a
 reported overtemperature warning rather than a universal temperature threshold.
 Temperature and pressure snapshots are optional, like the existing hybrid data.
 
+## Language
+
+Dashboard labels follow the language selected in WPF or Avalonia, including changes
+while rendering. The browser/native scene configuration carries `CultureName` and
+an effective `Translations` snapshot (including the host's English fallback).
+Only dashboard/overlay keys and the game-state caption are included. The snapshot
+is reused until the host replaces its effective culture dictionary; translations
+travel with scene changes, not telemetry deltas. Scene changes recreate cached
+browser/native Lua labels. Standalone Liquid Glass and modern WRC dashboards refresh
+their cached labels on a culture change without recreating brushes or fonts.
+
+Liquid Glass also localizes pedal, tyre-position and hybrid-map captions. Units
+(`km/h`, `bar`, `°C`, RPM) and the handbrake symbol remain standard notation.
+Missing Liquid Glass labels retain their readable English defaults.
+
 ## Rendering contract
 
 Lua uses `DrawGlassPanel(brush, left, top, right, bottom, radius, refraction, blur)`.

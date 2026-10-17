@@ -89,7 +89,28 @@ void initFailureHybridAndRevision(){
     auto invalid=client.accept(message,0.2,"");
     require(invalid.controlMessage.find("browserLuaFallback")!=std::string::npos&&client.scene().layers.empty(),"Malformed scene lost protocol fallback");
 }
+void languageChangesRefreshCachedLabels(){
+    DashboardClient client([](int id){auto p=package(id,R"(
+local label
+function onInit(a) label=a.I18NLoader.ResolveByKey('dashboard.test')..'/'..a.I18NLoader.CurrentCultureName end
+function onUpdate(a)
+ local g=a.Graphics
+ g.DrawText(g.CreateFont('Segoe UI',16),g.CreateSolidBrush(255,255,255),0,0,label)
+end
+)");p["translations"]={{"dashboard.test","stale package"}};return p;});
+    auto message=scene();message["dashboards"]=Json::array({{{"id",0},{"order",0}}});
+    message["config"]={{"CultureName","zh-cn"},{"Translations",{{"dashboard.test","\xE6\xB0\xB4\xE6\xB8\xA9"}}}};
+    client.accept(message,0,"");
+    require(layer(client,0)&&layer(client,0)->commands[0]["text"]=="\xE6\xB0\xB4\xE6\xB8\xA9/zh-cn","Host translations did not override stale package labels");
+    message["sceneRevision"]=2;
+    message["config"]={{"CultureName","en-us"},{"Translations",{{"dashboard.test","COOLANT"}}}};
+    client.accept(message,0.1,"");
+    require(layer(client,0)&&layer(client,0)->commands[0]["text"]=="COOLANT/en-us","Language change did not refresh cached native labels");
+    message.erase("dashboards");message.erase("config");client.accept(message,0.2,"");
+    require(layer(client,0)&&layer(client,0)->commands[0]["text"]=="COOLANT/en-us","Telemetry delta lost selected language");
 }
-int main(){try{isolationAndRecovery();loadBackoffAndRemoval();initFailureHybridAndRevision();
+
+}
+int main(){try{isolationAndRecovery();loadBackoffAndRemoval();initFailureHybridAndRevision();languageChangesRefreshCachedLabels();
     std::cout<<"Dashboard failure isolation, stale-layer clearing, cached VM recovery, bounded retries, hybrid composition and revision recovery passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

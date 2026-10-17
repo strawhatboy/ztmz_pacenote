@@ -429,6 +429,7 @@ public class DirtGameDataReader : UdpGameDataReader
                 gameData.ShiftLightsRPMEnd = vehicle.ShiftRPM;
                 _nativeCarCode = vehicle.CarCode;
                 gameData.CarDamage = vehicle.Damage ?? CarDamageSnapshot.Unavailable("DR2");
+                gameData.Turbo = vehicle.Turbo;
             }
         }
         gameData.ShiftLightsRPMStart = Math.Max(0, gameData.ShiftLightsRPMEnd - 1000);

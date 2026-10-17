@@ -4,7 +4,7 @@
             "name": "液态玻璃",
             "description": "带混动、涡轮压力、温度与部件警告的折射玻璃仪表。原生 DX9/10/11/12 和 Vulkan 在可读取游戏背景时支持折射效果。",
             "labels": {
-                "gear": "档位",
+                "gear": "挡位",
                 "coolant": "水温",
                 "oil": "油温",
                 "delta": "时间差",
@@ -19,7 +19,15 @@
                 "regen": "回充",
                 "standby": "待机",
                 "hybrid": "混动",
-                "oilPressure": "机油压力"
+                "oilPressure": "机油压力",
+                "frontLeft": "左前",
+                "frontRight": "右前",
+                "rearLeft": "左后",
+                "rearRight": "右后",
+                "throttle": "油",
+                "brake": "刹",
+                "clutch": "离",
+                "map": "模式"
             }
         },
         "settings": {

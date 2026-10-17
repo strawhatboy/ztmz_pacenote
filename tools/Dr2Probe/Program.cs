@@ -1,6 +1,41 @@
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.Codemasters;
 
+// Observe the same hash-gated reader used by the app without changing UDP settings.
+// Arguments: --turbo <UDP idle radians/s> <UDP max radians/s> [seconds] [new log path]
+if (args.FirstOrDefault() == "--turbo")
+{
+    var type = typeof(DirtRally2).Assembly.GetType("ZTMZ.PacenoteTool.Codemasters.Dr2VehicleMemoryReader", true)!;
+    using var memoryReader = (IDisposable)Activator.CreateInstance(type)!;
+    var read = type.GetMethod("Read")!;
+    var culture = System.Globalization.CultureInfo.InvariantCulture;
+    var idle = float.Parse(args[1], culture);
+    var maximum = float.Parse(args[2], culture);
+    var seconds = args.Length > 3 ? int.Parse(args[3], culture) : 10;
+    using var output = args.Length > 4 ? new StreamWriter(new FileStream(args[4], FileMode.CreateNew)) { AutoFlush = true } : null;
+    var end = Environment.TickCount64 + seconds * 1000L;
+    long nextConsole = 0;
+    while (Environment.TickCount64 < end)
+    {
+        var vehicle = (Dr2VehicleTelemetry?)read.Invoke(memoryReader, [idle, maximum]);
+        var line = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            at = DateTimeOffset.UtcNow,
+            car = vehicle?.CarCode,
+            physics = vehicle?.PhysicsAddress,
+            turbo = vehicle?.Turbo
+        });
+        output?.WriteLine(line);
+        if (Environment.TickCount64 >= nextConsole)
+        {
+            Console.WriteLine(line);
+            nextConsole = Environment.TickCount64 + 1000;
+        }
+        await Task.Delay(50);
+    }
+    return;
+}
+
 // Same hash-gated production memory reader, independent of UDP (which can stop
 // on result screens). Keep the capture local; never writes to the game.
 if (args.FirstOrDefault() == "--race")

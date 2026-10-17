@@ -17,6 +17,18 @@ local bInBlink = true;
 --         args.GameContext.ScriptAuthor: string
 --         args.GameContext.PacenoteType: string
 
+local function refreshLabels(args)
+    local culture=args.I18NLoader.CurrentCultureName;
+    if resources.hybridLabels ~= nil and resources.labelCulture == culture then return end
+    resources.labelCulture=culture;
+    resources.hybridLabels = {};
+    for key, fallback in pairs({boost="BOOST", ready="READY", regen="REGEN", standby="STANDBY", hybrid="HYBRID"}) do
+        local id = "dashboards.hybrid." .. key;
+        local label = args.I18NLoader.ResolveByKey(id);
+        resources.hybridLabels[key] = (label ~= nil and label ~= "" and label ~= id) and label or fallback;
+    end
+end
+
 function onInit(args)
     local gfx = args.Graphics;
     local conf = args.Config;
@@ -70,12 +82,7 @@ function onInit(args)
     _brushes["hybridRegen"] = gfx.CreateSolidBrush(130, 231, 245, 255);
     _brushes["hybridStandby"] = gfx.CreateSolidBrush(164, 179, 195, 220);
     _brushes["hybridUnknown"] = gfx.CreateSolidBrush(164, 179, 195, 220);
-    resources.hybridLabels = {};
-    for key, fallback in pairs({boost="BOOST", ready="READY", regen="REGEN", standby="STANDBY", hybrid="HYBRID"}) do
-        local id = "dashboards.hybrid." .. key;
-        local label = args.I18NLoader.ResolveByKey(id);
-        resources.hybridLabels[key] = (label ~= nil and label ~= "" and label ~= id) and label or fallback;
-    end
+    refreshLabels(args);
 
     local _fonts = {};
     _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
@@ -522,6 +529,7 @@ local function drawHybridInstrument(gfx, self, data, helper, x, y, width, height
 end
 
 function onUpdate(args)
+    refreshLabels(args);
     local data = args.GameData;
     local gfx = args.Graphics;
     local conf = args.Config;

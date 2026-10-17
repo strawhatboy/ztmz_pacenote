@@ -406,7 +406,9 @@
                     Graphics: this.graphics,
                     Config: this.globalConfig,
                     I18NLoader: {
-                        ResolveByKey: luaFunction(key => resolveBrowserLuaText(key))
+                        CurrentCultureName: this.globalConfig.CultureName || 'en-us',
+                        ResolveByKey: luaFunction(key => resolveBrowserLuaText(key,
+                            this.globalConfig.Translations, this.dashboardPackage.translations))
                     },
                     GameData: {},
                     GameContext: context,
@@ -1635,8 +1637,15 @@
             0);
     }
 
-    function resolveBrowserLuaText(key) {
+    function resolveBrowserLuaText(key, translations, packageTranslations) {
         const textKey = toJavaScriptString(key);
+        for (const source of [translations, packageTranslations]) {
+            for (const candidate of [textKey, textKey.toLowerCase()]) {
+                if (source && Object.prototype.hasOwnProperty.call(source, candidate)) {
+                    return source[candidate];
+                }
+            }
+        }
         const labels = {
             'ui.tb_gamestate': 'Game state',
             'overlay.track': 'Track',

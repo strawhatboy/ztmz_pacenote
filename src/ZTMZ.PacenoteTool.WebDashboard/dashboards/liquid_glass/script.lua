@@ -10,6 +10,21 @@ local function fraction(value)
     return math.max(0, math.min(1, number(value) or 0));
 end
 
+local function refreshLabels(args)
+    local culture=args.I18NLoader.CurrentCultureName;
+    if resources.labels ~= nil and resources.labelCulture == culture then return end
+    resources.labelCulture=culture;
+    resources.labels = {};
+    for key, fallback in pairs({gear="GEAR",coolant="COOLANT",oil="OIL",oilPressure="OIL PRESSURE",delta="DELTA",
+        turbo="TURBO / bar",absolute="INTAKE / bar abs",pressure="PRESSURE / bar",engine="ENGINE",
+        cooling="COOLING",gearbox="GEARBOX",boost="BOOST",ready="READY",regen="REGEN",standby="STANDBY",hybrid="HYBRID",frontLeft="FL",frontRight="FR",rearLeft="RL",rearRight="RR",
+        throttle="T",brake="B",clutch="C",map="M"}) do
+        local id="dashboards.liquidGlass.labels."..key;
+        local label=args.I18NLoader.ResolveByKey(id);
+        resources.labels[key]=(label ~= nil and label ~= "" and label ~= id) and label or fallback;
+    end
+end
+
 function onInit(args)
     local gfx = args.Graphics;
     local colors = {
@@ -22,14 +37,7 @@ function onInit(args)
     for name, c in pairs(colors) do
         resources.brushes[name] = gfx.CreateSolidBrush(c[1],c[2],c[3],c[4]);
     end
-    resources.labels = {};
-    for key, fallback in pairs({gear="GEAR",coolant="COOLANT",oil="OIL",oilPressure="OIL PRESSURE",delta="DELTA",
-        turbo="TURBO / bar",absolute="INTAKE / bar abs",pressure="PRESSURE / bar",engine="ENGINE",
-        cooling="COOLING",gearbox="GEARBOX",boost="BOOST",ready="READY",regen="REGEN",standby="STANDBY",hybrid="HYBRID"}) do
-        local id="dashboards.liquidGlass.labels."..key;
-        local label=args.I18NLoader.ResolveByKey(id);
-        resources.labels[key]=(label ~= nil and label ~= "" and label ~= id) and label or fallback;
-    end
+    refreshLabels(args);
     resources.font = gfx.CreateFont("Segoe UI", 16);
     resources.bold = gfx.CreateFont("Segoe UI", 16, true);
 end
@@ -86,6 +94,7 @@ local function damageIcon(gfx, brush, kind, cx, cy, s)
 end
 
 function onUpdate(args)
+    refreshLabels(args);
     local gfx, data, self, helper = args.Graphics,args.GameData,args.Self,args.GameOverlayDrawingHelper;
     local b = resources.brushes;
     local function setting(key) return self.GetConfigByKey("dashboards.settings."..key) end
@@ -128,10 +137,10 @@ function onUpdate(args)
                 {damage.EngineAvailable,damage.EngineSeverity,"engine",resources.labels.engine},
                 {damage.RadiatorAvailable,damage.RadiatorSeverity,"cooling",resources.labels.cooling},
                 {damage.GearboxAvailable,damage.GearboxSeverity,"gearbox",resources.labels.gearbox},
-                {damage.FrontLeftTyreAvailable,damage.FrontLeftTyreSeverity,"tyre","FL"},
-                {damage.FrontRightTyreAvailable,damage.FrontRightTyreSeverity,"tyre","FR"},
-                {damage.RearLeftTyreAvailable,damage.RearLeftTyreSeverity,"tyre","RL"},
-                {damage.RearRightTyreAvailable,damage.RearRightTyreSeverity,"tyre","RR"}}) do
+                {damage.FrontLeftTyreAvailable,damage.FrontLeftTyreSeverity,"tyre",resources.labels.frontLeft},
+                {damage.FrontRightTyreAvailable,damage.FrontRightTyreSeverity,"tyre",resources.labels.frontRight},
+                {damage.RearLeftTyreAvailable,damage.RearLeftTyreSeverity,"tyre",resources.labels.rearLeft},
+                {damage.RearRightTyreAvailable,damage.RearRightTyreSeverity,"tyre",resources.labels.rearRight}}) do
                 local severity=number(item[2]);
                 if item[1] == true and severity ~= nil and severity>=0 then
                     table.insert(damageItems,{item[3],item[4],severity});
@@ -195,7 +204,7 @@ function onUpdate(args)
     text(string.format("%.0f",number(data.Speed) or 0),275,76,57,b.white,true);
     text("km/h",275,112,12,b.muted);
     line(207,45,207,113,b.line);
-    for i,p in ipairs({{"T",data.Throttle,b.green},{"B",data.Brake,b.red},{"C",data.Clutch,b.blue}}) do
+    for i,p in ipairs({{resources.labels.throttle,data.Throttle,b.green},{resources.labels.brake,data.Brake,b.red},{resources.labels.clutch,data.Clutch,b.blue}}) do
         local px=26+(i-1)*20;
         gfx.FillRoundedRectangle(b.track,tx(px),ty(38),tx(px+8),ty(100),4*s);
         local amount=fraction(p[2]);
@@ -222,7 +231,7 @@ function onUpdate(args)
         bolt(gfx,helper,active,tx(px),ty(72),17*s);
         if hybrid.battery ~= nil then text(string.format("%.0f%%",hybrid.battery*100),px,112,18,b.cyan,true) end
         local label=resources.labels[hybrid.state];
-        if hybrid.map ~= nil then label=label.."  M"..string.format("%.0f",hybrid.map) end
+        if hybrid.map ~= nil then label=label.."  "..resources.labels.map..string.format("%.0f",hybrid.map) end
         text(label,px,132,9,active);
         nextColumn=nextColumn+96;
     end

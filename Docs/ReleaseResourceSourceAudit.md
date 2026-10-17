@@ -99,3 +99,26 @@ Local-only WRC files (14):
 
 The installer already generated before this change is not rewritten by changing
 these scripts. Run `build/onekey.bat` again to package the 265-file WRC source.
+
+## rc28 release verification (2026-10-17)
+
+The clean WPF publish previously tried to copy the KT provider without building it.
+`publish.bat` now explicitly publishes KT (`net10.0`, `win-x64`) before the WPF host.
+The payload verifier also checks every bundled dashboard, web-client and font file
+against source hashes to catch missing or stale assets.
+
+Validation completed for 2.99.99.56-rc28:
+
+- Clean `build/publish.bat`, including x64/x86 native builds and payload/resource checks.
+- 59 focused .NET tests covering DR2 vehicle/turbo data, wire serialization,
+  Liquid Glass and language changes; all 18 browser Lua dashboard smoke checks,
+  including Chinese/English switching; native client, Lua runtime and bundled Lua checks.
+- Avalonia Windows Debug build passed. Existing compiler/XAML warnings remain.
+- Inno Setup compiled `Output/ZTMZClub_PacenoteTool_Installer_2.99.99.56-rc28.exe`
+  (32,861,394 bytes), product version `2.99.99.56`.
+  SHA256: `d96ea959624ff0f09fc88e857b420400c60bb02cf7c1e8ec4380a29bbd9524b5`.
+  Existing missing Chinese Inno messages fall back to English.
+
+This verifies compilation and staged contents, not a fresh installation or upgrade.
+Installer launch/upgrade and live gameplay smoke testing remain the final release
+gate. No installer was uploaded and `autoupdate_beta.json` was not advanced.

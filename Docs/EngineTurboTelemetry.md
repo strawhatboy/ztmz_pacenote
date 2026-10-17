@@ -43,6 +43,16 @@ not become valid zero telemetry. The two values are validated independently.
 Menus and subsequent unavailable reads replace previous snapshots with null.
 Existing game-specific float fields retain their legacy zero fallback.
 
+## DiRT Rally 2.0
+
+Source `DR2`. The verified Windows supplemental memory reader publishes the
+game's smoothed HUD turbo gauge pressure, including vacuum and valid zero, with
+reference `gauge`. Native turbo-presence detection hides the reading for cars
+without turbo; unavailable or invalid reads do not disable the other telemetry.
+See [DR2 telemetry evidence and validation](dr2-telemetry.md#turbo-pressure-2026-10-17).
+The UDP packet alone does not supply this field; unsupported executable builds
+and non-Windows hosts retain a null turbo snapshot.
+
 ## BeamNG.drive
 
 Source `beamng`. Official protocol documentation specifies temperatures in Celsius,

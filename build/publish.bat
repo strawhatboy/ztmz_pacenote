@@ -28,6 +28,11 @@ dotnet publish -c Release -f net10.0-windows -r win-x64 --artifacts-path ../../b
 if errorlevel 1 goto :publish_failed
 cd ..
 
+cd ZTMZ.PacenoteTool.KT
+dotnet publish -c Release -f net10.0 -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0 --property ArtifactsPivots=release_win-x64
+if errorlevel 1 goto :publish_failed
+cd ..
+
 cd ZTMZ.PacenoteTool.WpfGUI
 dotnet publish -c Release -f net10.0-windows -r win-x64 --artifacts-path ../../build/target --property WarningLevel=0 --property ArtifactsPivots=release_win-x64
 if errorlevel 1 goto :publish_failed

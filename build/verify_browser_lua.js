@@ -517,6 +517,44 @@ function verifyInboundTelemetryCoalescing() {
     }
 }
 
+async function verifyLanguageSwitch(commonScripts) {
+    const failures = [];
+    const manager = new window.ZtmzBrowserLuaDashboardManager({
+        layerStack: () => ({ appendChild() {} }),
+        fetchPackage: async () => ({
+            supportsWebDashboardClientLua: true,
+            luaScript: fs.readFileSync(path.join(dashboardsRoot, 'liquid_glass', 'script.lua'), 'utf8'),
+            commonScripts, imageResources: {},
+            translations: { 'dashboards.liquidGlass.labels.coolant': 'STALE PACKAGE' }
+        }),
+        requestScene() {}, onFrameRendered() {},
+        onError: message => failures.push(message),
+        onFallback: message => failures.push(message)
+    });
+    try {
+        for (const [index, culture] of ['zh-cn', 'en-us'].entries()) {
+            const labels = parseJson(fs.readFileSync(path.join(dashboardsRoot, 'lang', `${culture}.liquid-glass.json`), 'utf8'))
+                .dashboards.liquidGlass.labels;
+            const translations = Object.fromEntries(Object.entries(labels).map(([key, value]) => [`dashboards.liquidGlass.labels.${key}`, value]));
+            renderedTextLines = [];
+            manager.handleTelemetry({
+                sceneRevision: index + 1,
+                dashboards: [{ id: 0, order: 0, configurationRevision: 1, settings: readSettings('liquid_glass') }],
+                config: { ...browserConfig, CultureName: culture, Translations: translations },
+                data: { ...telemetry, Engine: { CoolantTemperatureCelsius: 94 } },
+                context: telemetryContext
+            });
+            await waitFor(() => failures.length > 0 || renderedTextLines.some(line => line.text === labels.coolant),
+                `Liquid Glass did not switch to ${culture}`);
+            if (failures.length || renderedTextLines.some(line => line.text === 'STALE PACKAGE')) {
+                throw new Error(`Dashboard localization failed: ${failures.join('; ')}`);
+            }
+            const wrongLabel = culture === 'zh-cn' ? 'COOLANT' : '水温';
+            if (renderedTextLines.some(line => line.text === wrongLabel)) throw new Error('Stale language survived scene switch');
+        }
+    } finally { manager.suspend(); }
+}
+
 async function main() {
     installBrowserGlobals();
     global.fengari = require(path.join(
@@ -546,6 +584,7 @@ async function main() {
     for (const [index, folder] of folders.entries()) {
         await verifyDashboard(folder, index, commonScripts);
     }
+    await verifyLanguageSwitch(commonScripts);
     await verifyModernProgressWithoutBestPosition(commonScripts);
     await verifySustainedTelemetry();
     verifyInboundTelemetryCoalescing();

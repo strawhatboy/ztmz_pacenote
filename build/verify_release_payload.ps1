@@ -55,6 +55,19 @@ foreach ($library in $target.PSObject.Properties) {
 
 # Include every provider's shipped language file, not just the two KT languages.
 $repo = Split-Path -Parent $PSScriptRoot
+# Verify all bundled dashboard scripts/settings/translations and browser assets against source.
+# Presence alone cannot detect stale Lua/JS files left by an incomplete publish.
+$webSource = Join-Path $repo 'src/ZTMZ.PacenoteTool.WebDashboard'
+foreach ($folder in @('dashboards', 'wwwroot', 'fonts')) {
+    $source = Join-Path $webSource $folder
+    foreach ($file in Get-ChildItem -LiteralPath $source -Recurse -File) {
+        $relative = $folder + '/' + $file.FullName.Substring($source.Length + 1)
+        $published = Require-File $relative
+        if ((Get-ReleaseSha256 $published) -ne (Get-ReleaseSha256 $file.FullName)) {
+            throw "Stale published dashboard asset: $relative"
+        }
+    }
+}
 foreach ($file in Get-ChildItem (Join-Path $repo 'src/ZTMZ.PacenoteTool.BeamNG/BeamNGMod') -Recurse -File) {
     $modRoot = (Resolve-Path (Join-Path $repo 'src/ZTMZ.PacenoteTool.BeamNG/BeamNGMod')).Path
     $null = Require-File ('games/BeamNGMod/' + $file.FullName.Substring($modRoot.Length + 1))
