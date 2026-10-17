@@ -63,6 +63,20 @@ function onInit(args)
     -- _brushes["clutch"] = gfx.CreateSolidBrush(0x2a, 0xb4, 0x5d, 255)
     -- _brushes["hybrid"] = gfx.CreateSolidBrush(0x45, 0xf2, 0xee, 255)
     
+    _brushes["hybridTrack"] = gfx.CreateSolidBrush(126, 154, 187, 120);
+    _brushes["hybridBattery"] = gfx.CreateSolidBrush(116, 220, 239, 255);
+    _brushes["hybridBoost"] = gfx.CreateSolidBrush(239, 201, 129, 255);
+    _brushes["hybridReady"] = gfx.CreateSolidBrush(155, 232, 184, 255);
+    _brushes["hybridRegen"] = gfx.CreateSolidBrush(116, 220, 239, 255);
+    _brushes["hybridStandby"] = gfx.CreateSolidBrush(164, 179, 195, 220);
+    _brushes["hybridUnknown"] = gfx.CreateSolidBrush(164, 179, 195, 220);
+    resources.hybridLabels = {};
+    for key, fallback in pairs({boost="BOOST", ready="READY", regen="REGEN", standby="STANDBY", hybrid="HYBRID"}) do
+        local id = "dashboards.hybrid." .. key;
+        local label = args.I18NLoader.ResolveByKey(id);
+        resources.hybridLabels[key] = (label ~= nil and label ~= "" and label ~= id) and label or fallback;
+    end
+
     local _fonts = {};
     _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
     _fonts["wrc"] = gfx.CreateCustomFont("WRC Clean", 14);
@@ -72,6 +86,20 @@ function onInit(args)
     resources["brushes"] = _brushes;
     resources["trailBrushes"] = {};
     resources["fonts"] = _fonts;
+
+end
+
+local function hybridPercent(value)
+    return value ~= nil and (tostring(math.floor(value * 100 + 0.5)) .. "%") or "--";
+end
+
+local function hybridBolt(gfx, helper, brush, x, y, size)
+    local shape = gfx.CreateGeometry();
+    shape.BeginFigure(helper.getPoint(x + size * 0.20, y - size * 0.60), true);
+    for _, point in ipairs({ {-0.40, 0.08}, {-0.06, 0.08}, {-0.20, 0.60}, {0.42, -0.14}, {0.06, -0.14} }) do
+        shape.AddPoint(helper.getPoint(x + size * point[1], y + size * point[2]));
+    end
+    shape.EndFigure(); shape.Close(); gfx.FillGeometry(shape, brush); shape.Dispose();
 end
 
 function drawStaticFrames(gfx, self, data, helper, x, y, width, height) 
@@ -423,6 +451,9 @@ function drawDeltaTime(gfx, self, data, ctx, helper, x, y, width, height)
     
     -- 设置显示位置（在转速表上方）
     local deltaWeight = height * 0.04;  -- 字体大小
+    if self.GetConfigByKey("dashboards.settings.showHybrid") ~= false and getHybridDisplayState(data) ~= nil then
+        deltaWeight = height * 0.032;
+    end
     local deltaX = x + width * 0.290;     -- 水平居中
     local deltaY = y + height * 0.46;   -- 在转速表上方
     
@@ -450,6 +481,44 @@ function drawDeltaTime(gfx, self, data, ctx, helper, x, y, width, height)
         rectX + padding,
         rectY + (padding / 4),
         deltaText)
+end
+
+-- This wide glass layout has room in its side wings. Fine circular battery
+-- and boost gauges balance the centre display while leaving the pedal strip clear.
+local function drawHybridSideGauges(gfx, self, data, helper, x, y, width, height)
+    if self.GetConfigByKey("dashboards.settings.showHybrid") == false then return end
+    local state = getHybridDisplayState(data);
+    if state == nil then return end
+    local b, f = resources.brushes, resources.fonts;
+    local active = ({boost=b.hybridBoost, ready=b.hybridReady, regen=b.hybridRegen,
+        standby=b.hybridStandby, hybrid=b.hybridUnknown})[state.state];
+    local cy, r = y + height * 0.48, height * 0.065;
+    local function dial(cx, fraction, brush)
+        gfx.DrawCircle(b.hybridTrack, cx, cy, r, height * 0.004);
+        if fraction ~= nil and fraction > 0 then
+            -- A small gap at the bottom keeps the charge/progress direction readable.
+            local start, sweep = 4 * math.pi / 3, 5 * math.pi / 3 * fraction;
+            drawGeo(gfx, helper, cx, cy, start, start - sweep, r, r - height * 0.009,
+                sweep > math.pi and ARCSIZE_LARGE or ARCSIZE_SMALL, brush);
+        end
+    end
+    local left, right = x + width * 0.24, x + width * 0.755;
+    dial(left, state.battery, b.hybridBattery);
+    dial(right, state.progress, active);
+    -- Battery silhouette on the left; lightning identifies boost on the right.
+    gfx.DrawRectangle(b.hybridBattery, left - r * 0.42, cy - r * 0.23,
+        left + r * 0.35, cy + r * 0.23, height * 0.005);
+    gfx.FillRectangle(b.hybridBattery, left + r * 0.35, cy - r * 0.1,
+        left + r * 0.48, cy + r * 0.1);
+    hybridBolt(gfx, helper, active, right, cy, r * 1.0);
+    gfx.drawTextWithBackgroundCentered(f.wrc, height * 0.043, b.hybridBattery, b.transparent,
+        left, cy + r * 1.45, hybridPercent(state.battery));
+    gfx.drawTextWithBackgroundCentered(f.wrc, height * 0.032, active, b.transparent,
+        right, cy + r * 1.5, resources.hybridLabels[state.state]);
+    if state.map ~= nil then
+        gfx.drawTextWithBackgroundCentered(f.wrc, height * 0.03, b.white, b.transparent,
+            right, cy - r * 1.55, "M" .. string.format("%.0f", state.map));
+    end
 end
 
 function onUpdate(args)
@@ -501,6 +570,7 @@ function onUpdate(args)
 
     drawSpeed(gfx, self, data, conf, helper, telemetryStartX, telemetryStartY, width, height, switchGearNSpeed);
     drawGear(gfx, self, data, conf, helper, telemetryStartX, telemetryStartY, width, height, switchGearNSpeed);
+    drawHybridSideGauges(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
 
     local showSteeringIndicator = self.GetConfigByKey("dashboards.settings.showSteeringIndicator")
     if (showSteeringIndicator) then

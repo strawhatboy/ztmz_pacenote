@@ -63,6 +63,20 @@ function onInit(args)
     -- _brushes["clutch"] = gfx.CreateSolidBrush(0x2a, 0xb4, 0x5d, 255)
     -- _brushes["hybrid"] = gfx.CreateSolidBrush(0x45, 0xf2, 0xee, 255)
     
+    _brushes["hybridTrack"] = gfx.CreateSolidBrush(126, 154, 187, 105);
+    _brushes["hybridBattery"] = gfx.CreateSolidBrush(130, 231, 245, 255);
+    _brushes["hybridBoost"] = gfx.CreateSolidBrush(255, 205, 115, 255);
+    _brushes["hybridReady"] = gfx.CreateSolidBrush(155, 242, 188, 255);
+    _brushes["hybridRegen"] = gfx.CreateSolidBrush(130, 231, 245, 255);
+    _brushes["hybridStandby"] = gfx.CreateSolidBrush(164, 179, 195, 220);
+    _brushes["hybridUnknown"] = gfx.CreateSolidBrush(164, 179, 195, 220);
+    resources.hybridLabels = {};
+    for key, fallback in pairs({boost="BOOST", ready="READY", regen="REGEN", standby="STANDBY", hybrid="HYBRID"}) do
+        local id = "dashboards.hybrid." .. key;
+        local label = args.I18NLoader.ResolveByKey(id);
+        resources.hybridLabels[key] = (label ~= nil and label ~= "" and label ~= id) and label or fallback;
+    end
+
     local _fonts = {};
     _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
     _fonts["wrc"] = gfx.CreateCustomFont("WRC Clean", 14);
@@ -72,6 +86,20 @@ function onInit(args)
     resources["brushes"] = _brushes;
     resources["trailBrushes"] = {};
     resources["fonts"] = _fonts;
+
+end
+
+local function hybridPercent(value)
+    return value ~= nil and (tostring(math.floor(value * 100 + 0.5)) .. "%") or "--";
+end
+
+local function hybridBolt(gfx, helper, brush, x, y, size)
+    local shape = gfx.CreateGeometry();
+    shape.BeginFigure(helper.getPoint(x + size * 0.20, y - size * 0.60), true);
+    for _, point in ipairs({ {-0.40, 0.08}, {-0.06, 0.08}, {-0.20, 0.60}, {0.42, -0.14}, {0.06, -0.14} }) do
+        shape.AddPoint(helper.getPoint(x + size * point[1], y + size * point[2]));
+    end
+    shape.EndFigure(); shape.Close(); gfx.FillGeometry(shape, brush); shape.Dispose();
 end
 
 function drawStaticFrames(gfx, self, data, helper, x, y, width, height) 
@@ -427,6 +455,12 @@ function drawDeltaTime(gfx, self, data, ctx, helper, x, y, width, height)
     local deltaWeight = height * 0.04;  -- 字体大小
     local deltaX = x + width * 0.295;     -- 水平居中
     local deltaY = y + height * 0.475;   -- 在转速表上方
+    if self.GetConfigByKey("dashboards.settings.showHybrid") ~= false and getHybridDisplayState(data) ~= nil then
+        -- Keep the comparison below the handbrake when boost occupies its right cell.
+        deltaWeight = height * 0.028;
+        deltaX = x + width * 0.195;
+        deltaY = y + height * 0.575;
+    end
     
     -- 计算文本尺寸以确定背景矩形大小
     local textSize = gfx.MeasureString(_fonts["wrc"], deltaWeight, deltaText)
@@ -452,6 +486,39 @@ function drawDeltaTime(gfx, self, data, ctx, helper, x, y, width, height)
         rectX + padding,
         rectY + (padding / 4),
         deltaText)
+end
+
+-- Use the unused handbrake cell for boost and the narrow shelf below Km/h
+-- for battery charge. Nothing is drawn above the RPM/steering instrument.
+local function drawHybridInstrument(gfx, self, data, helper, x, y, width, height)
+    if self.GetConfigByKey("dashboards.settings.showHybrid") == false then return end
+    local state = getHybridDisplayState(data);
+    if state == nil then return end
+    local b, f = resources.brushes, resources.fonts;
+    local active = ({boost=b.hybridBoost, ready=b.hybridReady, regen=b.hybridRegen,
+        standby=b.hybridStandby, hybrid=b.hybridUnknown})[state.state];
+    local cx, cy, r = x + width * 0.278, y + height * 0.505, height * 0.043;
+    local start, span = 4 * math.pi / 3, 5 * math.pi / 3;
+    drawGeo(gfx, helper, cx, cy, start, start - span, r, r * 0.88, ARCSIZE_LARGE, b.hybridTrack);
+    if state.progress ~= nil and state.progress > 0 then
+        local sweep = span * state.progress;
+        drawGeo(gfx, helper, cx, cy, start, start - sweep, r, r * 0.88,
+            sweep > math.pi and ARCSIZE_LARGE or ARCSIZE_SMALL, active);
+    end
+    hybridBolt(gfx, helper, active, cx, cy, r * 1.05);
+    gfx.drawTextWithBackgroundCentered(f.wrc, height * 0.024, active, b.transparent,
+        cx, cy - r * 1.55, resources.hybridLabels[state.state]);
+    gfx.drawTextWithBackgroundCentered(f.wrc, height * 0.025, active, b.transparent,
+        cx, cy + r * 1.45, hybridPercent(state.progress));
+
+    local shelfY = y + height * 0.655;
+    hybridBolt(gfx, helper, b.hybridBattery, x + width * 0.448, shelfY, height * 0.032);
+    gfx.drawTextWithBackgroundCentered(f.wrc, height * 0.033, b.hybridBattery, b.transparent,
+        x + width * 0.49, shelfY, hybridPercent(state.battery));
+    if state.map ~= nil then
+        gfx.drawTextWithBackgroundCentered(f.wrc, height * 0.028, b.white, b.transparent,
+            x + width * 0.55, shelfY, "M" .. string.format("%.0f", state.map));
+    end
 end
 
 function onUpdate(args)
@@ -503,6 +570,7 @@ function onUpdate(args)
 
     drawSpeed(gfx, self, data, conf, helper, telemetryStartX, telemetryStartY, width, height, switchGearNSpeed);
     drawGear(gfx, self, data, conf, helper, telemetryStartX, telemetryStartY, width, height, switchGearNSpeed);
+    drawHybridInstrument(gfx, self, data, helper, telemetryStartX, telemetryStartY, width, height);
 
     local showSteeringIndicator = self.GetConfigByKey("dashboards.settings.showSteeringIndicator")
     if (showSteeringIndicator) then

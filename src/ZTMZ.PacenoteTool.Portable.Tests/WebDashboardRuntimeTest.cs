@@ -45,7 +45,28 @@ public sealed class WebDashboardRuntimeTest
         Assert.True(overlay.Status.IsRunning);
     }
 
-    private static async Task<JsonDocument> ReadSceneAsync(WebDashboardRuntime runtime, bool visible)
+    [Fact]
+    public async Task HybridTelemetryReachesOverlayClientsAndMissingDataIsOmitted()
+    {
+        using var files = new TemporaryDashboardFiles();
+        using var runtime = new WebDashboardRuntime();
+        runtime.Start(new(files.DashboardsPath, files.RootPath, 0, 60,
+            SupportsNativeOverlay: true, OutputTarget: DashboardOutputTarget.Overlay, LoopbackOnly: true),
+            [new WebDashboardDefinition { Id = "overlay", PackagePath = files.DashboardsPath,
+                SupportsWebDashboardClientLua = true, OutputTargetProvider = () => DashboardOutputTarget.Overlay }]);
+        var hybrid = new HybridTelemetrySnapshot("wrcg", DateTimeOffset.UtcNow)
+        { BatteryChargeFraction = .8f, BoostProgressFraction = .5f, BoostActive = false, BoostReady = false, BoostMap = 2 };
+        using var scene = await ReadSceneAsync(runtime, true, new GameData { Hybrid = hybrid });
+        var wire = scene.RootElement.GetProperty("data").GetProperty("Hybrid");
+        Assert.Equal(.8f, wire.GetProperty("BatteryChargeFraction").GetSingle());
+        Assert.Equal(.5f, wire.GetProperty("BoostProgressFraction").GetSingle());
+        Assert.False(wire.GetProperty("BoostActive").GetBoolean());
+        Assert.Equal(2, wire.GetProperty("BoostMap").GetInt32());
+        using var unavailable = await ReadSceneAsync(runtime, true);
+        Assert.False(unavailable.RootElement.GetProperty("data").TryGetProperty("Hybrid", out _));
+    }
+
+    private static async Task<JsonDocument> ReadSceneAsync(WebDashboardRuntime runtime, bool visible, GameData data = default)
     {
         using var socket = new ClientWebSocket();
         using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(5));
@@ -58,7 +79,7 @@ public sealed class WebDashboardRuntimeTest
             {
                 while (!deadline.IsCancellationRequested)
                 {
-                    await runtime.PublishTelemetryAsync(new GameData(), new GameContext(), visible);
+                    await runtime.PublishTelemetryAsync(data, new GameContext(), visible);
                     await Task.Delay(20, deadline.Token);
                 }
             }

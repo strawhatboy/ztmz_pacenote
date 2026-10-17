@@ -48,7 +48,15 @@
             "name": "Visual Pacenote Roadbook",
             "description": "Show the current pacenote row and faded previous rows as graphical icons"
         },
+        "hybrid": {
+            "boost": "BOOST",
+            "ready": "READY",
+            "regen": "REGEN",
+            "standby": "STANDBY",
+            "hybrid": "HYBRID"
+        },
         "settings": {
+            "showHybrid": "Show hybrid telemetry",
             "enabled": "Enabled",
             "outputTarget": "Display target",
             "outputTargetOff": "Off",
@@ -86,6 +94,7 @@
             "showGameSpecificData": "Show game specific data",
 
             "tooltip": {
+                "showHybrid": "Show battery charge and boost/recharge progress when hybrid telemetry is available.",
                 "enabled": "Enable or disable the dashboard",
                 "outputTarget": "Choose where this dashboard is rendered. The Overlay HUD and Web Dashboard switches remain the global masters.",
                 "outputTargetOff": "Do not render this dashboard",

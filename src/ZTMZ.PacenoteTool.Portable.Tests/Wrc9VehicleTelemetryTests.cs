@@ -56,7 +56,7 @@ public sealed class Wrc9VehicleTelemetryTests
             }
             if (sample.TryGetProperty("parts", out var parts))
             {
-                var damage = Wrc9Damage.Create(parts.EnumerateArray().Select(p => new Wrc9DamagePart(p.GetProperty("name").GetString()!,
+                var damage = Wrc9Damage.Create(parts.EnumerateArray().Select(p => new KtMechanicalDamagePart(p.GetProperty("name").GetString()!,
                     p.GetProperty("maximum").GetSingle(), p.GetProperty("damage").GetSingle(), p.GetProperty("warning").GetSingle(), p.GetProperty("critical").GetSingle())).ToArray());
                 Assert.Equal(14, damage.Components.Count); Assert.False(damage.Dashboard.FrontLeftTyreAvailable);
                 Assert.True(damage.Dashboard.FrontLeftBrakeAvailable); Assert.True(damage.Dashboard.BodyworkAvailable);

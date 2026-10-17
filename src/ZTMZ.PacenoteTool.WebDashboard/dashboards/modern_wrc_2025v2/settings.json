@@ -10,7 +10,8 @@
       "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV",
       "dashboards.settings.showSteeringIndicator": "dashboards.settings.tooltip.showSteeringIndicator",
       "dashboards.settings.showLocalBest": "dashboards.settings.tooltip.showLocalBest",
-      "dashboards.settings.showRPMBlink": "dashboards.settings.tooltip.showRPMBlink"
+      "dashboards.settings.showRPMBlink": "dashboards.settings.tooltip.showRPMBlink",
+      "dashboards.settings.showHybrid": "dashboards.settings.tooltip.showHybrid"
     },
     "PropertyValue": [
       true,
@@ -21,6 +22,7 @@
       false,
       0.03,
       0.0,
+      true,
       true,
       true,
       true
@@ -43,6 +45,7 @@
         0.0,
         0.5
       ],
+      [],
       [],
       [],
       []

@@ -12,9 +12,9 @@ public sealed class Wrc9DamageTests
     [Fact]
     public void NativeThresholdsAreRemainingHealthNotLostHealth()
     {
-        Assert.Equal(0, new Wrc9DamagePart("Engine", 100, 29, .7f, .3f).Severity);
-        Assert.Equal(1, new Wrc9DamagePart("Engine", 100, 31, .7f, .3f).Severity);
-        Assert.Equal(2, new Wrc9DamagePart("Engine", 100, 71, .7f, .3f).Severity);
+        Assert.Equal(0, new KtMechanicalDamagePart("Engine", 100, 29, .7f, .3f).Severity);
+        Assert.Equal(1, new KtMechanicalDamagePart("Engine", 100, 31, .7f, .3f).Severity);
+        Assert.Equal(2, new KtMechanicalDamagePart("Engine", 100, 71, .7f, .3f).Severity);
         var damage = Wrc9Damage.Create([new("Mystery", 100, 50, .75f, .25f)]);
         Assert.Empty(damage.Components); Assert.Single(damage.RawComponents); Assert.False(damage.Dashboard.IsAvailable);
     }

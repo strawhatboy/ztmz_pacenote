@@ -245,3 +245,26 @@ end
 function isStringEmpty(s)
     return s == nil or s == '';
 end
+
+-- Shared by the modern WRC dashboards. Read each frame: a previous car's
+-- hybrid state must disappear as soon as the optional snapshot disappears.
+function getHybridDisplayState(data)
+    local hybrid = data and data.Hybrid;
+    if hybrid == nil then return nil end
+    local function fraction(value)
+        local n = finiteNumber(value);
+        if n == nil then return nil end
+        return math.max(0, math.min(1, n));
+    end
+    local battery = fraction(hybrid.BatteryChargeFraction);
+    local progress = fraction(hybrid.BoostProgressFraction);
+    local map = finiteNumber(hybrid.BoostMap);
+    if map == nil or map < 1 or map > 99 or map ~= math.floor(map) then map = nil end
+    local state = "hybrid";
+    if hybrid.BoostActive == true then state = "boost"
+    elseif hybrid.BoostReady == true then state = "ready"
+    elseif hybrid.RegenerationActive == true then state = "regen"
+    elseif hybrid.BoostActive == false and hybrid.BoostReady == false and hybrid.RegenerationActive == false then state = "standby" end
+    if battery == nil and progress == nil and map == nil and state == "hybrid" then return nil end
+    return { battery = battery, progress = progress, map = map, state = state };
+end

@@ -75,6 +75,7 @@ function installBrowserGlobals() {
         disconnect() {}
     };
     global.document = Object.assign(new global.HTMLDocument(), {
+        documentElement: { dataset: { clientMode: 'web' } },
         createElement(name) {
             if (name !== 'canvas') {
                 return { style: {}, dataset: {}, remove() {} };
@@ -261,6 +262,48 @@ async function verifyDashboard(folder, id, commonScripts) {
     await waitFor(
         () => renderedFrames >= 2,
         `${folder}: expected the centered-steering browser-Lua render frame.`);
+    if (['modern_wrc', 'modern_wrc_2', 'modern_wrc_2025', 'modern_wrc_2025v2'].includes(folder)) {
+        const settings = readSettings(folder);
+        let revision = 1;
+        const drawHybrid = async (hybrid, changedSettings) => {
+            const nextFrame = renderedFrames + 1;
+            renderedTextLines = [];
+            const data = { ...telemetry };
+            // The server omits unavailable snapshots/fields in JSON.
+            if (hybrid !== undefined) data.Hybrid = hybrid;
+            manager.handleTelemetry({
+                sceneRevision: 1, data, context: telemetryContext,
+                ...(changedSettings ? { dashboards: [{ id, order: id,
+                    configurationRevision: ++revision, settings: changedSettings }] } : {})
+            });
+            await waitFor(() => renderedFrames >= nextFrame || failures.length > 0,
+                `${folder}: hybrid frame did not render.`);
+            if (failures.length) throw new Error(`${folder}: ${failures.join(' | ')}`);
+            return renderedTextLines.map(line => line.text.trim());
+        };
+        for (const state of ['BOOST', 'READY', 'REGEN', 'STANDBY']) {
+            const lines = await drawHybrid({ BatteryChargeFraction: .8, BoostProgressFraction: .55,
+                BoostMap: 2, BoostActive: state === 'BOOST', BoostReady: state === 'READY',
+                RegenerationActive: state === 'REGEN' });
+            if (!lines.includes('80%') || !lines.includes(state) || !lines.includes('M2'))
+                throw new Error(`${folder}: missing hybrid battery/state/map: ${lines.join(' | ')}`);
+        }
+        const partial = await drawHybrid({ BoostProgressFraction: .5, BoostActive: true });
+        if (!partial.includes('--') || partial.includes('0%') || partial.includes('M2'))
+            throw new Error(`${folder}: missing hybrid fields were invented or retained.`);
+        const empty = await drawHybrid(undefined);
+        if (empty.includes('--') || empty.includes('BOOST') || empty.includes('80%'))
+            throw new Error(`${folder}: hybrid readings remained after a car change.`);
+        const disabled = await drawHybrid({ BatteryChargeFraction: .8 },
+            { ...settings, 'dashboards.settings.showHybrid': false });
+        if (disabled.includes('80%')) throw new Error(`${folder}: hybrid visibility setting ignored.`);
+        for (const size of [.1, 1]) {
+            const zero = await drawHybrid({ BatteryChargeFraction: 0, BoostProgressFraction: 0 },
+                { ...settings, 'dashboards.settings.size': size, 'dashboards.settings.showHybrid': true,
+                    'dashboards.settings.switchGearNSpeed': !settings['dashboards.settings.switchGearNSpeed'] });
+            if (!zero.includes('0%')) throw new Error(`${folder}: zero charge was treated as unavailable.`);
+        }
+    }
     manager.suspend();
 
     if (failures.length > 0) {

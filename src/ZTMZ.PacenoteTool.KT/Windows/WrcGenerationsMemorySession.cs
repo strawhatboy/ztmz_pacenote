@@ -47,6 +47,12 @@ internal sealed class WrcGenerationsMemorySession : IWrcGenerationsSessionSource
         catch (OverflowException) { return null; } // A torn/invalid pointer is never dereferenced.
     }
 
+    public ZTMZ.PacenoteTool.Base.Game.CarDamageSnapshot? ReadDamage(ulong timer) =>
+        WrcGenerationsSessionMemory.ReadDamage(ReadBytes, imageBase, timer);
+
+    public ZTMZ.PacenoteTool.Base.Game.HybridTelemetrySnapshot? ReadHybrid(ulong timer) =>
+        WrcGenerationsSessionMemory.ReadHybrid(ReadBytes, imageBase, timer);
+
     public float? ReadHandBrake() => WrcGenerationsSessionMemory.ReadHandBrake(ReadBytes, imageBase);
 
     private byte[] ReadBytes(ulong address, int length)
@@ -71,6 +77,51 @@ internal sealed class WrcGenerationsMemorySession : IWrcGenerationsSessionSource
 /// <summary>Bounded portable decoder, separately testable without Win32 or a game.</summary>
 internal static class WrcGenerationsSessionMemory
 {
+    internal static ZTMZ.PacenoteTool.Base.Game.CarDamageSnapshot? ReadDamage(
+        Func<ulong, int, byte[]> read, ulong imageBase, ulong expectedTimer) =>
+        ReadVehicleOptional(read, imageBase, expectedTimer,
+            (participant, vehicle) => KtMechanicalDamage.Read(read, imageBase, participant, vehicle, 0x9b0, 0x1747968, "wrcg"));
+
+    internal static ZTMZ.PacenoteTool.Base.Game.HybridTelemetrySnapshot? ReadHybrid(
+        Func<ulong, int, byte[]> read, ulong imageBase, ulong expectedTimer) =>
+        ReadVehicleOptional(read, imageBase, expectedTimer,
+            (participant, vehicle) => WrcGenerationsHybrid.Read(read, participant, vehicle));
+
+    private static T? ReadVehicleOptional<T>(Func<ulong, int, byte[]> read, ulong imageBase,
+        ulong expectedTimer, Func<ulong, ulong, T?> decode) where T : class
+    {
+        try
+        {
+            ulong Pointer(ulong address) => BinaryPrimitives.ReadUInt64LittleEndian(read(address, 8));
+            int Integer(ulong address) => BinaryPrimitives.ReadInt32LittleEndian(read(address, 4));
+            var manager = Pointer(imageBase + 0x1c61660);
+            if (manager == 0 || expectedTimer == 0) return null;
+            var race = Pointer(manager + 0x48);
+            if (race == 0 || race != Pointer(imageBase + 0x1d61938)) return null;
+            var mode = Integer(manager + 0x12d0);
+            var submode = Integer(manager + 0x12e0);
+            var index = mode == 7 && submode != 5 ? read(manager + 0x1380, 1)[0] : 0;
+            if (index >= 50) return null;
+            var slot = race + 0x4e8 + (ulong)index * 8;
+            var timer = Pointer(slot);
+            if (timer != expectedTimer || read(timer + 0x9f, 1)[0] != 0) return null;
+            var participant = Pointer(timer + 0xa0);
+            if (participant == 0 || Pointer(participant + 0x38) != timer) return null;
+            var vehicle = Pointer(participant + 0x70);
+            if (vehicle == 0 || Pointer(vehicle) != imageBase + 0x1744518 || Pointer(vehicle + 0x80) != participant) return null;
+            var value = decode(participant, vehicle);
+            if (Pointer(imageBase + 0x1c61660) != manager || Pointer(manager + 0x48) != race ||
+                Pointer(imageBase + 0x1d61938) != race || Pointer(slot) != timer ||
+                Pointer(timer + 0xa0) != participant || Pointer(participant + 0x38) != timer ||
+                Pointer(participant + 0x70) != vehicle || Pointer(vehicle + 0x80) != participant ||
+                Integer(manager + 0x12d0) != mode || Integer(manager + 0x12e0) != submode ||
+                (mode == 7 && submode != 5 && read(manager + 0x1380, 1)[0] != index)) return null;
+            return value;
+        }
+        catch (IOException) { return null; }
+        catch (OverflowException) { return null; }
+    }
+
     internal static float? ReadHandBrake(Func<ulong, int, byte[]> read, ulong imageBase)
     {
         try

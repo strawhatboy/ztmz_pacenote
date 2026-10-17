@@ -10,6 +10,10 @@ internal sealed record WrcGenerationsSessionSnapshot(
 {
     public float? ShiftWarningRpm { get; init; }
     public WrcGenerationsNativeResult? NativeResult { get; init; }
+    // Before GO, the active timer exists but cannot yet produce a positive lap
+    // time. Its verified pending-result identity still permits vehicle readings.
+    public ulong? VehicleTimerAddress => Timing?.TimerAddress ??
+        (NativeResult is { Pending: true } result ? result.TimerAddress : null);
 }
 
 internal sealed record WrcGenerationsNativeResult(ulong RaceAddress, ulong TimerAddress,
@@ -25,6 +29,8 @@ internal interface IWrcGenerationsSessionSource : IDisposable
 {
     WrcGenerationsSessionSnapshot? Read();
     float? ReadHandBrake() => null;
+    ZTMZ.PacenoteTool.Base.Game.CarDamageSnapshot? ReadDamage(ulong timer) => null;
+    ZTMZ.PacenoteTool.Base.Game.HybridTelemetrySnapshot? ReadHybrid(ulong timer) => null;
 }
 
 /// <summary>Installed game strings, not redistributed assets or executable Lua.</summary>

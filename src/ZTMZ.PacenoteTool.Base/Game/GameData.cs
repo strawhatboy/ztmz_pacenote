@@ -72,6 +72,9 @@ public struct GameData
     /// </summary>
     public CarDamageSnapshot CarDamage;
 
+    /// <summary>Hybrid operation, when supported by the game and current car.</summary>
+    public HybridTelemetrySnapshot Hybrid;
+
     public override bool Equals([NotNullWhen(true)] object obj)
     {
         return base.Equals(obj);

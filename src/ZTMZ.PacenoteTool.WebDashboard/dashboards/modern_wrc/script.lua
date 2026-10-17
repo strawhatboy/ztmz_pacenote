@@ -68,6 +68,20 @@ function onInit(args)
         helper.getColor(0x3a, 0xe3, 0xf2, 255)
     );
     
+    _brushes["hybridTrack"] = gfx.CreateSolidBrush(78, 89, 99, 170);
+    _brushes["hybridBattery"] = gfx.CreateSolidBrush(136, 215, 216, 255);
+    _brushes["hybridBoost"] = gfx.CreateSolidBrush(233, 192, 111, 255);
+    _brushes["hybridReady"] = gfx.CreateSolidBrush(183, 222, 125, 255);
+    _brushes["hybridRegen"] = gfx.CreateSolidBrush(136, 215, 216, 255);
+    _brushes["hybridStandby"] = gfx.CreateSolidBrush(164, 179, 195, 220);
+    _brushes["hybridUnknown"] = gfx.CreateSolidBrush(164, 179, 195, 220);
+    resources.hybridLabels = {};
+    for key, fallback in pairs({boost="BOOST", ready="READY", regen="REGEN", standby="STANDBY", hybrid="HYBRID"}) do
+        local id = "dashboards.hybrid." .. key;
+        local label = args.I18NLoader.ResolveByKey(id);
+        resources.hybridLabels[key] = (label ~= nil and label ~= "" and label ~= id) and label or fallback;
+    end
+
     local _fonts = {};
     _fonts["consolas"] = gfx.CreateFont("Consolas", 14);
     _fonts["wrc"] = gfx.CreateCustomFont("WRC Clean Roman", 14);
@@ -76,6 +90,20 @@ function onInit(args)
     
     resources["brushes"] = _brushes;
     resources["fonts"] = _fonts;
+
+end
+
+local function hybridPercent(value)
+    return value ~= nil and (tostring(math.floor(value * 100 + 0.5)) .. "%") or "--";
+end
+
+local function hybridBolt(gfx, helper, brush, x, y, size)
+    local shape = gfx.CreateGeometry();
+    shape.BeginFigure(helper.getPoint(x + size * 0.20, y - size * 0.60), true);
+    for _, point in ipairs({ {-0.40, 0.08}, {-0.06, 0.08}, {-0.20, 0.60}, {0.42, -0.14}, {0.06, -0.14} }) do
+        shape.AddPoint(helper.getPoint(x + size * point[1], y + size * point[2]));
+    end
+    shape.EndFigure(); shape.Close(); gfx.FillGeometry(shape, brush); shape.Dispose();
 end
 
 function drawStaticFrames(gfx, data, helper, x, y, radius, padding) 
@@ -324,6 +352,39 @@ function drawGear(gfx, data, conf, helper, x, y, radius, padding, switchGearNSpe
 end
 
 
+-- The round dial has an open lower-left quadrant. Two concentric arcs echo
+-- its existing RPM/pedal rings without extending the instrument footprint.
+local function drawHybridDial(gfx, self, data, helper, x, y, radius)
+    if self.GetConfigByKey("dashboards.settings.showHybrid") == false then return end
+    local state = getHybridDisplayState(data);
+    if state == nil then return end
+    local b, f = resources.brushes, resources.fonts;
+    local active = ({boost=b.hybridBoost, ready=b.hybridReady, regen=b.hybridRegen,
+        standby=b.hybridStandby, hybrid=b.hybridUnknown})[state.state];
+    local cx, cy, r = x - radius * 0.23, y + radius * 0.48, radius * 0.13;
+    local function ring(brush, value, outer, weight)
+        local start, span = 4 * math.pi / 3, 5 * math.pi / 3;
+        drawGeo(gfx, helper, cx, cy, start, start - span, outer, outer - weight, ARCSIZE_LARGE, b.hybridTrack);
+        if value ~= nil and value > 0 then
+            local sweep = span * value;
+            drawGeo(gfx, helper, cx, cy, start, start - sweep, outer, outer - weight,
+                sweep > math.pi and ARCSIZE_LARGE or ARCSIZE_SMALL, brush);
+        end
+    end
+    ring(b.hybridBattery, state.battery, r, radius * 0.012);
+    ring(active, state.progress, r * 0.72, radius * 0.012);
+    hybridBolt(gfx, helper, active, cx, cy, r * 0.85);
+    local tx = x + radius * 0.05;
+    gfx.drawTextWithBackgroundCentered(f.wrc, radius * 0.093, b.hybridBattery, b.transparent,
+        tx, cy - radius * 0.025, hybridPercent(state.battery));
+    gfx.drawTextWithBackgroundCentered(f.wrc, radius * 0.047, active, b.transparent,
+        tx, cy + radius * 0.075, resources.hybridLabels[state.state]);
+    if state.map ~= nil then
+        gfx.drawTextWithBackgroundCentered(f.wrc, radius * 0.048, b.white, b.transparent,
+            cx, cy + r * 1.15, "M" .. string.format("%.0f", state.map));
+    end
+end
+
 function onUpdate(args)
     local data = args.GameData;
     local gfx = args.Graphics;
@@ -359,13 +420,14 @@ function onUpdate(args)
 
     drawSpeed(gfx, data, conf, helper, telemetryCenterX, telemetryCenterY, radius, padding, switchGearNSpeed);
     drawGear(gfx, data, conf, helper, telemetryCenterX, telemetryCenterY, radius, padding, switchGearNSpeed);
+    drawHybridDial(gfx, self, data, helper, telemetryCenterX, telemetryCenterY, radius);
 end
 
 function onExit()
-    for k,v in ipairs(resources["brushes"]) do
+    for k,v in pairs(resources["brushes"]) do
         v.Dispose();
     end
-    for k,v in ipairs(resources["fonts"]) do
+    for k,v in pairs(resources["fonts"]) do
         v.Dispose();
     end
 end

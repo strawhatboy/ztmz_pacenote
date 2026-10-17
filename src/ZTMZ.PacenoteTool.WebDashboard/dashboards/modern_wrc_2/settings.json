@@ -7,7 +7,8 @@
         "dashboards.settings.useOffset": "dashboards.settings.tooltip.useOffset",
         "dashboards.settings.switchGearNSpeed": "dashboards.settings.tooltip.switchGearNSpeed",
         "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
-        "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV"
+        "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV",
+        "dashboards.settings.showHybrid": "dashboards.settings.tooltip.showHybrid"
     },
     "PropertyValue": [
         true,
@@ -17,9 +18,11 @@
         true,
         true,
         0,
-        0
+        0,
+        true
     ],
     "ValueRange": [
-        [], [], [], [0.1, 1], [], [], [0, 0.5], [0, 0.5]
+        [], [], [], [0.1, 1], [], [], [0, 0.5], [0, 0.5],
+        []
     ]
 }

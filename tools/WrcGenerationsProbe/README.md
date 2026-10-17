@@ -118,3 +118,10 @@ Next integration gates: validate lookup versus audible playback (including resta
 and cached sounds), map atoms to the official token vocabulary with explicit unknowns,
 then connect the shared live-pacenote pipeline. Telemetry and race lifecycle still
 need separate evidence; the sound probe does not supply them.
+
+## Mechanical damage (2026-10-17)
+
+See [damage evidence and validation](../../Docs/WrcGenerationsDamage.md).
+The Session probe supports `capture <PID> <seconds> <new-output.jsonl>` to
+record production metadata, damage and hybrid operation using read-only memory access.
+See [hybrid evidence and telemetry contract](../../Docs/WrcGenerationsHybrid.md).

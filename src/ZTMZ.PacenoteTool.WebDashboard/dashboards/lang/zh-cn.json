@@ -48,7 +48,15 @@
             "name": "图形路书",
             "description": "用图标显示正在播放的路书行，并在上方渐隐显示已经播放的行"
         },
+        "hybrid": {
+            "boost": "助推",
+            "ready": "就绪",
+            "regen": "回充",
+            "standby": "待机",
+            "hybrid": "混动"
+        },
         "settings": {
+            "showHybrid": "显示混合动力遥测",
             "enabled": "启用",
             "outputTarget": "显示位置",
             "outputTargetOff": "关闭",
@@ -86,6 +94,7 @@
             "showGameSpecificData": "显示特定游戏的数据",
 
             "tooltip": {
+                "showHybrid": "有混合动力遥测时显示电池电量、助推或回充进度。",
                 "enabled": "启用/禁用仪表盘",
                 "outputTarget": "选择此仪表盘的显示位置。游戏悬浮窗和网页仪表盘开关仍是全局总开关。",
                 "outputTargetOff": "不显示此仪表盘",

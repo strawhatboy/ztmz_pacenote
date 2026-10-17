@@ -138,6 +138,32 @@ int main(int argc,char** argv) {
                     "FrontLeftTyre","FrontRightTyre","RearLeftTyre","RearRightTyre"}) damage[std::string(part)+"Severity"]=1;
             }
             std::size_t commands=0;
+            const auto name=p.value("testName",std::string{});
+            if(name=="modern_wrc" || name=="modern_wrc_2" || name=="modern_wrc_2025" || name=="modern_wrc_2025v2") {
+                auto hasText=[](const std::vector<Layer>& layers,const std::string& text) {
+                    for(const auto& layer:layers) for(const auto& command:layer.commands)
+                        if(command.value("text",std::string{}).find(text)!=std::string::npos) return true;
+                    return false;
+                };
+                auto data=telemetry;
+                data["Hybrid"]={{"BatteryChargeFraction",0.8},{"BoostProgressFraction",0.5},{"BoostMap",2.0},
+                    {"BoostActive",true},{"BoostReady",false},{"RegenerationActive",false}};
+                for(const auto* state:{"BOOST","READY","REGEN","STANDBY"}) {
+                    data["Hybrid"]["BoostActive"]=std::string(state)=="BOOST";
+                    data["Hybrid"]["BoostReady"]=std::string(state)=="READY";
+                    data["Hybrid"]["RegenerationActive"]=std::string(state)=="REGEN";
+                    auto layers=runtime.update(data,context,0,"12:34:56");render(layers);
+                    require(hasText(layers,"80%") && hasText(layers,state) && hasText(layers,"M2"),"Hybrid readings missing/wrong");
+                    require(!hasText(layers,"M2.0"),"Hybrid map has a fractional suffix");
+                }
+                data["Hybrid"].erase("BatteryChargeFraction");
+                require(hasText(runtime.update(data,context,0,""),"--"),"Missing battery was invented");
+                data.erase("Hybrid");
+                require(!hasText(runtime.update(data,context,0,""),"M2"),"Hybrid remained after changing car");
+                auto disabled=p;disabled["settings"]["dashboards.settings.showHybrid"]=false;
+                LuaDashboard hidden(disabled,config);data["Hybrid"]={{"BatteryChargeFraction",0.8}};
+                require(!hasText(hidden.update(data,context,0,""),"80%"),"Hybrid setting ignored");
+            }
             if(p.value("testName",std::string{})=="modern_wrc_2025v2") {
                 // A viewer may connect before the first usable engine telemetry.
                 for(const auto& values: {std::pair{0,0},std::pair{5000,0},std::pair{5000,-1},std::pair{9000,8000}}) {

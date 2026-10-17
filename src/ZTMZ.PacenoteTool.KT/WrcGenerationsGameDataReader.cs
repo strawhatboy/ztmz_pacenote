@@ -19,6 +19,7 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
     private long nextMetadataRead, nextDiscovery, lifetime, runGeneration;
     private float? pendingFinish;
     private float rawLapTime;
+    private readonly KtMechanicalDamageEvents damageEvents = new();
     private int? livePenaltyMilliseconds;
     private float? publishedFinishTime;
     private int invalidSilentSessionTicks;
@@ -70,6 +71,7 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
             if (state == value) return;
             var previous = state;
             state = value;
+            if (value != GameState.Racing) damageEvents.Reset();
             onGameStateChanged?.Invoke(new() { LastGameState = previous, NewGameState = value });
         }
     }
@@ -80,6 +82,7 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
     public override string CarClass => Volatile.Read(ref snapshot)?.CarClass ?? string.Empty;
     public override event Action<GameData, GameData>? onNewGameData;
     public override event Action<GameStateChangeEvent>? onGameStateChanged;
+    public override event Action<CarDamageEvent>? onCarDamaged;
 
     public override void onNewUdpMessage(byte[] oldMsg, byte[] newMsg)
     {
@@ -174,6 +177,12 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
             next.HandBrake = handBrake;
             next.HandBrakeValid = true;
         }
+        // Read damage on each UDP packet, independently of the metadata cache.
+        // The live selected timer must still match the cached session identity.
+        next.CarDamage = snapshot?.VehicleTimerAddress is { } damageTimer
+            ? metadata?.ReadDamage(damageTimer) : null;
+        next.Hybrid = snapshot?.VehicleTimerAddress is { } hybridTimer
+            ? metadata?.ReadHybrid(hybridTimer) : null;
         LastGameData = CurrentGameData;
         CurrentGameData = next;
         if (TryPublishRetirement(snapshot))
@@ -193,6 +202,7 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
             retirementAttempt = (observed.Identity, native.RaceAddress, native.TimerAddress);
         if (WrcGenerationsTelemetry.TryGetFinishTime(newMsg, out var finishTime))
         {
+            damageEvents.Reset();
             if (state != GameState.RaceEnd && pendingFinish is null)
             {
                 RefreshMetadata(true);
@@ -226,6 +236,9 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
             else if (clock() - lastProgress > 500) GameState = GameState.Paused;
         }
         else if (next.LapDistance <= 0) GameState = GameState.RaceBegin;
+        foreach (var damage in damageEvents.Update(next.CarDamage,
+            snapshot is null ? null : $"{snapshot.Identity}:{snapshot.Timing?.TimerAddress:x}", raw, GameState, restarting))
+            onCarDamaged?.Invoke(damage);
         onNewGameData?.Invoke(LastGameData, next);
     }
 
@@ -303,6 +316,7 @@ public sealed class WrcGenerationsGameDataReader : UdpGameDataReader, IGameLiveP
 
     private void ResetResult()
     {
+        damageEvents.Reset();
         ++runGeneration;
         pendingFinish = null;
         resultArmed = false;

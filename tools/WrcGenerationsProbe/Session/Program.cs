@@ -1,6 +1,32 @@
 using System.Diagnostics;
 using System.Text.Json;
 using ZTMZ.PacenoteTool.KT;
+using ZTMZ.PacenoteTool.Base.Game;
+
+try
+{
+if (args.Length == 4 && args[0] == "capture")
+{
+    if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException();
+    var seconds = int.Parse(args[2]);
+    if (seconds is < 1 or > 1800) throw new ArgumentOutOfRangeException("seconds");
+    using var target = Process.GetProcessById(int.Parse(args[1]));
+    using var memory = new WrcGenerationsMemorySession(target);
+    using var file = new StreamWriter(new FileStream(args[3], FileMode.CreateNew));
+    var captureClock = Stopwatch.StartNew();
+    Console.WriteLine("READY: read-only WRCG production damage/hybrid capture");
+    while (!target.HasExited && captureClock.Elapsed.TotalSeconds < seconds && !File.Exists(args[3] + ".stop"))
+    {
+        var sample = memory.Read();
+        var damage = sample?.VehicleTimerAddress is { } timer ? memory.ReadDamage(timer) : null;
+        var hybrid = sample?.VehicleTimerAddress is { } hybridTimer ? memory.ReadHybrid(hybridTimer) : null;
+        await file.WriteLineAsync(JsonSerializer.Serialize(new { elapsedMs = captureClock.ElapsedMilliseconds, snapshot = sample, damage, hybrid }));
+        await file.FlushAsync();
+        await Task.Delay(100);
+    }
+    Console.WriteLine("Capture ended");
+    return;
+}
 
 if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("This probe reads a Windows WRCG process");
 if (args.Length is < 1 or > 2 || !int.TryParse(args[0], out var pid)) throw new ArgumentException("Expected WRCG PID [local UDP port]");
@@ -42,4 +68,11 @@ else if (args.Length == 2)
         Console.WriteLine("No UDP packet received; memory snapshot succeeded, live lifecycle not verified.");
         Environment.ExitCode = 2;
     }
+}
+
+}
+catch (Exception error)
+{
+    Console.Error.WriteLine($"WRCG diagnostic stopped: {error.GetType().Name}: {error.Message}");
+    Environment.ExitCode = 1;
 }

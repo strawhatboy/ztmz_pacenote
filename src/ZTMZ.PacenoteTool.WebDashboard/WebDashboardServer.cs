@@ -896,7 +896,8 @@ public class WebDashboardServer : IDisposable
                     // Shared damage projection. Raw source arrays stay local to
                     // the desktop process; browser dashboards receive the stable
                     // groups and visual components only.
-                    CarDamage = CreateBrowserLuaCarDamage(data.CarDamage)
+                    CarDamage = CreateBrowserLuaCarDamage(data.CarDamage),
+                    data.Hybrid
                 },
                 context = new
                 {
@@ -1087,6 +1088,7 @@ public class WebDashboardServer : IDisposable
             TrackLength = FiniteTelemetryValue(data.TrackLength),
             Time = FiniteTelemetryValue(data.Time),
             CarDamage = CreateBrowserLuaCarDamage(data.CarDamage),
+            data.Hybrid,
             GameDataText = data.ToString(),
             GameSpecificDataText = data.GameSpecificDataToString()
         };
