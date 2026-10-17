@@ -52,17 +52,32 @@ std::unique_ptr<DashboardFonts> DashboardFonts::snapshot() const {
     return copy;
 }
 void DashboardFonts::rebuild(ImFontAtlas& atlas) {
+    static_assert(IMGUI_VERSION_NUM==19191,"Recheck borrowed font registration when upgrading ImGui");
     atlas.Clear();
     auto add=[&](Entry& entry) {
         ImFontGlyphRangesBuilder builder;builder.AddRanges(atlas.GetGlyphRangesDefault());
         for(auto cp:entry.glyphs) builder.AddChar(static_cast<ImWchar>(cp));
         entry.ranges.clear();builder.BuildRanges(&entry.ranges);entry.font=nullptr;
+        std::set<unsigned int> missing=entry.glyphs;
+        for(unsigned int cp=0x20;cp<=0xff;++cp)missing.insert(cp);
         for(const auto& face:entry.selection.faces) {
-            ImFontConfig config;config.FontDataOwnedByAtlas=false;config.FontNo=face->index;
+            bool contributes=false;
+            for(auto it=missing.begin();it!=missing.end();) {
+                if(face->contains(*it)){it=missing.erase(it);contributes=true;}else ++it;
+            }
+            if(!contributes)continue;
+            ImFontConfig config;config.FontDataOwnedByAtlas=true;config.FontNo=face->index;
             config.MergeMode=entry.font!=nullptr;config.PixelSnapH=false;
             config.OversampleH=2;config.OversampleV=1;
             auto* font=atlas.AddFontFromMemoryTTF(const_cast<unsigned char*>(face->bytes.data()),
                 static_cast<int>(face->bytes.size()),static_cast<float>(entry.pixels),&config,entry.ranges.Data);
+            // ImGui 1.91.9b copies FontData when the input ownership flag is
+            // false. Register without copying, then revoke ownership on the
+            // stored source. Immutable bytes are retained by FontSelection and
+            // the catalog cache, including while old/new atlases coexist.
+            // Otherwise each size duplicates every multi-megabyte fallback
+            // font, exhausting the address space of 32-bit games such as RBR.
+            atlas.Sources.back().FontDataOwnedByAtlas=false;
             if(!entry.font) entry.font=font;
         }
         if(!entry.font) {ImFontConfig config;config.SizePixels=static_cast<float>(entry.pixels);entry.font=atlas.AddFontDefault(&config);}

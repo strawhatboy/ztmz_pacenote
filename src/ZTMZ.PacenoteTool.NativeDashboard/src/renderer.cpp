@@ -129,8 +129,10 @@ std::set<std::string> draw(const Scene& scene,const TextureLookup& textures,cons
                         dl->AddConcavePolyFilled(points.data(),static_cast<int>(points.size()),color);
                     } else if(points.size()>=2) dl->AddPolyline(points.data(),static_cast<int>(points.size()),color,c.value("closed",false)?ImDrawFlags_Closed:0,thickness);
                 } else if(type=="drawText" || type=="drawTextWithBackground") {
-                    const float requestedSize=std::max(1.f,n("fontSize",14))*scale;
-                    const float fontSize=fonts&&requestedSize>=4&&requestedSize<=128?std::round(requestedSize):requestedSize;
+                    // Atlas sizes are rounded for caching, but layout uses the
+                    // requested size. Rounding it again here makes text wider
+                    // than MeasureString at fractional viewport scales.
+                    const float fontSize=std::max(1.f,n("fontSize",14))*scale;
                     if(fonts) {a.x=std::round(a.x);a.y=std::round(a.y);}
                     if(type=="drawTextWithBackground") {
                         float padding=fontSize*0.25f;

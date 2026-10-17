@@ -62,6 +62,9 @@ void FontWorker::State::process(std::weak_ptr<State> weak) {
                 unsigned char* data=nullptr;int w=0,h=0;built->atlas.GetTexDataAsRGBA32(&data,&w,&h);
                 auto image=std::make_shared<ImageAsset>();image->width=w;image->height=h;
                 image->rgba.assign(data,data+static_cast<size_t>(w)*h*4);built->image=std::move(image);
+                // The image owns the upload/recovery pixels. Keep glyphs/UVs,
+                // but release ImGui's redundant alpha and RGBA CPU bitmaps.
+                built->atlas.ClearTexData();
                 s->desired->markClean();
                 {std::lock_guard lock(s->mutex);s->ready.swap(built);}
                 } // displaced ready atlas is destroyed outside the state lock

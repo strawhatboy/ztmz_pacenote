@@ -1,6 +1,9 @@
 #include "dashboard_client.hpp"
 #include "renderer.hpp"
 #include "font_atlas.hpp"
+#include "font_worker.hpp"
+#include <thread>
+#include <chrono>
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -212,15 +215,91 @@ int main(int argc,char** argv) {
                 for(const auto& layer:layers) commands+=layer.commands.size();
                 render(layers);
             }
+#ifdef _WIN32
+            if(name=="modern_wrc_2025" || name=="modern_wrc_2025v2" || name=="mapInfo") {
+                // Exercise the production worker with real dashboard font sizes,
+                // not just geometry rendered through ImGui's default font.
+                FontWorker worker;
+                Scene scene;scene.width=1920;scene.height=1080;
+                scene.layers=runtime.update(telemetry,context,1,"12:34:56");
+                for(float scale:{1.f,0.75f}) {
+                    worker.request(scene,scale);
+                    std::shared_ptr<PreparedFonts> prepared;
+                    auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(5);
+                    while(!(prepared=worker.takeReady()) && std::chrono::steady_clock::now()<deadline)
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    require(prepared!=nullptr,"WRC 2025 font worker did not produce an atlas");
+                    require(prepared->image && !prepared->image->rgba.empty(),"WRC font texture missing");
+                    require(!prepared->atlas.TexPixelsAlpha8 && !prepared->atlas.TexPixelsRGBA32,
+                        "Worker retained redundant CPU atlas bitmaps");
+                    prepared->atlas.SetTexID(1);
+                    prepared->fonts->setScale(scale);
+                    if(name=="mapInfo") {
+                        for(const auto& layer:scene.layers)for(const auto& c:layer.commands) {
+                            if(c.value("type",std::string{})!="drawTextWithBackground")continue;
+                            const auto text=c.at("text").get<std::string>();
+                            for(const auto* field:{"TrackName","CarName","CarClass","AudioPackage","ScriptAuthor"})
+                                require(text.find(context.at(field).get<std::string>())!=std::string::npos,"Map info dropped a context value");
+                            require(std::count(text.begin(),text.end(),'\n')==6,"Map info dropped a row");
+                            std::set<std::string> fontWarnings;
+                            auto* font=prepared->fonts->lookup(c,fontWarnings);
+                            const float size=c.at("fontSize").get<float>()*scale;
+                            auto actual=font->CalcTextSizeA(size,10000,0,text.c_str());
+                            require(std::abs(actual.x-c.at("textWidth").get<float>()*scale)<1.1f,"Map info measured width differs from rendered width");
+                            require(c.at("x").get<float>()*scale+actual.x<=scene.width*scale+1,"Map info values extend off the right edge");
+                            // Compare actual renderer geometry to the measured
+                            // font size, away from clipping so dropped glyphs
+                            // cannot conceal a width mismatch.
+                            auto command=c;command["type"]="drawText";command["x"]=16;command["y"]=16;
+                            Scene sample=scene;sample.layers={{"text","dynamic",Json::array({command})}};
+                            const auto display=ImGui::GetIO().DisplaySize;
+                            ImGui::GetIO().DisplaySize={scene.width*scale,scene.height*scale};
+                            auto vertices=[] {
+                                std::vector<ImVec2> positions;
+                                for(const auto* list:ImGui::GetDrawData()->CmdLists)
+                                    for(const auto& vertex:list->VtxBuffer)positions.push_back(vertex.pos);
+                                return positions;
+                            };
+                            ImGui::NewFrame();draw(sample,{},[&](const Json&,std::set<std::string>&){return font;});ImGui::Render();
+                            auto rendered=vertices();
+                            ImGui::NewFrame();auto* dl=ImGui::GetBackgroundDrawList();dl->PushTextureID(font->ContainerAtlas->TexID);
+                            dl->AddText(font,size,{std::round(16*scale),std::round(16*scale)},IM_COL32_WHITE,text.c_str());
+                            dl->PopTextureID();ImGui::Render();auto expected=vertices();
+                            ImGui::GetIO().DisplaySize=display;
+                            require(rendered.size()==expected.size(),"Scaled map text lost glyph geometry");
+                            for(std::size_t i=0;i<rendered.size();++i)
+                                require(std::abs(rendered[i].x-expected[i].x)<0.01f && std::abs(rendered[i].y-expected[i].y)<0.01f,
+                                    "Renderer font size differs from measured layout at fractional scale");
+                        }
+                    }
+                    ImGui::NewFrame();
+                    auto warnings=draw(scene,[](const std::string&){return Texture{2,256,256};},
+                        [&](const Json& c,std::set<std::string>& w){return prepared->fonts->lookup(c,w);});
+                    ImGui::Render();
+                    require(warnings.empty(),"WRC dashboard rejected production fonts");
+                    require(ImGui::GetDrawData()->TotalVtxCount>0,"WRC dashboard drew no vertices");
+                }
+            }
+#endif
             require(commands>0,"Built-in dashboard emitted no commands");runtime.shutdown();
             std::cout<<p.value("testName",std::string("dashboard"))<<": "<<commands<<" commands\n";
         } else {
             runtimeTests();
 #ifdef _WIN32
             {
-                auto roman=selectFont("WRC Clean",400,false),bold=selectFont("WRC Clean",700,false);
+                auto roman=selectFont("WRC Clean Roman",400,false),bold=selectFont("WRC Clean",700,false);
                 require(!roman.substituted && !bold.substituted,"Bundled WRC fonts were not resolved");
                 require(roman.faces.front()->identity!=bold.faces.front()->identity,"Bold WRC font was not selected");
+                auto legacyRoman=selectFont("WRC Clean Roman",400,false),legacyBold=selectFont("WRC Clean Bold",400,false);
+                require(!legacyRoman.substituted && legacyRoman.faces.front()==roman.faces.front(),"Legacy WRC Roman alias lost bundled font");
+                require(!legacyBold.substituted && legacyBold.faces.front()==bold.faces.front(),"Legacy WRC Bold alias lost bundled font");
+                require(roman.faces.front()->identity.find("WRCCleanRoman.ttf")!=std::string::npos,"Roman family resolved to wrong font file");
+                require(bold.faces.front()->identity.find("WRCCleanBold.ttf")!=std::string::npos,"Bold family resolved to wrong font file");
+                for(const auto* family:{"WRC Clean","WRC Clean Bold"})for(int weight:{400,700}) {
+                    auto face=selectFont(family,weight,false);
+                    require(!face.substituted && face.faces.front()==bold.faces.front(),"WRC bold family changed weight or fell back to a system font");
+                }
+                require(selectFont("WRC Clean Roman",700,false).faces.front()==bold.faces.front(),"Bold Roman alias disagrees with browser font mapping");
                 Scene textScene;textScene.width=1920;textScene.height=1080;
                 Json command={{"type","drawText"},{"fontName","Consolas"},{"fontSize",24},
                     {"fontWeight",400},{"text",std::string("RPM ")+"\xe5\xb7\xa6\xe5\x85\xad"},{"x",0},{"y",0}};
@@ -234,6 +313,12 @@ int main(int argc,char** argv) {
                 auto measured=measureText(selectFont("Consolas",400,false),24,text);
                 auto rendered=font->CalcTextSizeA(24,10000,0,text.c_str());
                 require(std::abs(measured.width-rendered.x)<1.1f,"Lua and ImGui text widths disagree");
+                for(const auto* tabbed:{"Track:\tTest stage", "Car:\tFord\r\nAuthor:\tTest author", "\t\tRPM 5000"}) {
+                    auto tabMeasured=measureText(selectFont("Consolas",400,false),24,tabbed);
+                    auto tabRendered=font->CalcTextSizeA(24,10000,0,tabbed);
+                    std::cout<<"Tabbed text: measured="<<tabMeasured.width<<", rendered="<<tabRendered.x<<'\n';
+                    require(std::abs(tabMeasured.width-tabRendered.x)<1.1f,"Tab measurement clips right-aligned text");
+                }
                 require(!fonts.collect(textScene),"Unchanged text rebuilt font atlas");
                 require(font->FontSize==24,"Font not rasterized at requested pixel size");
                 require(fonts.collect(textScene,0.5f),"Smaller viewport did not request a smaller font");

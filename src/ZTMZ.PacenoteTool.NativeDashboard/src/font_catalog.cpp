@@ -8,6 +8,7 @@
 #include <mutex>
 #include <algorithm>
 #include <cmath>
+#include <imgui_internal.h>
 #ifdef _WIN32
 #include <windows.h>
 #include <dwrite.h>
@@ -92,8 +93,12 @@ FontSelection selectFont(const std::string& family,int weight,bool italic) {
     FontSelection result;
 #ifdef _WIN32
     std::shared_ptr<const FontFace> primary;
-    if(family=="WRC Clean") {
-        primary=load(bundledFontDirectory()/(weight>=600?"WRCCleanBold.ttf":"WRCCleanRoman.ttf"),0);
+    if(family=="WRC Clean" || family=="WRC Clean Roman" || family=="WRC Clean Bold") {
+        // These are distinct legacy families: the bold file's embedded family
+        // is "WRC Clean", while the book face is "WRC Clean Roman". Match
+        // DirectWrite and the browser's @font-face aliases even at weight 400.
+        const bool bold=family!="WRC Clean Roman" || weight>=600;
+        primary=load(bundledFontDirectory()/(bold?"WRCCleanBold.ttf":"WRCCleanRoman.ttf"),0);
         result.substituted=italic;
     } else primary=systemFont(family,weight,italic);
     if(primary) result.faces.push_back(primary);
@@ -124,10 +129,15 @@ TextSize measureText(const FontSelection& fonts,float size,const std::string& te
     for(auto cp:textCodepoints(text)) {
         if(cp=='\r') continue;
         if(cp=='\n'){result.width=std::max(result.width,line);line=0;result.height+=size;continue;}
+        // ImGui synthesizes TAB from the space glyph rather than reading a
+        // font-file glyph. Match its advance or right-anchored tables are
+        // measured too narrowly and their values are clipped off screen.
+        const float repeat=cp=='\t'?IM_TABSIZE:1;
+        if(cp=='\t')cp=' ';
         auto face=std::find_if(fonts.faces.begin(),fonts.faces.end(),[&](const auto& f){return f->contains(cp);});
-        if(face!=fonts.faces.end()) line+=(*face)->advance(cp,size);
-        else if(!fonts.faces.empty()) line+=fonts.faces.front()->advance('?',size);
-        else line+=size*0.6f;
+        if(face!=fonts.faces.end()) line+=repeat*(*face)->advance(cp,size);
+        else if(!fonts.faces.empty()) line+=repeat*fonts.faces.front()->advance('?',size);
+        else line+=repeat*size*0.6f;
     }
     result.width=std::max(result.width,line);return result;
 }

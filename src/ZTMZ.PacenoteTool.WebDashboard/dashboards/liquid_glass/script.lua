@@ -232,6 +232,13 @@ function onUpdate(args)
         gfx.DrawRoundedRectangle(b.rim,tx(px),ty(py),tx(px+pw),ty(py+ph),r*s,s);
     end
     glass(0,0,width,panelHeight,24);
+    -- The main instruments share a centerline, independently of the pedals
+    -- and optional hybrid/turbo columns. Keep paired readings symmetric.
+    local instrumentCenter=230;
+    local gearCenter,speedCenter=instrumentCenter-60,instrumentCenter+60;
+    local steeringHalfWidth=102.5;
+    local steeringLeft=instrumentCenter-steeringHalfWidth;
+    local steeringRight=instrumentCenter+steeringHalfWidth;
     local lightCount,atShiftPoint=shiftLightState(data,args.Config);
     local blink=not atShiftPoint or math.floor((number(data.Time) or 0)*8)%2==0;
     for i=0,17 do
@@ -239,14 +246,14 @@ function onUpdate(args)
         if i<lightCount and blink then
             brush=atShiftPoint and b.red or (i<6 and b.green or (i<12 and b.amber or b.red));
         end
-        gfx.FillRoundedRectangle(brush,tx(106+i*14),ty(12),tx(116+i*14),ty(18),2*s);
+        gfx.FillRoundedRectangle(brush,tx(instrumentCenter-124+i*14),ty(12),tx(instrumentCenter-114+i*14),ty(18),2*s);
     end
-    text(string.format("%.0f RPM",number(data.RPM) or 0),225,29,10,b.muted);
-    text(getGear(number(data.Gear) or 0),155,75,80,b.white,true);
-    text(resources.labels.gear,155,118,10,b.muted);
-    text(string.format("%.0f",number(data.Speed) or 0),275,76,57,b.white,true);
-    text("km/h",275,112,12,b.muted);
-    line(207,45,207,113,b.line);
+    text(string.format("%.0f RPM",number(data.RPM) or 0),instrumentCenter,29,10,b.muted);
+    text(getGear(number(data.Gear) or 0),gearCenter,75,80,b.white,true);
+    text(resources.labels.gear,gearCenter,118,10,b.muted);
+    text(string.format("%.0f",number(data.Speed) or 0),speedCenter,76,57,b.white,true);
+    text("km/h",speedCenter,112,12,b.muted);
+    line(instrumentCenter,45,instrumentCenter,113,b.line);
     for i,p in ipairs({{resources.labels.throttle,data.Throttle,b.green},{resources.labels.brake,data.Brake,b.red},{resources.labels.clutch,data.Clutch,b.blue}}) do
         local px=26+(i-1)*20;
         gfx.FillRoundedRectangle(b.track,tx(px),ty(38),tx(px+8),ty(100),4*s);
@@ -257,13 +264,13 @@ function onUpdate(args)
     local feedback=getForceFeedbackDisplayState(data);
     if feedback ~= nil then
         drawForceFeedbackRail(gfx, feedback, resources.font,
-            b.line, b.white, b.amber, b.clear, tx(115), ty(132), 205*s, 7*s);
+            b.line, b.white, b.amber, b.clear, tx(steeringLeft), ty(132), 2*steeringHalfWidth*s, 7*s);
     else
-        line(115,132,320,132,b.line,2);
-        line(217.5,128,217.5,136,b.muted);
+        line(steeringLeft,132,steeringRight,132,b.line,2);
+        line(instrumentCenter,128,instrumentCenter,136,b.muted);
     end
     -- Draw steering last so its red marker stays distinct over the FFB fill.
-    local steeringX=tx(217.5+102.5*math.max(-1,math.min(1,number(data.Steering) or 0)));
+    local steeringX=tx(instrumentCenter+steeringHalfWidth*math.max(-1,math.min(1,number(data.Steering) or 0)));
     gfx.FillCircle(b.track,steeringX,ty(132),3.5*s);
     gfx.FillCircle(b.red,steeringX,ty(132),2.5*s);
     if data.HandBrakeValid == true then
