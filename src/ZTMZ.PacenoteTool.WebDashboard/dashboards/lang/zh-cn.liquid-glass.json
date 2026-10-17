@@ -1,0 +1,44 @@
+{
+    "dashboards": {
+        "liquidGlass": {
+            "name": "液态玻璃",
+            "description": "带混动、涡轮压力、温度与部件警告的折射玻璃仪表。原生 DX9/10/11/12 和 Vulkan 在可读取游戏背景时支持折射效果。",
+            "labels": {
+                "gear": "档位",
+                "coolant": "水温",
+                "oil": "油温",
+                "delta": "时间差",
+                "turbo": "涡轮 / bar",
+                "absolute": "进气 / bar 绝压",
+                "pressure": "压力 / bar",
+                "engine": "发动机",
+                "cooling": "冷却",
+                "gearbox": "变速箱",
+                "boost": "助推",
+                "ready": "就绪",
+                "regen": "回充",
+                "standby": "待机",
+                "hybrid": "混动",
+                "oilPressure": "机油压力"
+            }
+        },
+        "settings": {
+            "showDamage": "显示部件警告",
+            "showTurbo": "显示涡轮压力",
+            "showTemperatures": "显示发动机温度",
+            "glassRefraction": "玻璃折射",
+            "glassBlur": "玻璃散射",
+            "tooltip": {
+                "showDamage": "显示游戏支持的发动机、冷却、变速箱和轮胎状态。",
+                "showTurbo": "显示游戏提供的涡轮压力。",
+                "showTemperatures": "显示游戏提供的冷却液和机油温度。",
+                "glassRefraction": "玻璃边缘位移（仪表像素），需要游戏内原生渲染且可读取游戏背景。",
+                "glassBlur": "背景散射半径（仪表像素），需要游戏内原生渲染且可读取游戏背景。",
+                "glassEnabled": "为此仪表盘面板启用折射。关闭后不再为此仪表盘捕获背景或运行玻璃着色器。不支持的画面使用半透明底色。",
+                "glassOpacity": "面板底色从透明（0）到不透明（1）；同样适用于不支持折射的渲染方式。"
+            },
+            "glassEnabled": "启用玻璃效果",
+            "glassOpacity": "玻璃底色不透明度"
+        }
+    }
+}

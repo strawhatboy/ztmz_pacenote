@@ -118,8 +118,10 @@ public class RBRMemDataReader
                 memData.TravelledDistance = MemoryReader.Read<float>(pHandle, baseAddr0 + 36);
                 memData.DistanceToFinish = MemoryReader.Read<float>(pHandle, baseAddr0 + 40);
                 memData.EngineRPM = MemoryReader.Read<float>(pHandle, baseAddr0 + 16);
-                memData.WaterTemperatureCelsius = MemoryReader.Read<float>(pHandle, baseAddr0 + 20);
-                memData.TurboPressureBar = MemoryReader.Read<float>(pHandle, baseAddr0 + 24) / 100000f;
+                (memData.Engine, memData.Turbo) = RBRPowertrainTelemetry.Read(
+                    (address, buffer) => TryReadBytes(pHandle, address, buffer), baseAddr0, DateTimeOffset.UtcNow);
+                memData.WaterTemperatureCelsius = memData.Engine?.CoolantTemperatureCelsius ?? 0;
+                memData.TurboPressureBar = memData.Turbo?.PressureBar ?? 0;
                 memData.CurrentStagePosition = MemoryReader.Read<float>(pHandle, baseAddr0 + 0x13C);
                 memData.WrongWay = MemoryReader.Read<byte>(pHandle, baseAddr0 + 0x150) > 0;
                 memData.SessionTime = MemoryReader.Read<float>(pHandle, baseAddr0 + 0x15C);

@@ -1,5 +1,9 @@
 v2.99.99.56-3.0-rc28
 
+* Adds a compact Liquid Glass dashboard with speed, gear, shift lights, pedals, steering and handbrake. Hybrid, boost/intake pressure, engine temperatures, time delta and key damage indicators appear only when data is available, with unused space collapsed.
+* Adds in-game background refraction and diffusion on DX9, DX10, DX11, DX12 and Vulkan, with per-dashboard effect, tint opacity, refraction and diffusion controls. Defaults of 8 refraction and 4 diffusion soften the backdrop and reduce edge distortion. Separate overlays and browser dashboards use a translucent fallback; other dashboards are unaffected.
+* Adds shared engine temperature and boost/intake pressure readings for RBR and BeamNG.drive, retaining pressure-reference information and hiding invalid or stale readings instead of presenting missing data as healthy or zero.
+* Fixes modern WRC 2025 dashboard rendering when the maximum RPM is unavailable. A failing in-game dashboard script no longer prevents other dashboards from rendering, and retries automatically.
 * Fixes missing, unreadable or invalid RBR pacenote definition files preventing startup. Keeps ZTMZ running, clears stale mappings and shows a warning when a stage needs the unavailable definition; restoring or reselecting a valid file restores mapping support.
 * Fixes the installer ignoring the installation directory saved in the application registry; keeps the uninstaller destination synchronized and preserves explicit /DIR overrides and separate ACR experimental installations.
 * Adds hybrid indicators styled individually for the four modern WRC dashboards: integrated battery gauges, lightning icons and circular boost/recharge progress, with state/map readings that hide automatically when telemetry is unavailable.

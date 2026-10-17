@@ -661,6 +661,8 @@ public class RBRGameDataReader : UdpGameDataReader, IGameRuntimeDiagnosticsProvi
 
         gameData.GameSpecificData = data;
         gameData.CarDamage = RBRCarDamageSnapshotFactory.Create(data.DamageTelemetry);
+        gameData.Engine = data.Engine;
+        gameData.Turbo = data.Turbo;
 
         return gameData;
     }

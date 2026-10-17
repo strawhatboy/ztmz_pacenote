@@ -86,7 +86,8 @@ function onExit() assert(true) end
     require(client.accept(message,3,"").controlMessage.find("requestBrowserLuaScene")!=std::string::npos,"Missing scene recovery");
     DashboardClient broken([](int id){return package("function onUpdate() error('broken') end",id);});
     message["dashboards"]=Json::array({{{"id",0}}});
-    require(broken.accept(message,4,"").controlMessage.find("browserLuaFallback")!=std::string::npos,"Failed Lua did not request fallback");
+    require(broken.accept(message,4,"").controlMessage.empty(),"Individual Lua failure requested client-wide fallback");
+    require(broken.status().find("Dashboard 0 suspended")!=std::string::npos,"Failed dashboard diagnostic missing");
     require(broken.scene().layers.empty(),"Failed Lua left stale drawing");
     // Scene changes must reload changed packages, preserve unchanged VMs, and
     // interleave compatibility layers with local Lua in dashboard order.

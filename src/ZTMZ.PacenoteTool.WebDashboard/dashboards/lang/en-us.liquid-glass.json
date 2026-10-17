@@ -1,0 +1,44 @@
+{
+    "dashboards": {
+        "liquidGlass": {
+            "name": "Liquid Glass",
+            "description": "Refractive glass instruments with hybrid, turbo, temperatures and component warnings. Refraction supports native DX9/10/11/12 and Vulkan when the game backdrop is available.",
+            "labels": {
+                "gear": "GEAR",
+                "coolant": "COOLANT",
+                "oil": "OIL",
+                "delta": "DELTA",
+                "turbo": "TURBO / bar",
+                "absolute": "INTAKE / bar abs",
+                "pressure": "PRESSURE / bar",
+                "engine": "ENGINE",
+                "cooling": "COOLING",
+                "gearbox": "GEARBOX",
+                "boost": "BOOST",
+                "ready": "READY",
+                "regen": "REGEN",
+                "standby": "STANDBY",
+                "hybrid": "HYBRID",
+                "oilPressure": "OIL PRESSURE"
+            }
+        },
+        "settings": {
+            "showDamage": "Show component warnings",
+            "showTurbo": "Show turbo pressure",
+            "showTemperatures": "Show engine temperatures",
+            "glassRefraction": "Glass refraction",
+            "glassBlur": "Glass diffusion",
+            "tooltip": {
+                "showDamage": "Show supported engine, cooling, gearbox and tyre indicators.",
+                "showTurbo": "Show measured turbo pressure when the game reports it.",
+                "showTemperatures": "Show reported coolant and oil temperatures.",
+                "glassRefraction": "Edge displacement in dashboard pixels. Requires native in-game rendering and a readable game backdrop.",
+                "glassBlur": "Background diffusion in dashboard pixels. Requires native in-game rendering and a readable game backdrop.",
+                "glassEnabled": "Apply refraction to this dashboard’s panels. Disable to skip its backdrop capture and glass shader. Unsupported surfaces use a translucent tint.",
+                "glassOpacity": "Panel tint from transparent (0) to opaque (1); applies to the fallback too."
+            },
+            "glassEnabled": "Enable glass effect",
+            "glassOpacity": "Glass tint opacity"
+        }
+    }
+}

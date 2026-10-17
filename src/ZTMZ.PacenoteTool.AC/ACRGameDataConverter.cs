@@ -16,6 +16,12 @@ internal static class ACRGameDataConverter
         {
             TimeStamp = DateTime.Now,
             CarDamage = vehicle?.Damage ?? CarDamageSnapshot.Unavailable("ACR"),
+            // TurboBoostPressure/WaterTemperature exist in the inherited AC ABI,
+            // but their ACR writer semantics and units are not verified. ReadAll
+            // also leaves default structs on failed reads. Keep optional readings
+            // unavailable rather than interpreting these zeroes as measurements.
+            Engine = null,
+            Turbo = null,
             Time = time,
             LapTime = time,
             LapDistance = distance,

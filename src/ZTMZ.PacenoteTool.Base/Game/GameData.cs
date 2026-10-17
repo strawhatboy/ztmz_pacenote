@@ -75,6 +75,12 @@ public struct GameData
     /// <summary>Hybrid operation, when supported by the game and current car.</summary>
     public HybridTelemetrySnapshot Hybrid;
 
+    /// <summary>Current engine readings; null when unsupported or unavailable.</summary>
+    public EngineTelemetrySnapshot Engine;
+
+    /// <summary>Current induction pressure with an explicit pressure reference.</summary>
+    public TurboTelemetrySnapshot Turbo;
+
     public override bool Equals([NotNullWhen(true)] object obj)
     {
         return base.Equals(obj);

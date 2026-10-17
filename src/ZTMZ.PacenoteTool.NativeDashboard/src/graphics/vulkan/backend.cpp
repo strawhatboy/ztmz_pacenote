@@ -1,4 +1,5 @@
 #include "graphics/vulkan/backend.hpp"
+#include "graphics/vulkan/glass.hpp"
 #include <imgui_impl_vulkan.h>
 #include <cstring>
 #include <stdexcept>
@@ -26,6 +27,7 @@ class VulkanBackend final:public RenderBackend {
     };
     std::map<std::string,std::unique_ptr<Image>> images_;
     std::unique_ptr<Image> bootstrap_;
+    std::unique_ptr<VulkanGlass> glass_;
     uint32_t memoryType(uint32_t bits,VkMemoryPropertyFlags properties) {
         VkPhysicalDeviceMemoryProperties memory{};vkGetPhysicalDeviceMemoryProperties(info_.physicalDevice,&memory);
         for(uint32_t i=0;i<memory.memoryTypeCount;++i) if((bits&(1u<<i)) && (memory.memoryTypes[i].propertyFlags&properties)==properties) return i;
@@ -42,7 +44,9 @@ class VulkanBackend final:public RenderBackend {
     }
     void finish(VulkanFrame* frame=nullptr) {
         check(vkEndCommandBuffer(command_));check(vkResetFences(info_.device,1,&fence_));
-        std::vector<VkPipelineStageFlags> stages(frame?frame->waits.size():0,VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+        const VkPipelineStageFlags waitStages=VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+            | ((frame && frame->glassCapture.copies)?VK_PIPELINE_STAGE_TRANSFER_BIT:0);
+        std::vector<VkPipelineStageFlags> stages(frame?frame->waits.size():0,waitStages);
         VkSubmitInfo submit{VK_STRUCTURE_TYPE_SUBMIT_INFO};submit.commandBufferCount=1;submit.pCommandBuffers=&command_;
         if(frame){submit.waitSemaphoreCount=static_cast<uint32_t>(frame->waits.size());submit.pWaitSemaphores=frame->waits.data();submit.pWaitDstStageMask=stages.data();}
         if(frame&&frame->signal){submit.signalSemaphoreCount=1;submit.pSignalSemaphores=&frame->signal;}
@@ -100,6 +104,7 @@ public:
     }
     void newFrame() override {
         begin();
+        if(glass_)glass_->beginFrame();
         if(!bootstrap_) {
             unsigned char* pixels=nullptr;int width=0,height=0;
             auto& atlas=*ImGui::GetIO().Fonts;atlas.GetTexDataAsRGBA32(&pixels,&width,&height);
@@ -116,22 +121,28 @@ public:
         for(const auto& [key,image]:images) if(!images_.contains(key)){images_.emplace(key,upload(image));break;}
     }
     Texture texture(const std::string& key) const override{auto i=images_.find(key);if(i==images_.end()) return {};return {textureId(i->second->descriptor),i->second->source->width,i->second->source->height};}
+    GlassDraw prepareGlass(NativeFrame& native) override {
+        auto* frame=dynamic_cast<VulkanFrame*>(&native);if(!frame)return {};
+        if(!glass_)glass_=std::make_unique<VulkanGlass>(info_,renderPass_);
+        return glass_->prepare(*frame);
+    }
     void submit(ImDrawData& data,NativeFrame& native) override {
         auto* frame=dynamic_cast<VulkanFrame*>(&native);if(!frame || !frame->image) throw std::invalid_argument("Vulkan present image missing");
         if(!frame->signal)throw std::invalid_argument("Vulkan presentation semaphore missing");
         begin();target_=std::make_unique<Target>();target_->d=info_.device;auto& target=*target_;
         VkImageViewCreateInfo view{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};view.image=frame->image;view.viewType=VK_IMAGE_VIEW_TYPE_2D;view.format=info_.format;view.subresourceRange={VK_IMAGE_ASPECT_COLOR_BIT,0,1,0,1};check(vkCreateImageView(info_.device,&view,nullptr,&target.view));
         VkFramebufferCreateInfo framebuffer{VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO};framebuffer.renderPass=renderPass_;framebuffer.attachmentCount=1;framebuffer.pAttachments=&target.view;framebuffer.width=frame->extent.width;framebuffer.height=frame->extent.height;framebuffer.layers=1;check(vkCreateFramebuffer(info_.device,&framebuffer,nullptr,&target.framebuffer));
-        begin();VkRenderPassBeginInfo beginPass{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};beginPass.renderPass=renderPass_;beginPass.framebuffer=target.framebuffer;beginPass.renderArea.extent=frame->extent;
+        begin();frame->glassCapture=glass_?glass_->capture(command_):GlassCaptureStats{};
+        VkRenderPassBeginInfo beginPass{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};beginPass.renderPass=renderPass_;beginPass.framebuffer=target.framebuffer;beginPass.renderArea.extent=frame->extent;
         vkCmdBeginRenderPass(command_,&beginPass,VK_SUBPASS_CONTENTS_INLINE);ImGui_ImplVulkan_RenderDrawData(&data,command_);vkCmdEndRenderPass(command_);finish(frame);
     }
     void invalidateDeviceObjects() override {
         if(submitted_)check(vkWaitForFences(info_.device,1,&fence_,VK_TRUE,UINT64_MAX));
-        images_.clear();bootstrap_.reset();ImGui::GetIO().Fonts->SetTexID(0);
+        glass_.reset();target_.reset();staging_.clear();images_.clear();bootstrap_.reset();ImGui::GetIO().Fonts->SetTexID(0);
     }
     void shutdown() noexcept override {
         if(submitted_&&fence_)vkWaitForFences(info_.device,1,&fence_,VK_TRUE,UINT64_MAX);
-        staging_.clear();target_.reset();images_.clear();bootstrap_.reset();if(initialized_ || ImGui::GetIO().BackendRendererUserData) ImGui_ImplVulkan_Shutdown();initialized_=false;
+        glass_.reset();staging_.clear();target_.reset();images_.clear();bootstrap_.reset();if(initialized_ || ImGui::GetIO().BackendRendererUserData) ImGui_ImplVulkan_Shutdown();initialized_=false;
         if(sampler_) vkDestroySampler(info_.device,sampler_,nullptr);if(fence_) vkDestroyFence(info_.device,fence_,nullptr);if(pool_) vkDestroyCommandPool(info_.device,pool_,nullptr);if(descriptors_) vkDestroyDescriptorPool(info_.device,descriptors_,nullptr);if(renderPass_) vkDestroyRenderPass(info_.device,renderPass_,nullptr);
         sampler_=VK_NULL_HANDLE;fence_=VK_NULL_HANDLE;pool_=VK_NULL_HANDLE;descriptors_=VK_NULL_HANDLE;renderPass_=VK_NULL_HANDLE;
     }

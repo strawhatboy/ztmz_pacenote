@@ -60,6 +60,7 @@ ClientResult DashboardClient::accept(const Json& message, double seconds, const 
             const auto& descriptors = message.at("dashboards");
             if (!descriptors.is_array() || descriptors.size() > 64) throw std::runtime_error("Invalid Lua scene");
             const auto config = message.value("config", Json::object());
+            if (!config.is_object()) throw std::runtime_error("Invalid Lua configuration");
             std::map<int, Entry> next;
             for (const auto& descriptor : descriptors) {
                 const int id = descriptor.at("id").get<int>();
@@ -71,11 +72,9 @@ ClientResult DashboardClient::accept(const Json& message, double seconds, const 
                     previous->second.order = descriptor.value("order", id);
                     next.emplace(id, std::move(previous->second));
                 } else {
-                    auto package = loader_(id);
-                    if (package.at("id").get<int>() != id) throw std::runtime_error("Package ID mismatch");
-                    if (descriptor.contains("settings")) package["settings"] = descriptor.at("settings");
-                    next.emplace(id, Entry{descriptor.value("order", id), signature,
-                        std::make_unique<LuaDashboard>(package, config), {}});
+                    Entry entry;entry.order=descriptor.value("order",id);entry.signature=signature;
+                    entry.config=config;entry.settings=descriptor.value("settings",Json{});
+                    next.emplace(id,std::move(entry));
                 }
             }
             runtimes_ = std::move(next); revision_ = revision;
@@ -88,15 +87,40 @@ ClientResult DashboardClient::accept(const Json& message, double seconds, const 
         if (!context.is_object()) throw std::runtime_error("Invalid telemetry context");
         context_.update(context);
         const auto data = message.value("data", Json::object());
+        if (!data.is_object()) throw std::runtime_error("Invalid telemetry data");
         for (auto& [id, entry] : runtimes_) {
-            try { entry.layers = entry.lua->update(data, context_, seconds, clock); }
-            catch (const std::exception& e) { throw std::runtime_error("Dashboard " + std::to_string(id) + ": " + e.what()); }
+            if (!entry.failure.empty() && seconds < entry.retryAt) continue;
+            try {
+                if (!entry.lua) {
+                    if (entry.package.is_null()) {
+                        auto package=loader_(id);
+                        if (package.at("id").get<int>()!=id) throw std::runtime_error("Package ID mismatch");
+                        if (!entry.settings.is_null()) package["settings"]=entry.settings;
+                        entry.package=std::move(package);
+                    }
+                    entry.lua=std::make_unique<LuaDashboard>(entry.package,entry.config);
+                }
+                entry.layers=entry.lua->update(data,context_,seconds,clock);
+                entry.failure.clear();entry.retryDelay=1;
+            } catch (const std::exception& e) {
+                // A VM is permanently stopped after failed output conversion or
+                // Lua execution. Recreate ONLY that VM, using cached source and
+                // fresh telemetry, rather than disabling the whole client.
+                entry.layers.clear();entry.lua.reset();entry.failure=e.what();
+                entry.retryAt=seconds+entry.retryDelay;
+                entry.retryDelay=std::min(30u,entry.retryDelay*2);
+            }
         }
         if (!hybrid_) commands_ = {};
-        compose(); status_ = "Local Lua: " + std::to_string(runtimes_.size()) + " dashboard(s)";
+        compose();
+        const auto healthy=std::count_if(runtimes_.begin(),runtimes_.end(),[](const auto& item){return item.second.failure.empty();});
+        status_="Local Lua: "+std::to_string(healthy)+" dashboard(s)";
+        for (const auto& [id,entry]:runtimes_) if(!entry.failure.empty())
+            status_+="; Dashboard "+std::to_string(id)+" suspended (retrying): "+entry.failure;
         return {true, {}};
     } catch (const std::exception& e) {
-        // Explicit protocol fallback clears stale native content and reports the reason.
+        // Invalid scene/protocol state still requires connection-wide fallback.
+        // Individual package/VM failures are contained above.
         runtimes_.clear(); revision_ = 0; context_ = Json::object();
         commands_ = {}; composed_ = {}; disabled_ = true;
         status_ = std::string("Lua failure: ") + e.what();

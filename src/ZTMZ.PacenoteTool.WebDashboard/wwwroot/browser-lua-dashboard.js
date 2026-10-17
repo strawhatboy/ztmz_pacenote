@@ -449,6 +449,8 @@
                         })
                     },
                     IsWebDashboard: true,
+                    SupportsGlassPanel: true,
+                    SupportsGlassRefraction: false,
                     WebDashboardStaticLayerDirty: true,
                     NativeStaticLayerEnabled: false,
                     NativeStaticLayerRenderOnly: false,
@@ -545,6 +547,8 @@
             this.runtime = runtime;
             this.Width = RENDER_WIDTH;
             this.Height = RENDER_HEIGHT;
+            this.SupportsGlassPanel = true;
+            this.SupportsGlassRefraction = false;
             this.FPS = finiteNumber(
                 runtime.globalConfig?.FrameRate ?? runtime.globalConfig?.frameRate,
                 60);
@@ -572,6 +576,8 @@
             this.DrawRectangle = luaFunction((brush, ...args) => this.drawRectangle(brush, ...args));
             this.DrawRoundedRectangle = luaFunction((brush, left, top, right, bottom, radius, thickness) =>
                 this.drawRoundedRectangle(brush, left, top, right, bottom, radius, thickness));
+            this.DrawGlassPanel = luaFunction((brush, left, top, right, bottom, radius, refraction, blur) =>
+                this.drawGlassPanel(brush, left, top, right, bottom, radius, refraction, blur));
             this.DrawLine = luaFunction((brush, ...args) => this.drawLine(brush, ...args));
             this.DrawCircle = luaFunction((brush, x, y, radius, thickness) =>
                 this.drawCircle(brush, x, y, radius, thickness));
@@ -783,6 +789,27 @@
             ctx.strokeStyle = fillStyleForBrush(ctx, brush, left, top, width, height);
             ctx.lineWidth = Math.max(0.1, finiteNumber(thickness, 1));
             roundedRectanglePath(ctx, left, top, width, height, radius);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        drawGlassPanel(brush, left, top, right, bottom, radius, refraction, blur) {
+            if (![left, top, right, bottom].every(Number.isFinite)) return;
+            const bound = value => Math.max(-32768, Math.min(32768, value));
+            left = bound(left); top = bound(top); right = bound(right); bottom = bound(bottom);
+            const width = Math.min(32768, right - left);
+            const height = Math.min(32768, bottom - top);
+            if (width <= 0 || height <= 0) return;
+            radius = Math.max(0, Math.min(width / 2, height / 2, finiteNumber(radius, 0)));
+            // A standalone canvas cannot sample the game behind it. Keep a readable tinted
+            // panel and rim; refraction/blur are deliberately not simulated as scene sampling.
+            const ctx = this.runtime.activeContext;
+            ctx.save();
+            roundedRectanglePath(ctx, left, top, width, height, radius);
+            ctx.fillStyle = brush ? fillStyleForBrush(ctx, brush, left, top, width, height) : 'rgba(0,0,0,1)';
+            ctx.fill();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = 'rgba(255,255,255,0.28)';
             ctx.stroke();
             ctx.restore();
         }

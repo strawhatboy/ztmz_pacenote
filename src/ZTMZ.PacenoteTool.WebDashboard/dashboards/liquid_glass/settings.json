@@ -1,0 +1,71 @@
+{
+    "PropertyName": {
+        "dashboards.settings.enabled": "dashboards.settings.tooltip.enabled",
+        "dashboards.settings.positionH": "dashboards.settings.tooltip.positionH",
+        "dashboards.settings.positionV": "dashboards.settings.tooltip.positionV",
+        "dashboards.settings.size": "dashboards.settings.tooltip.size",
+        "dashboards.settings.marginH": "dashboards.settings.tooltip.marginH",
+        "dashboards.settings.marginV": "dashboards.settings.tooltip.marginV",
+        "dashboards.settings.showHybrid": "dashboards.settings.tooltip.showHybrid",
+        "dashboards.settings.showDamage": "dashboards.settings.tooltip.showDamage",
+        "dashboards.settings.showTurbo": "dashboards.settings.tooltip.showTurbo",
+        "dashboards.settings.showTemperatures": "dashboards.settings.tooltip.showTemperatures",
+        "dashboards.settings.glassRefraction": "dashboards.settings.tooltip.glassRefraction",
+        "dashboards.settings.glassBlur": "dashboards.settings.tooltip.glassBlur",
+        "dashboards.settings.showLocalBest": "dashboards.settings.tooltip.showLocalBest",
+        "dashboards.settings.glassEnabled": "dashboards.settings.tooltip.glassEnabled",
+        "dashboards.settings.glassOpacity": "dashboards.settings.tooltip.glassOpacity"
+    },
+    "PropertyValue": [
+        false,
+        0,
+        1,
+        0.32,
+        0,
+        0.025,
+        true,
+        true,
+        true,
+        true,
+        8,
+        4,
+        true,
+        true,
+        0.44
+    ],
+    "ValueRange": [
+        [],
+        [],
+        [],
+        [
+            0.15,
+            0.65
+        ],
+        [
+            0,
+            0.5
+        ],
+        [
+            0,
+            0.5
+        ],
+        [],
+        [],
+        [],
+        [],
+        [
+            0,
+            24
+        ],
+        [
+            0,
+            8
+        ],
+        [],
+        [],
+        [
+            0,
+            1
+        ]
+    ]
+}

@@ -12,6 +12,9 @@ public struct RBRMemData
 
 	public float TurboPressureBar;
 
+	internal ZTMZ.PacenoteTool.Base.Game.EngineTelemetrySnapshot? Engine;
+	internal ZTMZ.PacenoteTool.Base.Game.TurboTelemetrySnapshot? Turbo;
+
 	public float TravelledDistance;
 
 	public float DistanceFromStart;

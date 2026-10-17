@@ -897,7 +897,9 @@ public class WebDashboardServer : IDisposable
                     // the desktop process; browser dashboards receive the stable
                     // groups and visual components only.
                     CarDamage = CreateBrowserLuaCarDamage(data.CarDamage),
-                    data.Hybrid
+                    data.Hybrid,
+                    data.Engine,
+                    data.Turbo
                 },
                 context = new
                 {
@@ -1089,6 +1091,8 @@ public class WebDashboardServer : IDisposable
             Time = FiniteTelemetryValue(data.Time),
             CarDamage = CreateBrowserLuaCarDamage(data.CarDamage),
             data.Hybrid,
+            data.Engine,
+            data.Turbo,
             GameDataText = data.ToString(),
             GameSpecificDataText = data.GameSpecificDataToString()
         };

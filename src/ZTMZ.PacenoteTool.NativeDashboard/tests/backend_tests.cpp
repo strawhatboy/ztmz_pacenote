@@ -22,6 +22,7 @@ struct Record {
     bool failInitialize=false;
     bool fontUploaded=false;
     bool busy=false;
+    unsigned glassPreparations=0;
 };
 class TestBackend final:public RenderBackend {
     RenderApi api_;
@@ -43,6 +44,7 @@ public:
     void newFrame() override {record("newFrame");}
     void syncImages(const ImageAssets& images) override {record("images");if(images.contains("__ztmz_font_atlas"))record_.fontUploaded=true;}
     Texture texture(const std::string&) const override {return {2,16,16};}
+    GlassDraw prepareGlass(NativeFrame&) override {++record_.glassPreparations;return {};}
     void submit(ImDrawData& data,NativeFrame& frame) override {
         record("submit");record_.vertices=data.TotalVtxCount;
         dynamic_cast<TestFrame&>(frame).submitted=true; // API-specific submission output reaches the host.
@@ -98,6 +100,7 @@ end)"}};
             if(!expectedVertices) expectedVertices=log.vertices;
             require(log.vertices==expectedVertices,"Lua geometry changed across backend contracts");
             require(log.calls==std::vector<std::string>{"initialize","images","newFrame","submit"},"Incorrect backend lifecycle order");
+            require(log.glassPreparations==0,"Ordinary frame prepared scene capture");
             require(ImGui::GetCurrentContext()==sentinel,"Frame leaked the renderer context");
             const auto count=log.calls.size();
             TestFrame wrong(api==RenderApi::Dx11?RenderApi::Vulkan:RenderApi::Dx11);
@@ -131,6 +134,12 @@ end)"}};
                 "Prebuilt numeric glyphs triggered an atlas rebuild");
             session.invalidateDeviceObjects();
             require(log.calls.back()=="invalidate","Reset did not reach backend");
+            auto glassScene=scene;
+            glassScene.layers[0].commands.push_back(Json{{"type","drawGlassPanel"},{"x",10},{"y",10},{"width",100},{"height",50}});
+            session.render({1920,1080,0.01f},frame,glassScene,{});
+            require(log.glassPreparations==1,"Glass frame did not prepare optional capture");
+            session.render({1920,1080,0.01f},frame,scene,{});
+            require(log.glassPreparations==1,"Turning glass off still prepared scene capture");
             bool threw=false;
             try{session.render({1920,1080,0.01f},frame,scene,{},[](const auto&){throw std::runtime_error("UI failed");});}
             catch(const std::runtime_error&){threw=true;}

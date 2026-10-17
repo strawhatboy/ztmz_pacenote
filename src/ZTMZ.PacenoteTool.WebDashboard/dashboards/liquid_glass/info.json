@@ -1,0 +1,11 @@
+{
+    "Name": "dashboards.liquidGlass.name",
+    "Description": "dashboards.liquidGlass.description",
+    "Author": "ZTMZ",
+    "Version": "0.1.0",
+    "SupportsWebDashboardClientLua": true,
+    "PreviewImagePath": "preview.png",
+    "ImageResources": {},
+    "ImageResourcesInDirectory": {},
+    "IsEnabled": false
+}

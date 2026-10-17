@@ -21,6 +21,8 @@ public class GraphicsCommandProxy : IDisposable
     
     public int Width => _capture.Width;
     public int Height => _capture.Height;
+    public bool SupportsGlassPanel => true;
+    public bool SupportsGlassRefraction => false;
     public float FPS { get; set; } = Config.WebDashboardFrameRateDefault;
     
     public GraphicsCommandProxy(DrawingCommandCapture capture, string customFontDirectory = null)
@@ -218,6 +220,12 @@ public class GraphicsCommandProxy : IDisposable
     public void DrawRoundedRectangle(object brush, float left, float top, float right, float bottom, float radius, float stroke)
     {
         _capture.DrawRoundedRectangle(brush, left, top, right, bottom, radius, stroke);
+    }
+
+    public void DrawGlassPanel(object brush, float left, float top, float right, float bottom,
+        float radius, float refraction = 8, float blur = 4)
+    {
+        _capture.DrawGlassPanel(brush, left, top, right, bottom, radius, refraction, blur);
     }
     
     public void FillRectangle(object brush, float left, float top, float right, float bottom)

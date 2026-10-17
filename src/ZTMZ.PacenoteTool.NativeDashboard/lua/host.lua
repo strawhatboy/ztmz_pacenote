@@ -62,6 +62,10 @@ local function rect(l,t,r,b)
     return l,t,r,b
 end
 local gfx={Width=1920,Height=1080,FPS=config.FrameRate or config.frameRate or 60}
+gfx.SupportsGlassPanel=true
+gfx.SupportsGlassRefraction=false -- Actual sampling can be unavailable for the current target.
+args.SupportsGlassPanel=true
+args.SupportsGlassRefraction=false
 args.Graphics=gfx
 function gfx.BeginStaticLayer() active=static end
 function gfx.EndStaticLayer() active=dynamic end
@@ -86,6 +90,20 @@ function gfx.FillRoundedRectangle(b,l,t,r,bottom,radius)
 end
 function gfx.DrawRoundedRectangle(b,l,t,r,bottom,radius,thickness)
     painted({type='drawRoundedRectangle',x=l,y=t,width=r-l,height=bottom-t,radius=radius,thickness=thickness or 1},b)
+end
+local function glassFinite(v) return type(v)=='number' and v==v and v~=math.huge and v~=-math.huge end
+local function glassBound(v,minimum,maximum,fallback)
+    return math.max(minimum,math.min(maximum,glassFinite(v) and v or fallback))
+end
+function gfx.DrawGlassPanel(b,l,t,r,bottom,radius,refraction,blur)
+    if not (glassFinite(l) and glassFinite(t) and glassFinite(r) and glassFinite(bottom)) then return end
+    l=glassBound(l,-32768,32768,0);t=glassBound(t,-32768,32768,0)
+    r=glassBound(r,-32768,32768,0);bottom=glassBound(bottom,-32768,32768,0)
+    local w,h=math.min(32768,r-l),math.min(32768,bottom-t)
+    if w<=0 or h<=0 then return end
+    emit({type='drawGlassPanel',x=l,y=t,width=w,height=h,color=color(b),
+        radius=glassBound(radius,0,math.min(w,h)/2,0),
+        refraction=glassBound(refraction,0,64,8),blur=glassBound(blur,0,32,4)})
 end
 function gfx.DrawLine(b,x,y,x1,y1,thickness)
     if type(x)=='table' then thickness=x1;x1=y.X;y1=y.Y;y=x.Y;x=x.X end

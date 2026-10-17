@@ -24,6 +24,12 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
     private const float DamageActivityThreshold = 0.001f;
     private const float BodyDamageEventThreshold = 0.01f;
     private static readonly TimeSpan BridgeConnectionTimeout = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan OutGaugeSnapshotTimeout = TimeSpan.FromSeconds(2);
+    private readonly TimeProvider _timeProvider;
+    private DateTimeOffset? _lastOutGaugeCapturedAtUtc;
+
+    public BeamNGGameDataReader() : this(TimeProvider.System) { }
+    internal BeamNGGameDataReader(TimeProvider timeProvider) => _timeProvider = timeProvider;
 
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     private readonly object _sync = new();
@@ -192,7 +198,9 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
         {
             lock (_sync)
             {
-                return _currentGameData;
+                var data = _currentGameData;
+                ApplyPowertrainTelemetryLocked(ref data);
+                return data;
             }
         }
         set
@@ -292,6 +300,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
             _lastGameData = default;
             _currentGameData = default;
             _lastOutGauge = null;
+            _lastOutGaugeCapturedAtUtc = null;
             _rallySnapshot = new BeamNGRallySnapshot();
             _firstOutGaugeUtc = default;
             _lastBridgePacketUtc = null;
@@ -314,6 +323,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
         {
             bridgeReceiver = _bridgeReceiver;
             _bridgeReceiver = null;
+            _lastOutGaugeCapturedAtUtc = null;
             _bridgeListenerSocketError = null;
             _lastBridgePacketUtc = null;
             _lastLivePacenoteFingerprint = string.Empty;
@@ -343,6 +353,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
         lock (_sync)
         {
             _lastOutGauge = outGauge;
+            _lastOutGaugeCapturedAtUtc = _timeProvider.GetUtcNow();
             _firstOutGaugeUtc = _firstOutGaugeUtc == default ? DateTime.UtcNow : _firstOutGaugeUtc;
             UpdateTelemetrySnapshotLocked(outGauge);
             oldData = _currentGameData;
@@ -474,6 +485,9 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
             var telemetry = packet.Telemetry;
             if (telemetry.VehicleId > 0 && telemetry.VehicleId != _rallySnapshot.VehicleId)
             {
+                // OutGauge has no vehicle identity. Do not carry the previous car's
+                // engine readings into this vehicle while awaiting its next packet.
+                _lastOutGaugeCapturedAtUtc = null;
                 _rallySnapshot.VehicleId = telemetry.VehicleId;
                 _rallySnapshot.MaxRPM = 0f;
                 _rallySnapshot.IdleRPM = 0f;
@@ -1448,7 +1462,7 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
             ? float.Clamp(Normalize(snapshot.HandBrake), 0f, 1f)
             : outGaugeHandBrake;
 
-        return new GameData
+        var data = new GameData
         {
             TimeStamp = now,
             Time = hasStage ? snapshot.StageTimeSeconds : elapsedSeconds,
@@ -1478,7 +1492,44 @@ public sealed class BeamNGGameDataReader : UdpGameDataReader, IGameLivePacenoteS
             CarDamage = snapshot.CarDamage,
             GameSpecificData = snapshot
         };
+        ApplyPowertrainTelemetryLocked(ref data);
+        return data;
     }
+
+    private void ApplyPowertrainTelemetryLocked(ref GameData data)
+    {
+        data.Engine = null;
+        data.Turbo = null;
+        if (_lastOutGauge is not { } packet || _lastOutGaugeCapturedAtUtc is not { } capturedAt)
+            return;
+        var age = _timeProvider.GetUtcNow() - capturedAt;
+        if (age < TimeSpan.Zero || age > OutGaugeSnapshotTimeout) return;
+
+        // BeamNG's installed outgauge.lua writes watertemp in Celsius and
+        // turboBoost (PSI gauge pressure) / 14.504, irrespective of OG_BAR.
+        // electrics.lua initializes both temperatures to zero, with no validity
+        // bit. Conservatively omit this ambiguous sentinel (also affects real 0 C).
+        var coolant = OptionalTemperature(packet.EngineTemperatureCelsius);
+        var oil = OptionalTemperature(packet.OilTemperatureCelsius);
+        // DL_OILWARN is documented as pressure, but this writer takes electrics.oil,
+        // derived from oil temperature. Do not publish it as OilPressureWarning.
+        if (coolant.HasValue || oil.HasValue)
+            data.Engine = new EngineTelemetrySnapshot("beamng", capturedAt)
+            {
+                CoolantTemperatureCelsius = coolant,
+                OilTemperatureCelsius = oil
+            };
+        const ushort turboGaugeAvailable = 8192;
+        if ((packet.Flags & turboGaugeAvailable) != 0 && float.IsFinite(packet.TurboBar))
+            data.Turbo = new TurboTelemetrySnapshot("beamng", capturedAt)
+            {
+                PressureBar = packet.TurboBar,
+                PressureReference = TurboPressureReference.Gauge
+            };
+    }
+
+    private static float? OptionalTemperature(float value) =>
+        float.IsFinite(value) && value != 0 && value >= -273.15f ? value : null;
 
     private bool ShouldSaveStagePacenotesLocked(BeamNGRallyStage? stage, IReadOnlyList<BeamNGRallyPacenote> pacenotes)
     {

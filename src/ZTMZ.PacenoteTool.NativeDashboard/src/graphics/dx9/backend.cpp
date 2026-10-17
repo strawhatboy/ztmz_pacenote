@@ -1,4 +1,5 @@
 #include "graphics/dx9/backend.hpp"
+#include "graphics/dx9/glass.hpp"
 #include <imgui_impl_dx9.h>
 #include <wrl/client.h>
 #include <stdexcept>
@@ -12,12 +13,16 @@ class Dx9Backend final:public RenderBackend {
     ComPtr<IDirect3DDevice9> device_;
     struct Image {std::shared_ptr<const ImageAsset> source;ComPtr<IDirect3DTexture9> texture;};
     std::map<std::string,Image> images_;
+    Dx9Glass glass_;
     bool initialized_=false;
 public:
-    explicit Dx9Backend(IDirect3DDevice9* device):device_(device){if(!device) throw std::invalid_argument("DX9 device missing");}
+    explicit Dx9Backend(IDirect3DDevice9* device):device_(device),glass_(device){if(!device) throw std::invalid_argument("DX9 device missing");}
     RenderApi api() const noexcept override{return RenderApi::Dx9;}
     void initialize() override {if(!ImGui_ImplDX9_Init(device_.Get())) throw std::runtime_error("ImGui DX9 initialization failed");initialized_=true;}
-    void newFrame() override {ImGui_ImplDX9_NewFrame();}
+    void newFrame() override {glass_.beginFrame();ImGui_ImplDX9_NewFrame();}
+    GlassDraw prepareGlass(NativeFrame& native) override {
+        auto* frame=dynamic_cast<Dx9Frame*>(&native);return frame?glass_.prepare(frame->target):GlassDraw{};
+    }
     void syncImages(const ImageAssets& images) override {
         for(auto it=images_.begin();it!=images_.end();) if(!images.contains(it->first)) it=images_.erase(it);else ++it;
         for(const auto& [key,source]:images) {
@@ -40,6 +45,7 @@ public:
     }
     void submit(ImDrawData& data,NativeFrame& native) override {
         auto* frame=dynamic_cast<Dx9Frame*>(&native);if(!frame || !frame->target) throw std::invalid_argument("DX9 surface missing");
+        frame->glassCapture=glass_.capture();
         // Present is outside the game's scene. Never EndScene if our BeginScene failed.
         if(FAILED(device_->BeginScene())) return;
         struct Restore {
@@ -56,8 +62,8 @@ public:
           ImGui_ImplDX9_RenderDrawData(&data);
           frame->submitted=true;
     }
-    void invalidateDeviceObjects() override {images_.clear();if(initialized_) ImGui_ImplDX9_InvalidateDeviceObjects();}
-    void shutdown() noexcept override {images_.clear();if(initialized_) ImGui_ImplDX9_Shutdown();initialized_=false;}
+    void invalidateDeviceObjects() override {glass_.clear();images_.clear();if(initialized_) ImGui_ImplDX9_InvalidateDeviceObjects();}
+    void shutdown() noexcept override {glass_.clear();images_.clear();if(initialized_) ImGui_ImplDX9_Shutdown();initialized_=false;}
 };
 }
 std::unique_ptr<RenderBackend> createDx9Backend(IDirect3DDevice9* device){return std::make_unique<Dx9Backend>(device);}

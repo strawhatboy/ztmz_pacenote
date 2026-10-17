@@ -1,4 +1,5 @@
 #include "graphics/dx12/backend.hpp"
+#include "graphics/dx12/glass.hpp"
 #include <imgui_impl_dx12.h>
 #include <wrl/client.h>
 #include <algorithm>
@@ -23,6 +24,7 @@ class Dx12Backend final:public RenderBackend {
     std::vector<bool> descriptors_=std::vector<bool>(Capacity,false);
     struct Frame {ComPtr<ID3D12CommandAllocator> allocator;ComPtr<ID3D12GraphicsCommandList> list;UINT64 completed=0;};
     std::vector<Frame> frames_;
+    std::unique_ptr<Dx12Glass> glass_;
     struct Image {std::shared_ptr<const ImageAsset> source;ComPtr<ID3D12Resource> resource;unsigned slot=0;};
     std::map<std::string,Image> images_;
     struct RetiredImage {UINT64 fence;Image image;};
@@ -81,6 +83,9 @@ public:
         desc.Type=D3D12_DESCRIPTOR_HEAP_TYPE_RTV;desc.NumDescriptors=static_cast<UINT>(frames_.size());desc.Flags=D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
         check(device_->CreateDescriptorHeap(&desc,IID_PPV_ARGS(&rtv_)));
         srvStride_=device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);rtvStride_=device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> glassCpu;std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> glassGpu;
+        for(size_t i=0;i<frames_.size();++i){auto slot=allocate();glassCpu.push_back(cpu(slot));glassGpu.push_back(gpu(slot));}
+        glass_=std::make_unique<Dx12Glass>(device_.Get(),format_,glassCpu,glassGpu);
         check(device_->CreateFence(0,D3D12_FENCE_FLAG_NONE,IID_PPV_ARGS(&fence_)));event_=CreateEventW(nullptr,FALSE,FALSE,nullptr);if(!event_) throw std::runtime_error("Cannot create DX12 fence event");
         for(auto& frame:frames_){check(device_->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,IID_PPV_ARGS(&frame.allocator)));check(device_->CreateCommandList(0,D3D12_COMMAND_LIST_TYPE_DIRECT,frame.allocator.Get(),nullptr,IID_PPV_ARGS(&frame.list)));check(frame.list->Close());}
         ImGui_ImplDX12_InitInfo info;info.Device=device_.Get();info.CommandQueue=queue_.Get();info.NumFramesInFlight=static_cast<int>(frames_.size());info.RTVFormat=format_;info.SrvDescriptorHeap=srv_.Get();info.UserData=this;
@@ -89,7 +94,11 @@ public:
         if(!ImGui_ImplDX12_Init(&info)) throw std::runtime_error("ImGui DX12 initialization failed");initialized_=true;
     }
     bool readyForFrame() const override {return !frames_[current_].completed||fence_->GetCompletedValue()>=frames_[current_].completed;}
-    void newFrame() override {ImGui_ImplDX12_NewFrame();}
+    void newFrame() override {glass_->beginFrame();ImGui_ImplDX12_NewFrame();}
+    GlassDraw prepareGlass(NativeFrame& native) override {
+        auto* frame=dynamic_cast<Dx12Frame*>(&native);
+        return frame?glass_->prepare(frame->backBuffer,current_):GlassDraw{};
+    }
     void syncImages(const ImageAssets& images) override {
         collectCompleted();
         if(!changed(images)) return;
@@ -118,15 +127,16 @@ public:
         check(frame.allocator->Reset());check(frame.list->Reset(frame.allocator.Get(),nullptr));
         auto target=rtv_->GetCPUDescriptorHandleForHeapStart();target.ptr+=static_cast<SIZE_T>(current_)*rtvStride_;
         D3D12_RENDER_TARGET_VIEW_DESC view{};view.Format=format_;view.ViewDimension=D3D12_RTV_DIMENSION_TEXTURE2D;device_->CreateRenderTargetView(f->backBuffer,&view,target);
-        transition(frame.list.Get(),f->backBuffer,D3D12_RESOURCE_STATE_PRESENT,D3D12_RESOURCE_STATE_RENDER_TARGET);
+        f->glassCapture=glass_->capture(frame.list.Get(),f->backBuffer);
+        if(!f->glassCapture.copies)transition(frame.list.Get(),f->backBuffer,D3D12_RESOURCE_STATE_PRESENT,D3D12_RESOURCE_STATE_RENDER_TARGET);
         frame.list->OMSetRenderTargets(1,&target,FALSE,nullptr);ID3D12DescriptorHeap* heaps[]{srv_.Get()};frame.list->SetDescriptorHeaps(1,heaps);
-        ImGui_ImplDX12_RenderDrawData(&data,frame.list.Get());transition(frame.list.Get(),f->backBuffer,D3D12_RESOURCE_STATE_RENDER_TARGET,D3D12_RESOURCE_STATE_PRESENT);
+        ImGui_ImplDX12_RenderDrawData(&data,frame.list.Get());glass_->endFrame();transition(frame.list.Get(),f->backBuffer,D3D12_RESOURCE_STATE_RENDER_TARGET,D3D12_RESOURCE_STATE_PRESENT);
         check(frame.list->Close());ID3D12CommandList* lists[]{frame.list.Get()};queue_->ExecuteCommandLists(1,lists);frame.completed=signal();current_=(current_+1)%frames_.size();
     }
-    void invalidateDeviceObjects() override {wait(sequence_);if(initialized_) ImGui_ImplDX12_InvalidateDeviceObjects();} // font rebuild leaves image textures and descriptors intact
+    void invalidateDeviceObjects() override {wait(sequence_);glass_->clear();if(initialized_) ImGui_ImplDX12_InvalidateDeviceObjects();} // font rebuild leaves image textures and descriptors intact
     void shutdown() noexcept override {
         try{if(fence_) wait(sequence_);}catch(...){} // device removal permits releasing its resources
-        images_.clear();retired_.clear();uploads_.clear();if(initialized_ || ImGui::GetIO().BackendRendererUserData) ImGui_ImplDX12_Shutdown();initialized_=false;
+        glass_.reset();images_.clear();retired_.clear();uploads_.clear();if(initialized_ || ImGui::GetIO().BackendRendererUserData) ImGui_ImplDX12_Shutdown();initialized_=false;
         frames_.clear();srv_.Reset();rtv_.Reset();fence_.Reset();if(event_) CloseHandle(event_);event_=nullptr;
     }
 };

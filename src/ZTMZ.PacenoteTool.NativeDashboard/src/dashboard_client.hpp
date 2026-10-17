@@ -22,6 +22,10 @@ private:
         std::string signature;
         std::unique_ptr<LuaDashboard> lua;
         std::vector<Layer> layers;
+        Json package, settings, config;
+        std::string failure;
+        double retryAt = 0;
+        unsigned retryDelay = 1;
     };
     PackageLoader loader_;
     std::map<int, Entry> runtimes_;

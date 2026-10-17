@@ -31,6 +31,10 @@ public class DashboardScriptArguments {
     /// </summary>
     public bool IsWebDashboard { get; set; }
 
+    // Safe to query even when Graphics is the legacy GameOverlay renderer.
+    public bool SupportsGlassPanel => Graphics is GraphicsCommandProxy;
+    public bool SupportsGlassRefraction => false;
+
     /// <summary>
     /// Static WebDashboard artwork must be emitted for this render tick. The
     /// server reuses the previous static canvas layer otherwise.

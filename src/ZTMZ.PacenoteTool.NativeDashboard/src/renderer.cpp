@@ -50,7 +50,7 @@ void gradientTriangle(ImDrawList* out,const ImDrawVert& a,const ImDrawVert& b,co
     }
 }
 }
-std::set<std::string> draw(const Scene& scene,const TextureLookup& textures,const FontLookup& fonts) {
+std::set<std::string> draw(const Scene& scene,const TextureLookup& textures,const FontLookup& fonts,const GlassDraw& glass) {
     auto* output=ImGui::GetBackgroundDrawList();
     const auto size=ImGui::GetIO().DisplaySize;
     float scale=std::min(size.x/std::max(1,scene.width),size.y/std::max(1,scene.height));
@@ -81,6 +81,24 @@ std::set<std::string> draw(const Scene& scene,const TextureLookup& textures,cons
                 if(type=="clipRegionStart" || type=="setClip") {output->PushClipRect(a,b,true);++clips;}
                 else if(type=="clipRegionEnd" || type=="releaseClip") {if(clips>0){output->PopClipRect();--clips;}}
                 else if(type=="drawLine") dl->AddLine(point(n("x1"),n("y1")),point(n("x2"),n("y2")),color,thickness);
+                else if(type=="drawGlassPanel") {
+                    const float x=n("x"),y=n("y"),w=n("width"),h=n("height");
+                    if(!std::isfinite(w)||!std::isfinite(h)||w<=0||h<=0) continue;
+                    auto bounded=[&](const char* key,float fallback,float limit){
+                        float value=n(key,fallback);return std::isfinite(value)?std::clamp(value,0.f,limit):fallback;
+                    };
+                    const float width=std::min(w,32768.f),height=std::min(h,32768.f);
+                    auto origin=point(std::clamp(x,-32768.f,32768.f),std::clamp(y,-32768.f,32768.f));
+                    GlassPanel panel{origin,{origin.x+width*scale,origin.y+height*scale},
+                        std::min(bounded("radius",20,std::min(width,height)/2),std::min(width,height)/2)*scale,
+                        bounded("refraction",8,64)*scale,bounded("blur",4,32)*scale,
+                        ImGui::ColorConvertU32ToFloat4(rgba(c.value("color",0x30203040u)))};
+                    if(glass) glass(*output,panel);
+                    else {
+                        output->AddRectFilled(panel.min,panel.max,ImGui::ColorConvertFloat4ToU32(panel.tint),panel.radius);
+                        output->AddRect(panel.min,panel.max,IM_COL32(225,240,255,65),panel.radius,0,std::max(1.f,scale));
+                    }
+                }
                 else if(type=="fillRectangle") dl->AddRectFilled(a,b,color);
                 else if(type=="drawRectangle") dl->AddRect(a,b,color,0,0,thickness);
                 else if(type=="fillRoundedRectangle") dl->AddRectFilled(a,b,color,n("radius")*scale);

@@ -606,6 +606,14 @@ public class DrawingCommandCapture
             Color = GetBrushColor(brush)
         });
     }
+
+    public void DrawGlassPanel(object brush, float left, float top, float right, float bottom,
+        float radius, float refraction = 8, float blur = 4)
+    {
+        var command = DrawGlassPanelCommand.Create(GetBrushColor(brush), left, top, right, bottom,
+            radius, refraction, blur);
+        if (command != null) _commands.Add(command);
+    }
     
     public void FillRectangle(object brush, float left, float top, float right, float bottom)
     {

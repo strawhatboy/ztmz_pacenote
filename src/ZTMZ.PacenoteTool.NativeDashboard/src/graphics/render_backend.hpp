@@ -26,6 +26,9 @@ public:
     virtual void newFrame() = 0;
     virtual void syncImages(const ImageAssets& images) = 0;
     virtual Texture texture(const std::string& key) const = 0;
+    // Called only for scenes containing glass, before any HUD submission. Empty
+    // means unsupported/unavailable this frame and requests the portable fallback.
+    virtual GlassDraw prepareGlass(NativeFrame&) {return {};}
     virtual void submit(ImDrawData& data, NativeFrame& frame) = 0;
     // The adapter owns GPU synchronization and deferred resource retirement.
     // Do not destroy resources that an explicit API still has in flight.

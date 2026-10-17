@@ -1,5 +1,6 @@
 #include "hooks/overlay_hook.hpp"
 #include "graphics/vulkan/backend.hpp"
+#include "graphics/vulkan/glass.hpp"
 #include "graphics/render_session.hpp"
 #include "graphics/async_preparation.hpp"
 #include <windows.h>
@@ -87,12 +88,37 @@ class VulkanHook final:public OverlayHook {
     static void VKAPI_CALL getQueue(VkDevice d,uint32_t family,uint32_t index,VkQueue* out){self_->getQueue_(d,family,index,out);try{self_->queue(d,family,*out);}catch(const std::exception& e){OutputDebugStringA(e.what());}}
     static void VKAPI_CALL getQueue2(VkDevice d,const VkDeviceQueueInfo2* info,VkQueue* out){self_->getQueue2_(d,info,out);if(info->flags==0) try{self_->queue(d,info->queueFamilyIndex,*out);}catch(const std::exception& e){OutputDebugStringA(e.what());}}
     static VkResult VKAPI_CALL createSwap(VkDevice d,const VkSwapchainCreateInfoKHR* info,const VkAllocationCallbacks* a,VkSwapchainKHR* out) {
-        auto result=self_->createSwap_(d,info,a,out);if(result!=VK_SUCCESS) return result;
+        VkImageUsageFlags supported=0,actualUsage=0;
+        VkPhysicalDevice physical=VK_NULL_HANDLE;
+        // Never assume that a presentable image permits reading. Ask the surface
+        // before opting in, and preserve the game's creation request otherwise.
+        {
+            std::lock_guard lock(self_->mutex_);
+            auto device=self_->devices_.find(d);
+            if(device!=self_->devices_.end() && knownSwapchainUsage(*info) && vkGetPhysicalDeviceSurfaceCapabilitiesKHR) {
+                physical=device->second.physical;
+                VkSurfaceCapabilitiesKHR caps{};
+                if(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical,info->surface,&caps)==VK_SUCCESS)
+                    supported=caps.supportedUsageFlags;
+            }
+        }
+        auto result=createGlassSwapchain(*info,supported,[&](const VkSwapchainCreateInfoKHR& request) {
+            // Only flags==0 requests are augmented. Their implied images have
+            // no image-create flags, one mip, optimal tiling and one sample.
+            if(!physical || !vkGetPhysicalDeviceImageFormatProperties)return false;
+            VkImageFormatProperties properties{};
+            return vkGetPhysicalDeviceImageFormatProperties(physical,request.imageFormat,VK_IMAGE_TYPE_2D,
+                VK_IMAGE_TILING_OPTIMAL,request.imageUsage,0,&properties)==VK_SUCCESS
+                && request.imageExtent.width<=properties.maxExtent.width && request.imageExtent.height<=properties.maxExtent.height
+                && properties.maxExtent.depth>=1 && properties.maxMipLevels>=1
+                && request.imageArrayLayers<=properties.maxArrayLayers && (properties.sampleCounts&VK_SAMPLE_COUNT_1_BIT);
+        },[&](const VkSwapchainCreateInfoKHR& request){return self_->createSwap_(d,&request,a,out);},actualUsage);
+        if(result!=VK_SUCCESS) return result;
         try {
             std::lock_guard lock(self_->mutex_);auto device=self_->devices_.find(d);if(device==self_->devices_.end()) return result;
             if(info->imageArrayLayers!=1 || (info->flags&VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR)) return result;
             uint32_t count=0;if(vkGetSwapchainImagesKHR(d,*out,&count,nullptr)!=VK_SUCCESS) return result;
-            Swap swap;swap.device=d;swap.format=info->imageFormat;swap.extent=info->imageExtent;swap.minimum=info->minImageCount;swap.usage=info->imageUsage;
+            Swap swap;swap.device=d;swap.format=info->imageFormat;swap.extent=info->imageExtent;swap.minimum=info->minImageCount;swap.usage=actualUsage;
             swap.safeOwnership=info->imageSharingMode==VK_SHARING_MODE_CONCURRENT || device->second.graphicsFamilies.size()==1;
             swap.images.resize(count);swap.signals.resize(count);swap.previous=std::chrono::steady_clock::now();
             if(info->imageSharingMode==VK_SHARING_MODE_CONCURRENT) swap.concurrentFamilies.assign(info->pQueueFamilyIndices,info->pQueueFamilyIndices+info->queueFamilyIndexCount);
@@ -159,6 +185,7 @@ class VulkanHook final:public OverlayHook {
                 swap.renderer=swap.preparation.take();if(!swap.renderer)return self.present_(q,info);
             }
             frame.image=swap.images[info->pImageIndices[0]];frame.extent=swap.extent;
+            frame.imageUsage=swap.usage;
             auto& signal=swap.signals[info->pImageIndices[0]];
             if(!signal){VkSemaphoreCreateInfo create{VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};if(vkCreateSemaphore(swap.device,&create,nullptr,&signal)!=VK_SUCCESS)throw std::runtime_error("Cannot create Vulkan presentation semaphore");}
             frame.signal=signal;

@@ -265,6 +265,27 @@ function executeDrawingCommand(ctx, canvas, cmd, layer) {
             ctx.stroke();
             ctx.restore();
             break;
+
+        case 'drawGlassPanel': {
+            // Command-stream fallback: canvas cannot read the game behind the browser.
+            if (![cmd.x, cmd.y, cmd.width, cmd.height].every(Number.isFinite)
+                || cmd.width <= 0 || cmd.height <= 0) break;
+            const x = Math.max(-32768, Math.min(32768, cmd.x));
+            const y = Math.max(-32768, Math.min(32768, cmd.y));
+            const width = Math.min(32768, cmd.width);
+            const height = Math.min(32768, cmd.height);
+            const radius = Math.max(0, Math.min(width / 2, height / 2,
+                Number.isFinite(cmd.radius) ? cmd.radius : 0));
+            ctx.save();
+            addRoundedRectanglePath(ctx, x, y, width, height, radius);
+            ctx.fillStyle = colorToCSS(cmd.color);
+            ctx.fill();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+            ctx.stroke();
+            ctx.restore();
+            break;
+        }
             
         case 'fillRect':
         case 'fillRectangle':

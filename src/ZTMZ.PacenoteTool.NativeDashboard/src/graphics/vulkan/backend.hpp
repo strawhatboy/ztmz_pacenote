@@ -1,5 +1,6 @@
 #pragma once
 #include "graphics/render_backend.hpp"
+#include "graphics/glass_capture.hpp"
 #include <volk.h>
 namespace ztmz {
 struct VulkanBackendInfo {
@@ -14,6 +15,8 @@ struct VulkanFrame final:NativeFrame {
     RenderApi api() const noexcept override{return RenderApi::Vulkan;}
     VkImage image=VK_NULL_HANDLE;
     VkExtent2D extent{};
+    VkImageUsageFlags imageUsage=0; // Captured at swapchain creation; never inferred.
+    GlassCaptureStats glassCapture{};
     std::vector<VkSemaphore> waits;
     // Owned per swap-chain image by the hook, surviving overlay stop/restart.
     // Present waits on this semaphore instead of forcing a CPU fence wait.

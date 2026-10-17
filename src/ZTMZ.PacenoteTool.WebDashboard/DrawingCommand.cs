@@ -42,6 +42,43 @@ public abstract class DrawingCommand
 }
 
 /// <summary>
+/// A rounded glass surface. Radius, refraction and blur use dashboard-coordinate pixels.
+/// Renderers without access to the scene behind the HUD draw a tinted panel and rim.
+/// </summary>
+public sealed class DrawGlassPanelCommand : DrawingCommand
+{
+    public override string Type => "drawGlassPanel";
+    [JsonProperty("x")] public float X { get; private set; }
+    [JsonProperty("y")] public float Y { get; private set; }
+    [JsonProperty("width")] public float Width { get; private set; }
+    [JsonProperty("height")] public float Height { get; private set; }
+    [JsonProperty("radius")] public float Radius { get; private set; }
+    [JsonProperty("refraction")] public float Refraction { get; private set; }
+    [JsonProperty("blur")] public float Blur { get; private set; }
+    [JsonProperty("color")] public uint Color { get; private set; }
+
+    public static DrawGlassPanelCommand? Create(uint color, float left, float top,
+        float right, float bottom, float radius, float refraction = 8, float blur = 4)
+    {
+        if (!float.IsFinite(left) || !float.IsFinite(top) || !float.IsFinite(right)
+            || !float.IsFinite(bottom)) return null;
+        left = Math.Clamp(left, -32768, 32768);
+        top = Math.Clamp(top, -32768, 32768);
+        right = Math.Clamp(right, -32768, 32768);
+        bottom = Math.Clamp(bottom, -32768, 32768);
+        var width = Math.Min(32768, right - left);
+        var height = Math.Min(32768, bottom - top);
+        if (width <= 0 || height <= 0) return null;
+        return new DrawGlassPanelCommand {
+            X = left, Y = top, Width = width, Height = height, Color = color,
+            Radius = Math.Clamp(float.IsFinite(radius) ? radius : 0, 0, Math.Min(width, height) / 2),
+            Refraction = Math.Clamp(float.IsFinite(refraction) ? refraction : 8, 0, 64),
+            Blur = Math.Clamp(float.IsFinite(blur) ? blur : 4, 0, 32)
+        };
+    }
+}
+
+/// <summary>
 /// Clear the canvas
 /// </summary>
 public class ClearCommand : DrawingCommand

@@ -52,10 +52,14 @@ std::set<std::string> RenderSession::render(const FrameInfo& info,NativeFrame& f
     ImGui::NewFrame();
     std::set<std::string> warnings;
     try {
+        bool hasGlass=false;
+        for(const auto& layer:scene.layers) for(const auto& command:layer.commands)
+            if(command.is_object()&&command.contains("type")&&command["type"].is_string()&&command["type"]=="drawGlassPanel") hasGlass=true;
+        const auto glass=hasGlass?backend_->prepareGlass(frame):GlassDraw{};
         warnings=draw(scene,[&](const std::string& key){return backend_->texture(key);},
             [&](const Json& command,std::set<std::string>& warnings){
                 return fonts_&&fonts_->atlas.TexID?fonts_->fonts->lookup(command,warnings):ImGui::GetFont();
-            });
+            },glass);
         if(ui) ui(warnings);
         ImGui::Render();
     } catch(...) {ImGui::EndFrame();throw;}
