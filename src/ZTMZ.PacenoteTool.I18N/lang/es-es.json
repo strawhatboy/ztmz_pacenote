@@ -996,7 +996,15 @@
     "platformUnavailable": "Ventana independiente: el renderizado nativo en el juego aún no está integrado en esta plataforma.",
     "integrationPending": "Ventana independiente: el renderizado en el juego aún no está disponible en esta versión.",
     "waitingForGame": "Esperando un juego; la API gráfica se selecciona automáticamente.",
-    "waitingForRenderer": "Esperando al renderizador del juego; la API gráfica se selecciona automáticamente."
+    "waitingForRenderer": "Esperando al renderizador del juego; la API gráfica se selecciona automáticamente.",
+    "dx12ContextMissing": "DX12 detectado, pero la cola de la cadena de presentación se creó antes de la conexión. Este renderizador no puede conectarse después; hay que recrear el contexto gráfico con los hooks activos.",
+    "vulkanContextMissing": "Renderizado Vulkan no disponible. Puede que no se haya capturado el contexto del dispositivo, la cola o la superficie; consulta el registro.",
+    "noFrames": "No se ha recibido ningún fotograma del juego tras 15 segundos. Revisa la compatibilidad de la API y el momento de conexión en el registro.",
+    "warningTitle": "¿Activar el renderizado dentro del juego (experimental)?",
+    "injectionNote": "El renderizado dentro del juego inyecta una DLL y puede afectar a la estabilidad o la compatibilidad antitrampas. Cambiar de modo detiene el renderizado; sal del juego para descargar la DLL.",
+    "warningBody": "Este modo permite que ZTMZ cargue su DLL de renderizado en los juegos compatibles sin volver a pedir confirmación en cada inyección. Puede afectar a la estabilidad o ser bloqueado o prohibido por los sistemas antitrampas. Actívalo solo si el juego y el modo actual permiten este tipo de herramienta.\n\nVolver a la ventana de superposición independiente detiene el renderizado, pero la DLL sigue cargada hasta que sales del juego.\n\nEsta confirmación solo se aplica al renderizado dentro del juego y no autoriza el puente de notas ACR independiente.",
+    "warningEnable": "Activar el renderizado dentro del juego",
+    "warningKeepWindow": "Mantener la ventana de superposición independiente"
   },
   "voiceCatalog": {
     "refresh": "Refresh packages",

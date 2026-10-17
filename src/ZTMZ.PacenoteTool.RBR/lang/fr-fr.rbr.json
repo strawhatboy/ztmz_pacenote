@@ -32,7 +32,11 @@
                 "selection_StageMissing": "Spéciale {0} : aucun dossier pour cette spéciale dans les notes personnalisées. Elle peut ne pas être couverte ; correspondance par défaut utilisée.",
                 "selection_DefaultSelected": "Spéciale {0} : notes par défaut sélectionnées dans NGPCarMenu. Changez la sélection dans le jeu si nécessaire.",
                 "selection_Unknown": "Spéciale {0} : sélection incertaine. Vérifiez les marqueurs, fichiers, dates identiques et la sélection en jeu. Cela ne signifie pas que Luppis est absent.",
-                "custom_pacenote_not_used": "Les notes par défaut sont utilisées pour l'étape actuelle {0}. Cela fonctionne, mais les notes Luppis V3 sont recommandées. Il est également possible que Luppis V3 ne contienne pas de script de notes pour cette étape."
+                "custom_pacenote_not_used": "Les notes par défaut sont utilisées pour l'étape actuelle {0}. Cela fonctionne, mais les notes Luppis V3 sont recommandées. Il est également possible que Luppis V3 ne contienne pas de script de notes pour cette étape.",
+                "pacenote_definition_unavailable": "Impossible de charger la définition des notes RBR : {0}. Restaurez le fichier ou sélectionnez une définition valide dans les paramètres RBR. Les annonces qui en dépendent sont indisponibles ; ZTMZ peut continuer à fonctionner.",
+                "selection_LoadedLuppis": "Spéciale {0} : le jeu a bien chargé les notes Luppis \"{1}\".",
+                "selection_LoadedDefault": "Spéciale {0} : le jeu a chargé les notes par défaut \"{1}\". Sélectionnez les notes Luppis dans le jeu si vous le souhaitez.",
+                "selection_LoadedOther": "Spéciale {0} : le jeu a chargé \"{1}\", dont le nom ne permet pas d’identifier des notes Luppis. Cela ne signifie pas que Luppis n’est pas installé."
             }
         }
     }

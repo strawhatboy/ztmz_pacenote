@@ -24,7 +24,10 @@
                 "launchPromptNotNow": "Nicht jetzt",
                 "launchPromptFailure": "Die Live-Bridge wurde nicht injiziert:\n{0}",
                 "privilegeWarning": "ZTMZ und Assetto Corsa Rally müssen mit derselben Windows-Berechtigungsstufe ausgeführt werden, sonst kann die Bridge keine Pacenotes übertragen. Wir empfehlen, beide als normaler Benutzer auszuführen. Wird eines als Administrator gestartet, muss das andere ebenfalls als Administrator gestartet werden.",
-                "protonWarning": "Unter Linux startet ZTMZ das integrierte Windows-Relay mit demselben Proton-Runner und Prefix wie ACR. Lassen Sie ACR laufen, bevor Sie die Bridge injizieren."
+                "protonWarning": "Unter Linux startet ZTMZ das integrierte Windows-Relay mit demselben Proton-Runner und Prefix wie ACR. Lassen Sie ACR laufen, bevor Sie die Bridge injizieren.",
+                "interfaceMissing": "Die erforderliche FMOD-Schnittstelle fehlt oder die Bibliothek wird nicht unterstützt. Die Bridge-Injektion wurde blockiert.",
+                "unverifiedBuild": "Diese ACR-Version wurde nicht geprüft. Die erforderliche FMOD-Schnittstelle ist vorhanden, aber die Kompatibilität ist nicht garantiert und die Injektion kann das Spiel zum Absturz bringen. Experimentelle Injektion für diese Sitzung versuchen?",
+                "tryUnverified": "Experimentelle Injektion versuchen"
             },
             "diagnostics": {
                 "reader": "ACR Shared Memory",

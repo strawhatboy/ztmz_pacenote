@@ -82,18 +82,16 @@ function createRow(snapshot, self)
     return { items = items, groupId = snapshot.GroupId };
 end
 
-function updateCurrentRow(args, historyRows)
-    while #history > historyRows do table.remove(history); end
-    if historyRows > 0 then outgoingRow = nil; end
-    local snapshot = args.GameContext ~= nil and args.GameContext.CurrentPacenote or nil;
-    if snapshot == nil or getCollectionCount(snapshot.Tokens) == 0 then
-        if currentRow ~= nil or #history > 0 then
-            resetRoadbook();
-        end
-        return;
+function dispatchSignature(snapshot)
+    if snapshot.DispatchId ~= nil and snapshot.DispatchId ~= "" then
+        return snapshot.DispatchId;
     end
+    -- Compatibility with older hosts that do not supply dispatch identities.
+    return tostring(snapshot.DispatchedAtUtc) .. ":" .. tostring(snapshot.Source);
+end
 
-    local signature = tostring(snapshot.DispatchedAtUtc) .. ":" .. tostring(snapshot.Source);
+function acceptSnapshot(args, snapshot, historyRows)
+    local signature = dispatchSignature(snapshot);
     if signature == lastDispatchSignature then
         return;
     end
@@ -120,6 +118,38 @@ function updateCurrentRow(args, historyRows)
     currentRow = createRow(snapshot, args.Self);
     lastDispatchSignature = signature;
     transitionStartedAt = getAnimationTime(args);
+end
+
+function updateCurrentRow(args, historyRows)
+    while #history > historyRows do table.remove(history); end
+    if historyRows > 0 then outgoingRow = nil; end
+    local context = args.GameContext;
+    local recent = context ~= nil and context.RecentPacenotes or nil;
+    if recent ~= nil then
+        local count = getCollectionCount(recent);
+        if count == 0 then
+            resetRoadbook();
+            return;
+        end
+        local first = 0;
+        for index = count - 1, 0, -1 do
+            if dispatchSignature(getCollectionItem(recent, index)) == lastDispatchSignature then
+                first = index + 1;
+                break;
+            end
+        end
+        for index = first, count - 1 do
+            acceptSnapshot(args, getCollectionItem(recent, index), historyRows);
+        end
+        return;
+    end
+
+    local snapshot = context ~= nil and context.CurrentPacenote or nil;
+    if snapshot == nil or getCollectionCount(snapshot.Tokens) == 0 then
+        resetRoadbook();
+        return;
+    end
+    acceptSnapshot(args, snapshot, historyRows);
 end
 
 function getAnimationTime(args)

@@ -131,6 +131,9 @@ public sealed class Dr2RetirementTest
         var end = Assert.Single(reader.Changes.Where(e => e.NewGameState == GameState.RaceEnd));
         Assert.Equal(GameStateRaceEnd.Normal, Assert.IsType<GameStateRaceEnd>(end.Parameters[GameStateRaceEndProperty.FINISH_STATE]));
         Assert.Equal(123.45f, end.Parameters[GameStateRaceEndProperty.FINISH_TIME]);
+        reader.Send(0, 0, 0, 123.46f); // another result packet is not a new grid
+        Assert.Equal(GameState.RaceEnd, reader.GameState);
+        Assert.Single(reader.Changes, e => e.NewGameState == GameState.RaceEnd);
     }
 
     [Fact]

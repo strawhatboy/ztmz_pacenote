@@ -1,38 +1,36 @@
 v2.99.99.56-3.0-rc28
 
-* Aligns the Liquid Glass gear/speed divider, steering/FFB midpoint, RPM label and shift lights on one centerline, with symmetric gear and speed positions.
-* Fixes clipped values in the in-game Map Information dashboard by matching tab measurement and scaled text rendering.
-* Restores the original WRC dashboard fonts in native rendering: WRC Clean Roman uses the Roman face, while WRC Clean and WRC Clean Bold use the bold face.
-* Fixes an RBR crash when enabling WRC 2025 by sharing cached native-dashboard font data, skipping redundant fallback fonts and releasing duplicate CPU font bitmaps.
-* Adds RBR processed force-feedback telemetry for the verified SSE build, including NGP-shaped force, with pause/replay/calibration and failed-read safeguards; no FFB wheel is required to read the game signal.
-* Fixes an RBR startup crash with GaugerPlugin by discovering the existing DX9 device instead of creating a second probe device; unsupported layouts fail safely.
-* Adds a compact Liquid Glass turbo pressure arc with a zero marker, vacuum/boost display and separate configurable gauge/absolute-pressure scales; unknown-reference pressure stays numeric.
-* Unifies dashboard colors: green throttle, red brake/handbrake, blue clutch, neutral battery charge and cyan hybrid activity. Keeps red steering markers, removes FFB text labels, and fills Liquid Glass shift LEDs individually within the existing shift-light RPM range.
-* Adds ACR force-feedback telemetry and compact signed FFB indicators beside steering in Classic, WRC 2025, WRC 2025 v2 and Liquid Glass. Preserves valid zero, hides unavailable output, and supports the Proton shared-memory relay.
-* Fixes dashboard labels following the selected WPF/Avalonia language in browser, in-game and standalone rendering, including live language changes.
-* Fixes clean WPF release builds omitting the WRC 7/9/Generations provider; verifies bundled dashboard scripts, translations and fonts against source.
-* Adds DiRT Rally 2.0 turbo boost pressure for the verified Windows build, using the native HUD reading and preserving vacuum and zero. The gauge hides for non-turbo cars or unavailable data.
-* Adds a compact Liquid Glass dashboard with speed, gear, shift lights, pedals, steering and handbrake. Hybrid, boost/intake pressure, engine temperatures, time delta and key damage indicators appear only when data is available, with unused space collapsed.
-* Adds in-game background refraction and diffusion on DX9, DX10, DX11, DX12 and Vulkan, with per-dashboard effect, tint opacity, refraction and diffusion controls. Defaults of 8 refraction and 4 diffusion soften the backdrop and reduce edge distortion. Separate overlays and browser dashboards use a translucent fallback; other dashboards are unaffected.
-* Adds shared engine temperature and boost/intake pressure readings for RBR and BeamNG.drive, retaining pressure-reference information and hiding invalid or stale readings instead of presenting missing data as healthy or zero.
-* Fixes modern WRC 2025 dashboard rendering when the maximum RPM is unavailable. A failing in-game dashboard script no longer prevents other dashboards from rendering, and retries automatically.
-* Fixes missing, unreadable or invalid RBR pacenote definition files preventing startup. Keeps ZTMZ running, clears stale mappings and shows a warning when a stage needs the unavailable definition; restoring or reselecting a valid file restores mapping support.
-* Fixes the installer ignoring the installation directory saved in the application registry; keeps the uninstaller destination synchronized and preserves explicit /DIR overrides and separate ACR experimental installations.
-* Adds hybrid indicators styled individually for the four modern WRC dashboards: integrated battery gauges, lightning icons and circular boost/recharge progress, with state/map readings that hide automatically when telemetry is unavailable.
-* Adds WRC Generations Rally1 hybrid telemetry: battery charge/energy, boost/recharge progress, boost readiness and activation, regeneration phase and selected map, available to desktop and browser dashboards.
-* Adds WRC Generations body and mechanical damage data, including hybrid-system condition, plus collision and engine damage calls with pause/restart/reconnection safeguards.
-* Adds WRC 7 mechanical damage and wear data, with collision and engine warnings that suppress old damage after restart, pause or reconnection.
-* Adds experimental WRC 9 support for the verified Windows Steam build in WPF and Avalonia, including live pacenotes, countdown calls, basic telemetry and in-game dashboards, with normal finish, penalty and retirement detection.
-* WRC 9 voice playback requires enabling and connecting the voice bridge after each game launch; enabling the dashboard alone does not connect it. Original game speech remains enabled; some pacenotes, tyre punctures and manual car-reset events are not yet supported.
-* Expands WRC 9 telemetry with steering, clutch, gear/RPM limits, shift warning, stage progress, four wheel speeds, brake temperatures, suspension and G forces. Adds body/mechanical damage displays and collision/engine damage calls, without repeating existing damage after pause, restart or reconnection.
-* Fixes shift-light progression in WRC 7, WRC 9 and WRC Generations: green/yellow/red cover the final 1000 RPM before the native warning point, with flashing red at that point instead of skipping solid red.
-* Adds settings search in the title bar to quickly find and open relevant settings.
-* Checks installed co-driver voice packages for updates at startup and shows update badges on the co-driver navigation entry and affected packages.
-* Adds update counts and badges for game Mods, with guidance for updating older Mods managed by JSGME.
-* Fixes finish congratulations playing after terminal damage, retirement or a timeout in some games, and adds retirement calls for explicit retirements in DiRT Rally 2.0, BeamNG, WRC 7, WRC Generations and RBR (RSF Practice, Hotlap and online racing); restarting a stage or an unknown result no longer triggers congratulations.
-* Improves RBR pacenote detection by prioritizing the Luppis pacenotes actually loaded by the game, reducing false warnings and misleading reinstall advice.
-* Adds experimental MoTeC telemetry export: saved race telemetry can be exported as .ld / .ldx files for analysis in MoTeC i2.
-* Adds preset accent colors and lets you click the version number on the About page to copy it.
+* Stability and installation
+  - Fixes RBR crashes when starting ZTMZ while the game is running or enabling WRC 2025 dashboards, and startup failures caused by missing or damaged RBR pacenote definitions.
+  - Upgrades correctly reuse the saved installation folder. Fixes the WPF packaging process potentially omitting WRC 7/Generations support components.
+
+* Pacenotes and race results
+  - Fixes early countdown calls in some DiRT Rally 2.0 online events; calls from 5 to 1 follow the actual game countdown.
+  - Fixes false finish congratulations after terminal damage, retirement or timeouts in some games. Recognized retirements get the appropriate call, and stage restarts no longer trigger congratulations.
+  - Fixes graphical pacenotes missing closely spaced calls while audio plays correctly.
+  - Improves RBR custom pacenote detection, prioritizing the pacenotes actually loaded by the game.
+
+* Experimental WRC 9 support
+  - Supports the verified Windows Steam build in WPF and Avalonia, with live pacenotes, countdowns, vehicle telemetry, in-game dashboards, and finish, penalty and retirement detection.
+  - Enable and connect the voice bridge after each game launch; enabling dashboards alone does not connect voice playback. Original game speech remains enabled. Some pacenotes, punctures and manual car-reset events are not yet supported.
+
+* New Liquid Glass dashboard
+  - A compact layout combines speed, gear, pedals, steering and individually illuminated shift lights. Hybrid, turbo pressure, temperature and key damage indicators appear when data is available and collapse when unavailable.
+  - In-game glass effects support DX9/10/11/12 and Vulkan, with adjustable opacity, refraction and diffusion. Standalone overlays and browser dashboards use a translucent appearance.
+
+* Vehicle telemetry and existing dashboard improvements
+  - Hybrid: adds WRC Generations Rally1 battery charge, boost, regeneration and power-map displays, tailored to each of the four modern WRC dashboard layouts.
+  - Damage: expands WRC 7/9/Generations damage data and collision/engine damage calls.
+  - Turbo and temperature: adds DiRT Rally 2.0 turbo pressure for supported Windows builds, plus engine temperature and boost/intake pressure for RBR and BeamNG.drive.
+  - Force feedback: adds direction and strength for ACR and supported RBR builds, integrated into the steering gauges in Classic, WRC 2025, WRC 2025 v2 and Liquid Glass.
+  - Display: unifies dashboard colors, fixes clipped Map Information values, WRC fonts and language switching, and improves WRC 7/Generations shift-light indications. One dashboard failing no longer stops the others.
+
+* Experimental MoTeC export: export saved race telemetry as .ld / .ldx files for analysis in MoTeC i2.
+
+* Interface and updates
+  - Adds title-bar settings search to help locate settings quickly.
+  - Automatically checks for voice-pack updates, shows game Mod update badges, and displays loading status while refreshing the Mod list.
+  - Adds preset theme colors and click-to-copy version numbers on the About page.
 
 v2.99.99.55-3.0-rc27
 

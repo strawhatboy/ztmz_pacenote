@@ -24,7 +24,10 @@
                 "launchPromptNotNow": "나중에",
                 "launchPromptFailure": "라이브 브리지를 주입하지 못했습니다:\n{0}",
                 "privilegeWarning": "ZTMZ와 Assetto Corsa Rally는 동일한 Windows 권한 수준으로 실행해야 합니다. 그렇지 않으면 브리지가 페이스노트를 전달할 수 없습니다. 두 프로그램 모두 일반 사용자로 실행하는 것을 권장합니다. 하나를 관리자로 실행하면 다른 하나도 관리자로 실행하십시오.",
-                "protonWarning": "Linux에서 ZTMZ는 ACR과 동일한 Proton 실행기 및 프리픽스를 사용하여 내장 Windows 릴레이를 시작합니다. 브리지를 주입하기 전에 ACR을 실행해 두십시오."
+                "protonWarning": "Linux에서 ZTMZ는 ACR과 동일한 Proton 실행기 및 프리픽스를 사용하여 내장 Windows 릴레이를 시작합니다. 브리지를 주입하기 전에 ACR을 실행해 두십시오.",
+                "interfaceMissing": "필요한 FMOD 인터페이스가 없거나 지원되지 않는 라이브러리입니다. 브리지 주입이 차단되었습니다.",
+                "unverifiedBuild": "이 ACR 버전은 검증되지 않았습니다. 필요한 FMOD 인터페이스는 있지만 호환성이 보장되지 않으며 주입으로 게임이 종료될 수 있습니다. 이번 세션에서 실험적 주입을 시도할까요?",
+                "tryUnverified": "실험적 주입 시도"
             },
             "diagnostics": {
                 "reader": "ACR 공유 메모리",

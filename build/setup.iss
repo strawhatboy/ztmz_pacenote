@@ -465,6 +465,9 @@ Source: "{#MyAppPublishRoot}\games\*.json"; Excludes:"*.deps.json"; DestDir: "{c
 Source: "{#MyAppPublishRoot}\dashboards\*"; DestDir: "{code:GetZTMZHome}\dashboards"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; WebDashboardServer serves its static client and fonts beside the installed executable.
 Source: "{#MyAppPublishRoot}\wwwroot\*"; DestDir: "{code:GetInstallDir}\wwwroot"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Third-party satellite resource DLLs are intentionally omitted (English fallback).
+; WebView2Loader.dll is already included at the application root by setup_normal.iss.
+Source: "{#MyAppPublishRoot}\ThirdPartyNotices\*"; DestDir: "{code:GetInstallDir}\ThirdPartyNotices"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyAppPublishRoot}\fonts\*"; DestDir: "{code:GetInstallDir}\fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; The in-game renderer reuses the shared fonts above.
 Source: "{#MyAppPublishRoot}\native-dashboard\win-x64\ztmz_dashboard_overlay.dll"; DestDir: "{code:GetInstallDir}\native-dashboard\win-x64"; Flags: ignoreversion

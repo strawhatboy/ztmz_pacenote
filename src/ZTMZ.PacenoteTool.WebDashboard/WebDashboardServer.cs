@@ -1200,6 +1200,8 @@ public class WebDashboardServer : IDisposable
             BestDistanceAtCurrentTime = FiniteTelemetryValue(comparison.BestDistanceAtCurrentTime)
         };
 
+        var recentPacenotes = context?.RecentPacenotes ?? Array.Empty<PacenotePlaybackSnapshot>();
+        var currentPacenote = recentPacenotes.Count == 0 ? PacenotePlaybackSnapshot.Empty : recentPacenotes[^1];
         if (!includeReplayTimeline)
         {
             return new
@@ -1208,7 +1210,8 @@ public class WebDashboardServer : IDisposable
                 AudioPackage = context?.AudioPackage,
                 ScriptAuthor = context?.ScriptAuthor,
                 PacenoteType = context?.PacenoteType,
-                CurrentPacenote = context?.CurrentPacenote ?? PacenotePlaybackSnapshot.Empty,
+                CurrentPacenote = currentPacenote,
+                RecentPacenotes = recentPacenotes,
                 CarName = context?.CarName,
                 CarClass = context?.CarClass,
                 LocalReplayValid = localReplayValid,
@@ -1230,7 +1233,8 @@ public class WebDashboardServer : IDisposable
             AudioPackage = context?.AudioPackage,
             ScriptAuthor = context?.ScriptAuthor,
             PacenoteType = context?.PacenoteType,
-            CurrentPacenote = context?.CurrentPacenote ?? PacenotePlaybackSnapshot.Empty,
+            CurrentPacenote = currentPacenote,
+            RecentPacenotes = recentPacenotes,
             CarName = context?.CarName,
             CarClass = context?.CarClass,
             LocalReplayValid = localReplayValid,

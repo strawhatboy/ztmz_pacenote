@@ -32,7 +32,11 @@
                 "selection_StageMissing": "Prova {0}: nessuna cartella per questa prova nelle note personalizzate. Potrebbe non essere inclusa; si usa la mappatura predefinita.",
                 "selection_DefaultSelected": "Prova {0}: NGPCarMenu ha selezionato le note predefinite. Cambia selezione nel gioco se necessario.",
                 "selection_Unknown": "Prova {0}: selezione incerta. Controlla marcatori, file, date uguali e selezione nel gioco. Non significa che Luppis sia assente.",
-                "custom_pacenote_not_used": "Per la prova corrente {0} vengono usate le note predefinite. Va bene, ma sono consigliate le note Luppis V3. È anche possibile che Luppis V3 non contenga uno script di note per la prova corrente."
+                "custom_pacenote_not_used": "Per la prova corrente {0} vengono usate le note predefinite. Va bene, ma sono consigliate le note Luppis V3. È anche possibile che Luppis V3 non contenga uno script di note per la prova corrente.",
+                "pacenote_definition_unavailable": "Impossibile caricare la definizione delle note RBR: {0}. Ripristina il file o seleziona una definizione valida nelle impostazioni RBR. Le chiamate che la richiedono non sono disponibili; ZTMZ può continuare a funzionare.",
+                "selection_LoadedLuppis": "Prova {0}: il gioco ha caricato le note Luppis \"{1}\".",
+                "selection_LoadedDefault": "Prova {0}: il gioco ha caricato le note predefinite \"{1}\". Se desideri, seleziona le note Luppis nel gioco.",
+                "selection_LoadedOther": "Prova {0}: il gioco ha caricato \"{1}\", il cui nome non identifica le note come Luppis. Questo non significa che Luppis non sia installato."
             }
         }
     }

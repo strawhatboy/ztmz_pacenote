@@ -5,59 +5,63 @@ namespace ZTMZ.PacenoteTool.Portable.Tests;
 
 public sealed class Dr2CountdownTest
 {
+    private static Dr2StartLightsSnapshot Light(int phase, ulong address = 0x10000) => new(address, phase);
+
     [Fact]
-    public void UsesCapturedSimulationClockAndDoesNotAdvanceWhilePaused()
+    public void NativeWaitingStateNeverStartsCountdown()
     {
         var countdown = new Dr2Countdown();
-        countdown.Begin(134.41861f, true);
-        Assert.Null(countdown.Update(134.41861f));
-        Assert.Equal(5, countdown.Update(134.45194f));
-        Assert.Equal(4, countdown.Update(135.45f));
-        Assert.Equal(3, countdown.Update(136.45f));
-        Assert.Null(countdown.Update(136.45f));
-        Assert.Equal(2, countdown.Update(137.45f));
-        Assert.Equal(1, countdown.Update(138.45f));
-        Assert.Null(countdown.Update(139.47037f));
+        for (var i = 0; i < 1000; i++) Assert.Null(countdown.Update(Light(0)));
+        Assert.Null(countdown.Update(null));
     }
 
     [Fact]
-    public void DoesNotInventAFullCountdownWhenJoiningAnExistingStream()
+    public void CapturedNativeSequenceEmitsEachNumberOnce()
     {
+        // 2026-10-17 online start: waiting at 21:19:03, phase 1 at
+        // 21:19:30.820, then 2/3/4/5, phase 6 (GO) at 21:19:35.815.
         var countdown = new Dr2Countdown();
-        countdown.Begin(137f, false);
-        Assert.Null(countdown.Update(137f));
-        Assert.Null(countdown.Update(138f));
+        Assert.Null(countdown.Update(Light(0)));
+        for (var phase = 1; phase <= 5; phase++)
+        {
+            Assert.Equal(6 - phase, countdown.Update(Light(phase)));
+            Assert.Null(countdown.Update(Light(phase))); // pause / unchanged sample
+            Assert.Null(countdown.Update(null)); // failed read must not replay
+            Assert.Null(countdown.Update(Light(phase)));
+        }
+        Assert.Null(countdown.Update(Light(6)));
+        Assert.Null(countdown.Update(Light(6)));
     }
 
     [Fact]
-    public void DoesNotQueueMissedNumbersOrCarryCountdownAcrossRestart()
+    public void LateAttachmentAndMissedReadsDoNotInventPreviousNumbers()
     {
         var countdown = new Dr2Countdown();
-        countdown.Begin(10f, true);
-        Assert.Null(countdown.Update(10f));
-        Assert.Equal(5, countdown.Update(10.033f));
-        Assert.Equal(2, countdown.Update(13.1f));
+        Assert.Equal(3, countdown.Update(Light(3)));
+        Assert.Equal(1, countdown.Update(Light(5)));
+        Assert.Null(countdown.Update(Light(4))); // stale / backwards snapshot
+        Assert.Null(countdown.Update(Light(5)));
+    }
+
+    [Fact]
+    public void NativeResetAndNewSessionAllowAnotherCountdown()
+    {
+        var countdown = new Dr2Countdown();
+        Assert.Equal(5, countdown.Update(Light(1)));
+        Assert.Null(countdown.Update(Light(6)));
+        Assert.Null(countdown.Update(Light(0)));
+        Assert.Equal(5, countdown.Update(Light(1)));
+        Assert.Equal(5, countdown.Update(Light(1, 0x20000)));
         countdown.Reset();
-        Assert.Null(countdown.Update(14f));
-        countdown.Begin(20f, true);
-        Assert.Null(countdown.Update(20f));
-        Assert.Equal(5, countdown.Update(20.033f));
+        Assert.Equal(5, countdown.Update(Light(1, 0x20000)));
     }
 
-    [Fact]
-    public void ResetPacketAndHandbrakeWaitDoNotStartCountdown()
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(7)]
+    [InlineData(255)]
+    public void InvalidPhaseIsNotAnnounced(int phase)
     {
-        var countdown = new Dr2Countdown();
-        countdown.Begin(62.704605f, true);
-        Assert.Null(countdown.Update(62.704605f));
-        Assert.Null(countdown.Update(62.704605f));
-        // Captured restart: no UDP for 30 seconds, then real start stream.
-        Assert.Null(countdown.Update(84.62696f));
-        Assert.Equal(5, countdown.Update(84.66029f));
-        Assert.Equal(4, countdown.Update(85.66f));
-        Assert.Equal(3, countdown.Update(86.66f));
-        Assert.Equal(2, countdown.Update(87.66f));
-        Assert.Equal(1, countdown.Update(88.66f));
-        Assert.Null(countdown.Update(89.67852f));
+        Assert.Null(new Dr2Countdown().Update(Light(phase)));
     }
 }

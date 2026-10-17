@@ -24,7 +24,10 @@
                 "launchPromptNotNow": "Pas maintenant",
                 "launchPromptFailure": "Le pont en temps réel n'a pas été injecté :\n{0}",
                 "privilegeWarning": "ZTMZ et Assetto Corsa Rally doivent être exécutés avec le même niveau de privilèges Windows, sinon le pont ne peut pas transmettre les notes. Nous recommandons d'exécuter les deux en tant qu'utilisateur standard. Si l'un est exécuté en tant qu'administrateur, exécutez également l'autre en tant qu'administrateur.",
-                "protonWarning": "Sous Linux, ZTMZ lance le relais Windows intégré avec le même exécuteur Proton et le même préfixe qu'ACR. Laissez ACR en cours d'exécution avant d'injecter le pont."
+                "protonWarning": "Sous Linux, ZTMZ lance le relais Windows intégré avec le même exécuteur Proton et le même préfixe qu'ACR. Laissez ACR en cours d'exécution avant d'injecter le pont.",
+                "interfaceMissing": "L’interface FMOD requise est absente ou la bibliothèque n’est pas prise en charge. L’injection de la passerelle a été bloquée.",
+                "unverifiedBuild": "Cette version d’ACR n’a pas été vérifiée. L’interface FMOD requise est présente, mais la compatibilité n’est pas garantie et l’injection peut faire planter le jeu. Essayer l’injection expérimentale pour cette session ?",
+                "tryUnverified": "Essayer l’injection expérimentale"
             },
             "diagnostics": {
                 "reader": "Mémoire partagée ACR",

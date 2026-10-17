@@ -1,55 +1,25 @@
-using System;
-
 namespace ZTMZ.PacenoteTool.Codemasters;
 
-/// <summary>
-/// A restart sends a reset packet BEFORE the handbrake wait. Only the subsequent
-/// advancing UDP stream represents the five-second start sequence. Confirm two
-/// adjacent simulation frames before emitting anything; never count loading or
-/// the handbrake wait as part of the sequence.
-/// </summary>
+/// <summary>Announce only newly observed native start lights. Missing reads and
+/// pauses never advance a clock, replay a number, or queue missed numbers.</summary>
 public sealed class Dr2Countdown
 {
-    private float? startedAt;
-    private int lastNumber;
-    private float? candidate;
-    private float? resetTime;
-    private bool armed;
+    private ulong address;
+    private int lastNumber = 6;
 
-    public void Begin(float gameTime, bool observedStart)
+    public int? Update(Dr2StartLightsSnapshot? snapshot)
     {
-        startedAt = candidate = null;
-        resetTime = float.IsFinite(gameTime) ? gameTime : null;
-        armed = observedStart && resetTime.HasValue;
-        lastNumber = 0;
-    }
-
-    public int? Update(float gameTime)
-    {
-        if (!float.IsFinite(gameTime)) return null;
-        if (startedAt is null)
+        if (snapshot is not { Phase: >= 0 and <= 6 } lights) return null;
+        if (address != lights.Address || lights.Phase == 0)
         {
-            if (!armed || resetTime is not { } reset || gameTime <= reset) return null;
-            if (candidate is not { } first)
-            {
-                // A reset packet can retain the previous run's simulation time.
-                // A jump is loading/waiting time, not countdown elapsed time.
-                candidate = gameTime - reset <= 0.25f ? reset : gameTime;
-                if (candidate == gameTime) return null;
-                first = candidate.Value;
-            }
-            if (gameTime <= first) return null;
-            if (gameTime - first > 0.25f) { candidate = gameTime; return null; }
-            startedAt = first;
+            address = lights.Address;
+            lastNumber = 6;
         }
-        var start = startedAt.Value;
-        var elapsed = gameTime - start;
-        if (elapsed < 0) { startedAt = null; return null; }
-        var number = (int)MathF.Ceiling(5f - elapsed);
-        if (number is < 1 or > 5 || number == lastNumber) return null;
+        var number = lights.Number;
+        if (number >= lastNumber) return null;
         lastNumber = number;
-        return number;
+        return number is >= 1 and <= 5 ? number : null;
     }
 
-    public void Reset() { startedAt = candidate = resetTime = null; armed = false; lastNumber = 0; }
+    public void Reset() { address = 0; lastNumber = 6; }
 }

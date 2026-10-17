@@ -996,7 +996,15 @@
     "platformUnavailable": "Finestra separata: il rendering nativo nel gioco non è ancora integrato su questa piattaforma.",
     "integrationPending": "Finestra separata: il rendering nel gioco non è ancora disponibile in questa versione.",
     "waitingForGame": "In attesa di un gioco; selezione automatica dell’API grafica.",
-    "waitingForRenderer": "In attesa del renderer del gioco; selezione automatica dell’API grafica."
+    "waitingForRenderer": "In attesa del renderer del gioco; selezione automatica dell’API grafica.",
+    "dx12ContextMissing": "DX12 rilevato, ma la coda della swap chain è stata creata prima del collegamento. Questo renderer non può collegarsi in un secondo momento; il contesto grafico deve essere ricreato con gli hook attivi.",
+    "vulkanContextMissing": "Rendering Vulkan non disponibile. Il contesto del dispositivo, della coda o della superficie potrebbe non essere stato acquisito; consulta il registro.",
+    "noFrames": "Nessun fotogramma dal gioco dopo 15 secondi. Controlla nel registro la compatibilità dell’API e il momento del collegamento.",
+    "warningTitle": "Attivare il rendering nel gioco (sperimentale)?",
+    "injectionNote": "Il rendering nel gioco inietta una DLL e può compromettere la stabilità o la compatibilità anti-cheat. Cambiare modalità interrompe il rendering; esci dal gioco per scaricare la DLL.",
+    "warningBody": "Questa modalità consente a ZTMZ di caricare la DLL di rendering nei giochi supportati senza chiedere conferma a ogni iniezione. Può compromettere la stabilità o essere bloccata o vietata dai sistemi anti-cheat. Attivala solo se il gioco e la modalità attuale consentono questo tipo di strumento.\n\nTornando alla finestra overlay separata, il rendering si interrompe, ma la DLL rimane caricata fino alla chiusura del gioco.\n\nQuesta conferma riguarda solo il rendering nel gioco e non autorizza il bridge separato delle note ACR.",
+    "warningEnable": "Attiva il rendering nel gioco",
+    "warningKeepWindow": "Mantieni la finestra overlay separata"
   },
   "voiceCatalog": {
     "refresh": "Refresh packages",

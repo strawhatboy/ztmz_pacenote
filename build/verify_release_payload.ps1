@@ -28,6 +28,7 @@ $required = @(
     'games/ACRExperimentalBridge/ACRProtonRelay.exe',
     'games/ACRExperimentalBridge/acr-live-bridge.manifest.json',
     'fonts/WRCCleanRoman.ttf', 'fonts/WRCCleanBold.ttf',
+    'WebView2Loader.dll', 'ThirdPartyNotices/Aim_2_MoTeC.txt',
     'native-dashboard/win-x64/ztmz_dashboard_overlay.dll',
     'native-dashboard/win-x86/ztmz_dashboard_overlay.dll',
     'native-dashboard/win-x86/ztmz_dashboard_injector.exe',
@@ -51,6 +52,7 @@ foreach ($library in $target.PSObject.Properties) {
             $null = Require-File ([IO.Path]::GetFileName($asset.Name))
         }
     }
+    # Third-party localized resource assemblies are intentionally not shipped.
 }
 
 # Include every provider's shipped language file, not just the two KT languages.
@@ -78,11 +80,17 @@ foreach ($database in @('src/ZTMZ.PacenoteTool.Base/data.zdb', 'src/ZTMZ.Pacenot
 }
 foreach ($provider in @('Codemasters', 'RBR', 'BeamNG', 'AC', 'KT')) {
     foreach ($file in Get-ChildItem (Join-Path $repo "src/ZTMZ.PacenoteTool.$provider/lang") -Filter '*.json' -File) {
-        $null = Require-File ('games/lang/' + $file.Name)
+        $published = Require-File ('games/lang/' + $file.Name)
+        if ((Get-ReleaseSha256 $published) -ne (Get-ReleaseSha256 $file.FullName)) {
+            throw "Stale published provider localization: $($file.Name)"
+        }
     }
 }
 foreach ($file in Get-ChildItem (Join-Path $repo 'src/ZTMZ.PacenoteTool.I18N/lang') -Filter '*.json' -File) {
-    $null = Require-File ('lang/' + $file.Name)
+    $published = Require-File ('lang/' + $file.Name)
+    if ((Get-ReleaseSha256 $published) -ne (Get-ReleaseSha256 $file.FullName)) {
+        throw "Stale published localization: $($file.Name)"
+    }
 }
 foreach ($file in Get-ChildItem (Join-Path $repo 'src/ZTMZ.PacenoteTool.WpfGUI') -Filter '*beta*.txt' -File) {
     $published = Require-File $file.Name

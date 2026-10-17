@@ -58,35 +58,59 @@ non-turbo cars, invalid values, reset sentinels, failed/partial reads and pointe
 replacement. `tools/Dr2Probe --turbo <idle-rad/s> <max-rad/s> [seconds] [log-path]`
 records the production memory reader without changing game UDP configuration.
 
-## Start sequence
+## Native start sequence (2026-10-17)
 
-The captured time-trial restart began its pre-start stream at simulation time
-134.41861, with lap time zero and distance -2.38931 m. The first positive lap
-time arrived at simulation time 139.47037, still at that negative distance.
-Therefore crossing distance zero is not the Go signal: positive lap time is.
+DR2's UDP simulation clock is not a countdown signal. In the affected online
+start, UDP advanced on entering the match while lap time stayed zero. The old
+inference announced 5 at 21:19:08.340; the native start lights did not begin until
+21:19:30.820. The previous time-trial-only inference has been removed entirely.
 
-The subsequent capture exposed an important earlier packet: at 14:07:50.998,
-DR2 sent a restart packet with simulation time 62.704605 and lap time zero,
-then stopped UDP while waiting for the handbrake. At 14:08:21.058 it resumed
-at simulation time 84.62696; Go followed at 89.67852 with lap time 0.033332.
-The reset packet must NOT emit 5 or anchor the countdown. Loading/waiting time
-between these streams must not be subtracted from five seconds.
+The read-only, executable-hash-gated reader follows the game's start-light
+service: pointer RVA `0x1695150`, table at `+8`, index at RVA `0x16940e4`.
+Native reset code `0x5a0b59` uses this lookup. The component must have vtables
+`image + 0x127ae38` and `image + 0x127ae50` at offsets 0 and `0x10`.
 
-Countdown numbers require an observed restart followed by two adjacent advancing
-simulation frames (at most 250 ms apart). A discontinuity resets the candidate
-anchor; it cannot instantly consume the countdown. Pausing does not advance
-numbers, and missed numbers are not replayed in a burst. UDP silence during the
-handbrake wait preserves the pre-start session rather than changing it to Unknown.
-DR2 countdown and Go cues use immediate system playback rather than waiting
-behind ordinary pacenote audio. Session state is published before the first
-telemetry event, with the current GameData snapshot already available.
+The native HUD routine `0x5f008c` computes its displayed number as sequence
+length (`+0xa5`, byte) minus current phase (`+0x20`, byte) minus one. The verified
+rally configuration has seven phases: waiting (phase 0), 5–1 (phases 1–5), then
+GO (phase 6). Each phase's kind at `+0x128 + phase * 0x88` must match waiting=0,
+numbered=1, GO=2. Unknown layouts, including different rallycross sequences,
+are rejected. The native updater `0x4b3be0` advances this phase; `+0xa4` is a
+phase-change flag, **not** an active-countdown flag. We do not calculate the
+number from either the native elapsed timer or UDP time.
 
-This is an inferred five-second start sequence, not a native countdown field.
-Without an observed restart (including attaching to an already active stream),
-the reader conservatively skips countdown numbers instead of inventing five
-remaining seconds. It no longer uses a 500 ms listener wait as proof of a start.
-Packet loss and other event modes still require validation. Daily/online events
-have not been live verified.
+A dedicated 50 ms poll reads start lights while a valid pre-start session is
+present. UDP still establishes stage telemetry and the pre-start session, but
+packet arrival, pauses, silence, clock jumps, and the duration of the handbrake
+wait do not drive countdown numbers. Native transitions are deduplicated;
+failed reads do not reset the last announced number, and missed numbers are
+not replayed. A native waiting phase or a new stage resets the sequence.
+Attaching during a countdown can announce the current native number only.
+Unknown executable builds and non-Windows hosts skip numbered countdown cues;
+there is no UDP timing fallback. Service ownership and phase are checked again
+after sampling to reject replacement/reset during the read.
+
+The live capture held native phase 0 from 21:19:03.918 until 21:19:30.820,
+then recorded phases 1–6 at 21:19:30.820, 31.829, 32.838, 33.847, 34.858 and
+35.815. Positive UDP lap time arrived at 21:19:35.841, still at distance
+-2.1937714 m. GO remains based on positive lap time, not crossing distance zero.
+The precise online event subtype was not recorded. This capture does not claim
+coverage of every DR2 mode.
+
+A further live run through the production C# `DirtGameDataReader` entered
+RaceBegin at 21:27:50.619 and emitted no numbered cues during the wait. It emitted
+5, 4, 3, 2, 1 at 21:28:06.158, 07.163, 08.159, 09.169 and 10.167 respectively,
+then Racing at 21:28:11.159 and Paused at 21:28:59.835. An independent production
+memory observer recorded the same phase sequence. These were observer events;
+the user's already-running WPF app still contained the old DLL during the check.
+All 101 focused DR2 tests passed; both portable and Windows targets built.
+
+Countdown and GO cues use immediate system playback. Session state is published
+before the first telemetry event, with the current GameData snapshot available.
+Tests cover early advancing UDP, missing memory, native phases, pause/deduplication,
+missed samples, clock resets, restart, menu/uninitialization, invalid layouts,
+service replacement and partial-read failure. To record the production memory
+reader independently of UDP, use `tools/Dr2Probe --countdown [seconds] [log-path]`.
 
 ## Component damage
 

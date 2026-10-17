@@ -996,7 +996,15 @@
     "platformUnavailable": "Fenêtre séparée : le rendu natif dans le jeu n’est pas encore intégré sur cette plateforme.",
     "integrationPending": "Fenêtre séparée : le rendu dans le jeu n’est pas encore disponible dans cette version.",
     "waitingForGame": "En attente d’un jeu ; sélection automatique de l’API graphique.",
-    "waitingForRenderer": "En attente du moteur de rendu du jeu ; sélection automatique de l’API graphique."
+    "waitingForRenderer": "En attente du moteur de rendu du jeu ; sélection automatique de l’API graphique.",
+    "dx12ContextMissing": "DX12 détecté, mais la file de la chaîne de présentation a été créée avant la connexion. Ce moteur ne peut pas se connecter après coup ; le contexte graphique doit être recréé avec les hooks actifs.",
+    "vulkanContextMissing": "Rendu Vulkan indisponible. Le contexte du périphérique, de la file ou de la surface n’a peut-être pas été capturé ; consultez le journal.",
+    "noFrames": "Aucune image du jeu reçue après 15 secondes. Vérifiez la compatibilité de l’API et le moment de la connexion dans le journal.",
+    "warningTitle": "Activer le rendu dans le jeu (expérimental) ?",
+    "injectionNote": "Le rendu dans le jeu injecte une DLL et peut affecter la stabilité ou la compatibilité anti-triche. Changer de mode arrête le rendu ; quittez le jeu pour décharger la DLL.",
+    "warningBody": "Ce mode autorise ZTMZ à charger sa DLL de rendu dans les jeux pris en charge sans redemander confirmation à chaque injection. Cela peut affecter la stabilité ou être bloqué ou interdit par les systèmes anti-triche. Activez-le uniquement si le jeu et le mode actuel autorisent ce type d’outil.\n\nRevenir à la fenêtre de superposition séparée arrête le rendu, mais la DLL reste chargée jusqu’à la fermeture du jeu.\n\nCette confirmation concerne uniquement le rendu dans le jeu et n’autorise pas la passerelle de notes ACR séparée.",
+    "warningEnable": "Activer le rendu dans le jeu",
+    "warningKeepWindow": "Garder la fenêtre de superposition séparée"
   },
   "voiceCatalog": {
     "refresh": "Refresh packages",

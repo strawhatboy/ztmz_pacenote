@@ -24,7 +24,10 @@
                 "launchPromptNotNow": "後で",
                 "launchPromptFailure": "ライブブリッジを注入できませんでした：\n{0}",
                 "privilegeWarning": "ZTMZ と Assetto Corsa Rally は同じ Windows 権限レベルで実行する必要があります。異なる場合、ブリッジはペースノートを送信できません。両方を通常ユーザーとして実行することを推奨します。一方を管理者として実行する場合は、もう一方も管理者として実行してください。",
-                "protonWarning": "Linux では、ZTMZ は ACR と同じ Proton ランナーおよびプレフィックスを使用して内蔵 Windows リレーを起動します。ブリッジを注入する前に ACR を起動したままにしてください。"
+                "protonWarning": "Linux では、ZTMZ は ACR と同じ Proton ランナーおよびプレフィックスを使用して内蔵 Windows リレーを起動します。ブリッジを注入する前に ACR を起動したままにしてください。",
+                "interfaceMissing": "必要な FMOD インターフェースがないか、ライブラリが未対応です。ブリッジの注入をブロックしました。",
+                "unverifiedBuild": "この ACR バージョンは未検証です。必要な FMOD インターフェースはありますが、互換性は保証されず、注入によってゲームがクラッシュする可能性があります。このセッションで試験的な注入を試しますか？",
+                "tryUnverified": "試験的な注入を試す"
             },
             "diagnostics": {
                 "reader": "ACR 共有メモリ",

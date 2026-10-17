@@ -22,13 +22,39 @@ namespace ZTMZ.PacenoteTool.WpfGUI.Views.Dialog
     public partial class NewUpdateDialog : ContentDialog
     {
         private string _newVersion;
+        private readonly ContentDialogHost _dialogHost;
         public NewUpdateDialog(ContentDialogHost dialogHost, string newVersion, string currentVersion, string changelogUrl) : base(dialogHost)
         {
+            _dialogHost = dialogHost;
             _newVersion = newVersion;
             InitializeComponent();
             this.tb_content.Text = string.Format(I18NLoader.Instance["dialog.newUpdate.content"],
                 newVersion, currentVersion);
             this.wb_Changelog.Navigate(new Uri(changelogUrl)); 
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            _dialogHost.SizeChanged += OnHostSizeChanged;
+            UpdateDialogSize();
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e) =>
+            _dialogHost.SizeChanged -= OnHostSizeChanged;
+
+        private void OnHostSizeChanged(object sender, SizeChangedEventArgs e) => UpdateDialogSize();
+
+        private void UpdateDialogSize()
+        {
+            if (_dialogHost.ActualWidth > 0 && _dialogHost.ActualHeight > 0)
+            {
+                DialogWidth = Math.Min(960, Math.Max(0, _dialogHost.ActualWidth - 48));
+                DialogHeight = Math.Min(680, Math.Max(0, _dialogHost.ActualHeight - 48));
+                // ContentDialog measures its body inside a ScrollViewer, so a
+                // star row alone leaves WebBrowser at its 150-DIP default height.
+                // Reserve space for the title, action buttons and template padding.
+                ChangelogLayout.Height = Math.Max(0, DialogHeight - 200);
+            }
         }
 
         private void chkbox_skip_Click(object sender, RoutedEventArgs e) 

@@ -100,7 +100,7 @@ Local-only WRC files (14):
 The installer already generated before this change is not rewritten by changing
 these scripts. Run `build/onekey.bat` again to package the 265-file WRC source.
 
-## rc28 release verification (2026-10-17)
+## Earlier rc28 release verification (2026-10-17, superseded artifact)
 
 The clean WPF publish previously tried to copy the KT provider without building it.
 `publish.bat` now explicitly publishes KT (`net10.0`, `win-x64`) before the WPF host.
@@ -122,3 +122,90 @@ Validation completed for 2.99.99.56-rc28:
 This verifies compilation and staged contents, not a fresh installation or upgrade.
 Installer launch/upgrade and live gameplay smoke testing remain the final release
 gate. No installer was uploaded and `autoupdate_beta.json` was not advanced.
+
+## Final rc28 packaging audit (2026-10-17)
+
+The installer above predates the later DR2 countdown, graphical-pacenote dispatch,
+release-note and update-dialog changes. It has been replaced by a clean publish
+and a new locally signed installer containing the current working tree.
+
+Correction: the initial audit incorrectly called 41 publish/installer differences
+missing required files. **39 third-party satellite resource DLLs were intentionally
+excluded**; their temporary reintroduction has been reverted. The nested
+`runtimes/win-x64/native/WebView2Loader.dll` is byte-identical to the already-packaged
+root loader and remains excluded too. Only `ThirdPartyNotices/Aim_2_MoTeC.txt`
+needed adding to the installer. ZTMZ's own language JSON files remain included.
+The verifier checks the root loader and source hashes for provider/core language
+files, dashboards, fonts and web assets; it does not require satellite assemblies.
+
+`build/verify_installer_payload.ps1` compares an extracted installer against every
+published file and the directly packaged databases. It requires explicit handling
+of any new publish directory. Root CSV/XAudio exports and provider `.deps.json`
+files and third-party satellite assemblies are deliberately excluded; the duplicate
+root ACR bridge is verified at its canonical `games/ACRExperimentalBridge`
+destination. The nested WebView2 loader is checked against the installed root copy.
+The archive verifier rejects unexpected satellite DLLs to preserve this packaging
+decision. These installer rules are used by `build/onekey.bat` through
+`publish.bat` and `package_signed.bat`; no manual file copying is required.
+
+Final artifact:
+
+- `Output/ZTMZClub_PacenoteTool_Installer_2.99.99.56-rc28.exe`
+- Product version `2.99.99.56`; **32,887,184 bytes**.
+- SHA256: `c38426b1ef7e1980e4cc9926684663e72d36f0a77b38262bb3322e6a4dc41d04`.
+- Timestamped signature from the existing `CN=ZTMZClub` self-signed certificate.
+  Windows reports an untrusted root on this machine; this is not a publicly trusted
+  code-signing certificate. No trust-store changes were made.
+
+Validation:
+
+- Clean `publish.bat` and `package_signed.bat` passed. Inno's five existing missing
+  Chinese extraction messages still fall back to English.
+- Extracted the final installer into an empty directory with `innounp -x -a -b`.
+  **2,134 destination/content comparisons passed**, with intentional exclusions
+  accounted for. No satellite resource DLLs are installed. The corrected verifier
+  rejects the mistakenly expanded archive with 39 unexpected language DLLs.
+- Verified all five providers, WRC 7/9/Generations and ACR bridges, BeamNG mod assets,
+  x86/x64 overlays and the x86 injector, both installed font locations, 18 dashboards,
+  346 pacenote icons, Monaco, web assets, language files and current release notes.
+- Pinned resources passed: default voice package 580 files; DR1 72, DR2 157 and
+  EA WRC 265 profile files. Seven resource validation scenarios passed, including
+  rejection of missing, modified and extra files. Ten installer path scenarios passed.
+- Portable suite: **737/737 passed serially** with an isolated data directory.
+  The initial parallel run failed seven tests during competing first-use writes to
+  `Config.Load`, plus one WRCG pipe test. Serial execution passed both categories.
+  This does not establish thread safety for concurrent first initialization of Config;
+  WPF initializes Config in its application constructor before runtime startup.
+- Windows suite: the rebuilt full run passed 469/470; the remaining failure was
+  missing ACR translations. After completing them, all 15 localization tests passed.
+  Earlier failures also identified missing overlay/RBR messages and a stale database
+  assertion of 349 tokens. All eight additional languages now include the 15 new
+  messages; the database test checks nonempty translations for every actual token
+  (currently 354), retaining its mechanical-damage and fallback assertions.
+- Browser smoke tests: all 18 dashboards passed. Native x64: seven protocol/runtime/
+  font/backend checks passed, including all bundled dashboards. Native x86: Lua,
+  bundled dashboards and the RBR DX9 device check passed.
+- Before restoring the intentional exclusions, started a copy of the extracted
+  application (the corrected installer has the same application binaries), with data and a
+  fresh isolated configuration selected through `ZTMZ_DATA_HOME`. It loaded all five
+  providers and 18 dashboards, initialized HomePage/DR2, prepared the default voice
+  preview and remained responsive. No fatal or missing-file startup error occurred.
+  The sandbox-blocked online update request was logged as a recoverable error.
+  The temporary application process was stopped after the check. The user's installed
+  app/data and registry were not replaced.
+
+To repeat the archive check after packaging (use an empty extraction directory):
+
+```powershell
+innounp -x -a -b -dtmp/release-56-extracted Output/ZTMZClub_PacenoteTool_Installer_2.99.99.56-rc28.exe
+powershell -NoProfile -File build/verify_installer_payload.ps1 -ExtractedRoot tmp/release-56-extracted
+```
+
+Packaging and isolated startup are verified. A real clean-machine install and an
+upgrade from rc27 remain the final release gate; extraction does not exercise runtime
+downloads, installer execution, or upgrade preservation. This is a framework-dependent
+release: .NET 10 Desktop/ASP.NET Core and WebView2 prerequisites are handled by the
+installer, not bundled as offline runtime installers. The latest gameplay fixes also
+still warrant a short installed-build smoke test. At audit completion the changes
+were uncommitted and no installer had been uploaded. `autoupdate_beta.json` still
+advertises `2.99.99.55` until the release asset is published.

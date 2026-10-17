@@ -32,7 +32,11 @@
                 "selection_StageMissing": "Especial {0}: não há pasta para esta especial nas notas personalizadas. Ela pode não estar incluída; usando o mapeamento padrão.",
                 "selection_DefaultSelected": "Especial {0}: notas padrão selecionadas no NGPCarMenu. Altere a seleção no jogo se desejar.",
                 "selection_Unknown": "Especial {0}: seleção de notas incerta. Verifique marcadores, arquivos, datas iguais e a seleção no jogo. Isso não significa que Luppis esteja ausente.",
-                "custom_pacenote_not_used": "As notas padrão estão sendo usadas na pista atual {0}. Isso funciona, mas as notas Luppis V3 são recomendadas. Também é possível que o Luppis V3 não contenha um roteiro de notas para a pista atual."
+                "custom_pacenote_not_used": "As notas padrão estão sendo usadas na pista atual {0}. Isso funciona, mas as notas Luppis V3 são recomendadas. Também é possível que o Luppis V3 não contenha um roteiro de notas para a pista atual.",
+                "pacenote_definition_unavailable": "Não foi possível carregar a definição de notas do RBR: {0}. Restaure o arquivo ou selecione uma definição válida nas configurações do RBR. As chamadas que dependem dela estão indisponíveis; o ZTMZ pode continuar funcionando.",
+                "selection_LoadedLuppis": "Especial {0}: o jogo carregou as notas Luppis \"{1}\".",
+                "selection_LoadedDefault": "Especial {0}: o jogo carregou as notas padrão \"{1}\". Se desejar, selecione as notas Luppis no jogo.",
+                "selection_LoadedOther": "Especial {0}: o jogo carregou \"{1}\", cujo nome não permite identificar as notas como Luppis. Isso não significa que o Luppis não esteja instalado."
             }
         }
     }

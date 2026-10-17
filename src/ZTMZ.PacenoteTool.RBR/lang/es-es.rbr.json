@@ -32,7 +32,11 @@
                 "selection_StageMissing": "Tramo {0}: no hay carpeta para este tramo en las notas personalizadas. Puede no estar incluido; se usa el mapeo predeterminado.",
                 "selection_DefaultSelected": "Tramo {0}: NGPCarMenu tiene seleccionadas las notas predeterminadas. Puedes cambiarlas en el juego.",
                 "selection_Unknown": "Tramo {0}: selección de notas incierta. Revisa marcadores, archivos, fechas iguales y la selección en el juego. No significa que falte Luppis.",
-                "custom_pacenote_not_used": "El tramo actual {0} utiliza las notas predeterminadas. Es válido, pero se recomiendan las notas Luppis V3. También es posible que Luppis V3 no contenga un guion de notas para el tramo actual."
+                "custom_pacenote_not_used": "El tramo actual {0} utiliza las notas predeterminadas. Es válido, pero se recomiendan las notas Luppis V3. También es posible que Luppis V3 no contenga un guion de notas para el tramo actual.",
+                "pacenote_definition_unavailable": "No se puede cargar la definición de notas RBR: {0}. Restaura el archivo o selecciona una definición válida en los ajustes de RBR. Las indicaciones que la necesitan no están disponibles; ZTMZ puede seguir funcionando.",
+                "selection_LoadedLuppis": "Tramo {0}: el juego ha cargado las notas Luppis \"{1}\".",
+                "selection_LoadedDefault": "Tramo {0}: el juego ha cargado las notas predeterminadas \"{1}\". Selecciona las notas Luppis en el juego si lo deseas.",
+                "selection_LoadedOther": "Tramo {0}: el juego ha cargado \"{1}\", cuyo nombre no permite identificarlo como Luppis. Esto no significa que Luppis no esté instalado."
             }
         }
     }

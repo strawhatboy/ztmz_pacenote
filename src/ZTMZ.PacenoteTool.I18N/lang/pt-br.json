@@ -996,7 +996,15 @@
     "platformUnavailable": "Janela separada: a renderização nativa no jogo ainda não foi integrada nesta plataforma.",
     "integrationPending": "Janela separada: a renderização no jogo ainda não está disponível nesta versão.",
     "waitingForGame": "Aguardando um jogo; a API gráfica é selecionada automaticamente.",
-    "waitingForRenderer": "Aguardando o renderizador do jogo; a API gráfica é selecionada automaticamente."
+    "waitingForRenderer": "Aguardando o renderizador do jogo; a API gráfica é selecionada automaticamente.",
+    "dx12ContextMissing": "DX12 detectado, mas a fila da cadeia de apresentação foi criada antes da conexão. Este renderizador não pode se conectar depois; o contexto gráfico deve ser recriado com os hooks ativos.",
+    "vulkanContextMissing": "Renderização Vulkan indisponível. O contexto do dispositivo, da fila ou da superfície pode não ter sido capturado; consulte o registro.",
+    "noFrames": "Nenhum quadro do jogo recebido após 15 segundos. Verifique a compatibilidade da API e o momento da conexão no registro.",
+    "warningTitle": "Ativar a renderização dentro do jogo (experimental)?",
+    "injectionNote": "A renderização dentro do jogo injeta uma DLL e pode afetar a estabilidade ou a compatibilidade antitrapaça. Mudar de modo interrompe a renderização; saia do jogo para descarregar a DLL.",
+    "warningBody": "Este modo permite que o ZTMZ carregue sua DLL de renderização nos jogos compatíveis sem pedir confirmação a cada injeção. Isso pode afetar a estabilidade ou ser bloqueado ou proibido pelos sistemas antitrapaça. Ative apenas se o jogo e o modo atual permitirem esse tipo de ferramenta.\n\nVoltar à janela de sobreposição separada interrompe a renderização, mas a DLL permanece carregada até você sair do jogo.\n\nEsta confirmação vale apenas para a renderização dentro do jogo e não autoriza a ponte separada de notas do ACR.",
+    "warningEnable": "Ativar a renderização dentro do jogo",
+    "warningKeepWindow": "Manter a janela de sobreposição separada"
   },
   "voiceCatalog": {
     "refresh": "Refresh packages",

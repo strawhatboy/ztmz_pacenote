@@ -124,9 +124,11 @@ public class PacenoteDatabaseLoaderTest
                      "ja-jp", "ko-kr", "pt-br", "ru-ru", "zh-cn"
                  })
         {
-            Assert.Equal(349, connection.ExecuteScalar<int>(
-                "SELECT COUNT(*) FROM pacenote_localizations WHERE locale = @locale",
-                new { locale }));
+            Assert.Equal(
+                connection.Query<int>("SELECT id FROM pacenote ORDER BY id"),
+                connection.Query<int>(
+                    "SELECT pacenote_id FROM pacenote_localizations WHERE locale = @locale AND TRIM(display_name) <> '' ORDER BY pacenote_id",
+                    new { locale }));
         }
         Assert.Equal("左六", connection.QuerySingle<string>(
             "SELECT display_name FROM pacenote_localizations WHERE pacenote_id = 10 AND locale = 'zh-cn'"));

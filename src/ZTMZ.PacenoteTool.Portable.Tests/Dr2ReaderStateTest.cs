@@ -8,117 +8,140 @@ public sealed class Dr2ReaderStateTest
 {
     private sealed class Reader : DirtGameDataReader
     {
-        public Reader() { _game = new DirtRally2(); }
-        public void Silence() { for (var i = 0; i < 35; i++) UpdateStateForUdpSilence(); }
-    }
-
-    [Fact]
-    public void RestartCountsDownAndStartsBeforeCrossingTheLine()
-    {
-        var reader = new Reader();
-        var changes = new List<GameStateChangeEvent>();
-        reader.onGameStateChanged += changes.Add;
-        byte[]? previous = null;
-        void Send(float time, float lap, float distance)
+        public Dr2StartLightsSnapshot? Lights;
+        public readonly List<GameStateChangeEvent> Changes = [];
+        private byte[]? previous;
+        public Reader()
         {
-            var packet = Packet(time, lap, distance);
-            reader.onNewUdpMessage(previous!, packet);
+            _game = new DirtRally2();
+            onGameStateChanged += Changes.Add;
+        }
+        protected override Dr2StartLightsSnapshot? ReadDr2StartLights() => Lights;
+        public void Poll(int? phase)
+        {
+            Lights = phase.HasValue ? new(0x10000, phase.Value) : null;
+            PollDr2Countdown();
+        }
+        public void Send(float time, float lap = 0, float distance = -2.3893f, float track = 6681.61f)
+        {
+            var packet = Packet(time, lap, distance, track);
+            onNewUdpMessage(previous!, packet);
             previous = packet;
         }
-        Send(46, 13.2f, 35);
-        Send(46, 0, -2.394f); // restart packet, before holding handbrake
-        Assert.DoesNotContain(changes, e => e.NewGameState == GameState.CountingDown);
+        public int[] Numbers => Changes.Where(e => e.Parameters?.ContainsKey("number") == true)
+            .Select(e => (int)e.Parameters["number"]).ToArray();
+        public void Silence() => UpdateStateForUdpSilence();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void AdvancingOnlineUdpBeforeHandbrakeDoesNotAnnounceNumbers(bool memoryAvailable)
+    {
+        var reader = new Reader();
         reader.Silence();
-        Assert.Equal(GameState.RaceBegin, reader.GameState);
-        Send(134.41861f, 0, -2.3893f);
-        Send(134.45194f, 0, -2.3893f);
-        Send(135.45f, 0, -2.3893f);
-        Send(136.45f, 0, -2.3893f);
-        Send(136.45f, 0, -2.3893f); // paused
-        Send(137.45f, 0, -2.3893f);
-        Send(138.45f, 0, -2.3893f);
-        Send(139.47037f, 0.033332f, -2.3893f);
-        Send(139.50f, 0.066f, -2.3f);
-        Assert.Equal(new[] { 5, 4, 3, 2, 1 }, changes
-            .Where(e => e.Parameters?.ContainsKey("number") == true)
-            .Select(e => (int)e.Parameters["number"]));
-        Assert.Single(changes.Where(e => e.NewGameState == GameState.Racing));
-        Assert.Equal(GameState.CountingDown, changes.Last(e => e.NewGameState == GameState.Racing).LastGameState);
-    }
-
-    [Fact]
-    public void NewRaceAfterWaitingForFirstPacketCountsDown()
-    {
-        var reader = new Reader();
-        var numbers = new List<int>();
-        reader.onGameStateChanged += e =>
+        for (var i = 0; i < 900; i++)
         {
-            if (e.Parameters?.TryGetValue("number", out var number) == true)
-                numbers.Add((int)number);
-        };
-        reader.Silence(); // listener is ready during loading / handbrake wait
-        Assert.Empty(numbers);
-        byte[]? previous = null;
-        foreach (var time in new[] { 20.830814f, 20.848988f, 21.85f, 22.85f, 23.85f, 24.85f })
-        {
-            var packet = Packet(time, 0, -2.389556f);
-            reader.onNewUdpMessage(previous!, packet);
-            previous = packet;
+            reader.Send(19.6f + i / 30f);
+            reader.Poll(memoryAvailable ? 0 : null);
         }
-        Assert.Equal(new[] { 5, 4, 3, 2, 1 }, numbers);
-        reader.onNewUdpMessage(previous!, Packet(25.86649f, .016666f, -2.389556f));
-        Assert.Equal(GameState.Racing, reader.GameState);
+        Assert.Empty(reader.Numbers);
+        Assert.Equal(GameState.RaceBegin, reader.GameState);
     }
 
     [Fact]
-    public void ImmediateAttachmentDoesNotInventCountdown()
+    public void NativeNumbersContinueWithoutUdpAndGoUsesActualLapStart()
     {
         var reader = new Reader();
-        var changes = new List<GameStateChangeEvent>();
-        reader.onGameStateChanged += changes.Add;
-        var first = Packet(23.85f, 0, -2.389556f);
-        reader.onNewUdpMessage(null!, first);
-        reader.onNewUdpMessage(first, Packet(23.88f, 0, -2.389556f));
-        Assert.DoesNotContain(changes, e => e.NewGameState == GameState.CountingDown);
+        reader.Send(46, 13.2f, 35);
+        reader.Send(46); // restart packet, before holding handbrake
+        reader.Poll(0);
+        reader.Silence();
+        Assert.Empty(reader.Numbers);
+        Assert.Equal(GameState.RaceBegin, reader.GameState);
+        // No further packets during the native countdown. Polling is independent.
+        reader.Poll(1);
+        reader.Poll(2);
+        reader.Send(46); // identical packet: paused
+        reader.Poll(2);
+        reader.Poll(null);
+        reader.Poll(2);
+        reader.Poll(3);
+        reader.Poll(4);
+        reader.Poll(5);
+        reader.Poll(6);
+        Assert.Equal(new[] { 5, 4, 3, 2, 1 }, reader.Numbers);
+        reader.Send(139.47037f, .033332f);
+        reader.Send(139.50f, .066f, -2.3f);
+        var go = Assert.Single(reader.Changes.Where(e => e.NewGameState == GameState.Racing));
+        Assert.Equal(GameState.CountingDown, go.LastGameState);
+        reader.Poll(1); // stale start state after GO must not play
+        Assert.Equal(5, reader.Numbers.Length);
     }
 
     [Fact]
-    public void LeavingGridForMenuDoesNotKeepOldCountdown()
+    public void UdpClockResetOrJumpCannotReplayOrAdvanceNativeNumbers()
     {
         var reader = new Reader();
-        var numbers = new List<int>();
-        reader.onGameStateChanged += e =>
+        reader.Send(20);
+        reader.Poll(1);
+        foreach (var clock in new[] { 100f, 0f, 30f, 999f })
         {
-            if (e.Parameters?.TryGetValue("number", out var number) == true)
-                numbers.Add((int)number);
-        };
-        var grid = Packet(90, 0, -2);
-        reader.onNewUdpMessage(null!, grid);
-        var menu = new byte[264];
-        reader.onNewUdpMessage(grid, menu);
-        var newGrid = Packet(20.830814f, 0, -2);
-        reader.onNewUdpMessage(menu, newGrid);
-        reader.onNewUdpMessage(newGrid, Packet(20.848988f, 0, -2));
-        Assert.Equal(new[] { 5 }, numbers);
+            reader.Send(clock);
+            reader.Poll(1);
+        }
+        Assert.Equal(new[] { 5 }, reader.Numbers);
+        reader.Poll(2);
+        Assert.Equal(new[] { 5, 4 }, reader.Numbers);
     }
 
     [Fact]
-    public void EmptyOrTruncatedPacketsDoNotFinishARaceOrPublishData()
+    public void AttachmentDuringCountdownOnlyAnnouncesTheCurrentNativeNumber()
+    {
+        var reader = new Reader();
+        reader.Send(23.85f);
+        reader.Poll(3);
+        reader.Send(23.88f);
+        reader.Poll(3);
+        Assert.Equal(new[] { 3 }, reader.Numbers);
+    }
+
+    [Fact]
+    public void LeavingGridSuppressesStaleMemoryAndNewStageCanCountAgain()
+    {
+        var reader = new Reader();
+        reader.Send(90);
+        reader.Poll(1);
+        reader.Send(0, track: 0);
+        reader.Poll(2);
+        reader.Send(20.830814f);
+        reader.Poll(0);
+        reader.Poll(1);
+        Assert.Equal(new[] { 5, 5 }, reader.Numbers);
+        reader.Uninitialize(new DirtRally2());
+        reader.Poll(2);
+        Assert.Equal(new[] { 5, 5 }, reader.Numbers);
+    }
+
+    [Fact]
+    public void EmptyOrTruncatedPacketsDoNotPublishDataOrArmCountdown()
     {
         var reader = new Reader();
         var count = 0;
         reader.onNewGameData += (_, _) => count++;
         reader.onNewUdpMessage(null!, new byte[12]);
+        reader.Poll(1);
         Assert.Equal(0, count);
+        Assert.Empty(reader.Numbers);
         reader.onNewUdpMessage(null!, new byte[264]);
         Assert.Equal(GameState.Unknown, reader.GameState);
     }
 
-    private static byte[] Packet(float time, float lap, float distance)
+    private static byte[] Packet(float time, float lap, float distance, float track)
     {
         var bytes = new byte[264];
         void Put(int offset, float value) => BitConverter.GetBytes(value).CopyTo(bytes, offset);
-        Put(0, time); Put(4, lap); Put(8, distance); Put(244, 6681.61f);
+        Put(0, time); Put(4, lap); Put(8, distance); Put(244, track);
         return bytes;
     }
 }

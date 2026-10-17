@@ -64,11 +64,46 @@ public class DirtGameDataReader : UdpGameDataReader
     private readonly Dr2Countdown _countdown = new();
     private bool _preStart;
     private bool _hasPacket;
-    private bool _observedInitialUdpWait;
+    private System.Threading.Timer? _countdownTimer;
     private string? _trackName;
     private readonly object _stateGate = new();
     private readonly Dr2RaceResultTracker _dr2RaceResult = new();
     private long _nextRaceStateRead;
+
+    public override bool Initialize(IGame game)
+    {
+        if (!base.Initialize(game)) return false;
+        if (game is DirtRally2)
+            _countdownTimer = new System.Threading.Timer(_ =>
+            {
+                lock (_stateGate)
+                {
+                    if (!isInitialized) return;
+                    try { PollDr2Countdown(); }
+                    catch (Exception ex) { Logger.Debug(ex, "DR2 native countdown read failed."); }
+                }
+            }, null, 0, 50);
+        return true;
+    }
+
+    protected virtual Dr2StartLightsSnapshot? ReadDr2StartLights()
+    {
+        if (!OperatingSystem.IsWindows() || !isInitialized) return null;
+        _vehicleMemory ??= new Dr2VehicleMemoryReader();
+        return _vehicleMemory.ReadStartLights();
+    }
+
+    // Poll independently of UDP delivery: some modes stream throughout the
+    // handbrake wait, others stop. Neither behavior is a countdown signal.
+    protected void PollDr2Countdown()
+    {
+        lock (_stateGate)
+        {
+            if (_game is not DirtRally2 || !_preStart || _dr2RaceResult.HasAbnormalResult) return;
+            if (_countdown.Update(ReadDr2StartLights()) is { } number)
+                SetCountdownState(number);
+        }
+    }
 
     protected virtual Dr2RaceStateSnapshot? ReadDr2RaceState()
     {
@@ -110,10 +145,6 @@ public class DirtGameDataReader : UdpGameDataReader
 
     private void UpdateDr2StateForUdpSilence()
     {
-        // A listener already waiting before the first grid packet has observed
-        // the start of the stream. No previous race/reset packet is required.
-        // Do not treat an immediate attachment to an existing stream this way.
-        if (_game is DirtRally2 && !_hasPacket) _observedInitialUdpWait = true;
         // DR2 stops UDP while waiting for the handbrake after its reset packet.
         // Transport availability is still reported by the base timer. Silence
         // here must not destroy an observed pre-start session.
@@ -126,12 +157,13 @@ public class DirtGameDataReader : UdpGameDataReader
         base.Uninitialize(game);
         lock (_stateGate)
         {
+            _countdownTimer?.Dispose();
+            _countdownTimer = null;
             if (OperatingSystem.IsWindows()) _vehicleMemory?.Dispose();
             _vehicleMemory = null;
             _nativeCarCode = null;
             _countdown.Reset();
             _preStart = _hasPacket = false;
-            _observedInitialUdpWait = false;
             _trackName = null;
             _lastValidLapTime = 0;
             _lastRawData = _currentRawData = default;
@@ -318,7 +350,7 @@ public class DirtGameDataReader : UdpGameDataReader
             else GameState = GameState.Racing;
             return;
         }
-        if (message.Time == 0)
+        if (message.Time == 0 && !_preStart)
         {
             var finish = Math.Max(message.LastLapTime, previous.LastLapTime);
             if (_lastValidLapTime > 0 && finish > 0 && GameState != GameState.RaceEnd)
@@ -338,12 +370,9 @@ public class DirtGameDataReader : UdpGameDataReader
             _lastValidLapTime = 0;
             _dr2RaceResult.Reset();
             _preStart = true;
-            _countdown.Begin(message.Time,
-                (!_hasPacket && _observedInitialUdpWait) ||
-                (_hasPacket && (previous.LapTime > 0 || previous.Time == 0 || previous.TrackLength <= 0)));
+            _countdown.Reset();
             GameState = GameState.RaceBegin;
         }
-        if (_countdown.Update(message.Time) is { } number) SetCountdownState(number);
     }
 
     private void SetCountdownState(int? number)

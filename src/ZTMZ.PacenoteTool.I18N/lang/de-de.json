@@ -996,7 +996,15 @@
     "platformUnavailable": "Separates Fenster: Die native Darstellung im Spiel ist auf dieser Plattform noch nicht integriert.",
     "integrationPending": "Separates Fenster: Die Darstellung im Spiel ist in dieser Version noch nicht verfügbar.",
     "waitingForGame": "Warten auf ein Spiel; die Grafik-API wird automatisch ausgewählt.",
-    "waitingForRenderer": "Warten auf den Spiel-Renderer; die Grafik-API wird automatisch ausgewählt."
+    "waitingForRenderer": "Warten auf den Spiel-Renderer; die Grafik-API wird automatisch ausgewählt.",
+    "dx12ContextMissing": "DX12 erkannt, aber die Swapchain-Warteschlange wurde vor dem Anhängen erstellt. Dieser Renderer kann sich nicht nachträglich anhängen; der Grafikkontext muss mit aktiven Hooks neu erstellt werden.",
+    "vulkanContextMissing": "Vulkan-Darstellung nicht verfügbar. Geräte-, Warteschlangen- oder Oberflächenkontext wurde möglicherweise nicht erfasst; Details stehen im Protokoll.",
+    "noFrames": "Nach 15 Sekunden kein Bild aus dem Spiel empfangen. Grafik-API und Zeitpunkt des Anhängens im Protokoll prüfen.",
+    "warningTitle": "Darstellung im Spiel aktivieren (experimentell)?",
+    "injectionNote": "Die Darstellung im Spiel injiziert eine DLL und kann Stabilität oder Anti-Cheat-Kompatibilität beeinträchtigen. Ein Moduswechsel stoppt die Darstellung; erst das Beenden des Spiels entlädt die DLL.",
+    "warningBody": "Dieser Modus erlaubt ZTMZ, seine Rendering-DLL in unterstützte Spiele zu laden, ohne bei jeder Injektion erneut zu fragen. Dies kann die Stabilität beeinträchtigen oder von Anti-Cheat-Systemen blockiert bzw. untersagt werden. Nur aktivieren, wenn das Spiel und der aktuelle Modus solche Werkzeuge erlauben.\n\nDer Wechsel zum separaten Overlay-Fenster stoppt die Darstellung, aber die DLL bleibt bis zum Beenden des Spiels geladen.\n\nDiese Bestätigung gilt nur für die Darstellung im Spiel und erlaubt nicht die separate ACR-Pacenote-Bridge.",
+    "warningEnable": "Darstellung im Spiel aktivieren",
+    "warningKeepWindow": "Separates Overlay-Fenster beibehalten"
   },
   "voiceCatalog": {
     "refresh": "Refresh packages",

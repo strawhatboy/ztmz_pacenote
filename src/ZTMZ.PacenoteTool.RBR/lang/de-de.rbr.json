@@ -32,7 +32,11 @@
                 "selection_StageMissing": "Strecke {0}: Kein Ordner für diese Strecke im eigenen Pacenote-Verzeichnis. Die Strecke ist möglicherweise nicht enthalten; Standardzuordnung wird verwendet.",
                 "selection_DefaultSelected": "Strecke {0}: In NGPCarMenu sind Standard-Pacenotes ausgewählt. Bei Bedarf im Spiel wechseln.",
                 "selection_Unknown": "Strecke {0}: Pacenote-Auswahl unklar. Markierungen, Dateien und Zeitstempel sowie die Auswahl im Spiel prüfen. Dies bedeutet nicht, dass Luppis fehlt.",
-                "custom_pacenote_not_used": "Für die aktuelle Strecke {0} werden die Standard-Pacenotes verwendet. Das ist in Ordnung, empfohlen werden jedoch Luppis-V3-Pacenotes. Möglicherweise enthält Luppis V3 auch kein Pacenote-Skript für die aktuelle Strecke."
+                "custom_pacenote_not_used": "Für die aktuelle Strecke {0} werden die Standard-Pacenotes verwendet. Das ist in Ordnung, empfohlen werden jedoch Luppis-V3-Pacenotes. Möglicherweise enthält Luppis V3 auch kein Pacenote-Skript für die aktuelle Strecke.",
+                "pacenote_definition_unavailable": "RBR-Pacenote-Definition kann nicht geladen werden: {0}. Datei wiederherstellen oder eine gültige Definition in den RBR-Einstellungen auswählen. Davon abhängige Ansagen sind nicht verfügbar; ZTMZ kann weiterlaufen.",
+                "selection_LoadedLuppis": "Strecke {0}: Das Spiel hat die Luppis-Pacenotes \"{1}\" geladen.",
+                "selection_LoadedDefault": "Strecke {0}: Das Spiel hat die Standard-Pacenotes \"{1}\" geladen. Bei Bedarf Luppis-Pacenotes im Spiel auswählen.",
+                "selection_LoadedOther": "Strecke {0}: Das Spiel hat \"{1}\" geladen; der Name lässt keine Zuordnung zu Luppis zu. Das bedeutet nicht, dass Luppis nicht installiert ist."
             }
         }
     }

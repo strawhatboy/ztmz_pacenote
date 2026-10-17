@@ -15,6 +15,9 @@ public sealed record PacenotePlaybackSnapshot(
     string ScriptPath,
     string StageId)
 {
+    // Use an identity rather than a formatted timestamp: managed Lua's default
+    // DateTimeOffset formatting drops fractions of a second.
+    public string DispatchId { get; init; } = Guid.NewGuid().ToString("N");
     public string GroupId { get; init; } = string.Empty;
 
     public static readonly PacenotePlaybackSnapshot Empty = new(
@@ -23,7 +26,7 @@ public sealed record PacenotePlaybackSnapshot(
         DateTimeOffset.MinValue,
         string.Empty,
         string.Empty,
-        string.Empty);
+        string.Empty) { DispatchId = string.Empty };
 
     public static PacenotePlaybackSnapshot FromRecord(
         PacenoteRecord record,

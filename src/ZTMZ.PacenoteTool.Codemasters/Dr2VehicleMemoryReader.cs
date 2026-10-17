@@ -26,6 +26,18 @@ internal sealed class Dr2VehicleMemoryReader : IDisposable
     private long nextDamageRead;
     private CarDamageSnapshot? damage;
 
+    public Dr2StartLightsSnapshot? ReadStartLights()
+    {
+        lock (gate)
+        {
+            if (disposed) return null;
+            UpdateSession();
+            if (session is null) return null;
+            try { return Dr2StartLightsMemory.Read(session.Read, session.ImageBase); }
+            catch (IOException) { return null; }
+        }
+    }
+
     public Dr2RaceStateSnapshot? ReadRaceState()
     {
         lock (gate)
