@@ -1,10 +1,12 @@
 {
   "schemaVersion": 1,
   "audio": {
-    "url": "https://gitee.com/ztmz/ztmz_audio_pkgs/releases/download/v1.1/default.zpak",
-    "archiveSha256": "3b51c9c2982023ba7c4ad9cfe7be6b179688a229e89639ca8bd01a0017286ba0",
-    "files": 580,
-    "sha256": "a6041052da42484bfe7123d1f0496506f6c836e2db4675671139b4edea7f772a"
+    "url": "https://gitee.com/ztmz/ztmz_audio_pkgs/releases/download/AI%E5%93%88%E5%9F%BA%E7%B1%B3/Serena-Mandarin-review.zpak",
+    "directory": "Serena-Mandarin-review",
+    "packageId": "620ffdba-c437-54d4-897e-2bdba265148f",
+    "archiveSha256": "dc9f0dcb158f07f9fdad9d62a7e9d175f9bfc85fc1472db6d7801d9e4be918b2",
+    "files": 2205,
+    "sha256": "0776a3225b4477f635028b98ea92e6e2364d3b415b7046e1291ee228540e9306"
   },
   "profiles": {
     "repository": "git@gitee.com:ztmz/dr2_pacenote_scripts.git",

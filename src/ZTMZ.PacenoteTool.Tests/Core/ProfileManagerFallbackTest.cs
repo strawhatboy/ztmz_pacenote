@@ -6,6 +6,29 @@ namespace ZTMZ.PacenoteTool.Tests.Core;
 public class ProfileManagerFallbackTest
 {
     [Fact]
+    public void DefaultVoicePrefersSerenaWhenXiaoyiIsAlsoInstalled()
+    {
+        var xiaoyi = new CoDriverPackage { Info = new() { id = ProfileManager.LEGACY_CODRIVER_PACKAGE_ID } };
+        var serena = new CoDriverPackage { Info = new() { id = ProfileManager.DEFAULT_CODRIVER_PACKAGE_ID } };
+        Assert.Same(serena, ProfileManager.ResolveDefaultCoDriver(new[] { xiaoyi, serena }));
+        Assert.Same(serena, ProfileManager.ResolveDefaultCoDriver(new[] { serena }));
+    }
+
+    [Fact]
+    public void DefaultVoiceSupportsOldDataAndPicksUpNewPackageAfterRefresh()
+    {
+        var xiaoyi = new CoDriverPackage { Info = new() { id = ProfileManager.LEGACY_CODRIVER_PACKAGE_ID } };
+        var packages = new List<CoDriverPackage> { xiaoyi };
+        Assert.Same(xiaoyi, ProfileManager.ResolveDefaultCoDriver(packages));
+        var serena = new CoDriverPackage { Info = new() { id = ProfileManager.DEFAULT_CODRIVER_PACKAGE_ID } };
+        packages.Add(serena);
+        Assert.Same(serena, ProfileManager.ResolveDefaultCoDriver(packages));
+        // The default change must not override a saved Xiaoyi selection.
+        Assert.Equal(0, CoDriverSelectionIdentity.ResolveIndex(
+            packages.Select(p => p.Info).ToList(), CoDriverSelectionIdentity.Create(xiaoyi.Info), 1));
+    }
+
+    [Fact]
     public void EmptyFallbackResultsAreNotCountedAsResolved()
     {
         var sounds = ProfileManager.ResolveFallbackSounds(

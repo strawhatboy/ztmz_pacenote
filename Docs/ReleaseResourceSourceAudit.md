@@ -1,4 +1,27 @@
-# Release resource source audit (2026-09-13)
+# Release resource source audit
+
+## Current default voice (2026-10-18)
+
+Serena Mandarin 0.3.0 is now the bundled Chinese default, package ID
+`620ffdba-c437-54d4-897e-2bdba265148f`. The uploaded
+`AI哈基米/Serena-Mandarin-review.zpak` was downloaded and matched the tested
+archive SHA256 `dc9f0dcb158f07f9fdad9d62a7e9d175f9bfc85fc1472db6d7801d9e4be918b2`.
+It contains 2,205 files under `Serena-Mandarin-review/`; its directory and
+content digest are pinned in `build/release-resources.json`.
+
+The installer retains existing Xiaoyi files and saved voice selections. Fresh
+installs contain Serena; missing-call fallback prefers Serena, with Xiaoyi as
+a compatibility fallback for older data directories. The audio catalog retains
+Xiaoyi as a separate download and adds British female 0.3.0 alongside Serena;
+Hajimi is updated from 0.1.0 to 0.1.1.
+
+The user authorized the default switch with the remaining listening checks
+outstanding. The uploaded archives retain their review labels and original
+metadata; this integration does not assert that pronunciation/listening review
+has been completed. Historical Xiaoyi audit results below are superseded for
+new builds.
+
+## Historical source audit (2026-09-13)
 
 Packaging now uses the verified online sources through
 `build/stage_release_resources.ps1`. Follow-up investigation confirmed the 14 local-only WRC

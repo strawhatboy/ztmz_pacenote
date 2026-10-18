@@ -446,8 +446,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [InstallDelete]
 Type: files; Name: "{code:GetZTMZHome}\config.json";
-; Delete previous default audio package
-Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\default";
+; Refresh bundled Serena without deleting legacy Xiaoyi or changing its saved selection.
+Type: filesandordirs; Name: "{code:GetZTMZHome}\codrivers\Serena-Mandarin-review";
 
 [Files]
 ; No json file!

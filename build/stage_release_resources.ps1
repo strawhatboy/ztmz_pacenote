@@ -11,7 +11,11 @@ if (-not $CacheRoot) { $CacheRoot = Join-Path $scriptDirectory 'resource-cache' 
 $manifest = Get-Content -LiteralPath (Join-Path $scriptDirectory 'release-resources.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 if ($manifest.schemaVersion -ne 1) { throw 'Unsupported release resource manifest version.' }
 $DestinationRoot = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DestinationRoot)
-$audioTarget = Join-Path $DestinationRoot 'codrivers/default'
+$audioDirectory = $manifest.audio.directory
+if ([string]::IsNullOrWhiteSpace($audioDirectory) -or $audioDirectory -notmatch '^[A-Za-z0-9][A-Za-z0-9_-]*$') {
+    throw 'Invalid audio package directory in release resource manifest.'
+}
+$audioTarget = Join-Path (Join-Path $DestinationRoot 'codrivers') $audioDirectory
 $profilesTarget = Join-Path $DestinationRoot 'profiles/default'
 
 function Assert-OnlyChildren([string]$Root, [string[]]$Allowed) {
@@ -24,10 +28,12 @@ function Assert-OnlyChildren([string]$Root, [string[]]$Allowed) {
 }
 
 function Assert-StagedResources {
-    Assert-OnlyChildren (Join-Path $DestinationRoot 'codrivers') @('default')
+    Assert-OnlyChildren (Join-Path $DestinationRoot 'codrivers') @($audioDirectory)
     Assert-OnlyChildren (Join-Path $DestinationRoot 'profiles') @('default')
     Assert-OnlyChildren $profilesTarget @($manifest.profiles.games.name)
     Assert-ReleaseTree $audioTarget $manifest.audio
+    $audioInfo = Get-Content -LiteralPath (Join-Path $audioTarget 'info.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($audioInfo.id -ne $manifest.audio.packageId) { throw 'Bundled audio package identity does not match the release manifest.' }
     foreach ($game in $manifest.profiles.games) {
         Assert-ReleaseTree (Join-Path $profilesTarget $game.name) $game
     }
@@ -67,8 +73,8 @@ try {
     $audioWork = Join-Path $work 'audio'
     & $sevenZip x $audioArchive "-o$audioWork" -y -bso0
     if ($LASTEXITCODE -ne 0) { throw 'Default audio extraction failed.' }
-    Assert-OnlyChildren $audioWork @('default')
-    Assert-ReleaseTree (Join-Path $audioWork 'default') $manifest.audio
+    Assert-OnlyChildren $audioWork @($audioDirectory)
+    Assert-ReleaseTree (Join-Path $audioWork $audioDirectory) $manifest.audio
 
     $repo = Join-Path $CacheRoot 'pacenote-scripts.git'
     if (-not (Test-Path -LiteralPath $repo)) {
@@ -94,7 +100,7 @@ try {
 
     $null = New-Item -ItemType Directory -Path (Join-Path $DestinationRoot 'codrivers') -Force
     $null = New-Item -ItemType Directory -Path (Join-Path $DestinationRoot 'profiles') -Force
-    Copy-Item -LiteralPath (Join-Path $audioWork 'default') -Destination (Join-Path $DestinationRoot 'codrivers') -Recurse
+    Copy-Item -LiteralPath (Join-Path $audioWork $audioDirectory) -Destination (Join-Path $DestinationRoot 'codrivers') -Recurse
     Copy-Item -LiteralPath (Join-Path $profileWork 'default') -Destination (Join-Path $DestinationRoot 'profiles') -Recurse
     Assert-StagedResources
 } finally {

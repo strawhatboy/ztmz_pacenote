@@ -2,6 +2,15 @@ param([Parameter(Mandatory = $true)][string]$ValidStagingRoot)
 $ErrorActionPreference = 'Stop'
 $scriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $validator = Join-Path $scriptDirectory 'stage_release_resources.ps1'
+$manifest = Get-Content -LiteralPath (Join-Path $scriptDirectory 'release-resources.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+$installer = Get-Content -LiteralPath (Join-Path $scriptDirectory 'setup.iss') -Raw -Encoding UTF8
+if ($installer.Contains('Name: "{code:GetZTMZHome}\codrivers\default";')) {
+    throw 'The Serena installer must retain the legacy Xiaoyi directory.'
+}
+if (-not $installer.Contains('Name: "{code:GetZTMZHome}\codrivers\' + $manifest.audio.directory + '";')) {
+    throw 'The installer refresh directory must match the bundled audio directory.'
+}
+Write-Host 'PASS: Installer refreshes Serena and retains legacy Xiaoyi'
 $scratch = Join-Path ([IO.Path]::GetTempPath()) ('ztmz-resource-tests-' + [guid]::NewGuid().ToString('N'))
 $null = New-Item -ItemType Directory -Path $scratch
 try {
@@ -40,7 +49,7 @@ try {
     $null = New-Item -ItemType Directory -Path $acr
     Check 'Even an empty ACR profile directory rejected' $false
     Remove-Item -LiteralPath $acr
-    $audio = Get-ChildItem -LiteralPath (Join-Path $staging 'codrivers/default') -File -Filter '*.ogg' | Select-Object -First 1
+    $audio = Get-ChildItem -LiteralPath (Join-Path $staging 'codrivers') -Recurse -File -Filter '*.ogg' | Select-Object -First 1
     Move-Item -LiteralPath $audio.FullName -Destination (Join-Path $scratch 'saved.ogg')
     Check 'Missing audio rejected' $false
     Move-Item -LiteralPath (Join-Path $scratch 'saved.ogg') -Destination $audio.FullName

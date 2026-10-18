@@ -17,7 +17,8 @@ namespace ZTMZ.PacenoteTool.Core
     public class ProfileManager
     {
         private readonly IAudioPlaybackEngineFactory _audioPlaybackEngineFactory;
-        public static string DEFAULT_CODRIVER_PACKAGE_ID = "3322c09e-142e-42a1-90fe-2ffc81d03548";
+        public static string DEFAULT_CODRIVER_PACKAGE_ID = "620ffdba-c437-54d4-897e-2bdba265148f";
+        internal const string LEGACY_CODRIVER_PACKAGE_ID = "3322c09e-142e-42a1-90fe-2ffc81d03548";
         private NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public string CurrentProfile { set; get; }
@@ -47,17 +48,14 @@ namespace ZTMZ.PacenoteTool.Core
             }
         }
 
-        private CoDriverPackage _defaultCoDriverSoundPackage;
-        public CoDriverPackage DefaultCoDriverSoundPackage
+        public CoDriverPackage DefaultCoDriverSoundPackage => ResolveDefaultCoDriver(this.CoDriverPackages.Values);
+
+        internal static CoDriverPackage ResolveDefaultCoDriver(IEnumerable<CoDriverPackage> packages)
         {
-            get
-            {
-                if (_defaultCoDriverSoundPackage == null)
-                {
-                    _defaultCoDriverSoundPackage = this.CoDriverPackages.First(p => p.Value.Info.id == DEFAULT_CODRIVER_PACKAGE_ID).Value;
-                }
-                return _defaultCoDriverSoundPackage;
-            }
+            var available = packages.ToList();
+            // An unpackaged/development build may still have only the previous bundled voice.
+            return available.FirstOrDefault(p => p.Info.id == DEFAULT_CODRIVER_PACKAGE_ID)
+                ?? available.First(p => p.Info.id == LEGACY_CODRIVER_PACKAGE_ID);
         }
 
         public int CurrentPlayIndex { set; get; } = 0;
