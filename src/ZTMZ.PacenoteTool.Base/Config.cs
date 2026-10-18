@@ -208,11 +208,22 @@ namespace ZTMZ.PacenoteTool.Base
             get => this._UI_SelectedAudioPackageIdentity;
         }
 
+        // Legacy amplification: retained only to migrate settings from older releases.
         private double _UI_PlaybackVolume = 0;
         public double UI_PlaybackVolume
         {
             set { this._UI_PlaybackVolume = value; this._userconfig["UI_PlaybackVolume"] = value; }
             get => this._UI_PlaybackVolume;
+        }
+        private double _UI_PlaybackGainDb = 0;
+        public double UI_PlaybackGainDb
+        {
+            set
+            {
+                this._UI_PlaybackGainDb = PlaybackGain.NormalizeDb(value);
+                this._userconfig[nameof(UI_PlaybackGainDb)] = this._UI_PlaybackGainDb;
+            }
+            get => this._UI_PlaybackGainDb;
         }
         private bool _UI_Mute = false;
         public bool UI_Mute
@@ -1375,6 +1386,13 @@ namespace ZTMZ.PacenoteTool.Base
                         p.SetValue(this, System.Text.Json.JsonSerializer.Deserialize(element.GetRawText(), p.PropertyType));
                     }
                 }
+            }
+            if (!userConfig.ContainsKey(nameof(UI_PlaybackGainDb)) &&
+                userConfig.ContainsKey(nameof(UI_PlaybackVolume)))
+            {
+                UI_PlaybackGainDb = PlaybackGain.FromLegacy(UI_PlaybackVolume);
+                if (PlaybackGain.LegacyToLinear(UI_PlaybackVolume) == 0)
+                    UI_Mute = true;
             }
         }
 

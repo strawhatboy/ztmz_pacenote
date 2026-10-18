@@ -5,6 +5,9 @@ set "currentDir=%cd%"
 
 cd /D "%~dp0" || goto :failed
 
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0release_signing.ps1" -Action Check
+if errorlevel 1 goto :failed
+
 call .\buildWithoutLaunch.bat
 if errorlevel 1 goto :failed
 

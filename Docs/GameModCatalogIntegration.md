@@ -57,7 +57,11 @@ Regression coverage: `RBRModUpdatesTest` covers numeric/date versions, replaceme
 
 ## Operation progress
 
-Mod managers must keep hashing, extraction, backup, copying, and cleanup off the UI thread. They report a `GameModOperationProgress` fraction during downloads and a null fraction for stages whose length is not known. WPF and Avalonia show determinate or indeterminate progress accordingly.
+Mod managers must keep hashing, extraction, backup, copying, and cleanup off the UI thread. They report a `GameModOperationProgress` fraction during downloads and a null fraction for stages whose length is not known. WPF and Avalonia show each Mod in a compact, full-width card with its version, installed status and actions. Operation status, download percentage, determinate/indeterminate progress and Cancel appear inside the affected card. Catalog loading remains at section level; checks of existing Mods also show progress in their cards.
+
+Results remain attached to the Mod after installed-state refresh, including failure and cancellation. Operations are serialized because Mods can modify shared game files; action buttons are disabled while the active card's Cancel remains usable. Cancelling waits for the manager to finish cleanup/rollback. Late progress notifications cannot overwrite a result or a later operation, and leaving or disposing the pane cancels without disposing a token still owned by the running operation.
+
+`GameModCatalogPaneTest` exercises the WPF and Avalonia controls with a controlled manager: install/update/uninstall/JSGME progress, card isolation, retained results, cancellation, exceptions, retries and disposal. It does not install anything into a real game.
 
 Cancellation must be checked between archive entries and file mutations. Direct-install operations remain transactional so cancellation or failure rolls back files already changed.
 

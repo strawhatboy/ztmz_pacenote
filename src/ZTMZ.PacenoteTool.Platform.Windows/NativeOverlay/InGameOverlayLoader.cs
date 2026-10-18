@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
@@ -11,7 +10,7 @@ namespace ZTMZ.PacenoteTool.Platform.Windows.NativeOverlay;
 // Caller must enforce OverlayBackendPolicy before invoking this Windows-only mechanism.
 internal static class InGameOverlayLoader
 {
-    private static readonly ConcurrentDictionary<string, Lazy<Task>> Attempts = new();
+    private static readonly OverlayLoadAttemptCache Attempts = new();
     public static string GetLibraryPath(Process process)
     {
         using var target = OpenProcess(0x1000, false, process.Id);
@@ -25,9 +24,12 @@ internal static class InGameOverlayLoader
 
     public static Task LoadAsync(Process process, string path)
     {
+        // Missing/quarantined files are recoverable without consuming the one-load
+        // attempt for this process. Never retry a remote load with an uncertain outcome.
+        OverlayComponentValidation.ValidateBundle(path);
         var key = $"{process.Id}:{process.StartTime.ToUniversalTime().ToFileTimeUtc()}";
         // In particular, never repeat an ambiguous remote-load timeout in this host.
-        return Attempts.GetOrAdd(key, _ => new Lazy<Task>(() => LoadOnceAsync(process, path))).Value;
+        return Attempts.RunAsync(key, () => LoadOnceAsync(process, path));
     }
 
     private static async Task LoadOnceAsync(Process process, string path)
@@ -35,18 +37,7 @@ internal static class InGameOverlayLoader
         if (!Environment.Is64BitProcess || RuntimeInformation.ProcessArchitecture != Architecture.X64)
             throw new PlatformNotSupportedException("In-game overlay currently requires an x64 host.");
         path = Path.GetFullPath(path);
-        Machine dllMachine;
-        using (var file = File.OpenRead(path))
-        using (var pe = new PEReader(file))
-        {
-            dllMachine = pe.PEHeaders.CoffHeader.Machine;
-            if (dllMachine is not (Machine.Amd64 or Machine.I386) ||
-                !pe.PEHeaders.CoffHeader.Characteristics.HasFlag(Characteristics.Dll))
-                throw new BadImageFormatException("Overlay module must be an x86 or x64 DLL.");
-        }
-        var version = FileVersionInfo.GetVersionInfo(path);
-        if (version.FileVersion != "1.0.0.0" || version.ProductName != "ZTMZ Native Dashboard")
-            throw new InvalidDataException("Unsupported overlay module version; rebuild the native dashboard bundle.");
+        var dllMachine = OverlayComponentValidation.ValidateBundle(path);
         using var target = OpenProcess(0x0002 | 0x0008 | 0x0010 | 0x0020 | 0x1000, false, process.Id);
         if (target.IsInvalid) throw new Win32Exception(Marshal.GetLastWin32Error(), "Cannot access game for overlay loading (check elevation).");
         if (!IsWow64Process2(target, out var machine, out var native) || native != 0x8664 || machine is not (0 or 0x014c))
@@ -61,14 +52,14 @@ internal static class InGameOverlayLoader
         if (machine == 0x014c)
         {
             var helper = Path.Combine(Path.GetDirectoryName(path)!, "ztmz_dashboard_injector.exe");
-            using (var helperFile = File.OpenRead(helper))
-            using (var helperPe = new PEReader(helperFile))
-                if (helperPe.PEHeaders.CoffHeader.Machine != Machine.I386)
-                    throw new BadImageFormatException("The WOW64 loader helper must be x86.");
             var start = new ProcessStartInfo(helper) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true };
             start.ArgumentList.Add(process.Id.ToString(System.Globalization.CultureInfo.InvariantCulture));
             start.ArgumentList.Add(created.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            using var injector = Process.Start(start) ?? throw new InvalidOperationException("Could not start x86 loader helper.");
+            Process injectorProcess;
+            try { injectorProcess = Process.Start(start) ?? throw new InvalidOperationException("Could not start x86 loader helper."); }
+            catch (Exception error) when (error is Win32Exception or IOException or UnauthorizedAccessException)
+            { throw new OverlayComponentException(helper, error); }
+            using var injector = injectorProcess;
             var errors = injector.StandardError.ReadToEndAsync();
             await injector.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(20)).ConfigureAwait(false);
             if (injector.ExitCode != 0) throw new InvalidOperationException("x86 overlay loading failed: " + await errors.ConfigureAwait(false));

@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:audio="clr-namespace:ZTMZ.PacenoteTool.Base;assembly=ZTMZ.PacenoteTool.Base"
              xmlns:fa="using:FluentAvalonia.UI.Controls"
              xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="ZTMZ.PacenoteTool.Avalonia.Views.HomeView">
@@ -85,7 +86,7 @@
                     CornerRadius="4"
                     Padding="16">
             <Expander.Header>
-              <Grid ColumnDefinitions="*,Auto">
+              <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
                 <StackPanel Orientation="Horizontal" Spacing="10">
                   <materialIcons:MaterialIcon Kind="ViewDashboard" Width="26" Height="26" />
                   <TextBlock Text="{DynamicResource settings.overlayHudTitle}"
@@ -101,6 +102,16 @@
                   <Ellipse Width="8" Height="8" Fill="{Binding DashboardStatusBrush}" />
                   <TextBlock Text="{Binding DashboardStatus}"
                              Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+                <StackPanel x:Name="NativeOverlayHomeStatus" Grid.Row="1" Grid.ColumnSpan="2"
+                            IsVisible="{Binding IsNativeOverlaySupported}" Margin="0,6,0,0"
+                            Orientation="Horizontal" Spacing="6">
+                  <ToolTip.Tip>
+                    <TextBlock x:Name="NativeOverlayHomeStatusTooltip" Text="{Binding NativeOverlayStatusTooltip}"
+                               TextWrapping="Wrap" MaxWidth="520" />
+                  </ToolTip.Tip>
+                  <Ellipse Width="8" Height="8" Fill="{Binding NativeOverlayStatusBrush}" />
+                  <TextBlock Text="{Binding NativeOverlayStatus}" />
                 </StackPanel>
               </Grid>
             </Expander.Header>
@@ -220,7 +231,7 @@
                       BorderThickness="0,1,0,0">
                 <Grid Margin="16"
                       RowDefinitions="44,44,44,44,44,44,44"
-                      ColumnDefinitions="150,56,*">
+                      ColumnDefinitions="150,80,*">
                   <TextBlock Text="{DynamicResource ui.tb_currentTrack}" VerticalAlignment="Center" />
                   <TextBlock Grid.Column="1"
                              Grid.ColumnSpan="2"
@@ -247,14 +258,20 @@
                              VerticalAlignment="Center" />
                   <TextBlock Grid.Row="2"
                              Grid.Column="1"
-                             Text="{Binding PlaybackVolume, StringFormat={}{0:F0}}"
+                             Text="{Binding PlaybackGainText}"
                              HorizontalAlignment="Center"
                              VerticalAlignment="Center" />
-                  <Slider Grid.Row="2"
-                          Grid.Column="2"
-                          Minimum="0"
-                          Maximum="100"
-                          Value="{Binding PlaybackVolume, Mode=TwoWay}" />
+                  <Grid Grid.Row="2" Grid.Column="2" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <Slider x:Name="PlaybackGainSlider"
+                            Minimum="{x:Static audio:PlaybackGain.MinimumDb}"
+                            Maximum="{x:Static audio:PlaybackGain.MaximumDb}"
+                            TickFrequency="1" IsSnapToTickEnabled="True"
+                            SmallChange="1" LargeChange="6"
+                            Value="{Binding PlaybackGainDb, Mode=TwoWay}" />
+                    <Button Grid.Column="1" Content="0 dB" Padding="8,3" VerticalAlignment="Center"
+                            ToolTip.Tip="{DynamicResource ui.tooltip.resetPlaybackGain}"
+                            Command="{Binding ResetPlaybackGainCommand}" />
+                  </Grid>
 
                   <TextBlock Grid.Row="3"
                              Text="{DynamicResource ui.tb_prePlay}"

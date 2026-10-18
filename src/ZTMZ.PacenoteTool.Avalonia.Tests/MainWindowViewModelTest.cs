@@ -194,10 +194,136 @@ public class MainWindowViewModelTest
         await viewModel.InitializeAsync();
 
         viewModel.IsMuted = true;
-        viewModel.PlaybackVolume = 42;
+        viewModel.PlaybackGainDb = -6;
 
         Assert.Equal(true, runtime.LastMuted);
-        Assert.Equal(42, runtime.LastPlaybackVolume);
+        Assert.Equal(-6, runtime.LastPlaybackGainDb);
+        viewModel.ResetPlaybackGainCommand.Execute(null);
+        Assert.Equal(0, runtime.LastPlaybackGainDb);
+        Assert.True(viewModel.IsMuted);
+    }
+
+    [AvaloniaFact]
+    public async Task GainSliderPreservesMigratedLevelUntilTheUserChangesIt()
+    {
+        var gain = PlaybackGain.FromLegacy(500);
+        var controls = new SharedRuntimeControlsSnapshot([], null, [], null, false, true,
+            gain, 0, 1, 0, 0, false, new RuntimeDashboardStatus("Stopped", 0, "", "", false));
+        var runtime = new FakeDesktopRuntime(CreateReadySnapshot() with { Controls = controls });
+        await using var vm = new MainWindowViewModel(runtime);
+        await vm.InitializeAsync();
+        var view = new ZTMZ.PacenoteTool.Avalonia.Views.HomeView { DataContext = vm };
+        global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        var slider = view.FindControl<Slider>("PlaybackGainSlider")!;
+        Assert.Equal(-60, slider.Minimum);
+        Assert.Equal(24, slider.Maximum);
+        Assert.Equal(gain, slider.Value);
+        Assert.Equal(gain, vm.PlaybackGainDb);
+        Assert.Null(runtime.LastPlaybackGainDb);
+        slider.Value = -6;
+        global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        Assert.Equal(-6, runtime.LastPlaybackGainDb);
+        vm.ResetPlaybackGainCommand.Execute(null);
+        Assert.Equal(0, runtime.LastPlaybackGainDb);
+        Assert.True(vm.IsMuted);
+    }
+
+    [AvaloniaTheory]
+    [InlineData("overlayBackend.componentMissing")]
+    [InlineData("overlayBackend.componentBlocked")]
+    [InlineData("overlayBackend.componentInvalid")]
+    [InlineData("overlayBackend.loadFailed")]
+    [InlineData("overlayBackend.gameAccessDenied")]
+    public async Task OverlayFailureSnapshotShowsActionAndPathWithExpandableDiagnosticsAndClearsAfterRecovery(string statusKey)
+    {
+        I18NLoader.Instance.Initialize([Path.Combine(RepositoryRoot(), "src", "ZTMZ.PacenoteTool.I18N", "lang")]);
+        I18NLoader.Instance.SetCulture("en-us");
+        AvaloniaLocalization.ApplyCurrentCulture(global::Avalonia.Application.Current!);
+        var ready = CreateReadySnapshot() with
+        {
+            NativeOverlay = new DesktopNativeOverlaySnapshot(true, true, false, 60, false, false,
+                "Ready", false, "overlayBackend.windowActive")
+        };
+        var runtime = new FakeDesktopRuntime(ready);
+        await using var vm = new MainWindowViewModel(runtime);
+        await vm.InitializeAsync();
+        var dashboard = new Views.DashboardView { DataContext = vm };
+        var home = new Views.HomeView { DataContext = vm };
+        var application = global::Avalonia.Application.Current!;
+        var theme = application.Styles.OfType<FluentAvalonia.Styling.FluentAvaloniaTheme>().Any()
+            ? null : new FluentAvalonia.Styling.FluentAvaloniaTheme();
+        if (theme != null) application.Styles.Add(theme);
+        var dashboardWindow = new Window { Width = 1000, Height = 900, Content = dashboard };
+        var homeWindow = new Window { Width = 1200, Height = 900, Content = home };
+        try
+        {
+            // Headless windows supply templates and inherited DataContext just as the desktop does.
+            dashboardWindow.Show();
+            homeWindow.Show();
+            var failure = new OverlayFailureInfo(statusKey, @"C:\ZTMZ\components\overlay.dll",
+                "System.IO.IOException: Test loader failure\n   at FakeOverlay.Load()");
+
+            runtime.SetSnapshot(ready with
+            {
+                NativeOverlay = ready.NativeOverlay with { State = "Unavailable", BackendStatusKey = statusKey, Failure = failure }
+            });
+            global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+
+            Assert.True(vm.HasOverlayFailure);
+            Assert.True(dashboard.FindControl<StackPanel>("OverlayFailurePanel")!.IsVisible);
+            var summary = dashboard.FindControl<TextBlock>("OverlayBackendStatusText")!.Text!;
+            Assert.Equal(I18NLoader.Instance[statusKey], summary);
+            if (statusKey == "overlayBackend.gameAccessDenied")
+            {
+                Assert.Contains("different administrator privileges", summary);
+                Assert.Contains("security-software restrictions", summary);
+                Assert.Contains("Pacenote playback remains available", summary);
+                Assert.DoesNotContain("official package", summary);
+            }
+            else
+            {
+                Assert.Contains("official package", summary);
+                Assert.Contains("Separate overlay window", summary);
+            }
+            if (statusKey == "overlayBackend.loadFailed") Assert.Contains("Restart the game", summary);
+            Assert.Equal(failure.ComponentPath, dashboard.FindControl<TextBlock>("OverlayFailurePathText")!.Text);
+            var expander = dashboard.FindControl<Expander>("OverlayDiagnosticsExpander")!;
+            Assert.False(expander.IsExpanded);
+            expander.IsExpanded = true;
+            dashboardWindow.UpdateLayout();
+            global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            Assert.Equal(failure.ToDisplayText(), dashboard.FindControl<TextBox>("OverlayFailureDiagnosticsText")!.Text);
+            Assert.DoesNotContain(failure.Details, summary);
+            Assert.Contains(failure.ComponentPath!, vm.NativeOverlayStatusTooltip);
+            Assert.Contains(summary, vm.NativeOverlayStatusTooltip);
+            Assert.DoesNotContain(failure.Details, vm.NativeOverlayStatusTooltip);
+            var homeStatus = home.FindControl<StackPanel>("NativeOverlayHomeStatus")!;
+            ToolTip.SetIsOpen(homeStatus, true);
+            homeWindow.UpdateLayout();
+            global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            var tooltip = Assert.IsType<TextBlock>(ToolTip.GetTip(homeStatus));
+            Assert.Equal(vm.NativeOverlayStatusTooltip, tooltip.Text);
+            Assert.NotNull(dashboard.FindControl<Button>("CopyOverlayDiagnosticsButton"));
+
+            runtime.SetSnapshot(ready);
+            global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+
+            Assert.False(vm.HasOverlayFailure);
+            Assert.False(dashboard.FindControl<StackPanel>("OverlayFailurePanel")!.IsVisible);
+            Assert.Equal(string.Empty, dashboard.FindControl<TextBlock>("OverlayFailurePathText")!.Text);
+            Assert.Equal(string.Empty, dashboard.FindControl<TextBox>("OverlayFailureDiagnosticsText")!.Text);
+            Assert.Equal(I18NLoader.Instance["overlayBackend.windowActive"],
+                dashboard.FindControl<TextBlock>("OverlayBackendStatusText")!.Text);
+            Assert.DoesNotContain(failure.ComponentPath!, tooltip.Text!);
+            Assert.Equal(vm.NativeOverlayStatusTooltip, tooltip.Text);
+        }
+        finally
+        {
+            ToolTip.SetIsOpen(home.FindControl<StackPanel>("NativeOverlayHomeStatus")!, false);
+            homeWindow.Close();
+            dashboardWindow.Close();
+            if (theme != null) application.Styles.Remove(theme);
+        }
     }
 
     private static DesktopRuntimeSnapshot CreateReadySnapshot() => new(
@@ -232,7 +358,7 @@ public class MainWindowViewModelTest
         public IReadOnlyList<IGame> Games => [];
         public bool InitializeCalled { get; private set; }
         public bool? LastMuted { get; private set; }
-        public double? LastPlaybackVolume { get; private set; }
+        public double? LastPlaybackGainDb { get; private set; }
         public Task InitializeAsync(CancellationToken cancellationToken = default)
         {
             InitializeCalled = true;
@@ -249,7 +375,7 @@ public class MainWindowViewModelTest
         public bool ConfigureWebDashboard(int port, int targetFrameRate) => true;
         public bool TrySelectCodriver(string identity) => true;
         public bool TrySelectOutputDevice(string id) => true;
-        public bool SetPlaybackVolume(double volume) { LastPlaybackVolume = volume; return true; }
+        public bool SetPlaybackGainDb(double volume) { LastPlaybackGainDb = volume; return true; }
         public bool SetPlaybackAdjustSeconds(double seconds) => true;
         public bool SetPlaybackSpeed(double speed) => true;
         public bool SetSilenceRemovalLevel(int level) => true;

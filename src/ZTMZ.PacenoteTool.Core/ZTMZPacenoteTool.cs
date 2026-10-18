@@ -1485,6 +1485,7 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
             }
         }
 
+        this.SetPlaybackGainDb(Config.Instance.UI_PlaybackGainDb);
         this.SetMuted(Config.Instance.UI_Mute);
         // this.SetGame(Config.Instance.UI_SelectedGame);
     }
@@ -1761,8 +1762,8 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
         this._scriptTiming = seconds;
     }
 
-    public void SetPlaybackVolume(int volume) {
-        this._profileManager.CurrentPlayAmplification = volume;
+    public void SetPlaybackGainDb(double decibels) {
+        this._profileManager.CurrentPlaybackGainDb = PlaybackGain.NormalizeDb(decibels);
     }
 
     public void SetMuted(bool muted)

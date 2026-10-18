@@ -1,4 +1,5 @@
 using ZTMZ.PacenoteTool.Core;
+using ZTMZ.PacenoteTool.Base.Game;
 #if WINDOWS
 using ZTMZ.PacenoteTool.Base;
 using ZTMZ.PacenoteTool.UI.Windows;
@@ -15,7 +16,8 @@ internal sealed record DesktopNativeOverlaySnapshot(
     bool IsTopMost,
     string State,
     bool IsVisible,
-    string? BackendStatusKey = null);
+    string? BackendStatusKey = null,
+    OverlayFailureInfo? Failure = null);
 
 internal interface IDesktopNativeOverlayHost : IDisposable
 {
@@ -85,7 +87,8 @@ internal sealed class WindowsNativeOverlayHost : IDesktopNativeOverlayHost
             IsTopMost: Config.Instance.HudTopMost,
             State: status.State.ToString(),
             IsVisible: status.IsVisible,
-            BackendStatusKey: _session.BackendDecision.StatusKey);
+            BackendStatusKey: _session.BackendDecision.StatusKey,
+            Failure: _session.Failure);
     }
 
     public bool SetEnabled(bool enabled)

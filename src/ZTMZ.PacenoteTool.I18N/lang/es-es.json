@@ -686,7 +686,8 @@
       "btn_currentCodriver": "Abrir la carpeta del paquete de copiloto actual",
       "btn_currentCodriverLink": "Abrir la página del autor del paquete de copiloto actual",
       "btn_playExample": "Reproducir ejemplo",
-      "tb_playVolume": "Ajusta el volumen de reproducción. Al amplificarlo pueden aparecer distorsiones por recorte de la onda de audio.",
+      "tb_playVolume": "Ganancia relativa al paquete de voz. 0 dB conserva el nivel original; los valores negativos lo reducen y los positivos lo amplifican. La amplificación puede causar saturación o distorsión. El silencio se controla por separado.",
+      "resetPlaybackGain": "Restablecer a 0 dB (nivel original) sin cambiar el silencio.",
       "tb_prePlay": "Por ejemplo, +1 s reproduce las notas un segundo más tarde y -2 s, dos segundos antes.",
       "tb_replayMode": "El modo de reproducción no se puede cambiar durante el juego",
       "tb_playbackSpd": "Velocidad de habla fija, aplicada además del ajuste dinámico",
@@ -971,12 +972,15 @@
       "error": "Could not inspect this Mod: {0}"
     },
     "progress": {
+      "preparing": "Preparando operación…",
+      "cancelling": "Cancelando; esperando la limpieza…",
       "downloading": "Downloading package...", "verifying": "Verifying package...",
       "installing": "Installing with backup...",
       "uninstalling": "Restoring backed-up files...",
       "addingToJsgme": "Adding package to JSGME..."
     },
     "result": {
+      "openReleaseFailed": "No se pudo abrir la página de la versión.",
       "installed": "Mod installed.", "updated": "Mod updated.",
       "uninstalled": "Mod uninstalled and original files restored.",
       "addedToJsgme": "Mod added to JSGME. Open JSGME to enable it.",
@@ -987,6 +991,12 @@
     }
   },
   "overlayBackend": {
+    "gameAccessDenied": "ZTMZ no puede acceder al proceso del juego. Compruebe si el juego y ZTMZ se ejecutan con distintos privilegios de administrador y revise las restricciones del software de seguridad. La reproducción de notas de copiloto sigue disponible.",
+    "componentMissing": "Falta un componente de la superposición o no se puede leer. Revise el historial de protección o cuarentena del software de seguridad y los permisos del archivo; después, repare o reinstale con el paquete oficial. También puede elegir una ventana de superposición independiente en los ajustes de visualización del panel.",
+    "componentBlocked": "Windows bloqueó el acceso a un componente de la superposición. Revise los permisos del archivo y el historial de protección o cuarentena del software de seguridad; repare o reinstale con el paquete oficial si es necesario. También puede elegir una ventana de superposición independiente en los ajustes de visualización del panel.",
+    "componentInvalid": "Un componente de la superposición está dañado o es incompatible. Repare o reinstale con el paquete oficial adecuado. También puede elegir una ventana de superposición independiente en los ajustes de visualización del panel.",
+    "loadFailed": "No se pudo cargar un componente de la superposición. Reinicie el juego antes de volver a intentarlo. Revise el diagnóstico y repare o reinstale con el paquete oficial si es necesario. También puede elegir una ventana de superposición independiente en los ajustes de visualización del panel.",
+    "copyDiagnostics": "Copiar diagnóstico",
     "inGameActive": "Se está usando el renderizado dentro del juego.",
     "title": "Modo de visualización",
     "window": "Ventana superpuesta independiente",

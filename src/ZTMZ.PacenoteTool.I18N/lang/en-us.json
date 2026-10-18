@@ -727,7 +727,8 @@
       "btn_currentCodriver": "Open the folder of the current codriver package",
       "btn_currentCodriverLink": "Open the homepage of the current codriver package author",
       "btn_playExample": "Play example sound",
-      "tb_playVolume": "Adjust the playback volume. When the volume is increased, distortion caused by loss of audio waveform may occur",
+      "tb_playVolume": "Playback gain relative to the voice pack. 0 dB keeps the original level; negative values reduce it and positive values boost it. Boosting can cause clipping or distortion. Mute is controlled separately.",
+      "resetPlaybackGain": "Reset playback gain to 0 dB (original level). Mute is unchanged.",
       "tb_prePlay": "For example, +1s means Lushu will play 1 second later, -2s means Lushu will play 2 seconds earlier",
       "tb_replayMode": "The play mode cannot be switched while the game is in progress",
       "tb_playbackSpd": "Fixed speech rate adjustment, which can be superimposed with dynamic adjustment speech rate",
@@ -1025,6 +1026,8 @@
       "error": "Could not inspect this Mod: {0}"
     },
     "progress": {
+      "preparing": "Preparing operation...",
+      "cancelling": "Cancelling; waiting for cleanup...",
       "downloading": "Downloading package...",
       "verifying": "Verifying package...",
       "installing": "Installing with backup...",
@@ -1032,6 +1035,7 @@
       "addingToJsgme": "Adding package to JSGME..."
     },
     "result": {
+      "openReleaseFailed": "Could not open the release page.",
       "installed": "Mod installed.",
       "updated": "Mod updated.",
       "uninstalled": "Mod uninstalled and original files restored.",
@@ -1044,6 +1048,12 @@
     }
   },
   "overlayBackend": {
+    "gameAccessDenied": "ZTMZ cannot access the game process. Check whether the game and ZTMZ run with different administrator privileges and review security-software restrictions. Pacenote playback remains available.",
+    "componentMissing": "An overlay component is missing or unreadable. Check your security software's protection/quarantine history and file permissions, then repair or reinstall using the official package. You can select Separate overlay window in the dashboard display settings.",
+    "componentBlocked": "Windows blocked access to an overlay component. Check file permissions and your security software's protection/quarantine history; repair or reinstall using the official package if needed. You can select Separate overlay window in the dashboard display settings.",
+    "componentInvalid": "An overlay component is damaged or incompatible. Repair or reinstall using the correct official package. You can select Separate overlay window in the dashboard display settings.",
+    "loadFailed": "An overlay component could not be loaded. Restart the game before trying again. Check diagnostics and repair or reinstall using the official package if needed. You can select Separate overlay window in the dashboard display settings.",
+    "copyDiagnostics": "Copy diagnostics",
     "dx12ContextMissing": "DX12 detected, but its swap-chain queue predates attachment. This renderer cannot attach late; the graphics context must be recreated with hooks active.",
     "vulkanContextMissing": "Vulkan rendering is unavailable. Device, queue or surface context may not have been captured; see the log for the specific reason.",
     "noFrames": "No in-game frame received after 15 seconds. Check API compatibility and attachment timing in the log.",

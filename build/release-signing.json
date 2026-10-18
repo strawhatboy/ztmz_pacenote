@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "subject": "CN=ZTMZClub",
+  "thumbprint": "3BD6CE6D7D7065A78FC4C8864DF7CDF4F8B33FB3",
+  "reviewedBaseline": "publishedrc28",
+  "rotationPolicy": "Change this reviewed metadata deliberately when rotating the release certificate. Environment variables cannot override the expected identity."
+}

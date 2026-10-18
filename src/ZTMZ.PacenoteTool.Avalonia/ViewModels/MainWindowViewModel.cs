@@ -462,6 +462,21 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     private string _nativeOverlayStatus = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasOverlayFailure))]
+    [NotifyPropertyChangedFor(nameof(OverlayFailureComponentPath))]
+    [NotifyPropertyChangedFor(nameof(OverlayFailureDiagnostics))]
+    [NotifyPropertyChangedFor(nameof(NativeOverlayStatusTooltip))]
+    private OverlayFailureInfo? _overlayFailure;
+
+    public bool HasOverlayFailure => OverlayFailure != null;
+    public string OverlayFailureComponentPath => OverlayFailure?.ComponentPath ?? string.Empty;
+    public string OverlayFailureDiagnostics => OverlayFailure?.ToDisplayText() ?? string.Empty;
+    public string NativeOverlayStatusTooltip => OverlayFailure is { } failure
+        ? string.Join(Environment.NewLine, new[] { I18NLoader.Instance[failure.StatusKey], failure.ComponentPath }
+            .Where(value => !string.IsNullOrWhiteSpace(value)))
+        : AvaloniaLocalization.Get("settings.tooltip.overlayHudHomeStatus");
+
+    [ObservableProperty]
     private IBrush _nativeOverlayStatusBrush = WaitingBrush;
 
     [ObservableProperty]
@@ -486,7 +501,13 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
     private AudioOutputChoice? _selectedOutputDevice;
 
     [ObservableProperty]
-    private double _playbackVolume = 50d;
+    [NotifyPropertyChangedFor(nameof(PlaybackGainText))]
+    private double _playbackGainDb;
+
+    public string PlaybackGainText => PlaybackGain.Format(PlaybackGainDb);
+
+    [RelayCommand]
+    private void ResetPlaybackGain() => PlaybackGainDb = 0;
 
     [ObservableProperty]
     private double _playbackAdjustSeconds;
@@ -801,11 +822,11 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
         }
     }
 
-    partial void OnPlaybackVolumeChanged(double value)
+    partial void OnPlaybackGainDbChanged(double value)
     {
         if (!_applyingSnapshot)
         {
-            _runtime.SetPlaybackVolume(value);
+            _runtime.SetPlaybackGainDb(value);
         }
     }
 
@@ -924,6 +945,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
             ApplyDashboards(snapshot.Dashboards);
             IsNativeOverlaySupported = snapshot.NativeOverlay.IsSupported;
             _overlayBackendStatusKey = snapshot.NativeOverlay.BackendStatusKey;
+            OverlayFailure = snapshot.NativeOverlay.Failure;
             OnPropertyChanged(nameof(OverlayBackendStatus));
             IsNativeOverlayEnabled = snapshot.NativeOverlay.IsEnabled;
             IsNativeOverlayInitializing = snapshot.NativeOverlay.IsInitializing;
@@ -931,7 +953,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
             IsNativeOverlayFrameRateLocked = snapshot.NativeOverlay.IsFrameRateLocked;
             IsNativeOverlayTopMost = snapshot.NativeOverlay.IsTopMost;
             NativeOverlayStatus = LocalizeNativeOverlayStatus(snapshot.NativeOverlay.State);
-            NativeOverlayStatusBrush = snapshot.NativeOverlay.State switch
+            NativeOverlayStatusBrush = HasOverlayFailure ? Brushes.IndianRed : snapshot.NativeOverlay.State switch
             {
                 "Active" or "Preview" => ConnectedBrush,
                 "Ready" => new SolidColorBrush(Color.Parse("#B8860B")),
@@ -1004,7 +1026,7 @@ internal sealed partial class MainWindowViewModel : ObservableObject, IAsyncDisp
                         StringComparison.OrdinalIgnoreCase));
                 IsStageActive = controls.IsStageActive;
                 IsMuted = controls.IsMuted;
-                PlaybackVolume = controls.PlaybackVolume;
+                PlaybackGainDb = controls.PlaybackGainDb;
                 PlaybackAdjustSeconds = controls.PlaybackAdjustSeconds;
                 PlaybackSpeed = controls.PlaybackSpeed;
                 SilenceRemovalLevel = controls.SilenceRemovalLevel;

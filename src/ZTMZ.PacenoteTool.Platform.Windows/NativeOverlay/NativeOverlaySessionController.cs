@@ -26,7 +26,7 @@ public sealed class NativeOverlaySessionController : IDisposable
     private bool _disposed;
     private readonly SemaphoreSlim _backendGate = new(1, 1);
     private InGameOverlaySession? _inGame;
-    private string? _backendError;
+    private OverlayFailureInfo? _backendFailure;
     private readonly Func<Func<bool>, Task<bool>>? _confirmSelection;
 
     public NativeOverlaySessionController(
@@ -66,17 +66,31 @@ public sealed class NativeOverlaySessionController : IDisposable
 
     public GameOverlayManager Overlay => _overlay;
 
-    public OverlayBackendDecision BackendDecision => _inGame is { } session
+    public OverlayFailureInfo? Failure
+    {
+        get
+        {
+            if (Volatile.Read(ref _backendFailure) is { } failure) return failure;
+            var session = _inGame;
+            return session?.Error is { Length: > 0 } error
+                ? new OverlayFailureInfo(session.FailureStatusKey, null, error) : null;
+        }
+    }
+
+    public OverlayBackendDecision BackendDecision => Volatile.Read(ref _backendFailure) is { } failure
+        ? new(OverlayBackendSettings.Requested, OverlayBackendSettings.Requested, failure.StatusKey, false)
+        : _inGame is { } session
         ? new(OverlayBackendSettings.Requested, OverlayDisplayBackend.InGame,
             session.IsActive ? "overlayBackend.inGameActive"
                 : string.IsNullOrEmpty(session.Error) ? "overlayBackend.waitingForRenderer"
                 : session.FailureStatusKey, true)
-        : _backendError != null
-            ? new(OverlayBackendSettings.Requested, OverlayDisplayBackend.SeparateWindow,
-                "settings.tooltip.overlayHudHomeStatusUnavailable", false)
-            : OverlayBackendSettings.GetDecision(_tool.CurrentGame);
+        : OverlayBackendSettings.GetDecision(_tool.CurrentGame);
 
-    public NativeOverlayStatus CurrentStatus => _inGame is { } session
+    public NativeOverlayStatus CurrentStatus => _overlay?.CurrentNativeOverlayStatus is { State: NativeOverlayState.Preview } preview
+        ? preview
+        : Volatile.Read(ref _backendFailure) != null
+        ? new(Config.Instance.UI_ShowHud ? NativeOverlayState.Unavailable : NativeOverlayState.Disabled, false)
+        : _inGame is { } session
         ? new(!Config.Instance.UI_ShowHud ? NativeOverlayState.Disabled
             : session.IsActive ? NativeOverlayState.Active
             : string.IsNullOrEmpty(session.Error) ? NativeOverlayState.Ready : NativeOverlayState.Unavailable,
@@ -131,6 +145,7 @@ public sealed class NativeOverlaySessionController : IDisposable
             _attachedGame = game;
             _initializationProcessId = processId;
             generation = ++_initializationGeneration;
+            Volatile.Write(ref _backendFailure, null);
         }
 
         // A state reset belongs to the accepted new session only. A late duplicate
@@ -179,6 +194,7 @@ public sealed class NativeOverlaySessionController : IDisposable
             _attachedGame = null;
             _initializationProcessId = -1;
             _initializationGeneration++;
+            Volatile.Write(ref _backendFailure, null);
         }
 
         SetStageActive(false);
@@ -213,6 +229,7 @@ public sealed class NativeOverlaySessionController : IDisposable
 
     private async Task InitializeOverlayAsync(IGame game, Process process, int processId, long generation)
     {
+        string? libraryPath = null;
         await _backendGate.WaitAsync().ConfigureAwait(false);
         try
         {
@@ -220,7 +237,6 @@ public sealed class NativeOverlaySessionController : IDisposable
             {
                 if (_disposed || !IsCurrentInitialization(game, processId, generation)) return;
             }
-            _backendError = null;
             if (_inGame != null) {await _inGame.StopAsync().ConfigureAwait(false);_inGame = null;}
             var decision = OverlayBackendPolicy.Evaluate(OverlayBackendSettings.Requested, game, true, true);
             // The persisted mode is the user's selection, including configurations
@@ -229,7 +245,7 @@ public sealed class NativeOverlaySessionController : IDisposable
             Logger.Info("Overlay backend for {0}, PID {1}: requested={2}, effective={3}, reason={4}.",
                 game.Name, processId, decision.Requested, decision.Effective, decision.StatusKey);
             bool loaded = false;
-            var libraryPath = decision.CanAttachInGame ? InGameOverlayLoader.GetLibraryPath(process) : null;
+            libraryPath = decision.CanAttachInGame ? InGameOverlayLoader.GetLibraryPath(process) : null;
             var compatible = OverlayBackendPolicy.Evaluate(OverlayDisplayBackend.InGame, game, true, true).CanAttachInGame;
             if (compatible)
             {
@@ -238,14 +254,10 @@ public sealed class NativeOverlaySessionController : IDisposable
             }
             if (!loaded && decision.CanAttachInGame && _overlay.CurrentNativeOverlayStatus.State != NativeOverlayState.Preview)
             {
-                if (!File.Exists(libraryPath))
-                {
-                    _overlay.UninitializeOverlay();
-                    throw new FileNotFoundException("In-game overlay DLL is missing; cannot start the selected rendering backend.", libraryPath);
-                }
                 lock (_initializationLock)
                 {
                     if (_disposed || !IsCurrentInitialization(game, processId, generation)) return;
+                    _overlay.UninitializeOverlay();
                 }
                 Logger.Info("Loading in-game overlay DLL into {0}, PID {1}: {2}", game.Name, processId, libraryPath);
                 await InGameOverlayLoader.LoadAsync(process, libraryPath!).ConfigureAwait(false);
@@ -286,7 +298,13 @@ public sealed class NativeOverlaySessionController : IDisposable
         }
         catch (Exception exception)
         {
-            _backendError = exception.Message;
+            lock (_initializationLock)
+            {
+                // A failed obsolete request must not replace a newer session's status.
+                if (!_disposed && IsCurrentInitialization(game, processId, generation))
+                    Volatile.Write(ref _backendFailure, OverlayFailureInfo.FromException(exception,
+                        (exception as OverlayComponentException)?.ComponentPath));
+            }
             Logger.Error(exception, "Failed to initialize native overlay for process {0}.", processId);
         }
         finally {_backendGate.Release();RaiseChanged();}

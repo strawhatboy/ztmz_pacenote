@@ -686,7 +686,8 @@
       "btn_currentCodriver": "현재 코드라이버 패키지 폴더 열기",
       "btn_currentCodriverLink": "현재 코드라이버 패키지 작성자의 홈페이지 열기",
       "btn_playExample": "예시 소리 재생",
-      "tb_playVolume": "재생 음량을 조절합니다. 음량을 높이면 오디오 파형 손실로 인한 왜곡이 생길 수 있습니다.",
+      "tb_playVolume": "음성 패키지의 원래 음량에 대한 게인입니다. 0 dB는 원래 음량을 유지하며 음수는 줄이고 양수는 증폭합니다. 증폭 시 클리핑이나 왜곡이 발생할 수 있습니다. 음소거는 별도로 설정합니다.",
+      "resetPlaybackGain": "0 dB(원래 음량)로 재설정합니다. 음소거 상태는 유지됩니다.",
       "tb_prePlay": "예: +1초는 페이스노트를 1초 늦게, -2초는 2초 일찍 재생합니다.",
       "tb_replayMode": "게임 진행 중에는 재생 모드를 전환할 수 없습니다.",
       "tb_playbackSpd": "고정 발화 속도를 조절합니다. 동적 발화 속도 조절과 함께 적용할 수 있습니다.",
@@ -971,12 +972,15 @@
       "error": "Could not inspect this Mod: {0}"
     },
     "progress": {
+      "preparing": "작업 준비 중…",
+      "cancelling": "취소 중; 정리 작업을 기다리는 중…",
       "downloading": "Downloading package...", "verifying": "Verifying package...",
       "installing": "Installing with backup...",
       "uninstalling": "Restoring backed-up files...",
       "addingToJsgme": "Adding package to JSGME..."
     },
     "result": {
+      "openReleaseFailed": "릴리스 페이지를 열 수 없습니다.",
       "installed": "Mod installed.", "updated": "Mod updated.",
       "uninstalled": "Mod uninstalled and original files restored.",
       "addedToJsgme": "Mod added to JSGME. Open JSGME to enable it.",
@@ -987,6 +991,12 @@
     }
   },
   "overlayBackend": {
+    "gameAccessDenied": "ZTMZ가 게임 프로세스에 접근할 수 없습니다. 게임과 ZTMZ가 서로 다른 관리자 권한으로 실행되고 있는지 확인하고 보안 소프트웨어의 제한 사항을 검토하세요. 페이스노트 재생은 계속 사용할 수 있습니다.",
+    "componentMissing": "오버레이 구성 요소가 없거나 읽을 수 없습니다. 보안 소프트웨어의 보호 또는 격리 기록과 파일 권한을 확인한 뒤 공식 패키지로 복구하거나 다시 설치하세요. 대시보드 표시 설정에서 별도 오버레이 창을 선택할 수도 있습니다.",
+    "componentBlocked": "Windows에서 오버레이 구성 요소에 대한 접근을 차단했습니다. 파일 권한과 보안 소프트웨어의 보호 또는 격리 기록을 확인하고 필요하면 공식 패키지로 복구하거나 다시 설치하세요. 대시보드 표시 설정에서 별도 오버레이 창을 선택할 수도 있습니다.",
+    "componentInvalid": "오버레이 구성 요소가 손상되었거나 호환되지 않습니다. 적합한 공식 패키지로 복구하거나 다시 설치하세요. 대시보드 표시 설정에서 별도 오버레이 창을 선택할 수도 있습니다.",
+    "loadFailed": "오버레이 구성 요소를 불러올 수 없습니다. 다시 시도하기 전에 게임을 다시 시작하세요. 진단 정보를 확인하고 필요하면 공식 패키지로 복구하거나 다시 설치하세요. 대시보드 표시 설정에서 별도 오버레이 창을 선택할 수도 있습니다.",
+    "copyDiagnostics": "진단 정보 복사",
     "inGameActive": "게임 내 렌더링을 사용 중입니다.",
     "title": "표시 방식",
     "window": "별도 오버레이 창",

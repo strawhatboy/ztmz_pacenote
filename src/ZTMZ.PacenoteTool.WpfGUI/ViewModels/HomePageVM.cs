@@ -115,6 +115,9 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
     private string _nativeOverlayHomeStatus = string.Empty;
 
     [ObservableProperty]
+    private string _nativeOverlayHomeStatusTooltip = string.Empty;
+
+    [ObservableProperty]
     private Brush _nativeOverlayHomeStatusBrush = Brushes.Gray;
 
     private void RefreshNativeOverlayHomeStatus()
@@ -136,6 +139,12 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
             NativeOverlayState.Preview => I18NLoader.Instance["settings.tooltip.overlayHudHomeStatusPreview"],
             _ => I18NLoader.Instance["settings.tooltip.overlayHudHomeStatusUnavailable"]
         };
+        var failure = _nativeOverlaySession.Failure;
+        NativeOverlayHomeStatusTooltip = failure == null
+            ? I18NLoader.Instance["settings.tooltip.overlayHudHomeStatus"]
+            : string.Join(Environment.NewLine, new[] { I18NLoader.Instance[failure.StatusKey], failure.ComponentPath }
+                .Where(value => !string.IsNullOrWhiteSpace(value)));
+        if (failure != null) NativeOverlayHomeStatusBrush = Brushes.IndianRed;
     }
 
     private void RefreshNativeOverlayHomeStatusOnUiThread()
@@ -154,16 +163,21 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
     #region QuickSettings
     [ObservableProperty]
-    private float _playbackVolume = 50.0f;
+    [NotifyPropertyChangedFor(nameof(PlaybackGainText))]
+    private double _playbackGainDb;
+
+    public string PlaybackGainText => PlaybackGain.Format(PlaybackGainDb);
+
+    [RelayCommand]
+    private void ResetPlaybackGain() => PlaybackGainDb = 0;
 
     [ObservableProperty]
     private string _currentTrack;
 
-    partial void OnPlaybackVolumeChanged(float value)
+    partial void OnPlaybackGainDbChanged(double value)
     {
-        Config.Instance.UI_PlaybackVolume = value * 20f - 1000f;
-        Tool.SetPlaybackVolume((int)Config.Instance.UI_PlaybackVolume);
-        Config.Instance.SaveUserConfig();
+        if (!_isApplyingRuntimeControls)
+            _runtimeControls.SetPlaybackGainDb(value);
     }
 
     [ObservableProperty]
@@ -755,7 +769,6 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
 
         FactorToRemoveSpaceFromAudioFiles = _factorToIndex.TryGetValue(Config.Instance.FactorToRemoveSpaceFromAudioFiles, out var factorIndex)
             ? factorIndex : 0;
-        PlaybackVolume = (float)(Config.Instance.UI_PlaybackVolume + 1000f) / 20f;  // [-1000, 1000] to [0, 100]
         PlaybackSpeed = Config.Instance.UI_PlaybackSpeed;
         PlaybackAdjustSeconds = (float)Config.Instance.UI_PlaybackAdjustSeconds;
         IntercomEffect = Config.Instance.IntercomEffect;
@@ -1073,6 +1086,7 @@ public partial class HomePageVM : ObservableObject, INavigationAware {
         _isApplyingRuntimeControls = true;
         try
         {
+            PlaybackGainDb = snapshot.PlaybackGainDb;
             IsHudEnabled = snapshot.IsNativeHudVisible;
             if (!OutputDevices.Select(device => device.Id).SequenceEqual(
                     snapshot.OutputDevices.Select(device => device.Id)))

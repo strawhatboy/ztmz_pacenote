@@ -686,7 +686,8 @@
       "btn_currentCodriver": "Ouvrir le dossier du pack de copilote actuel",
       "btn_currentCodriverLink": "Ouvrir la page de l’auteur du pack de copilote actuel",
       "btn_playExample": "Lire un exemple",
-      "tb_playVolume": "Régler le volume de lecture. Une amplification peut provoquer une distorsion due à l’écrêtage du signal audio.",
+      "tb_playVolume": "Gain relatif au pack vocal. 0 dB conserve le niveau original ; les valeurs négatives le réduisent et les positives l’amplifient. Une amplification peut provoquer un écrêtage ou une distorsion. La sourdine se règle séparément.",
+      "resetPlaybackGain": "Rétablir 0 dB (niveau original) sans modifier la sourdine.",
       "tb_prePlay": "Par exemple, +1 s lit les notes une seconde plus tard et -2 s deux secondes plus tôt.",
       "tb_replayMode": "Le mode de lecture ne peut pas être changé pendant le jeu",
       "tb_playbackSpd": "Vitesse de parole fixe, appliquée en plus du réglage dynamique",
@@ -971,12 +972,15 @@
       "error": "Could not inspect this Mod: {0}"
     },
     "progress": {
+      "preparing": "Préparation de l’opération…",
+      "cancelling": "Annulation ; attente du nettoyage…",
       "downloading": "Downloading package...", "verifying": "Verifying package...",
       "installing": "Installing with backup...",
       "uninstalling": "Restoring backed-up files...",
       "addingToJsgme": "Adding package to JSGME..."
     },
     "result": {
+      "openReleaseFailed": "Impossible d’ouvrir la page de publication.",
       "installed": "Mod installed.", "updated": "Mod updated.",
       "uninstalled": "Mod uninstalled and original files restored.",
       "addedToJsgme": "Mod added to JSGME. Open JSGME to enable it.",
@@ -987,6 +991,12 @@
     }
   },
   "overlayBackend": {
+    "gameAccessDenied": "ZTMZ ne peut pas accéder au processus du jeu. Vérifiez si le jeu et ZTMZ utilisent des privilèges administrateur différents et examinez les restrictions du logiciel de sécurité. La lecture des notes de copilote reste disponible.",
+    "componentMissing": "Un composant de la surcouche est manquant ou illisible. Vérifiez l’historique de protection ou de quarantaine de votre logiciel de sécurité et les autorisations du fichier, puis réparez ou réinstallez avec le paquet officiel. Vous pouvez aussi choisir une fenêtre de surcouche séparée dans les paramètres d’affichage du tableau de bord.",
+    "componentBlocked": "Windows a bloqué l’accès à un composant de la surcouche. Vérifiez les autorisations du fichier et l’historique de protection ou de quarantaine de votre logiciel de sécurité. Si nécessaire, réparez ou réinstallez avec le paquet officiel. Vous pouvez aussi choisir une fenêtre de surcouche séparée dans les paramètres d’affichage du tableau de bord.",
+    "componentInvalid": "Un composant de la surcouche est endommagé ou incompatible. Réparez ou réinstallez avec le paquet officiel adapté. Vous pouvez aussi choisir une fenêtre de surcouche séparée dans les paramètres d’affichage du tableau de bord.",
+    "loadFailed": "Impossible de charger un composant de la surcouche. Redémarrez le jeu avant de réessayer. Consultez le diagnostic et, si nécessaire, réparez ou réinstallez avec le paquet officiel. Vous pouvez aussi choisir une fenêtre de surcouche séparée dans les paramètres d’affichage du tableau de bord.",
+    "copyDiagnostics": "Copier le diagnostic",
     "inGameActive": "Le rendu dans le jeu est utilisé.",
     "title": "Mode d’affichage",
     "window": "Fenêtre de superposition séparée",

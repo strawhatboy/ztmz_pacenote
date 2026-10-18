@@ -686,7 +686,8 @@
       "btn_currentCodriver": "Apri cartella del pacchetto navigatore attuale",
       "btn_currentCodriverLink": "Apri pagina dell’autore del pacchetto navigatore attuale",
       "btn_playExample": "Riproduci esempio",
-      "tb_playVolume": "Regola il volume di riproduzione. L’amplificazione può causare distorsioni dovute al clipping del segnale audio.",
+      "tb_playVolume": "Guadagno rispetto al pacchetto vocale. 0 dB mantiene il livello originale; i valori negativi lo riducono e quelli positivi lo amplificano. L’amplificazione può causare clipping o distorsione. Il silenziamento è separato.",
+      "resetPlaybackGain": "Ripristina 0 dB (livello originale) senza modificare il silenziamento.",
       "tb_prePlay": "Ad esempio, +1 s riproduce le note un secondo più tardi e -2 s due secondi prima.",
       "tb_replayMode": "La modalità di riproduzione non può essere cambiata durante il gioco",
       "tb_playbackSpd": "Velocità di lettura fissa, applicata oltre alla regolazione dinamica",
@@ -971,12 +972,15 @@
       "error": "Could not inspect this Mod: {0}"
     },
     "progress": {
+      "preparing": "Preparazione dell’operazione…",
+      "cancelling": "Annullamento; pulizia in corso…",
       "downloading": "Downloading package...", "verifying": "Verifying package...",
       "installing": "Installing with backup...",
       "uninstalling": "Restoring backed-up files...",
       "addingToJsgme": "Adding package to JSGME..."
     },
     "result": {
+      "openReleaseFailed": "Impossibile aprire la pagina della versione.",
       "installed": "Mod installed.", "updated": "Mod updated.",
       "uninstalled": "Mod uninstalled and original files restored.",
       "addedToJsgme": "Mod added to JSGME. Open JSGME to enable it.",
@@ -987,6 +991,12 @@
     }
   },
   "overlayBackend": {
+    "gameAccessDenied": "ZTMZ non può accedere al processo del gioco. Verifica se il gioco e ZTMZ vengono eseguiti con privilegi di amministratore diversi e controlla le restrizioni del software di sicurezza. La riproduzione delle note del copilota rimane disponibile.",
+    "componentMissing": "Un componente della sovrapposizione manca o non è leggibile. Controlla la cronologia di protezione o quarantena del software di sicurezza e le autorizzazioni del file, quindi ripara o reinstalla con il pacchetto ufficiale. Puoi anche scegliere una finestra di sovrapposizione separata nelle impostazioni di visualizzazione del cruscotto.",
+    "componentBlocked": "Windows ha bloccato l’accesso a un componente della sovrapposizione. Controlla le autorizzazioni del file e la cronologia di protezione o quarantena del software di sicurezza; se necessario, ripara o reinstalla con il pacchetto ufficiale. Puoi anche scegliere una finestra di sovrapposizione separata nelle impostazioni di visualizzazione del cruscotto.",
+    "componentInvalid": "Un componente della sovrapposizione è danneggiato o incompatibile. Ripara o reinstalla con il pacchetto ufficiale corretto. Puoi anche scegliere una finestra di sovrapposizione separata nelle impostazioni di visualizzazione del cruscotto.",
+    "loadFailed": "Impossibile caricare un componente della sovrapposizione. Riavvia il gioco prima di riprovare. Controlla la diagnostica e, se necessario, ripara o reinstalla con il pacchetto ufficiale. Puoi anche scegliere una finestra di sovrapposizione separata nelle impostazioni di visualizzazione del cruscotto.",
+    "copyDiagnostics": "Copia diagnostica",
     "inGameActive": "Rendering nel gioco in uso.",
     "title": "Modalità di visualizzazione",
     "window": "Finestra di sovrapposizione separata",

@@ -686,7 +686,8 @@
       "btn_currentCodriver": "Ordner des aktuellen Beifahrerpakets öffnen",
       "btn_currentCodriverLink": "Homepage des Autors des aktuellen Beifahrerpakets öffnen",
       "btn_playExample": "Beispiel abspielen",
-      "tb_playVolume": "Wiedergabelautstärke anpassen. Bei Verstärkung können durch Begrenzung der Audiowellenform Verzerrungen auftreten.",
+      "tb_playVolume": "Verstärkung relativ zum Sprachpaket. 0 dB erhält den Originalpegel; negative Werte senken ihn, positive erhöhen ihn. Verstärkung kann Übersteuerung verursachen. Stummschaltung wird separat gesteuert.",
+      "resetPlaybackGain": "Auf 0 dB (Originalpegel) zurücksetzen. Stummschaltung bleibt unverändert.",
       "tb_prePlay": "+1 s bedeutet beispielsweise, dass das Roadbook eine Sekunde später abgespielt wird; -2 s bedeutet zwei Sekunden früher.",
       "tb_replayMode": "Der Wiedergabemodus kann während des Spiels nicht gewechselt werden",
       "tb_playbackSpd": "Feste Sprechgeschwindigkeit; wird zusätzlich zur dynamischen Anpassung angewendet",
@@ -971,12 +972,15 @@
       "error": "Could not inspect this Mod: {0}"
     },
     "progress": {
+      "preparing": "Vorgang wird vorbereitet…",
+      "cancelling": "Abbruch läuft; Bereinigung wird abgewartet…",
       "downloading": "Downloading package...", "verifying": "Verifying package...",
       "installing": "Installing with backup...",
       "uninstalling": "Restoring backed-up files...",
       "addingToJsgme": "Adding package to JSGME..."
     },
     "result": {
+      "openReleaseFailed": "Die Release-Seite konnte nicht geöffnet werden.",
       "installed": "Mod installed.", "updated": "Mod updated.",
       "uninstalled": "Mod uninstalled and original files restored.",
       "addedToJsgme": "Mod added to JSGME. Open JSGME to enable it.",
@@ -987,6 +991,12 @@
     }
   },
   "overlayBackend": {
+    "gameAccessDenied": "ZTMZ kann nicht auf den Spielprozess zugreifen. Prüfen Sie, ob das Spiel und ZTMZ mit unterschiedlichen Administratorrechten laufen, und prüfen Sie Einschränkungen durch Sicherheitssoftware. Die Wiedergabe der Streckenansagen bleibt verfügbar.",
+    "componentMissing": "Eine Overlay-Komponente fehlt oder ist nicht lesbar. Prüfen Sie den Schutz- oder Quarantäneverlauf Ihrer Sicherheitssoftware und die Dateiberechtigungen. Reparieren oder installieren Sie danach mit dem offiziellen Paket neu. Alternativ können Sie in den Dashboard-Anzeigeeinstellungen ein separates Overlay-Fenster auswählen.",
+    "componentBlocked": "Windows hat den Zugriff auf eine Overlay-Komponente blockiert. Prüfen Sie die Dateiberechtigungen und den Schutz- oder Quarantäneverlauf Ihrer Sicherheitssoftware. Reparieren oder installieren Sie bei Bedarf mit dem offiziellen Paket neu. Alternativ können Sie in den Dashboard-Anzeigeeinstellungen ein separates Overlay-Fenster auswählen.",
+    "componentInvalid": "Eine Overlay-Komponente ist beschädigt oder inkompatibel. Reparieren oder installieren Sie mit dem passenden offiziellen Paket neu. Alternativ können Sie in den Dashboard-Anzeigeeinstellungen ein separates Overlay-Fenster auswählen.",
+    "loadFailed": "Eine Overlay-Komponente konnte nicht geladen werden. Starten Sie das Spiel vor einem erneuten Versuch neu. Prüfen Sie die Diagnose und reparieren oder installieren Sie bei Bedarf mit dem offiziellen Paket neu. Alternativ können Sie in den Dashboard-Anzeigeeinstellungen ein separates Overlay-Fenster auswählen.",
+    "copyDiagnostics": "Diagnose kopieren",
     "inGameActive": "Rendering im Spiel wird verwendet.",
     "title": "Anzeigemethode",
     "window": "Separates Overlay-Fenster",

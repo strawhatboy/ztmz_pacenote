@@ -81,8 +81,19 @@
               <ComboBoxItem Content="{DynamicResource overlayBackend.window}" />
               <ComboBoxItem Content="{DynamicResource overlayBackend.inGame}" />
             </ComboBox>
-            <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding OverlayBackendStatus}"
-                       TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Spacing="6">
+              <TextBlock x:Name="OverlayBackendStatusText" Text="{Binding OverlayBackendStatus}" TextWrapping="Wrap" />
+              <StackPanel x:Name="OverlayFailurePanel" IsVisible="{Binding HasOverlayFailure}" Spacing="8">
+                <TextBlock x:Name="OverlayFailurePathText" Text="{Binding OverlayFailureComponentPath}" TextWrapping="Wrap" />
+                <Expander x:Name="OverlayDiagnosticsExpander" Header="{DynamicResource diagnostics.title}">
+                  <TextBox x:Name="OverlayFailureDiagnosticsText" Text="{Binding OverlayFailureDiagnostics, Mode=OneWay}"
+                           IsReadOnly="True" TextWrapping="Wrap" MaxHeight="240"
+                           ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                </Expander>
+                <Button x:Name="CopyOverlayDiagnosticsButton" Content="{DynamicResource overlayBackend.copyDiagnostics}"
+                        HorizontalAlignment="Left" Click="CopyOverlayDiagnostics_Click" />
+              </StackPanel>
+            </StackPanel>
             <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Text="{DynamicResource overlayBackend.injectionNote}"
                        TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
           </Grid>

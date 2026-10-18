@@ -19,6 +19,8 @@ public sealed record RuntimeControlsSnapshot(
     bool IsWebDashboardEnabled,
     RuntimeDashboardStatus WebDashboardStatus)
 {
+    public double PlaybackGainDb { get; init; }
+
     public TrayQuickControlMenuState ToTrayMenuState()
     {
         return TrayQuickControlMenuBuilder.Build(
@@ -63,7 +65,7 @@ public sealed class RuntimeControlsService
             shared.IsMuted,
             Config.Instance.UI_ShowHud,
             shared.IsWebDashboardEnabled,
-            shared.WebDashboardStatus);
+            shared.WebDashboardStatus) { PlaybackGainDb = shared.PlaybackGainDb };
     }
 
     public bool TrySelectCodriver(string identity) =>
@@ -73,6 +75,8 @@ public sealed class RuntimeControlsService
         _sharedControls.TrySelectOutputDevice(id);
 
     public bool TryPlayExample() => _sharedControls.TryPlayExample();
+
+    public bool SetPlaybackGainDb(double decibels) => _sharedControls.SetPlaybackGainDb(decibels);
 
     public bool SetMuted(bool muted) => _sharedControls.SetMuted(muted);
 

@@ -109,7 +109,7 @@ namespace ZTMZ.PacenoteTool.Core
             }
         }
 
-        public int CurrentPlayAmplification { set; get; } = 100;
+        public double CurrentPlaybackGainDb { set; get; } = 0;
 
         public float _currentPlaySpeed = 1.0f;
 
@@ -784,7 +784,7 @@ namespace ZTMZ.PacenoteTool.Core
 
             var sound = audioFile.Sound;
             sound.PlaySpeed = this.CurrentPlaySpeed;
-            sound.Amplification = this.CurrentPlayAmplification;
+            sound.Gain = PlaybackGain.ToLinear(this.CurrentPlaybackGainDb);
             sound.Tension = this.CurrentTension;
             this.PlaySound(sound, Config.Instance.UseSequentialMixerToHandleAudioConflict);
             _logger.Trace("Playing {0}", this.CurrentPlayIndex);
@@ -804,7 +804,7 @@ namespace ZTMZ.PacenoteTool.Core
             var cachedExampleAudio = GetPreparedExampleAudio(cacheKey);
             var preparationMilliseconds = stopwatch.ElapsedMilliseconds;
             var exampleAudio = new AutoResampledCachedSound(cachedExampleAudio.AudioData);
-            exampleAudio.Amplification = this.CurrentPlayAmplification;
+            exampleAudio.Gain = PlaybackGain.ToLinear(this.CurrentPlaybackGainDb);
             exampleAudio.PlaySpeed = this.CurrentPlaySpeed;
             this.PlaySound(exampleAudio, isSequential: false);
             if (stopwatch.ElapsedMilliseconds >= 250)
@@ -894,7 +894,7 @@ namespace ZTMZ.PacenoteTool.Core
                         // try to amplify the sound.
                         var sound = this.AudioFiles[this.CurrentPlayIndex++].Sound;
                         sound.PlaySpeed = this.CurrentPlaySpeed;
-                        sound.Amplification = this.CurrentPlayAmplification;
+                        sound.Gain = PlaybackGain.ToLinear(this.CurrentPlaybackGainDb);
                         sound.Tension = this.CurrentTension;
                         this.PlaySound(sound, true, true);  // play it as sequential system sound, followed by start stage sound
                         _logger.Trace("Playing {0}", this.CurrentPlayIndex);
@@ -914,7 +914,7 @@ namespace ZTMZ.PacenoteTool.Core
                 ? nativeAudio
                 : this.getSoundByKeyword(sound, this.CurrentCoDriverSoundPackagePath);
             audio.PlaySpeed = this.CurrentPlaySpeed;
-            audio.Amplification = this.CurrentPlayAmplification;
+            audio.Gain = PlaybackGain.ToLinear(this.CurrentPlaybackGainDb);
             audio.Tension = this.CurrentTension;
             this.PlaySound(audio, isSequential, isSystem);
         }
@@ -1021,7 +1021,7 @@ namespace ZTMZ.PacenoteTool.Core
                 }
 
                 sound.PlaySpeed = this.CurrentPlaySpeed;
-                sound.Amplification = this.CurrentPlayAmplification;
+                sound.Gain = PlaybackGain.ToLinear(this.CurrentPlaybackGainDb);
                 sound.Tension = this.CurrentTension;
                 this.PlaySound(sound, Config.Instance.UseSequentialMixerToHandleAudioConflict);
                 _logger.Trace("Playing live pacenote: {0}", record.RawText);

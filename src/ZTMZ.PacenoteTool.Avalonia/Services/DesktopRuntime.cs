@@ -90,7 +90,7 @@ internal interface IDesktopRuntime : IAsyncDisposable
     bool ConfigureWebDashboard(int port, int targetFrameRate);
     bool TrySelectCodriver(string identity);
     bool TrySelectOutputDevice(string id);
-    bool SetPlaybackVolume(double volume);
+    bool SetPlaybackGainDb(double volume);
     bool SetPlaybackAdjustSeconds(double seconds);
     bool SetPlaybackSpeed(double speed);
     bool SetSilenceRemovalLevel(int level);
@@ -149,7 +149,7 @@ internal sealed class DesktopRuntime : IDesktopRuntime
         _controls?.TrySelectCodriver(identity) ?? false;
     public bool TrySelectOutputDevice(string id) =>
         _controls?.TrySelectOutputDevice(id) ?? false;
-    public bool SetPlaybackVolume(double volume) => _controls?.SetPlaybackVolume(volume) ?? false;
+    public bool SetPlaybackGainDb(double volume) => _controls?.SetPlaybackGainDb(volume) ?? false;
     public bool SetPlaybackAdjustSeconds(double seconds) =>
         _controls?.SetPlaybackAdjustSeconds(seconds) ?? false;
     public bool SetPlaybackSpeed(double speed) => _controls?.SetPlaybackSpeed(speed) ?? false;

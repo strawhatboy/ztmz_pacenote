@@ -1,4 +1,4 @@
-﻿using NAudio.Extras;
+using NAudio.Extras;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
@@ -13,24 +13,18 @@ namespace ZTMZ.PacenoteTool.Base
     public class AutoResampledCachedSound
     {
         private float[] _audioData = new float[] { };
-        private float[] _amplifiedAudioData = new float[] { };
+        // Cached linear gain keeps exponentiation out of the per-sample playback path.
+        public float Gain { get; set; } = 1f;
 
-        private int _amplification = 0;
+        private int _amplification;
+        // Compatibility for the standalone audio compressor's legacy control.
         public int Amplification
         {
-            get => this._amplification; set
+            get => _amplification;
+            set
             {
-                this._amplification = value;
-                // if (value > 0)
-                // {
-                //     this._amplifiedAudioData = (from x in this._audioData select (x * (1000 + value * 10) / 1000)).ToArray();
-                // } else if (value < 0)
-                // {
-                //     this._amplifiedAudioData = (from x in this._audioData select (x * (1000 + value) / 1000)).ToArray();
-                // } else
-                // {
-                //     this._amplifiedAudioData = this._audioData;
-                // }
+                _amplification = value;
+                Gain = PlaybackGain.LegacyToLinear(value);
             }
         }
 
@@ -172,8 +166,8 @@ namespace ZTMZ.PacenoteTool.Base
 
         public float[] CutHeadAndTail(float cutSampleFloatLimit = 1e-3f) 
         {
-            float[] a = this._audioData.Skip(GetHeadIndex(this._audioData, cutSampleFloatLimit * GetAmplificationFactor(this._amplification))).ToArray();
-            a = a.Take(GetTailIndex(a, cutSampleFloatLimit * GetAmplificationFactor(this._amplification)) + 1).ToArray();
+            float[] a = this._audioData.Skip(GetHeadIndex(this._audioData, cutSampleFloatLimit * Gain)).ToArray();
+            a = a.Take(GetTailIndex(a, cutSampleFloatLimit * Gain) + 1).ToArray();
 
             return a;
         }
@@ -187,8 +181,8 @@ namespace ZTMZ.PacenoteTool.Base
         {
             if (Config.Instance.AudioProcessType == (int)AudioProcessType.MixTailAndHead)
             {
-                var tail = this._audioData.Length - GetTailIndex(this._audioData, Config.Instance.FactorToRemoveSpaceFromAudioFiles * GetAmplificationFactor(this._amplification));
-                var head = GetHeadIndex(soundData, Config.Instance.FactorToRemoveSpaceFromAudioFiles * GetAmplificationFactor(this._amplification));
+                var tail = this._audioData.Length - GetTailIndex(this._audioData, Config.Instance.FactorToRemoveSpaceFromAudioFiles * Gain);
+                var head = GetHeadIndex(soundData, Config.Instance.FactorToRemoveSpaceFromAudioFiles * Gain);
 
                 var newAudioLength = 0;
                 var leftStart = 0;
@@ -230,7 +224,7 @@ namespace ZTMZ.PacenoteTool.Base
             {
                 float res;
                 
-                res = this.AudioData[index] * GetAmplificationFactor(this._amplification);
+                res = this.AudioData[index] * Gain;
 
                 if (Config.Instance.UseDynamicVolume)
                 {
@@ -249,17 +243,6 @@ namespace ZTMZ.PacenoteTool.Base
             }
         }
 
-        private static float GetAmplificationFactor(float _amplification) 
-        {
-            if (_amplification > 0) 
-            {
-                return (1000 + _amplification * 10) / 1000;
-            } else if (_amplification < 0) 
-            {
-                return (1000 + _amplification) / 1000;
-            } else {
-                return 1;
-            }
-        }
+
     }
 }

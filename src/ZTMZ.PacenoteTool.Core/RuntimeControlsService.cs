@@ -43,7 +43,7 @@ public sealed record SharedRuntimeControlsSnapshot(
     AudioOutputDeviceInfo? SelectedOutputDevice,
     bool IsStageActive,
     bool IsMuted,
-    double PlaybackVolume,
+    double PlaybackGainDb,
     double PlaybackAdjustSeconds,
     float PlaybackSpeed,
     int SilenceRemovalLevel,
@@ -113,7 +113,7 @@ public sealed class SharedRuntimeControlsService
             selectedOutputIndex >= 0 ? outputDevices[selectedOutputIndex] : null,
             IsStageActive,
             Config.Instance.UI_Mute,
-            Math.Clamp((Config.Instance.UI_PlaybackVolume + 1000d) / 20d, 0d, 100d),
+            Config.Instance.UI_PlaybackGainDb,
             Config.Instance.UI_PlaybackAdjustSeconds,
             Config.Instance.UI_PlaybackSpeed,
             GetSilenceRemovalLevel(Config.Instance.FactorToRemoveSpaceFromAudioFiles),
@@ -154,16 +154,16 @@ public sealed class SharedRuntimeControlsService
         return true;
     }
 
-    public bool SetPlaybackVolume(double volume)
+    public bool SetPlaybackGainDb(double volume)
     {
-        var normalized = Math.Clamp(volume, 0d, 100d);
-        var previous = Config.Instance.UI_PlaybackVolume;
-        Config.Instance.UI_PlaybackVolume = normalized * 20d - 1000d;
-        _tool.SetPlaybackVolume((int)Config.Instance.UI_PlaybackVolume);
+        var normalized = PlaybackGain.NormalizeDb(volume);
+        var previous = Config.Instance.UI_PlaybackGainDb;
+        Config.Instance.UI_PlaybackGainDb = normalized;
+        _tool.SetPlaybackGainDb(Config.Instance.UI_PlaybackGainDb);
         if (!TrySaveConfig("playback volume"))
         {
-            Config.Instance.UI_PlaybackVolume = previous;
-            _tool.SetPlaybackVolume((int)previous);
+            Config.Instance.UI_PlaybackGainDb = previous;
+            _tool.SetPlaybackGainDb(previous);
             return false;
         }
 

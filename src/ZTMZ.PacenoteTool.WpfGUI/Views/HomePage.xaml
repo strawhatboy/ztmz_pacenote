@@ -8,6 +8,7 @@
     xmlns:base="clr-namespace:ZTMZ.PacenoteTool.Base.Game;assembly=ZTMZ.PacenoteTool.Base"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    xmlns:audio="clr-namespace:ZTMZ.PacenoteTool.Base;assembly=ZTMZ.PacenoteTool.Base"
     xmlns:helpers="clr-namespace:ZTMZ.PacenoteTool.WpfGUI.Helpers"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="HomePage"
@@ -273,8 +274,11 @@
                         <StackPanel Grid.Column="1"
                                      Orientation="Horizontal"
                                      VerticalAlignment="Center"
-                                     Margin="0 0 14 0"
-                                    ToolTip="{DynamicResource ResourceKey=settings.tooltip.overlayHudHomeStatus}">
+                                     Margin="0 0 14 0">
+                                <StackPanel.ToolTip>
+                                    <TextBlock Text="{Binding ViewModel.NativeOverlayHomeStatusTooltip}"
+                                               TextWrapping="Wrap" MaxWidth="520" />
+                                </StackPanel.ToolTip>
                             <Ellipse Width="8"
                                      Height="8"
                                      Margin="0 0 6 0"
@@ -529,7 +533,7 @@
                             <Grid.ColumnDefinitions>
 
                                 <ColumnDefinition Width="150"/>
-                                <ColumnDefinition Width="56"/>
+                                <ColumnDefinition Width="80"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
@@ -583,19 +587,28 @@
                                           ToolTipService.InitialShowDelay="100"
                                           Text="{DynamicResource ResourceKey=ui.tb_playVolume}">
                             </ui:TextBlock>
-                            <Slider Name="s_volume"
-                                    Grid.Row="2"
-                                    Grid.Column="2"
-                                    Maximum="100"
-                                    Minimum="0"
-                                    Interval="1"
-                                    Value="{Binding Path=ViewModel.PlaybackVolume, Mode=TwoWay}"
-                                    VerticalAlignment="Center"/>
+                            <Grid Grid.Row="2" Grid.Column="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Slider Name="s_volume"
+                                        Minimum="{x:Static audio:PlaybackGain.MinimumDb}"
+                                        Maximum="{x:Static audio:PlaybackGain.MaximumDb}"
+                                        TickFrequency="1" IsSnapToTickEnabled="True"
+                                        SmallChange="1" LargeChange="6"
+                                        Value="{Binding ViewModel.PlaybackGainDb, Mode=TwoWay}"
+                                        VerticalAlignment="Center" />
+                                <ui:Button Grid.Column="1" Content="0 dB" Margin="8,0,0,0" Padding="8,3"
+                                           VerticalAlignment="Center"
+                                           ToolTip="{DynamicResource ui.tooltip.resetPlaybackGain}"
+                                           Command="{Binding ViewModel.ResetPlaybackGainCommand}" />
+                            </Grid>
                             <ui:TextBlock Grid.Row="2"
                                           Grid.Column="1"
                                           HorizontalAlignment="Center"
                                           Name="tb_volume"
-                                          Text="{Binding Path=ViewModel.PlaybackVolume, Mode=OneWay, StringFormat=N1}"/>
+                                          Text="{Binding ViewModel.PlaybackGainText, Mode=OneWay}"/>
 
                             <ui:TextBlock Grid.Row="3"
                                           ToolTip="{DynamicResource ResourceKey=ui.tooltip.tb_prePlay}"

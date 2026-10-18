@@ -37,6 +37,17 @@ public partial class HudPageVM : ObservableObject {
     }
 
     public string OverlayBackendStatusKey => _overlaySession.BackendDecision.StatusKey;
+    public bool HasOverlayFailure => _overlaySession.Failure != null;
+    public string OverlayFailureComponentPath => _overlaySession.Failure?.ComponentPath ?? string.Empty;
+    public string OverlayFailureDiagnostics => _overlaySession.Failure?.ToDisplayText() ?? string.Empty;
+
+    [RelayCommand(CanExecute = nameof(HasOverlayFailure))]
+    private void CopyOverlayDiagnostics()
+    {
+        try { System.Windows.Clipboard.SetText(OverlayFailureDiagnostics); }
+        catch (Exception error) { _logger.Warn(error, "Could not copy overlay diagnostics."); }
+    }
+
     public bool ShowOverlayTopMost => OverlayBackendSettings.Requested == OverlayDisplayBackend.SeparateWindow;
 
     private readonly NativeOverlaySessionController _overlaySession;
@@ -48,6 +59,10 @@ public partial class HudPageVM : ObservableObject {
             OnPropertyChanged(nameof(OverlayBackendIndex));
             OnPropertyChanged(nameof(ShowOverlayTopMost));
             OnPropertyChanged(nameof(OverlayBackendStatusKey));
+            OnPropertyChanged(nameof(HasOverlayFailure));
+            OnPropertyChanged(nameof(OverlayFailureComponentPath));
+            OnPropertyChanged(nameof(OverlayFailureDiagnostics));
+            CopyOverlayDiagnosticsCommand.NotifyCanExecuteChanged();
         }));
     }
 

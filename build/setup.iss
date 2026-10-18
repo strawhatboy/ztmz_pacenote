@@ -407,9 +407,8 @@ begin
 end;
 
 [Setup]
-; Need to set the signtool in Inno Setup UI, tool name is "mssign"
-; tool command is "signtool.exe sign /f "[THE PFX CERT PATH]" /p [THE PASSWORD] /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a $p"
-; replace [THE PFX CERT PATH] with the path of the pfx file, and [THE PASSWORD] with the password of the pfx file
+; Release signing is configured by package_signed.bat through guarded sign_local.bat.
+; Never place PFX passwords in Inno commands or bypass build/release-signing.json.
 
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)

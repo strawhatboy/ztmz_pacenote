@@ -1,11 +1,16 @@
 v2.99.99.57-3.0-rc29
 
-* WPF startup checks and diagnostics
-  - Checks the data folder, settings, installed files and runtimes before startup, with explanations and recovery options when a problem is found.
+* Startup and dashboard diagnostics
+  - WPF checks the data folder, settings, installed files and runtimes before startup, with explanations and recovery options when a problem is found.
   - Provides a local diagnostic report if startup fails or takes too long. Damaged settings can be backed up before resetting.
+  - Missing, inaccessible or damaged in-game dashboard components show the affected file and recovery guidance, with diagnostics available to copy in both desktop versions. Pacenote playback remains available.
 
-* Co-driver package details
+* Voice packages and game mods
   - Fixes sound file counts showing zero and preview buttons disappearing when sound preloading is enabled, in both WPF and Avalonia.
+  - Game mods now have individual cards showing operation progress, cancellation and results beside the affected mod in both desktop versions.
+
+* Playback volume
+  - Uses a consistent −60 to +24 dB scale in both desktop versions, with a 0 dB reset. Existing playback levels and mute settings are preserved when upgrading.
 
 v2.99.99.56-3.0-rc28
 

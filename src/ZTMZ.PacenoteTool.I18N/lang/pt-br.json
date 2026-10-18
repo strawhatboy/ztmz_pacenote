@@ -686,7 +686,8 @@
       "btn_currentCodriver": "Abrir a pasta do pacote do navegador atual",
       "btn_currentCodriverLink": "Abrir a página do autor do pacote do navegador atual",
       "btn_playExample": "Reproduzir som de exemplo",
-      "tb_playVolume": "Ajusta o volume de reprodução. Aumentá-lo pode causar distorção pela perda da forma de onda do áudio.",
+      "tb_playVolume": "Ganho relativo ao pacote de voz. 0 dB mantém o nível original; valores negativos reduzem e positivos amplificam. A amplificação pode causar saturação ou distorção. O silenciamento é controlado separadamente.",
+      "resetPlaybackGain": "Redefinir para 0 dB (nível original) sem alterar o silenciamento.",
       "tb_prePlay": "Por exemplo, +1 s reproduz a nota 1 segundo depois; -2 s, 2 segundos antes",
       "tb_replayMode": "Não é possível trocar o modo de reprodução durante o jogo",
       "tb_playbackSpd": "Ajuste fixo da velocidade da fala, que pode ser combinado com o ajuste dinâmico",
@@ -971,12 +972,15 @@
       "error": "Could not inspect this Mod: {0}"
     },
     "progress": {
+      "preparing": "Preparando operação…",
+      "cancelling": "Cancelando; aguardando a limpeza…",
       "downloading": "Downloading package...", "verifying": "Verifying package...",
       "installing": "Installing with backup...",
       "uninstalling": "Restoring backed-up files...",
       "addingToJsgme": "Adding package to JSGME..."
     },
     "result": {
+      "openReleaseFailed": "Não foi possível abrir a página da versão.",
       "installed": "Mod installed.", "updated": "Mod updated.",
       "uninstalled": "Mod uninstalled and original files restored.",
       "addedToJsgme": "Mod added to JSGME. Open JSGME to enable it.",
@@ -987,6 +991,12 @@
     }
   },
   "overlayBackend": {
+    "gameAccessDenied": "O ZTMZ não consegue acessar o processo do jogo. Verifique se o jogo e o ZTMZ são executados com privilégios de administrador diferentes e confira as restrições do software de segurança. A reprodução das notas do copiloto continua disponível.",
+    "componentMissing": "Um componente da sobreposição está ausente ou não pode ser lido. Verifique o histórico de proteção ou quarentena do software de segurança e as permissões do arquivo; depois, repare ou reinstale com o pacote oficial. Você também pode selecionar uma janela de sobreposição separada nas configurações de exibição do painel.",
+    "componentBlocked": "O Windows bloqueou o acesso a um componente da sobreposição. Verifique as permissões do arquivo e o histórico de proteção ou quarentena do software de segurança; repare ou reinstale com o pacote oficial se necessário. Você também pode selecionar uma janela de sobreposição separada nas configurações de exibição do painel.",
+    "componentInvalid": "Um componente da sobreposição está danificado ou é incompatível. Repare ou reinstale com o pacote oficial adequado. Você também pode selecionar uma janela de sobreposição separada nas configurações de exibição do painel.",
+    "loadFailed": "Não foi possível carregar um componente da sobreposição. Reinicie o jogo antes de tentar novamente. Consulte o diagnóstico e repare ou reinstale com o pacote oficial se necessário. Você também pode selecionar uma janela de sobreposição separada nas configurações de exibição do painel.",
+    "copyDiagnostics": "Copiar diagnóstico",
     "inGameActive": "Usando renderização dentro do jogo.",
     "title": "Modo de exibição",
     "window": "Janela de sobreposição separada",

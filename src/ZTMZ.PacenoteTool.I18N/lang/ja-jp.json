@@ -686,7 +686,8 @@
       "btn_currentCodriver": "現在のコ・ドライバーパッケージフォルダーを開く",
       "btn_currentCodriverLink": "現在のコ・ドライバーパッケージ作者のページを開く",
       "btn_playExample": "サンプル音声を再生",
-      "tb_playVolume": "再生音量を調整します。音量を上げると波形のクリッピングによる歪みが発生する場合があります",
+      "tb_playVolume": "音声パックの元の音量に対するゲインです。0 dB は元の音量、負の値は音量を下げ、正の値は音量を上げます。増幅するとクリッピングや歪みが発生する場合があります。ミュートは別に設定します。",
+      "resetPlaybackGain": "0 dB（元の音量）に戻します。ミュート設定は変更しません。",
       "tb_prePlay": "例: +1秒は1秒遅く、-2秒は2秒早くペースノートを再生します",
       "tb_replayMode": "ゲーム中は再生モードを切り替えられません",
       "tb_playbackSpd": "固定の読み上げ速度。動的速度調整と合わせて適用されます",
@@ -971,12 +972,15 @@
       "error": "Could not inspect this Mod: {0}"
     },
     "progress": {
+      "preparing": "操作を準備中…",
+      "cancelling": "キャンセル中。後処理の完了を待っています…",
       "downloading": "Downloading package...", "verifying": "Verifying package...",
       "installing": "Installing with backup...",
       "uninstalling": "Restoring backed-up files...",
       "addingToJsgme": "Adding package to JSGME..."
     },
     "result": {
+      "openReleaseFailed": "リリースページを開けませんでした。",
       "installed": "Mod installed.", "updated": "Mod updated.",
       "uninstalled": "Mod uninstalled and original files restored.",
       "addedToJsgme": "Mod added to JSGME. Open JSGME to enable it.",
@@ -987,6 +991,12 @@
     }
   },
   "overlayBackend": {
+    "gameAccessDenied": "ZTMZ はゲームのプロセスにアクセスできません。ゲームと ZTMZ の管理者権限が異なっていないか、セキュリティソフトによる制限がないか確認してください。ペースノートの再生は引き続き利用できます。",
+    "componentMissing": "オーバーレイのコンポーネントが見つからないか、読み取れません。セキュリティソフトの保護・隔離履歴とファイルのアクセス許可を確認し、公式パッケージで修復または再インストールしてください。ダッシュボードの表示設定で独立したオーバーレイウィンドウを選択することもできます。",
+    "componentBlocked": "Windows がオーバーレイのコンポーネントへのアクセスをブロックしました。ファイルのアクセス許可と セキュリティソフトの保護・隔離履歴を確認し、必要に応じて公式パッケージで修復または再インストールしてください。ダッシュボードの表示設定で独立したオーバーレイウィンドウを選択することもできます。",
+    "componentInvalid": "オーバーレイのコンポーネントが破損しているか、互換性がありません。適切な公式パッケージで修復または再インストールしてください。ダッシュボードの表示設定で独立したオーバーレイウィンドウを選択することもできます。",
+    "loadFailed": "オーバーレイのコンポーネントを読み込めませんでした。再試行する前にゲームを再起動してください。診断情報を確認し、必要に応じて公式パッケージで修復または再インストールしてください。ダッシュボードの表示設定で独立したオーバーレイウィンドウを選択することもできます。",
+    "copyDiagnostics": "診断情報をコピー",
     "inGameActive": "ゲーム内描画を使用中です。",
     "title": "表示方式",
     "window": "独立したオーバーレイウィンドウ",

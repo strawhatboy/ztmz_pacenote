@@ -24,7 +24,7 @@ public sealed class GameModCatalogPane : GameSettingsPane
     private readonly IGameWithModCatalog _capability;
     private readonly StackPanel _items = new() { Spacing = 8 };
     private readonly TextBlock _catalogStatus = new() { Opacity = 0.72, TextWrapping = TextWrapping.Wrap };
-    private readonly ProgressBar _operationProgress = new()
+    private readonly ProgressBar _catalogProgress = new()
     {
         Minimum = 0,
         Maximum = 1,
@@ -32,7 +32,6 @@ public sealed class GameModCatalogPane : GameSettingsPane
         IsVisible = false
     };
     private readonly GameModRepositoryClient _repositoryClient = new();
-    private readonly Button _cancelButton;
     private readonly Button _refreshButton;
     private readonly Border _updateBadge = CreateUpdateBadge();
     private IGame? _game;
@@ -40,6 +39,9 @@ public sealed class GameModCatalogPane : GameSettingsPane
     private CancellationTokenSource? _operationCancellation;
     private bool _loaded;
     private bool _isRefreshing;
+    private bool _disposed;
+    private readonly Dictionary<string, ModRow> _rows = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, GameModOperationResult> _operationResults = new(StringComparer.OrdinalIgnoreCase);
 
     public GameModCatalogPane(IGameWithModCatalog capability)
     {
@@ -64,15 +66,7 @@ public sealed class GameModCatalogPane : GameSettingsPane
         root.Children.Add(_refreshButton);
         _catalogStatus.Text = Text("gameMods.loading");
         root.Children.Add(_catalogStatus);
-        root.Children.Add(_operationProgress);
-        _cancelButton = new Button
-        {
-            Content = Text("gameMods.action.cancel"),
-            HorizontalAlignment = HorizontalAlignment.Left,
-            IsVisible = false
-        };
-        _cancelButton.Click += (_, _) => _operationCancellation?.Cancel();
-        root.Children.Add(_cancelButton);
+        root.Children.Add(_catalogProgress);
         root.Children.Add(_items);
         Content = root;
         AttachedToVisualTree += async (_, _) => await LoadOnceAsync();
@@ -91,7 +85,7 @@ public sealed class GameModCatalogPane : GameSettingsPane
 
     private async Task RefreshRowsAsync(bool reloadCatalog = false)
     {
-        if (_game is null || _isRefreshing || _operationCancellation is not null)
+        if (_disposed || _game is null || _isRefreshing || _operationCancellation is not null)
             return;
 
         _isRefreshing = true;
@@ -99,8 +93,8 @@ public sealed class GameModCatalogPane : GameSettingsPane
         _items.IsEnabled = false;
         var completionMessage = _catalogStatus.Text;
         _catalogStatus.Text = Text(reloadCatalog ? "gameMods.loading" : "gameMods.checkingInstalled");
-        _operationProgress.IsIndeterminate = true;
-        _operationProgress.IsVisible = true;
+        _catalogProgress.IsIndeterminate = true;
+        _catalogProgress.IsVisible = true;
         try
         {
             var mods = _mods;
@@ -118,22 +112,45 @@ public sealed class GameModCatalogPane : GameSettingsPane
                 }
                 mods = result.Mods;
             }
-            var rows = new List<Control>();
+            var rows = new List<ModRow>();
             int updates = 0;
             foreach (var mod in mods)
             {
                 _catalogStatus.Text = Format("gameMods.checkingMod",
                     rows.Count + 1, mods.Count, mod.GetName(I18NLoader.Instance.CurrentCultureName));
-                var status = await _capability.ModManager.GetStatusAsync(
-                    mod, mods, _game, CancellationToken.None);
+                if (_rows.TryGetValue(mod.Id, out var existingRow))
+                {
+                    existingRow.Message.Text = Text("gameMods.checkingInstalled");
+                    existingRow.Progress.IsIndeterminate = true;
+                    existingRow.Operation.IsVisible = true;
+                    existingRow.Progress.IsVisible = true;
+                }
+                GameModStatus status;
+                try
+                {
+                    status = await _capability.ModManager.GetStatusAsync(
+                        mod, mods, _game, CancellationToken.None);
+                }
+                catch (Exception exception)
+                {
+                    status = new GameModStatus(GameModInstallState.Unavailable,
+                        "gameMods.status.error", [exception.Message],
+                        new HashSet<GameModActionKind> { GameModActionKind.OpenReleasePage });
+                }
+                if (_disposed)
+                    return;
                 rows.Add(CreateRow(mod, status));
                 if (status.IsUpdateAvailable)
                     updates++;
             }
             _mods = mods;
             _items.Children.Clear();
+            _rows.Clear();
             foreach (var row in rows)
-                _items.Children.Add(row);
+            {
+                _items.Children.Add(row.Card);
+                _rows.Add(row.Id, row);
+            }
             ((TextBlock)_updateBadge.Child!).Text = updates.ToString(CultureInfo.CurrentCulture);
             _updateBadge.IsVisible = updates > 0;
             _catalogStatus.Text = completionMessage;
@@ -145,13 +162,21 @@ public sealed class GameModCatalogPane : GameSettingsPane
         finally
         {
             _isRefreshing = false;
-            _operationProgress.IsVisible = false;
-            _refreshButton.IsEnabled = _operationCancellation is null;
-            _items.IsEnabled = _operationCancellation is null;
+            _catalogProgress.IsVisible = false;
+            foreach (var row in _rows.Values)
+            {
+                row.Progress.IsVisible = false;
+                if (_operationResults.TryGetValue(row.Id, out var result))
+                    ShowResult(row, result);
+                else
+                    row.Operation.IsVisible = false;
+            }
+            _refreshButton.IsEnabled = !_disposed && _operationCancellation is null;
+            _items.IsEnabled = !_disposed && _operationCancellation is null;
         }
     }
 
-    private Control CreateRow(GameModDefinition mod, GameModStatus status)
+    private ModRow CreateRow(GameModDefinition mod, GameModStatus status)
     {
         var content = new StackPanel { Spacing = 5 };
         var headingRow = new DockPanel();
@@ -212,61 +237,137 @@ public sealed class GameModCatalogPane : GameSettingsPane
         Grid.SetColumn(actions, 1);
         footer.Children.Add(actions);
         content.Children.Add(footer);
-        return new Border
+        var operationText = new TextBlock { Name = "ModOperationStatus", TextWrapping = TextWrapping.Wrap };
+        var progress = new ProgressBar
+        {
+            Name = "ModOperationProgress", Minimum = 0, Maximum = 1, Height = 4,
+            Margin = new Thickness(0, 6, 0, 0), IsVisible = false
+        };
+        var cancel = new Button
+        {
+            Name = "ModOperationCancel", Content = Text("gameMods.action.cancel"),
+            Margin = new Thickness(8, 0, 0, 0), IsVisible = false
+        };
+        var operationHeader = new DockPanel();
+        DockPanel.SetDock(cancel, Dock.Right);
+        operationHeader.Children.Add(cancel);
+        operationHeader.Children.Add(operationText);
+        var operation = new StackPanel { Margin = new Thickness(0, 8, 0, 0), IsVisible = false };
+        operation.Children.Add(operationHeader);
+        operation.Children.Add(progress);
+        content.Children.Add(operation);
+        var card = new Border
         {
             Child = content,
             Padding = new Thickness(14),
+            Margin = new Thickness(0, 0, 0, 0),
             BorderThickness = new Thickness(1),
             BorderBrush = new SolidColorBrush(Color.FromArgb(55, 128, 128, 128)),
-            CornerRadius = new CornerRadius(4)
+            CornerRadius = new CornerRadius(6)
         };
+        card.Bind(Border.BackgroundProperty, new global::Avalonia.Markup.Xaml.MarkupExtensions.DynamicResourceExtension("CardBackgroundFillColorDefaultBrush"));
+        var row = new ModRow(mod.Id, card, actions, operation, operationText, progress, cancel);
+        if (_operationResults.TryGetValue(mod.Id, out var result))
+            ShowResult(row, result);
+        return row;
     }
 
     private async void RunAction(object? sender, RoutedEventArgs eventArgs)
     {
-        if (_game is null || sender is not Button { Tag: ModAction request })
+        if (_disposed || _isRefreshing || _operationCancellation is not null ||
+            _game is null || sender is not Button { Tag: ModAction request })
             return;
-        if (request.Action == GameModActionKind.OpenReleasePage)
-        {
-            await DesktopUriLauncher.TryOpenAsync(request.Mod.ReleasePageUri);
-            return;
-        }
-        if (!await ConfirmAsync(request))
+        if (request.Action != GameModActionKind.OpenReleasePage && !await ConfirmAsync(request))
             return;
 
-        _items.IsEnabled = false;
-        _refreshButton.IsEnabled = false;
-        _cancelButton.IsVisible = true;
-        _operationProgress.Value = 0;
-        _operationProgress.IsIndeterminate = true;
-        _operationProgress.IsVisible = true;
-        _operationCancellation = new CancellationTokenSource();
+        await ExecuteActionAsync(request);
+    }
+
+    private async Task ExecuteActionAsync(ModAction request)
+    {
+        // Confirmation can yield to another click or navigation away from this pane.
+        if (_disposed || _isRefreshing || _operationCancellation is not null ||
+            _game is null || !_rows.TryGetValue(request.Mod.Id, out var row))
+            return;
+
+        using var cancellation = new CancellationTokenSource();
+        _operationCancellation = cancellation;
+        _operationResults.Remove(request.Mod.Id);
+        SetEnabled(false);
+        row.Message.Text = Text("gameMods.progress.preparing");
+        row.Operation.IsVisible = true;
+        row.Progress.Value = 0;
+        row.Progress.IsIndeterminate = true;
+        row.Progress.IsVisible = true;
+        row.Cancel.IsEnabled = true;
+        row.Cancel.IsVisible = true;
+        var acceptingProgress = true;
+        void Cancel(object? sender, RoutedEventArgs args)
+        {
+            row.Cancel.IsEnabled = false;
+            row.Message.Text = Text("gameMods.progress.cancelling");
+            row.Progress.IsIndeterminate = true;
+            cancellation.Cancel();
+        }
+        row.Cancel.Click += Cancel;
         var progress = new Progress<GameModOperationProgress>(value =>
         {
-            _catalogStatus.Text = Format(value.MessageKey, value.MessageArguments?.ToArray() ?? []);
-            _operationProgress.IsIndeterminate = !value.Fraction.HasValue;
+            // Queued progress must not overwrite completion, cancellation or a later operation.
+            if (!acceptingProgress || _disposed || cancellation.IsCancellationRequested ||
+                !ReferenceEquals(_operationCancellation, cancellation))
+                return;
+            row.Message.Text = Format(value.MessageKey, value.MessageArguments?.ToArray() ?? []);
+            row.Progress.IsIndeterminate = !value.Fraction.HasValue;
             if (value.Fraction.HasValue)
-                _operationProgress.Value = Math.Clamp(value.Fraction.Value, 0, 1);
+            {
+                row.Progress.Value = Math.Clamp(value.Fraction.Value, 0, 1);
+                row.Message.Text += " " + row.Progress.Value.ToString("P0", CultureInfo.CurrentCulture);
+            }
         });
         GameModOperationResult result;
         try
         {
-            result = await _capability.ModManager.ExecuteActionAsync(
-                request.Mod, _mods, request.Action, _game, progress, _operationCancellation.Token);
+            if (request.Action == GameModActionKind.OpenReleasePage)
+            {
+                if (!await DesktopUriLauncher.TryOpenAsync(request.Mod.ReleasePageUri))
+                    throw new InvalidOperationException(Text("gameMods.result.openReleaseFailed"));
+                result = new GameModOperationResult(true, "gameMods.result.openedByUi");
+            }
+            else
+            {
+                result = await _capability.ModManager.ExecuteActionAsync(
+                    request.Mod, _mods, request.Action, _game, progress, cancellation.Token);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            result = new GameModOperationResult(false, "gameMods.result.cancelled");
+        }
+        catch (Exception exception)
+        {
+            result = new GameModOperationResult(false, exception.Message, MessageIsResourceKey: false);
         }
         finally
         {
-            _operationCancellation.Dispose();
+            acceptingProgress = false;
+            row.Cancel.Click -= Cancel;
             _operationCancellation = null;
-            _items.IsEnabled = true;
-            _refreshButton.IsEnabled = true;
-            _cancelButton.IsVisible = false;
-            _operationProgress.IsVisible = false;
+            row.Progress.IsVisible = false;
+            row.Cancel.IsVisible = false;
+            SetEnabled(true);
         }
-        _catalogStatus.Text = result.MessageIsResourceKey
+        _operationResults[request.Mod.Id] = result;
+        ShowResult(row, result);
+        if (!_disposed && request.Action != GameModActionKind.OpenReleasePage)
+            await RefreshRowsAsync();
+    }
+
+    private static void ShowResult(ModRow row, GameModOperationResult result)
+    {
+        row.Message.Text = result.MessageIsResourceKey
             ? Format(result.Message, result.MessageArguments?.ToArray() ?? [])
             : result.Message;
-        await RefreshRowsAsync();
+        row.Operation.IsVisible = true;
     }
 
     private async Task<bool> ConfirmAsync(ModAction request)
@@ -281,6 +382,13 @@ public sealed class GameModCatalogPane : GameSettingsPane
             DefaultButton = FAContentDialogButton.Primary
         });
         return await dialog.ShowAsync() == FAContentDialogResult.Primary;
+    }
+
+    private void SetEnabled(bool enabled)
+    {
+        _refreshButton.IsEnabled = enabled && !_isRefreshing && !_disposed;
+        foreach (var row in _rows.Values)
+            row.Actions.IsEnabled = enabled && !_disposed;
     }
 
     private static string ActionKey(GameModActionKind action) => action switch
@@ -324,10 +432,14 @@ public sealed class GameModCatalogPane : GameSettingsPane
 
     public override void Dispose()
     {
+        _disposed = true;
+        // The executing method owns disposal; cancel without invalidating its token.
         _operationCancellation?.Cancel();
-        _operationCancellation?.Dispose();
         base.Dispose();
     }
+
+    private sealed record ModRow(string Id, Border Card, Panel Actions, StackPanel Operation,
+        TextBlock Message, ProgressBar Progress, Button Cancel);
 
     private sealed record ModAction(GameModDefinition Mod, GameModActionKind Action);
 }
