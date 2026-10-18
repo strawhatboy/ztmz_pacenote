@@ -38,6 +38,22 @@ public class GlassPanelCommandTests
     }
 
     [Theory]
+    [InlineData(5, 5, 7.5f)]
+    [InlineData(999, 8, 6)]
+    [InlineData(-1, 0, 10)]
+    [InlineData(float.NaN, 0, 10)]
+    [InlineData(float.PositiveInfinity, 0, 10)]
+    public void SlantIsBoundedAndOnlyChangesWireShapeWhenPresent(float input, float expected, float radius)
+    {
+        var command = DrawGlassPanelCommand.Create(0, 0, 0, 20, 100, 99, 0, 0, input)!;
+        Assert.Equal(expected, command.Slant);
+        Assert.Equal(radius, command.Radius);
+        var json = JObject.Parse(JsonConvert.SerializeObject(command));
+        if (expected == 0) Assert.Null(json["slant"]);
+        else Assert.Equal(expected, (float)json["slant"]!);
+    }
+
+    [Theory]
     [InlineData(float.NaN, 0, 100, 100)]
     [InlineData(0, float.PositiveInfinity, 100, 100)]
     [InlineData(0, 0, float.NegativeInfinity, 100)]

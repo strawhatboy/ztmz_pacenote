@@ -95,15 +95,18 @@ local function glassFinite(v) return type(v)=='number' and v==v and v~=math.huge
 local function glassBound(v,minimum,maximum,fallback)
     return math.max(minimum,math.min(maximum,glassFinite(v) and v or fallback))
 end
-function gfx.DrawGlassPanel(b,l,t,r,bottom,radius,refraction,blur)
+function gfx.DrawGlassPanel(b,l,t,r,bottom,radius,refraction,blur,slant)
     if not (glassFinite(l) and glassFinite(t) and glassFinite(r) and glassFinite(bottom)) then return end
     l=glassBound(l,-32768,32768,0);t=glassBound(t,-32768,32768,0)
     r=glassBound(r,-32768,32768,0);bottom=glassBound(bottom,-32768,32768,0)
     local w,h=math.min(32768,r-l),math.min(32768,bottom-t)
     if w<=0 or h<=0 then return end
-    emit({type='drawGlassPanel',x=l,y=t,width=w,height=h,color=color(b),
-        radius=glassBound(radius,0,math.min(w,h)/2,0),
-        refraction=glassBound(refraction,0,64,8),blur=glassBound(blur,0,32,4)})
+    local offset=glassBound(slant,0,math.min(w*.4,h*.8),0)
+    local command={type='drawGlassPanel',x=l,y=t,width=w,height=h,color=color(b),
+        radius=glassBound(radius,0,math.min(w-offset,h)/2,0),
+        refraction=glassBound(refraction,0,64,8),blur=glassBound(blur,0,32,4)}
+    if offset>0 then command.slant=offset end
+    emit(command)
 end
 function gfx.DrawLine(b,x,y,x1,y1,thickness)
     if type(x)=='table' then thickness=x1;x1=y.X;y1=y.Y;y=x.Y;x=x.X end

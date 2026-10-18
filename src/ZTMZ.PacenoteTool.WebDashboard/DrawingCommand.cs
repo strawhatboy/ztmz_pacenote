@@ -56,9 +56,11 @@ public sealed class DrawGlassPanelCommand : DrawingCommand
     [JsonProperty("refraction")] public float Refraction { get; private set; }
     [JsonProperty("blur")] public float Blur { get; private set; }
     [JsonProperty("color")] public uint Color { get; private set; }
+    [JsonProperty("slant", DefaultValueHandling = DefaultValueHandling.Ignore)]
+    public float Slant { get; private set; }
 
     public static DrawGlassPanelCommand? Create(uint color, float left, float top,
-        float right, float bottom, float radius, float refraction = 8, float blur = 4)
+        float right, float bottom, float radius, float refraction = 8, float blur = 4, float slant = 0)
     {
         if (!float.IsFinite(left) || !float.IsFinite(top) || !float.IsFinite(right)
             || !float.IsFinite(bottom)) return null;
@@ -69,9 +71,11 @@ public sealed class DrawGlassPanelCommand : DrawingCommand
         var width = Math.Min(32768, right - left);
         var height = Math.Min(32768, bottom - top);
         if (width <= 0 || height <= 0) return null;
+        slant = Math.Clamp(float.IsFinite(slant) ? slant : 0, 0, Math.Min(width * .4f, height * .8f));
         return new DrawGlassPanelCommand {
             X = left, Y = top, Width = width, Height = height, Color = color,
-            Radius = Math.Clamp(float.IsFinite(radius) ? radius : 0, 0, Math.Min(width, height) / 2),
+            Slant = slant,
+            Radius = Math.Clamp(float.IsFinite(radius) ? radius : 0, 0, Math.Min(width - slant, height) / 2),
             Refraction = Math.Clamp(float.IsFinite(refraction) ? refraction : 8, 0, 64),
             Blur = Math.Clamp(float.IsFinite(blur) ? blur : 4, 0, 32)
         };

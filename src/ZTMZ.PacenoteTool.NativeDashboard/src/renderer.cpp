@@ -93,10 +93,19 @@ std::set<std::string> draw(const Scene& scene,const TextureLookup& textures,cons
                         std::min(bounded("radius",20,std::min(width,height)/2),std::min(width,height)/2)*scale,
                         bounded("refraction",8,64)*scale,bounded("blur",4,32)*scale,
                         ImGui::ColorConvertU32ToFloat4(rgba(c.value("color",0x30203040u)))};
+                    panel.slant=bounded("slant",0,std::min(width*.4f,height*.8f))*scale;
+                    panel.radius=std::min(panel.radius,(width*scale-panel.slant)*.5f);
                     if(glass) glass(*output,panel);
                     else {
-                        output->AddRectFilled(panel.min,panel.max,ImGui::ColorConvertFloat4ToU32(panel.tint),panel.radius);
-                        output->AddRect(panel.min,panel.max,IM_COL32(225,240,255,65),panel.radius,0,std::max(1.f,scale));
+                        const int firstVertex=output->VtxBuffer.Size;
+                        ImVec2 left{panel.min.x+panel.slant*.5f,panel.min.y};
+                        ImVec2 right{panel.max.x-panel.slant*.5f,panel.max.y};
+                        output->AddRectFilled(left,right,ImGui::ColorConvertFloat4ToU32(panel.tint),panel.radius);
+                        output->AddRect(left,right,IM_COL32(225,240,255,65),panel.radius,0,std::max(1.f,scale));
+                        for(int i=firstVertex;i<output->VtxBuffer.Size;++i) {
+                            auto& p=output->VtxBuffer[i].pos;
+                            p.x+=panel.slant*(.5f-(p.y-panel.min.y)/(panel.max.y-panel.min.y));
+                        }
                     }
                 }
                 else if(type=="fillRectangle") dl->AddRectFilled(a,b,color);

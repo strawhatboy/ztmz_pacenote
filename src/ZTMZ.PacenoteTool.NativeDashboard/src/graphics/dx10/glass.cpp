@@ -91,7 +91,7 @@ void Dx10Glass::drawPanel(const GlassPanel& panel,const ImDrawCmd& cmd) {
     ComPtr<ID3D10Buffer> previous;device_->PSGetConstantBuffers(0,1,&previous);
     const float values[16]={panel.min.x,panel.min.y,panel.max.x,panel.max.y,
         panel.radius,panel.refraction,panel.blur,0,panel.tint.x,panel.tint.y,panel.tint.z,panel.tint.w,
-        static_cast<float>(width_),static_cast<float>(height_),0,0};
+        static_cast<float>(width_),static_cast<float>(height_),panel.slant,0};
     device_->UpdateSubresource(constants_.Get(),0,nullptr,values,0,0);
     device_->VSSetShader(vertex_.Get());device_->PSSetShader(pixel_.Get());
     auto* buffer=constants_.Get();device_->PSSetConstantBuffers(0,1,&buffer);

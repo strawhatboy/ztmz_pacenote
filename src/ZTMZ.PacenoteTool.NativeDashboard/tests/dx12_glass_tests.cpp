@@ -235,6 +235,15 @@ void exercise(Gpu& gpu){
     unsigned displaced=0;for(size_t i=0;i<flat.size();++i)if(flat[i]!=refracted[i])++displaced;
     require(displaced>2000,"Refraction did not move a meaningful number of background pixels");
     require(flat[100*Width+200]==surface.backdrop[100*Width+200],"Clear zero-refraction interior changed source colours");
+    // The slanted mask must leave the two cut-away corners untouched.
+    auto slanted=testScene();
+    slanted.layers[0].commands[0]["slant"]=100;
+    slanted.layers[0].commands[0]["radius"]=12;
+    slanted.layers[0].commands[0]["color"]=0xff102030u;
+    auto slantedPixels=render(gpu,session,surface,slanted);
+    require(slantedPixels[100*Width+100]==surface.backdrop[100*Width+100],"Glass leaked into slanted top-left cutout");
+    require(slantedPixels[270*Width+540]==surface.backdrop[270*Width+540],"Glass leaked into slanted bottom-right cutout");
+    require(slantedPixels[180*Width+200]!=surface.backdrop[180*Width+200],"Slanted glass interior disappeared");
     auto blurred=render(gpu,session,surface,testScene(0,4));verifyOutsideAndHud(surface,blurred);
     unsigned filtered=0;
     for(unsigned y=110;y<250;++y)for(unsigned x=130;x<510;++x)

@@ -223,9 +223,9 @@ public class GraphicsCommandProxy : IDisposable
     }
 
     public void DrawGlassPanel(object brush, float left, float top, float right, float bottom,
-        float radius, float refraction = 8, float blur = 4)
+        float radius, float refraction = 8, float blur = 4, float slant = 0)
     {
-        _capture.DrawGlassPanel(brush, left, top, right, bottom, radius, refraction, blur);
+        _capture.DrawGlassPanel(brush, left, top, right, bottom, radius, refraction, blur, slant);
     }
     
     public void FillRectangle(object brush, float left, float top, float right, float bottom)

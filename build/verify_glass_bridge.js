@@ -17,6 +17,7 @@ global.HTMLCollection = class extends Array {};
 global.NodeList = class extends Array {};
 global.MutationObserver = class { observe() {} disconnect() {} };
 let fills = 0, rims = 0, depth = 0;
+let shears = [];
 function finite(...values) { assert(values.every(Number.isFinite), 'Non-finite canvas coordinate'); }
 function context() {
     return {
@@ -24,7 +25,7 @@ function context() {
         beginPath() {}, closePath() {}, moveTo: finite, lineTo: finite,
         quadraticCurveTo: finite, rect: finite, roundRect: finite,
         fill() { fills++; }, stroke() { rims++; },
-        setTransform() {}, clearRect() {}, drawImage() {},
+        setTransform() {}, transform(...values) { finite(...values); shears.push(values); }, clearRect() {}, drawImage() {},
         measureText() { return {width: 0}; }
     };
 }
@@ -63,10 +64,14 @@ function verifyNativeHost() {
             g.DrawGlassPanel(b,0,math.huge,10,10,1)
             g.DrawGlassPanel(b,0,0,-10,10,1)
             g.DrawGlassPanel(b,0,0,10,0,1)
+            g.DrawGlassPanel(b,10,20,210,120,16,12,6,28)
+            g.DrawGlassPanel(b,0,0,20,100,99,0,0,999)
+            g.DrawGlassPanel(b,0,0,100,20,10,0,0,-4)
+            g.DrawGlassPanel(b,0,0,100,20,10,0,0,0/0)
         end
         bridge.init()
         local _,c=bridge.update({}, {}, 0, '')
-        assert(#c==4)
+        assert(#c==8)
         assert(c[1].type=='drawGlassPanel' and c[1].x==10 and c[1].y==20)
         assert(c[1].width==200 and c[1].height==100 and c[1].radius==16)
         assert(c[1].refraction==12 and c[1].blur==6 and c[1].color==0x8c123456)
@@ -75,11 +80,15 @@ function verifyNativeHost() {
         assert(c[2].refraction==64 and c[2].blur==32)
         assert(c[3].radius==0 and c[3].refraction==8 and c[3].blur==4)
         assert(c[4].radius==10 and c[4].refraction==0 and c[4].blur==0)
+        assert(c[5].slant==28 and c[5].radius==16)
+        assert(c[6].slant==8 and c[6].radius==6)
+        assert(c[7].slant==nil and c[8].slant==nil)
     `);
 }
 
 async function verifyBrowserLua() {
     fills = rims = depth = 0;
+    shears = [];
     let frames = 0;
     const failures = [];
     const manager = new ZtmzBrowserLuaDashboardManager({
@@ -99,6 +108,10 @@ async function verifyBrowserLua() {
                 g.DrawGlassPanel(b,0,math.huge,100,20,10)
                 g.DrawGlassPanel(b,0,0,-10,20,10)
                 g.DrawGlassPanel(b,0,0,100,0,10)
+                g.DrawGlassPanel(b,10,20,210,120,16,12,6,28)
+                g.DrawGlassPanel(b,0,0,20,100,99,0,0,999)
+                g.DrawGlassPanel(b,0,0,100,20,10,0,0,-4)
+                g.DrawGlassPanel(b,0,0,100,20,10,0,0,0/0)
             end`})
     });
     try {
@@ -109,7 +122,8 @@ async function verifyBrowserLua() {
         while (!frames && !failures.length && Date.now() < deadline)
             await new Promise(resolve => setTimeout(resolve, 10));
         assert.deepEqual(failures, []); assert.equal(frames, 1);
-        assert.equal(fills, 3); assert.equal(rims, 3);
+        assert.equal(fills, 7); assert.equal(rims, 7);
+        assert.deepEqual(shears, [[1,0,-.28,1,38,20],[1,0,-.08,1,8,0]]);
         // Runtime retains one base save on each of its static and dynamic canvases.
         assert.equal(depth, 2);
     } finally { manager.suspend(); }
@@ -128,6 +142,12 @@ function verifyCommandPlayer() {
         {x: 0, y: 0, width: -1, height: 10}
     ]) glassCommandTest(ctx, {}, {type: 'drawGlassPanel', ...geometry, radius: Infinity, color: 0x8c123456});
     assert.equal(fills, 2); assert.equal(rims, 2); assert.equal(depth, 0);
+    shears = [];
+    for (const slant of [28,999,-4,NaN])
+        glassCommandTest(ctx, {}, {type:'drawGlassPanel',x:10,y:20,width:200,height:100,
+            radius:16,slant,color:0x8c123456});
+    assert.equal(fills, 6); assert.equal(rims, 6); assert.equal(depth, 0);
+    assert.deepEqual(shears, [[1,0,-.28,1,38,20],[1,0,-.8,1,90,20]]);
     delete global.glassCommandTest;
 }
 

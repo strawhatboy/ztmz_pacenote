@@ -157,18 +157,22 @@ public class NeoLuaRuntimeTest
         Assert.Equal(2, command.Thickness);
     }
 
-    [Fact]
-    public void LuaCanDrawGlassPanelThroughTheBrowserCompatibleProxy()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(28)]
+    public void LuaCanDrawGlassPanelThroughTheBrowserCompatibleProxy(float slant)
     {
         using var lua = new Lua();
         var environment = lua.CreateEnvironment();
         environment.DefaultCompileOptions = new LuaCompileOptions { ClrEnabled = false };
+        environment["slant"] = slant;
         environment.DoChunk("""
             function render(args)
                 assert(args.SupportsGlassPanel and not args.SupportsGlassRefraction)
                 local gfx = args.Graphics
                 local brush = gfx.CreateSolidBrush(18, 52, 86, 140)
-                gfx.DrawGlassPanel(brush, 10, 20, 210, 120, 16, 12, 6)
+                if slant==0 then gfx.DrawGlassPanel(brush, 10, 20, 210, 120, 16, 12, 6)
+                else gfx.DrawGlassPanel(brush, 10, 20, 210, 120, 16, 12, 6, slant) end
                 gfx.DrawGlassPanel(brush, 10, 20, 0, 120, 16, 12, 6)
             end
             """, "glass-test.lua");
@@ -179,6 +183,7 @@ public class NeoLuaRuntimeTest
         Assert.Equal(0x8c123456u, command.Color);
         Assert.Equal(200, command.Width); Assert.Equal(100, command.Height);
         Assert.Equal(16, command.Radius); Assert.Equal(12, command.Refraction); Assert.Equal(6, command.Blur);
+        Assert.Equal(slant, command.Slant);
         Assert.False(new DashboardScriptArguments().SupportsGlassPanel);
     }
 

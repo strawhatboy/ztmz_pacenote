@@ -179,6 +179,15 @@ int main(){try{
 #else
     ComPtr<ID3D10Buffer> restored;fixture.device->PSGetConstantBuffers(0,1,&restored);require(restored==sentinel,"DX10 PS constant buffer leaked");
 #endif
+    // The slanted mask must leave the two cut-away corners untouched.
+    auto slanted=scene();
+    slanted.layers[0].commands[0]["slant"]=100;
+    slanted.layers[0].commands[0]["radius"]=12;
+    slanted.layers[0].commands[0]["color"]=0xff102030u;
+    auto slantedPixels=render(session,*target,slanted);
+    require(slantedPixels[100*640+100]==target->backdrop[100*640+100],"Glass leaked into slanted top-left cutout");
+    require(slantedPixels[270*640+540]==target->backdrop[270*640+540],"Glass leaked into slanted bottom-right cutout");
+    require(slantedPixels[180*640+200]!=target->backdrop[180*640+200],"Slanted glass interior disappeared");
     auto blurred=render(session,*target,scene(0,4));require(blurred[100*640+192]!=flat[100*640+192],"Blur was not applied");
     auto preHud=scene(0);preHud.layers[0].commands.insert(preHud.layers[0].commands.begin(),Json{{"type","fillRectangle"},{"x",180},{"y",90},{"width",50},{"height",40},{"color",0xffff0000u}});
     require(render(session,*target,preHud)[100*640+200]==flat[100*640+200],"Capture included earlier HUD commands");

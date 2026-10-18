@@ -199,6 +199,19 @@ void run() {
         auto refracted=f.render(renderer,panel(18,0),stats);size_t edgeChanged=0;
         for(unsigned y=70;y<290;++y)for(unsigned x=82;x<105;++x)if(difference(zero[y*f.extent.width+x],refracted[y*f.extent.width+x])>12)++edgeChanged;
         require(edgeChanged>100,"Refraction did not displace real backdrop pixels");
+        // The slanted mask must leave the two cut-away corners untouched.
+        auto slanted=panel();
+        slanted.layers[0].commands[0]["slant"]=100;
+        slanted.layers[0].commands[0]["radius"]=12;
+        slanted.layers[0].commands[0]["color"]=0xff102030u;
+        auto slantedPixels=f.render(renderer,slanted,stats);
+        require(slantedPixels[100*f.extent.width+100]==f.background[100*f.extent.width+100],"Glass leaked into slanted top-left cutout");
+        require(slantedPixels[270*f.extent.width+540]==f.background[270*f.extent.width+540],"Glass leaked into slanted bottom-right cutout");
+        require(slantedPixels[180*f.extent.width+200]!=f.background[180*f.extent.width+200],"Slanted glass interior disappeared");
+        auto slantedFallback=f.render(renderer,slanted,stats,false);
+        require(stats.copies==0,"Slanted fallback copied the backdrop");
+        require(slantedFallback[100*f.extent.width+100]==f.background[100*f.extent.width+100],"Fallback leaked into slanted cutout");
+        require(slantedFallback[180*f.extent.width+200]!=f.background[180*f.extent.width+200],"Slanted fallback disappeared");
         auto blurred=f.render(renderer,panel(0,5),stats);size_t interiorChanged=0;
         for(unsigned y=110;y<250;++y)for(unsigned x=140;x<500;++x)if(difference(zero[y*f.extent.width+x],blurred[y*f.extent.width+x])>8)++interiorChanged;
         require(interiorChanged>500,"Blur did not sample neighbouring backdrop pixels");

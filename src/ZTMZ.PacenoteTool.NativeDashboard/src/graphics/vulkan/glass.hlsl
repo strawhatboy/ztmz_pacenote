@@ -2,6 +2,7 @@
 // The snapshot is captured before HUD drawing; foreground instruments stay sharp.
 [[vk::binding(0,0)]] Texture2D sceneTexture;
 [[vk::binding(1,0)]] SamplerState sceneSampler;
+// surface: width, height, horizontal panel slant, unused.
 struct Panel { float4 bounds; float4 effects; float4 tint; float4 surface; };
 [[vk::push_constant]] ConstantBuffer<Panel> panel;
 
@@ -12,6 +13,9 @@ float4 vsMain(uint id : SV_VertexID) : SV_POSITION {
 }
 float distanceToPanel(float2 p) {
     float2 halfSize=(panel.bounds.zw-panel.bounds.xy)*0.5;
+    // Inverse shear keeps the silhouette inside the capture/scissor bounds.
+    p.x-=panel.surface.z*(0.5-(p.y-panel.bounds.y)/(panel.bounds.w-panel.bounds.y));
+    halfSize.x-=panel.surface.z*0.5;
     float2 q=abs(p-(panel.bounds.xy+panel.bounds.zw)*0.5)-(halfSize-panel.effects.x);
     return length(max(q,0))+min(max(q.x,q.y),0)-panel.effects.x;
 }

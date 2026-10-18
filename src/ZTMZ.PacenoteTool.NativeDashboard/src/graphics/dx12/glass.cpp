@@ -114,7 +114,7 @@ void Dx12Glass::drawPanel(const GlassPanel& p,const ImDrawCmd& cmd) {
     if(!command_)return;
     auto& s=snapshots_[current_];
     float values[16]={p.min.x,p.min.y,p.max.x,p.max.y,p.radius,p.refraction,p.blur,0,
-        p.tint.x,p.tint.y,p.tint.z,p.tint.w,float(s.width),float(s.height),0,0};
+        p.tint.x,p.tint.y,p.tint.z,p.tint.w,float(s.width),float(s.height),p.slant,0};
     command_->SetPipelineState(pipeline_.Get());command_->SetGraphicsRootSignature(root_.Get());
     command_->SetGraphicsRootDescriptorTable(0,s.gpu);command_->SetGraphicsRoot32BitConstants(1,16,values,0);
     command_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

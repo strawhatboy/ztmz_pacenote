@@ -5,13 +5,16 @@ cbuffer Panel : register(b0) {
     float4 bounds;
     float4 effects; // radius, refraction pixels, blur pixels, unused
     float4 tint;
-    float4 surface; // width, height, unused, unused
+    float4 surface; // width, height, horizontal panel slant, unused
 };
 float4 vsMain(uint id : SV_VertexID) : SV_POSITION {
     return float4(id==2?3:-1,id==1?-3:1,0,1);
 }
 float distanceToPanel(float2 p) {
     float2 halfSize=(bounds.zw-bounds.xy)*0.5;
+    // Inverse shear keeps the silhouette inside the capture/scissor bounds.
+    p.x-=surface.z*(0.5-(p.y-bounds.y)/(bounds.w-bounds.y));
+    halfSize.x-=surface.z*0.5;
     float2 q=abs(p-(bounds.xy+bounds.zw)*0.5)-(halfSize-effects.x);
     return length(max(q,0))+min(max(q.x,q.y),0)-effects.x;
 }

@@ -12,6 +12,7 @@ struct GlassPanel {
     ImVec2 min, max;
     float radius=20, refraction=8, blur=4;
     ImVec4 tint{0.125f,0.188f,0.25f,0.188f};
+    float slant=0; // Top-to-bottom horizontal offset, inside the existing bounds.
 };
 using GlassDraw = std::function<void(ImDrawList&,const GlassPanel&)>;
 std::set<std::string> draw(const Scene& scene, const TextureLookup& textures = {},const FontLookup& fonts = {},const GlassDraw& glass = {});

@@ -1,0 +1,8 @@
+{
+    "dashboards": {
+        "glassCompact": {
+            "name": "Glass Compact",
+            "description": "Slanted smoked-glass panel with italic gear and speed numerals and an 18-segment RPM bar spanning zero to maximum RPM, blending from near-white through green and yellow to red. The bar flashes red at the shift point. Inspired by the release thumbnail. Standalone overlays use a translucent background."
+        }
+    }
+}

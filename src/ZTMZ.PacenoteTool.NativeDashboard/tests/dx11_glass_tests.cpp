@@ -76,6 +76,10 @@ void fallbackAndBoundsTests() {
     auto& command=scene.layers[0].commands[0];command["radius"]=9999;command["blur"]=9999;command["refraction"]=9999;
     bool called=false;draw(scene,{}, {},[&](ImDrawList&,const GlassPanel& p){called=true;require(p.radius==120&&p.blur==32&&p.refraction==64,"Glass bounds not enforced");});
     require(called,"Glass callback missing");
+    command["slant"]=9999;
+    draw(scene,{},{},[&](ImDrawList&,const GlassPanel& p){require(p.slant==192&&p.radius==120,"Slant not bounded");});
+    command["width"]=20;command["height"]=100;
+    draw(scene,{},{},[&](ImDrawList&,const GlassPanel& p){require(p.slant==8&&p.radius==6,"Slanted radius exceeds inner width");});
     command["width"]=-1;called=false;draw(scene,{},{},[&](auto&,auto&){called=true;});require(!called,"Inverted panel accepted");
     ImGui::EndFrame();ImGui::DestroyContext(context);
 }
@@ -119,6 +123,15 @@ int main(int argc,char** argv) {
         ComPtr<ID3D11Buffer> restored;context->PSGetConstantBuffers(0,1,&restored);require(restored==sentinel,"PS buffer not restored");
         ComPtr<ID3D11RenderTargetView> restoredTarget;context->OMGetRenderTargets(1,&restoredTarget,nullptr);require(restoredTarget==surface.target,"Render target not restored");
         ComPtr<ID3D11ComputeShader> restoredShader;context->CSGetShader(&restoredShader,nullptr,nullptr);require(restoredShader==computeSentinel,"Game compute shader not restored");
+        // The slanted mask must leave the two cut-away corners untouched.
+        auto slanted=testScene();
+        slanted.layers[0].commands[0]["slant"]=100;
+        slanted.layers[0].commands[0]["radius"]=12;
+        slanted.layers[0].commands[0]["color"]=0xff102030u;
+        auto slantedPixels=render(session,surface,device.Get(),context.Get(),slanted);
+        require(slantedPixels[100*640+100]==surface.backdrop[100*640+100],"Glass leaked into slanted top-left cutout");
+        require(slantedPixels[270*640+540]==surface.backdrop[270*640+540],"Glass leaked into slanted bottom-right cutout");
+        require(slantedPixels[180*640+200]!=surface.backdrop[180*640+200],"Slanted glass interior disappeared");
         auto blurred=render(session,surface,device.Get(),context.Get(),testScene(0,4));
         require(blurred[100*640+192]!=flat[100*640+192],"Blur did not filter backdrop edge");
         // A transparent full-viewport panel forces a full copy. Subsequent

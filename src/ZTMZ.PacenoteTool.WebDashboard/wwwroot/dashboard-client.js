@@ -274,10 +274,15 @@ function executeDrawingCommand(ctx, canvas, cmd, layer) {
             const y = Math.max(-32768, Math.min(32768, cmd.y));
             const width = Math.min(32768, cmd.width);
             const height = Math.min(32768, cmd.height);
-            const radius = Math.max(0, Math.min(width / 2, height / 2,
+            const slant = Math.max(0, Math.min(width * .4, height * .8,
+                Number.isFinite(cmd.slant) ? cmd.slant : 0));
+            const radius = Math.max(0, Math.min((width - slant) / 2, height / 2,
                 Number.isFinite(cmd.radius) ? cmd.radius : 0));
             ctx.save();
-            addRoundedRectanglePath(ctx, x, y, width, height, radius);
+            if (slant > 0) {
+                ctx.transform(1, 0, -slant / height, 1, x + slant, y);
+                addRoundedRectanglePath(ctx, 0, 0, width - slant, height, radius);
+            } else addRoundedRectanglePath(ctx, x, y, width, height, radius);
             ctx.fillStyle = colorToCSS(cmd.color);
             ctx.fill();
             ctx.lineWidth = 1;

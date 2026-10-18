@@ -1,5 +1,46 @@
 # Liquid Glass dashboard
 
+## Glass Compact
+
+`dashboards/glass_compact` is a separate **Glass Compact / 极简玻璃** option,
+inspired by the 3.0 release thumbnail. Its 340-by-124 layout contains italic
+gear/speed numerals, a slanted divider and a rising RPM bar with 18 segments.
+It defaults to the bottom right, disabled, with a height of 12% of the canvas.
+It shares the existing glass controls and translucent standalone/browser fallback.
+The slanted, rounded outline uses the existing geometry API. An optional final
+`slant` argument on `DrawGlassPanel` makes the native glass mask follow that outline
+on DX9, DX10, DX11, DX12 and Vulkan. Slant defaults to zero for existing dashboards
+and is bounded to 40% of panel width or 80% of height, whichever is smaller.
+Browser/command-player and native translucent fallbacks use the same shear.
+The CLR command capture/proxy also forwards the optional slant, preserving the
+old serialized command when it is zero or omitted.
+Capture bounds remain rectangular; foreground text and lamps stay sharp.
+Compact defaults to tint opacity 0.32, refraction 8 and diffusion 4.
+No additional telemetry fields are required. The full Liquid Glass dashboard
+retains its controls, damage and powertrain information.
+
+The RPM bar fills from zero to the game's maximum RPM, with a smooth near-white,
+green, yellow and red gradient along the segments. Its scale is independent of
+the shift-light window. The entire bar flashes
+red at the provider's shift point, even when that is below maximum RPM; when the
+provider range is unavailable, maximum RPM times the configured red-zone fraction
+sets the warning threshold. Below that threshold it returns to the actual RPM fill.
+Invalid RPM or maximum RPM clears the bar.
+Unknown gear/speed uses a dash instead of retaining an earlier reading.
+Names/descriptions are localized in English and Simplified Chinese; the face
+contains only gear notation, numbers and km/h.
+
+The bundled preview is rendered from the actual browser Lua dashboard using
+synthetic telemetry and the translucent fallback. It is not a live-game or
+refraction screenshot. Nine focused CLR/Lua checks cover shift timing, invalid
+readings, neutral/reverse and fallback behavior; the browser smoke check includes
+this dashboard. Native pixel tests cover the slanted mask and unchanged rectangular
+panels on all five graphics backends in x86 and x64; the complete Lua package was
+also rendered in the DX11 offscreen harness. The dashboard content globs and installer recursion include its
+script, metadata, settings, preview and language resources.
+
+## Full Liquid Glass dashboard
+
 `dashboards/liquid_glass` is a separate dashboard with speed, gear, RPM shift
 lights, throttle/brake/clutch, steering, handbrake, optional hybrid and induction
 pressure, engine temperatures, local-best delta, and supported damage indicators.

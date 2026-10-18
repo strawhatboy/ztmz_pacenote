@@ -11,6 +11,7 @@
   <ItemGroup>
     <None Include="..\ZTMZ.PacenoteTool.WebDashboard\dashboards\common\commonfunc.lua" Link="TestData\commonfunc.lua" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\ZTMZ.PacenoteTool.WebDashboard\dashboards\liquid_glass\script.lua" Link="TestData\liquid-glass.lua" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\ZTMZ.PacenoteTool.WebDashboard\dashboards\glass_compact\script.lua" Link="TestData\glass-compact.lua" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\ZTMZ.PacenoteTool.Base\data.zdb" Link="TestData\official-data.zdb" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData\wrc7-restart-retire-20261014.jsonl" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData\wrc9-restart-retire-20261015.jsonl" CopyToOutputDirectory="PreserveNewest" />

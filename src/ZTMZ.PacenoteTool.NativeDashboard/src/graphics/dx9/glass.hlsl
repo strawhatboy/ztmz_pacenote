@@ -3,12 +3,15 @@ sampler sceneTexture : register(s0);
 float4 bounds : register(c0);
 float4 effects : register(c1); // radius, refraction, blur, capture ready
 float4 tint : register(c2);
-float4 surface : register(c3);
+float4 surface : register(c3); // width, height, horizontal panel slant, unused
 float4 vsMain(float2 position : POSITION0) : POSITION0 {
     return float4(position.x/surface.x*2-1,1-position.y/surface.y*2,0,1);
 }
 float distanceToPanel(float2 p) {
     float2 halfSize=(bounds.zw-bounds.xy)*0.5;
+    // Inverse shear keeps the silhouette inside the capture/scissor bounds.
+    p.x-=surface.z*(0.5-(p.y-bounds.y)/(bounds.w-bounds.y));
+    halfSize.x-=surface.z*0.5;
     float2 q=abs(p-(bounds.xy+bounds.zw)*0.5)-(halfSize-effects.x);
     return length(max(q,0))+min(max(q.x,q.y),0)-effects.x;
 }

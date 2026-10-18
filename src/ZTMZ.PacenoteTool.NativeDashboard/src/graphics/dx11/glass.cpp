@@ -91,7 +91,7 @@ void Dx11Glass::drawPanel(const GlassPanel& panel,const ImDrawCmd& cmd) {
     ComPtr<ID3D11Buffer> previous;context_->PSGetConstantBuffers(0,1,&previous);
     const float values[16]={panel.min.x,panel.min.y,panel.max.x,panel.max.y,
         panel.radius,panel.refraction,panel.blur,0,panel.tint.x,panel.tint.y,panel.tint.z,panel.tint.w,
-        static_cast<float>(width_),static_cast<float>(height_),0,0};
+        static_cast<float>(width_),static_cast<float>(height_),panel.slant,0};
     context_->UpdateSubresource(constants_.Get(),0,nullptr,values,0,0);
     context_->VSSetShader(vertex_.Get(),nullptr,0);context_->PSSetShader(pixel_.Get(),nullptr,0);
     auto* buffer=constants_.Get();context_->PSSetConstantBuffers(0,1,&buffer);

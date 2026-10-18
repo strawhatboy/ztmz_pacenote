@@ -144,7 +144,7 @@ void VulkanGlass::drawPanel(const GlassPanel& panel,const ImDrawCmd& draw) {
     const int b=static_cast<int>(std::min({float(extent_.height),std::ceil(panel.max.y+1),draw.ClipRect.w}));
     if(r<=l || b<=t)return;
     const float values[]={panel.min.x,panel.min.y,panel.max.x,panel.max.y,panel.radius,panel.refraction,panel.blur,0,
-        panel.tint.x,panel.tint.y,panel.tint.z,panel.tint.w,float(extent_.width),float(extent_.height),0,0};
+        panel.tint.x,panel.tint.y,panel.tint.z,panel.tint.w,float(extent_.width),float(extent_.height),panel.slant,0};
     vkCmdBindPipeline(state->CommandBuffer,VK_PIPELINE_BIND_POINT_GRAPHICS,pipeline_);
     vkCmdBindDescriptorSets(state->CommandBuffer,VK_PIPELINE_BIND_POINT_GRAPHICS,layout_,0,1,&set_,0,nullptr);
     vkCmdPushConstants(state->CommandBuffer,layout_,VK_SHADER_STAGE_FRAGMENT_BIT,0,sizeof(values),values);

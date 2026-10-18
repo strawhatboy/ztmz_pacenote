@@ -43,6 +43,7 @@ function createCanvasContext() {
         },
         quadraticCurveTo() {},
         setTransform() {},
+        transform() {},
         translate() {},
         rotate() {},
         scale() {},
