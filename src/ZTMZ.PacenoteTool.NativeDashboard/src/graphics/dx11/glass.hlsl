@@ -5,7 +5,8 @@ cbuffer Panel : register(b0) {
     float4 bounds;
     float4 effects; // radius, refraction pixels, blur pixels, unused
     float4 tint;
-    float4 surface; // width, height, horizontal panel slant, unused
+    float4 surface; // width, height, slant, polygon vertex count
+    float4 polygon[4]; // Two vertices per register.
 };
 float4 vsMain(uint id : SV_VertexID) : SV_POSITION {
     return float4(id==2?3:-1,id==1?-3:1,0,1);
@@ -18,14 +19,37 @@ float distanceToPanel(float2 p) {
     float2 q=abs(p-(bounds.xy+bounds.zw)*0.5)-(halfSize-effects.x);
     return length(max(q,0))+min(max(q.x,q.y),0)-effects.x;
 }
+// Signed distance to the inset polygon, expanded by the corner radius.
+// Segment distance gives circular corners and their analytic refraction normals.
+float polygonDistance(float2 p,out float2 normal) {
+    float closest=1e20,side=1;float2 delta=float2(0,-1);
+    [unroll] for(int i=0;i<8;++i) {
+        float2 a=(i%2==0)?polygon[i/2].xy:polygon[i/2].zw;
+        int j=(i+1)%8;
+        float2 b=(j%2==0)?polygon[j/2].xy:polygon[j/2].zw;
+        float2 edge=b-a,v=p-a;
+        float lengthSquared=max(dot(edge,edge),0.000001);
+        float2 d=v-edge*saturate(dot(v,edge)/lengthSquared);
+        float distanceSquared=dot(d,d);
+        if(distanceSquared<closest){closest=distanceSquared;delta=d;}
+        side=min(side,edge.x*v.y-edge.y*v.x);
+    }
+    float sign=side<0?1:-1;
+    normal=delta*rsqrt(max(closest,0.000001))*sign;
+    return sqrt(max(closest,0))*sign-effects.x;
+}
 float4 psMain(float4 position : SV_POSITION) : SV_TARGET {
     float2 p=position.xy;
-    float d=distanceToPanel(p);
+    float d;float2 normal;
+    [branch] if(surface.w>0) d=polygonDistance(p,normal);
+    else {
+        d=distanceToPanel(p);
+        normal=float2(distanceToPanel(p+float2(0.5,0))-distanceToPanel(p-float2(0.5,0)),
+                      distanceToPanel(p+float2(0,0.5))-distanceToPanel(p-float2(0,0.5)));
+        normal/=max(length(normal),0.001);
+    }
     clip(0.75-d);
     float coverage=saturate(0.5-d);
-    float2 normal=float2(distanceToPanel(p+float2(0.5,0))-distanceToPanel(p-float2(0.5,0)),
-                         distanceToPanel(p+float2(0,0.5))-distanceToPanel(p-float2(0,0.5)));
-    normal/=max(length(normal),0.001);
     float bevel=max(4,min(effects.x,32));
     float edge=1-saturate(-d/bevel);
     // Convex lens: strong rounded-edge refraction, quiet interior for legibility.

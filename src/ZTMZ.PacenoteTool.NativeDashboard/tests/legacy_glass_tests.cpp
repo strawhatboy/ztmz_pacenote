@@ -188,6 +188,24 @@ int main(){try{
     require(slantedPixels[100*640+100]==target->backdrop[100*640+100],"Glass leaked into slanted top-left cutout");
     require(slantedPixels[270*640+540]==target->backdrop[270*640+540],"Glass leaked into slanted bottom-right cutout");
     require(slantedPixels[180*640+200]!=target->backdrop[180*640+200],"Slanted glass interior disappeared");
+    // An asymmetric contour must mask the shoulder and both unequal right cuts.
+    auto polygon=scene();
+    polygon.layers[0].commands[0]["points"]=Json::array({160,60,540,60,560,105,550,225,500,300,100,300,80,275,105,150});
+    polygon.layers[0].commands[0]["color"]=0xff102030u;
+    auto polygonPixels=render(session,*target,polygon);
+    require(polygonPixels[100*640+100]==target->backdrop[100*640+100],"Glass leaked into polygon shoulder");
+    require(polygonPixels[280*640+540]==target->backdrop[280*640+540],"Glass leaked into lower-right cut");
+    require(polygonPixels[70*640+550]==target->backdrop[70*640+550],"Glass leaked into upper-right cut");
+    require(polygonPixels[180*640+200]!=target->backdrop[180*640+200],"Polygon glass interior disappeared");
+    // Circular corner fillets cut inward without moving the straight edges.
+    auto rounded=scene();
+    rounded.layers[0].commands[0]["points"]=Json::array({80,60,560,60,560,300,80,300});
+    rounded.layers[0].commands[0]["radius"]=30;
+    rounded.layers[0].commands[0]["color"]=0xff102030u;
+    auto roundedPixels=render(session,*target,rounded);
+    require(roundedPixels[63*640+83]==target->backdrop[63*640+83],"Rounded polygon retained sharp corner");
+    require(roundedPixels[90*640+110]!=target->backdrop[90*640+110],"Rounded polygon lost curved interior");
+    require(roundedPixels[63*640+300]!=target->backdrop[63*640+300],"Rounded polygon moved straight edge");
     auto blurred=render(session,*target,scene(0,4));require(blurred[100*640+192]!=flat[100*640+192],"Blur was not applied");
     auto preHud=scene(0);preHud.layers[0].commands.insert(preHud.layers[0].commands.begin(),Json{{"type","fillRectangle"},{"x",180},{"y",90},{"width",50},{"height",40},{"color",0xffff0000u}});
     require(render(session,*target,preHud)[100*640+200]==flat[100*640+200],"Capture included earlier HUD commands");

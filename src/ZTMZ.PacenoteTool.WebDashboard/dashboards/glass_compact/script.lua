@@ -74,29 +74,42 @@ function onUpdate(args)
         b.glass.Color=helper.getColor(16,18,21,alpha);
         resources.alpha=alpha;
     end
-    local slant,radius=28,10;
-    -- Match the GPU's inverse-shear shape, including the standalone fallback.
+    -- Trace the thumbnail's asymmetric shoulder and unequal corner cuts.
+    local contour={{57,0},{322,0},{340,23},{333,85},{302,124},{14,124},{0,110},{18,47}};
+    local mask=gfx.CreateGeometry();
+    for i,p in ipairs(contour) do
+        local point=helper.getPoint(tx(p[1]),ty(p[2]));
+        if i==1 then mask.BeginFigure(point,true) else mask.AddPoint(point) end
+    end
+    mask.EndFigure();mask.Close();
+    local radius=6;
+    local normals={};
+    for i,p in ipairs(contour) do
+        local q=contour[i%#contour+1];
+        local dx,dy=q[1]-p[1],q[2]-p[2];local length=math.sqrt(dx*dx+dy*dy);
+        normals[i]={-dy/length,dx/length};
+    end
     local outline=gfx.CreateGeometry();
-    local innerWidth=width-slant;
-    local centers={{innerWidth-radius,radius},{innerWidth-radius,height-radius},
-        {radius,height-radius},{radius,radius}};
-    for corner,center in ipairs(centers) do
+    for i,p in ipairs(contour) do
+        local a,b=normals[(i-2+#contour)%#contour+1],normals[i];
+        local cosine=math.max(-1,math.min(1,a[1]*b[1]+a[2]*b[2]));
+        local cx=p[1]+radius*(a[1]+b[1])/(1+cosine);
+        local cy=p[2]+radius*(a[2]+b[2])/(1+cosine);
+        local angle=math.acos(cosine);
         for step=0,8 do
-            local angle=((corner-2)*.5+step/16)*math.pi;
-            local py=center[2]+radius*math.sin(angle);
-            local px=center[1]+radius*math.cos(angle)+slant*(1-py/height);
-            local point=helper.getPoint(tx(px),ty(py));
-            if corner==1 and step==0 then outline.BeginFigure(point,true) else outline.AddPoint(point) end
+            local c,sn=math.cos(angle*step/8),math.sin(angle*step/8);
+            local point=helper.getPoint(tx(cx-radius*(a[1]*c-a[2]*sn)),ty(cy-radius*(a[1]*sn+a[2]*c)));
+            if i==1 and step==0 then outline.BeginFigure(point,true) else outline.AddPoint(point) end
         end
     end
     outline.EndFigure();outline.Close();
     if setting("glassEnabled") ~= false and args.IsWebDashboard then
-        gfx.DrawGlassPanel(b.glass,x,y,x+w,y+h,radius*s,
-            clamp(setting("glassRefraction"),0,24,8)*s,clamp(setting("glassBlur"),0,8,4)*s,slant*s);
+        gfx.DrawGlassGeometry(mask,b.glass,
+            clamp(setting("glassRefraction"),0,24,8)*s,clamp(setting("glassBlur"),0,8,4)*s,radius*s);
     else
         gfx.FillGeometry(outline,b.glass);
     end
-    gfx.DrawGeometry(outline,b.rim,math.max(.7,s*.8));outline.Dispose();
+    gfx.DrawGeometry(outline,b.rim,math.max(.7,s*.8));outline.Dispose();mask.Dispose();
 
     local count, atShift = lights(data,args.Config);
     local visible = not atShift or math.floor((finite(data.Time) or 0)*8)%2==0;

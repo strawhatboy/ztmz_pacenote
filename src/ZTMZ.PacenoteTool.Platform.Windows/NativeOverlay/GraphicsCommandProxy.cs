@@ -380,6 +380,11 @@ public class GraphicsCommandProxy : IDisposable
     {
         _capture.FillGeometry(geometry, brush);
     }
+
+    public void DrawGlassGeometry(object geometry, object brush, float refraction = 8, float blur = 4, float cornerRadius = 0)
+    {
+        _capture.DrawGlassGeometry(geometry, brush, refraction, blur, cornerRadius);
+    }
     
     public void DrawGeometry(object geometry, object brush, float thickness)
     {

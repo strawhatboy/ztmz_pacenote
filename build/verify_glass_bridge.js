@@ -48,6 +48,17 @@ function runLua(source) {
     } finally { lua.lua_close(state); }
 }
 
+const polygonLua = `
+    local g=args.Graphics
+    local geo=g.CreateGeometry()
+    local p=args.GameOverlayDrawingHelper.getPoint
+    geo.BeginFigure(p(57,0),true)
+    for _,v in ipairs({{322,0},{340,23},{333,85},{302,124},{14,124},{0,110},{18,47}}) do geo.AddPoint(p(v[1],v[2])) end
+    geo.EndFigure();geo.Close()
+    g.DrawGlassGeometry(geo,g.CreateSolidBrush(18,52,86,140),12,6,6)
+    geo.Dispose()
+`;
+
 function verifyNativeHost() {
     const host = fs.readFileSync(path.join(root, 'src/ZTMZ.PacenoteTool.NativeDashboard/lua/host.lua'), 'utf8');
     runLua(`
@@ -68,10 +79,11 @@ function verifyNativeHost() {
             g.DrawGlassPanel(b,0,0,20,100,99,0,0,999)
             g.DrawGlassPanel(b,0,0,100,20,10,0,0,-4)
             g.DrawGlassPanel(b,0,0,100,20,10,0,0,0/0)
+            ${polygonLua}
         end
         bridge.init()
         local _,c=bridge.update({}, {}, 0, '')
-        assert(#c==8)
+        assert(#c==9)
         assert(c[1].type=='drawGlassPanel' and c[1].x==10 and c[1].y==20)
         assert(c[1].width==200 and c[1].height==100 and c[1].radius==16)
         assert(c[1].refraction==12 and c[1].blur==6 and c[1].color==0x8c123456)
@@ -83,6 +95,10 @@ function verifyNativeHost() {
         assert(c[5].slant==28 and c[5].radius==16)
         assert(c[6].slant==8 and c[6].radius==6)
         assert(c[7].slant==nil and c[8].slant==nil)
+        assert(c[9].width==340 and c[9].height==124 and #c[9].points==16)
+        assert(c[9].points[1]==57 and c[9].points[16]==47)
+        assert(c[9].refraction==12 and c[9].blur==6)
+        assert(c[9].radius==6)
     `);
 }
 
@@ -112,6 +128,7 @@ async function verifyBrowserLua() {
                 g.DrawGlassPanel(b,0,0,20,100,99,0,0,999)
                 g.DrawGlassPanel(b,0,0,100,20,10,0,0,-4)
                 g.DrawGlassPanel(b,0,0,100,20,10,0,0,0/0)
+                ${polygonLua}
             end`})
     });
     try {
@@ -122,7 +139,7 @@ async function verifyBrowserLua() {
         while (!frames && !failures.length && Date.now() < deadline)
             await new Promise(resolve => setTimeout(resolve, 10));
         assert.deepEqual(failures, []); assert.equal(frames, 1);
-        assert.equal(fills, 7); assert.equal(rims, 7);
+        assert.equal(fills, 8); assert.equal(rims, 8);
         assert.deepEqual(shears, [[1,0,-.28,1,38,20],[1,0,-.08,1,8,0]]);
         // Runtime retains one base save on each of its static and dynamic canvases.
         assert.equal(depth, 2);
@@ -148,6 +165,24 @@ function verifyCommandPlayer() {
             radius:16,slant,color:0x8c123456});
     assert.equal(fills, 6); assert.equal(rims, 6); assert.equal(depth, 0);
     assert.deepEqual(shears, [[1,0,-.28,1,38,20],[1,0,-.8,1,90,20]]);
+    const points=[57,0,322,0,340,23,333,85,302,124,14,124,0,110,18,47];
+    for (const contour of [points,[0,0,100,0,50,20,100,100,0,100],points.map((v,i)=>i===0?NaN:v)])
+        glassCommandTest(ctx,{}, {type:'drawGlassPanel',x:0,y:0,width:340,height:124,points:contour,color:0x8c123456});
+    assert.equal(fills,7);assert.equal(rims,7);assert.equal(depth,0);
+    glassCommandTest(ctx,{}, {type:'drawGlassPanel',x:604.6451416015625,y:410.3999938964844,
+        width:710.7096557617188,height:259.20001220703125,
+        points:[604.6451416015625,410.3999938964844,1315.3548583984375,410.3999938964844,
+            1315.3548583984375,669.5999755859375,604.6451416015625,669.5999755859375],color:0x8c123456});
+    assert.equal(fills,8);assert.equal(rims,8);assert.equal(depth,0);
+    let firstPoint;
+    ctx.moveTo=(x,y)=>{finite(x,y);firstPoint=[x,y];};
+    ctx.lineTo=(x,y)=>{finite(x,y);assert(x>=-.001 && x<=100.001 && y>=-.001 && y<=20.001);};
+    for(const radius of [6,999,-1,NaN]) {
+        glassCommandTest(ctx,{}, {type:'drawGlassPanel',x:0,y:0,width:100,height:20,
+            points:[0,0,100,0,100,20,0,20],radius,color:0x8c123456});
+        assert.deepEqual(firstPoint,[0, radius===6?6:radius===999?9:0]);
+    }
+    assert.equal(depth,0);
     delete global.glassCommandTest;
 }
 

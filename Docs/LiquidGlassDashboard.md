@@ -7,13 +7,22 @@ inspired by the 3.0 release thumbnail. Its 340-by-124 layout contains italic
 gear/speed numerals, a slanted divider and a rising RPM bar with 18 segments.
 It defaults to the bottom right, disabled, with a height of 12% of the canvas.
 It shares the existing glass controls and translucent standalone/browser fallback.
-The slanted, rounded outline uses the existing geometry API. An optional final
-`slant` argument on `DrawGlassPanel` makes the native glass mask follow that outline
-on DX9, DX10, DX11, DX12 and Vulkan. Slant defaults to zero for existing dashboards
-and is bounded to 40% of panel width or 80% of height, whichever is smaller.
-Browser/command-player and native translucent fallbacks use the same shear.
-The CLR command capture/proxy also forwards the optional slant, preserving the
-old serialized command when it is zero or omitted.
+The asymmetric eight-point outline follows the thumbnail's broad upper-left
+shoulder, small upper-right cut, deeper lower-right cut and short lower-left bevel.
+Each corner has a subtle 6-unit circular radius, scaled with the dashboard, while
+the shoulder and unequal cuts remain distinct. It uses the existing geometry API,
+with `DrawGlassGeometry(geometry, brush, refraction, blur, cornerRadius)` applying
+native glass to the same contour on DX9, DX10, DX11,
+DX12 and Vulkan. Browser/command-player and standalone translucent fills use that
+same geometry. The glass command accepts 3–8 convex vertices, derives its capture
+bounds from them, and rejects invalid, concave or excessive input. It snapshots
+the points, so disposing the Lua geometry does not invalidate a queued draw.
+The optional radius defaults to zero and is capped to keep adjacent corner arcs
+from overlapping. The outline and translucent fallback use the same circular
+fillets as the native mask. Rounding cuts inward and preserves capture bounds.
+Polygon shaders calculate distance and normal to an inset polygon in one bounded pass;
+their constants fit Vulkan's guaranteed 128-byte push-constant limit.
+Existing rounded panels and the optional `slant` argument keep their behavior.
 Capture bounds remain rectangular; foreground text and lamps stay sharp.
 Compact defaults to tint opacity 0.32, refraction 8 and diffusion 4.
 No additional telemetry fields are required. The full Liquid Glass dashboard
@@ -34,7 +43,7 @@ The bundled preview is rendered from the actual browser Lua dashboard using
 synthetic telemetry and the translucent fallback. It is not a live-game or
 refraction screenshot. Nine focused CLR/Lua checks cover shift timing, invalid
 readings, neutral/reverse and fallback behavior; the browser smoke check includes
-this dashboard. Native pixel tests cover the slanted mask and unchanged rectangular
+this dashboard. Native pixel tests cover asymmetric and slanted masks and unchanged rectangular
 panels on all five graphics backends in x86 and x64; the complete Lua package was
 also rendered in the DX11 offscreen harness. The dashboard content globs and installer recursion include its
 script, metadata, settings, preview and language resources.

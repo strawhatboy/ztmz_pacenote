@@ -157,6 +157,40 @@ public class NeoLuaRuntimeTest
         Assert.Equal(2, command.Thickness);
     }
 
+    [Fact]
+    public void LuaCanDrawGlassGeometryThroughTheBrowserCompatibleProxy()
+    {
+        using var lua = new Lua();
+        var environment = lua.CreateEnvironment();
+        environment.DoChunk("""
+            function render(args)
+                local gfx=args.Graphics
+                local geo=gfx.CreateGeometry()
+                geo.BeginFigure(args.GameOverlayDrawingHelper.getPoint(57,0),true)
+                geo.AddPoint(args.GameOverlayDrawingHelper.getPoint(322,0))
+                geo.AddPoint(args.GameOverlayDrawingHelper.getPoint(340,23))
+                geo.AddPoint(args.GameOverlayDrawingHelper.getPoint(333,85))
+                geo.AddPoint(args.GameOverlayDrawingHelper.getPoint(302,124))
+                geo.AddPoint(args.GameOverlayDrawingHelper.getPoint(14,124))
+                geo.AddPoint(args.GameOverlayDrawingHelper.getPoint(0,110))
+                geo.AddPoint(args.GameOverlayDrawingHelper.getPoint(18,47))
+                geo.EndFigure();geo.Close()
+                gfx.DrawGlassGeometry(geo,gfx.CreateSolidBrush(18,52,86,140),12,6,6)
+                geo.Dispose()
+            end
+            """, "glass-geometry.lua");
+        var capture = new DrawingCommandCapture();
+        using var graphics = new GraphicsCommandProxy(capture);
+        environment.CallMember("render", new DashboardScriptArguments {
+            Graphics = graphics, GameOverlayDrawingHelper = new GameOverlayDrawingHelper()
+        });
+        var command = Assert.IsType<DrawGlassPanelCommand>(Assert.Single(capture.GetCommands()));
+        Assert.Equal(16, command.Points!.Length);
+        Assert.Equal(6, command.Radius);
+        Assert.Equal(340, command.Width); Assert.Equal(124, command.Height);
+        Assert.Equal(12, command.Refraction); Assert.Equal(6, command.Blur);
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(28)]

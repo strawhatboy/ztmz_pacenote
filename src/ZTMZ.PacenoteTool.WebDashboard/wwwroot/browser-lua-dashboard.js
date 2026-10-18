@@ -589,6 +589,8 @@
             this.FillRoundedRectangle = luaFunction((brush, left, top, right, bottom, radius) =>
                 this.fillRoundedRectangle(brush, left, top, right, bottom, radius));
             this.FillGeometry = luaFunction((geometry, brush) => this.fillGeometry(geometry, brush));
+            this.DrawGlassGeometry = luaFunction((geometry, brush, refraction, blur, cornerRadius) =>
+                this.drawGlassGeometry(geometry, brush, refraction, blur, cornerRadius));
             this.DrawGeometry = luaFunction((geometry, brush, thickness) =>
                 this.drawGeometry(geometry, brush, thickness));
             this.MeasureString = luaFunction((font, ...args) => this.measureString(font, ...args));
@@ -875,6 +877,20 @@
             ctx.restore();
         }
 
+        drawGlassGeometry(geometry, brush, refraction, blur, cornerRadius) {
+            if (!(geometry instanceof BrowserLuaGeometry) || !geometry.isClosed) return;
+            const points=geometry.points.flatMap(p=>[p.x,p.y]);
+            if (!validGlassPolygon(points)) return;
+            const bounds=geometry.getBounds();
+            if(bounds.width>32768 || bounds.height>32768)return;
+            const ctx=this.runtime.activeContext;
+            ctx.save();
+            glassPolygonPath(ctx,points,cornerRadius);
+            ctx.fillStyle=brush ? fillStyleForBrush(ctx,brush,bounds.x,bounds.y,bounds.width,bounds.height) : 'rgba(0,0,0,1)';
+            ctx.fill();ctx.lineWidth=1;ctx.strokeStyle='rgba(225,240,255,0.25)';ctx.stroke();
+            ctx.restore();
+        }
+
         fillGeometry(geometry, brush) {
             if (!(geometry instanceof BrowserLuaGeometry) || !brush || brushOpacity(brush) <= 0) {
                 return;
@@ -945,6 +961,56 @@
             restoreTrackedCanvasState(this.runtime.activeContext);
         }
     }
+
+
+// Match the native inset-polygon radius, including clockwise/counterclockwise input.
+function glassPolygonPath(ctx, points, requestedRadius) {
+    let p=[];for(let i=0;i<points.length;i+=2)p.push({x:points[i],y:points[i+1]});
+    let area=0;for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];area+=a.x*b.y-b.x*a.y;}
+    if(area<0)p.reverse();
+    let radius=Number.isFinite(requestedRadius)?Math.max(0,Math.min(64,requestedRadius)):0;
+    const normals=[],lengths=[];
+    for(let i=0;i<p.length;i++){
+        const a=p[i],b=p[(i+1)%p.length],dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);
+        normals.push({x:-dy/len,y:dx/len});lengths.push(len);
+    }
+    for(let i=0;i<p.length;i++){
+        const prev=(i+p.length-1)%p.length,a=normals[prev],b=normals[i];
+        const cosine=Math.max(-1,Math.min(1,a.x*b.x+a.y*b.y));
+        const tangent=Math.sqrt(Math.max(0,(1-cosine)/Math.max(.000001,1+cosine)));
+        if(tangent>0)radius=Math.min(radius,.45*Math.min(lengths[prev],lengths[i])/tangent);
+    }
+    ctx.beginPath();
+    for(let i=0;i<p.length;i++){
+        const a=normals[(i+p.length-1)%p.length],b=normals[i];
+        const cosine=Math.max(-1,Math.min(1,a.x*b.x+a.y*b.y));
+        const cx=p[i].x+radius*(a.x+b.x)/Math.max(.000001,1+cosine);
+        const cy=p[i].y+radius*(a.y+b.y)/Math.max(.000001,1+cosine);
+        const angle=Math.acos(cosine);
+        for(let step=0;step<=8;step++){
+            const c=Math.cos(angle*step/8),s=Math.sin(angle*step/8);
+            const x=cx-radius*(a.x*c-a.y*s),y=cy-radius*(a.x*s+a.y*c);
+            if(i===0 && step===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+        }
+    }
+    ctx.closePath();
+}
+
+function validGlassPolygon(p) {
+    if (!Array.isArray(p) || p.length<6 || p.length>16 || p.length%2 ||
+        !p.every(v=>Number.isFinite(v) && Math.abs(v)<=32768)) return false;
+    const count=p.length/2;let area=0;
+    for(let i=0;i<count;i++){const j=(i+1)%count;area+=p[2*i]*p[2*j+1]-p[2*j]*p[2*i+1];}
+    if(Math.abs(area)<.001) return false;
+    const sign=Math.sign(area);
+    for(let i=0;i<count;i++){
+        const j=(i+1)%count,dx=p[2*j]-p[2*i],dy=p[2*j+1]-p[2*i+1];
+        if(dx*dx+dy*dy<.000001)return false;
+        for(let k=0;k<count;k++)
+            if(sign*(dx*(p[2*k+1]-p[2*i+1])-dy*(p[2*k]-p[2*i]))<-.001)return false;
+    }
+    return true;
+}
 
     class BrowserLuaGeometry {
         constructor() {

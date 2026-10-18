@@ -80,6 +80,22 @@ void fallbackAndBoundsTests() {
     draw(scene,{},{},[&](ImDrawList&,const GlassPanel& p){require(p.slant==192&&p.radius==120,"Slant not bounded");});
     command["width"]=20;command["height"]=100;
     draw(scene,{},{},[&](ImDrawList&,const GlassPanel& p){require(p.slant==8&&p.radius==6,"Slanted radius exceeds inner width");});
+    command["width"]=480;command["height"]=240;
+    command["points"]=Json::array({80,60,560,60,560,300,80,300});
+    draw(scene,{},{},[&](ImDrawList&,const GlassPanel& p){require(p.pointCount==4,"Polygon not forwarded");});
+    command["points"]=Json::array({80,60,560,60,300,120,560,300,80,300});
+    called=false;draw(scene,{},{},[&](auto&,auto&){called=true;});require(!called,"Concave glass accepted");
+    command["points"]=Json::array({0,0,560,60,560,300,80,300});
+    called=false;draw(scene,{},{},[&](auto&,auto&){called=true;});require(!called,"Glass points escaped capture bounds");
+    command.erase("points");
+    command["x"]=604.6451612903226;command["y"]=410.4;
+    command["width"]=710.7096774193549;command["height"]=259.2;
+    command["points"]=Json::array({723.7935483870968,410.4,1277.7290322580645,410.4,
+        1315.3548387096776,458.4774193548387,1300.7225806451613,588.0774193548387,
+        1235.9225806451614,669.6,633.9096774193549,669.6,604.6451612903226,640.3354838709678,
+        642.2709677419355,508.64516129032256});
+    called=false;draw(scene,{},{},[&](auto&,auto&){called=true;});require(called,"Fractional polygon rejected by float bounds");
+    command.erase("points");
     command["width"]=-1;called=false;draw(scene,{},{},[&](auto&,auto&){called=true;});require(!called,"Inverted panel accepted");
     ImGui::EndFrame();ImGui::DestroyContext(context);
 }
@@ -132,6 +148,24 @@ int main(int argc,char** argv) {
         require(slantedPixels[100*640+100]==surface.backdrop[100*640+100],"Glass leaked into slanted top-left cutout");
         require(slantedPixels[270*640+540]==surface.backdrop[270*640+540],"Glass leaked into slanted bottom-right cutout");
         require(slantedPixels[180*640+200]!=surface.backdrop[180*640+200],"Slanted glass interior disappeared");
+        // An asymmetric contour must mask the shoulder and both unequal right cuts.
+        auto polygon=testScene();
+        polygon.layers[0].commands[0]["points"]=Json::array({160,60,540,60,560,105,550,225,500,300,100,300,80,275,105,150});
+        polygon.layers[0].commands[0]["color"]=0xff102030u;
+        auto polygonPixels=render(session,surface,device.Get(),context.Get(),polygon);
+        require(polygonPixels[100*640+100]==surface.backdrop[100*640+100],"Glass leaked into polygon shoulder");
+        require(polygonPixels[280*640+540]==surface.backdrop[280*640+540],"Glass leaked into lower-right cut");
+        require(polygonPixels[70*640+550]==surface.backdrop[70*640+550],"Glass leaked into upper-right cut");
+        require(polygonPixels[180*640+200]!=surface.backdrop[180*640+200],"Polygon glass interior disappeared");
+        // Circular corner fillets cut inward without moving the straight edges.
+        auto rounded=testScene();
+        rounded.layers[0].commands[0]["points"]=Json::array({80,60,560,60,560,300,80,300});
+        rounded.layers[0].commands[0]["radius"]=30;
+        rounded.layers[0].commands[0]["color"]=0xff102030u;
+        auto roundedPixels=render(session,surface,device.Get(),context.Get(),rounded);
+        require(roundedPixels[63*640+83]==surface.backdrop[63*640+83],"Rounded polygon retained sharp corner");
+        require(roundedPixels[90*640+110]!=surface.backdrop[90*640+110],"Rounded polygon lost curved interior");
+        require(roundedPixels[63*640+300]!=surface.backdrop[63*640+300],"Rounded polygon moved straight edge");
         auto blurred=render(session,surface,device.Get(),context.Get(),testScene(0,4));
         require(blurred[100*640+192]!=flat[100*640+192],"Blur did not filter backdrop edge");
         // A transparent full-viewport panel forces a full copy. Subsequent
@@ -228,7 +262,12 @@ int main(int argc,char** argv) {
             Surface preview(device.Get(),scene.width,scene.height);
             std::vector<unsigned> result;
             // Font production is asynchronous; allow it to settle for previews.
-            for(int i=0;i<30;++i){result=render(session,preview,device.Get(),context.Get(),scene);std::this_thread::sleep_for(std::chrono::milliseconds(20));}
+            for(int i=0;i<30;++i){
+                Dx11GlassCaptureStats stats;
+                result=render(session,preview,device.Get(),context.Get(),scene,&stats);
+                if(package&&source.value("requireGlass",false))require(stats.copies==1,"Dashboard package lost its glass fill");
+                std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            }
             bitmap(argv[package?3:2],result,preview.width,preview.height);
         }else bitmap("dx11-glass-preview.bmp",refracted,640,360);
         if(messages)for(UINT64 i=0;i<messages->GetNumStoredMessages();++i){

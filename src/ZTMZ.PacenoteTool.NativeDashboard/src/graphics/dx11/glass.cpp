@@ -9,7 +9,7 @@ bool Dx11Glass::initialize() {
     attempted_=true;
     if(FAILED(device_->CreateVertexShader(glass_vs,sizeof(glass_vs),nullptr,&vertex_))||
        FAILED(device_->CreatePixelShader(glass_ps,sizeof(glass_ps),nullptr,&pixel_))) return false;
-    D3D11_BUFFER_DESC buffer{};buffer.ByteWidth=64;buffer.Usage=D3D11_USAGE_DEFAULT;buffer.BindFlags=D3D11_BIND_CONSTANT_BUFFER;
+    D3D11_BUFFER_DESC buffer{};buffer.ByteWidth=128;buffer.Usage=D3D11_USAGE_DEFAULT;buffer.BindFlags=D3D11_BIND_CONSTANT_BUFFER;
     if(FAILED(device_->CreateBuffer(&buffer,nullptr,&constants_))) return false;
     D3D11_SAMPLER_DESC sampler{};sampler.Filter=D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     sampler.AddressU=sampler.AddressV=sampler.AddressW=D3D11_TEXTURE_ADDRESS_CLAMP;sampler.MaxLOD=D3D11_FLOAT32_MAX;
@@ -89,10 +89,8 @@ void Dx11Glass::drawPanel(const GlassPanel& panel,const ImDrawCmd& cmd) {
     // ImGui does not save PS constant buffers. Preserve this slot ourselves;
     // its reset callback restores every other binding changed below.
     ComPtr<ID3D11Buffer> previous;context_->PSGetConstantBuffers(0,1,&previous);
-    const float values[16]={panel.min.x,panel.min.y,panel.max.x,panel.max.y,
-        panel.radius,panel.refraction,panel.blur,0,panel.tint.x,panel.tint.y,panel.tint.z,panel.tint.w,
-        static_cast<float>(width_),static_cast<float>(height_),panel.slant,0};
-    context_->UpdateSubresource(constants_.Get(),0,nullptr,values,0,0);
+    const auto values=panel.shaderConstants(float(width_),float(height_));
+    context_->UpdateSubresource(constants_.Get(),0,nullptr,values.data(),0,0);
     context_->VSSetShader(vertex_.Get(),nullptr,0);context_->PSSetShader(pixel_.Get(),nullptr,0);
     auto* buffer=constants_.Get();context_->PSSetConstantBuffers(0,1,&buffer);
     auto* texture=view_.Get();context_->PSSetShaderResources(0,1,&texture);

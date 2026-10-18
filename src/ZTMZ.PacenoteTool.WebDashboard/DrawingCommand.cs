@@ -58,6 +58,56 @@ public sealed class DrawGlassPanelCommand : DrawingCommand
     [JsonProperty("color")] public uint Color { get; private set; }
     [JsonProperty("slant", DefaultValueHandling = DefaultValueHandling.Ignore)]
     public float Slant { get; private set; }
+    [JsonProperty("points", NullValueHandling = NullValueHandling.Ignore)]
+    public float[]? Points { get; private set; }
+
+    // Glass is bounded to a small convex polygon; capture uses its bounding box.
+    public static DrawGlassPanelCommand? CreateGeometry(uint color, float[] points, float refraction = 8, float blur = 4, float cornerRadius = 0)
+    {
+        if (points.Length < 6 || points.Length > 16 || points.Length % 2 != 0) return null;
+        var p = (float[])points.Clone();
+        if (p.Any(v => !float.IsFinite(v) || Math.Abs(v) > 32768)) return null;
+        var count = p.Length / 2;
+        float left = p[0], right = p[0], top = p[1], bottom = p[1];
+        double area = 0;
+        for (var i = 0; i < count; i++)
+        {
+            var j = (i + 1) % count;
+            area += (double)p[2*i] * p[2*j+1] - (double)p[2*j] * p[2*i+1];
+            left = Math.Min(left, p[2*i]); right = Math.Max(right, p[2*i]);
+            top = Math.Min(top, p[2*i+1]); bottom = Math.Max(bottom, p[2*i+1]);
+        }
+        if (Math.Abs(area) < .001 || right-left > 32768 || bottom-top > 32768) return null;
+        if (area < 0)
+            for (int i = 0, j = count-1; i < j; i++, j--)
+            {
+                (p[2*i], p[2*j]) = (p[2*j], p[2*i]);
+                (p[2*i+1], p[2*j+1]) = (p[2*j+1], p[2*i+1]);
+            }
+        for (var i = 0; i < count; i++)
+        {
+            var j = (i+1) % count;
+            double dx = p[2*j]-p[2*i], dy = p[2*j+1]-p[2*i+1];
+            if (dx*dx+dy*dy < .000001) return null;
+            for (var k = 0; k < count; k++)
+                if (dx*(p[2*k+1]-p[2*i+1])-dy*(p[2*k]-p[2*i]) < -.001) return null;
+        }
+        // Keep tangent points away from their neighbouring corner's arc.
+        cornerRadius = float.IsFinite(cornerRadius) ? Math.Clamp(cornerRadius, 0, 64) : 0;
+        for (var i = 0; i < count; i++)
+        {
+            var prev=(i+count-1)%count; var next=(i+1)%count;
+            double ax=p[2*i]-p[2*prev], ay=p[2*i+1]-p[2*prev+1];
+            double bx=p[2*next]-p[2*i], by=p[2*next+1]-p[2*i+1];
+            var al=Math.Sqrt(ax*ax+ay*ay); var bl=Math.Sqrt(bx*bx+by*by);
+            var cosine=Math.Clamp((ax*bx+ay*by)/(al*bl),-1,1);
+            var tangent=Math.Sqrt(Math.Max(0,(1-cosine)/Math.Max(.000001,1+cosine)));
+            if(tangent>0)cornerRadius=Math.Min(cornerRadius,(float)(.45*Math.Min(al,bl)/tangent));
+        }
+        var command = Create(color, left, top, right, bottom, cornerRadius, refraction, blur);
+        if (command != null) command.Points = p;
+        return command;
+    }
 
     public static DrawGlassPanelCommand? Create(uint color, float left, float top,
         float right, float bottom, float radius, float refraction = 8, float blur = 4, float slant = 0)

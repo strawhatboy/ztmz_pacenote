@@ -59,10 +59,9 @@ void Dx9Glass::drawPanel(const GlassPanel& panel,const ImDrawCmd& cmd){
     // DrawPrimitiveUP clears stream 0; ImGui's reset callback doesn't restore
     // streams/FVF or shader constants. Restore a captured state block ourselves.
     struct Restore {IDirect3DStateBlock9* state;~Restore(){state->Apply();}} restore{state_.Get()};
-    const float constants[16]={panel.min.x,panel.min.y,panel.max.x,panel.max.y,panel.radius,panel.refraction,panel.blur,captureReady_?1.f:0.f,
-        panel.tint.x,panel.tint.y,panel.tint.z,panel.tint.w,static_cast<float>(width_),static_cast<float>(height_),panel.slant,0};
+    const auto constants=panel.shaderConstants(float(width_),float(height_),captureReady_?1.f:0.f);
     device_->SetVertexShader(vertex_.Get());device_->SetPixelShader(pixel_.Get());device_->SetVertexDeclaration(declaration_.Get());
-    device_->SetVertexShaderConstantF(0,constants,4);device_->SetPixelShaderConstantF(0,constants,4);
+    device_->SetVertexShaderConstantF(0,constants.data(),8);device_->SetPixelShaderConstantF(0,constants.data(),8);
     device_->SetTexture(0,snapshot_.Get());device_->SetSamplerState(0,D3DSAMP_MINFILTER,D3DTEXF_LINEAR);device_->SetSamplerState(0,D3DSAMP_MAGFILTER,D3DTEXF_LINEAR);
     device_->SetSamplerState(0,D3DSAMP_MIPFILTER,D3DTEXF_NONE);device_->SetSamplerState(0,D3DSAMP_ADDRESSU,D3DTADDRESS_CLAMP);device_->SetSamplerState(0,D3DSAMP_ADDRESSV,D3DTADDRESS_CLAMP);
     device_->SetSamplerState(0,D3DSAMP_SRGBTEXTURE,FALSE);device_->SetRenderState(D3DRS_SRGBWRITEENABLE,FALSE);

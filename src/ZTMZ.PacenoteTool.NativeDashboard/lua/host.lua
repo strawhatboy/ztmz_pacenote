@@ -193,6 +193,19 @@ local function geometryCommand(kind,g,b,thickness)
 end
 function gfx.FillGeometry(g,b) geometryCommand('fillGeometry',g,b) end
 function gfx.DrawGeometry(g,b,t) geometryCommand('drawGeometry',g,b,t) end
+function gfx.DrawGlassGeometry(g,b,refraction,blur,cornerRadius)
+    if not g or not g.closed or #g.points<3 or #g.points>8 then return end
+    local points={}
+    local l,t,r,bottom=32768,32768,-32768,-32768
+    for _,p in ipairs(g.points) do
+        if not glassFinite(p.x) or not glassFinite(p.y) or math.abs(p.x)>32768 or math.abs(p.y)>32768 then return end
+        points[#points+1]=p.x;points[#points+1]=p.y
+        l=math.min(l,p.x);t=math.min(t,p.y);r=math.max(r,p.x);bottom=math.max(bottom,p.y)
+    end
+    if r<=l or bottom<=t or r-l>32768 or bottom-t>32768 then return end
+    emit({type='drawGlassPanel',x=l,y=t,width=r-l,height=bottom-t,points=points,
+        radius=glassBound(cornerRadius,0,64,0),color=color(b),refraction=glassBound(refraction,0,64,8),blur=glassBound(blur,0,32,4)})
+end
 local helper={getColor=brush,getPoint=point,getRectangle=rectangle}
 function helper.drawSector(g,unit,x,y,w,h,value,maximum,bg,fill,empty,font,thickness)
     local cx,cy=x+w/2,y+h/2

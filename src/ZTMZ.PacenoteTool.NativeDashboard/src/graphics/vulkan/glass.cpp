@@ -31,7 +31,7 @@ bool VulkanGlass::initialize() {
     bindings[1]={1,VK_DESCRIPTOR_TYPE_SAMPLER,1,VK_SHADER_STAGE_FRAGMENT_BIT,nullptr};
     VkDescriptorSetLayoutCreateInfo set{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};set.bindingCount=2;set.pBindings=bindings;
     if(vkCreateDescriptorSetLayout(info_.device,&set,nullptr,&setLayout_)!=VK_SUCCESS)return false;
-    VkPushConstantRange push{VK_SHADER_STAGE_FRAGMENT_BIT,0,64};
+    VkPushConstantRange push{VK_SHADER_STAGE_FRAGMENT_BIT,0,128};
     VkPipelineLayoutCreateInfo layout{VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};layout.setLayoutCount=1;layout.pSetLayouts=&setLayout_;layout.pushConstantRangeCount=1;layout.pPushConstantRanges=&push;
     if(vkCreatePipelineLayout(info_.device,&layout,nullptr,&layout_)!=VK_SUCCESS)return false;
     VkDescriptorPoolSize sizes[]={{VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,1},{VK_DESCRIPTOR_TYPE_SAMPLER,1}};
@@ -143,11 +143,10 @@ void VulkanGlass::drawPanel(const GlassPanel& panel,const ImDrawCmd& draw) {
     const int r=static_cast<int>(std::min({float(extent_.width),std::ceil(panel.max.x+1),draw.ClipRect.z}));
     const int b=static_cast<int>(std::min({float(extent_.height),std::ceil(panel.max.y+1),draw.ClipRect.w}));
     if(r<=l || b<=t)return;
-    const float values[]={panel.min.x,panel.min.y,panel.max.x,panel.max.y,panel.radius,panel.refraction,panel.blur,0,
-        panel.tint.x,panel.tint.y,panel.tint.z,panel.tint.w,float(extent_.width),float(extent_.height),panel.slant,0};
+    const auto values=panel.shaderConstants(float(extent_.width),float(extent_.height));
     vkCmdBindPipeline(state->CommandBuffer,VK_PIPELINE_BIND_POINT_GRAPHICS,pipeline_);
     vkCmdBindDescriptorSets(state->CommandBuffer,VK_PIPELINE_BIND_POINT_GRAPHICS,layout_,0,1,&set_,0,nullptr);
-    vkCmdPushConstants(state->CommandBuffer,layout_,VK_SHADER_STAGE_FRAGMENT_BIT,0,sizeof(values),values);
+    vkCmdPushConstants(state->CommandBuffer,layout_,VK_SHADER_STAGE_FRAGMENT_BIT,0,sizeof(values),values.data());
     VkViewport viewport{0,0,float(extent_.width),float(extent_.height),0,1};vkCmdSetViewport(state->CommandBuffer,0,1,&viewport);
     VkRect2D scissor{{l,t},{uint32_t(r-l),uint32_t(b-t)}};vkCmdSetScissor(state->CommandBuffer,0,1,&scissor);
     vkCmdDraw(state->CommandBuffer,3,1,0,0);

@@ -614,6 +614,14 @@ public class DrawingCommandCapture
             radius, refraction, blur, slant);
         if (command != null) _commands.Add(command);
     }
+
+    public void DrawGlassGeometry(object geometry, object brush, float refraction = 8, float blur = 4, float cornerRadius = 0)
+    {
+        if (geometry is not ProxyGeometry geo || !geo.IsClosed) return;
+        var points = geo.Points.SelectMany(p => new[] { p.X, p.Y }).ToArray();
+        var command = DrawGlassPanelCommand.CreateGeometry(GetBrushColor(brush), points, refraction, blur, cornerRadius);
+        if (command != null) _commands.Add(command);
+    }
     
     public void FillRectangle(object brush, float left, float top, float right, float bottom)
     {

@@ -22,7 +22,7 @@ bool Dx12Glass::initialize() {
     parameters[0].ParameterType=D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     parameters[0].DescriptorTable={1,&range};parameters[0].ShaderVisibility=D3D12_SHADER_VISIBILITY_PIXEL;
     parameters[1].ParameterType=D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-    parameters[1].Constants={0,0,16};parameters[1].ShaderVisibility=D3D12_SHADER_VISIBILITY_PIXEL;
+    parameters[1].Constants={0,0,32};parameters[1].ShaderVisibility=D3D12_SHADER_VISIBILITY_PIXEL;
     D3D12_STATIC_SAMPLER_DESC sampler{};sampler.Filter=D3D12_FILTER_MIN_MAG_MIP_LINEAR;
     sampler.AddressU=sampler.AddressV=sampler.AddressW=D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
     sampler.MaxLOD=D3D12_FLOAT32_MAX;sampler.ComparisonFunc=D3D12_COMPARISON_FUNC_ALWAYS;
@@ -113,10 +113,9 @@ GlassCaptureStats Dx12Glass::capture(ID3D12GraphicsCommandList* cmd,ID3D12Resour
 void Dx12Glass::drawPanel(const GlassPanel& p,const ImDrawCmd& cmd) {
     if(!command_)return;
     auto& s=snapshots_[current_];
-    float values[16]={p.min.x,p.min.y,p.max.x,p.max.y,p.radius,p.refraction,p.blur,0,
-        p.tint.x,p.tint.y,p.tint.z,p.tint.w,float(s.width),float(s.height),p.slant,0};
+    const auto values=p.shaderConstants(float(s.width),float(s.height));
     command_->SetPipelineState(pipeline_.Get());command_->SetGraphicsRootSignature(root_.Get());
-    command_->SetGraphicsRootDescriptorTable(0,s.gpu);command_->SetGraphicsRoot32BitConstants(1,16,values,0);
+    command_->SetGraphicsRootDescriptorTable(0,s.gpu);command_->SetGraphicsRoot32BitConstants(1,32,values.data(),0);
     command_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     D3D12_VIEWPORT viewport{0,0,float(s.width),float(s.height),0,1};command_->RSSetViewports(1,&viewport);
     D3D12_RECT clip{LONG(std::max({0.f,cmd.ClipRect.x,p.min.x-1})),LONG(std::max({0.f,cmd.ClipRect.y,p.min.y-1})),

@@ -95,7 +95,69 @@ std::set<std::string> draw(const Scene& scene,const TextureLookup& textures,cons
                         ImGui::ColorConvertU32ToFloat4(rgba(c.value("color",0x30203040u)))};
                     panel.slant=bounded("slant",0,std::min(width*.4f,height*.8f))*scale;
                     panel.radius=std::min(panel.radius,(width*scale-panel.slant)*.5f);
+                    if(c.contains("points")) {
+                        const auto& p=c.at("points");
+                        if(!p.is_array()||p.size()<6||p.size()>16||p.size()%2) continue;
+                        panel.pointCount=static_cast<unsigned>(p.size()/2);
+                        bool valid=true;double area=0;
+                        for(unsigned i=0;i<panel.pointCount;++i) {
+                            const float px=p[2*i].get<float>(),py=p[2*i+1].get<float>();
+                            // JSON bounds and vertices round independently to float; allow
+                            // subpixel error at the boundary, then clamp to the capture box.
+                            if(!std::isfinite(px)||!std::isfinite(py)||std::abs(px)>32768||std::abs(py)>32768||px<x-.01f||px>x+width+.01f||py<y-.01f||py>y+height+.01f) {valid=false;break;}
+                            panel.points[i]=point(std::clamp(px,x,x+width),std::clamp(py,y,y+height));
+                        }
+                        if(!valid) continue;
+                        for(unsigned i=0;i<panel.pointCount;++i){auto a=panel.points[i],b=panel.points[(i+1)%panel.pointCount];area+=double(a.x)*b.y-double(b.x)*a.y;}
+                        if(std::abs(area)<.001) continue;
+                        if(area<0)std::reverse(panel.points.begin(),panel.points.begin()+panel.pointCount);
+                        for(unsigned i=0;i<panel.pointCount;++i) {
+                            const auto a=panel.points[i],b=panel.points[(i+1)%panel.pointCount];
+                            const double dx=b.x-a.x,dy=b.y-a.y;
+                            if(dx*dx+dy*dy<.000001)valid=false;
+                            for(unsigned j=0;j<panel.pointCount;++j)
+                                if(dx*(panel.points[j].y-a.y)-dy*(panel.points[j].x-a.x)<-.001)valid=false;
+                        }
+                        if(!valid)continue;
+                        panel.slant=0;
+                    }
+                    if(panel.pointCount && panel.radius>0) {
+                        std::array<ImVec2,8> normals{};
+                        std::array<float,8> lengths{};
+                        for(unsigned i=0;i<panel.pointCount;++i){
+                            auto a=panel.points[i],b=panel.points[(i+1)%panel.pointCount];
+                            float dx=b.x-a.x,dy=b.y-a.y;lengths[i]=std::hypot(dx,dy);
+                            normals[i]={-dy/lengths[i],dx/lengths[i]};
+                        }
+                        for(unsigned i=0;i<panel.pointCount;++i){
+                            unsigned prev=(i+panel.pointCount-1)%panel.pointCount;
+                            auto a=normals[prev],b=normals[i];
+                            float cosine=std::clamp(a.x*b.x+a.y*b.y,-1.f,1.f);
+                            float tangent=std::sqrt(std::max(0.f,(1-cosine)/std::max(.000001f,1+cosine)));
+                            if(tangent>0)panel.radius=std::min(panel.radius,.45f*std::min(lengths[prev],lengths[i])/tangent);
+                        }
+                        // Store the inset polygon. Its distance minus radius describes
+                        // circular fillets entirely inside the original contour.
+                        for(unsigned i=0;i<panel.pointCount;++i){
+                            auto a=normals[(i+panel.pointCount-1)%panel.pointCount],b=normals[i];
+                            float factor=panel.radius/std::max(.000001f,1+a.x*b.x+a.y*b.y);
+                            panel.points[i].x+=(a.x+b.x)*factor;panel.points[i].y+=(a.y+b.y)*factor;
+                        }
+                    }
                     if(glass) glass(*output,panel);
+                    else if(panel.pointCount) {
+                        std::vector<ImVec2> outline;
+                        for(unsigned i=0;i<panel.pointCount;++i){
+                            const auto p=panel.points[i],a=panel.points[(i+panel.pointCount-1)%panel.pointCount],b=panel.points[(i+1)%panel.pointCount];
+                            if(panel.radius<=0){outline.push_back(p);continue;}
+                            float first=std::atan2(a.x-p.x,p.y-a.y),last=std::atan2(p.x-b.x,b.y-p.y);
+                            while(last<first)last+=6.2831853f;
+                            for(int step=0;step<=8;++step){float angle=first+(last-first)*step/8;
+                                outline.push_back({p.x+panel.radius*std::cos(angle),p.y+panel.radius*std::sin(angle)});}
+                        }
+                        output->AddConvexPolyFilled(outline.data(),static_cast<int>(outline.size()),ImGui::ColorConvertFloat4ToU32(panel.tint));
+                        output->AddPolyline(outline.data(),static_cast<int>(outline.size()),IM_COL32(225,240,255,65),ImDrawFlags_Closed,std::max(1.f,scale));
+                    }
                     else {
                         const int firstVertex=output->VtxBuffer.Size;
                         ImVec2 left{panel.min.x+panel.slant*.5f,panel.min.y};

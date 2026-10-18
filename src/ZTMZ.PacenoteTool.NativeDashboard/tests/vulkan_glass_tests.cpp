@@ -212,6 +212,31 @@ void run() {
         require(stats.copies==0,"Slanted fallback copied the backdrop");
         require(slantedFallback[100*f.extent.width+100]==f.background[100*f.extent.width+100],"Fallback leaked into slanted cutout");
         require(slantedFallback[180*f.extent.width+200]!=f.background[180*f.extent.width+200],"Slanted fallback disappeared");
+        // An asymmetric contour must mask the shoulder and both unequal right cuts.
+        auto polygon=panel();
+        polygon.layers[0].commands[0]["points"]=Json::array({160,60,540,60,560,105,550,225,500,300,100,300,80,275,105,150});
+        polygon.layers[0].commands[0]["color"]=0xff102030u;
+        auto polygonPixels=f.render(renderer,polygon,stats);
+        require(polygonPixels[100*f.extent.width+100]==f.background[100*f.extent.width+100],"Glass leaked into polygon shoulder");
+        require(polygonPixels[280*f.extent.width+540]==f.background[280*f.extent.width+540],"Glass leaked into lower-right cut");
+        require(polygonPixels[70*f.extent.width+550]==f.background[70*f.extent.width+550],"Glass leaked into upper-right cut");
+        require(polygonPixels[180*f.extent.width+200]!=f.background[180*f.extent.width+200],"Polygon glass interior disappeared");
+        auto polygonFallback=f.render(renderer,polygon,stats,false);
+        require(stats.copies==0,"Polygon fallback copied scene");
+        require(polygonFallback[100*f.extent.width+100]==f.background[100*f.extent.width+100],"Polygon fallback escaped contour");
+        require(polygonFallback[180*f.extent.width+200]!=f.background[180*f.extent.width+200],"Polygon fallback invisible");
+        // Circular corner fillets cut inward without moving the straight edges.
+        auto rounded=panel();
+        rounded.layers[0].commands[0]["points"]=Json::array({80,60,560,60,560,300,80,300});
+        rounded.layers[0].commands[0]["radius"]=30;
+        rounded.layers[0].commands[0]["color"]=0xff102030u;
+        auto roundedPixels=f.render(renderer,rounded,stats);
+        require(roundedPixels[63*f.extent.width+83]==f.background[63*f.extent.width+83],"Rounded polygon retained sharp corner");
+        require(roundedPixels[90*f.extent.width+110]!=f.background[90*f.extent.width+110],"Rounded polygon lost curved interior");
+        require(roundedPixels[63*f.extent.width+300]!=f.background[63*f.extent.width+300],"Rounded polygon moved straight edge");
+        auto roundedFallback=f.render(renderer,rounded,stats,false);
+        require(roundedFallback[63*f.extent.width+83]==f.background[63*f.extent.width+83],"Fallback retained sharp corner");
+        require(roundedFallback[90*f.extent.width+110]!=f.background[90*f.extent.width+110],"Fallback lost curved interior");
         auto blurred=f.render(renderer,panel(0,5),stats);size_t interiorChanged=0;
         for(unsigned y=110;y<250;++y)for(unsigned x=140;x<500;++x)if(difference(zero[y*f.extent.width+x],blurred[y*f.extent.width+x])>8)++interiorChanged;
         require(interiorChanged>500,"Blur did not sample neighbouring backdrop pixels");

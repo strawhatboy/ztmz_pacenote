@@ -244,6 +244,24 @@ void exercise(Gpu& gpu){
     require(slantedPixels[100*Width+100]==surface.backdrop[100*Width+100],"Glass leaked into slanted top-left cutout");
     require(slantedPixels[270*Width+540]==surface.backdrop[270*Width+540],"Glass leaked into slanted bottom-right cutout");
     require(slantedPixels[180*Width+200]!=surface.backdrop[180*Width+200],"Slanted glass interior disappeared");
+    // An asymmetric contour must mask the shoulder and both unequal right cuts.
+    auto polygon=testScene();
+    polygon.layers[0].commands[0]["points"]=Json::array({160,60,540,60,560,105,550,225,500,300,100,300,80,275,105,150});
+    polygon.layers[0].commands[0]["color"]=0xff102030u;
+    auto polygonPixels=render(gpu,session,surface,polygon);
+    require(polygonPixels[100*Width+100]==surface.backdrop[100*Width+100],"Glass leaked into polygon shoulder");
+    require(polygonPixels[280*Width+540]==surface.backdrop[280*Width+540],"Glass leaked into lower-right cut");
+    require(polygonPixels[70*Width+550]==surface.backdrop[70*Width+550],"Glass leaked into upper-right cut");
+    require(polygonPixels[180*Width+200]!=surface.backdrop[180*Width+200],"Polygon glass interior disappeared");
+    // Circular corner fillets cut inward without moving the straight edges.
+    auto rounded=testScene();
+    rounded.layers[0].commands[0]["points"]=Json::array({80,60,560,60,560,300,80,300});
+    rounded.layers[0].commands[0]["radius"]=30;
+    rounded.layers[0].commands[0]["color"]=0xff102030u;
+    auto roundedPixels=render(gpu,session,surface,rounded);
+    require(roundedPixels[63*Width+83]==surface.backdrop[63*Width+83],"Rounded polygon retained sharp corner");
+    require(roundedPixels[90*Width+110]!=surface.backdrop[90*Width+110],"Rounded polygon lost curved interior");
+    require(roundedPixels[63*Width+300]!=surface.backdrop[63*Width+300],"Rounded polygon moved straight edge");
     auto blurred=render(gpu,session,surface,testScene(0,4));verifyOutsideAndHud(surface,blurred);
     unsigned filtered=0;
     for(unsigned y=110;y<250;++y)for(unsigned x=130;x<510;++x)

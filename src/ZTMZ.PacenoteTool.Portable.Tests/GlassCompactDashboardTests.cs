@@ -75,12 +75,12 @@ public class GlassCompactDashboardTests
     }
 
     [Fact]
-    public void GlassOffAndStandaloneUseSameSlantedGeometryWithoutGlassCommands()
+    public void GlassOffAndStandaloneUseSameAsymmetricGeometryWithoutGlassCommands()
     {
         using var lua = new Lua(); var env = Load(lua); var data = new GameData();
         Render(env,data,true);
         Assert.Equal(1,Convert.ToInt32(env["glassCalls"]));
-        Assert.True(Convert.ToDouble(env["slant"]) > 0);
+        Assert.True(Convert.ToDouble(env["cornerRadius"]) > 0);
         var bounds = (string)env["panel"];
         Render(env,data,false);
         Assert.Equal(0,Convert.ToInt32(env["glassCalls"]));
@@ -117,14 +117,24 @@ public class GlassCompactDashboardTests
                 CreateFont=noop,CreateCustomFont=noop,DrawRoundedRectangle=noop,
                 CreateGeometry=geometry,FillGeometry=noop,
                 DrawGeometry=function(shape,brush,thickness)
-                    assert(#shape.points==36)
+                    assert(#shape.points==72)
+                    if glassShape~=nil then
+                        assert(#glassShape.points==8)
+                        -- Rounded path stays inside every original convex edge.
+                        for _,p in ipairs(shape.points) do
+                            for i,a in ipairs(glassShape.points) do
+                                local b=glassShape.points[i%8+1]
+                                assert((b.X-a.X)*(p.Y-a.Y)-(b.Y-a.Y)*(p.X-a.X)>-.001)
+                            end
+                        end
+                    end
                     local coords={}
                     for _,p in ipairs(shape.points) do table.insert(coords,p.X);table.insert(coords,p.Y) end
                     panel=table.concat(coords,',')
                 end,
                 FillRoundedRectangle=function(brush,x,y,right,bottom) panelBounds(brush,x,y,right,bottom) end,
-                DrawGlassPanel=function(brush,x,y,right,bottom,radius,refraction,blur,offset)
-                    glassCalls=glassCalls+1;slant=offset;panelBounds(brush,x,y,right,bottom)
+                DrawGlassGeometry=function(shape,brush,refraction,blur,radius)
+                    glassCalls=glassCalls+1;glassShape=shape;cornerRadius=radius
                 end,
                 DrawLine=function(brush,x,y,right,bottom,thickness)
                     local c=brush.Color
@@ -142,7 +152,7 @@ public class GlassCompactDashboardTests
             onInit(args)
             function disableGlass() settings['dashboards.settings.glassEnabled']=false end
             function render(data,web)
-                texts={};lit=0;red=0;glassCalls=0
+                texts={};lit=0;red=0;glassCalls=0;glassShape=nil
                 args.GameData=data;args.IsWebDashboard=web
                 onUpdate(args)
                 return table.concat(texts,'|')
