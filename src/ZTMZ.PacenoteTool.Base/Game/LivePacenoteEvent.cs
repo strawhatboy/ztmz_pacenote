@@ -31,6 +31,7 @@ public interface IGamePacenoteSourcePolicy
     bool UseLivePacenotesOnly { get; }
     bool AllowLivePacenotesBeforeGo => false;
     bool UseTelemetryGoSound => true;
+    bool UseRaceBeginStartSound => true;
     bool UseImmediateRaceCues => false;
 }
 

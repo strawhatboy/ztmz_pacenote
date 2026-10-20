@@ -5,6 +5,9 @@ v2.99.99.57-3.0-rc29
   - Provides a local diagnostic report if startup fails or takes too long. Damaged settings can be backed up before resetting.
   - Missing, inaccessible or damaged in-game dashboard components show the affected file and recovery guidance, with diagnostics available to copy in both desktop versions. Pacenote playback remains available.
 
+* Pacenote playback
+  - Fixes the ACR stage welcome playing alongside the countdown on supported Windows builds. It now plays on entering the stage, and once again after restarting.
+
 * Voice packages and game mods
   - Fixes sound file counts showing zero and preview buttons disappearing when sound preloading is enabled, in both WPF and Avalonia.
   - Game mods now have individual cards showing operation progress, cancellation and results beside the affected mod in both desktop versions.

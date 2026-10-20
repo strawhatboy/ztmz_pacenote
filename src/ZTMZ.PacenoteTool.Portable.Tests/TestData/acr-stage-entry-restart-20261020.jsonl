@@ -1,0 +1,9 @@
+{"elapsedMilliseconds": 0, "raceId": 0, "phase": 3, "welcome": true}
+{"elapsedMilliseconds": 1000, "raceId": 0, "phase": 3, "welcome": false}
+{"elapsedMilliseconds": 130859, "raceId": 0, "phase": 4, "welcome": false}
+{"elapsedMilliseconds": 132359, "raceId": 0, "phase": 5, "welcome": false}
+{"elapsedMilliseconds": 137453, "raceId": 0, "phase": 6, "welcome": false}
+{"elapsedMilliseconds": 148312, "raceId": -1, "phase": 0, "welcome": false}
+{"elapsedMilliseconds": 148437, "raceId": -1, "phase": 1, "welcome": false}
+{"elapsedMilliseconds": 148687, "raceId": 1, "phase": 2, "welcome": false}
+{"elapsedMilliseconds": 161781, "raceId": 1, "phase": 3, "welcome": true}

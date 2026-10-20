@@ -22,6 +22,8 @@ internal sealed class ACRVehicleMemoryReader : IDisposable
     private ulong damageVehicle;
     private long nextDamageRead;
     private ZTMZ.PacenoteTool.Base.Game.CarDamageSnapshot? damage;
+    private long nextStageRead;
+    public ACRStageState? StageState { get; private set; }
 
     public ACRVehicleTelemetry? Read()
     {
@@ -44,9 +46,16 @@ internal sealed class ACRVehicleMemoryReader : IDisposable
             ACRVehicleTelemetry? snapshot = null;
             if (session is not null)
             {
+                if (Environment.TickCount64 >= nextStageRead)
+                {
+                    nextStageRead = Environment.TickCount64 + 100;
+                    try { StageState = ACRStageMemory.Read(session.Read, session.ImageBase); }
+                    catch (IOException) { StageState = null; }
+                }
                 try { snapshot = ACRVehicleMemory.Read(session.Read, session.ImageBase); }
                 catch (IOException) { /* Menus, stage loading and vehicle replacement. */ }
             }
+            else StageState = null;
             if (snapshot is null)
             {
                 damage = null;
@@ -110,6 +119,7 @@ internal sealed class ACRVehicleMemoryReader : IDisposable
             disposed = true;
             session?.Dispose();
             session = null;
+            StageState = null;
             if (opening is not null)
                 _ = opening.ContinueWith(task => task.GetAwaiter().GetResult()?.Dispose(), TaskScheduler.Default);
             opening = null;

@@ -28,6 +28,7 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
     private ACRLivePacenoteBridge? _livePacenoteBridge;
     private ACRVehicleMemoryReader? _vehicleMemory;
     private int _reading;
+    private readonly ACRStageEntry _stageEntry = new();
 
     public ACRGameDataReader() : base(
         (typeof(ACRGraphicsData), "Local\\acpmf_graphics"),
@@ -183,6 +184,7 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
         _livePacenoteBridge = null;
         CloseAll();
         ResetStateProbe();
+        _stageEntry.Reset();
         _logger.Info("ACRGameDataReader uninitialized");
     }
 
@@ -277,6 +279,15 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
 
     private void UpdateGameState()
     {
+        if (OperatingSystem.IsWindows())
+        {
+            var entry = _stageEntry.Observe(_vehicleMemory?.StageState);
+            if (entry is not null)
+            {
+                _logger.Info("ACR entered native {0} for race {1}; publishing stage welcome before countdown.", entry.SourceToken, entry.StageId);
+                PublishLivePacenote(entry);
+            }
+        }
         var mappedState = MapRawStatusToGameState(_currentRawGameData.GraphicsData.CurrentStatus);
         RecordStateProbe(mappedState);
 

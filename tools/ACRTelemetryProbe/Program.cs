@@ -7,6 +7,39 @@ const int sampleIntervalMilliseconds = 500;
 
 try
 {
+    if (args.Length == 2 && args[0] == "--watch-stage-entry")
+    {
+        using var supplement = new ACRVehicleMemoryReader();
+        using var process = System.Diagnostics.Process.GetProcessesByName("acr").Single();
+        using var output = new StreamWriter(new FileStream(args[1], FileMode.CreateNew, FileAccess.Write, FileShare.Read))
+        { AutoFlush = true };
+        var entry = new ACRStageEntry();
+        ACRStageState? previous = null;
+        long nextHeartbeat = 0;
+        Console.WriteLine($"Read-only production stage reader ready for PID {process.Id}; no voice pipe or audio device opened.");
+        while (!process.HasExited)
+        {
+            supplement.Read();
+            var stage = supplement.StageState;
+            var cue = entry.Observe(stage);
+            var tickMs = Environment.TickCount64;
+            if (stage != previous || tickMs >= nextHeartbeat || cue is not null)
+            {
+                var line = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    tickMs, utc = DateTime.UtcNow, available = stage is not null, stage,
+                    welcomeToken = cue?.SystemSoundToken, welcomeId = cue?.Id
+                });
+                output.WriteLine(line);
+                if (stage != previous || cue is not null) Console.WriteLine(line);
+                previous = stage;
+                nextHeartbeat = tickMs + 1000;
+            }
+            await Task.Delay(50);
+        }
+        return;
+    }
+
     using var graphicsMap = MemoryMappedFile.OpenExisting("Local\\acpmf_graphics", MemoryMappedFileRights.Read);
     using var physicsMap = MemoryMappedFile.OpenExisting("Local\\acpmf_physics", MemoryMappedFileRights.Read);
     using var staticMap = MemoryMappedFile.OpenExisting("Local\\acpmf_static", MemoryMappedFileRights.Read);

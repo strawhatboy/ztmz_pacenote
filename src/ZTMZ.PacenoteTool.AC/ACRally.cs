@@ -10,6 +10,9 @@ public class ACRally : IGame, ISteamGameIdentity, ILocalGameBridgeControl, IGame
 {
     // Extracted distance tables were an experiment, not a supported fallback.
     public bool UseLivePacenotesOnly => true;
+    // RaceBegin comes from the countdown sound. The welcome belongs to the
+    // earlier, verified native stage-entry signal, not the first countdown number.
+    public bool UseRaceBeginStartSound => false;
 
     public string WindowTitle => "Assetto Corsa Rally";
 

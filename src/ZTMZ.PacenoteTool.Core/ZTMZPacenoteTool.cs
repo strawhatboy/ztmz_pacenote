@@ -572,9 +572,8 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
                 PrepareExternalPacenoteSession(
                     _currentGame,
                     shouldPlayExternalPacenotes,
-                    playStartSound: lastState != GameState.Paused &&
-                        Config.Instance.PlayStartAndEndSound &&
-                        state == GameState.RaceBegin,
+                    playStartSound: RaceStartPlaybackPolicy.ShouldPlay(
+                        _currentGame, evt, Config.Instance.PlayStartAndEndSound),
                     playMinusScript: state == GameState.RaceBegin,
                     relocateToCurrentDistance: state == GameState.AdHocRaceBegin,
                     reason: state.ToString());
@@ -878,12 +877,14 @@ public class ZTMZPacenoteTool : IDisposable, IGameSessionActivator {
 
         if (!string.IsNullOrWhiteSpace(evt.SystemSoundToken))
         {
-            if (evt.SystemSoundToken == Constants.SYSTEM_GO && !Config.Instance.PlayGoSound)
+            if (!RaceStartPlaybackPolicy.AllowsLiveSound(evt.SystemSoundToken,
+                    Config.Instance.PlayStartAndEndSound, Config.Instance.PlayGoSound))
             {
                 return;
             }
 
-            _profileManager.PlaySystem(evt.SystemSoundToken, evt.SystemSoundSequential);
+            _profileManager.PlaySystem(evt.SystemSoundToken, evt.SystemSoundSequential,
+                isSystem: evt.SystemSoundToken == Constants.SYSTEM_START_STAGE);
             return;
         }
 

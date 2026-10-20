@@ -14,6 +14,7 @@
     <None Include="..\ZTMZ.PacenoteTool.WebDashboard\dashboards\glass_compact\script.lua" Link="TestData\glass-compact.lua" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\ZTMZ.PacenoteTool.Base\data.zdb" Link="TestData\official-data.zdb" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData\wrc7-restart-retire-20261014.jsonl" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="TestData\acr-stage-entry-restart-20261020.jsonl" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData\wrc9-restart-retire-20261015.jsonl" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData\wrc9-finish-penalty-20261015.jsonl" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData\wrc9-vehicle-damage-20261016.json" CopyToOutputDirectory="PreserveNewest" />
