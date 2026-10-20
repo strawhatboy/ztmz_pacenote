@@ -19,6 +19,12 @@ tool plays the corresponding ZTMZ co-driver tokens through its selected output
 device. The bridge remains read-only: it does not control the stage, timer,
 vehicle, or BeamNG audio.
 
+Version 1.1.12 fixes the bridge being automatically unloaded when switching maps.
+It also clears old stage and vehicle state at map exit, and tracks mission identity
+when the Rally manager is reused. Install the updated bridge from ZTMZ's BeamNG
+settings and restart BeamNG once; switching tracks should then work without
+disabling and re-enabling the mod.
+
 Version 1.1.11 also reports explicit Rally mission abandonment and Rally Loop
 restart results. Retirement plays the tool's retirement call; restarting or
 stopping for an unknown reason does not play a finish congratulation. Leaving

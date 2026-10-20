@@ -93,10 +93,8 @@ foreach ($folder in @('dashboards', 'wwwroot', 'fonts')) {
         }
     }
 }
-foreach ($file in Get-ChildItem (Join-Path $repo 'src/ZTMZ.PacenoteTool.BeamNG/BeamNGMod') -Recurse -File) {
-    $modRoot = (Resolve-Path (Join-Path $repo 'src/ZTMZ.PacenoteTool.BeamNG/BeamNGMod')).Path
-    $null = Require-File ('games/BeamNGMod/' + $file.FullName.Substring($modRoot.Length + 1))
-}
+# Reject old Lua as well as old metadata, including leftover legacy mod files.
+& (Join-Path $PSScriptRoot 'verify_beamng_bridge_payload.ps1') -ModRoot (Join-Path $root 'games/BeamNGMod')
 # These databases are installed directly from source by setup.iss.
 foreach ($database in @('src/ZTMZ.PacenoteTool.Base/data.zdb', 'src/ZTMZ.PacenoteTool.RBR/default.zdb', 'src/ZTMZ.PacenoteTool.RBR/jannemod_v3.zdb')) {
     if (-not (Test-Path -LiteralPath (Join-Path $repo $database) -PathType Leaf)) { throw "Missing installer database: $database" }

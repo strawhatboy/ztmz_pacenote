@@ -6,6 +6,7 @@ v2.99.99.57-3.0-rc29
   - Missing, inaccessible or damaged in-game dashboard components show the affected file and recovery guidance, with diagnostics available to copy in both desktop versions. Pacenote playback remains available.
 
 * Pacenote playback
+  - Fixes the BeamNG.drive bridge stopping after switching tracks and needing the mod toggled off and on. Update the bridge to 1.1.12 in the game settings and restart BeamNG once.
   - Fixes the ACR stage welcome playing alongside the countdown on supported Windows builds. It now plays on entering the stage, and once again after restarting.
 
 * Voice packages and game mods

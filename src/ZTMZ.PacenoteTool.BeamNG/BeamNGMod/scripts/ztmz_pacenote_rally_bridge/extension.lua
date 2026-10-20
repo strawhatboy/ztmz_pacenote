@@ -35,6 +35,7 @@ local damageReporterVehicleId = 0
 local telemetryReporterVehicleId = 0
 local rallyRuntime = {activeState = "", countdownNumber = 0}
 local stageManager = nil
+local stageMissionId = nil
 local terminalStage = nil
 
 local function asString(value)
@@ -380,8 +381,10 @@ end
 
 local function currentStage()
   local manager = getRallyManager()
-  if manager ~= stageManager then
+  local missionId = manager and asString(readMember(manager, { "getMissionId", "missionId" })) or nil
+  if manager ~= stageManager or missionId ~= stageMissionId then
     stageManager = manager
+    stageMissionId = missionId
     terminalStage = nil
     lastExportedStageId = nil
     rallyRuntime = {activeState = "", countdownNumber = 0}
@@ -464,7 +467,7 @@ function M.onRallyDataUpdated(data)
     math.floor(asNumber(countdownData.countdown)) or 0
 end
 
-function M.onExtensionLoaded()
+local function resetSession()
   elapsed = SEND_INTERVAL_SECONDS
   statusElapsed = STATUS_INTERVAL_SECONDS
   vehicleTelemetryElapsed = VEHICLE_TELEMETRY_INTERVAL_SECONDS
@@ -475,8 +478,22 @@ function M.onExtensionLoaded()
   telemetryReporterVehicleId = 0
   rallyRuntime = {activeState = "", countdownNumber = 0}
   stageManager = nil
+  stageMissionId = nil
   terminalStage = nil
+end
+
+function M.onExtensionLoaded()
+  -- BeamNG assigns __extensionName__ after requiring this module. Registering
+  -- at file scope fails and leaves the bridge subject to automatic map unload.
+  setExtensionUnloadMode(M, "manual")
+  resetSession()
   sendStatus("started", "")
+end
+
+function M.onClientEndMission()
+  -- Persist the bridge/socket, not objects or vehicle IDs from the old map.
+  resetSession()
+  sendStatus("waiting", "Rally stage is unavailable")
 end
 
 function M.onExtensionUnloaded()
@@ -583,7 +600,5 @@ function M.onUpdate(dtReal)
     end
   end
 end
-
-setExtensionUnloadMode(M, "manual")
 
 return M

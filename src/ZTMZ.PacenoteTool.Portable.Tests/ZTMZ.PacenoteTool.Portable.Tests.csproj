@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\ZTMZ.PacenoteTool.Tests\BeamNG\*.cs" Link="BeamNG\%(Filename)%(Extension)" />
     <None Include="..\ZTMZ.PacenoteTool.WebDashboard\dashboards\common\commonfunc.lua" Link="TestData\commonfunc.lua" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\ZTMZ.PacenoteTool.WebDashboard\dashboards\liquid_glass\script.lua" Link="TestData\liquid-glass.lua" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\ZTMZ.PacenoteTool.WebDashboard\dashboards\glass_compact\script.lua" Link="TestData\glass-compact.lua" CopyToOutputDirectory="PreserveNewest" />

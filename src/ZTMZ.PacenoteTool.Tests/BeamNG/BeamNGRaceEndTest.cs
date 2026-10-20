@@ -1,5 +1,6 @@
 using System.Text;
 using Neo.IronLua;
+using Xunit;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.BeamNG;
 
@@ -109,6 +110,70 @@ public class BeamNGRaceEndTest
             """, "reload.lua");
     }
 
+    [Fact]
+    public void LuaBridgeStaysLoadedAcrossMapsAndReloadsSameVehicleId()
+    {
+        using var lua = new Lua();
+        var environment = CreateBridge(lua);
+        environment.DoChunk("""
+            assert(invalidUnloadRegistrations == 0, 'registered before BeamNG assigned the extension name')
+            assert(unloadMode == 'manual', 'bridge will be unloaded on map change')
+            queued = 0
+            function getPlayerVehicle() return {
+              getId=function() return 123 end,
+              queueLuaCommand=function() queued=queued+1 end
+            } end
+            bridge.onUpdate(0.6)
+            assert(queued == 2, 'vehicle reporters were not loaded')
+            bridge.onVehicleTelemetry(123, {maxRPM=7000, steering=0.5})
+            stageData.isComplete = true
+            bridge.onAnyMissionWillChange('stopped', {id='ss-test'}, false)
+            if bridge.onClientEndMission then bridge.onClientEndMission() end
+            -- BeamNG unloads all extensions except those registered as manual.
+            if unloadMode ~= 'manual' then bridge.onExtensionUnloaded(); bridge=nil end
+            assert(bridge ~= nil, 'bridge disappeared between maps')
+            stageData = {isActive=true, currentSSTime=0}
+            newManager()
+            manager.missionId = 'ss-next'
+            manager.getLastPlayedPacenote = function() return {id='note-next', name='right 3'} end
+            bridge.onUpdate(0.11)
+            assert(queued == 4, 'same vehicle ID on new map retained old reporter registration')
+            assert(lastPacket.stage.id == 'ss-next' and lastPacket.stage.result == nil)
+            assert(lastPacket.pacenote.id == 'note-next', 'next track lost pacenotes')
+            assert(not lastPacket.telemetry.hasDetailedTelemetry, 'next track retained old telemetry')
+            bridge.onVehicleTelemetry(123, {maxRPM=8000, steering=-0.5})
+            bridge.onUpdate(0.11)
+            assert(lastPacket.telemetry.maxRPM == 8000 and lastPacket.telemetry.steering == -0.5)
+            """, "map-transition.lua");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void LuaBridgeMissionIdentityChangeClearsTerminalStateWithoutManagerReplacement(bool notifyMissionStart)
+    {
+        using var lua = new Lua();
+        var environment = CreateBridge(lua);
+        environment["notifyMissionStart"] = notifyMissionStart;
+        environment.DoChunk("""
+            bridge.onRallyDataUpdated({activeState='countdown', countdownData={countdown=5}})
+            stageData.isComplete = true
+            bridge.onAnyMissionWillChange('stopped', {id='ss-test'}, false)
+            assert(lastPacket.stage.result == 'finished')
+            manager.missionId = 'ss-next'
+            stageData = {isActive=true, currentSSTime=0}
+            manager.getLastPlayedPacenote = function() return {id='next-note', name='left 3'} end
+            manager.notebook = {pacenotes={sorted={{id='next-note', name='left 3'}}}}
+            if notifyMissionStart then bridge.onAnyMissionChanged('started', {id='ss-next'}) end
+            bridge.onUpdate(0.11)
+            assert(lastPacket.type == 'stagePacenotes' and lastPacket.stage.id == 'ss-next')
+            assert(not lastPacket.stage.isCountingDown, 'new track retained old countdown')
+            bridge.onUpdate(0.11)
+            assert(lastPacket.type == 'stage' and lastPacket.stage.result == nil)
+            assert(lastPacket.pacenote.id == 'next-note', 'previous terminal stage suppressed next pacenote')
+            """, "mission-transition.lua");
+    }
+
     private static LuaGlobal CreateBridge(Lua lua)
     {
         var environment = lua.CreateEnvironment();
@@ -124,7 +189,14 @@ public class BeamNGRaceEndTest
               } end}
             end
             function jsonEncode(packet) return packet end
-            function setExtensionUnloadMode() end
+            invalidUnloadRegistrations = 0
+            function setExtensionUnloadMode(extension, mode)
+              if type(extension.__extensionName__) ~= 'string' then
+                invalidUnloadRegistrations = invalidUnloadRegistrations + 1
+                return
+              end
+              unloadMode = mode
+            end
             stageData = {isActive=true, currentSSTime=42.5}
             function newManager()
               manager = {missionId='ss-test', getActiveStageData=function() return stageData end}
@@ -143,7 +215,8 @@ public class BeamNGRaceEndTest
             """, "beamng-stubs.lua");
         var source = Path.Combine(AppContext.BaseDirectory, "BeamNGMod", "scripts", "ztmz_pacenote_rally_bridge", "extension.lua");
         environment["bridge"] = environment.DoChunk(File.ReadAllText(source), "extension.lua")[0];
-        environment.DoChunk("bridge.onExtensionLoaded(); bridge.onUpdate(0.11)", "start.lua");
+        // BeamNG requires the module first, assigns its name, then invokes onExtensionLoaded.
+        environment.DoChunk("bridge.__extensionName__='scripts_ztmz__pacenote__rally__bridge_extension'; bridge.onExtensionLoaded(); bridge.onUpdate(0.11)", "start.lua");
         return environment;
     }
 }

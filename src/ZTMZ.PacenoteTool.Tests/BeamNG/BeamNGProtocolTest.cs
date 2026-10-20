@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using Xunit;
 using ZTMZ.PacenoteTool.Base.Game;
 using ZTMZ.PacenoteTool.BeamNG;
 
@@ -854,7 +855,7 @@ public class BeamNGProtocolTest
         Assert.Equal("ZTMZ Pacenote Rally Bridge", metadata.GetProperty("title").GetString());
         Assert.Equal("Rally Mode integration for ZTMZ Pacenote Tool", metadata.GetProperty("tag_line").GetString());
         Assert.Equal("草帽不是猫 with Codex", metadata.GetProperty("username").GetString());
-        Assert.Equal("1.1.11", metadata.GetProperty("version_string").GetString());
+        Assert.Equal("1.1.12", metadata.GetProperty("version_string").GetString());
         Assert.Contains("gitee.com/ztmz/ztmz_pacenote", metadata.GetProperty("message").GetString());
     }
 

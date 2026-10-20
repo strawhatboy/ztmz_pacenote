@@ -105,6 +105,55 @@ custom structured fields, future BeamNG schema changes, or every installed
 ZTMZ voice package. Unknown data is retained in the export and logged for
 follow-up mapping rather than discarded silently.
 
+## Bridge 1.1.12: track switching
+
+The bridge registered `setExtensionUnloadMode(M, "manual")` at module scope.
+In the locally installed BeamNG 0.39.2.1 source, `lua/common/extensions.lua`
+requires a module before assigning `__extensionName__` and invoking
+`onExtensionLoaded`. `lua/ge/main.lua` rejects an unnamed module when setting
+its unload mode, leaving it subject to automatic unloading on map changes.
+The existing local `beamng.log` also contains the corresponding
+`Failed to set unload mode` / `unrecognized extension` error for the bridge's
+exported callbacks. This is evidence of a bridge bug; it does not establish
+which BeamNG update introduced the customer's symptoms.
+
+Registration now happens in `onExtensionLoaded`. The persistent bridge clears
+stage/countdown, exported-pacenote and vehicle-reporter state on
+`onClientEndMission`, retaining its UDP socket. A changed mission ID also clears
+the previous terminal result even if the manager object is reused. The latter
+case is regression coverage, not a captured customer sequence.
+
+The shipped Lua is exercised with BeamNG's load ordering and unload-mode
+requirements. The new registration and reused-manager scenarios failed before
+the fix. All 61 focused BeamNG tests pass after it, including map transitions,
+reused vehicle IDs, new stage pacenotes, restart/retirement, protocol handling,
+bridge installation and bundled version metadata. They also run in the portable
+test project. A live finish-one-track/start-another check remains to be done;
+the installed game mod was not replaced during this investigation.
+
+Update the bridge from the rebuilt app's BeamNG settings and restart BeamNG
+once. Merely updating the desktop executable does not replace the installed ZIP.
+
+### Release packaging verification
+
+`build/onekey.bat` publishes the BeamNG provider for Windows x64, then
+`publish.bat` copies its `BeamNGMod` output into the host's `games/BeamNGMod`.
+The Inno Setup rules include the Lua/README files and explicitly include the
+JSON metadata beside the provider DLL. The runtime installer builds the user's
+mod ZIP from that installed directory, not from a separately maintained ZIP.
+
+`verify_beamng_bridge_payload.ps1`, called by `verify_release_payload.ps1`,
+compares every bundled bridge file with source by SHA-256 and rejects unexpected
+files. This check runs at the end of publishing and again before signing and
+compiling the installer. The BeamNG copy commands also fail immediately on error.
+Run `build/test_beamng_bridge_payload.ps1 -ValidModRoot <published BeamNGMod>`
+to test current content, old version metadata, stale Lua with current metadata,
+missing files and leftover files.
+
+A fresh isolated Windows Release publish verified all six 1.1.12 files in both
+the provider build and publish outputs. The old host publish tree was rejected.
+This was a targeted provider/payload check, not a rebuilt full signed installer.
+
 ## References
 
 - BeamNG protocol documentation: <https://documentation.beamng.com/modding/protocols/>
