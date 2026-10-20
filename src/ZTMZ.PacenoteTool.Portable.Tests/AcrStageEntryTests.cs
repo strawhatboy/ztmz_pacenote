@@ -13,7 +13,7 @@ public sealed class AcrStageEntryTests
     private static ACRStageState Stage(int phase, int id = 2) => new(0x20000, 0x60000, 0xa0000, id, phase);
 
     [Fact]
-    public void ProductionCaptureWelcomesOnlyAtHudEntryAndAfterRestart()
+    public void ProductionCaptureWelcomesAtHudEntryButNotAfterRestart()
     {
         var entry = new ACRStageEntry();
         var welcomes = 0;
@@ -23,10 +23,10 @@ public sealed class AcrStageEntryTests
             using var json = System.Text.Json.JsonDocument.Parse(line);
             var row = json.RootElement;
             var cue = entry.Observe(Stage(row.GetProperty("phase").GetInt32(), row.GetProperty("raceId").GetInt32()));
-            Assert.Equal(row.GetProperty("welcome").GetBoolean(), cue is not null);
+            Assert.Equal(row.GetProperty("expectedWelcome").GetBoolean(), cue is not null);
             if (cue is not null) welcomes++;
         }
-        Assert.Equal(2, welcomes);
+        Assert.Equal(1, welcomes);
     }
 
     [Fact]
@@ -56,17 +56,19 @@ public sealed class AcrStageEntryTests
     }
 
     [Fact]
-    public void RestartOrDifferentStageCanWelcomeAgainWithoutRepeatingDuringReadGaps()
+    public void RestartsRemainSilentUntilLoadedSessionChanges()
     {
         var entry = new ACRStageEntry();
-        var first = entry.Observe(Stage(4));
+        Assert.NotNull(entry.Observe(Stage(4)));
         entry.Observe(Stage(5));
         entry.Observe(Stage(6));
-        var restart = entry.Observe(Stage(4));
-        Assert.NotNull(restart);
-        Assert.NotEqual(first!.Id, restart.Id);
         Assert.Null(entry.Observe(Stage(4)));
-        Assert.NotNull(entry.Observe(Stage(4, 3)));
+        Assert.Null(entry.Observe(Stage(4)));
+        Assert.Null(entry.Observe(Stage(0, -1)));
+        Assert.Null(entry.Observe(null));
+        Assert.Null(entry.Observe(Stage(1, -1)));
+        Assert.Null(entry.Observe(Stage(2, 3)));
+        Assert.Null(entry.Observe(Stage(4, 3)));
         Assert.NotNull(entry.Observe(Stage(4, 3) with { World = 0xb0000 }));
         entry.Reset();
         Assert.NotNull(entry.Observe(Stage(4, 3)));
@@ -84,8 +86,85 @@ public sealed class AcrStageEntryTests
         Assert.Null(entry.Observe(Stage(4)));
         Assert.Null(entry.Observe(Stage(5)));
         Assert.Null(entry.Observe(Stage(6)));
-        Assert.NotNull(entry.Observe(Stage(3)));
+        Assert.Null(entry.Observe(Stage(3)));
         Assert.Null(entry.Observe(Stage(4)));
+    }
+
+    [Theory]
+    [InlineData(5)] [InlineData(6)] [InlineData(7)] [InlineData(8)]
+    [InlineData(9)] [InlineData(10)] [InlineData(11)] [InlineData(12)]
+    public void LateAttachmentDoesNotWelcomeOnRestart(int phase)
+    {
+        var entry = new ACRStageEntry();
+        Assert.Null(entry.Observe(Stage(phase)));
+        Assert.Null(entry.Observe(null));
+        Assert.Null(entry.Observe(Stage(0, -1)));
+        Assert.Null(entry.Observe(Stage(3, 3)));
+        Assert.Null(entry.Observe(Stage(4, 3)));
+        Assert.NotNull(entry.Observe(Stage(3, 0) with { World = 0xb0000 }));
+    }
+
+    [Fact]
+    public void NewControllerOrOwnedStateAllowsWelcomeForNewSession()
+    {
+        var entry = new ACRStageEntry();
+        Assert.NotNull(entry.Observe(Stage(3)));
+        Assert.NotNull(entry.Observe(Stage(3) with { Controller = 0xb0000 }));
+        Assert.Null(entry.Observe(Stage(4) with { Controller = 0xb0000 }));
+        Assert.NotNull(entry.Observe(Stage(3) with { Controller = 0xb0000, State = 0xc0000 }));
+    }
+
+    [Theory]
+    [InlineData("Stage B", "forward")]
+    [InlineData("Stage A", "reverse")]
+    public void DifferentTrackOrLayoutWelcomesEvenWhenNativeObjectsAreReused(string name, string layout)
+    {
+        var entry = new ACRStageEntry();
+        Assert.NotNull(entry.Observe(Stage(3, 0), "Stage A", "forward"));
+        Assert.Null(entry.Observe(Stage(6, 0), "Stage A", "forward"));
+        Assert.Null(entry.Observe(Stage(0, -1), "Stage A", "forward"));
+        Assert.Null(entry.Observe(Stage(3, 1), "Stage A", "forward")); // restart
+        Assert.NotNull(entry.Observe(Stage(3, 2), name, layout)); // new track
+        Assert.Null(entry.Observe(Stage(4, 2), name, layout));
+        Assert.Null(entry.Observe(Stage(6, 2), name, layout));
+        Assert.Null(entry.Observe(Stage(3, 3), name, layout)); // restart new track
+        Assert.NotNull(entry.Observe(Stage(3, 4), "Stage A", "forward")); // return to A
+    }
+
+    [Fact]
+    public void MissingOrInitiallyUnavailableTrackMetadataDoesNotRepeatWelcome()
+    {
+        var entry = new ACRStageEntry();
+        Assert.NotNull(entry.Observe(Stage(3, 0)));
+        Assert.Null(entry.Observe(Stage(3, 0), "Stage A", "forward"));
+        Assert.Null(entry.Observe(null, "Stage B", "reverse"));
+        Assert.Null(entry.Observe(Stage(0, -1), "", ""));
+        Assert.Null(entry.Observe(Stage(3, 1), "  Stage A  ", "forward"));
+        Assert.Null(entry.Observe(Stage(3, 1), null, null));
+        Assert.Null(entry.Observe(Stage(4, 1), "Stage A", "forward"));
+    }
+
+    [Fact]
+    public void DelayedTrackUpdateAllowsNewTrackButDoesNotDuplicateNewSessionWelcome()
+    {
+        var entry = new ACRStageEntry();
+        Assert.NotNull(entry.Observe(Stage(3, 0), "Stage A", ""));
+        Assert.Null(entry.Observe(Stage(6, 0), "Stage A", ""));
+        Assert.Null(entry.Observe(Stage(3, 1), "Stage A", "")); // metadata not updated yet
+        Assert.NotNull(entry.Observe(Stage(3, 1), "Stage B", ""));
+        Assert.Null(entry.Observe(Stage(4, 1), "Stage B", ""));
+        var nextSession = Stage(3, 0) with { World = 0xb0000 };
+        Assert.NotNull(entry.Observe(nextSession, "Stage B", ""));
+        Assert.Null(entry.Observe(nextSession, "Stage C", "")); // arrives after welcome
+    }
+
+    [Fact]
+    public void TrackChangeObservedDuringDrivingDoesNotDeferWelcomeToRestart()
+    {
+        var entry = new ACRStageEntry();
+        Assert.NotNull(entry.Observe(Stage(3, 0), "Stage A", ""));
+        Assert.Null(entry.Observe(Stage(6, 1), "Stage B", ""));
+        Assert.Null(entry.Observe(Stage(3, 2), "Stage B", ""));
     }
 
     [Theory]

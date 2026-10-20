@@ -281,10 +281,11 @@ public class ACRGameDataReader : SharedMemoryGameReader, IGameDataReader, IGameL
     {
         if (OperatingSystem.IsWindows())
         {
-            var entry = _stageEntry.Observe(_vehicleMemory?.StageState);
+            var info = _currentRawGameData.StaticInfo;
+            var entry = _stageEntry.Observe(_vehicleMemory?.StageState, info.TrackName, info.TrackLayoutConfiguration);
             if (entry is not null)
             {
-                _logger.Info("ACR entered native {0} for race {1}; publishing stage welcome before countdown.", entry.SourceToken, entry.StageId);
+                _logger.Info("ACR entered native {0} for race {1}, track {2}, layout {3}; publishing stage welcome before countdown.", entry.SourceToken, entry.StageId, info.TrackName, info.TrackLayoutConfiguration);
                 PublishLivePacenote(entry);
             }
         }

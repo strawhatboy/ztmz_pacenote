@@ -10,29 +10,36 @@ try
     if (args.Length == 2 && args[0] == "--watch-stage-entry")
     {
         using var supplement = new ACRVehicleMemoryReader();
+        using var trackReader = new ACRGameDataReader(); // Maps only; no voice bridge initialization.
         using var process = System.Diagnostics.Process.GetProcessesByName("acr").Single();
         using var output = new StreamWriter(new FileStream(args[1], FileMode.CreateNew, FileAccess.Write, FileShare.Read))
         { AutoFlush = true };
         var entry = new ACRStageEntry();
         ACRStageState? previous = null;
+        (string?, string?) previousTrack = default;
         long nextHeartbeat = 0;
         Console.WriteLine($"Read-only production stage reader ready for PID {process.Id}; no voice pipe or audio device opened.");
         while (!process.HasExited)
         {
             supplement.Read();
             var stage = supplement.StageState;
-            var cue = entry.Observe(stage);
+            if (!trackReader.IsAllConnected) trackReader.TryOpenAllDebounced();
+            var info = trackReader.ReadAll().StaticInfo;
+            var currentTrack = (info.TrackName, info.TrackLayoutConfiguration);
+            var cue = entry.Observe(stage, info.TrackName, info.TrackLayoutConfiguration);
             var tickMs = Environment.TickCount64;
-            if (stage != previous || tickMs >= nextHeartbeat || cue is not null)
+            if (stage != previous || currentTrack != previousTrack || tickMs >= nextHeartbeat || cue is not null)
             {
                 var line = System.Text.Json.JsonSerializer.Serialize(new
                 {
                     tickMs, utc = DateTime.UtcNow, available = stage is not null, stage,
+                    info.TrackName, info.TrackLayoutConfiguration,
                     welcomeToken = cue?.SystemSoundToken, welcomeId = cue?.Id
                 });
                 output.WriteLine(line);
-                if (stage != previous || cue is not null) Console.WriteLine(line);
+                if (stage != previous || currentTrack != previousTrack || cue is not null) Console.WriteLine(line);
                 previous = stage;
+                previousTrack = currentTrack;
                 nextHeartbeat = tickMs + 1000;
             }
             await Task.Delay(50);

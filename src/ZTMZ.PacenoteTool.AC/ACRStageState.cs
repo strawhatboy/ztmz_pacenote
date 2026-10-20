@@ -71,21 +71,51 @@ internal static class ACRStageMemory
 internal sealed class ACRStageEntry
 {
     private ACRStageState? previous;
+    private bool welcomeHandled;
+    private (string Name, string Layout)? track;
+    private int? welcomedRaceId;
     private long sequence;
 
-    internal void Reset() => previous = null;
+    internal void Reset()
+    {
+        previous = null;
+        welcomeHandled = false;
+        track = null;
+        welcomedRaceId = null;
+    }
 
-    internal LivePacenoteEvent? Observe(ACRStageState? state)
+    internal LivePacenoteEvent? Observe(ACRStageState? state, string? trackName = null, string? trackLayout = null)
     {
         // An unavailable read is not a stage exit, pause, restart or retirement.
         if (state is null) return null;
         var old = previous;
         previous = state;
+        // RaceId increments on a time-trial restart; the loaded scene and its
+        // owned controller/state remain the same. Welcome once per loaded session.
+        if (old is null || old.World != state.World || old.Controller != state.Controller || old.State != state.State)
+        {
+            welcomeHandled = false;
+            track = null;
+            welcomedRaceId = null;
+        }
+        var name = trackName?.Trim();
+        if (!string.IsNullOrEmpty(name))
+        {
+            var currentTrack = (Name: name, Layout: trackLayout?.Trim() ?? string.Empty);
+            // A different track/layout can reuse the native session objects.
+            // Missing metadata is not a change. If we already welcomed this
+            // attempt, a delayed metadata update must not produce a second cue.
+            if (track.HasValue && track.Value != currentTrack && welcomedRaceId != state.RaceId)
+                welcomeHandled = false;
+            track = currentTrack;
+        }
+        // Attaching after the start must not defer a welcome until a restart.
+        if (state.Phase >= 5) welcomeHandled = true;
         // StartSequence is already the loaded stage/HUD; PreSemaphore is the
         // subsequent wait. They are one entry, including attachment at either.
-        if (state.Phase is not (3 or 4) || state.RaceId < 0) return null;
-        if (old is { Phase: 3 or 4 } && old.World == state.World && old.Controller == state.Controller &&
-            old.State == state.State && old.RaceId == state.RaceId) return null;
+        if (welcomeHandled || state.Phase is not (3 or 4) || state.RaceId < 0) return null;
+        welcomeHandled = true;
+        welcomedRaceId = state.RaceId;
         return new LivePacenoteEvent
         {
             Id = $"acr-stage-entry-{++sequence}",
